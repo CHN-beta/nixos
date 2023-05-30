@@ -13,7 +13,7 @@
 		"/" = {
 			device = "/dev/mapper/root";
 			fsType = "btrfs";
-			options = [ "subvol=@root" ];
+			options = [ "subvol=@root,compress-force=zstd:15" ];
 		};
 		"/boot" = {
 			device = "/dev/disk/by-uuid/50DE-B72A";
@@ -23,7 +23,7 @@
 
 	boot = {
 		loader = {
-			timeout = null;
+			timeout = 5;
 			systemd-boot.enable = true;
 			efi.canTouchEfiVariables = true;
 		};
@@ -38,5 +38,6 @@
 		};
 		kernelPackages = pkgs.linuxPackages_xanmod_latest;
 		kernelModules = [ "kvm-intel" ];
+		extraModulePackages = with config.boot.kernelPackages; [ cpupower ];
 	};
 }

@@ -26,6 +26,13 @@
 		enable = true;
 		displayManager.sddm.enable = true;
 		desktopManager.plasma5.enable = true;
+		videoDrivers = [ "nvidia" "modsetting" "fbdev" ];
+	};
+	hardware.nvidia.prime =
+	{
+		offload.enable = true;
+		intelBusId = "PCI:0:2:0";
+		nvidiaBusId = "PCI:1:0:0";
 	};
 
 	# 打印机
@@ -95,6 +102,7 @@
 	environment.systemPackages = with pkgs;
 	[
 		beep neofetch screen dos2unix tldr gnugrep
+		pciutils usbutils lshw powertop
 		zsh ksh zsh-powerlevel10k zsh-autosuggestions zsh-syntax-highlighting 
 		vim nano
 		(
@@ -132,6 +140,16 @@
 				];
 			}
 		)
+		(
+			pkgs.writeShellScriptBin "nvidia-offload"
+			''
+				export __NV_PRIME_RENDER_OFFLOAD=1
+				export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
+				export __GLX_VENDOR_LIBRARY_NAME=nvidia
+				export __VK_LAYER_NV_optimus=NVIDIA_only
+				exec "$@"
+			''
+		)
 		wget aria2 curl yt-dlp qbittorrent
 		tree git autojump
 		nix-output-monitor comma
@@ -144,7 +162,7 @@
 		zotero ocrmypdf pdfgrep texlive.combined.scheme-full libreoffice-qt
 		ovito paraview gimp # vsim vesta
 		(python3.withPackages (ps: with ps; [ phonopy ]))
-		element-desktop tdesktop discord qq config.nur.repos.xddxdd.wechat-uos
+		element-desktop tdesktop discord qq config.nur.repos.xddxdd.wechat-uos config.nur.repos.linyinfeng.wemeet
 		remmina
 		bitwarden openssl ssh-to-age gnupg age sops
 		spotify yesplaymusic # netease-cloud-music-gtk config.nur.repos.eh5.netease-cloud-music
@@ -153,6 +171,8 @@
 		ipset iptables iproute2 wireshark dig nettools
 		touchix.v2ray-forwarder
 		mathematica
+		gcc cudaPackages.cudatoolkit clang-tools
+		config.nur.repos.ataraxiasjel.proton-ge
 	]
 	++ (with lib; filter isDerivation (attrValues pkgs.plasma5Packages.kdeGear));
 	programs.wireshark.enable = true;
@@ -233,7 +253,7 @@
 		CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
 		AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
 	};
-	users.users.v2ray = { isSystemUser = true; group = "v2ray"; uid = lib.mkForce 997; };
+	users.users.v2ray = { isSystemUser = true; group = "v2ray"; };
 	users.groups.v2ray = {};
 	services.v2ray-forwarder = { enable = true; proxyPort = 10880; xmuPort = 10881; };
 	boot.kernel.sysctl =
