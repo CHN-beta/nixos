@@ -4,9 +4,19 @@
 	inputs =
 	{
 		nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-		nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-22.11";
+		nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-23.05";
 		flake-utils.url = "github:numtide/flake-utils";
 		flake-compat = { url = "github:edolstra/flake-compat"; flake = false; };
+		nvfetcher =
+		{
+			url = "github:berberman/nvfetcher";
+			inputs =
+			{
+				nixpkgs.follows = "nixpkgs";
+				flake-utils.follows = "flake-utils";
+				flake-compat.follows = "flake-compat";
+			};
+		};
 		home-manager = { url = "github:nix-community/home-manager/master"; inputs.nixpkgs.follows = "nixpkgs"; };
 		sops-nix =
 		{
@@ -43,21 +53,22 @@
 		};
     };
 
-	outputs = { self, nixpkgs, home-manager, sops-nix, touchix, aagl, nix-index-database, nur, nixos-cn, ... } @inputs:
+	outputs = inputs:
 	{
-		nixosConfigurations."chn-PC" = nixpkgs.lib.nixosSystem
+		nixosConfigurations."chn-PC" = inputs.nixpkgs.lib.nixosSystem
 		{
 			system = "x86_64-linux";
 			modules = [
-				({ nixpkgs.overlays = [(final: prev: { touchix = inputs.touchix.packages."${prev.system}"; } )]; })
+				({ config.nixpkgs.overlays =
+					[(final: prev: { touchix = inputs.touchix.packages."${prev.system}"; } )]; })
 				./basic.nix
 				./hardware/chn-PC.nix
-				home-manager.nixosModules.home-manager
-				sops-nix.nixosModules.sops
-				touchix.nixosModules.v2ray-forwarder
-				aagl.nixosModules.default
-				nix-index-database.nixosModules.nix-index
-				nur.nixosModules.nur
+				inputs.home-manager.nixosModules.home-manager
+				inputs.sops-nix.nixosModules.sops
+				inputs.touchix.nixosModules.v2ray-forwarder
+				inputs.aagl.nixosModules.default
+				inputs.nix-index-database.nixosModules.nix-index
+				inputs.nur.nixosModules.nur
 			];
 		};
 	};

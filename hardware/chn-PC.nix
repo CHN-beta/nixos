@@ -38,6 +38,7 @@
 		};
 		kernelPackages = pkgs.linuxPackages_xanmod_latest;
 		kernelModules = [ "kvm-intel" ];
-		extraModulePackages = with config.boot.kernelPackages; [ cpupower ];
+		extraModulePackages = with config.boot.kernelPackages; [ cpupower xone xpadneo ];
+		extraModprobeConfig = "options kvm_intel nested=1";
 	};
 }

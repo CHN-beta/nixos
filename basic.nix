@@ -26,7 +26,7 @@
 		enable = true;
 		displayManager.sddm.enable = true;
 		desktopManager.plasma5.enable = true;
-		videoDrivers = [ "nvidia" "modsetting" "fbdev" ];
+		videoDrivers = [ "nvidia" "intel" "qxl" ];
 	};
 	hardware.nvidia.prime =
 	{
@@ -56,12 +56,13 @@
 
 	# waydroid
 	virtualisation.waydroid.enable = true;
+	virtualisation.lxd.enable = true;
 
 	# 用户
 	users.users.chn =
 	{
 		isNormalUser = true;
-		extraGroups = [ "networkmanager" "wheel" "wireshark" ];
+		extraGroups = [ "networkmanager" "wheel" "wireshark" "libvirtd" ];
 		passwordFile = config.sops.secrets."password/chn".path;
 		shell = pkgs.zsh;
 	};
@@ -80,6 +81,8 @@
 				# p10k instant prompt
 				P10K_INSTANT_PROMPT="$XDG_CACHE_HOME/p10k-instant-prompt-''${(%):-%n}.zsh"
 				[[ ! -r "$P10K_INSTANT_PROMPT" ]] || source "$P10K_INSTANT_PROMPT"
+
+				HYPHEN_INSENSITIVE="true"
 			'';
 
 			plugins =
@@ -94,8 +97,23 @@
 					name = "powerlevel10k-config";
 					src = ./p10k-config;
 				}
+				{
+					name = "zsh-exa";
+					src = pkgs.fetchFromGitHub
+					{
+						owner = "ptavares";
+						repo = "zsh-exa";
+						rev = "0.2.3";
+						sha256 = "0vn3iv9d3c1a4rigq2xm52x8zjaxlza1pd90bw9mbbkl9iq8766r";
+					};
+				}
 			];
 		};
+		# xsession.profileExtra =
+		# ''
+		# 	export GTK_USE_PORTAL="1"
+		# '';
+
 	};
 
 	# 软件包
@@ -151,11 +169,11 @@
 			''
 		)
 		wget aria2 curl yt-dlp qbittorrent
-		tree git autojump
+		tree git autojump exa
 		nix-output-monitor comma
 		docker docker-compose
 		apacheHttpd certbot-full
-		pigz rar unrar upx
+		pigz rar unrar upx unzip zip
 		util-linux snapper gparted snapper-gui
 		firefox google-chrome
 		qemu_full virt-manager
@@ -173,6 +191,8 @@
 		mathematica
 		gcc cudaPackages.cudatoolkit clang-tools
 		config.nur.repos.ataraxiasjel.proton-ge
+		octave root
+		libsForQt5.qtstyleplugin-kvantum
 	]
 	++ (with lib; filter isDerivation (attrValues pkgs.plasma5Packages.kdeGear));
 	programs.wireshark.enable = true;
@@ -208,6 +228,11 @@
 		syntaxHighlighting.enable = true;
 		autosuggestions.enable = true;
 		enableCompletion = true;
+		ohMyZsh =
+		{
+			enable = true;
+			plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
+		};
 	};
 
 	# ssh security?
@@ -234,7 +259,6 @@
 				"/beta.mirism.one/216.24.188.24"
 				"/ng01.mirism.one/216.24.188.24"
 				"/debug.mirism.one/127.0.0.1"
-				"/public-data-api.mihoyo.com/0.0.0.0"
 			];
 			ipset = [
 				"/developer.download.nvidia.com/noproxy_net"
@@ -265,4 +289,26 @@
 		"net.ipv4.ip_forward" = true;
 		"net.ipv4.ip_nonlocal_bind" = true;
 	};
+
+	programs.firejail.enable = true;
+	hardware.xone.enable = true;
+	hardware.xpadneo.enable = true;
+	hardware.bluetooth.enable = true;
+	# services.xserver.synaptics.enable = true;
+	virtualisation.libvirtd.enable = true;
+
+	nixpkgs.config.packageOverrides = pkgs: rec {
+		wpa_supplicant = pkgs.wpa_supplicant.overrideAttrs (attrs: {
+			patches = attrs.patches ++ [ ./patches/xmunet.patch ];
+		});
+	};
+
+	environment.sessionVariables."GTK_USE_PORTAL" = "1";
+	xdg.portal.extraPortals = with pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-wlr ];
+	virtualisation.spiceUSBRedirection.enable = true;
+	networking.resolvconf.enable = false;
+	environment.etc."resolv.conf".text =
+	''
+		nameserver 127.0.0.1
+	'';
 }
