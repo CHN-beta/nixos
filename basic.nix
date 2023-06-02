@@ -126,11 +126,10 @@
 		(
 			vscode-with-extensions.override
 			{
-				vscodeExtensions = with vscode-extensions;
+				vscodeExtensions = (with vscode-extensions;
 				[
 					ms-vscode.cpptools
 					llvm-vs-code-extensions.vscode-clangd
-					# twxs.cmake
 					ms-vscode.cmake-tools
 					ms-ceintl.vscode-language-pack-zh-hans
 					github.copilot
@@ -140,22 +139,13 @@
 					james-yu.latex-workshop
 					pkief.material-icon-theme
 					ms-vscode-remote.remote-ssh
-				]
-				++ pkgs.vscode-utils.extensionsFromVscodeMarketplace
+				])
+				++ (with nix-vscode-extensions.vscode-marketplace;
 				[
-					{
-						name = "cpptools-themes";
-						publisher = "ms-vscode";
-						version = "2.0.0";
-						sha256 = "05r7hfphhlns2i7zdplzrad2224vdkgzb0dbxg40nwiyq193jq31";
-					}
-					{
-						name = "cpp-reference";
-						publisher = "Guyutongxue";
-						version = "0.2.3";
-						sha256 = "1cdwps1qikvzqpdx4hrxgi3lxg6335q24hhra959h8qnqcvnlg4p";
-					}
-				];
+					twxs.cmake
+					ms-vscode.cpptools-themes
+					guyutongxue.cpp-reference
+				]);
 			}
 		)
 		(
@@ -202,7 +192,7 @@
 	programs.nix-index.enable = true;
 	programs.command-not-found.enable = false;
 	programs.steam.enable = true;
-	nixpkgs.config.permittedInsecurePackages = [ "openssl-1.1.1t" "electron-19.0.7" ];
+	nixpkgs.config.permittedInsecurePackages = [ "openssl-1.1.1u" "electron-19.0.7" ];
 	nix.settings.substituters = [ "https://xddxdd.cachix.org" ];
 	nix.settings.trusted-public-keys = [ "xddxdd.cachix.org-1:ay1HJyNDYmlSwj5NXQG065C8LfoqqKaTNCyzeixGjf8=" ];
 
