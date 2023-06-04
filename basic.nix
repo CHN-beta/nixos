@@ -284,7 +284,8 @@
 	hardware.xone.enable = true;
 	hardware.xpadneo.enable = true;
 	hardware.bluetooth.enable = true;
-	# services.xserver.synaptics.enable = true;
+	services.xserver.synaptics.enable = false;
+	services.xserver.libinput.enable = true;
 	virtualisation.libvirtd.enable = true;
 
 	nixpkgs.config.packageOverrides = pkgs: rec {
@@ -301,4 +302,5 @@
 	''
 		nameserver 127.0.0.1
 	'';
+	programs.xwayland.enable = true;
 }
