@@ -1,119 +1,73 @@
 { config, pkgs, lib, ... } @inputs:
 
 {
-	# 基本设置
-	nix.settings.experimental-features = [ "nix-command" "flakes" ];
-	networking.hostName = "chn-PC";
-	networking.networkmanager.enable = true;
-	time.timeZone = "Asia/Shanghai";
-	i18n =
-	{
-		defaultLocale = "zh_CN.UTF-8";
-		supportedLocales = ["zh_CN.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8"];
-	};
-	system.stateVersion = "22.11";
-
-	# 输入法
-	i18n.inputMethod =
-	{
-		enabled = "fcitx5";
-		fcitx5.addons = with pkgs; [fcitx5-rime fcitx5-chinese-addons fcitx5-mozc];
-	};
-
-	# 图形界面
-	services.xserver =
-	{
-		enable = true;
-		displayManager.sddm.enable = true;
-		desktopManager.plasma5.enable = true;
-		videoDrivers = [ "nvidia" "intel" "qxl" ];
-	};
-	hardware.nvidia.prime =
-	{
-		offload.enable = true;
-		intelBusId = "PCI:0:2:0";
-		nvidiaBusId = "PCI:1:0:0";
-	};
-
-	# 打印机
-	services.printing.enable = true;
-
-	# 声音
-	sound.enable = true;
-	hardware.pulseaudio.enable = false;
-	security.rtkit.enable = true;
-	services.pipewire =
-	{
-		enable = true;
-		alsa.enable = true;
-		alsa.support32Bit = true;
-		pulse.enable = true;
-	};
 
 	# 虚拟机（作为顾客）
-	services.qemuGuest.enable = true;
-	services.spice-vdagentd.enable = true;
+
 
 	# waydroid
-	virtualisation.waydroid.enable = true;
-	virtualisation.lxd.enable = true;
+	virtualisation =
+	{
+		waydroid.enable = true;
+		lxd.enable = true;
+	};
 
 	# 用户
-	users.users.chn =
+	users =
 	{
-		isNormalUser = true;
-		extraGroups = [ "networkmanager" "wheel" "wireshark" "libvirtd" ];
-		passwordFile = config.sops.secrets."password/chn".path;
-		shell = pkgs.zsh;
-	};
-	users.mutableUsers = false;
-	sops.secrets."password/chn".neededForUsers = true;
-	home-manager.useGlobalPkgs = true;
-	home-manager.useUserPackages = true;
-	home-manager.users.chn = { pkgs, ... }:
-	{
-		home.stateVersion = "22.11";
-		programs.zsh =
+		users.chn =
 		{
-			enable = true;
-			initExtraBeforeCompInit =
-			''
-				# p10k instant prompt
-				P10K_INSTANT_PROMPT="$XDG_CACHE_HOME/p10k-instant-prompt-''${(%):-%n}.zsh"
-				[[ ! -r "$P10K_INSTANT_PROMPT" ]] || source "$P10K_INSTANT_PROMPT"
-
-				HYPHEN_INSENSITIVE="true"
-			'';
-
-			plugins =
-			[
-				{
-					file = "powerlevel10k.zsh-theme";
-					name = "powerlevel10k";
-					src = "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k";
-				}
-				{
-					file = "p10k.zsh";
-					name = "powerlevel10k-config";
-					src = ./p10k-config;
-				}
-				{
-					name = "zsh-exa";
-					src = pkgs.fetchFromGitHub
-					{
-						owner = "ptavares";
-						repo = "zsh-exa";
-						rev = "0.2.3";
-						sha256 = "0vn3iv9d3c1a4rigq2xm52x8zjaxlza1pd90bw9mbbkl9iq8766r";
-					};
-				}
-			];
+			isNormalUser = true;
+			extraGroups = [ "networkmanager" "wheel" "wireshark" "libvirtd" ];
+			passwordFile = config.sops.secrets."password/chn".path;
+			shell = pkgs.zsh;
 		};
-		# xsession.profileExtra =
-		# ''
-		# 	export GTK_USE_PORTAL="1"
-		# '';
+		mutableUsers = false;
+	};
+	sops.secrets."password/chn".neededForUsers = true;
+	home-manager =
+	{
+		useGlobalPkgs = true;
+		useUserPackages = true;
+		users.chn = { pkgs, ... }:
+		{
+			home.stateVersion = "22.11";
+			programs.zsh =
+			{
+				enable = true;
+				initExtraBeforeCompInit =
+				''
+					# p10k instant prompt
+					P10K_INSTANT_PROMPT="$XDG_CACHE_HOME/p10k-instant-prompt-''${(%):-%n}.zsh"
+					[[ ! -r "$P10K_INSTANT_PROMPT" ]] || source "$P10K_INSTANT_PROMPT"
 
+					HYPHEN_INSENSITIVE="true"
+				'';
+				plugins =
+				[
+					{
+						file = "powerlevel10k.zsh-theme";
+						name = "powerlevel10k";
+						src = "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k";
+					}
+					{
+						file = "p10k.zsh";
+						name = "powerlevel10k-config";
+						src = ./p10k-config;
+					}
+					{
+						name = "zsh-exa";
+						src = pkgs.fetchFromGitHub
+						{
+							owner = "ptavares";
+							repo = "zsh-exa";
+							rev = "0.2.3";
+							sha256 = "0vn3iv9d3c1a4rigq2xm52x8zjaxlza1pd90bw9mbbkl9iq8766r";
+						};
+					}
+				];
+			};
+		};
 	};
 
 	# 软件包
@@ -204,7 +158,7 @@
 			[ noto-fonts source-han-sans source-han-serif source-code-pro hack-font jetbrains-mono nerdfonts ];
 		fontconfig.defaultFonts =
 		{
-			emoji = [ "Noto Color Emoji" ];
+				emoji = [ "Noto Color Emoji" ];
 			monospace = [ "Noto Sans Mono CJK SC" "Sarasa Mono SC" "DejaVu Sans Mono"];
 			sansSerif = ["Noto Sans CJK SC" "Source Han Sans SC" "DejaVu Sans"];
 			serif = ["Noto Serif CJK SC" "Source Han Serif SC" "DejaVu Serif"];
@@ -235,7 +189,8 @@
 	# sops
 	sops = { defaultSopsFile = ./secrets/chn-PC.yaml; age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ]; };
 
-	# 翻墙
+	# 网络和翻墙
+	networking.networkmanager.enable = true;
 	services.dnsmasq =
 	{
 		enable = true;

@@ -63,6 +63,7 @@
 		nixosConfigurations."chn-PC" = inputs.nixpkgs.lib.nixosSystem
 		{
 			system = "x86_64-linux";
+			specialArgs = inputs;
 			modules = [
 				({ config.nixpkgs.overlays =
 					[(final: prev:
@@ -71,7 +72,6 @@
 						nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
 					} )]; })
 				./basic.nix
-				./hardware/chn-PC.nix
 				inputs.home-manager.nixosModules.home-manager
 				inputs.sops-nix.nixosModules.sops
 				inputs.touchix.nixosModules.v2ray-forwarder
