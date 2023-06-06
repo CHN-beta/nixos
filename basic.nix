@@ -192,7 +192,8 @@
 	programs.nix-index.enable = true;
 	programs.command-not-found.enable = false;
 	programs.steam.enable = true;
-	nixpkgs.config.permittedInsecurePackages = [ "openssl-1.1.1u" "electron-19.0.7" ];
+	nixpkgs.config.permittedInsecurePackages =
+		[ "openssl-1.1.1u" "electron-19.0.7" "nodejs-14.21.3" "electron-13.6.9" ];
 	nix.settings.substituters = [ "https://xddxdd.cachix.org" ];
 	nix.settings.trusted-public-keys = [ "xddxdd.cachix.org-1:ay1HJyNDYmlSwj5NXQG065C8LfoqqKaTNCyzeixGjf8=" ];
 
@@ -303,4 +304,9 @@
 		nameserver 127.0.0.1
 	'';
 	programs.xwayland.enable = true;
+	hardware.tuxedo-control-center.enable = true;
+	hardware.tuxedo-keyboard.enable = true;
+	systemd.extraConfig = "DefaultTimeoutStopSec=10s";
+	systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
+	systemd.services.home-manager-chn.before = [ "display-manager.service" ];
 }

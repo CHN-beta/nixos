@@ -23,7 +23,7 @@
 
 	boot = {
 		loader = {
-			timeout = 5;
+			timeout = 30;
 			systemd-boot.enable = true;
 			efi.canTouchEfiVariables = true;
 		};
@@ -34,11 +34,16 @@
 				allowDiscards = true;
 			};
 			systemd.enable = true;
-			availableKernelModules = [ "ahci" "nvme" "sr_mod" "usb_storage" "virtio_blk" "virtio_pci" "xhci_pci" ];
+			availableKernelModules =
+			[
+				"ahci" "i915" "intel_cstate" "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" "nvme" "sr_mod"
+				"tuxedo-keyboard" "usb_storage" "virtio_blk" "virtio_pci" "xhci_pci" 
+			];
 		};
 		kernelPackages = pkgs.linuxPackages_xanmod_latest;
 		kernelModules = [ "kvm-intel" ];
-		extraModulePackages = with config.boot.kernelPackages; [ cpupower xone xpadneo ];
+		kernelParams = [ "acpi_osi=Linux" ];
+		extraModulePackages = with config.boot.kernelPackages; [ cpupower xone xpadneo tuxedo-keyboard ];
 		extraModprobeConfig = "options kvm_intel nested=1";
 	};
 }

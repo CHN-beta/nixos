@@ -43,7 +43,6 @@
 			{
 				flake-utils.follows = "flake-utils";
 				nixpkgs.follows = "nixpkgs-stable";
-				# nvfetcher.follows = "nvfetcher";
 			};
 		};
 		nix-vscode-extensions =
@@ -55,6 +54,12 @@
 				flake-utils.follows = "flake-utils";
 				flake-compat.follows = "flake-compat";
 			};
+		};
+		tuxedo-nixos =
+		{
+			url = "github:blitz/tuxedo-nixos";
+			inputs.nixpkgs.follows = "nixpkgs";
+			inputs.flake-compat.follows = "flake-compat";
 		};
     };
 
@@ -78,6 +83,7 @@
 				inputs.aagl.nixosModules.default
 				inputs.nix-index-database.nixosModules.nix-index
 				inputs.nur.nixosModules.nur
+				inputs.tuxedo-nixos.nixosModules.default
 			];
 		};
 	};

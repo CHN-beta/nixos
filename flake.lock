@@ -280,7 +280,8 @@
         "nur-xddxdd": "nur-xddxdd",
         "nvfetcher": "nvfetcher",
         "sops-nix": "sops-nix",
-        "touchix": "touchix"
+        "touchix": "touchix",
+        "tuxedo-nixos": "tuxedo-nixos"
       }
     },
     "sops-nix": {
@@ -338,6 +339,29 @@
       "original": {
         "owner": "CHN-beta",
         "repo": "touchix",
+        "type": "github"
+      }
+    },
+    "tuxedo-nixos": {
+      "inputs": {
+        "flake-compat": [
+          "flake-compat"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1685384046,
+        "narHash": "sha256-FJNQ93vlzIc0+CKsRGEBA3wdElPP2G8VSFV8U2jyhJA=",
+        "owner": "blitz",
+        "repo": "tuxedo-nixos",
+        "rev": "3002821d13ff9b011a411f420d2aac36a394c433",
+        "type": "github"
+      },
+      "original": {
+        "owner": "blitz",
+        "repo": "tuxedo-nixos",
         "type": "github"
       }
     }
