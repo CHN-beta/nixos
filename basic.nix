@@ -309,4 +309,8 @@
 	systemd.extraConfig = "DefaultTimeoutStopSec=10s";
 	systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
 	systemd.services.home-manager-chn.before = [ "display-manager.service" ];
+	nix.extraOptions =
+	''
+		keep-outputs = true
+	'';
 }
