@@ -1,30 +1,6 @@
 { config, pkgs, lib, ... } @inputs:
 
 {
-
-	# 虚拟机（作为顾客）
-
-
-	# waydroid
-	virtualisation =
-	{
-		waydroid.enable = true;
-		lxd.enable = true;
-	};
-
-	# 用户
-	users =
-	{
-		users.chn =
-		{
-			isNormalUser = true;
-			extraGroups = [ "networkmanager" "wheel" "wireshark" "libvirtd" ];
-			passwordFile = config.sops.secrets."password/chn".path;
-			shell = pkgs.zsh;
-		};
-		mutableUsers = false;
-	};
-	sops.secrets."password/chn".neededForUsers = true;
 	home-manager =
 	{
 		useGlobalPkgs = true;
