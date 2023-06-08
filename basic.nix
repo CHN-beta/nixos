@@ -313,4 +313,5 @@
 	''
 		keep-outputs = true
 	'';
+	nix.settings.system-features = [ "gccarch-alderlake" ];
 }
