@@ -15,11 +15,17 @@
 			fsType = "btrfs";
 			options = [ "subvol=@root,compress-force=zstd:15" ];
 		};
+		"/swap" = {
+			device = "/dev/mapper/root";
+			fsType = "btrfs";
+			options = [ "subvol=@swap" ];
+		};
 		"/boot" = {
 			device = "/dev/disk/by-uuid/50DE-B72A";
 			fsType = "vfat";
 		};
 	};
+	swapDevices = [ { device = "/swap/swap"; } ];
 
 	boot = {
 		loader = {
@@ -42,7 +48,8 @@
 		};
 		kernelPackages = pkgs.linuxPackages_xanmod_latest;
 		kernelModules = [ "kvm-intel" ];
-		kernelParams = [ "delayacct" "acpi_osi=Linux" ];
+		kernelParams = [ "delayacct" "acpi_osi=Linux" "resume_offset=19145984" ];
+		resumeDevice = "/dev/mapper/root";
 		extraModulePackages = with config.boot.kernelPackages; [ cpupower xone xpadneo tuxedo-keyboard ];
 		extraModprobeConfig = "options kvm_intel nested=1";
 	};
