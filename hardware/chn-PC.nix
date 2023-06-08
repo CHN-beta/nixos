@@ -42,7 +42,7 @@
 		};
 		kernelPackages = pkgs.linuxPackages_xanmod_latest;
 		kernelModules = [ "kvm-intel" ];
-		kernelParams = [ "acpi_osi=Linux" ];
+		kernelParams = [ "delayacct" "acpi_osi=Linux" ];
 		extraModulePackages = with config.boot.kernelPackages; [ cpupower xone xpadneo tuxedo-keyboard ];
 		extraModprobeConfig = "options kvm_intel nested=1";
 	};
