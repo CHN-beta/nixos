@@ -3,17 +3,31 @@
 	config =
 	{
 		nixpkgs.hostPlatform = "x86_64-linux";
-		nix.settings =
+		nix =
 		{
-			experimental-features = [ "nix-command" "flakes" ];
-			keep-outputs = true;
-			system-features = [ "big-parallel" ];
-			keep-failed = true;
+			settings =
+			{
+				experimental-features = [ "nix-command" "flakes" ];
+				keep-outputs = true;
+				system-features = [ "big-parallel" ];
+				keep-failed = true;
+			};
+			daemonIOSchedClass = "idle";
+			daemonCPUSchedPolicy = "idle";
 		};
 		networking.hostName = hostName;
 		time.timeZone = "Asia/Shanghai";
 		system.stateVersion = "22.11";
 		nixpkgs.config.allowUnfree = true;
-		systemd = { extraConfig = "DefaultTimeoutStopSec=10s"; user.extraConfig = "DefaultTimeoutStopSec=10s"; };
+		systemd =
+		{
+			extraConfig = "DefaultTimeoutStopSec=10s";
+			user.extraConfig = "DefaultTimeoutStopSec=10s";
+		} //
+		(
+			if inputs.config.services.xserver.enable then
+				{ services.nix-daemon.serviceConfig.Slice = "user.slice"; }
+			else {}
+		);
 	};
 }
