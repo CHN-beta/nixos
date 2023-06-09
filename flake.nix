@@ -80,26 +80,34 @@
 						nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
 					} )];
 				})
-				( import ./modules/basic/basic.nix { hostname = "chn-PC"; })
+
+				( import ./modules/basic.nix { hostName = "chn-PC"; })
+				./modules/fonts.nix
+				( import ./modules/i18n.nix { fcitx = true; } )
+				./modules/kde.nix
+				./modules/sops.nix
 				( import ./modules/boot/basic.nix { efi = true; })
 				./modules/boot/chn-PC.nix
-				./modules/display/basic.nix
-				./modules/display/chn-PC.nix
 				./modules/filesystem/chn-PC.nix
-				./modules/fonts/basic.nix
-				./modules/fonts/basic.nix
-				( import ./modules/i18n/basic.nix { fcitx = true; } )
-				./modules/kvm/guest.nix
+				./modules/hardware/bluetooth.nix
+				./modules/hardware/joystick.nix
+				( import ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } )
+				./modules/hardware/printer.nix
+				./modules/hardware/sound.nix
 				./modules/networking/basic.nix
-				./modules/packages/basic.nix
-				./modules/printer/basic.nix
-				./modules/sops/basic.nix
-				./modules/sound/basic.nix
-				./modules/ssh/basic.nix
-				./modules/user/basic.nix
-				./modules/waydroid/basic.nix
-				./modules/zsh/basic.nix
-				./home/basic.nix
+				./modules/networking/ssh.nix
+				./modules/networking/wall_client.nix
+				./modules/networking/xmunet.nix
+				./modules/networking/chn-PC.nix
+				./modules/packages/terminal.nix
+				./modules/packages/gui.nix
+				./modules/packages/gaming.nix
+				./modules/packages/hpc.nix
+				./modules/users/root.nix
+				./modules/users/chn.nix
+				./modules/virtualisation/kvm_guest.nix
+				./modules/virtualisation/kvm_host.nix
+				./modules/virtualisation/waydroid.nix
 			];
 		};
 	};
