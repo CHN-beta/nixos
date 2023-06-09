@@ -2,7 +2,7 @@
 {
 	config =
 	{
-		services.xserver.videoDrivers = inputs.lib.mkBefore [ "nvidia" "intel" ];
+		services.xserver.videoDrivers = inputs.lib.mkBefore [ "intel" "nvidia" ];
 		hardware.nvidia.prime =
 		{
 			offload.enable = true;
