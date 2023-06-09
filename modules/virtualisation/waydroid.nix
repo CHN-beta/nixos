@@ -1,1 +1,1 @@
-{ config.virtualisation = { waydroid.enable = true; lxd.enable = true; }; }
+{ config.virtualisation = { waydroid.enable = true; }; }
