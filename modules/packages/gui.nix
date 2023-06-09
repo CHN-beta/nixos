@@ -42,7 +42,6 @@
 		]
 		++ (with inputs.lib; filter isDerivation (attrValues pkgs.plasma5Packages.kdeGear));
 		programs.wireshark.enable = true;
-		nixpkgs.config.permittedInsecurePackages =
-			[ "openssl-1.1.1u" "electron-19.0.7" "nodejs-14.21.3" "electron-13.6.9" ];
+		nixpkgs.config.permittedInsecurePackages = [ "openssl-1.1.1u" "electron-19.0.7" ];
 	};
 }
