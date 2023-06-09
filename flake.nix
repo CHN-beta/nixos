@@ -68,15 +68,9 @@
 		nixosConfigurations."chn-PC" = inputs.nixpkgs.lib.nixosSystem
 		{
 			system = "x86_64-linux";
-			modules = [
-				({ config.nixpkgs.overlays =
-					[(final: prev:
-					{
-						touchix = inputs.touchix.packages."${prev.system}";
-						nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
-					} )]; })
-				./basic.nix
-				./hardware/chn-PC.nix
+			specialArgs = inputs;
+			modules =
+			[
 				inputs.home-manager.nixosModules.home-manager
 				inputs.sops-nix.nixosModules.sops
 				inputs.touchix.nixosModules.v2ray-forwarder
@@ -84,6 +78,42 @@
 				inputs.nix-index-database.nixosModules.nix-index
 				inputs.nur.nixosModules.nur
 				inputs.tuxedo-nixos.nixosModules.default
+				({
+					config.nixpkgs.overlays =
+					[( final: prev:
+					{
+						touchix = inputs.touchix.packages."${prev.system}";
+						nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
+					} )];
+				})
+
+				( import ./modules/basic.nix { hostName = "chn-PC"; timeout = 30; })
+				./modules/fonts.nix
+				( import ./modules/i18n.nix { fcitx = true; } )
+				./modules/kde.nix
+				./modules/sops.nix
+				( import ./modules/boot/basic.nix { efi = true; })
+				./modules/boot/chn-PC.nix
+				./modules/filesystem/chn-PC.nix
+				./modules/hardware/bluetooth.nix
+				./modules/hardware/joystick.nix
+				( import ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } )
+				./modules/hardware/printer.nix
+				./modules/hardware/sound.nix
+				./modules/networking/basic.nix
+				./modules/networking/ssh.nix
+				./modules/networking/wall_client.nix
+				./modules/networking/xmunet.nix
+				./modules/networking/chn-PC.nix
+				./modules/packages/terminal.nix
+				./modules/packages/gui.nix
+				./modules/packages/gaming.nix
+				./modules/packages/hpc.nix
+				./modules/users/root.nix
+				./modules/users/chn.nix
+				./modules/virtualisation/kvm_guest.nix
+				./modules/virtualisation/kvm_host.nix
+				./modules/virtualisation/waydroid.nix
 			];
 		};
 	};
