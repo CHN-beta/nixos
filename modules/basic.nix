@@ -23,11 +23,7 @@
 		{
 			extraConfig = "DefaultTimeoutStopSec=10s";
 			user.extraConfig = "DefaultTimeoutStopSec=10s";
-		} //
-		(
-			if inputs.config.services.xserver.enable then
-				{ services.nix-daemon.serviceConfig.Slice = "user.slice"; }
-			else {}
-		);
+			services.nix-daemon.serviceConfig.Slice = "-.slice";
+		};
 	};
 }
