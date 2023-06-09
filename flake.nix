@@ -64,20 +64,42 @@
 		{
 			system = "x86_64-linux";
 			specialArgs = inputs;
-			modules = [
-				({ config.nixpkgs.overlays =
-					[(final: prev:
-					{
-						touchix = inputs.touchix.packages."${prev.system}";
-						nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
-					} )]; })
-				./basic.nix
+			modules =
+			[
 				inputs.home-manager.nixosModules.home-manager
 				inputs.sops-nix.nixosModules.sops
 				inputs.touchix.nixosModules.v2ray-forwarder
 				inputs.aagl.nixosModules.default
 				inputs.nix-index-database.nixosModules.nix-index
 				inputs.nur.nixosModules.nur
+				({
+					config.nixpkgs.overlays =
+					[( final: prev:
+					{
+						touchix = inputs.touchix.packages."${prev.system}";
+						nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
+					} )];
+				})
+				( import ./modules/basic/basic.nix { hostname = "chn-PC"; })
+				( import ./modules/boot/basic.nix { efi = true; })
+				./modules/boot/chn-PC.nix
+				./modules/display/basic.nix
+				./modules/display/chn-PC.nix
+				./modules/filesystem/chn-PC.nix
+				./modules/fonts/basic.nix
+				./modules/fonts/basic.nix
+				( import ./modules/i18n/basic.nix { fcitx = true; } )
+				./modules/kvm/guest.nix
+				./modules/networking/basic.nix
+				./modules/packages/basic.nix
+				./modules/printer/basic.nix
+				./modules/sops/basic.nix
+				./modules/sound/basic.nix
+				./modules/ssh/basic.nix
+				./modules/user/basic.nix
+				./modules/waydroid/basic.nix
+				./modules/zsh/basic.nix
+				./home/basic.nix
 			];
 		};
 	};

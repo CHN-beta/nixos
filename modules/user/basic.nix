@@ -1,4 +1,4 @@
-inputs:
+{ pkgs, ... }@inputs:
 {
 	config =
 	{
@@ -10,8 +10,8 @@ inputs:
 				extraGroups = inputs.lib.intersectLists
 					[ "networkmanager" "wheel" "wireshark" "libvirtd" ]
 					(builtins.attrNames inputs.config.users.groups);
-				passwordFile = config.sops.secrets."password/chn".path;
-				shell = pkgs.zsh;
+				passwordFile = inputs.config.sops.secrets."password/chn".path;
+				shell = inputs.pkgs.zsh;
 			};
 			mutableUsers = false;
 		};

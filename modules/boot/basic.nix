@@ -1,4 +1,4 @@
-{ efi }: inputs:
+{ efi }: { pkgs, ... }@inputs:
 {
 	config =
 	{
