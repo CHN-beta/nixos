@@ -114,7 +114,8 @@
 				./modules/virtualisation/kvm_guest.nix
 				./modules/virtualisation/kvm_host.nix
 				./modules/virtualisation/waydroid.nix
-				./home/basic.nix
+				./modules/home/root.nix
+				./modules/home/chn.nix
 			];
 		};
 	};
