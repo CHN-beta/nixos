@@ -313,5 +313,5 @@
 	''
 		keep-outputs = true
 	'';
-	nix.settings.system-features = [ "gccarch-alderlake" ];
+	nix.settings.system-features = [ "big-parallel" "gccarch-alderlake" ];
 }
