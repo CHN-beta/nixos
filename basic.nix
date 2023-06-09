@@ -314,4 +314,5 @@
 		keep-outputs = true
 	'';
 	nix.settings.system-features = [ "big-parallel" "gccarch-alderlake" ];
+	nix.settings.keep-failed = true;
 }
