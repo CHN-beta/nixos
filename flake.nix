@@ -87,12 +87,12 @@
 					} )];
 				})
 
-				( import ./modules/basic.nix { hostName = "chn-PC"; timeout = 30; })
+				( import ./modules/basic.nix { hostName = "chn-PC"; })
 				./modules/fonts.nix
 				( import ./modules/i18n.nix { fcitx = true; } )
 				./modules/kde.nix
 				./modules/sops.nix
-				( import ./modules/boot/basic.nix { efi = true; })
+				( import ./modules/boot/basic.nix { efi = true; timeout = 30; })
 				./modules/boot/chn-PC.nix
 				./modules/filesystem/chn-PC.nix
 				./modules/hardware/bluetooth.nix
