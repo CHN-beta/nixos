@@ -10,7 +10,7 @@
 			vim nano
 			wget aria2 curl yt-dlp
 			tree git autojump exa
-			nix-output-monitor comma
+			nix-output-monitor
 			apacheHttpd certbot-full
 			pigz rar unrar upx unzip zip
 			util-linux snapper
