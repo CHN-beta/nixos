@@ -39,6 +39,7 @@
 			spotify yesplaymusic
 			crow-translate
 			scrcpy
+			mpv inputs.config.nur.repos.xddxdd.svp
 		]
 		++ (with inputs.lib; filter isDerivation (attrValues pkgs.plasma5Packages.kdeGear));
 		programs.wireshark.enable = true;
