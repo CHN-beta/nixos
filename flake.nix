@@ -67,9 +67,9 @@
 		};
     };
 
-	outputs = inputs:
+	outputs = inputs: { nixosConfigurations =
 	{
-		nixosConfigurations."chn-PC" = inputs.nixpkgs.lib.nixosSystem
+		"chn-PC" = inputs.nixpkgs.lib.nixosSystem
 		{
 			system = "x86_64-linux";
 			specialArgs = { inherit inputs; };
@@ -122,5 +122,32 @@
 				./modules/home/chn.nix
 			];
 		};
-	};
+
+		"chn-nixos-test" = inputs.nixpkgs.lib.nixosSystem
+		{
+			system = "x86_64-linux";
+			specialArgs = { inherit inputs; };
+			modules =
+			[
+				inputs.home-manager.nixosModules.home-manager
+				inputs.sops-nix.nixosModules.sops
+				inputs.nix-index-database.nixosModules.nix-index
+				( import ./modules/basic.nix { hostName = "chn-nixos-test"; })
+				( import ./modules/i18n.nix { fcitx = false; } )
+				./modules/sops.nix
+				( import ./modules/boot/basic.nix { efi = true; timeout = 30; })
+				./modules/boot/chn-nixos-test.nix
+				./modules/filesystem/chn-nixos-test.nix
+				./modules/hardware/chn-nixos-test.nix
+				./modules/networking/basic.nix
+				./modules/networking/ssh.nix
+				./modules/packages/terminal.nix
+				./modules/users/root.nix
+				./modules/users/chn.nix
+				./modules/virtualisation/kvm_guest.nix
+				./modules/home/root.nix
+				./modules/home/chn.nix
+			];
+		};
+	}; };
 }
