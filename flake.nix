@@ -120,32 +120,6 @@
 				./modules/virtualisation/waydroid.nix
 				./modules/home/root.nix
 				./modules/home/chn.nix
-
-				({ pkgs, ...}@inputs:
-				{
-					config.environment.systemPackages =
-					[
-						( inputs.inputs.nixpkgs.lib.nixosSystem
-						{
-							system = "x86_64-linux";
-							modules = [({ pkgs, ... }@inputs:
-							{
-								config.nixpkgs =
-								{
-									hostPlatform =
-										{ system = "x86_64-linux"; gcc = { arch = "alderlake"; tune = "alderlake"; }; };
-									config.allowUnfree = true;
-								};
-								config.nixpkgs.overlays = [( final: prev: rec
-								{
-									optimizeWithFlags = pkg: flags: pkg.overrideAttrs (old:
-										{ NIX_CFLAGS_COMPILE = [ (old.NIX_CFLAGS_COMPILE or "") ] ++ flags; });
-									hello = optimizeWithFlags prev.hello [ "-frecord-gcc-switches" ];
-								} )];
-							})];
-						} ).pkgs.hello
-					];
-				})
 			];
 		};
 
