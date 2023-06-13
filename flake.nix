@@ -55,6 +55,16 @@
 				flake-compat.follows = "flake-compat";
 			};
 		};
+		nix-alien =
+		{
+			url = "github:thiagokokada/nix-alien";
+			inputs =
+			{
+				flake-compat.follows = "flake-compat";
+				flake-utils.follows = "flake-utils";
+				nix-index-database.follows = "nix-index-database";
+			};
+		};
     };
 
 	outputs = inputs:

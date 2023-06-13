@@ -26,5 +26,6 @@
 			services.nix-daemon.serviceConfig.Slice = "-.slice";
 		};
 		programs.nix-ld.enable = true;
+		environment.systemPackages = [ inputs.inputs.nix-alien.packages.x86_64-linux.nix-alien ];
 	};
 }
