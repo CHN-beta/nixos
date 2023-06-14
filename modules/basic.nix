@@ -23,7 +23,7 @@
 		{
 			extraConfig = "DefaultTimeoutStopSec=10s";
 			user.extraConfig = "DefaultTimeoutStopSec=10s";
-			services.nix-daemon.serviceConfig.Slice = "-.slice";
+			services.nix-daemon.serviceConfig = { Slice = "-.slice"; Nice = "19"; };
 		};
 		programs.nix-ld.enable = true;
 	};
