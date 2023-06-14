@@ -7,7 +7,7 @@
 		services.pipewire =
 		{
 			enable = true;
-			alsa = { enable = true; support32Bit = true; };
+			# alsa = { enable = true; support32Bit = true; };
 			pulse.enable = true;
 		};
 		systemd.user.services.pipewire.serviceConfig.CPUSchedulingPolicy = -11;
