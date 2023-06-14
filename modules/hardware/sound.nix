@@ -10,7 +10,7 @@
 			alsa = { enable = true; support32Bit = true; };
 			pulse.enable = true;
 		};
-		systemd.user.services.pipewire.serviceConfig.Nice = -11;
-		systemd.user.services.pipewire-pulse.serviceConfig.Nice = -11;
+		systemd.user.services.pipewire.serviceConfig.Nice = -20;
+		systemd.user.services.pipewire-pulse.serviceConfig.Nice = -20;
 	};
 }
