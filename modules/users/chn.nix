@@ -6,7 +6,7 @@
 		{
 			isNormalUser = true;
 			extraGroups = inputs.lib.intersectLists
-				[ "networkmanager" "wheel" "wireshark" "libvirtd" ]
+				[ "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" ]
 				(builtins.attrNames inputs.config.users.groups);
 			passwordFile = inputs.config.sops.secrets."password/chn".path;
 			shell = inputs.pkgs.zsh;
