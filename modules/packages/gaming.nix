@@ -36,7 +36,11 @@
 				enable = true;
 				package = generic-pkgs.honkers-railway-launcher;
 			};
-			steam.enable = true;
+			steam =
+			{
+				enable = true;
+				package = generic-pkgs.steam;
+			};
 		};
 	};
 }
