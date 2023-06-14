@@ -7,7 +7,7 @@
 			{
 				device = "/dev/mapper/root";
 				fsType = "btrfs";
-				options = [ "subvol=@root,compress-force=zstd:15" ];
+				options = [ "subvol=@root,compress-force=zstd:3" ];
 			};
 			"/swap" = {
 				device = "/dev/mapper/root";
