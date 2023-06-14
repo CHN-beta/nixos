@@ -15,7 +15,11 @@
 					specialArgs = { inputs = inputs.inputs; };
 					modules = [{ config.nixpkgs.config.allowUnfree = true; }];
 				}).pkgs;
-					in { mono = generic-pkgs.mono; }
+				in
+				{
+					mono = generic-pkgs.mono;
+					python310Packages.debugpy = generic-pkgs.python310Packages.debugpy;
+				}
 			)];
 		};
 	};
