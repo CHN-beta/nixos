@@ -16,7 +16,8 @@
 			# 		};
 			# 	}];
 			# } ).pkgs.linuxPackages_zen;
-			kernelPackages = inputs.pkgs.linuxPackages_zen;
+			# kernelPackages = inputs.pkgs.linuxPackages_zen;
+			kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
 			initrd.availableKernelModules =
 			[
 				"ahci" "i915" "intel_cstate" "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" "nvme" "sr_mod"
