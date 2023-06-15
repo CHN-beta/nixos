@@ -4,19 +4,6 @@
 	{
 		boot =
 		{
-			# kernelPackages = ( inputs.inputs.nixpkgs.lib.nixosSystem
-			# {
-			# 	system = "x86_64-linux";
-			# 	modules =
-			# 	[{
-			# 		nixpkgs =
-			# 		{
-			# 			hostPlatform = { system = "x86_64-linux"; gcc = { arch = "alderlake"; tune = "alderlake"; }; };
-			# 			config.allowUnfree = true;
-			# 		};
-			# 	}];
-			# } ).pkgs.linuxPackages_zen;
-			# kernelPackages = inputs.pkgs.linuxPackages_zen;
 			kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
 			initrd.availableKernelModules =
 			[
