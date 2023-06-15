@@ -65,6 +65,15 @@
 				nix-index-database.follows = "nix-index-database";
 			};
 		};
+		plasma-manager =
+		{
+			url = "github:pjones/plasma-manager";
+			inputs =
+			{
+				nixpkgs.follows = "nixpkgs";
+				home-manager.follows = "home-manager";
+			};
+		};
     };
 
 	outputs = inputs: { nixosConfigurations =
