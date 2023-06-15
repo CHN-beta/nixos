@@ -3,7 +3,7 @@
 
 	inputs =
 	{
-		nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-unstable";
+		nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 		nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-23.05";
 		flake-utils.url = "github:numtide/flake-utils";
 		flake-compat = { url = "github:edolstra/flake-compat"; flake = false; };
@@ -120,32 +120,6 @@
 				./modules/virtualisation/waydroid.nix
 				./modules/home/root.nix
 				./modules/home/chn.nix
-
-				({ pkgs, ...}@inputs:
-				{
-					config.environment.systemPackages =
-					[
-						( inputs.inputs.nixpkgs.lib.nixosSystem
-						{
-							system = "x86_64-linux";
-							modules = [({ pkgs, ... }@inputs:
-							{
-								config.nixpkgs =
-								{
-									hostPlatform =
-										{ system = "x86_64-linux"; gcc = { arch = "alderlake"; tune = "alderlake"; }; };
-									config.allowUnfree = true;
-								};
-								config.nixpkgs.overlays = [( final: prev: rec
-								{
-									optimizeWithFlags = pkg: flags: pkg.overrideAttrs (old:
-										{ NIX_CFLAGS_COMPILE = [ (old.NIX_CFLAGS_COMPILE or "") ] ++ flags; });
-									hello = optimizeWithFlags prev.hello [ "-frecord-gcc-switches" ];
-								} )];
-							})];
-						} ).pkgs.hello
-					];
-				})
 			];
 		};
 
