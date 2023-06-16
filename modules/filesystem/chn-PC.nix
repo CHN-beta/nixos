@@ -15,7 +15,7 @@
 				fsType = "btrfs";
 				options = [ "subvol=@nix" "compress-force=zstd:3" ];
 			};
-			"/impermanence" =
+			"/nix/impermanence" =
 			{
 				device = "/dev/mapper/root";
 				fsType = "btrfs";
@@ -40,7 +40,7 @@
 			header = "/dev/disk/by-partuuid/c341ca23-bb14-4927-9b31-a9dcc959d0f5";
 			allowDiscards = true;
 		};
-		environment.persistence."/impermanence" =
+		environment.persistence."/nix/impermanence" =
 		{
 			hideMounts = true;
 			directories =
