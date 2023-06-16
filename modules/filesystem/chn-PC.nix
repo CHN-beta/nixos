@@ -5,9 +5,22 @@
 		{
 			"/" =
 			{
+				device = "tmpfs";
+				fsType = "tmpfs";
+				options = [ "relatime" "mode=755" ];
+			};
+			"/nix" =
+			{
 				device = "/dev/mapper/root";
 				fsType = "btrfs";
-				options = [ "subvol=@root,compress-force=zstd:3" ];
+				options = [ "subvol=@nix" "compress-force=zstd:3" ];
+			};
+			"/impermanence" =
+			{
+				device = "/dev/mapper/root";
+				fsType = "btrfs";
+				options = [ "subvol=@impermanence" "compress-force=zstd:3" ];
+				neededForBoot = true;
 			};
 			"/swap" = {
 				device = "/dev/mapper/root";
@@ -26,6 +39,25 @@
 			device = "/dev/disk/by-partuuid/49fe75e3-bd94-4c75-9b21-2c77a1f74c4e";
 			header = "/dev/disk/by-partuuid/c341ca23-bb14-4927-9b31-a9dcc959d0f5";
 			allowDiscards = true;
+		};
+		environment.persistence."/impermanence" =
+		{
+			hideMounts = true;
+			directories =
+			[
+				"/etc/NetworkManager/system-connections"
+				"/home"
+				"/root"
+				"/var"
+			];
+			files =
+			[
+				"/etc/machine-id"
+				"/etc/ssh/ssh_host_ed25519_key.pub"
+				"/etc/ssh/ssh_host_ed25519_key"
+				"/etc/ssh/ssh_host_rsa_key.pub"
+				"/etc/ssh/ssh_host_rsa_key"
+			];
 		};
 	};
 }

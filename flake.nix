@@ -74,6 +74,7 @@
 				home-manager.follows = "home-manager";
 			};
 		};
+		impermanence.url = "github:nix-community/impermanence";
     };
 
 	outputs = inputs: { nixosConfigurations =
@@ -90,6 +91,7 @@
 				inputs.aagl.nixosModules.default
 				inputs.nix-index-database.nixosModules.nix-index
 				inputs.nur.nixosModules.nur
+				inputs.impermanence.nixosModules.impermanence
 				({
 					config.nixpkgs.overlays =
 					[( final: prev:
