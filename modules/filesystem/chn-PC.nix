@@ -7,7 +7,7 @@
 			{
 				device = "tmpfs";
 				fsType = "tmpfs";
-				options = [ "size=1G" "relatime" "mode=755" ];
+				options = [ "size=16G" "relatime" "mode=755" ];
 			};
 			"/nix" =
 			{
