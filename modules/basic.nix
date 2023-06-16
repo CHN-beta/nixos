@@ -26,5 +26,6 @@
 			services.nix-daemon.serviceConfig = { Slice = "-.slice"; Nice = "19"; };
 		};
 		programs.nix-ld.enable = true;
+		boot.supportedFilesystems = [ "ntfs" ];
 	};
 }
