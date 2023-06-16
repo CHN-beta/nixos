@@ -22,7 +22,7 @@
 				options = [ "subvol=@impermanence" "compress-force=zstd:3" ];
 				neededForBoot = true;
 			};
-			"/swap" = {
+			"/nix/swap" = {
 				device = "/dev/mapper/root";
 				fsType = "btrfs";
 				options = [ "subvol=@swap" ];
@@ -33,7 +33,7 @@
 				fsType = "vfat";
 			};
 		};
-		swapDevices = [ { device = "/swap/swap"; } ];
+		swapDevices = [ { device = "/nix/swap/swap"; } ];
 		boot.initrd.luks.devices.root =
 		{
 			device = "/dev/disk/by-partuuid/49fe75e3-bd94-4c75-9b21-2c77a1f74c4e";
