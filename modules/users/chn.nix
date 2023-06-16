@@ -12,47 +12,47 @@
 			shell = inputs.pkgs.zsh;
 		};
 		sops.secrets."password/chn".neededForUsers = true;
-		environment.persistence."/impermanence".users.chn =
-		{
-			directories =
-			[
-				"Desktop"
-				"Documents"
-				"Downloads"
-				"Music"
-				"repo"
-				"Pictures"
-				"Videos"
+		# environment.persistence."/impermanence".users.chn =
+		# {
+		# 	directories =
+		# 	[
+		# 		"Desktop"
+		# 		"Documents"
+		# 		"Downloads"
+		# 		"Music"
+		# 		"repo"
+		# 		"Pictures"
+		# 		"Videos"
 
-				".cache"
-				".config"
-				".gnupg"
-				".local"
-				".ssh"
-				".android"
-				".exa"
-				".gnome"
-				".Mathematica"
-				".mozilla"
-				".pki"
-				".steam"
-				".tcc"
-				".vim"
-				".vscode"
-				".Wolfram"
-				".zotero"
+		# 		".cache"
+		# 		".config"
+		# 		".gnupg"
+		# 		".local"
+		# 		".ssh"
+		# 		".android"
+		# 		".exa"
+		# 		".gnome"
+		# 		".Mathematica"
+		# 		".mozilla"
+		# 		".pki"
+		# 		".steam"
+		# 		".tcc"
+		# 		".vim"
+		# 		".vscode"
+		# 		".Wolfram"
+		# 		".zotero"
 
-			];
-			files =
-			[
-				".bash_history"
-				".cling_history"
-				".gitconfig"
-				".gtkrc-2.0"
-				".root_hist"
-				".viminfo"
-				".zsh_history"
-			];
-		};
+		# 	];
+		# 	files =
+		# 	[
+		# 		".bash_history"
+		# 		".cling_history"
+		# 		".gitconfig"
+		# 		".gtkrc-2.0"
+		# 		".root_hist"
+		# 		".viminfo"
+		# 		".zsh_history"
+		# 	];
+		# };
 	};
 }
