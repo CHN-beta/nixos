@@ -14,6 +14,7 @@
 				device = "/dev/mapper/root";
 				fsType = "btrfs";
 				options = [ "subvol=@nix" "compress-force=zstd:3" ];
+				neededForBoot = true;
 			};
 			"/impermanence" =
 			{
@@ -26,6 +27,7 @@
 				device = "/dev/mapper/root";
 				fsType = "btrfs";
 				options = [ "subvol=@swap" ];
+				neededForBoot = true;
 			};
 			"/boot" =
 			{

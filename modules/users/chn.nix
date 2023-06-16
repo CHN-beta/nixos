@@ -36,7 +36,6 @@
 				".mozilla"
 				".pki"
 				".steam"
-				".sys1og.conf"
 				".tcc"
 				".vim"
 				".vscode"
