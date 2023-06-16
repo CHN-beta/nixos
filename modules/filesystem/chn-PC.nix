@@ -48,5 +48,7 @@
 			# 	"/etc/ssh/ssh_host_rsa_key"
 			# ];
 		};
+		systemd.services.nix-daemon =
+			{ environment = { TMPDIR = "/var/cache/nix"; }; serviceConfig = { CacheDirectory = "nix"; }; };
 	};
 }
