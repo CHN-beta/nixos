@@ -15,18 +15,6 @@
 				fsType = "btrfs";
 				options = [ "subvol=@nix" "compress-force=zstd:3" ];
 			};
-			"/nix/impermanence" =
-			{
-				device = "/dev/mapper/root";
-				fsType = "btrfs";
-				options = [ "subvol=@impermanence" ];
-				neededForBoot = true;
-			};
-			"/nix/swap" = {
-				device = "/dev/mapper/root";
-				fsType = "btrfs";
-				options = [ "subvol=@swap" ];
-			};
 			"/boot" =
 			{
 				device = "/dev/disk/by-uuid/50DE-B72A";
