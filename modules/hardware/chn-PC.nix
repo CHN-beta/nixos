@@ -19,6 +19,7 @@
 				{
 					mono = generic-pkgs.mono;
 					pandoc = generic-pkgs.pandoc;
+					fwupd = generic-pkgs.fwupd;
 				}
 			)];
 		};
