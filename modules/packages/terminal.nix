@@ -12,7 +12,7 @@
 			tree git autojump exa
 			nix-output-monitor inputs.inputs.nix-alien.packages.x86_64-linux.nix-alien
 			apacheHttpd certbot-full
-			pigz rar unrar upx unzip zip
+			pigz rar unrar upx unzip zip lzip
 			util-linux snapper
 			ocrmypdf pdfgrep
 			openssl ssh-to-age gnupg age sops
