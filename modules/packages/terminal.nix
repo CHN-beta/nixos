@@ -4,8 +4,8 @@
 	{
 		environment.systemPackages = with inputs.pkgs;
 		[
-			beep neofetch screen dos2unix tldr gnugrep
-			pciutils usbutils lshw powertop
+			beep neofetch screen dos2unix tldr gnugrep pv
+			pciutils usbutils lshw powertop compsize
 			ksh
 			vim nano
 			wget aria2 curl yt-dlp
@@ -18,6 +18,7 @@
 			openssl ssh-to-age gnupg age sops
 			ipset iptables iproute2 dig nettools
 			gcc clang-tools
+			android-tools
 		];
 		programs =
 		{
