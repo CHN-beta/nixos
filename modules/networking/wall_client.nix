@@ -43,7 +43,11 @@ inputs:
 			"net.ipv4.conf.default.accept_local" = true;
 			"net.ipv4.ip_forward" = true;
 			"net.ipv4.ip_nonlocal_bind" = true;
+			"net.bridge.bridge-nf-call-iptables" = false;
+			"net.bridge.bridge-nf-call-ip6tables" = false;
+			"net.bridge.bridge-nf-call-arptables" = false;
 		};
 		environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
+		networking.firewall.trustedInterfaces = [ "virbr0" ];
 	};
 }
