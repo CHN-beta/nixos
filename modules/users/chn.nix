@@ -1,4 +1,4 @@
-{ pkgs, ... }@inputs:
+{ bootstrape ? false }: { pkgs, ... }@inputs:
 {
 	config =
 	{
@@ -8,10 +8,9 @@
 			extraGroups = inputs.lib.intersectLists
 				[ "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" ]
 				(builtins.attrNames inputs.config.users.groups);
-			passwordFile = inputs.config.sops.secrets."password/chn".path;
 			shell = inputs.pkgs.zsh;
-		};
-		sops.secrets."password/chn".neededForUsers = true;
+		} // (if bootstrape then { password = "0"; }
+			else { passwordFile = inputs.config.sops.secrets."password/chn".path; });
 		# environment.persistence."/impermanence".users.chn =
 		# {
 		# 	directories =
@@ -54,5 +53,5 @@
 		# 		".zsh_history"
 		# 	];
 		# };
-	};
+	} // (if !bootstrape then { sops.secrets."password/chn".neededForUsers = true; } else {});
 }
