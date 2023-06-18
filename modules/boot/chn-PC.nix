@@ -9,8 +9,8 @@
 			# initrd 里有的模块
 			initrd.availableKernelModules =
 			[
-				"ahci" "i915" "intel_cstate" "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" "nvme" "sr_mod"
-				"usb_storage" "virtio_blk" "virtio_pci" "xhci_pci"
+				"ahci" "i915" "intel_cstate" "nls_cp437" "nls_iso8859-1" "nvidia" "nvidia_drm" "nvidia_modeset"
+				"nvidia_uvm" "nvme" "sr_mod" "usbhid" "usb_storage" "virtio_blk" "virtio_pci" "xhci_pci"
 			];
 
 			# stage2 中自动加载的模块

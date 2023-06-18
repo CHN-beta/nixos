@@ -17,17 +17,34 @@
 			};
 			"/boot" =
 			{
-				device = "/dev/disk/by-uuid/50DE-B72A";
+				device = "/dev/disk/by-uuid/8BDC-B409";
 				fsType = "vfat";
 			};
 		};
 		swapDevices = [ { device = "/nix/swap/swap"; } ];
-		boot.initrd.luks.devices.root =
+		boot.initrd.luks =
 		{
-			device = "/dev/disk/by-partuuid/49fe75e3-bd94-4c75-9b21-2c77a1f74c4e";
-			header = "/dev/disk/by-partuuid/c341ca23-bb14-4927-9b31-a9dcc959d0f5";
-			allowDiscards = true;
-		};
+			yubikeySupport = true;
+			devices.root =
+			{
+				device = "/dev/disk/by-partuuid/361d95a3-6e81-40a7-a9f4-ee158049a459";
+				allowDiscards = true;
+				yubikey =
+				{
+					slot = 2;
+					twoFactor = true;
+					gracePeriod = 120;
+					keyLength = 64;
+					saltLength = 16;
+					storage =
+					{
+						device = "/dev/disk/by-uuid/8BDC-B409";
+						fsType = "vfat";
+						path = "/crypt-storage/default";
+					};
+				};
+			};
+			
 		environment.persistence."/nix/impermanence" =
 		{
 			hideMounts = true;
@@ -62,5 +79,24 @@
 			TIMELINE_LIMIT_MONTHLY = "0";
 			TIMELINE_LIMIT_YEARLY = "0";
 		};
+
+		# setup accroding to https://github.com/sgillespie/nixos-yubikey-luks
+		# nix-shell https://github.com/sgillespie/nixos-yubikey-luks/archive/master.tar.gz
+		# ykpersonalize -2 -ochal-resp -ochal-hmac
+		# SALT_LENGTH=16
+		# SALT="$(dd if=/dev/random bs=1 count=$SALT_LENGTH 2>/dev/null | rbtohex)"
+		# read -s USER_PASSPHRASE
+		# CHALLENGE="$(echo -n $SALT | openssl dgst -binary -sha512 | rbtohex)"
+		# RESPONSE=$(ykchalresp -2 -x $CHALLENGE 2>/dev/null)
+		# KEY_LENGTH=512
+		# ITERATIONS=1000000
+		# LUKS_KEY="$(echo -n $USER_PASSPHRASE | pbkdf2-sha512 $(($KEY_LENGTH / 8)) $ITERATIONS $RESPONSE | rbtohex)"
+		# CIPHER=aes-xts-plain64
+		# HASH=sha512
+		# echo -n "$LUKS_KEY" | hextorb | cryptsetup luksFormat --cipher="$CIPHER" \ 
+		#	--key-size="$KEY_LENGTH" --hash="$HASH" --key-file=- /dev/sdb5
+		# mkdir -p /boot/crypt-storage
+		#	echo -ne "$SALT\n$ITERATIONS" > /boot/crypt-storage/default
+		# echo -n "$LUKS_KEY" | hextorb | cryptsetup open /dev/sdb5 encrypted --key-file=-
 	};
 }
