@@ -3,7 +3,11 @@
 {
 	config =
 	{
-		virtualisation = { libvirtd.enable = true; spiceUSBRedirection.enable = true; };
-		environment.systemPackages = with pkgs; [ qemu_full virt-manager ];
+		virtualisation =
+		{
+			libvirtd = { enable = true; qemu.runAsRoot = false; onBoot = "ignore"; onShutdown = "shutdown"; };
+			spiceUSBRedirection.enable = true;
+		};
+		environment.systemPackages = with pkgs; [ qemu_full virt-manager win-spice ];
 	};
 }
