@@ -52,6 +52,8 @@
 			# mkdir -p /boot/crypt-storage
 			# echo -ne "$SALT\n$ITERATIONS" > /boot/crypt-storage/default
 			# echo -n "$LUKS_KEY" | hextorb | cryptsetup open /dev/sdb5 encrypted --key-file=-
+			# cryptsetup luksOpen --test-passphrase --key-slot 0 /dev/sda2
+			# cryptsetup luksKillSlot /dev/sdb1 2
 			yubikeySupport = true;
 			devices.root =
 			{
@@ -66,7 +68,7 @@
 					saltLength = 16;
 					storage =
 					{
-						device = "/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614";
+						device = "/dev/disk/by-uuid/631e5af2-af11-464a-9fbc-52f5215ae401";
 						fsType = "btrfs";
 						path = "/crypt-storage/default";
 					};
