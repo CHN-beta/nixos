@@ -6,7 +6,7 @@
 		{
 			isNormalUser = true;
 			extraGroups = inputs.lib.intersectLists
-				[ "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" ]
+				[ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" ]
 				(builtins.attrNames inputs.config.users.groups);
 			shell = inputs.pkgs.zsh;
 			autoSubUidGidRange = true;

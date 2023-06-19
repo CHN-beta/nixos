@@ -18,7 +18,6 @@
 			openssl ssh-to-age gnupg age sops
 			ipset iptables iproute2 dig nettools
 			gcc clang-tools
-			android-tools
 		];
 		programs =
 		{
@@ -37,6 +36,7 @@
 					plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
 				};
 			};
+			adb.enable = true;
 		};
 	};
 }
