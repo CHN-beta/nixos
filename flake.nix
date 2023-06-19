@@ -126,6 +126,7 @@
 				./modules/packages/hpc.nix
 				( import ./modules/users/root.nix {} ) 
 				( import ./modules/users/chn.nix {} ) 
+				./modules/virtualisation/docker.nix
 				./modules/virtualisation/kvm_guest.nix
 				./modules/virtualisation/kvm_host.nix
 				./modules/virtualisation/waydroid.nix

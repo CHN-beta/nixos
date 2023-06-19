@@ -9,6 +9,7 @@
 				[ "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" ]
 				(builtins.attrNames inputs.config.users.groups);
 			shell = inputs.pkgs.zsh;
+			autoSubUidGidRange = true;
 		} // (if bootstrape then { password = "0"; }
 			else { passwordFile = inputs.config.sops.secrets."password/chn".path; });
 		# environment.persistence."/impermanence".users.chn =
