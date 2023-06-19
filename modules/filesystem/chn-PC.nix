@@ -9,6 +9,8 @@
 				fsType = "tmpfs";
 				options = [ "size=16G" "relatime" "mode=755" ];
 			};
+			# disable CoW for VM image and database
+			# sudo chattr +C images
 			"/nix" =
 			{
 				device = "/dev/mapper/root";
