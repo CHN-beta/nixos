@@ -4,7 +4,7 @@
 	{
 		boot =
 		{
-			kernelPackages = inputs.pkgs.linuxPackages_xanmod_stable;
+			kernelPackages = inputs.pkgs.linuxPackages_zen;
 			
 			# initrd 里有的模块
 			# modprobe --show-depends
