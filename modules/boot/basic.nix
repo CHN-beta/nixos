@@ -7,10 +7,16 @@
 			loader =
 			{
 				timeout = timeout;
-				systemd-boot.enable = true;
-				efi.canTouchEfiVariables = efi;
+				efi = { canTouchEfiVariables = true; efiSysMountPoint = "/boot/efi"; };
+				grub =
+				{
+					enable = true;
+					# device = "/dev/disk/by-id/nvme-KINGSTON_SNVS2000G_50026B73815C12A8";
+					device = "nodev";
+					efiSupport = true;
+					useOSProber = true;
+				};
 			};
-			initrd.systemd.enable = true;
 		};
 		hardware.enableAllFirmware = true;
 	};

@@ -9,25 +9,37 @@
 				fsType = "tmpfs";
 				options = [ "size=16G" "relatime" "mode=755" ];
 			};
+			# "/" =
+			# {
+			# 	device = "/dev/mapper/root";
+			# 	fsType = "btrfs";
+			# 	options = [ "size=16G" "relatime" "mode=755" ];
+			# };
 			"/nix" =
 			{
 				device = "/dev/mapper/root";
 				fsType = "btrfs";
-				options = [ "subvol=@nix" "compress-force=zstd:15" ];
+				options = [ "subvol=nix" "compress-force=zstd:15" ];
 			};
 			"/boot" =
 			{
-				device = "/dev/disk/by-uuid/8BDC-B409";
+				device = "/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614";
+				fsType = "btrfs";
+				options = [ "compress-force=zstd:15" ];
+			};
+			"/boot/efi" =
+			{
+				device = "/dev/disk/by-uuid/3F57-0EBE";
 				fsType = "vfat";
 			};
 		};
-		swapDevices = [ { device = "/nix/swap/swap"; } ];
+		# swapDevices = [ { device = "/nix/swap/swap"; } ];
 		boot.initrd.luks =
 		{
 			yubikeySupport = true;
 			devices.root =
 			{
-				device = "/dev/disk/by-partuuid/361d95a3-6e81-40a7-a9f4-ee158049a459";
+				device = "/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26";
 				allowDiscards = true;
 				yubikey =
 				{
@@ -38,13 +50,13 @@
 					saltLength = 16;
 					storage =
 					{
-						device = "/dev/disk/by-uuid/8BDC-B409";
-						fsType = "vfat";
+						device = "/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614";
+						fsType = "btrfs";
 						path = "/crypt-storage/default";
 					};
 				};
 			};
-			
+		};	
 		environment.persistence."/nix/impermanence" =
 		{
 			hideMounts = true;
@@ -93,10 +105,10 @@
 		# LUKS_KEY="$(echo -n $USER_PASSPHRASE | pbkdf2-sha512 $(($KEY_LENGTH / 8)) $ITERATIONS $RESPONSE | rbtohex)"
 		# CIPHER=aes-xts-plain64
 		# HASH=sha512
-		# echo -n "$LUKS_KEY" | hextorb | cryptsetup luksFormat --cipher="$CIPHER" \ 
+		# echo -n "$LUKS_KEY" | hextorb | cryptsetup luksFormat --cipher="$CIPHER" \
 		#	--key-size="$KEY_LENGTH" --hash="$HASH" --key-file=- /dev/sdb5
 		# mkdir -p /boot/crypt-storage
-		#	echo -ne "$SALT\n$ITERATIONS" > /boot/crypt-storage/default
+		# echo -ne "$SALT\n$ITERATIONS" > /boot/crypt-storage/default
 		# echo -n "$LUKS_KEY" | hextorb | cryptsetup open /dev/sdb5 encrypted --key-file=-
 	};
 }
