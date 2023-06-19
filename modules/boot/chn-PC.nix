@@ -25,8 +25,8 @@
 				options iwlmvm power_scheme=1
 				options iwlwifi uapsd_disable=1
 			'';
-			# kernelParams = [ "delayacct" "acpi_osi=Linux" "resume_offset=19145984" ];
-			# resumeDevice = "/dev/mapper/root";
+			kernelParams = [ "delayacct" "acpi_osi=Linux" "resume_offset=41696016" ];
+			resumeDevice = "/dev/mapper/root";
 		};
 		hardware.cpu.intel.updateMicrocode = true;
 	};
