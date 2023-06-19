@@ -48,6 +48,6 @@ inputs:
 			"net.bridge.bridge-nf-call-arptables" = false;
 		};
 		environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
-		networking.firewall.trustedInterfaces = [ "virbr0" ];
+		networking.firewall.trustedInterfaces = [ "docker0" "virbr0" ];
 	};
 }
