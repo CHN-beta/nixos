@@ -71,6 +71,7 @@
 						path = "/crypt-storage/default";
 					};
 				};
+				bypassWorkqueues = true;
 			};
 		};	
 		environment.persistence."/nix/impermanence" =
