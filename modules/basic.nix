@@ -11,6 +11,7 @@
 				keep-outputs = true;
 				system-features = [ "big-parallel" ];
 				keep-failed = true;
+				auto-optimise-store = true;
 			};
 			daemonIOSchedClass = "idle";
 			daemonCPUSchedPolicy = "idle";
