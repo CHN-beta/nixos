@@ -18,7 +18,7 @@
 			openssl ssh-to-age gnupg age sops
 			ipset iptables iproute2 dig nettools
 			gcc clang-tools
-			sshfs
+			sshfs kio-fuse
 		];
 		programs =
 		{
