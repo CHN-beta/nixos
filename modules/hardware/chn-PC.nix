@@ -15,7 +15,7 @@
 				Type = "oneshot";
 				ExecStart =
 				[
-					"${pkgs.kmod}/bin/modprobe -r iwlmvm iwlwifi"
+					"${pkgs.kmod}/bin/modprobe -r iwlwifi"
 					"${pkgs.kmod}/bin/modprobe iwlwifi"
 					"echo 0 | tee /sys/devices/system/cpu/intel_pstate/no_turbo"
 				];
