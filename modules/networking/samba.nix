@@ -1,3 +1,4 @@
+{ pkgs, ...}@inputs:
 {
 	config =
 	{
@@ -17,37 +18,28 @@
 				hosts allow = 192.168. 127.
 				dns proxy = no
 			'';
-			shares =
-			{
-				media =
+			shares = builtins.listToAttrs (builtins.map
+				(config: { name = config.name; value =
 				{
-					comment = "chn media";
-					path = "/run/media/chn";
+					comment = config.comment;
+					path = config.path;
 					browseable = true;
 					writeable = true;
-				};
-				home =
-				{
-					comment = "chn home";
-					path = "/home/chn";
-					browseable = true;
-					writeable = true;
-				};
-				mnt =
-				{
-					comment = "mnt";
-					path = "/mnt";
-					browseable = true;
-					writeable = true;
-				};
-				share =
-				{
-					comment = "chn share";
-					path = "/home/chn/share";
-					browseable = true;
-					writeable = true;
-				};
-			};
+					create mask = "664";
+					force create mode = "644";
+					security mask = "644";
+					force security mode = "644";
+					directory mask = "2755";
+					force directory mode = "2755";
+					directory security mask = "2755";
+					force directory security mode = "2755";
+				}; })
+				[
+					{ name = "media"; comment = "chn media"; path = "/run/media/chn"; };
+					{ name = "home"; comment = "chn home"; path = "/home/chn"; };
+					{ name = "mnt"; comment = "mnt"; path = "/mnt"; };
+					{ name = "share"; comment = "chn share"; path = "/home/chn/share"; };
+				]);
 		};
 	};
 }
