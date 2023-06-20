@@ -25,20 +25,20 @@
 					path = config.path;
 					browseable = true;
 					writeable = true;
-					create mask = "664";
-					force create mode = "644";
-					security mask = "644";
-					force security mode = "644";
-					directory mask = "2755";
-					force directory mode = "2755";
-					directory security mask = "2755";
-					force directory security mode = "2755";
+					"create mask" = "664";
+					"force create mode" = "644";
+					"security mask" = "644";
+					"force security mode" = "644";
+					"directory mask" = "2755";
+					"force directory mode" = "2755";
+					"directory security mask" = "2755";
+					"force directory security mode" = "2755";
 				}; })
 				[
-					{ name = "media"; comment = "chn media"; path = "/run/media/chn"; };
-					{ name = "home"; comment = "chn home"; path = "/home/chn"; };
-					{ name = "mnt"; comment = "mnt"; path = "/mnt"; };
-					{ name = "share"; comment = "chn share"; path = "/home/chn/share"; };
+					{ name = "media"; comment = "chn media"; path = "/run/media/chn"; }
+					{ name = "home"; comment = "chn home"; path = "/home/chn"; }
+					{ name = "mnt"; comment = "mnt"; path = "/mnt"; }
+					{ name = "share"; comment = "chn share"; path = "/home/chn/share"; }
 				]);
 		};
 	};
