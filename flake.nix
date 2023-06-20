@@ -116,6 +116,7 @@
 				./modules/hardware/sound.nix
 				./modules/hardware/chn-PC.nix
 				./modules/networking/basic.nix
+				./modules/networking/samba.nix
 				./modules/networking/ssh.nix
 				./modules/networking/wall_client.nix
 				./modules/networking/xmunet.nix
