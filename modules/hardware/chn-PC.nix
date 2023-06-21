@@ -6,21 +6,30 @@
 		services.dbus.implementation = "broker";
 		programs.dconf.enable = true;
 		hardware.opengl.enable = true;
-		systemd.services.reload-iwlwifi-after-hibernate =
+		systemd.services =
 		{
-			description = "reload iwlwifi after resume from hibernate";
-			after = [ "systemd-hibernate.service" ];
-			serviceConfig =
+			reload-iwlwifi-after-hibernate =
 			{
-				Type = "oneshot";
-				ExecStart =
-				[
-					"${pkgs.kmod}/bin/modprobe -r iwlwifi"
-					"${pkgs.kmod}/bin/modprobe iwlwifi"
-					"echo 0 | tee /sys/devices/system/cpu/intel_pstate/no_turbo"
-				];
+				description = "reload iwlwifi after resume from hibernate";
+				after = [ "systemd-hibernate.service" ];
+				serviceConfig =
+				{
+					Type = "oneshot";
+					ExecStart =
+					[
+						"${pkgs.kmod}/bin/modprobe -r iwlwifi"
+						"${pkgs.kmod}/bin/modprobe iwlwifi"
+						"echo 0 | tee /sys/devices/system/cpu/intel_pstate/no_turbo"
+					];
+				};
+				wantedBy = [ "systemd-hibernate.service" ];
 			};
-			wantedBy = [ "systemd-hibernate.service" ];
+			lid-no-wakeup =
+			{
+				description = "lid no wake up";
+				serviceConfig.ExecStart = "echo LID0 > /proc/acpi/wakeup";
+				wantedBy = [ "multi-user.target" ];
+			};
 		};
 	};
 }
