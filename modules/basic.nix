@@ -24,6 +24,7 @@
 		{
 			extraConfig = "DefaultTimeoutStopSec=10s";
 			user.extraConfig = "DefaultTimeoutStopSec=10s";
+			sleep.extraConfig = "SuspendState=freeze";
 			services.nix-daemon.serviceConfig = { Slice = "-.slice"; Nice = "19"; };
 		};
 		programs.nix-ld.enable = true;
