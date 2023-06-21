@@ -2,7 +2,7 @@
 {
 	config =
 	{
-		nix.settings.system-features = [ "gccarch-alderlake" ];
+		nix.settings.system-features = [ "nixos-test" "benchmark" "kvm" "gccarch-alderlake" ];
 		nixpkgs =
 		{
 			hostPlatform = { system = "x86_64-linux"; gcc = { arch = "alderlake"; tune = "alderlake"; }; };
