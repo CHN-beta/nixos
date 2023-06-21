@@ -5,7 +5,7 @@
 		nix.settings.system-features = [ "gccarch-alderlake" ];
 		services.dbus.implementation = "broker";
 		programs.dconf.enable = true;
-		hardware.opengl.enable = true;
+		hardware.opengl.extraPackages = with pkgs; [ intel-media-driver intel-ocl ];
 		systemd.services =
 		{
 			reload-iwlwifi-after-hibernate =
