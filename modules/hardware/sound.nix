@@ -2,7 +2,10 @@
 {
 	config =
 	{
-		sound.enable = true;
+		sound =
+		{
+			enable = true;
+			extraConfig = "session.suspend-timeout-seconds 0";
 		hardware.pulseaudio.enable = false;
 		security.rtkit.enable = true;
 		services.pipewire =
