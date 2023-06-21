@@ -22,7 +22,11 @@
 		nixpkgs.config.allowUnfree = true;
 		systemd =
 		{
-			extraConfig = "DefaultTimeoutStopSec=10s";
+			extraConfig =
+			"
+				DefaultTimeoutStopSec=10s
+				DefaultLimitNOFILE=1048576:1048576
+			";
 			user.extraConfig = "DefaultTimeoutStopSec=10s";
 			sleep.extraConfig = "SuspendState=freeze";
 			services.nix-daemon.serviceConfig = { Slice = "-.slice"; Nice = "19"; };
