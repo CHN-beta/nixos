@@ -65,6 +65,16 @@
 				nix-index-database.follows = "nix-index-database";
 			};
 		};
+		plasma-manager =
+		{
+			url = "github:pjones/plasma-manager";
+			inputs =
+			{
+				nixpkgs.follows = "nixpkgs";
+				home-manager.follows = "home-manager";
+			};
+		};
+		impermanence.url = "github:nix-community/impermanence";
     };
 
 	outputs = inputs: { nixosConfigurations =
@@ -81,6 +91,7 @@
 				inputs.aagl.nixosModules.default
 				inputs.nix-index-database.nixosModules.nix-index
 				inputs.nur.nixosModules.nur
+				inputs.impermanence.nixosModules.impermanence
 				({
 					config.nixpkgs.overlays =
 					[( final: prev:
@@ -105,6 +116,7 @@
 				./modules/hardware/sound.nix
 				./modules/hardware/chn-PC.nix
 				./modules/networking/basic.nix
+				./modules/networking/samba.nix
 				./modules/networking/ssh.nix
 				./modules/networking/wall_client.nix
 				./modules/networking/xmunet.nix
@@ -113,8 +125,9 @@
 				./modules/packages/gui.nix
 				./modules/packages/gaming.nix
 				./modules/packages/hpc.nix
-				./modules/users/root.nix
-				./modules/users/chn.nix
+				( import ./modules/users/root.nix {} ) 
+				( import ./modules/users/chn.nix {} ) 
+				./modules/virtualisation/docker.nix
 				./modules/virtualisation/kvm_guest.nix
 				./modules/virtualisation/kvm_host.nix
 				./modules/virtualisation/waydroid.nix
@@ -130,10 +143,10 @@
 			modules =
 			[
 				inputs.home-manager.nixosModules.home-manager
-				inputs.sops-nix.nixosModules.sops
 				inputs.nix-index-database.nixosModules.nix-index
 				( import ./modules/basic.nix { hostName = "chn-nixos-test"; })
 				( import ./modules/i18n.nix { fcitx = false; } )
+				./modules/kde.nix
 				./modules/sops.nix
 				( import ./modules/boot/basic.nix { efi = true; timeout = 30; })
 				./modules/boot/chn-nixos-test.nix
@@ -142,8 +155,8 @@
 				./modules/networking/basic.nix
 				./modules/networking/ssh.nix
 				./modules/packages/terminal.nix
-				./modules/users/root.nix
-				./modules/users/chn.nix
+				( import ./modules/users/root.nix { bootstrape = true; } ) 
+				( import ./modules/users/chn.nix { bootstrape = true; } ) 
 				./modules/virtualisation/kvm_guest.nix
 				./modules/home/root.nix
 				./modules/home/chn.nix

@@ -15,5 +15,6 @@
 		};
 		xdg.portal.extraPortals = with inputs.pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-wlr ];
 		programs.xwayland.enable = true;
+		programs.kdeconnect.enable = true;
 	};
 }

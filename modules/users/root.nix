@@ -1,16 +1,13 @@
-{ pkgs, ... }@inputs:
+{ bootstrape ? false }: { pkgs, ... }@inputs:
 {
 	config =
 	{
 		users =
 		{
-			users.root =
-			{
-				passwordFile = inputs.config.sops.secrets."password/root".path;
-				shell = inputs.pkgs.zsh;
-			};
+			users.root = { shell = inputs.pkgs.zsh; }
+				// (if bootstrape then { password = "0"; }
+					else { passwordFile = inputs.config.sops.secrets."password/root".path; });
 			mutableUsers = false;
 		};
-		sops.secrets."password/root".neededForUsers = true;
-	};
+	} // (if !bootstrape then { sops.secrets."password/root".neededForUsers = true; } else {});
 }

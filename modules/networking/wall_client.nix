@@ -33,6 +33,8 @@ inputs:
 			Group = "v2ray";
 			CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
 			AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+			LimitNPROC = 10000;
+			LimitNOFILE = 1000000;
 		};
 		users = { users.v2ray = { isSystemUser = true; group = "v2ray"; }; groups.v2ray = {}; };
 		boot.kernel.sysctl =
@@ -43,7 +45,11 @@ inputs:
 			"net.ipv4.conf.default.accept_local" = true;
 			"net.ipv4.ip_forward" = true;
 			"net.ipv4.ip_nonlocal_bind" = true;
+			"net.bridge.bridge-nf-call-iptables" = false;
+			"net.bridge.bridge-nf-call-ip6tables" = false;
+			"net.bridge.bridge-nf-call-arptables" = false;
 		};
 		environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
+		networking.firewall.trustedInterfaces = [ "docker0" "virbr0" ];
 	};
 }
