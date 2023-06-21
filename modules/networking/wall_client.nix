@@ -33,6 +33,8 @@ inputs:
 			Group = "v2ray";
 			CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
 			AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+			LimitNPROC = 10000;
+			LimitNOFILE = 1000000;
 		};
 		users = { users.v2ray = { isSystemUser = true; group = "v2ray"; }; groups.v2ray = {}; };
 		boot.kernel.sysctl =
