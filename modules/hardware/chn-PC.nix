@@ -19,7 +19,7 @@
 					[
 						"${pkgs.kmod}/bin/modprobe -r iwlwifi"
 						"${pkgs.kmod}/bin/modprobe iwlwifi"
-						"echo 0 | tee /sys/devices/system/cpu/intel_pstate/no_turbo"
+						"${pkgs.bash}/bin/bash -c '<<< 0 > /sys/devices/system/cpu/intel_pstate/no_turbo'"
 					];
 				};
 				wantedBy = [ "systemd-hibernate.service" ];
@@ -27,7 +27,7 @@
 			lid-no-wakeup =
 			{
 				description = "lid no wake up";
-				serviceConfig.ExecStart = "echo LID0 > /proc/acpi/wakeup";
+				serviceConfig.ExecStart = "${pkgs.bash}/bin/bash -c '<<< LID0 > /proc/acpi/wakeup'";
 				wantedBy = [ "multi-user.target" ];
 			};
 		};
