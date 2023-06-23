@@ -21,7 +21,7 @@
 		system =
 		{
 			stateVersion = "22.11";
-			configurationRevision = inputs.self.rev or "dirty";
+			configurationRevision = inputs.inputs.self.rev or "dirty";
 		};
 		nixpkgs.config.allowUnfree = true;
 		systemd =
