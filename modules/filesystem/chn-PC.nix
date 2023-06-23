@@ -55,6 +55,7 @@
 			# cryptsetup luksOpen --test-passphrase --key-slot 0 /dev/sda2
 			# cryptsetup luksKillSlot /dev/sdb1 2
 			yubikeySupport = true;
+			reusePassphrases = false;
 			devices.root =
 			{
 				device = "/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26";
