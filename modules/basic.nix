@@ -18,7 +18,11 @@
 		};
 		networking.hostName = hostName;
 		time.timeZone = "Asia/Shanghai";
-		system.stateVersion = "22.11";
+		system =
+		{
+			stateVersion = "22.11";
+			configurationRevision = inputs.self.rev or "dirty";
+		};
 		nixpkgs.config.allowUnfree = true;
 		systemd =
 		{
