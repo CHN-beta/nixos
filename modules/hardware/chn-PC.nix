@@ -2,7 +2,27 @@
 {
 	config =
 	{
-		nix.settings.system-features = [ "gccarch-alderlake" ];
+		nix.settings.system-features = [ "nixos-test" "benchmark" "kvm" "gccarch-alderlake" ];
+		nixpkgs =
+		{
+			hostPlatform = { system = "x86_64-linux"; gcc = { arch = "alderlake"; tune = "alderlake"; }; };
+			config.allowUnfree = true;
+			overlays =
+			[(
+				final: prev: let generic-pkgs = (inputs.inputs.nixpkgs.lib.nixosSystem
+				{
+					system = "x86_64-linux";
+					specialArgs = { inputs = inputs.inputs; };
+					modules = [{ config.nixpkgs.config.allowUnfree = true; }];
+				}).pkgs;
+				in
+				{
+					mono = generic-pkgs.mono;
+					pandoc = generic-pkgs.pandoc;
+					fwupd = generic-pkgs.fwupd;
+				}
+			)];
+		};
 		services.dbus.implementation = "broker";
 		programs.dconf.enable = true;
 		hardware.opengl.extraPackages = with pkgs; [ intel-media-driver intel-ocl ];

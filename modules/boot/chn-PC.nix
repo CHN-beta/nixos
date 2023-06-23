@@ -5,7 +5,6 @@
 		boot =
 		{
 			kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
-			
 			# initrd 里有的模块
 			# modprobe --show-depends
 			initrd.availableKernelModules =
