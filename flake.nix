@@ -69,7 +69,7 @@
 		impermanence.url = "github:nix-community/impermanence";
     };
 
-	outputs = inputs: { nixosConfigurations =
+	outputs = inputs: { nixosConfigurations = let mkModules = import ./lib/mkModules.nix; in
 	{
 		"chn-PC" = inputs.nixpkgs.lib.nixosSystem
 		{
@@ -92,39 +92,43 @@
 						nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
 					} )];
 				})
-
-				( import ./modules/basic.nix { hostName = "chn-PC"; })
-				./modules/fonts.nix
-				( import ./modules/i18n.nix { fcitx = true; } )
-				./modules/kde.nix
-				./modules/sops.nix
-				( import ./modules/boot/basic.nix { efi = true; timeout = 30; })
-				./modules/boot/chn-PC.nix
-				./modules/filesystem/chn-PC.nix
-				./modules/hardware/bluetooth.nix
-				./modules/hardware/joystick.nix
-				( import ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } )
-				./modules/hardware/printer.nix
-				./modules/hardware/sound.nix
-				./modules/hardware/chn-PC.nix
-				./modules/networking/basic.nix
-				./modules/networking/samba.nix
-				./modules/networking/ssh.nix
-				./modules/networking/wall_client.nix
-				./modules/networking/xmunet.nix
-				./modules/networking/chn-PC.nix
-				./modules/packages/terminal.nix
-				./modules/packages/gui.nix
-				./modules/packages/gaming.nix
-				./modules/packages/hpc.nix
-				( import ./modules/users/root.nix {} ) 
-				( import ./modules/users/chn.nix {} ) 
-				./modules/virtualisation/docker.nix
-				./modules/virtualisation/kvm_guest.nix
-				./modules/virtualisation/kvm_host.nix
-				./modules/virtualisation/waydroid.nix
-				./modules/home/root.nix
-				./modules/home/chn.nix
+				(
+					mkModules
+					[
+						[ ./modules/basic.nix { hostName = "chn-PC"; } ]
+						./modules/fonts.nix
+						[ ./modules/i18n.nix { fcitx = true; } ]
+						./modules/kde.nix
+						./modules/sops.nix
+						[ ./modules/boot/basic.nix { efi = true; timeout = 30; } ]
+						./modules/boot/chn-PC.nix
+						./modules/filesystem/chn-PC.nix
+						./modules/hardware/bluetooth.nix
+						./modules/hardware/joystick.nix
+						[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
+						./modules/hardware/printer.nix
+						./modules/hardware/sound.nix
+						./modules/hardware/chn-PC.nix
+						./modules/networking/basic.nix
+						./modules/networking/samba.nix
+						./modules/networking/ssh.nix
+						./modules/networking/wall_client.nix
+						./modules/networking/xmunet.nix
+						./modules/networking/chn-PC.nix
+						./modules/packages/terminal.nix
+						./modules/packages/gui.nix
+						./modules/packages/gaming.nix
+						./modules/packages/hpc.nix
+						[ ./modules/users/root.nix {} ]
+						[ ./modules/users/chn.nix {} ]
+						./modules/virtualisation/docker.nix
+						./modules/virtualisation/kvm_guest.nix
+						./modules/virtualisation/kvm_host.nix
+						./modules/virtualisation/waydroid.nix
+						./modules/home/root.nix
+						./modules/home/chn.nix
+					]
+				)
 			];
 		};
 

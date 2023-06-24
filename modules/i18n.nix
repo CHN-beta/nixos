@@ -1,4 +1,4 @@
-{ fcitx }: { pkgs, ... }@inputs:
+{ fcitx }: inputs:
 {
 	config.i18n =
 	{

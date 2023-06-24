@@ -1,4 +1,4 @@
-{ intelBusId, nvidiaBusId }: { pkgs, ... }@inputs:
+{ intelBusId, nvidiaBusId }: inputs:
 {
 	config =
 	{

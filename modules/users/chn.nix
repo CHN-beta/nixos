@@ -1,4 +1,4 @@
-{ bootstrape ? false }: { pkgs, ... }@inputs:
+{ bootstrape ? false }: inputs:
 {
 	config =
 	{

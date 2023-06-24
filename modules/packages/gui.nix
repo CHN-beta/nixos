@@ -1,4 +1,4 @@
-{ pkgs, ... }@inputs:
+inputs:
 {
 	config =
 	{
@@ -81,7 +81,7 @@
 			mpv inputs.config.nur.repos.xddxdd.svp
 			wireshark
 		]
-		++ (with inputs.lib; filter isDerivation (attrValues pkgs.plasma5Packages.kdeGear));
+		++ (with inputs.lib; filter isDerivation (attrValues inputs.pkgs.plasma5Packages.kdeGear));
 		programs.wireshark.enable = true;
 		nixpkgs.config.permittedInsecurePackages = [ "openssl-1.1.1u" "electron-19.0.7" ];
 	};

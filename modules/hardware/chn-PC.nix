@@ -24,7 +24,7 @@
 		};
 		services.dbus.implementation = "broker";
 		programs.dconf.enable = true;
-		hardware.opengl.extraPackages = with pkgs; [ intel-media-driver intel-ocl ];
+		hardware.opengl.extraPackages = with inputs.pkgs; [ intel-media-driver intel-ocl ];
 		systemd.services =
 		{
 			reload-iwlwifi-after-hibernate =
@@ -36,9 +36,9 @@
 					Type = "oneshot";
 					ExecStart =
 					[
-						"${pkgs.kmod}/bin/modprobe -r iwlwifi"
-						"${pkgs.kmod}/bin/modprobe iwlwifi"
-						"${pkgs.bash}/bin/bash -c 'echo 0 /sys/devices/system/cpu/intel_pstate/no_turbo'"
+						"${inputs.pkgs.kmod}/bin/modprobe -r iwlwifi"
+						"${inputs.pkgs.kmod}/bin/modprobe iwlwifi"
+						"${inputs.pkgs.bash}/bin/bash -c 'echo 0 /sys/devices/system/cpu/intel_pstate/no_turbo'"
 					];
 				};
 				wantedBy = [ "systemd-hibernate.service" ];
@@ -46,10 +46,10 @@
 			lid-no-wakeup =
 			{
 				description = "lid no wake up";
-				serviceConfig.ExecStart = "${pkgs.bash}/bin/bash -c '"
-					+ "if ${pkgs.coreutils}/bin/cat /proc/acpi/wakeup | "
-					+ "${pkgs.gnugrep}/bin/grep LID0 | "
-					+ "${pkgs.gnugrep}/bin/grep -q enabled; then "
+				serviceConfig.ExecStart = "${inputs.pkgs.bash}/bin/bash -c '"
+					+ "if ${inputs.pkgs.coreutils}/bin/cat /proc/acpi/wakeup | "
+					+ "${inputs.pkgs.gnugrep}/bin/grep LID0 | "
+					+ "${inputs.pkgs.gnugrep}/bin/grep -q enabled; then "
 						+ "echo LID0 > /proc/acpi/wakeup; "
 					+ "fi'";
 				wantedBy = [ "multi-user.target" ];

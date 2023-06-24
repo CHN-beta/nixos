@@ -1,4 +1,4 @@
-{ hostName }: { pkgs, ... }@inputs:
+{ hostName }: inputs:
 {
 	config =
 	{

@@ -1,5 +1,5 @@
 # TODO: disable auto usb redirection
-{ pkgs, ...}@inputs:
+inputs:
 {
 	config =
 	{
@@ -8,6 +8,6 @@
 			libvirtd = { enable = true; qemu.runAsRoot = false; onBoot = "ignore"; onShutdown = "shutdown"; };
 			spiceUSBRedirection.enable = true;
 		};
-		environment.systemPackages = with pkgs; [ qemu_full virt-manager win-spice ];
+		environment.systemPackages = with inputs.pkgs; [ qemu_full virt-manager win-spice ];
 	};
 }
