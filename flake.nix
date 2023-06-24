@@ -39,11 +39,7 @@
 		nur-xddxdd =
 		{
 			url = "github:xddxdd/nur-packages";
-			inputs =
-			{
-				flake-utils.follows = "flake-utils";
-				nixpkgs.follows = "nixpkgs-stable";
-			};
+			inputs = { flake-utils.follows = "flake-utils"; nixpkgs.follows = "nixpkgs-stable"; };
 		};
 		nix-vscode-extensions =
 		{
@@ -68,11 +64,7 @@
 		plasma-manager =
 		{
 			url = "github:pjones/plasma-manager";
-			inputs =
-			{
-				nixpkgs.follows = "nixpkgs";
-				home-manager.follows = "home-manager";
-			};
+			inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
 		};
 		impermanence.url = "github:nix-community/impermanence";
     };
