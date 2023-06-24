@@ -39,10 +39,7 @@
 					[
 						"${pkgs.kmod}/bin/modprobe -r iwlwifi"
 						"${pkgs.kmod}/bin/modprobe iwlwifi"
-						(
-							"${pkgs.bash}/bin/bash -c '${pkgs.coreutils}/bin/echo 0 "
-								+ "/sys/devices/system/cpu/intel_pstate/no_turbo'"
-						)
+						"${pkgs.bash}/bin/bash -c 'echo 0 /sys/devices/system/cpu/intel_pstate/no_turbo'"
 					];
 				};
 				wantedBy = [ "systemd-hibernate.service" ];
@@ -51,11 +48,11 @@
 			{
 				description = "lid no wake up";
 				serviceConfig.ExecStart = "${pkgs.bash}/bin/bash -c '"
-					+ "${pkgs.coreutils}/bin/cat /proc/acpi/wakeup | "
+					+ "if ${pkgs.coreutils}/bin/cat /proc/acpi/wakeup | "
 					+ "${pkgs.gnugrep}/bin/grep LID0 | "
-					+ "${pkgs.gnugrep}/bin/grep -q enabled && "
-					+ "${pkgs.coreutils}/bin/echo LID0 "
-					+ "> /proc/acpi/wakeup'";
+					+ "${pkgs.gnugrep}/bin/grep -q enabled; then "
+						+ "echo LID0 > /proc/acpi/wakeup; "
+					+ "fi'";
 				wantedBy = [ "multi-user.target" ];
 			};
 		};
