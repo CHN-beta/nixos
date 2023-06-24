@@ -80,7 +80,7 @@ inputs:
 			scrcpy
 			mpv inputs.config.nur.repos.xddxdd.svp
 			wireshark
-			jetbrains.clion
+			jetbrains.clion android-studio
 		]
 		++ (with inputs.lib; filter isDerivation (attrValues inputs.pkgs.plasma5Packages.kdeGear));
 		programs.wireshark.enable = true;
