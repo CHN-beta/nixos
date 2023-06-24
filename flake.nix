@@ -26,7 +26,7 @@
 		touchix = { url = "github:CHN-beta/touchix"; inputs.nixpkgs.follows = "nixpkgs"; };
 		aagl =
 		{
-			url = "github:ezKEa/aagl-gtk-on-nix";
+			url = "github:ezKEa/aagl-gtk-on-nix/19f797f";
 			inputs = { nixpkgs.follows = "nixpkgs"; flake-compat.follows = "flake-compat"; };
 		};
 		nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
