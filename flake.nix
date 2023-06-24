@@ -82,7 +82,7 @@
 		"chn-PC" = inputs.nixpkgs.lib.nixosSystem
 		{
 			system = "x86_64-linux";
-			specialArgs = { inherit inputs; };
+			specialArgs = { topInputs = inputs; };
 			modules =
 			[
 				inputs.home-manager.nixosModules.home-manager
@@ -139,7 +139,7 @@
 		"chn-nixos-test" = inputs.nixpkgs.lib.nixosSystem
 		{
 			system = "x86_64-linux";
-			specialArgs = { inherit inputs; };
+			specialArgs = { topInputs = inputs; };
 			modules =
 			[
 				inputs.home-manager.nixosModules.home-manager
