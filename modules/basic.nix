@@ -37,5 +37,6 @@
 		};
 		programs.nix-ld.enable = true;
 		boot = { supportedFilesystems = [ "ntfs" ]; consoleLogLevel = 7; };
+		hardware.enableAllFirmware = true;
 	};
 }

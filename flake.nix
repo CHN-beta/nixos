@@ -100,9 +100,7 @@
 						[ ./modules/i18n.nix { fcitx = true; } ]
 						./modules/kde.nix
 						./modules/sops.nix
-						[ ./modules/boot/basic.nix { efi = true; timeout = 30; } ]
 						./modules/boot/chn-PC.nix
-						./modules/filesystem/chn-PC.nix
 						./modules/hardware/bluetooth.nix
 						./modules/hardware/joystick.nix
 						[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
