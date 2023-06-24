@@ -34,11 +34,10 @@
 				serviceConfig =
 				{
 					Type = "oneshot";
-					ExecStart =
+					ExecStart = let inherit (inputs.pkgs) kmod bash; in
 					[
-						"${inputs.pkgs.kmod}/bin/modprobe -r iwlwifi"
-						"${inputs.pkgs.kmod}/bin/modprobe iwlwifi"
-						"${inputs.pkgs.bash}/bin/bash -c 'echo 0 /sys/devices/system/cpu/intel_pstate/no_turbo'"
+						"${kmod}/bin/modprobe -r iwlwifi" "${kmod}/bin/modprobe iwlwifi"
+						"${bash}/bin/bash -c 'echo 0 /sys/devices/system/cpu/intel_pstate/no_turbo'"
 					];
 				};
 				wantedBy = [ "systemd-hibernate.service" ];
@@ -46,12 +45,14 @@
 			lid-no-wakeup =
 			{
 				description = "lid no wake up";
-				serviceConfig.ExecStart = "${inputs.pkgs.bash}/bin/bash -c '"
-					+ "if ${inputs.pkgs.coreutils}/bin/cat /proc/acpi/wakeup | "
-					+ "${inputs.pkgs.gnugrep}/bin/grep LID0 | "
-					+ "${inputs.pkgs.gnugrep}/bin/grep -q enabled; then "
-						+ "echo LID0 > /proc/acpi/wakeup; "
-					+ "fi'";
+				serviceConfig.ExecStart = let inherit (inputs.pkgs) bash coreutils gnugrep; in
+					"${bash}/bin/bash -c '"
+						+ "if ${coreutils}/bin/cat /proc/acpi/wakeup | "
+						+ "${gnugrep}/bin/grep LID0 | "
+						+ "${gnugrep}/bin/grep -q enabled; then "
+							+ "echo LID0 > /proc/acpi/wakeup; "
+						+ "fi"
+					+ "'";
 				wantedBy = [ "multi-user.target" ];
 			};
 		};
