@@ -15,7 +15,7 @@
 			{
 				device = "/dev/mapper/root";
 				fsType = "btrfs";
-				options = [ "subvol=nix" "compress-force=zstd:15" ];
+				options = [ "subvol=nix" "compress-force=lzo" ];
 			};
 			"/boot" =
 			{
