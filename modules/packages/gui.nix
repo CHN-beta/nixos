@@ -80,6 +80,7 @@ inputs:
 			scrcpy
 			mpv inputs.config.nur.repos.xddxdd.svp
 			wireshark
+			jetbrains.clion
 		]
 		++ (with inputs.lib; filter isDerivation (attrValues inputs.pkgs.plasma5Packages.kdeGear));
 		programs.wireshark.enable = true;
