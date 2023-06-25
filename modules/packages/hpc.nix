@@ -2,7 +2,7 @@ inputs:
 {
 	config.environment.systemPackages = with inputs.pkgs;
 	[
-		ovito paraview # vsim vesta
+		ovito paraview localPackages.vesta # vsim
 		(python3.withPackages (ps: with ps; [ phonopy inquirerpy requests tqdm ]))
 		mathematica octave root
 	];

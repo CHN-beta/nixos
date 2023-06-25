@@ -79,11 +79,10 @@ inputs:
 			crow-translate
 			scrcpy
 			mpv inputs.config.nur.repos.xddxdd.svp
-			wireshark
 			jetbrains.clion android-studio
 		]
 		++ (with inputs.lib; filter isDerivation (attrValues inputs.pkgs.plasma5Packages.kdeGear));
-		programs.wireshark.enable = true;
+		programs.wireshark = { enable = true; package = inputs.pkgs.wireshark; };
 		nixpkgs.config.permittedInsecurePackages = [ "openssl-1.1.1u" "electron-19.0.7" ];
 	};
 }
