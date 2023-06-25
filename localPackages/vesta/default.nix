@@ -1,4 +1,4 @@
-{ lib, stdenv, fetchurl, autoPatchelfHook, gtk2, xorg, libGLU, gtk3, openjdk }:
+{ lib, stdenv, fetchurl, autoPatchelfHook, gtk2, xorg, libGLU, gtk3, openjdk, writeShellScript }:
 
 stdenv.mkDerivation rec
 {
@@ -20,6 +20,7 @@ stdenv.mkDerivation rec
 
 	unpackPhase = "tar -xf ${src}";
 
+	startScript = writeShellScript "vesta" "$(dirname $(realpath $0))/../opt/VESTA-gtk3/VESTA $@";
   installPhase =
 	''
 		mkdir -p $out/share/applications
@@ -30,7 +31,7 @@ stdenv.mkDerivation rec
 		cp -r VESTA-gtk3 $out/opt/VESTA-gtk3
 
 		mkdir -p $out/bin
-		ln -s $out/opt/VESTA-gtk3/VESTA $out/bin/vesta
+		cp ${startScript} $out/bin/vesta
 
 		patchelf --remove-needed libjawt.so $out/opt/VESTA-gtk3/PowderPlot/libswt-awt-gtk-3346.so
 	'';
