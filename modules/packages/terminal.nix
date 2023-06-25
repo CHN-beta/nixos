@@ -5,7 +5,7 @@ inputs:
 		environment.systemPackages = with inputs.pkgs;
 		[
 			beep neofetch screen dos2unix tldr gnugrep pv
-			pciutils usbutils lshw powertop compsize iotop iftop smartmontools htop
+			pciutils usbutils lshw powertop compsize iotop iftop smartmontools htop intel-gpu-tools
 			ksh
 			vim nano
 			wget aria2 curl yt-dlp
