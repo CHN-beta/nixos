@@ -1,13 +1,13 @@
-{ stdenv, fetchurl, autoPatchelfHook, gtk2, xorg, libGLU, gtk3, openjdk }:
+{ lib, stdenv, fetchurl, autoPatchelfHook, gtk2, xorg, libGLU, gtk3, openjdk }:
 
 stdenv.mkDerivation rec
 {
 	pname = "vesta";
-	version = "3.5.8";
+	version = "3.5.5";
 	src = fetchurl
 	{
-		url = "https://jp-minerals.org/vesta/archives/3.5.8/VESTA-gtk3.tar.bz2";
-		sha256 = "eL7wJcKzHx1kycfgatKxOdJSs6aGiT7nmsdLMCGGjfg=";
+		url = "https://jp-minerals.org/vesta/archives/${version}/VESTA-gtk3.tar.bz2";
+		sha256 = "sRzQNJA7+hsjLWmykqe6bH0p1/aGEB8hCuxCyPzxYHs=";
 	};
 	desktopFile = fetchurl
 	{
