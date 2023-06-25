@@ -85,13 +85,17 @@
 				inputs.nur.nixosModules.nur
 				inputs.impermanence.nixosModules.impermanence
 				({
-					config.nixpkgs.overlays =
-					[( final: prev:
+					config.nixpkgs =
 					{
-						touchix = inputs.touchix.packages."${prev.system}";
-						nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
-						localPackages = import ./localPackages { pkgs = inputs.nixpkgs.legacyPackages.${prev.system}; };
-					} )];
+						overlays =
+						[( final: prev:
+						{
+							touchix = inputs.touchix.packages."${prev.system}";
+							nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
+							localPackages = import ./localPackages { pkgs = inputs.nixpkgs.legacyPackages.${prev.system}; };
+						} )];
+						config.allowUnfree = true;
+					};
 				})
 				(
 					mkModules
