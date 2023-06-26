@@ -39,7 +39,16 @@ inputs:
 				};
 			};
 			adb.enable = true;
+			gnupg.agent =
+			{
+				enable = true;
+				enableSSHSupport = true;
+			};
 		};
-		services.fwupd.enable = true;
+		services =
+		{
+			fwupd.enable = true;
+			udev.packages = [ inputs.pkgs.yubikey-personalization ];
+		};
 	};
 }
