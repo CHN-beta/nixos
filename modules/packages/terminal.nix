@@ -20,6 +20,7 @@ inputs:
 			ipset iptables iproute2 dig nettools
 			gcc clang-tools
 			sshfs kio-fuse
+			pam_u2f
 		];
 		programs =
 		{
