@@ -2,7 +2,6 @@ inputs:
 {
 	config =
 	{
-
 		# filesystem mount
 		fileSystems =
 		{
@@ -93,7 +92,24 @@ inputs:
 		# initrd, luks
 		boot.initrd =
 		{
-			systemd.enable = true;
+			systemd =
+			{
+				enable = true;
+				services.create-current-rootfs =
+				{
+					wantedBy = [ "cryptsetup.target" ];
+					after = [ "cryptsetup.target" ];
+					before = [ "local-fs.target" ];
+					unitConfig.DefaultDependencies = false;
+					serviceConfig.Type = "oneshot";
+					script =
+					''
+						mount /dev/mapper/root /mnt -m
+						btrfs subvolume create /mnt/nix/rootfs/current
+						unmount /mnt
+					'';
+				};
+			};
 			# modules in initrd
 			# modprobe --show-depends
 			availableKernelModules =
