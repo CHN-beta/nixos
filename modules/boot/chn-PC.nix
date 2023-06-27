@@ -121,20 +121,31 @@ inputs:
 			hideMounts = true;
 			directories =
 			[
-				# "/etc/NetworkManager/system-connections"
-				"/etc"
+				"/etc/NetworkManager/system-connections"
+				# "/etc/pam"
+				# "/etc/pam.d"
+				# "/etc/default"
+				# "/etc/systemd"
+				# "/etc/static"
+				# "/etc/ssh"
+				# "/etc/nixos"
+				# "/etc"
 				"/home"
 				"/root"
 				"/var"
 			];
-			# files =
-			# [
-			# 	"/etc/machine-id"
-			# 	"/etc/ssh/ssh_host_ed25519_key.pub"
-			# 	"/etc/ssh/ssh_host_ed25519_key"
-			# 	"/etc/ssh/ssh_host_rsa_key.pub"
-			# 	"/etc/ssh/ssh_host_rsa_key"
-			# ];
+			files =
+			[
+				"/etc/machine-id"
+				"/etc/ssh/ssh_host_ed25519_key.pub"
+				"/etc/ssh/ssh_host_ed25519_key"
+				"/etc/ssh/ssh_host_rsa_key.pub"
+				"/etc/ssh/ssh_host_rsa_key"
+				# "/etc/group"
+				# "/etc/passwd"
+				# "/etc/shadow"
+				# "/etc/adjtime"
+			];
 		};
 
 		# services
