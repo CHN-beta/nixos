@@ -7,9 +7,9 @@ inputs:
 		{
 			"/" =
 			{
-				device = "tmpfs";
-				fsType = "tmpfs";
-				options = [ "size=16G" "relatime" "mode=755" ];
+				device = "/dev/mapper/root";
+				fsType = "btrfs";
+				options = [ "subvol=nix/rootfs/current" "compress-force=zstd:8" ];
 			};
 			# Disable CoW for VM image and database:
 			# sudo chattr +C images
@@ -99,14 +99,19 @@ inputs:
 				{
 					wantedBy = [ "cryptsetup.target" ];
 					after = [ "cryptsetup.target" ];
-					before = [ "local-fs.target" ];
+					before = [ "local-fs-pre.target" ];
 					unitConfig.DefaultDependencies = false;
 					serviceConfig.Type = "oneshot";
 					script =
 					''
 						mount /dev/mapper/root /mnt -m
+						if [ -f /mnt/nix/rootfs/current/.timestamp ]
+						then
+							mv /mnt/nix/rootfs/current /mnt/nix/rootfs/$(cat /mnt/nix/rootfs/current/.timestamp)
+						fi
 						btrfs subvolume create /mnt/nix/rootfs/current
-						unmount /mnt
+						echo $(date '+%Y%m%d%H%M%S') > /mnt/nix/rootfs/current/.timestamp
+						umount /mnt
 					'';
 				};
 			};
@@ -138,14 +143,6 @@ inputs:
 			directories =
 			[
 				"/etc/NetworkManager/system-connections"
-				# "/etc/pam"
-				# "/etc/pam.d"
-				# "/etc/default"
-				# "/etc/systemd"
-				# "/etc/static"
-				# "/etc/ssh"
-				# "/etc/nixos"
-				# "/etc"
 				"/home"
 				"/root"
 				"/var"
@@ -157,16 +154,12 @@ inputs:
 				"/etc/ssh/ssh_host_ed25519_key"
 				"/etc/ssh/ssh_host_rsa_key.pub"
 				"/etc/ssh/ssh_host_rsa_key"
-				# "/etc/group"
-				# "/etc/passwd"
-				# "/etc/shadow"
-				# "/etc/adjtime"
 			];
 		};
 
 		# services
-		systemd.services.nix-daemon =
-			{ environment = { TMPDIR = "/var/cache/nix"; }; serviceConfig = { CacheDirectory = "nix"; }; };
+		systemd.services.nix-daemon
+			= { environment = { TMPDIR = "/var/cache/nix"; }; serviceConfig = { CacheDirectory = "nix"; }; };
 		services =
 		{
 			snapper.configs.impermanence =
