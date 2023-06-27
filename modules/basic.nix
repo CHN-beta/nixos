@@ -38,6 +38,11 @@
 		programs.nix-ld.enable = true;
 		boot = { supportedFilesystems = [ "ntfs" ]; consoleLogLevel = 7; };
 		hardware.enableAllFirmware = true;
-		security.pam.services = { login.u2fAuth = true; sudo.u2fAuth = true; };
+		security.pam =
+		{
+			u2f = { enable = true; cue = true; authFile = inputs.config.sops.secrets."u2f".path; };
+			services = { login.u2fAuth = true; sudo.u2fAuth = true; };
+		};
+		sops.secrets.u2f.neededForUsers = true;
 	};
 }
