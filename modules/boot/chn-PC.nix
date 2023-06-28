@@ -54,6 +54,7 @@ inputs:
 		'';
 		boot.kernelParams = [ "delayacct" "acpi_osi=Linux" "resume_offset=41696016" ];
 		boot.resumeDevice = "/dev/mapper/root";
+		boot.kernelPatches = [{ name = "hdmi"; patch = ./hdmi.patch; }];
 
 		# grub
 		boot.loader =
