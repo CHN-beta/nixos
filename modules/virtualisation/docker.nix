@@ -4,5 +4,6 @@
 		enable = true;
 		rootless = { enable = true; setSocketVariable = true; };
 		enableNvidia = true;
+		storageDriver = "overlay2";
 	};
 }
