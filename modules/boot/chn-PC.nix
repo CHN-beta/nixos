@@ -158,8 +158,11 @@ inputs:
 		};
 
 		# services
-		systemd.services.nix-daemon
-			= { environment = { TMPDIR = "/var/cache/nix"; }; serviceConfig = { CacheDirectory = "nix"; }; };
+		systemd.services =
+		{
+			nix-daemon = { environment = { TMPDIR = "/var/cache/nix"; }; serviceConfig = { CacheDirectory = "nix"; }; };
+			systemd-tmpfiles-setup = { environment = { SYSTEMD_TMPFILES_FORCE_SUBVOL = "0"; }; };
+		};
 		services =
 		{
 			snapper.configs.impermanence =
