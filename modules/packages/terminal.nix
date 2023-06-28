@@ -11,7 +11,7 @@ inputs:
 			vim nano
 			wget aria2 curl yt-dlp
 			tree git autojump exa
-			nix-output-monitor inputs.topInputs.nix-alien.packages.x86_64-linux.nix-alien
+			nix-output-monitor inputs.topInputs.nix-alien.packages.x86_64-linux.nix-alien nix-template
 			apacheHttpd certbot-full
 			pigz rar unrar upx unzip zip lzip
 			util-linux snapper
