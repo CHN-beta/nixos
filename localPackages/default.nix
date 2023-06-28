@@ -1,7 +1,6 @@
 { pkgs }: with pkgs;
 {
-	mathtools = callPackage ./mathtools {};
-	vesta = callPackage ./vesta {};
 	typora = callPackage ./typora {};
-	upho = callPackage ./upho {};
+	upho = python3Packages.callPackage ./upho {};
+	vesta = callPackage ./vesta {};
 }

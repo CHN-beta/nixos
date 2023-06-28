@@ -92,7 +92,7 @@
 						{
 							touchix = inputs.touchix.packages."${prev.system}";
 							nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
-							localPackages = import ./localPackages { pkgs = inputs.nixpkgs.legacyPackages.${prev.system}; };
+							localPackages = import ./localPackages { pkgs = prev; };
 						} )];
 						config.allowUnfree = true;
 					};

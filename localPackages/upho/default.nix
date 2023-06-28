@@ -1,4 +1,4 @@
-{ lib, buildPythonPackage, fetchFromGitHub, numpy, h5py, phonopy, mathtools }: buildPythonPackage rec
+{ lib, fetchFromGitHub, buildPythonPackage, numpy, h5py, phonopy }: buildPythonPackage rec
 {
 	pname = "upho";
 	version = "0.6.6";
@@ -9,5 +9,17 @@
 		rev = "v${version}";
 		sha256 = "sha256-kOUwdXNrBfFglxGzO+qgRuSjiIOMafrgHkrV9blYs9c=";
 	};
-	propagatedBuildInputs = [ numpy h5py phonopy mathtools ];
+	doCheck = false;
+	propagatedBuildInputs =
+	[
+		numpy h5py phonopy
+		# (
+		# 	buildPythonPackage
+		# 	{
+		# 		pname = "group";
+		# 		inherit version;
+		# 		src = "${src}/group";
+		# 	}
+		# )
+	];
 }
