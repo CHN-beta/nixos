@@ -44,5 +44,10 @@
 			services = { login.u2fAuth = true; sudo.u2fAuth = true; };
 		};
 		sops.secrets.u2f.neededForUsers = true;
+		systemd.nspawn.arch =
+		{
+			execConfig.PrivateUsers = false;
+			networkConfig.VirtualEthernet = false;
+		};
 	};
 }
