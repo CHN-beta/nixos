@@ -97,7 +97,7 @@ inputs:
 				enable = true;
 				services.create-current-rootfs =
 				{
-					wantedBy = [ "cryptsetup.target" ];
+					wantedBy = [ "local-fs-pre.target" ];
 					after = [ "cryptsetup.target" ];
 					before = [ "local-fs-pre.target" ];
 					unitConfig.DefaultDependencies = false;
