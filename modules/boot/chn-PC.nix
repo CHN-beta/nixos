@@ -66,6 +66,11 @@ inputs:
 				};
 				extraStructuredConfig = { FONT_CJK_16x16 = inputs.lib.kernel.yes; FONT_CJK_32x32 = inputs.lib.kernel.yes; };
 			}
+			{
+				name = "custom config";
+				patch = null;
+				extraStructuredConfig = { GENERIC_CPU = inputs.lib.kernel.no; MALDERLAKE = inputs.lib.kernel.yes; };
+			}
 		];
 
 		# grub
