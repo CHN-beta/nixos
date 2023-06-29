@@ -8,6 +8,6 @@ inputs:
 			phonopy inquirerpy requests tqdm
 			localPackages.upho
 		]))
-		mathematica octave root cling
+		mathematica octave root cling gfortran
 	];
 }
