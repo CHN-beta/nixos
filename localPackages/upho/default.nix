@@ -4,22 +4,11 @@
 	version = "0.6.6";
 	src = fetchFromGitHub
 	{
-		owner = "yuzie007";
+		owner = "CHN-beta";
 		repo = "upho";
-		rev = "v${version}";
-		sha256 = "sha256-kOUwdXNrBfFglxGzO+qgRuSjiIOMafrgHkrV9blYs9c=";
+		rev = "1468521477f2a6d112abd7a3e182c6a0ccb6f6c0";
+		sha256 = "sha256-ZtGUGpxesiQL/76zSTQjt3UK+JoRNs/C2g+3PC3eADE=";
 	};
 	doCheck = false;
-	propagatedBuildInputs =
-	[
-		numpy h5py phonopy
-		# (
-		# 	buildPythonPackage
-		# 	{
-		# 		pname = "group";
-		# 		inherit version;
-		# 		src = "${src}/group";
-		# 	}
-		# )
-	];
+	propagatedBuildInputs = [ numpy h5py phonopy ];
 }
