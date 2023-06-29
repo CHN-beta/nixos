@@ -41,7 +41,8 @@
 		security.pam =
 		{
 			u2f = { enable = true; cue = true; authFile = inputs.config.sops.secrets."u2f".path; };
-			services = { login.u2fAuth = true; sudo.u2fAuth = true; };
+			services = builtins.listToAttrs (builtins.map (name: { inherit name; value = { u2fAuth = true; }; })
+				[ "login" "sudo" "su" "kde" "polkit-1" ]);
 		};
 		sops.secrets.u2f.neededForUsers = true;
 		systemd.nspawn.arch =
