@@ -80,7 +80,7 @@ inputs:
 			scrcpy
 			mpv inputs.config.nur.repos.xddxdd.svp
 			jetbrains.clion android-studio
-			# localPackages.typora
+			localPackages.typora
 			yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui
 			appflowy
 		]

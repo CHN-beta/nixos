@@ -1,4 +1,4 @@
-{ lib, stdenv, steam, fetchurl, writeShellScript }:
+{ lib, stdenv, steam-run, fetchurl, writeShellScript }:
 let
 	typora-dist = stdenv.mkDerivation rec
 	{
@@ -7,7 +7,7 @@ let
 		src = fetchurl
 		{
 			url = "https://download.typora.io/linux/typora_${version}_amd64.deb";
-			sha256 = lib.fakeSha256;
+			sha256 = "sha256-77mCgmsROLhfuOmOOyl2C5Ug2NfqEvcD+kMA3aiAQtA=";
 		};
 
 		dontFixup = true;
@@ -23,10 +23,6 @@ let
 			mv usr/share $out
 		'';
 	};
-	steam-run = (steam.override {
-    extraPkgs = p: [ license resource ];
-    runtimeOnly = true;
-  }).run;
 in stdenv.mkDerivation rec
 {
 	pname = "typora";
@@ -38,6 +34,9 @@ in stdenv.mkDerivation rec
 	''
     mkdir -p $out/bin $out/share/applications
     ln -s ${startScript} $out/bin/typora
-    cp ${typora-dist}/share/applications/ $out/share/applications/typora.desktop
+    cp ${typora-dist}/share/applications/typora.desktop $out/share/applications
+		sed -i "s|Exec=.*|Exec=${startScript} %U|g" $out/share/applications/typora.desktop
+		sed -i "s|Icon=.*|Icon=${typora-dist}/share/icons/hicolor/256x256/apps/typora.png|g" \
+			$out/share/applications/typora.desktop
   '';
 }
