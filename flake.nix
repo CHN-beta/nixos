@@ -67,7 +67,12 @@
 			inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
 		};
 		impermanence.url = "github:nix-community/impermanence";
-    };
+		qchem =
+		{
+			url = "github:Nix-QChem/NixOS-QChem";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
+	};
 
 	outputs = inputs: { nixosConfigurations = let mkModules = import ./lib/mkModules.nix; in
 	{
@@ -88,12 +93,15 @@
 					config.nixpkgs =
 					{
 						overlays =
-						[( final: prev:
-						{
-							touchix = inputs.touchix.packages."${prev.system}";
-							nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
-							localPackages = import ./localPackages { pkgs = prev; };
-						} )];
+						[
+							( final: prev:
+							{
+								touchix = inputs.touchix.packages."${prev.system}";
+								nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
+								localPackages = import ./localPackages { pkgs = prev; };
+							} )
+							inputs.qchem.overlays.default
+						];
 						config.allowUnfree = true;
 					};
 				})

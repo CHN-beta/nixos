@@ -346,6 +346,26 @@
         "type": "github"
       }
     },
+    "qchem": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1686741526,
+        "narHash": "sha256-1w8o+HXU9ubz1kRYR56g8jHz/dbJuckJGvXIDK4aw1M=",
+        "owner": "Nix-QChem",
+        "repo": "NixOS-QChem",
+        "rev": "2959232611d40f836daa79522c6fb5e96caea295",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Nix-QChem",
+        "repo": "NixOS-QChem",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "aagl": "aagl",
@@ -363,6 +383,7 @@
         "nur-xddxdd": "nur-xddxdd",
         "nvfetcher": "nvfetcher",
         "plasma-manager": "plasma-manager",
+        "qchem": "qchem",
         "sops-nix": "sops-nix",
         "touchix": "touchix"
       }

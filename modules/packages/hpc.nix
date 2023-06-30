@@ -9,5 +9,6 @@ inputs:
 			localPackages.upho
 		]))
 		mathematica octave root cling gfortran
+		qchem.quantum-espresso
 	];
 }
