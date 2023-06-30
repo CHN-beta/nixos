@@ -21,8 +21,8 @@
 					fwupd = generic-pkgs.fwupd;
 				}
 			)];
+			config.qchem-config.optArch = "alderlake";
 		};
-		qchem-config.optArch = "alderlake";
 		services.dbus.implementation = "broker";
 		programs.dconf.enable = true;
 		hardware.opengl.extraPackages = with inputs.pkgs; [ intel-media-driver intel-ocl ];
