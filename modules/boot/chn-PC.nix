@@ -155,7 +155,7 @@ inputs:
 		};
 
 		# impermanence
-		environment.persistence."/nix/impermanence" =
+		environment.persistence."/nix/persistent" =
 		{
 			hideMounts = true;
 			directories =
@@ -183,9 +183,9 @@ inputs:
 		};
 		services =
 		{
-			snapper.configs.impermanence =
+			snapper.configs.persistent =
 			{
-				SUBVOLUME = "/nix/impermanence";	
+				SUBVOLUME = "/nix/persistent";	
 				TIMELINE_CREATE = true;
 				TIMELINE_CLEANUP = true;
 				TIMELINE_MIN_AGE = 1800;
