@@ -21,6 +21,7 @@ inputs:
 			gcc clang-tools
 			sshfs kio-fuse
 			pam_u2f
+			e2fsprogs
 		];
 		programs =
 		{
