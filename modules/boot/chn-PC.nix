@@ -17,6 +17,10 @@ inputs:
 			# From btrfs wiki: 1-3 are real-time, 4-8 slower with improved compression,
 			#	 9-15 try even harder though the resulting size may not be significantly improved.
 			# https://btrfs.readthedocs.io/en/latest/Compression.html
+			# sudo btrfs filesystem resize -50G /nix
+			# sudo cryptsetup status root
+			# sudo cryptsetup -b 3787456512 resize root
+			# sudo cfdisk /dev/nvme1n1p3
 			"/nix" =
 			{
 				device = "/dev/mapper/root";
@@ -37,7 +41,15 @@ inputs:
 		};
 		# sudo btrfs fi mkswapfile --size 64g --uuid clear swap
 		# sudo btrfs inspect-internal map-swapfile -r swap
-		swapDevices = [ { device = "/nix/swap/swap"; } ];
+		# sudo mdadm --create /dev/md/swap --level 0 --raid-devices 2 /dev/nvme1n1p5 /dev/nvme0n1p5
+		# sudo mkswap --uuid clear /dev/md/swap
+		# sudo cryptsetup luksFormat /dev/md/swap
+		# sudo systemd-cryptenroll --fido2-device=auto /dev/md/swap
+		# sudo systemd-cryptenroll --wipe-slot=0 /dev/md/swap
+		# sudo $(dirname $(realpath $(which systemctl)))/../lib/systemd/systemd-cryptsetup \
+		#		attach swap /dev/md/swap - fido2-device=auto
+		# sudo mkswap --uuid clear /dev/mapper/swap
+		swapDevices = [ { device = "/dev/mapper/swap"; } ];
 
 		# kernel, modules, ucode
 		boot.kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
@@ -52,8 +64,8 @@ inputs:
 			options iwlmvm power_scheme=1
 			options iwlwifi uapsd_disable=1
 		'';
-		boot.kernelParams = [ "delayacct" "acpi_osi=Linux" "resume_offset=41696016" ];
-		boot.resumeDevice = "/dev/mapper/root";
+		boot.kernelParams = [ "delayacct" "acpi_osi=Linux" ];
+		boot.resumeDevice = "/dev/mapper/swap";
 		boot.kernelPatches =
 		[
 			{ name = "hdmi"; patch = ./hdmi.patch; }
@@ -133,6 +145,11 @@ inputs:
 					'';
 				};
 			};
+			services.swraid =
+			{
+				enable = true;
+				mdadmConf = "ARRAY /dev/md/swap metadata=1.2 name=chn-PC:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
+			};
 			# modules in initrd
 			# modprobe --show-depends
 			availableKernelModules =
@@ -142,11 +159,18 @@ inputs:
 			]
 			# speed up luks decryption
 			++ [ "aesni_intel" "cryptd" "crypto_simd" "libaes" ];
-			luks =
+			luks.devices =
 			{
-				devices.root =
+				root =
 				{
 					device = "/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26";
+					allowDiscards = true;
+					bypassWorkqueues = true;
+					crypttabExtraOpts = [ "fido2-device=auto" ];
+				};
+				swap =
+				{
+					device = "/dev/md/swap";
 					allowDiscards = true;
 					bypassWorkqueues = true;
 					crypttabExtraOpts = [ "fido2-device=auto" ];
