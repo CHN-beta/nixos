@@ -84,7 +84,7 @@ inputs:
 			yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui
 			appflowy
 			nomacs
-			putty
+			putty virt-viewer
 		]
 		++ (with inputs.lib; filter isDerivation (attrValues inputs.pkgs.plasma5Packages.kdeGear));
 		programs.wireshark = { enable = true; package = inputs.pkgs.wireshark; };
