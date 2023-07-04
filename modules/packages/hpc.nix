@@ -6,7 +6,7 @@ inputs:
 		(python3.withPackages (ps: with ps;
 		[
 			phonopy inquirerpy requests tqdm
-			localPackages.upho
+			localPackages.upho localPackages.spectral
 		]))
 		mathematica octave root cling gfortran
 		qchem.quantum-espresso
