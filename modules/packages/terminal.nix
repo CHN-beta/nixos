@@ -22,7 +22,8 @@ inputs:
 			sshfs kio-fuse
 			pam_u2f
 			e2fsprogs
-			trash-cli tmux adb-sync pdfchain wgetpaste httplib clang
+			trash-cli tmux adb-sync pdfchain wgetpaste httplib clang magic-enum xtensor
+			go rustc boost cereal cxxopts valgrind
 		];
 		programs =
 		{
