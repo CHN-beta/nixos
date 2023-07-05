@@ -22,6 +22,7 @@ inputs:
 			sshfs kio-fuse
 			pam_u2f
 			e2fsprogs
+			trash-cli tmux adb-sync pdfchain wgetpaste httplib clang
 		];
 		programs =
 		{
