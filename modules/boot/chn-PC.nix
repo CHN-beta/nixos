@@ -81,7 +81,13 @@ inputs:
 			{
 				name = "custom config";
 				patch = null;
-				extraStructuredConfig = { GENERIC_CPU = inputs.lib.kernel.no; MALDERLAKE = inputs.lib.kernel.yes; };
+				extraStructuredConfig =
+				{
+					GENERIC_CPU = inputs.lib.kernel.no; MALDERLAKE = inputs.lib.kernel.yes;
+					PREEMPT_VOLUNTARY = inputs.lib.kernel.no; PREEMPT = inputs.lib.kernel.yes;
+					HZ_500 = inputs.lib.kernel.no; HZ_1000 = inputs.lib.kernel.yes;
+					VFIO_PCI = inputs.lib.kernel.yes;
+				};
 			}
 		];
 
