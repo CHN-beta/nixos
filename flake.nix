@@ -88,19 +88,26 @@
 				inputs.aagl.nixosModules.default
 				inputs.nix-index-database.nixosModules.nix-index
 				inputs.nur.nixosModules.nur
+				inputs.nur-xddxdd.nixosModules.setupOverlay
 				inputs.impermanence.nixosModules.impermanence
-				({
+				(args: {
 					config.nixpkgs =
 					{
 						overlays =
 						[
-							( final: prev:
-							{
-								touchix = inputs.touchix.packages."${prev.system}";
-								nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
-								localPackages = import ./localPackages { pkgs = prev; };
-							} )
+							(
+								final: prev:
+								{
+									touchix = inputs.touchix.packages."${prev.system}";
+									nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
+									localPackages = import ./localPackages { pkgs = prev; };
+								}
+							)
 							inputs.qchem.overlays.default
+							(
+								final: prev:
+									{ nur-xddxdd = (inputs.nur-xddxdd.overlays.custom args.config.boot.kernelPackages.nvidia_x11) final prev; }
+							)
 						];
 						config.allowUnfree = true;
 					};
