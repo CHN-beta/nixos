@@ -9,7 +9,7 @@ inputs:
 			{
 				device = "/dev/mapper/root";
 				fsType = "btrfs";
-				options = [ "subvol=nix/rootfs/current" "compress-force=zstd:8" ];
+				options = [ "subvol=nix/rootfs/current" "compress-force=zstd" ];
 			};
 			# Disable CoW for VM image and database:
 			# sudo chattr +C images
@@ -25,13 +25,13 @@ inputs:
 			{
 				device = "/dev/mapper/root";
 				fsType = "btrfs";
-				options = [ "subvol=nix" "compress-force=zstd:8" ];
+				options = [ "subvol=nix" "compress-force=zstd" ];
 			};
 			"/boot" =
 			{
 				device = "/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614";
 				fsType = "btrfs";
-				options = [ "compress-force=zstd:15" ];
+				options = [ "compress-force=zstd" ];
 			};
 			"/boot/efi" =
 			{
