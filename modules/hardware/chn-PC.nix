@@ -21,7 +21,6 @@
 							mono = generic-pkgs.mono;
 							pandoc = generic-pkgs.pandoc;
 							fwupd = generic-pkgs.fwupd;
-							kwin = generic-pkgs.kwin;
 						}
 			)];
 			config.qchem-config.optArch = "alderlake";
