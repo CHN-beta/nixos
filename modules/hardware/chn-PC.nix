@@ -9,18 +9,20 @@
 			config.allowUnfree = true;
 			overlays =
 			[(
-				final: prev: let generic-pkgs = (inputs.topInputs.nixpkgs.lib.nixosSystem
-				{
-					system = "x86_64-linux";
-					modules = [{ config.nixpkgs.config.allowUnfree = true; }];
-				}).pkgs;
-				in
-				{
-					mono = generic-pkgs.mono;
-					pandoc = generic-pkgs.pandoc;
-					fwupd = generic-pkgs.fwupd;
-					kwin = generic-pkgs.kwin;
-				}
+				final: prev:
+					let
+						generic-pkgs = (inputs.topInputs.nixpkgs.lib.nixosSystem
+						{
+							system = "x86_64-linux";
+							modules = [{ config.nixpkgs.config.allowUnfree = true; }];
+						}).pkgs;
+					in
+						{
+							mono = generic-pkgs.mono;
+							pandoc = generic-pkgs.pandoc;
+							fwupd = generic-pkgs.fwupd;
+							kwin = generic-pkgs.kwin;
+						}
 			)];
 			config.qchem-config.optArch = "alderlake";
 		};
