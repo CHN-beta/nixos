@@ -19,9 +19,9 @@ moduleList: { pkgs, ... }@inputs:
 					then handle { module = builtins.elemAt module 0; customArgs = builtins.elemAt module 1; }
 				else if ( builtins.typeOf module ) == "path"
 					then handle { module = import module; inherit customArgs; }
-				else if ( builtins.typeOf module ) == "lambda" && customArgs != null
+				else if ( builtins.typeOf module ) == "lambda" && customArgs != null # deprecated
 					then handle { module = module customArgs; customArgs = null; }
-				else if ( builtins.typeOf module ) == "lambda" then module inputs
+				else if ( builtins.typeOf module ) == "lambda" then module inputs # deprecated
 				else module;
 			caller = module: handle { inherit module; customArgs = null; };
 		in caller
