@@ -74,7 +74,7 @@
 		};
 	};
 
-	outputs = inputs: { nixosConfigurations = let mkModules = import ./lib/mkModules.nix; in
+	outputs = inputs: { nixosConfigurations = let mkModules = import ./local/lib/mkModules.nix; in
 	{
 		"chn-PC" = inputs.nixpkgs.lib.nixosSystem
 		{
@@ -100,7 +100,7 @@
 								{
 									touchix = inputs.touchix.packages."${prev.system}";
 									nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
-									localPackages = import ./localPackages { pkgs = prev; };
+									localPackages = import ./local/pkgs { pkgs = prev; };
 								}
 							)
 							inputs.qchem.overlays.default
@@ -147,33 +147,6 @@
 						./modules/home/chn.nix
 					]
 				)
-			];
-		};
-
-		"chn-nixos-test" = inputs.nixpkgs.lib.nixosSystem
-		{
-			system = "x86_64-linux";
-			specialArgs = { topInputs = inputs; };
-			modules =
-			[
-				inputs.home-manager.nixosModules.home-manager
-				inputs.nix-index-database.nixosModules.nix-index
-				( import ./modules/basic.nix { hostName = "chn-nixos-test"; })
-				( import ./modules/i18n.nix { fcitx = false; } )
-				./modules/kde.nix
-				./modules/sops.nix
-				( import ./modules/boot/basic.nix { efi = true; timeout = 30; })
-				./modules/boot/chn-nixos-test.nix
-				./modules/filesystem/chn-nixos-test.nix
-				./modules/hardware/chn-nixos-test.nix
-				./modules/networking/basic.nix
-				./modules/networking/ssh.nix
-				./modules/packages/terminal.nix
-				( import ./modules/users/root.nix { bootstrape = true; } ) 
-				( import ./modules/users/chn.nix { bootstrape = true; } ) 
-				./modules/virtualisation/kvm_guest.nix
-				./modules/home/root.nix
-				./modules/home/chn.nix
 			];
 		};
 	}; };
