@@ -49,8 +49,8 @@
 			execConfig.PrivateUsers = false;
 			networkConfig.VirtualEthernet = false;
 		};
-		environment.pathsToLink = [ "/include" ];
-		environment.variables.CPATH = "/run/current-system/sw/include";
-		environment.variables.LIBRARY_PATH = "/run/current-system/sw/lib";
+		# environment.pathsToLink = [ "/include" ];
+		# environment.variables.CPATH = "/run/current-system/sw/include";
+		# environment.variables.LIBRARY_PATH = "/run/current-system/sw/lib";
 	};
 }
