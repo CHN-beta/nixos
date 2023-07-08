@@ -15,6 +15,13 @@
 			};
 			daemonIOSchedClass = "idle";
 			daemonCPUSchedPolicy = "idle";
+			registry.nixpkgs.flake = inputs.topInputs.nixpkgs;
+			nixPath =
+			[
+				"nixpkgs=/etc/channels/nixpkgs"
+				"nixos-config=/etc/nixos/configuration.nix"
+				"/nix/var/nix/profiles/per-user/root/channels"
+			];
 		};
 		networking.hostName = hostName;
 		time.timeZone = "Asia/Shanghai";
@@ -49,6 +56,7 @@
 			execConfig.PrivateUsers = false;
 			networkConfig.VirtualEthernet = false;
 		};
+		environment.etc."channels/nixpkgs".source = inputs.topInputs.nixpkgs.outPath;
 		# environment.pathsToLink = [ "/include" ];
 		# environment.variables.CPATH = "/run/current-system/sw/include";
 		# environment.variables.LIBRARY_PATH = "/run/current-system/sw/lib";
