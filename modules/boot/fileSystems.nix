@@ -12,6 +12,7 @@ inputs:
 		decrypt.auto = mkOption { type = types.attrsOf (types.submodule { options =
 			{ mapper = mkOption { type = types.nonEmptyStr; }; ssd = mkOption { type = types.bool; }; }; }); };
 		mdadm = mkOption { type = types.nullOr types.str; };
+		swap = mkOption { type = types.listOf types.nonEmptyStr; };
 
 		# swap and resume
 		# swap != resume.device if swap is a file
@@ -52,6 +53,7 @@ inputs:
 				)
 				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mount.btrfs)))
 		);
+		swapDevices = builtins.map (device: { device = device; }) inputs.config.nixos.fileSystems.swap;
 		boot.initrd =
 		{
 			luks.devices =

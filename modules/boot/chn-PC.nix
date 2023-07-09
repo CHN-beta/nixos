@@ -19,7 +19,6 @@ inputs:
 		# sudo $(dirname $(realpath $(which systemctl)))/../lib/systemd/systemd-cryptsetup \
 		#		attach swap /dev/md/swap - fido2-device=auto
 		# sudo mkswap --uuid clear /dev/mapper/swap
-		swapDevices = [ { device = "/dev/mapper/swap"; } ];
 
 		# kernel, modules, ucode
 		boot.kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
