@@ -2,14 +2,13 @@ inputs:
 {
 	options.nixos.fileSystems = let inherit (inputs.lib) mkOption types; in
 	{
-		mounts =
+		mount =
 		{
 			# device = mountPoint;
 			vfat = mkOption { type = types.attrsOf types.str; };
 			# device.subvol = mountPoint;
 			btrfs = mkOption { type = types.attrsOf (types.attrsOf types.str); };
 		};
-
 		# luks needed to be unlocked
 		# luks = mkOption { type = types.attrsOf types.submodule { options =
 		# 	{ device = types.nonEmptyStr; ssd = types.bool; }; }; };
@@ -31,7 +30,7 @@ inputs:
 		(
 			builtins.listToAttrs (builtins.map
 				(device: { name = device.value; value = { device = device.name; fsType = "vfat"; }; })
-				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mounts.vfat))
+				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mount.vfat))
 		)
 		// (
 			builtins.listToAttrs (builtins.concatLists (builtins.map
@@ -51,7 +50,7 @@ inputs:
 						)
 						(inputs.localLib.attrsToList device.value)
 				)
-				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mounts.btrfs)))
+				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mount.btrfs)))
 		);
 		# boot.initrd.luks.devices =
 		# (

@@ -125,7 +125,7 @@
 									{
 										fileSystems =
 										{
-											mounts =
+											mount =
 											{
 												vfat."/dev/disk/by-uuid/3F57-0EBE" = "/boot/efi";
 												btrfs =
