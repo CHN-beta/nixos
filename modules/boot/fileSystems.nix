@@ -9,9 +9,8 @@ inputs:
 			# device.subvol = mountPoint;
 			btrfs = mkOption { type = types.attrsOf (types.attrsOf types.str); };
 		};
-		# luks needed to be unlocked
-		# luks = mkOption { type = types.attrsOf types.submodule { options =
-		# 	{ device = types.nonEmptyStr; ssd = types.bool; }; }; };
+		decrypt.auto = mkOption { type = types.attrsOf (types.submodule { options =
+			{ mapper = mkOption { type = types.nonEmptyStr; }; ssd = mkOption { type = types.bool; }; }; }); };
 
 		# swap and resume
 		# swap != resume.device if swap is a file
@@ -52,17 +51,24 @@ inputs:
 				)
 				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mount.btrfs)))
 		);
-		# boot.initrd.luks.devices =
-		# (
-		# 	let
-		# 		f = name: attrs:
-		# 		(
-		# 			{ inherit (attrs) device; crypttabExtraOpts = [ "fido2-device=auto" ]; }
-		# 				// ( if attrs.ssd then { allowDiscards = true; bypassWorkqueues = true; } else {} )
-		# 		);
-		# 	in
-		# 		builtins.mapAttrs f inputs.options.fileSystems.luks
-		# );
+		boot.initrd.luks.devices =
+		(
+			builtins.listToAttrs (builtins.map
+				(
+					device:
+					{
+						name = device.value.mapper;
+						value =
+						{
+							device = device.name;
+							allowDiscards = device.value.ssd;
+							bypassWorkqueues = device.value.ssd;
+							crypttabExtraOpts = [ "fido2-device=auto" ];
+						};
+					}
+				)
+				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.decrypt.auto))
+		);
 	};
 }
 

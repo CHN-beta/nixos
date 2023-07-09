@@ -134,6 +134,11 @@
 													"/dev/mapper/root"."/nix" = "/nix";
 												};
 											};
+											decrypt.auto =
+											{
+												"/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26" = { mapper = "root"; ssd = true; };
+												"/dev/md/swap" = { mapper = "swap"; ssd = true; };
+											};
 										};
 									};}
 								)
