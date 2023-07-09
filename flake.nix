@@ -120,6 +120,24 @@
 						(
 							local.lib.mkModules
 							[
+								./modules/boot/fileSystems.nix
+								(inputs: { config.nixos =
+									{
+										fileSystems =
+										{
+											mounts =
+											{
+												vfat."/dev/disk/by-uuid/3F57-0EBE" = "/boot/efi";
+												btrfs =
+												{
+													"/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614"."/" = "/boot";
+													"/dev/mapper/root"."/nix" = "/nix";
+												};
+											};
+										};
+									};}
+								)
+
 								[ ./modules/basic.nix { hostName = "chn-PC"; } ]
 								./modules/fonts.nix
 								[ ./modules/i18n.nix { fcitx = true; } ]

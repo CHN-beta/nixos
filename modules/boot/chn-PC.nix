@@ -3,41 +3,11 @@ inputs:
 	config =
 	{
 		# filesystem mount
-		fileSystems =
+		fileSystems."/" =
 		{
-			"/" =
-			{
-				device = "/dev/mapper/root";
-				fsType = "btrfs";
-				options = [ "subvol=nix/rootfs/current" "compress-force=zstd" ];
-			};
-			# Disable CoW for VM image and database:
-			# sudo chattr +C images
-			# zstd:15 cause sound stuttering
-			# From btrfs wiki: 1-3 are real-time, 4-8 slower with improved compression,
-			#	 9-15 try even harder though the resulting size may not be significantly improved.
-			# https://btrfs.readthedocs.io/en/latest/Compression.html
-			# sudo btrfs filesystem resize -50G /nix
-			# sudo cryptsetup status root
-			# sudo cryptsetup -b 3787456512 resize root
-			# sudo cfdisk /dev/nvme1n1p3
-			"/nix" =
-			{
-				device = "/dev/mapper/root";
-				fsType = "btrfs";
-				options = [ "subvol=nix" "compress-force=zstd" ];
-			};
-			"/boot" =
-			{
-				device = "/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614";
-				fsType = "btrfs";
-				options = [ "compress-force=zstd" ];
-			};
-			"/boot/efi" =
-			{
-				device = "/dev/disk/by-uuid/3F57-0EBE";
-				fsType = "vfat";
-			};
+			device = "/dev/mapper/root";
+			fsType = "btrfs";
+			options = [ "subvol=nix/rootfs/current" "compress-force=zstd" ];
 		};
 		# sudo btrfs fi mkswapfile --size 64g --uuid clear swap
 		# sudo btrfs inspect-internal map-swapfile -r swap
