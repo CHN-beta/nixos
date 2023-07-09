@@ -139,6 +139,8 @@
 												"/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26" = { mapper = "root"; ssd = true; };
 												"/dev/md/swap" = { mapper = "swap"; ssd = true; };
 											};
+											mdadm =
+												"ARRAY /dev/md/swap metadata=1.2 name=chn-PC:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
 										};
 									};}
 								)

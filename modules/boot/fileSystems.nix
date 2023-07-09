@@ -11,6 +11,7 @@ inputs:
 		};
 		decrypt.auto = mkOption { type = types.attrsOf (types.submodule { options =
 			{ mapper = mkOption { type = types.nonEmptyStr; }; ssd = mkOption { type = types.bool; }; }; }); };
+		mdadm = mkOption { type = types.nullOr types.str; };
 
 		# swap and resume
 		# swap != resume.device if swap is a file
@@ -51,23 +52,31 @@ inputs:
 				)
 				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mount.btrfs)))
 		);
-		boot.initrd.luks.devices =
-		(
-			builtins.listToAttrs (builtins.map
-				(
-					device:
-					{
-						name = device.value.mapper;
-						value =
+		boot.initrd =
+		{
+			luks.devices =
+			(
+				builtins.listToAttrs (builtins.map
+					(
+						device:
 						{
-							device = device.name;
-							allowDiscards = device.value.ssd;
-							bypassWorkqueues = device.value.ssd;
-							crypttabExtraOpts = [ "fido2-device=auto" ];
-						};
-					}
-				)
-				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.decrypt.auto))
+							name = device.value.mapper;
+							value =
+							{
+								device = device.name;
+								allowDiscards = device.value.ssd;
+								bypassWorkqueues = device.value.ssd;
+								crypttabExtraOpts = [ "fido2-device=auto" ];
+							};
+						}
+					)
+					(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.decrypt.auto))
+			);
+		}
+		// (
+			if inputs.config.nixos.fileSystems.mdadm != null then
+				{ services.swraid = { enable = true; mdadmConf = inputs.config.nixos.fileSystems.mdadm; }; }
+			else {}
 		);
 	};
 }

@@ -124,11 +124,6 @@ inputs:
 					'';
 				};
 			};
-			services.swraid =
-			{
-				enable = true;
-				mdadmConf = "ARRAY /dev/md/swap metadata=1.2 name=chn-PC:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
-			};
 			# modules in initrd
 			# modprobe --show-depends
 			availableKernelModules =
