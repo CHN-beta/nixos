@@ -219,11 +219,11 @@
         "touchix": "touchix"
       },
       "locked": {
-        "lastModified": 1688991077,
-        "narHash": "sha256-pf2YZd5wJmclXKrF0S/dOwY0eTGbQF2RqR16RkI9H4Q=",
+        "lastModified": 1689006466,
+        "narHash": "sha256-bN1mDmKCLljtNGDuGSe/lQkgyuy4YHs2PqiH7vxE7Ag=",
         "owner": "CHN-beta",
         "repo": "nixos",
-        "rev": "dc34a98c7d77a9fd7367d1bf8dd0e73284310785",
+        "rev": "fc27adfd0702be550cf81dbac3e439f44239d29d",
         "type": "github"
       },
       "original": {
