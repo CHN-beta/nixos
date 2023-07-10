@@ -5,16 +5,20 @@ inputs:
 		mount =
 		{
 			# device = mountPoint;
-			vfat = mkOption { type = types.attrsOf types.str; };
+			vfat = mkOption { type = types.attrsOf types.nonEmptyStr; };
 			# device.subvol = mountPoint;
-			btrfs = mkOption { type = types.attrsOf (types.attrsOf types.str); };
+			btrfs = mkOption { type = types.attrsOf (types.attrsOf types.nonEmptyStr); };
 		};
-		decrypt.auto = mkOption { type = types.nullOr (types.attrsOf (types.submodule { options =
-			{ mapper = mkOption { type = types.nonEmptyStr; }; ssd = mkOption { type = types.bool; }; }; })); };
+		decrypt.auto = mkOption { type = types.attrsOf (types.submodule { options =
+		{
+			mapper = mkOption { type = types.nonEmptyStr; };
+			ssd = mkOption { type = types.bool; default = false; };
+		}; }); };
 		mdadm = mkOption { type = types.nullOr types.str; };
 		swap = mkOption { type = types.listOf types.nonEmptyStr; };
 		resume = mkOption { type = types.nullOr (types.str or (types.submodule { options =
 			{ device = mkOption { type = types.nonEmptyStr; }; offset = mkOption { type = types.ints.unsigned; }; }; })); };
+		# cleanRootfs = mkOption { type = types.nullOr
 
 		# swap and resume
 		# swap != resume.device if swap is a file
