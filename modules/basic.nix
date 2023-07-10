@@ -15,13 +15,17 @@
 			};
 			daemonIOSchedClass = "idle";
 			daemonCPUSchedPolicy = "idle";
-			registry.nixpkgs.flake = inputs.topInputs.nixpkgs;
-			nixPath =
-			[
-				"nixpkgs=/etc/channels/nixpkgs"
-				"nixos-config=/etc/nixos/configuration.nix"
-				"/nix/var/nix/profiles/per-user/root/channels"
-			];
+			registry =
+			{
+				nixpkgs.flake = inputs.topInputs.nixpkgs;
+				nixos-config.flake = inputs.topInputs.self;
+			};
+			# nixPath =
+			# [
+			# 	"nixpkgs=/etc/channels/nixpkgs"
+			# 	"nixos-config=/etc/nixos/configuration.nix"
+			# 	"/nix/var/nix/profiles/per-user/root/channels"
+			# ];
 		};
 		networking.hostName = hostName;
 		time.timeZone = "Asia/Shanghai";
