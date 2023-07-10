@@ -93,17 +93,17 @@ inputs:
 		++ (with inputs.lib; filter isDerivation (attrValues inputs.pkgs.plasma5Packages.kdeGear));
 		programs.wireshark = { enable = true; package = inputs.pkgs.wireshark; };
 		nixpkgs.config = { permittedInsecurePackages = [ "openssl-1.1.1u" "electron-19.0.7" ]; allowUnfree = true; };
-		programs.firejail =
-		{
-			enable = true;
-			wrappedBinaries =
-			{
-				qq =
-				{
-					executable = "${inputs.pkgs.qq}/bin/qq";
-					profile = "${inputs.pkgs.firejail}/etc/firejail/linuxqq.profile";
-				};
-			};
-		};
+		# programs.firejail =
+		# {
+		# 	enable = true;
+		# 	wrappedBinaries =
+		# 	{
+		# 		qq =
+		# 		{
+		# 			executable = "${inputs.pkgs.qq}/bin/qq";
+		# 			profile = "${inputs.pkgs.firejail}/etc/firejail/linuxqq.profile";
+		# 		};
+		# 	};
+		# };
 	};
 }
