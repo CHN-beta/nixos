@@ -323,29 +323,6 @@
         "type": "github"
       }
     },
-    "plasma-manager": {
-      "inputs": {
-        "home-manager": [
-          "home-manager"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1664383871,
-        "narHash": "sha256-dOnnzfqd/PCf1K3USKq2PqSGKmIqkr/SD7zHb1yoAyw=",
-        "owner": "pjones",
-        "repo": "plasma-manager",
-        "rev": "16c437e43a0e049b15c9bfd37295f6e978ea9955",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pjones",
-        "repo": "plasma-manager",
-        "type": "github"
-      }
-    },
     "qchem": {
       "inputs": {
         "nixpkgs": [
@@ -382,7 +359,6 @@
         "nur": "nur",
         "nur-xddxdd": "nur-xddxdd",
         "nvfetcher": "nvfetcher",
-        "plasma-manager": "plasma-manager",
         "qchem": "qchem",
         "sops-nix": "sops-nix",
         "touchix": "touchix"
