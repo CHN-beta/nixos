@@ -34,6 +34,7 @@ inputs:
 					ms-vscode-remote.remote-ssh
 					redhat.vscode-xml
 					dotjoshjohnson.xml
+					jnoortheen.nix-ide
 				])
 				++ (with nix-vscode-extensions.vscode-marketplace;
 				[
