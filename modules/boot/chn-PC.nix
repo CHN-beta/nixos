@@ -34,7 +34,6 @@ inputs:
 			options iwlwifi uapsd_disable=1
 		'';
 		boot.kernelParams = [ "delayacct" "acpi_osi=Linux" ];
-		boot.resumeDevice = "/dev/mapper/swap";
 		boot.kernelPatches =
 		[
 			{ name = "hdmi"; patch = ./hdmi.patch; }

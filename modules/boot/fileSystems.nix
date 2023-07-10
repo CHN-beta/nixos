@@ -9,10 +9,12 @@ inputs:
 			# device.subvol = mountPoint;
 			btrfs = mkOption { type = types.attrsOf (types.attrsOf types.str); };
 		};
-		decrypt.auto = mkOption { type = types.attrsOf (types.submodule { options =
-			{ mapper = mkOption { type = types.nonEmptyStr; }; ssd = mkOption { type = types.bool; }; }; }); };
+		decrypt.auto = mkOption { type = types.nullOr (types.attrsOf (types.submodule { options =
+			{ mapper = mkOption { type = types.nonEmptyStr; }; ssd = mkOption { type = types.bool; }; }; })); };
 		mdadm = mkOption { type = types.nullOr types.str; };
 		swap = mkOption { type = types.listOf types.nonEmptyStr; };
+		resume = mkOption { type = types.nullOr (types.str or (types.submodule { options =
+			{ device = mkOption { type = types.nonEmptyStr; }; offset = mkOption { type = types.ints.unsigned; }; }; })); };
 
 		# swap and resume
 		# swap != resume.device if swap is a file
@@ -54,30 +56,48 @@ inputs:
 				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mount.btrfs)))
 		);
 		swapDevices = builtins.map (device: { device = device; }) inputs.config.nixos.fileSystems.swap;
-		boot.initrd =
+		boot =
 		{
-			luks.devices =
-			(
-				builtins.listToAttrs (builtins.map
+			initrd = {}
+			// (
+				if inputs.config.nixos.fileSystems.decrypt.auto != null then
+				{
+					luks.devices =
 					(
-						device:
-						{
-							name = device.value.mapper;
-							value =
-							{
-								device = device.name;
-								allowDiscards = device.value.ssd;
-								bypassWorkqueues = device.value.ssd;
-								crypttabExtraOpts = [ "fido2-device=auto" ];
-							};
-						}
-					)
-					(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.decrypt.auto))
+						builtins.listToAttrs (builtins.map
+							(
+								device:
+								{
+									name = device.value.mapper;
+									value =
+									{
+										device = device.name;
+										allowDiscards = device.value.ssd;
+										bypassWorkqueues = device.value.ssd;
+										crypttabExtraOpts = [ "fido2-device=auto" ];
+									};
+								}
+							)
+							(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.decrypt.auto))
+					);
+				}
+				else {}
+			)
+			// (
+				if inputs.config.nixos.fileSystems.mdadm != null then
+					{ services.swraid = { enable = true; mdadmConf = inputs.config.nixos.fileSystems.mdadm; }; }
+				else {}
 			);
 		}
 		// (
-			if inputs.config.nixos.fileSystems.mdadm != null then
-				{ services.swraid = { enable = true; mdadmConf = inputs.config.nixos.fileSystems.mdadm; }; }
+			if inputs.config.nixos.fileSystems.resume != null then
+				if builtins.typeOf inputs.config.nixos.fileSystems.resume == "string" then
+					{ resumeDevice = inputs.config.nixos.fileSystems.resume; }
+				else
+				{
+					resumeDevice = inputs.config.nixos.fileSystems.resume.device;
+					kernelModules = [ "resume_offset=${inputs.config.nixos.fileSystems.resume.offset}" ];
+				}
 			else {}
 		);
 	};
