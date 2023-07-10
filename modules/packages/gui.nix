@@ -64,6 +64,7 @@ inputs:
 					ms-vscode.test-adapter-converter
 					hbenl.vscode-test-explorer
 					hirse.vscode-ungit
+					fortran-lang.linter-gfortran
 				]);
 			} )
 			qbittorrent # tunder
