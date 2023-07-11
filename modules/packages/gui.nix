@@ -74,14 +74,14 @@ inputs:
 			zotero texlive.combined.scheme-full libreoffice-qt
 			element-desktop tdesktop discord
 			# jail
-			qq inputs.config.nur.repos.xddxdd.wechat-uos inputs.config.nur.repos.linyinfeng.wemeet
+			qq nur-xddxdd.wechat-uos inputs.config.nur.repos.linyinfeng.wemeet
 			nur-xddxdd.wine-wechat
 			remmina
 			bitwarden
 			spotify yesplaymusic
 			crow-translate
 			scrcpy
-			mpv inputs.config.nur.repos.xddxdd.svp
+			mpv nur-xddxdd.svp
 			jetbrains.clion android-studio
 			localPackages.typora
 			yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui
