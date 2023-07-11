@@ -19,7 +19,6 @@
 			{
 				nixpkgs.flake = inputs.topInputs.nixpkgs;
 				nixos-config.flake = inputs.topInputs.self;
-				nixpkgs-native.flake = { url = "github:CHN-beta/nixos/main?dir=registry"; };
 			};
 			# nixPath =
 			# [

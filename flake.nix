@@ -6,6 +6,7 @@
 		nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-unstable";
 		nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-23.05";
 		flake-utils.url = "github:numtide/flake-utils";
+		flake-utils-plus.url = "gytis-ivaskevicius/flake-utils-plus";
 		flake-compat = { url = "github:edolstra/flake-compat"; flake = false; };
 		nvfetcher =
 		{
