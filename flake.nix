@@ -6,7 +6,11 @@
 		nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-unstable";
 		nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-23.05";
 		flake-utils.url = "github:numtide/flake-utils";
-		flake-utils-plus.url = "gytis-ivaskevicius/flake-utils-plus";
+		flake-utils-plus =
+		{
+			url = "github:gytis-ivaskevicius/flake-utils-plus";
+			inputs.flake-utils.follows = "flake-utils";
+		};
 		flake-compat = { url = "github:edolstra/flake-compat"; flake = false; };
 		nvfetcher =
 		{
@@ -40,7 +44,12 @@
 		nur-xddxdd =
 		{
 			url = "github:xddxdd/nur-packages";
-			inputs = { flake-utils.follows = "flake-utils"; nixpkgs.follows = "nixpkgs-stable"; };
+			inputs =
+			{
+				flake-utils.follows = "flake-utils";
+				nixpkgs.follows = "nixpkgs-stable";
+				flake-utils-plus.follows = "flake-utils-plus";
+			};
 		};
 		nix-vscode-extensions =
 		{
