@@ -43,7 +43,11 @@
 				DefaultLimitNOFILE=1048576:1048576
 			";
 			user.extraConfig = "DefaultTimeoutStopSec=10s";
-			sleep.extraConfig = "SuspendState=freeze";
+			sleep.extraConfig =
+			"
+				SuspendState=freeze
+				HibernateMode=shutdown
+			";
 			services.nix-daemon.serviceConfig = { Slice = "-.slice"; Nice = "19"; };
 		};
 		programs.nix-ld.enable = true;

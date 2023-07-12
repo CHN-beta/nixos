@@ -75,7 +75,7 @@ inputs:
 			element-desktop tdesktop discord
 			# jail
 			qq nur-xddxdd.wechat-uos inputs.config.nur.repos.linyinfeng.wemeet
-			nur-xddxdd.wine-wechat
+			nur-xddxdd.wine-wechat nur-xddxdd.baidupcs-go
 			remmina
 			bitwarden
 			spotify yesplaymusic
