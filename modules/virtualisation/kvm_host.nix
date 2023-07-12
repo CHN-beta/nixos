@@ -14,12 +14,12 @@ inputs:
 				virsh = "${inputs.pkgs.libvirt}/bin/virsh";
 				hibernate = inputs.pkgs.writeShellScript "libvirt-hibernate"
 				''
-					if [ "$(LANG=C ${virsh} domstate "$1")" = 'running' ]
+					if [ "$(LANG=C ${virsh} domstate $1)" = 'running' ]
 					then
 						if ${virsh} dompmsuspend "$1" disk
 						then
 							echo "Waiting for $1 to suspend"
-							while ! [ "$(LANG=C ${virsh} domstate "$1")" = 'shut off' ]
+							while ! [ "$(LANG=C ${virsh} domstate $1)" = 'shut off' ]
 							do
 								sleep 1
 							done
@@ -32,12 +32,12 @@ inputs:
 				'';
 				resume = inputs.pkgs.writeShellScript "libvirt-resume"
 				''
-					if [ "$(LANG=C ${virsh} domstate "$1")" = 'shut off' ] && [ -f "/tmp/libvirt.$1.suspended" ]
+					if [ "$(LANG=C ${virsh} domstate $1)" = 'shut off' ] && [ -f "/tmp/libvirt.$1.suspended" ]
 					then
 						if virsh start "$1"
 						then
 							echo "Waiting for $1 to resume"
-							while ! [ "$(LANG=C ${virsh} domstate "$1")" = 'running' ]
+							while ! [ "$(LANG=C ${virsh} domstate $1)" = 'running' ]
 							do
 								sleep 1
 							done
