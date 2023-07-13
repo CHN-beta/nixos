@@ -18,7 +18,7 @@ inputs:
 	++ ( with inputs.pkgs.pkgsCross.mingwW64.buildPackages; [ gcc ] );
 	config.programs.ccache.enable = true;
 	config.nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
-	# config.nixpkgs.config.replaceStdenv = { pkgs }: pkgs.ccacheStdenv;
+	config.nixpkgs.config.replaceStdenv = { pkgs }: pkgs.ccacheStdenv;
 	# only replace stdenv for large and tested packages
 	# config.programs.ccache.packageNames = [ "webkitgtk" "libreoffice" "tensorflow" "linux" "chromium" ];
 }
