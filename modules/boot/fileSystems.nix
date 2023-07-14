@@ -97,7 +97,7 @@ inputs:
 						serviceConfig.Type = "oneshot";
 						script = let inherit (inputs.config.nixos.fileSystems.rollingRootfs) device path; in
 						''
-							mount ${device} /mnt
+							mount ${device} /mnt -m
 							if [ -f /mnt${path}/current/.timestamp ]
 							then
 								mv /mnt${path}/current /mnt${path}/$(cat /mnt${path}/current/.timestamp)
