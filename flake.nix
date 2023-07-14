@@ -126,6 +126,7 @@
 							local.lib.mkModules
 							[
 								./modules/boot/fileSystems.nix
+								./modules/boot/kernel.nix
 								(inputs: { config.nixos =
 									{
 										fileSystems =
@@ -149,6 +150,10 @@
 											swap = [ "/dev/mapper/swap" ];
 											resume = "/dev/mapper/swap";
 											rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+										};
+										kernel =
+										{
+											cpu = [ "intel" ];
 										};
 									};}
 								)

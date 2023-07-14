@@ -2,21 +2,6 @@ inputs:
 {
 	config =
 	{
-		# filesystem mount
-		# sudo btrfs fi mkswapfile --size 64g --uuid clear swap
-		# sudo btrfs inspect-internal map-swapfile -r swap
-		# sudo mdadm --create /dev/md/swap --level 0 --raid-devices 2 /dev/nvme1n1p5 /dev/nvme0n1p5
-		# sudo mkswap --uuid clear /dev/md/swap
-		# sudo cryptsetup luksFormat /dev/md/swap
-		# sudo systemd-cryptenroll --fido2-device=auto /dev/md/swap
-		# sudo systemd-cryptenroll --wipe-slot=0 /dev/md/swap
-		# sudo $(dirname $(realpath $(which systemctl)))/../lib/systemd/systemd-cryptsetup \
-		#		attach swap /dev/md/swap - fido2-device=auto
-		# sudo mkswap --uuid clear /dev/mapper/swap
-
-		# kernel, modules, ucode
-		boot.kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
-		hardware.cpu.intel.updateMicrocode = true;
 		# modules auto loaded in stage2
 		boot.kernelModules = [ "kvm-intel" "br_netfilter" ];
 		# modules install but not auto loaded
