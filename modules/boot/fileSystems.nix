@@ -18,18 +18,11 @@ inputs:
 		swap = mkOption { type = types.listOf types.nonEmptyStr; };
 		resume = mkOption { type = types.nullOr (types.str or (types.submodule { options =
 			{ device = mkOption { type = types.nonEmptyStr; }; offset = mkOption { type = types.ints.unsigned; }; }; })); };
-		# cleanRootfs = mkOption { type = types.nullOr
-
-		# swap and resume
-		# swap != resume.device if swap is a file
-		# swap = mkOption { type = types.nullOr types.str; };
-		# resume =
-		# {
-		# 	device = mkOption { type = types.nullOr types.str; };
-		# 	# sudo btrfs fi mkswapfile --size 64g --uuid clear swap
-		# 	# sudo btrfs inspect-internal map-swapfile -r swap
-		# 	offset = mkOption { type = types.nullOr types.ints.unsigned; };
-		# };
+		rollingRootfs = mkOption { type = types.nullOr (types.submodule { options =
+		{
+			device = mkOption { type = types.nonEmptyStr; };
+			path = mkOption { type = types.nonEmptyStr; };
+		}; }); };
 	};
 	config =
 	{
@@ -90,6 +83,31 @@ inputs:
 			// (
 				if inputs.config.nixos.fileSystems.mdadm != null then
 					{ services.swraid = { enable = true; mdadmConf = inputs.config.nixos.fileSystems.mdadm; }; }
+				else {}
+			)
+			// (
+				if inputs.config.nixos.fileSystems.rollingRootfs != null then
+				{
+					systemd.services.roll-rootfs =
+					{
+						wantedBy = [ "local-fs-pre.target" ];
+						after = [ "cryptsetup.target" ];
+						before = [ "local-fs-pre.target" ];
+						unitConfig.DefaultDependencies = false;
+						serviceConfig.Type = "oneshot";
+						script = let inherit (inputs.config.nixos.fileSystems.rollingRootfs) device path; in
+						''
+							mount ${device} /mnt
+							if [ -f /mnt${path}/current/.timestamp ]
+							then
+								mv /mnt${path}/current /mnt${path}/$(cat /mnt${path}/current/.timestamp)
+							fi
+							btrfs subvolume create /mnt${path}/current
+							echo $(date '+%Y%m%d%H%M%S') > /mnt${path}/current/.timestamp
+							umount /mnt
+						'';
+					};
+				}
 				else {}
 			);
 		}

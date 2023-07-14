@@ -3,12 +3,6 @@ inputs:
 	config =
 	{
 		# filesystem mount
-		fileSystems."/" =
-		{
-			device = "/dev/mapper/root";
-			fsType = "btrfs";
-			options = [ "subvol=nix/rootfs/current" "compress-force=zstd" ];
-		};
 		# sudo btrfs fi mkswapfile --size 64g --uuid clear swap
 		# sudo btrfs inspect-internal map-swapfile -r swap
 		# sudo mdadm --create /dev/md/swap --level 0 --raid-devices 2 /dev/nvme1n1p5 /dev/nvme0n1p5
@@ -99,29 +93,7 @@ inputs:
 		# initrd, luks
 		boot.initrd =
 		{
-			systemd =
-			{
-				enable = true;
-				services.create-current-rootfs =
-				{
-					wantedBy = [ "local-fs-pre.target" ];
-					after = [ "cryptsetup.target" ];
-					before = [ "local-fs-pre.target" ];
-					unitConfig.DefaultDependencies = false;
-					serviceConfig.Type = "oneshot";
-					script =
-					''
-						mount /dev/mapper/root /mnt -m
-						if [ -f /mnt/nix/rootfs/current/.timestamp ]
-						then
-							mv /mnt/nix/rootfs/current /mnt/nix/rootfs/$(cat /mnt/nix/rootfs/current/.timestamp)
-						fi
-						btrfs subvolume create /mnt/nix/rootfs/current
-						echo $(date '+%Y%m%d%H%M%S') > /mnt/nix/rootfs/current/.timestamp
-						umount /mnt
-					'';
-				};
-			};
+			systemd.enable = true;
 			# modules in initrd
 			# modprobe --show-depends
 			availableKernelModules =
