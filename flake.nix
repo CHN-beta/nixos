@@ -175,6 +175,7 @@
 										hardware =
 										{
 											bluetooth.enable = true;
+											joystick.enable = true;
 										};
 									};}
 								)
@@ -185,8 +186,6 @@
 								./modules/kde.nix
 								./modules/sops.nix
 								./modules/boot/chn-PC.nix
-								./modules/hardware/bluetooth.nix
-								./modules/hardware/joystick.nix
 								[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
 								./modules/hardware/printer.nix
 								./modules/hardware/sound.nix
