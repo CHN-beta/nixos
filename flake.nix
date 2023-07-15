@@ -142,6 +142,7 @@
 							[
 								./modules/fileSystems
 								./modules/kernel
+								./modules/hardware
 								(inputs: { config.nixos =
 									{
 										fileSystems =
@@ -170,6 +171,10 @@
 										{
 											cpu = [ "intel" ];
 											patches = [ "hdmi" "cjktty" ];
+										};
+										hardware =
+										{
+											bluetooth.enable = true;
 										};
 									};}
 								)
