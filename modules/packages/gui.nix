@@ -92,6 +92,7 @@ inputs:
 			wl-clipboard-x11 parallel lsof duperemove mlocate kmscon hdparm bat gnuplot whois zoom traceroute tcping-go
 			tcpdump nmap mtr-gui simplescreenrecorder obs-studio 
 			signal-desktop dbeaver ftxui yaml-cpp wl-mirror poppler_utils imagemagick gimp
+			playonlinux bottles
 		]
 		++ (with inputs.lib; filter isDerivation (attrValues inputs.pkgs.plasma5Packages.kdeGear));
 		programs.wireshark = { enable = true; package = inputs.pkgs.wireshark; };
