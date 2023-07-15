@@ -12,6 +12,11 @@
 			inputs.flake-utils.follows = "flake-utils";
 		};
 		flake-compat = { url = "github:edolstra/flake-compat"; flake = false; };
+		flake-parts =
+		{
+			url = "github:hercules-ci/flake-parts";
+			inputs.nixpkgs-lib.follows = "nixpkgs";
+		};
 		nvfetcher =
 		{
 			url = "github:berberman/nvfetcher";
@@ -77,6 +82,15 @@
 			url = "github:Nix-QChem/NixOS-QChem";
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
+		nixd =
+		{
+			url = "github:nix-community/nixd";
+			inputs =
+			{
+				nixpkgs.follows = "nixpkgs";
+				flake-parts.follows = "flake-parts";
+			};
+		};
 	};
 
 	outputs = inputs:
@@ -118,6 +132,7 @@
 										final: prev: { nur-xddxdd =
 											(inputs.nur-xddxdd.overlays.custom args.config.boot.kernelPackages.nvidia_x11) final prev; }
 									)
+									inputs.nixd.overlays.default
 								];
 								config.allowUnfree = true;
 							};

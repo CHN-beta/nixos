@@ -25,7 +25,7 @@ inputs:
 			trash-cli tmux adb-sync pdfchain wgetpaste httplib clang magic-enum xtensor
 			go rustc boost cereal cxxopts valgrind
 			lsd zellij broot
-			nil
+			nil nixd
 		];
 		programs =
 		{
