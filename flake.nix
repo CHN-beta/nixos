@@ -140,8 +140,8 @@
 						(
 							local.lib.mkModules
 							[
-								./modules/boot/fileSystems.nix
-								./modules/boot/kernel.nix
+								./modules/fileSystems
+								./modules/kernel
 								(inputs: { config.nixos =
 									{
 										fileSystems =
