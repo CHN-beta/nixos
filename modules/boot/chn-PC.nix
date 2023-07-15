@@ -12,7 +12,6 @@ inputs:
 			options iwlmvm power_scheme=1
 			options iwlwifi uapsd_disable=1
 		'';
-		boot.kernelParams = [ "delayacct" "acpi_osi=Linux" ];
 		boot.kernelPatches =
 		[
 			{ name = "hdmi"; patch = ./hdmi.patch; }

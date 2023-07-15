@@ -6,7 +6,11 @@
 	};
 	config =
 	{
-		boot.kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
+		boot =
+		{
+			kernelParams = [ "delayacct" "acpi_osi=Linux" ];
+			kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
+		};
 		hardware.cpu = builtins.listToAttrs (builtins.map
 			(name: { inherit name; value = { updateMicrocode = true; }; })
 			inputs.config.nixos.kernel.cpu);
