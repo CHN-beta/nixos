@@ -21,6 +21,11 @@ inputs:
 	# config.nixpkgs.config.replaceStdenv = { pkgs }: pkgs.ccacheStdenv;
 	# only replace stdenv for large and tested packages
 	# config.programs.ccache.packageNames = [ "webkitgtk" "libreoffice" "tensorflow" "linux" "chromium" ];
+	config.nixpkgs.overlays = [(final: prev:
+	{
+		libreoffice-qt = prev.libreoffice-qt.override { unwrapped = prev.libreoffice.unwrapped.override { stdenv = final.ccacheStdenv; }; };
+	})];
+	# config.programs.ccache.packageNames = [ "libreoffice-unwrapped" ];
 }
 
 # cross-x86_64-pc-linux-musl/gcc
