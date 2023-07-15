@@ -21,10 +21,22 @@ inputs:
 	# config.nixpkgs.config.replaceStdenv = { pkgs }: pkgs.ccacheStdenv;
 	# only replace stdenv for large and tested packages
 	# config.programs.ccache.packageNames = [ "webkitgtk" "libreoffice" "tensorflow" "linux" "chromium" ];
-	# config.nixpkgs.overlays = [(final: prev:
-	# {
-	# 	libreoffice-qt = prev.libreoffice-qt.override { unwrapped = prev.libreoffice.unwrapped.override { stdenv = final.ccacheStdenv; }; };
-	# })];
+	config.nixpkgs.overlays = [(final: prev:
+	{
+		libreoffice-qt = prev.libreoffice-qt.override { unwrapped = prev.libreoffice.unwrapped.override
+			{ stdenv = final.ccacheStdenv.override { stdenv = prev.libreoffice.unwrapped.stdenv; }; }; };
+		# python3Packages.tensorflow = prev.python3Packages.tensorflow.override
+		# 	{ stdenv = final.ccacheStdenv.override { stdenv = prev.python3Packages.tensorflow.stdenv; }; };
+		# linuxPackages_xanmod_latest = prev.linuxPackages_xanmod_latest.override
+		# {
+		# 	kernel = prev.linuxPackages_xanmod_latest.kernel.override
+		# 	{
+		# 		stdenv = final.ccacheStdenv.override { stdenv = prev.linuxPackages_xanmod_latest.kernel.stdenv; };
+		# 		buildPackages = prev.linuxPackages_xanmod_latest.kernel.buildPackages //
+		# 			{ stdenv = prev.linuxPackages_xanmod_latest.kernel.buildPackages.stdenv; };
+		# 	};
+		# };
+	})];
 	# config.programs.ccache.packageNames = [ "libreoffice-unwrapped" ];
 }
 
