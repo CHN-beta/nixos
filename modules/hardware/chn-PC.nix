@@ -26,7 +26,11 @@
 		};
 		services.dbus.implementation = "broker";
 		programs.dconf.enable = true;
-		hardware.opengl.extraPackages = with inputs.pkgs; [ intel-media-driver intel-ocl ];
+		hardware.opengl =
+		{
+			extraPackages = with inputs.pkgs; [ intel-media-driver intel-ocl ];
+			driSupport32Bit = true;
+		};
 		systemd.services =
 		{
 			reload-iwlwifi-after-hibernate =
