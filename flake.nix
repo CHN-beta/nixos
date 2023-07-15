@@ -169,6 +169,7 @@
 										kernel =
 										{
 											cpu = [ "intel" ];
+											patches = [ "hdmi" "cjktty" ];
 										};
 									};}
 								)
