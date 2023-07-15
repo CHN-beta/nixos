@@ -70,7 +70,7 @@ inputs:
 			} )
 			qbittorrent # tunder
 			gparted snapper-gui
-			firefox google-chrome
+			google-chrome
 			zotero texlive.combined.scheme-full libreoffice-qt
 			element-desktop tdesktop discord
 			# jail
@@ -96,6 +96,7 @@ inputs:
 		++ (with inputs.lib; filter isDerivation (attrValues inputs.pkgs.plasma5Packages.kdeGear));
 		programs.wireshark = { enable = true; package = inputs.pkgs.wireshark; };
 		nixpkgs.config = { permittedInsecurePackages = [ "openssl-1.1.1u" "electron-19.0.7" ]; allowUnfree = true; };
+		programs.firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
 		# programs.firejail =
 		# {
 		# 	enable = true;
