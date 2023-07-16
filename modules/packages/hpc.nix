@@ -25,6 +25,13 @@ inputs:
 	{
 		libreoffice-qt = prev.libreoffice-qt.override { unwrapped = prev.libreoffice.unwrapped.override
 			{ stdenv = final.ccacheStdenv.override { stdenv = prev.libreoffice.unwrapped.stdenv; }; }; };
+		python3 = prev.python3.override { packageOverrides = python-final: python-prev:
+			{
+				tensorflow = python-prev.tensorflow.override
+					{ stdenv = final.ccacheStdenv.override { stdenv = python-prev.tensorflow.stdenv; }; };
+			};};
+		# python3Packages.tensorflow = prev.python3Packages.tensorflow.override
+		# 	{ stdenv = final.ccacheStdenv.override { stdenv = prev.python3Packages.tensorflow.stdenv; }; };
 		# python3Packages.tensorflow = prev.python3Packages.tensorflow.override
 		# 	{ stdenv = final.ccacheStdenv.override { stdenv = prev.python3Packages.tensorflow.stdenv; }; };
 		# linuxPackages_xanmod_latest = prev.linuxPackages_xanmod_latest.override
