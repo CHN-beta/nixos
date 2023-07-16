@@ -30,6 +30,7 @@ inputs:
 				tensorflow = python-prev.tensorflow.override
 					{ stdenv = final.ccacheStdenv.override { stdenv = python-prev.tensorflow.stdenv; }; };
 			};};
+		webkitgtk = prev.webkitgtk.override { stdenv = final.ccacheStdenv.override { stdenv = prev.webkitgtk.stdenv; }; };
 		# python3Packages.tensorflow = prev.python3Packages.tensorflow.override
 		# 	{ stdenv = final.ccacheStdenv.override { stdenv = prev.python3Packages.tensorflow.stdenv; }; };
 		# python3Packages.tensorflow = prev.python3Packages.tensorflow.override
