@@ -1,9 +1,10 @@
 {
 	lib, stdenv, fetchurl,
-  glibc, libX11, glib, libnotify, xdg-utils, ncurses, nss, 
-	at-spi2-core, libxcb, libdrm, gtk3, mesa, qt515, zlib, xorg, atk, nspr, dbus,
-	pango, cairo, gdk_pixbuf, x11, cups, expat, libxkbcommon, alsaLib, file, at-spi2-atk,
-	freetype, fontconfig
+	glibc, zlib, file
+  # glibc, libX11, glib, libnotify, xdg-utils, ncurses, nss, 
+	# at-spi2-core, libxcb, libdrm, gtk3, mesa, qt515, zlib, xorg, atk, nspr, dbus,
+	# pango, cairo, gdk-pixbuf, cups, expat, libxkbcommon, alsaLib, file, at-spi2-atk,
+	# freetype, fontconfig
 }:
 	
 stdenv.mkDerivation rec
@@ -15,34 +16,34 @@ stdenv.mkDerivation rec
 	srcs = [
 		(fetchurl {
 			url = "https://registrationcenter-download.intel.com/akdlm/IRC_NAS/7deeaac4-f605-4bcf-a81b-ea7531577c61/l_BaseKit_p_2023.1.0.46401_offline.sh";
-			sha256 = "03qx6sb58mkhc7iyc8va4y1ihj6l3155dxwmqj8dfw7j2ma7r5f6";
+			sha256 = "0cn32zqfbjv0vq43g6ap10crnsyk7nldyqpyyzn6g52j5h45g93l";
 		})
 		(fetchurl {
 			url = "https://registrationcenter-download.intel.com/akdlm/IRC_NAS/1ff1b38a-8218-4c53-9956-f0b264de35a4/l_HPCKit_p_2023.1.0.46346_offline.sh";
-			sha256 = "0swz4w9bn58wwqjkqhjqnkcs8k8ms9nn9s8k7j5w6rzvsa6817d2";
+			sha256 = "0wfya02lljq4iid0nc5sn4055dkvgxwrc40x7qbgpdprzqx4a8l8";
 		})
 	];
 
 	nativeBuildInputs = [ file ];
 
-	propagatedBuildInputs =
-	[
-		glibc glib libnotify xdg-utils ncurses nss 
-		at-spi2-core libxcb libdrm gtk3 mesa qt515.full 
-		zlib freetype fontconfig xorg.xorgproto xorg.libX11 xorg.libXt
-		xorg.libXft xorg.libXext xorg.libSM xorg.libICE
-	];
+	# propagatedBuildInputs =
+	# [
+	# 	glibc glib libnotify xdg-utils ncurses nss 
+	# 	at-spi2-core libxcb libdrm gtk3 mesa qt515.full 
+	# 	zlib freetype fontconfig xorg.xorgproto xorg.libX11 xorg.libXt
+	# 	xorg.libXft xorg.libXext xorg.libSM xorg.libICE
+	# ];
 
-	libPath = lib.makeLibraryPath
-	[
-		stdenv.cc.cc libX11 glib libnotify xdg-utils 
-		ncurses nss at-spi2-core libxcb libdrm gtk3 
-		mesa qt515.full zlib atk nspr dbus pango cairo 
-		gdk_pixbuf x11 cups expat libxkbcommon alsaLib
-		at-spi2-atk xorg.libXcomposite xorg.libxshmfence 
-		xorg.libXdamage xorg.libXext xorg.libXfixes
-		xorg.libXrandr
-	];
+	# libPath = lib.makeLibraryPath
+	# [
+	# 	stdenv.cc.cc libX11 glib libnotify xdg-utils 
+	# 	ncurses nss at-spi2-core libxcb libdrm gtk3 
+	# 	mesa qt515.full zlib atk nspr dbus pango cairo 
+	# 	gdk-pixbuf cups expat libxkbcommon alsaLib
+	# 	at-spi2-atk xorg.libXcomposite xorg.libxshmfence 
+	# 	xorg.libXdamage xorg.libXext xorg.libXfixes
+	# 	xorg.libXrandr
+	# ];
 
 	phases = [ "installPhase" "fixupPhase" "installCheckPhase" "distPhase" ];
 
@@ -72,7 +73,7 @@ stdenv.mkDerivation rec
 		export LD_LIBRARY_PATH=${zlib}/lib
 		$out/tmp/l_BaseKit_p_${version}_offline/install.sh --install-dir $out --download-cache $out/tmp \
 			--download-dir $out/tmp --log-dir $out/tmp --eula accept -s --ignore-errors
-		$out/tmp/l_HPCKit_p_${hpc_version}_offline/install.sh --install-dir $out --download-cache $out/tmp --download-dir $out/tmp --log-dir $out/tmp --eula accept -s --ignore-errors
+		$out/tmp/l_HPCKit_p_${version}_offline/install.sh --install-dir $out --download-cache $out/tmp --download-dir $out/tmp --log-dir $out/tmp --eula accept -s --ignore-errors
 		rm -rf $out/tmp
 	'';
 
