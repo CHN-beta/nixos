@@ -31,6 +31,8 @@ inputs:
 					{ stdenv = final.ccacheStdenv.override { stdenv = python-prev.tensorflow.stdenv; }; };
 			};};
 		webkitgtk = prev.webkitgtk.override { stdenv = final.ccacheStdenv.override { stdenv = prev.webkitgtk.stdenv; }; };
+		wxGTK31 = prev.wxGTK31.override { stdenv = final.ccacheStdenv.override { stdenv = prev.wxGTK31.stdenv; }; };
+		wxGTK32 = prev.wxGTK32.override { stdenv = final.ccacheStdenv.override { stdenv = prev.wxGTK32.stdenv; }; };
 		# python3Packages.tensorflow = prev.python3Packages.tensorflow.override
 		# 	{ stdenv = final.ccacheStdenv.override { stdenv = prev.python3Packages.tensorflow.stdenv; }; };
 		# python3Packages.tensorflow = prev.python3Packages.tensorflow.override
