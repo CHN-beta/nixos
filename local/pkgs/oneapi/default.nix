@@ -1,6 +1,6 @@
 {
 	lib, stdenv, fetchurl, autoPatchelfHook,
-	ncurses, xorg
+	ncurses, xorg, qt6
 }:
 	
 stdenv.mkDerivation rec
@@ -23,7 +23,7 @@ stdenv.mkDerivation rec
 	hpckit = "${builtins.elemAt src 1}";
 
 	nativeBuildInputs = [ autoPatchelfHook ];
-	propagatedBuildInputs = [ ncurses stdenv.cc.cc.lib xorg.libXau ];
+	propagatedBuildInputs = [ ncurses stdenv.cc.cc.lib xorg.libXau qt6.full ];
 
 	# propagatedBuildInputs =
 	# [
@@ -50,7 +50,7 @@ stdenv.mkDerivation rec
 		in
 		"
 			${unpack basekit}
-			${unpack hpckit}
+			# ${unpack hpckit}
 		";
 	patchPhase =
 		"
