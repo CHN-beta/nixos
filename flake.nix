@@ -143,6 +143,7 @@
 								./modules/fileSystems
 								./modules/kernel
 								./modules/hardware
+								./modules/packages
 								(inputs: { config.nixos =
 									{
 										fileSystems =
@@ -176,6 +177,10 @@
 										{
 											bluetooth.enable = true;
 											joystick.enable = true;
+										};
+										packages =
+										{
+											packages = [ "genshin-impact" "honkers-star-rail" ];
 										};
 									};}
 								)
