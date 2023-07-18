@@ -178,6 +178,7 @@
 											bluetooth.enable = true;
 											joystick.enable = true;
 											printer.enable = true;
+											sound.enable = true;
 										};
 										packages =
 										{
@@ -193,7 +194,6 @@
 								./modules/sops.nix
 								./modules/boot/chn-PC.nix
 								[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
-								./modules/hardware/sound.nix
 								./modules/hardware/chn-PC.nix
 								./modules/networking/basic.nix
 								./modules/networking/samba.nix
