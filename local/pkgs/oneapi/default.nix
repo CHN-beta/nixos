@@ -1,6 +1,6 @@
 {
-	lib, stdenv, fetchurl,
-	glibc, zlib, file
+	lib, stdenv, fetchurl, autoPatchelfHook
+	# glibc, zlib, file
   # glibc, libX11, glib, libnotify, xdg-utils, ncurses, nss, 
 	# at-spi2-core, libxcb, libdrm, gtk3, mesa, qt515, zlib, xorg, atk, nspr, dbus,
 	# pango, cairo, gdk-pixbuf, cups, expat, libxkbcommon, alsaLib, file, at-spi2-atk,
@@ -10,7 +10,7 @@
 stdenv.mkDerivation rec
 {
 	version = "2023.1";
-	pname = "oneapi";
+	pname = "intel-oneapi";
 
 	sourceRoot = ".";
 	srcs = [
@@ -24,7 +24,7 @@ stdenv.mkDerivation rec
 		})
 	];
 
-	nativeBuildInputs = [ file ];
+	# nativeBuildInputs = [ file ];
 
 	# propagatedBuildInputs =
 	# [
@@ -45,7 +45,7 @@ stdenv.mkDerivation rec
 	# 	xorg.libXrandr
 	# ];
 
-	phases = [ "installPhase" "fixupPhase" "installCheckPhase" "distPhase" ];
+	# phases = [ "installPhase" "fixupPhase" "installCheckPhase" "distPhase" ];
 
 	installPhase =
 	''
@@ -77,20 +77,20 @@ stdenv.mkDerivation rec
 		rm -rf $out/tmp
 	'';
 
-	postFixup = ''
-		echo "Fixing rights..."
-		chmod u+w -R $out
-		echo "Patching rpath and interpreter..."
-		for dir in `find $out -mindepth 1 -maxdepth 1 -type d`
-		do
-			echo "	 $dir"
-			for file in `find $dir -type f -exec file {} + | grep ELF| awk -F: '{print $1}'`
-			do
-					echo "			 $file"
-					patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" --set-rpath '$ORIGIN'":${glibc}/lib:$libPath:$dir/latest/lib64" $file 2>/dev/null || true
-			done
-		done
-	'';
+	# postFixup = ''
+	# 	echo "Fixing rights..."
+	# 	chmod u+w -R $out
+	# 	echo "Patching rpath and interpreter..."
+	# 	for dir in `find $out -mindepth 1 -maxdepth 1 -type d`
+	# 	do
+	# 		echo "	 $dir"
+	# 		for file in `find $dir -type f -exec file {} + | grep ELF| awk -F: '{print $1}'`
+	# 		do
+	# 				echo "			 $file"
+	# 				patchelf --set-interpreter "$(cat $NIX_CC/nix-support/dynamic-linker)" --set-rpath '$ORIGIN'":${glibc}/lib:$libPath:$dir/latest/lib64" $file 2>/dev/null || true
+	# 		done
+	# 	done
+	# '';
 
 	meta = {
 		description = "Intel OneAPI Basekit + HPCKit";

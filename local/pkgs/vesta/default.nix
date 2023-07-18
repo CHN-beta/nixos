@@ -18,8 +18,8 @@ stdenv.mkDerivation rec
 		sha256 = "Tq4AzQgde2KIWKA1k6JlxvdphGG9JluHMZjVw0fBUeQ=";
 	};
 
-	nativeBuildInputs = [ glib autoPatchelfHook gtk2 xorg.libXxf86vm libGLU gtk3 xorg.libXtst wrapGAppsHook ];
-	# buildInputs = [ makeWrapper ];
+	nativeBuildInputs = [ autoPatchelfHook wrapGAppsHook ];
+	buildInputs = [ glib gtk2 xorg.libXxf86vm libGLU gtk3 xorg.libXtst ];
 
 	unpackPhase = "tar -xf ${src}";
 
