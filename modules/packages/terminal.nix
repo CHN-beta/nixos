@@ -26,6 +26,7 @@ inputs:
 			go rustc boost cereal cxxopts valgrind
 			lsd zellij broot
 			nil nixd
+			p7zip
 		];
 		programs =
 		{
