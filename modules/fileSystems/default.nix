@@ -71,7 +71,7 @@ inputs:
 										device = device.name;
 										allowDiscards = device.value.ssd;
 										bypassWorkqueues = device.value.ssd;
-										crypttabExtraOpts = [ "fido2-device=auto" ];
+										crypttabExtraOpts = [ "fido2-device=auto" "x-initrd.attach" ];
 									};
 								}
 							)
