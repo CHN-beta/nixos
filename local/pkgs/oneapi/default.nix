@@ -1,6 +1,6 @@
 {
-	lib, stdenv, fetchurl, autoPatchelfHook,
-	ncurses, xorg, qt6
+	lib, stdenv, fetchurl, autoPatchelfHook, strace,
+	ncurses, xorg, qt6, libdrm
 }:
 	
 stdenv.mkDerivation rec
@@ -22,7 +22,7 @@ stdenv.mkDerivation rec
 	basekit = "${builtins.elemAt src 0}";
 	hpckit = "${builtins.elemAt src 1}";
 
-	nativeBuildInputs = [ autoPatchelfHook ];
+	nativeBuildInputs = [ autoPatchelfHook strace ];
 	propagatedBuildInputs = [ ncurses stdenv.cc.cc.lib xorg.libXau qt6.full ];
 
 	# propagatedBuildInputs =
@@ -54,16 +54,32 @@ stdenv.mkDerivation rec
 		";
 	patchPhase =
 		"
+			# toolkit_name=$(basename ${basekit} | sed -e 's/\.sh//g' | sed -e 's/.*-//g')
+			# rm -r $TMP/\${toolkit_name}/{lib,plugins}
 			patchShebangs $TMP
 			autoPatchelf $TMP
+			echo $TMP
+			echo etc
+			ls /etc
+			echo dev
+			ls /dev
+			sleep 10
 		";
 	installPhase =
 		let
 			install = toolkit:
 			"
+				echo 'ID=nixos' >> /etc/os-release
+				echo 'NAME=NixOS' >> /etc/os-release
 				export HOME=$TMP
+				echo $TMP
+				echo etc
+				ls /etc
+				echo dev
+				ls /dev
+				sleep 10
 				toolkit_name=$(basename ${toolkit} | sed -e 's/\.sh//g' | sed -e 's/.*-//g')
-				$TMP/\${toolkit_name}/install.sh --install-dir $out --eula accept -s
+				strace $TMP/\${toolkit_name}/install.sh --install-dir $out --eula accept -s --ignore-errors
 			";
 		in
 		"
