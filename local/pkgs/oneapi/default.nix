@@ -2,7 +2,7 @@
 	lib, stdenv, fetchurl, autoPatchelfHook, strace,
 	alsa-lib, at-spi2-atk, bzip2, cairo, numactl, pango, glib, gdk-pixbuf, xorg, libjpeg, gtk3, libkrb5, ncurses5, kmod,
 	rdma-core, gtk2, nss, libxcrypt-legacy, gdbm, level-zero, hwloc, ucx, tcl, libffi_3_3, postgresql, libpng12, libpsm2,
-	libndctl
+	libndctl, libdrm, mesa
 }:
 	
 stdenv.mkDerivation rec
@@ -113,7 +113,8 @@ stdenv.mkDerivation rec
 	[
 		alsa-lib at-spi2-atk bzip2 cairo numactl pango glib stdenv.cc.cc gdk-pixbuf xorg.xcbutilimage xorg.xcbutilkeysyms
 		xorg.libICE libjpeg gtk3 xorg.xcbutilwm libkrb5 ncurses5 kmod.lib rdma-core xorg.xcbutilrenderutil gtk2 nss
-		libxcrypt-legacy gdbm level-zero hwloc ucx tcl libffi_3_3 postgresql.lib libpng12 libndctl libpsm2
+		libxcrypt-legacy gdbm level-zero hwloc ucx tcl libffi_3_3 postgresql.lib libpng12 libndctl libpsm2 libdrm mesa
+		xorg.libXxf86vm
 	];
 	autoPatchelfIgnoreMissingDeps =
 	[

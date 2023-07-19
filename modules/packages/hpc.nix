@@ -13,6 +13,7 @@ inputs:
 			mathematica octave root cling gfortran
 			qchem.quantum-espresso
 			waifu2x-converter-cpp
+			localPackages.oneapi
 		]
 	)
 	++ ( with inputs.pkgs.pkgsCross.mingwW64.buildPackages; [ gcc ] );
