@@ -26,7 +26,7 @@ inputs:
 			go rustc boost cereal cxxopts valgrind
 			lsd zellij broot
 			nil nixd
-			p7zip
+			p7zip appimage-run file
 		];
 		programs =
 		{
