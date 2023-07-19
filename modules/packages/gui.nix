@@ -93,7 +93,7 @@ inputs:
 			tcpdump nmap mtr-gui simplescreenrecorder obs-studio 
 			signal-desktop dbeaver ftxui yaml-cpp wl-mirror poppler_utils imagemagick gimp
 			playonlinux bottles # davinci-resolve
-			notion
+			notion-app-enhanced appflowy
 		]
 		++ (with inputs.lib; filter isDerivation (attrValues inputs.pkgs.plasma5Packages.kdeGear));
 		programs.wireshark = { enable = true; package = inputs.pkgs.wireshark; };
