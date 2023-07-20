@@ -25,6 +25,8 @@
 				return "$code"
 			fi
 		}
+
+		alias todo="todo.sh"
 	'';
 	plugins =
 	[
