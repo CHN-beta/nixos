@@ -49,6 +49,7 @@
 				HibernateMode=shutdown
 			";
 			services.nix-daemon.serviceConfig = { Slice = "-.slice"; Nice = "19"; };
+			timers.systemd-tmpfiles-clean.enable = false;
 		};
 		programs.nix-ld.enable = true;
 		boot = { supportedFilesystems = [ "ntfs" ]; consoleLogLevel = 7; };
