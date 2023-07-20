@@ -77,7 +77,11 @@ inputs:
 			]
 			# speed up luks decryption
 			++ [ "aesni_intel" "cryptd" "crypto_simd" "libaes" ];
-			systemd.services."systemd-cryptsetup@swap".before = [ "systemd-cryptsetup@root.service" ];
+			systemd.services."systemd-cryptsetup@swap" =
+			{
+				before = [ "systemd-cryptsetup@root.service" ];
+				overrideStrategy = "asDropin";
+			};
 		};
 
 		# impermanence
