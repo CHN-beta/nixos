@@ -15,6 +15,7 @@ inputs:
 			qchem.quantum-espresso
 			waifu2x-converter-cpp
 			localPackages.oneapi
+			yarn
 		]
 	)
 	++ ( with inputs.pkgs.pkgsCross.mingwW64.buildPackages; [ gcc ] );
