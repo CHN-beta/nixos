@@ -9,6 +9,7 @@ inputs:
 			[
 				phonopy inquirerpy requests tqdm tensorflow keras python-telegram-bot
 				localPackages.upho localPackages.spectral
+				fastapi pypdf2 pandas openai matplotlib scipy plotly gunicorn scikit-learn redis jinja2
 			]))
 			mathematica octave root cling gfortran
 			qchem.quantum-espresso
