@@ -91,7 +91,7 @@ inputs:
 					systemd.services.roll-rootfs =
 					{
 						wantedBy = [ "local-fs-pre.target" ];
-						after = [ "cryptsetup.target" ];
+						after = [ "cryptsetup.target" "dev-mapper-swap.swap" ];
 						before = [ "local-fs-pre.target" ];
 						unitConfig.DefaultDependencies = false;
 						serviceConfig.Type = "oneshot";
