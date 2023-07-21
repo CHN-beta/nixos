@@ -76,7 +76,7 @@
 			"net.core.somaxconn" = 8388608;
 			"vm.oom_kill_allocating_task" = true;
 			"vm.oom_dump_tasks" = false;
-			"vm.overcommit_kbytes" = 22020096;
+			"vm.overcommit_memory" = 1;
 			"dev.i915.perf_stream_paranoid" = false;
 		};
 	};

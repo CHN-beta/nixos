@@ -2,7 +2,6 @@ inputs:
 {
 	options.nixos.kernel = let inherit (inputs.lib) mkOption types; in
 	{
-		cpu = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
 		patches = mkOption { type = types.listOf (types.enum [ "hdmi" "cjktty" ]); default = []; };
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) mkConditional; in mkMerge
@@ -26,12 +25,6 @@ inputs:
 					stdenv = inputs.pkgs.ccacheStdenv.override { stdenv = inputs.pkgs.linuxPackages_xanmod.kernel.stdenv; };
 				});
 			};
-		}
-		# cpu
-		{
-			hardware.cpu = builtins.listToAttrs (builtins.map
-				(name: { inherit name; value = { updateMicrocode = true; }; })
-				inputs.config.nixos.kernel.cpu);
 		}
 		# patches
 		{

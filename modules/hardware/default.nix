@@ -6,11 +6,15 @@ inputs:
 		joystick.enable = mkOption { type = types.bool; default = false; };
 		printer.enable = mkOption { type = types.bool; default = false; };
 		sound.enable = mkOption { type = types.bool; default = false; };
+		cpu = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; in mkMerge
 	[
+		# bluetooth
 		(mkIf inputs.config.nixos.hardware.bluetooth.enable { hardware.bluetooth.enable = true; })
+		# joystick
 		(mkIf inputs.config.nixos.hardware.joystick.enable { hardware = { xone.enable = true; xpadneo.enable = true; }; })
+		# printer
 		(
 			mkIf inputs.config.nixos.hardware.printer.enable
 			{
@@ -21,6 +25,7 @@ inputs:
 				};
 			}
 		)
+		# sound
 		(
 			mkIf inputs.config.nixos.hardware.sound.enable
 			{
@@ -36,10 +41,16 @@ inputs:
 							".*\n([[:space:]]*)(--\\[\"session\\.suspend-timeout-seconds\"][^\n]*)[\n].*" content;
 						spaces = builtins.elemAt matched 0;
 						comment = builtins.elemAt matched 1;
-						config = "[\"session.suspend-timeout-seconds\"] = 0";
+						config = ''["session.suspend-timeout-seconds"] = 0'';
 					in
 						builtins.replaceStrings [(spaces + comment)] [(spaces + config)] content;
 			}
 		)
+		# cpu
+		{
+			hardware.cpu = builtins.listToAttrs (builtins.map
+				(name: { inherit name; value = { updateMicrocode = true; }; })
+				inputs.config.nixos.kernel.cpu);
+		}
 	];
 }
