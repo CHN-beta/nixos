@@ -1,3 +1,4 @@
+lib:
 {
 	mkModules = import ./mkModules.nix;
 	mkSystem = import ./mkSystems.nix;

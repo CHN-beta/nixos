@@ -1,4 +1,4 @@
-{ pkgs }: with pkgs;
+{ lib, pkgs }: with pkgs;
 {
 	typora = callPackage ./typora {};
 	upho = python3Packages.callPackage ./upho {};

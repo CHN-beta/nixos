@@ -95,7 +95,8 @@
 
 	outputs = inputs:
 		let
-			local = import ./local;
+			localLib = import ./local/lib inputs.nixpkgs.lib;
+			localPkgs = import ./local/pkgs;
 		in
 		{
 			nixosConfigurations =
@@ -103,7 +104,7 @@
 				"chn-PC" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";
-					specialArgs = { topInputs = inputs; localLib = local.lib; };
+					specialArgs = { topInputs = inputs; inherit localLib; };
 					modules =
 					[
 						inputs.home-manager.nixosModules.home-manager
@@ -124,7 +125,7 @@
 										{
 											touchix = inputs.touchix.packages."${prev.system}";
 											nix-vscode-extensions = inputs.nix-vscode-extensions.extensions."${prev.system}";
-											localPackages = local.pkgs { pkgs = prev; };
+											localPackages = localPkgs { inherit (args) lib; pkgs = final; };
 										}
 									)
 									inputs.qchem.overlays.default
@@ -138,7 +139,7 @@
 							};
 						})
 						(
-							local.lib.mkModules
+							localLib.mkModules
 							[
 								./modules/fileSystems
 								./modules/kernel
