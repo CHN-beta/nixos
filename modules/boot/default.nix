@@ -9,7 +9,7 @@ inputs:
 			installDevice = mkOption { type = types.str; }; # "efi" using efi, or dev path like "/dev/sda" using bios
 		};
 	};
-	config = let inherit (inputs.lib) mkMerge mkIf; in mkMerge
+	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) mkConditional; in mkMerge
 	[
 		# generic
 		{ boot.loader.grub = { enable = true; useOSProber = false; };}
@@ -22,7 +22,7 @@ inputs:
 		)
 		# grub.installDevice
 		(
-			mkIf (inputs.config.nixos.boot.grub.installDevice == "efi")
+			mkConditional (inputs.config.nixos.boot.grub.installDevice == "efi")
 				{
 					boot.loader =
 					{
@@ -30,9 +30,6 @@ inputs:
 						grub = { device = "nodev"; efiSupport = true; };
 					};
 				}
-		)
-		(
-			mkIf (inputs.config.nixos.boot.grub.installDevice != "efi")
 				{ boot.loader.grub.device = inputs.config.nixos.boot.grub.installDevice; }
 		)
 	];
