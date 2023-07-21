@@ -1,4 +1,4 @@
-{ hostName }: inputs:
+inputs:
 {
 	config =
 	{
@@ -27,7 +27,6 @@
 			# 	"/nix/var/nix/profiles/per-user/root/channels"
 			# ];
 		};
-		networking.hostName = hostName;
 		time.timeZone = "Asia/Shanghai";
 		system =
 		{

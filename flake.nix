@@ -146,6 +146,7 @@
 								./modules/hardware
 								./modules/packages
 								./modules/boot
+								./modules/system
 								(inputs: { config.nixos =
 									{
 										fileSystems =
@@ -209,10 +210,14 @@
 											'';
 											installDevice = "efi";
 										};
+										system =
+										{
+											hostname = "chn-PC";
+										};
 									};}
 								)
 
-								[ ./modules/basic.nix { hostName = "chn-PC"; } ]
+								./modules/basic.nix
 								./modules/fonts.nix
 								[ ./modules/i18n.nix { fcitx = true; } ]
 								./modules/kde.nix
