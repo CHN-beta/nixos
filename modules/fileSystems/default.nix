@@ -24,7 +24,7 @@ inputs:
 			path = mkOption { type = types.nonEmptyStr; };
 		}; }); };
 	};
-	config = let inherit (inputs.lib) mkMerge mkIf; in mkMerge
+	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) stripeTabs; in mkMerge
 	[
 		# mount.vfat
 		{
@@ -105,8 +105,8 @@ inputs:
 					before = [ "local-fs-pre.target" ];
 					unitConfig.DefaultDependencies = false;
 					serviceConfig.Type = "oneshot";
-					script = let inherit (inputs.config.nixos.fileSystems.rollingRootfs) device path; in
-					''
+					script = let inherit (inputs.config.nixos.fileSystems.rollingRootfs) device path; in stripeTabs
+					"
 						mount ${device} /mnt -m
 						if [ -f /mnt${path}/current/.timestamp ]
 						then
@@ -115,7 +115,7 @@ inputs:
 						btrfs subvolume create /mnt${path}/current
 						echo $(date '+%Y%m%d%H%M%S') > /mnt${path}/current/.timestamp
 						umount /mnt
-					'';
+					";
 				};
 			}
 		)
