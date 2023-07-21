@@ -5,25 +5,37 @@ inputs:
 		cpu = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
 		patches = mkOption { type = types.listOf (types.enum [ "hdmi" "cjktty" ]); default = []; };
 	};
-	config =
-	{
-		boot =
+	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) mkConditional; in mkMerge
+	[
+		# generic
 		{
-			kernelParams = [ "delayacct" "acpi_osi=Linux" ];
-			kernelPackages = inputs.pkgs.linuxPackagesFor (inputs.pkgs.linuxPackages_xanmod.kernel.override rec
+			boot =
 			{
-				src = inputs.pkgs.fetchFromGitHub
+				kernelParams = [ "delayacct" "acpi_osi=Linux" ];
+				kernelPackages = inputs.pkgs.linuxPackagesFor (inputs.pkgs.linuxPackages_xanmod.kernel.override rec
 				{
-					owner = "xanmod";
-					repo = "linux";
-					rev = modDirVersion;
-					sha256 = "sha256-ab4AQx1ApJ9o1oqgNoJBL64tI0qpyVBm5XUC8l1yT6Q=";
-				};
-				version = "6.3.12";
-				modDirVersion = "6.3.12-xanmod1";
-				stdenv = inputs.pkgs.ccacheStdenv.override { stdenv = inputs.pkgs.linuxPackages_xanmod.kernel.stdenv; };
-			});
-			kernelPatches =
+					src = inputs.pkgs.fetchFromGitHub
+					{
+						owner = "xanmod";
+						repo = "linux";
+						rev = modDirVersion;
+						sha256 = "sha256-ab4AQx1ApJ9o1oqgNoJBL64tI0qpyVBm5XUC8l1yT6Q=";
+					};
+					version = "6.3.12";
+					modDirVersion = "6.3.12-xanmod1";
+					stdenv = inputs.pkgs.ccacheStdenv.override { stdenv = inputs.pkgs.linuxPackages_xanmod.kernel.stdenv; };
+				});
+			};
+		}
+		# cpu
+		{
+			hardware.cpu = builtins.listToAttrs (builtins.map
+				(name: { inherit name; value = { updateMicrocode = true; }; })
+				inputs.config.nixos.kernel.cpu);
+		}
+		# patches
+		{
+			boot.kernelPatches =
 			(
 				let
 					patches =
@@ -43,9 +55,6 @@ inputs:
 				in
 					builtins.map (name: { inherit name; } // patches.${name}) inputs.config.nixos.kernel.patches
 			);
-		};
-		hardware.cpu = builtins.listToAttrs (builtins.map
-			(name: { inherit name; value = { updateMicrocode = true; }; })
-			inputs.config.nixos.kernel.cpu);
-	};
+		}
+	];
 }
