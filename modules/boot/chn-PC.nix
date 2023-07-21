@@ -30,40 +30,6 @@ inputs:
 			}
 		];
 
-		# grub
-		boot.loader =
-		{
-			timeout = 5;
-			efi = { canTouchEfiVariables = true; efiSysMountPoint = "/boot/efi"; };
-			grub =
-			{
-				enable = true;
-				# for BIOS, set disk to install; for EFI, set nodev
-				device = "nodev";
-				efiSupport = true;
-				useOSProber = false;
-				extraEntries =
-				''
-					menuentry "Windows" {
-						insmod part_gpt
-						insmod fat
-						insmod search_fs_uuid
-						insmod chain
-						search --fs-uuid --set=root 7317-1DB6
-						chainloader /EFI/Microsoft/Boot/bootmgfw.efi
-					}
-					menuentry "Windows for malware" {
-						insmod part_gpt
-						insmod fat
-						insmod search_fs_uuid
-						insmod chain
-						search --fs-uuid --set=root 7321-FA9C
-						chainloader /EFI/Microsoft/Boot/bootmgfw.efi
-					}
-				'';
-			};
-		};
-
 		# initrd, luks
 		boot.initrd =
 		{
