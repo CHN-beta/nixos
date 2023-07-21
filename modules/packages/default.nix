@@ -5,21 +5,18 @@ inputs:
     packages = mkOption { default = []; type = types.listOf (types.enum
     [
       # games
-      "genshin-impact" "honkers-star-rail"
+      "genshin-impact" "honkers-starrail"
     ]); };
   };
-  config =
-  {
-    programs = {}
-    // (
-      if builtins.elem "genshin-impact" inputs.config.nixos.packages.packages
-        then { anime-game-launcher.enable = true; }
-        else {}
+  config = let inherit (inputs.lib) mkMerge mkIf; in mkMerge
+  [
+    (
+      mkIf (builtins.elem "genshin-impact" inputs.config.nixos.packages.packages)
+        { programs.anime-game-launcher.enable = true; }
     )
-    // (
-      if builtins.elem "honkers-star-rail" inputs.config.nixos.packages.packages
-        then { honkers-railway-launcher.enable = true; }
-        else {}
-    );
-  };
+    (
+      mkIf (builtins.elem "honkers-starrail" inputs.config.nixos.packages.packages)
+        { programs.honkers-railway-launcher.enable = true; }
+    )
+  ];
 }

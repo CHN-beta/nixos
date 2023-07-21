@@ -185,13 +185,13 @@
 										};
 										packages =
 										{
-											packages = [ "genshin-impact" "honkers-star-rail" ];
+											packages = [ "genshin-impact" "honkers-starrail" ];
 										};
 										boot.grub =
 										{
 											entries = localLib.stripeTabs
-											"
-												menuentry \"Windows\" {
+											''
+												menuentry "Windows" {
 													insmod part_gpt
 													insmod fat
 													insmod search_fs_uuid
@@ -199,7 +199,7 @@
 													search --fs-uuid --set=root 7317-1DB6
 													chainloader /EFI/Microsoft/Boot/bootmgfw.efi
 												}
-												menuentry \"Windows for malware\" {
+												menuentry "Windows for malware" {
 													insmod part_gpt
 													insmod fat
 													insmod search_fs_uuid
@@ -207,7 +207,7 @@
 													search --fs-uuid --set=root 7321-FA9C
 													chainloader /EFI/Microsoft/Boot/bootmgfw.efi
 												}
-											";
+											'';
 											installDevice = "efi";
 										};
 										system =
