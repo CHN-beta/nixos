@@ -173,11 +173,11 @@
 										};
 										kernel =
 										{
-											cpu = [ "intel" ];
 											patches = [ "hdmi" "cjktty" ];
 										};
 										hardware =
 										{
+											cpu = [ "intel" ];
 											bluetooth.enable = true;
 											joystick.enable = true;
 											printer.enable = true;

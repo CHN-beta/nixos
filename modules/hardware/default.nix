@@ -50,7 +50,7 @@ inputs:
 		{
 			hardware.cpu = builtins.listToAttrs (builtins.map
 				(name: { inherit name; value = { updateMicrocode = true; }; })
-				inputs.config.nixos.kernel.cpu);
+				inputs.config.nixos.hardware.cpu);
 		}
 	];
 }
