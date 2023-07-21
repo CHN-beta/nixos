@@ -101,7 +101,7 @@ inputs:
 				boot.initrd.systemd.services.roll-rootfs =
 				{
 					wantedBy = [ "local-fs-pre.target" ];
-					after = [ "cryptsetup.target" "dev-mapper-swap.swap" "systemd-hibernate-resume.slice" ];
+					after = [ "cryptsetup.target" "systemd-hibernate-resume.slice" ];
 					before = [ "local-fs-pre.target" ];
 					unitConfig.DefaultDependencies = false;
 					serviceConfig.Type = "oneshot";
