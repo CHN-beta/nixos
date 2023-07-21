@@ -24,16 +24,17 @@ inputs:
 			path = mkOption { type = types.nonEmptyStr; };
 		}; }); };
 	};
-	config =
-	{
-		fileSystems =
-		(
-			builtins.listToAttrs (builtins.map
+	config = let inherit (inputs.lib) mkMerge mkIf; in mkMerge
+	[
+		# mount.vfat
+		{
+			fileSystems = builtins.listToAttrs (builtins.map
 				(device: { name = device.value; value = { device = device.name; fsType = "vfat"; }; })
-				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mount.vfat))
-		)
-		// (
-			builtins.listToAttrs (builtins.concatLists (builtins.map
+				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mount.vfat));
+		}
+		# mount.btrfs
+		{
+			fileSystems = builtins.listToAttrs (builtins.concatLists (builtins.map
 				(
 					device: builtins.map
 						(
@@ -50,69 +51,40 @@ inputs:
 						)
 						(inputs.localLib.attrsToList device.value)
 				)
-				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mount.btrfs)))
-		);
-		swapDevices = builtins.map (device: { device = device; }) inputs.config.nixos.fileSystems.swap;
-		boot =
-		{
-			initrd = {}
-			// (
-				if inputs.config.nixos.fileSystems.decrypt.auto != null then
-				{
-					luks.devices =
-					(
-						builtins.listToAttrs (builtins.map
-							(
-								device:
-								{
-									name = device.value.mapper;
-									value =
-									{
-										device = device.name;
-										allowDiscards = device.value.ssd;
-										bypassWorkqueues = device.value.ssd;
-										crypttabExtraOpts = [ "fido2-device=auto" "x-initrd.attach" ];
-									};
-								}
-							)
-							(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.decrypt.auto))
-					);
-				}
-				else {}
-			)
-			// (
-				if inputs.config.nixos.fileSystems.mdadm != null then
-					{ services.swraid = { enable = true; mdadmConf = inputs.config.nixos.fileSystems.mdadm; }; }
-				else {}
-			)
-			// (
-				if inputs.config.nixos.fileSystems.rollingRootfs != null then
-				{
-					systemd.services.roll-rootfs =
-					{
-						wantedBy = [ "local-fs-pre.target" ];
-						after = [ "cryptsetup.target" "dev-mapper-swap.swap" "systemd-hibernate-resume.slice" ];
-						before = [ "local-fs-pre.target" ];
-						unitConfig.DefaultDependencies = false;
-						serviceConfig.Type = "oneshot";
-						script = let inherit (inputs.config.nixos.fileSystems.rollingRootfs) device path; in
-						''
-							mount ${device} /mnt -m
-							if [ -f /mnt${path}/current/.timestamp ]
-							then
-								mv /mnt${path}/current /mnt${path}/$(cat /mnt${path}/current/.timestamp)
-							fi
-							btrfs subvolume create /mnt${path}/current
-							echo $(date '+%Y%m%d%H%M%S') > /mnt${path}/current/.timestamp
-							umount /mnt
-						'';
-					};
-				}
-				else {}
-			);
+				(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.mount.btrfs)));
 		}
-		// (
-			if inputs.config.nixos.fileSystems.resume != null then
+		# decrypt.auto
+		(
+			mkIf (inputs.config.nixos.fileSystems.decrypt.auto != null)
+			{
+				boot.initrd.luks.devices = (builtins.listToAttrs (builtins.map
+						(
+							device:
+							{
+								name = device.value.mapper;
+								value =
+								{
+									device = device.name;
+									allowDiscards = device.value.ssd;
+									bypassWorkqueues = device.value.ssd;
+									crypttabExtraOpts = [ "fido2-device=auto" "x-initrd.attach" ];
+								};
+							}
+						)
+						(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.decrypt.auto)));
+			}
+		)
+		# mdadm
+		(
+			mkIf (inputs.config.nixos.fileSystems.mdadm != null)
+				{ boot.initrd.services.swraid = { enable = true; mdadmConf = inputs.config.nixos.fileSystems.mdadm; }; }
+		)
+		# swap
+		{ swapDevices = builtins.map (device: { device = device; }) inputs.config.nixos.fileSystems.swap; }
+		# resume
+		(
+			mkIf (inputs.config.nixos.fileSystems.resume != null) { boot =
+			(
 				if builtins.typeOf inputs.config.nixos.fileSystems.resume == "string" then
 					{ resumeDevice = inputs.config.nixos.fileSystems.resume; }
 				else
@@ -120,9 +92,34 @@ inputs:
 					resumeDevice = inputs.config.nixos.fileSystems.resume.device;
 					kernelModules = [ "resume_offset=${inputs.config.nixos.fileSystems.resume.offset}" ];
 				}
-			else {}
-		);
-	};
+			);}
+		)
+		# rollingRootfs
+		(
+			mkIf (inputs.config.nixos.fileSystems.rollingRootfs != null)
+			{
+				boot.initrd.systemd.services.roll-rootfs =
+				{
+					wantedBy = [ "local-fs-pre.target" ];
+					after = [ "cryptsetup.target" "dev-mapper-swap.swap" "systemd-hibernate-resume.slice" ];
+					before = [ "local-fs-pre.target" ];
+					unitConfig.DefaultDependencies = false;
+					serviceConfig.Type = "oneshot";
+					script = let inherit (inputs.config.nixos.fileSystems.rollingRootfs) device path; in
+					''
+						mount ${device} /mnt -m
+						if [ -f /mnt${path}/current/.timestamp ]
+						then
+							mv /mnt${path}/current /mnt${path}/$(cat /mnt${path}/current/.timestamp)
+						fi
+						btrfs subvolume create /mnt${path}/current
+						echo $(date '+%Y%m%d%H%M%S') > /mnt${path}/current/.timestamp
+						umount /mnt
+					'';
+				};
+			}
+		)
+	];
 }
 
 # Disable CoW for VM image and database:
