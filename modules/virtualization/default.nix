@@ -21,7 +21,7 @@ inputs:
 			mkIf inputs.config.nixos.virtualization.docker.enable { virtualisation.docker =
 			{
 				enable = true;
-				rootless = { enable = true; setSocketVariable = true; };
+				rootless = { enable = true; setSocketVariable = true; daemon.settings.features.buildkit = true; };
 				enableNvidia = true;
 				storageDriver = "overlay2";
 			};}
