@@ -24,15 +24,15 @@ inputs:
 	# config.nixpkgs.config.replaceStdenv = { pkgs }: pkgs.ccacheStdenv;
 	# only replace stdenv for large and tested packages
 	# config.programs.ccache.packageNames = [ "webkitgtk" "libreoffice" "tensorflow" "linux" "chromium" ];
-	config.nixpkgs.overlays = [(final: prev:
-	{
-		libreoffice-qt = prev.libreoffice-qt.override (prev: { unwrapped = prev.unwrapped.override
-			(prev: { stdenv = final.ccacheStdenv.override { stdenv = prev.stdenv; }; }); });
-		python3 = prev.python3.override { packageOverrides = python-final: python-prev:
-			{
-				tensorflow = python-prev.tensorflow.override
-					{ stdenv = final.ccacheStdenv.override { stdenv = python-prev.tensorflow.stdenv; }; };
-			};};
+	# config.nixpkgs.overlays = [(final: prev:
+	# {
+	# 	libreoffice-qt = prev.libreoffice-qt.override (prev: { unwrapped = prev.unwrapped.override
+	# 		(prev: { stdenv = final.ccacheStdenv.override { stdenv = prev.stdenv; }; }); });
+	# 	python3 = prev.python3.override { packageOverrides = python-final: python-prev:
+	# 		{
+	# 			tensorflow = python-prev.tensorflow.override
+	# 				{ stdenv = final.ccacheStdenv.override { stdenv = python-prev.tensorflow.stdenv; }; };
+	# 		};};
 	# 	# webkitgtk = prev.webkitgtk.override (prev:
 	# 	# 	{ stdenv = final.ccacheStdenv.override { stdenv = prev.stdenv; }; enableUnifiedBuilds = false; });
 	# 	wxGTK31 = prev.wxGTK31.override { stdenv = final.ccacheStdenv.override { stdenv = prev.wxGTK31.stdenv; }; };
@@ -50,7 +50,7 @@ inputs:
 	# 	# 			{ stdenv = prev.linuxPackages_xanmod_latest.kernel.buildPackages.stdenv; };
 	# 	# 	};
 	# 	# };
-	})];
+	# })];
 	# config.programs.ccache.packageNames = [ "libreoffice-unwrapped" ];
 }
 

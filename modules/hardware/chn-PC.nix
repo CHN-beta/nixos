@@ -15,8 +15,8 @@
 						}).pkgs;
 					in
 						{
-							pandoc = generic-pkgs.pandoc;
-							fwupd = generic-pkgs.fwupd;
+							# pandoc = generic-pkgs.pandoc;
+							# fwupd = generic-pkgs.fwupd;
 						}
 			)];
 		};

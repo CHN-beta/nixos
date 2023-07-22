@@ -134,6 +134,7 @@
 											(inputs.nur-xddxdd.overlays.custom args.config.boot.kernelPackages.nvidia_x11) final prev; }
 									)
 									inputs.nixd.overlays.default
+									inputs.nix-alien.overlays.default
 								];
 								config.allowUnfree = true;
 							};
@@ -220,6 +221,7 @@
 										{
 											hostname = "chn-PC";
 											march = "alderlake";
+											type = "workstation";
 										};
 										virtualization =
 										{
@@ -244,7 +246,6 @@
 								./modules/networking/wall_client.nix
 								./modules/networking/xmunet.nix
 								./modules/networking/chn-PC.nix
-								./modules/packages/terminal.nix
 								./modules/packages/gui.nix
 								./modules/packages/hpc.nix
 								[ ./modules/users/root.nix {} ]
