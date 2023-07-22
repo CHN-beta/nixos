@@ -10,21 +10,12 @@ inputs:
 		# initrd, luks
 		boot.initrd =
 		{
-			systemd.enable = true;
-			# modules in initrd
-			# modprobe --show-depends
 			availableKernelModules =
-			[
-				"ahci" "bfq" "i915" "intel_cstate" "nls_cp437" "nls_iso8859-1" "nvidia" "nvidia_drm" "nvidia_modeset"
-				"nvidia_uvm" "nvme" "sr_mod" "usbhid" "usb_storage" "virtio_blk" "virtio_pci" "xhci_pci"
-			]
-			# speed up luks decryption
-			++ [ "aesni_intel" "cryptd" "crypto_simd" "libaes" ];
+				[ "i915" "intel_cstate" "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" "aesni_intel" ];
 			systemd.services."systemd-cryptsetup@swap" =
 			{
 				before = [ "systemd-cryptsetup@root.service" ];
 				overrideStrategy = "asDropin";
-			};
 		};
 
 		# impermanence

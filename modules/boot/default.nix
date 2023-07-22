@@ -12,7 +12,13 @@ inputs:
 	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) mkConditional; in mkMerge
 	[
 		# generic
-		{ boot.loader.grub = { enable = true; useOSProber = false; };}
+		{
+			boot =
+			{
+				loader.grub = { enable = true; useOSProber = false; };
+				initrd.systemd.enable = true;
+			};
+		}
 		# grub.timeout
 		{ boot.loader.timeout = inputs.config.nixos.boot.grub.timeout; }
 		# grub.entries
