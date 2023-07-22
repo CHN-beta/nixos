@@ -11,7 +11,7 @@ inputs:
 				{
 					no-poll = true;
 					server = [ "127.0.0.1#10853" ];
-					listen-address = "127.0.0.1";
+					listen-address = [ "127.0.0.1" "172.17.0.1" ];
 					bind-interfaces = true;
 					ipset =
 					[

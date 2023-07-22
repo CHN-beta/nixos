@@ -13,7 +13,7 @@ inputs:
 		{
 			mapper = mkOption { type = types.nonEmptyStr; };
 			ssd = mkOption { type = types.bool; default = false; };
-			before = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); };
+			before = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
 		}; }); };
 		mdadm = mkOption { type = types.nullOr types.str; };
 		swap = mkOption { type = types.listOf types.nonEmptyStr; };
