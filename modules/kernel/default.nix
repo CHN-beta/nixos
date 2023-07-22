@@ -2,7 +2,7 @@ inputs:
 {
 	options.nixos.kernel = let inherit (inputs.lib) mkOption types; in
 	{
-		patches = mkOption { type = types.listOf (types.enum [ "hdmi" "cjktty" ]); default = []; };
+		patches = mkOption { type = types.listOf (types.enum [ "hdmi" "cjktty" "preempt" ]); default = []; };
 		modules =
 		{
 			install = mkOption { type = types.listOf types.str; default = []; };
@@ -40,8 +40,8 @@ inputs:
 				let
 					patches =
 					{
-						"hdmi" = { patch = ./hdmi.patch; };
-						"cjktty" =
+						hdmi = { patch = ./hdmi.patch; };
+						cjktty =
 						{
 							patch = inputs.pkgs.fetchurl
 							{
@@ -50,6 +50,18 @@ inputs:
 							};
 							extraStructuredConfig =
 								{ FONT_CJK_16x16 = inputs.lib.kernel.yes; FONT_CJK_32x32 = inputs.lib.kernel.yes; };
+						};
+						preempt =
+						{
+							patch = null;
+							extraStructuredConfig =
+							{
+								PREEMPT_VOLUNTARY = inputs.lib.mkForce inputs.lib.kernel.no;
+								PREEMPT = inputs.lib.mkForce inputs.lib.kernel.yes;
+								HZ_500 = inputs.lib.mkForce inputs.lib.kernel.no;
+								HZ_1000 = inputs.lib.mkForce inputs.lib.kernel.yes;
+								HZ = inputs.lib.mkForce (inputs.lib.kernel.freeform "1000");
+							};
 						};
 					};
 				in

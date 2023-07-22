@@ -173,7 +173,7 @@
 										};
 										kernel =
 										{
-											patches = [ "hdmi" "cjktty" ];
+											patches = [ "hdmi" "cjktty" "preempt" ];
 											modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
 										};
 										hardware =

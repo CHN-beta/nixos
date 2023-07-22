@@ -7,22 +7,6 @@ inputs:
 		# modules install but not auto loaded
 		# boot.extraModulePackages = [ yourmodulename ];
 		boot.extraModprobeConfig = "options kvm_intel nested=1";
-		boot.kernelPatches = inputs.lib.mkAfter
-		[
-			{
-				name = "custom config";
-				patch = null;
-				extraStructuredConfig =
-				{
-					PREEMPT_VOLUNTARY = inputs.lib.mkForce inputs.lib.kernel.no;
-					PREEMPT = inputs.lib.mkForce inputs.lib.kernel.yes;
-					HZ_500 = inputs.lib.mkForce inputs.lib.kernel.no;
-					HZ_1000 = inputs.lib.mkForce inputs.lib.kernel.yes;
-					HZ = inputs.lib.mkForce (inputs.lib.kernel.freeform "1000");
-				};
-			}
-		];
-
 		# initrd, luks
 		boot.initrd =
 		{
