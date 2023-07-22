@@ -179,6 +179,7 @@
 										hardware =
 										{
 											cpu = [ "intel" ];
+											gpu = [ "intel" "nvidia" ];
 											bluetooth.enable = true;
 											joystick.enable = true;
 											printer.enable = true;

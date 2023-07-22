@@ -8,14 +8,10 @@ inputs:
 		# boot.extraModulePackages = [ yourmodulename ];
 		boot.extraModprobeConfig = "options kvm_intel nested=1";
 		# initrd, luks
-		boot.initrd =
+		boot.initrd.systemd.services."systemd-cryptsetup@swap" =
 		{
-			availableKernelModules =
-				[ "i915" "intel_cstate" "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" "aesni_intel" ];
-			systemd.services."systemd-cryptsetup@swap" =
-			{
-				before = [ "systemd-cryptsetup@root.service" ];
-				overrideStrategy = "asDropin";
+			before = [ "systemd-cryptsetup@root.service" ];
+			overrideStrategy = "asDropin";
 		};
 
 		# impermanence

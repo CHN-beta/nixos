@@ -7,6 +7,7 @@ inputs:
 		printer.enable = mkOption { type = types.bool; default = false; };
 		sound.enable = mkOption { type = types.bool; default = false; };
 		cpu = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
+		gpu = mkOption { type = types.listOf (types.enum [ "intel" "nvidia" ]); default = []; };
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; in mkMerge
 	[
@@ -51,6 +52,27 @@ inputs:
 			hardware.cpu = builtins.listToAttrs (builtins.map
 				(name: { inherit name; value = { updateMicrocode = true; }; })
 				inputs.config.nixos.hardware.cpu);
+			boot.initrd.availableKernelModules =
+				let
+					modules =
+					{
+						intel = [ "intel_cstate" "aesni_intel" ];
+						amd = [];
+					};
+				in
+					builtins.concatLists (builtins.map (cpu: modules.${cpu}) inputs.config.nixos.hardware.cpu);
+		}
+		# gpu
+		{
+			boot.initrd.availableKernelModules =
+				let
+					modules =
+					{
+						intel = [ "i915" ];
+						nvidia = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
+					};
+				in
+					builtins.concatLists (builtins.map (cpu: modules.${cpu}) inputs.config.nixos.hardware.cpu);
 		}
 	];
 }
