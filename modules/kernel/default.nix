@@ -29,7 +29,6 @@ inputs:
 					};
 					version = "6.3.12";
 					modDirVersion = "6.3.12-xanmod1";
-					stdenv = inputs.pkgs.ccacheStdenv.override { stdenv = inputs.pkgs.linuxPackages_xanmod.kernel.stdenv; };
 				});
 			};
 		}
