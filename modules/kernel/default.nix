@@ -3,6 +3,13 @@ inputs:
 	options.nixos.kernel = let inherit (inputs.lib) mkOption types; in
 	{
 		patches = mkOption { type = types.listOf (types.enum [ "hdmi" "cjktty" ]); default = []; };
+		modules =
+		{
+			install = mkOption { type = types.listOf types.str; default = []; };
+			load = mkOption { type = types.listOf types.str; default = []; };
+			initrd = mkOption { type = types.listOf types.str; default = []; };
+			modprobeConfig = mkOption { type = types.listOf types.str; default = []; };
+		};
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) mkConditional; in mkMerge
 	[
@@ -48,6 +55,16 @@ inputs:
 				in
 					builtins.map (name: { inherit name; } // patches.${name}) inputs.config.nixos.kernel.patches
 			);
+		}
+		# modules
+		{
+			boot =
+			{
+				extraModulePackages = inputs.config.nixos.kernel.modules.install;
+				kernelModules = inputs.config.nixos.kernel.modules.load;
+				initrd.availableKernelModules = inputs.config.nixos.kernel.modules.initrd;
+				extraModprobeConfig = builtins.concatStringsSep "\n" inputs.config.nixos.kernel.modules.modprobeConfig;
+			};
 		}
 	];
 }

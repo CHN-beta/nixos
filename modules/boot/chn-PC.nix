@@ -6,12 +6,7 @@ inputs:
 		boot.kernelModules = [ "kvm-intel" "br_netfilter" ];
 		# modules install but not auto loaded
 		# boot.extraModulePackages = [ yourmodulename ];
-		boot.extraModprobeConfig =
-		''
-			options kvm_intel nested=1
-			options iwlmvm power_scheme=1
-			options iwlwifi uapsd_disable=1
-		'';
+		boot.extraModprobeConfig = "options kvm_intel nested=1";
 		boot.kernelPatches = inputs.lib.mkAfter
 		[
 			{
