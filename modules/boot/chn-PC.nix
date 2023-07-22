@@ -2,13 +2,6 @@ inputs:
 {
 	config =
 	{
-		# initrd, luks
-		boot.initrd.systemd.services."systemd-cryptsetup@swap" =
-		{
-			before = [ "systemd-cryptsetup@root.service" ];
-			overrideStrategy = "asDropin";
-		};
-
 		# impermanence
 		environment.persistence."/nix/persistent" =
 		{

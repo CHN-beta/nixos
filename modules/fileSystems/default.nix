@@ -13,6 +13,7 @@ inputs:
 		{
 			mapper = mkOption { type = types.nonEmptyStr; };
 			ssd = mkOption { type = types.bool; default = false; };
+			before = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); };
 		}; }); };
 		mdadm = mkOption { type = types.nullOr types.str; };
 		swap = mkOption { type = types.listOf types.nonEmptyStr; };
@@ -57,7 +58,9 @@ inputs:
 		(
 			mkIf (inputs.config.nixos.fileSystems.decrypt.auto != null)
 			{
-				boot.initrd.luks.devices = (builtins.listToAttrs (builtins.map
+				boot.initrd =
+				{
+					luks.devices = (builtins.listToAttrs (builtins.map
 						(
 							device:
 							{
@@ -72,6 +75,22 @@ inputs:
 							}
 						)
 						(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.decrypt.auto)));
+					systemd.services =
+						let
+							createService = device:
+							{
+								name = "systemd-cryptsetup@${device.name}";
+								value =
+								{
+									before = builtins.map (device: "systemd-cryptsetup@${device}.service") device.value.before;
+									overrideStrategy = "asDropin";
+								};
+							};
+						in
+							builtins.listToAttrs (builtins.map createService
+								(builtins.filter (device: device.value.before != null)
+									(inputs.localLib.attrsToList inputs.config.nixos.fileSystems.decrypt.auto)));
+				};
 			}
 		)
 		# mdadm

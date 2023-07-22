@@ -30,6 +30,7 @@ inputs:
 		(
 			mkIf inputs.config.nixos.virtualization.kvmHost.enable
 			{
+				nix.settings.system-features = [ "kvm" ];
 				boot =
 				{
 					kernelModules = 

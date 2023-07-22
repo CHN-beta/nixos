@@ -2,7 +2,6 @@
 {
 	config =
 	{
-		nix.settings.system-features = [ "nixos-test" "benchmark" "kvm" ];
 		nixpkgs =
 		{
 			config.allowUnfree = true;

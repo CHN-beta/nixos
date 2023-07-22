@@ -14,6 +14,7 @@ inputs:
         nix-daemon = { environment = { TMPDIR = "/var/cache/nix"; }; serviceConfig = { CacheDirectory = "nix"; }; };
         systemd-tmpfiles-setup = { environment = { SYSTEMD_TMPFILES_FORCE_SUBVOL = "0"; }; };
       };
+      nix.settings.system-features = [ "nixos-test" "benchmark" ];
       services.udev.extraRules = stripeTabs
 			''
 				ACTION=="add|change", KERNEL=="[sv]d[a-z]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="bfq"
