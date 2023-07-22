@@ -10,6 +10,7 @@ inputs:
 			gui = mkOption { default = false; type = types.bool; };
 			autoSuspend = mkOption { type = types.listOf types.string; };
 		};
+		kvmGuest.enable = mkOption { default = false; type = types.bool; };
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; in mkMerge
 	[
@@ -123,6 +124,11 @@ inputs:
 					in
 						builtins.listToAttrs (makeServices makeHibernate ++ makeServices makeResume);
 			}
+		)
+		# kvmGuest
+		(
+			mkIf inputs.config.nixos.virtualization.kvmGuest.enable
+				{ services = { qemuGuest.enable = true; spice-vdagentd.enable = true; xserver.videoDrivers = [ "qxl" ]; }; }
 		)
 	];
 }
