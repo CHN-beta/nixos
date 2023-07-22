@@ -147,6 +147,7 @@
 								./modules/packages
 								./modules/boot
 								./modules/system
+								./modules/virtualization
 								(inputs: { config.nixos =
 									{
 										fileSystems =
@@ -217,6 +218,11 @@
 											hostname = "chn-PC";
 											march = "alderlake";
 										};
+										virtualization =
+										{
+											waydroid.enable = true;
+											docker.enable = true;
+										};
 									};}
 								)
 
@@ -240,10 +246,8 @@
 								./modules/packages/hpc.nix
 								[ ./modules/users/root.nix {} ]
 								[ ./modules/users/chn.nix {} ]
-								./modules/virtualisation/docker.nix
 								./modules/virtualisation/kvm_guest.nix
 								./modules/virtualisation/kvm_host.nix
-								./modules/virtualisation/waydroid.nix
 								./modules/home/root.nix
 								./modules/home/chn.nix
 							]
