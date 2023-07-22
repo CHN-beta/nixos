@@ -14,8 +14,6 @@ inputs:
 				patch = null;
 				extraStructuredConfig =
 				{
-					GENERIC_CPU = inputs.lib.kernel.no;
-					MALDERLAKE = inputs.lib.kernel.yes;
 					PREEMPT_VOLUNTARY = inputs.lib.mkForce inputs.lib.kernel.no;
 					PREEMPT = inputs.lib.mkForce inputs.lib.kernel.yes;
 					HZ_500 = inputs.lib.mkForce inputs.lib.kernel.no;

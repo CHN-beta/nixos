@@ -2,7 +2,6 @@ inputs:
 {
 	config =
 	{
-		nixpkgs.hostPlatform = inputs.lib.mkDefault "x86_64-linux";
 		nix =
 		{
 			settings =

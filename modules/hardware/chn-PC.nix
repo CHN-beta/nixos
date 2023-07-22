@@ -2,10 +2,9 @@
 {
 	config =
 	{
-		nix.settings.system-features = [ "nixos-test" "benchmark" "kvm" "gccarch-alderlake" ];
+		nix.settings.system-features = [ "nixos-test" "benchmark" "kvm" ];
 		nixpkgs =
 		{
-			hostPlatform = { system = "x86_64-linux"; gcc = { arch = "alderlake"; tune = "alderlake"; }; };
 			config.allowUnfree = true;
 			overlays =
 			[(
@@ -22,7 +21,6 @@
 							fwupd = generic-pkgs.fwupd;
 						}
 			)];
-			config.qchem-config.optArch = "alderlake";
 		};
 		services.dbus.implementation = "broker";
 		programs.dconf.enable = true;

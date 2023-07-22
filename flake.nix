@@ -214,6 +214,7 @@
 										system =
 										{
 											hostname = "chn-PC";
+											march = "alderlake";
 										};
 									};}
 								)
