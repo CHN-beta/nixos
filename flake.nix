@@ -188,7 +188,10 @@
 										};
 										packages =
 										{
-											packages = [ "genshin-impact" "honkers-starrail" ];
+											packages =
+											[
+												"genshin-impact" "honkers-starrail" "steam" "wine"
+											];
 										};
 										boot.grub =
 										{
@@ -236,7 +239,6 @@
 								./modules/boot/chn-PC.nix
 								[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
 								./modules/hardware/chn-PC.nix
-								./modules/networking/basic.nix
 								./modules/networking/samba.nix
 								./modules/networking/ssh.nix
 								./modules/networking/wall_client.nix
@@ -244,7 +246,6 @@
 								./modules/networking/chn-PC.nix
 								./modules/packages/terminal.nix
 								./modules/packages/gui.nix
-								./modules/packages/gaming.nix
 								./modules/packages/hpc.nix
 								[ ./modules/users/root.nix {} ]
 								[ ./modules/users/chn.nix {} ]
