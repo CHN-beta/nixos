@@ -2,11 +2,6 @@ inputs:
 {
 	config =
 	{
-		# modules auto loaded in stage2
-		boot.kernelModules = [ "kvm-intel" "br_netfilter" ];
-		# modules install but not auto loaded
-		# boot.extraModulePackages = [ yourmodulename ];
-		boot.extraModprobeConfig = "options kvm_intel nested=1";
 		# initrd, luks
 		boot.initrd.systemd.services."systemd-cryptsetup@swap" =
 		{

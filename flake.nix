@@ -222,6 +222,7 @@
 										{
 											waydroid.enable = true;
 											docker.enable = true;
+											kvmHost = { enable = true; gui = true; autoSuspend = [ "win10" "hardconnect" ]; };
 										};
 									};}
 								)
@@ -247,7 +248,6 @@
 								[ ./modules/users/root.nix {} ]
 								[ ./modules/users/chn.nix {} ]
 								./modules/virtualisation/kvm_guest.nix
-								./modules/virtualisation/kvm_host.nix
 								./modules/home/root.nix
 								./modules/home/chn.nix
 							]

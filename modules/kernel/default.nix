@@ -17,6 +17,7 @@ inputs:
 		{
 			boot =
 			{
+				kernelModules = [ "br_netfilter" ];
 				initrd.availableKernelModules =
 				[
 					"ahci" "bfq" "nls_cp437" "nls_iso8859-1" "nvme" "sr_mod" "usbhid" "usb_storage" "virtio_blk" "virtio_pci"
