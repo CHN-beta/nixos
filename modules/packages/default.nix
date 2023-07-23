@@ -4,11 +4,79 @@ inputs:
   {
     packages = mkOption { default = []; type = types.listOf (types.enum
     [
-      "games" "wine" "gui-extra" "office" "vscode"
+      "basic" "games" "wine" "gui-extra" "office" "vscode"
     ]); };
   };
   config = let inherit (inputs.lib) mkMerge mkIf; in mkMerge
   [
+    (
+      mkIf (builtins.elem "basic" inputs.config.nixos.packages.packages)
+      {
+        environment.systemPackages = with inputs.pkgs;
+        [
+          # shell
+          ksh
+          # basic tools
+          beep dos2unix gnugrep pv tmux
+          # lsxx
+          pciutils usbutils lshw wayland-utils clinfo glxinfo vulkan-tools util-linux
+          # top
+          iotop iftop htop
+          # editor
+          vim nano
+          # downloader
+          wget aria2 curl yt-dlp
+          # file manager
+          tree git autojump exa trash-cli lsd zellij broot file
+          # compress
+          pigz rar upx unzip zip lzip p7zip
+          # file system management
+          sshfs e2fsprogs adb-sync
+          # disk management
+          smartmontools
+          # encryption and authentication
+          apacheHttpd openssl ssh-to-age gnupg age sops
+          # networking
+          ipset iptables iproute2 dig nettools
+          # nix tools
+          nix-output-monitor nix-template appimage-run nil nixd nix-alien
+          # development
+          gcc go rustc
+
+          # move to other place
+          kio-fuse pam_u2f tldr
+          pdfchain wgetpaste httplib clang magic-enum xtensor
+          boost cereal cxxopts valgrind
+          todo-txt-cli pandoc
+        ];
+        programs =
+        {
+          nix-index-database.comma.enable = true;
+          nix-index.enable = true;
+          zsh =
+          {
+            enable = true;
+            syntaxHighlighting.enable = true;
+            autosuggestions.enable = true;
+            enableCompletion = true;
+            ohMyZsh =
+            {
+              enable = true;
+              plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
+              customPkgs = with inputs.pkgs; [ zsh-nix-shell ];
+            };
+          };
+          command-not-found.enable = false;
+          adb.enable = true;
+          gnupg.agent = { enable = true; enableSSHSupport = true; };
+        };
+        services =
+        {
+          fwupd.enable = true;
+          udev.packages = [ inputs.pkgs.yubikey-personalization ];
+        };
+      }
+    )
     (
       mkIf (builtins.elem "games" inputs.config.nixos.packages.packages) { programs =
       {
@@ -31,71 +99,36 @@ inputs:
     )
     (
       mkIf (builtins.elem "vscode" inputs.config.nixos.packages.packages)
-        { environment.systemPackages = [(inputs.pkgs.vscode-with-extensions.override
-          {
-            vscodeExtensions = (with inputs.pkgs.vscode-extensions;
+      {
+        environment.systemPackages = [(inputs.pkgs.vscode-with-extensions.override
+        {
+          vscodeExtensions = with inputs.pkgs.nix-vscode-extensions.vscode-marketplace;
+            (with equinusocio; [ vsc-community-material-theme vsc-material-theme vsc-material-theme-icons ])
+            ++ (with github; [ copilot github-vscode-theme ])
+            ++ (with intellsmi; [ comment-translate deepl-translate ])
+            ++ (with ms-python; [ isort python vscode-pylance ])
+            ++ (with ms-toolsai;
             [
-              ms-vscode.cpptools
-              genieai.chatgpt-vscode
-              ms-ceintl.vscode-language-pack-zh-hans
-              llvm-vs-code-extensions.vscode-clangd
-              twxs.cmake
-              ms-vscode.cmake-tools
-              donjayamanne.githistory
-              github.copilot
-              github.github-vscode-theme
-              ms-vscode.hexeditor
-              oderwat.indent-rainbow
-              ms-toolsai.jupyter
-              ms-toolsai.vscode-jupyter-cell-tags
-              ms-toolsai.jupyter-keymap
-              ms-toolsai.jupyter-renderers
-              ms-toolsai.vscode-jupyter-slideshow
-              james-yu.latex-workshop
-              yzhang.markdown-all-in-one
-              pkief.material-icon-theme
-              equinusocio.vsc-material-theme
-              bbenoist.nix
-              ms-python.vscode-pylance
-              ms-python.python
-              ms-vscode-remote.remote-ssh
-              redhat.vscode-xml
-              dotjoshjohnson.xml
-              jnoortheen.nix-ide
+              jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow
             ])
-            ++ (with inputs.pkgs.nix-vscode-extensions.vscode-marketplace;
+            ++ (with ms-vscode;
             [
-              jeff-hykin.better-cpp-syntax
-              ms-vscode.cpptools-extension-pack
-              ms-vscode.cpptools-themes
-              josetr.cmake-language-support-vscode
-              fredericbonnet.cmake-test-adapter
-              equinusocio.vsc-community-material-theme
-              guyutongxue.cpp-reference
-              intellsmi.comment-translate
-              intellsmi.deepl-translate
-              ms-vscode-remote.remote-containers
-              fabiospampinato.vscode-diff
-              cschlosser.doxdocgen
-              znck.grammarly
-              ms-python.isort
-              thfriedrich.lammps
-              leetcode.vscode-leetcode
-              equinusocio.vsc-material-theme-icons
-              gimly81.matlab
-              affenwiesel.matlab-formatter
-              xdebug.php-debug
-              ckolkman.vscode-postgres
-              ms-ossdata.vscode-postgresql
-              ms-vscode-remote.remote-ssh-edit
-              ms-vscode.remote-explorer
-              ms-vscode.test-adapter-converter
-              hbenl.vscode-test-explorer
-              hirse.vscode-ungit
-              fortran-lang.linter-gfortran
-            ]);
-          }
-        ) ]; }
+              cmake-tools cpptools cpptools-extension-pack cpptools-themes hexeditor remote-explorer
+              test-adapter-converter
+            ])
+            ++ (with ms-vscode-remote; [ remote-ssh remote-containers remote-ssh-edit ])
+            ++ [
+              donjayamanne.githistory genieai.chatgpt-vscode fabiospampinato.vscode-diff cschlosser.doxdocgen
+              llvm-vs-code-extensions.vscode-clangd ms-ceintl.vscode-language-pack-zh-hans oderwat.indent-rainbow
+              twxs.cmake guyutongxue.cpp-reference znck.grammarly thfriedrich.lammps leetcode.vscode-leetcode
+              james-yu.latex-workshop gimly81.matlab affenwiesel.matlab-formatter ckolkman.vscode-postgres
+              yzhang.markdown-all-in-one pkief.material-icon-theme bbenoist.nix ms-ossdata.vscode-postgresql
+              redhat.vscode-xml dotjoshjohnson.xml jnoortheen.nix-ide xdebug.php-debug hbenl.vscode-test-explorer
+              jeff-hykin.better-cpp-syntax josetr.cmake-language-support-vscode fredericbonnet.cmake-test-adapter
+              hirse.vscode-ungit fortran-lang.linter-gfortran
+            ];
+        })];
+      }
     )
   ];
 }

@@ -191,7 +191,7 @@
 										{
 											packages =
 											[
-												"games" "wine" "gui-extra" "office" "vscode"
+												"basic" "games" "wine" "gui-extra" "office" "vscode"
 											];
 										};
 										boot.grub =
@@ -221,7 +221,7 @@
 										{
 											hostname = "chn-PC";
 											march = "alderlake";
-											type = "workstation";
+											gui.enable = true;
 										};
 										virtualization =
 										{

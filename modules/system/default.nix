@@ -4,7 +4,7 @@ inputs:
 	{
 		hostname = mkOption { type = types.nonEmptyStr; };
 		march = mkOption { type = types.nullOr types.nonEmptyStr; };
-		type = mkOption { type = types.enum [ "headless" "desktop" "workstation" ]; default = "headless"; };
+		gui.enable = mkOption { type = types.bool; default = false; };
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) mkConditional stripeTabs; in mkMerge
 	[
@@ -115,77 +115,6 @@ inputs:
 				}
 				{ nixpkgs.hostPlatform = inputs.lib.mkDefault "x86_64-linux"; }
 		)
-		# type
-		(
-			mkMerge
-			[
-				{
-					environment.systemPackages = with inputs.pkgs;
-					[
-						# shell
-						ksh
-						# basic tools
-						beep dos2unix gnugrep pv tmux
-						# lsxx
-						pciutils usbutils lshw wayland-utils clinfo glxinfo vulkan-tools util-linux
-						# top
-						iotop iftop htop
-						# editor
-						vim nano
-						# downloader
-						wget aria2 curl yt-dlp
-						# file manager
-						tree git autojump exa trash-cli lsd zellij broot file
-						# compress
-						pigz rar upx unzip zip lzip p7zip
-						# file system management
-						sshfs e2fsprogs adb-sync
-						# disk management
-						smartmontools
-						# encryption and authentication
-						apacheHttpd openssl ssh-to-age gnupg age sops
-						# networking
-						ipset iptables iproute2 dig nettools
-						# nix tools
-						nix-output-monitor nix-template appimage-run nil nixd nix-alien
-						# development
-						gcc go rustc
-
-						# move to other place
-						kio-fuse pam_u2f tldr
-						pdfchain wgetpaste httplib clang magic-enum xtensor
-						boost cereal cxxopts valgrind
-						todo-txt-cli pandoc
-						# nix-ld
-					];
-					programs =
-					{
-						nix-index-database.comma.enable = true;
-						nix-index.enable = true;
-						zsh =
-						{
-							enable = true;
-							syntaxHighlighting.enable = true;
-							autosuggestions.enable = true;
-							enableCompletion = true;
-							ohMyZsh =
-							{
-								enable = true;
-								plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
-								customPkgs = with inputs.pkgs; [ zsh-nix-shell ];
-							};
-						};
-						command-not-found.enable = false;
-						adb.enable = true;
-						gnupg.agent = { enable = true; enableSSHSupport = true; };
-					};
-					services =
-					{
-						fwupd.enable = true;
-						udev.packages = [ inputs.pkgs.yubikey-personalization ];
-					};
-				}
-			]
-		)
+		# gui.enable
 	];
 }
