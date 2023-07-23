@@ -27,7 +27,7 @@ inputs:
           # downloader
           wget aria2 curl yt-dlp
           # file manager
-          tree git autojump exa trash-cli lsd zellij broot file
+          tree git autojump exa trash-cli lsd zellij broot file xdg-ninja
           # compress
           pigz rar upx unzip zip lzip p7zip
           # file system management
