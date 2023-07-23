@@ -79,7 +79,7 @@ inputs:
 						let
 							createService = device:
 							{
-								name = "systemd-cryptsetup@${device.name}";
+								name = "systemd-cryptsetup@${device.value.mapper}";
 								value =
 								{
 									before = builtins.map (device: "systemd-cryptsetup@${device}.service") device.value.before;
