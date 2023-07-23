@@ -191,7 +191,7 @@
 										{
 											packages =
 											[
-												"genshin-impact" "honkers-starrail" "steam" "wine"
+												"games" "wine" "gui-extra" "office" "vscode"
 											];
 										};
 										boot.grub =
