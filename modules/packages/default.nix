@@ -45,7 +45,7 @@ inputs:
 
           # move to other place
           kio-fuse pam_u2f tldr
-          pdfchain wgetpaste httplib clang magic-enum xtensor
+          pdfchain wgetpaste httplib clang magic-enum xtensor clang-tools
           boost cereal cxxopts valgrind
           todo-txt-cli pandoc
         ];
