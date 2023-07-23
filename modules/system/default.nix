@@ -152,7 +152,7 @@ inputs:
 						gcc go rustc
 
 						# move to other place
-						kio-fuse pam_u2f
+						kio-fuse pam_u2f tldr
 						pdfchain wgetpaste httplib clang magic-enum xtensor
 						boost cereal cxxopts valgrind
 						todo-txt-cli pandoc
