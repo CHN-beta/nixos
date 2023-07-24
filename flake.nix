@@ -236,7 +236,6 @@
 
 								./modules/basic.nix
 								./modules/fonts.nix
-								[ ./modules/i18n.nix { fcitx = true; } ]
 								./modules/sops.nix
 								./modules/boot/chn-PC.nix
 								[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
