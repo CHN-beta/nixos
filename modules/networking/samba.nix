@@ -9,7 +9,6 @@ inputs:
 		{
 			enable = true;
 			securityType = "user";
-			enableWinbindd = true;
 			extraConfig =
 			''
 				workgroup = WORKGROUP
@@ -17,6 +16,7 @@ inputs:
 				server role = standalone server
 				hosts allow = 192.168. 127.
 				dns proxy = no
+				obey pam restrictions = no
 			'';
 			shares = builtins.listToAttrs (builtins.map
 				(config: { name = config.name; value =
