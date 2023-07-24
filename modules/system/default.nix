@@ -95,6 +95,11 @@ inputs:
 				XDG_DATA_HOME   = "$HOME/.local/share";
 				XDG_STATE_HOME  = "$HOME/.local/state";
 			};
+			i18n =
+			{
+				defaultLocale = "zh_CN.UTF-8";
+				supportedLocales = ["zh_CN.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8"];
+			};
 		}
 		# hostname
 		{ networking.hostName = inputs.config.nixos.system.hostname; }
@@ -123,5 +128,27 @@ inputs:
 				{ nixpkgs.hostPlatform = inputs.lib.mkDefault "x86_64-linux"; }
 		)
 		# gui.enable
+		(mkIf inputs.config.nixos.system.gui.enable
+		{
+			services.xserver =
+			{
+				enable = true;
+				displayManager.sddm.enable = true;
+				desktopManager.plasma5.enable = true;
+			};
+			environment =
+			{
+				sessionVariables."GTK_USE_PORTAL" = "1";
+				systemPackages = [ inputs.pkgs.libsForQt5.qtstyleplugin-kvantum ];
+			};
+			xdg.portal.extraPortals = with inputs.pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-wlr ];
+			programs.xwayland.enable = true;
+			programs.kdeconnect.enable = true;
+			i18n.inputMethod =
+			{
+				enabled = "fcitx5";
+				fcitx5.addons = with inputs.pkgs; [ fcitx5-rime fcitx5-chinese-addons fcitx5-mozc ];
+			};
+		})
 	];
 }
