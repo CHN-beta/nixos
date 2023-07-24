@@ -17,7 +17,7 @@ inputs:
           # shell
           ksh
           # basic tools
-          beep dos2unix gnugrep pv tmux
+          beep dos2unix gnugrep pv tmux screen
           # lsxx
           pciutils usbutils lshw wayland-utils clinfo glxinfo vulkan-tools util-linux
           # top
