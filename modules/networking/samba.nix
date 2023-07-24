@@ -9,15 +9,16 @@ inputs:
 		{
 			enable = true;
 			securityType = "user";
-			extraConfig =
+			extraConfig = inputs.localLib.stripeTabs
 			''
 				workgroup = WORKGROUP
 				server string = Samba Server
 				server role = standalone server
 				hosts allow = 192.168. 127.
 				dns proxy = no
-				obey pam restrictions = no
 			'';
+			#	obey pam restrictions = yes
+			#	encrypt passwords = no
 			shares = builtins.listToAttrs (builtins.map
 				(config: { name = config.name; value =
 				{
@@ -27,12 +28,12 @@ inputs:
 					writeable = true;
 					"create mask" = "664";
 					"force create mode" = "644";
-					"security mask" = "644";
-					"force security mode" = "644";
+					# "security mask" = "644";
+					# "force security mode" = "644";
 					"directory mask" = "2755";
 					"force directory mode" = "2755";
-					"directory security mask" = "2755";
-					"force directory security mode" = "2755";
+					# "directory security mask" = "2755";
+					# "force directory security mode" = "2755";
 				}; })
 				[
 					{ name = "media"; comment = "chn media"; path = "/run/media/chn"; }
