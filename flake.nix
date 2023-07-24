@@ -229,6 +229,7 @@
 											docker.enable = true;
 											kvmHost = { enable = true; gui = true; autoSuspend = [ "win10" "hardconnect" ]; };
 											kvmGuest.enable = true;
+											nspawn = [ "arch" "ubuntu-22.04" ];
 										};
 									};}
 								)

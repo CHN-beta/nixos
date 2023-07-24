@@ -11,6 +11,7 @@ inputs:
 			autoSuspend = mkOption { type = types.listOf types.string; };
 		};
 		kvmGuest.enable = mkOption { default = false; type = types.bool; };
+		nspawn = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; in mkMerge
 	[
@@ -139,6 +140,18 @@ inputs:
 			mkIf inputs.config.nixos.virtualization.kvmGuest.enable
 				{ services = { qemuGuest.enable = true; spice-vdagentd.enable = true; xserver.videoDrivers = [ "qxl" ]; }; }
 		)
+		# nspawn
+		{
+			systemd.nspawn =
+				let
+					f = name: { inherit name; value =
+					{
+						execConfig.PrivateUsers = false;
+						networkConfig.VirtualEthernet = false;
+					}; };
+				in
+					builtins.listToAttrs (builtins.map f inputs.config.nixos.virtualization.nspawn );
+		}
 	];
 }
 
