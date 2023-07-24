@@ -9,6 +9,7 @@ inputs:
 		{
 			enable = true;
 			securityType = "user";
+			enableWinbindd = true;
 			extraConfig =
 			''
 				workgroup = WORKGROUP
