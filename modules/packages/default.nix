@@ -1,232 +1,232 @@
 inputs:
 {
-  options.nixos.packages = let inherit (inputs.lib) mkOption types; in
-  {
-    packageSet = mkOption
-    {
-      type = types.enum
-      [
-        # no gui, only used for specific purpose
-        "server"
-        # gui, for daily use, but not install large programs such as matlab
-        "desktop"
-        # nearly everything
-        "workstation"
-      ];
-      default = "server";
-    };
-    extraPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-    excludePackages = mkOption { type = types.listOf types.unspecified; default = []; };
-    extraPythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-    excludePythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-    extraPrebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-    excludePrebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-    _packages = mkOption { type = types.listOf types.unspecified; default = []; };
-    _pythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-    _prebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-  };
-  config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) stripeTabs; in mkMerge
-  [
-    # >= server
-    {
-      nixos.packages = with inputs.pkgs;
-      {
-        _packages = 
-        [
-          # shell
-          ksh
-          # basic tools
-          beep dos2unix gnugrep pv tmux screen parallel tldr
-          # lsxx
-          pciutils usbutils lshw wayland-utils clinfo glxinfo vulkan-tools util-linux lsof
-          # top
-          iotop iftop htop
-          # editor
-          vim nano bat
-          # downloader
-          wget aria2 curl yt-dlp nur-xddxdd.baidupcs-go wgetpaste
-          # file manager
-          tree git autojump exa trash-cli lsd zellij broot file xdg-ninja mlocate
-          # compress
-          pigz rar upx unzip zip lzip p7zip
-          # file system management
-          sshfs e2fsprogs adb-sync duperemove
-          # disk management
-          smartmontools hdparm
-          # encryption and authentication
-          apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f
-          # networking
-          ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap
-          # nix tools
-          nix-output-monitor nix-template appimage-run nil nixd nix-alien
-          # development
-          gcc go rustc clang-tools clang valgrind yarn
-          # office
-          todo-txt-cli pandoc pdfchain
-        ];
-        _pythonPackages = [(pythonPackages: with pythonPackages;
-        [
-          phonopy inquirerpy requests tensorflow keras python-telegram-bot
-          fastapi pypdf2 pandas openai matplotlib scipy plotly gunicorn scikit-learn redis jinja2
-        ])];
-        _prebuildPackages = [ httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran ];
-      };
-      programs =
-      {
-        nix-index-database.comma.enable = true;
-        nix-index.enable = true;
-        zsh =
-        {
-          enable = true;
-          syntaxHighlighting.enable = true;
-          autosuggestions.enable = true;
-          enableCompletion = true;
-          ohMyZsh =
-          {
-            enable = true;
-            plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
-            customPkgs = with inputs.pkgs; [ zsh-nix-shell ];
-          };
-        };
-        ccache.enable = true;
-        command-not-found.enable = false;
-        adb.enable = true;
-        gnupg.agent = { enable = true; enableSSHSupport = true; };
-      };
-      services =
-      {
-        fwupd.enable = true;
-        udev.packages = [ inputs.pkgs.yubikey-personalization ];
-      };
-      nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
-    }
-    # >= desktop-server
-    (
-      mkIf (builtins.elem inputs.config.nixos.packages.packageSet [ "desktop" "workstation" ] )
-      {
-        nixos.packages = with inputs.pkgs;
-        {
-          _packages =
-          [
-            # system management
-            gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
-            # instant messager
-            element-desktop tdesktop discord qq nur-xddxdd.wechat-uos # jail
-            inputs.config.nur.repos.linyinfeng.wemeet # native # nur-xddxdd.wine-wechat thunder
-            zoom signal-desktop
-            # browser
-            google-chrome
-            # networking
-            remmina putty mtr-gui
-            # password and key management
-            bitwarden yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui
-            # download
-            qbittorrent
-            # office
-            crow-translate libreoffice-qt zotero texlive.combined.scheme-full gnuplot poppler_utils
-            # development
-            scrcpy jetbrains.clion android-studio dbeaver cling
-            # media
-            nur-xddxdd.svp spotify yesplaymusic mpv nomacs simplescreenrecorder obs-studio imagemagick gimp
-            waifu2x-converter-cpp
-            # virtualization
-            wine virt-viewer bottles
-            # text editor
-            localPackages.typora appflowy notion-app-enhanced joplin-desktop standardnotes
-            # math, physics and chemistry
-            octave root ovito paraview localPackages.vesta qchem.quantum-espresso # vsim
-            # davinci-resolve playonlinux
-            (
-              vscode-with-extensions.override
-              {
-                vscodeExtensions = with nix-vscode-extensions.vscode-marketplace;
-                  (with equinusocio; [ vsc-community-material-theme vsc-material-theme vsc-material-theme-icons ])
-                  ++ (with github; [ copilot github-vscode-theme ])
-                  ++ (with intellsmi; [ comment-translate deepl-translate ])
-                  ++ (with ms-python; [ isort python vscode-pylance ])
-                  ++ (with ms-toolsai;
-                  [
-                    jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow
-                  ])
-                  ++ (with ms-vscode;
-                  [
-                    cmake-tools cpptools cpptools-extension-pack cpptools-themes hexeditor remote-explorer
-                    test-adapter-converter
-                  ])
-                  ++ (with ms-vscode-remote; [ remote-ssh remote-containers remote-ssh-edit ])
-                  ++ [
-                    donjayamanne.githistory genieai.chatgpt-vscode fabiospampinato.vscode-diff cschlosser.doxdocgen
-                    llvm-vs-code-extensions.vscode-clangd ms-ceintl.vscode-language-pack-zh-hans oderwat.indent-rainbow
-                    twxs.cmake guyutongxue.cpp-reference znck.grammarly thfriedrich.lammps leetcode.vscode-leetcode
-                    james-yu.latex-workshop gimly81.matlab affenwiesel.matlab-formatter ckolkman.vscode-postgres
-                    yzhang.markdown-all-in-one pkief.material-icon-theme bbenoist.nix ms-ossdata.vscode-postgresql
-                    redhat.vscode-xml dotjoshjohnson.xml jnoortheen.nix-ide xdebug.php-debug hbenl.vscode-test-explorer
-                    jeff-hykin.better-cpp-syntax josetr.cmake-language-support-vscode fredericbonnet.cmake-test-adapter
-                    hirse.vscode-ungit fortran-lang.linter-gfortran
-                  ];
-              }
-            )
-          ] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
-          _pythonPackages = [(pythonPackages: with pythonPackages; [ tqdm ])];
-        };
-        services.xserver =
-        {
-          enable = true;
-          displayManager.sddm.enable = true;
-          desktopManager.plasma5.enable = true;
-        };
-        environment.sessionVariables."GTK_USE_PORTAL" = "1";
-        xdg.portal.extraPortals = with inputs.pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-wlr ];
-        i18n.inputMethod =
-        {
-          enabled = "fcitx5";
-          fcitx5.addons = with inputs.pkgs; [ fcitx5-rime fcitx5-chinese-addons fcitx5-mozc ];
-        };
-        programs =
-        {
-          anime-game-launcher.enable = true;
-          honkers-railway-launcher.enable = true;
-          steam.enable = true;
-          xwayland.enable = true;
-          kdeconnect.enable = true;
-          wireshark = { enable = true; package = inputs.pkgs.wireshark; };
-          firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
-        };
-      }
-    )
-    # >= workstation
-    (
-      mkIf (inputs.config.nixos.packages.packageSet == "workstation")
-      {
-        nixos.packages._packages = with inputs.pkgs; [ mathematica ];
-      }
-    )
-    # apply package configs
-    {
-      environment.systemPackages = let inherit (inputs.lib.lists) subtractLists; in with inputs.config.nixos.packages;
-        (subtractLists excludePackages (_packages ++ extraPackages))
-        ++ [
-          (inputs.pkgs.python3.withPackages (pythonPackages:
-            subtractLists
-              (builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages)
-                excludePythonPackages))
-              (builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages)
-                (_pythonPackages ++ extraPythonPackages)))))
-          (inputs.pkgs.callPackage ({ stdenv }: stdenv.mkDerivation
-          {
-            name = "prebuild-packages";
-            propagateBuildInputs = subtractLists excludePrebuildPackages (_prebuildPackages ++ extraPrebuildPackages);
-            phases = [ "installPhase" ];
-            installPhase = stripeTabs
-            ''
-              runHook preInstall
-              mkdir -p $out
-              runHook postInstall
-            '';
-          }) {})
-        ];
-    }
-  ];
+	options.nixos.packages = let inherit (inputs.lib) mkOption types; in
+	{
+		packageSet = mkOption
+		{
+			type = types.enum
+			[
+				# no gui, only used for specific purpose
+				"server"
+				# gui, for daily use, but not install large programs such as matlab
+				"desktop"
+				# nearly everything
+				"workstation"
+			];
+			default = "server";
+		};
+		extraPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+		excludePackages = mkOption { type = types.listOf types.unspecified; default = []; };
+		extraPythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+		excludePythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+		extraPrebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+		excludePrebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+		_packages = mkOption { type = types.listOf types.unspecified; default = []; };
+		_pythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+		_prebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+	};
+	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) stripeTabs; in mkMerge
+	[
+		# >= server
+		{
+			nixos.packages = with inputs.pkgs;
+			{
+				_packages = 
+				[
+					# shell
+					ksh
+					# basic tools
+					beep dos2unix gnugrep pv tmux screen parallel tldr
+					# lsxx
+					pciutils usbutils lshw wayland-utils clinfo glxinfo vulkan-tools util-linux lsof
+					# top
+					iotop iftop htop
+					# editor
+					vim nano bat
+					# downloader
+					wget aria2 curl yt-dlp nur-xddxdd.baidupcs-go wgetpaste
+					# file manager
+					tree git autojump exa trash-cli lsd zellij broot file xdg-ninja mlocate
+					# compress
+					pigz rar upx unzip zip lzip p7zip
+					# file system management
+					sshfs e2fsprogs adb-sync duperemove
+					# disk management
+					smartmontools hdparm
+					# encryption and authentication
+					apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f
+					# networking
+					ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap
+					# nix tools
+					nix-output-monitor nix-template appimage-run nil nixd nix-alien
+					# development
+					gcc go rustc clang-tools clang valgrind yarn
+					# office
+					todo-txt-cli pandoc pdfchain
+				];
+				_pythonPackages = [(pythonPackages: with pythonPackages;
+				[
+					phonopy inquirerpy requests tensorflow keras python-telegram-bot
+					fastapi pypdf2 pandas openai matplotlib scipy plotly gunicorn scikit-learn redis jinja2
+				])];
+				_prebuildPackages = [ httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran ];
+			};
+			programs =
+			{
+				nix-index-database.comma.enable = true;
+				nix-index.enable = true;
+				zsh =
+				{
+					enable = true;
+					syntaxHighlighting.enable = true;
+					autosuggestions.enable = true;
+					enableCompletion = true;
+					ohMyZsh =
+					{
+						enable = true;
+						plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
+						customPkgs = with inputs.pkgs; [ zsh-nix-shell ];
+					};
+				};
+				ccache.enable = true;
+				command-not-found.enable = false;
+				adb.enable = true;
+				gnupg.agent = { enable = true; enableSSHSupport = true; };
+			};
+			services =
+			{
+				fwupd.enable = true;
+				udev.packages = [ inputs.pkgs.yubikey-personalization ];
+			};
+			nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
+		}
+		# >= desktop-server
+		(
+			mkIf (builtins.elem inputs.config.nixos.packages.packageSet [ "desktop" "workstation" ] )
+			{
+				nixos.packages = with inputs.pkgs;
+				{
+					_packages =
+					[
+						# system management
+						gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
+						# instant messager
+						element-desktop tdesktop discord qq nur-xddxdd.wechat-uos # jail
+						inputs.config.nur.repos.linyinfeng.wemeet # native # nur-xddxdd.wine-wechat thunder
+						zoom signal-desktop
+						# browser
+						google-chrome
+						# networking
+						remmina putty mtr-gui
+						# password and key management
+						bitwarden yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui
+						# download
+						qbittorrent
+						# office
+						crow-translate libreoffice-qt zotero texlive.combined.scheme-full gnuplot poppler_utils
+						# development
+						scrcpy jetbrains.clion android-studio dbeaver cling
+						# media
+						nur-xddxdd.svp spotify yesplaymusic mpv nomacs simplescreenrecorder obs-studio imagemagick gimp
+						waifu2x-converter-cpp
+						# virtualization
+						wine virt-viewer bottles
+						# text editor
+						localPackages.typora appflowy notion-app-enhanced joplin-desktop standardnotes
+						# math, physics and chemistry
+						octave root ovito paraview localPackages.vesta qchem.quantum-espresso # vsim
+						# davinci-resolve playonlinux
+						(
+							vscode-with-extensions.override
+							{
+								vscodeExtensions = with nix-vscode-extensions.vscode-marketplace;
+									(with equinusocio; [ vsc-community-material-theme vsc-material-theme vsc-material-theme-icons ])
+									++ (with github; [ copilot github-vscode-theme ])
+									++ (with intellsmi; [ comment-translate deepl-translate ])
+									++ (with ms-python; [ isort python vscode-pylance ])
+									++ (with ms-toolsai;
+									[
+										jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow
+									])
+									++ (with ms-vscode;
+									[
+										cmake-tools cpptools cpptools-extension-pack cpptools-themes hexeditor remote-explorer
+										test-adapter-converter
+									])
+									++ (with ms-vscode-remote; [ remote-ssh remote-containers remote-ssh-edit ])
+									++ [
+										donjayamanne.githistory genieai.chatgpt-vscode fabiospampinato.vscode-diff cschlosser.doxdocgen
+										llvm-vs-code-extensions.vscode-clangd ms-ceintl.vscode-language-pack-zh-hans oderwat.indent-rainbow
+										twxs.cmake guyutongxue.cpp-reference znck.grammarly thfriedrich.lammps leetcode.vscode-leetcode
+										james-yu.latex-workshop gimly81.matlab affenwiesel.matlab-formatter ckolkman.vscode-postgres
+										yzhang.markdown-all-in-one pkief.material-icon-theme bbenoist.nix ms-ossdata.vscode-postgresql
+										redhat.vscode-xml dotjoshjohnson.xml jnoortheen.nix-ide xdebug.php-debug hbenl.vscode-test-explorer
+										jeff-hykin.better-cpp-syntax josetr.cmake-language-support-vscode fredericbonnet.cmake-test-adapter
+										hirse.vscode-ungit fortran-lang.linter-gfortran
+									];
+							}
+						)
+					] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
+					_pythonPackages = [(pythonPackages: with pythonPackages; [ tqdm ])];
+				};
+				services.xserver =
+				{
+					enable = true;
+					displayManager.sddm.enable = true;
+					desktopManager.plasma5.enable = true;
+				};
+				environment.sessionVariables."GTK_USE_PORTAL" = "1";
+				xdg.portal.extraPortals = with inputs.pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-wlr ];
+				i18n.inputMethod =
+				{
+					enabled = "fcitx5";
+					fcitx5.addons = with inputs.pkgs; [ fcitx5-rime fcitx5-chinese-addons fcitx5-mozc ];
+				};
+				programs =
+				{
+					anime-game-launcher.enable = true;
+					honkers-railway-launcher.enable = true;
+					steam.enable = true;
+					xwayland.enable = true;
+					kdeconnect.enable = true;
+					wireshark = { enable = true; package = inputs.pkgs.wireshark; };
+					firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
+				};
+			}
+		)
+		# >= workstation
+		(
+			mkIf (inputs.config.nixos.packages.packageSet == "workstation")
+			{
+				nixos.packages._packages = with inputs.pkgs; [ mathematica ];
+			}
+		)
+		# apply package configs
+		{
+			environment.systemPackages = let inherit (inputs.lib.lists) subtractLists; in with inputs.config.nixos.packages;
+				(subtractLists excludePackages (_packages ++ extraPackages))
+				++ [
+					(inputs.pkgs.python3.withPackages (pythonPackages:
+						subtractLists
+							(builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages)
+								excludePythonPackages))
+							(builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages)
+								(_pythonPackages ++ extraPythonPackages)))))
+					(inputs.pkgs.callPackage ({ stdenv }: stdenv.mkDerivation
+					{
+						name = "prebuild-packages";
+						propagateBuildInputs = subtractLists excludePrebuildPackages (_prebuildPackages ++ extraPrebuildPackages);
+						phases = [ "installPhase" ];
+						installPhase = stripeTabs
+						''
+							runHook preInstall
+							mkdir -p $out
+							runHook postInstall
+						'';
+					}) {})
+				];
+		}
+	];
 }
 
 		# programs.firejail =

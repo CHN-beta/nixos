@@ -23,7 +23,7 @@ stdenv.mkDerivation rec
 
 	unpackPhase = "tar -xf ${src}";
 
-  installPhase =
+	installPhase =
 	# Note '<<-' here, it strips tabs before EOF. It doesn't work with spaces
 	''
 		echo $out

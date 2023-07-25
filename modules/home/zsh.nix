@@ -44,11 +44,11 @@
 			name = "zsh-lsd";
 			src = pkgs.fetchFromGitHub
 			{
-        owner = "z-shell";
-        repo = "zsh-lsd";
-        rev = "029a9cb0a9b39c9eb6c5b5100dd9182813332250";
+				owner = "z-shell";
+				repo = "zsh-lsd";
+				rev = "029a9cb0a9b39c9eb6c5b5100dd9182813332250";
 				sha256 = "sha256-oWjWnhiimlGBMaZlZB+OM47jd9hporKlPNwCx6524Rk=";
-      };
+			};
 		}
 		# {
 		# 	name = "zsh-exa";

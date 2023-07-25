@@ -30,13 +30,13 @@ in stdenv.mkDerivation rec
 	BuildInputs = [ typora-dist steam-run ];
 	startScript = writeShellScript "typora" "${steam-run}/bin/steam-run ${typora-dist}/share/typora/Typora $@";
 	phases = [ "installPhase" ];
-  installPhase =
+	installPhase =
 	''
-    mkdir -p $out/bin $out/share/applications
-    ln -s ${startScript} $out/bin/typora
-    cp ${typora-dist}/share/applications/typora.desktop $out/share/applications
+		mkdir -p $out/bin $out/share/applications
+		ln -s ${startScript} $out/bin/typora
+		cp ${typora-dist}/share/applications/typora.desktop $out/share/applications
 		sed -i "s|Exec=.*|Exec=${startScript} %U|g" $out/share/applications/typora.desktop
 		sed -i "s|Icon=.*|Icon=${typora-dist}/share/icons/hicolor/256x256/apps/typora.png|g" \
 			$out/share/applications/typora.desktop
-  '';
+	'';
 }
