@@ -149,6 +149,7 @@
 								./modules/boot
 								./modules/system
 								./modules/virtualization
+								./modules/services
 								(inputs: { config =
 								{
 									nixos =
@@ -233,6 +234,11 @@
 											kvmGuest.enable = true;
 											nspawn = [ "arch" "ubuntu-22.04" ];
 										};
+										services =
+										{
+											impermanence.enable = true;
+											snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+										};
 									};
 									boot.kernelParams = [ "i915.force_probe=46a6" ];
 								}; })
@@ -240,7 +246,6 @@
 								./modules/basic.nix
 								./modules/fonts.nix
 								./modules/sops.nix
-								./modules/boot/chn-PC.nix
 								[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
 								./modules/hardware/chn-PC.nix
 								./modules/networking/samba.nix
