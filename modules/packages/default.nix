@@ -99,6 +99,11 @@ inputs:
 				udev.packages = [ inputs.pkgs.yubikey-personalization ];
 			};
 			nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
+			nixpkgs.config =
+			{
+				permittedInsecurePackages = [ "openssl-1.1.1u" "electron-19.0.7" ];
+				allowUnfree = true;
+			};
 		}
 		# >= desktop-server
 		(

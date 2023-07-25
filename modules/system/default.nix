@@ -3,7 +3,7 @@ inputs:
 	options.nixos.system = let inherit (inputs.lib) mkOption types; in
 	{
 		hostname = mkOption { type = types.nonEmptyStr; };
-		march = mkOption { type = types.nullOr types.nonEmptyStr; };
+		march = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
 		gui.enable = mkOption { type = types.bool; default = false; };
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) mkConditional stripeTabs; in mkMerge
@@ -111,12 +111,7 @@ inputs:
 					{
 						hostPlatform = { system = "x86_64-linux"; gcc =
 							{ arch = inputs.config.nixos.system.march; tune = inputs.config.nixos.system.march; }; };
-						config =
-						{
-							qchem-config.optArch = inputs.config.nixos.system.march;
-							permittedInsecurePackages = [ "openssl-1.1.1u" "electron-19.0.7" ];
-							allowUnfree = true;
-						};
+						config.qchem-config.optArch = inputs.config.nixos.system.march;
 					};
 					nix.settings.system-features = [ "gccarch-${inputs.config.nixos.system.march}" ];
 					boot.kernelPatches =
