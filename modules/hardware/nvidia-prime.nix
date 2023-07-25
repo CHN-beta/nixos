@@ -13,5 +13,6 @@
 		};
 		hardware.nvidia.powerManagement = { finegrained = true; enable = true; };
 		hardware.nvidia.nvidiaSettings = true;
+		services.xserver.deviceSection = ''Driver "modesetting"'';
 	};
 }
