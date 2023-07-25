@@ -22,10 +22,16 @@
 		};
 		hardware.opengl =
 		{
-			extraPackages = with inputs.pkgs; [ intel-compute-runtime intel-media-driver mesa.drivers ];
+			enable = true;
+			driSupport = true;
+			extraPackages = with inputs.pkgs;
+			[
+				intel-compute-runtime intel-media-driver mesa.drivers intel-vaapi-driver libvdpau-va-gl vaapiVdpau
+			];
 			driSupport32Bit = true;
 		};
-		hardware.nvidia.modesetting.enable = true;
+		environment.variables.VDPAU_DRIVER = "va_gl";
+		hardware.nvidia.modesetting.enable = false;
 		systemd.services =
 		{
 			reload-iwlwifi-after-hibernate =
