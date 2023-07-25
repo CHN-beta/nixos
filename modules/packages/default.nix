@@ -187,7 +187,7 @@ inputs:
 					anime-game-launcher.enable = true;
 					honkers-railway-launcher.enable = true;
 					steam.enable = true;
-					xwayland.enable = true;
+					# xwayland.enable = true;
 					kdeconnect.enable = true;
 					wireshark = { enable = true; package = inputs.pkgs.wireshark; };
 					firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };

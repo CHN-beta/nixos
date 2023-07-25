@@ -22,9 +22,10 @@
 		};
 		hardware.opengl =
 		{
-			extraPackages = with inputs.pkgs; [ intel-media-driver intel-ocl ];
+			extraPackages = with inputs.pkgs; [ intel-compute-runtime intel-media-driver mesa.drivers ];
 			driSupport32Bit = true;
 		};
+		hardware.nvidia.modesetting.enable = true;
 		systemd.services =
 		{
 			reload-iwlwifi-after-hibernate =

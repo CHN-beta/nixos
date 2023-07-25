@@ -149,7 +149,9 @@
 								./modules/boot
 								./modules/system
 								./modules/virtualization
-								(inputs: { config.nixos =
+								(inputs: { config =
+								{
+									nixos =
 									{
 										fileSystems =
 										{
@@ -231,8 +233,9 @@
 											kvmGuest.enable = true;
 											nspawn = [ "arch" "ubuntu-22.04" ];
 										};
-									};}
-								)
+									};
+									boot.kernelParams = [ "i915.force_probe=46a6" ];
+								}; })
 
 								./modules/basic.nix
 								./modules/fonts.nix
