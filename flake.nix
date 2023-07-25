@@ -189,10 +189,10 @@
 										};
 										packages =
 										{
-											packages =
-											[
-												"basic" "games" "wine" "gui-extra" "office" "vscode"
-											];
+											packageSet = "workstation";
+											extraPackages = [ inputs.pkgs.localPackages.oneapi ];
+											extraPythonPackages = [(pythonPackages:
+												[ inputs.pkgs.localPackages.upho inputs.pkgs.localPackages.spectral ])];
 										};
 										boot.grub =
 										{
@@ -245,8 +245,6 @@
 								./modules/networking/wall_client.nix
 								./modules/networking/xmunet.nix
 								./modules/networking/chn-PC.nix
-								./modules/packages/gui.nix
-								./modules/packages/hpc.nix
 								[ ./modules/users/root.nix {} ]
 								[ ./modules/users/chn.nix {} ]
 								./modules/home/root.nix
@@ -258,3 +256,6 @@
 			};
 		};
 }
+
+
+				
