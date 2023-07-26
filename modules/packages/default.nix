@@ -133,7 +133,7 @@ inputs:
 						scrcpy jetbrains.clion android-studio dbeaver cling
 						# media
 						nur-xddxdd.svp spotify yesplaymusic mpv nomacs simplescreenrecorder obs-studio imagemagick gimp
-						waifu2x-converter-cpp
+						waifu2x-converter-cpp inkscape
 						# virtualization
 						wine virt-viewer bottles
 						# text editor
