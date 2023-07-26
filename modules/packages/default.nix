@@ -145,7 +145,7 @@ inputs:
 							vscode-with-extensions.override
 							{
 								vscodeExtensions = with nix-vscode-extensions.vscode-marketplace;
-									(with equinusocio; [ vsc-community-material-theme vsc-material-theme vsc-material-theme-icons ])
+									(with equinusocio; [ vsc-community-material-theme vsc-material-theme-icons ])
 									++ (with github; [ copilot github-vscode-theme ])
 									++ (with intellsmi; [ comment-translate deepl-translate ])
 									++ (with ms-python; [ isort python vscode-pylance ])
