@@ -13,6 +13,7 @@ inputs:
       configs = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
     };
 		kmscon.enable = mkOption { type = types.bool; default = false; };
+		fontconfig.enable = mkOption { type = types.bool; default = false; };
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) stripeTabs attrsToList; in mkMerge
 	[
@@ -72,6 +73,24 @@ inputs:
 				{
 					enable = true;
 					fonts = [{ name = "FiraCode Nerd Font Mono"; package = inputs.pkgs.nerdfonts; }];
+				};
+			}
+		)
+		(
+			mkIf inputs.config.nixos.services.fontconfig.enable
+			{
+				fonts =
+				{
+					fontDir.enable = true;
+					fonts = with inputs.pkgs;
+						[ noto-fonts source-han-sans source-han-serif source-code-pro hack-font jetbrains-mono nerdfonts ];
+					fontconfig.defaultFonts =
+					{
+						emoji = [ "Noto Color Emoji" ];
+						monospace = [ "Noto Sans Mono CJK SC" "Sarasa Mono SC" "DejaVu Sans Mono"];
+						sansSerif = [ "Noto Sans CJK SC" "Source Han Sans SC" "DejaVu Sans" ];
+						serif = [ "Noto Serif CJK SC" "Source Han Serif SC" "DejaVu Serif" ];
+					};
 				};
 			}
 		)
