@@ -241,12 +241,12 @@
 											fontconfig.enable = true;
 											u2f.enable = true;
 										};
-										systemd.sleep.extraConfig = localLib.stripeTabs	
-										"
-											SuspendState=freeze
-											HibernateMode=shutdown
-										";
 									};
+									systemd.sleep.extraConfig = localLib.stripeTabs	
+									"
+										SuspendState=freeze
+										HibernateMode=shutdown
+									";
 								}; })
 
 								./modules/sops.nix
