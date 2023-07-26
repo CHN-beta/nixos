@@ -240,6 +240,20 @@
 											snapper = { enable = true; configs.persistent = "/nix/persistent"; };
 											fontconfig.enable = true;
 											u2f.enable = true;
+											sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
+											samba =
+											{
+												enable = true;
+												private = true;
+												hostsAllowed = "192.168. 127.";
+												shares =
+												{
+													media.path = "/run/media/chn";
+													home.path = "/home/chn";
+													mnt.path = "/mnt";
+													share.path = "/home/chn/share";
+												};
+											};
 										};
 									};
 									systemd.sleep.extraConfig = localLib.stripeTabs	
@@ -249,10 +263,8 @@
 									";
 								}; })
 
-								./modules/sops.nix
 								[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
 								./modules/hardware/chn-PC.nix
-								./modules/networking/samba.nix
 								./modules/networking/ssh.nix
 								./modules/networking/wall_client.nix
 								./modules/networking/xmunet.nix
