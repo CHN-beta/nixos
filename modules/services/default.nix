@@ -36,6 +36,7 @@ inputs:
 				default = {};
 			};
 		};
+		sshd.enable = mkOption { type = types.bool; default = false; };
 	};
 	config =
 		let
@@ -140,7 +141,7 @@ inputs:
 						defaultSopsFile = ../../secrets/${inputs.config.networking.hostName}.yaml;
 						# sops start before impermanence, so we need to use the absolute path
 						age.sshKeyPaths = [ "${services.sops.keyPathPrefix}/etc/ssh/ssh_host_ed25519_key" ];
-						gnupg.sshKeyPaths = [ "${services.sops.keyPathPrefix}/nix/persistent/etc/ssh/ssh_host_rsa_key" ];
+						gnupg.sshKeyPaths = [ "${services.sops.keyPathPrefix}/etc/ssh/ssh_host_rsa_key" ];
 					};
 				}
 			)
@@ -186,6 +187,9 @@ inputs:
 						};
 					};
 				}
+			)
+			(
+				mkIf services.sshd.enable { services.openssh.enable = true; }
 			)
 		];
 }

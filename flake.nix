@@ -254,6 +254,7 @@
 													share.path = "/home/chn/share";
 												};
 											};
+											sshd.enable = true;
 										};
 									};
 									systemd.sleep.extraConfig = localLib.stripeTabs	
@@ -265,7 +266,6 @@
 
 								[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
 								./modules/hardware/chn-PC.nix
-								./modules/networking/ssh.nix
 								./modules/networking/wall_client.nix
 								./modules/networking/xmunet.nix
 								./modules/networking/chn-PC.nix
