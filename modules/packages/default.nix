@@ -180,6 +180,7 @@ inputs:
 					displayManager.sddm.enable = true;
 					desktopManager.plasma5.enable = true;
 				};
+				systemd.services.display-manager.after = [ "network-online.target" ];
 				environment.sessionVariables."GTK_USE_PORTAL" = "1";
 				xdg.portal.extraPortals = with inputs.pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-wlr ];
 				i18n.inputMethod =
