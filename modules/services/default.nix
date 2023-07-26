@@ -14,6 +14,7 @@ inputs:
     };
 		kmscon.enable = mkOption { type = types.bool; default = false; };
 		fontconfig.enable = mkOption { type = types.bool; default = false; };
+		u2f.enable = mkOption { type = types.bool; default = false; };
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) stripeTabs attrsToList; in mkMerge
 	[
@@ -91,6 +92,17 @@ inputs:
 						sansSerif = [ "Noto Sans CJK SC" "Source Han Sans SC" "DejaVu Sans" ];
 						serif = [ "Noto Serif CJK SC" "Source Han Serif SC" "DejaVu Serif" ];
 					};
+				};
+			}
+		)
+		(
+			mkIf inputs.config.nixos.services.u2f.enable
+			{
+				security.pam =
+				{
+					u2f = { enable = true; cue = true; authFile = ./u2f_keys; };
+					services = builtins.listToAttrs (builtins.map (name: { inherit name; value = { u2fAuth = true; }; })
+						[ "login" "sudo" "su" "kde" "polkit-1" ]);
 				};
 			}
 		)

@@ -88,18 +88,26 @@ inputs:
 				};
 				timers.systemd-tmpfiles-clean.enable = false;
 			};
-			environment.sessionVariables =
+			environment =
 			{
-				XDG_CACHE_HOME = "$HOME/.cache";
-				XDG_CONFIG_HOME = "$HOME/.config";
-				XDG_DATA_HOME = "$HOME/.local/share";
-				XDG_STATE_HOME = "$HOME/.local/state";
+				etc."channels/nixpkgs".source = inputs.topInputs.nixpkgs.outPath;
+				etc."nixos".source = inputs.topInputs.self.outPath;
+				sessionVariables =
+				{
+					XDG_CACHE_HOME = "$HOME/.cache";
+					XDG_CONFIG_HOME = "$HOME/.config";
+					XDG_DATA_HOME = "$HOME/.local/share";
+					XDG_STATE_HOME = "$HOME/.local/state";
+				};
 			};
 			i18n =
 			{
 				defaultLocale = "zh_CN.UTF-8";
 				supportedLocales = ["zh_CN.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8"];
 			};
+			# environment.pathsToLink = [ "/include" ];
+			# environment.variables.CPATH = "/run/current-system/sw/include";
+			# environment.variables.LIBRARY_PATH = "/run/current-system/sw/lib";
 		}
 		# hostname
 		{ networking.hostName = inputs.config.nixos.system.hostname; }

@@ -239,12 +239,16 @@
 											impermanence.enable = true;
 											snapper = { enable = true; configs.persistent = "/nix/persistent"; };
 											fontconfig.enable = true;
+											u2f.enable = true;
 										};
+										systemd.sleep.extraConfig = localLib.stripeTabs	
+										"
+											SuspendState=freeze
+											HibernateMode=shutdown
+										";
 									};
-									boot.kernelParams = [ "i915.force_probe=46a6" ];
 								}; })
 
-								./modules/basic.nix
 								./modules/sops.nix
 								[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
 								./modules/hardware/chn-PC.nix
