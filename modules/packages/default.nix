@@ -167,7 +167,7 @@ inputs:
 										yzhang.markdown-all-in-one pkief.material-icon-theme bbenoist.nix ms-ossdata.vscode-postgresql
 										redhat.vscode-xml dotjoshjohnson.xml jnoortheen.nix-ide xdebug.php-debug hbenl.vscode-test-explorer
 										jeff-hykin.better-cpp-syntax josetr.cmake-language-support-vscode fredericbonnet.cmake-test-adapter
-										hirse.vscode-ungit fortran-lang.linter-gfortran
+										hirse.vscode-ungit fortran-lang.linter-gfortran ms-dotnettools.vscode-dotnet-runtime
 									];
 							}
 						)
