@@ -41,7 +41,7 @@ inputs:
 		let
 			inherit (inputs.lib) mkMerge mkIf;
 			inherit (inputs.localLib) stripeTabs attrsToList;
-			inherit (inputs.options.nixos) services;
+			inherit (inputs.config.nixos) services;
 		in mkMerge
 		[
 			(
