@@ -12,6 +12,7 @@ inputs:
       enable = mkOption { type = types.bool; default = false; };
       configs = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
     };
+		kmscon.enable = mkOption { type = types.bool; default = false; };
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) stripeTabs attrsToList; in mkMerge
 	[
@@ -64,5 +65,15 @@ inputs:
             builtins.listToAttrs (builtins.map f (attrsToList inputs.config.nixos.services.snapper.configs));
       }
     )
+		(
+			mkIf inputs.config.nixos.services.kmscon.enable
+			{
+				services.kmscon =
+				{
+					enable = true;
+					fonts = [{ name = "FiraCode Nerd Font Mono"; package = inputs.pkgs.nerdfonts; }];
+				};
+			}
+		)
   ];
 }
