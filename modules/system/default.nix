@@ -39,7 +39,15 @@ inputs:
 			};
 			networking.networkmanager.enable = true;
 			programs = { dconf.enable = true; nix-ld.enable = true; };
-			nixpkgs.config.allowUnfree = true;
+			nixpkgs =
+			{
+				config.allowUnfree = true;
+				overlays = [(final: prev: { genericPackages = (inputs.topInputs.nixpkgs.lib.nixosSystem
+				{
+					system = "x86_64-linux";
+					modules = [{ config.nixpkgs.config.allowUnfree = true; }];
+				}).pkgs;})];
+			};
 			time.timeZone = "Asia/Shanghai";
 			system =
 			{

@@ -2,36 +2,6 @@
 {
 	config =
 	{
-		nixpkgs =
-		{
-			overlays =
-			[(
-				final: prev:
-					let
-						generic-pkgs = (inputs.topInputs.nixpkgs.lib.nixosSystem
-						{
-							system = "x86_64-linux";
-							modules = [{ config.nixpkgs.config.allowUnfree = true; }];
-						}).pkgs;
-					in
-						{
-							# pandoc = generic-pkgs.pandoc;
-							# fwupd = generic-pkgs.fwupd;
-						}
-			)];
-		};
-		hardware.opengl =
-		{
-			enable = true;
-			driSupport = true;
-			extraPackages = with inputs.pkgs;
-			[
-				intel-compute-runtime intel-media-driver mesa.drivers intel-vaapi-driver libvdpau-va-gl vaapiVdpau
-			];
-			driSupport32Bit = true;
-		};
-		environment.variables.VDPAU_DRIVER = "va_gl";
-		hardware.nvidia.modesetting.enable = false;
 		systemd.services =
 		{
 			reload-iwlwifi-after-hibernate =
