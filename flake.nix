@@ -257,11 +257,15 @@
 											sshd.enable = true;
 										};
 									};
-									systemd.sleep.extraConfig = localLib.stripeTabs	
-									"
-										SuspendState=freeze
-										HibernateMode=shutdown
-									";
+									systemd =
+									{
+										sleep.extraConfig = localLib.stripeTabs	
+										"
+											SuspendState=freeze
+											HibernateMode=shutdown
+										";
+										services.display-manager.after = [ "network-online.target" ];
+									};
 								}; })
 
 								[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
