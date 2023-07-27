@@ -115,6 +115,12 @@ inputs:
 					XDG_CONFIG_HOME = "$HOME/.config";
 					XDG_DATA_HOME = "$HOME/.local/share";
 					XDG_STATE_HOME = "$HOME/.local/state";
+					ANDROID_HOME = "$XDG_DATA_HOME/android";
+					HISTFILE= "$XDG_STATE_HOME/bash/history";
+					CUDA_CACHE_PATH = "$XDG_CACHE_HOME/nv";
+					DOCKER_CONFIG = "$XDG_CONFIG_HOME/docker";
+					GNUPGHOME = "$XDG_DATA_HOME/gnupg";
+					GTK2_RC_FILES = "$XDG_CONFIG_HOME/gtk-2.0/gtkrc";
 				};
 			};
 			i18n =
