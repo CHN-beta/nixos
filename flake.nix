@@ -213,7 +213,10 @@
 								};
 								firewall.trustedInterfaces = [ "docker0" "virbr0" ];
 							};
-							bugs = [ "intel-hdmi" "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" ];
+							bugs =
+							[
+								"intel-hdmi" "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" "xmunet"
+							];
 						};})
 					];
 				};
