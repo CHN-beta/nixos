@@ -121,6 +121,9 @@ inputs:
 					DOCKER_CONFIG = "$XDG_CONFIG_HOME/docker";
 					GNUPGHOME = "$XDG_DATA_HOME/gnupg";
 					GTK2_RC_FILES = "$XDG_CONFIG_HOME/gtk-2.0/gtkrc";
+					XCOMPOSECACHE = "$XDG_CACHE_HOME/X11/xcompose";
+					MATHEMATICA_USERBASE = "$XDG_CONFIG_HOME/mathematica";
+					_JAVA_OPTIONS = "-Djava.util.prefs.userRoot=$XDG_CONFIG_HOME/java";
 				};
 			};
 			i18n =
