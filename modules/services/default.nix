@@ -40,7 +40,11 @@ inputs:
 		xrayClient =
 		{
 			enable = mkOption { type = types.bool; default = false; };
-			dnsAdditionalInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+			dns = mkOption { type = types.submodule { options =
+			{
+				hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+				extraInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+			}; }; };
 		};
 		firewall.trustedInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
 	};
@@ -209,14 +213,15 @@ inputs:
 							{
 								no-poll = true;
 								server = [ "127.0.0.1#10853" ];
-								interface = services.xrayClient.dnsAdditionalInterfaces ++ [ "lo" ];
+								interface = services.xrayClient.dns.extraInterfaces ++ [ "lo" ];
 								bind-interfaces = true;
 								ipset =
 								[
 									"/developer.download.nvidia.com/noproxy_net"
 									"/yuanshen.com/noproxy_net"
 									"/zoom.us/noproxy_net"
-								];	
+								];
+								address = map (host: "/${host.name}/${host.value}") (attrsToList services.xrayClient.dns.hosts);
 							};
 						};
 						xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-client.json".path; };

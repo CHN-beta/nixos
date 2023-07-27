@@ -259,14 +259,26 @@
 												};
 											};
 											sshd.enable = true;
-											xrayClient = { enable = true; dnsAdditionalInterfaces = [ "docker0" ]; };
+											xrayClient =
+											{
+												enable = true;
+												dns =
+												{
+													extraInterfaces = [ "docker0" ];
+													hosts =
+													{
+														"mirism.one" = "216.24.188.24";
+														"beta.mirism.one" = "216.24.188.24";
+														"ng01.mirism.one" = "216.24.188.24";
+														"debug.mirism.one" = "127.0.0.1";
+													};
+												};
+											};
 											firewall.trustedInterfaces = [ "docker0" "virbr0" ];
 										};
 										bugs = [ "intel-hdmi" "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" ];
 									};
 								}; })
-								./modules/networking/xmunet.nix
-								./modules/networking/chn-PC.nix
 							]
 						)
 					];
