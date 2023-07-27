@@ -23,7 +23,7 @@ inputs:
 			inherit (inputs.config) bugs;
 			patches =
 			{
-				intel-hdmi = { boot.kernelPatches = { name = "intel-hdmi"; patch = ./intel-hdmi.patch; };};
+				intel-hdmi.boot.kernelPatches = { name = "intel-hdmi"; patch = ./intel-hdmi.patch; };
 				suspend-hibernate-no-platform.systemd.sleep.extraConfig = stripeTabs
 				"
 					SuspendState=freeze

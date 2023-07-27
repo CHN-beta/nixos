@@ -8,8 +8,4 @@ creation_rules:
     - age:
       - *chn
       - *chn-PC
-  - path_regex: secrets/chn-nixos-test\.yaml$
-    key_groups:
-    - age:
-      - *chn
-      - *chn-nixos-test
+

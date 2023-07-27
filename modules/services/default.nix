@@ -46,7 +46,7 @@ inputs:
 	};
 	config =
 		let
-			inherit (inputs.lib) mkMerge mkIf;
+			inherit (inputs.lib) mkMerge mkIf listToAttrs;
 			inherit (inputs.localLib) stripeTabs attrsToList;
 			inherit (inputs.config.nixos) services;
 		in mkMerge
@@ -222,104 +222,113 @@ inputs:
 						xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-client.json".path; };
 						v2ray-forwarder = { enable = true; proxyPort = 10880; xmuPort = 10881; };
 					};
-					sops.templates."xray-client.json" =
+					sops =
 					{
-						mode = "0440";
-						owner = "v2ray";
-						group = "v2ray";
-						restartUnits = [ "xray.service" ];
-						content = builtins.toJSON
+						templates."xray-client.json" =
 						{
-							log.loglevel = "warning";
-							dns =
+							mode = "0440";
+							owner = "v2ray";
+							group = "v2ray";
+							# restartUnits = [ "xray.service" ];
+							content = builtins.toJSON
 							{
-								servers =
+								log.loglevel = "warning";
+								dns =
+								{
+									servers =
+									[
+										{ address = "223.5.5.5"; domains = [ "geosite:geolocation-cn" ]; port = 53; skipFallback = true; }
+										{ address = "8.8.8.8"; domains = [ "geosite:geolocation-!cn" ];  port = 53; skipFallback = true; }
+										{ address = "223.5.5.5"; expectIPs = [ "geoip:cn" ]; }
+										{ address = "8.8.8.8"; }
+									];
+									disableCache = true;
+									queryStrategy = "UseIPv4";
+									tag = "dns-internal";
+								};
+								inbounds =
 								[
-									{ address = "223.5.5.5"; domains = [ "geosite:geolocation-cn" ]; port = 53; skipFallback = true; }
-									{ address = "8.8.8.8"; domains = [ "geosite:geolocation-!cn" ];  port = 53; skipFallback = true; }
-									{ address = "223.5.5.5"; expectIPs = [ "geoip:cn" ]; }
-									{ address = "8.8.8.8"; }
-								];
-								disableCache = true;
-								queryStrategy = "UseIPv4";
-								tag = "dns-internal";
-							};
-							inbounds =
-							[
-								{
-									port = 10853;
-									protocol = "dokodemo-door";
-									settings = { address = "8.8.8.8"; network = "tcp,udp"; port = 53; };
-									tag = "dns-in";
-								}
-								{
-									port = 10880;
-									protocol = "dokodemo-door";
-									settings = { network = "tcp,udp"; followRedirect = true; };
-									streamSettings.sockopt.tproxy = "tproxy";
-									sniffing = { enabled = true; destOverride = [ "http" "tls" ]; routeOnly = true; };
-									tag = "common-in";
-								}
-								{
-									port = 10881;
-									protocol = "dokodemo-door";
-									settings = { network = "tcp,udp"; followRedirect = true; };
-									streamSettings.sockopt.tproxy = "tproxy";
-									tag = "xmu-in";
-								}
-								{ port = 10882; protocol = "socks"; tag = "direct-in"; }
-							];
-							outbounds =
-							[
-								{
-									protocol = "vless";
-									settings.vnext =
-									[{
-										address = inputs.config.sops.placeholder.xray-client.server;
-										port = 443;
-										users =
-										[{
-											id = inputs.config.sops.placeholder.xray-client.uuid;
-											encryption = "none";
-											flow = "xtls-rprx-vision-udp443";
-										}];
-									}];
-									streamSettings =
 									{
-										network = "tcp";
-										security = "tls";
-										tlssettings =
-										{
-											serverName = inputs.config.sops.placeholder.xray-client.serverName;
-											allowInsecure = false;
-											fingerprint = "firefox";
-										};
-									};
-									tag = "proxy-vless";
-								}
-								{ protocol = "freedom"; tag = "direct"; }
-								{ protocol = "dns"; tag = "dns-out"; }
-								{
-									protocol = "socks";
-									settings.servers = [{ address = "127.0.0.1"; port = 10069; }];
-									tag = "xmu-out";
-								}
-							];
-							routing =
-							{
-								domainStrategy = "IPIfNonMatch";
-								rules = builtins.map (rule: rule // { type = "field"; })
-								[
-									{ inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
-									{ inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
-									{ inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
-									{ inboundTag = [ "common-in" ]; domain = [ "geosite:geolocation-cn" ]; outboundTag = "direct"; }
-									{ inboundTag = [ "common-in" ]; domain = [ "geosite:geolocation-!cn" ]; outboundTag = "proxy-vless"; }
-									{ inboundTag = [ "common-in" "dns-internal" ]; ip = [ "geoip:cn" ]; outboundTag = "direct"; }
-									{ inboundTag = [ "common-in" "dns-internal" ]; outboundTag = "proxy-vless"; }
+										port = 10853;
+										protocol = "dokodemo-door";
+										settings = { address = "8.8.8.8"; network = "tcp,udp"; port = 53; };
+										tag = "dns-in";
+									}
+									{
+										port = 10880;
+										protocol = "dokodemo-door";
+										settings = { network = "tcp,udp"; followRedirect = true; };
+										streamSettings.sockopt.tproxy = "tproxy";
+										sniffing = { enabled = true; destOverride = [ "http" "tls" ]; routeOnly = true; };
+										tag = "common-in";
+									}
+									{
+										port = 10881;
+										protocol = "dokodemo-door";
+										settings = { network = "tcp,udp"; followRedirect = true; };
+										streamSettings.sockopt.tproxy = "tproxy";
+										tag = "xmu-in";
+									}
+									{ port = 10882; protocol = "socks"; tag = "direct-in"; }
 								];
+								outbounds =
+								[
+									{
+										protocol = "vless";
+										settings.vnext =
+										[{
+											address = inputs.config.sops.placeholder."xray-client/server";
+											port = 443;
+											users =
+											[{
+												id = inputs.config.sops.placeholder."xray-client/uuid";
+												encryption = "none";
+												flow = "xtls-rprx-vision-udp443";
+											}];
+										}];
+										streamSettings =
+										{
+											network = "tcp";
+											security = "tls";
+											tlssettings =
+											{
+												serverName = inputs.config.sops.placeholder."xray-client/serverName";
+												allowInsecure = false;
+												fingerprint = "firefox";
+											};
+										};
+										tag = "proxy-vless";
+									}
+									{ protocol = "freedom"; tag = "direct"; }
+									{ protocol = "dns"; tag = "dns-out"; }
+									{
+										protocol = "socks";
+										settings.servers = [{ address = "127.0.0.1"; port = 10069; }];
+										tag = "xmu-out";
+									}
+								];
+								routing =
+								{
+									domainStrategy = "IPIfNonMatch";
+									rules = builtins.map (rule: rule // { type = "field"; })
+									[
+										{ inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
+										{ inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
+										{ inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
+										{ inboundTag = [ "common-in" ]; domain = [ "geosite:geolocation-cn" ]; outboundTag = "direct"; }
+										{
+											inboundTag = [ "common-in" ];
+											domain = [ "geosite:geolocation-!cn" ];
+											outboundTag = "proxy-vless";
+										}
+										{ inboundTag = [ "common-in" "dns-internal" ]; ip = [ "geoip:cn" ]; outboundTag = "direct"; }
+										{ inboundTag = [ "common-in" "dns-internal" ]; outboundTag = "proxy-vless"; }
+									];
+								};
 							};
 						};
+						secrets = listToAttrs
+							(map (name: { name = "xray-client/${name}"; value = {}; }) [ "server" "serverName" "uuid" ]);
 					};
 					systemd.services.xray.serviceConfig =
 					{
