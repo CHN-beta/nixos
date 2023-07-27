@@ -6,14 +6,21 @@ inputs:
 		joystick.enable = mkOption { type = types.bool; default = false; };
 		printer.enable = mkOption { type = types.bool; default = false; };
 		sound.enable = mkOption { type = types.bool; default = false; };
-		cpu = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
-		gpu = mkOption { type = types.listOf (types.enum [ "intel" "nvidia" ]); default = []; };
+		cpus = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
+		gpus = mkOption { type = types.listOf (types.enum [ "intel" "nvidia" ]); default = []; };
+		prime =
+		{
+			enable = mkOption { type = types.bool; default = false; };
+			mode = mkOption { type = types.enum [ "offload" "sync" ]; default = "offload"; };
+			busId = mkOption { type = types.attrsOf types.str; default = {}; };
+		};
 	};
 	config =
 		let
 			inherit (inputs.lib) mkMerge mkIf;
 			inherit (inputs.config.nixos) hardware;
 			inherit (builtins) listToAttrs map concatLists;
+			inherit (inputs.localLib) attrsToList;
 		in mkMerge
 		[
 			# bluetooth
@@ -52,11 +59,12 @@ inputs:
 							builtins.replaceStrings [(spaces + comment)] [(spaces + config)] content;
 				}
 			)
-			# cpu
+			# cpus
 			(
-				mkIf (hardware.cpu != [])
+				mkIf (hardware.cpus != [])
 				{
-					hardware.cpu = listToAttrs (map (name: { inherit name; value = { updateMicrocode = true; }; }) hardware.cpu);
+					hardware.cpu = listToAttrs
+						(map (name: { inherit name; value = { updateMicrocode = true; }; }) hardware.cpus);
 					boot.initrd.availableKernelModules =
 						let
 							modules =
@@ -65,12 +73,12 @@ inputs:
 								amd = [];
 							};
 						in
-							concatLists (map (cpu: modules.${cpu}) hardware.cpu);
+							concatLists (map (cpu: modules.${cpu}) hardware.cpus);
 				}
 			)
-			# gpu
+			# gpus
 			(
-				mkIf (hardware.gpu != [])
+				mkIf (hardware.gpus != [])
 				{
 					boot.initrd.availableKernelModules =
 						let
@@ -80,23 +88,56 @@ inputs:
 								nvidia = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
 							};
 						in
-							concatLists (map (gpu: modules.${gpu}) hardware.gpu);
-					hardware.opengl =
+							concatLists (map (gpu: modules.${gpu}) hardware.gpus);
+					hardware =
 					{
-						enable = true;
-						driSupport = true;
-						extraPackages =
-							with inputs.pkgs;
-							let
-								packages =
-								{
-									intel = [ intel-compute-runtime intel-media-driver intel-vaapi-driver libvdpau-va-gl ];
-									nvidia = [ vaapiVdpau ];
-								};
-							in
-								concatLists (map (gpu: packages.${gpu}) hardware.gpu);
-						driSupport32Bit = true;
+						opengl =
+						{
+							enable = true;
+							driSupport = true;
+							extraPackages =
+								with inputs.pkgs;
+								let
+									packages =
+									{
+										intel = [ intel-compute-runtime intel-media-driver intel-vaapi-driver libvdpau-va-gl ];
+										nvidia = [ vaapiVdpau ];
+									};
+								in
+									concatLists (map (gpu: packages.${gpu}) hardware.gpus);
+							driSupport32Bit = true;
+						};
+						nvidia.nvidiaSettings = builtins.elem "nvidia" hardware.gpus;
 					};
+				}
+			)
+			(mkIf (builtins.elem "intel" hardware.gpus) { services.xserver.deviceSection = ''Driver "modesetting"''; })
+			# prime
+			(
+				mkIf hardware.prime.enable
+				{
+					hardware.nvidia = mkMerge
+					[
+						(
+							mkIf (hardware.prime.mode == "offload")
+							{
+								prime.offload = { enable = true; enableOffloadCmd = true; };
+								powerManagement = { finegrained = true; enable = true; };
+							}
+						)
+						(
+							mkIf (hardware.prime.mode == "sync")
+							{
+								prime = { sync.enable = true; };
+								# prime.forceFullCompositionPipeline = true;
+							}
+						)
+						{
+							prime = listToAttrs
+								(map (gpu: { inherit (gpu) value; name = "${gpu.name}BusId"; }) (attrsToList hardware.prime.busId));
+						}
+						
+					];
 				}
 			)
 		];

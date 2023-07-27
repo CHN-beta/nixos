@@ -50,7 +50,7 @@ inputs:
 								amd = [];
 							};
 						in
-							builtins.concatLists (builtins.map (cpu: modules.${cpu}) inputs.config.nixos.hardware.cpu);
+							builtins.concatLists (builtins.map (cpu: modules.${cpu}) inputs.config.nixos.hardware.cpus);
 					extraModprobeConfig =
 						let
 							configs =
@@ -59,7 +59,7 @@ inputs:
 								amd = "";
 							};
 						in
-							builtins.concatStringsSep "\n" (builtins.map (cpu: configs.${cpu}) inputs.config.nixos.hardware.cpu);
+							builtins.concatStringsSep "\n" (builtins.map (cpu: configs.${cpu}) inputs.config.nixos.hardware.cpus);
 				};
 				virtualisation =
 				{
@@ -150,7 +150,7 @@ inputs:
 						networkConfig.VirtualEthernet = false;
 					}; };
 				in
-					builtins.listToAttrs (builtins.map f inputs.config.nixos.virtualization.nspawn );
+					builtins.listToAttrs (builtins.map f inputs.config.nixos.virtualization.nspawn);
 		}
 	];
 }

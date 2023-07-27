@@ -183,12 +183,14 @@
 										};
 										hardware =
 										{
-											cpu = [ "intel" ];
-											gpu = [ "intel" "nvidia" ];
+											cpus = [ "intel" ];
+											gpus = [ "intel" "nvidia" ];
 											bluetooth.enable = true;
 											joystick.enable = true;
 											printer.enable = true;
 											sound.enable = true;
+											prime =
+												{ enable = true; mode = "offload"; busId = { intel = "PCI:0:2:0"; nvidia = "PCI:1:0:0"; };};
 										};
 										packages =
 										{
@@ -257,15 +259,53 @@
 											sshd.enable = true;
 										};
 									};
-									systemd.sleep.extraConfig = localLib.stripeTabs	
-									"
-										SuspendState=freeze
-										HibernateMode=shutdown
-									";
+									systemd =
+									{
+										sleep.extraConfig = localLib.stripeTabs	
+										"
+											SuspendState=freeze
+											HibernateMode=shutdown
+										";
+										services =
+										{
+											reload-iwlwifi-after-hibernate =
+											{
+												description = "reload iwlwifi after resume from hibernate";
+												after = [ "systemd-hibernate.service" ];
+												serviceConfig =
+												{
+													Type = "oneshot";
+													script =
+														let
+															modprobe = "${inputs.pkgs.kmod}/bin/modprobe";
+														in localLib.stripeTabs
+														"
+															${modprobe} -r iwlwifi
+															${modprobe} iwlwifi
+															echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
+														";
+												};
+												wantedBy = [ "systemd-hibernate.service" ];
+											};
+											lid-no-wakeup =
+											{
+												description = "lid no wake up";
+												serviceConfig.ExecStart =
+													let
+														cat = "${inputs.pkgs.coreutils}/bin/cat";
+														grep = "${inputs.pkgs.gnugrep}/bin/grep";
+													in localLib.stripeTabs
+													"
+														if ${cat} /proc/acpi/wakeup | ${grep} LID0 | ${grep} -q enabled
+														then
+															echo LID0 > /proc/acpi/wakeup
+														fi
+													";
+												wantedBy = [ "multi-user.target" ];
+											};
+										};
+									};
 								}; })
-
-								[ ./modules/hardware/nvidia-prime.nix { intelBusId = "PCI:0:2:0"; nvidiaBusId = "PCI:1:0:0"; } ]
-								./modules/hardware/chn-PC.nix
 								./modules/networking/wall_client.nix
 								./modules/networking/xmunet.nix
 								./modules/networking/chn-PC.nix

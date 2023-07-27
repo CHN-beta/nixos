@@ -105,7 +105,7 @@ inputs:
 				allowUnfree = true;
 			};
 		}
-		# >= desktop-server
+		# >= desktop
 		(
 			mkIf (builtins.elem inputs.config.nixos.packages.packageSet [ "desktop" "workstation" ] )
 			{
@@ -173,20 +173,6 @@ inputs:
 						)
 					] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
 					_pythonPackages = [(pythonPackages: with pythonPackages; [ tqdm ])];
-				};
-				services.xserver =
-				{
-					enable = true;
-					displayManager.sddm.enable = true;
-					desktopManager.plasma5.enable = true;
-				};
-				systemd.services.display-manager.after = [ "network-online.target" ];
-				environment.sessionVariables."GTK_USE_PORTAL" = "1";
-				xdg.portal.extraPortals = with inputs.pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-wlr ];
-				i18n.inputMethod =
-				{
-					enabled = "fcitx5";
-					fcitx5.addons = with inputs.pkgs; [ fcitx5-rime fcitx5-chinese-addons fcitx5-mozc ];
 				};
 				programs =
 				{
