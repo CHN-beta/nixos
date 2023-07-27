@@ -9,17 +9,16 @@ lib:
 	# inputs: { environment.systemPackages = [ pkgs.hello ]; }
 	# The second one would failed to evaluate because nixpkgs would not pass pkgs to it.
 	# So that we wrote a wrapper to make it always works like the first one.
-	mkModules = moduleList: { pkgs, ... }@inputs:
-	{
-		imports = builtins.map
-		(
-			let handle = module:
-				if ( builtins.typeOf module ) == "path" then handle import module
-				else if ( builtins.typeOf module ) == "lambda" then module inputs
-				else module;
-			in handle
-		) moduleList;
-	};
+	mkModules = moduleList:
+		(builtins.map
+			(
+				let handle = module:
+					if ( builtins.typeOf module ) == "path" then (handle (import module))
+					else if ( builtins.typeOf module ) == "lambda" then ({ pkgs, utils, ... }@inputs: (module inputs))
+					else module;
+				in handle
+			)
+			moduleList);
 
 	# from: https://github.com/NixOS/nix/issues/3759
 	stripeTabs = text:
