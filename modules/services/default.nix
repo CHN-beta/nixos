@@ -214,7 +214,7 @@ inputs:
 								no-poll = true;
 								server = [ "127.0.0.1#10853" ];
 								interface = services.xrayClient.dns.extraInterfaces ++ [ "lo" ];
-								bind-interfaces = true;
+								bind-dynamic = true;
 								ipset =
 								[
 									"/developer.download.nvidia.com/noproxy_net"
