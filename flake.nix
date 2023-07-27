@@ -150,6 +150,7 @@
 								./modules/system
 								./modules/virtualization
 								./modules/services
+								./modules/bugs
 								(inputs: { config =
 								{
 									nixos =
@@ -178,7 +179,7 @@
 										};
 										kernel =
 										{
-											patches = [ "hdmi" "cjktty" "preempt" ];
+											patches = [ "cjktty" "preempt" ];
 											modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
 										};
 										hardware =
@@ -257,56 +258,12 @@
 												};
 											};
 											sshd.enable = true;
+											xrayClient = { enable = true; dnsAdditionalInterfaces = [ "docker0" ]; };
+											firewall.trustedInterfaces = [ "docker0" "virbr0" ];
 										};
-									};
-									systemd =
-									{
-										sleep.extraConfig = localLib.stripeTabs	
-										"
-											SuspendState=freeze
-											HibernateMode=shutdown
-										";
-										services =
-										{
-											reload-iwlwifi-after-hibernate =
-											{
-												description = "reload iwlwifi after resume from hibernate";
-												after = [ "systemd-hibernate.service" ];
-												serviceConfig =
-												{
-													Type = "oneshot";
-													script =
-														let
-															modprobe = "${inputs.pkgs.kmod}/bin/modprobe";
-														in localLib.stripeTabs
-														"
-															${modprobe} -r iwlwifi
-															${modprobe} iwlwifi
-															echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
-														";
-												};
-												wantedBy = [ "systemd-hibernate.service" ];
-											};
-											lid-no-wakeup =
-											{
-												description = "lid no wake up";
-												serviceConfig.ExecStart =
-													let
-														cat = "${inputs.pkgs.coreutils}/bin/cat";
-														grep = "${inputs.pkgs.gnugrep}/bin/grep";
-													in localLib.stripeTabs
-													"
-														if ${cat} /proc/acpi/wakeup | ${grep} LID0 | ${grep} -q enabled
-														then
-															echo LID0 > /proc/acpi/wakeup
-														fi
-													";
-												wantedBy = [ "multi-user.target" ];
-											};
-										};
+										bugs = [ "intel-hdmi" "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" ];
 									};
 								}; })
-								./modules/networking/wall_client.nix
 								./modules/networking/xmunet.nix
 								./modules/networking/chn-PC.nix
 								[ ./modules/users/root.nix {} ]

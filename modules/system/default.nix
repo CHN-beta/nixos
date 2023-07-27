@@ -72,6 +72,15 @@ inputs:
 					"vm.oom_dump_tasks" = false;
 					"vm.overcommit_memory" = 1;
 					"dev.i915.perf_stream_paranoid" = false;
+					"net.ipv4.conf.all.route_localnet" = true;
+					"net.ipv4.conf.default.route_localnet" = true;
+					"net.ipv4.conf.all.accept_local" = true;
+					"net.ipv4.conf.default.accept_local" = true;
+					"net.ipv4.ip_forward" = true;
+					"net.ipv4.ip_nonlocal_bind" = true;
+					"net.bridge.bridge-nf-call-iptables" = false;
+					"net.bridge.bridge-nf-call-ip6tables" = false;
+					"net.bridge.bridge-nf-call-arptables" = false;
 				};
 				supportedFilesystems = [ "ntfs" ];
 				consoleLogLevel = 7;

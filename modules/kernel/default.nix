@@ -2,7 +2,7 @@ inputs:
 {
 	options.nixos.kernel = let inherit (inputs.lib) mkOption types; in
 	{
-		patches = mkOption { type = types.listOf (types.enum [ "hdmi" "cjktty" "preempt" ]); default = []; };
+		patches = mkOption { type = types.listOf (types.enum [ "cjktty" "preempt" ]); default = []; };
 		modules =
 		{
 			install = mkOption { type = types.listOf types.str; default = []; };
@@ -45,7 +45,6 @@ inputs:
 				let
 					patches =
 					{
-						hdmi = { patch = ./hdmi.patch; };
 						cjktty =
 						{
 							patch = inputs.pkgs.fetchurl
