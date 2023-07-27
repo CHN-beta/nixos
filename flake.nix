@@ -151,6 +151,7 @@
 								./modules/virtualization
 								./modules/services
 								./modules/bugs
+								./modules/users
 								(inputs: { config =
 								{
 									nixos =
@@ -266,10 +267,6 @@
 								}; })
 								./modules/networking/xmunet.nix
 								./modules/networking/chn-PC.nix
-								[ ./modules/users/root.nix {} ]
-								[ ./modules/users/chn.nix {} ]
-								./modules/home/root.nix
-								./modules/home/chn.nix
 							]
 						)
 					];
