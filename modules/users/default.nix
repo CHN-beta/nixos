@@ -26,11 +26,11 @@ inputs:
 					mutableUsers = false;
 				};
 			}
-			mkMerge (map (user:
+			(mkMerge (map (user:
 			{
 				sops.secrets."password/${user}".neededForUsers = true;
-				users.user.${user}.passwordFile = inputs.config.sops.secrets."password/${user}".path;
-			}) [ "root" "chn" ])
+				users.users.${user}.passwordFile = inputs.config.sops.secrets."password/${user}".path;
+			}) [ "root" "chn" ]))
 			{
 				home-manager =
 				{
@@ -38,7 +38,7 @@ inputs:
 					useUserPackages = true;
 					users =
 						let
-							normal = homeInputs:
+							normal = { pkgs, ...}:
 							{
 								home.stateVersion = "22.11";
 								programs.zsh =
@@ -76,7 +76,7 @@ inputs:
 										{
 											file = "powerlevel10k.zsh-theme";
 											name = "powerlevel10k";
-											src = "${inputs.pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k";
+											src = "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k";
 										}
 										{
 											file = "p10k.zsh";
@@ -85,7 +85,7 @@ inputs:
 										}
 										{
 											name = "zsh-lsd";
-											src = inputs.pkgs.fetchFromGitHub
+											src = pkgs.fetchFromGitHub
 											{
 												owner = "z-shell";
 												repo = "zsh-lsd";
