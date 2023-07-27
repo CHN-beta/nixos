@@ -334,23 +334,19 @@ inputs:
 						secrets = listToAttrs
 							(map (name: { name = "xray-client/${name}"; value = {}; }) [ "server" "serverName" "uuid" ]);
 					};
-					systemd.services =
+					systemd.services.xray =
 					{
-						xray =
+						serviceConfig =
 						{
-							serviceConfig =
-							{
-								DynamicUser = inputs.lib.mkForce false;
-								User = "v2ray";
-								Group = "v2ray";
-								CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-								AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-								LimitNPROC = 10000;
-								LimitNOFILE = 1000000;
-							};
-							restartTriggers = [ inputs.config.sops.templates."xray-client.json".file ];
+							DynamicUser = inputs.lib.mkForce false;
+							User = "v2ray";
+							Group = "v2ray";
+							CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+							AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+							LimitNPROC = 10000;
+							LimitNOFILE = 1000000;
 						};
-						dnsmasq.after = [ "network-interfaces.target" ];
+						restartTriggers = [ inputs.config.sops.templates."xray-client.json".file ];
 					};
 					users = { users.v2ray = { isSystemUser = true; group = "v2ray"; }; groups.v2ray = {}; };
 					environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
