@@ -5,25 +5,39 @@ inputs:
 		mount =
 		{
 			# device = mountPoint;
-			vfat = mkOption { type = types.attrsOf types.nonEmptyStr; };
+			vfat = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
 			# device.subvol = mountPoint;
-			btrfs = mkOption { type = types.attrsOf (types.attrsOf types.nonEmptyStr); };
+			btrfs = mkOption { type = types.attrsOf (types.attrsOf types.nonEmptyStr); default = {}; };
 		};
 		decrypt.auto = mkOption { type = types.attrsOf (types.submodule { options =
 		{
 			mapper = mkOption { type = types.nonEmptyStr; };
 			ssd = mkOption { type = types.bool; default = false; };
 			before = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-		}; }); };
-		mdadm = mkOption { type = types.nullOr types.str; };
-		swap = mkOption { type = types.listOf types.nonEmptyStr; };
-		resume = mkOption { type = types.nullOr (types.str or (types.submodule { options =
-			{ device = mkOption { type = types.nonEmptyStr; }; offset = mkOption { type = types.ints.unsigned; }; }; })); };
-		rollingRootfs = mkOption { type = types.nullOr (types.submodule { options =
+		}; }); default = {}; };
+		mdadm = mkOption { type = types.nullOr types.str; default = null; };
+		swap = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+		resume = mkOption
 		{
-			device = mkOption { type = types.nonEmptyStr; };
-			path = mkOption { type = types.nonEmptyStr; };
-		}; }); };
+			type = types.nullOr (types.str or (types.submodule
+			{
+				options =
+				{
+					device = mkOption { type = types.nonEmptyStr; };
+					offset = mkOption { type = types.ints.unsigned; };
+				};
+			}));
+			default = null;
+		};
+		rollingRootfs = mkOption
+		{
+			type = types.nullOr (types.submodule { options =
+			{
+				device = mkOption { type = types.nonEmptyStr; };
+				path = mkOption { type = types.nonEmptyStr; };
+			}; });
+			default = null;
+		};
 	};
 	config =
 		let

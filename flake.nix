@@ -224,7 +224,7 @@
 				# 增加 impermanence
 				# 增加 initrd 中的网络
 				# 使用 yubikey 解锁
-				"vps6.chn.moe" = inputs.nixpkgs.lib.nixosSystem
+				"vps6" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";
 					specialArgs = { topInputs = inputs; inherit localLib; };
@@ -253,7 +253,7 @@
 								packageSet = "server";
 							};
 							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:05:00.0";
-							system.hostname = "vps6.chn.moe";
+							system.hostname = "vps6";
 						};})
 					];
 				};
