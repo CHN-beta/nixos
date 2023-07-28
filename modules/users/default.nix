@@ -104,6 +104,13 @@ inputs:
 										# 	};
 										# }
 									];
+									history =
+									{
+										extended = true;
+										save = 100000000;
+										size = 100000000;
+										share = true;
+									};
 								};
 								programs.direnv = { enable = true; nix-direnv.enable = true; };
 							};
