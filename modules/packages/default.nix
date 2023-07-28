@@ -118,7 +118,7 @@ inputs:
 						# instant messager
 						element-desktop tdesktop discord qq nur-xddxdd.wechat-uos # jail
 						inputs.config.nur.repos.linyinfeng.wemeet # native # nur-xddxdd.wine-wechat thunder
-						zoom signal-desktop
+						zoom-us signal-desktop
 						# browser
 						google-chrome
 						# networking
