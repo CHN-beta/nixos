@@ -140,6 +140,8 @@ inputs:
 						localPackages.typora appflowy notion-app-enhanced joplin-desktop standardnotes
 						# math, physics and chemistry
 						octave root ovito paraview localPackages.vesta qchem.quantum-espresso # vsim
+						# kde theme
+						orchis-theme
 						# davinci-resolve playonlinux
 						(
 							vscode-with-extensions.override
