@@ -115,7 +115,7 @@ inputs:
 					XDG_CONFIG_HOME = "$HOME/.config";
 					XDG_DATA_HOME = "$HOME/.local/share";
 					XDG_STATE_HOME = "$HOME/.local/state";
-					ANDROID_HOME = "$XDG_DATA_HOME/android";
+					# ANDROID_HOME = "$XDG_DATA_HOME/android";
 					HISTFILE= "$XDG_STATE_HOME/bash/history";
 					CUDA_CACHE_PATH = "$XDG_CACHE_HOME/nv";
 					DOCKER_CONFIG = "$XDG_CONFIG_HOME/docker";
