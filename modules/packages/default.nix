@@ -142,7 +142,7 @@ inputs:
 						octave root ovito paraview localPackages.vesta qchem.quantum-espresso # vsim
 						# themes
 						orchis-theme tela-circle-icon-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme
-						arc-kde-theme
+						arc-kde-theme materia-theme
 						# news
 						fluent-reader
 						# davinci-resolve playonlinux
