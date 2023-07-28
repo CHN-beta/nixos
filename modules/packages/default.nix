@@ -141,7 +141,7 @@ inputs:
 						# math, physics and chemistry
 						octave root ovito paraview localPackages.vesta qchem.quantum-espresso # vsim
 						# themes
-						orchis-theme
+						orchis-theme tela-circle-icon-theme
 						# news
 						fluent-reader
 						# davinci-resolve playonlinux
