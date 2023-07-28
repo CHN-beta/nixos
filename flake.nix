@@ -220,6 +220,43 @@
 						};})
 					];
 				};
+				# 安装一个带加密、不带 impermanence 的系统
+				# 增加 impermanence
+				# 增加 initrd 中的网络
+				# 使用 yubikey 解锁
+				"vps6.chn.moe" = inputs.nixpkgs.lib.nixosSystem
+				{
+					system = "x86_64-linux";
+					specialArgs = { topInputs = inputs; inherit localLib; };
+					modules = localLib.mkModules
+					[
+						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
+							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
+						./modules
+						(inputs: { config.nixos =
+						{
+							fileSystems =
+							{
+								mount =
+								{
+									btrfs =
+									{
+										"/dev/disk/by-uuid/52e6db14-f7c1-4bf0-9cee-d858613906ba"."/" = "/boot";
+										"/dev/mapper/root"."/" = "/";
+									};
+								};
+								decrypt.auto."/dev/disk/by-uuid/cc0c27bb-15b3-4932-98a9-583b426002be" =
+									{ mapper = "root"; ssd = true; };
+							};
+							packages =
+							{
+								packageSet = "server";
+							};
+							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:05:00.0";
+							system.hostname = "vps6.chn.moe";
+						};})
+					];
+				};
 			};
 		};
 }
