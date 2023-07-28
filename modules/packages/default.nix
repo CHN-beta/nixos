@@ -140,8 +140,10 @@ inputs:
 						localPackages.typora appflowy notion-app-enhanced joplin-desktop standardnotes
 						# math, physics and chemistry
 						octave root ovito paraview localPackages.vesta qchem.quantum-espresso # vsim
-						# kde theme
+						# themes
 						orchis-theme
+						# news
+						fluent-reader
 						# davinci-resolve playonlinux
 						(
 							vscode-with-extensions.override
@@ -181,7 +183,7 @@ inputs:
 					anime-game-launcher.enable = true;
 					honkers-railway-launcher.enable = true;
 					steam.enable = true;
-					# xwayland.enable = true;
+					xwayland.enable = true;
 					kdeconnect.enable = true;
 					wireshark = { enable = true; package = inputs.pkgs.wireshark; };
 					firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
