@@ -38,13 +38,13 @@ inputs:
 					# basic tools
 					beep dos2unix gnugrep pv tmux screen parallel tldr
 					# lsxx
-					pciutils usbutils lshw wayland-utils clinfo glxinfo vulkan-tools util-linux lsof
+					pciutils usbutils lshw util-linux lsof
 					# top
-					iotop iftop htop
+					iotop iftop htop btop
 					# editor
 					vim nano bat
 					# downloader
-					wget aria2 curl yt-dlp nur-xddxdd.baidupcs-go wgetpaste
+					wget aria2 curl
 					# file manager
 					tree git autojump exa trash-cli lsd zellij broot file xdg-ninja mlocate
 					# compress
@@ -58,18 +58,12 @@ inputs:
 					# networking
 					ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap
 					# nix tools
-					nix-output-monitor nix-template appimage-run nil nixd nix-alien
+					nix-output-monitor
 					# development
 					gcc go rustc clang-tools clang valgrind yarn
 					# office
 					todo-txt-cli pandoc pdfchain
 				];
-				_pythonPackages = [(pythonPackages: with pythonPackages;
-				[
-					phonopy inquirerpy requests tensorflow keras python-telegram-bot
-					fastapi pypdf2 pandas openai matplotlib scipy plotly gunicorn scikit-learn redis jinja2
-				])];
-				_prebuildPackages = [ httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran ];
 			};
 			programs =
 			{
@@ -115,6 +109,9 @@ inputs:
 					[
 						# system management
 						gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
+						wayland-utils clinfo glxinfo vulkan-tools
+						# nix tools
+						nix-template appimage-run nil nixd nix-alien
 						# instant messager
 						element-desktop tdesktop discord qq nur-xddxdd.wechat-uos # jail
 						inputs.config.nur.repos.linyinfeng.wemeet # native # nur-xddxdd.wine-wechat thunder
@@ -126,7 +123,7 @@ inputs:
 						# password and key management
 						bitwarden yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui
 						# download
-						qbittorrent
+						qbittorrent yt-dlp nur-xddxdd.baidupcs-go wgetpaste
 						# office
 						crow-translate libreoffice-qt zotero texlive.combined.scheme-full gnuplot poppler_utils
 						# development
@@ -177,7 +174,12 @@ inputs:
 							}
 						)
 					] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
-					_pythonPackages = [(pythonPackages: with pythonPackages; [ tqdm ])];
+					_pythonPackages = [(pythonPackages: with pythonPackages;
+					[
+						phonopy inquirerpy requests tensorflow keras python-telegram-bot tqdm
+						fastapi pypdf2 pandas openai matplotlib scipy plotly gunicorn scikit-learn redis jinja2
+					])];
+					_prebuildPackages = [ httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran ];
 				};
 				programs =
 				{
