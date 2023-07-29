@@ -12,7 +12,11 @@ inputs:
 				{
 					users =
 					{
-						root.shell = inputs.pkgs.zsh;
+						root =
+						{
+							shell = inputs.pkgs.zsh;
+							hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
+						};
 						chn =
 						{
 							isNormalUser = true;
@@ -21,16 +25,17 @@ inputs:
 								(builtins.attrNames inputs.config.users.groups);
 							shell = inputs.pkgs.zsh;
 							autoSubUidGidRange = true;
+							hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
 						};
 					};
 					mutableUsers = false;
 				};
 			}
-			(mkMerge (map (user:
-			{
-				sops.secrets."password/${user}".neededForUsers = true;
-				users.users.${user}.passwordFile = inputs.config.sops.secrets."password/${user}".path;
-			}) [ "root" "chn" ]))
+			# (mkMerge (map (user:
+			# {
+			# 	sops.secrets."password/${user}".neededForUsers = true;
+			# 	users.users.${user}.passwordFile = inputs.config.sops.secrets."password/${user}".path;
+			# }) [ "root" "chn" ]))
 			{
 				home-manager =
 				{
