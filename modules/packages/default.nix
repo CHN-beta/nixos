@@ -141,7 +141,7 @@ inputs:
 						orchis-theme tela-circle-icon-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme
 						arc-kde-theme materia-theme
 						# news
-						fluent-reader
+						fluent-reader newsflash rssguard newsboat
 						# davinci-resolve playonlinux
 						(
 							vscode-with-extensions.override
