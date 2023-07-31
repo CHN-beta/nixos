@@ -156,10 +156,14 @@
 								extraPythonPackages = [(pythonPackages:
 									[ inputs.pkgs.localPackages.upho inputs.pkgs.localPackages.spectral ])];
 							};
-							boot.grub =
+							boot =
 							{
-								windowsEntries = { "7317-1DB6" = "Windows"; "7321-FA9C" = "Windows for malware"; };
-								installDevice = "efi";
+								grub =
+								{
+									windowsEntries = { "7317-1DB6" = "Windows"; "7321-FA9C" = "Windows for malware"; };
+									installDevice = "efi";
+								};
+								sshd.enable = true;
 							};
 							system =
 							{

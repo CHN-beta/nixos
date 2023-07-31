@@ -8,6 +8,7 @@ inputs:
 			windowsEntries = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
 			installDevice = mkOption { type = types.str; }; # "efi" using efi, or dev path like "/dev/sda" using bios
 		};
+		sshd.enable = mkOption { type = types.bool; default = false; };
 	};
 	config =
 		let
@@ -52,6 +53,25 @@ inputs:
 						};
 					}
 					{ boot.loader.grub.device = boot.grub.installDevice; }
+			)
+			# sshd
+			(
+				mkIf inputs.config.nixos.boot.sshd.enable
+				{
+					boot.initrd =
+					{
+						network =
+						{
+							enable = true;
+							ssh =
+							{
+								enable = true;
+								hostKeys = [ "/etc/ssh/initrd_ssh_host_ed25519_key" ];
+							};
+						};
+						luks.forceLuksSupportInInitrd = true;
+					};
+				}
 			)
 		];
 }
