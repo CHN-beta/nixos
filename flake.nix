@@ -252,6 +252,7 @@
 							{
 								packageSet = "server";
 							};
+							services.sshd.enable = true;
 							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:05:00.0";
 							system.hostname = "vps6";
 						};})
