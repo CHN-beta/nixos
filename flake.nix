@@ -224,6 +224,10 @@
 				# 增加 impermanence
 				# 增加 initrd 中的网络
 				# 使用 yubikey 解锁
+				# nix copy --substitute-on-destination --to ssh://server /run/current-system
+				# nix copy --to ssh://nixos@192.168.122.56 ./result
+				# sudo nixos-install --flake .#bootstrap
+				#		--option substituters http://192.168.122.1:5000 --option require-sigs false
 				"bootstrap" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";
@@ -241,8 +245,8 @@
 								{
 									btrfs =
 									{
-										"/dev/disk/by-uuid/52e6db14-f7c1-4bf0-9cee-d858613906ba"."/" = "/boot";
-										"/dev/mapper/root"."/" = "/";
+										"/dev/disk/by-uuid/61c952dd-8f71-4b58-81e8-8d637181a23c"."/boot" = "/boot";
+										"/dev/mapper/root"."/nix" = "/";
 									};
 								};
 								decrypt.auto."/dev/disk/by-uuid/cc0c27bb-15b3-4932-98a9-583b426002be" =
