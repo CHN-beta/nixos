@@ -224,7 +224,7 @@
 				# 增加 impermanence
 				# 增加 initrd 中的网络
 				# 使用 yubikey 解锁
-				"vps6" = inputs.nixpkgs.lib.nixosSystem
+				"bootstrap" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";
 					specialArgs = { topInputs = inputs; inherit localLib; };
@@ -254,7 +254,7 @@
 							};
 							services.sshd.enable = true;
 							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:05:00.0";
-							system.hostname = "vps6";
+							system.hostname = "bootstrap";
 						};})
 					];
 				};
