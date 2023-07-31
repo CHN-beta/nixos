@@ -138,7 +138,7 @@ inputs:
 				{
 					boot.initrd.systemd.services.roll-rootfs =
 					{
-						wantedBy = [ "local-fs-pre.target" ];
+						wantedBy = [ "initrd-root-fs.target" ];
 						after = [ "cryptsetup.target" "systemd-hibernate-resume.service" ];
 						before = [ "local-fs-pre.target" "sysroot.mount" ];
 						unitConfig.DefaultDependencies = false;
