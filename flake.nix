@@ -166,6 +166,7 @@
 								hostname = "chn-PC";
 								march = "alderlake";
 								gui.enable = true;
+								keepOutputs = true;
 							};
 							virtualization =
 							{
@@ -224,10 +225,12 @@
 				# 增加 impermanence
 				# 增加 initrd 中的网络
 				# 使用 yubikey 解锁
+				# nix-serve -p 5000
 				# nix copy --substitute-on-destination --to ssh://server /run/current-system
 				# nix copy --to ssh://nixos@192.168.122.56 ./result
 				# sudo nixos-install --flake .#bootstrap
 				#		--option substituters http://192.168.122.1:5000 --option require-sigs false
+				# sudo chattr -i var/empty
 				"bootstrap" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";

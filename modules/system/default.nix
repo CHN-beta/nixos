@@ -5,6 +5,7 @@ inputs:
 		hostname = mkOption { type = types.nonEmptyStr; };
 		march = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
 		gui.enable = mkOption { type = types.bool; default = false; };
+		keepOutputs = mkOption { type = types.bool; default = false; };
 	};
 	config = let inherit (inputs.lib) mkMerge mkIf; inherit (inputs.localLib) mkConditional stripeTabs; in mkMerge
 	[
@@ -16,7 +17,7 @@ inputs:
 				{
 					system-features = [ "big-parallel" "nixos-test" "benchmark" ];
 					experimental-features = [ "nix-command" "flakes" ];
-					keep-outputs = true;
+					keep-outputs = inputs.config.nixos.system.keepOutputs;
 					keep-failed = true;
 					auto-optimise-store = true;
 				};
