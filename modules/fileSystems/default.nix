@@ -139,8 +139,8 @@ inputs:
 					boot.initrd.systemd.services.roll-rootfs =
 					{
 						wantedBy = [ "local-fs-pre.target" ];
-						after = [ "cryptsetup.target" "systemd-hibernate-resume.slice" ];
-						before = [ "local-fs-pre.target" ];
+						after = [ "cryptsetup.target" "systemd-hibernate-resume.service" ];
+						before = [ "local-fs-pre.target" "sysroot.mount" ];
 						unitConfig.DefaultDependencies = false;
 						serviceConfig.Type = "oneshot";
 						script = let inherit (fileSystems.rollingRootfs) device path; in stripeTabs

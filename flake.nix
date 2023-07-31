@@ -232,6 +232,7 @@
 				#		--option substituters http://192.168.122.1:5000 --option require-sigs false
 				# sudo chattr -i var/empty
 				# nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
+				# sudo nixos-rebuild switch --flake .#vps6 --log-format internal-json -v |& nom --json
 				"vps6-bootstrap" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";
