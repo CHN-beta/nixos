@@ -233,6 +233,7 @@
 				# sudo chattr -i var/empty
 				# nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
 				# sudo nixos-rebuild switch --flake .#vps6 --log-format internal-json -v |& nom --json
+				# boot.shell_on_fail systemd.setenv=SYSTEMD_SULOGIN_FORCE=1
 				"vps6-bootstrap" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";
