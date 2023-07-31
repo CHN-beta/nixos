@@ -266,6 +266,47 @@
 						};})
 					];
 				};
+				"vps6" = inputs.nixpkgs.lib.nixosSystem
+				{
+					system = "x86_64-linux";
+					specialArgs = { topInputs = inputs; inherit localLib; };
+					modules = localLib.mkModules
+					[
+						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
+							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
+						./modules
+						(inputs: { config.nixos =
+						{
+							fileSystems =
+							{
+								mount =
+								{
+									btrfs =
+									{
+										"/dev/disk/by-uuid/61c952dd-8f71-4b58-81e8-8d637181a23c"."/boot" = "/boot";
+										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+									};
+								};
+								decrypt.auto."/dev/disk/by-uuid/cc0c27bb-15b3-4932-98a9-583b426002be" =
+									{ mapper = "root"; ssd = true; };
+								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+							};
+							packages =
+							{
+								packageSet = "server";
+							};
+							services =
+							{
+								impermanence.enable = true;
+								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
+								sshd.enable = true;
+							};
+							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:05:00.0";
+							system.hostname = "vps6";
+						};})
+					];
+				};
 			};
 		};
 }
