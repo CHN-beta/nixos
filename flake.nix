@@ -231,7 +231,8 @@
 				# sudo nixos-install --flake .#bootstrap
 				#		--option substituters http://192.168.122.1:5000 --option require-sigs false
 				# sudo chattr -i var/empty
-				"bootstrap" = inputs.nixpkgs.lib.nixosSystem
+				# nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
+				"vps6-bootstrap" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";
 					specialArgs = { topInputs = inputs; inherit localLib; };
@@ -261,7 +262,7 @@
 							};
 							services.sshd.enable = true;
 							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:05:00.0";
-							system.hostname = "bootstrap";
+							system.hostname = "vps6-bootstrap";
 						};})
 					];
 				};

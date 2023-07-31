@@ -1,11 +1,15 @@
 keys:
   - &chn age19ax6vm3pv8rph5tq3mmehd9sy9jk823tw8svsd790r0lkslycquqvlwz9m
   - &chn-PC age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
-  - &chn-nixos-test age1thf94z6z4835nxsx56upa3s32vfqq2s6d67rpg7weawj2lrk25asw8smhh
+  - &vps6 age1nu7jdj02gfvpsvzcwmj7gepzwzhcls2g73f6w44yaf2tz92r93ms4a5hra
 creation_rules:
   - path_regex: secrets/chn-PC\.yaml$
     key_groups:
     - age:
       - *chn
       - *chn-PC
-
+  - path_regex: secrets/vps6\.yaml$
+    key_groups:
+    - age:
+      - *chn
+      - *vps6
