@@ -125,7 +125,18 @@ inputs:
 			)
 			# decrypt.manual
 			(
-				mkIf (fileSystems.decrypt.manual.enable) { boot.initrd.luks.forceLuksSupportInInitrd = true; }
+				mkIf (fileSystems.decrypt.manual.enable)
+				{
+					boot.initrd =
+					{
+						luks.forceLuksSupportInInitrd = true;
+						systemd.extraBin =
+						{
+							cryptsetup = "${inputs.pkgs.cryptsetup.bin}/bin/cryptsetup";
+							usbip = "${inputs.config.boot.kernelPackages.usbip}/bin/usbip";
+						};
+					};
+				}
 			)
 			# mdadm
 			(

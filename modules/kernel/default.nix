@@ -20,8 +20,9 @@ inputs:
 				kernelModules = [ "br_netfilter" ];
 				initrd.availableKernelModules =
 				[
-					"ahci" "bfq" "failover" "net_failover" "nls_cp437" "nls_iso8859-1" "nvme" "sr_mod" "usbhid" "usb_storage"
-					"virtio" "virtio_blk" "virtio_net" "virtio_pci" "xhci_pci" "virtio_ring" "cryptd" "crypto_simd" "libaes"
+					"ahci" "bfq" "failover" "net_failover" "nls_cp437" "nls_iso8859-1" "nvme" "sr_mod" "usbcore" "usbhid"
+					"usbip-core" "usb-common" "usb_storage" "vhci-hcd" "virtio" "virtio_blk" "virtio_net" "virtio_pci" "xhci_pci"
+					"virtio_ring" "cryptd" "crypto_simd" "libaes"
 				];
 				kernelParams = [ "delayacct" "acpi_osi=Linux" ];
 				kernelPackages = inputs.pkgs.linuxPackagesFor (inputs.pkgs.linuxPackages_xanmod.kernel.override rec
