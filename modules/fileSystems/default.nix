@@ -9,12 +9,23 @@ inputs:
 			# device.subvol = mountPoint;
 			btrfs = mkOption { type = types.attrsOf (types.attrsOf types.nonEmptyStr); default = {}; };
 		};
-		decrypt.auto = mkOption { type = types.attrsOf (types.submodule { options =
+		decrypt =
 		{
-			mapper = mkOption { type = types.nonEmptyStr; };
-			ssd = mkOption { type = types.bool; default = false; };
-			before = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-		}; }); default = {}; };
+			auto = mkOption
+			{
+				type = types.attrsOf (types.submodule
+				{
+					options =
+					{
+						mapper = mkOption { type = types.nonEmptyStr; };
+						ssd = mkOption { type = types.bool; default = false; };
+						before = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+					};
+				});
+				default = {};
+			};
+			manual.enable = mkOption { type = types.bool; default = false; };
+		};
 		mdadm = mkOption { type = types.nullOr types.str; default = null; };
 		swap = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
 		resume = mkOption
@@ -111,6 +122,10 @@ inputs:
 									(builtins.filter (device: device.value.before != null) (attrsToList fileSystems.decrypt.auto)));
 					};
 				}
+			)
+			# decrypt.manual
+			(
+				mkIf (fileSystems.decrypt.manual.enable) { boot.initrd.luks.forceLuksSupportInInitrd = true; }
 			)
 			# mdadm
 			(
