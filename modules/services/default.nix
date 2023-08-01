@@ -75,15 +75,7 @@ inputs:
 							"/etc/ssh/ssh_host_ed25519_key"
 							"/etc/ssh/ssh_host_rsa_key.pub"
 							"/etc/ssh/ssh_host_rsa_key"
-						]
-						++ (
-							if inputs.config.boot.initrd.network.ssh.enable then
-							[
-								"/etc/ssh/initrd_ssh_host_ed25519_key.pub"
-								"/etc/ssh/initrd_ssh_host_ed25519_key"
-							]
-							else []
-						);
+						];
 					};
 				}
 			)

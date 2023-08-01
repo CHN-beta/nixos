@@ -296,7 +296,11 @@
 										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
 									};
 								};
-								decrypt.manual = { enable = true; devices = [ "/dev/mapper/root" ]; };
+								decrypt.manual =
+								{
+									enable = true;
+									devices = { "/dev/disk/by-uuid/cc0c27bb-15b3-4932-98a9-583b426002be" = "root"; };
+								};
 								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
 							};
 							packages =

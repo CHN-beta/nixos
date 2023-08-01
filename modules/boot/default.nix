@@ -9,7 +9,11 @@ inputs:
 			installDevice = mkOption { type = types.str; }; # "efi" using efi, or dev path like "/dev/sda" using bios
 		};
 		network.enable = mkOption { type = types.bool; default = false; };
-		sshd.enable = mkOption { type = types.bool; default = false; };
+		sshd =
+		{
+			enable = mkOption { type = types.bool; default = false; };
+			hostKeys = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+		};
 	};
 	config =
 		let
@@ -57,25 +61,13 @@ inputs:
 			)
 			# network
 			(
-				mkIf inputs.config.nixos.boot.network.enable
-				{
-					boot =
-					{
-						initrd.network.enable = true;
-						kernelParams = [ "ip=dhcp" ];
-					};
-				}
+				mkIf boot.network.enable
+				{ boot = { initrd.network.enable = true; kernelParams = [ "ip=dhcp" ]; }; }
 			)
 			# sshd
 			(
-				mkIf inputs.config.nixos.boot.sshd.enable
-				{
-					boot.initrd.network.ssh =
-					{
-						enable = true;
-						hostKeys = [ "/etc/ssh/initrd_ssh_host_ed25519_key" ];
-					};
-				}
+				mkIf boot.sshd.enable
+				{ boot.initrd.network.ssh = { enable = true; hostKeys = boot.sshd.hostKeys; };}
 			)
 		];
 }

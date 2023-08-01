@@ -27,7 +27,7 @@ inputs:
 			manual =
 			{
 				enable = mkOption { type = types.bool; default = false; };
-				devices = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+				devices = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
 			};
 		};
 		mdadm = mkOption { type = types.nullOr types.str; default = null; };
@@ -140,22 +140,30 @@ inputs:
 							{
 								cryptsetup = "${inputs.pkgs.cryptsetup.bin}/bin/cryptsetup";
 								usbip = "${inputs.config.boot.kernelPackages.usbip}/bin/usbip";
+								decrypt = inputs.pkgs.writeShellScript "decrypt" (stripeTabs
+								"
+									modprobe vhci-hcd
+									busid=$(usbip list -r 127.0.0.1 | head -n4 | tail -n1 | awk '{print $1}' | sed 's/://')
+									usbip attach -r 127.0.0.1 -b $busid
+									${concatStringsSep "; " (map (device: "systemd-cryptsetup attach ${device.value} ${device.name}")
+										(attrsToList fileSystems.decrypt.manual.devices))}
+								");
 							};
-							services.wait-manual-decrypt =
-							{
-								wantedBy = [ "cryptsetup.target" ];
-								before = [ "cryptsetup-pre.target" "initrd-root-device.target" "local-fs-pre.target" ];
-								unitConfig.DefaultDependencies = false;
-								serviceConfig.Type = "oneshot";
-								script = concatStringsSep "\n" (map
-									(device: "while [ ! -e ${device} ]; do sleep 1; done")
-									fileSystems.decrypt.manual.devices);
-							};
+							# services.wait-manual-decrypt =
+							# {
+							# 	wantedBy = [ "initrd-root-fs.target" ];
+							# 	before = [ "cryptsetup-pre.target" "initrd-root-device.target" "local-fs-pre.target" ];
+							# 	unitConfig.DefaultDependencies = false;
+							# 	serviceConfig.Type = "oneshot";
+							# 	script = concatStringsSep "\n" (map
+							# 		(device: "while [ ! -e ${device} ]; do sleep 1; done")
+							# 		fileSystems.decrypt.manual.devices);
+							# };
 						};
 					};
-					# fileSystems = listToAttrs (map
-					# 	(device: { name = device; value.options = [ "x-systemd.mount-timeout=1h" ]; })
-					# 	fileSystems.decrypt.manual.devices);
+					fileSystems = listToAttrs (map
+						(device: { name = device; value.options = [ "x-systemd.device-timeout=10min" ]; })
+						fileSystems.decrypt.manual.devices);
 				}
 			)
 			# mdadm
