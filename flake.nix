@@ -216,7 +216,7 @@
 										};
 									};
 								};
-								firewall.trustedInterfaces = [ "docker0" "virbr0" ];
+								firewall.trustedInterfaces = [ "docker0" "virbr0" "waydroid0" ];
 							};
 							bugs =
 							[
