@@ -296,7 +296,7 @@
 										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
 									};
 								};
-								decrypt.manual = { enable = true; devices = [ "/" ]; };
+								decrypt.manual = { enable = true; devices = [ "/dev/mapper/root" ]; };
 								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
 							};
 							packages =

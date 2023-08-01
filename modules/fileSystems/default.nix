@@ -56,7 +56,7 @@ inputs:
 	};
 	config =
 		let
-			inherit (builtins) listToAttrs map concatLists;
+			inherit (builtins) listToAttrs map concatLists concatStringsSep;
 			inherit (inputs.lib) mkMerge mkIf;
 			inherit (inputs.localLib) stripeTabs attrsToList;
 			inherit (inputs.config.nixos) fileSystems;
@@ -134,15 +134,28 @@ inputs:
 					boot.initrd =
 					{
 						luks.forceLuksSupportInInitrd = true;
-						systemd.extraBin =
+						systemd =
 						{
-							cryptsetup = "${inputs.pkgs.cryptsetup.bin}/bin/cryptsetup";
-							usbip = "${inputs.config.boot.kernelPackages.usbip}/bin/usbip";
+							extraBin =
+							{
+								cryptsetup = "${inputs.pkgs.cryptsetup.bin}/bin/cryptsetup";
+								usbip = "${inputs.config.boot.kernelPackages.usbip}/bin/usbip";
+							};
+							services.wait-manual-decrypt =
+							{
+								wantedBy = [ "cryptsetup.target" ];
+								before = [ "cryptsetup.target" ];
+								unitConfig.DefaultDependencies = false;
+								serviceConfig.Type = "oneshot";
+								script = concatStringsSep "\n" (map
+									(device: "while [ ! -e ${device} ]; do sleep 1; done")
+									fileSystems.decrypt.manual.devices);
+							};
 						};
 					};
-					fileSystems = listToAttrs (map
-						(device: { name = device; value.options = [ "x-systemd.mount-timeout=1h" ]; })
-						fileSystems.decrypt.manual.devices);
+					# fileSystems = listToAttrs (map
+					# 	(device: { name = device; value.options = [ "x-systemd.mount-timeout=1h" ]; })
+					# 	fileSystems.decrypt.manual.devices);
 				}
 			)
 			# mdadm
