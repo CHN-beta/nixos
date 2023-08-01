@@ -71,6 +71,7 @@ inputs:
 						};
 						luks.forceLuksSupportInInitrd = true;
 					};
+					networking.useDHCP = true;
 				}
 			)
 		];
