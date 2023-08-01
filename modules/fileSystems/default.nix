@@ -144,7 +144,7 @@ inputs:
 							services.wait-manual-decrypt =
 							{
 								wantedBy = [ "cryptsetup.target" ];
-								before = [ "cryptsetup.target" ];
+								before = [ "cryptsetup-pre.target" "initrd-root-device.target" "local-fs-pre.target" ];
 								unitConfig.DefaultDependencies = false;
 								serviceConfig.Type = "oneshot";
 								script = concatStringsSep "\n" (map
