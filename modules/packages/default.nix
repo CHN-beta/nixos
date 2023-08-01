@@ -36,7 +36,7 @@ inputs:
 					# shell
 					ksh
 					# basic tools
-					beep dos2unix gnugrep pv tmux screen parallel tldr
+					beep dos2unix gnugrep pv tmux screen parallel tldr cowsay
 					inputs.config.boot.kernelPackages.cpupower
 					# lsxx
 					pciutils usbutils lshw util-linux lsof
