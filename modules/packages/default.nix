@@ -37,7 +37,6 @@ inputs:
 					ksh
 					# basic tools
 					beep dos2unix gnugrep pv tmux screen parallel tldr cowsay
-					inputs.config.boot.kernelPackages.cpupower
 					# lsxx
 					pciutils usbutils lshw util-linux lsof
 					# top
@@ -64,7 +63,7 @@ inputs:
 					gcc go rustc clang-tools clang valgrind yarn
 					# office
 					todo-txt-cli pandoc pdfchain
-				];
+				] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
 			};
 			programs =
 			{
