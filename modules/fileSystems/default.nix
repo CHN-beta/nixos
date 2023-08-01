@@ -24,7 +24,11 @@ inputs:
 				});
 				default = {};
 			};
-			manual.enable = mkOption { type = types.bool; default = false; };
+			manual =
+			{
+				enable = mkOption { type = types.bool; default = false; };
+				devices = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+			};
 		};
 		mdadm = mkOption { type = types.nullOr types.str; default = null; };
 		swap = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
@@ -136,6 +140,9 @@ inputs:
 							usbip = "${inputs.config.boot.kernelPackages.usbip}/bin/usbip";
 						};
 					};
+					fileSystems = listToAttrs (map
+						(device: { name = device; value.options = [ "x-systemd.mount-timeout=1h" ]; })
+						fileSystems.decrypt.manual.devices);
 				}
 			)
 			# mdadm

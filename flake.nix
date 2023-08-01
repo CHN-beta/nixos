@@ -268,6 +268,12 @@
 						};})
 					];
 				};
+				# sudo usbipd
+				# ssh -R 3240:127.0.0.1:3240 root@192.168.122.57
+				# sudo usbip bind -b 3-6
+				# usbip attach -r 127.0.0.1 -b 3-6
+				# systemd-cryptenroll --fido2-device=auto /dev/vda2
+				# systemd-cryptsetup attach root /dev/vda2
 				"vps6" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";
@@ -289,7 +295,7 @@
 										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
 									};
 								};
-								decrypt.manual.enable = true;
+								decrypt.manual = { enable = true; devices = [ "/dev/mapper/root" ]; };
 								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
 							};
 							packages =
