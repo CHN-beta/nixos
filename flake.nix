@@ -156,14 +156,10 @@
 								extraPythonPackages = [(pythonPackages:
 									[ inputs.pkgs.localPackages.upho inputs.pkgs.localPackages.spectral ])];
 							};
-							boot =
+							boot.grub =
 							{
-								grub =
-								{
-									windowsEntries = { "7317-1DB6" = "Windows"; "7321-FA9C" = "Windows for malware"; };
-									installDevice = "efi";
-								};
-								sshd.enable = true;
+								windowsEntries = { "7317-1DB6" = "Windows"; "7321-FA9C" = "Windows for malware"; };
+								installDevice = "efi";
 							};
 							system =
 							{
@@ -308,7 +304,11 @@
 								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
 								sshd.enable = true;
 							};
-							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:05:00.0";
+							boot =
+							{
+								grub.installDevice = "/dev/disk/by-path/pci-0000:05:00.0";
+								sshd.enable = true;
+							};
 							system.hostname = "vps6";
 						};})
 					];

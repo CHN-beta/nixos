@@ -16,6 +16,11 @@ inputs:
 						{
 							shell = inputs.pkgs.zsh;
 							hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
+							openssh.authorizedKeys.keys =
+							[
+								("sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIPLByi05vCA95EfpgrCIXzkuyUWsyh"
+									+ "+Vso8FsUNFwPXFAAAABHNzaDo= chn@chn.moe")
+							];
 						};
 						chn =
 						{
@@ -26,6 +31,11 @@ inputs:
 							shell = inputs.pkgs.zsh;
 							autoSubUidGidRange = true;
 							hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
+							openssh.authorizedKeys.keys =
+							[
+								("sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIPLByi05vCA95EfpgrCIXzkuyUWsyh"
+									+ "+Vso8FsUNFwPXFAAAABHNzaDo= chn@chn.moe")
+							];
 						};
 					};
 					mutableUsers = false;
