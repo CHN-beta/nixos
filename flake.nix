@@ -270,6 +270,7 @@
 				};
 				# sudo usbipd
 				# ssh -R 3240:127.0.0.1:3240 root@192.168.122.57
+				# modprobe vhci-hcd
 				# sudo usbip bind -b 3-6
 				# usbip attach -r 127.0.0.1 -b 3-6
 				# systemd-cryptenroll --fido2-device=auto /dev/vda2
@@ -295,7 +296,7 @@
 										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
 									};
 								};
-								decrypt.manual = { enable = true; devices = [ "/dev/mapper/root" ]; };
+								decrypt.manual = { enable = true; devices = [ "/" ]; };
 								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
 							};
 							packages =
