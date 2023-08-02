@@ -152,6 +152,8 @@ inputs:
 							{
 								cryptsetup = "${inputs.pkgs.cryptsetup.bin}/bin/cryptsetup";
 								usbip = "${inputs.config.boot.kernelPackages.usbip}/bin/usbip";
+								sed = "${inputs.pkgs.gnused}/bin/sed";
+								awk = "${inputs.pkgs.gawk}/bin/awk";
 								decrypt = inputs.pkgs.writeShellScript "decrypt" (stripeTabs
 								"
 									modprobe vhci-hcd
@@ -166,7 +168,7 @@ inputs:
 							services.wait-manual-decrypt =
 							{
 								wantedBy = [ "initrd-root-fs.target" ];
-								before = [ "cryptsetup-pre.target" ];
+								before = [ "roll-rootfs.service" ];
 								unitConfig.DefaultDependencies = false;
 								serviceConfig.Type = "oneshot";
 								script = concatStringsSep "\n" (map
