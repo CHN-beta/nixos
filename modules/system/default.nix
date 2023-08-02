@@ -37,6 +37,7 @@ inputs:
 					ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="bfq"
 				'';
 				dbus.implementation = "broker";
+				pcscd.enable = true;
 			};
 			networking.networkmanager.enable = true;
 			programs = { dconf.enable = true; nix-ld.enable = true; };
@@ -138,6 +139,7 @@ inputs:
 			security.pam =
 			{
 				u2f = { enable = true; cue = true; authFile = ./u2f_keys; };
+				ussh = { enable = true; };
 				services = builtins.listToAttrs (builtins.map (name: { inherit name; value = { u2fAuth = true; }; })
 					[ "login" "sudo" "su" "kde" "polkit-1" ]);
 			};
