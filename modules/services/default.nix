@@ -188,7 +188,14 @@ inputs:
 				}
 			)
 			(
-				mkIf services.sshd.enable { services.openssh.enable = true; }
+				mkIf services.sshd.enable
+				{
+					services.openssh =
+					{
+						enable = true;
+						settings.TrustedUserCAKeys = "${inputs.config.security.pam.ussh.caFile}";
+					};
+				}
 			)
 			(
 				mkIf services.xrayClient.enable

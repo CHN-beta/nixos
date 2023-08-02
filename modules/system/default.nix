@@ -139,8 +139,9 @@ inputs:
 			security.pam =
 			{
 				u2f = { enable = true; cue = true; authFile = ./u2f_keys; };
-				ussh = { enable = true; };
-				services = builtins.listToAttrs (builtins.map (name: { inherit name; value = { u2fAuth = true; }; })
+				ussh = { enable = true; caFile = ./ca.pub; };
+				services = builtins.listToAttrs (builtins.map
+					(name: { inherit name; value = { u2fAuth = true; usshAuth = true; }; })
 					[ "login" "sudo" "su" "kde" "polkit-1" ]);
 			};
 		}
