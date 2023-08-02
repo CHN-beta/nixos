@@ -181,7 +181,6 @@
 								impermanence.enable = true;
 								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
 								fontconfig.enable = true;
-								u2f.enable = true;
 								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
 								samba =
 								{

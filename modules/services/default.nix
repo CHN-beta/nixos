@@ -133,17 +133,6 @@ inputs:
 				}
 			)
 			(
-				mkIf services.u2f.enable
-				{
-					security.pam =
-					{
-						u2f = { enable = true; cue = true; authFile = ./u2f_keys; };
-						services = builtins.listToAttrs (builtins.map (name: { inherit name; value = { u2fAuth = true; }; })
-							[ "login" "sudo" "su" "kde" "polkit-1" ]);
-					};
-				}
-			)
-			(
 				mkIf services.sops.enable
 				{
 					sops =
