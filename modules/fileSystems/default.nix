@@ -158,21 +158,21 @@ inputs:
 									busid=$(usbip list -r 127.0.0.1 | head -n4 | tail -n1 | awk '{print $1}' | sed 's/://')
 									usbip attach -r 127.0.0.1 -b $busid
 									${concatStringsSep "\n" (map
-										(device: "systemd-cryptsetup attach ${device.value.mapper} ${device.name}"
-											+ ''${if device.value.ssd then "discards" else ""}'')
+										(device: ''systemd-cryptsetup attach ${device.value.mapper} ${device.name} "" fido2-device=auto''
+											+ (if device.value.ssd then ",discard" else ""))
 										(attrsToList fileSystems.decrypt.manual.devices))}
 								");
 							};
-							# services.wait-manual-decrypt =
-							# {
-							# 	wantedBy = [ "initrd-root-fs.target" ];
-							# 	before = [ "cryptsetup-pre.target" "initrd-root-device.target" "local-fs-pre.target" ];
-							# 	unitConfig.DefaultDependencies = false;
-							# 	serviceConfig.Type = "oneshot";
-							# 	script = concatStringsSep "\n" (map
-							# 		(device: "while [ ! -e ${device} ]; do sleep 1; done")
-							# 		fileSystems.decrypt.manual.devices);
-							# };
+							services.wait-manual-decrypt =
+							{
+								wantedBy = [ "initrd-root-fs.target" ];
+								before = [ "cryptsetup-pre.target" ];
+								unitConfig.DefaultDependencies = false;
+								serviceConfig.Type = "oneshot";
+								script = concatStringsSep "\n" (map
+									(device: "while [ ! -e /dev/mapper/${device.value.mapper} ]; do sleep 1; done")
+									(attrsToList fileSystems.decrypt.manual.devices));
+							};
 						};
 					};
 					fileSystems = listToAttrs (map
