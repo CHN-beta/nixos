@@ -140,9 +140,6 @@ inputs:
 			{
 				u2f = { enable = true; cue = true; authFile = ./u2f_keys; };
 				ussh = { enable = true; caFile = ./ca.pub; authorizedPrincipals = "chn"; };
-				services = builtins.listToAttrs (builtins.map
-					(name: { inherit name; value = { u2fAuth = true; usshAuth = true; }; })
-					[ "login" "sudo" "su" "kde" "polkit-1" ]);
 			};
 		}
 		# hostname
