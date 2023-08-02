@@ -139,7 +139,7 @@ inputs:
 			security.pam =
 			{
 				u2f = { enable = true; cue = true; authFile = ./u2f_keys; };
-				ussh = { enable = true; caFile = ./ca.pub; authorizedPrincipals = "chn"; };
+				ussh = { enable = false; caFile = ./ca.pub; authorizedPrincipals = "chn"; };
 			};
 		}
 		# hostname
