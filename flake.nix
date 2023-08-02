@@ -299,7 +299,8 @@
 								decrypt.manual =
 								{
 									enable = true;
-									devices = { "/dev/disk/by-uuid/cc0c27bb-15b3-4932-98a9-583b426002be" = "root"; };
+									devices."/dev/disk/by-uuid/cc0c27bb-15b3-4932-98a9-583b426002be" = { mapper = "root"; ssd = true; };
+									delayedMount = [ "/" ];
 								};
 								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
 							};
@@ -318,7 +319,7 @@
 							{
 								grub.installDevice = "/dev/disk/by-path/pci-0000:05:00.0";
 								network.enable = true;
-								sshd.enable = true;
+								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
 							};
 							system.hostname = "vps6";
 						};})
