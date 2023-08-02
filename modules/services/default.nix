@@ -193,7 +193,12 @@ inputs:
 					services.openssh =
 					{
 						enable = true;
-						settings.TrustedUserCAKeys = "${inputs.config.security.pam.ussh.caFile}";
+						settings =
+						{
+							TrustedUserCAKeys = "${inputs.config.security.pam.ussh.caFile}";
+							ChallengeResponseAuthentication = false;
+							UsePAM = true;
+						};
 					};
 				}
 			)
