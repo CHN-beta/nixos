@@ -233,40 +233,6 @@
 				# nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
 				# sudo nixos-rebuild switch --flake .#vps6 --log-format internal-json -v |& nom --json
 				# boot.shell_on_fail systemd.setenv=SYSTEMD_SULOGIN_FORCE=1
-				"vps6-bootstrap" = inputs.nixpkgs.lib.nixosSystem
-				{
-					system = "x86_64-linux";
-					specialArgs = { topInputs = inputs; inherit localLib; };
-					modules = localLib.mkModules
-					[
-						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
-							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
-						./modules
-						(inputs: { config.nixos =
-						{
-							fileSystems =
-							{
-								mount =
-								{
-									btrfs =
-									{
-										"/dev/disk/by-uuid/61c952dd-8f71-4b58-81e8-8d637181a23c"."/boot" = "/boot";
-										"/dev/mapper/root"."/nix" = "/";
-									};
-								};
-								decrypt.auto."/dev/disk/by-uuid/cc0c27bb-15b3-4932-98a9-583b426002be" =
-									{ mapper = "root"; ssd = true; };
-							};
-							packages =
-							{
-								packageSet = "server";
-							};
-							services.sshd.enable = true;
-							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:05:00.0";
-							system.hostname = "vps6-bootstrap";
-						};})
-					];
-				};
 				# sudo usbipd
 				# ssh -R 3240:127.0.0.1:3240 root@192.168.122.57
 				# modprobe vhci-hcd
@@ -291,14 +257,14 @@
 								{
 									btrfs =
 									{
-										"/dev/disk/by-uuid/61c952dd-8f71-4b58-81e8-8d637181a23c"."/boot" = "/boot";
+										"/dev/disk/by-uuid/24577c0e-d56b-45ba-8b36-95a848228600"."/boot" = "/boot";
 										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
 									};
 								};
 								decrypt.manual =
 								{
 									enable = true;
-									devices."/dev/disk/by-uuid/cc0c27bb-15b3-4932-98a9-583b426002be" = { mapper = "root"; ssd = true; };
+									devices."/dev/disk/by-uuid/4f8aca22-9ec6-4fad-b21a-fd9d8d0514e8" = { mapper = "root"; ssd = true; };
 									delayedMount = [ "/" ];
 								};
 								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
@@ -316,7 +282,7 @@
 							};
 							boot =
 							{
-								grub.installDevice = "/dev/disk/by-path/pci-0000:05:00.0";
+								grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
 								network.enable = true;
 								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
 							};
