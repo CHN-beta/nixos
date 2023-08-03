@@ -46,7 +46,7 @@ inputs:
 					# downloader
 					wget aria2 curl
 					# file manager
-					tree git autojump exa trash-cli lsd zellij broot file xdg-ninja mlocate
+					tree git exa trash-cli lsd zellij broot file xdg-ninja mlocate
 					# compress
 					pigz rar upx unzip zip lzip p7zip
 					# file system management
@@ -86,6 +86,7 @@ inputs:
 				command-not-found.enable = false;
 				adb.enable = true;
 				gnupg.agent = { enable = true; enableSSHSupport = true; };
+				autojump.enable = true;
 			};
 			services =
 			{
