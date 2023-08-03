@@ -197,6 +197,8 @@ inputs:
 						{
 							TrustedUserCAKeys = "${inputs.config.security.pam.ussh.caFile}";
 							ChallengeResponseAuthentication = false;
+							PasswordAuthentication = false;
+							KbdInteractiveAuthentication = false;
 							UsePAM = true;
 						};
 					};
