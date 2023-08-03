@@ -39,7 +39,15 @@ inputs:
 				dbus.implementation = "broker";
 				pcscd.enable = true;
 			};
-			networking.networkmanager.enable = true;
+			networking.networkmanager =
+			{
+				enable = true;
+				extraConfig = stripeTabs
+				"
+					[device]
+					keep-configuration=no
+				";
+			};
 			programs = { dconf.enable = true; nix-ld.enable = true; };
 			nixpkgs =
 			{
