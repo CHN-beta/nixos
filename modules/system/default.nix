@@ -140,6 +140,8 @@ inputs:
 			{
 				u2f = { enable = true; cue = true; authFile = ./u2f_keys; };
 				ussh = { enable = false; caFile = ./ca.pub; authorizedPrincipals = "chn"; };
+				yubico = { enable = true; id = "91291"; authFile = ./yubikey_mappings; };
+				services.sudo.yubicoAuth = true;
 			};
 		}
 		# hostname
