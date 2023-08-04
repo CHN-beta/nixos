@@ -212,6 +212,11 @@
 									};
 								};
 								firewall.trustedInterfaces = [ "docker0" "virbr0" "waydroid0" ];
+								acme =
+								{
+									enable = true;
+									certs = [ "debug.mirism.one" ];
+								};
 							};
 							bugs =
 							[

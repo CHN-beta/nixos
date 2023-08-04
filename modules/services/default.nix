@@ -48,12 +48,18 @@ inputs:
 			}; }; };
 		};
 		firewall.trustedInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+		acme =
+		{
+			enable = mkOption { type = types.bool; default = false; };
+			certs = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+		};
 	};
 	config =
 		let
-			inherit (inputs.lib) mkMerge mkIf listToAttrs;
+			inherit (inputs.lib) mkMerge mkIf;
 			inherit (inputs.localLib) stripeTabs attrsToList;
 			inherit (inputs.config.nixos) services;
+			inherit (builtins) map listToAttrs;
 		in mkMerge
 		[
 			(
@@ -115,7 +121,7 @@ inputs:
 								};
 							});
 						in
-							builtins.listToAttrs (builtins.map f (attrsToList services.snapper.configs));
+							listToAttrs (map f (attrsToList services.snapper.configs));
 				}
 			)
 			(
@@ -180,7 +186,7 @@ inputs:
 							'';
 							#	obey pam restrictions = yes
 							#	encrypt passwords = no
-							shares = builtins.listToAttrs (builtins.map
+							shares = listToAttrs (map
 								(share:
 								{
 									name = share.name;
@@ -370,5 +376,26 @@ inputs:
 				}
 			)
 			{ networking.firewall.trustedInterfaces = services.firewall.trustedInterfaces; }
+			(
+				mkIf services.acme.enable
+				{
+					security.acme =
+					{
+						acceptTerms = true;
+						defaults.email = "chn@chn.moe";
+						certs = listToAttrs (map
+							(name:
+							{
+								name = name; value =
+								{
+									dnsProvider = "cloudflare";
+									credentialsFile = inputs.config.sops.secrets."acme/cloudflare.ini".path;
+								};
+							})
+							services.acme.certs);
+					};
+					sops.secrets."acme/cloudflare.ini" = {};
+				}
+			)
 		];
 }
