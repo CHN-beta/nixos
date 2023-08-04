@@ -122,6 +122,13 @@ inputs:
 							});
 						in
 							listToAttrs (map f (attrsToList services.snapper.configs));
+					nixpkgs.config.packageOverrides = pkgs: 
+					{
+						snapper = pkgs.snapper.overrideAttrs (attrs:
+						{
+							patches = (if (attrs ? patches) then attrs.patches else []) ++ [ ./snapper.patch ];
+						});
+					};
 				}
 			)
 			(
