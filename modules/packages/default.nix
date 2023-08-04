@@ -133,7 +133,7 @@ inputs:
 						nur-xddxdd.svp spotify yesplaymusic mpv nomacs simplescreenrecorder obs-studio imagemagick gimp
 						waifu2x-converter-cpp inkscape
 						# virtualization
-						wine virt-viewer bottles
+						wine wine64 virt-viewer bottles
 						# text editor
 						localPackages.typora appflowy notion-app-enhanced joplin-desktop standardnotes
 						# math, physics and chemistry
