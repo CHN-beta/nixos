@@ -6,6 +6,7 @@ inputs:
 		{
 			enable = mkOption { type = types.bool; default = false; };
 			persistence = mkOption { type = types.nonEmptyStr; default = "/nix/persistent"; };
+			root = mkOption { type = types.nonEmptyStr; default = "/nix/rootfs/current"; };
 		};
     snapper =
     {
@@ -58,24 +59,37 @@ inputs:
 			(
 				mkIf services.impermanence.enable
 				{
-					environment.persistence."${services.impermanence.persistence}" =
+					environment.persistence =
 					{
-						hideMounts = true;
-						directories =
-						[
-							"/etc/NetworkManager/system-connections"
-							"/home"
-							"/root"
-							"/var"
-						];
-						files =
-						[
-							"/etc/machine-id"
-							"/etc/ssh/ssh_host_ed25519_key.pub"
-							"/etc/ssh/ssh_host_ed25519_key"
-							"/etc/ssh/ssh_host_rsa_key.pub"
-							"/etc/ssh/ssh_host_rsa_key"
-						];
+						"${services.impermanence.persistence}" =
+						{
+							hideMounts = true;
+							directories =
+							[
+								"/etc/NetworkManager/system-connections"
+								"/home"
+								"/root"
+								"/var/db"
+								"/var/lib"
+								"/var/log"
+								"/var/spool"
+							];
+							files =
+							[
+								"/etc/machine-id"
+								"/etc/ssh/ssh_host_ed25519_key.pub"
+								"/etc/ssh/ssh_host_ed25519_key"
+								"/etc/ssh/ssh_host_rsa_key.pub"
+								"/etc/ssh/ssh_host_rsa_key"
+							];
+						};
+						"${services.impermanence.root}" =
+						{
+							hideMounts = true;
+							directories = []
+								++ (if inputs.config.services.xserver.displayManager.sddm.enable then
+									[{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }] else []);
+						};
 					};
 				}
 			)
