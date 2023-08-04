@@ -114,7 +114,7 @@ inputs:
 						# nix tools
 						nix-template appimage-run nil nixd nix-alien ssh-to-age nix-serve
 						# instant messager
-						element-desktop tdesktop discord qq nur-xddxdd.wechat-uos # jail
+						element-desktop telegram-desktop discord qq nur-xddxdd.wechat-uos # jail
 						inputs.config.nur.repos.linyinfeng.wemeet # native # nur-xddxdd.wine-wechat thunder
 						zoom-us signal-desktop
 						# browser
@@ -191,6 +191,13 @@ inputs:
 					kdeconnect.enable = true;
 					wireshark = { enable = true; package = inputs.pkgs.wireshark; };
 					firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
+				};
+				nixpkgs.config.packageOverrides = pkgs: 
+				{
+					telegram-desktop = pkgs.telegram-desktop.overrideAttrs (attrs:
+					{
+						patches = (if (attrs ? patches) then attrs.patches else []) ++ [ ./telegram.patch ];
+					});
 				};
 			}
 		)
