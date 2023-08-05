@@ -165,6 +165,7 @@
 							{
 								hostname = "chn-PC";
 								march = "alderlake";
+								extraMarch = [ "sandybridge" ];
 								gui.enable = true;
 								keepOutputs = true;
 							};
