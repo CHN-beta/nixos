@@ -293,7 +293,7 @@
 								network.enable = true;
 								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
 							};
-							system.hostname = "vps6";
+							system = { hostname = "vps6"; march = "sandybridge"; };
 						};})
 					];
 				};
