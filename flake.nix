@@ -165,7 +165,13 @@
 							{
 								hostname = "chn-PC";
 								march = "alderlake";
-								extraMarch = [ "sandybridge" ];
+								extraMarch =
+								[
+									# CX16
+									"sandybridge"
+									# RDSEED MWAITX SHA CLZERO CX16 SSE4A ABM CLFLUSHOPT WBNOINVD
+									"znver2" "znver3"
+								];
 								gui.enable = true;
 								keepOutputs = true;
 							};
