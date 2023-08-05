@@ -44,7 +44,6 @@ inputs:
 							ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="bfq"
 						'';
 						dbus.implementation = "broker";
-						pcscd.enable = true;
 					};
 					networking.networkmanager =
 					{
@@ -55,7 +54,6 @@ inputs:
 							keep-configuration=no
 						";
 					};
-					programs = { dconf.enable = true; nix-ld.enable = true; };
 					nixpkgs =
 					{
 						config.allowUnfree = true;
@@ -203,6 +201,11 @@ inputs:
 						{
 							enabled = "fcitx5";
 							fcitx5.addons = with inputs.pkgs; [ fcitx5-rime fcitx5-chinese-addons fcitx5-mozc ];
+						};
+						programs =
+						{
+							dconf.enable = true;
+							xwayland.enable = true;
 						};
 				})
 			];

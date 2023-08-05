@@ -187,10 +187,10 @@ inputs:
 					anime-game-launcher.enable = true;
 					honkers-railway-launcher.enable = true;
 					steam.enable = true;
-					xwayland.enable = true;
 					kdeconnect.enable = true;
 					wireshark = { enable = true; package = inputs.pkgs.wireshark; };
 					firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
+					nix-ld.enable = true;
 				};
 				nixpkgs.config.packageOverrides = pkgs: 
 				{
@@ -199,6 +199,7 @@ inputs:
 						patches = (if (attrs ? patches) then attrs.patches else []) ++ [ ./telegram.patch ];
 					});
 				};
+				services.pcscd.enable = true;
 			}
 		)
 		# >= workstation
