@@ -303,6 +303,24 @@
 						};})
 					];
 				};
+				"bootstrap" = inputs.nixpkgs.lib.nixosSystem
+				{
+					system = "x86_64-linux";
+					specialArgs = { topInputs = inputs; inherit localLib; };
+					modules = localLib.mkModules
+					[
+						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
+							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
+						./modules
+						(inputs: { config.nixos =
+						{
+							packages.packageSet = "server";
+							services.sshd.enable = true;
+							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
+							system.hostname = "bootstrap";
+						};})
+					];
+				};
 			};
 		};
 }
