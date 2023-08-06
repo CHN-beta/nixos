@@ -303,6 +303,108 @@
 						};})
 					];
 				};
+				"vps4" = inputs.nixpkgs.lib.nixosSystem
+				{
+					system = "x86_64-linux";
+					specialArgs = { topInputs = inputs; inherit localLib; };
+					modules = localLib.mkModules
+					[
+						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
+							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
+						./modules
+						(inputs: { config.nixos =
+						{
+							fileSystems =
+							{
+								mount =
+								{
+									btrfs =
+									{
+										"/dev/disk/by-uuid/24577c0e-d56b-45ba-8b36-95a848228600"."/boot" = "/boot";
+										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+									};
+								};
+								decrypt.manual =
+								{
+									enable = true;
+									devices."/dev/disk/by-uuid/4f8aca22-9ec6-4fad-b21a-fd9d8d0514e8" = { mapper = "root"; ssd = true; };
+									delayedMount = [ "/" ];
+								};
+								swap = [ "/nix/swap/swap" ];
+								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+							};
+							packages =
+							{
+								packageSet = "server";
+							};
+							services =
+							{
+								impermanence.enable = true;
+								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
+								sshd.enable = true;
+							};
+							boot =
+							{
+								grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
+								network.enable = true;
+								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
+							};
+							system = { hostname = "vps4"; march = "znver3"; };
+						};})
+					];
+				};
+				"vps7" = inputs.nixpkgs.lib.nixosSystem
+				{
+					system = "x86_64-linux";
+					specialArgs = { topInputs = inputs; inherit localLib; };
+					modules = localLib.mkModules
+					[
+						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
+							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
+						./modules
+						(inputs: { config.nixos =
+						{
+							fileSystems =
+							{
+								mount =
+								{
+									btrfs =
+									{
+										"/dev/disk/by-uuid/24577c0e-d56b-45ba-8b36-95a848228600"."/boot" = "/boot";
+										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+									};
+								};
+								decrypt.manual =
+								{
+									enable = true;
+									devices."/dev/disk/by-uuid/4f8aca22-9ec6-4fad-b21a-fd9d8d0514e8" = { mapper = "root"; ssd = true; };
+									delayedMount = [ "/" ];
+								};
+								swap = [ "/nix/swap/swap" ];
+								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+							};
+							packages =
+							{
+								packageSet = "server";
+							};
+							services =
+							{
+								impermanence.enable = true;
+								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
+								sshd.enable = true;
+							};
+							boot =
+							{
+								grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
+								network.enable = true;
+								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
+							};
+							system = { hostname = "vps7"; march = "znver2"; };
+						};})
+					];
+				};
 				"bootstrap" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";
