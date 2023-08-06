@@ -167,6 +167,12 @@ inputs:
 							{
 								hostPlatform = { system = "x86_64-linux"; gcc = { arch = system.march; tune = system.march; }; };
 								config.qchem-config.optArch = system.march;
+								overlays =
+									let
+										fixes.alderlake = [(final: prev:
+											{ embree = prev.embree.override { stdenv = final.genericPackages.stdenv; }; })];
+									in
+										fixes.${system.march} or [];
 							};
 							nix.settings.system-features = [ "gccarch-${system.march}" ];
 							boot.kernelPatches =
