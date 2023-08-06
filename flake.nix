@@ -314,6 +314,11 @@
 						./modules
 						(inputs: { config.nixos =
 						{
+							fileSystems.mount =
+							{
+								btrfs."/dev/disk/by-uuid/3c538298-d5cd-4a37-96f8-8f5b82793c91"."/" = "/";
+								vfat."/dev/disk/by-uuid/3E56-A14D" = "/boot/efi";
+							};
 							packages.packageSet = "server";
 							services.sshd.enable = true;
 							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";

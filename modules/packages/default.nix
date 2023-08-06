@@ -40,7 +40,7 @@ inputs:
 					# lsxx
 					pciutils usbutils lshw util-linux lsof
 					# top
-					iotop iftop htop btop
+					iotop iftop htop btop powertop
 					# editor
 					vim nano bat
 					# downloader
