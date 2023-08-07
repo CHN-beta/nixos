@@ -180,10 +180,19 @@ inputs:
 								name = "native kernel";
 								patch = null;
 								extraStructuredConfig =
-								{
-									GENERIC_CPU = inputs.lib.kernel.no;
-									"M${inputs.lib.strings.toUpper system.march}" = inputs.lib.kernel.yes;
-								};
+									let
+										kernelConfig =
+										{
+											alderlake = "MALDERLAKE";
+											sandybridge = "MSANDYBRIDGE";
+											znver2 = "MZEN2";
+											znver3 = "MZEN3";
+										};
+									in
+									{
+										GENERIC_CPU = inputs.lib.kernel.no;
+										${kernelConfig.${system.march}} = inputs.lib.kernel.yes;
+									};
 							}];
 						}
 						{ nixpkgs.hostPlatform = inputs.lib.mkDefault "x86_64-linux"; }
