@@ -21,7 +21,7 @@ inputs:
 		(
 			mkIf inputs.config.nixos.virtualization.docker.enable { virtualisation.docker =
 			{
-				enable = true;
+				# enable = true;
 				rootless =
 				{
 					enable = true; setSocketVariable = true;
