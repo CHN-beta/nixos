@@ -529,8 +529,8 @@ inputs:
 									bind_port = 7000;
 									bind_udp_port = 7000;
 									token = inputs.config.sops.placeholder."frp/token";
-									tls_cert_file = "${cert}/fullchain.pem";
-									tls_key_file = "${cert}/privkey.pem";
+									tls_cert_file = "${cert}/full.pem";
+									tls_key_file = "${cert}/key.pem";
 									tls_only = true;
 									user_conn_timeout = 30;
 								};
@@ -541,6 +541,7 @@ inputs:
 					nixos.services.acme = { enable = true; certs = [ services.frpServer.serverName ]; };
 					security.acme.certs.${services.frpServer.serverName}.group = "frp";
 					users = { users.frp = { isSystemUser = true; group = "frp"; }; groups.frp = {}; };
+					networking.firewall.allowedTCPPorts = [ 7000 ];
 				}
 			)
 		];
