@@ -236,6 +236,7 @@
 										remotePort = 5000;
 									};
 								};
+								nix-serve.enable = true;
 							};
 							bugs =
 							[

@@ -77,6 +77,7 @@ inputs:
 			enable = mkOption { type = types.bool; default = false; };
 			serverName = mkOption { type = types.nonEmptyStr; };
 		};
+		nix-serve.enable = mkOption { type = types.bool; default = false; };
 	};
 	config =
 		let
@@ -542,6 +543,18 @@ inputs:
 					security.acme.certs.${services.frpServer.serverName}.group = "frp";
 					users = { users.frp = { isSystemUser = true; group = "frp"; }; groups.frp = {}; };
 					networking.firewall.allowedTCPPorts = [ 7000 ];
+				}
+			)
+			(
+				mkIf services.nix-serve.enable
+				{
+					services.nix-serve =
+					{
+						enable = true;
+						openFirewall = true;
+						secretKeyFile = inputs.config.sops.secrets."store/signingKey".path;
+					};
+					sops.secrets."store/signingKey" = {};
 				}
 			)
 		];
