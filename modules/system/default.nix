@@ -27,6 +27,8 @@ inputs:
 							keep-outputs = inputs.config.nixos.system.keepOutputs;
 							keep-failed = true;
 							auto-optimise-store = true;
+							substituters = [ "http://127.0.0.1:5000" ];
+							trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
 						};
 						daemonIOSchedClass = "idle";
 						daemonCPUSchedPolicy = "idle";
