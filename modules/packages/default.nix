@@ -60,7 +60,7 @@ inputs:
 					# nix tools
 					nix-output-monitor
 					# development
-					gcc go rustc clang-tools clang valgrind yarn
+					clang-tools
 					# office
 					todo-txt-cli pandoc pdfchain
 				] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
