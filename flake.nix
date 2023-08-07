@@ -224,6 +224,18 @@
 									enable = true;
 									certs = [ "debug.mirism.one" ];
 								};
+								frpClient =
+								{
+									enable = true;
+									serverName = "frp.chn.moe";
+									user = "pc";
+									tcp.store =
+									{
+										localIp = "127.0.0.1";
+										localPort = 5000;
+										remotePort = 5000;
+									};
+								};
 							};
 							bugs =
 							[
@@ -292,6 +304,7 @@
 								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
 								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
 								sshd.enable = true;
+								frpServer = { enable = true; serverName = "frp.chn.moe"; };
 							};
 							boot =
 							{

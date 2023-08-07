@@ -53,6 +53,30 @@ inputs:
 			enable = mkOption { type = types.bool; default = false; };
 			certs = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
 		};
+		frpClient =
+		{
+			enable = mkOption { type = types.bool; default = false; };
+			serverName = mkOption { type = types.nonEmptyStr; };
+			user = mkOption { type = types.nonEmptyStr; };
+			tcp = mkOption
+			{
+				type = types.attrsOf (types.submodule
+				{
+					options =
+					{
+						localIp = mkOption { type = types.nonEmptyStr; };
+						localPort = mkOption { type = types.ints.unsigned; };
+						remotePort = mkOption { type = types.ints.unsigned; };
+					};
+				});
+				default = {};
+			};
+		};
+		frpServer =
+		{
+			enable = mkOption { type = types.bool; default = false; };
+			serverName = mkOption { type = types.nonEmptyStr; };
+		};
 	};
 	config =
 		let
@@ -402,6 +426,121 @@ inputs:
 							services.acme.certs);
 					};
 					sops.secrets."acme/cloudflare.ini" = {};
+				}
+			)
+			(
+				mkIf (services.frpClient.enable)
+				{
+					systemd.services.frpc =
+						let
+							frpc = "${inputs.pkgs.frp}/bin/frpc";
+							config = inputs.config.sops.templates."frpc.ini";
+						in
+						{
+							description = "Frp Client Service";
+							after = [ "network.target" ];
+							serviceConfig =
+							{
+								Type = "simple";
+								User = "frp";
+								Restart = "on-failure";
+								RestartSec = "5s";
+								ExecStart = "${frpc} -c ${config.path}";
+								LimitNOFILE = 1048576;
+							};
+							wantedBy= [ "multi-user.target" ];
+							restartTriggers = [ config.file ];
+						};
+					sops =
+					{
+						templates."frpc.ini" =
+						{
+							mode = "0440";
+							owner = "frp";
+							group = "frp";
+							content = inputs.lib.generators.toINI {}
+							(
+								{
+									common =
+									{
+										server_addr = services.frpClient.serverName;
+										server_port = 7000;
+										token = inputs.config.sops.placeholder."frp/token";
+										user = services.frpClient.user;
+										tls_enable = true;
+									};
+								}
+								// (listToAttrs (map
+									(tcp:
+									{
+										name = tcp.name;
+										value =
+										{
+											type = "tcp";
+											local_ip = tcp.value.localIp;
+											local_port = tcp.value.localPort;
+											remote_port = tcp.value.remotePort;
+											use_compression = true;
+										};
+									})
+									(attrsToList services.frpClient.tcp))
+								)
+							);
+						};
+						secrets."frp/token" = {};
+					};
+					users = { users.frp = { isSystemUser = true; group = "frp"; }; groups.frp = {}; };
+				}
+			)
+			(
+				mkIf (services.frpServer.enable)
+				{
+					systemd.services.frps =
+						let
+							frps = "${inputs.pkgs.frp}/bin/frps";
+							config = inputs.config.sops.templates."frps.ini";
+						in
+						{
+							description = "Frp Server Service";
+							after = [ "network.target" ];
+							serviceConfig =
+							{
+								Type = "simple";
+								User = "frp";
+								Restart = "on-failure";
+								RestartSec = "5s";
+								ExecStart = "${frps} -c ${config.path}";
+								LimitNOFILE = 1048576;
+							};
+							wantedBy= [ "multi-user.target" ];
+							restartTriggers = [ config.file ];
+						};
+					sops =
+					{
+						templates."frps.ini" =
+						{
+							mode = "0440";
+							owner = "frp";
+							group = "frp";
+							content = inputs.lib.generators.toINI {}
+							{
+								common = let cert = inputs.config.security.acme.certs.${services.frpServer.serverName}.directory; in
+								{
+									bind_port = 7000;
+									bind_udp_port = 7000;
+									token = inputs.config.sops.placeholder."frp/token";
+									tls_cert_file = "${cert}/fullchain.pem";
+									tls_key_file = "${cert}/privkey.pem";
+									tls_only = true;
+									user_conn_timeout = 30;
+								};
+							};
+						};
+						secrets."frp/token" = {};
+					};
+					nixos.services.acme = { enable = true; certs = [ services.frpServer.serverName ]; };
+					security.acme.certs.${services.frpServer.serverName}.group = "frp";
+					users = { users.frp = { isSystemUser = true; group = "frp"; }; groups.frp = {}; };
 				}
 			)
 		];
