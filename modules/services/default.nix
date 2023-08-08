@@ -445,7 +445,7 @@ inputs:
 							{
 								Type = "simple";
 								User = "frp";
-								Restart = "on-failure";
+								Restart = "always";
 								RestartSec = "5s";
 								ExecStart = "${frpc} -c ${config.path}";
 								LimitNOFILE = 1048576;
