@@ -247,6 +247,7 @@ inputs:
 						enable = true;
 						settings =
 						{
+							X11Forwarding = true;
 							TrustedUserCAKeys = "${inputs.config.security.pam.ussh.caFile}";
 							ChallengeResponseAuthentication = false;
 							PasswordAuthentication = false;
