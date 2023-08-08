@@ -50,6 +50,28 @@ inputs:
 			{
 				wpa_supplicant = pkgs.wpa_supplicant.overrideAttrs (attrs: { patches = attrs.patches ++ [ ./xmunet.patch ];});
 			};
+			suspend-hibernate-waydroid.systemd.services =
+				let
+					systemctl = "${inputs.pkgs.systemd}/bin/systemctl";
+				in
+				{
+					"waydroid-hibernate" =
+					{
+						description = "waydroid hibernate";
+						wantedBy = [ "systemd-hibernate.service" "systemd-suspend.service" ];
+						before = [ "systemd-hibernate.service" "systemd-suspend.service" ];
+						serviceConfig.Type = "oneshot";
+						script = "${systemctl} stop waydroid-container";
+					};
+					"waydroid-resume" =
+					{
+						description = "waydroid resume";
+						wantedBy = [ "systemd-hibernate.service" "systemd-suspend.service" ];
+						after = [ "systemd-hibernate.service" "systemd-suspend.service" ];
+						serviceConfig.Type = "oneshot";
+						script = "${systemctl} start waydroid-container";
+					};
+				};
 		};
 	in
 		{
