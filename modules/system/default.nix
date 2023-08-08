@@ -10,7 +10,7 @@ inputs:
 	};
 	config =
 		let
-			inherit (inputs.lib) mkMerge mkIf;
+			inherit (inputs.lib) mkMerge mkIf mkAfter;
 			inherit (inputs.localLib) mkConditional stripeTabs;
 			inherit (inputs.config.nixos) system;
 		in
@@ -27,7 +27,7 @@ inputs:
 							keep-outputs = inputs.config.nixos.system.keepOutputs;
 							keep-failed = true;
 							auto-optimise-store = true;
-							substituters = [ "http://127.0.0.1:5000" ];
+							substituters = mkAfter [ "http://127.0.0.1:5000" ];
 							trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
 						};
 						daemonIOSchedClass = "idle";
