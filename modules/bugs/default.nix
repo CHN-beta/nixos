@@ -72,15 +72,6 @@ inputs:
 						script = "${systemctl} start waydroid-container";
 					};
 				};
-			"kernel5.4-sof".boot.kernelPatches =
-			[{
-				name = "kernel5.4-sof";
-				patch = inputs.pkgs.fetchurl
-				{
-					url = "https://github.com/openSUSE/kernel/commit/c9eb7dc726631d39f11ea17e6db6fe7ad5c0e5d9.patch";
-					sha256 = "00s70xviilnfwgb62zha4aahmqy9rl0bk58jdp437fw6x6lq8v43";
-				};
-			}];
 		};
 	in
 		{

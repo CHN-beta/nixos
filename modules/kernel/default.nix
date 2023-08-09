@@ -25,7 +25,18 @@ inputs:
 					"virtio_pci" "xhci_pci" "virtio_ring" "virtio_scsi" "cryptd" "crypto_simd" "libaes"
 				];
 				kernelParams = [ "delayacct" "acpi_osi=Linux" ];
-				kernelPackages = inputs.pkgs.linuxPackages_xanmod;
+				kernelPackages = inputs.pkgs.linuxPackagesFor (inputs.pkgs.linuxPackages_xanmod.kernel.override rec
+				{
+					src = inputs.pkgs.fetchFromGitHub
+					{
+						owner = "xanmod";
+						repo = "linux";
+						rev = modDirVersion;
+						sha256 = "sha256-ab4AQx1ApJ9o1oqgNoJBL64tI0qpyVBm5XUC8l1yT6Q=";
+					};
+					version = "6.3.12";
+					modDirVersion = "6.3.12-xanmod1";
+				});
 			};
 		}
 		# patches
