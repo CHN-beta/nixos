@@ -3,7 +3,7 @@
 
 	inputs =
 	{
-		nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-unstable";
+		nixpkgs.url = "github:CHN-beta/nixpkgs/next";
 		nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-23.05";
 		flake-utils.url = "github:numtide/flake-utils";
 		flake-utils-plus =
