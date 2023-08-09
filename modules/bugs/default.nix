@@ -77,8 +77,8 @@ inputs:
 				name = "kernel5.4-sof";
 				patch = inputs.pkgs.fetchurl
 				{
-					url = "https://github.com/thesofproject/linux/pull/4484.patch";
-					sha256 = "1b0cls2hl7qxnaf649w7578rf3adf1zbrh82hvyk8sygw3fandda";
+					url = "https://github.com/openSUSE/kernel/commit/c9eb7dc726631d39f11ea17e6db6fe7ad5c0e5d9.patch";
+					sha256 = "00s70xviilnfwgb62zha4aahmqy9rl0bk58jdp437fw6x6lq8v43";
 				};
 			}];
 		};
