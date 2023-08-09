@@ -23,7 +23,7 @@ inputs:
 				{
 					touchix = topInputs.touchix.packages."${prev.system}";
 					nix-vscode-extensions = topInputs.nix-vscode-extensions.extensions."${prev.system}";
-					nur-xddxdd = (topInputs.nur-xddxdd.overlays.custom inputs.config.boot.kernelPackages.nvidia_x11) final prev;
+					nur-xddxdd = topInputs.nur-xddxdd.overlays.default final prev;
 				})
 			];})
 			./fileSystems ./kernel ./hardware ./packages ./boot ./system ./virtualization ./services ./bugs ./users
