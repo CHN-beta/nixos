@@ -72,6 +72,15 @@ inputs:
 						script = "${systemctl} start waydroid-container";
 					};
 				};
+			"kernel5.4-sof".boot.kernelPatches =
+			[{
+				name = "kernel5.4-sof";
+				patch = inputs.pkgs.fetchurl
+				{
+					url = "https://github.com/thesofproject/linux/pull/4484.patch";
+					sha256 = "1b0cls2hl7qxnaf649w7578rf3adf1zbrh82hvyk8sygw3fandda";
+				};
+			}];
 		};
 	in
 		{
