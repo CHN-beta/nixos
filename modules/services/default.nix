@@ -317,7 +317,12 @@ inputs:
 									servers =
 									[
 										{ address = "223.5.5.5"; domains = [ "geosite:geolocation-cn" ]; port = 53; skipFallback = true; }
-										{ address = "8.8.8.8"; domains = [ "geosite:geolocation-!cn" ];  port = 53; skipFallback = true; }
+										{
+											address = "8.8.8.8";
+											domains = [ "geosite:geolocation-!cn" "openai.com" ];
+											port = 53;
+											skipFallback = true;
+										}
 										{ address = "223.5.5.5"; expectIPs = [ "geoip:cn" ]; }
 										{ address = "8.8.8.8"; }
 									];
