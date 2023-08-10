@@ -41,6 +41,8 @@ inputs:
 		xrayClient =
 		{
 			enable = mkOption { type = types.bool; default = false; };
+			serverAddress = mkOption { type = types.nonEmptyStr; };
+			serverName = mkOption { type = types.nonEmptyStr; };
 			dns = mkOption { type = types.submodule { options =
 			{
 				hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
@@ -353,7 +355,7 @@ inputs:
 										protocol = "vless";
 										settings.vnext =
 										[{
-											address = inputs.config.sops.placeholder."xray-client/server";
+											address = services.xrayClient.serverAddress;
 											port = 443;
 											users =
 											[{
@@ -368,7 +370,7 @@ inputs:
 											security = "tls";
 											tlssettings =
 											{
-												serverName = inputs.config.sops.placeholder."xray-client/serverName";
+												serverName = services.xrayClient.serverName;
 												allowInsecure = false;
 												fingerprint = "firefox";
 											};
@@ -403,8 +405,7 @@ inputs:
 								};
 							};
 						};
-						secrets = listToAttrs
-							(map (name: { name = "xray-client/${name}"; value = {}; }) [ "server" "serverName" "uuid" ]);
+						secrets."xray-client/uuid" = {};
 					};
 					systemd.services.xray =
 					{

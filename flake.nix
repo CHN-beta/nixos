@@ -206,6 +206,8 @@
 								xrayClient =
 								{
 									enable = true;
+									serverAddress = "74.211.99.69";
+									serverName = "vps6.xserver.chn.moe";
 									dns =
 									{
 										extraInterfaces = [ "docker0" ];
