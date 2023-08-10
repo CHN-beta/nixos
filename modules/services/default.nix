@@ -486,10 +486,53 @@ inputs:
 													}];
 											};
 										};
+										sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
 										tag = "in";
 									}
+									{
+										port = 4638;
+										listen = "127.0.0.1";
+										protocol = "vless";
+										settings =
+										{
+											clients = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; flow = "xtls-rprx-vision"; }];
+											decryption = "none";
+										};
+										streamSettings.network = "tcp";
+										sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; };
+										tag = "in-localdns";
+									}
 								];
-								outbounds = [{ protocol = "freedom"; tag = "freedom"; }];
+								outbounds =
+								[
+									{ protocol = "freedom"; tag = "freedom"; }
+									{
+										protocol = "vless";
+										settings.vnext =
+										[{
+											address = "127.0.0.1";
+											port = 4638;
+											users =
+											[{
+												id = "be01f0a0-9976-42f5-b9ab-866eba6ed393";
+												encryption = "none";
+												flow = "xtls-rprx-vision-udp443";
+											}];
+										}];
+										streamSettings.network = "tcp";
+										tag = "loopback-localdns";
+									}
+								];
+								routing =
+								{
+									domainStrategy = "AsIs";
+									rules = builtins.map (rule: rule // { type = "field"; })
+									[
+										{ inboundTag = [ "in" ]; domain = [ "domain:openai.com" ]; outboundTag = "loopback-localdns"; }
+										{ inboundTag = [ "in" ]; outboundTag = "freedom"; }
+										{ inboundTag = [ "in-localdns" ]; outboundTag = "freedom"; }
+									];
+								};
 							};
 						};
 						secrets = listToAttrs (map (n: { name = "xray-server/clients/user${toString n}"; value = {}; }) userList);
