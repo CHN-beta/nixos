@@ -237,6 +237,7 @@
 									};
 								};
 								nix-serve.enable = true;
+								smartd.enable = true;
 							};
 							bugs =
 							[

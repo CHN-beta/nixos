@@ -78,6 +78,7 @@ inputs:
 			serverName = mkOption { type = types.nonEmptyStr; };
 		};
 		nix-serve.enable = mkOption { type = types.bool; default = false; };
+		smartd.enable = mkOption { type = types.bool; default = false; };
 	};
 	config =
 		let
@@ -558,5 +559,6 @@ inputs:
 					sops.secrets."store/signingKey" = {};
 				}
 			)
+			(mkIf services.smartd.enable { services.smartd.enable = true; })
 		];
 }
