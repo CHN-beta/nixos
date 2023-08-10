@@ -41,11 +41,18 @@ inputs:
 		xrayClient =
 		{
 			enable = mkOption { type = types.bool; default = false; };
+			serverAddress = mkOption { type = types.nonEmptyStr; };
+			serverName = mkOption { type = types.nonEmptyStr; };
 			dns = mkOption { type = types.submodule { options =
 			{
 				hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
 				extraInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
 			}; }; };
+		};
+		xrayServer =
+		{
+			enable = mkOption { type = types.bool; default = false; };
+			serverName = mkOption { type = types.nonEmptyStr; };
 		};
 		firewall.trustedInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
 		acme =
@@ -78,13 +85,24 @@ inputs:
 			serverName = mkOption { type = types.nonEmptyStr; };
 		};
 		nix-serve.enable = mkOption { type = types.bool; default = false; };
+		smartd.enable = mkOption { type = types.bool; default = false; };
+		nginx =
+		{
+			transparentProxy =
+			{
+				enable = mkOption { type = types.bool; default = false; };
+				externalIp = mkOption { type = types.nonEmptyStr; };
+				map = mkOption { type = types.attrsOf types.nonEmptyStr; };
+				proxyPorts = mkOption { type = types.listOf types.ints.unsigned; };
+			};
+		};
 	};
 	config =
 		let
 			inherit (inputs.lib) mkMerge mkIf;
 			inherit (inputs.localLib) stripeTabs attrsToList;
 			inherit (inputs.config.nixos) services;
-			inherit (builtins) map listToAttrs;
+			inherit (builtins) map listToAttrs concatStringsSep toString elemAt genList length;
 		in mkMerge
 		[
 			(
@@ -268,6 +286,7 @@ inputs:
 							settings =
 							{
 								no-poll = true;
+								log-queries = true;
 								server = [ "127.0.0.1#10853" ];
 								interface = services.xrayClient.dns.extraInterfaces ++ [ "lo" ];
 								bind-dynamic = true;
@@ -292,13 +311,13 @@ inputs:
 							group = "v2ray";
 							content = builtins.toJSON
 							{
-								log.loglevel = "warning";
+								log.loglevel = "info";
 								dns =
 								{
 									servers =
 									[
 										{ address = "223.5.5.5"; domains = [ "geosite:geolocation-cn" ]; port = 53; skipFallback = true; }
-										{ address = "8.8.8.8"; domains = [ "geosite:geolocation-!cn" ];  port = 53; skipFallback = true; }
+										{ address = "8.8.8.8"; domains = [ "geosite:geolocation-!cn" ]; port = 53; skipFallback = true; }
 										{ address = "223.5.5.5"; expectIPs = [ "geoip:cn" ]; }
 										{ address = "8.8.8.8"; }
 									];
@@ -319,7 +338,7 @@ inputs:
 										protocol = "dokodemo-door";
 										settings = { network = "tcp,udp"; followRedirect = true; };
 										streamSettings.sockopt.tproxy = "tproxy";
-										sniffing = { enabled = true; destOverride = [ "http" "tls" ]; routeOnly = true; };
+										sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
 										tag = "common-in";
 									}
 									{
@@ -337,7 +356,7 @@ inputs:
 										protocol = "vless";
 										settings.vnext =
 										[{
-											address = inputs.config.sops.placeholder."xray-client/server";
+											address = services.xrayClient.serverAddress;
 											port = 443;
 											users =
 											[{
@@ -352,7 +371,7 @@ inputs:
 											security = "tls";
 											tlssettings =
 											{
-												serverName = inputs.config.sops.placeholder."xray-client/serverName";
+												serverName = services.xrayClient.serverName;
 												allowInsecure = false;
 												fingerprint = "firefox";
 											};
@@ -369,7 +388,7 @@ inputs:
 								];
 								routing =
 								{
-									domainStrategy = "IPIfNonMatch";
+									domainStrategy = "AsIs";
 									rules = builtins.map (rule: rule // { type = "field"; })
 									[
 										{ inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
@@ -387,8 +406,7 @@ inputs:
 								};
 							};
 						};
-						secrets = listToAttrs
-							(map (name: { name = "xray-client/${name}"; value = {}; }) [ "server" "serverName" "uuid" ]);
+						secrets."xray-client/uuid" = {};
 					};
 					systemd.services.xray =
 					{
@@ -406,6 +424,102 @@ inputs:
 					};
 					users = { users.v2ray = { isSystemUser = true; group = "v2ray"; }; groups.v2ray = {}; };
 					environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
+				}
+			)
+			(
+				mkIf services.xrayServer.enable
+				{
+					services =
+					{
+						xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
+						nginx.virtualHosts.xserver =
+						{
+							serverName = services.xrayServer.serverName;
+							default = true;
+							listen = [{ addr = "127.0.0.1"; port = 7233; }];
+							locations."/".return = "400";
+						};
+					};
+					sops = let userList = genList (n: n) 3; in
+					{
+						templates."xray-server.json" =
+						{
+							mode = "0440";
+							owner = "v2ray";
+							group = "v2ray";
+							content = builtins.toJSON
+							{
+								log.loglevel = "warning";
+								inbounds =
+								[
+									{
+										port = 4726;
+										listen = "127.0.0.1";
+										protocol = "vless";
+										settings =
+										{
+											clients = map
+												(n:
+												{
+													id = inputs.config.sops.placeholder."xray-server/clients/user${toString n}";
+													flow = "xtls-rprx-vision";
+													email = "${toString n}@xray.chn.moe";
+												})
+												userList;
+											decryption = "none";
+											fallbacks = [{ dest = "127.0.0.1:7233"; }];
+										};
+										streamSettings =
+										{
+											network = "tcp";
+											security = "tls";
+											tlsSettings =
+											{
+												alpn = [ "http/1.1" "h2" ];
+												certificates =
+													let
+														cert = inputs.config.security.acme.certs.${services.xrayServer.serverName}.directory;
+													in
+													[{
+														certificateFile = "${cert}/full.pem";
+														keyFile = "${cert}/key.pem";
+													}];
+											};
+										};
+										tag = "in";
+									}
+								];
+								outbounds = [{ protocol = "freedom"; tag = "freedom"; }];
+							};
+						};
+						secrets = listToAttrs (map (n: { name = "xray-server/clients/user${toString n}"; value = {}; }) userList);
+					};
+					systemd.services.xray =
+					{
+						serviceConfig =
+						{
+							DynamicUser = inputs.lib.mkForce false;
+							User = "v2ray";
+							Group = "v2ray";
+							CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+							AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+							LimitNPROC = 10000;
+							LimitNOFILE = 1000000;
+						};
+						restartTriggers = [ inputs.config.sops.templates."xray-server.json".file ];
+					};
+					users = { users.v2ray = { isSystemUser = true; group = "v2ray"; }; groups.v2ray = {}; };
+					nixos.services =
+					{
+						acme = { enable = true; certs = [ services.xrayServer.serverName ]; };
+						nginx.transparentProxy =
+						{
+							enable = true;
+							map."${services.xrayServer.serverName}" = "4726";
+							proxyPorts = [ 4726 ];
+						};
+					};
+					security.acme.certs.${services.xrayServer.serverName}.group = "v2ray";
 				}
 			)
 			{ networking.firewall.trustedInterfaces = services.firewall.trustedInterfaces; }
@@ -556,6 +670,97 @@ inputs:
 						secretKeyFile = inputs.config.sops.secrets."store/signingKey".path;
 					};
 					sops.secrets."store/signingKey" = {};
+				}
+			)
+			(mkIf services.smartd.enable { services.smartd.enable = true; })
+			(
+				mkIf services.nginx.transparentProxy.enable
+				{
+					services.nginx =
+					{
+						enable = true;
+						streamConfig = stripeTabs
+						''
+							map $ssl_preread_server_name $backend
+							{
+								${concatStringsSep "\n" (map
+									(x: ''								"${x.name}" 127.0.0.1:${x.value};'')
+									(attrsToList services.nginx.transparentProxy.map))}
+							}
+							server
+							{
+								listen ${services.nginx.transparentProxy.externalIp}:443;
+								ssl_preread on;
+								proxy_bind $remote_addr transparent;
+								proxy_pass $backend;
+								proxy_connect_timeout 1s;
+								proxy_socket_keepalive on;
+								proxy_buffer_size 128k;
+							}
+						'';
+					};
+					systemd.services =
+					{
+						nginx-proxy =
+							let
+								ipset = "${inputs.pkgs.ipset}/bin/ipset";
+								iptables = "${inputs.pkgs.iptables}/bin/iptables";
+								ip = "${inputs.pkgs.iproute}/bin/ip";
+								start = inputs.pkgs.writeShellScript "nginx-proxy.start"
+								(
+									(
+										stripeTabs
+										''
+											${ipset} create nginx_proxy_port bitmap:port range 0-65535
+											${iptables} -t mangle -N nginx_proxy_mark
+											${iptables} -t mangle -A OUTPUT -j nginx_proxy_mark
+											${iptables} -t mangle -A nginx_proxy_mark -s 127.0.0.1 -p tcp \
+												-m set --match-set nginx_proxy_port src -j MARK --set-mark 2/2
+											${iptables} -t mangle -N nginx_proxy
+											${iptables} -t mangle -A PREROUTING -j nginx_proxy
+											${iptables} -t mangle -A nginx_proxy -s 127.0.0.1 -p tcp \
+												-m set --match-set nginx_proxy_port src -j MARK --set-mark 2/2
+											${ip} rule add fwmark 2/2 table 200
+											${ip} route add local 0.0.0.0/0 dev lo table 200
+										''
+									)
+									+ concatStringsSep "\n" (map
+											(port: ''${ipset} add nginx_proxy_port ${toString port}'')
+											services.nginx.transparentProxy.proxyPorts)
+								);
+								stop = inputs.pkgs.writeShellScript "nginx-proxy.stop" (stripeTabs
+								''
+									${iptables} -t mangle -F nginx_proxy_mark
+									${iptables} -t mangle -D OUTPUT -j nginx_proxy_mark
+									${iptables} -t mangle -X nginx_proxy_mark
+									${iptables} -t mangle -F nginx_proxy
+									${iptables} -t mangle -D PREROUTING -j nginx_proxy
+									${iptables} -t mangle -X nginx_proxy
+									${ip} rule del fwmark 2/2 table 200
+									${ip} route del local 0.0.0.0/0 dev lo table 200
+									${ipset} destroy nginx_proxy_port
+								'');
+							in
+							{
+								description = "nginx transparent proxy";
+								after = [ "network.target" ];
+								serviceConfig =
+								{
+									Type = "simple";
+									RemainAfterExit = true;
+									ExecStart = start;
+									ExecStop = stop;
+								};
+								wants = [ "network.target" ];
+								wantedBy= [ "multi-user.target" ];
+							};
+						nginx.serviceConfig =
+						{
+							CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
+							AmbientCapabilities = [ "CAP_NET_ADMIN" ];
+						};
+					};
+					networking.firewall.allowedTCPPorts = [ 443 ];
 				}
 			)
 		];

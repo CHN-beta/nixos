@@ -206,6 +206,8 @@
 								xrayClient =
 								{
 									enable = true;
+									serverAddress = "74.211.99.69";
+									serverName = "vps6.xserver.chn.moe";
 									dns =
 									{
 										extraInterfaces = [ "docker0" ];
@@ -237,6 +239,7 @@
 									};
 								};
 								nix-serve.enable = true;
+								smartd.enable = true;
 							};
 							bugs =
 							[
@@ -306,7 +309,23 @@
 								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
 								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
 								sshd.enable = true;
+								xrayServer = { enable = true; serverName = "vps6.xserver.chn.moe"; };
 								frpServer = { enable = true; serverName = "frp.chn.moe"; };
+								nginx =
+								{
+									transparentProxy =
+									{
+										enable = true;
+										externalIp = "74.211.99.69";
+										map =
+										{
+											default = "443";
+											"ng01.mirism.one" = "7411";
+											"beta.mirism.one" = "9114";
+										};
+										proxyPorts = [ 443 7411 9114 ];
+									};
+								};
 							};
 							boot =
 							{
