@@ -307,13 +307,14 @@
 								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
 								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
 								sshd.enable = true;
+								xrayServer = { enable = true; serverName = "vps6.xserver.chn.moe"; };
 								frpServer = { enable = true; serverName = "frp.chn.moe"; };
 								nginx =
 								{
 									transparentProxy =
 									{
 										enable = true;
-										listen = "74.211.99.69:443";
+										externalIp = "74.211.99.69";
 										map =
 										{
 											default = "443";
