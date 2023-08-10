@@ -308,6 +308,21 @@
 								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
 								sshd.enable = true;
 								frpServer = { enable = true; serverName = "frp.chn.moe"; };
+								nginx =
+								{
+									transparentProxy =
+									{
+										enable = true;
+										listen = "74.211.99.69:443";
+										map =
+										{
+											default = "443";
+											"ng01.mirism.one" = "7411";
+											"beta.mirism.one" = "9114";
+										};
+										proxyPorts = [ 443 7411 9114 ];
+									};
+								};
 							};
 							boot =
 							{
