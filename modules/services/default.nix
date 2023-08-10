@@ -495,7 +495,7 @@ inputs:
 										protocol = "vless";
 										settings =
 										{
-											clients = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; flow = "xtls-rprx-vision"; }];
+											clients = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; }];
 											decryption = "none";
 										};
 										streamSettings.network = "tcp";
@@ -512,12 +512,7 @@ inputs:
 										[{
 											address = "127.0.0.1";
 											port = 4638;
-											users =
-											[{
-												id = "be01f0a0-9976-42f5-b9ab-866eba6ed393";
-												encryption = "none";
-												flow = "xtls-rprx-vision-udp443";
-											}];
+											users = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; encryption = "none"; }];
 										}];
 										streamSettings.network = "tcp";
 										tag = "loopback-localdns";
