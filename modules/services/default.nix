@@ -432,6 +432,8 @@ inputs:
 						xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
 						nginx.virtualHosts.xserver =
 						{
+							serverName = services.xrayServer.serverName;
+							default = true;
 							listen = [{ addr = "127.0.0.1"; port = 7233; }];
 							locations."/".return = "400";
 						};
@@ -511,7 +513,7 @@ inputs:
 						nginx.transparentProxy =
 						{
 							enable = true;
-							map."xserver.chn.moe" = "4726";
+							map."${services.xrayServer.serverName}" = "4726";
 							proxyPorts = [ 4726 ];
 						};
 					};
