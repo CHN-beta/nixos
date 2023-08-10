@@ -286,6 +286,7 @@ inputs:
 							settings =
 							{
 								no-poll = true;
+								log-queries = true;
 								server = [ "127.0.0.1#10853" ];
 								interface = services.xrayClient.dns.extraInterfaces ++ [ "lo" ];
 								bind-dynamic = true;
