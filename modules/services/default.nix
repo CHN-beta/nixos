@@ -578,25 +578,22 @@ inputs:
 						enable = true;
 						streamConfig = stripeTabs
 						''
-							stream
+							map $ssl_preread_server_name $backend
 							{
-								map $ssl_preread_server_name $backend
-								{
-									${concatStringsSep "\n" (map
-										(x: ''									"${x.name}" 127.0.0.1:${x.value};'')
-										(attrsToList services.nginx.transparentProxy.map))}
-								}
+								${concatStringsSep "\n" (map
+									(x: ''								"${x.name}" 127.0.0.1:${x.value};'')
+									(attrsToList services.nginx.transparentProxy.map))}
+							}
 
-								server
-								{
-									listen ${services.nginx.transparentProxy.listen};
-									ssl_preread on;
-									proxy_bind $remote_addr transparent;
-									proxy_pass $backend;
-									proxy_connect_timeout 1s;
-									proxy_socket_keepalive on;
-									proxy_buffer_size 128k;
-								}
+							server
+							{
+								listen ${services.nginx.transparentProxy.listen};
+								ssl_preread on;
+								proxy_bind $remote_addr transparent;
+								proxy_pass $backend;
+								proxy_connect_timeout 1s;
+								proxy_socket_keepalive on;
+								proxy_buffer_size 128k;
 							}
 						'';
 					};
