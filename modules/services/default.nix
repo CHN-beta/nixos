@@ -697,59 +697,67 @@ inputs:
 							}
 						'';
 					};
-					systemd.services.nginx-proxy =
-						let
-							ipset = "${inputs.pkgs.ipset}/bin/ipset";
-							iptables = "${inputs.pkgs.iptables}/bin/iptables";
-							ip = "${inputs.pkgs.iproute}/bin/ip";
-							start = inputs.pkgs.writeShellScript "nginx-proxy.start"
-							(
+					systemd.services =
+					{
+						nginx-proxy =
+							let
+								ipset = "${inputs.pkgs.ipset}/bin/ipset";
+								iptables = "${inputs.pkgs.iptables}/bin/iptables";
+								ip = "${inputs.pkgs.iproute}/bin/ip";
+								start = inputs.pkgs.writeShellScript "nginx-proxy.start"
 								(
-									stripeTabs
-									''
-										${ipset} create nginx_proxy_port bitmap:port range 0-65535
-										${iptables} -t mangle -N nginx_proxy_mark
-										${iptables} -t mangle -A OUTPUT -j nginx_proxy_mark
-										${iptables} -t mangle -A nginx_proxy_mark -s 127.0.0.1 -p tcp \
-											-m set --match-set nginx_proxy_port src -j MARK --set-mark 2/2
-										${iptables} -t mangle -N nginx_proxy
-										${iptables} -t mangle -A PREROUTING -j nginx_proxy
-										${iptables} -t mangle -A nginx_proxy -s 127.0.0.1 -p tcp \
-											-m set --match-set nginx_proxy_port src -j MARK --set-mark 2/2
-										${ip} rule add fwmark 2/2 table 200
-										${ip} route add local 0.0.0.0/0 dev lo table 200
-									''
-								)
-								+ concatStringsSep "\n" (map
-										(port: ''${ipset} add nginx_proxy_port ${toString port}'')
-										services.nginx.transparentProxy.proxyPorts)
-							);
-							stop = inputs.pkgs.writeShellScript "nginx-proxy.stop" (stripeTabs
-							''
-								${iptables} -t mangle -F nginx_proxy_mark
-								${iptables} -t mangle -D OUTPUT -j nginx_proxy_mark
-								${iptables} -t mangle -X nginx_proxy_mark
-								${iptables} -t mangle -F nginx_proxy
-								${iptables} -t mangle -D PREROUTING -j nginx_proxy
-								${iptables} -t mangle -X nginx_proxy
-								${ip} rule del fwmark 2/2 table 200
-								${ip} route del local 0.0.0.0/0 dev lo table 200
-								${ipset} destroy nginx_proxy_port
-							'');
-						in
-						{
-							description = "nginx transparent proxy";
-							after = [ "network.target" ];
-							serviceConfig =
+									(
+										stripeTabs
+										''
+											${ipset} create nginx_proxy_port bitmap:port range 0-65535
+											${iptables} -t mangle -N nginx_proxy_mark
+											${iptables} -t mangle -A OUTPUT -j nginx_proxy_mark
+											${iptables} -t mangle -A nginx_proxy_mark -s 127.0.0.1 -p tcp \
+												-m set --match-set nginx_proxy_port src -j MARK --set-mark 2/2
+											${iptables} -t mangle -N nginx_proxy
+											${iptables} -t mangle -A PREROUTING -j nginx_proxy
+											${iptables} -t mangle -A nginx_proxy -s 127.0.0.1 -p tcp \
+												-m set --match-set nginx_proxy_port src -j MARK --set-mark 2/2
+											${ip} rule add fwmark 2/2 table 200
+											${ip} route add local 0.0.0.0/0 dev lo table 200
+										''
+									)
+									+ concatStringsSep "\n" (map
+											(port: ''${ipset} add nginx_proxy_port ${toString port}'')
+											services.nginx.transparentProxy.proxyPorts)
+								);
+								stop = inputs.pkgs.writeShellScript "nginx-proxy.stop" (stripeTabs
+								''
+									${iptables} -t mangle -F nginx_proxy_mark
+									${iptables} -t mangle -D OUTPUT -j nginx_proxy_mark
+									${iptables} -t mangle -X nginx_proxy_mark
+									${iptables} -t mangle -F nginx_proxy
+									${iptables} -t mangle -D PREROUTING -j nginx_proxy
+									${iptables} -t mangle -X nginx_proxy
+									${ip} rule del fwmark 2/2 table 200
+									${ip} route del local 0.0.0.0/0 dev lo table 200
+									${ipset} destroy nginx_proxy_port
+								'');
+							in
 							{
-								Type = "simple";
-								RemainAfterExit = true;
-								ExecStart = start;
-								ExecStop = stop;
+								description = "nginx transparent proxy";
+								after = [ "network.target" ];
+								serviceConfig =
+								{
+									Type = "simple";
+									RemainAfterExit = true;
+									ExecStart = start;
+									ExecStop = stop;
+								};
+								wants = [ "network.target" ];
+								wantedBy= [ "multi-user.target" ];
 							};
-							wants = [ "network.target" ];
-							wantedBy= [ "multi-user.target" ];
+						nginx.serviceConfig =
+						{
+							CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
+							AmbientCapabilities = [ "CAP_NET_ADMIN" ];
 						};
+					};
 					networking.firewall.allowedTCPPorts = [ 443 ];
 				}
 			)
