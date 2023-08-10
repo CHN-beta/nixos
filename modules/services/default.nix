@@ -310,7 +310,7 @@ inputs:
 							group = "v2ray";
 							content = builtins.toJSON
 							{
-								log.loglevel = "warning";
+								log.loglevel = "info";
 								dns =
 								{
 									servers =
@@ -337,7 +337,7 @@ inputs:
 										protocol = "dokodemo-door";
 										settings = { network = "tcp,udp"; followRedirect = true; };
 										streamSettings.sockopt.tproxy = "tproxy";
-										sniffing = { enabled = true; destOverride = [ "http" "tls" ]; routeOnly = true; };
+										sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
 										tag = "common-in";
 									}
 									{
@@ -387,7 +387,7 @@ inputs:
 								];
 								routing =
 								{
-									domainStrategy = "IPIfNonMatch";
+									domainStrategy = "AsIs";
 									rules = builtins.map (rule: rule // { type = "field"; })
 									[
 										{ inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
