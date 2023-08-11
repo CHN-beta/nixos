@@ -587,6 +587,9 @@ inputs:
 										xray = "${inputs.pkgs.xray}/bin/xray";
 										awk = "${inputs.pkgs.gawk}/bin/awk";
 										curl = "${inputs.pkgs.curl}/bin/curl";
+										jq = "${inputs.pkgs.jq}/bin/jq";
+										sed = "${inputs.pkgs.gnused}/bin/sed";
+										cat = "${inputs.pkgs.coreutils}/bin/cat";
 										token = inputs.config.sops.secrets."xray-server/telegram/token".path;
 										chat = inputs.config.sops.secrets."xray-server/telegram/chat".path;
 									in stripeTabs
@@ -595,17 +598,17 @@ inputs:
 										for i in {0..${toString ((length userList) - 1)}}
 										do
 											upload_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
-												-name "user>>>''${i}@xray.chn.moe>>>traffic>>>uplink" | jq '.stat.value' | sed 's/"//g')
+												-name "user>>>''${i}@xray.chn.moe>>>traffic>>>uplink" | ${jq} '.stat.value' | ${sed} 's/"//g')
 											[ -z "$upload_bytes" ] && upload_bytes=0
 											download_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
-												-name "user>>>''${i}@xray.chn.moe>>>traffic>>>downlink" | jq '.stat.value' | sed 's/"//g')
+												-name "user>>>''${i}@xray.chn.moe>>>traffic>>>downlink" | ${jq} '.stat.value' | ${sed} 's/"//g')
 											[ -z "$download_bytes" ] && download_bytes=0
 											traffic_gb=$(echo | ${awk} "{printf \"%.3f\",(''${upload_bytes}+''${download_bytes})/1073741824}")
 											message="$message$i"'\t'"''${traffic_gb}"'G\n'
 										done
 										${curl} -X POST -H 'Content-Type: application/json' \
-											-d "{\"chat_id\": \"$(cat ${chat})\", \"text\": \"$message\"}" \
-											https://api.telegram.org/bot$(cat ${token})/sendMessage
+											-d "{\"chat_id\": \"$(${cat} ${chat})\", \"text\": \"$message\"}" \
+											https://api.telegram.org/bot$(${cat} ${token})/sendMessage
 									'';
 								serviceConfig = { Type = "oneshot"; User = "v2ray"; Group = "v2ray"; };
 							};
