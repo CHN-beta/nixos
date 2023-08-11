@@ -577,7 +577,7 @@ inputs:
 								script =
 									let
 										xray = "${inputs.pkgs.xray}/bin/xray";
-										bc = "${inputs.pkgs.bc}/bin/bc";
+										awk = "${inputs.pkgs.gawk}/bin/awk";
 										curl = "${inputs.pkgs.curl}/bin/curl";
 										token = inputs.config.sops.secrets."xray-server/telegram/token".path;
 										chat = inputs.config.sops.secrets."xray-server/telegram/chat".path;
@@ -588,7 +588,7 @@ inputs:
 										do
 											traffic_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
 												-name "user>>>''${i}@xray.chn.moe>>>traffic>>>downlink" | , jq '.stat.value' | sed 's/"//g')
-											message=$message"$i"'\t'$(echo "scale=4;''${traffic_bytes}/1024/1024/1024" | ${bc})'\n'
+											message=$message"$i"'\t'$(${awk} "{printf \"%.3f\",''${traffic_bytes}/1024/1024/1024}")'\n'
 										done
 										${curl} -X POST -H 'Content-Type: application/json' \
 											-d "{\"chat_id\": \"$(cat ${chat})\", \"text\": \"$message\"}" \
