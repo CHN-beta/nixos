@@ -502,6 +502,13 @@ inputs:
 										sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; };
 										tag = "in-localdns";
 									}
+									{
+										listen = "127.0.0.1";
+										port = 6149;
+										protocol = "dokodemo-door";
+										settings.address = "127.0.0.1";
+										tag = "api";
+									}
 								];
 								outbounds =
 								[
@@ -526,7 +533,21 @@ inputs:
 										{ inboundTag = [ "in" ]; domain = [ "domain:openai.com" ]; outboundTag = "loopback-localdns"; }
 										{ inboundTag = [ "in" ]; outboundTag = "freedom"; }
 										{ inboundTag = [ "in-localdns" ]; outboundTag = "freedom"; }
+										{ inboundTag = [ "api" ]; outboundTag = "api"; }
 									];
+								};
+								stats = {};
+								api = { tag = "api"; services = [ "StatsService" ]; };
+								policy =
+								{
+									levels."0" = { statsUserUplink = true; statsUserDownlink = true; };
+									system =
+									{
+										statsInboundUplink = true;
+										statsInboundDownlink = true;
+										statsOutboundUplink = true;
+										statsOutboundDownlink = true;
+									};
 								};
 							};
 						};
