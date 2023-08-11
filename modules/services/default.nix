@@ -595,10 +595,10 @@ inputs:
 										for i in {0..${toString ((length userList) - 1)}}
 										do
 											upload_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
-												-name "user>>>''${i}@xray.chn.moe>>>traffic>>>uplink" | , jq '.stat.value' | sed 's/"//g')
+												-name "user>>>''${i}@xray.chn.moe>>>traffic>>>uplink" | jq '.stat.value' | sed 's/"//g')
 											[ -z "$upload_bytes" ] && upload_bytes=0
 											download_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
-												-name "user>>>''${i}@xray.chn.moe>>>traffic>>>downlink" | , jq '.stat.value' | sed 's/"//g')
+												-name "user>>>''${i}@xray.chn.moe>>>traffic>>>downlink" | jq '.stat.value' | sed 's/"//g')
 											[ -z "$download_bytes" ] && download_bytes=0
 											traffic_gb=$(echo | ${awk} "{printf \"%.3f\",(''${upload_bytes}+''${download_bytes})/1073741824}")
 											message="$message$i"'\t'"''${traffic_gb}"'G\n'
