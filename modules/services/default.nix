@@ -588,7 +588,6 @@ inputs:
 										do
 											traffic_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
 												-name "user>>>''${i}@xray.chn.moe>>>traffic>>>downlink" | , jq '.stat.value' | sed 's/"//g')
-											traffic_bytes=
 											message=$message"$i"'\t'$(echo "scale=4;''${traffic_bytes}/1024/1024/1024" | ${bc})'\n'
 										done
 										${curl} -X POST -H 'Content-Type: application/json' \
