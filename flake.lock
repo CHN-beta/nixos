@@ -295,7 +295,7 @@
       },
       "original": {
         "owner": "CHN-beta",
-        "ref": "next",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
