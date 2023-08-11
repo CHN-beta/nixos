@@ -306,9 +306,8 @@ inputs:
 					{
 						templates."xray-client.json" =
 						{
-							mode = "0440";
-							owner = "v2ray";
-							group = "v2ray";
+							owner = inputs.config.users.users.v2ray.name;
+							group = inputs.config.users.users.v2ray.group;
 							content = builtins.toJSON
 							{
 								log.loglevel = "info";
@@ -444,9 +443,8 @@ inputs:
 					{
 						templates."xray-server.json" =
 						{
-							mode = "0440";
-							owner = "v2ray";
-							group = "v2ray";
+							owner = inputs.config.users.users.v2ray.name;
+							group = inputs.config.users.users.v2ray.group;
 							content = builtins.toJSON
 							{
 								log.loglevel = "warning";
@@ -552,7 +550,17 @@ inputs:
 							};
 						};
 						secrets = listToAttrs (map (n: { name = "xray-server/clients/user${toString n}"; value = {}; }) userList)
-							// { "xray-server/telegram/token" = {}; "xray-server/telegram/chat" = {}; };
+							// (listToAttrs (map
+								(name:
+								{
+									name = "xray-server/telegram/${name}";
+									value =
+									{
+										owner = inputs.config.users.users.v2ray.name;
+										group = inputs.config.users.users.v2ray.group;
+									};
+								})
+								[ "token" "chat" ]));
 					};
 					systemd =
 					{
@@ -671,9 +679,8 @@ inputs:
 					{
 						templates."frpc.ini" =
 						{
-							mode = "0440";
-							owner = "frp";
-							group = "frp";
+							owner = inputs.config.users.users.frp.name;
+							group = inputs.config.users.users.frp.group;
 							content = inputs.lib.generators.toINI {}
 							(
 								{
@@ -735,9 +742,8 @@ inputs:
 					{
 						templates."frps.ini" =
 						{
-							mode = "0440";
-							owner = "frp";
-							group = "frp";
+							owner = inputs.config.users.users.frp.name;
+							group = inputs.config.users.users.frp.group;
 							content = inputs.lib.generators.toINI {}
 							{
 								common = let cert = inputs.config.security.acme.certs.${services.frpServer.serverName}.directory; in
