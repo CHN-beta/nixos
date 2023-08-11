@@ -185,7 +185,7 @@ inputs:
 			# mdadm
 			(
 				mkIf (fileSystems.mdadm != null)
-					{ boot.initrd.services.swraid = { enable = true; mdadmConf = fileSystems.mdadm; }; }
+					{ boot.swraid = { enable = true; mdadmConf = fileSystems.mdadm; }; }
 			)
 			# swap
 			{ swapDevices = map (device: { device = device; }) fileSystems.swap; }

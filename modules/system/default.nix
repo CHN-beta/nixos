@@ -29,6 +29,10 @@ inputs:
 							auto-optimise-store = true;
 							substituters = mkAfter [ "http://127.0.0.1:5000" ];
 							trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
+							show-trace = true;
+							max-jobs = 1;
+							cores = 0;
+							keep-going = true;
 						};
 						daemonIOSchedClass = "idle";
 						daemonCPUSchedPolicy = "idle";

@@ -36,7 +36,7 @@ inputs:
 					# shell
 					ksh
 					# basic tools
-					beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq
+					beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq zellij
 					# lsxx
 					pciutils usbutils lshw util-linux lsof
 					# top
@@ -46,7 +46,7 @@ inputs:
 					# downloader
 					wget aria2 curl
 					# file manager
-					tree git exa trash-cli lsd zellij broot file xdg-ninja mlocate
+					tree git exa trash-cli lsd broot file xdg-ninja mlocate
 					# compress
 					pigz rar upx unzip zip lzip p7zip
 					# file system management
@@ -96,7 +96,7 @@ inputs:
 			nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
 			nixpkgs.config =
 			{
-				permittedInsecurePackages = [ "openssl-1.1.1u" "electron-19.0.7" ];
+				permittedInsecurePackages = [ "openssl-1.1.1v" "electron-19.0.7" ];
 				allowUnfree = true;
 			};
 		}
