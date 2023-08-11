@@ -36,7 +36,7 @@ inputs:
 					# shell
 					ksh
 					# basic tools
-					beep dos2unix gnugrep pv tmux screen parallel tldr cowsay
+					beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq
 					# lsxx
 					pciutils usbutils lshw util-linux lsof
 					# top
@@ -116,7 +116,7 @@ inputs:
 						# instant messager
 						element-desktop telegram-desktop discord qq nur-xddxdd.wechat-uos # jail
 						inputs.config.nur.repos.linyinfeng.wemeet # native # nur-xddxdd.wine-wechat thunder
-						zoom-us signal-desktop
+						zoom-us signal-desktop cinny-desktop
 						# browser
 						google-chrome
 						# networking
