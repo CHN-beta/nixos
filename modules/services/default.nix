@@ -588,7 +588,7 @@ inputs:
 										do
 											traffic_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
 												-name "user>>>''${i}@xray.chn.moe>>>traffic>>>downlink" | , jq '.stat.value' | sed 's/"//g')
-											message=$message"$i"'\t'$(${awk} "{printf \"%.3f\",''${traffic_bytes}/1024/1024/1024}")'\n'
+											message=$message"$i"'\t'$(echo | ${awk} "{printf \"%.3f\",0''${traffic_bytes}/1073741824}")'G\n'
 										done
 										${curl} -X POST -H 'Content-Type: application/json' \
 											-d "{\"chat_id\": \"$(cat ${chat})\", \"text\": \"$message\"}" \
