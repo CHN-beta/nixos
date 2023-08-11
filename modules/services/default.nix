@@ -426,7 +426,7 @@ inputs:
 				}
 			)
 			(
-				mkIf services.xrayServer.enable (let userList = genList (n: n) 3; in
+				mkIf services.xrayServer.enable (let userList = genList (n: n) 30; in
 				{
 					services =
 					{
