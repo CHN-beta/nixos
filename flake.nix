@@ -320,10 +320,9 @@
 										externalIp = "74.211.99.69";
 										map =
 										{
-											"ng01.mirism.one" = "127.0.0.1:7411";
-											"beta.mirism.one" = "127.0.0.1:9114";
+											"ng01.mirism.one" = 7411;
+											"beta.mirism.one" = 9114;
 										};
-										proxyPorts = [ 7411 9114 ];
 									};
 									httpProxy =
 									{

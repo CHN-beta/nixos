@@ -92,8 +92,7 @@ inputs:
 			{
 				enable = mkOption { type = types.bool; default = false; };
 				externalIp = mkOption { type = types.nonEmptyStr; };
-				map = mkOption { type = types.attrsOf types.nonEmptyStr; };
-				proxyPorts = mkOption { type = types.listOf types.ints.unsigned; };
+				map = mkOption { type = types.attrsOf types.ints.unsigned; };
 			};
 			httpProxy = mkOption
 			{
@@ -114,7 +113,7 @@ inputs:
 			inherit (inputs.lib) mkMerge mkIf;
 			inherit (inputs.localLib) stripeTabs attrsToList;
 			inherit (inputs.config.nixos) services;
-			inherit (builtins) map listToAttrs concatStringsSep toString elemAt genList length attrNames;
+			inherit (builtins) map listToAttrs concatStringsSep toString elemAt genList length attrNames attrValues;
 		in mkMerge
 		[
 			(
@@ -379,11 +378,11 @@ inputs:
 										streamSettings =
 										{
 											network = "tcp";
-											security = "tls";
-											tlssettings =
+											security = "reality";
+											realitySettings =
 											{
 												serverName = services.xrayClient.serverName;
-												allowInsecure = false;
+												publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
 												fingerprint = "firefox";
 											};
 										};
@@ -443,32 +442,13 @@ inputs:
 					services =
 					{
 						xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
-						nginx =
+						nginx.virtualHosts.xray =
 						{
-							streamConfig =
-								let
-									allowedFingerprint =
-									[
-
-									];
-								in
-									inputs.lib.mkBefore (stripeTabs
-									''
-										map $stream_ssl_ja3_hash $xray_backend
-										{
-											${concatStringsSep "\n" (map
-												(fp: ''											"${fp}" 127.0.0.1:4726;'')
-												allowedFingerprint)}
-											default 127.0.0.1:6603;
-										}
-									'');
-							virtualHosts.xray =
-							{
-								serverName = services.xrayServer.serverName;
-								default = true;
-								listen = [{ addr = "127.0.0.1"; port = 7233; }];
-								locations."/".return = "400";
-							};
+							serverName = services.xrayServer.serverName;
+							default = true;
+							listen = [{ addr = "127.0.0.1"; port = 7233; ssl = true; }];
+							useACMEHost = services.xrayServer.serverName;
+							locations."/".return = "400";
 						};
 					};
 					sops =
@@ -502,18 +482,14 @@ inputs:
 										streamSettings =
 										{
 											network = "tcp";
-											security = "tls";
-											tlsSettings =
+											security = "reality";
+											realitySettings =
 											{
-												alpn = [ "http/1.1" "h2" ];
-												certificates =
-													let
-														cert = inputs.config.security.acme.certs.${services.xrayServer.serverName}.directory;
-													in
-													[{
-														certificateFile = "${cert}/full.pem";
-														keyFile = "${cert}/key.pem";
-													}];
+												dest = "127.0.0.1:7233";
+												serverNames = [ services.xrayServer.serverName ];
+												privateKey = inputs.config.sops.placeholder."xray-server/private-key";
+												minClientVer = "1.8.3";
+												shortIds = [ "" ];
 											};
 										};
 										sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
@@ -538,38 +514,6 @@ inputs:
 										protocol = "dokodemo-door";
 										settings.address = "127.0.0.1";
 										tag = "api";
-									}
-									{
-										port = 6603;
-										listen = "127.0.0.1";
-										protocol = "vless";
-										settings =
-										{
-											clients =
-											[{
-												id = inputs.config.sops.placeholder."xray-server/clients/fakeuser";
-												flow = "xtls-rprx-vision";
-											}];
-											decryption = "none";
-											fallbacks = [{ dest = "127.0.0.1:7233"; }];
-										};
-										streamSettings =
-										{
-											network = "tcp";
-											security = "tls";
-											tlsSettings =
-											{
-												alpn = [ "http/1.1" "h2" ];
-												certificates =
-													let
-														cert = inputs.config.security.acme.certs.${services.xrayServer.serverName}.directory;
-													in
-													[{
-														certificateFile = "${cert}/full.pem";
-														keyFile = "${cert}/key.pem";
-													}];
-											};
-										};
 									}
 								];
 								outbounds =
@@ -614,7 +558,6 @@ inputs:
 							};
 						};
 						secrets = listToAttrs (map (n: { name = "xray-server/clients/user${toString n}"; value = {}; }) userList)
-							// { "xray-server/clients/fakeuser" = {}; }
 							// (listToAttrs (map
 								(name:
 								{
@@ -625,7 +568,8 @@ inputs:
 										group = inputs.config.users.users.v2ray.group;
 									};
 								})
-								[ "token" "chat" ]));
+								[ "token" "chat" ]))
+							// { "xray-server/private-key" = {}; };
 					};
 					systemd =
 					{
@@ -691,11 +635,10 @@ inputs:
 						nginx.transparentProxy =
 						{
 							enable = true;
-							map."${services.xrayServer.serverName}" = "127.0.0.1:4726";
-							proxyPorts = [ 4726 ];
+							map."${services.xrayServer.serverName}" = 4726;
 						};
 					};
-					security.acme.certs.${services.xrayServer.serverName}.group = "v2ray";
+					security.acme.certs.${services.xrayServer.serverName}.group = inputs.config.users.users.nginx.group;
 				}
 			))
 			{ networking.firewall.trustedInterfaces = services.firewall.trustedInterfaces; }
@@ -853,20 +796,21 @@ inputs:
 					services.nginx =
 					{
 						enable = true;
+						# TODO: fix geoip country
 						streamConfig = stripeTabs
 						''
-							log_format stream '[$time_local] $remote_addr-$geoip_country_code "$ssl_preread_server_name"->$backend $bytes_sent $bytes_received $stream_ssl_ja3_hash';
+							log_format stream '[$time_local] $remote_addr-$geoip_country_code "$ssl_preread_server_name"->$backend $bytes_sent $bytes_received';
 							access_log syslog:server=unix:/dev/log stream;
 							map $ssl_preread_server_name $backend
 							{
 								${concatStringsSep "\n" (map
-									(x: ''								"${x.name}" ${x.value};'')
+									(x: ''								"${x.name}" 127.0.0.1:${toString x.value};'')
 									(attrsToList services.nginx.transparentProxy.map))}
 								default 127.0.0.1:443;
 							}
 							server
 							{
-								listen ${services.nginx.transparentProxy.externalIp}:443 ssl;
+								listen ${services.nginx.transparentProxy.externalIp}:443;
 								ssl_preread on;
 								proxy_bind $remote_addr transparent;
 								proxy_pass $backend;
@@ -881,27 +825,7 @@ inputs:
 						recommendedOptimisation = true;
 						recommendedGzipSettings = true;
 						recommendedBrotliSettings = true;
-						package =
-							let
-								patches = inputs.pkgs.fetchFromGitHub
-								{
-									owner = "fooinha";
-									repo = "nginx-ssl-ja3";
-									rev = "35b00242c4aced2e623e392fa58c8d31c99cfaed";
-									sha256 = "BysKzxXveQayaGvFAgtczcIsgWGlOWNd/rCyKf+yjTI=";
-								};
-							in
-								(inputs.pkgs.nginxMainline.override (prev:
-								{
-									openssl = (prev.openssl or inputs.pkgs.openssl).overrideAttrs
-										(prev: { patches = prev.patches ++ [ "${patches}/patches/openssl.extensions.patch" ]; });
-									modules = prev.modules
-										++ [{ name = "ssl-ja3"; src = patches; meta.license = [ inputs.lib.licenses.bsd2 ]; }];
-								})).overrideAttrs (prev:
-								{
-									patches = prev.patches ++ [ "${patches}/patches/nginx.1.23.1.ssl.extensions.patch" ];
-									configureFlags = prev.configureFlags ++ [ "--with-cc-opt='-DJA3_SORT_EXT'" ];
-								});
+						package = inputs.pkgs.nginxMainline;
 					};
 					systemd.services =
 					{
@@ -930,7 +854,7 @@ inputs:
 									)
 									+ concatStringsSep "\n" (map
 											(port: ''${ipset} add nginx_proxy_port ${toString port}'')
-											(services.nginx.transparentProxy.proxyPorts ++ [ 443 ]) )
+											((attrValues services.nginx.transparentProxy.map) ++ [ 443 ]) )
 								);
 								stop = inputs.pkgs.writeShellScript "nginx-proxy.stop" (stripeTabs
 								''
