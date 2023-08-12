@@ -866,7 +866,7 @@ inputs:
 							}
 							server
 							{
-								listen ${services.nginx.transparentProxy.externalIp}:443;
+								listen ${services.nginx.transparentProxy.externalIp}:443 ssl;
 								ssl_preread on;
 								proxy_bind $remote_addr transparent;
 								proxy_pass $backend;
