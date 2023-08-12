@@ -443,12 +443,32 @@ inputs:
 					services =
 					{
 						xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
-						nginx.virtualHosts.xserver =
+						nginx =
 						{
-							serverName = services.xrayServer.serverName;
-							default = true;
-							listen = [{ addr = "127.0.0.1"; port = 7233; }];
-							locations."/".return = "400";
+							streamConfig =
+								let
+									allowedFingerprint =
+									[
+
+									];
+								in
+									inputs.lib.mkBefore (stripeTabs
+									''
+										map $stream_ssl_ja3_hash $xray_backend
+										{
+											${concatStringsSep "\n" (map
+												(fp: ''											"${fp}" 127.0.0.1:4726;'')
+												allowedFingerprint)}
+											default 127.0.0.1:6603;
+										}
+									'');
+							virtualHosts.xray =
+							{
+								serverName = services.xrayServer.serverName;
+								default = true;
+								listen = [{ addr = "127.0.0.1"; port = 7233; }];
+								locations."/".return = "400";
+							};
 						};
 					};
 					sops =
@@ -519,6 +539,38 @@ inputs:
 										settings.address = "127.0.0.1";
 										tag = "api";
 									}
+									{
+										port = 6603;
+										listen = "127.0.0.1";
+										protocol = "vless";
+										settings =
+										{
+											clients =
+											[{
+												id = inputs.config.sops.placeholder."xray-server/clients/fakeuser";
+												flow = "xtls-rprx-vision";
+											}];
+											decryption = "none";
+											fallbacks = [{ dest = "127.0.0.1:7233"; }];
+										};
+										streamSettings =
+										{
+											network = "tcp";
+											security = "tls";
+											tlsSettings =
+											{
+												alpn = [ "http/1.1" "h2" ];
+												certificates =
+													let
+														cert = inputs.config.security.acme.certs.${services.xrayServer.serverName}.directory;
+													in
+													[{
+														certificateFile = "${cert}/full.pem";
+														keyFile = "${cert}/key.pem";
+													}];
+											};
+										};
+									}
 								];
 								outbounds =
 								[
@@ -562,6 +614,7 @@ inputs:
 							};
 						};
 						secrets = listToAttrs (map (n: { name = "xray-server/clients/user${toString n}"; value = {}; }) userList)
+							// { "xray-server/clients/fakeuser" = {}; }
 							// (listToAttrs (map
 								(name:
 								{
@@ -638,7 +691,7 @@ inputs:
 						nginx.transparentProxy =
 						{
 							enable = true;
-							map."${services.xrayServer.serverName}" = "4726";
+							map."${services.xrayServer.serverName}" = "127.0.0.1:4726";
 							proxyPorts = [ 4726 ];
 						};
 					};
@@ -802,10 +855,12 @@ inputs:
 						enable = true;
 						streamConfig = stripeTabs
 						''
+							log_format stream '[$time_local] $remote_addr-$geoip_country_code "$ssl_preread_server_name"->$backend $bytes_sent $bytes_received $stream_ssl_ja3_hash';
+							access_log stderr stream;
 							map $ssl_preread_server_name $backend
 							{
 								${concatStringsSep "\n" (map
-									(x: ''								"${x.name}" 127.0.0.1:${x.value};'')
+									(x: ''								"${x.name}" ${x.value};'')
 									(attrsToList services.nginx.transparentProxy.map))}
 								default 127.0.0.1:443;
 							}
