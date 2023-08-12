@@ -794,40 +794,54 @@ inputs:
 			(
 				mkIf services.nginx.transparentProxy.enable
 				{
-					services.nginx =
+					services =
 					{
-						enable = true;
-						# TODO: fix geoip country
-						streamConfig = stripeTabs
-						''
-							log_format stream '[$time_local] $remote_addr-$geoip_country_code "$ssl_preread_server_name"->$backend $bytes_sent $bytes_received';
-							access_log syslog:server=unix:/dev/log stream;
-							map $ssl_preread_server_name $backend
+						nginx =
+						{
+							enable = true;
+							streamConfig = stripeTabs
+							''
+								log_format stream '[$time_local] $remote_addr-$geoip_country_code "$ssl_preread_server_name"->$backend $bytes_sent $bytes_received';
+								access_log syslog:server=unix:/dev/log stream;
+								map $ssl_preread_server_name $backend
+								{
+									${concatStringsSep "\n" (map
+										(x: ''								"${x.name}" 127.0.0.1:${toString x.value};'')
+										(attrsToList services.nginx.transparentProxy.map))}
+									default 127.0.0.1:443;
+								}
+								server
+								{
+									listen ${services.nginx.transparentProxy.externalIp}:443;
+									ssl_preread on;
+									geoip_country ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoIP.dat;
+									proxy_bind $remote_addr transparent;
+									proxy_pass $backend;
+									proxy_connect_timeout 1s;
+									proxy_socket_keepalive on;
+									proxy_buffer_size 128k;
+								}
+							'';
+							recommendedZstdSettings = true;
+							recommendedTlsSettings = true;
+							recommendedProxySettings = true;
+							recommendedOptimisation = true;
+							recommendedGzipSettings = true;
+							recommendedBrotliSettings = true;
+							package = inputs.pkgs.nginxMainline;
+						};
+						geoipupdate =
+						{
+							enable = true;
+							settings =
 							{
-								${concatStringsSep "\n" (map
-									(x: ''								"${x.name}" 127.0.0.1:${toString x.value};'')
-									(attrsToList services.nginx.transparentProxy.map))}
-								default 127.0.0.1:443;
-							}
-							server
-							{
-								listen ${services.nginx.transparentProxy.externalIp}:443;
-								ssl_preread on;
-								proxy_bind $remote_addr transparent;
-								proxy_pass $backend;
-								proxy_connect_timeout 1s;
-								proxy_socket_keepalive on;
-								proxy_buffer_size 128k;
-							}
-						'';
-						recommendedZstdSettings = true;
-						recommendedTlsSettings = true;
-						recommendedProxySettings = true;
-						recommendedOptimisation = true;
-						recommendedGzipSettings = true;
-						recommendedBrotliSettings = true;
-						package = inputs.pkgs.nginxMainline;
+								AccountID = 901296;
+								LicenseKey = inputs.config.sops.secrets."nginx/maxmind-license".path;
+								EditionIDs = [ "GeoLite2-ASN" "GeoLite2-City" "GeoLite2-Country" ];
+							};
+						};
 					};
+					sops.secrets."nginx/maxmind-license".owner = inputs.config.users.users.nginx.name;
 					systemd.services =
 					{
 						nginx-proxy =
