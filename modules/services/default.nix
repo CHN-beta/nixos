@@ -917,7 +917,7 @@ inputs:
 							value =
 							{
 								serverName = site.name;
-								listen = [{ addr = "127.0.0.1"; port = 443; ssl = true; }];
+								listen = [{ addr = "127.0.0.1"; port = 443; ssl = true; } { addr = "0.0.0.0"; port = 80; } ];
 								useACMEHost = site.name;
 								locations."/".proxyPass = site.value.upstream;
 								forceSSL = site.value.rewriteHttps;
