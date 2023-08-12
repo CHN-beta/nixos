@@ -489,7 +489,7 @@ inputs:
 												dest = "127.0.0.1:7233";
 												serverNames = [ services.xrayServer.serverName ];
 												privateKey = inputs.config.sops.placeholder."xray-server/private-key";
-												minClientVer = "1.8.3";
+												minClientVer = "1.8.0";
 												shortIds = [ "" ];
 											};
 										};
