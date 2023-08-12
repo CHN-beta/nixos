@@ -856,7 +856,7 @@ inputs:
 						streamConfig = stripeTabs
 						''
 							log_format stream '[$time_local] $remote_addr-$geoip_country_code "$ssl_preread_server_name"->$backend $bytes_sent $bytes_received $stream_ssl_ja3_hash';
-							access_log stderr stream;
+							access_log syslog:server=unix:/dev/log stream;
 							map $ssl_preread_server_name $backend
 							{
 								${concatStringsSep "\n" (map
