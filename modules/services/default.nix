@@ -802,6 +802,7 @@ inputs:
 							enable = true;
 							streamConfig = stripeTabs
 							''
+								geoip_country ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb;
 								log_format stream '[$time_local] $remote_addr-$geoip_country_code "$ssl_preread_server_name"->$backend $bytes_sent $bytes_received';
 								access_log syslog:server=unix:/dev/log stream;
 								map $ssl_preread_server_name $backend
@@ -815,7 +816,6 @@ inputs:
 								{
 									listen ${services.nginx.transparentProxy.externalIp}:443;
 									ssl_preread on;
-									geoip_country ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoIP.dat;
 									proxy_bind $remote_addr transparent;
 									proxy_pass $backend;
 									proxy_connect_timeout 1s;
