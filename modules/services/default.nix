@@ -448,6 +448,7 @@ inputs:
 							default = true;
 							listen = [{ addr = "127.0.0.1"; port = 7233; ssl = true; }];
 							useACMEHost = services.xrayServer.serverName;
+							onlySSL = true;
 							locations."/".return = "400";
 						};
 					};
