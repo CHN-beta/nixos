@@ -48,7 +48,7 @@ inputs:
 					# file manager
 					tree git exa trash-cli lsd broot file xdg-ninja mlocate
 					# compress
-					pigz rar upx unzip zip lzip p7zip
+					pigz rar upx unzip inputs.topInputs.nixpkgs-stable.legacyPackages.x86_64-linux.zip lzip p7zip
 					# file system management
 					sshfs e2fsprogs adb-sync duperemove compsize
 					# disk management
