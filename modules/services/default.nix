@@ -95,6 +95,18 @@ inputs:
 				map = mkOption { type = types.attrsOf types.nonEmptyStr; };
 				proxyPorts = mkOption { type = types.listOf types.ints.unsigned; };
 			};
+			httpProxy = mkOption
+			{
+				type = types.attrsOf (types.submodule { options =
+				{
+					upstream = mkOption { type = types.nonEmptyStr; };
+					rewriteHttps = mkOption { type = types.bool; default = false; };
+					# setHeaders = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+					# addPin = mkOption { type = types.bool; default = false; };
+					# detectPin = mkOption { type = types.bool; default = false; };
+				}; });
+				default = {};
+			};
 		};
 	};
 	config =
@@ -102,7 +114,7 @@ inputs:
 			inherit (inputs.lib) mkMerge mkIf;
 			inherit (inputs.localLib) stripeTabs attrsToList;
 			inherit (inputs.config.nixos) services;
-			inherit (builtins) map listToAttrs concatStringsSep toString elemAt genList length;
+			inherit (builtins) map listToAttrs concatStringsSep toString elemAt genList length attrNames;
 		in mkMerge
 		[
 			(
@@ -795,6 +807,7 @@ inputs:
 								${concatStringsSep "\n" (map
 									(x: ''								"${x.name}" 127.0.0.1:${x.value};'')
 									(attrsToList services.nginx.transparentProxy.map))}
+								default 127.0.0.1:443;
 							}
 							server
 							{
@@ -807,6 +820,12 @@ inputs:
 								proxy_buffer_size 128k;
 							}
 						'';
+						recommendedZstdSettings = true;
+						recommendedTlsSettings = true;
+						recommendedProxySettings = true;
+						recommendedOptimisation = true;
+						recommendedGzipSettings = true;
+						recommendedBrotliSettings = true;
 					};
 					systemd.services =
 					{
@@ -835,7 +854,7 @@ inputs:
 									)
 									+ concatStringsSep "\n" (map
 											(port: ''${ipset} add nginx_proxy_port ${toString port}'')
-											services.nginx.transparentProxy.proxyPorts)
+											(services.nginx.transparentProxy.proxyPorts ++ [ 443 ]) )
 								);
 								stop = inputs.pkgs.writeShellScript "nginx-proxy.stop" (stripeTabs
 								''
@@ -870,6 +889,37 @@ inputs:
 						};
 					};
 					networking.firewall.allowedTCPPorts = [ 443 ];
+				}
+			)
+			(
+				mkIf (services.nginx.httpProxy != {})
+				{
+					services.nginx.virtualHosts = listToAttrs (map
+						(site:
+						{
+							inherit (site) name;
+							value =
+							{
+								serverName = site.name;
+								listen = [{ addr = "127.0.0.1"; port = 443; ssl = true; }];
+								useACMEHost = site.name;
+								locations."/".proxyPass = site.value.upstream;
+								forceSSL = site.value.rewriteHttps;
+							};
+						})
+						(attrsToList services.nginx.httpProxy));
+					nixos.services =
+					{
+						nginx.transparentProxy.enable = true;
+						acme =
+						{
+							enable = true;
+							certs = attrNames services.nginx.httpProxy;
+						};
+					};
+					security.acme.certs = listToAttrs (map
+						(cert: { name = cert; value.group = inputs.config.services.nginx.group; })
+						(attrNames services.nginx.httpProxy));
 				}
 			)
 		];

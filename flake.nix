@@ -320,11 +320,14 @@
 										externalIp = "74.211.99.69";
 										map =
 										{
-											default = "443";
 											"ng01.mirism.one" = "7411";
 											"beta.mirism.one" = "9114";
 										};
-										proxyPorts = [ 443 7411 9114 ];
+										proxyPorts = [ 7411 9114 ];
+									};
+									httpProxy =
+									{
+										"nix-store.chn.moe" = { upstream = "http://127.0.0.1:5000"; rewriteHttps = true; };
 									};
 								};
 							};
