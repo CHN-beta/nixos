@@ -826,6 +826,27 @@ inputs:
 						recommendedOptimisation = true;
 						recommendedGzipSettings = true;
 						recommendedBrotliSettings = true;
+						package =
+							let
+								patches = inputs.pkgs.fetchFromGitHub
+								{
+									owner = "fooinha";
+									repo = "nginx-ssl-ja3";
+									rev = "35b00242c4aced2e623e392fa58c8d31c99cfaed";
+									sha256 = "BysKzxXveQayaGvFAgtczcIsgWGlOWNd/rCyKf+yjTI=";
+								};
+							in
+								(inputs.pkgs.nginxMainline.override (prev:
+								{
+									openssl = (prev.openssl or inputs.pkgs.openssl).overrideAttrs
+										(prev: { patches = prev.patches ++ [ "${patches}/patches/openssl.extensions.patch" ]; });
+									modules = prev.modules
+										++ [{ name = "ssl-ja3"; src = patches; meta.license = [ inputs.lib.licenses.bsd2 ]; }];
+								})).overrideAttrs (prev:
+								{
+									patches = prev.patches ++ [ "${patches}/patches/nginx.1.23.1.ssl.extensions.patch" ];
+									configureFlags = prev.configureFlags ++ [ "--with-cc-opt='-DJA3_SORT_EXT'" ];
+								});
 					};
 					systemd.services =
 					{
