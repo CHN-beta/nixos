@@ -101,6 +101,7 @@ inputs:
 					upstream = mkOption { type = types.nonEmptyStr; };
 					rewriteHttps = mkOption { type = types.bool; default = false; };
 					websocket = mkOption { type = types.bool; default = false; };
+					http2 = mkOption { type = types.bool; default = true; };
 					# setHeaders = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
 					# addPin = mkOption { type = types.bool; default = false; };
 					# detectPin = mkOption { type = types.bool; default = false; };
@@ -811,7 +812,13 @@ inputs:
 								{
 									${concatStringsSep "\n" (map
 										(x: ''								"${x.name}" 127.0.0.1:${toString x.value};'')
-										(attrsToList services.nginx.transparentProxy.map))}
+										(
+											(attrsToList services.nginx.transparentProxy.map)
+											++ (map
+												(site: { name = site.name; value = (if site.value.http2 then 443 else 3065); })
+												(attrsToList services.nginx.httpProxy)
+											)
+										))}
 									default 127.0.0.1:443;
 								}
 								server
@@ -832,7 +839,11 @@ inputs:
 									value =
 									{
 										serverName = site.name;
-										listen = [{ addr = "127.0.0.1"; port = 443; ssl = true; } { addr = "0.0.0.0"; port = 80; } ];
+										listen =
+										[
+											{ addr = "127.0.0.1"; port = (if site.value.http2 then 443 else 3065); ssl = true; }
+											{ addr = "0.0.0.0"; port = 80; }
+										];
 										useACMEHost = site.name;
 										locations."/" =
 										{
@@ -840,6 +851,7 @@ inputs:
 											proxyWebsockets = site.value.websocket;
 										};
 										forceSSL = site.value.rewriteHttps;
+										http2 = site.value.http2;
 									};
 								})
 								(attrsToList services.nginx.httpProxy));
@@ -979,6 +991,7 @@ inputs:
 							upstream = "http://127.0.0.1:8529";
 							rewriteHttps = true;
 							websocket = true;
+							http2 = false;
 						};
 					};
 				}
