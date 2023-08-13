@@ -162,6 +162,7 @@ inputs:
 						yubico = { enable = true; id = "91291"; authFile = ./yubikey_mappings; };
 						services.sudo.yubicoAuth = true;
 					};
+					virtualisation.oci-containers.backend = "docker";
 				}
 				# hostname
 				{ networking.hostName = system.hostname; }
