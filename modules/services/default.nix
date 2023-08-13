@@ -937,6 +937,12 @@ inputs:
 					{
 						image = "registry.gitlab.com/timvisee/send"
 							+ "@sha256:1ee495161f176946e6e4077e17be2b8f8634c2d502172cc530a8cd5affd7078f";
+						imageFile = inputs.pkgs.dockerTools.pullImage
+						{
+							imageName = "registry.gitlab.com/timvisee/send";
+							imageDigest = "sha256:1ee495161f176946e6e4077e17be2b8f8634c2d502172cc530a8cd5affd7078f";
+							sha256 = "1pjvza7syiglvd0ky2j1yd92nlpwmz5l80j1qiahwkpighlaqg06";
+						};
 						volumes = [ "/var/lib/send:/uploads" ];
 						ports = [ "127.0.0.1::1443" ];
 						extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
