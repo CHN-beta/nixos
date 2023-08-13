@@ -56,7 +56,7 @@ inputs:
 					# encryption and authentication
 					apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f
 					# networking
-					ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap
+					ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils
 					# nix tools
 					nix-output-monitor
 					# development

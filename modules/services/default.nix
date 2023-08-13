@@ -431,8 +431,8 @@ inputs:
 							Group = "v2ray";
 							CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
 							AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-							LimitNPROC = 10000;
-							LimitNOFILE = 1000000;
+							LimitNPROC = 65536;
+							LimitNOFILE = 524288;
 						};
 						restartTriggers = [ inputs.config.sops.templates."xray-client.json".file ];
 					};
@@ -803,6 +803,11 @@ inputs:
 						nginx =
 						{
 							enable = true;
+							eventsConfig = stripeTabs
+							''
+								worker_connections 524288;
+								use epoll;
+							'';
 							streamConfig = stripeTabs
 							''
 								geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
@@ -929,7 +934,7 @@ inputs:
 									)
 									+ concatStringsSep "\n" (map
 											(port: ''${ipset} add nginx_proxy_port ${toString port}'')
-											((attrValues services.nginx.transparentProxy.map) ++ [ 443 ]) )
+											((attrValues services.nginx.transparentProxy.map) ++ [ 443 3065 ]) )
 								);
 								stop = inputs.pkgs.writeShellScript "nginx-proxy.stop" (stripeTabs
 								''
