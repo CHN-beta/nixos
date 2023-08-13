@@ -27,7 +27,7 @@ inputs:
 							keep-outputs = inputs.config.nixos.system.keepOutputs;
 							keep-failed = true;
 							auto-optimise-store = true;
-							substituters = mkAfter [ "http://127.0.0.1:5000" ];
+							substituters = mkAfter [ "https://nix-store.chn.moe" ];
 							trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
 							show-trace = true;
 							max-jobs = 1;
