@@ -969,7 +969,7 @@ inputs:
 						port = 7116;
 						requirePassFile = inputs.config.sops.secrets."send/redis-password".path;
 					};
-					nixos.services.nginx.httpProxy.send =
+					nixos.services.nginx.httpProxy."send.chn.moe" =
 					{
 						upstream = "http://127.0.0.1:1443";
 						rewriteHttps = true;
