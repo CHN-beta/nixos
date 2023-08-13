@@ -460,7 +460,7 @@
 							packages.packageSet = "server";
 							services.sshd.enable = true;
 							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
-							system.hostname = "bootstrap";
+							system = { hostname = "bootstrap"; march = "znver3"; };
 						};})
 					];
 				};
