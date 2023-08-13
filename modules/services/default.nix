@@ -946,10 +946,10 @@ inputs:
 					{
 						templates."send/env".content = stripeTabs
 						''
-							BASE_URL="https://send.chn.moe"
-							REDIS_HOST="host.docker.internal"
-							REDIS_PORT="7116"
-							REDIS_PASSWORD="${inputs.config.sops.placeholder."send/redis-password"}"
+							BASE_URL=https://send.chn.moe
+							REDIS_HOST=host.docker.internal
+							REDIS_PORT=7116
+							REDIS_PASSWORD=${inputs.config.sops.placeholder."send/redis-password"}
 						'';
 						secrets."send/redis-password".owner = inputs.config.users.users.redis-send.name;
 					};
