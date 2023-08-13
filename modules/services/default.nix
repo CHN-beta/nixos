@@ -824,6 +824,20 @@ inputs:
 									proxy_buffer_size 128k;
 								}
 							'';
+							virtualHosts = listToAttrs (map
+								(site:
+								{
+									inherit (site) name;
+									value =
+									{
+										serverName = site.name;
+										listen = [{ addr = "127.0.0.1"; port = 443; ssl = true; } { addr = "0.0.0.0"; port = 80; } ];
+										useACMEHost = site.name;
+										locations."/".proxyPass = site.value.upstream;
+										forceSSL = site.value.rewriteHttps;
+									};
+								})
+								(attrsToList services.nginx.httpProxy));
 							recommendedZstdSettings = true;
 							recommendedTlsSettings = true;
 							recommendedProxySettings = true;
@@ -906,33 +920,10 @@ inputs:
 						};
 					};
 					networking.firewall.allowedTCPPorts = [ 443 ];
-				}
-			)
-			(
-				mkIf (services.nginx.httpProxy != {})
-				{
-					services.nginx.virtualHosts = listToAttrs (map
-						(site:
-						{
-							inherit (site) name;
-							value =
-							{
-								serverName = site.name;
-								listen = [{ addr = "127.0.0.1"; port = 443; ssl = true; } { addr = "0.0.0.0"; port = 80; } ];
-								useACMEHost = site.name;
-								locations."/".proxyPass = site.value.upstream;
-								forceSSL = site.value.rewriteHttps;
-							};
-						})
-						(attrsToList services.nginx.httpProxy));
-					nixos.services =
+					nixos.services.acme =
 					{
-						nginx.enable = true;
-						acme =
-						{
-							enable = true;
-							certs = attrNames services.nginx.httpProxy;
-						};
+						enable = true;
+						certs = attrNames services.nginx.httpProxy;
 					};
 					security.acme.certs = listToAttrs (map
 						(cert: { name = cert; value.group = inputs.config.services.nginx.group; })
