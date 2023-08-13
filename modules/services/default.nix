@@ -100,6 +100,7 @@ inputs:
 				{
 					upstream = mkOption { type = types.nonEmptyStr; };
 					rewriteHttps = mkOption { type = types.bool; default = false; };
+					websocket = mkOption { type = types.bool; default = false; };
 					# setHeaders = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
 					# addPin = mkOption { type = types.bool; default = false; };
 					# detectPin = mkOption { type = types.bool; default = false; };
@@ -833,7 +834,11 @@ inputs:
 										serverName = site.name;
 										listen = [{ addr = "127.0.0.1"; port = 443; ssl = true; } { addr = "0.0.0.0"; port = 80; } ];
 										useACMEHost = site.name;
-										locations."/".proxyPass = site.value.upstream;
+										locations."/" =
+										{
+											proxyPass = site.value.upstream;
+											proxyWebsockets = site.value.websocket;
+										};
 										forceSSL = site.value.rewriteHttps;
 									};
 								})
@@ -844,6 +849,7 @@ inputs:
 							recommendedOptimisation = true;
 							recommendedGzipSettings = true;
 							recommendedBrotliSettings = true;
+							clientMaxBodySize = "0";
 							package = inputs.pkgs.nginxMainline;
 						};
 						geoipupdate =
@@ -972,6 +978,7 @@ inputs:
 						{
 							upstream = "http://127.0.0.1:8529";
 							rewriteHttps = true;
+							websocket = true;
 						};
 					};
 				}
