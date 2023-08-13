@@ -461,16 +461,16 @@
 							{
 								mount.btrfs =
 								{
-									"/dev/disk/by-uuid/a6460ff0-b6aa-4c1c-a546-8ad0d495bcf8"."/boot" = "/boot";
-									"/dev/mapper/root"."/nix" = "/";
+									"/dev/disk/by-uuid/e36287f7-7321-45fa-ba1e-d126717a65f0"."/boot" = "/boot";
+									"/dev/mapper/root"."/root" = "/";
 								};
-								decrypt.auto."/dev/disk/by-uuid/46e59fc7-7bb1-4534-bbe4-b948a9a8eeda" =
+								decrypt.auto."/dev/disk/by-uuid/db48c8de-bcf7-43ae-a977-60c4f390d5c4" =
 									{ mapper = "root"; ssd = true; };
 							};
 							packages.packageSet = "server";
 							services.sshd.enable = true;
-							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
-							system = { hostname = "bootstrap"; march = "znver3"; };
+							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
+							system = { hostname = "bootstrap"; march = "znver2"; };
 						};})
 					];
 				};
