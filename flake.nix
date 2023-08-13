@@ -320,9 +320,9 @@
 								frpServer = { enable = true; serverName = "frp.chn.moe"; };
 								nginx =
 								{
+									enable = true;
 									transparentProxy =
 									{
-										enable = true;
 										externalIp = "74.211.99.69";
 										map =
 										{

@@ -635,10 +635,10 @@ inputs:
 					nixos.services =
 					{
 						acme = { enable = true; certs = [ services.xrayServer.serverName ]; };
-						nginx.transparentProxy =
+						nginx =
 						{
 							enable = true;
-							map."${services.xrayServer.serverName}" = 4726;
+							transparentProxy.map."${services.xrayServer.serverName}" = 4726;
 						};
 					};
 					security.acme.certs.${services.xrayServer.serverName}.group = inputs.config.users.users.nginx.group;
@@ -794,7 +794,7 @@ inputs:
 			)
 			(mkIf services.smartd.enable { services.smartd.enable = true; })
 			(
-				mkIf services.nginx.transparentProxy.enable
+				mkIf services.nginx.enable
 				{
 					services =
 					{
@@ -927,7 +927,7 @@ inputs:
 						(attrsToList services.nginx.httpProxy));
 					nixos.services =
 					{
-						nginx.transparentProxy.enable = true;
+						nginx.enable = true;
 						acme =
 						{
 							enable = true;
@@ -969,10 +969,14 @@ inputs:
 						port = 7116;
 						requirePassFile = inputs.config.sops.secrets."send/redis-password".path;
 					};
-					nixos.services.nginx.httpProxy."send.chn.moe" =
+					nixos.services.nginx =
 					{
-						upstream = "http://127.0.0.1:1443";
-						rewriteHttps = true;
+						enable = true;
+						httpProxy."send.chn.moe" =
+						{
+							upstream = "http://127.0.0.1:1443";
+							rewriteHttps = true;
+						};
 					};
 				}
 			)
