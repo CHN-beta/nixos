@@ -944,7 +944,7 @@ inputs:
 							sha256 = "1pjvza7syiglvd0ky2j1yd92nlpwmz5l80j1qiahwkpighlaqg06";
 						};
 						volumes = [ "/var/lib/send:/uploads" ];
-						ports = [ "127.0.0.1::1443" ];
+						ports = [ "127.0.0.1:8529:1443" ];
 						extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
 						environmentFiles = [ inputs.config.sops.templates."send/env".path ];
 					};
@@ -970,7 +970,7 @@ inputs:
 						enable = true;
 						httpProxy."send.chn.moe" =
 						{
-							upstream = "http://127.0.0.1:1443";
+							upstream = "http://127.0.0.1:8529";
 							rewriteHttps = true;
 						};
 					};
