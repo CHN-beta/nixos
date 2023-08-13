@@ -300,10 +300,7 @@
 								swap = [ "/nix/swap/swap" ];
 								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
 							};
-							packages =
-							{
-								packageSet = "server";
-							};
+							packages.packageSet = "server";
 							services =
 							{
 								impermanence.enable = true;
@@ -357,23 +354,20 @@
 								{
 									btrfs =
 									{
-										"/dev/disk/by-uuid/24577c0e-d56b-45ba-8b36-95a848228600"."/boot" = "/boot";
+										"/dev/disk/by-uuid/a6460ff0-b6aa-4c1c-a546-8ad0d495bcf8"."/boot" = "/boot";
 										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
 									};
 								};
 								decrypt.manual =
 								{
 									enable = true;
-									devices."/dev/disk/by-uuid/4f8aca22-9ec6-4fad-b21a-fd9d8d0514e8" = { mapper = "root"; ssd = true; };
+									devices."/dev/disk/by-uuid/46e59fc7-7bb1-4534-bbe4-b948a9a8eeda" = { mapper = "root"; ssd = true; };
 									delayedMount = [ "/" ];
 								};
 								swap = [ "/nix/swap/swap" ];
 								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
 							};
-							packages =
-							{
-								packageSet = "server";
-							};
+							packages.packageSet = "server";
 							services =
 							{
 								impermanence.enable = true;
@@ -383,7 +377,7 @@
 							};
 							boot =
 							{
-								grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
+								grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
 								network.enable = true;
 								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
 							};
