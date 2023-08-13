@@ -453,14 +453,19 @@
 						./modules
 						(inputs: { config.nixos =
 						{
-							fileSystems.mount =
+							fileSystems =
 							{
-								btrfs."/dev/disk/by-uuid/3c538298-d5cd-4a37-96f8-8f5b82793c91"."/" = "/";
-								vfat."/dev/disk/by-uuid/3E56-A14D" = "/boot/efi";
+								mount.btrfs =
+								{
+									"/dev/disk/by-uuid/a6460ff0-b6aa-4c1c-a546-8ad0d495bcf8"."/boot" = "/boot";
+									"/dev/mapper/root"."/nix" = "/";
+								};
+								decrypt.auto."/dev/disk/by-uuid/46e59fc7-7bb1-4534-bbe4-b948a9a8eeda" =
+									{ mapper = "root"; ssd = true; };
 							};
 							packages.packageSet = "server";
 							services.sshd.enable = true;
-							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
+							boot.grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
 							system.hostname = "bootstrap";
 						};})
 					];
