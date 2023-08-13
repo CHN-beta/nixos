@@ -91,6 +91,15 @@
 				flake-parts.follows = "flake-parts";
 			};
 		};
+		napalm =
+		{
+			url = "github:nix-community/napalm";
+			inputs =
+			{
+				nixpkgs.follows = "nixpkgs";
+				flake-utils.follows = "flake-utils";
+			};
+		};
 	};
 
 	outputs = inputs:

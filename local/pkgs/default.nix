@@ -5,4 +5,5 @@
 	spectral = python3Packages.callPackage ./spectral {};
 	vesta = callPackage ./vesta {};
 	oneapi = callPackage ./oneapi {};
+	send = callPackage ./send {};
 }
