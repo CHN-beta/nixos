@@ -107,6 +107,7 @@ inputs:
 				default = {};
 			};
 		};
+		send.enable = mkOption { type = types.bool; default = false; };
 	};
 	config =
 		let
@@ -936,6 +937,43 @@ inputs:
 					security.acme.certs = listToAttrs (map
 						(cert: { name = cert; value.group = inputs.config.services.nginx.group; })
 						(attrNames services.nginx.httpProxy));
+				}
+			)
+			(
+				mkIf services.send.enable
+				{
+					virtualisation.oci-containers.containers.send =
+					{
+						image = "registry.gitlab.com/timvisee/send"
+							+ "@sha256:1ee495161f176946e6e4077e17be2b8f8634c2d502172cc530a8cd5affd7078f";
+						volumes = [ "/var/lib/send:/uploads" ];
+						ports = [ "127.0.0.1::1443" ];
+						extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
+						environmentFiles = [ inputs.config.sops.templates."send/env".path ];
+					};
+					sops =
+					{
+						templates."send/env".content = stripeTabs
+						''
+							BASE_URL = "https://send.chn.moe"
+							REDIS_HOST = "host.docker.internal"
+							REDIS_PORT = "7116"
+							REDIS_PASSWORD = "${inputs.config.sops.placeholder."send/redis-password"}"
+						'';
+						secrets."send/redis-password".owner = inputs.config.users.users.redis-send.name;
+					};
+					services.redis.servers.send =
+					{
+						enable = true;
+						unixSocket = null;
+						port = 7116;
+						requirePassFile = inputs.config.sops.secrets."send/redis-password".path;
+					};
+					nixos.services.nginx.httpProxy.send =
+					{
+						upstream = "127.0.0.1:1443";
+						rewriteHttps = true;
+					};
 				}
 			)
 		];

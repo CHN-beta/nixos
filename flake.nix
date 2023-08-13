@@ -335,6 +335,7 @@
 										"nix-store.chn.moe" = { upstream = "http://127.0.0.1:5000"; rewriteHttps = true; };
 									};
 								};
+								send.enable = true;
 							};
 							boot =
 							{
