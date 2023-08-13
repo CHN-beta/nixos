@@ -109,14 +109,14 @@ inputs:
 				default = {};
 			};
 		};
-		send.enable = mkOption { type = types.bool; default = false; };
+		fileshelter.enable = mkOption { type = types.bool; default = false; };
 	};
 	config =
 		let
 			inherit (inputs.lib) mkMerge mkIf;
 			inherit (inputs.localLib) stripeTabs attrsToList;
 			inherit (inputs.config.nixos) services;
-			inherit (builtins) map listToAttrs concatStringsSep toString elemAt genList length attrNames attrValues;
+			inherit (builtins) map listToAttrs concatStringsSep toString elemAt genList length attrNames attrValues toFile;
 		in mkMerge
 		[
 			(
@@ -949,49 +949,55 @@ inputs:
 				}
 			)
 			(
-				mkIf services.send.enable
+				mkIf services.fileshelter.enable
 				{
-					virtualisation.oci-containers.containers.send =
+					systemd.services.fileshelter =
 					{
-						image = "registry.gitlab.com/timvisee/send"
-							+ "@sha256:1ee495161f176946e6e4077e17be2b8f8634c2d502172cc530a8cd5affd7078f";
-						imageFile = inputs.pkgs.dockerTools.pullImage
-						{
-							imageName = "registry.gitlab.com/timvisee/send";
-							imageDigest = "sha256:1ee495161f176946e6e4077e17be2b8f8634c2d502172cc530a8cd5affd7078f";
-							sha256 = "1pjvza7syiglvd0ky2j1yd92nlpwmz5l80j1qiahwkpighlaqg06";
-						};
-						volumes = [ "/var/lib/send:/uploads" ];
-						ports = [ "127.0.0.1:8529:1443" ];
-						extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
-						environmentFiles = [ inputs.config.sops.templates."send/env".path ];
+						description = "FileShelter";
+						after = [ "network.target" ];
+						wantedBy = [ "multi-user.target" ];
+						serviceConfig =
+							let
+								fileshelter = "${inputs.pkgs.fileshelter}";
+								wt = "${inputs.pkgs.wt}";
+								config = toFile "fileshelter.conf" (stripeTabs
+								''
+									working-dir = "/var/lib/fileshelter";
+									default-validity-days = 1;
+									max-validity-days = 7;
+									default-validity-hits = 1;
+									max-validity-hits = 10;
+									max-file-size = 1024;
+									listen-port = 5091;
+									listen-addr = "127.0.0.1";
+									behind-reverse-proxy = true;
+									docroot = "${fileshelter}/share/fileshelter/docroot/;/resources,/css,/images,/favicon.ico";
+									approot = "${fileshelter}/share/fileshelter/approot";
+									wt-resources = "${wt}/share/Wt/resources";
+								'');
+							in
+							{
+								Type = "simple";
+								WorkingDirectory = "/var/lib/fileshelter";
+								ExecStart = "${fileshelter}/bin/fileshelter ${config}";
+								User = inputs.users.users.fileshelter.name;
+								Group = inputs.users.users.fileshelter.group;
+							};
 					};
-					sops =
+					users.users.fileshelter =
 					{
-						templates."send/env".content = stripeTabs
-						''
-							BASE_URL=https://send.chn.moe
-							REDIS_HOST=host.docker.internal
-							REDIS_PORT=7116
-							REDIS_PASSWORD=${inputs.config.sops.placeholder."send/redis-password"}
-						'';
-						secrets."send/redis-password".owner = inputs.config.users.users.redis-send.name;
-					};
-					services.redis.servers.send =
-					{
-						enable = true;
-						port = 7116;
-						requirePassFile = inputs.config.sops.secrets."send/redis-password".path;
+						isSystemUser = true;
+						group = "fileshelter";
+						home = "/var/lib/fileshelter";
 					};
 					nixos.services.nginx =
 					{
 						enable = true;
-						httpProxy."send.chn.moe" =
+						httpProxy."file.chn.moe" =
 						{
-							upstream = "http://127.0.0.1:8529";
+							upstream = "http://127.0.0.1:5091";
 							rewriteHttps = true;
 							websocket = true;
-							http2 = false;
 						};
 					};
 				}
