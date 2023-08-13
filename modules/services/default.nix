@@ -1014,11 +1014,15 @@ inputs:
 								Group = inputs.config.users.users.fileshelter.group;
 							};
 					};
-					users.users.fileshelter =
+					users =
 					{
-						isSystemUser = true;
-						group = "fileshelter";
-						home = "/var/lib/fileshelter";
+						users.fileshelter =
+						{
+							isSystemUser = true;
+							group = "fileshelter";
+							home = "/var/lib/fileshelter";
+						};
+						groups.fileshelter = {};
 					};
 					nixos.services.nginx =
 					{
