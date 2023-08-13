@@ -112,7 +112,7 @@ inputs:
 						gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
 						wayland-utils clinfo glxinfo vulkan-tools dracut
 						# nix tools
-						nix-template appimage-run nil nixd nix-alien ssh-to-age nix-serve
+						nix-template appimage-run nil nixd nix-alien ssh-to-age nix-serve node2nix
 						# instant messager
 						element-desktop telegram-desktop discord qq nur-xddxdd.wechat-uos # jail
 						inputs.config.nur.repos.linyinfeng.wemeet # native # nur-xddxdd.wine-wechat thunder
