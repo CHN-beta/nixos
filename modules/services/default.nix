@@ -956,7 +956,6 @@ inputs:
 					services.redis.servers.send =
 					{
 						enable = true;
-						unixSocket = null;
 						port = 7116;
 						requirePassFile = inputs.config.sops.secrets."send/redis-password".path;
 					};
