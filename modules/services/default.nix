@@ -116,7 +116,7 @@ inputs:
 			inherit (inputs.lib) mkMerge mkIf;
 			inherit (inputs.localLib) stripeTabs attrsToList;
 			inherit (inputs.config.nixos) services;
-			inherit (builtins) map listToAttrs concatStringsSep toString elemAt genList length attrNames attrValues toFile;
+			inherit (builtins) map listToAttrs concatStringsSep toString elemAt genList length attrNames attrValues;
 		in mkMerge
 		[
 			(
@@ -805,8 +805,11 @@ inputs:
 							enable = true;
 							streamConfig = stripeTabs
 							''
-								geoip_country ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb;
-								log_format stream '[$time_local] $remote_addr-$geoip_country_code "$ssl_preread_server_name"->$backend $bytes_sent $bytes_received';
+								geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
+								{
+									$geoip2_data_country_code country iso_code;
+								}
+								log_format stream '[$time_local] $remote_addr-$geoip2_data_country_code "$ssl_preread_server_name"->$backend $bytes_sent $bytes_received';
 								access_log syslog:server=unix:/dev/log stream;
 								map $ssl_preread_server_name $backend
 								{
@@ -862,7 +865,30 @@ inputs:
 							recommendedGzipSettings = true;
 							recommendedBrotliSettings = true;
 							clientMaxBodySize = "0";
-							package = inputs.pkgs.nginxMainline;
+							appendHttpConfig = stripeTabs
+							''
+								geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
+								{
+									$geoip2_data_country_code country iso_code;
+								}
+							'';
+							package =
+								let
+									nginx-geoip2 =
+									{
+										name = "ngx_http_geoip2_module";
+										src = inputs.pkgs.fetchFromGitHub
+										{
+											owner = "leev";
+											repo = "ngx_http_geoip2_module";
+											rev = "a607a41a8115fecfc05b5c283c81532a3d605425";
+											hash = "sha256-CkmaeEa1iEAabJEDu3FhBUR7QF38koGYlyx+pyKZV9Y=";
+										};
+										meta.license = [];
+									};
+								in
+									(inputs.pkgs.nginxMainline.override (prev: { modules = prev.modules ++ [ nginx-geoip2 ]; }))
+										.overrideAttrs (prev: { buildInputs = prev.buildInputs ++ [ inputs.pkgs.libmaxminddb ]; });
 						};
 						geoipupdate =
 						{
@@ -960,28 +986,32 @@ inputs:
 							let
 								fileshelter = "${inputs.pkgs.fileshelter}";
 								wt = "${inputs.pkgs.wt}";
-								config = toFile "fileshelter.conf" (stripeTabs
-								''
-									working-dir = "/var/lib/fileshelter";
-									default-validity-days = 1;
-									max-validity-days = 7;
-									default-validity-hits = 1;
-									max-validity-hits = 10;
-									max-file-size = 1024;
-									listen-port = 5091;
-									listen-addr = "127.0.0.1";
-									behind-reverse-proxy = true;
-									docroot = "${fileshelter}/share/fileshelter/docroot/;/resources,/css,/images,/favicon.ico";
-									approot = "${fileshelter}/share/fileshelter/approot";
-									wt-resources = "${wt}/share/Wt/resources";
-								'');
+								config = inputs.pkgs.writeTextFile
+								{
+									name = "fileshelter.conf";
+									text = stripeTabs
+									''
+										working-dir = "/var/lib/fileshelter";
+										default-validity-days = 1;
+										max-validity-days = 7;
+										default-validity-hits = 1;
+										max-validity-hits = 10;
+										max-file-size = 1024;
+										listen-port = 5091;
+										listen-addr = "127.0.0.1";
+										behind-reverse-proxy = true;
+										docroot = "${fileshelter}/share/fileshelter/docroot/;/resources,/css,/images,/favicon.ico";
+										approot = "${fileshelter}/share/fileshelter/approot";
+										wt-resources = "${wt}/share/Wt/resources";
+									'';
+								};
 							in
 							{
 								Type = "simple";
 								WorkingDirectory = "/var/lib/fileshelter";
 								ExecStart = "${fileshelter}/bin/fileshelter ${config}";
-								User = inputs.users.users.fileshelter.name;
-								Group = inputs.users.users.fileshelter.group;
+								User = inputs.config.users.users.fileshelter.name;
+								Group = inputs.config.users.users.fileshelter.group;
 							};
 					};
 					users.users.fileshelter =
