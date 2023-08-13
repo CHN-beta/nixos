@@ -589,8 +589,8 @@ inputs:
 									Group = "v2ray";
 									CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
 									AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-									LimitNPROC = 10000;
-									LimitNOFILE = 1000000;
+									LimitNPROC = 65536;
+									LimitNOFILE = 524288;
 								};
 								restartTriggers = [ inputs.config.sops.templates."xray-server.json".file ];
 							};
@@ -966,6 +966,8 @@ inputs:
 						{
 							CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
 							AmbientCapabilities = [ "CAP_NET_ADMIN" ];
+							LimitNPROC = 65536;
+							LimitNOFILE = 524288;
 						};
 					};
 					networking.firewall.allowedTCPPorts = [ 443 ];
