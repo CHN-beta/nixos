@@ -88,9 +88,9 @@ inputs:
 		smartd.enable = mkOption { type = types.bool; default = false; };
 		nginx =
 		{
+			enable = mkOption { type = types.bool; default = false; };
 			transparentProxy =
 			{
-				enable = mkOption { type = types.bool; default = false; };
 				externalIp = mkOption { type = types.nonEmptyStr; };
 				map = mkOption { type = types.attrsOf types.ints.unsigned; };
 			};
@@ -971,7 +971,7 @@ inputs:
 					};
 					nixos.services.nginx.httpProxy.send =
 					{
-						upstream = "127.0.0.1:1443";
+						upstream = "http://127.0.0.1:1443";
 						rewriteHttps = true;
 					};
 				}
