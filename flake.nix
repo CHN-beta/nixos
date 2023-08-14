@@ -430,6 +430,7 @@
 								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
 								sshd.enable = true;
 								rsshub.enable = true;
+								nginx = { enable = true; transparentProxy.externalIp = "207.180.253.54"; };
 							};
 							boot =
 							{
