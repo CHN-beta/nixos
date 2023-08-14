@@ -1016,6 +1016,11 @@ inputs:
 						# lc_time = 'en_US.utf8'
 						# default_text_search_config = 'pg_catalog.english'
 						# plperl.on_init = 'use utf8; use re; package utf8; require "utf8_heavy.pl";'
+						# mv /path/to/dir /path/to/dir_old
+						# mkdir /path/to/dir
+						# chattr +C /path/to/dir
+						# cp -a --reflink=never /path/to/dir_old/. /path/to/dir
+						# rm -rf /path/to/dir_old
 					};
 				}
 			)
@@ -1109,7 +1114,7 @@ inputs:
 								SYMFONY__ENV__DATABASE_PORT=5432
 								SYMFONY__ENV__DATABASE_NAME=wallabag
 								SYMFONY__ENV__DATABASE_USER=wallabag
-								SYMFONY__ENV__DATABASE_PASSWORD=xxxxxxxxxxxxxxxxxxxx
+								SYMFONY__ENV__DATABASE_PASSWORD=${placeholder."postgresql/wallabag"}
 								SYMFONY__ENV__MAILER_DSN=smtp://mail.chn.moe
 								SYMFONY__ENV__FROM_EMAIL=bot@chn.moe
 								SYMFONY__ENV__TWOFACTOR_SENDER=bot@chn.moe
@@ -1119,11 +1124,11 @@ inputs:
 								SYMFONY__ENV__REDIS_PASSWORD=${placeholder."redis/wallabag"}
 								SYMFONY__ENV__SERVER_NAME=wallabag.chn.moe
 							'';
-						secrets = { "redis/wallabag".owner = inputs.config.users.users.redis-wallabag.name; }
-							// (listToAttrs (map (secret: { name = secret; value = {}; })
-							[
-
-							]));
+						secrets =
+						{
+							"redis/wallabag".owner = inputs.config.users.users.redis-wallabag.name;
+							"postgresql/wallabag" = {};
+						};
 					};
 					services =
 					{
@@ -1137,29 +1142,23 @@ inputs:
 						postgresql =
 						{
 							ensureDatabases = [ "wallabag" ];
-							ensureUsers.wallabag =
-							{
+							ensureUsers =
+							[{
 								name = "wallabag";
 								ensurePermissions."DATABASE \"wallabag\"" = "ALL PRIVILEGES";
-								passwordFile = inputs.config.sops.secrets."postgresql/wallabag".path;
-							};
+							}];
 						};
 					};
 					nixos =
 					{
 						services =
 						{
-							nginx = { enable = true; httpProxy."rsshub.chn.moe".upstream = "http://127.0.0.1:5221"; };
+							nginx = { enable = true; httpProxy."wallabag.chn.moe".upstream = "http://127.0.0.1:4398"; };
 							postgresql.enable = true;
 						};
 						virtualization.docker.enable = true;
 					};
 				}
-				# max_execution_time = 30
-				# max_input_time = 60
-				# post_max_size = 1G
-				# memory_limit = 128M
-				# upload_max_filesize = 1G
 			)
 		];
 }
