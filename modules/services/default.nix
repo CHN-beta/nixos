@@ -116,6 +116,7 @@ inputs:
 			};
 		};
 		fileshelter.enable = mkOption { type = types.bool; default = false; };
+		postgresql.enable = mkOption { type = types.bool; default = false; };
 	};
 	config =
 		let
@@ -992,6 +993,30 @@ inputs:
 						}
 					)
 				])
+			)
+			(
+				mkIf services.postgresql.enable
+				{
+					services.postgresql =
+					{
+						enable = true;
+						package = inputs.pkgs.postgresql_15;
+						enableTCPIP = true;
+						# listen_addresses = '0.0.0.0'
+						# unix_socket_permissions = 0700
+						# shared_buffers = 2048MB
+						# work_mem = 128MB
+						# log_timezone = 'Asia/Shanghai'
+						# datestyle = 'iso, mdy'
+						# timezone = 'Asia/Shanghai'
+						# lc_messages = 'en_US.utf8'
+						# lc_monetary = 'en_US.utf8'
+						# lc_numeric = 'en_US.utf8'
+						# lc_time = 'en_US.utf8'
+						# default_text_search_config = 'pg_catalog.english'
+						# plperl.on_init = 'use utf8; use re; package utf8; require "utf8_heavy.pl";'
+					};
+				}
 			)
 		];
 }
