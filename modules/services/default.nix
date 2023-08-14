@@ -1070,7 +1070,11 @@ inputs:
 						port = 7116;
 						requirePassFile = inputs.config.sops.secrets."redis/rsshub".path;
 					};
-					nixos.services.nginx.httpProxy."rsshub.chn.moe".upstream = "http://127.0.0.1:5221";
+					nixos =
+					{
+						services.nginx.httpProxy."rsshub.chn.moe".upstream = "http://127.0.0.1:5221";
+						virtualization.docker.enable = true;
+					};
 				}
 			)
 		];
