@@ -84,7 +84,11 @@ inputs:
 			enable = mkOption { type = types.bool; default = false; };
 			serverName = mkOption { type = types.nonEmptyStr; };
 		};
-		nix-serve.enable = mkOption { type = types.bool; default = false; };
+		nix-serve =
+		{
+			enable = mkOption { type = types.bool; default = false; };
+			hostname = mkOption { type = types.nonEmptyStr; };
+		};
 		smartd.enable = mkOption { type = types.bool; default = false; };
 		nginx =
 		{
@@ -789,6 +793,11 @@ inputs:
 						secretKeyFile = inputs.config.sops.secrets."store/signingKey".path;
 					};
 					sops.secrets."store/signingKey" = {};
+					nixos.services.nginx.httpProxy.${services.nix-serve.hostname} =
+					{
+						upstream = "http://127.0.0.1:5000";
+						rewriteHttps = true;
+					};
 				}
 			)
 			(mkIf services.smartd.enable { services.smartd.enable = true; })

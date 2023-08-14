@@ -248,7 +248,7 @@
 										remotePort = 5000;
 									};
 								};
-								nix-serve.enable = true;
+								nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
 								smartd.enable = true;
 							};
 							bugs =
