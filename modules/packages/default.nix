@@ -184,7 +184,7 @@ inputs:
 						phonopy inquirerpy requests tensorflow keras python-telegram-bot tqdm
 						fastapi pypdf2 pandas openai matplotlib scipy plotly gunicorn scikit-learn redis jinja2
 					])];
-					_prebuildPackages = [ httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran ];
+					_prebuildPackages = [ httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran gcc10 python2 ];
 				};
 				programs =
 				{
