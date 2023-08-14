@@ -116,7 +116,7 @@ inputs:
 						wayland-utils clinfo glxinfo vulkan-tools dracut
 						# nix tools
 						nix-template appimage-run nil nixd nix-alien ssh-to-age nix-serve node2nix nix-prefetch-github
-						prefetch-npm-deps
+						prefetch-npm-deps nix-prefetch-docker
 						# instant messager
 						element-desktop telegram-desktop discord qq nur-xddxdd.wechat-uos # jail
 						inputs.config.nur.repos.linyinfeng.wemeet # native # nur-xddxdd.wine-wechat thunder
