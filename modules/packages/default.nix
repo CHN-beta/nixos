@@ -96,7 +96,10 @@ inputs:
 			nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
 			nixpkgs.config =
 			{
-				permittedInsecurePackages = [ "openssl-1.1.1v" "electron-19.0.7" "nodejs-16.20.1" ];
+				permittedInsecurePackages = with inputs.pkgs;
+				[
+					openssl_1_1.name electron_19.name nodejs-16_x.name python2.name
+				];
 				allowUnfree = true;
 			};
 		}
