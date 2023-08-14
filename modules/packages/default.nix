@@ -58,7 +58,7 @@ inputs:
 					# networking
 					ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils
 					# nix tools
-					nix-output-monitor
+					nix-output-monitor pnpm-lock-export
 					# development
 					clang-tools
 					# office
