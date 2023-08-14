@@ -31,7 +31,7 @@ inputs:
 						dns = [ "1.1.1.1" ];
 					};
 				};
-				enableNvidia = true;
+				enableNvidia = builtins.elem "nvidia" inputs.config.nixos.hardware.gpus;
 				storageDriver = "overlay2";
 			};}
 		)
