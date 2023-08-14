@@ -7,4 +7,5 @@
 	oneapi = callPackage ./oneapi {};
 	send = callPackage ./send {};
 	misskey = callPackage ./misskey {};
+	rsshub = callPackage ./rsshub {};
 }
