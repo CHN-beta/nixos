@@ -1072,7 +1072,7 @@ inputs:
 					};
 					nixos =
 					{
-						services.nginx.httpProxy."rsshub.chn.moe".upstream = "http://127.0.0.1:5221";
+						services.nginx ={ enable = true; httpProxy."rsshub.chn.moe".upstream = "http://127.0.0.1:5221"; };
 						virtualization.docker.enable = true;
 					};
 				}
