@@ -1102,6 +1102,11 @@ inputs:
 						extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
 						environmentFiles = [ inputs.config.sops.templates."wallabag/env".path ];
 					};
+					systemd.services.docker-wallabag.serviceConfig =
+					{
+						User = "wallabag";
+						Group = "wallabag";
+					};
 					sops =
 					{
 						templates."wallabag/env".content =
@@ -1147,6 +1152,8 @@ inputs:
 								name = "wallabag";
 								ensurePermissions."DATABASE \"wallabag\"" = "ALL PRIVILEGES";
 							}];
+							# ALTER DATABASE db_name OWNER TO new_owner_name
+							# sudo docker exec -t wallabag /var/www/wallabag/bin/console wallabag:install --env=prod --no-interaction
 						};
 					};
 					nixos =
@@ -1157,6 +1164,11 @@ inputs:
 							postgresql.enable = true;
 						};
 						virtualization.docker.enable = true;
+					};
+					users =
+					{
+						users.wallabag = { isSystemUser = true; group = "wallabag"; autoSubUidGidRange = true; };
+						groups.wallabag = {};
 					};
 				}
 			)
