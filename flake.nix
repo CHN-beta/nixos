@@ -250,6 +250,7 @@
 								};
 								nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
 								smartd.enable = true;
+								nginx = { enable = true; transparentProxy.enable = false; };
 							};
 							bugs =
 							[
