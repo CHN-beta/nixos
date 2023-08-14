@@ -638,11 +638,7 @@ inputs:
 					nixos.services =
 					{
 						acme = { enable = true; certs = [ services.xrayServer.serverName ]; };
-						nginx =
-						{
-							enable = true;
-							transparentProxy.map."${services.xrayServer.serverName}" = 4726;
-						};
+						nginx.transparentProxy.map."${services.xrayServer.serverName}" = 4726;
 					};
 					security.acme.certs.${services.xrayServer.serverName}.group = inputs.config.users.users.nginx.group;
 				}
