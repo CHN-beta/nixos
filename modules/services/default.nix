@@ -117,6 +117,7 @@ inputs:
 		};
 		fileshelter.enable = mkOption { type = types.bool; default = false; };
 		postgresql.enable = mkOption { type = types.bool; default = false; };
+		rsshub.enable = mkOption { type = types.bool; default = false; };
 	};
 	config =
 		let
@@ -796,11 +797,7 @@ inputs:
 						secretKeyFile = inputs.config.sops.secrets."store/signingKey".path;
 					};
 					sops.secrets."store/signingKey" = {};
-					nixos.services.nginx.httpProxy.${services.nix-serve.hostname} =
-					{
-						upstream = "http://127.0.0.1:5000";
-						rewriteHttps = true;
-					};
+					nixos.services.nginx.httpProxy.${services.nix-serve.hostname}.upstream = "http://127.0.0.1:5000";
 				}
 			)
 			(mkIf services.smartd.enable { services.smartd.enable = true; })
@@ -1002,10 +999,12 @@ inputs:
 						enable = true;
 						package = inputs.pkgs.postgresql_15;
 						enableTCPIP = true;
-						# listen_addresses = '0.0.0.0'
-						# unix_socket_permissions = 0700
-						# shared_buffers = 2048MB
-						# work_mem = 128MB
+						settings =
+						{
+							unix_socket_permissions = "0700";
+							shared_buffers = "2048MB";
+							work_mem = "128MB";
+						};
 						# log_timezone = 'Asia/Shanghai'
 						# datestyle = 'iso, mdy'
 						# timezone = 'Asia/Shanghai'
@@ -1016,6 +1015,61 @@ inputs:
 						# default_text_search_config = 'pg_catalog.english'
 						# plperl.on_init = 'use utf8; use re; package utf8; require "utf8_heavy.pl";'
 					};
+				}
+			)
+			(
+				mkIf services.rsshub.enable
+				{
+					virtualisation.oci-containers.containers.rsshub =
+					{
+						image = "diygod/rsshub:chromium-bundled-2023-08-14";
+						imageFile = inputs.pkgs.dockerTools.pullImage
+						{
+							imageName = "diygod/rsshub";
+							imageDigest = "sha256:16d19f68446f6b8915787d691394dd5a1b1b059dab9a8f219a0d42947dfda5d5";
+							sha256 = "02fsqkbzzwjiwd0j82r8qy4hnhz8gz7w72mblzxarc45s121ynxv";
+							finalImageName = "diygod/rsshub";
+							finalImageTag = "chromium-bundled-2023-08-14";
+						};
+						ports = [ "127.0.0.1:5221:5221/tcp" ];
+						extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
+						environmentFiles = [ inputs.config.sops.templates."rsshub/env".path ];
+					};
+					sops =
+					{
+						templates."rsshub/env".content =
+							let
+								placeholder = inputs.config.sops.placeholder;
+							in stripeTabs
+							''
+								PORT=5221
+								CACHE_TYPE=redis
+								REDIS_URL=redis://:${placeholder."redis/rsshub"}@host.docker.internal:7116
+								PIXIV_REFRESHTOKEN=${placeholder."rsshub/pixiv-refreshtoken"}
+								YOUTUBE_KEY=${placeholder."rsshub/youtube-key"}
+								YOUTUBE_CLIENT_ID=${placeholder."rsshub/youtube-client-id"}
+								YOUTUBE_CLIENT_SECRET=${placeholder."rsshub/youtube-client-secret"}
+								YOUTUBE_REFRESH_TOKEN=${placeholder."rsshub/youtube-refresh-token"}
+							'';
+						secrets = { "redis/rsshub".owner = inputs.config.users.users.redis-rsshub.name; }
+							// (listToAttrs (map (secret: { name = secret; value = {}; })
+							[
+								"rsshub/pixiv-refreshtoken"
+								"rsshub/youtube-key"
+								"rsshub/youtube-client-id"
+								"rsshub/youtube-client-secret"
+								"rsshub/youtube-refresh-token"
+							]));
+					};
+					services.redis.servers.rsshub =
+					{
+						enable = true;
+						bind = null;
+						# unixSocket = null; # bug
+						port = 7116;
+						requirePassFile = inputs.config.sops.secrets."redis/rsshub".path;
+					};
+					nixos.services.nginx.httpProxy."rsshub.chn.moe".upstream = "http://127.0.0.1:5221";
 				}
 			)
 		];

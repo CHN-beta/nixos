@@ -227,6 +227,7 @@
 											"ng01.mirism.one" = "216.24.188.24";
 											"debug.mirism.one" = "127.0.0.1";
 											"initrd.vps6.chn.moe" = "74.211.99.69";
+											"nix-store.chn.moe" = "127.0.0.1";
 										};
 									};
 								};
@@ -428,6 +429,7 @@
 								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
 								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
 								sshd.enable = true;
+								rsshub.enable = true;
 							};
 							boot =
 							{
