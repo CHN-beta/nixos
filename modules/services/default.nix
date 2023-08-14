@@ -833,6 +833,7 @@ inputs:
 												proxyPass = site.value.upstream;
 												proxyWebsockets = site.value.websocket;
 											};
+											addSSL = true;
 											forceSSL = site.value.rewriteHttps;
 											http2 = site.value.http2;
 										};
