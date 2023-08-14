@@ -1001,6 +1001,7 @@ inputs:
 						enable = true;
 						package = inputs.pkgs.postgresql_15;
 						enableTCPIP = true;
+						authentication = "host all all 0.0.0.0/0 md5";
 						settings =
 						{
 							unix_socket_permissions = "0700";
