@@ -28,7 +28,7 @@ inputs:
 					daemon.settings =
 					{
 						features.buildkit = true;
-						dns = [ "172.17.0.1" ];
+						dns = [ "1.1.1.1" ];
 					};
 				};
 				enableNvidia = true;
