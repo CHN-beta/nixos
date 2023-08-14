@@ -1109,7 +1109,6 @@ inputs:
 								placeholder = inputs.config.sops.placeholder;
 							in stripeTabs
 							''
-								POPULATE_DATABASE=false
 								SYMFONY__ENV__DATABASE_DRIVER=pdo_pgsql
 								SYMFONY__ENV__DATABASE_HOST=host.docker.internal
 								SYMFONY__ENV__DATABASE_PORT=5432
