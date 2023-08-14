@@ -30,7 +30,7 @@ inputs:
 							substituters = mkAfter [ "https://nix-store.chn.moe" ];
 							trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
 							show-trace = true;
-							max-jobs = 1;
+							max-jobs = 4;
 							cores = 0;
 							keep-going = true;
 						};
