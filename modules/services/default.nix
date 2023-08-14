@@ -661,6 +661,7 @@ inputs:
 							{
 								name = name; value =
 								{
+									dnsResolver = "8.8.8.8";
 									dnsProvider = "cloudflare";
 									credentialsFile = inputs.config.sops.secrets."acme/cloudflare.ini".path;
 								};
