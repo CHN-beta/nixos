@@ -19,21 +19,25 @@ inputs:
 		(mkIf inputs.config.nixos.virtualization.waydroid.enable { virtualisation = { waydroid.enable = true; }; })
 		# docker
 		(
-			mkIf inputs.config.nixos.virtualization.docker.enable { virtualisation.docker =
+			mkIf inputs.config.nixos.virtualization.docker.enable
 			{
-				# enable = true;
-				rootless =
+				virtualisation.docker =
 				{
-					enable = true; setSocketVariable = true;
-					daemon.settings =
+					# enable = true;
+					rootless =
 					{
-						features.buildkit = true;
-						dns = [ "1.1.1.1" ];
+						enable = true; setSocketVariable = true;
+						daemon.settings =
+						{
+							features.buildkit = true;
+							dns = [ "1.1.1.1" ];
+						};
 					};
+					enableNvidia = builtins.elem "nvidia" inputs.config.nixos.hardware.gpus;
+					storageDriver = "overlay2";
 				};
-				enableNvidia = builtins.elem "nvidia" inputs.config.nixos.hardware.gpus;
-				storageDriver = "overlay2";
-			};}
+				nixos.services.firewall.trustedInterfaces = [ "docker0" ];
+			}
 		)
 		# kvmHost
 		(

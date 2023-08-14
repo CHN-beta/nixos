@@ -231,7 +231,7 @@
 										};
 									};
 								};
-								firewall.trustedInterfaces = [ "docker0" "virbr0" "waydroid0" ];
+								firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
 								acme =
 								{
 									enable = true;
