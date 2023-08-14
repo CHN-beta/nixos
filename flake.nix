@@ -241,12 +241,7 @@
 									enable = true;
 									serverName = "frp.chn.moe";
 									user = "pc";
-									tcp.store =
-									{
-										localIp = "127.0.0.1";
-										localPort = 5000;
-										remotePort = 5000;
-									};
+									tcp.store = { localPort = 443; remotePort = 7676; };
 								};
 								nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
 								smartd.enable = true;
@@ -329,11 +324,8 @@
 										{
 											"ng01.mirism.one" = 7411;
 											"beta.mirism.one" = 9114;
+											"nix-store.chn.moe" = 7676;
 										};
-									};
-									httpProxy =
-									{
-										"nix-store.chn.moe" = { upstream = "http://127.0.0.1:5000"; rewriteHttps = true; };
 									};
 								};
 							};

@@ -67,15 +67,16 @@ inputs:
 			user = mkOption { type = types.nonEmptyStr; };
 			tcp = mkOption
 			{
-				type = types.attrsOf (types.submodule
+				type = types.attrsOf (types.submodule (inputs:
 				{
 					options =
 					{
-						localIp = mkOption { type = types.nonEmptyStr; };
+						localIp = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
 						localPort = mkOption { type = types.ints.unsigned; };
-						remotePort = mkOption { type = types.ints.unsigned; };
+						remoteIp = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
+						remotePort = mkOption { type = types.ints.unsigned; default = inputs.config.localPort; };
 					};
-				});
+				}));
 				default = {};
 			};
 		};
@@ -959,7 +960,7 @@ inputs:
 										)
 										+ concatStringsSep "\n" (map
 												(port: ''${ipset} add nginx_proxy_port ${toString port}'')
-												((attrValues services.nginx.transparentProxy.map) ++ [ 443 3065 ]) )
+												(inputs.lib.unique ((attrValues services.nginx.transparentProxy.map) ++ [ 443 3065 ])))
 									);
 									stop = inputs.pkgs.writeShellScript "nginx-proxy.stop" (stripeTabs
 									''
