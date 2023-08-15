@@ -192,6 +192,7 @@ inputs:
 										{
 											alderlake = "MALDERLAKE";
 											sandybridge = "MSANDYBRIDGE";
+											silvermont = "MSILVERMONT";
 											znver2 = "MZEN2";
 											znver3 = "MZEN3";
 										};
