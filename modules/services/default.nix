@@ -1126,15 +1126,15 @@ inputs:
 								SYMFONY__ENV__SERVER_NAME=wallabag.chn.moe
 								SYMFONY__ENV__DOMAIN_NAME=https://wallabag.chn.moe
 								SYMFONY__ENV__TWOFACTOR_AUTH=false
+								SYMFONY__ENV__MAILER_DSN=smtp://bot@chn.moe@${placeholder."mail/bot"}:mail.chn.moe
+								SYMFONY__ENV__FROM_EMAIL=bot@chn.moe
+								SYMFONY__ENV__TWOFACTOR_SENDER=bot@chn.moe
 							'';
-							# SYMFONY__ENV__MAILER_DSN=smtp://bot%%40chn.moe@${placeholder."mail/bot-encoded"}:mail.chn.moe
-							# SYMFONY__ENV__FROM_EMAIL=bot@chn.moe
-							# SYMFONY__ENV__TWOFACTOR_SENDER=bot@chn.moe
 						secrets =
 						{
 							"redis/wallabag".owner = inputs.config.users.users.redis-wallabag.name;
 							"postgresql/wallabag" = {};
-							"mail/bot-encoded" = {};
+							"mail/bot" = {};
 						};
 					};
 					services =
