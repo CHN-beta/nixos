@@ -1124,12 +1124,12 @@ inputs:
 								SYMFONY__ENV__REDIS_PORT=8790
 								SYMFONY__ENV__REDIS_PASSWORD=${placeholder."redis/wallabag"}
 								SYMFONY__ENV__SERVER_NAME=wallabag.chn.moe
+								SYMFONY__ENV__DOMAIN_NAME=https://wallabag.chn.moe
 								SYMFONY__ENV__TWOFACTOR_AUTH=false
 							'';
 							# SYMFONY__ENV__MAILER_DSN=smtp://bot%%40chn.moe@${placeholder."mail/bot-encoded"}:mail.chn.moe
 							# SYMFONY__ENV__FROM_EMAIL=bot@chn.moe
 							# SYMFONY__ENV__TWOFACTOR_SENDER=bot@chn.moe
-							# SYMFONY__ENV__DOMAIN_NAME=https://wallabag.chn.moe
 						secrets =
 						{
 							"redis/wallabag".owner = inputs.config.users.users.redis-wallabag.name;
