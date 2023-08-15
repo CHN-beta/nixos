@@ -107,6 +107,20 @@
 			localLib = import ./local/lib inputs.nixpkgs.lib;
 		in
 		{
+			packages.x86_64-linux.default = inputs.nixpkgs.legacyPackages.x86_64-linux.stdenv.mkDerivation
+			{
+				name = "all-systems";
+				propagateBuildInputs = builtins.map
+					(system: inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
+					[ "chn-PC" "vps6" "vps4" "vps7" ];
+				phases = [ "installPhase" ];
+				installPhase = localLib.stripeTabs
+				''
+					runHook preInstall
+					mkdir -p $out
+					runHook postInstall
+				'';
+			};
 			nixosConfigurations =
 			{
 				"chn-PC" = inputs.nixpkgs.lib.nixosSystem
