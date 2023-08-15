@@ -192,6 +192,8 @@
 								[
 									# CX16
 									"sandybridge"
+									# CX16 SAHF FXSR
+									"silvermont"
 									# RDSEED MWAITX SHA CLZERO CX16 SSE4A ABM CLFLUSHOPT WBNOINVD
 									"znver2" "znver3"
 								];
@@ -457,6 +459,54 @@
 						};})
 					];
 				};
+				"nas" = inputs.nixpkgs.lib.nixosSystem
+				{
+					system = "x86_64-linux";
+					specialArgs = { topInputs = inputs; inherit localLib; };
+					modules = localLib.mkModules
+					[
+						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
+							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
+						./modules
+						(inputs: { config.nixos =
+						{
+							fileSystems =
+							{
+								mount =
+								{
+									btrfs =
+									{
+										"/dev/disk/by-uuid/a6460ff0-b6aa-4c1c-a546-8ad0d495bcf8"."/boot" = "/boot";
+										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+									};
+								};
+								decrypt.manual =
+								{
+									enable = true;
+									devices."/dev/disk/by-uuid/46e59fc7-7bb1-4534-bbe4-b948a9a8eeda" = { mapper = "root"; ssd = true; };
+									delayedMount = [ "/" ];
+								};
+								swap = [ "/nix/swap/swap" ];
+								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+							};
+							packages.packageSet = "server";
+							services =
+							{
+								impermanence.enable = true;
+								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
+								sshd.enable = true;
+							};
+							boot =
+							{
+								grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
+								network.enable = true;
+								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
+							};
+							system = { hostname = "nas"; march = "silvermont"; };
+						};})
+					];
+				};
 				"xmupc1" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";
@@ -520,6 +570,8 @@
 									"alderlake"
 									# SAHF FXSR XSAVE
 									"sandybridge"
+									# SAHF FXSR PREFETCHW RDRND
+									"silvermont"
 								];
 								gui.enable = true;
 							};
