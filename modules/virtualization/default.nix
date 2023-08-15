@@ -8,7 +8,7 @@ inputs:
 		{
 			enable = mkOption { default = false; type = types.bool; };
 			gui = mkOption { default = false; type = types.bool; };
-			autoSuspend = mkOption { type = types.listOf types.string; };
+			autoSuspend = mkOption { type = types.listOf types.string; default = []; };
 		};
 		kvmGuest.enable = mkOption { default = false; type = types.bool; };
 		nspawn = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
