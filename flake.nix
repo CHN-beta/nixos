@@ -109,10 +109,10 @@
 		{
 			packages.x86_64-linux.default = inputs.nixpkgs.legacyPackages.x86_64-linux.stdenv.mkDerivation
 			{
-				name = "all-systems";
+				name = "systems";
 				propagateBuildInputs = builtins.map
 					(system: inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-					[ "chn-PC" "vps6" "vps4" "vps7" ];
+					[ "chn-PC" "vps6" "vps4" "vps7" "nas" "xmupc1" ];
 				phases = [ "installPhase" ];
 				installPhase = localLib.stripeTabs
 				''
