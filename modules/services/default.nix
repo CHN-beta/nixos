@@ -1102,11 +1102,11 @@ inputs:
 						extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
 						environmentFiles = [ inputs.config.sops.templates."wallabag/env".path ];
 					};
-					systemd.services.docker-wallabag.serviceConfig =
-					{
-						User = "wallabag";
-						Group = "wallabag";
-					};
+					# systemd.services.docker-wallabag.serviceConfig =
+					# {
+					# 	User = "wallabag";
+					# 	Group = "wallabag";
+					# };
 					sops =
 					{
 						templates."wallabag/env".content =
@@ -1120,7 +1120,7 @@ inputs:
 								SYMFONY__ENV__DATABASE_NAME=wallabag
 								SYMFONY__ENV__DATABASE_USER=wallabag
 								SYMFONY__ENV__DATABASE_PASSWORD=${placeholder."postgresql/wallabag"}
-								SYMFONY__ENV__MAILER_DSN=smtp://bot%40chn.moe@${placeholder."mail/bot-urlencoded"}:mail.chn.moe
+								SYMFONY__ENV__MAILER_DSN=smtp://bot%%40chn.moe@${placeholder."mail/bot-encoded"}:mail.chn.moe
 								SYMFONY__ENV__FROM_EMAIL=bot@chn.moe
 								SYMFONY__ENV__TWOFACTOR_SENDER=bot@chn.moe
 								SYMFONY__ENV__DOMAIN_NAME=https://wallabag.chn.moe
@@ -1133,7 +1133,7 @@ inputs:
 						{
 							"redis/wallabag".owner = inputs.config.users.users.redis-wallabag.name;
 							"postgresql/wallabag" = {};
-							"mail/bot-urlencoded" = {};
+							"mail/bot-encoded" = {};
 						};
 					};
 					services =
@@ -1166,11 +1166,11 @@ inputs:
 						};
 						virtualization.docker.enable = true;
 					};
-					users =
-					{
-						users.wallabag = { isSystemUser = true; group = "wallabag"; autoSubUidGidRange = true; };
-						groups.wallabag = {};
-					};
+					# users =
+					# {
+					# 	users.wallabag = { isSystemUser = true; group = "wallabag"; autoSubUidGidRange = true; };
+					# 	groups.wallabag = {};
+					# };
 				}
 			)
 		];
