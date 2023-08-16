@@ -60,7 +60,7 @@ inputs:
 					# nix tools
 					nix-output-monitor pnpm-lock-export
 					# development
-					clang-tools
+					clang-tools_16
 					# office
 					todo-txt-cli pandoc pdfchain
 				] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
