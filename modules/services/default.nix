@@ -323,7 +323,6 @@ inputs:
 							};
 						};
 						xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-client.json".path; };
-						v2ray-forwarder = { enable = true; proxyPort = 10880; xmuPort = 10881; };
 					};
 					sops =
 					{
@@ -339,7 +338,7 @@ inputs:
 									servers =
 									[
 										{ address = "223.5.5.5"; domains = [ "geosite:geolocation-cn" ]; port = 53; }
-										{ address = "8.8.8.8"; domains = [ "geosite:geolocation-!cn" ]; port = 53; }
+										{ address = "8.8.8.8"; domains = [ "geosite:geolocation-!cn" "domain:worldcat.org" ]; port = 53; }
 										{ address = "223.5.5.5"; expectIPs = [ "geoip:cn" ]; }
 										{ address = "8.8.8.8"; }
 									];
@@ -370,6 +369,13 @@ inputs:
 										settings = { network = "tcp,udp"; followRedirect = true; };
 										streamSettings.sockopt.tproxy = "tproxy";
 										tag = "xmu-in";
+									}
+									{
+										port = 10883;
+										protocol = "dokodemo-door";
+										settings = { network = "tcp,udp"; followRedirect = true; };
+										streamSettings.sockopt.tproxy = "tproxy";
+										tag = "proxy-in";
 									}
 									{ port = 10882; protocol = "socks"; tag = "direct-in"; }
 								];
@@ -417,6 +423,7 @@ inputs:
 										{ inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
 										{ inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
 										{ inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
+										{ inboundTag = [ "proxy-in" ]; outboundTag = "proxy-vless"; }
 										{ inboundTag = [ "common-in" ]; domain = [ "geosite:geolocation-cn" ]; outboundTag = "direct"; }
 										{
 											inboundTag = [ "common-in" ];
@@ -431,19 +438,123 @@ inputs:
 						};
 						secrets."xray-client/uuid" = {};
 					};
-					systemd.services.xray =
+					systemd.services =
 					{
-						serviceConfig =
+						xray =
 						{
-							DynamicUser = inputs.lib.mkForce false;
-							User = "v2ray";
-							Group = "v2ray";
-							CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-							AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-							LimitNPROC = 65536;
-							LimitNOFILE = 524288;
+							serviceConfig =
+							{
+								DynamicUser = inputs.lib.mkForce false;
+								User = "v2ray";
+								Group = "v2ray";
+								CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+								AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+								LimitNPROC = 65536;
+								LimitNOFILE = 524288;
+							};
+							restartTriggers = [ inputs.config.sops.templates."xray-client.json".file ];
 						};
-						restartTriggers = [ inputs.config.sops.templates."xray-client.json".file ];
+						v2ray-forwarder =
+						{
+							description = "v2ray-forwarder Daemon";
+							after = [ "network.target" ];
+							wantedBy = [ "multi-user.target" ];
+							serviceConfig =
+								let
+									ipset = "${inputs.pkgs.ipset}/bin/ipset";
+									iptables = "${inputs.pkgs.iptables}/bin/iptables";
+									ip = "${inputs.pkgs.iproute}/bin/ip";
+									autoPort = "10880";
+									xmuPort = "10881";
+									proxyPort = "10883";
+								in
+								{
+									Type = "simple";
+									RemainAfterExit = true;
+									ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start" (stripeTabs
+									''
+										${ipset} create lo_net hash:net
+										${ipset} add lo_net 0.0.0.0/8
+										${ipset} add lo_net 10.0.0.0/8
+										${ipset} add lo_net 100.64.0.0/10
+										${ipset} add lo_net 127.0.0.0/8
+										${ipset} add lo_net 169.254.0.0/16
+										${ipset} add lo_net 172.16.0.0/12
+										${ipset} add lo_net 192.0.0.0/24
+										${ipset} add lo_net 192.88.99.0/24
+										${ipset} add lo_net 192.168.0.0/16
+										${ipset} add lo_net 59.77.0.143
+										${ipset} add lo_net 198.18.0.0/15
+										${ipset} add lo_net 198.51.100.0/24
+										${ipset} add lo_net 203.0.113.0/24
+										${ipset} add lo_net 224.0.0.0/4
+										${ipset} add lo_net 240.0.0.0/4
+										${ipset} add lo_net 255.255.255.255/32
+
+										${ipset} create xmu_net hash:net
+
+										${ipset} create noproxy_net hash:net
+										${ipset} add noproxy_net 223.5.5.5
+
+										${ipset} create noproxy_src_net hash:net
+
+										${ipset} create proxy_net hash:net
+
+										${iptables} -t mangle -N v2ray -w
+										${iptables} -t mangle -A PREROUTING -j v2ray -w
+										${iptables} -t mangle -A v2ray -m set --match-set noproxy_src_net src -j RETURN -w
+										${iptables} -t mangle -A v2ray -m set --match-set xmu_net dst -p tcp \
+											-j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1 -w
+										${iptables} -t mangle -A v2ray -m set --match-set xmu_net dst -p udp \
+											-j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1 -w
+										${iptables} -t mangle -A v2ray -m set --match-set noproxy_net dst -j RETURN -w
+										${iptables} -t mangle -A v2ray -m set --match-set proxy_net dst -p tcp \
+											-j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1 -w
+										${iptables} -t mangle -A v2ray -m set --match-set proxy_net dst -p udp \
+											-j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1 -w
+										${iptables} -t mangle -A v2ray -m set --match-set lo_net dst -j RETURN -w
+										${iptables} -t mangle -A v2ray -p tcp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1 -w
+										${iptables} -t mangle -A v2ray -p udp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1 -w
+
+										${iptables} -t mangle -N v2ray_mark -w
+										${iptables} -t mangle -A OUTPUT -j v2ray_mark -w
+										${iptables} -t mangle -A v2ray_mark -m owner --uid-owner $(id -u v2ray) -j RETURN -w
+										${iptables} -t mangle -A v2ray_mark -m set --match-set noproxy_src_net src -j RETURN -w
+										${iptables} -t mangle -A v2ray_mark -m set --match-set xmu_net dst -p tcp -j MARK --set-mark 1/1 -w
+										${iptables} -t mangle -A v2ray_mark -m set --match-set xmu_net dst -p udp -j MARK --set-mark 1/1 -w
+										${iptables} -t mangle -A v2ray_mark -m set --match-set noproxy_net dst -j RETURN -w
+										${iptables} -t mangle -A v2ray_mark -m set --match-set proxy_net dst -p tcp \
+											-j MARK --set-mark 1/1 -w
+										${iptables} -t mangle -A v2ray_mark -m set --match-set proxy_net dst -p udp \
+											-j MARK --set-mark 1/1 -w
+										${iptables} -t mangle -A v2ray_mark -m set --match-set lo_net dst -j RETURN -w
+										${iptables} -t mangle -A v2ray_mark -p tcp -j MARK --set-mark 1/1 -w
+										${iptables} -t mangle -A v2ray_mark -p udp -j MARK --set-mark 1/1 -w
+
+										${ip} rule add fwmark 1/1 table 100
+										${ip} route add local 0.0.0.0/0 dev lo table 100
+									'');
+									ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop" (stripeTabs
+									''
+										${iptables} -t mangle -F v2ray -w
+										${iptables} -t mangle -D PREROUTING -j v2ray -w
+										${iptables} -t mangle -X v2ray -w
+
+										${iptables} -t mangle -F v2ray_mark -w
+										${iptables} -t mangle -D OUTPUT -j v2ray_mark -w
+										${iptables} -t mangle -X v2ray_mark -w
+
+										${ip} rule del fwmark 1/1 table 100
+										${ip} route del local 0.0.0.0/0 dev lo table 100
+
+										${ipset} destroy lo_net
+										${ipset} destroy xmu_net
+										${ipset} destroy noproxy_net
+										${ipset} destroy noproxy_src_net
+										${ipset} destroy proxy_net
+									'');
+								};
+						};
 					};
 					users = { users.v2ray = { isSystemUser = true; group = "v2ray"; }; groups.v2ray = {}; };
 					environment.etc."resolv.conf".text = "nameserver 127.0.0.1";

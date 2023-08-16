@@ -8,7 +8,6 @@ inputs:
 		[
 			topInputs.home-manager.nixosModules.home-manager
 			topInputs.sops-nix.nixosModules.sops
-			topInputs.touchix.nixosModules.v2ray-forwarder
 			topInputs.aagl.nixosModules.default
 			topInputs.nix-index-database.nixosModules.nix-index
 			topInputs.nur.nixosModules.nur
