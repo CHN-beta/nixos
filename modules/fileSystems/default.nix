@@ -93,7 +93,7 @@ inputs:
 									{
 										device = device.name;
 										fsType = "btrfs";
-										options = [ "compress-force=zstd:15" "subvol=${subvol.name}" ];
+										options = [ "compress-force=zstd:8" "subvol=${subvol.name}" ];
 									};
 								}
 							)
