@@ -268,7 +268,7 @@
 							bugs =
 							[
 								"intel-hdmi" "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" "xmunet"
-								"suspend-hibernate-waydroid"
+								"suspend-hibernate-waydroid" "embree"
 							];
 						};})
 					];
@@ -630,7 +630,7 @@
 								nginx = { enable = true; transparentProxy.enable = false; };
 								postgresql.enable = true;
 							};
-							bugs = [ "xmunet" "firefox" ];
+							bugs = [ "xmunet" "firefox" "embree" ];
 						};})
 					];
 				};
