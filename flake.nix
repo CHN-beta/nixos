@@ -630,7 +630,7 @@
 								nginx = { enable = true; transparentProxy.enable = false; };
 								postgresql.enable = true;
 							};
-							bugs = [ "xmunet" ];
+							bugs = [ "xmunet" "firefox" ];
 						};})
 					];
 				};

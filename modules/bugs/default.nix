@@ -72,6 +72,7 @@ inputs:
 						script = "${systemctl} start waydroid-container";
 					};
 				};
+			firefox.programs.firefox.enable = inputs.lib.mkForce false;
 		};
 	in
 		{
