@@ -60,7 +60,7 @@ inputs:
 					# nix tools
 					nix-output-monitor pnpm-lock-export
 					# development
-					clang-tools_16
+					clang-tools_16 ccls
 					# office
 					todo-txt-cli pandoc pdfchain
 				] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
@@ -174,7 +174,7 @@ inputs:
 										yzhang.markdown-all-in-one pkief.material-icon-theme bbenoist.nix ms-ossdata.vscode-postgresql
 										redhat.vscode-xml dotjoshjohnson.xml jnoortheen.nix-ide xdebug.php-debug hbenl.vscode-test-explorer
 										jeff-hykin.better-cpp-syntax fredericbonnet.cmake-test-adapter mesonbuild.mesonbuild
-										hirse.vscode-ungit fortran-lang.linter-gfortran tboox.xmake-vscode
+										hirse.vscode-ungit fortran-lang.linter-gfortran tboox.xmake-vscode ccls-project.ccls
 									];
 							}
 						)
