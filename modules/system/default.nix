@@ -178,6 +178,8 @@ inputs:
 									let
 										fixes.alderlake = [(final: prev:
 											{ embree = prev.embree.override { stdenv = final.genericPackages.stdenv; }; })];
+										fixes.znver3 = [(final: prev:
+											{ embree = prev.embree.override { stdenv = final.genericPackages.stdenv; }; })];
 									in
 										fixes.${system.march} or [];
 							};
