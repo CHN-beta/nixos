@@ -153,7 +153,7 @@ inputs:
 							{
 								vscodeExtensions = with nix-vscode-extensions.vscode-marketplace;
 									(with equinusocio; [ vsc-community-material-theme vsc-material-theme-icons ])
-									++ (with github; [ copilot github-vscode-theme ])
+									++ (with github; [ copilot copilot-chat copilot-labs github-vscode-theme ])
 									++ (with intellsmi; [ comment-translate deepl-translate ])
 									++ (with ms-python; [ isort python vscode-pylance ])
 									++ (with ms-toolsai;
@@ -175,6 +175,7 @@ inputs:
 										redhat.vscode-xml dotjoshjohnson.xml jnoortheen.nix-ide xdebug.php-debug hbenl.vscode-test-explorer
 										jeff-hykin.better-cpp-syntax fredericbonnet.cmake-test-adapter mesonbuild.mesonbuild
 										hirse.vscode-ungit fortran-lang.linter-gfortran tboox.xmake-vscode ccls-project.ccls
+										feiskyer.chatgpt-copilot
 									];
 							}
 						)
