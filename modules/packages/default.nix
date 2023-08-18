@@ -58,7 +58,11 @@ inputs:
 					# networking
 					ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils
 					# nix tools
-					nix-output-monitor
+					nix-output-monitor pnpm-lock-export
+					# development
+					clang-tools_16 ccls fprettify
+					# office
+					todo-txt-cli pandoc pdfchain
 				] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
 			};
 			programs =
@@ -111,20 +115,38 @@ inputs:
 						gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
 						wayland-utils clinfo glxinfo vulkan-tools dracut
 						# nix tools
-						nix-template
+						nix-template appimage-run nil nixd nix-alien ssh-to-age nix-serve node2nix nix-prefetch-github
+						prefetch-npm-deps nix-prefetch-docker
+						# instant messager
+						element-desktop telegram-desktop discord qq nur-xddxdd.wechat-uos # jail
+						inputs.config.nur.repos.linyinfeng.wemeet # native # nur-xddxdd.wine-wechat thunder
+						zoom-us signal-desktop cinny-desktop
+						# browser
+						google-chrome
 						# networking
 						remmina putty mtr-gui
 						# password and key management
 						bitwarden yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui
 						# download
-						qbittorrent
+						qbittorrent yt-dlp nur-xddxdd.baidupcs-go wgetpaste
+						# office
+						crow-translate libreoffice-qt zotero texlive.combined.scheme-full gnuplot poppler_utils pdftk
 						# development
-						scrcpy
+						scrcpy jetbrains.clion android-studio dbeaver cling
 						# media
-						mpv nomacs
+						nur-xddxdd.svp spotify yesplaymusic mpv nomacs simplescreenrecorder obs-studio imagemagick gimp
+						netease-cloud-music-gtk waifu2x-converter-cpp inkscape blender
+						# virtualization
+						wine virt-viewer bottles # wine64
+						# text editor
+						localPackages.typora appflowy notion-app-enhanced joplin-desktop standardnotes
+						# math, physics and chemistry
+						octave root ovito paraview localPackages.vesta qchem.quantum-espresso # vsim
 						# themes
 						orchis-theme tela-circle-icon-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme
 						arc-kde-theme materia-theme
+						# news
+						fluent-reader newsflash rssguard newsboat
 						# davinci-resolve playonlinux
 						(
 							vscode-with-extensions.override
@@ -157,10 +179,20 @@ inputs:
 									];
 							}
 						)
-					];
+					] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
+					_pythonPackages = [(pythonPackages: with pythonPackages;
+					[
+						phonopy inquirerpy requests tensorflow keras python-telegram-bot tqdm
+						fastapi pypdf2 pandas openai matplotlib scipy plotly gunicorn scikit-learn redis jinja2
+					])];
+					_prebuildPackages = [ httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran gcc10 python2 ];
 				};
 				programs =
 				{
+					anime-game-launcher.enable = true;
+					honkers-railway-launcher.enable = true;
+					steam.enable = true;
+					kdeconnect.enable = true;
 					wireshark = { enable = true; package = inputs.pkgs.wireshark; };
 					firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
 					nix-ld.enable = true;
@@ -179,53 +211,7 @@ inputs:
 		(
 			mkIf (inputs.config.nixos.packages.packageSet == "workstation")
 			{
-				nixos.packages =
-				{
-					_packages = with inputs.pkgs;
-					[
-						clang-tools_16 ccls fprettify pnpm-lock-export mathematica nil nixd nix-alien nix-serve node2nix
-						nix-prefetch-github prefetch-npm-deps nix-prefetch-docker appimage-run
-						discord qq nur-xddxdd.wechat-uos # jail
-						inputs.config.nur.repos.linyinfeng.wemeet # native # nur-xddxdd.wine-wechat thunder
-						zoom-us signal-desktop cinny-desktop
-						texlive.combined.scheme-full gnuplot poppler_utils pdftk
-						nur-xddxdd.svp spotify yesplaymusic simplescreenrecorder obs-studio imagemagick gimp netease-cloud-music-gtk
-						waifu2x-converter-cpp inkscape blender
-						jetbrains.clion android-studio dbeaver cling
-						yt-dlp nur-xddxdd.baidupcs-go wgetpaste
-						# virtualization
-						wine virt-viewer bottles # wine64
-						appflowy notion-app-enhanced joplin-desktop standardnotes
-						# math, physics and chemistry
-						octave root ovito paraview localPackages.vesta qchem.quantum-espresso # vsim
-						# news
-						fluent-reader newsflash rssguard newsboat
-						# office
-						todo-txt-cli pandoc pdfchain
-						# office
-						crow-translate libreoffice-qt zotero
-						# browser
-						google-chrome
-						# text editor
-						localPackages.typora
-						# instant messager
-						element-desktop telegram-desktop
-					] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
-					_pythonPackages = [(pythonPackages: with pythonPackages;
-					[
-						phonopy inquirerpy requests tensorflow keras python-telegram-bot tqdm
-						fastapi pypdf2 pandas openai matplotlib scipy plotly gunicorn scikit-learn redis jinja2
-					])];
-					_prebuildPackages = with inputs.pkgs;
-						[ httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran gcc10 python2 ];
-				};
-				programs =
-				{
-					anime-game-launcher.enable = true;
-					honkers-railway-launcher.enable = true;
-					steam.enable = true;
-					kdeconnect.enable = true;
-				};
+				nixos.packages._packages = with inputs.pkgs; [ mathematica ];
 			}
 		)
 		# apply package configs
