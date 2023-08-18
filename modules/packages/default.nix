@@ -98,7 +98,7 @@ inputs:
 			{
 				permittedInsecurePackages = with inputs.pkgs;
 				[
-					openssl_1_1.name electron_19.name nodejs-16_x.name python2.name
+					openssl_1_1.name electron_19.name nodejs-16_x.name python2.name electron_12.name
 				];
 				allowUnfree = true;
 			};
@@ -113,7 +113,7 @@ inputs:
 					[
 						# system management
 						gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
-						wayland-utils clinfo glxinfo vulkan-tools dracut
+						wayland-utils clinfo glxinfo vulkan-tools dracut etcher
 						# nix tools
 						nix-template appimage-run nil nixd nix-alien ssh-to-age nix-serve node2nix nix-prefetch-github
 						prefetch-npm-deps nix-prefetch-docker
