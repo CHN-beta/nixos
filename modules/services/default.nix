@@ -424,10 +424,14 @@ inputs:
 										{ inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
 										{ inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
 										{ inboundTag = [ "proxy-in" ]; outboundTag = "proxy-vless"; }
-										{ inboundTag = [ "common-in" ]; domain = [ "geosite:geolocation-cn" ]; outboundTag = "direct"; }
 										{
 											inboundTag = [ "common-in" ];
-											domain = [ "geosite:geolocation-!cn" ];
+											domain = [ "geosite:geolocation-cn" ];
+											outboundTag = "direct";
+										}
+										{
+											inboundTag = [ "common-in" ];
+											domain = [ "geosite:geolocation-!cn" "domain:nya.one" ];
 											outboundTag = "proxy-vless";
 										}
 										{ inboundTag = [ "common-in" "dns-internal" ]; ip = [ "geoip:cn" ]; outboundTag = "direct"; }
