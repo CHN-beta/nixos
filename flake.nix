@@ -634,6 +634,97 @@
 						};})
 					];
 				};
+				"yoga" = inputs.nixpkgs.lib.nixosSystem
+				{
+					system = "x86_64-linux";
+					specialArgs = { topInputs = inputs; inherit localLib; };
+					modules = localLib.mkModules
+					[
+						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
+							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
+						./modules
+						(inputs: { config.nixos =
+						{
+							fileSystems =
+							{
+								mount =
+								{
+									vfat."/dev/disk/by-uuid/3F57-0EBE" = "/boot/efi";
+									btrfs =
+									{
+										"/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614"."/" = "/boot";
+										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+									};
+								};
+								decrypt.auto =
+								{
+									"/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26" = { mapper = "root"; ssd = true; };
+									"/dev/md/swap" = { mapper = "swap"; ssd = true; before = [ "root" ]; };
+								};
+								mdadm =
+									"ARRAY /dev/md/swap metadata=1.2 name=chn-PC:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
+								swap = [ "/dev/mapper/swap" ];
+								resume = "/dev/mapper/swap";
+								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+							};
+							kernel.patches = [ "cjktty" "preempt" ];
+							hardware =
+							{
+								cpus = [ "intel" ];
+								gpus = [ "intel" ];
+								bluetooth.enable = true;
+								joystick.enable = true;
+								printer.enable = true;
+								sound.enable = true;
+							};
+							packages.packageSet = "desktop";
+							boot.grub.installDevice = "efi";
+							system =
+							{
+								hostname = "yoga";
+								march = "silvermont";
+								gui.enable = true;
+							};
+							virtualization.docker.enable = true;
+							services =
+							{
+								impermanence.enable = true;
+								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+								fontconfig.enable = true;
+								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
+								sshd.enable = true;
+								xrayClient =
+								{
+									enable = true;
+									serverAddress = "74.211.99.69";
+									serverName = "vps6.xserver.chn.moe";
+									dns =
+									{
+										extraInterfaces = [ "docker0" ];
+										hosts =
+										{
+											"mirism.one" = "216.24.188.24";
+											"beta.mirism.one" = "216.24.188.24";
+											"ng01.mirism.one" = "216.24.188.24";
+											"debug.mirism.one" = "127.0.0.1";
+											"initrd.vps6.chn.moe" = "74.211.99.69";
+											"nix-store.chn.moe" = "127.0.0.1";
+										};
+									};
+								};
+								firewall.trustedInterfaces = [ "virbr0" ];
+								frpClient =
+								{
+									enable = true;
+									serverName = "frp.chn.moe";
+									user = "xmupc1";
+									tcp.store = { localPort = 443; remotePort = 7676; };
+								};
+								smartd.enable = true;
+							};
+						};})
+					];
+				};
 				"bootstrap" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";
