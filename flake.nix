@@ -175,7 +175,7 @@
 							packages =
 							{
 								packageSet = "workstation";
-								extraPackages = [ inputs.pkgs.localPackages.oneapi ];
+								extraPrebuildPackages = with inputs.pkgs; [ localPackages.oneapi llvmPackages_git.stdenv ];
 								extraPythonPackages = [(pythonPackages:
 									[ inputs.pkgs.localPackages.upho inputs.pkgs.localPackages.spectral ])];
 							};
