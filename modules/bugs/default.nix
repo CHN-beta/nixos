@@ -72,6 +72,9 @@ inputs:
 						script = "${systemctl} start waydroid-container";
 					};
 				};
+			firefox.programs.firefox.enable = inputs.lib.mkForce false;
+			embree.nixpkgs.overlays =
+				[(final: prev: { embree = prev.embree.override { stdenv = final.genericPackages.stdenv; }; })];
 		};
 	in
 		{
