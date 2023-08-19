@@ -27,3 +27,7 @@ creation_rules:
     key_groups:
     - age:
       - *chn
+  - path_regex: secrets/yoga\.yaml$
+    key_groups:
+    - age:
+      - *chn

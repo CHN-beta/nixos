@@ -740,15 +740,15 @@
 							{
 								btrfs =
 								{
-									"/dev/disk/by-uuid/31e81fe9-feb0-4ae9-a70c-69e1c954f619"."/boot" = "/boot";
-									"/dev/disk/by-uuid/31f5f8c4-8c8b-43d7-93d3-de853c1a765c"."/nix" = "/";
+									"/dev/disk/by-uuid/e163b2c7-835b-4ff6-8626-7278762540da"."/boot" = "/boot";
+									"/dev/mapper/root"."/nix" = "/";
 								};
-								vfat."/dev/disk/by-uuid/317B-B33A" = "/boot/efi";
+								vfat."/dev/disk/by-uuid/5B2E-D1B9" = "/boot/efi";
 							};
 							packages.packageSet = "desktop";
 							services.sshd.enable = true;
 							boot.grub.installDevice = "efi";
-							system = { hostname = "bootstrap"; };
+							system = { hostname = "bootstrap"; march = "silvermont"; };
 						};})
 					];
 				};
