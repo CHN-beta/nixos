@@ -574,22 +574,16 @@
 							{
 								mount =
 								{
-									vfat."/dev/disk/by-uuid/3F57-0EBE" = "/boot/efi";
+									vfat."/dev/disk/by-uuid/86B8-CF80" = "/boot/efi";
 									btrfs =
 									{
-										"/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614"."/" = "/boot";
+										"/dev/disk/by-uuid/e252f81d-b4b3-479f-8664-380a9b73cf83"."/boot" = "/boot";
 										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
 									};
 								};
-								decrypt.auto =
-								{
-									"/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26" = { mapper = "root"; ssd = true; };
-									"/dev/md/swap" = { mapper = "swap"; ssd = true; before = [ "root" ]; };
-								};
-								mdadm =
-									"ARRAY /dev/md/swap metadata=1.2 name=chn-PC:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
-								swap = [ "/dev/mapper/swap" ];
-								resume = "/dev/mapper/swap";
+								decrypt.auto."/dev/disk/by-uuid/e252f81d-b4b3-479f-8664-380a9b73cf83" =
+									{ mapper = "root"; ssd = true; };
+								swap = [ "/nix/swap/swap" ];
 								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
 							};
 							kernel.patches = [ "cjktty" "preempt" ];
@@ -623,79 +617,15 @@
 									enable = true;
 									serverAddress = "74.211.99.69";
 									serverName = "vps6.xserver.chn.moe";
-									dns =
-									{
-										extraInterfaces = [ "docker0" ];
-										hosts =
-										{
-											"mirism.one" = "216.24.188.24";
-											"beta.mirism.one" = "216.24.188.24";
-											"ng01.mirism.one" = "216.24.188.24";
-											"debug.mirism.one" = "127.0.0.1";
-											"initrd.vps6.chn.moe" = "74.211.99.69";
-											"nix-store.chn.moe" = "127.0.0.1";
-										};
-									};
+									dns.extraInterfaces = [ "docker0" ];
 								};
 								firewall.trustedInterfaces = [ "virbr0" ];
-								frpClient =
-								{
-									enable = true;
-									serverName = "frp.chn.moe";
-									user = "xmupc1";
-									tcp.store = { localPort = 443; remotePort = 7676; };
-								};
 								smartd.enable = true;
 							};
 						};})
 					];
 				};
 				# sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap --option substituters http://127.0.0.1:5000 --option require-sigs false
-				"bootstrap" = inputs.nixpkgs.lib.nixosSystem
-				{
-					system = "x86_64-linux";
-					specialArgs = { topInputs = inputs; inherit localLib; };
-					modules = localLib.mkModules
-					[
-						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
-							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
-						./modules
-						(inputs: { config.nixos =
-						{
-							fileSystems.mount =
-							{
-								btrfs =
-								{
-									"/dev/disk/by-uuid/e163b2c7-835b-4ff6-8626-7278762540da"."/boot" = "/boot";
-									"/dev/mapper/root"."/nix" = "/";
-								};
-								vfat."/dev/disk/by-uuid/5B2E-D1B9" = "/boot/efi";
-							};
-							packages.packageSet = "desktop";
-							services.sshd.enable = true;
-							boot.grub.installDevice = "efi";
-							system = { hostname = "bootstrap"; march = "silvermont"; };
-						};})
-					];
-				};
-			};
-			deploy =
-			{
-				sshUser = "root";
-				user = "root";
-				fastConnection = true;
-				nodes = builtins.listToAttrs (builtins.map
-					(node:
-					{
-						name = node;
-						value =
-						{
-							hostname = node;
-							profiles.system.path = inputs.self.nixosConfigurations.${node}.pkgs.deploy-rs.lib.activate.nixos
-								inputs.self.nixosConfigurations.${node};
-						};
-					})
-					[ "vps6" "vps4" "vps7" ]);
 			};
 		};
 }
