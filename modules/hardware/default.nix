@@ -14,6 +14,7 @@ inputs:
 			mode = mkOption { type = types.enum [ "offload" "sync" ]; default = "offload"; };
 			busId = mkOption { type = types.attrsOf types.str; default = {}; };
 		};
+		gamemode.drmDevice = mkOption { type = types.int; default = 0; };
 	};
 	config =
 		let
@@ -140,5 +141,6 @@ inputs:
 					];
 				}
 			)
+			{ programs.gamemode.settings.gpu.gpu_device = "${toString hardware.gamemode.drmDevice}"; }
 		];
 }

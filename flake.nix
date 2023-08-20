@@ -96,6 +96,7 @@
 								sound.enable = true;
 								prime =
 									{ enable = true; mode = "offload"; busId = { intel = "PCI:0:2:0"; nvidia = "PCI:1:0:0"; };};
+								gamemode.drmDevice = 1;
 							};
 							packages =
 							{
