@@ -382,6 +382,7 @@ inputs:
 										streamSettings.sockopt.tproxy = "tproxy";
 										tag = "proxy-in";
 									}
+									{ port = 10884; protocol = "socks"; tag = "proxy-socks-in"; }
 									{ port = 10882; protocol = "socks"; tag = "direct-in"; }
 								];
 								outbounds =
@@ -428,7 +429,7 @@ inputs:
 										{ inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
 										{ inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
 										{ inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
-										{ inboundTag = [ "proxy-in" ]; outboundTag = "proxy-vless"; }
+										{ inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = "proxy-vless"; }
 										{
 											inboundTag = [ "common-in" ];
 											domain = [ "geosite:geolocation-cn" ];
