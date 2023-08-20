@@ -5,28 +5,6 @@
 	{
 		nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-unstable";
 		nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-23.05";
-		flake-utils.url = "github:numtide/flake-utils";
-		flake-utils-plus =
-		{
-			url = "github:gytis-ivaskevicius/flake-utils-plus";
-			inputs.flake-utils.follows = "flake-utils";
-		};
-		flake-compat = { url = "github:edolstra/flake-compat"; flake = false; };
-		flake-parts =
-		{
-			url = "github:hercules-ci/flake-parts";
-			inputs.nixpkgs-lib.follows = "nixpkgs";
-		};
-		nvfetcher =
-		{
-			url = "github:berberman/nvfetcher";
-			inputs =
-			{
-				nixpkgs.follows = "nixpkgs";
-				flake-utils.follows = "flake-utils";
-				flake-compat.follows = "flake-compat";
-			};
-		};
 		home-manager = { url = "github:nix-community/home-manager/master"; inputs.nixpkgs.follows = "nixpkgs"; };
 		sops-nix =
 		{
@@ -34,79 +12,19 @@
 			inputs = { nixpkgs.follows = "nixpkgs"; nixpkgs-stable.follows = "nixpkgs-stable"; };
 		};
 		touchix = { url = "github:CHN-beta/touchix"; inputs.nixpkgs.follows = "nixpkgs"; };
-		aagl =
-		{
-			url = "github:ezKEa/aagl-gtk-on-nix";
-			inputs = { nixpkgs.follows = "nixpkgs"; flake-compat.follows = "flake-compat"; };
-		};
+		aagl = { url = "github:ezKEa/aagl-gtk-on-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
 		nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
 		nur.url = "github:nix-community/NUR";
-		nixos-cn =
-		{
-			url = "github:nixos-cn/flakes";
-			inputs = { nixpkgs.follows = "nixpkgs"; flake-utils.follows = "flake-utils"; };
-		};
-		nur-xddxdd =
-		{
-			url = "github:xddxdd/nur-packages";
-			inputs =
-			{
-				flake-utils.follows = "flake-utils";
-				nixpkgs.follows = "nixpkgs-stable";
-				flake-utils-plus.follows = "flake-utils-plus";
-			};
-		};
-		nix-vscode-extensions =
-		{
-			url = "github:nix-community/nix-vscode-extensions";
-			inputs =
-			{
-				nixpkgs.follows = "nixpkgs";
-				flake-utils.follows = "flake-utils";
-				flake-compat.follows = "flake-compat";
-			};
-		};
-		nix-alien =
-		{
-			url = "github:thiagokokada/nix-alien";
-			inputs =
-			{
-				flake-compat.follows = "flake-compat";
-				flake-utils.follows = "flake-utils";
-				nix-index-database.follows = "nix-index-database";
-			};
-		};
+		nixos-cn = { url = "github:nixos-cn/flakes"; inputs.nixpkgs.follows = "nixpkgs"; };
+		nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
+		nix-vscode-extensions = { url = "github:nix-community/nix-vscode-extensions"; inputs.nixpkgs.follows = "nixpkgs"; };
+		nix-alien = { url = "github:thiagokokada/nix-alien"; inputs.nix-index-database.follows = "nix-index-database"; };
 		impermanence.url = "github:nix-community/impermanence";
-		qchem =
-		{
-			url = "github:Nix-QChem/NixOS-QChem";
-			inputs.nixpkgs.follows = "nixpkgs";
-		};
+		qchem = { url = "github:Nix-QChem/NixOS-QChem"; inputs.nixpkgs.follows = "nixpkgs"; };
 		nixd.url = "github:nix-community/nixd";
-		napalm =
-		{
-			url = "github:nix-community/napalm";
-			inputs =
-			{
-				nixpkgs.follows = "nixpkgs";
-				flake-utils.follows = "flake-utils";
-			};
-		};
-		nixpak =
-		{
-			url = "github:nixpak/nixpak";
-			inputs.nixpkgs.follows = "nixpkgs";
-		};
-		deploy-rs =
-		{
-			url = "github:serokell/deploy-rs";
-			inputs =
-			{
-				flake-compat.follows = "flake-compat";
-				nixpkgs.follows = "nixpkgs";
-				utils.follows = "flake-utils";
-			};
-		};
+		napalm = { url = "github:nix-community/napalm"; inputs.nixpkgs.follows = "nixpkgs"; };
+		nixpak = { url = "github:nixpak/nixpak"; inputs.nixpkgs.follows = "nixpkgs"; };
+		deploy-rs = { url = "github:serokell/deploy-rs"; inputs.nixpkgs.follows = "nixpkgs"; };
 	};
 
 	outputs = inputs:
