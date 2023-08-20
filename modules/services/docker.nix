@@ -32,6 +32,7 @@ inputs:
 			inherit (inputs.lib) mkMerge mkIf;
 			inherit (builtins) listToAttrs map concatLists;
 			inherit (inputs.localLib) attrsToList;
+			inherit (inputs.config.nixos.services) docker;
 		in mkMerge
 		[
 			{
@@ -59,7 +60,7 @@ inputs:
 								else [ container.value.environmentFile ];
 						};
 					})
-					(attrsToList services.docker));
+					(attrsToList docker));
 				systemd.services = listToAttrs (concatLists (map
 					(container:
 					[
@@ -91,9 +92,9 @@ inputs:
 							};
 						}
 					])
-					(attrsToList services.docker)));
+					(attrsToList docker)));
 			}
-			(mkIf (services.docker != {})
+			(mkIf (docker != {})
 			{
 				systemd.tmpfiles.rules = [ "d /var/run/docker-rootless 0777" ];
 				nixos.virtualization.docker.enable = true;

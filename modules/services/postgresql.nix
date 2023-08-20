@@ -21,9 +21,9 @@ inputs:
 	config =
 		let
 			inherit (inputs.config.nixos.services) postgresql;
-			inherit (inputs.lib) mkMerge mkAfter concatStringsSep;
+			inherit (inputs.lib) mkMerge mkAfter concatStringsSep mkIf;
 			inherit (inputs.localLib) stripeTabs;
-			inherit (builtins) map listToAttrs;
+			inherit (builtins) map listToAttrs filter;
 		in mkIf postgresql.enable
 		{
 			services.postgresql =
@@ -52,8 +52,8 @@ inputs:
 				# chattr +C /path/to/dir
 				# cp -a --reflink=never /path/to/dir_old/. /path/to/dir
 				# rm -rf /path/to/dir_old
-				ensureDatabases = map (db: db.database or db) postgresql;
-				ensureUsers = map (db: { name = db.user or db; }) postgresql;
+				ensureDatabases = map (db: db.database or db) postgresql.instances;
+				ensureUsers = map (db: { name = db.user or db; }) postgresql.instances;
 			};
 			systemd.services.postgresql.postStart = mkAfter (concatStringsSep "\n" (map
 				(db:
@@ -70,10 +70,10 @@ inputs:
 							+ '' WHERE d.datname = '${db.database ? db}' ORDER BY 1"''
 							+ '' | grep -E '^${db.user or db}$' -q''
 							+ '' || $PSQL -tAc "ALTER DATABASE '${db.database or db}' OWNER TO '${db.user or db}'"'')
-				postgresql));
+				postgresql.instances));
 			sops.secrets = listToAttrs (map
 				(db: { name = "postgresql/${db.user or db}"; value.owner = inputs.config.users.users.postgres.name; })
-				(filter (db: db.passwordFile or null == null) postgresql));
+				(filter (db: db.passwordFile or null == null) postgresql.instances));
 		};
 }
   # sops.secrets.drone-agent = {

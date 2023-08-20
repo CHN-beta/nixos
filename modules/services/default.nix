@@ -1,9 +1,9 @@
 inputs:
 {
-	imports = mkModules
+	imports = inputs.localLib.mkModules
 	[
 		./postgresql.nix
-		./docker.nix
+		# ./docker.nix
 	];
 	options.nixos.services = let inherit (inputs.lib) mkOption types; in
 	{
