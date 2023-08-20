@@ -722,6 +722,7 @@
 						};})
 					];
 				};
+				# sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap --option substituters http://127.0.0.1:5000 --option require-sigs false
 				"bootstrap" = inputs.nixpkgs.lib.nixosSystem
 				{
 					system = "x86_64-linux";

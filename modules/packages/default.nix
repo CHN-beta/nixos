@@ -130,7 +130,7 @@ inputs:
 						# download
 						qbittorrent yt-dlp nur-xddxdd.baidupcs-go wgetpaste
 						# office
-						crow-translate libreoffice-qt zotero texlive.combined.scheme-full gnuplot poppler_utils pdftk
+						crow-translate libreoffice-qt zotero texlive.combined.scheme-full texstudio gnuplot poppler_utils pdftk
 						# development
 						scrcpy jetbrains.clion android-studio dbeaver cling
 						# media
