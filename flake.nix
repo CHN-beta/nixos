@@ -82,15 +82,7 @@
 			url = "github:Nix-QChem/NixOS-QChem";
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
-		nixd =
-		{
-			url = "github:nix-community/nixd";
-			inputs =
-			{
-				nixpkgs.follows = "nixpkgs";
-				flake-parts.follows = "flake-parts";
-			};
-		};
+		nixd.url = "github:nix-community/nixd";
 		napalm =
 		{
 			url = "github:nix-community/napalm";
@@ -99,6 +91,11 @@
 				nixpkgs.follows = "nixpkgs";
 				flake-utils.follows = "flake-utils";
 			};
+		};
+		nixpak =
+		{
+			url = "github:nixpak/nixpak";
+			inputs.nixpkgs.follows = "nixpkgs";
 		};
 	};
 
