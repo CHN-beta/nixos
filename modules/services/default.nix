@@ -1,5 +1,9 @@
 inputs:
 {
+	imports = mkModules
+	[
+		./postgresql.nix
+	];
 	options.nixos.services = let inherit (inputs.lib) mkOption types; in
 	{
 		impermanence =
@@ -116,7 +120,6 @@ inputs:
 			};
 		};
 		fileshelter.enable = mkOption { type = types.bool; default = false; };
-		postgresql.enable = mkOption { type = types.bool; default = false; };
 		rsshub.enable = mkOption { type = types.bool; default = false; };
 		wallabag.enable = mkOption { type = types.bool; default = false; };
 		docker = mkOption
@@ -1138,38 +1141,6 @@ inputs:
 						}
 					)
 				])
-			)
-			(
-				mkIf services.postgresql.enable
-				{
-					services.postgresql =
-					{
-						enable = true;
-						package = inputs.pkgs.postgresql_15;
-						enableTCPIP = true;
-						authentication = "host all all 0.0.0.0/0 md5";
-						settings =
-						{
-							unix_socket_permissions = "0700";
-							shared_buffers = "2048MB";
-							work_mem = "128MB";
-						};
-						# log_timezone = 'Asia/Shanghai'
-						# datestyle = 'iso, mdy'
-						# timezone = 'Asia/Shanghai'
-						# lc_messages = 'en_US.utf8'
-						# lc_monetary = 'en_US.utf8'
-						# lc_numeric = 'en_US.utf8'
-						# lc_time = 'en_US.utf8'
-						# default_text_search_config = 'pg_catalog.english'
-						# plperl.on_init = 'use utf8; use re; package utf8; require "utf8_heavy.pl";'
-						# mv /path/to/dir /path/to/dir_old
-						# mkdir /path/to/dir
-						# chattr +C /path/to/dir
-						# cp -a --reflink=never /path/to/dir_old/. /path/to/dir
-						# rm -rf /path/to/dir_old
-					};
-				}
 			)
 			(
 				mkIf services.rsshub.enable
