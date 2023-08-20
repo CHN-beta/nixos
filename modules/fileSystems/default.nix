@@ -93,7 +93,7 @@ inputs:
 									{
 										device = device.name;
 										fsType = "btrfs";
-										options = [ "compress-force=zstd:8" "subvol=${subvol.name}" ];
+										options = [ "compress-force=zstd" "subvol=${subvol.name}" ];
 									};
 								}
 							)
@@ -240,3 +240,8 @@ inputs:
 # sudo cryptsetup status root
 # sudo cryptsetup -b 3787456512 resize root
 # sudo cfdisk /dev/nvme1n1p3
+
+# test on e20dae7d8b317f95718b5f4175bd4246c09735de mathematica ~15G
+# 15 5m33s 7.16G 
+# 8 54s 7.32G
+# 3 17s 7.52G
