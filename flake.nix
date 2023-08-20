@@ -766,11 +766,18 @@
 				sshUser = "root";
 				user = "root";
 				fastConnection = true;
-				nodes =
-				{
-					vps6.profiles.system.path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos inputs.self.nixosConfigurations.vps6;
-				};
+				nodes = builtins.listToAttrs (builtins.map
+					(node:
+					{
+						name = node;
+						value =
+						{
+							hostname = node;
+							profiles.system.path = inputs.self.nixosConfigurations.${node}.pkgs.deploy-rs.lib.activate.nixos
+								inputs.self.nixosConfigurations.${node};
+						};
+					})
+					[ "vps6" ]);
 			};
-			checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks inputs.self.deploy) inputs.deploy-rs.lib;
 		};
 }
