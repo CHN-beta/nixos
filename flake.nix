@@ -97,6 +97,16 @@
 			url = "github:nixpak/nixpak";
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
+		deploy-rs =
+		{
+			url = "github:serokell/deploy-rs";
+			inputs =
+			{
+				flake-compat.follows = "flake-compat";
+				nixpkgs.follows = "nixpkgs";
+				utils.follows = "flake-utils";
+			};
+		};
 	};
 
 	outputs = inputs:
@@ -751,5 +761,16 @@
 					];
 				};
 			};
+			deploy =
+			{
+				sshUser = "root";
+				user = "root";
+				fastConnection = true;
+				nodes =
+				{
+					vps6.profiles.system.path = inputs.deploy-rs.lib.x86_64-linux.activate.nixos inputs.self.nixosConfigurations.vps6;
+				};
+			};
+			checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks inputs.self.deploy) inputs.deploy-rs.lib;
 		};
 }
