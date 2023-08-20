@@ -119,7 +119,7 @@
 				name = "systems";
 				propagateBuildInputs = builtins.map
 					(system: inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-					[ "chn-PC" "vps6" "vps4" "vps7" "nas" "xmupc1" ];
+					[ "chn-PC" "vps6" "vps4" "vps7" ];
 				phases = [ "installPhase" ];
 				installPhase = localLib.stripeTabs
 				''
@@ -777,7 +777,7 @@
 								inputs.self.nixosConfigurations.${node};
 						};
 					})
-					[ "vps6" ]);
+					[ "vps6" "vps4" "vps7" ]);
 			};
 		};
 }
