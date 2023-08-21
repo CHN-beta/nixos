@@ -20,7 +20,6 @@ inputs:
     };
 		kmscon.enable = mkOption { type = types.bool; default = false; };
 		fontconfig.enable = mkOption { type = types.bool; default = false; };
-		u2f.enable = mkOption { type = types.bool; default = false; };
 		sops =
 		{
 			enable = mkOption { type = types.bool; default = false; };
@@ -294,7 +293,7 @@ inputs:
 						settings =
 						{
 							X11Forwarding = true;
-							TrustedUserCAKeys = "${inputs.config.security.pam.ussh.caFile}";
+							TrustedUserCAKeys = builtins.toString ./ca.pub;
 							ChallengeResponseAuthentication = false;
 							PasswordAuthentication = false;
 							KbdInteractiveAuthentication = false;
