@@ -42,7 +42,7 @@ inputs:
 					# top
 					iotop iftop htop btop powertop s-tui
 					# editor
-					vim nano bat
+					nano bat
 					# downloader
 					wget aria2 curl
 					# file manager
@@ -193,6 +193,7 @@ inputs:
 					kdeconnect.enable = true;
 					wireshark = { enable = true; package = inputs.pkgs.wireshark; };
 					firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
+					vim.package = inputs.pkgs.vim-full;
 				};
 				nixpkgs.config.packageOverrides = pkgs: 
 				{

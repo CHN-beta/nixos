@@ -211,6 +211,23 @@ inputs:
 											};
 										};
 									};
+									vim =
+									{
+										enable = true;
+										defaultEditor = true;
+										settings =
+										{
+											number = true;
+											expandtab = false;
+											shiftwidth = 2;
+											tabstop = 2;
+										};
+										extraConfig = inputs.localLib.stripeTabs
+										''
+											set clipboard=unnamedplus
+											colorscheme evening
+										'';
+									};
 								};
 							};
 						in
