@@ -32,31 +32,34 @@
 			localLib = import ./local/lib inputs.nixpkgs.lib;
 		in
 		{
-			packages.x86_64-linux.default = inputs.nixpkgs.legacyPackages.x86_64-linux.stdenv.mkDerivation
-			{
-				name = "systems";
-				propagateBuildInputs = builtins.map
-					(system: inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-					[ "chn-PC" "vps6" "vps4" "vps7" "yoga" ];
-				phases = [ "installPhase" ];
-				installPhase = localLib.stripeTabs
-				''
-					runHook preInstall
-					mkdir -p $out
-					runHook postInstall
-				'';
-			};
-			nixosConfigurations =
-			{
-				"chn-PC" = inputs.nixpkgs.lib.nixosSystem
+			packages.x86_64-linux.default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
+				(builtins.concatStringsSep "\n" (builtins.map
+					(system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
+					[ "chn-PC" "vps6" "vps4" "vps7" "yoga" ]));
+			nixosConfigurations = builtins.listToAttrs (builtins.map
+				(system:
 				{
-					system = "x86_64-linux";
-					specialArgs = { topInputs = inputs; inherit localLib; };
-					modules = localLib.mkModules
+					name = system.name;
+					value = inputs.nixpkgs.lib.nixosSystem
+					{
+						system = "x86_64-linux";
+						specialArgs = { topInputs = inputs; inherit localLib; };
+						modules = localLib.mkModules
+						(
+							[
+								(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
+									(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
+								./modules
+								{ config.nixos.system.hostname = system.name; }
+							]
+							++ system.value
+						);
+					};
+				})
+				(localLib.attrsToList
+				{
+					"chn-PC" =
 					[
-						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
-							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
-						./modules
 						(inputs: { config.nixos =
 						{
 							fileSystems =
@@ -112,7 +115,6 @@
 							};
 							system =
 							{
-								hostname = "chn-PC";
 								march = "alderlake";
 								extraMarch =
 								[
@@ -198,36 +200,8 @@
 							];
 						};})
 					];
-				};
-				# 安装一个带加密、不带 impermanence 的系统
-				# 增加 impermanence
-				# 增加 initrd 中的网络
-				# 使用 yubikey 解锁
-				# nix-serve -p 5000
-				# nix copy --substitute-on-destination --to ssh://server /run/current-system
-				# nix copy --to ssh://nixos@192.168.122.56 ./result
-				# sudo nixos-install --flake .#bootstrap
-				#		--option substituters http://192.168.122.1:5000 --option require-sigs false
-				# sudo chattr -i var/empty
-				# nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
-				# sudo nixos-rebuild switch --flake .#vps6 --log-format internal-json -v |& nom --json
-				# boot.shell_on_fail systemd.setenv=SYSTEMD_SULOGIN_FORCE=1
-				# sudo usbipd
-				# ssh -R 3240:127.0.0.1:3240 root@192.168.122.57
-				# modprobe vhci-hcd
-				# sudo usbip bind -b 3-6
-				# usbip attach -r 127.0.0.1 -b 3-6
-				# systemd-cryptenroll --fido2-device=auto /dev/vda2
-				# systemd-cryptsetup attach root /dev/vda2
-				"vps6" = inputs.nixpkgs.lib.nixosSystem
-				{
-					system = "x86_64-linux";
-					specialArgs = { topInputs = inputs; inherit localLib; };
-					modules = localLib.mkModules
+					"vps6" = 
 					[
-						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
-							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
-						./modules
 						(inputs: { config.nixos =
 						{
 							fileSystems =
@@ -279,19 +253,11 @@
 								network.enable = true;
 								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
 							};
-							system = { hostname = "vps6"; march = "sandybridge"; };
+							system.march = "sandybridge";
 						};})
 					];
-				};
-				"vps4" = inputs.nixpkgs.lib.nixosSystem
-				{
-					system = "x86_64-linux";
-					specialArgs = { topInputs = inputs; inherit localLib; };
-					modules = localLib.mkModules
+					"vps4" =
 					[
-						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
-							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
-						./modules
 						(inputs: { config.nixos =
 						{
 							fileSystems =
@@ -327,19 +293,11 @@
 								network.enable = true;
 								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
 							};
-							system = { hostname = "vps4"; march = "znver3"; };
+							system.march = "znver3";
 						};})
 					];
-				};
-				"vps7" = inputs.nixpkgs.lib.nixosSystem
-				{
-					system = "x86_64-linux";
-					specialArgs = { topInputs = inputs; inherit localLib; };
-					modules = localLib.mkModules
+					"vps7" =
 					[
-						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
-							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
-						./modules
 						(inputs: { config.nixos =
 						{
 							fileSystems =
@@ -381,19 +339,11 @@
 								network.enable = true;
 								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
 							};
-							system = { hostname = "vps7"; march = "znver2"; };
+							system.march = "znver2";
 						};})
 					];
-				};
-				"nas" = inputs.nixpkgs.lib.nixosSystem
-				{
-					system = "x86_64-linux";
-					specialArgs = { topInputs = inputs; inherit localLib; };
-					modules = localLib.mkModules
+					"nas" =
 					[
-						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
-							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
-						./modules
 						(inputs: { config.nixos =
 						{
 							fileSystems =
@@ -429,19 +379,11 @@
 								network.enable = true;
 								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
 							};
-							system = { hostname = "nas"; march = "silvermont"; };
+							system.march = "silvermont";
 						};})
 					];
-				};
-				"xmupc1" = inputs.nixpkgs.lib.nixosSystem
-				{
-					system = "x86_64-linux";
-					specialArgs = { topInputs = inputs; inherit localLib; };
-					modules = localLib.mkModules
+					"xmupc1" =
 					[
-						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
-							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
-						./modules
 						(inputs: { config.nixos =
 						{
 							fileSystems =
@@ -486,7 +428,6 @@
 							boot.grub.installDevice = "efi";
 							system =
 							{
-								hostname = "xmupc1";
 								march = "znver3";
 								extraMarch =
 								[
@@ -559,16 +500,8 @@
 							bugs = [ "xmunet" "firefox" "embree" ];
 						};})
 					];
-				};
-				"yoga" = inputs.nixpkgs.lib.nixosSystem
-				{
-					system = "x86_64-linux";
-					specialArgs = { topInputs = inputs; inherit localLib; };
-					modules = localLib.mkModules
+					"yoga" =
 					[
-						(inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
-							(import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
-						./modules
 						(inputs: { config.nixos =
 						{
 							fileSystems =
@@ -625,9 +558,24 @@
 							};
 						};})
 					];
-				};
-				# sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap --option substituters http://127.0.0.1:5000 --option require-sigs false --option system-features gccarch-silvermont
-			};
+				}));
+			# sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap --option substituters http://127.0.0.1:5000 --option require-sigs false --option system-features gccarch-silvermont
+			# nix-serve -p 5000
+			# nix copy --substitute-on-destination --to ssh://server /run/current-system
+			# nix copy --to ssh://nixos@192.168.122.56 ./result
+			# sudo nixos-install --flake .#bootstrap
+			#		--option substituters http://192.168.122.1:5000 --option require-sigs false
+			# sudo chattr -i var/empty
+			# nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
+			# sudo nixos-rebuild switch --flake .#vps6 --log-format internal-json -v |& nom --json
+			# boot.shell_on_fail systemd.setenv=SYSTEMD_SULOGIN_FORCE=1
+			# sudo usbipd
+			# ssh -R 3240:127.0.0.1:3240 root@192.168.122.57
+			# modprobe vhci-hcd
+			# sudo usbip bind -b 3-6
+			# usbip attach -r 127.0.0.1 -b 3-6
+			# systemd-cryptenroll --fido2-device=auto /dev/vda2
+			# systemd-cryptsetup attach root /dev/vda2
 			deploy =
 			{
 				sshUser = "root";
