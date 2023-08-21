@@ -46,7 +46,7 @@ inputs:
 					# downloader
 					wget aria2 curl
 					# file manager
-					tree git exa trash-cli lsd broot file xdg-ninja mlocate
+					tree exa trash-cli lsd broot file xdg-ninja mlocate
 					# compress
 					pigz rar upx unzip inputs.topInputs.nixpkgs-stable.legacyPackages.x86_64-linux.zip lzip p7zip
 					# file system management
@@ -85,6 +85,17 @@ inputs:
 				adb.enable = true;
 				gnupg.agent = { enable = true; enableSSHSupport = true; };
 				autojump.enable = true;
+				git =
+				{
+					enable = true;
+					package = inputs.pkgs.gitFull;
+					lfs.enable = true;
+					config =
+					{
+						init.defaultBranch = "main";
+						core = { quotepath = false; editor = "vim"; };
+					};
+				};
 			};
 			services =
 			{

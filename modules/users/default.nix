@@ -48,7 +48,7 @@ inputs:
 					useUserPackages = true;
 					users =
 						let
-							normal = { pkgs, ...}:
+							normal = { gui ? false }: { pkgs, ...}:
 							{
 								home.stateVersion = "22.11";
 								programs.zsh =
@@ -104,16 +104,6 @@ inputs:
 												sha256 = "sha256-oWjWnhiimlGBMaZlZB+OM47jd9hporKlPNwCx6524Rk=";
 											};
 										}
-										# {
-										# 	name = "zsh-exa";
-										# 	src = pkgs.fetchFromGitHub
-										# 	{
-										# 		owner = "ptavares";
-										# 		repo = "zsh-exa";
-										# 		rev = "0.2.3";
-										# 		sha256 = "0vn3iv9d3c1a4rigq2xm52x8zjaxlza1pd90bw9mbbkl9iq8766r";
-										# 	};
-										# }
 									];
 									history =
 									{
@@ -124,11 +114,39 @@ inputs:
 									};
 								};
 								programs.direnv = { enable = true; nix-direnv.enable = true; };
+								programs.git =
+								{
+									enable = true;
+									lfs.enable = true;
+									userEmail = "chn@chn.moe";
+									userName = "chn";
+									extraConfig =
+									{
+										core.editor = if gui then "code --wait" else "vim";
+										advice.detachedHead = false;
+										merge.conflictstyle = "diff3";
+										diff.colorMoved = "default";
+									};
+									package = pkgs.gitFull;
+									delta =
+									{
+										enable = true;
+										options =
+										{
+											side-by-side = true;
+											navigate = true;
+											syntax-theme = "GitHub";
+											light = true;
+											zero-style = "syntax white";
+											line-numbers-zero-style = "#ffffff";
+										};
+									};
+								};
 							};
 						in
 						{
-							root = normal;
-							chn = normal;
+							root = normal { gui = false; };
+							chn = normal { gui = inputs.config.nixos.system.gui.enable; };
 						};
 				};
 			}
