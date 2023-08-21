@@ -582,7 +582,7 @@
 										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
 									};
 								};
-								decrypt.auto."/dev/disk/by-uuid/e252f81d-b4b3-479f-8664-380a9b73cf83" =
+								decrypt.auto."/dev/disk/by-uuid/8186d34e-005c-4461-94c7-1003a5bd86c0" =
 									{ mapper = "root"; ssd = true; };
 								swap = [ "/nix/swap/swap" ];
 								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
