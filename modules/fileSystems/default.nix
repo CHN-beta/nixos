@@ -242,6 +242,6 @@ inputs:
 # sudo cfdisk /dev/nvme1n1p3
 
 # test on e20dae7d8b317f95718b5f4175bd4246c09735de mathematica ~15G
-# 15 5m33s 7.16G 
-# 8 54s 7.32G
-# 3 17s 7.52G
+# zstd:15 5m33s 7.16G 
+# zstd:8 54s 7.32G
+# zstd:3 17s 7.52G
