@@ -193,6 +193,14 @@ inputs:
 					kdeconnect.enable = true;
 					wireshark = { enable = true; package = inputs.pkgs.wireshark; };
 					firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
+					chromium =
+					{
+						enable = true;
+						extraOpts =
+						{
+							PasswordManagerEnabled = false;
+						};
+					};
 					vim.package = inputs.pkgs.vim-full;
 				};
 				nixpkgs.config.packageOverrides = pkgs: 
