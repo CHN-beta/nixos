@@ -686,15 +686,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1692020623,
-        "narHash": "sha256-BYaSUmi/5LWcXQLXrhHbufO2rSVBKSoK1MLcHjuFpl8=",
-        "owner": "nzbr",
+        "lastModified": 1692705959,
+        "narHash": "sha256-mdgBp7MoW8CBfbCNRI3WpyWOtWUCSrxbYVxN3pJOHPs=",
+        "owner": "CHN-beta",
         "repo": "pnpm2nix-nzbr",
-        "rev": "00e3722ebb689a9f18b90f27306f798e98ef9e5b",
+        "rev": "b03c76371017588dba0ba3059fdf2640066ee385",
         "type": "github"
       },
       "original": {
-        "owner": "nzbr",
+        "owner": "CHN-beta",
         "repo": "pnpm2nix-nzbr",
         "type": "github"
       }
