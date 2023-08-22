@@ -535,10 +535,61 @@
 							boot.grub.installDevice = "efi";
 							system =
 							{
-								hostname = "yoga";
 								march = "silvermont";
 								gui.enable = true;
 							};
+							virtualization.docker.enable = true;
+							services =
+							{
+								impermanence.enable = true;
+								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+								fontconfig.enable = true;
+								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
+								sshd.enable = true;
+								xrayClient =
+								{
+									enable = true;
+									serverAddress = "74.211.99.69";
+									serverName = "vps6.xserver.chn.moe";
+									dns.extraInterfaces = [ "docker0" ];
+								};
+								firewall.trustedInterfaces = [ "virbr0" ];
+								smartd.enable = true;
+							};
+						};})
+					];
+					"pe" =
+					[
+						(inputs: { config.nixos =
+						{
+							fileSystems =
+							{
+								mount =
+								{
+									vfat."/dev/disk/by-uuid/A0F1-74E5" = "/boot/efi";
+									btrfs =
+									{
+										"/dev/disk/by-uuid/a7546428-1982-4931-a61f-b7eabd185097"."/boot" = "/boot";
+										"/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+									};
+								};
+								decrypt.auto."/dev/disk/by-uuid/0b800efa-6381-4908-bd63-7fa46322a2a9" =
+									{ mapper = "root"; ssd = true; };
+								rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+							};
+							kernel.patches = [ "cjktty" "preempt" ];
+							hardware =
+							{
+								cpus = [ "intel" ];
+								gpus = [ "intel" "nvidia" ];
+								bluetooth.enable = true;
+								joystick.enable = true;
+								printer.enable = true;
+								sound.enable = true;
+							};
+							packages.packageSet = "desktop";
+							boot.grub.installDevice = "efiRemovable";
+							system.gui.enable = true;
 							virtualization.docker.enable = true;
 							services =
 							{

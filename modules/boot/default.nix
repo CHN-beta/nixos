@@ -6,7 +6,8 @@ inputs:
 		{
 			timeout = mkOption { type = types.int; default = 5; };
 			windowsEntries = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
-			installDevice = mkOption { type = types.str; }; # "efi" using efi, or dev path like "/dev/sda" using bios
+			# "efi" using efi, "efiRemovable" using efi with install grub removable, or dev path like "/dev/sda" using bios
+			installDevice = mkOption { type = types.str; };
 		};
 		network.enable = mkOption { type = types.bool; default = false; };
 		sshd =
@@ -49,14 +50,24 @@ inputs:
 			}
 			# grub.installDevice
 			(
-				mkConditional (boot.grub.installDevice == "efi")
-					{
-						boot.loader =
+				mkConditional (boot.grub.installDevice == "efi" || boot.grub.installDevice == "efiRemovable")
+					(
+						mkConditional (boot.grub.installDevice == "efi")
 						{
-							efi = { canTouchEfiVariables = true; efiSysMountPoint = "/boot/efi"; };
-							grub = { device = "nodev"; efiSupport = true; };
-						};
-					}
+							boot.loader =
+							{
+								efi = { canTouchEfiVariables = true; efiSysMountPoint = "/boot/efi"; };
+								grub = { device = "nodev"; efiSupport = true; };
+							};
+						}
+						{
+							boot.loader =
+							{
+								efi.efiSysMountPoint = "/boot/efi";
+								grub = { device = "nodev"; efiSupport = true; efiInstallAsRemovable = true; };
+							};
+						}
+					)
 					{ boot.loader.grub.device = boot.grub.installDevice; }
 			)
 			# network

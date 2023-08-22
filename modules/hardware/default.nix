@@ -50,7 +50,7 @@ inputs:
 					environment.etc."wireplumber/main.lua.d/50-alsa-config.lua".text =
 						let
 							content = builtins.readFile
-								("/." + inputs.pkgs.wireplumber + "/share/wireplumber/main.lua.d/50-alsa-config.lua");
+								(inputs.pkgs.wireplumber + "/share/wireplumber/main.lua.d/50-alsa-config.lua");
 							matched = builtins.match
 								".*\n([[:space:]]*)(--\\[\"session\\.suspend-timeout-seconds\"][^\n]*)[\n].*" content;
 							spaces = builtins.elemAt matched 0;

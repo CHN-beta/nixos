@@ -230,7 +230,7 @@ inputs:
 									};
 									chromium =
 									{
-										enable = true;
+										enable = inputs.config.programs.chromium.enable && gui;
 										extensions =
 										[
 											{ id = "mpkodccbngfoacfalldjimigbofkhgjn"; } # Aria2 Explorer
