@@ -26,6 +26,9 @@ inputs:
 					Group = inputs.config.users.users.rsshub.group;
 					EnvironmentFile = inputs.config.sops.templates."rsshub/env".path;
 					ExecStart = "${inputs.pkgs.localPackages.rsshub}/bin/rsshub";
+					KillMode = "mixed"; 
+					CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
+					AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
 				};
 			};
 			sops =
@@ -44,6 +47,7 @@ inputs:
 						YOUTUBE_CLIENT_ID='${placeholder."rsshub/youtube-client-id"}'
 						YOUTUBE_CLIENT_SECRET='${placeholder."rsshub/youtube-client-secret"}'
 						YOUTUBE_REFRESH_TOKEN='${placeholder."rsshub/youtube-refresh-token"}'
+						NO_LOGFILES=true
 					'';
 				secrets = (listToAttrs (map (secret: { name = "rsshub/${secret}"; value = {}; })
 				[
