@@ -192,7 +192,12 @@ inputs:
 					steam.enable = true;
 					kdeconnect.enable = true;
 					wireshark = { enable = true; package = inputs.pkgs.wireshark; };
-					firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
+					firefox =
+					{
+						enable = true;
+						languagePacks = [ "zh-CN" "en-US" ];
+						nativeMessagingHosts.firefoxpwa = true;
+					};
 					chromium =
 					{
 						enable = true;
