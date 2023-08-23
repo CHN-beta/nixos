@@ -36,14 +36,14 @@ inputs:
 						redis = inputs.config.nixos.services.redis.instances.rsshub;
 					in stripeTabs
 					''
-						PORT=${toString rsshub.port}
-						CACHE_TYPE=redis
-						REDIS_URL=redis://:${placeholder."redis/rsshub"}@127.0.0.1:${toString redis.port}
-						PIXIV_REFRESHTOKEN=${placeholder."rsshub/pixiv-refreshtoken"}
-						YOUTUBE_KEY=${placeholder."rsshub/youtube-key"}
-						YOUTUBE_CLIENT_ID=${placeholder."rsshub/youtube-client-id"}
-						YOUTUBE_CLIENT_SECRET=${placeholder."rsshub/youtube-client-secret"}
-						YOUTUBE_REFRESH_TOKEN=${placeholder."rsshub/youtube-refresh-token"}
+						PORT='${toString rsshub.port}'
+						CACHE_TYPE='redis'
+						REDIS_URL='redis://:${placeholder."redis/rsshub"}@127.0.0.1:${toString redis.port}'
+						PIXIV_REFRESHTOKEN='${placeholder."rsshub/pixiv-refreshtoken"}'
+						YOUTUBE_KEY='${placeholder."rsshub/youtube-key"}'
+						YOUTUBE_CLIENT_ID='${placeholder."rsshub/youtube-client-id"}'
+						YOUTUBE_CLIENT_SECRET='${placeholder."rsshub/youtube-client-secret"}'
+						YOUTUBE_REFRESH_TOKEN='${placeholder."rsshub/youtube-refresh-token"}'
 					'';
 				secrets = (listToAttrs (map (secret: { name = "rsshub/${secret}"; value = {}; })
 				[
