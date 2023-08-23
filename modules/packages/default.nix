@@ -198,14 +198,6 @@ inputs:
 						languagePacks = [ "zh-CN" "en-US" ];
 						nativeMessagingHosts.firefoxpwa = true;
 					};
-					chromium =
-					{
-						enable = true;
-						extraOpts =
-						{
-							PasswordManagerEnabled = false;
-						};
-					};
 					vim.package = inputs.pkgs.vim-full;
 				};
 				nixpkgs.config.packageOverrides = pkgs: 
@@ -273,6 +265,14 @@ inputs:
 								start = "${notify-send} 'GameMode started'";
 								end = "${notify-send} 'GameMode ended'";
 							};
+						};
+					};
+					chromium =
+					{
+						enable = true;
+						extraOpts =
+						{
+							PasswordManagerEnabled = false;
 						};
 					};
 				};
