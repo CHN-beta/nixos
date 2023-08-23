@@ -37,7 +37,7 @@ let
 	startScript = writeShellScript "rsshub"
 	''
 		cd ${rsshub-unwrapped}
-		export CHROMIUM_EXECUTABLE_PATH=$${chromium}/bin/chromium
+		export CHROMIUM_EXECUTABLE_PATH=${chromium}/bin/chromium
 		${nodejs.pkgs.pnpm}/bin/pnpm start
 	'';
 in stdenv.mkDerivation rec
