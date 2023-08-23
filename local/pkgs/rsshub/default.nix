@@ -9,7 +9,7 @@ let
 		rev = "0352743997ad8c7c137ad9adc767e2c70d143c54";
 		hash = "sha256-oqcEZs6XLyz/iUZLhzaj/aO1re/V+hy8ij45Y6L1uKA=";
 	};
-	originalPnpmPackage = mkPnpmPackage { inherit pname version src nodejs; };
+	originalPnpmPackage = mkPnpmPackage { inherit pname version src nodejs; copyPnpmStore = false; };
 	nodeModules = originalPnpmPackage.nodeModules.overrideAttrs { PUPPETEER_SKIP_DOWNLOAD = true; };
 	rsshub-unwrapped = stdenv.mkDerivation
 	{
