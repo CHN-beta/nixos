@@ -25,6 +25,10 @@ creation_rules:
     - age:
       - *chn
       - *vps7
+  - path_regex: secrets/nas\.yaml$
+    key_groups:
+    - age:
+      - *chn
   - path_regex: secrets/xmupc1\.yaml$
     key_groups:
     - age:
