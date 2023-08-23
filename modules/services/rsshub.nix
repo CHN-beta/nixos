@@ -26,7 +26,6 @@ inputs:
 					Group = inputs.config.users.users.rsshub.group;
 					EnvironmentFile = inputs.config.sops.templates."rsshub/env".path;
 					ExecStart = "${inputs.pkgs.localPackages.rsshub}/bin/rsshub";
-					KillMode = "mixed"; 
 					CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
 					AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
 				};
@@ -39,15 +38,14 @@ inputs:
 						redis = inputs.config.nixos.services.redis.instances.rsshub;
 					in stripeTabs
 					''
-						PORT='${toString rsshub.port}'
-						CACHE_TYPE='redis'
+						PORT=${toString rsshub.port}
+						CACHE_TYPE=redis
 						REDIS_URL='redis://:${placeholder."redis/rsshub"}@127.0.0.1:${toString redis.port}'
 						PIXIV_REFRESHTOKEN='${placeholder."rsshub/pixiv-refreshtoken"}'
 						YOUTUBE_KEY='${placeholder."rsshub/youtube-key"}'
 						YOUTUBE_CLIENT_ID='${placeholder."rsshub/youtube-client-id"}'
 						YOUTUBE_CLIENT_SECRET='${placeholder."rsshub/youtube-client-secret"}'
 						YOUTUBE_REFRESH_TOKEN='${placeholder."rsshub/youtube-refresh-token"}'
-						NO_LOGFILES=true
 					'';
 				secrets = (listToAttrs (map (secret: { name = "rsshub/${secret}"; value = {}; })
 				[

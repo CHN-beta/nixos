@@ -1,4 +1,7 @@
-{ lib, stdenv, mkPnpmPackage, fetchFromGitHub, nodejs, writeShellScript, chromium }:
+{
+	lib, stdenv, mkPnpmPackage, fetchFromGitHub, nodejs, writeShellScript,
+	chromium, bash
+}:
 let
 	pname = "rsshub";
 	version = "20230823";
@@ -38,7 +41,8 @@ let
 	''
 		cd ${rsshub-unwrapped}
 		export CHROMIUM_EXECUTABLE_PATH=${chromium}/bin/chromium
-		${nodejs.pkgs.pnpm}/bin/pnpm start
+		export PATH=${lib.makeBinPath [ bash nodejs nodejs.pkgs.pnpm ]}:$PATH
+		pnpm start
 	'';
 in stdenv.mkDerivation rec
 {
