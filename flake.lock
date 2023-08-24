@@ -686,11 +686,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1692778062,
-        "narHash": "sha256-h7WFkl87bLMrfecF9h8FAAoW5fhBcybtYcRxtpeQqn4=",
+        "lastModified": 1692918416,
+        "narHash": "sha256-SPbFwuIJ5HIhoZxI6snQ3QGyrusqB8eqX/3aOtx+afA=",
         "owner": "CHN-beta",
         "repo": "pnpm2nix-nzbr",
-        "rev": "6e74fe72a245f1bae87fb3d20ea632c6465ec2ce",
+        "rev": "7472a7749fc9f1ef7b75b618d6645f84ead2764d",
         "type": "github"
       },
       "original": {
