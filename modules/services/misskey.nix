@@ -121,12 +121,16 @@ inputs:
 			})
 			(mkIf misskey-proxy.enable
 			{
-				nixos.services.nginx.httpProxy."${misskey-proxy.hostname}" =
+				nixos.services.nginx =
 				{
-					upstream = "https://direct.${misskey-proxy.hostname}";
-					websocket = true;
-					setHeaders.Host = "direct.${misskey-proxy.hostname}";
-					addAuth = true;
+					enable = true;
+					httpProxy."${misskey-proxy.hostname}" =
+					{
+						upstream = "https://direct.${misskey-proxy.hostname}";
+						websocket = true;
+						setHeaders.Host = "direct.${misskey-proxy.hostname}";
+						addAuth = true;
+					};
 				};
 			})
 		];
