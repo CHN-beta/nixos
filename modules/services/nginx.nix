@@ -49,6 +49,8 @@ inputs:
 							log_format http '[$time_local] $remote_addr-$geoip_country_code "$host"'
 								' $request_length $bytes_sent $status "$request" referer: "$http_referer" ua: "$http_user_agent"';
 							access_log syslog:server=unix:/dev/log http;
+							proxy_ssl_server_name on;
+							proxy_ssl_session_reuse off;
 						'';
 						virtualHosts = listToAttrs (map
 							(site:
