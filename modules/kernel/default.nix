@@ -32,10 +32,10 @@ inputs:
 						owner = "xanmod";
 						repo = "linux";
 						rev = modDirVersion;
-						sha256 = "sha256-rvSQJb9MIOXkGEjHOPt3x+dqp1AysvQg7n5yYsg95fk=";
+						sha256 = "sha256-ab4AQx1ApJ9o1oqgNoJBL64tI0qpyVBm5XUC8l1yT6Q=";
 					};
-					version = "6.4.12";
-					modDirVersion = "6.4.12-xanmod1";
+					version = "6.3.12";
+					modDirVersion = "6.3.12-xanmod1";
 				});
 			};
 		}
