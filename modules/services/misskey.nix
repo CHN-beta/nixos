@@ -106,12 +106,17 @@ inputs:
 						enable = true;
 						httpProxy =
 						{
-							"${misskey.hostname}" = { upstream = "http://127.0.0.1:${toString misskey.port}"; websocket = true; };
+							"${misskey.hostname}" =
+							{
+								upstream = "http://127.0.0.1:${toString misskey.port}";
+								websocket = true;
+								setHeaders.Host = misskey.hostname;
+							};
 							"direct.${misskey.hostname}" =
 							{
 								upstream = "http://127.0.0.1:${toString misskey.port}";
 								websocket = true;
-								setHeaders.Host = "${misskey.hostname}";
+								setHeaders.Host = misskey.hostname;
 								detectAuth = true;
 							};
 						};

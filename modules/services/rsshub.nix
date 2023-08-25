@@ -57,7 +57,15 @@ inputs:
 			nixos.services =
 			{
 				redis.instances.rsshub.port = 7116;
-				nginx = { enable = true; httpProxy.${rsshub.hostname}.upstream = "http://127.0.0.1:${toString rsshub.port}"; };
+				nginx =
+				{
+					enable = true;
+					httpProxy.${rsshub.hostname} =
+					{
+						upstream = "http://127.0.0.1:${toString rsshub.port}";
+						setHeaders.Host = rsshub.hostname;
+					};
+				};
 			};
 		};
 }

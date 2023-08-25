@@ -979,7 +979,15 @@ inputs:
 					{
 						services =
 						{
-							nginx = { enable = true; httpProxy."wallabag.chn.moe".upstream = "http://127.0.0.1:4398"; };
+							nginx =
+							{
+								enable = true;
+								httpProxy."wallabag.chn.moe" =
+								{
+									upstream = "http://127.0.0.1:4398";
+									setHeaders.Host = "wallabag.chn.moe";
+								};
+							};
 							postgresql.enable = true;
 						};
 						virtualization.docker.enable = true;

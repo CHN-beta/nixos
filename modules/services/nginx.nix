@@ -67,6 +67,12 @@ inputs:
 									{
 										proxyPass = site.value.upstream;
 										proxyWebsockets = site.value.websocket;
+										recommendedProxySettings = false;
+										recommendedProxySettingsNoHost = true;
+										basicAuthFile =
+											if site.value.detectAuth then
+												inputs.config.sops.secrets."nginx/detectAuth/${site.name}".path
+											else null;
 										extraConfig = concatStringsSep "\n"
 										(
 											(map
@@ -78,15 +84,7 @@ inputs:
 													["include ${inputs.config.sops.templates."nginx/addAuth/${site.name}-template".path};"]
 												else [])
 										);
-									}
-									// (
-										if site.value.detectAuth then
-										{
-											recommendedProxySettings = false;
-											basicAuthFile = inputs.config.sops.secrets."nginx/detectAuth/${site.name}".path;
-										}
-										else {}
-									);
+									};
 									addSSL = true;
 									forceSSL = site.value.rewriteHttps;
 									http2 = site.value.http2;
