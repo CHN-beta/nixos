@@ -123,9 +123,9 @@ inputs:
 			{
 				nixos.services.nginx.httpProxy."${misskey-proxy.hostname}" =
 				{
-					upstream = "https://direct.${misskey.hostname}";
+					upstream = "https://direct.${misskey-proxy.hostname}";
 					websocket = true;
-					setHeaders.Host = "direct.${misskey.hostname}";
+					setHeaders.Host = "direct.${misskey-proxy.hostname}";
 					addAuth = true;
 				};
 			})

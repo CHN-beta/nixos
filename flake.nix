@@ -244,7 +244,7 @@
 											"ng01.mirism.one" = 7411;
 											"beta.mirism.one" = 9114;
 											"nix-store.chn.moe" = 7676;
-											"xn--qbtm095lrg0bfka60z.chn.moe" = 7676;
+											"direct.xn--qbtm095lrg0bfka60z.chn.moe" = 7676;
 										};
 									};
 								};
