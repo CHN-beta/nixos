@@ -5,6 +5,7 @@ inputs:
 		./postgresql.nix
 		./redis.nix
 		./rsshub.nix
+		./misskey.nix
 		# ./docker.nix
 	];
 	options.nixos.services = let inherit (inputs.lib) mkOption types; in

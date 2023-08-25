@@ -19,10 +19,17 @@ let
 		nodejs = nodejs_20;
 		copyPnpmStore = true;
 	};
-	misskey-unwrapped = stdenv.mkDerivation
+	startScript = writeShellScript "misskey"
+	''
+		export PATH=${lib.makeBinPath [ bash nodejs_20 nodejs_20.pkgs.pnpm nodejs_20.pkgs.gulp cypress ]}:$PATH
+		export CYPRESS_RUN_BINARY="${cypress}/bin/Cypress"
+		export NODE_ENV=production
+		pnpm run migrateandstart
+	'';
+in
+	misskey = stdenv.mkDerivation
 	{
-		inherit version src;
-		pname = "${pname}-unwrapped";
+		inherit version src pname;
 		nativeBuildInputs =
 			[ bash nodejs_20 nodejs_20.pkgs.typescript nodejs_20.pkgs.pnpm nodejs_20.pkgs.gulp cypress vips pkg-config ];
 		CYPRESS_RUN_BINARY = "${cypress}/bin/Cypress";
@@ -55,26 +62,8 @@ let
 			runHook preInstall
 			mkdir -p $out
 			mv * .* $out
+			mkdir -p $out/bin
+			cp ${startScript} $out/bin/misskey
 			runHook postInstall
 		'';
-	};
-	startScript = writeShellScript "misskey"
-	''
-		cd ${misskey-unwrapped}
-		export PATH=${lib.makeBinPath [ bash nodejs_20 nodejs_20.pkgs.pnpm nodejs_20.pkgs.gulp cypress ]}:$PATH
-		export CYPRESS_RUN_BINARY="${cypress}/bin/Cypress"
-		export NODE_ENV=production
-		pnpm run migrateandstart
-	'';
-in stdenv.mkDerivation rec
-{
-	inherit pname version;
-	phases = [ "installPhase" ];
-	installPhase =
-	''
-		runHook preInstall
-		mkdir -p $out/bin
-		cp ${startScript} $out/bin/misskey
-		runHook postInstall
-	'';
-}
+	}
