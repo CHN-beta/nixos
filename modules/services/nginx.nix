@@ -17,9 +17,9 @@ inputs:
 				rewriteHttps = mkOption { type = types.bool; default = false; };
 				websocket = mkOption { type = types.bool; default = false; };
 				http2 = mkOption { type = types.bool; default = true; };
-				# setHeaders = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
-				addPin = mkOption { type = types.bool; default = false; };
-				detectPin = mkOption { type = types.bool; default = false; };
+				setHeaders = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+				addAuth = mkOption { type = types.bool; default = false; };
+				detectAuth = mkOption { type = types.bool; default = false; };
 			};});
 			default = {};
 		};
@@ -28,11 +28,11 @@ inputs:
 		let
 			inherit (inputs.lib) mkMerge mkIf;
 			inherit (inputs.localLib) stripeTabs attrsToList;
-			inherit (inputs.config.nixosservices) nginx;
-			inherit (builtins) map listToAttrs concatStringsSep toString;
+			inherit (inputs.config.nixos.services) nginx;
+			inherit (builtins) map listToAttrs concatStringsSep toString filter attrValues;
 		in mkMerge
 		[
-			(mkIf services.nginx.enable
+			(mkIf nginx.enable
 			{
 				services =
 				{
@@ -61,13 +61,34 @@ inputs:
 									{
 										proxyPass = site.value.upstream;
 										proxyWebsockets = site.value.websocket;
-									};
+										extraConfig = concatStringsSep "\n"
+										(
+											(map
+												(header: "proxy_set_header ${header.name} ${header.value};")
+												(attrsToList site.value.setHeaders))
+											++ (if site.value.detectAuth then ["proxy_hide_header Authorization;"] else [])
+										);
+									}
+									// (
+										if site.value.detectAuth then
+										{
+											recommendedProxySettings = false;
+											basicAuthFile = inputs.config.sops.secrets."nginx/detectAuth/${site.name}".path;
+										}
+										else {}
+									)
+									// (
+										if site.value.addAuth then
+											let config = inputs.config.sops.templates."nginx/addAuth/${site.name}-template".path;
+											in { extraConfig = "include ${config};"; }
+										else {}
+									);
 									addSSL = true;
 									forceSSL = site.value.rewriteHttps;
 									http2 = site.value.http2;
 								};
 							})
-							(attrsToList services.nginx.httpProxy));
+							(attrsToList nginx.httpProxy));
 						recommendedZstdSettings = true;
 						recommendedTlsSettings = true;
 						recommendedProxySettings = true;
@@ -111,7 +132,29 @@ inputs:
 						};
 					};
 				};
-				sops.secrets."nginx/maxmind-license".owner = inputs.config.users.users.nginx.name;
+				sops =
+				{
+					templates = listToAttrs (map
+						(site:
+						{
+							name = "nginx/addAuth/${site.name}";
+							value =
+							{
+								content =
+									let placeholder = inputs.config.sops.placeholder."nginx/addAuth/${site.name}";
+									in ''proxy_set_header Authorization "Basic ${placeholder}";'';
+								owner = inputs.config.users.users.nginx.name;
+							};
+						})
+						(filter (site: site.value.addAuth) (attrsToList nginx.httpProxy)));
+					secrets = { "nginx/maxmind-license".owner = inputs.config.users.users.nginx.name; }
+						// (listToAttrs (map
+							(site: { name = "nginx/detectAuth/${site.name}"; value.owner = inputs.config.users.users.nginx.name; })
+							(filter (site: site.value.detectAuth) (attrsToList nginx.httpProxy))))
+						// (listToAttrs (map
+							(site: { name = "nginx/addAuth/${site.name}"; value = {}; })
+							(filter (site: site.value.addAuth) (attrsToList nginx.httpProxy))));
+				};
 				systemd.services.nginx.serviceConfig =
 				{
 					CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
@@ -122,13 +165,13 @@ inputs:
 				nixos.services.acme =
 				{
 					enable = true;
-					certs = map (cert: cert.name) (attrsToList services.nginx.httpProxy);
+					certs = map (cert: cert.name) (attrsToList nginx.httpProxy);
 				};
 				security.acme.certs = listToAttrs (map
 					(cert: { inherit (cert) name; value.group = inputs.config.services.nginx.group; })
-					(attrsToList services.nginx.httpProxy));
+					(attrsToList nginx.httpProxy));
 			})
-			(mkIf services.nginx.transparentProxy.enable
+			(mkIf nginx.transparentProxy.enable
 			{
 				services.nginx.streamConfig = stripeTabs
 				''
@@ -143,17 +186,17 @@ inputs:
 						${concatStringsSep "\n" (map
 							(x: ''									"${x.name}" 127.0.0.1:${toString x.value};'')
 							(
-								(attrsToList services.nginx.transparentProxy.map)
+								(attrsToList nginx.transparentProxy.map)
 								++ (map
 									(site: { name = site.name; value = (if site.value.http2 then 443 else 3065); })
-									(attrsToList services.nginx.httpProxy)
+									(attrsToList nginx.httpProxy)
 								)
 							))}
 						default 127.0.0.1:443;
 					}
 					server
 					{
-						listen ${services.nginx.transparentProxy.externalIp}:443;
+						listen ${nginx.transparentProxy.externalIp}:443;
 						ssl_preread on;
 						proxy_bind $remote_addr transparent;
 						proxy_pass $backend;
@@ -188,7 +231,7 @@ inputs:
 							)
 							+ concatStringsSep "\n" (map
 								(port: ''${ipset} add nginx_proxy_port ${toString port}'')
-								(inputs.lib.unique ((attrValues services.nginx.transparentProxy.map) ++ [ 443 3065 ])))
+								(inputs.lib.unique ((attrValues nginx.transparentProxy.map) ++ [ 443 3065 ])))
 						);
 						stop = inputs.pkgs.writeShellScript "nginx-proxy.stop" (stripeTabs
 						''

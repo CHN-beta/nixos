@@ -332,6 +332,11 @@
 								rsshub.enable = true;
 								nginx = { enable = true; transparentProxy.externalIp = "207.180.253.54"; };
 								wallabag.enable = true;
+								misskey =
+								{
+									enable = true;
+									hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
+								};
 							};
 							boot =
 							{

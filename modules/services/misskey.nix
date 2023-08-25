@@ -94,7 +94,17 @@ inputs:
 				nginx =
 				{
 					enable = true;
-					httpProxy.${misskey.hostname} = { upstream = "http://127.0.0.1:${toString misskey.port}"; websocket = true; };
+					httpProxy =
+					{
+						"${misskey.hostname}" = { upstream = "http://127.0.0.1:${toString misskey.port}"; websocket = true; };
+						"direct.${misskey.hostname}" =
+						{
+							upstream = "http://127.0.0.1:${toString misskey.port}";
+							websocket = true;
+							setHeaders.Host = "direct.${misskey.hostname}";
+							detectAuth = true;
+						};
+					};
 				};
 				postgresql = { enable = true; instances.misskey = {}; };
 			};
