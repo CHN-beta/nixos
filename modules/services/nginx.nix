@@ -73,6 +73,10 @@ inputs:
 												(header: "proxy_set_header ${header.name} ${header.value};")
 												(attrsToList site.value.setHeaders))
 											++ (if site.value.detectAuth then ["proxy_hide_header Authorization;"] else [])
+											++ (
+												if site.value.addAuth then
+													["include ${inputs.config.sops.templates."nginx/addAuth/${site.name}-template".path};"]
+												else [])
 										);
 									}
 									// (
@@ -81,12 +85,6 @@ inputs:
 											recommendedProxySettings = false;
 											basicAuthFile = inputs.config.sops.secrets."nginx/detectAuth/${site.name}".path;
 										}
-										else {}
-									)
-									// (
-										if site.value.addAuth then
-											let config = inputs.config.sops.templates."nginx/addAuth/${site.name}-template".path;
-											in { extraConfig = "include ${config};"; }
 										else {}
 									);
 									addSSL = true;
