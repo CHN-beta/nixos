@@ -137,7 +137,7 @@ inputs:
 					templates = listToAttrs (map
 						(site:
 						{
-							name = "nginx/addAuth/${site.name}";
+							name = "nginx/addAuth/${site.name}-template";
 							value =
 							{
 								content =
