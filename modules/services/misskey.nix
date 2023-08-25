@@ -28,7 +28,7 @@ inputs:
 					BindPaths =
 					[
 						"${inputs.pkgs.localPackages.misskey},${WorkingDirectory}"
-						"${inputs.config.sops.templates."misskey/default.yml".path;},${WorkingDirectory}/.config/default.yml"
+						"${inputs.config.sops.templates."misskey/default.yml".path},${WorkingDirectory}/.config/default.yml"
 						"${WorkingDirectory}/files,${WorkingDirectory}/files"
 					];
 					ExecStartPre = [ "${inputs.pkgs.coreutils}/bin/mkdir -m 700 -p ${WorkingDirectory}/files" ];
@@ -42,7 +42,7 @@ inputs:
 					placeholder = inputs.config.sops.placeholder;
 					misskey = inputs.config.nixos.services.misskey;
 					redis = inputs.config.nixos.services.redis.instances.misskey;
-				in replaceStrings "\t" "  " (stripeTabs
+				in replaceStrings ["\t"] ["  "] (stripeTabs
 				''
 					url: https://${misskey.hostname}/
 					port: ${toString misskey.port}
@@ -51,7 +51,7 @@ inputs:
 						port: 5432
 						db: misskey
 						user: misskey
-						pass: ${placeholder."postgres/misskey"}
+						pass: ${placeholder."postgresql/misskey"}
 					dbReplications: false
 					redis:
 						host: 127.0.0.1

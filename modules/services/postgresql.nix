@@ -7,8 +7,8 @@ inputs:
 		{
 			type = types.attrsOf (types.submodule (submoduleInputs: { options =
 			{
-				database = mkOption { type = types.nonEmptyStr; defualt = inputs.config._module.args.name; };
-				user = mkOption { type = types.nonEmptyStr; default = inputs.config._module.args.name; };
+				database = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+				user = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
 				passwordFile = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
 			};}));
 			default = {};
@@ -69,7 +69,7 @@ inputs:
 				(attrsToList postgresql.instances)));
 			sops.secrets = listToAttrs (map
 				(db: { name = "postgresql/${db.value.user}"; value.owner = inputs.config.users.users.postgres.name; })
-				(filter (db: db.value.passwordFile or null == null) (attrsToList postgresql.instances)));
+				(filter (db: db.value.passwordFile == null) (attrsToList postgresql.instances)));
 		};
 }
   # sops.secrets.drone-agent = {

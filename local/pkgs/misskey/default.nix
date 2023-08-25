@@ -27,7 +27,7 @@ let
 		pnpm run migrateandstart
 	'';
 in
-	misskey = stdenv.mkDerivation
+	stdenv.mkDerivation
 	{
 		inherit version src pname;
 		nativeBuildInputs =
