@@ -59,13 +59,13 @@ inputs:
 							else inputs.config.sops.secrets."postgresql/${db.value.user}".path;
 						in
 						# set user password
-						''$PSQL -tAc "ALTER USER '${db.value.user}' with encrypted password '$(cat ${passwordFile})'"''
+						"$PSQL -tAc \"ALTER USER ${db.value.user} with encrypted password '$(cat ${passwordFile})'\""
 						# set db owner
 							+ "\n"
-							+ ''$PSQL -tAc "select pg_catalog.pg_get_userbyid(d.datdba) FROM pg_catalog.pg_database d''
-							+ '' WHERE d.datname = '${db.value.database}' ORDER BY 1"''
-							+ '' | grep -E '^${db.value.user}$' -q''
-							+ '' || $PSQL -tAc "ALTER DATABASE '${db.value.database}' OWNER TO '${db.value.user}'"'')
+							+ "$PSQL -tAc \"select pg_catalog.pg_get_userbyid(d.datdba) FROM pg_catalog.pg_database d"
+							+ " WHERE d.datname = '${db.value.database}' ORDER BY 1\""
+							+ " | grep -E '^${db.value.user}$' -q"
+							+ " || $PSQL -tAc \"ALTER DATABASE ${db.value.database} OWNER TO ${db.value.user}\"")
 				(attrsToList postgresql.instances)));
 			sops.secrets = listToAttrs (map
 				(db: { name = "postgresql/${db.value.user}"; value.owner = inputs.config.users.users.postgres.name; })
