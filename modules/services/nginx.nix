@@ -44,6 +44,12 @@ inputs:
 							worker_connections 524288;
 							use epoll;
 						'';
+						commonHttpConfig = stripeTabs
+						''
+							log_format http '[$time_local] $remote_addr-$geoip_country_code "$host"'
+								' $request_length $bytes_sent $status "$request" referer: "$http_referer" ua: "$http_user_agent"';
+							access_log syslog:server=unix:/dev/log http;
+						'';
 						virtualHosts = listToAttrs (map
 							(site:
 							{
