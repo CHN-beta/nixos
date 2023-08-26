@@ -345,9 +345,6 @@
 							};
 							system.march = "znver2";
 						};})
-						{
-							config.systemd.services.misskey.enable = false;
-						}
 					];
 					"nas" =
 					[
