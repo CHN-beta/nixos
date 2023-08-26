@@ -29,8 +29,8 @@ inputs:
 					services.misskey =
 					{
 						description = "misskey";
-						after = [ "network.target" "redis-misskey.service" "postgresql.service" ];
-						requires = [ "network.target" "redis-misskey.service" "postgresql.service" ];
+						after = [ "network.target" "redis-misskey.service" "postgresql.service" "meilisearch.service" ];
+						requires = [ "network.target" "redis-misskey.service" "postgresql.service" "meilisearch.service" ];
 						wantedBy = [ "multi-user.target" ];
 						environment.MISSKEY_CONFIG_YML = inputs.config.sops.templates."misskey/default.yml".path;
 						serviceConfig = rec
@@ -80,6 +80,13 @@ inputs:
 								host: 127.0.0.1
 								port: ${toString redis.port}
 								pass: ${placeholder."redis/misskey"}
+							meilisearch:
+								host: 127.0.0.1
+								port: 7700
+								apiKey: ${placeholder."meilisearch/misskey"}
+								ssl: false
+								index: misskey
+								scope: global
 							id: 'aid'
 							proxyBypassHosts:
 								- api.deepl.com
@@ -122,6 +129,7 @@ inputs:
 						};
 					};
 					postgresql = { enable = true; instances.misskey = {}; };
+					meilisearch.instances.misskey = { user = inputs.config.users.users.misskey.name; port = 7700; };
 				};
 			})
 			(mkIf misskey-proxy.enable

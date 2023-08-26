@@ -7,6 +7,7 @@ inputs:
 		./rsshub.nix
 		./misskey.nix
 		./nginx.nix
+		./meilisearch.nix
 		# ./docker.nix
 	];
 	options.nixos.services = let inherit (inputs.lib) mkOption types; in

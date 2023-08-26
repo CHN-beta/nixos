@@ -2,7 +2,15 @@ inputs:
 {
 	options.nixos.services.meilisearch = let inherit (inputs.lib) mkOption types; in
 	{
-		enable = mkOption { type = types.bool; default = false; };
+		instances = mkOption
+		{
+			type = types.attrsOf (types.submodule (submoduleInputs: { options =
+			{
+				user = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+				port = mkOption { type = types.ints.unsigned; };
+			};}));
+			default = {};
+		};
 	};
 	config =
 		let
@@ -12,18 +20,52 @@ inputs:
 			inherit (builtins) map listToAttrs filter;
 		in mkIf meilisearch.enable
 		{
-			services.meilisearch =
-			{
-				enable = true;
-				listenAddress = "0.0.0.0";
-				noAnalytics = false;
-				environment = "production";
-				masterKeyEnvironmentFile = inputs.sops.template."meilisearch-env".path;
-			};
+			systemd.services = listToAttrs (map
+				(instance:
+				{
+					name = "meilisearch-${instance.name}";
+					value =
+					{
+						description = "meiliSearch ${instance.name}";
+						wantedBy = [ "multi-user.target" ];
+						after = [ "network.target" ];
+						serviceConfig =
+						{
+							User = instance.user;
+							Group = inputs.users.users.${instance.user}.group;
+							ExecStart = "${inputs.pkgs.meilisearch}/bin/meilisearch"
+								+ " --config-file-path ${inputs.sops.template."meilisearch-${instance.name}.toml".path}";
+							StateDirectory = "meilisearch/${instance.name}";
+						};
+					};
+				})
+				(attrsToList meilisearch.instances));
 			sops =
 			{
-				template."meilisearch-env".content = "MEILI_MASTER_KEY=${inputs.sops.placeholder.meilisearch}";
-				secrets.meilisearch = {};
+				template = listToAttrs (map
+					(instance:
+					{
+						name = "meilisearch-${instance.name}.toml";
+						value =
+						{
+							content = stripeTabs
+							''
+								db_path = "/var/lib/meilisearch/${instance.name}";
+								http_addr = "0.0.0.0:${toString instance.port}";
+								master_key = "${inputs.sops.placeholder."meilisearch/${instance.name}"}";
+								no_analytics = false;
+								env = "production";
+								dump_dir = "/var/lib/meilisearch/${instance.name}/dumps";
+								log_level = "info";
+								max_indexing_memory = 1Gb;
+							'';
+							owner = inputs.config.users.users.misskey.name;
+						};
+					})
+					(attrsToList meilisearch.instances));
+				secrets = listToAttrs (map
+					(instance: { name = "meilisearch/${instance.name}"; value = {}; })
+					(attrsToList meilisearch.instances));
 			};
 		};
 }
