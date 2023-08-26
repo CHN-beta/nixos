@@ -29,8 +29,8 @@ inputs:
 					services.misskey =
 					{
 						description = "misskey";
-						after = [ "network.target" "redis-misskey.service" "postgresql.service" "meilisearch.service" ];
-						requires = [ "network.target" "redis-misskey.service" "postgresql.service" "meilisearch.service" ];
+						after = [ "network.target" "redis-misskey.service" "postgresql.service" "meilisearch-misskey.service" ];
+						requires = [ "network.target" "redis-misskey.service" "postgresql.service" "meilisearch-misskey.service" ];
 						wantedBy = [ "multi-user.target" ];
 						environment.MISSKEY_CONFIG_YML = inputs.config.sops.templates."misskey/default.yml".path;
 						serviceConfig = rec
