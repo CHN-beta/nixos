@@ -248,7 +248,7 @@
 										};
 									};
 								};
-								misskey-proxy."xn--qbtm095lrg0bfka60z.chn.moe" = {};
+								misskey-proxy = { "xn--qbtm095lrg0bfka60z.chn.moe" = {}; "xn--s8w913fdga.chn.moe" = {}; };
 							};
 							boot =
 							{
@@ -335,6 +335,7 @@
 								rsshub.enable = true;
 								nginx = { enable = true; transparentProxy.externalIp = "207.180.253.54"; };
 								wallabag.enable = true;
+								misskey = { enable = true; hostname = "xn--s8w913fdga.chn.moe"; };
 							};
 							boot =
 							{
