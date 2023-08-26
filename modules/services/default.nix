@@ -322,7 +322,11 @@ inputs:
 									servers =
 									[
 										{ address = "223.5.5.5"; domains = [ "geosite:geolocation-cn" ]; port = 53; }
-										{ address = "8.8.8.8"; domains = [ "geosite:geolocation-!cn" "domain:worldcat.org" ]; port = 53; }
+										{
+											address = "8.8.8.8";
+											domains = [ "geosite:geolocation-!cn" "domain:worldcat.org" "domain:mstdn.one" ];
+											port = 53;
+										}
 										{ address = "223.5.5.5"; expectIPs = [ "geoip:cn" ]; }
 										{ address = "8.8.8.8"; }
 									];

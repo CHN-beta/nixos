@@ -36,6 +36,11 @@ inputs:
 								Group = inputs.config.users.users.${instance.value.user}.group;
 								ExecStart = "${inputs.pkgs.meilisearch}/bin/meilisearch"
 									+ " --config-file-path ${inputs.config.sops.templates."meilisearch-${instance.name}.toml".path}";
+								Restart = "always";
+								StartLimitBurst = 3;
+								LimitNOFILE = "infinity";
+								LimitNPROC = "infinity";
+								LimitCORE = "infinity";
 							};
 						};
 					})
