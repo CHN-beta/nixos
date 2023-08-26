@@ -47,7 +47,10 @@ inputs:
 						'';
 						commonHttpConfig = stripeTabs
 						''
-							log_format http '[$time_local] $remote_addr-$geoip_country_code "$host"'
+							geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
+								$geoip2_data_country_code country iso_code;
+							}
+							log_format http '[$time_local] $remote_addr-$geoip2_data_country_code "$host"'
 								' $request_length $bytes_sent $status "$request" referer: "$http_referer" ua: "$http_user_agent"';
 							access_log syslog:server=unix:/dev/log http;
 							proxy_ssl_server_name on;
@@ -101,13 +104,6 @@ inputs:
 						recommendedGzipSettings = true;
 						recommendedBrotliSettings = true;
 						clientMaxBodySize = "0";
-						appendHttpConfig = stripeTabs
-						''
-							geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
-							{
-								$geoip2_data_country_code country iso_code;
-							}
-						'';
 						package =
 							let
 								nginx-geoip2 =
