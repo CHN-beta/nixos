@@ -50,6 +50,7 @@ inputs:
 							ACTION=="add|change", KERNEL=="nvme[0-9]n[0-9]", ATTR{queue/rotational}=="0", ATTR{queue/scheduler}="bfq"
 						'';
 						dbus.implementation = "broker";
+						journald.extraConfig = "MaxRetentionSec=7d";
 					};
 					networking.networkmanager =
 					{
