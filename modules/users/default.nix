@@ -149,6 +149,7 @@ inputs:
 										enable = true;
 										controlMaster = "auto";
 										controlPersist = "1m";
+										compression = true;
 										matchBlocks = builtins.listToAttrs
 										(
 											(map
