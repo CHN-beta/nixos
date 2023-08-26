@@ -19,26 +19,36 @@ inputs:
 			inherit (builtins) map listToAttrs;
 		in
 		{
-			systemd.services = listToAttrs (map
-				(instance:
-				{
-					name = "meilisearch-${instance.name}";
-					value =
+			systemd =
+			{
+				services = listToAttrs (map
+					(instance:
 					{
-						description = "meiliSearch ${instance.name}";
-						wantedBy = [ "multi-user.target" ];
-						after = [ "network.target" ];
-						serviceConfig =
+						name = "meilisearch-${instance.name}";
+						value =
 						{
-							User = instance.value.user;
-							Group = inputs.config.users.users.${instance.value.user}.group;
-							ExecStart = "${inputs.pkgs.meilisearch}/bin/meilisearch"
-								+ " --config-file-path ${inputs.config.sops.templates."meilisearch-${instance.name}.toml".path}";
-							StateDirectory = "meilisearch/${instance.name}";
+							description = "meiliSearch ${instance.name}";
+							wantedBy = [ "multi-user.target" ];
+							after = [ "network.target" ];
+							serviceConfig =
+							{
+								User = instance.value.user;
+								Group = inputs.config.users.users.${instance.value.user}.group;
+								ExecStart = "${inputs.pkgs.meilisearch}/bin/meilisearch"
+									+ " --config-file-path ${inputs.config.sops.templates."meilisearch-${instance.name}.toml".path}";
+							};
 						};
-					};
-				})
-				(attrsToList meilisearch.instances));
+					})
+					(attrsToList meilisearch.instances));
+				tmpfiles.rules = map
+					(instance:
+						let
+							user = instance.value.user;
+							group = inputs.config.users.users.${instance.value.user}.group;
+						in
+							"d /var/lib/meilisearch/${instance.name} 0700 ${user} ${group}")
+					(attrsToList meilisearch.instances);
+			};
 			sops =
 			{
 				templates = listToAttrs (map
