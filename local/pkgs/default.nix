@@ -8,4 +8,5 @@
 	send = callPackage ./send {};
 	rsshub = callPackage ./rsshub {};
 	misskey = callPackage ./misskey {};
+	mk-meili-mgn = callPackage ./mk-meili-mgn {};
 }
