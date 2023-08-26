@@ -39,6 +39,7 @@ inputs:
 					nginx =
 					{
 						enable = true;
+						enableReload = true;
 						eventsConfig = stripeTabs
 						''
 							worker_connections 524288;
