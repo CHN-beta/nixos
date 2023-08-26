@@ -8,16 +8,19 @@ inputs:
 			port = mkOption { type = types.ints.unsigned; default = 9726; };
 			hostname = mkOption { type = types.str; default = "misskey.chn.moe"; };
 		};
-		misskey-proxy =
+		misskey-proxy = mkOption
 		{
-			enable = mkOption { type = types.bool; default = false; };
-			hostname = mkOption { type = types.str; default = "misskey.chn.moe"; };
+			type = types.attrsOf (types.submodule (submoduleInputs: { options =
+			{
+				hostname = mkOption { type = types.str; default = submoduleInputs.config._module.args.name; };
+			};}));
+			default = {};
 		};
 	};
 	config =
 		let
 			inherit (inputs.config.nixos.services) misskey misskey-proxy;
-			inherit (inputs.localLib) stripeTabs;
+			inherit (inputs.localLib) stripeTabs attrsToList;
 			inherit (inputs.lib) mkIf mkMerge;
 			inherit (builtins) map listToAttrs toString replaceStrings;
 		in mkMerge
@@ -132,18 +135,24 @@ inputs:
 					meilisearch.instances.misskey = { user = inputs.config.users.users.misskey.name; port = 7700; };
 				};
 			})
-			(mkIf misskey-proxy.enable
+			(mkIf (misskey-proxy != {})
 			{
 				nixos.services.nginx =
 				{
 					enable = true;
-					httpProxy."${misskey-proxy.hostname}" =
-					{
-						upstream = "https://direct.${misskey-proxy.hostname}";
-						websocket = true;
-						setHeaders.Host = "direct.${misskey-proxy.hostname}";
-						addAuth = true;
-					};
+					httpProxy = listToAttrs (map
+						(proxy:
+						{
+							name = proxy.value.hostname;
+							value =
+							{
+								upstream = "https://direct.${proxy.value.hostname}";
+								websocket = true;
+								setHeaders.Host = "direct.${proxy.value.hostname}";
+								addAuth = true;
+							};
+						})
+						(attrsToList misskey-proxy));
 				};
 			})
 		];

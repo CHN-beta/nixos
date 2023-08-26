@@ -248,7 +248,7 @@
 										};
 									};
 								};
-								misskey-proxy = { enable = true; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
+								misskey-proxy."xn--qbtm095lrg0bfka60z.chn.moe" = {};
 							};
 							boot =
 							{
