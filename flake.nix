@@ -345,7 +345,7 @@
 								network.enable = true;
 								sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
 							};
-							system.march = "znver2";
+							system.march = "broadwell";
 						};})
 					];
 					"nas" =
