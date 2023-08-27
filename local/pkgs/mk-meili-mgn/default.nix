@@ -2,15 +2,15 @@
 rustPlatform.buildRustPackage rec
 {
 	pname = "mk-meili-mgn";
-	version = "20230806";
+	version = "20230827";
 	src = fetchFromGitHub
 	{
-		owner = "libnare";
+		owner = "CHN-beta";
 		repo = "mk-meili-mgn";
-		rev = "e5995980519ec4aa25b73dac5dd010d2e041b1e5";
-		hash = "sha256-WFX1dFMYdNH2Aswf87KvmdcNNG3+cdLMRB80Y3yJDMQ=";
+		rev = "53e282c992293ec735c9bc964f097b5bdbc3e48a";
+		hash = "sha256-KBSoEGfWKDXZHSzSzak1v0nxtQQGI15DQTyNAPhsIB4=";
 	};
-	cargoHash = "sha256-i1+0tqRW8uXfaXZbMHrOnppFfOLCi8Df5bF7k5IsNwk=";
+	cargoHash = "sha256-wNdMPPl2H2iSrNYjoij0Qg/c2S5RjTHpOMV1RfHU27g=";
 	nativeBuildInputs = [ pkg-config ];
 	buildInputs = [ openssl ];
 }

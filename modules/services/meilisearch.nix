@@ -30,6 +30,7 @@ inputs:
 							description = "meiliSearch ${instance.name}";
 							wantedBy = [ "multi-user.target" ];
 							after = [ "network.target" ];
+							environment.RUST_BACKTRACE = "full";
 							serviceConfig =
 							{
 								User = instance.value.user;
