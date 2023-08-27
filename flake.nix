@@ -125,6 +125,8 @@
 									"silvermont"
 									# RDSEED MWAITX SHA CLZERO CX16 SSE4A ABM CLFLUSHOPT WBNOINVD
 									"znver2" "znver3"
+									# CX16 SAHF FXSR HLE RDSEED
+									"broadwell"
 								];
 								gui.enable = true;
 								keepOutputs = true;
