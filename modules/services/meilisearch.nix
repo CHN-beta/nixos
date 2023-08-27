@@ -70,7 +70,7 @@ inputs:
 								env = "production"
 								dump_dir = "/var/lib/meilisearch/${instance.name}/dumps"
 								log_level = "INFO"
-								max_indexing_memory = "1Gb"
+								max_indexing_memory = "2Gb"
 							'';
 							owner = inputs.config.users.users.misskey.name;
 						};
