@@ -237,6 +237,7 @@ inputs:
 										${ipset} create noproxy_src_net hash:net
 
 										${ipset} create proxy_net hash:net
+										${ipset} add proxy_net 8.8.8.8
 
 										${iptables} -t mangle -N v2ray -w
 										${iptables} -t mangle -A PREROUTING -j v2ray -w
