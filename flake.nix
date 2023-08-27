@@ -328,7 +328,7 @@
 							};
 							services =
 							{
-								impermanence.enable = true;
+								impermanence = { enable = true; nodatacow = "/nix/nodatacow"; };
 								snapper = { enable = true; configs.persistent = "/nix/persistent"; };
 								sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
 								sshd.enable = true;

@@ -18,6 +18,7 @@ inputs:
 			enable = mkOption { type = types.bool; default = false; };
 			persistence = mkOption { type = types.nonEmptyStr; default = "/nix/persistent"; };
 			root = mkOption { type = types.nonEmptyStr; default = "/nix/rootfs/current"; };
+			nodatacow = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
 		};
     snapper =
     {
@@ -130,7 +131,22 @@ inputs:
 								++ (if inputs.config.services.xserver.displayManager.sddm.enable then
 									[{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }] else []);
 						};
-					};
+					}
+					// (
+						if (services.impermanence.nodatacow != null) then
+						{
+							"${services.impermanence.nodatacow}" =
+							{
+								hideMounts = true;
+								directories =
+								[
+									"/var/lib/postgresql"
+									"/var/lib/meilisearch"
+								];
+							};
+						}
+						else {}
+					);
 				}
 			)
 			(
