@@ -30,13 +30,24 @@ inputs:
 							description = "meiliSearch ${instance.name}";
 							wantedBy = [ "multi-user.target" ];
 							after = [ "network.target" ];
-							environment.RUST_BACKTRACE = "full";
+							# environment.RUST_BACKTRACE = "full";
 							serviceConfig =
 							{
 								User = instance.value.user;
 								Group = inputs.config.users.users.${instance.value.user}.group;
-								ExecStart = "${inputs.pkgs.meilisearch}/bin/meilisearch"
-									+ " --config-file-path ${inputs.config.sops.templates."meilisearch-${instance.name}.toml".path}";
+								ExecStart =
+									let
+										meilisearch = inputs.pkgs.meilisearch.overrideAttrs (prev:
+										{
+											RUSTFLAGS = prev.RUSTFLAGS or [] ++ [ "-Clto=true" "-Cpanic=abort" "-Cembed-bitcode=yes"]
+												++ (
+													let inherit (inputs.config.nixos.system) march;
+													in (if march != null then [ "-Ctarget-cpu=${march}" ] else [])
+												);
+										});
+										config = inputs.config.sops.templates."meilisearch-${instance.name}.toml".path;
+									in
+										"${meilisearch}/bin/meilisearch --config-file-path ${config}";
 								Restart = "always";
 								StartLimitBurst = 3;
 								LimitNOFILE = "infinity";

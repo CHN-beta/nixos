@@ -27,7 +27,7 @@ inputs:
 							keep-outputs = inputs.config.nixos.system.keepOutputs;
 							keep-failed = true;
 							auto-optimise-store = true;
-							substituters = mkAfter [ "https://nix-store.chn.moe" ];
+							substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
 							trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
 							show-trace = true;
 							max-jobs = 2;
@@ -41,6 +41,7 @@ inputs:
 							nixpkgs.flake = inputs.topInputs.nixpkgs;
 							nixos-config.flake = inputs.topInputs.self;
 						};
+						nixPath = [ "nixpkgs=${inputs.topInputs.nixpkgs}" ];
 					};
 					services =
 					{
