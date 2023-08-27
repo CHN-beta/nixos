@@ -34,7 +34,7 @@ inputs:
 							{
 								User = instance.value.user;
 								Group = inputs.config.users.users.${instance.value.user}.group;
-								ExecStart = "${inputs.pkgs.pkgsStatic.meilisearch}/bin/meilisearch"
+								ExecStart = "${inputs.pkgs.pkgsStatic.genericPackages.meilisearch}/bin/meilisearch"
 									+ " --config-file-path ${inputs.config.sops.templates."meilisearch-${instance.name}.toml".path}";
 								Restart = "always";
 								StartLimitBurst = 3;
