@@ -220,6 +220,7 @@ inputs:
 											alderlake = "MALDERLAKE";
 											sandybridge = "MSANDYBRIDGE";
 											silvermont = "MSILVERMONT";
+											broadwell = "MBROADWELL";
 											znver2 = "MZEN2";
 											znver3 = "MZEN3";
 										};
