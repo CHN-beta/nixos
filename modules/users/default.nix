@@ -231,6 +231,7 @@ inputs:
 									};
 									chromium =
 									{
+										package = inputs.topInputs.nixpkgs-stable.legacyPackages.x86_64-linux.chromium;
 										enable = inputs.config.programs.chromium.enable && gui;
 										extensions =
 										[
