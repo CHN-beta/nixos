@@ -4,13 +4,13 @@
 }:
 let
 	pname = "rsshub";
-	version = "20230823";
+	version = "20230829";
   src = fetchFromGitHub
 	{
 		owner = "DIYgod";
 		repo = "RSSHub";
-		rev = "0352743997ad8c7c137ad9adc767e2c70d143c54";
-		hash = "sha256-oqcEZs6XLyz/iUZLhzaj/aO1re/V+hy8ij45Y6L1uKA=";
+		rev = "afcf9774260dc6505263cf0428970e890f2f7b1d";
+		hash = "sha256-BQFE0Z5DsFTf0tylQ0NN89hCdXT/Y2M+YPa/10ccOVg=";
 	};
 	originalPnpmPackage = mkPnpmPackage { inherit pname version src nodejs; };
 	nodeModules = originalPnpmPackage.nodeModules.overrideAttrs { PUPPETEER_SKIP_DOWNLOAD = true; };
