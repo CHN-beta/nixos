@@ -33,6 +33,7 @@ inputs:
 					unix_socket_permissions = "0700";
 					shared_buffers = "2048MB";
 					work_mem = "128MB";
+					autovacuum = "on";
 				};
 				# log_timezone = 'Asia/Shanghai'
 				# datestyle = 'iso, mdy'
