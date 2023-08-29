@@ -78,6 +78,8 @@ inputs:
 								db: misskey
 								user: misskey
 								pass: ${placeholder."postgresql/misskey"}
+								extra:
+									statement_timeout: 60000
 							dbReplications: false
 							redis:
 								host: 127.0.0.1
