@@ -251,6 +251,7 @@
 									};
 								};
 								misskey-proxy = { "xn--qbtm095lrg0bfka60z.chn.moe" = {}; "xn--s8w913fdga.chn.moe" = {}; };
+								coturn.enable = true;
 							};
 							boot =
 							{
