@@ -252,6 +252,7 @@
 								};
 								misskey-proxy = { "xn--qbtm095lrg0bfka60z.chn.moe" = {}; "xn--s8w913fdga.chn.moe" = {}; };
 								coturn.enable = true;
+								synapse-proxy."synapse.chn.moe" = {};
 							};
 							boot =
 							{
@@ -339,6 +340,7 @@
 								nginx = { enable = true; transparentProxy.externalIp = "95.111.228.40"; };
 								wallabag.enable = true;
 								misskey = { enable = true; hostname = "xn--s8w913fdga.chn.moe"; };
+								synapse.enable = true;
 							};
 							boot =
 							{

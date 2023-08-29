@@ -10,6 +10,7 @@ inputs:
 		./meilisearch.nix
 		./xray.nix
 		./coturn.nix
+		./synapse.nix
 		# ./docker.nix
 	];
 	options.nixos.services = let inherit (inputs.lib) mkOption types; in

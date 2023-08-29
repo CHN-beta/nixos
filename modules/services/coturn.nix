@@ -9,9 +9,7 @@ inputs:
 	config =
 		let
 			inherit (inputs.config.nixos.services) coturn;
-			inherit (inputs.localLib) stripeTabs attrsToList;
-			inherit (inputs.lib) mkIf mkMerge;
-			inherit (builtins) map listToAttrs toString replaceStrings;
+			inherit (inputs.lib) mkIf;
 		in mkIf coturn.enable
 			{
 				services.coturn =
