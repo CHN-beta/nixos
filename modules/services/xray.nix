@@ -66,14 +66,10 @@ inputs:
 								{
 									servers =
 									[
-										{ address = "223.5.5.5"; domains = [ "geosite:geolocation-cn" ]; port = 53; }
-										{
-											address = "8.8.8.8";
-											domains = [ "geosite:geolocation-!cn" "domain:worldcat.org" "domain:mstdn.one" ];
-											port = 53;
-										}
-										{ address = "223.5.5.5"; expectIPs = [ "geoip:cn" ]; }
-										{ address = "8.8.8.8"; }
+										{ address = "223.5.5.5"; domains = [ "geosite:geolocation-cn" ]; port = 53; tag = "dns-direct"; }
+										{ address = "8.8.8.8"; domains = [ "geosite:geolocation-!cn" ]; port = 53; tag = "dns-proxy"; }
+										{ address = "223.5.5.5"; expectIPs = [ "geoip:cn" ]; tag = "dns-direct"; }
+										{ address = "8.8.8.8"; tag = "dns-proxy"; }
 									];
 									disableCache = true;
 									queryStrategy = "UseIPv4";
@@ -156,8 +152,8 @@ inputs:
 									[
 										{ inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
 										{ inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
-										{ inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
-										{ inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = "proxy-vless"; }
+										{ inboundTag = [ "dns-direct" "direct-in" ]; outboundTag = "direct"; }
+										{ inboundTag = [ "dns-proxy" "proxy-in" "proxy-socks-in" ]; outboundTag = "proxy-vless"; }
 										{
 											inboundTag = [ "common-in" ];
 											domain = [ "geosite:geolocation-cn" ];
@@ -237,7 +233,6 @@ inputs:
 										${ipset} create noproxy_src_net hash:net
 
 										${ipset} create proxy_net hash:net
-										${ipset} add proxy_net 8.8.8.8
 
 										${iptables} -t mangle -N v2ray -w
 										${iptables} -t mangle -A PREROUTING -j v2ray -w
