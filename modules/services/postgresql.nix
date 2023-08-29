@@ -31,8 +31,8 @@ inputs:
 				settings =
 				{
 					unix_socket_permissions = "0700";
-					shared_buffers = "2048MB";
-					work_mem = "128MB";
+					shared_buffers = "8192MB";
+					work_mem = "512MB";
 					autovacuum = "on";
 				};
 				# log_timezone = 'Asia/Shanghai'
