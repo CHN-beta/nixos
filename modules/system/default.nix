@@ -151,8 +151,8 @@ inputs:
 					};
 					i18n =
 					{
-						defaultLocale = "zh_CN.UTF-8";
-						supportedLocales = ["zh_CN.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8"];
+						defaultLocale = "C.UTF-8";
+						supportedLocales = [ "zh_CN.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ];
 					};
 					# environment.pathsToLink = [ "/include" ];
 					# environment.variables.CPATH = "/run/current-system/sw/include";
