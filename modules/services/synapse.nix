@@ -83,7 +83,18 @@ inputs:
 						group = inputs.config.systemd.services.matrix-synapse.serviceConfig.Group;
 						content = builtins.readFile ((inputs.pkgs.formats.yaml {}).generate "password.yaml"
 						{
-							database.args.password = inputs.config.sops.placeholder."postgresql/synapse";
+							database =
+							{
+								name = "psycopg2";
+								args =
+								{
+									user = "synapse";
+									password = inputs.config.sops.placeholder."postgresql/synapse";
+									database = "synapse";
+									host = "127.0.0.1";
+									port = "5432";
+								};
+							};
 							turn_shared_secret = inputs.config.sops.placeholder."synapse/coturn";
 							registration_shared_secret = inputs.config.sops.placeholder."synapse/registration";
 							macaroon_secret_key = inputs.config.sops.placeholder."synapse/macaroon";
