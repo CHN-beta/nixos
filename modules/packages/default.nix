@@ -62,6 +62,11 @@ inputs:
 					# office
 					todo-txt-cli
 				] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
+				_pythonPackages = [(pythonPackages: with pythonPackages;
+				[
+					inquirerpy requests python-telegram-bot tqdm fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
+					certifi charset-normalizer idna orjson psycopg2
+				])];
 			};
 			programs =
 			{
@@ -183,11 +188,6 @@ inputs:
 							}
 						)
 					] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
-					_pythonPackages = [(pythonPackages: with pythonPackages;
-					[
-						inquirerpy requests python-telegram-bot tqdm fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
-						certifi charset-normalizer idna orjson psycopg2
-					])];
 				};
 				programs =
 				{
