@@ -58,7 +58,7 @@ inputs:
 					# networking
 					ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils
 					# nix tools
-					nix-output-monitor 
+					nix-output-monitor nix-tree
 					# office
 					todo-txt-cli
 				] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
