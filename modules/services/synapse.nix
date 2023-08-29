@@ -53,15 +53,6 @@ inputs:
 								port = "5432";
 							};
 						};
-						email =
-						{
-							smtp_host = "mail.chn.moe";
-							smtp_port = 25;
-							smtp_user = "bot@chn.moe";
-							require_transport_security = true;
-							notif_from = "Your Friendly %(app)s homeserver <bot@chn.moe>";
-							app_name = "Haonan Chen's synapse";
-						};
 						admin_contact = "mailto:chn@chn.moe";
 						enable_registration = true;
 						registrations_require_3pid = [ "email" ];
@@ -98,7 +89,16 @@ inputs:
 							macaroon_secret_key = inputs.config.sops.placeholder."synapse/macaroon";
 							form_secret = inputs.config.sops.placeholder."synapse/form";
 							signing_key_path = inputs.config.sops.secrets."synapse/signing-key".path;
-							email.smtp_pass = inputs.config.sops.placeholder."mail/bot";
+							email =
+							{
+								smtp_host = "mail.chn.moe";
+								smtp_port = 25;
+								smtp_user = "bot@chn.moe";
+								smtp_pass = inputs.config.sops.placeholder."mail/bot";
+								require_transport_security = true;
+								notif_from = "Your Friendly %(app)s homeserver <bot@chn.moe>";
+								app_name = "Haonan Chen's synapse";
+							};
 						});
 					};
 					secrets = (listToAttrs (map
