@@ -59,8 +59,8 @@ inputs:
 							smtp_port = 25;
 							smtp_user = "bot@chn.moe";
 							require_transport_security = true;
-							notif_from = ''"Your Friendly %(app)s homeserver <bot@chn.moe>"'';
-							app_name = ''"Haonan Chen's synapse"'';
+							notif_from = "Your Friendly %(app)s homeserver <bot@chn.moe>";
+							app_name = "Haonan Chen's synapse";
 						};
 						admin_contact = "mailto:chn@chn.moe";
 						enable_registration = true;
