@@ -208,7 +208,7 @@ inputs:
 						proxy_buffer_size 128k;
 					}
 				'';
-				networking.firewall.allowedTCPPorts = [ 443 ];
+				networking.firewall.allowedTCPPorts = [ 80 443 ];
 				systemd.services.nginx-proxy =
 					let
 						ipset = "${inputs.pkgs.ipset}/bin/ipset";
