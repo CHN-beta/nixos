@@ -3,7 +3,7 @@ inputs:
 	options.nixos.services.coturn = let inherit (inputs.lib) mkOption types; in
 	{
 		enable = mkOption { type = types.bool; default = false; };
-		port = mkOption { type = types.ints.unsigned; default = 5349; };
+		port = mkOption { type = types.ints.unsigned; default = 3478; };
 		hostname = mkOption { type = types.str; default = "coturn.chn.moe"; };
 	};
 	config =

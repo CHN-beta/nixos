@@ -56,7 +56,7 @@ inputs:
 						admin_contact = "mailto:chn@chn.moe";
 						enable_registration = true;
 						registrations_require_3pid = [ "email" ];
-						turn_uris = [ "turn:coturn.chn.moe" ];
+						turn_uris = [ "turns:coturn.chn.moe" ];
 						max_upload_size = "1024M";
 						web_client_location = "https://element.chn.moe/";
 						serve_server_wellknown = true;
