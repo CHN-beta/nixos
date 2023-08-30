@@ -641,6 +641,8 @@
 				sshUser = "root";
 				user = "root";
 				fastConnection = true;
+				autoRollback = false;
+				magicRollback = false;
 				nodes = builtins.listToAttrs (builtins.map
 					(node:
 					{
