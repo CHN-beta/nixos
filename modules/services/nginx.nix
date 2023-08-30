@@ -55,6 +55,10 @@ inputs:
 							access_log syslog:server=unix:/dev/log http;
 							proxy_ssl_server_name on;
 							proxy_ssl_session_reuse off;
+							proxy_connect_timeout 10m;
+							proxy_send_timeout 10m;
+							proxy_read_timeout 10m;
+							send_timeout 10m;
 						'';
 						virtualHosts = listToAttrs (map
 							(site:
