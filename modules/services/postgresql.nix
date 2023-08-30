@@ -54,6 +54,13 @@ inputs:
 					ensureDatabases = map (db: db.value.database) (attrsToList postgresql.instances);
 					ensureUsers = map (db: { name = db.value.user; }) (attrsToList postgresql.instances);
 				};
+				postgresqlBackup =
+				{
+					enable = true;
+					pgdumpOptions = "-Fc";
+					compression = "none";
+					databases = map (db: db.value.database) (attrsToList postgresql.instances);
+				};
 			};
 			systemd.services.postgresql.postStart = mkAfter (concatStringsSep "\n" (map
 				(db:
