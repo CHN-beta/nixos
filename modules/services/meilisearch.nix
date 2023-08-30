@@ -58,7 +58,6 @@ inputs:
 								IOSchedulingPriority = 4;
 								IOAccounting = true;
 								IOWeight = 1;
-								IODeviceLatencyTargetSec = "/dev/mapper/root 200ms";
 								Nice = 19;
 								Slice = "-.slice";
 							};
