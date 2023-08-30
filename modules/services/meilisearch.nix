@@ -53,6 +53,11 @@ inputs:
 								LimitNOFILE = "infinity";
 								LimitNPROC = "infinity";
 								LimitCORE = "infinity";
+								CPUSchedulingPolicy = "idle";
+								IOSchedulingClass = "idle";
+								IOSchedulingPriority = 4;
+								Nice = 19;
+								Slice = "-.slice";
 							};
 						};
 					})
