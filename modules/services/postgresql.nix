@@ -27,7 +27,7 @@ inputs:
 				postgresql =
 				{
 					enable = true;
-					package = inputs.pkgs.genericPackages.postgresql_15;
+					package = inputs.pkgs.postgresql_15;
 					enableTCPIP = true;
 					authentication = "host all all 0.0.0.0/0 md5";
 					settings =
