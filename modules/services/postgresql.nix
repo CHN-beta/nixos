@@ -22,35 +22,38 @@ inputs:
 			inherit (builtins) map listToAttrs filter;
 		in mkIf postgresql.enable
 		{
-			services.postgresql =
+			services =
 			{
-				enable = true;
-				package = inputs.pkgs.postgresql_15;
-				enableTCPIP = true;
-				authentication = "host all all 0.0.0.0/0 md5";
-				settings =
+				postgresql =
 				{
-					unix_socket_permissions = "0700";
-					shared_buffers = "8192MB";
-					work_mem = "512MB";
-					autovacuum = "on";
+					enable = true;
+					package = inputs.pkgs.genericPackages.postgresql_15;
+					enableTCPIP = true;
+					authentication = "host all all 0.0.0.0/0 md5";
+					settings =
+					{
+						unix_socket_permissions = "0700";
+						shared_buffers = "8192MB";
+						work_mem = "512MB";
+						autovacuum = "off";
+					};
+					# log_timezone = 'Asia/Shanghai'
+					# datestyle = 'iso, mdy'
+					# timezone = 'Asia/Shanghai'
+					# lc_messages = 'en_US.utf8'
+					# lc_monetary = 'en_US.utf8'
+					# lc_numeric = 'en_US.utf8'
+					# lc_time = 'en_US.utf8'
+					# default_text_search_config = 'pg_catalog.english'
+					# plperl.on_init = 'use utf8; use re; package utf8; require "utf8_heavy.pl";'
+					# mv /path/to/dir /path/to/dir_old
+					# mkdir /path/to/dir
+					# chattr +C /path/to/dir
+					# cp -a --reflink=never /path/to/dir_old/. /path/to/dir
+					# rm -rf /path/to/dir_old
+					ensureDatabases = map (db: db.value.database) (attrsToList postgresql.instances);
+					ensureUsers = map (db: { name = db.value.user; }) (attrsToList postgresql.instances);
 				};
-				# log_timezone = 'Asia/Shanghai'
-				# datestyle = 'iso, mdy'
-				# timezone = 'Asia/Shanghai'
-				# lc_messages = 'en_US.utf8'
-				# lc_monetary = 'en_US.utf8'
-				# lc_numeric = 'en_US.utf8'
-				# lc_time = 'en_US.utf8'
-				# default_text_search_config = 'pg_catalog.english'
-				# plperl.on_init = 'use utf8; use re; package utf8; require "utf8_heavy.pl";'
-				# mv /path/to/dir /path/to/dir_old
-				# mkdir /path/to/dir
-				# chattr +C /path/to/dir
-				# cp -a --reflink=never /path/to/dir_old/. /path/to/dir
-				# rm -rf /path/to/dir_old
-				ensureDatabases = map (db: db.value.database) (attrsToList postgresql.instances);
-				ensureUsers = map (db: { name = db.value.user; }) (attrsToList postgresql.instances);
 			};
 			systemd.services.postgresql.postStart = mkAfter (concatStringsSep "\n" (map
 				(db:
@@ -77,3 +80,5 @@ inputs:
   #   owner = config.systemd.services.drone-agent.serviceConfig.User;
   #   key = "drone";
   # };
+# pg_dump -h 127.0.0.1 -U synapse -Fc -f synaps.dump synapse
+# pg_restore -h 127.0.0.1 -U misskey -d misskey --data-only --jobs=4 misskey.dump

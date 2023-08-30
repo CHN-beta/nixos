@@ -127,6 +127,7 @@ inputs:
 							systemd-tmpfiles-setup = { environment = { SYSTEMD_TMPFILES_FORCE_SUBVOL = "0"; }; };
 						};
 						timers.systemd-tmpfiles-clean.enable = false;
+						coredump.enable = false;
 					};
 					environment =
 					{

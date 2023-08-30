@@ -5,7 +5,7 @@ inputs:
 		synapse =
 		{
 			enable = mkOption { type = types.bool; default = false; };
-			port = mkOption { type = types.ints.unsigned; default = 9726; };
+			port = mkOption { type = types.ints.unsigned; default = 8008; };
 			hostname = mkOption { type = types.str; default = "synapse.chn.moe"; };
 		};
 		synapse-proxy = mkOption
@@ -94,6 +94,7 @@ inputs:
 									host = "127.0.0.1";
 									port = "5432";
 								};
+								allow_unsafe_locale = true;
 							};
 							turn_shared_secret = inputs.config.sops.placeholder."synapse/coturn";
 							registration_shared_secret = inputs.config.sops.placeholder."synapse/registration";
