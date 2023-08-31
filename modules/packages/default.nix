@@ -54,7 +54,7 @@ inputs:
 					# disk management
 					smartmontools hdparm
 					# encryption and authentication
-					apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f
+					apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f yubico-piv-tool
 					# networking
 					ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils
 					# nix tools
