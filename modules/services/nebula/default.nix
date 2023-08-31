@@ -19,13 +19,18 @@ inputs:
 				ca = ./ca.crt;
 				cert = ./. + "/${inputs.config.nixos.system.hostname}.crt";
 				key = inputs.config.sops.templates."nebula/key-template".path;
-				isLighthouse = nebula.lighthouse == null;
-				lighthouses = if nebula.lighthouse == null then [] else [ "192.168.82.1" ];
-				staticHostMap = if nebula.lighthouse == null then {} else { "192.168.82.1" = [(nebula.lighthouse + ":4242")]; };
-				listen.port = if nebula.lighthouse == null then 4242 else 0;
 				firewall.inbound = [ { host = "any"; port = "any"; proto = "any"; } ];
 				firewall.outbound = [ { host = "any"; port = "any"; proto = "any"; } ];
-			};
+			}
+			// (
+				if nebula.lighthouse == null then { isLighthouse = true; }
+				else
+				{
+					lighthouses = [ "192.168.82.1" ];
+					staticHostMap."192.168.82.1" = [ "${nebula.lighthouse}:4242" ];
+					listen.port = 0;
+				}
+			);
 			sops =
 			{
 				templates."nebula/key-template" =
