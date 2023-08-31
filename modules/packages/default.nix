@@ -129,7 +129,7 @@ inputs:
 						gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
 						wayland-utils clinfo glxinfo vulkan-tools dracut etcher
 						# nix tools
-						ssh-to-age deploy-rs.deploy-rs
+						ssh-to-age deploy-rs.deploy-rs nixpkgs-fmt
 						# instant messager
 						element-desktop telegram-desktop discord inputs.config.nur.repos.linyinfeng.wemeet # native
 						cinny-desktop # nur-xddxdd.wine-wechat thunder
@@ -183,7 +183,7 @@ inputs:
 										jeff-hykin.better-cpp-syntax fredericbonnet.cmake-test-adapter mesonbuild.mesonbuild
 										hirse.vscode-ungit fortran-lang.linter-gfortran tboox.xmake-vscode ccls-project.ccls
 										feiskyer.chatgpt-copilot yukiuuh2936.vscode-modern-fortran-formatter wolframresearch.wolfram
-										njpipeorgan.wolfram-language-notebook
+										njpipeorgan.wolfram-language-notebook brettm12345.nixfmt-vscode
 									];
 							}
 						)
