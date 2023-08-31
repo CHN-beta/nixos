@@ -105,7 +105,7 @@ inputs:
 			services =
 			{
 				fwupd.enable = true;
-				udev.packages = [ inputs.pkgs.yubikey-personalization ];
+				udev.packages = with inputs.pkgs; [ yubikey-personalization libfido2 ];
 			};
 			nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
 			nixpkgs.config =
