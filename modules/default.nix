@@ -20,6 +20,7 @@ inputs:
 				topInputs.nix-alien.overlays.default
 				topInputs.napalm.overlays.default
 				topInputs.pnpm2nix-nzbr.overlays.default
+				topInputs.lmix.overlays.default
 				(final: prev:
 				{
 					touchix = topInputs.touchix.packages."${prev.system}";
