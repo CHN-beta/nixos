@@ -39,7 +39,7 @@ inputs:
 						registry =
 						{
 							nixpkgs.flake = inputs.topInputs.nixpkgs;
-							nixos-config.flake = inputs.topInputs.self;
+							nixos.flake = inputs.topInputs.self;
 						};
 						nixPath = [ "nixpkgs=${inputs.topInputs.nixpkgs}" ];
 					};

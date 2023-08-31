@@ -34,10 +34,22 @@
 			localLib = import ./local/lib inputs.nixpkgs.lib;
 		in
 		{
-			packages.x86_64-linux.default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
-				(builtins.concatStringsSep "\n" (builtins.map
-					(system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-					[ "chn-PC" "vps6" "vps4" "vps7" "nas" "xmupc1" "yoga" "pe" ]));
+			packages.x86_64-linux =
+			{
+				default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
+					(builtins.concatStringsSep "\n" (builtins.map
+						(system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
+						[ "chn-PC" "vps6" "vps4" "vps7" "nas" "xmupc1" "yoga" "pe" ]));
+			}
+			// (
+				builtins.listToAttrs (builtins.map
+					(system:
+					{
+						name = system;
+						value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
+					})
+					[ "chn-PC" "vps6" "vps4" "vps7" "nas" "xmupc1" "yoga" "pe" ])
+			);
 			nixosConfigurations = builtins.listToAttrs (builtins.map
 				(system:
 				{
