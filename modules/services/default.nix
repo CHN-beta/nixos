@@ -11,6 +11,7 @@ inputs:
 		./xray.nix
 		./coturn.nix
 		./synapse.nix
+		./nebula
 		# ./docker.nix
 	];
 	options.nixos.services = let inherit (inputs.lib) mkOption types; in
