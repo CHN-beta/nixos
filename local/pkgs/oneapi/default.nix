@@ -14,10 +14,6 @@ stdenv.mkDerivation rec
 			# apt-cache depends --recurse intel-hpckit 2> /dev/null | grep -E "^intel-(hpckit|basekit|oneapi)" | sort | xargs apt download --print-uris 2> /dev/null | awk '{print $1}' | sed "s/'\(.*\)'/\1/" | sort
 			debs =
 			[
-				"intel-basekit-2023.2.0-49384_amd64.deb"
-				"intel-basekit-getting-started-2023.2.0-49384_all.deb"
-				"intel-hpckit-2023.2.0-49438_amd64.deb"
-				"intel-hpckit-getting-started-2023.2.0-49438_all.deb"
 				"intel-oneapi-advisor-2023.2.0-49486_amd64.deb"
 				"intel-oneapi-ccl-2021.10.0-2021.10.0-49084_amd64.deb"
 				"intel-oneapi-ccl-devel-2021.10.0-2021.10.0-49084_amd64.deb"
