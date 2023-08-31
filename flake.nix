@@ -195,6 +195,7 @@
 								smartd.enable = true;
 								nginx = { enable = true; transparentProxy.enable = false; };
 								misskey = { enable = false; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
+								nebula = { enable = true; lighthouse = "vps6.chn.moe"; };
 							};
 							bugs =
 							[
