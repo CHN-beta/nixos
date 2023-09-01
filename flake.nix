@@ -143,7 +143,7 @@
                   "broadwell"
                 ];
                 gui.enable = true;
-                keepOutputs = true;
+                nix.keepOutputs = true;
               };
               virtualization =
               {
@@ -276,7 +276,11 @@
                 network.enable = true;
                 sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
-              system.march = "sandybridge";
+              system =
+              {
+                march = "sandybridge";
+                nix.substituters = [ "https://cache.nixos.org" "https://nix-store.chn.moe" ];
+              };
             };})
           ];
           "vps4" =
