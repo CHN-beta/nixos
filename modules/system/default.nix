@@ -1,3 +1,4 @@
+# TODO: enable zswap
 inputs:
 {
   options.nixos.system = let inherit (inputs.lib) mkOption types; in
