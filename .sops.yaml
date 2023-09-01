@@ -1,16 +1,16 @@
 keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &chn age19ax6vm3pv8rph5tq3mmehd9sy9jk823tw8svsd790r0lkslycquqvlwz9m
-  - &chn-PC age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
+  - &pc age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
   - &vps6 age164tyqklwhdm57tfm5u863mdt2xrzrrzac4py8a0j9y6kzqcjy9zsp073t6
   - &vps7 age137x7csalutwvfygvvzpemlsywvdxj3j4z93a50z2sjx03w6zau8q3r5902
   - &yoga age1qrea4twxdhd7fnvlq5v45528c90qy6hp2wa55kghsxzgut6n6fxs7w6u42
   - &pe age1cahahn9hp265dkhduaec65vugk8fct2vt9ur6y54m4mgmyx4v4fq0etjhv
 creation_rules:
-  - path_regex: secrets/chn-PC\.yaml$
+  - path_regex: secrets/pc\.yaml$
     key_groups:
     - age:
       - *chn
-      - *chn-PC
+      - *pc
   - path_regex: secrets/vps6\.yaml$
     key_groups:
     - age:

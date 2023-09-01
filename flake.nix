@@ -40,7 +40,7 @@
         default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
           (builtins.concatStringsSep "\n" (builtins.map
             (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-            [ "chn-PC" "vps6" "vps4" "vps7" "nas" "xmupc1" "yoga" "pe" ]));
+            [ "pc" "vps6" "vps4" "vps7" "nas" "xmupc1" "yoga" "pe" ]));
       }
       // (
         builtins.listToAttrs (builtins.map
@@ -49,7 +49,7 @@
             name = system;
             value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
           })
-          [ "chn-PC" "vps6" "vps4" "vps7" "nas" "xmupc1" "yoga" "pe" ])
+          [ "pc" "vps6" "vps4" "vps7" "nas" "xmupc1" "yoga" "pe" ])
       );
       nixosConfigurations = builtins.listToAttrs (builtins.map
         (system:
@@ -73,7 +73,7 @@
         })
         (localLib.attrsToList
         {
-          "chn-PC" =
+          "pc" =
           [
             (inputs: { config.nixos =
             {
@@ -94,7 +94,7 @@
                   "/dev/md/swap" = { mapper = "swap"; ssd = true; before = [ "root" ]; };
                 };
                 mdadm =
-                  "ARRAY /dev/md/swap metadata=1.2 name=chn-PC:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
+                  "ARRAY /dev/md/swap metadata=1.2 name=pc:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
                 swap = [ "/dev/mapper/swap" ];
                 resume = "/dev/mapper/swap";
                 rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
@@ -428,7 +428,7 @@
                   "/dev/md/swap" = { mapper = "swap"; ssd = true; before = [ "root" ]; };
                 };
                 mdadm =
-                  "ARRAY /dev/md/swap metadata=1.2 name=chn-PC:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
+                  "ARRAY /dev/md/swap metadata=1.2 name=pc:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
                 swap = [ "/dev/mapper/swap" ];
                 resume = "/dev/mapper/swap";
                 rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };

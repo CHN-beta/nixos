@@ -184,6 +184,7 @@ inputs:
       )
       # mdadm
       (
+        # sudo mdadm --examine --scan
         mkIf (fileSystems.mdadm != null)
           { boot.swraid = { enable = true; mdadmConf = fileSystems.mdadm; }; }
       )
