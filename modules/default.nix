@@ -21,6 +21,7 @@ inputs:
 				topInputs.napalm.overlays.default
 				topInputs.pnpm2nix-nzbr.overlays.default
 				topInputs.lmix.overlays.default
+				(import "${topInputs.dguibert-nur-packages}/overlays/nvhpc-overlay")
 				(final: prev:
 				{
 					touchix = topInputs.touchix.packages."${prev.system}";
