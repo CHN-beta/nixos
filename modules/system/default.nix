@@ -1,13 +1,14 @@
-# TODO: enable zswap
 inputs:
 {
+  imports = inputs.localLib.mkModules
+  [
+    ./nix.nix
+  ];
   options.nixos.system = let inherit (inputs.lib) mkOption types; in
   {
     hostname = mkOption { type = types.nonEmptyStr; };
     march = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-    extraMarch = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     gui.enable = mkOption { type = types.bool; default = false; };
-    keepOutputs = mkOption { type = types.bool; default = false; };
   };
   config =
     let
@@ -19,31 +20,6 @@ inputs:
       [
         # generic
         {
-          nix =
-          {
-            settings =
-            {
-              system-features = [ "big-parallel" "nixos-test" "benchmark" ];
-              experimental-features = [ "nix-command" "flakes" ];
-              keep-outputs = inputs.config.nixos.system.keepOutputs;
-              keep-failed = true;
-              auto-optimise-store = true;
-              substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-              trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
-              show-trace = true;
-              max-jobs = 2;
-              cores = 0;
-              keep-going = true;
-            };
-            daemonIOSchedClass = "idle";
-            daemonCPUSchedPolicy = "idle";
-            registry =
-            {
-              nixpkgs.flake = inputs.topInputs.nixpkgs;
-              nixos.flake = inputs.topInputs.self;
-            };
-            nixPath = [ "nixpkgs=${inputs.topInputs.nixpkgs}" ];
-          };
           services =
           {
             udev.extraRules =
@@ -73,11 +49,6 @@ inputs:
             }).pkgs;})];
           };
           time.timeZone = "Asia/Shanghai";
-          system =
-          {
-            stateVersion = "22.11";
-            configurationRevision = inputs.topInputs.self.rev or "dirty";
-          };
           boot =
           {
             kernel.sysctl =
@@ -118,22 +89,12 @@ inputs:
               DefaultLimitNOFILE=1048576:1048576
             '';
             user.extraConfig = "DefaultTimeoutStopSec=10s";
-            services =
-            {
-              nix-daemon =
-              {
-                serviceConfig = { CacheDirectory = "nix"; Slice = "-.slice"; Nice = "19"; };
-                environment = { TMPDIR = "/var/cache/nix"; };
-              };
-              systemd-tmpfiles-setup = { environment = { SYSTEMD_TMPFILES_FORCE_SUBVOL = "0"; }; };
-            };
+            services.systemd-tmpfiles-setup = { environment = { SYSTEMD_TMPFILES_FORCE_SUBVOL = "0"; }; };
             timers.systemd-tmpfiles-clean.enable = false;
             coredump.enable = false;
           };
           environment =
           {
-            etc."channels/nixpkgs".source = inputs.topInputs.nixpkgs.outPath;
-            etc."nixos".source = inputs.topInputs.self.outPath;
             sessionVariables = rec
             {
               XDG_CACHE_HOME = "$HOME/.cache";
@@ -210,7 +171,6 @@ inputs:
                 hostPlatform = { system = "x86_64-linux"; gcc = { arch = system.march; tune = system.march; }; };
                 config.qchem-config.optArch = system.march;
               };
-              nix.settings.system-features = [ "gccarch-${system.march}" ];
               boot.kernelPatches =
               [{
                 name = "native kernel";
@@ -235,8 +195,6 @@ inputs:
             }
             { nixpkgs.hostPlatform = inputs.lib.mkDefault "x86_64-linux"; }
         )
-        # extraMarch
-        { nix.settings.system-features = map (march: "gccarch-${march}") system.extraMarch; }
         # gui.enable
         (mkIf inputs.config.nixos.system.gui.enable
         {

@@ -131,8 +131,9 @@
               system =
               {
                 march = "alderlake";
-                extraMarch =
+                nix.marches =
                 [
+                  "alderlake"
                   # CX16
                   "sandybridge"
                   # CX16 SAHF FXSR
@@ -143,7 +144,7 @@
                   "broadwell"
                 ];
                 gui.enable = true;
-                keepOutputs = true;
+                nix.keepOutputs = true;
               };
               virtualization =
               {
@@ -277,6 +278,7 @@
                 sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
               system.march = "sandybridge";
+              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "vps4" =
@@ -317,6 +319,7 @@
                 sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
               system.march = "znver3";
+              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "vps7" =
@@ -365,6 +368,7 @@
                 sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
               system.march = "broadwell";
+              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "nas" =
@@ -405,6 +409,7 @@
                 sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
               system.march = "silvermont";
+              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "xmupc1" =
@@ -454,9 +459,9 @@
               system =
               {
                 march = "znver3";
-                extraMarch =
+                nix.marches =
                 [
-                  "znver2"
+                  "znver3" "znver2"
                   # PREFETCHW RDRND XSAVE XSAVEOPT PTWRITE SGX GFNI-SSE MOVDIRI MOVDIR64B CLDEMOTE WAITPKG LZCNT
                   # PCONFIG SERIALIZE HRESET KL WIDEKL AVX-VNNI
                   "alderlake"
@@ -523,6 +528,7 @@
                 postgresql.enable = true;
               };
               bugs = [ "xmunet" "firefox" "embree" ];
+              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "yoga" =
@@ -580,6 +586,7 @@
                 firewall.trustedInterfaces = [ "virbr0" ];
                 smartd.enable = true;
               };
+              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "pe" =
@@ -632,6 +639,7 @@
                 firewall.trustedInterfaces = [ "virbr0" ];
                 smartd.enable = true;
               };
+              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
         }));
