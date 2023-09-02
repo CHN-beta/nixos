@@ -77,27 +77,53 @@
           [
             (inputs: { config.nixos =
             {
-              system.fileSystems =
+              system =
               {
-                mount =
+                fileSystems =
                 {
-                  vfat."/dev/disk/by-uuid/3F57-0EBE" = "/boot/efi";
-                  btrfs =
+                  mount =
                   {
-                    "/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614"."/" = "/boot";
-                    "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    vfat."/dev/disk/by-uuid/3F57-0EBE" = "/boot/efi";
+                    btrfs =
+                    {
+                      "/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614"."/" = "/boot";
+                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    };
                   };
+                  decrypt.auto =
+                  {
+                    "/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26" = { mapper = "root"; ssd = true; };
+                    "/dev/md/swap" = { mapper = "swap"; ssd = true; before = [ "root" ]; };
+                  };
+                  mdadm =
+                    "ARRAY /dev/md/swap metadata=1.2 name=pc:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
+                  swap = [ "/dev/mapper/swap" ];
+                  resume = "/dev/mapper/swap";
+                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
-                decrypt.auto =
+                grub =
                 {
-                  "/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26" = { mapper = "root"; ssd = true; };
-                  "/dev/md/swap" = { mapper = "swap"; ssd = true; before = [ "root" ]; };
+                  windowsEntries = { "7317-1DB6" = "Windows"; "7321-FA9C" = "Windows for malware"; };
+                  installDevice = "efi";
                 };
-                mdadm =
-                  "ARRAY /dev/md/swap metadata=1.2 name=pc:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
-                swap = [ "/dev/mapper/swap" ];
-                resume = "/dev/mapper/swap";
-                rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+                nix =
+                {
+                  marches =
+                  [
+                    "alderlake"
+                    # CX16
+                    "sandybridge"
+                    # CX16 SAHF FXSR
+                    "silvermont"
+                    # RDSEED MWAITX SHA CLZERO CX16 SSE4A ABM CLFLUSHOPT WBNOINVD
+                    "znver2" "znver3"
+                    # CX16 SAHF FXSR HLE RDSEED
+                    "broadwell"
+                  ];
+                  keepOutputs = true;
+                };
+                march = "alderlake";
+                gui.enable = true;
               };
               kernel =
               {
@@ -122,29 +148,6 @@
                 extraPrebuildPackages = with inputs.pkgs; [ llvmPackages_git.stdenv ];
                 extraPythonPackages = [(pythonPackages:
                   [ inputs.pkgs.localPackages.upho inputs.pkgs.localPackages.spectral ])];
-              };
-              boot.grub =
-              {
-                windowsEntries = { "7317-1DB6" = "Windows"; "7321-FA9C" = "Windows for malware"; };
-                installDevice = "efi";
-              };
-              system =
-              {
-                march = "alderlake";
-                nix.marches =
-                [
-                  "alderlake"
-                  # CX16
-                  "sandybridge"
-                  # CX16 SAHF FXSR
-                  "silvermont"
-                  # RDSEED MWAITX SHA CLZERO CX16 SSE4A ABM CLFLUSHOPT WBNOINVD
-                  "znver2" "znver3"
-                  # CX16 SAHF FXSR HLE RDSEED
-                  "broadwell"
-                ];
-                gui.enable = true;
-                nix.keepOutputs = true;
               };
               virtualization =
               {
@@ -223,24 +226,30 @@
           [
             (inputs: { config.nixos =
             {
-              system.fileSystems =
+              system =
               {
-                mount =
+                fileSystems =
                 {
-                  btrfs =
+                  mount =
                   {
-                    "/dev/disk/by-uuid/24577c0e-d56b-45ba-8b36-95a848228600"."/boot" = "/boot";
-                    "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    btrfs =
+                    {
+                      "/dev/disk/by-uuid/24577c0e-d56b-45ba-8b36-95a848228600"."/boot" = "/boot";
+                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    };
                   };
+                  decrypt.manual =
+                  {
+                    enable = true;
+                    devices."/dev/disk/by-uuid/4f8aca22-9ec6-4fad-b21a-fd9d8d0514e8" = { mapper = "root"; ssd = true; };
+                    delayedMount = [ "/" ];
+                  };
+                  swap = [ "/nix/swap/swap" ];
+                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
-                decrypt.manual =
-                {
-                  enable = true;
-                  devices."/dev/disk/by-uuid/4f8aca22-9ec6-4fad-b21a-fd9d8d0514e8" = { mapper = "root"; ssd = true; };
-                  delayedMount = [ "/" ];
-                };
-                swap = [ "/nix/swap/swap" ];
-                rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+                grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
+                march = "sandybridge";
+                nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
               };
               packages.packageSet = "server";
               services =
@@ -273,36 +282,39 @@
               };
               boot =
               {
-                grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
                 network.enable = true;
                 sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
-              system.march = "sandybridge";
-              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "vps4" =
           [
             (inputs: { config.nixos =
             {
-              system.fileSystems =
+              system =
               {
-                mount =
+                fileSystems =
                 {
-                  btrfs =
+                  mount =
                   {
-                    "/dev/disk/by-uuid/a6460ff0-b6aa-4c1c-a546-8ad0d495bcf8"."/boot" = "/boot";
-                    "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    btrfs =
+                    {
+                      "/dev/disk/by-uuid/a6460ff0-b6aa-4c1c-a546-8ad0d495bcf8"."/boot" = "/boot";
+                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    };
                   };
+                  decrypt.manual =
+                  {
+                    enable = true;
+                    devices."/dev/disk/by-uuid/46e59fc7-7bb1-4534-bbe4-b948a9a8eeda" = { mapper = "root"; ssd = true; };
+                    delayedMount = [ "/" ];
+                  };
+                  swap = [ "/nix/swap/swap" ];
+                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
-                decrypt.manual =
-                {
-                  enable = true;
-                  devices."/dev/disk/by-uuid/46e59fc7-7bb1-4534-bbe4-b948a9a8eeda" = { mapper = "root"; ssd = true; };
-                  delayedMount = [ "/" ];
-                };
-                swap = [ "/nix/swap/swap" ];
-                rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+                grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
+                march = "znver3";
+                nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
               };
               packages.packageSet = "server";
               services =
@@ -314,36 +326,39 @@
               };
               boot =
               {
-                grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
                 network.enable = true;
                 sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
-              system.march = "znver3";
-              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "vps7" =
           [
             (inputs: { config.nixos =
             {
-              system.fileSystems =
+              system =
               {
-                mount =
+                fileSystems =
                 {
-                  btrfs =
+                  mount =
                   {
-                    "/dev/disk/by-uuid/e36287f7-7321-45fa-ba1e-d126717a65f0"."/boot" = "/boot";
-                    "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    btrfs =
+                    {
+                      "/dev/disk/by-uuid/e36287f7-7321-45fa-ba1e-d126717a65f0"."/boot" = "/boot";
+                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    };
                   };
+                  decrypt.manual =
+                  {
+                    enable = true;
+                    devices."/dev/disk/by-uuid/db48c8de-bcf7-43ae-a977-60c4f390d5c4" = { mapper = "root"; ssd = true; };
+                    delayedMount = [ "/" ];
+                  };
+                  swap = [ "/nix/swap/swap" ];
+                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
-                decrypt.manual =
-                {
-                  enable = true;
-                  devices."/dev/disk/by-uuid/db48c8de-bcf7-43ae-a977-60c4f390d5c4" = { mapper = "root"; ssd = true; };
-                  delayedMount = [ "/" ];
-                };
-                swap = [ "/nix/swap/swap" ];
-                rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+                grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
+                march = "broadwell";
+                nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
               };
               packages =
               {
@@ -363,36 +378,39 @@
               };
               boot =
               {
-                grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
                 network.enable = true;
                 sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
-              system.march = "broadwell";
-              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "nas" =
           [
             (inputs: { config.nixos =
             {
-              system.fileSystems =
+              system =
               {
-                mount =
+                fileSystems =
                 {
-                  btrfs =
+                  mount =
                   {
-                    "/dev/disk/by-uuid/a6460ff0-b6aa-4c1c-a546-8ad0d495bcf8"."/boot" = "/boot";
-                    "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    btrfs =
+                    {
+                      "/dev/disk/by-uuid/a6460ff0-b6aa-4c1c-a546-8ad0d495bcf8"."/boot" = "/boot";
+                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    };
                   };
+                  decrypt.manual =
+                  {
+                    enable = true;
+                    devices."/dev/disk/by-uuid/46e59fc7-7bb1-4534-bbe4-b948a9a8eeda" = { mapper = "root"; ssd = true; };
+                    delayedMount = [ "/" ];
+                  };
+                  swap = [ "/nix/swap/swap" ];
+                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
-                decrypt.manual =
-                {
-                  enable = true;
-                  devices."/dev/disk/by-uuid/46e59fc7-7bb1-4534-bbe4-b948a9a8eeda" = { mapper = "root"; ssd = true; };
-                  delayedMount = [ "/" ];
-                };
-                swap = [ "/nix/swap/swap" ];
-                rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+                grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
+                march = "silvermont";
+                nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
               };
               packages.packageSet = "server";
               services =
@@ -404,39 +422,57 @@
               };
               boot =
               {
-                grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
                 network.enable = true;
                 sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
-              system.march = "silvermont";
-              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "xmupc1" =
           [
             (inputs: { config.nixos =
             {
-              system.fileSystems =
+              system =
               {
-                mount =
+                fileSystems =
                 {
-                  vfat."/dev/disk/by-uuid/3F57-0EBE" = "/boot/efi";
-                  btrfs =
+                  mount =
                   {
-                    "/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614"."/" = "/boot";
-                    "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    vfat."/dev/disk/by-uuid/3F57-0EBE" = "/boot/efi";
+                    btrfs =
+                    {
+                      "/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614"."/" = "/boot";
+                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    };
                   };
+                  decrypt.auto =
+                  {
+                    "/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26" = { mapper = "root"; ssd = true; };
+                    "/dev/md/swap" = { mapper = "swap"; ssd = true; before = [ "root" ]; };
+                  };
+                  mdadm =
+                    "ARRAY /dev/md/swap metadata=1.2 name=pc:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
+                  swap = [ "/dev/mapper/swap" ];
+                  resume = "/dev/mapper/swap";
+                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
-                decrypt.auto =
+                grub.installDevice = "efi";
+                march = "znver3";
+                nix =
                 {
-                  "/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26" = { mapper = "root"; ssd = true; };
-                  "/dev/md/swap" = { mapper = "swap"; ssd = true; before = [ "root" ]; };
+                  marches =
+                  [
+                    "znver3" "znver2"
+                    # PREFETCHW RDRND XSAVE XSAVEOPT PTWRITE SGX GFNI-SSE MOVDIRI MOVDIR64B CLDEMOTE WAITPKG LZCNT
+                    # PCONFIG SERIALIZE HRESET KL WIDEKL AVX-VNNI
+                    "alderlake"
+                    # SAHF FXSR XSAVE
+                    "sandybridge"
+                    # SAHF FXSR PREFETCHW RDRND
+                    "silvermont"
+                  ];
+                  substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 };
-                mdadm =
-                  "ARRAY /dev/md/swap metadata=1.2 name=pc:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
-                swap = [ "/dev/mapper/swap" ];
-                resume = "/dev/mapper/swap";
-                rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+                gui.enable = true;
               };
               kernel =
               {
@@ -455,23 +491,6 @@
                   { enable = true; mode = "offload"; busId = { intel = "PCI:0:2:0"; nvidia = "PCI:1:0:0"; };};
               };
               packages.packageSet = "workstation";
-              boot.grub.installDevice = "efi";
-              system =
-              {
-                march = "znver3";
-                nix.marches =
-                [
-                  "znver3" "znver2"
-                  # PREFETCHW RDRND XSAVE XSAVEOPT PTWRITE SGX GFNI-SSE MOVDIRI MOVDIR64B CLDEMOTE WAITPKG LZCNT
-                  # PCONFIG SERIALIZE HRESET KL WIDEKL AVX-VNNI
-                  "alderlake"
-                  # SAHF FXSR XSAVE
-                  "sandybridge"
-                  # SAHF FXSR PREFETCHW RDRND
-                  "silvermont"
-                ];
-                gui.enable = true;
-              };
               virtualization =
               {
                 docker.enable = true;
@@ -528,28 +547,34 @@
                 postgresql.enable = true;
               };
               bugs = [ "xmunet" "firefox" "embree" ];
-              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "yoga" =
           [
             (inputs: { config.nixos =
             {
-              system.fileSystems =
+              system =
               {
-                mount =
+                fileSystems =
                 {
-                  vfat."/dev/disk/by-uuid/86B8-CF80" = "/boot/efi";
-                  btrfs =
+                  mount =
                   {
-                    "/dev/disk/by-uuid/e252f81d-b4b3-479f-8664-380a9b73cf83"."/boot" = "/boot";
-                    "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    vfat."/dev/disk/by-uuid/86B8-CF80" = "/boot/efi";
+                    btrfs =
+                    {
+                      "/dev/disk/by-uuid/e252f81d-b4b3-479f-8664-380a9b73cf83"."/boot" = "/boot";
+                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    };
                   };
+                  decrypt.auto."/dev/disk/by-uuid/8186d34e-005c-4461-94c7-1003a5bd86c0" =
+                    { mapper = "root"; ssd = true; };
+                  swap = [ "/nix/swap/swap" ];
+                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
-                decrypt.auto."/dev/disk/by-uuid/8186d34e-005c-4461-94c7-1003a5bd86c0" =
-                  { mapper = "root"; ssd = true; };
-                swap = [ "/nix/swap/swap" ];
-                rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+                march = "silvermont";
+                gui.enable = true;
+                grub.installDevice = "efi";
+                nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
               };
               kernel.patches = [ "cjktty" "preempt" ];
               hardware =
@@ -562,12 +587,6 @@
                 sound.enable = true;
               };
               packages.packageSet = "desktop";
-              boot.grub.installDevice = "efi";
-              system =
-              {
-                march = "silvermont";
-                gui.enable = true;
-              };
               virtualization.docker.enable = true;
               services =
               {
@@ -586,27 +605,32 @@
                 firewall.trustedInterfaces = [ "virbr0" ];
                 smartd.enable = true;
               };
-              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
           "pe" =
           [
             (inputs: { config.nixos =
             {
-              system.fileSystems =
+              system =
               {
-                mount =
+                fileSystems =
                 {
-                  vfat."/dev/disk/by-uuid/A0F1-74E5" = "/boot/efi";
-                  btrfs =
+                  mount =
                   {
-                    "/dev/disk/by-uuid/a7546428-1982-4931-a61f-b7eabd185097"."/boot" = "/boot";
-                    "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    vfat."/dev/disk/by-uuid/A0F1-74E5" = "/boot/efi";
+                    btrfs =
+                    {
+                      "/dev/disk/by-uuid/a7546428-1982-4931-a61f-b7eabd185097"."/boot" = "/boot";
+                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    };
                   };
+                  decrypt.auto."/dev/disk/by-uuid/0b800efa-6381-4908-bd63-7fa46322a2a9" =
+                    { mapper = "root"; ssd = true; };
+                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
-                decrypt.auto."/dev/disk/by-uuid/0b800efa-6381-4908-bd63-7fa46322a2a9" =
-                  { mapper = "root"; ssd = true; };
-                rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+                grub.installDevice = "efiRemovable";
+                gui.enable = true;
+                nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
               };
               kernel.patches = [ "cjktty" "preempt" ];
               hardware =
@@ -619,8 +643,6 @@
                 sound.enable = true;
               };
               packages.packageSet = "desktop";
-              boot.grub.installDevice = "efiRemovable";
-              system.gui.enable = true;
               virtualization.docker.enable = true;
               services =
               {
@@ -639,7 +661,6 @@
                 firewall.trustedInterfaces = [ "virbr0" ];
                 smartd.enable = true;
               };
-              system.nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
             };})
           ];
         }));
