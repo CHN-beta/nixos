@@ -122,7 +122,7 @@
                   ];
                   keepOutputs = true;
                 };
-                march = "alderlake";
+                nixpkgs.march = "alderlake";
                 gui.enable = true;
                 kernel =
                 {
@@ -248,7 +248,7 @@
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
                 grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
-                march = "sandybridge";
+                nixpkgs.march = "sandybridge";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 initrd =
                 {
@@ -314,7 +314,7 @@
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
                 grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
-                march = "znver3";
+                nixpkgs.march = "znver3";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 initrd =
                 {
@@ -359,7 +359,7 @@
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
                 grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
-                march = "broadwell";
+                nixpkgs.march = "broadwell";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 initrd =
                 {
@@ -412,7 +412,7 @@
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
                 grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
-                march = "silvermont";
+                nixpkgs.march = "silvermont";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 initrd =
                 {
@@ -460,7 +460,7 @@
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
                 grub.installDevice = "efi";
-                march = "znver3";
+                nixpkgs.march = "znver3";
                 nix =
                 {
                   marches =
@@ -575,7 +575,7 @@
                   swap = [ "/nix/swap/swap" ];
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
-                march = "silvermont";
+                nixpkgs.march = "silvermont";
                 gui.enable = true;
                 grub.installDevice = "efi";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];

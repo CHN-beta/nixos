@@ -20,7 +20,7 @@ inputs:
               (march: "gccarch-${march}")
               (
                 if nix.marches == null then
-                  (if inputs.config.nixos.system.march == null then [] else [ inputs.config.nixos.system.march ])
+                  (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ march ])
                 else nix.marches
               ));
             experimental-features = [ "nix-command" "flakes" ];

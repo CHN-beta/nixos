@@ -41,7 +41,7 @@ inputs:
                     {
                       RUSTFLAGS = prev.RUSTFLAGS or [] ++ [ "-Clto=true" "-Cpanic=abort" "-Cembed-bitcode=yes"]
                         ++ (
-                          let inherit (inputs.config.nixos.system) march;
+                          let inherit (inputs.config.nixos.system.nixpkgs) march;
                           in (if march != null then [ "-Ctarget-cpu=${march}" ] else [])
                         );
                     });

@@ -9,11 +9,11 @@ inputs:
     ./kernel.nix
     ./impermanence.nix
     ./gui.nix
+    ./nixpkgs.nix
   ];
   options.nixos.system = let inherit (inputs.lib) mkOption types; in
   {
     hostname = mkOption { type = types.nonEmptyStr; };
-    march = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
   };
   config =
     let
@@ -43,15 +43,6 @@ inputs:
               [device]
               keep-configuration=no
             '';
-          };
-          nixpkgs =
-          {
-            config.allowUnfree = true;
-            overlays = [(final: prev: { genericPackages = (inputs.topInputs.nixpkgs.lib.nixosSystem
-            {
-              system = "x86_64-linux";
-              modules = [{ config.nixpkgs.config.allowUnfree = true; }];
-            }).pkgs;})];
           };
           time.timeZone = "Asia/Shanghai";
           boot =
@@ -167,38 +158,5 @@ inputs:
         }
         # hostname
         { networking.hostName = system.hostname; }
-        # march
-        (
-          mkConditional (system.march != null)
-            {
-              nixpkgs =
-              {
-                hostPlatform = { system = "x86_64-linux"; gcc = { arch = system.march; tune = system.march; }; };
-                config.qchem-config.optArch = system.march;
-              };
-              boot.kernelPatches =
-              [{
-                name = "native kernel";
-                patch = null;
-                extraStructuredConfig =
-                  let
-                    kernelConfig =
-                    {
-                      alderlake = "MALDERLAKE";
-                      sandybridge = "MSANDYBRIDGE";
-                      silvermont = "MSILVERMONT";
-                      broadwell = "MBROADWELL";
-                      znver2 = "MZEN2";
-                      znver3 = "MZEN3";
-                    };
-                  in
-                  {
-                    GENERIC_CPU = inputs.lib.kernel.no;
-                    ${kernelConfig.${system.march}} = inputs.lib.kernel.yes;
-                  };
-              }];
-            }
-            { nixpkgs.hostPlatform = inputs.lib.mkDefault "x86_64-linux"; }
-        )
       ];
 }
