@@ -5,6 +5,7 @@ inputs:
     ./nix.nix
     ./fileSystems.nix
     ./grub.nix
+    ./initrd.nix
   ];
   options.nixos.system = let inherit (inputs.lib) mkOption types; in
   {

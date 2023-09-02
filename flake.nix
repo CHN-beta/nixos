@@ -250,6 +250,11 @@
                 grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
                 march = "sandybridge";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
+                initrd =
+                {
+                  network.enable = true;
+                  sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
+                };
               };
               packages.packageSet = "server";
               services =
@@ -279,11 +284,6 @@
                 coturn.enable = true;
                 synapse-proxy."synapse.chn.moe" = {};
                 nebula = { enable = true; lighthouse = null; };
-              };
-              boot =
-              {
-                network.enable = true;
-                sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
             };})
           ];
@@ -315,6 +315,11 @@
                 grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
                 march = "znver3";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
+                initrd =
+                {
+                  network.enable = true;
+                  sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
+                };
               };
               packages.packageSet = "server";
               services =
@@ -323,11 +328,6 @@
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
-              };
-              boot =
-              {
-                network.enable = true;
-                sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
             };})
           ];
@@ -359,6 +359,11 @@
                 grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
                 march = "broadwell";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
+                initrd =
+                {
+                  network.enable = true;
+                  sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
+                };
               };
               packages =
               {
@@ -375,11 +380,6 @@
                 wallabag.enable = true;
                 misskey = { enable = true; hostname = "xn--s8w913fdga.chn.moe"; };
                 synapse.enable = true;
-              };
-              boot =
-              {
-                network.enable = true;
-                sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
             };})
           ];
@@ -411,6 +411,11 @@
                 grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
                 march = "silvermont";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
+                initrd =
+                {
+                  network.enable = true;
+                  sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
+                };
               };
               packages.packageSet = "server";
               services =
@@ -419,11 +424,6 @@
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
-              };
-              boot =
-              {
-                network.enable = true;
-                sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
               };
             };})
           ];
