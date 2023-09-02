@@ -17,13 +17,6 @@ inputs:
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
-    impermanence =
-    {
-      enable = mkOption { type = types.bool; default = false; };
-      persistence = mkOption { type = types.nonEmptyStr; default = "/nix/persistent"; };
-      root = mkOption { type = types.nonEmptyStr; default = "/nix/rootfs/current"; };
-      nodatacow = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-    };
     snapper =
     {
       enable = mkOption { type = types.bool; default = false; };
@@ -101,58 +94,6 @@ inputs:
       inherit (builtins) map listToAttrs toString;
     in mkMerge
     [
-      (
-        mkIf services.impermanence.enable
-        {
-          environment.persistence =
-          {
-            "${services.impermanence.persistence}" =
-            {
-              hideMounts = true;
-              directories =
-              [
-                "/etc/NetworkManager/system-connections"
-                "/home"
-                "/root"
-                "/var/db"
-                "/var/lib"
-                "/var/log"
-                "/var/spool"
-              ];
-              files =
-              [
-                "/etc/machine-id"
-                "/etc/ssh/ssh_host_ed25519_key.pub"
-                "/etc/ssh/ssh_host_ed25519_key"
-                "/etc/ssh/ssh_host_rsa_key.pub"
-                "/etc/ssh/ssh_host_rsa_key"
-              ];
-            };
-            "${services.impermanence.root}" =
-            {
-              hideMounts = true;
-              directories = []
-                ++ (if inputs.config.services.xserver.displayManager.sddm.enable then
-                  [{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }] else []);
-            };
-          }
-          // (
-            if (services.impermanence.nodatacow != null) then
-            {
-              "${services.impermanence.nodatacow}" =
-              {
-                hideMounts = true;
-                directories =
-                [
-                  "/var/lib/postgresql"
-                  "/var/lib/meilisearch"
-                ];
-              };
-            }
-            else {}
-          );
-        }
-      )
       (
         mkIf services.snapper.enable
         {

@@ -129,6 +129,7 @@
                   patches = [ "cjktty" "preempt" ];
                   modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
                 };
+                impermanence.enable = true;
               };
               hardware =
               {
@@ -159,7 +160,6 @@
               };
               services =
               {
-                impermanence.enable = true;
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
@@ -256,11 +256,11 @@
                   sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
                 };
                 kernel.patches = [ "preempt" ];
+                impermanence.enable = true;
               };
               packages.packageSet = "server";
               services =
               {
-                impermanence.enable = true;
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
@@ -367,6 +367,7 @@
                   sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
                 };
                 kernel.patches = [ "preempt" ];
+                impermanence = { enable = true; nodatacow = "/nix/nodatacow"; };
               };
               packages =
               {
@@ -374,7 +375,6 @@
               };
               services =
               {
-                impermanence = { enable = true; nodatacow = "/nix/nodatacow"; };
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
@@ -420,11 +420,11 @@
                   sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
                 };
                 kernel.patches = [ "preempt" ];
+                impermanence.enable = true;
               };
               packages.packageSet = "server";
               services =
               {
-                impermanence.enable = true;
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
@@ -580,6 +580,7 @@
                 grub.installDevice = "efi";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 kernel.patches = [ "cjktty" "preempt" ];
+                impermanence.enable = true;
               };
               hardware =
               {
@@ -594,7 +595,6 @@
               virtualization.docker.enable = true;
               services =
               {
-                impermanence.enable = true;
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
@@ -636,6 +636,7 @@
                 gui.enable = true;
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 kernel.patches = [ "cjktty" "preempt" ];
+                impermanence.enable = true;
               };
               hardware =
               {
@@ -650,7 +651,6 @@
               virtualization.docker.enable = true;
               services =
               {
-                impermanence.enable = true;
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
