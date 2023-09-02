@@ -13,6 +13,7 @@ inputs:
     ./networking.nix
     ./systemd.nix
     ./security.nix
+    ./sops.nix
   ];
   config =
   {

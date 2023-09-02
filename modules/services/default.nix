@@ -24,11 +24,6 @@ inputs:
     };
     kmscon.enable = mkOption { type = types.bool; default = false; };
     fontconfig.enable = mkOption { type = types.bool; default = false; };
-    sops =
-    {
-      enable = mkOption { type = types.bool; default = false; };
-      keyPathPrefix = mkOption { type = types.str; default = ""; };
-    };
     samba =
     {
       enable = mkOption { type = types.bool; default = false; };
@@ -151,18 +146,6 @@ inputs:
               sansSerif = [ "Noto Sans CJK SC" "Source Han Sans SC" "DejaVu Sans" ];
               serif = [ "Noto Serif CJK SC" "Source Han Serif SC" "DejaVu Serif" ];
             };
-          };
-        }
-      )
-      (
-        mkIf services.sops.enable
-        {
-          sops =
-          {
-            defaultSopsFile = ../../secrets/${inputs.config.networking.hostName}.yaml;
-            # sops start before impermanence, so we need to use the absolute path
-            age.sshKeyPaths = [ "${services.sops.keyPathPrefix}/etc/ssh/ssh_host_ed25519_key" ];
-            gnupg.sshKeyPaths = [ "${services.sops.keyPathPrefix}/etc/ssh/ssh_host_rsa_key" ];
           };
         }
       )

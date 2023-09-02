@@ -130,6 +130,7 @@
                 };
                 impermanence.enable = true;
                 networking.hostname = "pc";
+                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               hardware =
               {
@@ -162,7 +163,6 @@
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 samba =
                 {
                   enable = true;
@@ -258,12 +258,12 @@
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
                 networking.hostname = "vps6";
+                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               packages.packageSet = "server";
               services =
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
                 xrayServer = { enable = true; serverName = "vps6.xserver.chn.moe"; };
                 frpServer = { enable = true; serverName = "frp.chn.moe"; };
@@ -325,12 +325,12 @@
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
                 networking.hostname = "vps4";
+                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               packages.packageSet = "server";
               services =
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
               };
             };})
@@ -371,6 +371,7 @@
                 kernel.patches = [ "preempt" ];
                 impermanence = { enable = true; nodatacow = "/nix/nodatacow"; };
                 networking.hostname = "vps7";
+                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               packages =
               {
@@ -379,7 +380,6 @@
               services =
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
                 rsshub.enable = true;
                 nginx = { enable = true; transparentProxy.externalIp = "95.111.228.40"; };
@@ -425,12 +425,12 @@
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
                 networking.hostname = "nas";
+                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               packages.packageSet = "server";
               services =
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
               };
             };})
@@ -488,6 +488,7 @@
                 };
                 impermanence.enable = true;
                 networking.hostname = "xmupc1";
+                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               hardware =
               {
@@ -510,7 +511,6 @@
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 samba =
                 {
                   enable = true;
@@ -587,6 +587,7 @@
                 kernel.patches = [ "cjktty" "preempt" ];
                 impermanence.enable = true;
                 networking.hostname = "yoga";
+                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               hardware =
               {
@@ -603,7 +604,6 @@
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
                 xrayClient =
                 {
@@ -644,6 +644,7 @@
                 kernel.patches = [ "cjktty" "preempt" ];
                 impermanence.enable = true;
                 networking.hostname = "pe";
+                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               hardware =
               {
@@ -660,7 +661,6 @@
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
                 xrayClient =
                 {
