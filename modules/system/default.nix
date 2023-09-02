@@ -10,11 +10,8 @@ inputs:
     ./impermanence.nix
     ./gui.nix
     ./nixpkgs.nix
+    ./networking.nix
   ];
-  options.nixos.system = let inherit (inputs.lib) mkOption types; in
-  {
-    hostname = mkOption { type = types.nonEmptyStr; };
-  };
   config =
     let
       inherit (inputs.lib) mkMerge mkIf mkAfter;
@@ -35,43 +32,16 @@ inputs:
             dbus.implementation = "broker";
             journald.extraConfig = "MaxRetentionSec=7d";
           };
-          networking.networkmanager =
-          {
-            enable = true;
-            extraConfig =
-            ''
-              [device]
-              keep-configuration=no
-            '';
-          };
           time.timeZone = "Asia/Shanghai";
           boot =
           {
             kernel.sysctl =
             {
-              "net.core.rmem_max" = 67108864;
-              "net.core.wmem_max" = 67108864;
-              "net.ipv4.tcp_rmem" = "4096 87380 67108864";
-              "net.ipv4.tcp_wmem" = "4096 65536 67108864";
-              "net.ipv4.tcp_mtu_probing" = true;
-              "net.ipv4.tcp_tw_reuse" = true;
               "vm.swappiness" = 10;
-              "net.ipv4.tcp_max_syn_backlog" = 8388608;
-              "net.core.netdev_max_backlog" = 8388608;
-              "net.core.somaxconn" = 8388608;
               "vm.oom_kill_allocating_task" = true;
               "vm.oom_dump_tasks" = false;
               "vm.overcommit_memory" = 1;
               "dev.i915.perf_stream_paranoid" = false;
-              "net.ipv4.conf.all.route_localnet" = true;
-              "net.ipv4.conf.default.route_localnet" = true;
-              "net.ipv4.conf.all.accept_local" = true;
-              "net.ipv4.conf.default.accept_local" = true;
-              "net.ipv4.ip_forward" = true;
-              "net.ipv4.ip_nonlocal_bind" = true;
-              "net.bridge.bridge-nf-call-iptables" = false;
-              "net.bridge.bridge-nf-call-ip6tables" = false;
-              "net.bridge.bridge-nf-call-arptables" = false;
             };
             supportedFilesystems = [ "ntfs" ];
             consoleLogLevel = 7;
@@ -156,7 +126,5 @@ inputs:
           };
           virtualisation.oci-containers.backend = "docker";
         }
-        # hostname
-        { networking.hostName = system.hostname; }
       ];
 }

@@ -65,7 +65,6 @@
                 (inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
                   (import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
                 ./modules
-                { config.nixos.system.hostname = system.name; }
               ]
               ++ system.value
             );
@@ -130,6 +129,7 @@
                   modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
                 };
                 impermanence.enable = true;
+                networking.hostname = "pc";
               };
               hardware =
               {
@@ -257,6 +257,7 @@
                 };
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
+                networking.hostname = "vps6";
               };
               packages.packageSet = "server";
               services =
@@ -323,6 +324,7 @@
                 };
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
+                networking.hostname = "vps4";
               };
               packages.packageSet = "server";
               services =
@@ -368,6 +370,7 @@
                 };
                 kernel.patches = [ "preempt" ];
                 impermanence = { enable = true; nodatacow = "/nix/nodatacow"; };
+                networking.hostname = "vps7";
               };
               packages =
               {
@@ -421,6 +424,7 @@
                 };
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
+                networking.hostname = "nas";
               };
               packages.packageSet = "server";
               services =
@@ -483,6 +487,7 @@
                   modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
                 };
                 impermanence.enable = true;
+                networking.hostname = "xmupc1";
               };
               hardware =
               {
@@ -581,6 +586,7 @@
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 kernel.patches = [ "cjktty" "preempt" ];
                 impermanence.enable = true;
+                networking.hostname = "yoga";
               };
               hardware =
               {
@@ -637,6 +643,7 @@
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 kernel.patches = [ "cjktty" "preempt" ];
                 impermanence.enable = true;
+                networking.hostname = "pe";
               };
               hardware =
               {

@@ -17,7 +17,7 @@ inputs:
       {
         enable = true;
         ca = ./ca.crt;
-        cert = ./. + "/${inputs.config.nixos.system.hostname}.crt";
+        cert = ./. + "/${inputs.config.nixos.system.networking.hostname}.crt";
         key = inputs.config.sops.templates."nebula/key-template".path;
         firewall.inbound = [ { host = "any"; port = "any"; proto = "any"; } ];
         firewall.outbound = [ { host = "any"; port = "any"; proto = "any"; } ];
