@@ -1,6 +1,6 @@
 inputs:
 {
-  options.nixos.fileSystems = let inherit (inputs.lib) mkOption types; in
+  options.nixos.system.fileSystems = let inherit (inputs.lib) mkOption types; in
   {
     mount =
     {
@@ -42,8 +42,10 @@ inputs:
         delayedMount = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
       };
     };
-    mdadm = mkOption { type = types.nullOr types.str; default = null; };
+    # generate using: sudo mdadm --examine --scan
+    mdadm = mkOption { type = types.nullOr types.lines; default = null; };
     swap = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+    # device or { device, offset }
     resume = mkOption
     {
       type = types.nullOr (types.str or (types.submodule
@@ -70,8 +72,8 @@ inputs:
     let
       inherit (builtins) listToAttrs map concatLists concatStringsSep;
       inherit (inputs.lib) mkMerge mkIf;
-      inherit (inputs.localLib) stripeTabs attrsToList;
-      inherit (inputs.config.nixos) fileSystems;
+      inherit (inputs.localLib) attrsToList;
+      inherit (inputs.config.nixos.system) fileSystems;
     in mkMerge
     [
       # mount.vfat
@@ -81,6 +83,12 @@ inputs:
           (attrsToList fileSystems.mount.vfat));
       }
       # mount.btrfs
+      # Disable CoW for VM image and database: sudo chattr +C images
+      # resize btrfs:
+      # sudo btrfs filesystem resize -50G /nix
+      # sudo cryptsetup status root
+      # sudo cryptsetup -b 3787456512 resize root
+      # sudo cfdisk /dev/nvme1n1p3
       {
         fileSystems = listToAttrs (concatLists (map
           (
@@ -93,6 +101,11 @@ inputs:
                   {
                     device = device.name;
                     fsType = "btrfs";
+                    # zstd:15 cause sound stuttering
+                    # test on e20dae7d8b317f95718b5f4175bd4246c09735de mathematica ~15G
+                    # zstd:15 5m33s 7.16G
+                    # zstd:8 54s 7.32G
+                    # zstd:3 17s 7.52G
                     options = [ "compress-force=zstd" "subvol=${subvol.name}" ];
                   };
                 }
@@ -184,7 +197,6 @@ inputs:
       )
       # mdadm
       (
-        # sudo mdadm --examine --scan
         mkIf (fileSystems.mdadm != null)
           { boot.swraid = { enable = true; mdadmConf = fileSystems.mdadm; }; }
       )
@@ -231,18 +243,4 @@ inputs:
     ];
 }
 
-# Disable CoW for VM image and database:
-# sudo chattr +C images
-# zstd:15 cause sound stuttering
-# From btrfs wiki: 1-3 are real-time, 4-8 slower with improved compression,
-#   9-15 try even harder though the resulting size may not be significantly improved.
-# https://btrfs.readthedocs.io/en/latest/Compression.html
-# sudo btrfs filesystem resize -50G /nix
-# sudo cryptsetup status root
-# sudo cryptsetup -b 3787456512 resize root
-# sudo cfdisk /dev/nvme1n1p3
 
-# test on e20dae7d8b317f95718b5f4175bd4246c09735de mathematica ~15G
-# zstd:15 5m33s 7.16G 
-# zstd:8 54s 7.32G
-# zstd:3 17s 7.52G

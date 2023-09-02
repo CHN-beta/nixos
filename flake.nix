@@ -77,7 +77,7 @@
           [
             (inputs: { config.nixos =
             {
-              fileSystems =
+              system.fileSystems =
               {
                 mount =
                 {
@@ -223,7 +223,7 @@
           [
             (inputs: { config.nixos =
             {
-              fileSystems =
+              system.fileSystems =
               {
                 mount =
                 {
@@ -285,7 +285,7 @@
           [
             (inputs: { config.nixos =
             {
-              fileSystems =
+              system.fileSystems =
               {
                 mount =
                 {
@@ -326,7 +326,7 @@
           [
             (inputs: { config.nixos =
             {
-              fileSystems =
+              system.fileSystems =
               {
                 mount =
                 {
@@ -375,7 +375,7 @@
           [
             (inputs: { config.nixos =
             {
-              fileSystems =
+              system.fileSystems =
               {
                 mount =
                 {
@@ -416,7 +416,7 @@
           [
             (inputs: { config.nixos =
             {
-              fileSystems =
+              system.fileSystems =
               {
                 mount =
                 {
@@ -535,7 +535,7 @@
           [
             (inputs: { config.nixos =
             {
-              fileSystems =
+              system.fileSystems =
               {
                 mount =
                 {
@@ -593,7 +593,7 @@
           [
             (inputs: { config.nixos =
             {
-              fileSystems =
+              system.fileSystems =
               {
                 mount =
                 {

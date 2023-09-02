@@ -3,6 +3,7 @@ inputs:
   imports = inputs.localLib.mkModules
   [
     ./nix.nix
+    ./fileSystems.nix
   ];
   options.nixos.system = let inherit (inputs.lib) mkOption types; in
   {

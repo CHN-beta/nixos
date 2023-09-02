@@ -2,6 +2,7 @@ inputs:
 {
   options.nixos.system.nix = let inherit (inputs.lib) mkOption types; in
   {
+    # marches allowed to be compiled on this machine
     marches = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
     keepOutputs = mkOption { type = types.bool; default = false; };
     substituters = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
