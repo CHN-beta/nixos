@@ -8,12 +8,12 @@ inputs:
     ./initrd.nix
     ./kernel.nix
     ./impermanence.nix
+    ./gui.nix
   ];
   options.nixos.system = let inherit (inputs.lib) mkOption types; in
   {
     hostname = mkOption { type = types.nonEmptyStr; };
     march = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-    gui.enable = mkOption { type = types.bool; default = false; };
   };
   config =
     let
@@ -200,29 +200,5 @@ inputs:
             }
             { nixpkgs.hostPlatform = inputs.lib.mkDefault "x86_64-linux"; }
         )
-        # gui.enable
-        (mkIf inputs.config.nixos.system.gui.enable
-        {
-            services.xserver =
-            {
-              enable = true;
-              displayManager = { sddm.enable = true; defaultSession = "plasmawayland"; };
-              desktopManager.plasma5.enable = true;
-              videoDrivers = inputs.config.nixos.hardware.gpus;
-            };
-            systemd.services.display-manager.after = [ "network-online.target" ];
-            environment.sessionVariables."GTK_USE_PORTAL" = "1";
-            xdg.portal.extraPortals = with inputs.pkgs; [ xdg-desktop-portal-gtk xdg-desktop-portal-wlr ];
-            i18n.inputMethod =
-            {
-              enabled = "fcitx5";
-              fcitx5.addons = with inputs.pkgs; [ fcitx5-rime fcitx5-chinese-addons fcitx5-mozc ];
-            };
-            programs =
-            {
-              dconf.enable = true;
-              xwayland.enable = true;
-            };
-        })
       ];
 }
