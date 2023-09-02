@@ -4,7 +4,7 @@ inputs:
   {
     enable = mkOption { type = types.bool; default = false; };
     # null: is lighthouse, non-empty string: is not lighthouse, and use this string as lighthouse address.
-    lighthouse = mkOption { type = types.nullOr types.nonEmptyStr; };
+    lighthouse = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
   };
   config =
     let

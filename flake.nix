@@ -284,7 +284,7 @@
                 misskey-proxy = { "xn--qbtm095lrg0bfka60z.chn.moe" = {}; "xn--s8w913fdga.chn.moe" = {}; };
                 coturn.enable = true;
                 synapse-proxy."synapse.chn.moe" = {};
-                nebula = { enable = true; lighthouse = null; };
+                nebula.enable = true;
               };
             };})
           ];
@@ -322,11 +322,11 @@
                   sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
                 };
                 kernel.patches = [ "preempt" ];
+                impermanence.enable = true;
               };
               packages.packageSet = "server";
               services =
               {
-                impermanence.enable = true;
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 sshd.enable = true;
@@ -482,6 +482,7 @@
                   patches = [ "cjktty" "preempt" ];
                   modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
                 };
+                impermanence.enable = true;
               };
               hardware =
               {
@@ -502,7 +503,6 @@
               };
               services =
               {
-                impermanence.enable = true;
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
