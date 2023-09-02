@@ -30,6 +30,6 @@ inputs:
           deploy-rs = { inherit (prev) deploy-rs; inherit ((topInputs.deploy-rs.overlay final prev).deploy-rs) lib; };
         })
       ];})
-      ./kernel ./hardware ./packages ./system ./virtualization ./services ./bugs ./users
+      ./hardware ./packages ./system ./virtualization ./services ./bugs ./users
     ];
   }

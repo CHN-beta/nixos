@@ -124,11 +124,11 @@
                 };
                 march = "alderlake";
                 gui.enable = true;
-              };
-              kernel =
-              {
-                patches = [ "cjktty" "preempt" ];
-                modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
+                kernel =
+                {
+                  patches = [ "cjktty" "preempt" ];
+                  modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
+                };
               };
               hardware =
               {
@@ -255,6 +255,7 @@
                   network.enable = true;
                   sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
                 };
+                kernel.patches = [ "preempt" ];
               };
               packages.packageSet = "server";
               services =
@@ -320,6 +321,7 @@
                   network.enable = true;
                   sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
                 };
+                kernel.patches = [ "preempt" ];
               };
               packages.packageSet = "server";
               services =
@@ -364,6 +366,7 @@
                   network.enable = true;
                   sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
                 };
+                kernel.patches = [ "preempt" ];
               };
               packages =
               {
@@ -416,6 +419,7 @@
                   network.enable = true;
                   sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
                 };
+                kernel.patches = [ "preempt" ];
               };
               packages.packageSet = "server";
               services =
@@ -473,11 +477,11 @@
                   substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 };
                 gui.enable = true;
-              };
-              kernel =
-              {
-                patches = [ "cjktty" "preempt" ];
-                modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
+                kernel =
+                {
+                  patches = [ "cjktty" "preempt" ];
+                  modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
+                };
               };
               hardware =
               {
@@ -575,8 +579,8 @@
                 gui.enable = true;
                 grub.installDevice = "efi";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
+                kernel.patches = [ "cjktty" "preempt" ];
               };
-              kernel.patches = [ "cjktty" "preempt" ];
               hardware =
               {
                 cpus = [ "intel" ];
@@ -631,8 +635,8 @@
                 grub.installDevice = "efiRemovable";
                 gui.enable = true;
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
+                kernel.patches = [ "cjktty" "preempt" ];
               };
-              kernel.patches = [ "cjktty" "preempt" ];
               hardware =
               {
                 cpus = [ "intel" ];
