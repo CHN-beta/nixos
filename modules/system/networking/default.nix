@@ -1,5 +1,9 @@
 inputs:
 {
+  imports = inputs.localLib.mkModules
+  [
+    ./nebula
+  ];
   options.nixos.system.networking = let inherit (inputs.lib) mkOption types; in
   {
     hostname = mkOption { type = types.nonEmptyStr; };

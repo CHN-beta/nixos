@@ -10,7 +10,7 @@ inputs:
     ./impermanence.nix
     ./gui.nix
     ./nixpkgs.nix
-    ./networking.nix
+    ./networking
     ./systemd.nix
     ./security.nix
     ./sops.nix

@@ -11,7 +11,6 @@ inputs:
     ./xray.nix
     ./coturn.nix
     ./synapse.nix
-    ./nebula
     ./phpfpm.nix
     # ./docker.nix
   ];

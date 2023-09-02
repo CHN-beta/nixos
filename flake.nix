@@ -129,7 +129,11 @@
                   modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
                 };
                 impermanence.enable = true;
-                networking.hostname = "pc";
+                networking =
+                {
+                  hostname = "pc";
+                  nebula = { enable = true; lighthouse = "vps6.chn.moe"; };
+                };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               hardware =
@@ -213,7 +217,6 @@
                 smartd.enable = true;
                 nginx = { enable = true; transparentProxy.enable = false; };
                 misskey = { enable = false; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
-                nebula = { enable = true; lighthouse = "vps6.chn.moe"; };
               };
               bugs =
               [
@@ -257,7 +260,11 @@
                 };
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
-                networking.hostname = "vps6";
+                networking =
+                {
+                  hostname = "vps6";
+                  nebula.enable = true;
+                };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               packages.packageSet = "server";
@@ -285,7 +292,6 @@
                 misskey-proxy = { "xn--qbtm095lrg0bfka60z.chn.moe" = {}; "xn--s8w913fdga.chn.moe" = {}; };
                 coturn.enable = true;
                 synapse-proxy."synapse.chn.moe" = {};
-                nebula.enable = true;
               };
             };})
           ];

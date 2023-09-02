@@ -1,6 +1,6 @@
 inputs:
 {
-  options.nixos.services.nebula = let inherit (inputs.lib) mkOption types; in
+  options.nixos.system.networking.nebula = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
     # null: is lighthouse, non-empty string: is not lighthouse, and use this string as lighthouse address.
@@ -9,7 +9,7 @@ inputs:
   config =
     let
       inherit (inputs.lib) mkIf;
-      inherit (inputs.config.nixos.services) nebula;
+      inherit (inputs.config.nixos.system.networking) nebula;
       inherit (builtins) concatStringsSep;
     in mkIf nebula.enable
     {
