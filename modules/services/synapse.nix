@@ -128,15 +128,15 @@ inputs:
         {
           enable = true;
           httpProxy = listToAttrs (map
-            (proxy:
+            (proxy: with proxy.value;
             {
-              name = proxy.value.hostname;
+              name = hostname;
               value =
               {
-                upstream = if builtins.typeOf proxy.value.upstream == "string" then "http://${proxy.value.upstream}"
-                  else "http://${proxy.value.upstream.address}:${toString proxy.value.upstream.port}";
+                upstream = if builtins.typeOf upstream == "string" then "http://${upstream}"
+                  else "http://${upstream.address}:${toString upstream.port}";
                 websocket = true;
-                setHeaders.Host = "${proxy.value.hostname}";
+                setHeaders.Host = hostname;
               };
             })
             (attrsToList synapse-proxy));

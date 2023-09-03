@@ -208,7 +208,8 @@
                 nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
                 smartd.enable = true;
                 nginx = { enable = true; transparentProxy.enable = false; };
-                misskey = { enable = false; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
+                # misskey = { enable = true; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
+                # misskey-proxy."xn--qbtm095lrg0bfka60z.chn.moe" = {};
               };
               bugs =
               [
@@ -277,7 +278,11 @@
                     };
                   };
                 };
-                misskey-proxy = { "xn--qbtm095lrg0bfka60z.chn.moe" = {}; "xn--s8w913fdga.chn.moe" = {}; };
+                misskey-proxy =
+                {
+                  "xn--qbtm095lrg0bfka60z.chn.moe".upstream.address = "internal.pc.chn.moe";
+                  "xn--s8w913fdga.chn.moe".upstream.address = "internal.vps7.chn.moe";
+                };
                 coturn.enable = true;
                 synapse-proxy."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
               };
@@ -379,6 +384,7 @@
                 nginx = { enable = true; transparentProxy.externalIp = "95.111.228.40"; };
                 wallabag.enable = true;
                 misskey = { enable = true; hostname = "xn--s8w913fdga.chn.moe"; };
+                misskey-proxy."xn--s8w913fdga.chn.moe" = {};
                 synapse.enable = true;
                 synapse-proxy."synapse.chn.moe" = {};
               };

@@ -5,6 +5,7 @@ inputs:
     misskey =
     {
       enable = mkOption { type = types.bool; default = false; };
+      autoStart = mkOption { type = types.bool; default = true; };
       port = mkOption { type = types.ints.unsigned; default = 9726; };
       hostname = mkOption { type = types.str; default = "misskey.chn.moe"; };
     };
@@ -12,7 +13,16 @@ inputs:
     {
       type = types.attrsOf (types.submodule (submoduleInputs: { options =
       {
-        hostname = mkOption { type = types.str; default = submoduleInputs.config._module.args.name; };
+        hostname = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+        upstream = mkOption
+        {
+          type = types.oneOf [ types.nonEmptyStr (types.submodule { options =
+          {
+            address = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
+            port = mkOption { type = types.ints.unsigned; default = 9726; };
+          };})];
+          default = "127.0.0.1:9726";
+        };
       };}));
       default = {};
     };
@@ -113,26 +123,6 @@ inputs:
         nixos.services =
         {
           redis.instances.misskey.port = 3545;
-          nginx =
-          {
-            enable = true;
-            httpProxy =
-            {
-              "${misskey.hostname}" =
-              {
-                upstream = "http://127.0.0.1:${toString misskey.port}";
-                websocket = true;
-                setHeaders.Host = misskey.hostname;
-              };
-              "direct.${misskey.hostname}" =
-              {
-                upstream = "http://127.0.0.1:${toString misskey.port}";
-                websocket = true;
-                setHeaders.Host = misskey.hostname;
-                detectAuth = true;
-              };
-            };
-          };
           postgresql = { enable = true; instances.misskey = {}; };
           meilisearch.instances.misskey = { user = inputs.config.users.users.misskey.name; port = 7700; };
         };
@@ -143,15 +133,15 @@ inputs:
         {
           enable = true;
           httpProxy = listToAttrs (map
-            (proxy:
+            (proxy: with proxy.value;
             {
-              name = proxy.value.hostname;
+              name = hostname;
               value =
               {
-                upstream = "https://direct.${proxy.value.hostname}";
+                upstream = if builtins.typeOf upstream == "string" then "http://${upstream}"
+                  else "http://${upstream.address}:${toString upstream.port}";
                 websocket = true;
-                setHeaders.Host = "direct.${proxy.value.hostname}";
-                addAuth = true;
+                setHeaders.Host = hostname;
               };
             })
             (attrsToList misskey-proxy));
