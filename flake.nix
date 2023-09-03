@@ -375,7 +375,7 @@
                   sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
                 };
                 kernel.patches = [ "preempt" ];
-                impermanence = { enable = true; nodatacow = "/nix/nodatacow"; };
+                impermanence.enable = true;
                 networking.hostname = "vps7";
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };

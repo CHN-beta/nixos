@@ -5,7 +5,7 @@ inputs:
     enable = mkOption { type = types.bool; default = false; };
     persistence = mkOption { type = types.nonEmptyStr; default = "/nix/persistent"; };
     root = mkOption { type = types.nonEmptyStr; default = "/nix/rootfs/current"; };
-    nodatacow = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+    nodatacow = mkOption { type = types.nullOr types.nonEmptyStr; default = "/nix/nodatacow"; };
   };
   config =
     let
@@ -27,6 +27,7 @@ inputs:
             "/var/lib"
             "/var/log"
             "/var/spool"
+            "/var/backup"
           ];
           files =
           [
@@ -44,21 +45,17 @@ inputs:
             ++ (if inputs.config.services.xserver.displayManager.sddm.enable then
               [{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }] else []);
         };
-      }
-      // (
-        if (impermanence.nodatacow != null) then
+        "${impermanence.nodatacow}" =
         {
-          "${impermanence.nodatacow}" =
-          {
-            hideMounts = true;
-            directories =
-            [
-              "/var/lib/postgresql"
-              "/var/lib/meilisearch"
-            ];
-          };
-        }
-        else {}
-      );
+          hideMounts = true;
+          directories =
+            (
+              if inputs.config.nixos.services.postgresql.enable then let user = inputs.config.users.users.postgres; in
+                [{ directory = "/var/lib/postgresql"; user = user.name; group = user.group; mode = "0750"; }]
+              else []
+            )
+            ++ (if inputs.config.nixos.services.meilisearch.instances != {} then [ "/var/lib/meilisearch" ] else []);
+        };
+      };
     };
 }
