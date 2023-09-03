@@ -3,6 +3,11 @@ inputs:
   options.nixos.system.nixpkgs = let inherit (inputs.lib) mkOption types; in
   {
     march = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+    oneapiArch = mkOption
+    {
+      type = types.nullOr types.nonEmptyStr;
+      default = inputs.config.nixos.system.nixpkgs.march;
+    };
     cudaSupport = mkOption { type = types.bool; default = false; };
   };
   config =
@@ -27,7 +32,7 @@ inputs:
           nixpkgs =
           {
             hostPlatform = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
-            config.qchem-config.optArch = nixpkgs.march;
+            config = { qchem-config.optArch = nixpkgs.march; oneapiArch = nixpkgs.oneapiArch; };
           };
           boot.kernelPatches =
           [{
