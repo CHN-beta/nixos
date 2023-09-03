@@ -129,11 +129,7 @@
                   modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
                 };
                 impermanence.enable = true;
-                networking =
-                {
-                  hostname = "pc";
-                  nebula = { enable = true; lighthouse = "vps6.chn.moe"; };
-                };
+                networking = { hostname = "pc"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; }; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               hardware =
@@ -201,11 +197,7 @@
                   };
                 };
                 firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
-                acme =
-                {
-                  enable = true;
-                  certs = [ "debug.mirism.one" ];
-                };
+                acme = { enable = true; certs = [ "debug.mirism.one" ]; };
                 frpClient =
                 {
                   enable = true;
@@ -260,11 +252,7 @@
                 };
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
-                networking =
-                {
-                  hostname = "vps6";
-                  nebula.enable = true;
-                };
+                networking = { hostname = "vps6"; nebula.enable = true; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               packages.packageSet = "server";
@@ -376,7 +364,7 @@
                 };
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
-                networking.hostname = "vps7";
+                networking = { hostname = "vps7"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; }; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               packages =
