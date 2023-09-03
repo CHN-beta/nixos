@@ -121,7 +121,7 @@
                   ];
                   keepOutputs = true;
                 };
-                nixpkgs.march = "alderlake";
+                nixpkgs = { march = "alderlake"; cudaSupport = true; };
                 gui.enable = true;
                 kernel =
                 {
@@ -465,7 +465,7 @@
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
                 grub.installDevice = "efi";
-                nixpkgs.march = "znver3";
+                nixpkgs = { march = "znver3"; cudaSupport = true; };
                 nix =
                 {
                   marches =
