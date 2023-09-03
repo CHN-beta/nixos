@@ -371,10 +371,11 @@
                 impermanence.enable = true;
                 networking = { hostname = "vps7"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; }; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
+                gui.enable = true;
               };
               packages =
               {
-                packageSet = "server";
+                packageSet = "desktop";
               };
               services =
               {
