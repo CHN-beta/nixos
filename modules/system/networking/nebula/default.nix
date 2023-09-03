@@ -46,10 +46,7 @@ inputs:
         };
         secrets."nebula/key" = {};
       };
-      networking.firewall = if nebula.lighthouse != null then {} else
-      {
-        allowedTCPPorts = [ 4242 ];
-        allowedUDPPorts = [ 4242 ];
-      };
+      networking.firewall = { trustedInterfaces = [ "nebula.nebula" ]; }
+        // (if nebula.lighthouse != null then {} else { allowedTCPPorts = [ 4242 ]; allowedUDPPorts = [ 4242 ]; });
     };
 }
