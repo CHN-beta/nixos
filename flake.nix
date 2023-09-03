@@ -279,7 +279,7 @@
                 };
                 misskey-proxy = { "xn--qbtm095lrg0bfka60z.chn.moe" = {}; "xn--s8w913fdga.chn.moe" = {}; };
                 coturn.enable = true;
-                synapse-proxy."synapse.chn.moe" = {};
+                synapse-proxy."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
               };
             };})
           ];
@@ -380,6 +380,7 @@
                 wallabag.enable = true;
                 misskey = { enable = true; hostname = "xn--s8w913fdga.chn.moe"; };
                 synapse.enable = true;
+                synapse-proxy."synapse.chn.moe" = {};
               };
             };})
           ];

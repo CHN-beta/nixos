@@ -5,6 +5,7 @@ inputs:
     synapse =
     {
       enable = mkOption { type = types.bool; default = false; };
+      autoStart = mkOption { type = types.bool; default = true; };
       port = mkOption { type = types.ints.unsigned; default = 8008; };
       hostname = mkOption { type = types.str; default = "synapse.chn.moe"; };
     };
@@ -12,7 +13,16 @@ inputs:
     {
       type = types.attrsOf (types.submodule (submoduleInputs: { options =
       {
-        hostname = mkOption { type = types.str; default = submoduleInputs.config._module.args.name; };
+        hostname = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+        upstream = mkOption
+        {
+          type = types.oneOf [ types.nonEmptyStr (types.submodule { options =
+          {
+            address = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
+            port = mkOption { type = types.ints.unsigned; default = 8008; };
+          };})];
+          default = "127.0.0.1:8008";
+        };
       };}));
       default = {};
     };
@@ -35,24 +45,14 @@ inputs:
             server_name = synapse.hostname;
             listeners =
             [{
-              bind_addresses = [ "127.0.0.1" ];
+              bind_addresses = [ "0.0.0.0" ];
               port = 8008;
               resources = [{ names = [ "client" "federation" ]; compress = false; }];
               tls = false;
               type = "http";
               x_forwarded = true;
             }];
-            database =
-            {
-              name = "psycopg2";
-              args =
-              {
-                user = "synapse";
-                database = "synapse";
-                host = "127.0.0.1";
-                port = "5432";
-              };
-            };
+            database.name = "psycopg2";
             admin_contact = "mailto:chn@chn.moe";
             enable_registration = true;
             registrations_require_3pid = [ "email" ];
@@ -119,30 +119,8 @@ inputs:
             // { "synapse/signing-key".owner = inputs.config.systemd.services.matrix-synapse.serviceConfig.User; }
             // { "mail/bot" = {}; };
         };
-        nixos.services =
-        {
-          nginx =
-          {
-            enable = true;
-            httpProxy =
-            {
-              "${synapse.hostname}" =
-              {
-                upstream = "http://127.0.0.1:${toString synapse.port}";
-                websocket = true;
-                setHeaders.Host = synapse.hostname;
-              };
-              "direct.${synapse.hostname}" =
-              {
-                upstream = "http://127.0.0.1:${toString synapse.port}";
-                websocket = true;
-                setHeaders.Host = synapse.hostname;
-                detectAuth = true;
-              };
-            };
-          };
-          postgresql = { enable = true; instances.synapse = {}; };
-        };
+        nixos.services.postgresql = { enable = true; instances.synapse = {}; };
+        systemd.services.matrix-synapse.enable = synapse.autoStart;
       })
       (mkIf (synapse-proxy != {})
       {
@@ -155,10 +133,10 @@ inputs:
               name = proxy.value.hostname;
               value =
               {
-                upstream = "https://direct.${proxy.value.hostname}";
+                upstream = if builtins.typeOf proxy.value.upstream == "string" then "http://${proxy.value.upstream}"
+                  else "http://${proxy.value.upstream.address}:${toString proxy.value.upstream.port}";
                 websocket = true;
-                setHeaders.Host = "direct.${proxy.value.hostname}";
-                addAuth = true;
+                setHeaders.Host = "${proxy.value.hostname}";
               };
             })
             (attrsToList synapse-proxy));
