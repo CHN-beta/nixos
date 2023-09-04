@@ -255,6 +255,11 @@ inputs:
                       { id = "hipekcciheckooncpjeljhnekcoolahp"; } # Tabliss
                     ];
                   };
+                  obs-studio =
+                  {
+                    enable = true;
+                    plugins = with pkgs.obs-studio-plugins; [ wlrobs obs-vaapi obs-nvfbc droidcam-obs obs-vkcapture ];
+                  };
                 };
               };
             in
