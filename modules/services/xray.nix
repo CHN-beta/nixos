@@ -46,7 +46,6 @@ inputs:
                 [
                   "/developer.download.nvidia.com/noproxy_net"
                   "/yuanshen.com/noproxy_net"
-                  "/zoom.us/noproxy_net"
                 ];
                 address = map (host: "/${host.name}/${host.value}") (attrsToList xrayClient.dns.hosts);
               };
