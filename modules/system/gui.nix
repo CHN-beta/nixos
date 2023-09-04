@@ -13,7 +13,7 @@ inputs:
       services.xserver =
       {
         enable = true;
-        displayManager = { sddm.enable = true; defaultSession = "plasmawayland"; };
+        displayManager = { sddm.enable = true; };
         desktopManager.plasma5.enable = true;
         videoDrivers = inputs.config.nixos.hardware.gpus;
       };
