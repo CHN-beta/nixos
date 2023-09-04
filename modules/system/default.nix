@@ -55,7 +55,6 @@ inputs:
       XCOMPOSECACHE = "${XDG_CACHE_HOME}/X11/xcompose";
       MATHEMATICA_USERBASE = "${XDG_CONFIG_HOME}/mathematica";
       _JAVA_OPTIONS = "-Djava.util.prefs.userRoot=${XDG_CONFIG_HOME}/java";
-      NIXOS_OZONE_WL = "1";
     };
     i18n =
     {
