@@ -10,10 +10,11 @@
   misskey = callPackage ./misskey {};
   mk-meili-mgn = callPackage ./mk-meili-mgn {};
   phonon-unfolding = callPackage ./phonon-unfolding {};
-  vasp = callPackage ./vasp
-  {
-    stdenv = pkgs.lmix-pkgs.intel21Stdenv;
-    intel-mpi = pkgs.lmix-pkgs.intel-oneapi-mpi_2021_9_0;
-    ifort = pkgs.lmix-pkgs.intel-oneapi-ifort_2021_9_0;
-  };
+  # vasp = callPackage ./vasp
+  # {
+  #   stdenv = pkgs.lmix-pkgs.intel21Stdenv;
+  #   intel-mpi = pkgs.lmix-pkgs.intel-oneapi-mpi_2021_9_0;
+  #   ifort = pkgs.lmix-pkgs.intel-oneapi-ifort_2021_9_0;
+  # };
+  vasp = callPackage ./vasp { openmp = llvmPackages.openmp; };
 }
