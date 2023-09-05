@@ -155,7 +155,7 @@ inputs:
             # news
             fluent-reader rssguard
             # davinci-resolve playonlinux
-            weston cage
+            weston cage openbox
             genymotion
             (
               vscode-with-extensions.override
