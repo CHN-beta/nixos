@@ -12,6 +12,7 @@ inputs:
     ./coturn.nix
     ./synapse.nix
     ./phpfpm.nix
+    ./xrdp.nix
     # ./docker.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in

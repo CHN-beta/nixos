@@ -388,6 +388,7 @@
                 misskey-proxy."xn--s8w913fdga.chn.moe" = {};
                 synapse.enable = true;
                 synapse-proxy."synapse.chn.moe" = {};
+                xrdp = { enable = true; hostname = "vps7.chn.moe"; };
               };
             };})
           ];
