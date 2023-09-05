@@ -12,7 +12,7 @@ inputs:
       inherit (inputs.localLib) stripeTabs attrsToList;
       inherit (inputs.config.nixos.services) xrdp;
       inherit (builtins) map listToAttrs concatStringsSep toString filter attrValues;
-    in mkMerge
+    in mkIf xrdp.enable (mkMerge
     [
       {
         services.xrdp =
@@ -32,5 +32,5 @@ inputs:
           security.acme.certs.${xrdp.hostname}.group = inputs.config.systemd.services.xrdp.serviceConfig.Group;
         }
       )
-    ];
+    ]);
 }
