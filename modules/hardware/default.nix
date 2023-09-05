@@ -112,16 +112,7 @@ inputs:
           };
         }
       )
-      (
-        mkIf (builtins.elem "intel" hardware.gpus)
-        {
-          services.xserver.deviceSection =
-          ''
-            Identifier "Intel Graphics"
-            Driver "intel"
-          '';
-        }
-      )
+      (mkIf (builtins.elem "intel" hardware.gpus) { services.xserver.deviceSection = ''Driver "modesetting"''; })
       # prime
       (
         mkIf hardware.prime.enable
