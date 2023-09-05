@@ -62,8 +62,12 @@
             modules = localLib.mkModules
             (
               [
-                (inputs: { config.nixpkgs.overlays = [(final: prev: { localPackages =
-                  (import ./local/pkgs { inherit (inputs) lib; pkgs = final; });})]; })
+                (inputs: { config.nixpkgs.overlays = [(final: prev:
+                {
+                  localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; });
+                  stablePackages = import inputs.topInputs.nixpkgs-stable
+                    { system = "x86_64-linux"; config.allowUnfree = true; };
+                })]; })
                 ./modules
               ]
               ++ system.value
