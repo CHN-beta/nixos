@@ -156,6 +156,7 @@ inputs:
             fluent-reader rssguard
             # davinci-resolve playonlinux
             weston cage
+            genymotion
             (
               vscode-with-extensions.override
               {
