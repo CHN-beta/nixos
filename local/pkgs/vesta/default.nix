@@ -1,5 +1,5 @@
 {
-  lib, stdenv, fetchurl, autoPatchelfHook, wrapGAppsHook,
+  lib, stdenv, fetchurl, autoPatchelfHook, wrapGAppsHook, makeWrapper,
   glib, gtk2, xorg, libGLU, gtk3, writeShellScript, gsettings-desktop-schemas, xdg-utils
 }:
 
@@ -18,7 +18,7 @@ stdenv.mkDerivation rec
     sha256 = "Tq4AzQgde2KIWKA1k6JlxvdphGG9JluHMZjVw0fBUeQ=";
   };
 
-  nativeBuildInputs = [ autoPatchelfHook wrapGAppsHook ];
+  nativeBuildInputs = [ autoPatchelfHook wrapGAppsHook makeWrapper ];
   buildInputs = [ glib gtk2 xorg.libXxf86vm libGLU gtk3 xorg.libXtst ];
 
   unpackPhase = "tar -xf ${src}";
@@ -35,13 +35,7 @@ stdenv.mkDerivation rec
     cp -r VESTA-gtk3 $out/opt/VESTA-gtk3
 
     mkdir -p $out/bin
-    tee $out/bin/vesta << EOF
-      #!${stdenv.shell}
-      export XDG_DATA_DIRS=$GSETTINGS_SCHEMAS_PATH\''${XDG_DATA_DIRS:+:}\$XDG_DATA_DIRS
-      export PATH="\$PATH\''${PATH:+:}${xdg-utils}/bin"
-      $out/opt/VESTA-gtk3/VESTA "\$@"
-    EOF
-    chmod +x $out/bin/vesta
+    makeWrapper $out/opt/VESTA-gtk3/VESTA $out/bin/vesta
 
     patchelf --remove-needed libjawt.so $out/opt/VESTA-gtk3/PowderPlot/libswt-awt-gtk-3346.so
   '';
