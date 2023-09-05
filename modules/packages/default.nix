@@ -253,7 +253,7 @@ inputs:
         {
           anime-game-launcher.enable = true;
           honkers-railway-launcher.enable = true;
-          nix-ld.enable = true;
+          # nix-ld.enable = true;
           gamemode =
           {
             enable = true;
