@@ -18,4 +18,5 @@
   # };
   vasp = callPackage ./vasp { openmp = llvmPackages.openmp; };
   vaspkit = callPackage ./vaspkit { attrsToList = (import ../lib lib).attrsToList; };
+  # "12to11" = callPackage ./12to11 {};
 }
