@@ -29,6 +29,7 @@ inputs:
           services.xrdp = let keydir = inputs.config.security.acme.certs.${xrdp.hostname}.directory; in
             { sslCert = "${keydir}/full.pem"; sslKey = "${keydir}/key.pem"; };
           nixos.services.acme = { enable = true; certs = [ xrdp.hostname ]; };
+          security.acme.certs.${xrdp.hostname}.group = inputs.config.systemd.services.xrdp.serviceConfig.Group;
         }
       )
     ];
