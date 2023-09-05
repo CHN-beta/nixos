@@ -155,6 +155,7 @@ inputs:
             # news
             fluent-reader rssguard
             # davinci-resolve playonlinux
+            weston
             (
               vscode-with-extensions.override
               {
