@@ -36,10 +36,10 @@ inputs:
           owner = "xanmod";
           repo = "linux";
           rev = modDirVersion;
-          sha256 = "sha256-rvSQJb9MIOXkGEjHOPt3x+dqp1AysvQg7n5yYsg95fk=";
+          hash = "sha256-EugTfBbeH9VTpIg1aDNfaY57NDCA70QIdsOfzxWMSeA=";
         };
-        version = "6.4.12";
-        modDirVersion = "6.4.12-xanmod1";
+        version = "6.4.14";
+        modDirVersion = "6.4.14-xanmod1";
       });
       kernelPatches =
         let
