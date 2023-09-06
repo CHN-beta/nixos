@@ -224,7 +224,7 @@ inputs:
           [
             # nix tools
             nix-template appimage-run nil nixd nix-alien nix-serve node2nix nix-prefetch-github prefetch-npm-deps
-            nix-prefetch-docker pnpm-lock-export
+            nix-prefetch-docker pnpm-lock-export bundix
             # instant messager
             zoom-us signal-desktop qq nur-xddxdd.wechat-uos stablePackages.slack # jail
             # office
