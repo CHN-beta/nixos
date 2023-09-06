@@ -54,6 +54,8 @@ inputs:
               ExecStart = "${WorkingDirectory}/bin/misskey";
               CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
               AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
+              Restart = "always";
+              RuntimeMaxSec = "1d";
             };
           };
           tmpfiles.rules = [ "d /var/lib/misskey/files 0700 misskey misskey" ];
