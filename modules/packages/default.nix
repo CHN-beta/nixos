@@ -238,8 +238,8 @@ inputs:
             # text editor
             appflowy notion-app-enhanced joplin-desktop standardnotes
             # math, physics and chemistry
-            mathematica octave root ovito paraview localPackages.vesta qchem.quantum-espresso # vsim
-            localPackages.vasp localPackages.phonon-unfolding localPackages.vaspkit
+            mathematica octave root ovito paraview localPackages.vesta qchem.quantum-espresso
+            localPackages.vasp localPackages.phonon-unfolding localPackages.vaspkit jmol localPackages.v_sim
             # news
             newsflash newsboat
           ];
