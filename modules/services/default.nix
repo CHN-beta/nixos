@@ -137,7 +137,7 @@ inputs:
           fonts =
           {
             fontDir.enable = true;
-            packages = with inputs.pkgs;
+            fonts = with inputs.pkgs;
               [ noto-fonts source-han-sans source-han-serif source-code-pro hack-font jetbrains-mono nerdfonts ];
             fontconfig.defaultFonts =
             {

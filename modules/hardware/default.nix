@@ -101,7 +101,7 @@ inputs:
                 let
                   packages =
                   {
-                    intel = [ intel-compute-runtime intel-media-driver intel-vaapi-driver libvdpau-va-gl ];
+                    intel = [ intel-compute-runtime intel-media-driver libvdpau-va-gl ]; # intel-vaapi-driver
                     nvidia = [ vaapiVdpau ];
                   };
                 in
