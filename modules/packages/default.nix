@@ -48,7 +48,7 @@ inputs:
           # file manager
           tree exa trash-cli lsd broot file xdg-ninja mlocate
           # compress
-          pigz rar upx unzip inputs.topInputs.nixpkgs-stable.legacyPackages.x86_64-linux.zip lzip p7zip
+          pigz rar upx unzip zip lzip p7zip
           # file system management
           sshfs e2fsprogs adb-sync duperemove compsize
           # disk management
@@ -226,7 +226,7 @@ inputs:
             nix-template appimage-run nil nixd nix-alien nix-serve node2nix nix-prefetch-github prefetch-npm-deps
             nix-prefetch-docker pnpm-lock-export bundix
             # instant messager
-            zoom-us signal-desktop qq nur-xddxdd.wechat-uos stablePackages.slack # jail
+            zoom-us signal-desktop qq nur-xddxdd.wechat-uos slack # jail
             # office
             libreoffice-qt texlive.combined.scheme-full texstudio poppler_utils pdftk gnuplot pdfchain
             # development

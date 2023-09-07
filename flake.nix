@@ -3,13 +3,13 @@
 
   inputs =
   {
-    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-unstable";
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-23.05";
-    home-manager = { url = "github:nix-community/home-manager/master"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-23.05";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    home-manager = { url = "github:nix-community/home-manager/release-23.05"; inputs.nixpkgs.follows = "nixpkgs"; };
     sops-nix =
     {
       url = "github:Mic92/sops-nix";
-      inputs = { nixpkgs.follows = "nixpkgs"; nixpkgs-stable.follows = "nixpkgs-stable"; };
+      inputs = { nixpkgs.follows = "nixpkgs"; nixpkgs-stable.follows = "nixpkgs"; };
     };
     touchix = { url = "github:CHN-beta/touchix"; inputs.nixpkgs.follows = "nixpkgs"; };
     aagl = { url = "github:ezKEa/aagl-gtk-on-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -65,7 +65,7 @@
                 (inputs: { config.nixpkgs.overlays = [(final: prev:
                 {
                   localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; });
-                  stablePackages = import inputs.topInputs.nixpkgs-stable
+                  unstablePackages = import inputs.topInputs.nixpkgs-unstable
                     { system = "x86_64-linux"; config.allowUnfree = true; };
                 })]; })
                 ./modules
