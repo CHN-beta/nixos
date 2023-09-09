@@ -202,7 +202,7 @@ inputs:
             languagePacks = [ "zh-CN" "en-US" ];
             nativeMessagingHosts.firefoxpwa = true;
           };
-          vim.package = inputs.pkgs.vim-full;
+          vim.package = inputs.pkgs.genericPackages.vim-full;
         };
         nixpkgs.config.packageOverrides = pkgs: 
         {

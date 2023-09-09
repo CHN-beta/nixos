@@ -216,6 +216,7 @@ inputs:
                   {
                     enable = true;
                     defaultEditor = true;
+                    packageConfigurable = inputs.config.programs.vim.package;
                     settings =
                     {
                       number = true;
