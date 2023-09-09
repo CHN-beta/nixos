@@ -14,6 +14,6 @@ inputs: { config =
     services.systemd-tmpfiles-setup.environment.SYSTEMD_TMPFILES_FORCE_SUBVOL = "0";
     # do not clean /tmp
     timers.systemd-tmpfiles-clean.enable = false;
-    coredump.enable = false;
+    coredump = { enable = true; extraConfig = "Storage=none"; };
   };
 };}
