@@ -155,7 +155,7 @@ inputs:
             # news
             fluent-reader rssguard
             # davinci-resolve playonlinux
-            weston cage openbox krita
+            weston cage openbox krita phoronix-test-suite
             genymotion
             (
               vscode-with-extensions.override
