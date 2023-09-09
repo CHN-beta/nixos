@@ -22,8 +22,13 @@ inputs:
         {
           config.allowUnfree = true;
           config.cudaSupport = nixpkgs.cudaSupport;
-          overlays = [(final: prev: { genericPackages =
-            import inputs.topInputs.nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };})];
+          overlays = [(final: prev: rec
+          {
+            genericPackages =
+              import inputs.topInputs.nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };
+            # a lot of haskell library failed to test on custom march
+            haskellPackages = genericPackages.haskellPackages;
+          })];
         };
       }
       (
