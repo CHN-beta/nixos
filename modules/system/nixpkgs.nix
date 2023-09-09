@@ -22,12 +22,8 @@ inputs:
         {
           config.allowUnfree = true;
           config.cudaSupport = nixpkgs.cudaSupport;
-          overlays = [(final: prev: rec
-          { 
-            genericPackages =
-              import inputs.topInputs.nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };
-            pandoc = genericPackages.pandoc;
-          })];
+          overlays = [(final: prev: { genericPackages =
+            import inputs.topInputs.nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };})];
         };
       }
       (
