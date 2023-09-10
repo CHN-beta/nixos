@@ -663,7 +663,7 @@
                 sound.enable = true;
               };
               packages.packageSet = "desktop";
-              virtualization.docker.enable = true;
+              virtualization = { docker.enable = true; kvmGuest.enable = true; };
               services =
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
