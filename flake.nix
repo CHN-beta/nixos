@@ -713,7 +713,7 @@
                   inputs.self.nixosConfigurations.${node};
             };
           })
-          [ "vps6" "vps4" "vps7" "nas" ]);
+          [ "vps6" "vps4" "vps7" "nas" "pe" ]);
       };
     };
 }
