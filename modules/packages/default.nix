@@ -247,7 +247,10 @@ inputs:
           [
             phonopy tensorflow keras openai scipy scikit-learn
           ])];
-          _prebuildPackages = [ httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran gcc10 python2 ];
+          _prebuildPackages =
+          [
+            httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran gcc10 python2 gcc13Stdenv
+          ];
         };
         programs =
         {
