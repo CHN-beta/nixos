@@ -5,6 +5,7 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &vps7 age137x7csalutwvfygvvzpemlsywvdxj3j4z93a50z2sjx03w6zau8q3r5902
   - &yoga age1qrea4twxdhd7fnvlq5v45528c90qy6hp2wa55kghsxzgut6n6fxs7w6u42
   - &pe age1cahahn9hp265dkhduaec65vugk8fct2vt9ur6y54m4mgmyx4v4fq0etjhv
+  - &nas age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
 creation_rules:
   - path_regex: secrets/pc\.yaml$
     key_groups:
@@ -29,6 +30,7 @@ creation_rules:
     key_groups:
     - age:
       - *chn
+      - *nas
   - path_regex: secrets/xmupc1\.yaml$
     key_groups:
     - age:

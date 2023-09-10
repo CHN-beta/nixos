@@ -406,29 +406,23 @@
                 {
                   mount =
                   {
+                    vfat."/dev/disk/by-uuid/13BC-F0C9" = "/boot/efi";
                     btrfs =
                     {
-                      "/dev/disk/by-uuid/a6460ff0-b6aa-4c1c-a546-8ad0d495bcf8"."/boot" = "/boot";
-                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                      "/dev/disk/by-uuid/0e184f3b-af6c-4f5d-926a-2559f2dc3063"."/boot" = "/boot";
+                      "/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
                     };
                   };
-                  decrypt.manual =
+                  decrypt.auto =
                   {
-                    enable = true;
-                    devices."/dev/disk/by-uuid/46e59fc7-7bb1-4534-bbe4-b948a9a8eeda" = { mapper = "root"; ssd = true; };
-                    delayedMount = [ "/" ];
+                    "/dev/disk/by-uuid/5cf1d19d-b4a5-4e67-8e10-f63f0d5bb649".mapper = "root1";
+                    "/dev/disk/by-uuid/aa684baf-fd8a-459c-99ba-11eb7636cb0d".mapper = "root2";
                   };
-                  swap = [ "/nix/swap/swap" ];
-                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+                  rollingRootfs = { device = "/dev/mapper/root1"; path = "/nix/rootfs"; };
                 };
-                grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
+                grub.installDevice = "efi";
                 nixpkgs.march = "silvermont";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-                initrd =
-                {
-                  network.enable = true;
-                  sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
-                };
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
                 networking.hostname = "nas";
