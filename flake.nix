@@ -419,12 +419,18 @@
                 grub.installDevice = "efi";
                 nixpkgs.march = "silvermont";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-                kernel.patches = [ "preempt" ];
+                kernel.patches = [ "cjktty" "preempt" ];
                 impermanence.enable = true;
                 networking.hostname = "nas";
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
+                gui.enable = true;
               };
-              packages.packageSet = "server";
+              hardware =
+              {
+                cpus = [ "intel" ];
+                gpus = [ "intel" ];
+              };
+              packages.packageSet = "desktop";
               services =
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
