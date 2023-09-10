@@ -63,11 +63,7 @@
             (
               [
                 (inputs: { config.nixpkgs.overlays = [(final: prev:
-                {
-                  localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; });
-                  unstablePackages = import inputs.topInputs.nixpkgs-unstable
-                    { system = "x86_64-linux"; config.allowUnfree = true; };
-                })]; })
+                  { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; }); })]; })
                 ./modules
               ]
               ++ system.value

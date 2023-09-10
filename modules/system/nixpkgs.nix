@@ -37,6 +37,14 @@ inputs:
           {
             hostPlatform = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
             config = { qchem-config.optArch = nixpkgs.march; oneapiArch = nixpkgs.oneapiArch; };
+            overlays = [(final: prev:
+            {
+              unstablePackages = import inputs.topInputs.nixpkgs-unstable
+              {
+                localSystem = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
+                config.allowUnfree = true;
+              };
+            })];
           };
           boot.kernelPatches =
           [{
@@ -60,7 +68,14 @@ inputs:
               };
           }];
         }
-        { nixpkgs.hostPlatform = "x86_64-linux"; }
+        {
+          nixpkgs =
+          {
+            hostPlatform = "x86_64-linux";
+            overlays = [(final: prev: { unstablePackages = import inputs.topInputs.nixpkgs-unstable
+              { localSystem.system = "x86_64-linux"; config.allowUnfree = true; }; })];
+          };
+        }
       )
     ];
 }
