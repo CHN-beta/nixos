@@ -165,7 +165,7 @@ inputs:
                           vps5 = "vps5.chn.moe";
                           vps6 = "vps6.chn.moe";
                           vps7 = "vps7.chn.moe";
-                          nas = "192.168.1.188";
+                          nas = "192.168.1.185";
                         }))
                       ++ (map
                         (host:
