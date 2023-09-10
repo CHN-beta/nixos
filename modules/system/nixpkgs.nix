@@ -22,8 +22,12 @@ inputs:
         {
           config.allowUnfree = true;
           config.cudaSupport = nixpkgs.cudaSupport;
-          overlays = [(final: prev: { genericPackages =
-            import inputs.topInputs.nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };})];
+          overlays = [(final: prev:
+          {
+            genericPackages =
+              import inputs.topInputs.nixpkgs { system = "x86_64-linux"; config.allowUnfree = true; };
+            waydroid = final.unstablePackages.waydroid;
+          })];
         };
       }
       (
