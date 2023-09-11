@@ -146,7 +146,7 @@ inputs:
             # development
             scrcpy
             # media
-            spotify yesplaymusic mpv nomacs simplescreenrecorder imagemagick gimp netease-cloud-music-gtk
+            spotify yesplaymusic mpv nomacs simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc
             # text editor
             localPackages.typora
             # themes
