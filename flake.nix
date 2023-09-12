@@ -421,7 +421,7 @@
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 kernel.patches = [ "cjktty" "preempt" ];
                 impermanence.enable = true;
-                networking.hostname = "nas";
+                networking = { hostname = "nas"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; }; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 gui.enable = true;
               };

@@ -17,6 +17,7 @@ inputs:
       {
         enable = true;
         ca = ./ca.crt;
+        # nebula-cert sign -name 1p9p -ip 192.168.82.4/24
         cert = ./. + "/${inputs.config.nixos.system.networking.hostname}.crt";
         key = inputs.config.sops.templates."nebula/key-template".path;
         firewall.inbound = [ { host = "any"; port = "any"; proto = "any"; } ];
