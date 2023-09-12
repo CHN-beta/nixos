@@ -444,7 +444,9 @@
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 sshd.enable = true;
                 xrdp = { enable = true; hostname = "nas.chn.moe"; };
+                groupshare.enable = true;
               };
+              users = [ "root" "chn" "xll" ];
             };})
           ];
           "xmupc1" =

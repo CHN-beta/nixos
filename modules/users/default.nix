@@ -29,7 +29,7 @@ inputs:
         {
           isNormalUser = true;
           extraGroups = inputs.lib.intersectLists
-            [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" ]
+            [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" "groupshare" ]
             (builtins.attrNames inputs.config.users.groups);
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
@@ -110,14 +110,24 @@ inputs:
           };
         };
       };
+      xll =
+      {
+        users.users.xll =
+        {
+          isNormalUser = true;
+          extraGroups = inputs.lib.intersectLists
+            [ "groupshare" ]
+            (builtins.attrNames inputs.config.users.groups);
+          passwordFile = inputs.config.sops.secrets."users/xll".path;
+          shell = inputs.pkgs.zsh;
+          autoSubUidGidRange = true;
+        };
+        sops.secrets."users/xll".neededForUsers = true;
+      };
     };
   in
   {
-    options.nixos.users = mkOption
-    {
-      type = types.listOf (types.enum (attrNames users));
-      default = [ "root" "chn" ];
-    };
+    options.nixos.users = mkOption { type = types.listOf (types.enum (attrNames users)); default = [ "root" "chn" ]; };
     config = mkMerge (map (user: mkIf (builtins.elem user inputs.config.nixos.users) users.${user}) (attrNames users));
   }
 
