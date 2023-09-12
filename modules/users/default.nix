@@ -1,281 +1,125 @@
 inputs:
-{
-  config =
-    let
-      inherit (inputs.lib) listToAttrs mkMerge;
-      inherit (builtins) map;
-      inherit (inputs.localLib) stripeTabs;
-    in mkMerge
-    [
+  let
+    inherit (builtins) map attrNames;
+    inherit (inputs.lib) mkMerge mkIf mkOption types;
+    users =
+    {
+      root =
       {
-        users =
+        users.users.root =
         {
-          users =
+          shell = inputs.pkgs.zsh;
+          hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
+          openssh.authorizedKeys.keys =
+          [
+            ("sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIPLByi05vCA95EfpgrCIXzkuyUWsyh"
+              + "+Vso8FsUNFwPXFAAAABHNzaDo= chn@chn.moe")
+          ];
+        };
+        home-manager.users.root.programs.git =
+        {
+          extraConfig.core.editor = inputs.lib.mkForce "vim";
+          userName = "chn";
+          userEmail = "chn@chn.moe";
+        };
+      };
+      chn =
+      {
+        users.users.chn =
+        {
+          isNormalUser = true;
+          extraGroups = inputs.lib.intersectLists
+            [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" ]
+            (builtins.attrNames inputs.config.users.groups);
+          shell = inputs.pkgs.zsh;
+          autoSubUidGidRange = true;
+          hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
+          openssh.authorizedKeys.keys =
+          [
+            ("sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIPLByi05vCA95EfpgrCIXzkuyUWsyh"
+              + "+Vso8FsUNFwPXFAAAABHNzaDo= chn@chn.moe")
+          ];
+        };
+        home-manager.users.chn.programs =
+        {
+          git =
           {
-            root =
+            userName = "chn";
+            userEmail = "chn@chn.moe";
+          };
+          ssh.matchBlocks = builtins.listToAttrs
+          (
+            (map
+              (host:
+              {
+                name = host.name;
+                value = { host = host.name; hostname = host.value; user = "chn"; };
+              })
+              (inputs.localLib.attrsToList
+              {
+                vps3 = "vps3.chn.moe";
+                vps4 = "vps4.chn.moe";
+                vps5 = "vps5.chn.moe";
+                vps6 = "vps6.chn.moe";
+                vps7 = "vps7.chn.moe";
+                nas = "192.168.1.185";
+              }))
+            ++ (map
+              (host:
+              {
+                name = host;
+                value =
+                {
+                  host = host;
+                  hostname = "hpc.xmu.edu.cn";
+                  user = host;
+                  extraOptions = { PubkeyAcceptedAlgorithms = "+ssh-rsa"; HostkeyAlgorithms = "+ssh-rsa"; };
+                };
+              })
+              [ "wlin" "jykang" "hwang" ])
+          )
+          // {
+            xmupc1 =
             {
-              shell = inputs.pkgs.zsh;
-              hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
-              openssh.authorizedKeys.keys =
-              [
-                ("sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIPLByi05vCA95EfpgrCIXzkuyUWsyh"
-                  + "+Vso8FsUNFwPXFAAAABHNzaDo= chn@chn.moe")
-              ];
+              host = "xmupc1";
+              hostname = "office.chn.moe";
+              user = "chn";
+              port = 6007;
             };
-            chn =
+            xmupc1-ext =
             {
-              isNormalUser = true;
-              extraGroups = inputs.lib.intersectLists
-                [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" ]
-                (builtins.attrNames inputs.config.users.groups);
-              shell = inputs.pkgs.zsh;
-              autoSubUidGidRange = true;
-              hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
-              openssh.authorizedKeys.keys =
-              [
-                ("sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIPLByi05vCA95EfpgrCIXzkuyUWsyh"
-                  + "+Vso8FsUNFwPXFAAAABHNzaDo= chn@chn.moe")
-              ];
+              host = "xmupc1-ext";
+              hostname = "vps3.chn.moe";
+              user = "chn";
+              port = 6007;
+            };
+            xmuhk =
+            {
+              host = "xmuhk";
+              hostname = "10.26.14.56";
+              user = "xmuhk";
+              # identityFile = "~/.ssh/xmuhk_id_rsa";
+            };
+            xmuhk2 =
+            {
+              host = "xmuhk2";
+              hostname = "183.233.219.132";
+              user = "xmuhk";
+              port = 62022;
             };
           };
-          mutableUsers = false;
         };
-      }
-      # (mkMerge (map (user:
-      # {
-      #   sops.secrets."password/${user}".neededForUsers = true;
-      #   users.users.${user}.passwordFile = inputs.config.sops.secrets."password/${user}".path;
-      # }) [ "root" "chn" ]))
-      {
-        home-manager =
-        {
-          useGlobalPkgs = true;
-          useUserPackages = true;
-          users =
-            let
-              normal = { gui ? false }: { pkgs, ...}:
-              {
-                home.stateVersion = "22.11";
-                programs =
-                {
-                  zsh =
-                  {
-                    enable = true;
-                    initExtraBeforeCompInit =
-                    ''
-                      # p10k instant prompt
-                      typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
-                      P10K_INSTANT_PROMPT="$XDG_CACHE_HOME/p10k-instant-prompt-''${(%):-%n}.zsh"
-                      [[ ! -r "$P10K_INSTANT_PROMPT" ]] || source "$P10K_INSTANT_PROMPT"
-
-                      HYPHEN_INSENSITIVE="true"
-
-                      export PATH=~/bin:$PATH
-
-                      function br
-                      {
-                        local cmd cmd_file code
-                        cmd_file=$(mktemp)
-                        if broot --outcmd "$cmd_file" "$@"; then
-                          cmd=$(<"$cmd_file")
-                          command rm -f "$cmd_file"
-                          eval "$cmd"
-                        else
-                          code=$?
-                          command rm -f "$cmd_file"
-                          return "$code"
-                        fi
-                      }
-
-                      alias todo="todo.sh"
-                    '';
-                    plugins =
-                    [
-                      {
-                        file = "powerlevel10k.zsh-theme";
-                        name = "powerlevel10k";
-                        src = "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k";
-                      }
-                      {
-                        file = "p10k.zsh";
-                        name = "powerlevel10k-config";
-                        src = ./p10k-config;
-                      }
-                      {
-                        name = "zsh-lsd";
-                        src = pkgs.fetchFromGitHub
-                        {
-                          owner = "z-shell";
-                          repo = "zsh-lsd";
-                          rev = "029a9cb0a9b39c9eb6c5b5100dd9182813332250";
-                          sha256 = "sha256-oWjWnhiimlGBMaZlZB+OM47jd9hporKlPNwCx6524Rk=";
-                        };
-                      }
-                    ];
-                    history =
-                    {
-                      extended = true;
-                      save = 100000000;
-                      size = 100000000;
-                      share = true;
-                    };
-                  };
-                  direnv = { enable = true; nix-direnv.enable = true; };
-                  git =
-                  {
-                    enable = true;
-                    lfs.enable = true;
-                    userEmail = "chn@chn.moe";
-                    userName = "chn";
-                    extraConfig =
-                    {
-                      core.editor = if gui then "code --wait" else "vim";
-                      advice.detachedHead = false;
-                      merge.conflictstyle = "diff3";
-                      diff.colorMoved = "default";
-                    };
-                    package = pkgs.gitFull;
-                    delta =
-                    {
-                      enable = true;
-                      options =
-                      {
-                        side-by-side = true;
-                        navigate = true;
-                        syntax-theme = "GitHub";
-                        light = true;
-                        zero-style = "syntax white";
-                        line-numbers-zero-style = "#ffffff";
-                      };
-                    };
-                  };
-                  ssh =
-                  {
-                    enable = true;
-                    controlMaster = "auto";
-                    controlPersist = "1m";
-                    compression = true;
-                    matchBlocks = builtins.listToAttrs
-                    (
-                      (map
-                        (host:
-                        {
-                          name = host.name;
-                          value = { host = host.name; hostname = host.value; user = "chn"; };
-                        })
-                        (inputs.localLib.attrsToList
-                        {
-                          vps3 = "vps3.chn.moe";
-                          vps4 = "vps4.chn.moe";
-                          vps5 = "vps5.chn.moe";
-                          vps6 = "vps6.chn.moe";
-                          vps7 = "vps7.chn.moe";
-                          nas = "192.168.1.185";
-                        }))
-                      ++ (map
-                        (host:
-                        {
-                          name = host;
-                          value =
-                          {
-                            host = host;
-                            hostname = "hpc.xmu.edu.cn";
-                            user = host;
-                            extraOptions = { PubkeyAcceptedAlgorithms = "+ssh-rsa"; HostkeyAlgorithms = "+ssh-rsa"; };
-                          };
-                        })
-                        [ "wlin" "jykang" "hwang" ])
-                    )
-                    // {
-                      xmupc1 =
-                      {
-                        host = "xmupc1";
-                        hostname = "office.chn.moe";
-                        user = "chn";
-                        port = 6007;
-                      };
-                      xmupc1-ext =
-                      {
-                        host = "xmupc1-ext";
-                        hostname = "vps3.chn.moe";
-                        user = "chn";
-                        port = 6007;
-                      };
-                      xmuhk =
-                      {
-                        host = "xmuhk";
-                        hostname = "10.26.14.56";
-                        user = "xmuhk";
-                        # identityFile = "~/.ssh/xmuhk_id_rsa";
-                      };
-                      xmuhk2 =
-                      {
-                        host = "xmuhk2";
-                        hostname = "183.233.219.132";
-                        user = "xmuhk";
-                        port = 62022;
-                      };
-                    };
-                  };
-                  vim =
-                  {
-                    enable = true;
-                    defaultEditor = true;
-                    packageConfigurable = inputs.config.programs.vim.package;
-                    settings =
-                    {
-                      number = true;
-                      expandtab = false;
-                      shiftwidth = 2;
-                      tabstop = 2;
-                    };
-                    extraConfig =
-                    ''
-                      set clipboard=unnamedplus
-                      colorscheme evening
-                    '';
-                  };
-                  chromium =
-                  {
-                    enable = inputs.config.programs.chromium.enable && gui;
-                    extensions =
-                    [
-                      { id = "mpkodccbngfoacfalldjimigbofkhgjn"; } # Aria2 Explorer
-                      { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
-                      { id = "kbfnbcaeplbcioakkpcpgfkobkghlhen"; } # Grammarly
-                      { id = "ihnfpdchjnmlehnoeffgcbakfmdjcckn"; } # Pixiv Fanbox Downloader
-                      { id = "cimiefiiaegbelhefglklhhakcgmhkai"; } # Plasma Integration
-                      { id = "dkndmhgdcmjdmkdonmbgjpijejdcilfh"; } # Powerful Pixiv Downloader
-                      { id = "padekgcemlokbadohgkifijomclgjgif"; } # Proxy SwitchyOmega
-                      { id = "kefjpfngnndepjbopdmoebkipbgkggaa"; } # RSSHub Radar
-                      { id = "abpdnfjocnmdomablahdcfnoggeeiedb"; } # Save All Resources
-                      { id = "nbokbjkabcmbfdlbddjidfmibcpneigj"; } # SmoothScroll
-                      { id = "onepmapfbjohnegdmfhndpefjkppbjkm"; } # SuperCopy 超级复制
-                      { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
-                      { id = "gppongmhjkpfnbhagpmjfkannfbllamg"; } # Wappalyzer
-                      { id = "hkbdddpiemdeibjoknnofflfgbgnebcm"; } # YouTube™ 双字幕
-                      { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero Connector
-                      { id = "ikhdkkncnoglghljlkmcimlnlhkeamad"; } # 划词翻译
-                      { id = "dhdgffkkebhmkfjojejmpbldmpobfkfo"; } # 篡改猴
-                      { id = "hipekcciheckooncpjeljhnekcoolahp"; } # Tabliss
-                    ];
-                  };
-                  obs-studio =
-                  {
-                    enable = true;
-                    plugins = with pkgs.obs-studio-plugins; [ wlrobs obs-vaapi obs-nvfbc droidcam-obs obs-vkcapture ];
-                  };
-                };
-              };
-            in
-            {
-              root = normal { gui = false; };
-              chn = normal { gui = inputs.config.nixos.system.gui.enable; };
-            };
-        };
-      }
-    ];
-}
+      };
+    };
+  in
+  {
+    options.nixos.users = mkOption
+    {
+      type = types.listOf (types.enum (attrNames users));
+      default = [ "root" "chn" ];
+    };
+    config = mkMerge (map (user: mkIf (builtins.elem user inputs.config.nixos.users) users.${user}) (attrNames users));
+  }
 
 # environment.persistence."/impermanence".users.chn =
 # {

@@ -3,6 +3,7 @@ inputs:
   options.nixos.system.gui = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
+    preferred = mkOption { type = types.bool; default = false; };
   };
   config =
     let

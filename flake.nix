@@ -122,7 +122,7 @@
                   keepOutputs = true;
                 };
                 nixpkgs = { march = "alderlake"; cudaSupport = true; };
-                gui.enable = true;
+                gui = { enable = true; preferred = true; };
                 kernel =
                 {
                   patches = [ "cjktty" "preempt" ];

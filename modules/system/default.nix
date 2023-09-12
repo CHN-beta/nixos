@@ -61,6 +61,7 @@ inputs:
       defaultLocale = "C.UTF-8";
       supportedLocales = [ "zh_CN.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ];
     };
+    users.mutableUsers = false;
     # environment.pathsToLink = [ "/include" ];
     # environment.variables.CPATH = "/run/current-system/sw/include";
     # environment.variables.LIBRARY_PATH = "/run/current-system/sw/lib";

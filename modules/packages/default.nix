@@ -116,6 +116,128 @@ inputs:
         ];
         allowUnfree = true;
       };
+      home-manager =
+      {
+        useGlobalPkgs = true;
+        useUserPackages = true;
+        sharedModules =
+        [{
+          home.stateVersion = "22.11";
+          programs =
+          {
+            zsh =
+            {
+              enable = true;
+              initExtraBeforeCompInit =
+              ''
+                # p10k instant prompt
+                typeset -g POWERLEVEL9K_INSTANT_PROMPT=off
+                P10K_INSTANT_PROMPT="$XDG_CACHE_HOME/p10k-instant-prompt-''${(%):-%n}.zsh"
+                [[ ! -r "$P10K_INSTANT_PROMPT" ]] || source "$P10K_INSTANT_PROMPT"
+                HYPHEN_INSENSITIVE="true"
+                export PATH=~/bin:$PATH
+                function br
+                {
+                  local cmd cmd_file code
+                  cmd_file=$(mktemp)
+                  if broot --outcmd "$cmd_file" "$@"; then
+                    cmd=$(<"$cmd_file")
+                    command rm -f "$cmd_file"
+                    eval "$cmd"
+                  else
+                    code=$?
+                    command rm -f "$cmd_file"
+                    return "$code"
+                  fi
+                }
+                alias todo="todo.sh"
+              '';
+              plugins =
+              [
+                {
+                  file = "powerlevel10k.zsh-theme";
+                  name = "powerlevel10k";
+                  src = "${inputs.pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k";
+                }
+                {
+                  file = "p10k.zsh";
+                  name = "powerlevel10k-config";
+                  src = ./p10k-config;
+                }
+                {
+                  name = "zsh-lsd";
+                  src = inputs.pkgs.fetchFromGitHub
+                  {
+                    owner = "z-shell";
+                    repo = "zsh-lsd";
+                    rev = "029a9cb0a9b39c9eb6c5b5100dd9182813332250";
+                    sha256 = "sha256-oWjWnhiimlGBMaZlZB+OM47jd9hporKlPNwCx6524Rk=";
+                  };
+                }
+              ];
+              history =
+              {
+                extended = true;
+                save = 100000000;
+                size = 100000000;
+                share = true;
+              };
+            };
+            direnv = { enable = true; nix-direnv.enable = true; };
+            git =
+            {
+              enable = true;
+              lfs.enable = true;
+              extraConfig =
+              {
+                core.editor = if inputs.config.nixos.system.gui.preferred then "code --wait" else "vim";
+                advice.detachedHead = false;
+                merge.conflictstyle = "diff3";
+                diff.colorMoved = "default";
+              };
+              package = inputs.pkgs.gitFull;
+              delta =
+              {
+                enable = true;
+                options =
+                {
+                  side-by-side = true;
+                  navigate = true;
+                  syntax-theme = "GitHub";
+                  light = true;
+                  zero-style = "syntax white";
+                  line-numbers-zero-style = "#ffffff";
+                };
+              };
+            };
+            ssh =
+            {
+              enable = true;
+              controlMaster = "auto";
+              controlPersist = "1m";
+              compression = true;
+            };
+            vim =
+            {
+              enable = true;
+              defaultEditor = true;
+              packageConfigurable = inputs.config.programs.vim.package;
+              settings =
+              {
+                number = true;
+                expandtab = false;
+                shiftwidth = 2;
+                tabstop = 2;
+              };
+              extraConfig =
+              ''
+                set clipboard=unnamedplus
+                colorscheme evening
+              '';
+            };
+          };
+        }];
+      };
     }
     # >= desktop
     (
@@ -212,6 +334,43 @@ inputs:
           });
         };
         services.pcscd.enable = true;
+        home-manager.sharedModules =
+        [{
+          programs =
+          {
+            chromium =
+            {
+              enable = true;
+              extensions =
+              [
+                { id = "mpkodccbngfoacfalldjimigbofkhgjn"; } # Aria2 Explorer
+                { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
+                { id = "kbfnbcaeplbcioakkpcpgfkobkghlhen"; } # Grammarly
+                { id = "ihnfpdchjnmlehnoeffgcbakfmdjcckn"; } # Pixiv Fanbox Downloader
+                { id = "cimiefiiaegbelhefglklhhakcgmhkai"; } # Plasma Integration
+                { id = "dkndmhgdcmjdmkdonmbgjpijejdcilfh"; } # Powerful Pixiv Downloader
+                { id = "padekgcemlokbadohgkifijomclgjgif"; } # Proxy SwitchyOmega
+                { id = "kefjpfngnndepjbopdmoebkipbgkggaa"; } # RSSHub Radar
+                { id = "abpdnfjocnmdomablahdcfnoggeeiedb"; } # Save All Resources
+                { id = "nbokbjkabcmbfdlbddjidfmibcpneigj"; } # SmoothScroll
+                { id = "onepmapfbjohnegdmfhndpefjkppbjkm"; } # SuperCopy 超级复制
+                { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
+                { id = "gppongmhjkpfnbhagpmjfkannfbllamg"; } # Wappalyzer
+                { id = "hkbdddpiemdeibjoknnofflfgbgnebcm"; } # YouTube™ 双字幕
+                { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero Connector
+                { id = "ikhdkkncnoglghljlkmcimlnlhkeamad"; } # 划词翻译
+                { id = "dhdgffkkebhmkfjojejmpbldmpobfkfo"; } # 篡改猴
+                { id = "hipekcciheckooncpjeljhnekcoolahp"; } # Tabliss
+              ];
+            };
+            obs-studio =
+            {
+              enable = true;
+              plugins = with inputs.pkgs.obs-studio-plugins;
+                [ wlrobs obs-vaapi obs-nvfbc droidcam-obs obs-vkcapture ];
+            };
+          };
+        }];
       }
     )
     # >= workstation
