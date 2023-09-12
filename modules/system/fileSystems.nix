@@ -79,7 +79,7 @@ inputs:
       # mount.vfat
       {
         fileSystems = listToAttrs (map
-          (device: { name = device.value; value = { device = device.name; fsType = "vfat"; }; })
+          (device: { name = device.value; value = { device = device.name; fsType = "vfat"; neededForBoot = true; }; })
           (attrsToList fileSystems.mount.vfat));
       }
       # mount.btrfs
@@ -107,6 +107,7 @@ inputs:
                     # zstd:8 54s 7.32G
                     # zstd:3 17s 7.52G
                     options = [ "compress-force=zstd" "subvol=${subvol.name}" ];
+                    neededForBoot = true;
                   };
                 }
               )
