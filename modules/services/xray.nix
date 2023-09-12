@@ -269,6 +269,12 @@ inputs:
                     ${iptables} -t mangle -N v2ray_mark -w
                     ${iptables} -t mangle -A OUTPUT -j v2ray_mark -w
                     ${iptables} -t mangle -A v2ray_mark -m owner --uid-owner $(id -u v2ray) -j RETURN -w
+                    ${
+                      if inputs.config.nixos.system.networking.nebula.enable then
+                        let user = inputs.config.systemd.services."nebula@nebula".serviceConfig.User; in
+                        "${iptables} -t mangle -A v2ray_mark -m owner --uid-owner $(id -u ${user}) -j RETURN -w"
+                      else ""
+                    }
                     ${iptables} -t mangle -A v2ray_mark -m set --match-set noproxy_src_net src -j RETURN -w
                     ${iptables} -t mangle -A v2ray_mark -m set --match-set xmu_net dst -p tcp -j MARK --set-mark 1/1 -w
                     ${iptables} -t mangle -A v2ray_mark -m set --match-set xmu_net dst -p udp -j MARK --set-mark 1/1 -w
