@@ -406,13 +406,21 @@
                     btrfs =
                     {
                       "/dev/disk/by-uuid/0e184f3b-af6c-4f5d-926a-2559f2dc3063"."/boot" = "/boot";
-                      "/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                      "/dev/mapper/nix"."/nix" = "/nix";
+                      "/dev/mapper/root1" =
+                      {
+                        "/nix/rootfs" = "/nix/rootfs";
+                        "/nix/persistent" = "/nix/persistent";
+                        "/nix/nodatacow" = "/nix/nodatacow";
+                        "/nix/rootfs/current" = "/";
+                      };
                     };
                   };
                   decrypt.auto =
                   {
                     "/dev/disk/by-uuid/5cf1d19d-b4a5-4e67-8e10-f63f0d5bb649".mapper = "root1";
                     "/dev/disk/by-uuid/aa684baf-fd8a-459c-99ba-11eb7636cb0d".mapper = "root2";
+                    "/dev/disk/by-uuid/a779198f-cce9-4c3d-a64a-9ec45f6f5495" = { mapper = "nix"; ssd = true; };
                   };
                   rollingRootfs = { device = "/dev/mapper/root1"; path = "/nix/rootfs"; };
                 };
