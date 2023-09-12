@@ -109,6 +109,7 @@ inputs:
             };
           };
         };
+        nixos.services.groupshare.mountPoints = [ "/home/chn/groupshare" ];
       };
       xll =
       {
@@ -123,6 +124,7 @@ inputs:
           autoSubUidGidRange = true;
         };
         sops.secrets."users/xll".neededForUsers = true;
+        nixos.services.groupshare.mountPoints = [ "/home/xll/groupshare" ];
       };
     };
   in

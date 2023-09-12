@@ -3,6 +3,8 @@ inputs:
   options.nixos.services.groupshare = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
+    # hard to read value from inputs.config.users.users.xxx.home, causing infinite recursion
+    mountPoints = mkOption { type = types.listOf types.str; default = []; };
   };
   config =
     let
@@ -14,19 +16,19 @@ inputs:
     {
       users.groups.groupshare = {};
       systemd.tmpfiles.rules = [ "d /var/lib/groupshare" ]
-      ++ (concatLists (map
-        (user:
-        [
-          "d /var/lib/groupshare/${user} 0750 ${user} groupshare"
-          "a /var/lib/groupshare/${user} - - - - u::rwX,g::rX,o::r"
-        ])
-        users));
+        ++ (concatLists (map
+          (user:
+          [
+            "d /var/lib/groupshare/${user} 0750 ${user} groupshare"
+            "a /var/lib/groupshare/${user} - - - - u::rwX,g::rX,o::r"
+          ])
+          users));
       fileSystems = listToAttrs (map
-        (user:
+        (mountPoint:
         {
-          name = "${inputs.config.users.users."${user}".home}/share";
-          value = { device = "/var/lib/groupshare"; options = [ "bind" ]; };
+          name = mountPoint;
+          value = { device = "/var/lib/groupshare"; options = [ "bind" ]; depends = [ "/home" "/var/lib" ]; };
         })
-        users);
+        groupshare.mountPoints);
     };
 }
