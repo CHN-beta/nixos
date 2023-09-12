@@ -370,6 +370,11 @@ inputs:
                 [ wlrobs obs-vaapi obs-nvfbc droidcam-obs obs-vkcapture ];
             };
           };
+          home.file.".config/baloofilerc".text =
+          ''
+            [Basic Settings]
+            Indexing-Enabled=false
+          '';
         }];
       }
     )
