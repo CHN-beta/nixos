@@ -24,10 +24,11 @@ inputs:
         firewall.outbound = [ { host = "any"; port = "any"; proto = "any"; } ];
       }
       // (
-        if nebula.lighthouse == null then { isLighthouse = true; }
+        if nebula.lighthouse == null then { isLighthouse = true; isRelay = true; }
         else
         {
           lighthouses = [ "192.168.82.1" ];
+          relays = [ "192.168.82.1" ];
           staticHostMap."192.168.82.1" = [ "${nebula.lighthouse}:4242" ];
           listen.port = 0;
         }
