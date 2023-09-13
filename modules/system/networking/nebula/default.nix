@@ -3,8 +3,9 @@ inputs:
   options.nixos.system.networking.nebula = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
-    # null: is lighthouse, non-empty string: is not lighthouse, and use this string as lighthouse address.
+    # null: is lighthouse; non-empty string: is not lighthouse, and use this string as lighthouse address.
     lighthouse = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+    useRelay = mkOption { type = types.bool; default = false; };
   };
   config =
     let
@@ -28,9 +29,8 @@ inputs:
         else
         {
           lighthouses = [ "192.168.82.1" ];
-          relays = [ "192.168.82.1" ];
+          relays = if nebula.useRelay then [ "192.168.82.1" ] else [];
           staticHostMap."192.168.82.1" = [ "${nebula.lighthouse}:4242" ];
-          listen.port = 0;
         }
       );
       sops =
@@ -48,7 +48,6 @@ inputs:
         };
         secrets."nebula/key" = {};
       };
-      networking.firewall = { trustedInterfaces = [ "nebula.nebula" ]; }
-        // (if nebula.lighthouse != null then {} else { allowedTCPPorts = [ 4242 ]; allowedUDPPorts = [ 4242 ]; });
+      networking.firewall.trustedInterfaces = [ "nebula.nebula" ];
     };
 }
