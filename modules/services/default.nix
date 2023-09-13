@@ -14,6 +14,7 @@ inputs:
     ./phpfpm.nix
     ./xrdp.nix
     ./groupshare.nix
+    ./acme.nix
     # ./docker.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
@@ -43,11 +44,6 @@ inputs:
     };
     sshd.enable = mkOption { type = types.bool; default = false; };
     firewall.trustedInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-    acme =
-    {
-      enable = mkOption { type = types.bool; default = false; };
-      certs = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-    };
     frpClient =
     {
       enable = mkOption { type = types.bool; default = false; };
@@ -212,28 +208,6 @@ inputs:
         }
       )
       { networking.firewall.trustedInterfaces = services.firewall.trustedInterfaces; }
-      (
-        mkIf services.acme.enable
-        {
-          security.acme =
-          {
-            acceptTerms = true;
-            defaults.email = "chn@chn.moe";
-            certs = listToAttrs (map
-              (name:
-              {
-                name = name; value =
-                {
-                  dnsResolver = "8.8.8.8";
-                  dnsProvider = "cloudflare";
-                  credentialsFile = inputs.config.sops.secrets."acme/cloudflare.ini".path;
-                };
-              })
-              services.acme.certs);
-          };
-          sops.secrets."acme/cloudflare.ini" = {};
-        }
-      )
       (
         mkIf (services.frpClient.enable)
         {
