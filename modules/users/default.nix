@@ -62,7 +62,6 @@ inputs:
                 vps5 = "vps5.chn.moe";
                 vps6 = "vps6.chn.moe";
                 vps7 = "vps7.chn.moe";
-                nas = "192.168.1.185";
               }))
             ++ (map
               (host:
@@ -85,6 +84,13 @@ inputs:
               hostname = "office.chn.moe";
               user = "chn";
               port = 6007;
+            };
+            nas =
+            {
+              host = "nas";
+              hostname = "office.chn.moe";
+              user = "chn";
+              port = 5440;
             };
             xmupc1-ext =
             {
