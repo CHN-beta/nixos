@@ -463,7 +463,7 @@
                   serverName = "vps6.xserver.chn.moe";
                   dns.extraInterfaces = [ "docker0" ];
                 };
-                xrdp = { enable = true; hostname = "nas.chn.moe"; };
+                xrdp = { enable = true; hostname = [ "nas.chn.moe" "office.chn.moe" ]; };
                 groupshare.enable = true;
                 smartd.enable = true;
               };
