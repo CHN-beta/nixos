@@ -129,7 +129,8 @@
                   modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
                 };
                 impermanence.enable = true;
-                networking = { hostname = "pc"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; }; };
+                networking =
+                  { hostname = "pc"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; useRelay = true; }; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               hardware =
@@ -429,7 +430,8 @@
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 kernel.patches = [ "cjktty" "preempt" ];
                 impermanence.enable = true;
-                networking = { hostname = "nas"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; }; };
+                networking =
+                  { hostname = "nas"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; useRelay = true; }; };
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 gui.enable = true;
               };
