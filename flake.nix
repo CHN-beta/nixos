@@ -444,9 +444,18 @@
               services =
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+                fontconfig.enable = true;
+                samba =
+                {
+                  enable = true;
+                  hostsAllowed = "192.168. 127.";
+                  shares =
+                  {
+                    home.path = "/home";
+                    root.path = "/";
+                  };
+                };
                 sshd.enable = true;
-                xrdp = { enable = true; hostname = "nas.chn.moe"; };
-                groupshare.enable = true;
                 xrayClient =
                 {
                   enable = true;
@@ -454,6 +463,9 @@
                   serverName = "vps6.xserver.chn.moe";
                   dns.extraInterfaces = [ "docker0" ];
                 };
+                xrdp = { enable = true; hostname = "nas.chn.moe"; };
+                groupshare.enable = true;
+                smartd.enable = true;
               };
               users = [ "root" "chn" "xll" ];
             };})
