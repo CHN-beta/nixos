@@ -129,6 +129,7 @@ inputs:
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
         };
+        home-manager.users.xll = {};
         sops.secrets."users/xll".neededForUsers = true;
         nixos.services.groupshare.mountPoints = [ "/home/xll/groupshare" ];
       };
