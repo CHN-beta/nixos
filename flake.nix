@@ -447,6 +447,13 @@
                 sshd.enable = true;
                 xrdp = { enable = true; hostname = "nas.chn.moe"; };
                 groupshare.enable = true;
+                xrayClient =
+                {
+                  enable = true;
+                  serverAddress = "74.211.99.69";
+                  serverName = "vps6.xserver.chn.moe";
+                  dns.extraInterfaces = [ "docker0" ];
+                };
               };
               users = [ "root" "chn" "xll" ];
             };})
