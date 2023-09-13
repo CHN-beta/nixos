@@ -19,11 +19,11 @@ inputs:
         ++ (concatLists (map
           (user:
           [
-            "d /var/lib/groupshare/${user} 7750 ${user} groupshare"
+            "d /var/lib/groupshare/${user} 2750 ${user} groupshare"
             # systemd 253 does not support 'X' bit, it should be manually set
             # sudo setfacl -m 'xxx' dir
             # ("a /var/lib/groupshare/${user} - - - - "
-            #   + "d:u:${user}:rwX,u:${user}:rwX,d:g:groupshare:r-X,g:groupshare:r-X,d:o::---,o::---")
+            #   + "d:u:${user}:rwX,u:${user}:rwX,d:g:groupshare:r-X,g:groupshare:r-X,d:o::---,o::---,d:m::r-x,m::r-x")
           ])
           users));
       fileSystems = listToAttrs (map

@@ -178,7 +178,7 @@ inputs:
                     path = share.value.path;
                     browseable = true;
                     writeable = true;
-                    "create mask" = "664";
+                    "create mask" = "644";
                     "force create mode" = "644";
                     "directory mask" = "2755";
                     "force directory mode" = "2755";
