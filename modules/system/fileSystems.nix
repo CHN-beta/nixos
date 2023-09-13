@@ -82,7 +82,7 @@ inputs:
           (device:
           {
             name = device.value;
-            value = { device = device.name; fsType = "vfat"; options = [ "acl" ]; neededForBoot = true; };
+            value = { device = device.name; fsType = "vfat"; neededForBoot = true; };
           })
           (attrsToList fileSystems.mount.vfat));
       }
