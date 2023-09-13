@@ -15,6 +15,7 @@ inputs:
     ./xrdp.nix
     ./groupshare.nix
     ./acme.nix
+    ./samba.nix
     # ./docker.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
@@ -26,22 +27,6 @@ inputs:
     };
     kmscon.enable = mkOption { type = types.bool; default = false; };
     fontconfig.enable = mkOption { type = types.bool; default = false; };
-    samba =
-    {
-      enable = mkOption { type = types.bool; default = false; };
-      wsdd = mkOption { type = types.bool; default = false; };
-      private = mkOption { type = types.bool; default = false; };
-      hostsAllowed = mkOption { type = types.str; default = "127."; };
-      shares = mkOption
-      {
-        type = types.attrsOf (types.submodule { options =
-        {
-          comment = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-          path = mkOption { type = types.nonEmptyStr; };
-        };});
-        default = {};
-      };
-    };
     sshd.enable = mkOption { type = types.bool; default = false; };
     firewall.trustedInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     frpClient =
@@ -142,49 +127,6 @@ inputs:
               monospace = [ "Noto Sans Mono CJK SC" "Sarasa Mono SC" "DejaVu Sans Mono"];
               sansSerif = [ "Noto Sans CJK SC" "Source Han Sans SC" "DejaVu Sans" ];
               serif = [ "Noto Serif CJK SC" "Source Han Serif SC" "DejaVu Serif" ];
-            };
-          };
-        }
-      )
-      (
-        mkIf services.samba.enable
-        {
-          # make shares visible for windows 10 clients
-          services =
-          {
-            samba-wsdd.enable = services.samba.wsdd;
-            samba =
-            {
-              enable = true;
-              openFirewall = !services.samba.private;
-              securityType = "user";
-              extraConfig =
-              ''
-                workgroup = WORKGROUP
-                server string = Samba Server
-                server role = standalone server
-                hosts allow = ${services.samba.hostsAllowed}
-                dns proxy = no
-              '';
-              #  obey pam restrictions = yes
-              #  encrypt passwords = no
-              shares = listToAttrs (map
-                (share:
-                {
-                  name = share.name;
-                  value =
-                  {
-                    comment = if share.value.comment != null then share.value.comment else share.name;
-                    path = share.value.path;
-                    browseable = true;
-                    writeable = true;
-                    "create mask" = "644";
-                    "force create mode" = "644";
-                    "directory mask" = "2755";
-                    "force directory mode" = "2755";
-                  };
-                })
-                (attrsToList services.samba.shares));
             };
           };
         }
