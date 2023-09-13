@@ -5,7 +5,7 @@ inputs:
     enable = mkOption { type = types.bool; default = false; };
     certs = mkOption
     {
-      type = types.listOf types.oneOf [ types.nonEmptyStr (types.listOf types.nonEmptyStr) ];
+      type = types.listOf (types.oneOf [ types.nonEmptyStr (types.listOf types.nonEmptyStr) ]);
       default = [];
     };
   };

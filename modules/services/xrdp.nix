@@ -6,7 +6,7 @@ inputs:
     port = mkOption { type = types.ints.unsigned; default = 3389; };
     hostname = mkOption
     {
-      type = types.nullOr types.oneOf [ types.nonEmptyStr (types.listOf types.nonEmptyStr) ];
+      type = types.nullOr (types.oneOf [ types.nonEmptyStr (types.listOf types.nonEmptyStr) ]);
       default = null;
     };
   };
