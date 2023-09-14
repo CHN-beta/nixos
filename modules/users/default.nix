@@ -36,8 +36,12 @@ inputs:
           hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
           openssh.authorizedKeys.keys =
           [
-            ("sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIPLByi05vCA95EfpgrCIXzkuyUWsyh"
-              + "+Vso8FsUNFwPXFAAAABHNzaDo= chn@chn.moe")
+            (builtins.concatStringsSep ""
+            [
+              "sk-ssh-ed25519@openssh.com "
+              "AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIPLByi05vCA95EfpgrCIXzkuyUWsyh+Vso8FsUNFwPXFAAAABHNzaDo= "
+              "chn@chn.moe"
+            ])
           ];
         };
         home-manager.users.chn.programs =
@@ -126,6 +130,7 @@ inputs:
             [ "groupshare" ]
             (builtins.attrNames inputs.config.users.groups);
           passwordFile = inputs.config.sops.secrets."users/xll".path;
+          openssh.authorizedKeys.keys = [ (builtins.readFile ./xll_id_rsa.pub) ];
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
         };
