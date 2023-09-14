@@ -16,6 +16,7 @@ inputs:
     ./groupshare.nix
     ./acme.nix
     ./samba.nix
+    ./sshd.nix
     # ./docker.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
@@ -27,7 +28,6 @@ inputs:
     };
     kmscon.enable = mkOption { type = types.bool; default = false; };
     fontconfig.enable = mkOption { type = types.bool; default = false; };
-    sshd.enable = mkOption { type = types.bool; default = false; };
     firewall.trustedInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     frpClient =
     {
@@ -127,24 +127,6 @@ inputs:
               monospace = [ "Noto Sans Mono CJK SC" "Sarasa Mono SC" "DejaVu Sans Mono"];
               sansSerif = [ "Noto Sans CJK SC" "Source Han Sans SC" "DejaVu Sans" ];
               serif = [ "Noto Serif CJK SC" "Source Han Serif SC" "DejaVu Serif" ];
-            };
-          };
-        }
-      )
-      (
-        mkIf services.sshd.enable
-        {
-          services.openssh =
-          {
-            enable = true;
-            settings =
-            {
-              X11Forwarding = true;
-              TrustedUserCAKeys = builtins.toString ./ca.pub;
-              ChallengeResponseAuthentication = false;
-              PasswordAuthentication = false;
-              KbdInteractiveAuthentication = false;
-              UsePAM = true;
             };
           };
         }

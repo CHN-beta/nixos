@@ -455,7 +455,7 @@
                     root.path = "/";
                   };
                 };
-                sshd.enable = true;
+                sshd = { enable = true; passwordAuthentication = true; };
                 xrayClient =
                 {
                   enable = true;
