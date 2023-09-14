@@ -467,7 +467,7 @@
                 groupshare.enable = true;
                 smartd.enable = true;
               };
-              users = [ "root" "chn" "xll" ];
+              users = [ "root" "chn" "xll" "zem" "yjq" "yxy" ];
             };})
           ];
           "xmupc1" =

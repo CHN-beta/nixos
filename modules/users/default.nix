@@ -127,7 +127,7 @@ inputs:
         {
           isNormalUser = true;
           extraGroups = inputs.lib.intersectLists
-            [ "groupshare" ]
+            [ "groupshare" "video" ]
             (builtins.attrNames inputs.config.users.groups);
           passwordFile = inputs.config.sops.secrets."users/xll".path;
           openssh.authorizedKeys.keys = [ (builtins.readFile ./xll_id_rsa.pub) ];
@@ -137,6 +137,56 @@ inputs:
         home-manager.users.xll = {};
         sops.secrets."users/xll".neededForUsers = true;
         nixos.services.groupshare.mountPoints = [ "/home/xll/groupshare" ];
+      };
+      zem =
+      {
+        users.users.zem =
+        {
+          isNormalUser = true;
+          extraGroups = inputs.lib.intersectLists
+            [ "groupshare" "video" ]
+            (builtins.attrNames inputs.config.users.groups);
+          passwordFile = inputs.config.sops.secrets."users/zem".path;
+          openssh.authorizedKeys.keys = [ (builtins.readFile ./zem_id_rsa.pub) ];
+          shell = inputs.pkgs.zsh;
+          autoSubUidGidRange = true;
+        };
+        home-manager.users.zem = {};
+        sops.secrets."users/zem".neededForUsers = true;
+        nixos.services.groupshare.mountPoints = [ "/home/zem/groupshare" ];
+      };
+      yjq =
+      {
+        users.users.yjq =
+        {
+          isNormalUser = true;
+          extraGroups = inputs.lib.intersectLists
+            [ "groupshare" "video" ]
+            (builtins.attrNames inputs.config.users.groups);
+          passwordFile = inputs.config.sops.secrets."users/yjq".path;
+          openssh.authorizedKeys.keys = [ (builtins.readFile ./yjq_id_rsa.pub) ];
+          shell = inputs.pkgs.zsh;
+          autoSubUidGidRange = true;
+        };
+        home-manager.users.yjq = {};
+        sops.secrets."users/yjq".neededForUsers = true;
+        nixos.services.groupshare.mountPoints = [ "/home/yjq/groupshare" ];
+      };
+      yxy =
+      {
+        users.users.yxy =
+        {
+          isNormalUser = true;
+          extraGroups = inputs.lib.intersectLists
+            [ "groupshare" "video" ]
+            (builtins.attrNames inputs.config.users.groups);
+          passwordFile = inputs.config.sops.secrets."users/yxy".path;
+          shell = inputs.pkgs.zsh;
+          autoSubUidGidRange = true;
+        };
+        home-manager.users.yxy = {};
+        sops.secrets."users/yxy".neededForUsers = true;
+        nixos.services.groupshare.mountPoints = [ "/home/yxy/groupshare" ];
       };
     };
   in
