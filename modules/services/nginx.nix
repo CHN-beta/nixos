@@ -318,7 +318,7 @@ inputs:
               {
                 serverName = site.name;
                 listen = [ { addr = "0.0.0.0"; port = 80; } ];
-                locations."/".return = "301 http://${site.name}$request_uri";
+                locations."/".return = "301 https://${site.name}$request_uri";
               };
             })
             (filter (site: site.value.rewriteHttps or false) (attrsToList nginx.streamProxy.map)));
