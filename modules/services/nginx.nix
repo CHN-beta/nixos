@@ -147,7 +147,10 @@ inputs:
               {
                 $geoip2_data_country_code country iso_code;
               }
+              resolver 8.8.8.8;
             '';
+            # todo: use host dns
+            resolver.addresses = [ "8.8.8.8" ];
           };
           geoipupdate =
           {
