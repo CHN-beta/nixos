@@ -40,7 +40,7 @@
         default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
           (builtins.concatStringsSep "\n" (builtins.map
             (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-            [ "pc" "vps6" "vps4" "vps7" "nas" "xmupc1" "yoga" "pe" ]));
+            [ "pc" "vps6" "vps7" "nas" "yoga" ]));
       }
       // (
         builtins.listToAttrs (builtins.map
@@ -49,7 +49,7 @@
             name = system;
             value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
           })
-          [ "pc" "vps6" "vps4" "vps7" "nas" "xmupc1" "yoga" "pe" ])
+          [ "pc" "vps6" "vps7" "nas" "yoga" ])
       );
       nixosConfigurations = builtins.listToAttrs (builtins.map
         (system:
@@ -295,52 +295,6 @@
                 };
                 coturn.enable = true;
                 synapse-proxy."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
-              };
-            };})
-          ];
-          "vps4" =
-          [
-            (inputs: { config.nixos =
-            {
-              system =
-              {
-                fileSystems =
-                {
-                  mount =
-                  {
-                    btrfs =
-                    {
-                      "/dev/disk/by-uuid/a6460ff0-b6aa-4c1c-a546-8ad0d495bcf8"."/boot" = "/boot";
-                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-                    };
-                  };
-                  decrypt.manual =
-                  {
-                    enable = true;
-                    devices."/dev/disk/by-uuid/46e59fc7-7bb1-4534-bbe4-b948a9a8eeda" = { mapper = "root"; ssd = true; };
-                    delayedMount = [ "/" ];
-                  };
-                  swap = [ "/nix/swap/swap" ];
-                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
-                };
-                grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
-                nixpkgs.march = "znver3";
-                nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-                initrd =
-                {
-                  network.enable = true;
-                  sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
-                };
-                kernel.patches = [ "preempt" ];
-                impermanence.enable = true;
-                networking.hostname = "vps4";
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
-              };
-              packages.packageSet = "server";
-              services =
-              {
-                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
-                sshd.enable = true;
               };
             };})
           ];
@@ -661,63 +615,6 @@
               };
             };})
           ];
-          "pe" =
-          [
-            (inputs: { config.nixos =
-            {
-              system =
-              {
-                fileSystems =
-                {
-                  mount =
-                  {
-                    vfat."/dev/disk/by-uuid/A0F1-74E5" = "/boot/efi";
-                    btrfs =
-                    {
-                      "/dev/disk/by-uuid/a7546428-1982-4931-a61f-b7eabd185097"."/boot" = "/boot";
-                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-                    };
-                  };
-                  decrypt.auto."/dev/disk/by-uuid/0b800efa-6381-4908-bd63-7fa46322a2a9" =
-                    { mapper = "root"; ssd = true; };
-                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
-                };
-                grub.installDevice = "efiRemovable";
-                gui.enable = true;
-                nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-                kernel.patches = [ "cjktty" "preempt" ];
-                impermanence.enable = true;
-                networking.hostname = "pe";
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
-              };
-              hardware =
-              {
-                cpus = [ "intel" ];
-                gpus = [ "intel" "nvidia" ];
-                bluetooth.enable = true;
-                joystick.enable = true;
-                printer.enable = true;
-                sound.enable = true;
-              };
-              packages.packageSet = "desktop";
-              virtualization = { docker.enable = true; kvmGuest.enable = true; };
-              services =
-              {
-                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
-                fontconfig.enable = true;
-                sshd.enable = true;
-                xrayClient =
-                {
-                  enable = true;
-                  serverAddress = "74.211.99.69";
-                  serverName = "vps6.xserver.chn.moe";
-                  dns.extraInterfaces = [ "docker0" ];
-                };
-                firewall.trustedInterfaces = [ "virbr0" ];
-                smartd.enable = true;
-              };
-            };})
-          ];
         }));
       # sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap --option substituters http://127.0.0.1:5000 --option require-sigs false --option system-features gccarch-silvermont
       # nix-serve -p 5000
@@ -754,7 +651,7 @@
                   inputs.self.nixosConfigurations.${node};
             };
           })
-          [ "vps6" "vps4" "vps7" "nas" "pe" ]);
+          [ "vps6" "vps7" "nas" ]);
       };
     };
 }
