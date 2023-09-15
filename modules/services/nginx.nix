@@ -23,6 +23,24 @@ inputs:
       };});
       default = {};
     };
+    streamProxy =
+    {
+      enable = mkOption { type = types.bool; default = false; };
+      port = mkOption { type = types.ints.unsigned; default = 5575; };
+      map = mkOption
+      {
+        type = types.attrsOf (types.oneOf
+        [
+          types.nonEmptyStr
+          (types.submodule { options =
+          {
+            upstream = mkOption { type = types.nonEmptyStr; };
+            rewriteHttps = mkOption { type = types.bool; default = false; };
+          };})
+        ]);
+        default = {};
+      };
+    };
   };
   config =
     let
@@ -123,6 +141,13 @@ inputs:
               in
                 (inputs.pkgs.nginxMainline.override (prev: { modules = prev.modules ++ [ nginx-geoip2 ]; }))
                   .overrideAttrs (prev: { buildInputs = prev.buildInputs ++ [ inputs.pkgs.libmaxminddb ]; });
+            streamConfig =
+            ''
+              geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
+              {
+                $geoip2_data_country_code country iso_code;
+              }
+            '';
           };
           geoipupdate =
           {
@@ -178,13 +203,9 @@ inputs:
       {
         services.nginx.streamConfig =
         ''
-          geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
-          {
-            $geoip2_data_country_code country iso_code;
-          }
-          log_format stream '[$time_local] $remote_addr-$geoip2_data_country_code "$ssl_preread_server_name"->$backend $bytes_sent $bytes_received';
-          access_log syslog:server=unix:/dev/log stream;
-          map $ssl_preread_server_name $backend
+          log_format transparent_proxy '[$time_local] $remote_addr-$geoip2_data_country_code '
+            '"$ssl_preread_server_name"->$transparent_proxy_backend $bytes_sent $bytes_received';
+          map $ssl_preread_server_name $transparent_proxy_backend
           {
             ${concatStringsSep "\n" (map
               (x: ''                  "${x.name}" 127.0.0.1:${toString x.value};'')
@@ -202,10 +223,11 @@ inputs:
             listen ${nginx.transparentProxy.externalIp}:443;
             ssl_preread on;
             proxy_bind $remote_addr transparent;
-            proxy_pass $backend;
+            proxy_pass $transparent_proxy_backend;
             proxy_connect_timeout 1s;
             proxy_socket_keepalive on;
             proxy_buffer_size 128k;
+            access_log syslog:server=unix:/dev/log transparent_proxy;
           }
         '';
         networking.firewall.allowedTCPPorts = [ 80 443 ];
@@ -259,6 +281,48 @@ inputs:
             wants = [ "network.target" ];
             wantedBy= [ "multi-user.target" ];
           };
+      })
+      (mkIf nginx.streamProxy.enable
+      {
+        services.nginx =
+        {
+          streamConfig =
+          ''
+            log_format stream_proxy '[$time_local] $remote_addr-$geoip2_data_country_code '
+              '"$ssl_preread_server_name"->$stream_proxy_backend $bytes_sent $bytes_received';
+            map $ssl_preread_server_name $stream_proxy_backend
+            {
+              ${concatStringsSep "\n" (map
+                (x: ''                  "${x.name}" "${x.value.upstream or x.value}";'')
+                (attrsToList nginx.streamProxy.map))}
+            }
+            server
+            {
+              listen 127.0.0.1:${toString nginx.streamProxy.port};
+              ssl_preread on;
+              proxy_pass $stream_proxy_backend;
+              proxy_connect_timeout 10s;
+              proxy_socket_keepalive on;
+              proxy_buffer_size 128k;
+              access_log syslog:server=unix:/dev/log stream_proxy;
+            }
+          '';
+          virtualHosts = listToAttrs (map
+            (site:
+            {
+              inherit (site) name;
+              value =
+              {
+                serverName = site.name;
+                listen = [ { addr = "0.0.0.0"; port = 80; } ];
+                locations."/".return = "301 http://${site.name}$request_uri";
+              };
+            })
+            (filter (site: site.value.rewriteHttps or false) (attrsToList nginx.streamProxy.map)));
+        };
+        nixos.services.nginx.transparentProxy.map = listToAttrs (map
+          (site: { name = site.name; value = nginx.streamProxy.port; })
+          (attrsToList nginx.streamProxy.map));
       })
     ];
 }

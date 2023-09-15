@@ -278,6 +278,15 @@
                       "direct.xn--qbtm095lrg0bfka60z.chn.moe" = 7676;
                     };
                   };
+                  streamProxy =
+                  {
+                    enable = true;
+                    map =
+                    {
+                      "anchor.fm" = { upstream = "anchor.fm:443"; rewriteHttps = true; };
+                      "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; rewriteHttps = true; };
+                    };
+                  };
                 };
                 misskey-proxy =
                 {
