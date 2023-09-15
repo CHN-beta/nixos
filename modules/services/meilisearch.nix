@@ -58,8 +58,6 @@ inputs:
                 IOSchedulingPriority = 4;
                 IOAccounting = true;
                 IOWeight = 1;
-                IOReadBandwidthMax = "/dev/mapper/root 20M";
-                IOWriteBandwidthMax = "/dev/mapper/root 20M";
                 Nice = 19;
                 Slice = "-.slice";
               };
