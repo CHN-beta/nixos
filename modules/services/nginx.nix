@@ -13,13 +13,19 @@ inputs:
     {
       type = types.attrsOf (types.submodule { options =
       {
-        upstream = mkOption { type = types.nonEmptyStr; };
         rewriteHttps = mkOption { type = types.bool; default = false; };
-        websocket = mkOption { type = types.bool; default = false; };
         http2 = mkOption { type = types.bool; default = true; };
-        setHeaders = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
         addAuth = mkOption { type = types.bool; default = false; };
         detectAuth = mkOption { type = types.bool; default = false; };
+        locations = mkOption
+        {
+          type = types.attrsOf (types.submodule { options =
+          {
+            upstream = mkOption { type = types.nonEmptyStr; };
+            websocket = mkOption { type = types.bool; default = false; };
+            setHeaders = mkOption { type = types.attrsOf types.str; default = {}; };
+          };});
+        };
       };});
       default = {};
     };
@@ -83,37 +89,38 @@ inputs:
                 value =
                 {
                   serverName = site.name;
-                  listen =
-                  [
-                    { addr = "127.0.0.1"; port = (if site.value.http2 then 443 else 3065); ssl = true; }
-                    { addr = "0.0.0.0"; port = 80; }
-                  ];
+                  listen = [ { addr = "127.0.0.1"; port = (if site.value.http2 then 443 else 3065); ssl = true; } ]
+                    ++ (if site.value.rewriteHttps then [ { addr = "0.0.0.0"; port = 80; } ] else []);
                   useACMEHost = site.name;
-                  locations."/" =
-                  {
-                    proxyPass = site.value.upstream;
-                    proxyWebsockets = site.value.websocket;
-                    recommendedProxySettings = false;
-                    recommendedProxySettingsNoHost = true;
-                    basicAuthFile =
-                      if site.value.detectAuth then
-                        inputs.config.sops.secrets."nginx/detectAuth/${site.name}".path
-                      else null;
-                    extraConfig = concatStringsSep "\n"
-                    (
-                      (map
-                        (header: "proxy_set_header ${header.name} ${header.value};")
-                        (attrsToList site.value.setHeaders))
-                      ++ (if site.value.detectAuth then ["proxy_hide_header Authorization;"] else [])
-                      ++ (
-                        if site.value.addAuth then
-                          ["include ${inputs.config.sops.templates."nginx/addAuth/${site.name}-template".path};"]
-                        else [])
-                    );
-                  };
-                  addSSL = true;
+                  locations = listToAttrs (map
+                    (location:
+                    {
+                      inherit (location) name;
+                      value =
+                      {
+                        proxyPass = location.value.upstream;
+                        proxyWebsockets = location.value.websocket;
+                        recommendedProxySettings = false;
+                        recommendedProxySettingsNoHost = true;
+                        extraConfig = concatStringsSep "\n"
+                        (
+                          (map
+                            (header: ''proxy_set_header ${header.name} "${header.value}";'')
+                            (attrsToList location.value.setHeaders))
+                          ++ (if site.value.detectAuth then ["proxy_hide_header Authorization;"] else [])
+                          ++ (
+                            if site.value.addAuth then
+                              ["include ${inputs.config.sops.templates."nginx/addAuth/${site.name}-template".path};"]
+                            else [])
+                        );
+                      };
+                    })
+                    (attrsToList site.value.locations));
                   forceSSL = site.value.rewriteHttps;
                   http2 = site.value.http2;
+                  basicAuthFile =
+                    if site.value.detectAuth then inputs.config.sops.secrets."nginx/detectAuth/${site.name}".path
+                    else null;
                 };
               })
               (attrsToList nginx.httpProxy));

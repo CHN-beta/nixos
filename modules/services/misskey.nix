@@ -140,10 +140,14 @@ inputs:
               name = hostname;
               value =
               {
-                upstream = if builtins.typeOf upstream == "string" then "http://${upstream}"
-                  else "http://${upstream.address}:${toString upstream.port}";
-                websocket = true;
-                setHeaders.Host = hostname;
+                rewriteHttps = true;
+                locations."/" =
+                {
+                  upstream = if builtins.typeOf upstream == "string" then "http://${upstream}"
+                    else "http://${upstream.address}:${toString upstream.port}";
+                  websocket = true;
+                  setHeaders.Host = hostname;
+                };
               };
             })
             (attrsToList misskey-proxy));

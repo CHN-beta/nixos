@@ -62,8 +62,9 @@ inputs:
           enable = true;
           httpProxy.${rsshub.hostname} =
           {
-            upstream = "http://127.0.0.1:${toString rsshub.port}";
-            setHeaders.Host = rsshub.hostname;
+            rewriteHttps = true;
+            locations."/" =
+              { upstream = "http://127.0.0.1:${toString rsshub.port}"; setHeaders.Host = rsshub.hostname; };
           };
         };
       };

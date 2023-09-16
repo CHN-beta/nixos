@@ -274,8 +274,6 @@
                     {
                       "ng01.mirism.one" = 7411;
                       "beta.mirism.one" = 9114;
-                      "nix-store.chn.moe" = 7676;
-                      "direct.xn--qbtm095lrg0bfka60z.chn.moe" = 7676;
                     };
                   };
                   streamProxy =
@@ -283,6 +281,7 @@
                     enable = true;
                     map =
                     {
+                      "nix-store.chn.moe" = { upstream = "internal.pc.chn.moe"; rewriteHttps = true; };
                       "anchor.fm" = { upstream = "anchor.fm:443"; rewriteHttps = true; };
                       "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; rewriteHttps = true; };
                     };
@@ -295,6 +294,7 @@
                 };
                 coturn.enable = true;
                 synapse-proxy."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
+                vaultwarden-proxy = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
               };
             };})
           ];
@@ -353,6 +353,8 @@
                 synapse.enable = true;
                 synapse-proxy."synapse.chn.moe" = {};
                 xrdp = { enable = true; hostname = "vps7.chn.moe"; };
+                vaultwarden.enable = true;
+                vaultwarden-proxy.enable = true;
               };
             };})
           ];
