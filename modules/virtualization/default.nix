@@ -31,6 +31,7 @@ inputs:
             {
               features.buildkit = true;
               dns = [ "1.1.1.1" ];
+              storage-driver = "fuse-overlayfs";
             };
           };
           enableNvidia = builtins.elem "nvidia" inputs.config.nixos.hardware.gpus;
