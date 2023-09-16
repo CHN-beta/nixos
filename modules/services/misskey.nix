@@ -65,12 +65,12 @@ inputs:
           "/var/lib/misskey/work" =
           {
             device = "${inputs.pkgs.localPackages.misskey}";
-            options = [ "bind" ];
+            options = [ "bind" "private" "x-gvfs-hide" ];
           };
           "/var/lib/misskey/work/files" =
           {
             device = "/var/lib/misskey/files";
-            options = [ "bind" ];
+            options = [ "bind" "private" "x-gvfs-hide" ];
           };
         };
         sops.templates."misskey/default.yml" =
