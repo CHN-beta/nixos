@@ -66,5 +66,6 @@ inputs:
     # environment.variables.CPATH = "/run/current-system/sw/include";
     # environment.variables.LIBRARY_PATH = "/run/current-system/sw/lib";
     virtualisation.oci-containers.backend = "docker";
+    home-manager.sharedModules = [{ home.stateVersion = "22.11"; }];
   };
 }
