@@ -29,98 +29,48 @@ inputs:
   [
     # >= server
     {
-      nixos.packages = with inputs.pkgs;
+      nixos =
       {
-        _packages = 
-        [
-          # shell
-          ksh
-          # basic tools
-          beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq zellij neofetch ipfetch
-          # lsxx
-          pciutils usbutils lshw util-linux lsof
-          # top
-          iotop iftop htop btop powertop s-tui
-          # editor
-          nano bat
-          # downloader
-          wget aria2 curl
-          # file manager
-          tree exa trash-cli lsd broot file xdg-ninja mlocate
-          # compress
-          pigz rar upx unzip zip lzip p7zip
-          # file system management
-          sshfs e2fsprogs adb-sync duperemove compsize
-          # disk management
-          smartmontools hdparm
-          # encryption and authentication
-          apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f yubico-piv-tool
-          # networking
-          ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils
-          # nix tools
-          nix-output-monitor nix-tree
-          # office
-          todo-txt-cli
-        ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
-        _pythonPackages = [(pythonPackages: with pythonPackages;
-        [
-          inquirerpy requests python-telegram-bot tqdm fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
-          certifi charset-normalizer idna orjson psycopg2
-        ])];
-      };
-      programs =
-      {
-        nix-index-database.comma.enable = true;
-        nix-index.enable = true;
-        zsh =
+        packages = with inputs.pkgs;
         {
-          enable = true;
-          syntaxHighlighting.enable = true;
-          autosuggestions.enable = true;
-          enableCompletion = true;
-          ohMyZsh =
-          {
-            enable = true;
-            plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
-            customPkgs = with inputs.pkgs; [ zsh-nix-shell ];
-          };
+          _packages = 
+          [
+            # shell
+            ksh
+            # basic tools
+            beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq zellij neofetch ipfetch
+            # lsxx
+            pciutils usbutils lshw util-linux lsof
+            # top
+            iotop iftop htop btop powertop s-tui
+            # editor
+            nano bat
+            # downloader
+            wget aria2 curl
+            # file manager
+            tree exa trash-cli lsd broot file xdg-ninja mlocate
+            # compress
+            pigz rar upx unzip zip lzip p7zip
+            # file system management
+            sshfs e2fsprogs adb-sync duperemove compsize
+            # disk management
+            smartmontools hdparm
+            # encryption and authentication
+            apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f yubico-piv-tool
+            # networking
+            ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils
+            # nix tools
+            nix-output-monitor nix-tree
+            # office
+            todo-txt-cli
+          ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
+          _pythonPackages = [(pythonPackages: with pythonPackages;
+          [
+            inquirerpy requests python-telegram-bot tqdm fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
+            certifi charset-normalizer idna orjson psycopg2
+          ])];
         };
-        ccache.enable = true;
-        command-not-found.enable = false;
-        adb.enable = true;
-        gnupg.agent = { enable = true; enableSSHSupport = true; };
-        autojump.enable = true;
-        git =
-        {
-          enable = true;
-          package = inputs.pkgs.gitFull;
-          lfs.enable = true;
-          config =
-          {
-            init.defaultBranch = "main";
-            core = { quotepath = false; editor = "vim"; };
-          };
-        };
-      };
-      services =
-      {
-        fwupd.enable = true;
-        udev.packages = with inputs.pkgs; [ yubikey-personalization libfido2 ];
-      };
-      nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
-      nixpkgs.config =
-      {
-        permittedInsecurePackages = with inputs.pkgs;
-        [
-          openssl_1_1.name electron_19.name nodejs-16_x.name python2.name electron_12.name
-        ];
-        allowUnfree = true;
-      };
-      home-manager =
-      {
-        useGlobalPkgs = true;
-        useUserPackages = true;
-        sharedModules =
+        users.sharedModules =
         [{
           home.stateVersion = "22.11";
           programs =
@@ -238,80 +188,178 @@ inputs:
           };
         }];
       };
+      programs =
+      {
+        nix-index-database.comma.enable = true;
+        nix-index.enable = true;
+        zsh =
+        {
+          enable = true;
+          syntaxHighlighting.enable = true;
+          autosuggestions.enable = true;
+          enableCompletion = true;
+          ohMyZsh =
+          {
+            enable = true;
+            plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
+            customPkgs = with inputs.pkgs; [ zsh-nix-shell ];
+          };
+        };
+        ccache.enable = true;
+        command-not-found.enable = false;
+        adb.enable = true;
+        gnupg.agent = { enable = true; enableSSHSupport = true; };
+        autojump.enable = true;
+        git =
+        {
+          enable = true;
+          package = inputs.pkgs.gitFull;
+          lfs.enable = true;
+          config =
+          {
+            init.defaultBranch = "main";
+            core = { quotepath = false; editor = "vim"; };
+          };
+        };
+      };
+      services =
+      {
+        fwupd.enable = true;
+        udev.packages = with inputs.pkgs; [ yubikey-personalization libfido2 ];
+      };
+      nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
+      nixpkgs.config =
+      {
+        permittedInsecurePackages = with inputs.pkgs;
+        [
+          openssl_1_1.name electron_19.name nodejs-16_x.name python2.name electron_12.name
+        ];
+        allowUnfree = true;
+      };
+      home-manager =
+      {
+        useGlobalPkgs = true;
+        useUserPackages = true;
+      };
     }
     # >= desktop
     (
       mkIf (builtins.elem inputs.config.nixos.packages.packageSet [ "desktop" "workstation" ] )
       {
-        nixos.packages = with inputs.pkgs;
+        nixos =
         {
-          _packages =
-          [
-            # system management
-            gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
-            wayland-utils clinfo glxinfo vulkan-tools dracut etcher
-            # nix tools
-            ssh-to-age deploy-rs.deploy-rs nixpkgs-fmt
-            # instant messager
-            element-desktop telegram-desktop discord inputs.config.nur.repos.linyinfeng.wemeet # native
-            cinny-desktop # nur-xddxdd.wine-wechat thunder
-            # browser
-            google-chrome
-            # networking
-            remmina putty mtr-gui
-            # password and key management
-            bitwarden yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui
-            # download
-            qbittorrent yt-dlp nur-xddxdd.baidupcs-go wgetpaste
-            # office
-            unstablePackages.crow-translate zotero pandoc
-            # development
-            scrcpy
-            # media
-            spotify yesplaymusic mpv nomacs simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc
-            # text editor
-            localPackages.typora
-            # themes
-            orchis-theme tela-circle-icon-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme
-            arc-kde-theme materia-theme
-            # news
-            fluent-reader rssguard
-            # davinci-resolve playonlinux
-            weston cage openbox krita
-            genymotion
-            (
-              vscode-with-extensions.override
+          packages = with inputs.pkgs;
+          {
+            _packages =
+            [
+              # system management
+              gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
+              wayland-utils clinfo glxinfo vulkan-tools dracut etcher
+              # nix tools
+              ssh-to-age deploy-rs.deploy-rs nixpkgs-fmt
+              # instant messager
+              element-desktop telegram-desktop discord inputs.config.nur.repos.linyinfeng.wemeet # native
+              cinny-desktop # nur-xddxdd.wine-wechat thunder
+              # browser
+              google-chrome
+              # networking
+              remmina putty mtr-gui
+              # password and key management
+              bitwarden yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui
+              # download
+              qbittorrent yt-dlp nur-xddxdd.baidupcs-go wgetpaste
+              # office
+              unstablePackages.crow-translate zotero pandoc
+              # development
+              scrcpy
+              # media
+              spotify yesplaymusic mpv nomacs simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc
+              # text editor
+              localPackages.typora
+              # themes
+              orchis-theme tela-circle-icon-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme
+              arc-kde-theme materia-theme
+              # news
+              fluent-reader rssguard
+              # davinci-resolve playonlinux
+              weston cage openbox krita
+              genymotion
+              (
+                vscode-with-extensions.override
+                {
+                  vscodeExtensions = with nix-vscode-extensions.vscode-marketplace;
+                    (with equinusocio; [ vsc-community-material-theme vsc-material-theme-icons ])
+                    ++ (with github; [ copilot copilot-chat copilot-labs github-vscode-theme ])
+                    ++ (with intellsmi; [ comment-translate deepl-translate ])
+                    ++ (with ms-python; [ isort python vscode-pylance ])
+                    ++ (with ms-toolsai;
+                    [
+                      jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow
+                    ])
+                    ++ (with ms-vscode;
+                    [
+                      cmake-tools cpptools cpptools-extension-pack cpptools-themes hexeditor remote-explorer
+                      test-adapter-converter
+                    ])
+                    ++ (with ms-vscode-remote; [ remote-ssh remote-containers remote-ssh-edit ])
+                    ++ [
+                      donjayamanne.githistory genieai.chatgpt-vscode fabiospampinato.vscode-diff cschlosser.doxdocgen
+                      llvm-vs-code-extensions.vscode-clangd ms-ceintl.vscode-language-pack-zh-hans oderwat.indent-rainbow
+                      twxs.cmake guyutongxue.cpp-reference znck.grammarly thfriedrich.lammps leetcode.vscode-leetcode
+                      james-yu.latex-workshop gimly81.matlab affenwiesel.matlab-formatter ckolkman.vscode-postgres
+                      yzhang.markdown-all-in-one pkief.material-icon-theme bbenoist.nix ms-ossdata.vscode-postgresql
+                      redhat.vscode-xml dotjoshjohnson.xml jnoortheen.nix-ide xdebug.php-debug hbenl.vscode-test-explorer
+                      jeff-hykin.better-cpp-syntax fredericbonnet.cmake-test-adapter mesonbuild.mesonbuild
+                      hirse.vscode-ungit fortran-lang.linter-gfortran tboox.xmake-vscode ccls-project.ccls
+                      feiskyer.chatgpt-copilot yukiuuh2936.vscode-modern-fortran-formatter wolframresearch.wolfram
+                      njpipeorgan.wolfram-language-notebook brettm12345.nixfmt-vscode
+                    ];
+                }
+              )
+            ] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
+          };
+          users.sharedModules =
+          [{
+            programs =
+            {
+              chromium =
               {
-                vscodeExtensions = with nix-vscode-extensions.vscode-marketplace;
-                  (with equinusocio; [ vsc-community-material-theme vsc-material-theme-icons ])
-                  ++ (with github; [ copilot copilot-chat copilot-labs github-vscode-theme ])
-                  ++ (with intellsmi; [ comment-translate deepl-translate ])
-                  ++ (with ms-python; [ isort python vscode-pylance ])
-                  ++ (with ms-toolsai;
-                  [
-                    jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow
-                  ])
-                  ++ (with ms-vscode;
-                  [
-                    cmake-tools cpptools cpptools-extension-pack cpptools-themes hexeditor remote-explorer
-                    test-adapter-converter
-                  ])
-                  ++ (with ms-vscode-remote; [ remote-ssh remote-containers remote-ssh-edit ])
-                  ++ [
-                    donjayamanne.githistory genieai.chatgpt-vscode fabiospampinato.vscode-diff cschlosser.doxdocgen
-                    llvm-vs-code-extensions.vscode-clangd ms-ceintl.vscode-language-pack-zh-hans oderwat.indent-rainbow
-                    twxs.cmake guyutongxue.cpp-reference znck.grammarly thfriedrich.lammps leetcode.vscode-leetcode
-                    james-yu.latex-workshop gimly81.matlab affenwiesel.matlab-formatter ckolkman.vscode-postgres
-                    yzhang.markdown-all-in-one pkief.material-icon-theme bbenoist.nix ms-ossdata.vscode-postgresql
-                    redhat.vscode-xml dotjoshjohnson.xml jnoortheen.nix-ide xdebug.php-debug hbenl.vscode-test-explorer
-                    jeff-hykin.better-cpp-syntax fredericbonnet.cmake-test-adapter mesonbuild.mesonbuild
-                    hirse.vscode-ungit fortran-lang.linter-gfortran tboox.xmake-vscode ccls-project.ccls
-                    feiskyer.chatgpt-copilot yukiuuh2936.vscode-modern-fortran-formatter wolframresearch.wolfram
-                    njpipeorgan.wolfram-language-notebook brettm12345.nixfmt-vscode
-                  ];
-              }
-            )
-          ] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
+                enable = true;
+                extensions =
+                [
+                  { id = "mpkodccbngfoacfalldjimigbofkhgjn"; } # Aria2 Explorer
+                  { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
+                  { id = "kbfnbcaeplbcioakkpcpgfkobkghlhen"; } # Grammarly
+                  { id = "ihnfpdchjnmlehnoeffgcbakfmdjcckn"; } # Pixiv Fanbox Downloader
+                  { id = "cimiefiiaegbelhefglklhhakcgmhkai"; } # Plasma Integration
+                  { id = "dkndmhgdcmjdmkdonmbgjpijejdcilfh"; } # Powerful Pixiv Downloader
+                  { id = "padekgcemlokbadohgkifijomclgjgif"; } # Proxy SwitchyOmega
+                  { id = "kefjpfngnndepjbopdmoebkipbgkggaa"; } # RSSHub Radar
+                  { id = "abpdnfjocnmdomablahdcfnoggeeiedb"; } # Save All Resources
+                  { id = "nbokbjkabcmbfdlbddjidfmibcpneigj"; } # SmoothScroll
+                  { id = "onepmapfbjohnegdmfhndpefjkppbjkm"; } # SuperCopy 超级复制
+                  { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
+                  { id = "gppongmhjkpfnbhagpmjfkannfbllamg"; } # Wappalyzer
+                  { id = "hkbdddpiemdeibjoknnofflfgbgnebcm"; } # YouTube™ 双字幕
+                  { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero Connector
+                  { id = "ikhdkkncnoglghljlkmcimlnlhkeamad"; } # 划词翻译
+                  { id = "dhdgffkkebhmkfjojejmpbldmpobfkfo"; } # 篡改猴
+                  { id = "hipekcciheckooncpjeljhnekcoolahp"; } # Tabliss
+                ];
+              };
+              obs-studio =
+              {
+                enable = true;
+                plugins = with inputs.pkgs.obs-studio-plugins;
+                  [ wlrobs obs-vaapi obs-nvfbc droidcam-obs obs-vkcapture ];
+              };
+            };
+            home.file.".config/baloofilerc".text =
+            ''
+              [Basic Settings]
+              Indexing-Enabled=false
+            '';
+          }];
         };
         programs =
         {
@@ -334,48 +382,6 @@ inputs:
           });
         };
         services.pcscd.enable = true;
-        home-manager.sharedModules =
-        [{
-          programs =
-          {
-            chromium =
-            {
-              enable = true;
-              extensions =
-              [
-                { id = "mpkodccbngfoacfalldjimigbofkhgjn"; } # Aria2 Explorer
-                { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
-                { id = "kbfnbcaeplbcioakkpcpgfkobkghlhen"; } # Grammarly
-                { id = "ihnfpdchjnmlehnoeffgcbakfmdjcckn"; } # Pixiv Fanbox Downloader
-                { id = "cimiefiiaegbelhefglklhhakcgmhkai"; } # Plasma Integration
-                { id = "dkndmhgdcmjdmkdonmbgjpijejdcilfh"; } # Powerful Pixiv Downloader
-                { id = "padekgcemlokbadohgkifijomclgjgif"; } # Proxy SwitchyOmega
-                { id = "kefjpfngnndepjbopdmoebkipbgkggaa"; } # RSSHub Radar
-                { id = "abpdnfjocnmdomablahdcfnoggeeiedb"; } # Save All Resources
-                { id = "nbokbjkabcmbfdlbddjidfmibcpneigj"; } # SmoothScroll
-                { id = "onepmapfbjohnegdmfhndpefjkppbjkm"; } # SuperCopy 超级复制
-                { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
-                { id = "gppongmhjkpfnbhagpmjfkannfbllamg"; } # Wappalyzer
-                { id = "hkbdddpiemdeibjoknnofflfgbgnebcm"; } # YouTube™ 双字幕
-                { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero Connector
-                { id = "ikhdkkncnoglghljlkmcimlnlhkeamad"; } # 划词翻译
-                { id = "dhdgffkkebhmkfjojejmpbldmpobfkfo"; } # 篡改猴
-                { id = "hipekcciheckooncpjeljhnekcoolahp"; } # Tabliss
-              ];
-            };
-            obs-studio =
-            {
-              enable = true;
-              plugins = with inputs.pkgs.obs-studio-plugins;
-                [ wlrobs obs-vaapi obs-nvfbc droidcam-obs obs-vkcapture ];
-            };
-          };
-          home.file.".config/baloofilerc".text =
-          ''
-            [Basic Settings]
-            Indexing-Enabled=false
-          '';
-        }];
       }
     )
     # >= workstation
