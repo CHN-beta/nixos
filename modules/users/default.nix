@@ -201,7 +201,7 @@ inputs:
     {
       users = mkOption { type = types.listOf (types.enum (builtins.attrNames allUsers)); default = [ "root" "chn" ]; };
       sharedModules = mkOption { type = types.listOf types.anything; default = []; };
-      linger = mkOption { type = types.listOf (types.enum (builtins.attrNames allUsers)); default = []; };
+      linger = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     };
     config =
       let
