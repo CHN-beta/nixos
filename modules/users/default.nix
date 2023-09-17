@@ -16,7 +16,7 @@ inputs:
         };
         home-manager.users.root =
         {
-          imports = inputs.nixos.users.sharedModules;
+          imports = inputs.config.nixos.users.sharedModules;
           config.programs.git =
           {
             extraConfig.core.editor = inputs.lib.mkForce "vim";
@@ -48,7 +48,7 @@ inputs:
         };
         home-manager.users.chn =
         {
-          imports = inputs.nixos.users.sharedModules;
+          imports = inputs.config.nixos.users.sharedModules;
           config.programs =
           {
             git =
@@ -140,7 +140,7 @@ inputs:
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
         };
-        home-manager.users.xll.imports = inputs.nixos.users.sharedModules;
+        home-manager.users.xll.imports = inputs.config.nixos.users.sharedModules;
         sops.secrets."users/xll".neededForUsers = true;
         nixos.services.groupshare.mountPoints = [ "/home/xll/groupshare" ];
       };
@@ -157,7 +157,7 @@ inputs:
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
         };
-        home-manager.users.zem.imports = inputs.nixos.users.sharedModules;
+        home-manager.users.zem.imports = inputs.config.nixos.users.sharedModules;
         sops.secrets."users/zem".neededForUsers = true;
         nixos.services.groupshare.mountPoints = [ "/home/zem/groupshare" ];
       };
@@ -174,7 +174,7 @@ inputs:
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
         };
-        home-manager.users.yjq.imports = inputs.nixos.users.sharedModules;
+        home-manager.users.yjq.imports = inputs.config.nixos.users.sharedModules;
         sops.secrets."users/yjq".neededForUsers = true;
         nixos.services.groupshare.mountPoints = [ "/home/yjq/groupshare" ];
       };
@@ -190,7 +190,7 @@ inputs:
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
         };
-        home-manager.users.yxy.imports = inputs.nixos.users.sharedModules;
+        home-manager.users.yxy.imports = inputs.config.nixos.users.sharedModules;
         sops.secrets."users/yxy".neededForUsers = true;
         nixos.services.groupshare.mountPoints = [ "/home/yxy/groupshare" ];
       };
@@ -200,7 +200,7 @@ inputs:
     options.nixos.users = let inherit (inputs.lib) mkOption types; in
     {
       users = mkOption { type = types.listOf (types.enum (builtins.attrNames allUsers)); default = [ "root" "chn" ]; };
-      sharedModules = mkOption { type = types.listOf types.any; default = []; };
+      sharedModules = mkOption { type = types.listOf types.anything; default = []; };
       linger = mkOption { type = types.listOf (types.enum (builtins.attrNames allUsers)); default = []; };
     };
     config =
@@ -214,7 +214,7 @@ inputs:
         {
           fileSystems."/var/lib/systemd/linger" =
           {
-            device = inputs.pkgs.stdenv.mkDerivation
+            device = (inputs.pkgs.stdenv.mkDerivation
             {
               name = "systemd-linger";
               phases = [ "installPhase" ];
@@ -223,7 +223,7 @@ inputs:
                 [ "mkdir -p $out" ]
                 ++ (map (user: "touch $out/${user}") users.linger)
               );
-            };
+            }).outPath;
             options = [ "bind" "private" "x-gvfs-hide" ];
           };
         }
