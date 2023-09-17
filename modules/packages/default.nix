@@ -398,7 +398,7 @@ inputs:
             # media
             nur-xddxdd.svp obs-studio waifu2x-converter-cpp inkscape blender
             # virtualization
-            wine virt-viewer bottles # wine64
+            wineWowPackages.stagingFull virt-viewer bottles # wine64
             # text editor
             appflowy notion-app-enhanced joplin-desktop standardnotes
             # math, physics and chemistry
