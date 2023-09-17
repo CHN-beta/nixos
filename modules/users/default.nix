@@ -201,6 +201,7 @@ inputs:
     {
       users = mkOption { type = types.listOf (types.enum (builtins.attrNames allUsers)); default = [ "root" "chn" ]; };
       sharedModules = mkOption { type = types.listOf types.any; default = []; };
+      linger = mkOption { type = types.listOf (types.enum (builtins.attrNames allUsers)); default = []; };
     };
     config =
       let
@@ -210,6 +211,22 @@ inputs:
       in mkMerge
       [
         (mkMerge (map (user: mkIf (builtins.elem user users.users) allUsers.${user}) (attrNames allUsers)))
+        {
+          fileSystems."/var/lib/systemd/linger" =
+          {
+            device = inputs.pkgs.stdenv.mkDerivation
+            {
+              name = "systemd-linger";
+              phases = [ "installPhase" ];
+              installPhase = builtins.concatStringsSep "\n"
+              (
+                [ "mkdir -p $out" ]
+                ++ (map (user: "touch $out/${user}") users.linger)
+              );
+            };
+            options = [ "bind" "private" "x-gvfs-hide" ];
+          };
+        }
       ];
   }
 
