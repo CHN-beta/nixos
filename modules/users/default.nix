@@ -14,11 +14,15 @@ inputs:
               + "+Vso8FsUNFwPXFAAAABHNzaDo= chn@chn.moe")
           ];
         };
-        home-manager.users.root.programs.git =
+        home-manager.users.root =
         {
-          extraConfig.core.editor = inputs.lib.mkForce "vim";
-          userName = "chn";
-          userEmail = "chn@chn.moe";
+          imports = inputs.config.nixos.users.sharedModules;
+          config.programs.git =
+          {
+            extraConfig.core.editor = inputs.lib.mkForce "vim";
+            userName = "chn";
+            userEmail = "chn@chn.moe";
+          };
         };
       };
       chn =
@@ -42,78 +46,82 @@ inputs:
             ])
           ];
         };
-        home-manager.users.chn.programs =
+        home-manager.users.chn =
         {
-          git =
+          imports = inputs.config.nixos.users.sharedModules;
+          config.programs =
           {
-            userName = "chn";
-            userEmail = "chn@chn.moe";
-          };
-          ssh.matchBlocks = builtins.listToAttrs
-          (
-            (builtins.map
-              (host:
-              {
-                name = host.name;
-                value = { host = host.name; hostname = host.value; user = "chn"; };
-              })
-              (inputs.localLib.attrsToList
-              {
-                vps3 = "vps3.chn.moe";
-                vps4 = "vps4.chn.moe";
-                vps5 = "vps5.chn.moe";
-                vps6 = "vps6.chn.moe";
-                vps7 = "vps7.chn.moe";
-              }))
-            ++ (builtins.map
-              (host:
-              {
-                name = host;
-                value =
+            git =
+            {
+              userName = "chn";
+              userEmail = "chn@chn.moe";
+            };
+            ssh.matchBlocks = builtins.listToAttrs
+            (
+              (builtins.map
+                (host:
                 {
-                  host = host;
-                  hostname = "hpc.xmu.edu.cn";
-                  user = host;
-                  extraOptions = { PubkeyAcceptedAlgorithms = "+ssh-rsa"; HostkeyAlgorithms = "+ssh-rsa"; };
-                };
-              })
-              [ "wlin" "jykang" "hwang" ])
-          )
-          // {
-            xmupc1 =
-            {
-              host = "xmupc1";
-              hostname = "office.chn.moe";
-              user = "chn";
-              port = 6007;
-            };
-            nas =
-            {
-              host = "nas";
-              hostname = "office.chn.moe";
-              user = "chn";
-              port = 5440;
-            };
-            xmupc1-ext =
-            {
-              host = "xmupc1-ext";
-              hostname = "vps3.chn.moe";
-              user = "chn";
-              port = 6007;
-            };
-            xmuhk =
-            {
-              host = "xmuhk";
-              hostname = "10.26.14.56";
-              user = "xmuhk";
-              # identityFile = "~/.ssh/xmuhk_id_rsa";
-            };
-            xmuhk2 =
-            {
-              host = "xmuhk2";
-              hostname = "183.233.219.132";
-              user = "xmuhk";
-              port = 62022;
+                  name = host.name;
+                  value = { host = host.name; hostname = host.value; user = "chn"; };
+                })
+                (inputs.localLib.attrsToList
+                {
+                  vps3 = "vps3.chn.moe";
+                  vps4 = "vps4.chn.moe";
+                  vps5 = "vps5.chn.moe";
+                  vps6 = "vps6.chn.moe";
+                  vps7 = "vps7.chn.moe";
+                }))
+              ++ (builtins.map
+                (host:
+                {
+                  name = host;
+                  value =
+                  {
+                    host = host;
+                    hostname = "hpc.xmu.edu.cn";
+                    user = host;
+                    extraOptions = { PubkeyAcceptedAlgorithms = "+ssh-rsa"; HostkeyAlgorithms = "+ssh-rsa"; };
+                  };
+                })
+                [ "wlin" "jykang" "hwang" ])
+            )
+            // {
+              xmupc1 =
+              {
+                host = "xmupc1";
+                hostname = "office.chn.moe";
+                user = "chn";
+                port = 6007;
+              };
+              nas =
+              {
+                host = "nas";
+                hostname = "office.chn.moe";
+                user = "chn";
+                port = 5440;
+              };
+              xmupc1-ext =
+              {
+                host = "xmupc1-ext";
+                hostname = "vps3.chn.moe";
+                user = "chn";
+                port = 6007;
+              };
+              xmuhk =
+              {
+                host = "xmuhk";
+                hostname = "10.26.14.56";
+                user = "xmuhk";
+                # identityFile = "~/.ssh/xmuhk_id_rsa";
+              };
+              xmuhk2 =
+              {
+                host = "xmuhk2";
+                hostname = "183.233.219.132";
+                user = "xmuhk";
+                port = 62022;
+              };
             };
           };
         };
@@ -132,7 +140,7 @@ inputs:
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
         };
-        home-manager.users.xll = {};
+        home-manager.users.xll.imports = inputs.config.nixos.users.sharedModules;
         sops.secrets."users/xll".neededForUsers = true;
         nixos.services.groupshare.mountPoints = [ "/home/xll/groupshare" ];
       };
@@ -149,7 +157,7 @@ inputs:
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
         };
-        home-manager.users.zem = {};
+        home-manager.users.zem.imports = inputs.config.nixos.users.sharedModules;
         sops.secrets."users/zem".neededForUsers = true;
         nixos.services.groupshare.mountPoints = [ "/home/zem/groupshare" ];
       };
@@ -166,7 +174,7 @@ inputs:
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
         };
-        home-manager.users.yjq = {};
+        home-manager.users.yjq.imports = inputs.config.nixos.users.sharedModules;
         sops.secrets."users/yjq".neededForUsers = true;
         nixos.services.groupshare.mountPoints = [ "/home/yjq/groupshare" ];
       };
@@ -182,7 +190,7 @@ inputs:
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
         };
-        home-manager.users.yxy = {};
+        home-manager.users.yxy.imports = inputs.config.nixos.users.sharedModules;
         sops.secrets."users/yxy".neededForUsers = true;
         nixos.services.groupshare.mountPoints = [ "/home/yxy/groupshare" ];
       };
@@ -192,6 +200,7 @@ inputs:
     options.nixos.users = let inherit (inputs.lib) mkOption types; in
     {
       users = mkOption { type = types.listOf (types.enum (builtins.attrNames allUsers)); default = [ "root" "chn" ]; };
+      sharedModules = mkOption { type = types.listOf types.anything; default = []; };
     };
     config =
       let
