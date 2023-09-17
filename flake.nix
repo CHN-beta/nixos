@@ -432,7 +432,7 @@
                 groupshare.enable = true;
                 smartd.enable = true;
               };
-              users = [ "root" "chn" "xll" "zem" "yjq" "yxy" ];
+              users.users = [ "root" "chn" "xll" "zem" "yjq" "yxy" ];
             };})
           ];
           "xmupc1" =

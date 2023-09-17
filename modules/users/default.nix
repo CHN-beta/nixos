@@ -1,8 +1,6 @@
 inputs:
   let
-    inherit (builtins) map attrNames;
-    inherit (inputs.lib) mkMerge mkIf mkOption types;
-    users =
+    allUsers =
     {
       root =
       {
@@ -53,7 +51,7 @@ inputs:
           };
           ssh.matchBlocks = builtins.listToAttrs
           (
-            (map
+            (builtins.map
               (host:
               {
                 name = host.name;
@@ -67,7 +65,7 @@ inputs:
                 vps6 = "vps6.chn.moe";
                 vps7 = "vps7.chn.moe";
               }))
-            ++ (map
+            ++ (builtins.map
               (host:
               {
                 name = host;
@@ -191,8 +189,19 @@ inputs:
     };
   in
   {
-    options.nixos.users = mkOption { type = types.listOf (types.enum (attrNames users)); default = [ "root" "chn" ]; };
-    config = mkMerge (map (user: mkIf (builtins.elem user inputs.config.nixos.users) users.${user}) (attrNames users));
+    options.nixos.users = let inherit (inputs.lib) mkOption types; in
+    {
+      users = mkOption { type = types.listOf (types.enum (builtins.attrNames allUsers)); default = [ "root" "chn" ]; };
+    };
+    config =
+      let
+        inherit (builtins) map attrNames;
+        inherit (inputs.lib) mkMerge mkIf;
+        inherit (inputs.config.nixos) users;
+      in mkMerge
+      [
+        (mkMerge (map (user: mkIf (builtins.elem user users.users) allUsers.${user}) (attrNames allUsers)))
+      ];
   }
 
 # environment.persistence."/impermanence".users.chn =
