@@ -208,7 +208,7 @@
                 };
                 nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
                 smartd.enable = true;
-                nginx = { enable = true; transparentProxy.externalIp = "192.168.1.3"; };
+                nginx = { enable = true; transparentProxy.externalIp = [ "192.168.82.3" ]; };
                 misskey = { enable = true; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
                 misskey-proxy."xn--qbtm095lrg0bfka60z.chn.moe" = {};
               };
@@ -269,7 +269,7 @@
                   enable = true;
                   transparentProxy =
                   {
-                    externalIp = "74.211.99.69";
+                    externalIp = [ "74.211.99.69" "192.168.82.1" ];
                     map =
                     {
                       "ng01.mirism.one" = 7411;
@@ -347,7 +347,7 @@
                 fontconfig.enable = true;
                 sshd.enable = true;
                 rsshub.enable = true;
-                nginx = { enable = true; transparentProxy.externalIp = "95.111.228.40"; };
+                nginx = { enable = true; transparentProxy.externalIp = [ "95.111.228.40" "192.168.82.2" ]; };
                 wallabag.enable = true;
                 misskey = { enable = true; hostname = "xn--s8w913fdga.chn.moe"; };
                 misskey-proxy."xn--s8w913fdga.chn.moe" = {};

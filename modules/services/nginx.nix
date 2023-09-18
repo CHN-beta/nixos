@@ -6,7 +6,7 @@ inputs:
     transparentProxy =
     {
       enable = mkOption { type = types.bool; default = true; };
-      externalIp = mkOption { type = types.nonEmptyStr; };
+      externalIp = mkOption { type = types.listOf types.nonEmptyStr; };
       map = mkOption { type = types.attrsOf types.ints.unsigned; default = {};};
     };
     httpProxy = mkOption
@@ -230,7 +230,7 @@ inputs:
           }
           server
           {
-            listen ${nginx.transparentProxy.externalIp}:443;
+            ${concatStringsSep "\n            " (map (ip: "listen ${ip}:443;") nginx.transparentProxy.externalIp)}
             ssl_preread on;
             proxy_bind $remote_addr transparent;
             proxy_pass $transparent_proxy_backend;
