@@ -19,8 +19,8 @@ inputs:
     ./sshd.nix
     ./vaultwarden.nix
     ./frp.nix
-    ./docker.nix
-    ./huginn.nix
+    # ./docker.nix
+    # ./huginn.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {

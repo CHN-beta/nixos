@@ -72,7 +72,7 @@ inputs:
         };
         users.sharedModules =
         [{
-          programs =
+          config.programs =
           {
             zsh =
             {
@@ -319,45 +319,48 @@ inputs:
           };
           users.sharedModules =
           [{
-            programs =
+            config =
             {
-              chromium =
+              programs =
               {
-                enable = true;
-                extensions =
-                [
-                  { id = "mpkodccbngfoacfalldjimigbofkhgjn"; } # Aria2 Explorer
-                  { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
-                  { id = "kbfnbcaeplbcioakkpcpgfkobkghlhen"; } # Grammarly
-                  { id = "ihnfpdchjnmlehnoeffgcbakfmdjcckn"; } # Pixiv Fanbox Downloader
-                  { id = "cimiefiiaegbelhefglklhhakcgmhkai"; } # Plasma Integration
-                  { id = "dkndmhgdcmjdmkdonmbgjpijejdcilfh"; } # Powerful Pixiv Downloader
-                  { id = "padekgcemlokbadohgkifijomclgjgif"; } # Proxy SwitchyOmega
-                  { id = "kefjpfngnndepjbopdmoebkipbgkggaa"; } # RSSHub Radar
-                  { id = "abpdnfjocnmdomablahdcfnoggeeiedb"; } # Save All Resources
-                  { id = "nbokbjkabcmbfdlbddjidfmibcpneigj"; } # SmoothScroll
-                  { id = "onepmapfbjohnegdmfhndpefjkppbjkm"; } # SuperCopy 超级复制
-                  { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
-                  { id = "gppongmhjkpfnbhagpmjfkannfbllamg"; } # Wappalyzer
-                  { id = "hkbdddpiemdeibjoknnofflfgbgnebcm"; } # YouTube™ 双字幕
-                  { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero Connector
-                  { id = "ikhdkkncnoglghljlkmcimlnlhkeamad"; } # 划词翻译
-                  { id = "dhdgffkkebhmkfjojejmpbldmpobfkfo"; } # 篡改猴
-                  { id = "hipekcciheckooncpjeljhnekcoolahp"; } # Tabliss
-                ];
+                chromium =
+                {
+                  enable = true;
+                  extensions =
+                  [
+                    { id = "mpkodccbngfoacfalldjimigbofkhgjn"; } # Aria2 Explorer
+                    { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
+                    { id = "kbfnbcaeplbcioakkpcpgfkobkghlhen"; } # Grammarly
+                    { id = "ihnfpdchjnmlehnoeffgcbakfmdjcckn"; } # Pixiv Fanbox Downloader
+                    { id = "cimiefiiaegbelhefglklhhakcgmhkai"; } # Plasma Integration
+                    { id = "dkndmhgdcmjdmkdonmbgjpijejdcilfh"; } # Powerful Pixiv Downloader
+                    { id = "padekgcemlokbadohgkifijomclgjgif"; } # Proxy SwitchyOmega
+                    { id = "kefjpfngnndepjbopdmoebkipbgkggaa"; } # RSSHub Radar
+                    { id = "abpdnfjocnmdomablahdcfnoggeeiedb"; } # Save All Resources
+                    { id = "nbokbjkabcmbfdlbddjidfmibcpneigj"; } # SmoothScroll
+                    { id = "onepmapfbjohnegdmfhndpefjkppbjkm"; } # SuperCopy 超级复制
+                    { id = "cjpalhdlnbpafiamejdnhcphjbkeiagm"; } # uBlock Origin
+                    { id = "gppongmhjkpfnbhagpmjfkannfbllamg"; } # Wappalyzer
+                    { id = "hkbdddpiemdeibjoknnofflfgbgnebcm"; } # YouTube™ 双字幕
+                    { id = "ekhagklcjbdpajgpjgmbionohlpdbjgc"; } # Zotero Connector
+                    { id = "ikhdkkncnoglghljlkmcimlnlhkeamad"; } # 划词翻译
+                    { id = "dhdgffkkebhmkfjojejmpbldmpobfkfo"; } # 篡改猴
+                    { id = "hipekcciheckooncpjeljhnekcoolahp"; } # Tabliss
+                  ];
+                };
+                obs-studio =
+                {
+                  enable = true;
+                  plugins = with inputs.pkgs.obs-studio-plugins;
+                    [ wlrobs obs-vaapi obs-nvfbc droidcam-obs obs-vkcapture ];
+                };
               };
-              obs-studio =
-              {
-                enable = true;
-                plugins = with inputs.pkgs.obs-studio-plugins;
-                  [ wlrobs obs-vaapi obs-nvfbc droidcam-obs obs-vkcapture ];
-              };
+              home.file.".config/baloofilerc".text =
+              ''
+                [Basic Settings]
+                Indexing-Enabled=false
+              '';
             };
-            home.file.".config/baloofilerc".text =
-            ''
-              [Basic Settings]
-              Indexing-Enabled=false
-            '';
           }];
         };
         programs =
