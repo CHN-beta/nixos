@@ -17,19 +17,11 @@ inputs:
         settings =
         {
           X11Forwarding = true;
-          TrustedUserCAKeys = "${./ssh-ca.pub}";
           ChallengeResponseAuthentication = false;
           PasswordAuthentication = sshd.passwordAuthentication;
           KbdInteractiveAuthentication = false;
           UsePAM = true;
         };
-        extraConfig =
-        ''
-          Match User root
-            PasswordAuthentication no
-          Match User chn
-            PasswordAuthentication no
-        '';
       };
     };
 }

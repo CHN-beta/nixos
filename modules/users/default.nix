@@ -11,8 +11,12 @@ inputs:
           hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
           openssh.authorizedKeys.keys =
           [
-            ("sk-ssh-ed25519@openssh.com AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIPLByi05vCA95EfpgrCIXzkuyUWsyh"
-              + "+Vso8FsUNFwPXFAAAABHNzaDo= chn@chn.moe")
+            (builtins.concatStringsSep ""
+            [
+              "sk-ssh-ed25519@openssh.com "
+              "AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIPLByi05vCA95EfpgrCIXzkuyUWsyh+Vso8FsUNFwPXFAAAABHNzaDo= "
+              "chn@chn.moe"
+            ])
           ];
         };
         home-manager.users.root =
