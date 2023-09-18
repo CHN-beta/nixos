@@ -25,13 +25,6 @@ inputs:
               "es256"
               "+presence"
             ])
-            (builtins.concatStringsSep ","
-            [
-              "WgLCnlQcGP4uVHI8OZrJWoLK6ezHtl404NVGsfH2LXsq0TNVZ7l2OidGpbYqIJwTn5yKu6t0MI7KdHYD18T/HA=="
-              "GVPuwp38yb+A1Uur22hywW7mQJPOxuLXXKLlM9FU2bvVhpwdjWDvg+BB5YFAL9NjTW22V7Hy/a9UuSmZejs7dw=="
-              "es256"
-              "+presence"
-            ])
           ])
         ]);
       };
