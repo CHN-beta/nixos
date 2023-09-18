@@ -7,6 +7,7 @@ inputs:
         users.users.root =
         {
           shell = inputs.pkgs.zsh;
+          autoSubUidGidRange = true;
           hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
           openssh.authorizedKeys.keys =
           [
