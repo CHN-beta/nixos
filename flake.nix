@@ -281,7 +281,7 @@
                     enable = true;
                     map =
                     {
-                      "nix-store.chn.moe" = { upstream = "internal.pc.chn.moe"; rewriteHttps = true; };
+                      "nix-store.chn.moe" = { upstream = "internal.pc.chn.moe:443"; rewriteHttps = true; };
                       "anchor.fm" = { upstream = "anchor.fm:443"; rewriteHttps = true; };
                       "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; rewriteHttps = true; };
                     };
