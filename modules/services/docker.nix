@@ -1,13 +1,11 @@
 inputs:
 {
-  options.nixos.services.docker = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.docker = let inherit (inputs.lib) mkOption types; in mkOption
   {
     type = types.attrsOf (types.submodule (inputs: { options =
     {
       user = mkOption { type = types.nonEmptyStr; default = inputs.config._module.args.name; };
       image = mkOption { type = types.package; };
-      imageName =
-        mkOption { type = types.nonEmptyStr; default = with inputs.image; (imageName + ":" + imageTag); };
       ports = mkOption
       {
         type = types.listOf (types.oneOf
@@ -29,75 +27,104 @@ inputs:
   };
   config =
     let
-      inherit (inputs.lib) mkMerge mkIf;
-      inherit (builtins) listToAttrs map concatLists;
+      inherit (inputs.lib) mkIf;
+      inherit (builtins) listToAttrs map;
       inherit (inputs.localLib) attrsToList;
       inherit (inputs.config.nixos.services) docker;
-    in mkMerge
-    [
+      users = inputs.lib.lists.unique (map (container: container.value.user) (attrsToList docker));
+      # users = map
+      #   (user: builtins.filter (container: container.user == user) (builtins.attrValues docker))
+      #   (inputs.lib.lists.unique (map (container: container.value.user) (attrsToList docker)));
+    in mkIf (docker != {})
+    {
+      systemd.tmpfiles.rules = [ "d /run/docker-rootless 0755 root root" ];
+      nixos =
       {
-        virtualisation.oci-containers.containers = listToAttrs (map
-          (container:
+        virtualization.docker.enable = true;
+        users.linger = users;
+      };
+      users =
+      {
+        users = listToAttrs (map
+          (user:
           {
-            name = "${container.name}";
+            name = user;
             value =
             {
-              image = container.value.imageName;
-              imageFile = container.value.image;
-              ports = map
-                (port:
-                (
-                  if builtins.typeOf port == "int" then "127.0.0.1::${toString port}"
-                  else ("${port.value.hostIp}:${toString port.value.hostPort}"
-                    + ":${toString port.value.containerPort}/${port.value.protocol}")
-                ))
-                container.value.ports;
-              extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
-              environmentFiles =
-                if builtins.typeOf container.value.environmentFile == "bool" && container.value.environmentFile
-                  then [ inputs.config.sops.templates."${container.name}/env".path ]
-                else if builtins.typeOf container.value.environmentFile == "bool" then []
-                else [ container.value.environmentFile ];
+              isSystemUser = true;
+              group = user;
+              autoSubUidGidRange = true;
+              home = "/run/docker-rootless/${user}";
+              createHome = true;
             };
           })
-          (attrsToList docker));
-        systemd.services = listToAttrs (concatLists (map
-          (container:
-          [
+          users);
+        groups = listToAttrs (map (user: { name = user; value = {}; }) users);
+      };
+      home-manager.users = listToAttrs (map
+        (user:
+        {
+          name = user;
+          value.config.systemd.user.services = listToAttrs (map
+            (container:
             {
-              name = "docker-${container.value.user}-daemon";
+              inherit (container) name;
               value =
               {
-                wantedBy = [ "multi-user.target" ];
-                inherit (inputs.systemd.user.services.docker) description path;
-                serviceConfig = inputs.systemd.user.services.docker.serviceConfig //
+                Unit =
                 {
-                  User = container.value.user;
-                  Group = container.value.user;
-                  AmbientCapabilities = "CAP_NET_BIND_SERVICE";
-                  ExecStart = inputs.systemd.user.services.docker.serviceConfig.ExecStart
-                    + " -H unix:///var/run/docker-rootless/${container.value.user}.sock";
+                  After = [ "dbus.socket" ];
+                  Wants = [ "dbus.socket" ];
                 };
-                unitConfig = { inherit (inputs.systemd.user.services.docker.unitConfig) StartLimitInterval; };
+                Install.WantedBy = [ "default.target" ];
+                Service =
+                {
+                  Type = "simple";
+                  RemainAfterExit = true;
+                  ExecStart = inputs.pkgs.writeShellScript "docker-${container.name}.start"
+                  ''
+                    docker rm -f ${container.name} || true
+                    echo "loading image"
+                    docker load -i ${container.value.image}
+                    echo "load finish"
+                    docker image ls
+                    ${
+                      builtins.concatStringsSep " \\\n"
+                      (
+                        [
+                          "docker run --rm --name=${container.name}"
+                          "--add-host=host.docker.internal:host-gateway"
+                        ]
+                        ++ (
+                          if (builtins.typeOf container.value.environmentFile) == "string"
+                            then [ "--env-file ${container.value.environmentFile}" ]
+                          else if container.value.environmentFile
+                            then [ "--env-file ${inputs.config.sops.templates."${container.name}.env".path}" ]
+                          else []
+                        )
+                        ++ (map
+                          (port: "-p ${port}")
+                          (map
+                            (port:
+                              if builtins.typeOf port == "int" then toString port
+                              else "${port.value.hostIp}:${toString port.value.hostPort}"
+                                + ":${toString port.value.containerPort}/${port.value.protocol}"
+                            )
+                            container.value.ports))
+                        ++ [ "${container.value.image.imageName}:${container.value.image.imageTag}" ]
+                      )
+                    }
+                  '';
+                  ExecStop = inputs.pkgs.writeShellScript "docker-${container.name}.stop"
+                  ''
+                    docker stop ${container.name}
+                    docker system prune --volumes --force
+                  '';
+                };
               };
-            }
-            {
-              name = "docker-${container.name}";
-              value =
-              {
-                requires = [ "docker-${container.value.user}-daemon.service" ];
-                after = [ "docker-${container.value.user}-daemon.service" ];
-                environment.DOCKER_HOST = "unix:///var/run/docker-rootless/${container.value.user}.sock";
-                serviceConfig = { User = container.value.user; Group = container.value.user; };
-              };
-            }
-          ])
-          (attrsToList docker)));
-      }
-      (mkIf (docker != {})
-      {
-        systemd.tmpfiles.rules = [ "d /var/run/docker-rootless 0777" ];
-        nixos.virtualization.docker.enable = true;
-      })
-    ];
+            })
+            (builtins.filter (container: container.value.user == user) (attrsToList docker)));
+        })
+        users);
+    };
 }

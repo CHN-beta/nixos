@@ -201,6 +201,7 @@ inputs:
     {
       users = mkOption { type = types.listOf (types.enum (builtins.attrNames allUsers)); default = [ "root" "chn" ]; };
       sharedModules = mkOption { type = types.listOf types.anything; default = []; };
+      linger = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     };
     config =
       let
@@ -210,6 +211,26 @@ inputs:
       in mkMerge
       [
         (mkMerge (map (user: mkIf (builtins.elem user users.users) allUsers.${user}) (attrNames allUsers)))
+        {
+          system.activationScripts.linger = builtins.concatStringsSep "\n" (map
+            (user: "${inputs.pkgs.systemd}/bin/loginctl enable-linger ${user}") users.linger);
+        }
+#        {
+#          fileSystems."/var/lib/systemd/linger" =
+#          {
+#            device = (inputs.pkgs.stdenv.mkDerivation
+#            {
+#              name = "systemd-linger";
+#              phases = [ "installPhase" ];
+#              installPhase = builtins.concatStringsSep "\n"
+#              (
+#                [ "mkdir -p $out" ]
+#                ++ (map (user: "touch $out/${user}") users.linger)
+#              );
+#            }).outPath;
+#            options = [ "bind" "private" "x-gvfs-hide" ];
+#          };
+#        }
       ];
   }
 
