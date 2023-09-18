@@ -41,7 +41,7 @@ inputs:
         "${impermanence.root}" =
         {
           hideMounts = true;
-          directories = []
+          directories = [ "/var/lib/systemd/linger" ]
             ++ (if inputs.config.services.xserver.displayManager.sddm.enable then
               [{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }] else []);
         };
