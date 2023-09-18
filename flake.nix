@@ -344,6 +344,7 @@
               services =
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+                fontconfig.enable = true;
                 sshd.enable = true;
                 rsshub.enable = true;
                 nginx = { enable = true; transparentProxy.externalIp = "95.111.228.40"; };
