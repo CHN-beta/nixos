@@ -32,11 +32,9 @@ inputs:
       inherit (inputs.localLib) attrsToList;
       inherit (inputs.config.nixos.services) docker;
       users = inputs.lib.lists.unique (map (container: container.value.user) (attrsToList docker));
-      # users = map
-      #   (user: builtins.filter (container: container.user == user) (builtins.attrValues docker))
-      #   (inputs.lib.lists.unique (map (container: container.value.user) (attrsToList docker)));
     in mkIf (docker != {})
     {
+      systemd.tmpfiles.rules = [ "d /run/docker-rootless 0755 root root" ];
       nixos =
       {
         virtualization.docker.enable = true;
@@ -50,7 +48,7 @@ inputs:
             name = user;
             value =
             {
-              isSystemUser = true;
+              isNormalUser = true;
               group = user;
               autoSubUidGidRange = true;
               home = "/run/docker-rootless/${user}";
@@ -72,8 +70,8 @@ inputs:
               {
                 Unit =
                 {
-                  After = [ "dbus.socket" ];
-                  Wants = [ "dbus.socket" ];
+                  After = [ "dbus.socket" "docker.service" ];
+                  Wants = [ "dbus.socket" "docker.service" ];
                 };
                 Install.WantedBy = [ "default.target" ];
                 Service =
