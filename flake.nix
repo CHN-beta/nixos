@@ -208,7 +208,7 @@
                 };
                 nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
                 smartd.enable = true;
-                nginx = { enable = true; transparentProxy.enable = false; };
+                nginx = { enable = true; transparentProxy.externalIp = "192.168.1.3"; };
                 misskey = { enable = true; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
                 misskey-proxy."xn--qbtm095lrg0bfka60z.chn.moe" = {};
               };
