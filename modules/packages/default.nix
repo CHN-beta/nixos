@@ -69,7 +69,7 @@ inputs:
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
             inquirerpy requests python-telegram-bot tqdm fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
-            certifi charset-normalizer idna orjson psycopg2
+            certifi charset-normalizer idna orjson psycopg2 localPackages.eigengdb
           ])];
         };
         users.sharedModules =
