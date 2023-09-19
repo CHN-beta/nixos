@@ -33,6 +33,7 @@ inputs:
       (
         mkConditional (nixpkgs.march != null)
         {
+          programs.ccache.enable = true;
           nixpkgs =
           {
             hostPlatform = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
@@ -44,6 +45,8 @@ inputs:
                 localSystem = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
                 config.allowUnfree = true;
               };
+              llvmPackages_16 = prev.llvmPackages_16.override
+                (prev: { stdenv = final.ccacheStdenv.override { stdenv = prev.stdenv; }; });
             })];
           };
           boot.kernelPatches =
