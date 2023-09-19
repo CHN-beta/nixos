@@ -305,15 +305,17 @@ inputs:
                     ++ (with ms-vscode-remote; [ remote-ssh remote-containers remote-ssh-edit ])
                     ++ [
                       donjayamanne.githistory genieai.chatgpt-vscode fabiospampinato.vscode-diff cschlosser.doxdocgen
-                      llvm-vs-code-extensions.vscode-clangd ms-ceintl.vscode-language-pack-zh-hans oderwat.indent-rainbow
+                      llvm-vs-code-extensions.vscode-clangd ms-ceintl.vscode-language-pack-zh-hans
+                      oderwat.indent-rainbow
                       twxs.cmake guyutongxue.cpp-reference znck.grammarly thfriedrich.lammps leetcode.vscode-leetcode
                       james-yu.latex-workshop gimly81.matlab affenwiesel.matlab-formatter ckolkman.vscode-postgres
                       yzhang.markdown-all-in-one pkief.material-icon-theme bbenoist.nix ms-ossdata.vscode-postgresql
-                      redhat.vscode-xml dotjoshjohnson.xml jnoortheen.nix-ide xdebug.php-debug hbenl.vscode-test-explorer
+                      redhat.vscode-xml dotjoshjohnson.xml jnoortheen.nix-ide xdebug.php-debug
+                      hbenl.vscode-test-explorer
                       jeff-hykin.better-cpp-syntax fredericbonnet.cmake-test-adapter mesonbuild.mesonbuild
                       hirse.vscode-ungit fortran-lang.linter-gfortran tboox.xmake-vscode ccls-project.ccls
                       feiskyer.chatgpt-copilot yukiuuh2936.vscode-modern-fortran-formatter wolframresearch.wolfram
-                      njpipeorgan.wolfram-language-notebook brettm12345.nixfmt-vscode
+                      njpipeorgan.wolfram-language-notebook brettm12345.nixfmt-vscode webfreak.debug
                     ];
                 }
               )
