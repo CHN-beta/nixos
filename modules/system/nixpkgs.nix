@@ -33,6 +33,7 @@ inputs:
       (
         mkConditional (nixpkgs.march != null)
         {
+          programs.ccache.enable = true;
           nixpkgs =
           {
             hostPlatform = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
