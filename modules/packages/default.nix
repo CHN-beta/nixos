@@ -63,6 +63,8 @@ inputs:
             nix-output-monitor nix-tree
             # office
             todo-txt-cli
+            # development
+            gdb
           ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
