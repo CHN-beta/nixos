@@ -288,16 +288,6 @@ inputs:
               (
                 vscode-with-extensions.override
                 {
-                  vscode = (vscode.override { isInsiders = true; }).overrideAttrs
-                  {
-                    src = fetchurl
-                    {
-                      name = "VSCode_latest_linux-x64.tar.gz";
-                      url = "https://code.visualstudio.com/sha/download?build=insider&os=linux-x64";
-                      sha256 = "1553n0gizb9hhkyyga9mgglns6k7xr85h90gk0v6bzp9psnw28fv";
-                    };
-                    version = "latest";
-                  };
                   vscodeExtensions = with nix-vscode-extensions.vscode-marketplace;
                     (with equinusocio; [ vsc-community-material-theme vsc-material-theme-icons ])
                     ++ (with github; [ copilot copilot-chat copilot-labs github-vscode-theme ])
