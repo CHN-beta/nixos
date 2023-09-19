@@ -282,7 +282,7 @@ inputs:
               fluent-reader rssguard
               # davinci-resolve playonlinux
               weston cage openbox krita
-              genymotion
+              genymotion hdfview
               (
                 vscode-with-extensions.override
                 {
