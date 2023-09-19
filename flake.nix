@@ -17,7 +17,11 @@
     nur.url = "github:nix-community/NUR";
     nixos-cn = { url = "github:nixos-cn/flakes"; inputs.nixpkgs.follows = "nixpkgs"; };
     nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nix-vscode-extensions = { url = "github:nix-community/nix-vscode-extensions"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nix-vscode-extensions =
+    {
+      url = "github:nix-community/nix-vscode-extensions?rev=50c4bce16b93e7ca8565d51fafabc05e9f0515da";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-alien = { url = "github:thiagokokada/nix-alien"; inputs.nix-index-database.follows = "nix-index-database"; };
     impermanence.url = "github:nix-community/impermanence";
     qchem = { url = "github:Nix-QChem/NixOS-QChem"; inputs.nixpkgs.follows = "nixpkgs"; };
