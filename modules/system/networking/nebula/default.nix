@@ -49,5 +49,6 @@ inputs:
         secrets."nebula/key" = {};
       };
       networking.firewall.trustedInterfaces = [ "nebula.nebula" ];
+      systemd.services."nebula@nebula".serviceConfig.Restart = "always";
     };
 }
