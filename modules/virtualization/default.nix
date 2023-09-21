@@ -67,7 +67,14 @@ inputs:
         };
         virtualisation =
         {
-          libvirtd = { enable = true; qemu.runAsRoot = false; onBoot = "ignore"; onShutdown = "shutdown"; };
+          libvirtd =
+          {
+            enable = true;
+            qemu.runAsRoot = false;
+            onBoot = "ignore";
+            onShutdown = "shutdown";
+            parallelShutdown = 4;
+          };
           spiceUSBRedirection.enable = true;
         };
         environment.systemPackages = with inputs.pkgs; [ qemu_full win-spice ] ++
