@@ -82,7 +82,7 @@ inputs:
               initExtraBeforeCompInit =
               ''
                 # p10k instant prompt
-                typeset -g POWERLEVEL9K_INSTANT_PROMPT=on
+                typeset -g POWERLEVEL9K_INSTANT_PROMPT=quiet
                 P10K_INSTANT_PROMPT="$XDG_CACHE_HOME/p10k-instant-prompt-''${(%):-%n}.zsh"
                 [[ ! -r "$P10K_INSTANT_PROMPT" ]] || source "$P10K_INSTANT_PROMPT"
                 HYPHEN_INSENSITIVE="true"
