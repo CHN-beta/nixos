@@ -9,8 +9,8 @@ let
   {
     owner = "DIYgod";
     repo = "RSSHub";
-    rev = "afcf9774260dc6505263cf0428970e890f2f7b1d";
-    hash = "sha256-BQFE0Z5DsFTf0tylQ0NN89hCdXT/Y2M+YPa/10ccOVg=";
+    rev = "46d32af2c57061a70114536d1f4514eb5b35dff2";
+    sha256 = "WvPE+WAvRSCPVwoz7sSH3KhC8GUC82wYmYKXb5F9xHI=";
   };
   originalPnpmPackage = mkPnpmPackage { inherit pname version src nodejs; };
   nodeModules = originalPnpmPackage.nodeModules.overrideAttrs { PUPPETEER_SKIP_DOWNLOAD = true; };
