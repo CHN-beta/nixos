@@ -1,4 +1,4 @@
-{ lib, pkgs }: with pkgs;
+{ lib, pkgs }: with pkgs; rec
 {
   typora = callPackage ./typora {};
   upho = python3Packages.callPackage ./upho {};
@@ -27,5 +27,6 @@
   v_sim = callPackage ./v_sim {};
   concurrencpp = callPackage ./concurrencpp { stdenv = gcc13Stdenv; };
   eigengdb = python3Packages.callPackage ./eigengdb {};
-  matplotplusplus = callPackage ./matplotplusplus {};
+  nodesoup = callPackage ./nodesoup {};
+  matplotplusplus = callPackage ./matplotplusplus { inherit nodesoup; };
 }
