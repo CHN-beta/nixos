@@ -11,6 +11,7 @@ inputs:
       };}));
       default = {};
     };
+    ioLimitDevice = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
   };
   config =
     let
@@ -60,7 +61,15 @@ inputs:
                 IOWeight = 1;
                 Nice = 19;
                 Slice = "-.slice";
-              };
+              }
+              // (if meilisearch.ioLimitDevice != null then
+              {
+                IOReadBandwidthMax = "${meilisearch.ioLimitDevice} 20M";
+                IOWriteBandwidthMax = "${meilisearch.ioLimitDevice} 20M";
+                # iostat -dx 1
+                IOReadIOPSMax = "${meilisearch.ioLimitDevice} 100";
+                IOWriteIOPSMax = "${meilisearch.ioLimitDevice} 100";
+              } else {});
             };
           })
           (attrsToList meilisearch.instances));

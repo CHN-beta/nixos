@@ -360,6 +360,7 @@
                 xrdp = { enable = true; hostname = "vps7.chn.moe"; };
                 vaultwarden.enable = true;
                 vaultwarden-proxy.enable = true;
+                meilisearch.ioLimitDevice = "/dev/mapper/root";
               };
             };})
           ];
