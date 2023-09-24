@@ -7,7 +7,7 @@
   oneapi = callPackage ./oneapi {};
   send = callPackage ./send {};
   rsshub = callPackage ./rsshub {};
-  misskey = callPackage ./misskey {};
+  misskey = callPackage ./misskey { vips = unstablePackages.vips; };
   mk-meili-mgn = callPackage ./mk-meili-mgn {};
   phonon-unfolding = callPackage ./phonon-unfolding {};
   # vasp = callPackage ./vasp

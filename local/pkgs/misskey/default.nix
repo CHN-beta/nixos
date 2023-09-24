@@ -9,8 +9,8 @@ let
   {
     owner = "CHN-beta";
     repo = "misskey";
-    rev = "e02ecb3819f6f05352d43b64ae59fa1bd683e2e0";
-    hash = "sha256-zsYM67LYUn+bI6kbdW9blftxw5TUxCdzlfaOOEgZz+Q=";
+    rev = "98fc24607022d7411313264b93b695a170fa3654";
+    sha256 = "t9WsrttdrQBb9DI617mtjRcpFgBX8aVHUEKb1DEQbfA=";
     fetchSubmodules = true;
   };
   originalPnpmPackage = mkPnpmPackage
@@ -27,11 +27,12 @@ let
     pnpm run migrateandstart
   '';
 in
-  stdenv.mkDerivation
+  stdenv.mkDerivation rec
   {
     inherit version src pname;
-    nativeBuildInputs =
+    buildInputs =
       [ bash nodejs_20 nodejs_20.pkgs.typescript nodejs_20.pkgs.pnpm nodejs_20.pkgs.gulp cypress vips pkg-config ];
+    nativeBuildInputs = buildInputs;
     CYPRESS_RUN_BINARY = "${cypress}/bin/Cypress";
     NODE_ENV = "production";
     configurePhase =
