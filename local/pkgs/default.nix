@@ -29,4 +29,5 @@
   eigengdb = python3Packages.callPackage ./eigengdb {};
   nodesoup = callPackage ./nodesoup {};
   matplotplusplus = callPackage ./matplotplusplus { inherit nodesoup; };
+  zpp-bits = callPackage ./zpp-bits {};
 }
