@@ -4,7 +4,7 @@
 }:
 let
   pname = "misskey";
-  version = "13.14.2";
+  version = "2023.9.1";
   src = fetchFromGitHub
   {
     owner = "CHN-beta";
@@ -76,7 +76,7 @@ let
 in
   stdenv.mkDerivation rec
   {
-    inherit version src pname re2;
+    inherit version src pname;
     buildInputs =
     [
       bash nodejs_20 nodejs_20.pkgs.typescript nodejs_20.pkgs.pnpm nodejs_20.pkgs.gulp cypress vips pkg-config
@@ -119,4 +119,8 @@ in
       mkdir -p $out/files
       runHook postInstall
     '';
+    passthru =
+    {
+      inherit originalPnpmPackage startScript re2;
+    };
   }
