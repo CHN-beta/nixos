@@ -90,7 +90,19 @@ inputs:
                     host = host;
                     hostname = "hpc.xmu.edu.cn";
                     user = host;
-                    extraOptions = { PubkeyAcceptedAlgorithms = "+ssh-rsa"; HostkeyAlgorithms = "+ssh-rsa"; };
+                    extraOptions =
+                    {
+                      PubkeyAcceptedAlgorithms = "+ssh-rsa";
+                      HostkeyAlgorithms = "+ssh-rsa";
+                      SetEnv = "TERM=chn_unset_ls_colors:xterm-256color";
+                      # in .bash_profile:
+                      # if [[ $TERM == chn_unset_ls_colors* ]]; then
+                      #   export TERM=${TERM#*:}
+                      #   export CHN_LS_USE_COLOR=1
+                      # fi
+                      # in .bashrc
+                      # [ -n "$CHN_LS_USE_COLOR" ] && alias ls="ls --color=auto"
+                    };
                   };
                 })
                 [ "wlin" "jykang" "hwang" ])
