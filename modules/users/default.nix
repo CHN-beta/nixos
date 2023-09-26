@@ -208,6 +208,7 @@ inputs:
             [ "groupshare" "video" ]
             (builtins.attrNames inputs.config.users.groups);
           passwordFile = inputs.config.sops.secrets."users/yxy".path;
+          openssh.authorizedKeys.keys = [ (builtins.readFile ./yxy_id_rsa.pub) ];
           shell = inputs.pkgs.zsh;
           autoSubUidGidRange = true;
         };
