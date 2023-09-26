@@ -10,9 +10,4 @@
     sha256 = "4qT29YVjKEWcMrI5R5Ps8aD4grAAgz5VOxANjpp1oTo=";
   };
   nativeBuildInputs = [ cmake ];
-  postInstall =
-  ''
-    mv $out/include/concurrencpp-${version}/concurrencpp $out/include
-    rm -rf $out/include/concurrencpp-${version}
-  '';
 }
