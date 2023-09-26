@@ -424,7 +424,8 @@ inputs:
           ])];
           _prebuildPackages =
           [
-            httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran gcc10 python2 gcc13Stdenv
+            httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran gcc10 python2
+            unstablePackages.gcc13Stdenv
           ];
         };
         programs =
