@@ -254,7 +254,7 @@ inputs:
             [
               # system management
               gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
-              wayland-utils clinfo glxinfo vulkan-tools dracut etcher
+              wayland-utils clinfo glxinfo vulkan-tools dracut etcher unstablePackages.btrfs-assistant
               # nix tools
               ssh-to-age deploy-rs.deploy-rs nixpkgs-fmt
               # instant messager
