@@ -215,6 +215,7 @@
                 nginx = { enable = true; transparentProxy.externalIp = [ "192.168.82.3" ]; };
                 misskey = { enable = true; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
                 misskey-proxy."xn--qbtm095lrg0bfka60z.chn.moe" = {};
+                beesd = { enable = true; instances.root = "/dev/mapper/root"; };
               };
               bugs =
               [
