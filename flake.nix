@@ -215,7 +215,7 @@
                 nginx = { enable = true; transparentProxy.externalIp = [ "192.168.82.3" ]; };
                 misskey = { enable = true; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
                 misskey-proxy."xn--qbtm095lrg0bfka60z.chn.moe" = {};
-                beesd = { enable = true; instances.root = "/dev/mapper/root"; };
+                beesd = { enable = true; instances = { root = "/"; boot = "/boot"; }; };
               };
               bugs =
               [
@@ -300,6 +300,7 @@
                 coturn.enable = true;
                 synapse-proxy."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
                 vaultwarden-proxy = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
+                beesd = { enable = true; instances = { root = "/"; boot = "/boot"; }; };
               };
             };})
           ];
@@ -362,6 +363,7 @@
                 vaultwarden.enable = true;
                 vaultwarden-proxy.enable = true;
                 meilisearch.ioLimitDevice = "/dev/mapper/root";
+                beesd = { enable = true; instances = { root = "/"; boot = "/boot"; }; };
               };
             };})
           ];
@@ -438,6 +440,7 @@
                 xrdp = { enable = true; hostname = [ "nas.chn.moe" "office.chn.moe" ]; };
                 groupshare.enable = true;
                 smartd.enable = true;
+                beesd = { enable = true; instances = { root = "/"; boot = "/boot"; nix = "/nix"; }; };
               };
               users.users = [ "root" "chn" "xll" "zem" "yjq" "yxy" ];
             };})
