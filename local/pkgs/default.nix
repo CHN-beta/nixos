@@ -30,4 +30,5 @@
   nodesoup = callPackage ./nodesoup {};
   matplotplusplus = callPackage ./matplotplusplus { inherit nodesoup; };
   zpp-bits = callPackage ./zpp-bits {};
+  eigen = callPackage ./eigen {};
 }
