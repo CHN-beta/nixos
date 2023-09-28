@@ -26,7 +26,6 @@ inputs:
             experimental-features = [ "nix-command" "flakes" ];
             keep-outputs = nix.keepOutputs;
             keep-failed = true;
-            auto-optimise-store = true;
             substituters = if nix.substituters == null then [ "https://cache.nixos.org/" ] else nix.substituters;
             trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
             show-trace = true;
