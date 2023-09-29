@@ -14,7 +14,15 @@ inputs:
     in mkIf beesd.enable
       {
         services.beesd.filesystems = listToAttrs (map
-          (instance: { inherit (instance) name; value.spec = instance.value; })
+          (instance:
+          {
+            inherit (instance) name;
+            value =
+            {
+              spec = instance.value;
+              extraOptions = [ "--thread-count" "1" ];
+            };
+          })
           (attrsToList beesd.instances));
         systemd.slices.system-beesd.sliceConfig =
         {
