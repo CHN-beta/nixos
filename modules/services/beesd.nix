@@ -3,7 +3,19 @@ inputs:
   options.nixos.services.beesd = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
-    instances = mkOption { type = types.attrsOf types.string; default = {}; };
+    instances = mkOption
+    {
+      type = types.attrsOf (types.oneOf
+      [
+        types.nonEmptyStr
+        (types.submodule { options =
+        {
+          device = mkOption { type = types.nonEmptyStr; };
+          hashTableSizeMB = mkOption { type = types.int; default = 1024; };
+        };})
+      ]);
+      default = {};
+    };
   };
   config =
     let
@@ -19,7 +31,8 @@ inputs:
             inherit (instance) name;
             value =
             {
-              spec = instance.value;
+              spec = instance.value.device or instance.value;
+              hashTableSizeMB = instance.value.hashTableSizeMB or 1024;
               extraOptions = [ "--thread-count" "1" ];
             };
           })
