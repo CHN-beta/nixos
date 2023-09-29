@@ -11,7 +11,7 @@ inputs:
         (types.submodule { options =
         {
           device = mkOption { type = types.nonEmptyStr; };
-          hashTableSizeMB = mkOption { type = types.int; default = 1024; };
+          hashTableSizeMB = mkOption { type = types.int; };
         };})
       ]);
       default = {};
