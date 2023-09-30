@@ -33,7 +33,7 @@ inputs:
             {
               spec = instance.value.device or instance.value;
               hashTableSizeMB = instance.value.hashTableSizeMB or 1024;
-              extraOptions = [ "--thread-count" "1" ];
+              extraOptions = [ "--thread-count" "1" "--workaround-btrfs-send" ];
             };
           })
           (attrsToList beesd.instances));
