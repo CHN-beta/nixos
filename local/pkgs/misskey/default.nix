@@ -17,7 +17,7 @@ let
   {
     inherit pname version src;
     nodejs = nodejs_20;
-    copyPnpmStore = true;
+    copyPnpmStore = false;
   };
   startScript = writeShellScript "misskey"
   ''
@@ -97,7 +97,7 @@ in
       mkdir -p $(dirname $store)
 
       cp -f ${originalPnpmPackage.passthru.patchedLockfileYaml} pnpm-lock.yaml
-      cp -RL ${originalPnpmPackage.passthru.pnpmStore} $store
+      ln -s ${originalPnpmPackage.passthru.pnpmStore} $store
       chmod -R +w $store
       pnpm install --frozen-lockfile --offline
 
