@@ -215,7 +215,7 @@
                 nginx = { enable = true; transparentProxy.externalIp = [ "192.168.82.3" ]; };
                 misskey = { enable = true; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
                 misskey-proxy."xn--qbtm095lrg0bfka60z.chn.moe" = {};
-                beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
+                beesd = { enable = false; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
               };
               bugs =
               [
@@ -300,7 +300,7 @@
                 coturn.enable = true;
                 synapse-proxy."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
                 vaultwarden-proxy = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
-                beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 32; }; };
+                beesd = { enable = false; instances.root = { device = "/"; hashTableSizeMB = 32; }; };
               };
             };})
           ];
@@ -363,7 +363,7 @@
                 vaultwarden.enable = true;
                 vaultwarden-proxy.enable = true;
                 meilisearch.ioLimitDevice = "/dev/mapper/root";
-                beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
+                beesd = { enable = false; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
               };
             };})
           ];
@@ -442,7 +442,7 @@
                 smartd.enable = true;
                 beesd =
                 {
-                  enable = true;
+                  enable = false;
                   instances =
                   {
                     root = { device = "/"; hashTableSizeMB = 4096; };
