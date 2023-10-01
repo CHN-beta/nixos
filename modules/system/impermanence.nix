@@ -64,7 +64,12 @@ inputs:
                 [{ directory = "/var/lib/postgresql"; user = user.name; group = user.group; mode = "0750"; }]
               else []
             )
-            ++ (if inputs.config.nixos.services.meilisearch.instances != {} then [ "/var/lib/meilisearch" ] else []);
+            ++ (if inputs.config.nixos.services.meilisearch.instances != {} then [ "/var/lib/meilisearch" ] else [])
+            ++ (
+              if inputs.config.nixos.virtualization.kvmHost.enable then
+                [{ directory = "/var/lib/libvirt/images"; mode = "0711"; }]
+              else []
+            );
         };
       };
     };
