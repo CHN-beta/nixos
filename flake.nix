@@ -166,7 +166,7 @@
               };
               services =
               {
-                snapper = { enable = false; configs.persistent = "/nix/persistent"; };
+                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
                 samba =
                 {
@@ -215,7 +215,7 @@
                 nginx = { enable = true; transparentProxy.externalIp = [ "192.168.82.3" ]; };
                 misskey = { enable = true; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
                 misskey-proxy."xn--qbtm095lrg0bfka60z.chn.moe" = {};
-                beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 8192; }; };
+                beesd = { enable = false; instances.root = { device = "/"; hashTableSizeMB = 8192; }; };
               };
               bugs =
               [
