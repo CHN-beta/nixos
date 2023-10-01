@@ -20,14 +20,10 @@ inputs:
     ./vaultwarden.nix
     ./frp.nix
     ./beesd.nix
+    ./snapper.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
-    snapper =
-    {
-      enable = mkOption { type = types.bool; default = false; };
-      configs = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
-    };
     kmscon.enable = mkOption { type = types.bool; default = false; };
     fontconfig.enable = mkOption { type = types.bool; default = false; };
     firewall.trustedInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
@@ -48,38 +44,6 @@ inputs:
       inherit (builtins) map listToAttrs toString;
     in mkMerge
     [
-      (
-        mkIf services.snapper.enable
-        {
-          services.snapper.configs =
-            let
-              f = (config:
-              {
-                inherit (config) name;
-                value =
-                {
-                  SUBVOLUME = config.value;
-                  TIMELINE_CREATE = true;
-                  TIMELINE_CLEANUP = true;
-                  TIMELINE_MIN_AGE = 1800;
-                  TIMELINE_LIMIT_HOURLY = "10";
-                  TIMELINE_LIMIT_DAILY = "7";
-                  TIMELINE_LIMIT_WEEKLY = "1";
-                  TIMELINE_LIMIT_MONTHLY = "0";
-                  TIMELINE_LIMIT_YEARLY = "0";
-                };
-              });
-            in
-              listToAttrs (map f (attrsToList services.snapper.configs));
-          nixpkgs.config.packageOverrides = pkgs: 
-          {
-            snapper = pkgs.snapper.overrideAttrs (attrs:
-            {
-              patches = (if (attrs ? patches) then attrs.patches else []) ++ [ ./snapper.patch ];
-            });
-          };
-        }
-      )
       (
         mkIf services.kmscon.enable
         {
