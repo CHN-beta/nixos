@@ -237,6 +237,7 @@ inputs:
               if [ -f /mnt${path}/current/.timestamp ]
               then
                 mv /mnt${path}/current /mnt${path}/$(cat /mnt${path}/current/.timestamp)
+                btrfs property set -ts /mnt${path}/$(cat /mnt${path}/current/.timestamp) ro true
               fi
               btrfs subvolume create /mnt${path}/current
               echo $(date '+%Y%m%d%H%M%S') > /mnt${path}/current/.timestamp
