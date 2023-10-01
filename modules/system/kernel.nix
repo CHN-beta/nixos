@@ -29,18 +29,7 @@ inputs:
       extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;
       extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
       kernelParams = [ "delayacct" "acpi_osi=Linux" ];
-      kernelPackages = inputs.pkgs.linuxPackagesFor (inputs.pkgs.linuxPackages_xanmod.kernel.override rec
-      {
-        src = inputs.pkgs.fetchFromGitHub
-        {
-          owner = "xanmod";
-          repo = "linux";
-          rev = modDirVersion;
-          hash = "sha256-EugTfBbeH9VTpIg1aDNfaY57NDCA70QIdsOfzxWMSeA=";
-        };
-        version = "6.4.14";
-        modDirVersion = "6.4.14-xanmod1";
-      });
+      kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
       kernelPatches =
         let
           patches =
