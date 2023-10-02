@@ -58,92 +58,129 @@ inputs:
         home-manager.users.chn =
         {
           imports = inputs.config.nixos.users.sharedModules;
-          config.programs =
+          config =
           {
-            git =
+            programs =
             {
-              userName = "chn";
-              userEmail = "chn@chn.moe";
-            };
-            ssh.matchBlocks = builtins.listToAttrs
-            (
-              (builtins.map
-                (host:
-                {
-                  name = host.name;
-                  value = { host = host.name; hostname = host.value; user = "chn"; };
-                })
-                (inputs.localLib.attrsToList
-                {
-                  vps3 = "vps3.chn.moe";
-                  vps4 = "vps4.chn.moe";
-                  vps5 = "vps5.chn.moe";
-                  vps6 = "vps6.chn.moe";
-                  vps7 = "vps7.chn.moe";
-                }))
-              ++ (builtins.map
-                (host:
-                {
-                  name = host;
-                  value =
+              git =
+              {
+                userName = "chn";
+                userEmail = "chn@chn.moe";
+              };
+              ssh.matchBlocks = builtins.listToAttrs
+              (
+                (builtins.map
+                  (host:
                   {
-                    host = host;
-                    hostname = "hpc.xmu.edu.cn";
-                    user = host;
-                    extraOptions =
+                    name = host.name;
+                    value = { host = host.name; hostname = host.value; user = "chn"; };
+                  })
+                  (inputs.localLib.attrsToList
+                  {
+                    vps3 = "vps3.chn.moe";
+                    vps4 = "vps4.chn.moe";
+                    vps5 = "vps5.chn.moe";
+                    vps6 = "vps6.chn.moe";
+                    vps7 = "vps7.chn.moe";
+                  }))
+                ++ (builtins.map
+                  (host:
+                  {
+                    name = host;
+                    value =
                     {
-                      PubkeyAcceptedAlgorithms = "+ssh-rsa";
-                      HostkeyAlgorithms = "+ssh-rsa";
-                      SetEnv = "TERM=chn_unset_ls_colors:xterm-256color";
-                      # in .bash_profile:
-                      # if [[ $TERM == chn_unset_ls_colors* ]]; then
-                      #   export TERM=${TERM#*:}
-                      #   export CHN_LS_USE_COLOR=1
-                      # fi
-                      # in .bashrc
-                      # [ -n "$CHN_LS_USE_COLOR" ] && alias ls="ls --color=auto"
+                      host = host;
+                      hostname = "hpc.xmu.edu.cn";
+                      user = host;
+                      extraOptions =
+                      {
+                        PubkeyAcceptedAlgorithms = "+ssh-rsa";
+                        HostkeyAlgorithms = "+ssh-rsa";
+                        SetEnv = "TERM=chn_unset_ls_colors:xterm-256color";
+                        # in .bash_profile:
+                        # if [[ $TERM == chn_unset_ls_colors* ]]; then
+                        #   export TERM=${TERM#*:}
+                        #   export CHN_LS_USE_COLOR=1
+                        # fi
+                        # in .bashrc
+                        # [ -n "$CHN_LS_USE_COLOR" ] && alias ls="ls --color=auto"
+                      };
                     };
-                  };
-                })
-                [ "wlin" "jykang" "hwang" ])
-            )
-            // {
-              xmupc1 =
-              {
-                host = "xmupc1";
-                hostname = "office.chn.moe";
-                user = "chn";
-                port = 6007;
-              };
-              nas =
-              {
-                host = "nas";
-                hostname = "office.chn.moe";
-                user = "chn";
-                port = 5440;
-              };
-              xmupc1-ext =
-              {
-                host = "xmupc1-ext";
-                hostname = "vps3.chn.moe";
-                user = "chn";
-                port = 6007;
-              };
-              xmuhk =
-              {
-                host = "xmuhk";
-                hostname = "10.26.14.56";
-                user = "xmuhk";
-                # identityFile = "~/.ssh/xmuhk_id_rsa";
-              };
-              xmuhk2 =
-              {
-                host = "xmuhk2";
-                hostname = "183.233.219.132";
-                user = "xmuhk";
-                port = 62022;
+                  })
+                  [ "wlin" "jykang" "hwang" ])
+              )
+              // {
+                xmupc1 =
+                {
+                  host = "xmupc1";
+                  hostname = "office.chn.moe";
+                  user = "chn";
+                  port = 6007;
+                };
+                nas =
+                {
+                  host = "nas";
+                  hostname = "office.chn.moe";
+                  user = "chn";
+                  port = 5440;
+                };
+                xmupc1-ext =
+                {
+                  host = "xmupc1-ext";
+                  hostname = "vps3.chn.moe";
+                  user = "chn";
+                  port = 6007;
+                };
+                xmuhk =
+                {
+                  host = "xmuhk";
+                  hostname = "10.26.14.56";
+                  user = "xmuhk";
+                  # identityFile = "~/.ssh/xmuhk_id_rsa";
+                };
+                xmuhk2 =
+                {
+                  host = "xmuhk2";
+                  hostname = "183.233.219.132";
+                  user = "xmuhk";
+                  port = 62022;
+                };
               };
             };
+            home.packages =
+            [
+              (
+                let
+                  servers = builtins.filter
+                    (system: system.value.enable)
+                    (builtins.map
+                      (system:
+                      {
+                        name = system.config.nixos.system.networking.hostname;
+                        value = system.config.nixos.system.fileSystems.decrypt.manual;
+                      })
+                      (builtins.attrValues inputs.topInputs.self.nixosConfigurations));
+                  cat = "${inputs.pkgs.binutils}/bin/cat";
+                  gpg = "${inputs.pkgs.gnupg}/bin/gpg";
+                  ssh = "${inputs.pkgs.openssh}/bin/ssh";
+                in inputs.pkgs.writeShellScriptBin "remote-decrypt" (builtins.concatStringsSep "\n"
+                  (
+                    (builtins.map (system: builtins.concatStringsSep "\n"
+                      [
+                        "decrypt-${system.name}() {"
+                        "  key=$(${cat} ${system.value.keyFile} | ${gpg} --decrypt)"
+                        (builtins.concatStringsSep "\n" (builtins.map
+                          (device: "  ${ssh} root@initrd.${system.name}.chn.moe cryptsetup luksOpen "
+                            + (if device.value.ssd then "--allow-discards " else "")
+                            + "${device.name} ${device.value.mapper} -")
+                          (inputs.localLib.attrsToList system.value.devices)))
+                        "}"
+                      ])
+                      servers)
+                    ++ [ "decrypt-$1" ]
+                  ))
+              )
+            ];
           };
         };
         nixos.services.groupshare.mountPoints = [ "/home/chn/groupshare" ];

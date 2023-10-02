@@ -39,6 +39,11 @@ inputs:
           });
           default = {};
         };
+        keyFile = mkOption
+        {
+          type = types.path;
+          default = ./. + "/${inputs.config.nixos.system.networking.hostname}.key";
+        };
         delayedMount = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
       };
     };

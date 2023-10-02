@@ -3,7 +3,7 @@ inputs:
   imports = inputs.localLib.mkModules
   [
     ./nix.nix
-    ./fileSystems.nix
+    ./fileSystems
     ./grub.nix
     ./initrd.nix
     ./kernel.nix

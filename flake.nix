@@ -391,11 +391,16 @@
                       };
                     };
                   };
-                  decrypt.auto =
+                  decrypt.manual =
                   {
-                    "/dev/disk/by-uuid/5cf1d19d-b4a5-4e67-8e10-f63f0d5bb649".mapper = "root1";
-                    "/dev/disk/by-uuid/aa684baf-fd8a-459c-99ba-11eb7636cb0d".mapper = "root2";
-                    "/dev/disk/by-uuid/a779198f-cce9-4c3d-a64a-9ec45f6f5495" = { mapper = "nix"; ssd = true; };
+                    enable = true;
+                    devices =
+                    {
+                      "/dev/disk/by-uuid/5cf1d19d-b4a5-4e67-8e10-f63f0d5bb649".mapper = "root1";
+                      "/dev/disk/by-uuid/aa684baf-fd8a-459c-99ba-11eb7636cb0d".mapper = "root2";
+                      "/dev/disk/by-uuid/a779198f-cce9-4c3d-a64a-9ec45f6f5495" = { mapper = "nix"; ssd = true; };
+                    };
+                    delayedMount = [ "/" "/nix" ];
                   };
                   rollingRootfs = { device = "/dev/mapper/root1"; path = "/nix/rootfs"; };
                 };
