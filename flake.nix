@@ -405,6 +405,11 @@
                   };
                   rollingRootfs = { device = "/dev/mapper/root1"; path = "/nix/rootfs"; };
                 };
+                initrd =
+                {
+                  network.enable = true;
+                  sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
+                };
                 grub.installDevice = "efi";
                 nixpkgs.march = "silvermont";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
