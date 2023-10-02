@@ -453,7 +453,7 @@
                 smartd.enable = true;
                 beesd =
                 {
-                  enable = false;
+                  enable = true;
                   instances =
                   {
                     root = { device = "/"; hashTableSizeMB = 2048; };
