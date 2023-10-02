@@ -160,7 +160,7 @@ inputs:
                         value = system.config.nixos.system.fileSystems.decrypt.manual;
                       })
                       (builtins.attrValues inputs.topInputs.self.nixosConfigurations));
-                  cat = "${inputs.pkgs.binutils}/bin/cat";
+                  cat = "${inputs.pkgs.coreutils}/bin/cat";
                   gpg = "${inputs.pkgs.gnupg}/bin/gpg";
                   ssh = "${inputs.pkgs.openssh}/bin/ssh";
                 in inputs.pkgs.writeShellScriptBin "remote-decrypt" (builtins.concatStringsSep "\n"
