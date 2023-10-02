@@ -170,7 +170,7 @@ inputs:
                         "decrypt-${system.name}() {"
                         "  key=$(${cat} ${system.value.keyFile} | ${gpg} --decrypt)"
                         (builtins.concatStringsSep "\n" (builtins.map
-                          (device: "  ${ssh} root@initrd.${system.name}.chn.moe cryptsetup luksOpen "
+                          (device: "  echo $key | ${ssh} root@initrd.${system.name}.chn.moe cryptsetup luksOpen "
                             + (if device.value.ssd then "--allow-discards " else "")
                             + "${device.name} ${device.value.mapper} -")
                           (inputs.localLib.attrsToList system.value.devices)))
