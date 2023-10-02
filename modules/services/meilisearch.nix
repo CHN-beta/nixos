@@ -101,7 +101,7 @@ inputs:
                 max_indexing_memory = "16Gb"
                 max_indexing_threads = 1
               '';
-              owner = inputs.config.users.users.misskey.name;
+              owner = instance.value.user;
             };
           })
           (attrsToList meilisearch.instances));

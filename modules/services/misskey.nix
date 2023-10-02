@@ -44,16 +44,17 @@ inputs:
       inherit (builtins) map listToAttrs toString replaceStrings;
     in mkMerge
     [
-      (mkMerge (map
-        (instance:
-        {
-          systemd =
+      {
+        systemd = mkMerge (map
+          (instance:
           {
             services."misskey-${instance.name}" = rec
             {
+              enable = instance.value.autoStart;
               description = "misskey ${instance.name}";
               after = [ "network.target" "redis-misskey-${instance.name}.service" "postgresql.service" ]
-                ++ (if instance.meilisearch.enable then [ "meilisearch-misskey-${instance.name}.service" ] else []);
+                ++ (if instance.value.meilisearch.enable then [ "meilisearch-misskey-${instance.name}.service" ]
+                  else []);
               requires = after;
               wantedBy = [ "multi-user.target" ];
               environment.MISSKEY_CONFIG_YML = inputs.config.sops.templates."misskey/${instance.name}.yml".path;
@@ -70,8 +71,10 @@ inputs:
               };
             };
             tmpfiles.rules = [ "d /var/lib/misskey/${instance.name}/files 0700 misskey misskey" ];
-          };
-          fileSystems =
+          })
+          (attrsToList misskey.instances));
+        fileSystems = mkMerge (map
+          (instance:
           {
             "/var/lib/misskey/${instance.name}/work" =
             {
@@ -83,55 +86,63 @@ inputs:
               device = "/var/lib/misskey/${instance.name}/files";
               options = [ "bind" "private" "x-gvfs-hide" ];
             };
-          };
-          sops.templates."misskey/${instance.name}.yml" =
+          })
+          (attrsToList misskey.instances));
+        sops.templates = listToAttrs (map
+          (instance:
           {
-            content =
-              let
-                placeholder = inputs.config.sops.placeholder;
-                redis = inputs.config.nixos.services.redis.instances."misskey-${instance.name}";
-                meilisearch = inputs.config.nixos.services.meilisearch.instances."misskey-${instance.name}";
-              in
-              ''
-                url: https://${instance.value.hostname}/
-                port: ${toString instance.value.port}
-                db:
-                  host: 127.0.0.1
-                  port: 5432
-                  db: ${replaceStrings [ "-" ] [ "_" ] instance.name}
-                  user: ${instance.name}
-                  pass: ${placeholder."postgresql/misskey-${instance.name}"}
-                  extra:
-                    statement_timeout: 60000
-                dbReplications: false
-                redis:
-                  host: 127.0.0.1
-                  port: ${toString redis.port}
-                  pass: ${placeholder."redis/misskey-${instance.name}"}
-                id: 'aid'
-                proxyBypassHosts:
-                  - api.deepl.com
-                  - api-free.deepl.com
-                  - www.recaptcha.net
-                  - hcaptcha.com
-                  - challenges.cloudflare.com
-                proxyRemoteFiles: true
-                signToActivityPubGet: true
-                maxFileSize: 1073741824
-              ''
-              + (if instance.value.meilisearch.enable then
-              ''
-                meilisearch:
-                  host: 127.0.0.1
-                  port: ${toString meilisearch.port}
-                  apiKey: ${placeholder."meilisearch/misskey-${instance.name}"}
-                  ssl: false
-                  index: misskey
-                  scope: globa
-              '' else "");
-            owner = inputs.config.users.users."misskey-${instance.name}".name;
-          };
-          users =
+            name = "misskey/${instance.name}.yml";
+            value =
+            {
+              content =
+                let
+                  placeholder = inputs.config.sops.placeholder;
+                  redis = inputs.config.nixos.services.redis.instances."misskey-${instance.name}";
+                  meilisearch = inputs.config.nixos.services.meilisearch.instances."misskey-${instance.name}";
+                in
+                ''
+                  url: https://${instance.value.hostname}/
+                  port: ${toString instance.value.port}
+                  db:
+                    host: 127.0.0.1
+                    port: 5432
+                    db: misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}
+                    user: misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}
+                    pass: ${placeholder."postgresql/misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}"}
+                    extra:
+                      statement_timeout: 60000
+                  dbReplications: false
+                  redis:
+                    host: 127.0.0.1
+                    port: ${toString redis.port}
+                    pass: ${placeholder."redis/misskey-${instance.name}"}
+                  id: 'aid'
+                  proxyBypassHosts:
+                    - api.deepl.com
+                    - api-free.deepl.com
+                    - www.recaptcha.net
+                    - hcaptcha.com
+                    - challenges.cloudflare.com
+                  proxyRemoteFiles: true
+                  signToActivityPubGet: true
+                  maxFileSize: 1073741824
+                ''
+                + (if instance.value.meilisearch.enable then
+                ''
+                  meilisearch:
+                    host: 127.0.0.1
+                    port: ${toString meilisearch.port}
+                    apiKey: ${placeholder."meilisearch/misskey-${instance.name}"}
+                    ssl: false
+                    index: misskey
+                    scope: globa
+                '' else "");
+              owner = inputs.config.users.users."misskey-${instance.name}".name;
+            };
+          })
+          (attrsToList misskey.instances));
+        users = mkMerge (map
+          (instance:
           {
             users."misskey-${instance.name}" =
             {
@@ -141,19 +152,37 @@ inputs:
               createHome = true;
             };
             groups."misskey-${instance.name}" = {};
-          };
-          nixos.services =
-          {
-            redis.instances."misskey-${instance.name}".port = instance.value.redis.port;
-            postgresql = { enable = true; instances."misskey-${instance.name}" = {}; };
-            meilisearch.instances."misskey-${instance.name}" =
+          })
+          (attrsToList misskey.instances));
+        nixos.services =
+        {
+          redis.instances = listToAttrs (map
+            (instance:
             {
-              user = inputs.config.users.users."misskey-${instance.name}".name;
-              port = instance.value.meilisearch.port;
-            };
+              name = "misskey-${instance.name}";
+              value.port = instance.value.redis.port;
+            })
+            (attrsToList misskey.instances));
+          postgresql =
+          {
+            enable = true;
+            instances = listToAttrs (map
+              (instance: { name = "misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
+              (attrsToList misskey.instances));
           };
-        })
-        (attrsToList misskey.instances)))
+          meilisearch.instances = listToAttrs (map
+            (instance:
+            {
+              name = "misskey-${instance.name}";
+              value =
+              {
+                user = inputs.config.users.users."misskey-${instance.name}".name;
+                port = instance.value.meilisearch.port;
+              };
+            })
+            (attrsToList misskey.instances));
+        };
+      }
       (mkIf (misskey-proxy != {})
       {
         nixos.services.nginx =

@@ -214,7 +214,7 @@
                 nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
                 smartd.enable = true;
                 nginx = { enable = true; transparentProxy.externalIp = [ "192.168.82.3" ]; };
-                misskey.instances.misskey = { autoStart = false; hostname = "xn--qbtm095lrg0bfka60z.chn.moe"; };
+                misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
                 misskey-proxy."xn--qbtm095lrg0bfka60z.chn.moe" = {};
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
               };
@@ -356,7 +356,7 @@
                 rsshub.enable = true;
                 nginx = { enable = true; transparentProxy.externalIp = [ "95.111.228.40" "192.168.82.2" ]; };
                 wallabag.enable = true;
-                misskey = { enable = true; hostname = "xn--s8w913fdga.chn.moe"; };
+                misskey.instances.misskey.hostname = "xn--s8w913fdga.chn.moe";
                 misskey-proxy."xn--s8w913fdga.chn.moe" = {};
                 synapse.enable = true;
                 synapse-proxy."synapse.chn.moe" = {};
