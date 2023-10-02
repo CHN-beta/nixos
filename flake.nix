@@ -417,7 +417,7 @@
               packages.packageSet = "desktop";
               services =
               {
-                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+                snapper = { enable = false; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
                 samba =
                 {
@@ -445,7 +445,7 @@
                   enable = false;
                   instances =
                   {
-                    root = { device = "/"; hashTableSizeMB = 4096; };
+                    root = { device = "/"; hashTableSizeMB = 2048; };
                     nix = { device = "/nix"; hashTableSizeMB = 128; };
                   };
                 };
