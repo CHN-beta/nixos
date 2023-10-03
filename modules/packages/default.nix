@@ -72,8 +72,8 @@ inputs:
             certifi charset-normalizer idna orjson psycopg2 localPackages.eigengdb
           ])];
         };
-        users.sharedModules =
-        [{
+        users.sharedModules = [(home-inputs:
+        {
           config.programs =
           {
             zsh =
@@ -127,6 +127,7 @@ inputs:
               ];
               history =
               {
+                path = "${home-inputs.config.xdg.dataHome}/zsh/zsh_history";
                 extended = true;
                 save = 100000000;
                 size = 100000000;
@@ -186,7 +187,7 @@ inputs:
               '';
             };
           };
-        }];
+        })];
       };
       programs =
       {
