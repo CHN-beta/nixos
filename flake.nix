@@ -298,13 +298,13 @@
                   };
                   applications =
                   {
-                    misskey =
+                    misskey.instances =
                     {
                       "xn--qbtm095lrg0bfka60z.chn.moe".upstream.address = "internal.pc.chn.moe";
                       "xn--s8w913fdga.chn.moe".upstream.address = "internal.vps7.chn.moe";
                       "misskey.chn.moe".upstream = "internal.vps7.chn.moe:9727";
                     };
-                    synapse."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
+                    synapse.instances."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
                     vaultwarden = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
                   };
                 };
@@ -373,7 +373,7 @@
                       "xn--s8w913fdga.chn.moe" = {};
                       "misskey.chn.moe".upstream.port = 9727;
                     };
-                    synapse."synapse.chn.moe" = {};
+                    synapse.instances."synapse.chn.moe" = {};
                     vaultwarden.enable = true;
                   };
                 };
