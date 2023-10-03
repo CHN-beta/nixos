@@ -41,7 +41,7 @@ inputs:
       inherit (inputs.config.nixos.services) misskey misskey-proxy;
       inherit (inputs.localLib) stripeTabs attrsToList;
       inherit (inputs.lib) mkIf mkMerge;
-      inherit (builtins) map listToAttrs toString replaceStrings;
+      inherit (builtins) map listToAttrs toString replaceStrings filter;
     in mkMerge
     [
       {
@@ -181,7 +181,7 @@ inputs:
                 port = instance.value.meilisearch.port;
               };
             })
-            (attrsToList misskey.instances));
+            (filter (instance: instance.value.meilisearch.enable) (attrsToList misskey.instances)));
         };
       }
       (mkIf (misskey-proxy != {})

@@ -297,6 +297,7 @@
                 {
                   "xn--qbtm095lrg0bfka60z.chn.moe".upstream.address = "internal.pc.chn.moe";
                   "xn--s8w913fdga.chn.moe".upstream.address = "internal.vps7.chn.moe";
+                  "misskey.chn.moe".upstream = "internal.vps7.chn.moe:9727";
                 };
                 coturn.enable = true;
                 synapse-proxy."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
@@ -356,8 +357,16 @@
                 rsshub.enable = true;
                 nginx = { enable = true; transparentProxy.externalIp = [ "95.111.228.40" "192.168.82.2" ]; };
                 wallabag.enable = true;
-                misskey.instances.misskey.hostname = "xn--s8w913fdga.chn.moe";
-                misskey-proxy."xn--s8w913fdga.chn.moe" = {};
+                misskey.instances =
+                {
+                  misskey.hostname = "xn--s8w913fdga.chn.moe";
+                  misskey-old = { port = 9727; redis.port = 3546; meilisearch.enable = false; };
+                };
+                misskey-proxy =
+                {
+                  "xn--s8w913fdga.chn.moe" = {};
+                  "misskey.chn.moe".upstream.port = 9727;
+                };
                 synapse.enable = true;
                 synapse-proxy."synapse.chn.moe" = {};
                 xrdp = { enable = true; hostname = "vps7.chn.moe"; };
