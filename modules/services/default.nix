@@ -6,7 +6,7 @@ inputs:
     ./redis.nix
     ./rsshub.nix
     ./misskey.nix
-    ./nginx.nix
+    ./nginx
     ./meilisearch.nix
     ./xray.nix
     ./coturn.nix

@@ -213,9 +213,13 @@
                 };
                 nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
                 smartd.enable = true;
-                nginx = { enable = true; transparentProxy.externalIp = [ "192.168.82.3" ]; };
+                nginx =
+                {
+                  enable = true;
+                  transparentProxy.externalIp = [ "192.168.82.3" ];
+                  applications.misskey.instances."xn--qbtm095lrg0bfka60z.chn.moe" = {};
+                };
                 misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
-                misskey-proxy."xn--qbtm095lrg0bfka60z.chn.moe" = {};
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
               };
               bugs =
@@ -292,16 +296,19 @@
                       "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; rewriteHttps = true; };
                     };
                   };
-                };
-                misskey-proxy =
-                {
-                  "xn--qbtm095lrg0bfka60z.chn.moe".upstream.address = "internal.pc.chn.moe";
-                  "xn--s8w913fdga.chn.moe".upstream.address = "internal.vps7.chn.moe";
-                  "misskey.chn.moe".upstream = "internal.vps7.chn.moe:9727";
+                  applications =
+                  {
+                    misskey =
+                    {
+                      "xn--qbtm095lrg0bfka60z.chn.moe".upstream.address = "internal.pc.chn.moe";
+                      "xn--s8w913fdga.chn.moe".upstream.address = "internal.vps7.chn.moe";
+                      "misskey.chn.moe".upstream = "internal.vps7.chn.moe:9727";
+                    };
+                    synapse."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
+                    vaultwarden = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
+                  };
                 };
                 coturn.enable = true;
-                synapse-proxy."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
-                vaultwarden-proxy = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
                 beesd = { enable = false; instances.root = { device = "/"; hashTableSizeMB = 32; }; };
               };
             };})
@@ -355,23 +362,30 @@
                 fontconfig.enable = true;
                 sshd.enable = true;
                 rsshub.enable = true;
-                nginx = { enable = true; transparentProxy.externalIp = [ "95.111.228.40" "192.168.82.2" ]; };
+                nginx =
+                {
+                  enable = true;
+                  transparentProxy.externalIp = [ "95.111.228.40" "192.168.82.2" ];
+                  applications =
+                  {
+                    misskey.instances =
+                    {
+                      "xn--s8w913fdga.chn.moe" = {};
+                      "misskey.chn.moe".upstream.port = 9727;
+                    };
+                    synapse."synapse.chn.moe" = {};
+                    vaultwarden.enable = true;
+                  };
+                };
                 wallabag.enable = true;
                 misskey.instances =
                 {
                   misskey.hostname = "xn--s8w913fdga.chn.moe";
                   misskey-old = { port = 9727; redis.port = 3546; meilisearch.enable = false; };
                 };
-                misskey-proxy =
-                {
-                  "xn--s8w913fdga.chn.moe" = {};
-                  "misskey.chn.moe".upstream.port = 9727;
-                };
                 synapse.enable = true;
-                synapse-proxy."synapse.chn.moe" = {};
                 xrdp = { enable = true; hostname = "vps7.chn.moe"; };
                 vaultwarden.enable = true;
-                vaultwarden-proxy.enable = true;
                 meilisearch.ioLimitDevice = "/dev/mapper/root";
                 beesd = { enable = false; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
               };

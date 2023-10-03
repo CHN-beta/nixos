@@ -1,5 +1,9 @@
 inputs:
 {
+  imports = inputs.localLib.mkModules
+  [
+    ./applications
+  ];
   options.nixos.services.nginx = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
