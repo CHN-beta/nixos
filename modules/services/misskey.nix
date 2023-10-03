@@ -70,7 +70,8 @@ inputs:
                 RuntimeMaxSec = "1d";
               };
             };
-            tmpfiles.rules = [ "d /var/lib/misskey/${instance.name}/files 0700 misskey misskey" ];
+            tmpfiles.rules =
+              [ "d /var/lib/misskey/${instance.name}/files 0700 misskey-${instance.name} misskey-${instance.name}" ];
           })
           (attrsToList misskey.instances));
         fileSystems = mkMerge (map
