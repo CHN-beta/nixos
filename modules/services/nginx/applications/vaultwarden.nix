@@ -26,13 +26,13 @@ inputs:
       {
         rewriteHttps = true;
         locations = let upstream = vaultwarden.upstream; in (listToAttrs (map
-          (location: { name = location; value =
+          (location: { name = location; value.proxy =
           {
             upstream = "http://${upstream.address or upstream}:${builtins.toString upstream.port or 8000}";
             setHeaders = { Host = vaultwarden.hostname; Connection = ""; };
           };})
           [ "/" "/notifications/hub/negotiate" ]))
-          // { "/notifications/hub" =
+          // { "/notifications/hub".proxy =
           {
             upstream =
               "http://${upstream.address or upstream}:${builtins.toString upstream.websocketPort or 3012}";

@@ -5,5 +5,6 @@ inputs:
     ./misskey.nix
     ./synapse.nix
     ./vaultwarden.nix
+    ./element.nix
   ];
 }

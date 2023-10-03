@@ -31,7 +31,7 @@ inputs:
           value =
           {
             rewriteHttps = true;
-            locations."/" =
+            locations."/".proxy =
             {
               upstream = if builtins.typeOf upstream == "string" then "http://${upstream}"
                 else "http://${upstream.address}:${toString upstream.port}";

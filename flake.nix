@@ -306,6 +306,7 @@
                     };
                     synapse.instances."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
                     vaultwarden = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
+                    element.instances."element.chn.moe" = {};
                   };
                 };
                 coturn.enable = true;

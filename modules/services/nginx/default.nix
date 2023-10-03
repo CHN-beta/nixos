@@ -23,22 +23,30 @@ inputs:
         detectAuth = mkOption { type = types.bool; default = false; };
         locations = mkOption
         {
-          type = types.attrsOf (types.oneOf
-          [
-            # http proxy
+          type = types.attrsOf (types.addCheck
             (types.submodule { options =
             {
-              upstream = mkOption { type = types.nonEmptyStr; };
-              websocket = mkOption { type = types.bool; default = false; };
-              setHeaders = mkOption { type = types.attrsOf types.str; default = {}; };
+              proxy = mkOption
+              {
+                type = types.nullOr (types.submodule { options =
+                {
+                  upstream = mkOption { type = types.nonEmptyStr; };
+                  websocket = mkOption { type = types.bool; default = false; };
+                  setHeaders = mkOption { type = types.attrsOf types.str; default = {}; };
+                };});
+                default = null;
+              };
+              static = mkOption
+              {
+                type = types.nullOr (types.submodule { options =
+                {
+                  root = mkOption { type = types.nonEmptyStr; };
+                  index = mkOption { type = types.nonEmptyStr; default = "index.html"; };
+                };});
+                default = null;
+              };
             };})
-            # static site
-            (types.submodule { options =
-            {
-              root = mkOption { type = types.nonEmptyStr; };
-              index = mkOption { type = types.nonEmptyStr; default = "index.html"; };
-            };})
-          ]);
+            (value: (inputs.lib.count (value: value != null) (builtins.attrValues value)) == 1));
         };
       };});
       default = {};
@@ -111,17 +119,17 @@ inputs:
                     {
                       inherit (location) name;
                       value =
-                        if (location.value ? upstream) then
+                        if (location.value.proxy != null) then
                         {
-                          proxyPass = location.value.upstream;
-                          proxyWebsockets = location.value.websocket;
+                          proxyPass = location.value.proxy.upstream;
+                          proxyWebsockets = location.value.proxy.websocket;
                           recommendedProxySettings = false;
                           recommendedProxySettingsNoHost = true;
                           extraConfig = concatStringsSep "\n"
                           (
                             (map
                               (header: ''proxy_set_header ${header.name} "${header.value}";'')
-                              (attrsToList location.value.setHeaders))
+                              (attrsToList location.value.proxy.setHeaders))
                             ++ (if site.value.detectAuth then ["proxy_hide_header Authorization;"] else [])
                             ++ (
                               if site.value.addAuth then
@@ -129,10 +137,10 @@ inputs:
                               else [])
                           );
                         }
-                        else if (location.value ? root) then
+                        else if (location.value.static != null) then
                         {
-                          root = location.value.root;
-                          index = location.value.index;
+                          root = location.value.static.root;
+                          index = location.value.static.index;
                         }
                         else {};
                     })

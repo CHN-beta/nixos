@@ -84,7 +84,7 @@ inputs:
           };
           sops.secrets."store/signingKey" = {};
           nixos.services.nginx.http.${services.nix-serve.hostname} =
-            { rewriteHttps = true; locations."/".upstream = "http://127.0.0.1:5000"; };
+            { rewriteHttps = true; locations."/".proxy.upstream = "http://127.0.0.1:5000"; };
         }
       )
       (mkIf services.smartd.enable { services.smartd.enable = true; })
@@ -172,7 +172,7 @@ inputs:
                 http."wallabag.chn.moe" =
                 {
                   rewriteHttps = true;
-                  locations."/" = { upstream = "http://127.0.0.1:4398"; setHeaders.Host = "wallabag.chn.moe"; };
+                  locations."/".proxy = { upstream = "http://127.0.0.1:4398"; setHeaders.Host = "wallabag.chn.moe"; };
                 };
               };
               postgresql.enable = true;
