@@ -60,7 +60,7 @@ inputs:
         nginx =
         {
           enable = true;
-          httpProxy.${rsshub.hostname} =
+          http.${rsshub.hostname} =
           {
             rewriteHttps = true;
             locations."/" =

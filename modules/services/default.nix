@@ -83,7 +83,7 @@ inputs:
             secretKeyFile = inputs.config.sops.secrets."store/signingKey".path;
           };
           sops.secrets."store/signingKey" = {};
-          nixos.services.nginx.httpProxy.${services.nix-serve.hostname} =
+          nixos.services.nginx.http.${services.nix-serve.hostname} =
             { rewriteHttps = true; locations."/".upstream = "http://127.0.0.1:5000"; };
         }
       )
@@ -169,7 +169,7 @@ inputs:
               nginx =
               {
                 enable = true;
-                httpProxy."wallabag.chn.moe" =
+                http."wallabag.chn.moe" =
                 {
                   rewriteHttps = true;
                   locations."/" = { upstream = "http://127.0.0.1:4398"; setHeaders.Host = "wallabag.chn.moe"; };

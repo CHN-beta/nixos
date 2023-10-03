@@ -13,7 +13,7 @@ inputs:
       externalIp = mkOption { type = types.listOf types.nonEmptyStr; };
       map = mkOption { type = types.attrsOf types.ints.unsigned; default = {};};
     };
-    httpProxy = mkOption
+    http = mkOption
     {
       type = types.attrsOf (types.submodule { options =
       {
@@ -23,12 +23,22 @@ inputs:
         detectAuth = mkOption { type = types.bool; default = false; };
         locations = mkOption
         {
-          type = types.attrsOf (types.submodule { options =
-          {
-            upstream = mkOption { type = types.nonEmptyStr; };
-            websocket = mkOption { type = types.bool; default = false; };
-            setHeaders = mkOption { type = types.attrsOf types.str; default = {}; };
-          };});
+          type = types.attrsOf (types.oneOf
+          [
+            # http proxy
+            (types.submodule { options =
+            {
+              upstream = mkOption { type = types.nonEmptyStr; };
+              websocket = mkOption { type = types.bool; default = false; };
+              setHeaders = mkOption { type = types.attrsOf types.str; default = {}; };
+            };})
+            # static site
+            (types.submodule { options =
+            {
+              root = mkOption { type = types.nonEmptyStr; };
+              index = mkOption { type = types.nonEmptyStr; default = "index.html"; };
+            };})
+          ]);
         };
       };});
       default = {};
@@ -101,23 +111,30 @@ inputs:
                     {
                       inherit (location) name;
                       value =
-                      {
-                        proxyPass = location.value.upstream;
-                        proxyWebsockets = location.value.websocket;
-                        recommendedProxySettings = false;
-                        recommendedProxySettingsNoHost = true;
-                        extraConfig = concatStringsSep "\n"
-                        (
-                          (map
-                            (header: ''proxy_set_header ${header.name} "${header.value}";'')
-                            (attrsToList location.value.setHeaders))
-                          ++ (if site.value.detectAuth then ["proxy_hide_header Authorization;"] else [])
-                          ++ (
-                            if site.value.addAuth then
-                              ["include ${inputs.config.sops.templates."nginx/addAuth/${site.name}-template".path};"]
-                            else [])
-                        );
-                      };
+                        if (location.value ? upstream) then
+                        {
+                          proxyPass = location.value.upstream;
+                          proxyWebsockets = location.value.websocket;
+                          recommendedProxySettings = false;
+                          recommendedProxySettingsNoHost = true;
+                          extraConfig = concatStringsSep "\n"
+                          (
+                            (map
+                              (header: ''proxy_set_header ${header.name} "${header.value}";'')
+                              (attrsToList location.value.setHeaders))
+                            ++ (if site.value.detectAuth then ["proxy_hide_header Authorization;"] else [])
+                            ++ (
+                              if site.value.addAuth then
+                                ["include ${inputs.config.sops.templates."nginx/addAuth/${site.name}-template".path};"]
+                              else [])
+                          );
+                        }
+                        else if (location.value ? root) then
+                        {
+                          root = location.value.root;
+                          index = location.value.index;
+                        }
+                        else {};
                     })
                     (attrsToList site.value.locations));
                   forceSSL = site.value.rewriteHttps;
@@ -127,7 +144,7 @@ inputs:
                     else null;
                 };
               })
-              (attrsToList nginx.httpProxy));
+              (attrsToList nginx.http));
             recommendedZstdSettings = true;
             recommendedTlsSettings = true;
             recommendedProxySettings = true;
@@ -188,14 +205,14 @@ inputs:
                 owner = inputs.config.users.users.nginx.name;
               };
             })
-            (filter (site: site.value.addAuth) (attrsToList nginx.httpProxy)));
+            (filter (site: site.value.addAuth) (attrsToList nginx.http)));
           secrets = { "nginx/maxmind-license".owner = inputs.config.users.users.nginx.name; }
             // (listToAttrs (map
               (site: { name = "nginx/detectAuth/${site.name}"; value.owner = inputs.config.users.users.nginx.name; })
-              (filter (site: site.value.detectAuth) (attrsToList nginx.httpProxy))))
+              (filter (site: site.value.detectAuth) (attrsToList nginx.http))))
             // (listToAttrs (map
               (site: { name = "nginx/addAuth/${site.name}"; value = {}; })
-              (filter (site: site.value.addAuth) (attrsToList nginx.httpProxy))));
+              (filter (site: site.value.addAuth) (attrsToList nginx.http))));
         };
         systemd.services.nginx.serviceConfig =
         {
@@ -207,11 +224,11 @@ inputs:
         nixos.services.acme =
         {
           enable = true;
-          certs = map (cert: cert.name) (attrsToList nginx.httpProxy);
+          certs = map (cert: cert.name) (attrsToList nginx.http);
         };
         security.acme.certs = listToAttrs (map
           (cert: { inherit (cert) name; value.group = inputs.config.services.nginx.group; })
-          (attrsToList nginx.httpProxy));
+          (attrsToList nginx.http));
       })
       (mkIf nginx.transparentProxy.enable
       {
@@ -227,7 +244,7 @@ inputs:
                 (attrsToList nginx.transparentProxy.map)
                 ++ (map
                   (site: { name = site.name; value = (if site.value.http2 then 443 else 3065); })
-                  (attrsToList nginx.httpProxy)
+                  (attrsToList nginx.http)
                 )
               ))}
             default 127.0.0.1:443;

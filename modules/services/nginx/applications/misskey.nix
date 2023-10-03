@@ -24,7 +24,7 @@ inputs:
       inherit (builtins) map listToAttrs toString;
     in
     {
-      nixos.services.nginx.httpProxy = listToAttrs (map
+      nixos.services.nginx.http = listToAttrs (map
         (proxy: with proxy.value;
         {
           name = hostname;

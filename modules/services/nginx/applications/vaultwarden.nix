@@ -22,7 +22,7 @@ inputs:
       inherit (inputs.lib) mkIf;
     in mkIf vaultwarden.enable
     {
-      nixos.services.nginx.httpProxy."${vaultwarden.hostname}" =
+      nixos.services.nginx.http."${vaultwarden.hostname}" =
       {
         rewriteHttps = true;
         locations = let upstream = vaultwarden.upstream; in (listToAttrs (map
