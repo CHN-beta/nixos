@@ -6,5 +6,6 @@ inputs:
     ./synapse.nix
     ./vaultwarden.nix
     ./element.nix
+    ./photoprism.nix
   ];
 }

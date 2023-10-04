@@ -69,6 +69,11 @@ inputs:
               if inputs.config.nixos.virtualization.kvmHost.enable then
                 [{ directory = "/var/lib/libvirt/images"; mode = "0711"; }]
               else []
+            )
+            ++ (
+              if inputs.config.nixos.services.mariadb.enable then let user = inputs.config.users.users.mysql; in
+                [{ directory = "/var/lib/mysql"; user = user.name; group = user.group; mode = "0750"; }]
+              else []
             );
         };
       };

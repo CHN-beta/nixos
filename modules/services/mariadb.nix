@@ -27,6 +27,7 @@ inputs:
         mysql =
         {
           enable = true;
+          package = inputs.pkgs.mariadb;
           ensureDatabases = map (db: db.value.database) (attrsToList mariadb.instances);
           ensureUsers = map (db: { name = db.value.user; }) (attrsToList mariadb.instances);
         };

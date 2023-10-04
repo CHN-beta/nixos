@@ -389,6 +389,7 @@
                 vaultwarden.enable = true;
                 meilisearch.ioLimitDevice = "/dev/mapper/root";
                 beesd = { enable = false; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
+                photoprism.enable = true;
               };
             };})
           ];

@@ -22,6 +22,7 @@ inputs:
     ./beesd.nix
     ./snapper.nix
     ./mariadb.nix
+    ./photoprism.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
