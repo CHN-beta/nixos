@@ -7,5 +7,6 @@ inputs:
     ./vaultwarden.nix
     ./element.nix
     ./photoprism.nix
+    ./nextcloud.nix
   ];
 }

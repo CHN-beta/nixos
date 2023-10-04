@@ -23,6 +23,7 @@ inputs:
     ./snapper.nix
     ./mariadb.nix
     ./photoprism.nix
+    ./nextcloud.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
