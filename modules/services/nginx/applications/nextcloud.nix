@@ -5,7 +5,7 @@ inputs:
     type = types.attrsOf (types.submodule (submoduleInputs: { options =
     {
       hostname = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-      # upstream = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
+      upstream = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
     };}));
     default = {};
   };
@@ -26,7 +26,7 @@ inputs:
           (instance:
           {
             name = instance.value.hostname;
-            value = inputs.config.services.nextcloud.nginx.recommendedConfig;
+            value = inputs.config.services.nextcloud.nginx.recommendedConfig { inherit (instance.value) upstream; };
           })
           (attrsToList instances));
       }

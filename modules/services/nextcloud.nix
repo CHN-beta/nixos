@@ -32,6 +32,16 @@ inputs:
           defaultPhoneRegion = "CN";
         };
         configureRedis = true;
+        extraOptions =
+        {
+          mail_domain = "chn.moe";
+          mail_from_address = "nextcloud";
+          mail_smtphost = "mail.chn.moe";
+          mail_smtpport = 465;
+          mail_smtpsecure = "ssl";
+          mail_smtpauth = true;
+          mail_smtpname = "bot@chn.moe";
+        };
         secretFile = inputs.config.sops.templates."nextcloud/secret".path;
       };
       nixos.services =
@@ -43,7 +53,11 @@ inputs:
       {
         templates."nextcloud/secret" =
         {
-          content = toJSON { redis.password = inputs.config.sops.placeholder."redis/nextcloud"; };
+          content = toJSON
+          {
+            redis.password = inputs.config.sops.placeholder."redis/nextcloud";
+            mail_smtppassword = inputs.config.sops.placeholder."mail/bot";
+          };
           owner = inputs.config.users.users.nextcloud.name;
         };
         secrets =
