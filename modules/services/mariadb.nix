@@ -17,9 +17,9 @@ inputs:
   config =
     let
       inherit (inputs.config.nixos.services) mariadb;
-      inherit (inputs.lib) mkIf;
+      inherit (inputs.lib) mkAfter mkIf;
       inherit (inputs.localLib) attrsToList;
-      inherit (builtins) map listToAttrs filter;
+      inherit (builtins) map listToAttrs concatStringsSep filter;
     in mkIf mariadb.enable
     {
       services =
@@ -29,7 +29,13 @@ inputs:
           enable = true;
           package = inputs.pkgs.mariadb;
           ensureDatabases = map (db: db.value.database) (attrsToList mariadb.instances);
-          ensureUsers = map (db: { name = db.value.user; }) (attrsToList mariadb.instances);
+          ensureUsers = map
+            (db:
+            {
+              name = db.value.user;
+              ensurePermissions."${db.value.database}.*" = "ALL PRIVILEGES";
+            })
+            (attrsToList mariadb.instances);
         };
         mysqlBackup =
         {
@@ -37,6 +43,18 @@ inputs:
           databases = map (db: db.value.database) (attrsToList mariadb.instances);
         };
       };
+      systemd.services.mysql.postStart = mkAfter (concatStringsSep "\n" (map
+        (db:
+          let
+            passwordFile =
+              if db.value.passwordFile or null != null then db.value.passwordFile
+              else inputs.config.sops.secrets."mariadb/${db.value.user}".path;
+            mysql = "${inputs.config.services.mysql.package}/bin/mysql";
+          in
+            # set user password
+            ''echo "SET PASSWORD FOR '${db.value.user}'@'localhost' = PASSWORD('$(cat ${passwordFile})');"''
+              + '' | ${mysql} -N'')
+        (attrsToList mariadb.instances)));
       sops.secrets = listToAttrs (map
         (db: { name = "mariadb/${db.value.user}"; value.owner = inputs.config.users.users.mysql.name; })
         (filter (db: db.value.passwordFile == null) (attrsToList mariadb.instances)));
