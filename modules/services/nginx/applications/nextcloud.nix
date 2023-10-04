@@ -5,7 +5,7 @@ inputs:
     type = types.attrsOf (types.submodule (submoduleInputs: { options =
     {
       hostname = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-      upstream = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
+      # upstream = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
     };}));
     default = {};
   };
@@ -20,10 +20,14 @@ inputs:
       (mkIf (instances != {}) { services.nextcloud.maxUploadSize = "10G"; })
       {
         nixos.services.nginx.http = listToAttrs (map
-          (instance: { name = instance.hostname; value.rewriteHttps = true; })
+          (instance: { name = instance.value.hostname; value.rewriteHttps = true; })
           (attrsToList instances));
         services.nginx.virtualHosts = listToAttrs (map
-          (instance: { name = instance.hostname; value = inputs.config.services.nextcloud.nginx.recommendedConfig; })
+          (instance:
+          {
+            name = instance.value.hostname;
+            value = inputs.config.services.nextcloud.nginx.recommendedConfig;
+          })
           (attrsToList instances));
       }
     ];

@@ -47,6 +47,7 @@ inputs:
               };
             };})
             (value: (inputs.lib.count (value: value != null) (builtins.attrValues value)) == 1));
+          default = {};
         };
       };});
       default = {};
