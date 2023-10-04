@@ -12,7 +12,7 @@ inputs:
           address = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
           port = mkOption { type = types.ints.unsigned; default = 2342; };
         };})];
-        default = "127.0.0.1:9726";
+        default = "127.0.0.1:2342";
       };
     };}));
     default = {};
