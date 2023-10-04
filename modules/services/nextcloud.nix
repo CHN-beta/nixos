@@ -43,6 +43,24 @@ inputs:
           mail_smtpname = "bot@chn.moe";
         };
         secretFile = inputs.config.sops.templates."nextcloud/secret".path;
+        extraApps =
+        {
+          maps = inputs.pkgs.fetchNextcloudApp
+          {
+            url = "https://github.com/nextcloud/maps/releases/download/v1.1.1/maps-1.1.1.tar.gz";
+            sha256 = "1rcmqnm5364h5gaq1yy6b6d7k17napgn0yc9ymrnn75bps9s71v9";
+          };
+          phonetrack = inputs.pkgs.fetchNextcloudApp
+          {
+            url = "https://github.com/julien-nc/phonetrack/releases/download/v0.7.6/phonetrack-0.7.6.tar.gz";
+            sha256 = "1p15vw7c5c1h08czyxi1r6svjd5hjmnc0i6is4vl3xq2kfjmcyyx";
+          };
+          twofactor_webauthn = inputs.pkgs.fetchNextcloudApp
+          {
+            url = "https://github.com/nextcloud-releases/twofactor_webauthn/releases/download/v1.2.0/twofactor_webauthn-v1.2.0.tar.gz";
+            sha256 = "1lqcw74rsnl8c4sirw9208ra3c8zl8zp93scs7y8fv2n4n60l465";
+          };
+        };
       };
       nixos.services =
       {
