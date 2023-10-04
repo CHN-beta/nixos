@@ -1,22 +1,22 @@
 inputs:
 {
-  options.nixos.services.nextcould = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.nextcloud = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = true; };
     hostname = mkOption { type = types.str; default = "nextcloud.chn.moe"; };
   };
   config =
     let
-      inherit (inputs.config.nixos.services) nextcould;
+      inherit (inputs.config.nixos.services) nextcloud;
       inherit (inputs.localLib) attrsToList;
       inherit (inputs.lib) mkIf mkMerge;
       inherit (builtins) map listToAttrs toString replaceStrings filter toJSON;
-    in mkIf nextcould.enable
+    in mkIf nextcloud.enable
     {
       services.nextcloud =
       {
         enable = true;
-        hostName = nextcould.hostname;
+        hostName = nextcloud.hostname;
         appstoreEnable = false;
         https = true;
         package = inputs.pkgs.nextcloud27;
