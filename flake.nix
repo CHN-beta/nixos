@@ -378,6 +378,7 @@
                     synapse.instances."synapse.chn.moe" = {};
                     vaultwarden.enable = true;
                     photoprism.instances."photoprism.chn.moe" = {};
+                    nextcloud.instances."nextcloud.chn.moe" = {};
                   };
                 };
                 wallabag.enable = true;

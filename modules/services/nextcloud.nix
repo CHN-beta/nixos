@@ -2,7 +2,7 @@ inputs:
 {
   options.nixos.services.nextcloud = let inherit (inputs.lib) mkOption types; in
   {
-    enable = mkOption { type = types.bool; default = true; };
+    enable = mkOption { type = types.bool; default = false; };
     hostname = mkOption { type = types.str; default = "nextcloud.chn.moe"; };
   };
   config =
