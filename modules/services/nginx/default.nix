@@ -56,6 +56,7 @@ inputs:
     {
       enable = mkOption { type = types.bool; default = false; };
       port = mkOption { type = types.ints.unsigned; default = 5575; };
+      portWithProxyProtocol = mkOption { type = types.ints.unsigned; default = 5576; };
       map = mkOption
       {
         type = types.attrsOf (types.oneOf
@@ -65,6 +66,7 @@ inputs:
           {
             upstream = mkOption { type = types.nonEmptyStr; };
             rewriteHttps = mkOption { type = types.bool; default = false; };
+            proxyProtocol = mkOption { type = types.bool; default = false; };
           };})
         ]);
         default = {};
@@ -346,6 +348,17 @@ inputs:
               proxy_buffer_size 128k;
               access_log syslog:server=unix:/dev/log stream_proxy;
             }
+            server
+            {
+              listen 127.0.0.1:${toString nginx.streamProxy.portWithProxyProtocol};
+              proxy_protocol on;
+              ssl_preread on;
+              proxy_pass $stream_proxy_backend;
+              proxy_connect_timeout 10s;
+              proxy_socket_keepalive on;
+              proxy_buffer_size 128k;
+              access_log syslog:server=unix:/dev/log stream_proxy;
+            }
           '';
           virtualHosts = listToAttrs (map
             (site:
@@ -360,9 +373,15 @@ inputs:
             })
             (filter (site: site.value.rewriteHttps or false) (attrsToList nginx.streamProxy.map)));
         };
-        nixos.services.nginx.transparentProxy.map = listToAttrs (map
-          (site: { name = site.name; value = nginx.streamProxy.port; })
-          (attrsToList nginx.streamProxy.map));
+        nixos.services.nginx.transparentProxy.map = listToAttrs
+        (
+          (map
+            (site: { name = site.name; value = nginx.streamProxy.port; })
+            (filter (site: !(site.value.proxyProtocol or false)) (attrsToList nginx.streamProxy.map)))
+          ++ (map
+            (site: { name = site.name; value = nginx.streamProxy.portWithProxyProtocol; })
+            (filter (site: site.value.proxyProtocol or false) (attrsToList nginx.streamProxy.map)))
+        );
       })
     ];
 }

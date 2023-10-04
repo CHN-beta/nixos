@@ -1,34 +1,48 @@
 inputs:
 {
-  options.nixos.services.nginx.applications.nextcloud.instances = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.nginx.applications.nextcloud = let inherit (inputs.lib) mkOption types; in
   {
-    type = types.attrsOf (types.submodule (submoduleInputs: { options =
+    instance.enable = mkOption
     {
-      hostname = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-      upstream = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
-    };}));
-    default = {};
+      type = types.addCheck types.bool (value: value -> inputs.config.nixos.services.nextcloud.enable);
+      default = false;
+    };
+    proxy =
+    {
+      enable = mkOption
+      {
+        type = types.addCheck types.bool
+          (value: value -> !inputs.config.nixos.services.nginx.applications.nextcloud.instance.enable);
+        default = false;
+      };
+      upstream = mkOption { type = types.nonEmptyStr; };
+    };
   };
   config =
     let
-      inherit (inputs.config.nixos.services.nginx.applications.nextcloud) instances;
+      inherit (inputs.config.nixos.services.nginx.applications) nextcloud;
       inherit (inputs.lib) mkIf mkMerge;
       inherit (inputs.localLib) attrsToList;
       inherit (builtins) map listToAttrs;
     in mkMerge
     [
-      (mkIf (instances != {}) { services.nextcloud.maxUploadSize = "10G"; })
+      (mkIf (nextcloud.instance.enable)
       {
-        nixos.services.nginx.http = listToAttrs (map
-          (instance: { name = instance.value.hostname; value.rewriteHttps = true; })
-          (attrsToList instances));
-        services.nginx.virtualHosts = listToAttrs (map
-          (instance:
-          {
-            name = instance.value.hostname;
-            value = inputs.config.services.nextcloud.nginx.recommendedConfig { inherit (instance.value) upstream; };
-          })
-          (attrsToList instances));
-      }
+        nixos.services.nginx.http.${inputs.config.nixos.services.nextcloud.hostname}.rewriteHttps = true;
+        services.nginx.virtualHosts.${inputs.config.nixos.services.nextcloud.hostname} = mkMerge
+        [
+          (inputs.config.services.nextcloud.nginx.recommendedConfig { upstream = "127.0.0.1"; })
+          { listen = [ { addr = "0.0.0.0"; port = 8417; ssl = true; extraParameters = [ "proxy_protocol" ]; } ]; }
+        ];
+      })
+      (mkIf (nextcloud.proxy.enable)
+      {
+        nixos.services.nginx.streamProxy.map.${inputs.config.nixos.services.nextcloud.hostname} =
+        {
+          upstream = "${nextcloud.proxy.upstream}:8417";
+          rewriteHttps = true;
+          proxyProtocol = true;
+        };
+      })
     ];
 }
