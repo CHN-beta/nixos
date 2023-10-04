@@ -35,7 +35,7 @@ inputs:
         extraOptions =
         {
           mail_domain = "chn.moe";
-          mail_from_address = "nextcloud";
+          mail_from_address = "bot";
           mail_smtphost = "mail.chn.moe";
           mail_smtpport = 465;
           mail_smtpsecure = "ssl";
