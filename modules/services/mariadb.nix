@@ -52,8 +52,8 @@ inputs:
             mysql = "${inputs.config.services.mysql.package}/bin/mysql";
           in
             # set user password
-            ''echo "SET PASSWORD FOR '${db.value.user}'@'localhost' = PASSWORD('$(cat ${passwordFile})');"''
-              + '' | ${mysql} -N'')
+            ''echo "ALTER USER '${db.value.user}'@'localhost' IDENTIFIED VIA unix_socket OR mysql_native_password ''
+              + ''USING PASSWORD('$(cat ${passwordFile})');" | ${mysql} -N'')
         (attrsToList mariadb.instances)));
       sops.secrets = listToAttrs (map
         (db: { name = "mariadb/${db.value.user}"; value.owner = inputs.config.users.users.mysql.name; })
