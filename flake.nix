@@ -392,6 +392,7 @@
                 meilisearch.ioLimitDevice = "/dev/mapper/root";
                 beesd = { enable = false; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
                 photoprism.enable = true;
+                nextcloud.enable = true;
               };
             };})
           ];
