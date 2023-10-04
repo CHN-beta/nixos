@@ -307,6 +307,7 @@
                     synapse.instances."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
                     vaultwarden = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
                     element.instances."element.chn.moe" = {};
+                    photoprism.instances."photoprism.chn.moe".upstream.address = "internal.vps7.chn.moe";
                   };
                 };
                 coturn.enable = true;
@@ -376,6 +377,7 @@
                     };
                     synapse.instances."synapse.chn.moe" = {};
                     vaultwarden.enable = true;
+                    photoprism.instances."photoprism.chn.moe" = {};
                   };
                 };
                 wallabag.enable = true;
