@@ -41,8 +41,11 @@ inputs:
       };
       sops =
       {
-        templates."nextcloud/secret".content = toJSON
-          { redis.password = inputs.config.sops.placeholder."redis/nextcloud"; };
+        templates."nextcloud/secret" =
+        {
+          content = toJSON { redis.password = inputs.config.sops.placeholder."redis/nextcloud"; };
+          owner = inputs.config.users.users.nextcloud.name;
+        };
         secrets =
         {
           "nextcloud/postgresql" = { key = "postgresql/nextcloud"; owner = inputs.config.users.users.nextcloud.name; };
