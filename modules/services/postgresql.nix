@@ -17,8 +17,8 @@ inputs:
   config =
     let
       inherit (inputs.config.nixos.services) postgresql;
-      inherit (inputs.lib) mkMerge mkAfter concatStringsSep mkIf;
-      inherit (inputs.localLib) stripeTabs attrsToList;
+      inherit (inputs.lib) mkAfter concatStringsSep mkIf;
+      inherit (inputs.localLib) attrsToList;
       inherit (builtins) map listToAttrs filter;
     in mkIf postgresql.enable
     {

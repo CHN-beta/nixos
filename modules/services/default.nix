@@ -21,6 +21,7 @@ inputs:
     ./frp.nix
     ./beesd.nix
     ./snapper.nix
+    ./mariadb.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
