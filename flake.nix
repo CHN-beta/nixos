@@ -361,7 +361,7 @@
               };
               services =
               {
-                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+                snapper = { enable = false; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
                 sshd.enable = true;
                 rsshub.enable = true;
@@ -392,7 +392,7 @@
                 xrdp = { enable = true; hostname = "vps7.chn.moe"; };
                 vaultwarden.enable = true;
                 meilisearch.ioLimitDevice = "/dev/mapper/root";
-                beesd = { enable = false; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
+                beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
                 photoprism.enable = true;
                 nextcloud.enable = true;
               };
