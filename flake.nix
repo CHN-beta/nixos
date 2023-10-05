@@ -312,7 +312,7 @@
                   };
                 };
                 coturn.enable = true;
-                beesd = { enable = false; instances.root = { device = "/"; hashTableSizeMB = 32; }; };
+                beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 16; }; };
               };
             };})
           ];
