@@ -428,7 +428,7 @@
               packages.packageSet = "desktop";
               services =
               {
-                snapper = { enable = false; configs.persistent = "/nix/persistent"; };
+                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
                 samba =
                 {
