@@ -41,6 +41,7 @@ inputs:
           mail_smtpsecure = "ssl";
           mail_smtpauth = true;
           mail_smtpname = "bot@chn.moe";
+          updatechecker = false;
         };
         secretFile = inputs.config.sops.templates."nextcloud/secret".path;
         extraApps =
