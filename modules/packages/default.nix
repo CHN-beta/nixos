@@ -421,7 +421,7 @@ inputs:
           ];
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
-            phonopy tensorflow keras openai scipy scikit-learn
+            phonopy tensorflow keras openai scipy scikit-learn jupyterlab
           ])];
           _prebuildPackages =
           [
