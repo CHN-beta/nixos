@@ -270,7 +270,7 @@
               packages.packageSet = "server";
               services =
               {
-                snapper = { enable = false; configs.persistent = "/nix/persistent"; };
+                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 sshd.enable = true;
                 xrayServer = { enable = true; serverName = "vps6.xserver.chn.moe"; };
                 frpServer = { enable = true; serverName = "frp.chn.moe"; };

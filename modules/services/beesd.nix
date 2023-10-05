@@ -33,7 +33,7 @@ inputs:
             {
               spec = instance.value.device or instance.value;
               hashTableSizeMB = instance.value.hashTableSizeMB or 1024;
-              extraOptions = [ "--thread-count" "2" "--scan-mode" "3" ];
+              extraOptions = [ "--thread-count" "1" "--scan-mode" "3" ];
             };
           })
           (attrsToList beesd.instances));
