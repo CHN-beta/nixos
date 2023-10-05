@@ -21,6 +21,7 @@ inputs:
         topInputs.napalm.overlays.default
         topInputs.pnpm2nix-nzbr.overlays.default
         topInputs.lmix.overlays.default
+        topInputs.aagl.overlays.default
         (import "${topInputs.dguibert-nur-packages}/overlays/nvhpc-overlay")
         (final: prev:
         {

@@ -431,8 +431,8 @@ inputs:
         };
         programs =
         {
-          anime-game-launcher.enable = true;
-          honkers-railway-launcher.enable = true;
+          anime-game-launcher = { enable = true; package = inputs.pkgs.anime-game-launcher; };
+          honkers-railway-launcher = { enable = true; package = inputs.pkgs.honkers-railway-launcher; };
           nix-ld.enable = true;
           gamemode =
           {
