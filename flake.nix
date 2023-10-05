@@ -458,7 +458,7 @@
               packages.packageSet = "desktop";
               services =
               {
-                snapper = { enable = false; configs.persistent = "/nix/persistent"; };
+                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
                 fontconfig.enable = true;
                 samba =
                 {
@@ -483,7 +483,7 @@
                 smartd.enable = true;
                 beesd =
                 {
-                  enable = false;
+                  enable = true;
                   instances =
                   {
                     root = { device = "/"; hashTableSizeMB = 2048; };
