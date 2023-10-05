@@ -3,21 +3,20 @@
   chromium, bash
 }:
 let
-  pname = "rsshub";
-  version = "20230829";
+  name = "rsshub";
   src = fetchFromGitHub
   {
     owner = "DIYgod";
     repo = "RSSHub";
-    rev = "46d32af2c57061a70114536d1f4514eb5b35dff2";
-    sha256 = "WvPE+WAvRSCPVwoz7sSH3KhC8GUC82wYmYKXb5F9xHI=";
+    rev = "67d4a7ed3f877a8ceac6caebe874c4ce5c210bd8";
+    sha256 = "baJQWGrr1RdZoI2uAGp2uJO9epbjAUjks76knJSwVdE=";
   };
-  originalPnpmPackage = mkPnpmPackage { inherit pname version src nodejs; };
+  originalPnpmPackage = mkPnpmPackage { inherit name src nodejs; };
   nodeModules = originalPnpmPackage.nodeModules.overrideAttrs { PUPPETEER_SKIP_DOWNLOAD = true; };
   rsshub-unwrapped = stdenv.mkDerivation
   {
-    inherit version src;
-    pname = "${pname}-unwrapped";
+    inherit src;
+    name = "${name}-unwrapped";
     configurePhase = 
     ''
       export HOME=$NIX_BUILD_TOP # Some packages need a writable HOME
@@ -44,9 +43,9 @@ let
     export CHROMIUM_EXECUTABLE_PATH=chromium
     pnpm start
   '';
-in stdenv.mkDerivation rec
+in stdenv.mkDerivation
 {
-  inherit pname version;
+  inherit name;
   phases = [ "installPhase" ];
   installPhase =
   ''
