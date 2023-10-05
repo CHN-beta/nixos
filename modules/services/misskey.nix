@@ -145,7 +145,7 @@ inputs:
           (attrsToList misskey.instances));
         postgresql =
         {
-          enable = true;
+          enable = misskey.instances != {};
           instances = listToAttrs (map
             (instance: { name = "misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
             (attrsToList misskey.instances));
