@@ -32,4 +32,5 @@
   zpp-bits = callPackage ./zpp-bits {};
   eigen = callPackage ./eigen {};
   nameof = callPackage ./nameof {};
+  pslist = callPackage ./pslist {};
 }
