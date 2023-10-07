@@ -903,7 +903,7 @@
       },
       "original": {
         "owner": "CHN-beta",
-        "ref": "nixos-unstable-next",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -951,7 +951,7 @@
       },
       "original": {
         "owner": "CHN-beta",
-        "ref": "nixos-23.05-next",
+        "ref": "nixos-23.05",
         "repo": "nixpkgs",
         "type": "github"
       }
