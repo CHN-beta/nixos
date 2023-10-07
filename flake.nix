@@ -433,6 +433,7 @@
                     };
                     delayedMount = [ "/" "/nix" ];
                   };
+                  swap = [ "/dev/mapper/swap" ];
                   rollingRootfs = { device = "/dev/mapper/root1"; path = "/nix/rootfs"; };
                 };
                 initrd =
