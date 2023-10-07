@@ -1,0 +1,13 @@
+diff --git a/source/matplot/CMakeLists.txt b/source/matplot/CMakeLists.txt
+index fe9ad53..4007fae 100644
+--- a/source/matplot/CMakeLists.txt
++++ b/source/matplot/CMakeLists.txt
+@@ -221,7 +221,7 @@ if (MATPLOTPP_BUILD_EXPERIMENTAL_OPENGL_BACKEND)
+     if (NOT GLAD_FOUND AND NOT TARGET glad)
+         # Use CPM only if not found, to avoid ODR violations
+         # find_package(GLAD REQUIRE) would suffice if it worked well
+-        FetchContent_Declare(glad GIT_REPOSITORY https://github.com/Dav1dde/glad.git GIT_TAG v0.1.36)
++        FetchContent_Declare(glad SOURCE_DIR @glad@)
+         FetchContent_MakeAvailable(glad)
+     else ()
+         # FindGLAD does not usually create a target, so we create an interface target
