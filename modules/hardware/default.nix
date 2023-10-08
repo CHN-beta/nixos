@@ -15,6 +15,7 @@ inputs:
       busId = mkOption { type = types.attrsOf types.str; default = {}; };
     };
     gamemode.drmDevice = mkOption { type = types.int; default = 0; };
+    halo-keyboard.enable = mkOption { type = types.bool; default = false; };
   };
   config =
     let
@@ -142,5 +143,12 @@ inputs:
         }
       )
       { programs.gamemode.settings.gpu.gpu_device = "${toString hardware.gamemode.drmDevice}"; }
+      # halo-keyboard
+      (mkIf hardware.halo-keyboard.enable
+      {
+        environment.systemPackages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
+        systemd.packages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
+        services.udev.packages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
+      })
     ];
 }

@@ -34,4 +34,5 @@
   nameof = callPackage ./nameof {};
   pslist = callPackage ./pslist {};
   glad = callPackage ./glad {};
+  chromiumos-touch-keyboard = callPackage ./chromiumos-touch-keyboard {};
 }
