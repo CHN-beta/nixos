@@ -20,7 +20,7 @@ inputs:
     let
       inherit (inputs.config.nixos.services) misskey;
       inherit (inputs.localLib) attrsToList;
-      inherit (inputs.lib) mkMerge;
+      inherit (inputs.lib) mkMerge mkIf;
       inherit (builtins) map listToAttrs toString replaceStrings filter;
     in
     {
@@ -145,7 +145,7 @@ inputs:
           (attrsToList misskey.instances));
         postgresql =
         {
-          enable = misskey.instances != {};
+          enable = mkIf (misskey.instances != {}) true;
           instances = listToAttrs (map
             (instance: { name = "misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
             (attrsToList misskey.instances));
