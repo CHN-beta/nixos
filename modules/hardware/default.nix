@@ -147,8 +147,19 @@ inputs:
       (mkIf hardware.halo-keyboard.enable
       {
         environment.systemPackages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
-        systemd.packages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
         services.udev.packages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
+        systemd.services.chromiumos-touch-keyboard =
+        {
+          wantedBy = [ "multi-user.target" ];
+          after = [ "systemd-udevd.service" ];
+          serviceConfig =
+          {
+            Type = "simple";
+            ExecStart = "${inputs.pkgs.localPackages.chromiumos-touch-keyboard}/bin/touch_keyboard_handler";
+            Restart = "always";
+            RestartSec = "5";
+          };
+        };
       })
     ];
 }
