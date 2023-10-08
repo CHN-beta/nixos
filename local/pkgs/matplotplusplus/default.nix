@@ -1,17 +1,7 @@
 {
   stdenv, fetchFromGitHub, cmake, pkg-config, substituteAll,
-  gnuplot, libjpeg, libtiff, zlib, libpng, lapack, blas, fftw, opencv, nodesoup, cimg, glfw, libGL, python3
-}:
-let
-  glad = fetchFromGitHub
-  {
-    owner = "Dav1dde";
-    repo = "glad";
-    rev = "v0.1.36";
-    sha256 = "FtkPz0xchwmqE+QgS+nSJVYaAfJSTUmZsObV/IPypVQ=";
-  };
-  python = python3.withPackages (pythonPackages: with pythonPackages; [ glad ]);
-in stdenv.mkDerivation rec
+  gnuplot, libjpeg, libtiff, zlib, libpng, lapack, blas, fftw, opencv, nodesoup, cimg, glfw, libGL, python3, glad
+}: stdenv.mkDerivation
 {
   pname = "matplotplusplus";
   version = "1.2.0";
@@ -28,7 +18,6 @@ in stdenv.mkDerivation rec
     "-DMATPLOTPP_WITH_SYSTEM_NODESOUP=ON" "-DMATPLOTPP_WITH_SYSTEM_CIMG=ON"
     "-DMATPLOTPP_BUILD_EXPERIMENTAL_OPENGL_BACKEND=ON" "-DGLAD_REPRODUCIBLE=ON"
   ];
-  patches = [(substituteAll { src = ./add-glad.patch; inherit glad; })];
-  buildInputs = [ gnuplot libjpeg libtiff zlib libpng lapack blas fftw opencv nodesoup cimg glfw libGL python ];
-  nativeBuildInputs = [ cmake pkg-config python ];
+  buildInputs = [ gnuplot libjpeg libtiff zlib libpng lapack blas fftw opencv nodesoup cimg glfw libGL glad ];
+  nativeBuildInputs = [ cmake pkg-config python3 ];
 }

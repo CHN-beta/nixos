@@ -28,9 +28,10 @@
   concurrencpp = callPackage ./concurrencpp { stdenv = gcc13Stdenv; };
   eigengdb = python3Packages.callPackage ./eigengdb {};
   nodesoup = callPackage ./nodesoup {};
-  matplotplusplus = callPackage ./matplotplusplus { inherit nodesoup; };
+  matplotplusplus = callPackage ./matplotplusplus { inherit nodesoup glad; };
   zpp-bits = callPackage ./zpp-bits {};
   eigen = callPackage ./eigen {};
   nameof = callPackage ./nameof {};
   pslist = callPackage ./pslist {};
+  glad = callPackage ./glad {};
 }
