@@ -673,7 +673,6 @@
                   dns.extraInterfaces = [ "docker0" ];
                 };
                 firewall.trustedInterfaces = [ "virbr0" ];
-                smartd.enable = true;
               };
             };})
           ];
