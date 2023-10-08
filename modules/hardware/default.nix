@@ -148,7 +148,7 @@ inputs:
       {
         environment.systemPackages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
         services.udev.packages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
-        systemd.services.chromiumos-touch-keyboard =
+        systemd.services.halo-keyboard =
         {
           wantedBy = [ "multi-user.target" ];
           after = [ "systemd-udevd.service" ];
@@ -160,6 +160,8 @@ inputs:
             RestartSec = "5";
           };
         };
+        environment.etc."touch_keyboard".source =
+          "${inputs.pkgs.localPackages.chromiumos-touch-keyboard}/etc/touch_keyboard";
       })
     ];
 }
