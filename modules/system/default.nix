@@ -32,7 +32,6 @@ inputs:
     {
       kernel.sysctl =
       {
-        "vm.swappiness" = 10;
         "vm.oom_kill_allocating_task" = true;
         "vm.oom_dump_tasks" = false;
         "vm.overcommit_memory" = 1;
