@@ -148,16 +148,23 @@ inputs:
       {
         environment.systemPackages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
         services.udev.packages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
-        systemd.services.halo-keyboard =
+        systemd.services.touch-keyboard-handler =
         {
-          wantedBy = [ "multi-user.target" ];
-          after = [ "systemd-udevd.service" ];
+          # wantedBy = [ "multi-user.target" ];
+          # after = [ "systemd-udevd.service" ];
           serviceConfig =
           {
             Type = "simple";
+            WorkingDirectory = "/etc/touch_keyboard";
+            ExecStartPre=
+            [
+              ''-sh -c "echo 0 > /sys/class/pwm/pwmchip1/export"''
+              ''sh -c "echo 0 > /sys/class/pwm/pwmchip1/pwm0/enable"''
+              ''sh -c "echo 1 > /sys/class/pwm/pwmchip1/pwm0/enable"''
+            ];
             ExecStart = "${inputs.pkgs.localPackages.chromiumos-touch-keyboard}/bin/touch_keyboard_handler";
-            Restart = "always";
-            RestartSec = "5";
+            # Restart = "always";
+            # RestartSec = "5";
           };
         };
         environment.etc."touch_keyboard".source =
