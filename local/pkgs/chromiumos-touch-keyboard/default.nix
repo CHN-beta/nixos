@@ -11,4 +11,8 @@
   };
   cmakeFlags = [ "-DCMAKE_CXX_FLAGS=-Wno-error=stringop-truncation" ];
   nativeBuildInputs = [ cmake ];
+  postInstall =
+  ''
+    cp $out/etc/touch_keyboard/layouts/YB1-X9x-pc105.csv $out/etc/touch_keyboard/layout.csv
+  '';
 }

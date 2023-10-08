@@ -145,30 +145,49 @@ inputs:
       { programs.gamemode.settings.gpu.gpu_device = "${toString hardware.gamemode.drmDevice}"; }
       # halo-keyboard
       (mkIf hardware.halo-keyboard.enable
-      {
-        environment.systemPackages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
-        services.udev.packages = [ inputs.pkgs.localPackages.chromiumos-touch-keyboard ];
-        systemd.services.touch-keyboard-handler =
+      (
+        let
+          keyboard = inputs.pkgs.localPackages.chromiumos-touch-keyboard;
+          support = inputs.pkgs.localPackages.yoga-support;
+        in
         {
-          # wantedBy = [ "multi-user.target" ];
-          # after = [ "systemd-udevd.service" ];
-          serviceConfig =
+          services.udev.packages = [ keyboard support ];
+          systemd.services =
           {
-            Type = "simple";
-            WorkingDirectory = "/etc/touch_keyboard";
-            ExecStartPre=
-            [
-              ''-sh -c "echo 0 > /sys/class/pwm/pwmchip1/export"''
-              ''sh -c "echo 0 > /sys/class/pwm/pwmchip1/pwm0/enable"''
-              ''sh -c "echo 1 > /sys/class/pwm/pwmchip1/pwm0/enable"''
-            ];
-            ExecStart = "${inputs.pkgs.localPackages.chromiumos-touch-keyboard}/bin/touch_keyboard_handler";
-            # Restart = "always";
-            # RestartSec = "5";
+            touch-keyboard-handler.serviceConfig =
+            {
+              Type = "simple";
+              WorkingDirectory = "/etc/touch_keyboard";
+              # ExecStartPre = let sh = "${inputs.pkgs.bash}/bin/sh"; in
+              # [
+              #   ''-${sh} -c "echo 0 > /sys/class/pwm/pwmchip1/export"''
+              #   ''${sh} -c "echo 0 > /sys/class/pwm/pwmchip1/pwm0/enable"''
+              #   ''${sh} -c "echo 1 > /sys/class/pwm/pwmchip1/pwm0/enable"''
+              # ];
+              ExecStart = "${keyboard}/bin/touch_keyboard_handler";
+            };
+            yogabook-modes-handler =
+            {
+              wantedBy = [ "default.target" ];
+              serviceConfig =
+              {
+                Type = "simple";
+                ExecStart = "${support}/bin/yogabook-modes-handler";
+                StandardOutput = "journal";
+              };
+            };
+            monitor-sensor =
+            {
+              wantedBy = [ "default.target" ];
+              serviceConfig =
+              {
+                Type = "simple";
+                ExecStart = "${inputs.pkgs.iio-sensor-proxy}/bin/monitor-sensor --hinge";
+              };
+            };
           };
-        };
-        environment.etc."touch_keyboard".source =
-          "${inputs.pkgs.localPackages.chromiumos-touch-keyboard}/etc/touch_keyboard";
-      })
+          environment.etc."touch_keyboard".source = "${keyboard}/etc/touch_keyboard";
+        }
+      ))
     ];
 }
