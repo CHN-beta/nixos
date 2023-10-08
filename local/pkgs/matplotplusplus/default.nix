@@ -20,4 +20,6 @@
   ];
   buildInputs = [ gnuplot libjpeg libtiff zlib libpng lapack blas fftw opencv nodesoup cimg glfw libGL glad ];
   nativeBuildInputs = [ cmake pkg-config python3 ];
+  propagatedBuildInputs = [ libGL glad glfw ];
+  propagatedNativeBuildInputs = [ python3 ];
 }
