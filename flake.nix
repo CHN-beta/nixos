@@ -657,6 +657,7 @@
                 joystick.enable = true;
                 printer.enable = true;
                 sound.enable = true;
+                halo-keyboard.enable = true;
               };
               packages.packageSet = "desktop";
               virtualization.docker.enable = true;
