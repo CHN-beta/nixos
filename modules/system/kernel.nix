@@ -42,8 +42,14 @@ inputs:
             {
               patch = inputs.pkgs.fetchurl
               {
-                url = "https://raw.githubusercontent.com/zhmars/cjktty-patches/master/v6.x/cjktty-6.4.patch";
-                sha256 = "1kvmddg18pw22valbgx2vlxiasgxvszzm5lzkz096xm51sz72rm0";
+                url =
+                  let
+                    version = builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version;
+                    major = builtins.elemAt version 0;
+                    minor = builtins.elemAt version 1;
+                  in "https://raw.githubusercontent.com/zhmars/cjktty-patches/master/"
+                    + "v${major}.x/cjktty-${major}.${minor}.patch";
+                sha256 = "0ckmbx53js04lrcvcsf8qk935v2pl9w0af2v1mqghfs0krakfgfh";
               };
               extraStructuredConfig =
                 { FONT_CJK_16x16 = inputs.lib.kernel.yes; FONT_CJK_32x32 = inputs.lib.kernel.yes; };
