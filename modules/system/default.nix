@@ -35,6 +35,7 @@ inputs:
         "vm.oom_kill_allocating_task" = true;
         "vm.oom_dump_tasks" = false;
         "vm.overcommit_memory" = 1;
+        "kernel.sysrq" = 438;
       };
       supportedFilesystems = [ "ntfs" ];
       consoleLogLevel = 7;
