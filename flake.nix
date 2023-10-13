@@ -716,5 +716,7 @@
           [ "vps6" "vps7" "nas" "yoga" ]);
       };
       checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks inputs.self.deploy) inputs.deploy-rs.lib;
+      overlays.default = final: prev:
+        { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; }); };
     };
 }
