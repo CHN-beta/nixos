@@ -46,7 +46,6 @@ inputs:
               CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
               AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
               Restart = "always";
-              RuntimeMaxSec = "1d";
             };
           };
           tmpfiles.rules =
