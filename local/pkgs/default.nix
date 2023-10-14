@@ -37,4 +37,5 @@
   chromiumos-touch-keyboard = callPackage ./chromiumos-touch-keyboard {};
   yoga-support = callPackage ./yoga-support {};
   tgbot-cpp = callPackage ./tgbot-cpp {};
+  libbiu = callPackage ./libbiu { inherit concurrencpp tgbot-cpp nameof; stdenv = gcc13Stdenv; };
 }

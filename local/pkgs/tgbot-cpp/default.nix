@@ -11,4 +11,5 @@
   };
   nativeBuildInputs = [ cmake pkg-config ];
   buildInputs = [ boost openssl zlib curl.dev ];
+  propagatedBuildInputs = buildInputs;
 }
