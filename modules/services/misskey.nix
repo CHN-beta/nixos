@@ -91,10 +91,6 @@ inputs:
                   extra:
                     statement_timeout: 60000
                 dbReplications: false
-                redis:
-                  host: 127.0.0.1
-                  port: ${toString redis.port}
-                  pass: ${placeholder."redis/misskey-${instance.name}"}
                 id: 'aid'
                 proxyBypassHosts:
                   - api.deepl.com
