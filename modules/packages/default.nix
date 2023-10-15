@@ -270,7 +270,7 @@ inputs:
               # download
               qbittorrent yt-dlp nur-xddxdd.baidupcs-go wgetpaste
               # office
-              unstablePackages.crow-translate zotero pandoc
+              unstablePackages.crow-translate zotero pandoc ydict
               # development
               scrcpy
               # media
