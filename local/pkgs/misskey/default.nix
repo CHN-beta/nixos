@@ -4,13 +4,13 @@
 }:
 let
   pname = "misskey";
-  version = "2023.9.3";
+  version = "2023.10.1";
   src = fetchFromGitHub
   {
     owner = "CHN-beta";
     repo = "misskey";
-    rev = "d88358090da8459ef6f3b01890b361ff44a007f7";
-    sha256 = "JeXMnFoJuudGGHhAEXhdBRMN8EHEbm4U1yXuoz8K4hU=";
+    rev = "803dd3db7c34c8f77f16b5b6540281c620c34760";
+    sha256 = "dYMs7575e8spFmEPGaB9TqbKqJowIQE8SJUL+xDga5c=";
     fetchSubmodules = true;
   };
   originalPnpmPackage = mkPnpmPackage
