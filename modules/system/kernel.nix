@@ -2,6 +2,7 @@ inputs:
 {
   options.nixos.system.kernel = let inherit (inputs.lib) mkOption types; in
   {
+    useLts = mkOption { type = types.bool; default = false; };
     patches = mkOption { type = types.listOf (types.enum [ "cjktty" "preempt" ]); default = []; };
     modules =
     {
@@ -33,24 +34,31 @@ inputs:
       extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;
       extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
       kernelParams = [ "delayacct" "acpi_osi=Linux" ];
-      kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
+      kernelPackages = inputs.pkgs."linuxPackages_xanmod${if kernel.useLts then "" else "_latest"}";
       kernelPatches =
         let
           patches =
           {
             cjktty =
             {
-              patch = inputs.pkgs.fetchurl
-              {
-                url =
-                  let
-                    version = builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version;
-                    major = builtins.elemAt version 0;
-                    minor = builtins.elemAt version 1;
-                  in "https://raw.githubusercontent.com/zhmars/cjktty-patches/master/"
+              patch =
+                let
+                  version = builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version;
+                  major = builtins.elemAt version 0;
+                  minor = builtins.elemAt version 1;
+                in inputs.pkgs.fetchurl
+                {
+                  url = "https://raw.githubusercontent.com/zhmars/cjktty-patches/master/"
                     + "v${major}.x/cjktty-${major}.${minor}.patch";
-                sha256 = "0ckmbx53js04lrcvcsf8qk935v2pl9w0af2v1mqghfs0krakfgfh";
-              };
+                  sha256 =
+                    let
+                      hashes =
+                      {
+                        "6.1" = "11ddiammvjxx2m9v32p25l1ai759a1d6xhdpszgnihv7g2fzigf5";
+                        "6.5" = "0ckmbx53js04lrcvcsf8qk935v2pl9w0af2v1mqghfs0krakfgfh";
+                      };
+                    in hashes."${major}.${minor}";
+                };
               extraStructuredConfig =
                 { FONT_CJK_16x16 = inputs.lib.kernel.yes; FONT_CJK_32x32 = inputs.lib.kernel.yes; };
             };
