@@ -19,7 +19,11 @@ inputs:
         videoDrivers = inputs.config.nixos.hardware.gpus;
       };
       systemd.services.display-manager.after = [ "network-online.target" ];
-      environment.sessionVariables."GTK_USE_PORTAL" = "1";
+      environment =
+      {
+        sessionVariables."GTK_USE_PORTAL" = "1";
+        plasma5.excludePackages = inputs.lib.mkIf (!gui.preferred) [ inputs.pkgs.plasma5Packages.plasma-nm ];
+      };
       xdg.portal.extraPortals = map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "kde" "wlr" ];
       i18n.inputMethod =
       {
