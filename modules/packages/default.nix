@@ -455,10 +455,7 @@ inputs:
           chromium =
           {
             enable = true;
-            extraOpts =
-            {
-              PasswordManagerEnabled = false;
-            };
+            extraOpts.PasswordManagerEnabled = false;
           };
         };
       }
