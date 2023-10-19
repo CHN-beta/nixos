@@ -76,6 +76,8 @@ inputs:
       embree.nixpkgs.overlays =
         [(final: prev: { embree = prev.embree.override { stdenv = final.genericPackages.stdenv; }; })];
       nvme.boot.kernelParams = [ "nvme_core.default_ps_max_latency_us=0" "iommu=soft" "pcie_aspm=off" ];
+      firmware-unstable.nixpkgs.overlays =
+        [ (final: prev: { linux-firmware = final.unstablePackages.linux-firmware; }) ];
     };
   in
     {

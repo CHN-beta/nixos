@@ -675,6 +675,7 @@
                 };
                 firewall.trustedInterfaces = [ "virbr0" ];
               };
+              bugs = [ "xmunet" "firmware-unstable" ];
             };})
           ];
         }));
