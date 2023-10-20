@@ -316,6 +316,7 @@ inputs:
                       hirse.vscode-ungit fortran-lang.linter-gfortran tboox.xmake-vscode ccls-project.ccls
                       feiskyer.chatgpt-copilot yukiuuh2936.vscode-modern-fortran-formatter wolframresearch.wolfram
                       njpipeorgan.wolfram-language-notebook brettm12345.nixfmt-vscode webfreak.debug
+                      gruntfuggly.todo-tree
                     ];
                 }
               )
