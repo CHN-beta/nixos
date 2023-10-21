@@ -351,6 +351,7 @@ inputs:
                     { id = "ikhdkkncnoglghljlkmcimlnlhkeamad"; } # 划词翻译
                     { id = "dhdgffkkebhmkfjojejmpbldmpobfkfo"; } # 篡改猴
                     { id = "hipekcciheckooncpjeljhnekcoolahp"; } # Tabliss
+                    { id = "nkbihfbeogaeaoehlefnkodbefgpgknn"; } # MetaMask
                   ];
                 };
                 obs-studio =
