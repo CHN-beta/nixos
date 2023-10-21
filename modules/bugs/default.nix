@@ -46,10 +46,8 @@ inputs:
         wantedBy = [ "multi-user.target" ];
       };
       # xmunet use old encryption
-      xmunet.nixpkgs.config.packageOverrides = pkgs: 
-      {
-        wpa_supplicant = pkgs.wpa_supplicant.overrideAttrs (attrs: { patches = attrs.patches ++ [ ./xmunet.patch ];});
-      };
+      xmunet.nixpkgs.config.packageOverrides = pkgs: { wpa_supplicant = pkgs.wpa_supplicant.overrideAttrs
+        (attrs: { patches = attrs.patches ++ [ ./xmunet.patch ];}); };
       suspend-hibernate-waydroid.systemd.services =
         let
           systemctl = "${inputs.pkgs.systemd}/bin/systemctl";

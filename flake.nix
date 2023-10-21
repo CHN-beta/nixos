@@ -295,7 +295,7 @@
                       "nix-store.chn.moe" = { upstream = "internal.pc.chn.moe:443"; rewriteHttps = true; };
                       "anchor.fm" = { upstream = "anchor.fm:443"; rewriteHttps = true; };
                       "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; rewriteHttps = true; };
-                      "xlog.chn.moe" = { upstream = "xlog.chn.moe:443"; rewriteHttps = true; };
+                      "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; rewriteHttps = true; };
                     };
                   };
                   applications =
