@@ -65,7 +65,7 @@ inputs:
             # office
             todo-txt-cli
             # development
-            gdb
+            gdb try
           ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
