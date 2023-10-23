@@ -30,7 +30,12 @@ inputs:
         (mountPoint:
         {
           name = mountPoint;
-          value = { device = "/var/lib/groupshare"; options = [ "bind" ]; depends = [ "/home" "/var/lib" ]; };
+          value =
+          {
+            device = "/var/lib/groupshare";
+            options = [ "bind" "private" "x-gvfs-hide" "X-fstrim.notrim" ];
+            depends = [ "/home" "/var/lib" ];
+          };
         })
         groupshare.mountPoints);
     };

@@ -58,12 +58,12 @@ inputs:
           "/var/lib/misskey/${instance.name}/work" =
           {
             device = "${inputs.pkgs.localPackages.misskey}";
-            options = [ "bind" "private" "x-gvfs-hide" ];
+            options = [ "bind" "private" "x-gvfs-hide" "X-fstrim.notrim" ];
           };
           "/var/lib/misskey/${instance.name}/work/files" =
           {
             device = "/var/lib/misskey/${instance.name}/files";
-            options = [ "bind" "private" "x-gvfs-hide" ];
+            options = [ "bind" "private" "x-gvfs-hide" "X-fstrim.notrim" ];
           };
         })
         (attrsToList misskey.instances));
