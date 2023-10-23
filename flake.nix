@@ -129,7 +129,6 @@
                 gui = { enable = true; preferred = true; };
                 kernel =
                 {
-                  useLts = true;
                   patches = [ "cjktty" "preempt" ];
                   modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
                 };
