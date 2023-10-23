@@ -127,11 +127,7 @@
                 };
                 nixpkgs = { march = "alderlake"; cudaSupport = true; };
                 gui = { enable = true; preferred = true; };
-                kernel =
-                {
-                  patches = [ "cjktty" "preempt" ];
-                  modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
-                };
+                kernel.patches = [ "cjktty" "preempt" ];
                 impermanence.enable = true;
                 networking =
                   { hostname = "pc"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; useRelay = true; }; };
