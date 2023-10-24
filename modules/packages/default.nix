@@ -515,6 +515,7 @@ inputs:
               localPackages.vasp localPackages.phonon-unfolding localPackages.vaspkit jmol localPackages.v_sim
               # news
               newsflash newsboat
+              microsoft-edge
             ];
             _pythonPackages = [(pythonPackages: with pythonPackages;
             [
