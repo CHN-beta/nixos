@@ -54,7 +54,7 @@ inputs:
               # downloader
               wget aria2 curl
               # file manager
-              tree exa trash-cli lsd broot file xdg-ninja mlocate
+              tree eza trash-cli lsd broot file xdg-ninja mlocate
               # compress
               pigz rar upx unzip zip lzip p7zip
               # file system management
