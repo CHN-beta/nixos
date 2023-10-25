@@ -38,6 +38,7 @@ inputs:
           registry =
           {
             nixpkgs.flake = inputs.topInputs.nixpkgs;
+            nixpkgs-unstable.flake = inputs.topInputs.nixpkgs-unstable;
             nixos.flake = inputs.topInputs.self;
           };
           nixPath = [ "nixpkgs=${inputs.topInputs.nixpkgs}" ];
@@ -55,6 +56,7 @@ inputs:
         environment.etc =
         {
           "channels/nixpkgs".source = inputs.topInputs.nixpkgs.outPath;
+          "channels/nixpkgs-unstable".source = inputs.topInputs.nixpkgs-unstable.outPath;
           "nixos".source = inputs.topInputs.self.outPath;
         };
         # environment.pathsToLink = [ "/include" ];
