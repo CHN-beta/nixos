@@ -501,8 +501,7 @@ inputs:
               # instant messager
               zoom-us signal-desktop qq nur-xddxdd.wechat-uos slack # jail
               # office
-              libreoffice-qt unstablePackages.texlive.combined.scheme-full texstudio poppler_utils pdftk gnuplot
-              pdfchain
+              libreoffice-qt texlive.combined.scheme-full texstudio poppler_utils pdftk gnuplot pdfchain
               # development
               jetbrains.clion android-studio dbeaver cling clang-tools_16 ccls fprettify
               # media
