@@ -229,26 +229,35 @@ inputs:
       (
         mkIf (fileSystems.rollingRootfs != null)
         {
-          boot.initrd.systemd.services.roll-rootfs =
+          boot.initrd.systemd =
           {
-            wantedBy = [ "initrd.target" ];
-            after = [ "cryptsetup.target" "systemd-hibernate-resume.service" ];
-            before = [ "local-fs-pre.target" "sysroot.mount" ];
-            unitConfig.DefaultDependencies = false;
-            serviceConfig.Type = "oneshot";
-            script = let inherit (fileSystems.rollingRootfs) device path; in
-            ''
-              mount ${device} /mnt -m
-              if [ -f /mnt${path}/current/.timestamp ]
-              then
-                timestamp=$(cat /mnt${path}/current/.timestamp)
-                mv /mnt${path}/current /mnt${path}/$timestamp
-                btrfs property set -ts /mnt${path}/$timestamp ro true
-              fi
-              btrfs subvolume create /mnt${path}/current
-              echo $(date '+%Y%m%d%H%M%S') > /mnt${path}/current/.timestamp
-              umount /mnt
-            '';
+            extraBin =
+            {
+              grep = "${inputs.pkgs.gnugrep}/bin/grep";
+              awk = "${inputs.pkgs.gawk}/bin/awk";
+            };
+            services.roll-rootfs =
+            {
+              wantedBy = [ "initrd.target" ];
+              after = [ "cryptsetup.target" "systemd-hibernate-resume.service" ];
+              before = [ "local-fs-pre.target" "sysroot.mount" ];
+              unitConfig.DefaultDependencies = false;
+              serviceConfig.Type = "oneshot";
+              script = let inherit (fileSystems.rollingRootfs) device path; in
+              ''
+                mount ${device} /mnt -m
+                if [ -f /mnt${path}/current/.timestamp ]
+                then
+                  timestamp=$(cat /mnt${path}/current/.timestamp)
+                  subvolid=$(btrfs subvolume show /mnt${path}/current | grep 'Subvolume ID:' | awk '{print $NF}')
+                  mv /mnt${path}/current /mnt${path}/$timestamp-$subvolid
+                  btrfs property set -ts /mnt${path}/$timestamp-$subvolid ro true
+                fi
+                btrfs subvolume create /mnt${path}/current
+                echo $(date '+%Y%m%d%H%M%S') > /mnt${path}/current/.timestamp
+                umount /mnt
+              '';
+            };
           };
         }
       )
