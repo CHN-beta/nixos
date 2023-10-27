@@ -415,6 +415,7 @@
                         "/nix/persistent" = "/nix/persistent";
                         "/nix/nodatacow" = "/nix/nodatacow";
                         "/nix/rootfs/current" = "/";
+                        "/nix/backup" = "/nix/backup";
                       };
                     };
                   };
