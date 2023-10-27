@@ -473,7 +473,6 @@ inputs:
             {
               enable = true;
               languagePacks = [ "zh-CN" "en-US" ];
-              nativeMessagingHosts.firefoxpwa = true;
             };
             vim.package = inputs.pkgs.genericPackages.vim-full;
           };
