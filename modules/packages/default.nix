@@ -329,6 +329,7 @@ inputs:
           permittedInsecurePackages = with inputs.pkgs;
           [
             openssl_1_1.name electron_19.name nodejs-16_x.name python2.name electron_12.name electron_24.name
+            zotero.name
           ];
           allowUnfree = true;
         };
