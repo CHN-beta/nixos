@@ -3,11 +3,11 @@ let
   typora-dist = stdenv.mkDerivation rec
   {
     pname = "typora-dist";
-    version = "1.6.6";
+    version = "1.7.6";
     src = fetchurl
     {
       url = "https://download.typora.io/linux/typora_${version}_amd64.deb";
-      sha256 = "sha256-77mCgmsROLhfuOmOOyl2C5Ug2NfqEvcD+kMA3aiAQtA=";
+      sha256 = "19xgv83zk3mhniswwrb341sr9j4sb9pqy47jamrmkc3w8famxpd3";
     };
 
     dontFixup = true;

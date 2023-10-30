@@ -32,7 +32,6 @@ inputs:
       {
         enable = true;
         id = "91291";
-        authFile = inputs.pkgs.writeText "yubikey_mappings" "chn:cccccbgrhnub";
       };
     };
   };
