@@ -38,6 +38,7 @@ inputs:
     smartd.enable = mkOption { type = types.bool; default = false; };
     fileshelter.enable = mkOption { type = types.bool; default = false; };
     wallabag.enable = mkOption { type = types.bool; default = false; };
+    noisetorch.enable = mkOption { type = types.bool; default = inputs.config.nixos.system.gui.preferred; };
   };
   config =
     let
@@ -189,5 +190,6 @@ inputs:
           # };
         }
       )
+      (mkIf services.noisetorch.enable { programs.noisetorch.enable = true; })
     ];
 }
