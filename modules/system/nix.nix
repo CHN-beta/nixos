@@ -16,7 +16,7 @@ inputs:
         {
           settings =
           {
-            system-features = [ "big-parallel" "nixos-test" "benchmark" ] ++ (map
+            system-features = [ "nixos-test" "benchmark" ] ++ (map
               (march: "gccarch-${march}")
               (
                 if nix.marches == null then
