@@ -14,18 +14,23 @@ inputs:
         HibernateMode=shutdown
       '';
       # reload iwlwifi after resume from hibernate
-      hibernate-iwlwifi.systemd.services.reload-iwlwifi-after-hibernate =
+      hibernate-iwlwifi =
       {
-        description = "reload iwlwifi after resume from hibernate";
-        after = [ "systemd-hibernate.service" ];
-        serviceConfig.Type = "oneshot";
-        script = let modprobe = "${inputs.pkgs.kmod}/bin/modprobe"; in
-        ''
-          ${modprobe} -r iwlwifi
-          ${modprobe} iwlwifi
-          echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
-        '';
-        wantedBy = [ "systemd-hibernate.service" ];
+        systemd.services.reload-iwlwifi-after-hibernate =
+        {
+          description = "reload iwlwifi after resume from hibernate";
+          after = [ "systemd-hibernate.service" ];
+          serviceConfig.Type = "oneshot";
+          script = let modprobe = "${inputs.pkgs.kmod}/bin/modprobe"; in
+          ''
+            ${modprobe} -r iwlwifi
+            ${modprobe} iwlwifi
+            echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
+          '';
+          wantedBy = [ "systemd-hibernate.service" ];
+        };
+        nixos.system.kernel.modules.modprobeConfig =
+          [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
       };
       # disable wakeup on lid open
       suspend-lid-no-wakeup.systemd.services.lid-no-wakeup =

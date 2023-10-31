@@ -538,11 +538,7 @@
                   substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 };
                 gui.enable = true;
-                kernel =
-                {
-                  patches = [ "cjktty" "preempt" ];
-                  modules.modprobeConfig = [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
-                };
+                kernel.patches = [ "cjktty" "preempt" ];
                 impermanence.enable = true;
                 networking.hostname = "xmupc1";
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
