@@ -87,7 +87,13 @@ inputs:
           (device:
           {
             name = device.value;
-            value = { device = device.name; fsType = "vfat"; neededForBoot = true; };
+            value =
+            {
+              device = device.name;
+              fsType = "vfat";
+              neededForBoot = true;
+              options = [ "noatime" ];
+            };
           })
           (attrsToList fileSystems.mount.vfat));
       }
@@ -115,7 +121,7 @@ inputs:
                     # zstd:15 5m33s 7.16G
                     # zstd:8 54s 7.32G
                     # zstd:3 17s 7.52G
-                    options = [ "compress-force=zstd" "subvol=${subvol.name}" "acl" ];
+                    options = [ "compress-force=zstd" "subvol=${subvol.name}" "acl" "noatime" ];
                     neededForBoot = true;
                   };
                 }
