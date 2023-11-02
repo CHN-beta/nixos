@@ -221,7 +221,7 @@
               bugs =
               [
                 "intel-hdmi" "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" "xmunet"
-                "suspend-hibernate-waydroid" "embree"
+                "suspend-hibernate-waydroid" "embree" "nvme"
               ];
             };})
           ];
