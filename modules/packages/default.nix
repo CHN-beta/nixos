@@ -44,7 +44,7 @@ inputs:
               ksh
               # basic tools
               beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq zellij neofetch ipfetch localPackages.pslist
-              unstablePackages.fastfetch
+              unstablePackages.fastfetch reptyr
               # lsxx
               pciutils usbutils lshw util-linux lsof
               # top
@@ -228,6 +228,7 @@ inputs:
               core = { quotepath = false; editor = "vim"; };
             };
           };
+          # yazi.enable = true;
         };
         services =
         {
