@@ -99,7 +99,7 @@
                     "/dev/md/swap" = { mapper = "swap"; ssd = true; before = [ "root" ]; };
                   };
                   mdadm =
-                    "ARRAY /dev/md/swap metadata=1.2 name=pc:swap UUID=2b546b8d:e38007c8:02990dd1:df9e23a4";
+                    "ARRAY /dev/md/swap  metadata=1.2 UUID=5403c43f:dbb8f227:58b89513:f964b8e5 name=pc:swap";
                   swap = [ "/dev/mapper/swap" ];
                   resume = "/dev/mapper/swap";
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
