@@ -236,7 +236,7 @@ inputs:
           udev.packages = with inputs.pkgs; [ yubikey-personalization libfido2 ];
           openssh.knownHosts =
             let
-              servers =
+              servers = rec
               {
                 vps6 =
                 {
@@ -261,12 +261,12 @@ inputs:
                 nas =
                 {
                   ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIktNbEcDMKlibXg54u7QOLt0755qB/P4vfjwca8xY6V";
-                  hostnames = [ "[office.chn.moe]:5440" "192.168.82.4" ];
+                  hostnames = [ "[office.chn.moe]:5440" "192.168.82.4" "192.168.1.185" ];
                 };
                 "initrd.nas" =
                 {
                   ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAoMu0HEaFQsnlJL0L6isnkNZdRq0OiDXyaX3+fl3NjT";
-                  hostnames = [ "[office.chn.moe]:5440" ];
+                  hostnames = nas.hostnames;
                 };
                 pc =
                 {
