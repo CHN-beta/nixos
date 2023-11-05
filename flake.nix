@@ -96,10 +96,9 @@
                   decrypt.auto =
                   {
                     "/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26" = { mapper = "root"; ssd = true; };
-                    "/dev/md/swap" = { mapper = "swap"; ssd = true; before = [ "root" ]; };
+                    "/dev/disk/by-uuid/4be45329-a054-4c20-8965-8c5b7ee6b35d" =
+                      { mapper = "swap"; ssd = true; before = [ "root" ]; };
                   };
-                  mdadm =
-                    "ARRAY /dev/md/swap  metadata=1.2 UUID=5403c43f:dbb8f227:58b89513:f964b8e5 name=pc:swap";
                   swap = [ "/dev/mapper/swap" ];
                   resume = "/dev/mapper/swap";
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
