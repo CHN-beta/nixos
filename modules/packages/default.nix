@@ -137,7 +137,6 @@ inputs:
                   extended = true;
                   save = 100000000;
                   size = 100000000;
-                  share = true;
                 };
               };
               direnv = { enable = true; nix-direnv.enable = true; };
