@@ -1,3 +1,5 @@
+# TODO: update to json config at 23.11
+# TODO: switch to module in nixpkgs
 inputs:
 {
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
@@ -17,6 +19,18 @@ inputs:
             localPort = mkOption { type = types.ints.unsigned; };
             remoteIp = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
             remotePort = mkOption { type = types.ints.unsigned; default = inputs.config.localPort; };
+          };
+        }));
+        default = {};
+      };
+      stcp = mkOption
+      {
+        type = types.attrsOf (types.submodule (inputs:
+        {
+          options =
+          {
+            localIp = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
+            localPort = mkOption { type = types.ints.unsigned; };
           };
         }));
         default = {};
@@ -91,6 +105,21 @@ inputs:
                     };
                   })
                   (attrsToList frpClient.tcp))
+                )
+                // (listToAttrs (map
+                  (stcp:
+                  {
+                    name = stcp.name;
+                    value =
+                    {
+                      type = "stcp";
+                      sk = inputs.config.sops.placeholder."frp/stcp/${stcp.name}";
+                      local_ip = stcp.value.localIp;
+                      local_port = stcp.value.localPort;
+                      use_compression = true;
+                    };
+                  })
+                  (attrsToList frpClient.stcp))
                 )
               );
             };

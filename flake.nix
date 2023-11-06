@@ -490,6 +490,13 @@
                     nix = { device = "/nix"; hashTableSizeMB = 128; };
                   };
                 };
+                frpClient =
+                {
+                  enable = true;
+                  serverName = "frp.chn.moe";
+                  user = "nas";
+                  stcp.hpc = { localIp = "hpc.xmu.edu.cn"; localPort = 22; };
+                };
               };
               users.users = [ "root" "chn" "xll" "zem" "yjq" "yxy" ];
             };})
