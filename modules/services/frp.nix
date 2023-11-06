@@ -123,7 +123,13 @@ inputs:
                 )
               );
             };
-            secrets."frp/token" = {};
+            secrets = listToAttrs
+            (
+              [{ name = "frp/token"; value = {}; }]
+              ++ (map
+                (stcp: { name = "frp/stcp/${stcp.name}"; value = {}; })
+                (attrsToList frpClient.stcp))
+            );
           };
           users = { users.frp = { isSystemUser = true; group = "frp"; }; groups.frp = {}; };
         }
