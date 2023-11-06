@@ -32,7 +32,7 @@ inputs:
           key = "mariadb/freshrss";
         };
       };
-      nixos.mariadb = { enable = true; instances.freshrss = {}; };
+      nixos.services.mariadb = { enable = true; instances.freshrss = {}; };
       systemd.services.freshrss-config.after = [ "mysql.service" ];
     };
 }
