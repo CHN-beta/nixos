@@ -251,7 +251,11 @@
                 };
                 grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
                 nixpkgs.march = "sandybridge";
-                nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
+                nix =
+                {
+                  substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
+                  autoOptimiseStore = true;
+                };
                 initrd =
                 {
                   network.enable = true;
@@ -308,7 +312,6 @@
                   };
                 };
                 coturn.enable = true;
-                beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 16; }; };
               };
             };})
           ];

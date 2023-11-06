@@ -6,6 +6,7 @@ inputs:
     marches = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
     keepOutputs = mkOption { type = types.bool; default = false; };
     substituters = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+    autoOptimiseStore = mkOption { type = types.bool; default = false; };
   };
   config =
     let
@@ -26,6 +27,7 @@ inputs:
             experimental-features = [ "nix-command" "flakes" ];
             keep-outputs = nix.keepOutputs;
             keep-failed = true;
+            auto-optimise-store = nix.autoOptimiseStore;
             substituters = if nix.substituters == null then [ "https://cache.nixos.org/" ] else nix.substituters;
             trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
             show-trace = true;
