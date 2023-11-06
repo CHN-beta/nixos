@@ -24,6 +24,7 @@ inputs:
     ./mariadb.nix
     ./photoprism.nix
     ./nextcloud.nix
+    ./freshrss.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
