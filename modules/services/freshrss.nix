@@ -33,5 +33,6 @@ inputs:
         };
       };
       nixos.mariadb = { enable = true; instances.freshrss = {}; };
+      systemd.services.freshrss-config.after = [ "mysql.service" ];
     };
 }
