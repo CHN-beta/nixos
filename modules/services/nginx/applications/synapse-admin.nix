@@ -21,7 +21,7 @@ inputs:
           value =
           {
             rewriteHttps = true;
-            locations."/".static.root = "${inputs.pkgs.synapse-admin}/share/synapse-admin";
+            locations."/".static.root = "${inputs.pkgs.synapse-admin}";
           };
         })
         (attrsToList instances));
