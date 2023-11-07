@@ -309,6 +309,7 @@
                     element.instances."element.chn.moe" = {};
                     photoprism.instances."photoprism.chn.moe".upstream.address = "internal.vps7.chn.moe";
                     nextcloud.proxy = { enable = true; upstream = "internal.vps7.chn.moe"; };
+                    synapse-admin.instances."synapse-admin.chn.moe" = {};
                   };
                 };
                 coturn.enable = true;
