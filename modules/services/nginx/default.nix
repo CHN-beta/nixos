@@ -23,40 +23,38 @@ inputs:
         detectAuth = mkOption { type = types.bool; default = false; };
         locations = mkOption
         {
-          type = types.attrsOf (types.addCheck
-            (types.submodule { options =
+          type = types.attrsOf (types.submodule { options =
+          {
+            proxy = mkOption
             {
-              proxy = mkOption
+              type = types.nullOr (types.submodule { options =
               {
-                type = types.nullOr (types.submodule { options =
-                {
-                  upstream = mkOption { type = types.nonEmptyStr; };
-                  websocket = mkOption { type = types.bool; default = false; };
-                  setHeaders = mkOption { type = types.attrsOf types.str; default = {}; };
-                };});
-                default = null;
-              };
-              static = mkOption
+                upstream = mkOption { type = types.nonEmptyStr; };
+                websocket = mkOption { type = types.bool; default = false; };
+                setHeaders = mkOption { type = types.attrsOf types.str; default = {}; };
+              };});
+              default = null;
+            };
+            static = mkOption
+            {
+              type = types.nullOr (types.submodule { options =
               {
-                type = types.nullOr (types.submodule { options =
-                {
-                  root = mkOption { type = types.nonEmptyStr; };
-                  index = mkOption { type = types.listOf types.nonEmptyStr; default = [ "index.html" ]; };
-                  tryFiles = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-                };});
-                default = null;
-              };
-              php = mkOption
+                root = mkOption { type = types.nonEmptyStr; };
+                index = mkOption { type = types.listOf types.nonEmptyStr; default = [ "index.html" ]; };
+                tryFiles = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+              };});
+              default = null;
+            };
+            php = mkOption
+            {
+              type = types.nullOr (types.submodule { options =
               {
-                type = types.nullOr (types.submodule { options =
-                {
-                  root = mkOption { type = types.nonEmptyStr; };
-                  fastcgiPass = mkOption { type = types.nonEmptyStr; };
-                };});
-                default = null;
-              };
-            };})
-            (value: (inputs.lib.count (value: value != null) (builtins.attrValues value)) == 1));
+                root = mkOption { type = types.nonEmptyStr; };
+                fastcgiPass = mkOption { type = types.nonEmptyStr; };
+              };});
+              default = null;
+            };
+          };});
           default = {};
         };
       };});
@@ -88,11 +86,18 @@ inputs:
       inherit (inputs.lib) mkMerge mkIf;
       inherit (inputs.localLib) stripeTabs attrsToList;
       inherit (inputs.config.nixos.services) nginx;
-      inherit (builtins) map listToAttrs concatStringsSep toString filter attrValues;
+      inherit (builtins) map listToAttrs concatStringsSep toString filter attrValues concatLists;
     in mkMerge
     [
       (mkIf nginx.enable
       {
+        assertions =
+        [{
+          assertion = builtins.all
+            (path: (inputs.lib.count (x: x != null) (map (type: path.${type}) [ "proxy" "static" "php" ])) == 1)
+            (concatLists (map (http: attrValues http.locations) (attrValues nginx.http)));
+          message = "";
+        }];
         services =
         {
           nginx =
@@ -265,7 +270,7 @@ inputs:
           (cert: { inherit (cert) name; value.group = inputs.config.services.nginx.group; })
           (attrsToList nginx.http));
       })
-      (mkIf nginx.transparentProxy.enable
+      (mkIf (nginx.enable && nginx.transparentProxy.enable)
       {
         services.nginx.streamConfig =
         ''
@@ -348,7 +353,7 @@ inputs:
             wantedBy= [ "multi-user.target" ];
           };
       })
-      (mkIf nginx.streamProxy.enable
+      (mkIf (nginx.enable && nginx.streamProxy.enable)
       {
         services.nginx =
         {
