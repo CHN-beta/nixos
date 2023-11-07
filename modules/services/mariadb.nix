@@ -40,6 +40,7 @@ inputs:
         mysqlBackup =
         {
           enable = true;
+          singleTransaction = true;
           databases = map (db: db.value.database) (attrsToList mariadb.instances);
         };
       };
