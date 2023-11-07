@@ -41,7 +41,17 @@ inputs:
                 type = types.nullOr (types.submodule { options =
                 {
                   root = mkOption { type = types.nonEmptyStr; };
-                  index = mkOption { type = types.nonEmptyStr; default = "index.html"; };
+                  index = mkOption { type = types.listOf types.nonEmptyStr; default = [ "index.html" ]; };
+                  tryFiles = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+                };});
+                default = null;
+              };
+              php = mkOption
+              {
+                type = types.nullOr (types.submodule { options =
+                {
+                  root = mkOption { type = types.nonEmptyStr; };
+                  fastcgiPass = mkOption { type = types.nonEmptyStr; };
                 };});
                 default = null;
               };
@@ -143,7 +153,21 @@ inputs:
                         else if (location.value.static != null) then
                         {
                           root = location.value.static.root;
-                          index = location.value.static.index;
+                          index = mkIf (location.value.static.index != [])
+                            (concatStringsSep " " location.value.static.index);
+                          tryFiles = mkIf (location.value.static.tryFiles != [])
+                            (concatStringsSep " " location.value.static.tryFiles);
+                        }
+                        else if (location.value.php != null) then
+                        {
+                          root = location.value.php.root;
+                          extraConfig =
+                          ''
+                            fastcgi_pass ${location.value.php.fastcgiPass};
+                            fastcgi_split_path_info ^(.+\.php)(/.*)$;
+                            fastcgi_param PATH_INFO $fastcgi_path_info;
+                            include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
+                          '';
                         }
                         else {};
                     })

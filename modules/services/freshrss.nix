@@ -22,6 +22,7 @@ inputs:
           type = "mysql";
           passFile = inputs.config.sops.secrets."freshrss/db".path;
         };
+        virtualHost = null;
       };
       sops.secrets =
       {
@@ -32,7 +33,29 @@ inputs:
           key = "mariadb/freshrss";
         };
       };
-      nixos.services.mariadb = { enable = true; instances.freshrss = {}; };
       systemd.services.freshrss-config.after = [ "mysql.service" ];
+      nixos.services =
+      {
+        mariadb = { enable = true; instances.freshrss = {}; };
+        nginx.http.${freshrss.hostname} =
+        {
+          rewriteHttps = true;
+          locations =
+          {
+            "/".static =
+            {
+              root = "${inputs.pkgs.freshrss}/p";
+              index = [ "index.php" ];
+              tryFiles = [ "$uri" "$uri/" "$uri/index.php" ];
+            };
+            "~ ^.+?\.php(/.*)?$".php =
+            {
+              root = "${inputs.pkgs.freshrss}/p";
+              fastcgiPass =
+                "unix:${inputs.config.services.phpfpm.pools.${inputs.config.services.freshrss.pool}.socket}";
+            };
+          };
+        };
+      };
     };
 }
