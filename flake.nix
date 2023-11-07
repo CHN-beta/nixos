@@ -394,6 +394,7 @@
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
                 photoprism.enable = true;
                 nextcloud.enable = true;
+                freshrss.enable = true;
               };
             };})
           ];

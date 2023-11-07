@@ -20,7 +20,7 @@ inputs:
         database =
         {
           type = "mysql";
-          passFile = inputs.config.sops.secrets."freshrss/mysql".path;
+          passFile = inputs.config.sops.secrets."freshrss/db".path;
         };
       };
       sops.secrets =
