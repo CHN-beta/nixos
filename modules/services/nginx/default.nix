@@ -7,97 +7,167 @@ inputs:
   options.nixos.services.nginx = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
+    # transparentProxy -> http or transparentProxy -> streamProxy -> http(with proxyProtocol)
+    # http without proxyProtocol listen on private ip, with proxyProtocol listen on all ip
+    # streamProxy listen on private ip
+    # transparentProxy listen on public ip
     transparentProxy =
     {
+      # only disable in some rare cases
       enable = mkOption { type = types.bool; default = true; };
       externalIp = mkOption { type = types.listOf types.nonEmptyStr; };
-      map = mkOption { type = types.attrsOf types.ints.unsigned; default = {};};
-    };
-    http = mkOption
-    {
-      type = types.attrsOf (types.submodule { options =
-      {
-        rewriteHttps = mkOption { type = types.bool; default = false; };
-        http2 = mkOption { type = types.bool; default = true; };
-        addAuth = mkOption { type = types.bool; default = false; };
-        detectAuth = mkOption { type = types.bool; default = false; };
-        locations = mkOption
-        {
-          type = types.attrsOf (types.submodule { options =
-          {
-            proxy = mkOption
-            {
-              type = types.nullOr (types.submodule { options =
-              {
-                upstream = mkOption { type = types.nonEmptyStr; };
-                websocket = mkOption { type = types.bool; default = false; };
-                setHeaders = mkOption { type = types.attrsOf types.str; default = {}; };
-              };});
-              default = null;
-            };
-            static = mkOption
-            {
-              type = types.nullOr (types.submodule { options =
-              {
-                root = mkOption { type = types.nonEmptyStr; };
-                index = mkOption { type = types.listOf types.nonEmptyStr; default = [ "index.html" ]; };
-                tryFiles = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-              };});
-              default = null;
-            };
-            php = mkOption
-            {
-              type = types.nullOr (types.submodule { options =
-              {
-                root = mkOption { type = types.nonEmptyStr; };
-                fastcgiPass = mkOption { type = types.nonEmptyStr; };
-              };});
-              default = null;
-            };
-          };});
-          default = {};
-        };
-      };});
-      default = {};
+      # proxy to 127.0.0.1:${specified port}
+      map = mkOption { type = types.attrsOf types.ints.unsigned; default = {}; };
     };
     streamProxy =
     {
-      enable = mkOption { type = types.bool; default = false; };
-      port = mkOption { type = types.ints.unsigned; default = 5575; };
-      portWithProxyProtocol = mkOption { type = types.ints.unsigned; default = 5576; };
       map = mkOption
       {
         type = types.attrsOf (types.oneOf
         [
+          # proxy to specified ip:port without proxyProtocol
           types.nonEmptyStr
           (types.submodule { options =
           {
-            upstream = mkOption { type = types.nonEmptyStr; };
-            rewriteHttps = mkOption { type = types.bool; default = false; };
+            upstream = mkOption
+            {
+              type = types.oneOf
+              [
+                # proxy to specified ip:port with or without proxyProtocol
+                types.nonEmptyStr
+                (types.submodule { options =
+                {
+                  address = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
+                  # if port not specified, guess from proxyProtocol enabled or not
+                  port = mkOption { type = types.nullOr types.ints.unsigned; default = null; };
+                };})
+              ];
+              default = {};
+            };
             proxyProtocol = mkOption { type = types.bool; default = false; };
+            addToTransparentProxy = mkOption { type = types.bool; default = true; };
           };})
         ]);
         default = {};
       };
     };
+    https = mkOption
+    {
+      type = types.attrsOf (types.submodule { options =
+      {
+        listen = mkOption
+        {
+          type = types.attrsOf (types.submodule { options =
+          {
+            http2 = mkOption { type = types.bool; default = true; };
+            proxyProtocol = mkOption { type = types.bool; default = false; };
+            # if proxyProtocol not enabled, add to transparentProxy only
+            # if proxyProtocol enabled, add to transparentProxy and streamProxy
+            addToTransparentProxy = mkOption { type = types.bool; default = true; };
+          };});
+          default.main = {};
+        };
+        global =
+        {
+          root = mkOption { type = types.nullOr types.nonEmptyStr; };
+          index = mkOption
+          {
+            type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr);
+            default = null;
+          };
+          detectAuth = mkOption
+          {
+            type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr);
+            default = null;
+          };
+        };
+        locations = mkOption
+        {
+          type = types.attrsOf (types.submodule { options =
+            let
+              genericOptions =
+              {
+                # htpasswd -n username
+                detectAuth = mkOption
+                {
+                  type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr);
+                  default = null;
+                };
+              };
+            in
+            {
+              # only one should be specified
+              proxy = mkOption
+              {
+                type = types.nullOr (types.submodule { options = genericOptions //
+                {
+                  upstream = mkOption { type = types.nonEmptyStr; };
+                  websocket = mkOption { type = types.bool; default = false; };
+                  setHeaders = mkOption { type = types.attrsOf types.str; default = {}; };
+                  # echo -n "username:password" | base64
+                  addAuth = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+                };});
+                default = null;
+              };
+              static = mkOption
+              {
+                type = types.nullOr (types.submodule { options = genericOptions //
+                {
+                  root = mkOption { type = types.nonEmptyStr; };
+                  index = mkOption { type = types.listOf types.nonEmptyStr; default = [ "index.html" ]; };
+                  tryFiles = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+                };});
+                default = null;
+              };
+              php = mkOption
+              {
+                type = types.nullOr (types.submodule { options = genericOptions //
+                {
+                  root = mkOption { type = types.nonEmptyStr; };
+                  fastcgiPass = mkOption { type = types.nonEmptyStr; };
+                };});
+                default = null;
+              };
+            };});
+          default = {};
+        };
+      };});
+      default = {};
+    };
+    http = mkOption
+    {
+      type = types.attrsOf (types.submodule (submoduleInputs: { options =
+      {
+        redirectHttps = mkOption
+        {
+          type = types.nullOr (types.submodule { options =
+          {
+            hostname = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; }; 
+          };});
+          default = null;
+        };
+      };}));
+      default = {};
+    };
   };
   config =
     let
       inherit (inputs.lib) mkMerge mkIf;
-      inherit (inputs.localLib) stripeTabs attrsToList;
+      inherit (inputs.lib.string) escapeURL;
+      inherit (inputs.localLib) attrsToList;
       inherit (inputs.config.nixos.services) nginx;
       inherit (builtins) map listToAttrs concatStringsSep toString filter attrValues concatLists;
-    in mkMerge
+      concatAttrs = list: listToAttrs (concatLists (map (attrs: attrsToList attrs) list));
+      httpsPort = 3065;
+      httpsPortShift = { http2 = 1; proxyProtocol = 2; };
+      httpsLocationTypes = [ "proxy" "static" "php" ];
+      httpTypes = [ "redirectHttps" ];
+      streamPort = 5575;
+      streamPortShift = { proxyProtocol = 1; };
+    in mkIf nginx.enable (mkMerge
     [
-      (mkIf nginx.enable
+      # generic config
       {
-        assertions =
-        [{
-          assertion = builtins.all
-            (path: (inputs.lib.count (x: x != null) (map (type: path.${type}) [ "proxy" "static" "php" ])) == 1)
-            (concatLists (map (http: attrValues http.locations) (attrValues nginx.http)));
-          message = "";
-        }];
         services =
         {
           nginx =
@@ -122,69 +192,6 @@ inputs:
               send_timeout 10m;
             '';
             proxyTimeout = "10m";
-            virtualHosts = listToAttrs (map
-              (site:
-              {
-                inherit (site) name;
-                value =
-                {
-                  serverName = site.name;
-                  listen = [ { addr = "127.0.0.1"; port = (if site.value.http2 then 443 else 3065); ssl = true; } ]
-                    ++ (if site.value.rewriteHttps then [ { addr = "0.0.0.0"; port = 80; } ] else []);
-                  useACMEHost = site.name;
-                  locations = listToAttrs (map
-                    (location:
-                    {
-                      inherit (location) name;
-                      value =
-                        if (location.value.proxy != null) then
-                        {
-                          proxyPass = location.value.proxy.upstream;
-                          proxyWebsockets = location.value.proxy.websocket;
-                          recommendedProxySettings = false;
-                          recommendedProxySettingsNoHost = true;
-                          extraConfig = concatStringsSep "\n"
-                          (
-                            (map
-                              (header: ''proxy_set_header ${header.name} "${header.value}";'')
-                              (attrsToList location.value.proxy.setHeaders))
-                            ++ (if site.value.detectAuth then ["proxy_hide_header Authorization;"] else [])
-                            ++ (
-                              if site.value.addAuth then
-                                ["include ${inputs.config.sops.templates."nginx/addAuth/${site.name}-template".path};"]
-                              else [])
-                          );
-                        }
-                        else if (location.value.static != null) then
-                        {
-                          root = location.value.static.root;
-                          index = mkIf (location.value.static.index != [])
-                            (concatStringsSep " " location.value.static.index);
-                          tryFiles = mkIf (location.value.static.tryFiles != [])
-                            (concatStringsSep " " location.value.static.tryFiles);
-                        }
-                        else if (location.value.php != null) then
-                        {
-                          root = location.value.php.root;
-                          extraConfig =
-                          ''
-                            fastcgi_pass ${location.value.php.fastcgiPass};
-                            fastcgi_split_path_info ^(.+\.php)(/.*)$;
-                            fastcgi_param PATH_INFO $fastcgi_path_info;
-                            include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
-                          '';
-                        }
-                        else {};
-                    })
-                    (attrsToList site.value.locations));
-                  forceSSL = site.value.rewriteHttps;
-                  http2 = site.value.http2;
-                  basicAuthFile =
-                    if site.value.detectAuth then inputs.config.sops.secrets."nginx/detectAuth/${site.name}".path
-                    else null;
-                };
-              })
-              (attrsToList nginx.http));
             recommendedZstdSettings = true;
             recommendedTlsSettings = true;
             recommendedProxySettings = true;
@@ -211,8 +218,7 @@ inputs:
                   .overrideAttrs (prev: { buildInputs = prev.buildInputs ++ [ inputs.pkgs.libmaxminddb ]; });
             streamConfig =
             ''
-              geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
-              {
+              geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
                 $geoip2_data_country_code country iso_code;
               }
               resolver 8.8.8.8;
@@ -231,29 +237,8 @@ inputs:
             };
           };
         };
-        sops =
-        {
-          templates = listToAttrs (map
-            (site:
-            {
-              name = "nginx/addAuth/${site.name}-template";
-              value =
-              {
-                content =
-                  let placeholder = inputs.config.sops.placeholder."nginx/addAuth/${site.name}";
-                  in ''proxy_set_header Authorization "Basic ${placeholder}";'';
-                owner = inputs.config.users.users.nginx.name;
-              };
-            })
-            (filter (site: site.value.addAuth) (attrsToList nginx.http)));
-          secrets = { "nginx/maxmind-license".owner = inputs.config.users.users.nginx.name; }
-            // (listToAttrs (map
-              (site: { name = "nginx/detectAuth/${site.name}"; value.owner = inputs.config.users.users.nginx.name; })
-              (filter (site: site.value.detectAuth) (attrsToList nginx.http))))
-            // (listToAttrs (map
-              (site: { name = "nginx/addAuth/${site.name}"; value = {}; })
-              (filter (site: site.value.addAuth) (attrsToList nginx.http))));
-        };
+        networking.firewall.allowedTCPPorts = [ 80 443 ];
+        sops.secrets = { "nginx/maxmind-license".owner = inputs.config.users.users.nginx.name; };
         systemd.services.nginx.serviceConfig =
         {
           CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
@@ -261,16 +246,10 @@ inputs:
           LimitNPROC = 65536;
           LimitNOFILE = 524288;
         };
-        nixos.services.acme =
-        {
-          enable = true;
-          certs = map (cert: cert.name) (attrsToList nginx.http);
-        };
-        security.acme.certs = listToAttrs (map
-          (cert: { inherit (cert) name; value.group = inputs.config.services.nginx.group; })
-          (attrsToList nginx.http));
-      })
-      (mkIf (nginx.enable && nginx.transparentProxy.enable)
+        nixos.services.acme.enable = true;
+      }
+      # transparentProxy
+      (mkIf nginx.transparentProxy.enable
       {
         services.nginx.streamConfig =
         ''
@@ -278,20 +257,14 @@ inputs:
             '"$ssl_preread_server_name"->$transparent_proxy_backend $bytes_sent $bytes_received';
           map $ssl_preread_server_name $transparent_proxy_backend
           {
-            ${concatStringsSep "\n" (map
-              (x: ''                  "${x.name}" 127.0.0.1:${toString x.value};'')
-              (
-                (attrsToList nginx.transparentProxy.map)
-                ++ (map
-                  (site: { name = site.name; value = (if site.value.http2 then 443 else 3065); })
-                  (attrsToList nginx.http)
-                )
-              ))}
-            default 127.0.0.1:443;
+            ${concatStringsSep "\n    " (map
+              (x: ''"${x.name}" 127.0.0.1:${toString x.value};'')
+              (attrsToList nginx.transparentProxy.map))}
+            default 127.0.0.1:${toString httpsPort + httpsPortShift.http2};
           }
           server
           {
-            ${concatStringsSep "\n            " (map (ip: "listen ${ip}:443;") nginx.transparentProxy.externalIp)}
+            ${concatStringsSep "\n    " (map (ip: "listen ${ip}:443;") nginx.transparentProxy.externalIp)}
             ssl_preread on;
             proxy_bind $remote_addr transparent;
             proxy_pass $transparent_proxy_backend;
@@ -301,7 +274,6 @@ inputs:
             access_log syslog:server=unix:/dev/log transparent_proxy;
           }
         '';
-        networking.firewall.allowedTCPPorts = [ 80 443 ];
         systemd.services.nginx-proxy =
           let
             ipset = "${inputs.pkgs.ipset}/bin/ipset";
@@ -322,9 +294,9 @@ inputs:
                 ${ip} rule add fwmark 2/2 table 200
                 ${ip} route add local 0.0.0.0/0 dev lo table 200
               ''
-              + concatStringsSep "\n" (map
+              + concatStringsSep "\n  " (map
                 (port: ''${ipset} add nginx_proxy_port ${toString port}'')
-                (inputs.lib.unique ((attrValues nginx.transparentProxy.map) ++ [ 443 3065 ])))
+                (inputs.lib.unique (attrValues nginx.transparentProxy.map)))
             );
             stop = inputs.pkgs.writeShellScript "nginx-proxy.stop"
             ''
@@ -353,64 +325,305 @@ inputs:
             wantedBy= [ "multi-user.target" ];
           };
       })
-      (mkIf (nginx.enable && nginx.streamProxy.enable)
+      # streamProxy
       {
-        services.nginx =
+        services.nginx.streamConfig =
+        ''
+          log_format stream_proxy '[$time_local] $remote_addr-$geoip2_data_country_code '
+            '"$ssl_preread_server_name"->$stream_proxy_backend $bytes_sent $bytes_received';
+          map $ssl_preread_server_name $stream_proxy_backend {
+            ${concatStringsSep "\n    " (map
+              (x:
+                let
+                  upstream =
+                    if (builtins.typeOf x.value.upstream == "string") then
+                      x.value.upstream
+                    else
+                      let
+                        port =
+                          if x.value.upstream.port == null then
+                            httpsPort + httpsPortShift.http2
+                              + (if x.value.proxyProtocol then httpsPortShift.proxyProtocol else 0)
+                          else streamPort;
+                      in "${x.value.upstream.address}:${toString port}";
+                in ''"${x.name}" "${upstream}";'')
+              (attrsToList nginx.streamProxy.map))}
+          }
+          server
+          {
+            listen 127.0.0.1:${toString streamPort};
+            ssl_preread on;
+            proxy_pass $stream_proxy_backend;
+            proxy_connect_timeout 10s;
+            proxy_socket_keepalive on;
+            proxy_buffer_size 128k;
+            access_log syslog:server=unix:/dev/log stream_proxy;
+          }
+          server
+          {
+            listen 127.0.0.1:${toString (streamPort + streamPortShift.proxyProtocol)};
+            proxy_protocol on;
+            ssl_preread on;
+            proxy_pass $stream_proxy_backend;
+            proxy_connect_timeout 10s;
+            proxy_socket_keepalive on;
+            proxy_buffer_size 128k;
+            access_log syslog:server=unix:/dev/log stream_proxy;
+          }
+        '';
+        nixos.services.nginx =
         {
-          streamConfig =
-          ''
-            log_format stream_proxy '[$time_local] $remote_addr-$geoip2_data_country_code '
-              '"$ssl_preread_server_name"->$stream_proxy_backend $bytes_sent $bytes_received';
-            map $ssl_preread_server_name $stream_proxy_backend
-            {
-              ${concatStringsSep "\n" (map
-                (x: ''                  "${x.name}" "${x.value.upstream or x.value}";'')
-                (attrsToList nginx.streamProxy.map))}
-            }
-            server
-            {
-              listen 127.0.0.1:${toString nginx.streamProxy.port};
-              ssl_preread on;
-              proxy_pass $stream_proxy_backend;
-              proxy_connect_timeout 10s;
-              proxy_socket_keepalive on;
-              proxy_buffer_size 128k;
-              access_log syslog:server=unix:/dev/log stream_proxy;
-            }
-            server
-            {
-              listen 127.0.0.1:${toString nginx.streamProxy.portWithProxyProtocol};
-              proxy_protocol on;
-              ssl_preread on;
-              proxy_pass $stream_proxy_backend;
-              proxy_connect_timeout 10s;
-              proxy_socket_keepalive on;
-              proxy_buffer_size 128k;
-              access_log syslog:server=unix:/dev/log stream_proxy;
-            }
-          '';
-          virtualHosts = listToAttrs (map
-            (site:
-            {
-              inherit (site) name;
-              value =
-              {
-                serverName = site.name;
-                listen = [ { addr = "0.0.0.0"; port = 80; } ];
-                locations."/".return = "301 https://${site.name}$request_uri";
-              };
-            })
+          transparentProxy.map = listToAttrs
+          (
+            (map
+              (site: { inherit (site) name; value = streamPort; })
+              (filter
+                (site: (!(site.value.proxyProtocol or false) && (site.value.addToTransparentProxy or true)))
+                (attrsToList nginx.streamProxy.map)))
+            ++ (map
+              (site: { inherit (site) name; value = streamPort + streamPortShift.proxyProtocol; })
+              (filter
+                (site: ((site.value.proxyProtocol or false) && (site.value.addToTransparentProxy or true)))
+                (attrsToList nginx.streamProxy.map)))
+          );
+          http = listToAttrs (map
+            (site: { inherit (site) name; value.redirectHttps = {}; })
             (filter (site: site.value.rewriteHttps or false) (attrsToList nginx.streamProxy.map)));
         };
-        nixos.services.nginx.transparentProxy.map = listToAttrs
-        (
-          (map
-            (site: { name = site.name; value = nginx.streamProxy.port; })
-            (filter (site: !(site.value.proxyProtocol or false)) (attrsToList nginx.streamProxy.map)))
-          ++ (map
-            (site: { name = site.name; value = nginx.streamProxy.portWithProxyProtocol; })
-            (filter (site: site.value.proxyProtocol or false) (attrsToList nginx.streamProxy.map)))
-        );
-      })
-    ];
+      }
+      # https
+      {
+        # only one type should be specified in each location
+        assertions = map
+          (location:
+          {
+            assertion = (inputs.lib.count (x: x != null) (map (type: location.value.${type}) httpsLocationTypes)) <= 1;
+            message = "Only one type shuold be specified in ${location.name}";
+          })
+          (concatLists (map
+            (site: (map
+              (location: { inherit (location) value; name = "${site.name} ${location.name}"; })
+              (attrsToList site.value.locations)))
+            (attrsToList nginx.https)));
+        services.nginx.virtualHosts = listToAttrs (map
+          (site:
+          {
+            inherit (site) name;
+            value =
+            {
+              serverName = site.name;
+              root = mkIf (site.value.global.root != null) site.value.global.root;
+              basicAuthFile = mkIf (site.value.global.detectAuth != null)
+                inputs.config.sops.templates."nginx/templates/detectAuth/${escapeURL site.name}-global".path;
+              extraConfig = mkIf (site.value.global.index != null)
+                "index ${concatStringsSep " " site.value.global.index};";
+              listen = map
+                (listen:
+                {
+                  add = if listen.value.proxyProtocol then "0.0.0.0" else "127.0.0.1";
+                  port = httpsPort
+                    + (if listen.value.http2 then httpsPortShift.http2 else 0)
+                    + (if listen.value.proxyProtocol then httpsPortShift.proxyProtocol else 0);
+                  ssl = true;
+                  # TODO: use proxy_protocol in 23.11
+                  extraParameters = if listen.value.proxyProtocol then [ "proxy_protocol" ] else [];
+                })
+                (attrValues site.value.listen);
+              # TODO: disable well-known in 23.11
+              useACMEHost = site.name;
+              http2 = site.value.http2;
+              locations = listToAttrs (map
+                (location:
+                {
+                  inherit (location) name;
+                  value =
+                  {
+                    basicAuthFile = mkIf (location.value.detectAuth != null)
+                      inputs.config.sops.templates
+                        ."nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}".path;
+                  }
+                  // (
+                    if (location.value.proxy != null) then
+                    {
+                      proxyPass = location.value.proxy.upstream;
+                      proxyWebsockets = location.value.proxy.websocket;
+                      recommendedProxySettings = false;
+                      recommendedProxySettingsNoHost = true;
+                      extraConfig = concatStringsSep "\n"
+                      (
+                        (map
+                          (header: ''proxy_set_header ${header.name} "${header.value}";'')
+                          (attrsToList location.value.proxy.setHeaders))
+                        ++ (if site.value.detectAuth != null then [ "proxy_hide_header Authorization;" ] else [])
+                        ++ (
+                          if site.value.addAuth != null then
+                            let authFile = "nginx/templates/addAuth/${site.value.addAuth}";
+                            in [ "include ${inputs.config.sops.templates.${authFile}.path};" ]
+                          else [])
+                      );
+                    }
+                    else if (location.value.static != null) then
+                    {
+                      root = location.value.static.root;
+                      index = mkIf (location.value.static.index != [])
+                        (concatStringsSep " " location.value.static.index);
+                      tryFiles = mkIf (location.value.static.tryFiles != [])
+                        (concatStringsSep " " location.value.static.tryFiles);
+                    }
+                    else if (location.value.php != null) then
+                    {
+                      root = location.value.php.root;
+                      extraConfig =
+                      ''
+                        fastcgi_pass ${location.value.php.fastcgiPass};
+                        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+                        fastcgi_param PATH_INFO $fastcgi_path_info;
+                        include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
+                      '';
+                    }
+                    else {}
+                  );
+                })
+                (attrsToList site.value.locations));
+            };
+          })
+          (attrsToList nginx.https));
+        nixos.services =
+        {
+          nginx =
+            let
+              # { name = domain; value = listen = { http2 = xxx, proxyProtocol = xxx, addToTransparentProxy = true }; }
+              listens = filter
+                (site: site.value.addToTransparentProxy)
+                (concatLists (map
+                  (site: map
+                    (listen: { inherit (site) name; inherit (listen) value; })
+                    (attrsToList site.value.listen))
+                  (attrsToList nginx.https)));
+            in
+            {
+              transparentProxy.map = listToAttrs (map
+                (site:
+                {
+                  inherit (site) name;
+                  value = httpsPort + (if site.value.http2 then httpsPortShift.http2 else 0);
+                })
+                (filter (listen: !listen.value.proxyProtocol) listens));
+              streamProxy.map = listToAttrs (map
+                (site:
+                {
+                  inherit (site) name;
+                  value =
+                  {
+                    upstream.port = httpsPort + httpsPortShift.proxyProtocol
+                      + (if site.value.http2 then httpsPortShift.http2 else 0);
+                    proxyProtocol = true;
+                  };
+                })
+                (filter (listen: listen.value.proxyProtocol) listens));
+            };
+          acme =
+          {
+            enable = true;
+            cert = map
+              (site: { inherit (site) name; value.group = inputs.config.services.nginx.group; })
+              (attrsToList nginx.https);
+          };
+        };
+        sops =
+          let
+            locations =
+            (
+              (concatLists (map
+                (site: map
+                  (location:
+                  {
+                    domain = site.name;
+                    location = location.name;
+                    detectAuth = concatLists (map
+                      (type: location.value.${type}.detectAuth or [])
+                      httpsLocationTypes);
+                    addAuth = location.value.proxy.addAuth or null;
+                  })
+                  (attrsToList site.value.locations))
+                (attrsToList nginx.https)))
+              ++ (map
+                (site:
+                {
+                  domain = site.name;
+                  detectAuth = site.value.global.detectAuth or [];
+                })
+                (attrsToList nginx.https))
+            );
+          in
+          {
+            templates = listToAttrs
+            (
+              (map
+                (location:
+                {
+                  name =
+                    if (location ? location) then
+                      "nginx/templates/detectAuth/${escapeURL location.domain}/${escapeURL location.location}"
+                    else
+                      "nginx/templates/detectAuth/${escapeURL location.domain}-global";
+                  value =
+                  {
+                    owner = inputs.config.users.users.nginx.name;
+                    content = concatStringsSep "\n" (map
+                      (secret: inputs.config.sops.placeholder."nginx/detectAuth/${secret}")
+                      location.detectAuth);
+                  };
+                })
+                (filter (location: location.detectAuth != []) locations))
+              ++ (map
+                (location:
+                {
+                  name = "nginx/templates/addAuth/${escapeURL location.domain}/${escapeURL location.location}";
+                  value =
+                  {
+                    owner = inputs.config.users.users.nginx.name;
+                    content =
+                      let placeholder = inputs.config.sops.placeholder."nginx/addAuth/${location.addAuth}";
+                      in ''proxy_set_header Authorization "Basic ${placeholder}";'';
+                  };
+                })
+                (filter (location: (location.addAuth or null) != null) locations))
+            );
+            secrets = listToAttrs
+            (
+              (map
+                (secret: { name = "nginx/detectAuth/${secret}"; value = {}; })
+                (inputs.lib.unique (concatLists (map (location: location.value.detectAuth) locations))))
+              ++ (map
+                (secret: { name = "nginx/addAuth/${secret}"; value = {}; })
+                (inputs.lib.unique (filter
+                  (secret: secret != null)
+                  (map (location: location.value.addAuth) locations))))
+            );
+          };
+      }
+      # http
+      {
+        assertions = map
+          (site:
+          {
+            assertion = (inputs.lib.count (x: x != null) (map (type: site.value.${type}) httpTypes)) <= 1;
+            message = "Only one type shuold be specified in ${site.name}";
+          })
+          (attrsToList nginx.http);
+        services.nginx.virtualHosts = listToAttrs (map
+          (site:
+          {
+            inherit (site) name;
+            value =
+            {
+              serverName = site.name;
+              listen = [ { addr = "0.0.0.0"; port = 80; } ];
+              locations."/".return = "301 https://${site.value.rewriteHttps.hostname}$request_uri";
+            };
+          })
+          (filter (site: site.value.rewriteHttps != null) (attrsToList nginx.http)));
+      }
+    ]);
 }
