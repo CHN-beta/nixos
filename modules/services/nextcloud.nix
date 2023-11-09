@@ -67,6 +67,15 @@ inputs:
       {
         postgresql = { enable = true; instances.nextcloud = {}; };
         redis.instances.nextcloud.port = 3499;
+        nginx =
+        {
+          enable = true;
+          https.${nextcloud.hostname} =
+          {
+            global.rewriteHttps = true;
+            listen.main.proxyProtocol = true;
+          };
+        };
       };
       sops =
       {

@@ -208,7 +208,7 @@
                 };
                 nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
                 smartd.enable = true;
-                nginx.transparentProxy.externalIp = [ "192.168.82.3" ]; };
+                nginx.transparentProxy.externalIp = [ "192.168.82.3" ];
                 misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
               };
@@ -288,11 +288,13 @@
                       "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; rewriteHttps = true; };
                       "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; rewriteHttps = true; };
                       "xn--qbtm095lrg0bfka60z.chn.moe" =
-                        { upstream.address = "internal.pc.chn.moe"; proxyProtocol = true; };
+                        { upstream.address = "internal.pc.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
                       "xn--s8w913fdga.chn.moe" =
-                        { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; };
+                        { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
                       "misskey.chn.moe" =
-                        { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; };
+                        { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
+                      "nextcloud.chn.moe" =
+                        { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
                     };
                   };
                   applications =
@@ -301,7 +303,6 @@
                     vaultwarden = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
                     element.instances."element.chn.moe" = {};
                     photoprism.instances."photoprism.chn.moe".upstream.address = "internal.vps7.chn.moe";
-                    nextcloud.proxy = { enable = true; upstream = "internal.vps7.chn.moe"; };
                     synapse-admin.instances."synapse-admin.chn.moe" = {};
                   };
                 };
@@ -366,7 +367,6 @@
                     synapse.instances."synapse.chn.moe" = {};
                     vaultwarden.enable = true;
                     photoprism.instances."photoprism.chn.moe" = {};
-                    nextcloud.instance.enable = true;
                   };
                 };
                 wallabag.enable = true;
