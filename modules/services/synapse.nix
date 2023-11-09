@@ -96,7 +96,25 @@ inputs:
           // { "synapse/signing-key".owner = inputs.config.systemd.services.matrix-synapse.serviceConfig.User; }
           // { "mail/bot" = {}; };
       };
-      nixos.services.postgresql = { enable = true; instances.synapse = {}; };
+      nixos.services =
+      {
+        postgresql = { enable = true; instances.synapse = {}; };
+        nginx =
+        {
+          enable = true;
+          https.${synapse.hostname} =
+          {
+            global.rewriteHttps = true;
+            listen.main.proxyProtocol = true;
+            location."/".proxy =
+            {
+              upstream = "http://127.0.0.1:${toString synapse.port}";
+              websocket = true;
+              setHeaders.Host = synapse.hostname;
+            };
+          };
+        };
+      };
       systemd.services.matrix-synapse.enable = synapse.autoStart;
     };
 }
