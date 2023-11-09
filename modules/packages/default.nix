@@ -380,7 +380,7 @@ inputs:
                 fluent-reader rssguard
                 # davinci-resolve playonlinux
                 weston cage openbox krita
-                genymotion hdfview electrum
+                genymotion hdfview electrum jabref
                 (
                   vscode-with-extensions.override
                   {
