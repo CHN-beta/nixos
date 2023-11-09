@@ -160,6 +160,27 @@ inputs:
             };
           })
           (filter (instance: instance.value.meilisearch.enable) (attrsToList misskey.instances)));
+        nginx =
+        {
+          enable = mkIf (misskey.instances != {}) true;
+          https = listToAttrs (map
+            (instance: with instance.value;
+            {
+              name = hostname;
+              value =
+              {
+                global.rewriteHttps = true;
+                listen.main.proxyProtocol = true;
+                locations."/".proxy =
+                {
+                  upstream = "http://127.0.0.1:${toString port}";
+                  websocket = true;
+                  setHeaders.Host = hostname;
+                };
+              };
+            })
+            (attrsToList misskey.instances));
+        };
       };
     };
 }

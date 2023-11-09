@@ -208,12 +208,7 @@
                 };
                 nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
                 smartd.enable = true;
-                nginx =
-                {
-                  enable = true;
-                  transparentProxy.externalIp = [ "192.168.82.3" ];
-                  applications.misskey.instances."xn--qbtm095lrg0bfka60z.chn.moe" = {};
-                };
+                nginx.transparentProxy.externalIp = [ "192.168.82.3" ]; };
                 misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
               };
@@ -275,7 +270,6 @@
                 frpServer = { enable = true; serverName = "frp.chn.moe"; };
                 nginx =
                 {
-                  enable = true;
                   transparentProxy =
                   {
                     externalIp = [ "74.211.99.69" "192.168.82.1" ];
@@ -287,23 +281,22 @@
                   };
                   streamProxy =
                   {
-                    enable = true;
                     map =
                     {
                       "nix-store.chn.moe" = { upstream = "internal.pc.chn.moe:443"; rewriteHttps = true; };
                       "anchor.fm" = { upstream = "anchor.fm:443"; rewriteHttps = true; };
                       "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; rewriteHttps = true; };
                       "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; rewriteHttps = true; };
+                      "xn--qbtm095lrg0bfka60z.chn.moe" =
+                        { upstream.address = "internal.pc.chn.moe"; proxyProtocol = true; };
+                      "xn--s8w913fdga.chn.moe" =
+                        { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; };
+                      "misskey.chn.moe" =
+                        { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; };
                     };
                   };
                   applications =
                   {
-                    misskey.instances =
-                    {
-                      "xn--qbtm095lrg0bfka60z.chn.moe".upstream.address = "internal.pc.chn.moe";
-                      "xn--s8w913fdga.chn.moe".upstream.address = "internal.vps7.chn.moe";
-                      "misskey.chn.moe".upstream = "internal.vps7.chn.moe:9727";
-                    };
                     synapse.instances."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
                     vaultwarden = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
                     element.instances."element.chn.moe" = {};
@@ -367,15 +360,9 @@
                 rsshub.enable = true;
                 nginx =
                 {
-                  enable = true;
                   transparentProxy.externalIp = [ "95.111.228.40" "192.168.82.2" ];
                   applications =
                   {
-                    misskey.instances =
-                    {
-                      "xn--s8w913fdga.chn.moe" = {};
-                      "misskey.chn.moe".upstream.port = 9727;
-                    };
                     synapse.instances."synapse.chn.moe" = {};
                     vaultwarden.enable = true;
                     photoprism.instances."photoprism.chn.moe" = {};
@@ -616,7 +603,7 @@
                   tcp.store = { localPort = 443; remotePort = 7676; };
                 };
                 smartd.enable = true;
-                nginx = { enable = true; transparentProxy.enable = false; };
+                nginx.transparentProxy.enable = false;
                 postgresql.enable = true;
               };
               bugs = [ "xmunet" "firefox" "embree" ];
