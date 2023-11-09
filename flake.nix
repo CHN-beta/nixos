@@ -278,25 +278,16 @@
                       "beta.mirism.one" = 9114;
                     };
                   };
-                  streamProxy =
+                  streamProxy.map =
                   {
-                    map =
-                    {
-                      "nix-store.chn.moe" = { upstream = "internal.pc.chn.moe"; rewriteHttps = true; };
-                      "anchor.fm" = { upstream = "anchor.fm:443"; rewriteHttps = true; };
-                      "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; rewriteHttps = true; };
-                      "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; rewriteHttps = true; };
-                      "xn--qbtm095lrg0bfka60z.chn.moe" =
-                        { upstream.address = "internal.pc.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
-                    }
-                    // (builtins.listToAttrs (builtins.map
-                      (site:
-                      {
-                        name = "${site}.chn.moe";
-                        value =
-                          { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
-                      })
-                      [ "xn--s8w913fdga" "misskey" "synapse" ]));
+                    "anchor.fm" = { upstream = "anchor.fm:443"; proxyProtocol = false; };
+                    "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; proxyProtocol = false; };
+                    "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; proxyProtocol = false; };
+                    "nix-store.chn.moe" = { upstream = "internal.pc.chn.moe"; proxyProtocol = false; };
+                    "xn--qbtm095lrg0bfka60z.chn.moe".upstream.address = "internal.pc.chn.moe";
+                    "xn--s8w913fdga.chn.moe".upstream.address = "internal.vps7.chn.moe";
+                    "misskey.chn.moe".upstream.address = "internal.vps7.chn.moe";
+                    "synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
                   };
                   applications =
                   {

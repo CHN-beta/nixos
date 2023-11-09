@@ -5,7 +5,7 @@ inputs:
     enable = mkOption { type = types.bool; default = false; };
     cert = mkOption
     {
-      type = types.attrsOf (types.submodule (submoduleInputs:
+      type = types.attrsOf (types.submodule (submoduleInputs: { options =
       {
         domains = mkOption
         {
@@ -13,7 +13,7 @@ inputs:
           default = [ submoduleInputs.config._module.args.name ];
         };
         group = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-      }));
+      };}));
       default = {};
     };
   };

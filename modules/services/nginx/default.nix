@@ -134,7 +134,7 @@ inputs:
     {
       type = types.attrsOf (types.submodule (submoduleInputs: { options =
       {
-        rewritetHttps = mkOption
+        rewriteHttps = mkOption
         {
           type = types.nullOr (types.submodule { options =
           {
@@ -158,7 +158,7 @@ inputs:
   config =
     let
       inherit (inputs.lib) mkMerge mkIf mkDefault;
-      inherit (inputs.lib.string) escapeURL;
+      inherit (inputs.lib.strings) escapeURL;
       inherit (inputs.localLib) attrsToList;
       inherit (inputs.config.nixos.services) nginx;
       inherit (builtins) map listToAttrs concatStringsSep toString filter attrValues concatLists;
@@ -166,7 +166,7 @@ inputs:
       httpsPort = 3065;
       httpsPortShift = { http2 = 1; proxyProtocol = 2; };
       httpsLocationTypes = [ "proxy" "static" "php" ];
-      httpTypes = [ "rewritetHttps" ];
+      httpTypes = [ "rewriteHttps" "php" ];
       streamPort = 5575;
       streamPortShift = { proxyProtocol = 1; };
     in mkIf nginx.enable (mkMerge
@@ -263,7 +263,7 @@ inputs:
             ${concatStringsSep "\n    " (map
               (x: ''"${x.name}" 127.0.0.1:${toString x.value};'')
               (attrsToList nginx.transparentProxy.map))}
-            default 127.0.0.1:${toString httpsPort + httpsPortShift.http2};
+            default 127.0.0.1:${toString (httpsPort + httpsPortShift.http2)};
           }
           server {
             ${concatStringsSep "\n    " (map (ip: "listen ${ip}:443;") nginx.transparentProxy.externalIp)}
@@ -387,7 +387,7 @@ inputs:
                 (attrsToList nginx.streamProxy.map)))
           );
           http = listToAttrs (map
-            (site: { inherit (site) name; value.rewritetHttps = {}; })
+            (site: { inherit (site) name; value.rewriteHttps = {}; })
             (filter (site: site.value.rewriteHttps or false) (attrsToList nginx.streamProxy.map)));
         };
       }
@@ -436,27 +436,35 @@ inputs:
               listen = map
                 (listen:
                 {
-                  add = if listen.value.proxyProtocol then "0.0.0.0" else "127.0.0.1";
+                  addr = if listen.value.proxyProtocol then "0.0.0.0" else "127.0.0.1";
                   port = httpsPort
                     + (if listen.value.http2 then httpsPortShift.http2 else 0)
                     + (if listen.value.proxyProtocol then httpsPortShift.proxyProtocol else 0);
                   ssl = true;
                   # TODO: use proxy_protocol in 23.11
-                  extraParameters = if listen.value.proxyProtocol then [ "proxy_protocol" ] else [];
+                  extraParameters =
+                    (if listen.value.proxyProtocol then [ "proxy_protocol" ] else [])
+                    ++ (if listen.value.http2 then [ "http2" ] else []);
                 })
-                (attrValues site.value.listen);
+                (attrsToList site.value.listen);
               # TODO: disable well-known in 23.11
               useACMEHost = site.name;
-              http2 = site.value.http2;
               locations = listToAttrs (map
                 (location:
                 {
                   inherit (location) name;
                   value =
                   {
-                    basicAuthFile = mkIf (location.value.detectAuth != null)
-                      inputs.config.sops.templates
-                        ."nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}".path;
+                    basicAuthFile =
+                      let
+                        detectAuthList = filter
+                          (detectAuth: detectAuth != null)
+                          (map
+                            (type: location.value.${type}.detectAuth or null)
+                            httpsLocationTypes);
+                      in mkIf (builtins.length detectAuthList > 0)
+                        inputs.config.sops.templates
+                          ."nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}".path;
                   }
                   // (
                     if (location.value.proxy != null) then
@@ -470,10 +478,14 @@ inputs:
                         (map
                           (header: ''proxy_set_header ${header.name} "${header.value}";'')
                           (attrsToList location.value.proxy.setHeaders))
-                        ++ (if site.value.detectAuth != null then [ "proxy_hide_header Authorization;" ] else [])
                         ++ (
-                          if site.value.addAuth != null then
-                            let authFile = "nginx/templates/addAuth/${site.value.addAuth}";
+                          if location.value.proxy.detectAuth != null || site.value.global.detectAuth != null
+                            then [ "proxy_hide_header Authorization;" ]
+                            else []
+                        )
+                        ++ (
+                          if location.value.proxy.addAuth != null then
+                            let authFile = "nginx/templates/addAuth/${location.value.proxy.addAuth}";
                             in [ "include ${inputs.config.sops.templates.${authFile}.path};" ]
                           else [])
                       );
@@ -534,20 +546,20 @@ inputs:
                     upstream.port = httpsPort + httpsPortShift.proxyProtocol
                       + (if site.value.http2 then httpsPortShift.http2 else 0);
                     proxyProtocol = true;
-                    rewiteHttps = mkDefault false;
+                    rewriteHttps = mkDefault false;
                   };
                 })
                 (filter (listen: listen.value.proxyProtocol) listens));
               http = listToAttrs (map
-                (site: { inherit (site) name; value.rewritetHttps = {}; })
+                (site: { inherit (site) name; value.rewriteHttps = {}; })
                 (filter (site: site.value.global.rewriteHttps) (attrsToList nginx.https)));
             };
           acme =
           {
             enable = true;
-            cert = map
+            cert = listToAttrs (map
               (site: { inherit (site) name; value.group = inputs.config.services.nginx.group; })
-              (attrsToList nginx.https);
+              (attrsToList nginx.https));
           };
         };
         sops =
@@ -561,7 +573,11 @@ inputs:
                     domain = site.name;
                     location = location.name;
                     detectAuth = concatLists (map
-                      (type: location.value.${type}.detectAuth or [])
+                      (type:
+                        if !(location.value.${type} ? detectAuth) || (location.value.${type}.detectAuth == null)
+                          then []
+                        else location.value.${type}.detectAuth
+                      )
                       httpsLocationTypes);
                     addAuth = location.value.proxy.addAuth or null;
                   })
@@ -571,7 +587,8 @@ inputs:
                 (site:
                 {
                   domain = site.name;
-                  detectAuth = site.value.global.detectAuth or [];
+                  detectAuth = if site.value.global.detectAuth == null then [] else site.value.global.detectAuth;
+                  addAuth = null;
                 })
                 (attrsToList nginx.https))
             );
@@ -614,12 +631,14 @@ inputs:
             (
               (map
                 (secret: { name = "nginx/detectAuth/${secret}"; value = {}; })
-                (inputs.lib.unique (concatLists (map (location: location.value.detectAuth) locations))))
+                (inputs.lib.unique (concatLists (map
+                  (location: if location.detectAuth == null then [] else location.detectAuth)
+                  locations))))
               ++ (map
                 (secret: { name = "nginx/addAuth/${secret}"; value = {}; })
                 (inputs.lib.unique (filter
                   (secret: secret != null)
-                  (map (location: location.value.addAuth) locations))))
+                  (map (location: location.addAuth) locations))))
             );
           };
       }
@@ -641,7 +660,7 @@ inputs:
               serverName = site.name;
               listen = [ { addr = "0.0.0.0"; port = 80; } ];
             }
-            // (if site.value.rewritetHttps != null then
+            // (if site.value.rewriteHttps != null then
               { locations."/".return = "301 https://${site.value.rewriteHttps.hostname}$request_uri"; }
               else {})
             // (if site.value.php != null then
