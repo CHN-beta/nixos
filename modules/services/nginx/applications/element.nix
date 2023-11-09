@@ -16,13 +16,13 @@ inputs:
       inherit (builtins) map listToAttrs toString;
     in
     {
-      nixos.services.nginx.http = listToAttrs (map
+      nixos.services.nginx.https = listToAttrs (map
         (instance: with instance.value;
         {
           name = hostname;
           value =
           {
-            rewriteHttps = true;
+            global.rewriteHttps = true;
             locations."/".static.root =
               if defaultServer == null then toString inputs.pkgs.element-web
               else toString (inputs.pkgs.element-web.override { conf =
