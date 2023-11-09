@@ -297,11 +297,10 @@
                         value =
                           { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
                       })
-                      [ "xn--s8w913fdga" "misskey" "nextcloud" "photoprism" "synapse" ]));
+                      [ "xn--s8w913fdga" "misskey" "nextcloud" "photoprism" "synapse" "vaultwarden" ]));
                   };
                   applications =
                   {
-                    vaultwarden = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
                     element.instances."element.chn.moe" = {};
                     synapse-admin.instances."synapse-admin.chn.moe" = {};
                   };
@@ -362,10 +361,6 @@
                 nginx =
                 {
                   transparentProxy.externalIp = [ "95.111.228.40" "192.168.82.2" ];
-                  applications =
-                  {
-                    vaultwarden.enable = true;
-                  };
                 };
                 wallabag.enable = true;
                 misskey.instances =

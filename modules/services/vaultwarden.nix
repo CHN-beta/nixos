@@ -11,7 +11,7 @@ inputs:
   config =
     let
       inherit (inputs.config.nixos.services) vaultwarden;
-      inherit (builtins) listToAttrs;
+      inherit (builtins) listToAttrs toString;
       inherit (inputs.lib) mkIf;
     in mkIf vaultwarden.enable
     {
@@ -62,6 +62,44 @@ inputs:
         enable = vaultwarden.autoStart;
         after = [ "postgresql.service" ];
       };
-      nixos.services.postgresql = { enable = true; instances.vaultwarden = {}; };
+      nixos.services =
+      {
+        postgresql = { enable = true; instances.vaultwarden = {}; };
+        nginx =
+        {
+          enable = true;
+          https.${vaultwarden.hostname} =
+          {
+            global.rewriteHttps = true;
+            listen.main.proxyProtocol = true;
+            location = listToAttrs
+            (
+              (map
+                (location:
+                {
+                  name = location;
+                  value.proxy =
+                  {
+                    upstream = "http://127.0.0.1:${toString vaultwarden.port}";
+                    setHeaders = { Host = vaultwarden.hostname; Connection = ""; };
+                  };
+                })
+                [ "/" "/notifications/hub/negotiate" ])
+              ++ (map
+                (location:
+                {
+                  name = location;
+                  value.proxy =
+                  {
+                    upstream = "http://127.0.0.1:${toString vaultwarden.websocketPort}";
+                    websocket = true;
+                    setHeaders.Host = vaultwarden.hostname;
+                  };
+                })
+                [ "/notifications/hub" ])
+            );
+          };
+        };
+      };
     };
 }
