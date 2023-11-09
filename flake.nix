@@ -289,12 +289,15 @@
                       "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; rewriteHttps = true; };
                       "xn--qbtm095lrg0bfka60z.chn.moe" =
                         { upstream.address = "internal.pc.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
-                      "xn--s8w913fdga.chn.moe" =
-                        { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
-                      "misskey.chn.moe" =
-                        { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
-                      "nextcloud.chn.moe" =
-                        { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
+                    }
+                    // (builtins.listToAttrs (builtins.map
+                      (site:
+                      {
+                        name = "${site}.chn.moe";
+                        value =
+                          { upstream.address = "internal.vps7.chn.moe"; proxyProtocol = true; rewriteHttps = true; };
+                      })
+                      [ "xn--s8w913fdga" "misskey" "nextcloud" "photoprism" ]));
                     };
                   };
                   applications =
@@ -302,7 +305,6 @@
                     synapse.instances."synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
                     vaultwarden = { enable = true; upstream.address = "internal.vps7.chn.moe"; };
                     element.instances."element.chn.moe" = {};
-                    photoprism.instances."photoprism.chn.moe".upstream.address = "internal.vps7.chn.moe";
                     synapse-admin.instances."synapse-admin.chn.moe" = {};
                   };
                 };
@@ -366,7 +368,6 @@
                   {
                     synapse.instances."synapse.chn.moe" = {};
                     vaultwarden.enable = true;
-                    photoprism.instances."photoprism.chn.moe" = {};
                   };
                 };
                 wallabag.enable = true;

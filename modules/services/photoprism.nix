@@ -42,6 +42,24 @@ inputs:
         '';
         secrets."photoprism/adminPassword" = {}; 
       };
-      nixos.services.mariadb = { enable = true; instances.photoprism = {}; };
+      nixos.services =
+      {
+        mariadb = { enable = true; instances.photoprism = {}; };
+        nginx =
+        {
+          enable = true;
+          https.${photoprism.hostname} =
+          {
+            global.rewriteHttps = true;
+            listen.main.proxyProtocol = true;
+            location."/".proxy =
+            {
+              upstream = "http://127.0.0.1:${toString photoprism.port}";
+              websocket = true;
+              setHeaders.Host = photoprism.hostname;
+            };
+          };
+        };
+      };
     };
 }
