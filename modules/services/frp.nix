@@ -179,8 +179,11 @@ inputs:
             };
             secrets."frp/token" = {};
           };
-          nixos.services.acme = { enable = true; certs = [ frpServer.serverName ]; };
-          security.acme.certs.${frpServer.serverName}.group = "frp";
+          nixos.services.acme =
+          {
+            enable = true;
+            cert.${frpServer.serverName}.group = "frp";
+          };
           users = { users.frp = { isSystemUser = true; group = "frp"; }; groups.frp = {}; };
           networking.firewall.allowedTCPPorts = [ 7000 ];
         }

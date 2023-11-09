@@ -60,12 +60,7 @@ inputs:
         nginx =
         {
           enable = true;
-          http.${rsshub.hostname} =
-          {
-            rewriteHttps = true;
-            locations."/".proxy =
-              { upstream = "http://127.0.0.1:${toString rsshub.port}"; setHeaders.Host = rsshub.hostname; };
-          };
+          https.${rsshub.hostname}.location."/".proxy.upstream = "http://127.0.0.1:${toString rsshub.port}";
         };
       };
     };

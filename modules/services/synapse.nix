@@ -104,13 +104,11 @@ inputs:
           enable = true;
           https.${synapse.hostname} =
           {
-            global.rewriteHttps = true;
             listen.main.proxyProtocol = true;
             location."/".proxy =
             {
               upstream = "http://127.0.0.1:${toString synapse.port}";
               websocket = true;
-              setHeaders.Host = synapse.hostname;
             };
           };
         };

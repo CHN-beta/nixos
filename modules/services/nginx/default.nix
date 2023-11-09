@@ -44,9 +44,9 @@ inputs:
               ];
               default = {};
             };
-            proxyProtocol = mkOption { type = types.bool; default = false; };
+            proxyProtocol = mkOption { type = types.bool; default = true; };
             addToTransparentProxy = mkOption { type = types.bool; default = true; };
-            rewriteHttps = mkOption { type = types.bool; default = false; };
+            rewriteHttps = mkOption { type = types.bool; default = true; };
           };})
         ]);
         default = {};
@@ -54,14 +54,14 @@ inputs:
     };
     https = mkOption
     {
-      type = types.attrsOf (types.submodule { options =
+      type = types.attrsOf (types.submodule (siteSubmoduleInputs: { options =
       {
         global =
         {
           root = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
           index = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
           detectAuth = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
-          rewriteHttps = mkOption { type = types.bool; default = false; };
+          rewriteHttps = mkOption { type = types.bool; default = true; };
         };
         listen = mkOption
         {
@@ -75,18 +75,14 @@ inputs:
           };});
           default.main = {};
         };
-        locations = mkOption
+        location = mkOption
         {
           type = types.attrsOf (types.submodule { options =
             let
               genericOptions =
               {
                 # htpasswd -n username
-                detectAuth = mkOption
-                {
-                  type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr);
-                  default = null;
-                };
+                detectAuth = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
               };
             in
             {
@@ -97,7 +93,11 @@ inputs:
                 {
                   upstream = mkOption { type = types.nonEmptyStr; };
                   websocket = mkOption { type = types.bool; default = false; };
-                  setHeaders = mkOption { type = types.attrsOf types.str; default = {}; };
+                  setHeaders = mkOption
+                  {
+                    type = types.attrsOf types.str;
+                    default.Host = siteSubmoduleInputs.config._module.args.name;
+                  };
                   # echo -n "username:password" | base64
                   addAuth = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
                 };});
@@ -127,7 +127,7 @@ inputs:
             };});
           default = {};
         };
-      };});
+      };}));
       default = {};
     };
     http = mkOption
@@ -157,7 +157,7 @@ inputs:
   };
   config =
     let
-      inherit (inputs.lib) mkMerge mkIf;
+      inherit (inputs.lib) mkMerge mkIf mkDefault;
       inherit (inputs.lib.string) escapeURL;
       inherit (inputs.localLib) attrsToList;
       inherit (inputs.config.nixos.services) nginx;
@@ -406,7 +406,7 @@ inputs:
             (concatLists (map
               (site: (map
                 (location: { inherit (location) value; name = "${site.name} ${location.name}"; })
-                (attrsToList site.value.locations)))
+                (attrsToList site.value.location)))
               (attrsToList nginx.https))))
           # root should be specified either in global or in each location
           ++ (map
@@ -418,7 +418,7 @@ inputs:
             (concatLists (map
               (site: (map
                   (location: { inherit (location) value; name = "${site.name} ${location.name}"; })
-                  (attrsToList site.value.locations)))
+                  (attrsToList site.value.location)))
               (filter (site: site.value.global.root == null) (attrsToList nginx.https)))))
         );
         services.nginx.virtualHosts = listToAttrs (map
@@ -500,7 +500,7 @@ inputs:
                     else {}
                   );
                 })
-                (attrsToList site.value.locations));
+                (attrsToList site.value.location));
             };
           })
           (attrsToList nginx.https));
@@ -534,6 +534,7 @@ inputs:
                     upstream.port = httpsPort + httpsPortShift.proxyProtocol
                       + (if site.value.http2 then httpsPortShift.http2 else 0);
                     proxyProtocol = true;
+                    rewiteHttps = mkDefault false;
                   };
                 })
                 (filter (listen: listen.value.proxyProtocol) listens));
@@ -564,7 +565,7 @@ inputs:
                       httpsLocationTypes);
                     addAuth = location.value.proxy.addAuth or null;
                   })
-                  (attrsToList site.value.locations))
+                  (attrsToList site.value.location))
                 (attrsToList nginx.https)))
               ++ (map
                 (site:

@@ -37,10 +37,9 @@ inputs:
       nixos.services =
       {
         mariadb = { enable = true; instances.freshrss = {}; };
-        nginx.http.${freshrss.hostname} =
+        nginx.https.${freshrss.hostname} =
         {
-          rewriteHttps = true;
-          locations =
+          location =
           {
             "/".static =
             {

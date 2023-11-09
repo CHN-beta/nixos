@@ -25,19 +25,14 @@ inputs:
     ./photoprism.nix
     ./nextcloud.nix
     ./freshrss.nix
+    ./kmscon.nix
+    ./fontconfig.nix
+    ./nix-serve.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
-    kmscon.enable = mkOption { type = types.bool; default = false; };
-    fontconfig.enable = mkOption { type = types.bool; default = false; };
     firewall.trustedInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-    nix-serve =
-    {
-      enable = mkOption { type = types.bool; default = false; };
-      hostname = mkOption { type = types.nonEmptyStr; };
-    };
     smartd.enable = mkOption { type = types.bool; default = false; };
-    fileshelter.enable = mkOption { type = types.bool; default = false; };
     wallabag.enable = mkOption { type = types.bool; default = false; };
     noisetorch.enable = mkOption { type = types.bool; default = inputs.config.nixos.system.gui.preferred; };
   };
@@ -49,49 +44,7 @@ inputs:
       inherit (builtins) map listToAttrs toString;
     in mkMerge
     [
-      (
-        mkIf services.kmscon.enable
-        {
-          services.kmscon =
-          {
-            enable = true;
-            fonts = [{ name = "FiraCode Nerd Font Mono"; package = inputs.pkgs.nerdfonts; }];
-          };
-        }
-      )
-      (
-        mkIf services.fontconfig.enable
-        {
-          fonts =
-          {
-            fontDir.enable = true;
-            fonts = with inputs.pkgs;
-              [ noto-fonts source-han-sans source-han-serif source-code-pro hack-font jetbrains-mono nerdfonts ];
-            fontconfig.defaultFonts =
-            {
-              emoji = [ "Noto Color Emoji" ];
-              monospace = [ "Noto Sans Mono CJK SC" "Sarasa Mono SC" "DejaVu Sans Mono"];
-              sansSerif = [ "Noto Sans CJK SC" "Source Han Sans SC" "DejaVu Sans" ];
-              serif = [ "Noto Serif CJK SC" "Source Han Serif SC" "DejaVu Serif" ];
-            };
-          };
-        }
-      )
       { networking.firewall.trustedInterfaces = services.firewall.trustedInterfaces; }
-      (
-        mkIf services.nix-serve.enable
-        {
-          services.nix-serve =
-          {
-            enable = true;
-            openFirewall = true;
-            secretKeyFile = inputs.config.sops.secrets."store/signingKey".path;
-          };
-          sops.secrets."store/signingKey" = {};
-          nixos.services.nginx.http.${services.nix-serve.hostname} =
-            { rewriteHttps = true; locations."/".proxy.upstream = "http://127.0.0.1:5000"; };
-        }
-      )
       (mkIf services.smartd.enable { services.smartd.enable = true; })
       (
         mkIf services.wallabag.enable
@@ -111,11 +64,6 @@ inputs:
             extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
             environmentFiles = [ inputs.config.sops.templates."wallabag/env".path ];
           };
-          # systemd.services.docker-wallabag.serviceConfig =
-          # {
-          #   User = "wallabag";
-          #   Group = "wallabag";
-          # };
           sops =
           {
             templates."wallabag/env".content =
@@ -139,33 +87,7 @@ inputs:
               # SYMFONY__ENV__MAILER_DSN=smtp://bot%%40chn.moe@${placeholder."mail/bot-encoded"}:mail.chn.moe
               # SYMFONY__ENV__FROM_EMAIL=bot@chn.moe
               # SYMFONY__ENV__TWOFACTOR_SENDER=bot@chn.moe
-            secrets =
-            {
-              "redis/wallabag".owner = inputs.config.users.users.redis-wallabag.name;
-              "postgresql/wallabag" = {};
-              "mail/bot-encoded" = {};
-            };
-          };
-          services =
-          {
-            redis.servers.wallabag =
-            {
-              enable = true;
-              bind = null;
-              port = 8790;
-              requirePassFile = inputs.config.sops.secrets."redis/wallabag".path;
-            };
-            postgresql =
-            {
-              ensureDatabases = [ "wallabag" ];
-              ensureUsers =
-              [{
-                name = "wallabag";
-                ensurePermissions."DATABASE \"wallabag\"" = "ALL PRIVILEGES";
-              }];
-              # ALTER DATABASE db_name OWNER TO new_owner_name
-              # sudo docker exec -t wallabag /var/www/wallabag/bin/console wallabag:install --env=prod --no-interaction
-            };
+            secrets."mail/bot-encoded" = {};
           };
           nixos =
           {
@@ -174,21 +96,14 @@ inputs:
               nginx =
               {
                 enable = true;
-                http."wallabag.chn.moe" =
-                {
-                  rewriteHttps = true;
-                  locations."/".proxy = { upstream = "http://127.0.0.1:4398"; setHeaders.Host = "wallabag.chn.moe"; };
-                };
+                https."wallabag.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:4398";
               };
-              postgresql.enable = true;
+              postgresql = { enable = true; instances.wallabag = {}; };
+              redis.instances.wallabag.port = 8790;
             };
+            # TODO: root docker use config of rootless docker?
             virtualization.docker.enable = true;
           };
-          # users =
-          # {
-          #   users.wallabag = { isSystemUser = true; group = "wallabag"; autoSubUidGidRange = true; };
-          #   groups.wallabag = {};
-          # };
         }
       )
       (mkIf services.noisetorch.enable { programs.noisetorch.enable = true; })

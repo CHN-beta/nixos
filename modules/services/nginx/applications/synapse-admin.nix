@@ -14,15 +14,11 @@ inputs:
       inherit (builtins) map listToAttrs;
     in
     {
-      nixos.services.nginx.http = listToAttrs (map
-        (http: with http.value;
+      nixos.services.nginx.https = listToAttrs (map
+        (site: with site.value;
         {
           name = hostname;
-          value =
-          {
-            rewriteHttps = true;
-            locations."/".static.root = "${inputs.pkgs.synapse-admin}";
-          };
+          value.location."/".static.root = "${inputs.pkgs.synapse-admin}";
         })
         (attrsToList instances));
     };

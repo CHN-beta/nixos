@@ -6,7 +6,7 @@ inputs:
     port = mkOption { type = types.ints.unsigned; default = 3389; };
     hostname = mkOption
     {
-      type = types.nullOr (types.oneOf [ types.nonEmptyStr (types.listOf types.nonEmptyStr) ]);
+      type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr);
       default = null;
     };
   };
@@ -29,14 +29,21 @@ inputs:
         mkIf (xrdp.hostname != null)
         (
           let
-            mainDomain = if builtins.typeOf xrdp.hostname == "string" then xrdp.hostname
-              else builtins.elemAt xrdp.hostname 0;
+            mainDomain = builtins.elemAt xrdp.hostname 0;
           in
           {
-            services.xrdp = let keydir = inputs.config.security.acme.certs.${mainDomain}.directory; in
-              { sslCert = "${keydir}/full.pem"; sslKey = "${keydir}/key.pem"; };
-            nixos.services.acme = { enable = true; certs = [ xrdp.hostname ]; };
-            security.acme.certs.${mainDomain}.group = inputs.config.systemd.services.xrdp.serviceConfig.Group;
+            services.xrdp =
+              let keydir = inputs.config.security.acme.certs.${mainDomain}.directory;
+              in { sslCert = "${keydir}/full.pem"; sslKey = "${keydir}/key.pem"; };
+            nixos.services.acme =
+            {
+              enable = true;
+              cert.${mainDomain} =
+              {
+                domains = xrdp.hostname;
+                group = inputs.config.systemd.services.xrdp.serviceConfig.Group;
+              };
+            };
           }
         )
       )

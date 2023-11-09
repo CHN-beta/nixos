@@ -512,10 +512,9 @@ inputs:
           users = { users.v2ray = { isSystemUser = true; group = "v2ray"; }; groups.v2ray = {}; };
           nixos.services =
           {
-            acme = { enable = true; certs = [ xrayServer.serverName ]; };
-            nginx.transparentProxy.map."${xrayServer.serverName}" = 4726;
+            acme = { enable = true; cert.${xrayServer.serverName}.group = inputs.config.users.users.nginx.group; };
+            nginx = { enable = true; transparentProxy.map."${xrayServer.serverName}" = 4726; };
           };
-          security.acme.certs.${xrayServer.serverName}.group = inputs.config.users.users.nginx.group;
         }
       ))
     ];

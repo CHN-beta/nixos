@@ -169,13 +169,11 @@ inputs:
               name = hostname;
               value =
               {
-                global.rewriteHttps = true;
                 listen.main.proxyProtocol = true;
-                locations."/".proxy =
+                location."/".proxy =
                 {
                   upstream = "http://127.0.0.1:${toString port}";
                   websocket = true;
-                  setHeaders.Host = hostname;
                 };
               };
             })

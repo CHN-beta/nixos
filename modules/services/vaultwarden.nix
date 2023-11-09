@@ -70,8 +70,6 @@ inputs:
           enable = true;
           https.${vaultwarden.hostname} =
           {
-            global.rewriteHttps = true;
-            listen.main.proxyProtocol = true;
             location = listToAttrs
             (
               (map
@@ -93,7 +91,6 @@ inputs:
                   {
                     upstream = "http://127.0.0.1:${toString vaultwarden.websocketPort}";
                     websocket = true;
-                    setHeaders.Host = vaultwarden.hostname;
                   };
                 })
                 [ "/notifications/hub" ])

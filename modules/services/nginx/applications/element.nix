@@ -20,21 +20,17 @@ inputs:
         (instance: with instance.value;
         {
           name = hostname;
-          value =
-          {
-            global.rewriteHttps = true;
-            locations."/".static.root =
-              if defaultServer == null then toString inputs.pkgs.element-web
-              else toString (inputs.pkgs.element-web.override { conf =
+          value.location."/".static.root =
+            if defaultServer == null then toString inputs.pkgs.element-web
+            else toString (inputs.pkgs.element-web.override { conf =
+            {
+              default_server_config."m.homeserver" =
               {
-                default_server_config."m.homeserver" =
-                {
-                  base_url = "https://${defaultServer}";
-                  server_name = defaultServer;
-                };
-                disable_guests = false;
-              };});
-          };
+                base_url = "https://${defaultServer}";
+                server_name = defaultServer;
+              };
+              disable_guests = false;
+            };});
         })
         (attrsToList instances));
     };

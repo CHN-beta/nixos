@@ -25,8 +25,11 @@ inputs:
             no-cli = true;
           };
         sops.secrets."coturn/auth-secret".owner = inputs.config.systemd.services.coturn.serviceConfig.User;
-        nixos.services.acme = { enable = true; certs = [ coturn.hostname ]; };
-        security.acme.certs.${coturn.hostname}.group = inputs.config.systemd.services.coturn.serviceConfig.Group;
+        nixos.services.acme =
+        {
+          enable = true;
+          cert.${coturn.hostname}.group = inputs.config.systemd.services.coturn.serviceConfig.Group;
+        };
         networking.firewall = with inputs.config.services.coturn;
         {
           allowedUDPPorts = [ listening-port tls-listening-port ];

@@ -70,11 +70,7 @@ inputs:
         nginx =
         {
           enable = true;
-          https.${nextcloud.hostname} =
-          {
-            global.rewriteHttps = true;
-            listen.main.proxyProtocol = true;
-          };
+          https.${nextcloud.hostname} = {};
         };
       };
       sops =

@@ -48,16 +48,10 @@ inputs:
         nginx =
         {
           enable = true;
-          https.${photoprism.hostname} =
+          https.${photoprism.hostname}.location."/".proxy =
           {
-            global.rewriteHttps = true;
-            listen.main.proxyProtocol = true;
-            location."/".proxy =
-            {
-              upstream = "http://127.0.0.1:${toString photoprism.port}";
-              websocket = true;
-              setHeaders.Host = photoprism.hostname;
-            };
+            upstream = "http://127.0.0.1:${toString photoprism.port}";
+            websocket = true;
           };
         };
       };
