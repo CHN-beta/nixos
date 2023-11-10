@@ -288,6 +288,7 @@
                     "xn--s8w913fdga.chn.moe".upstream.address = "internal.vps7.chn.moe";
                     "misskey.chn.moe".upstream.address = "internal.vps7.chn.moe";
                     "synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
+                    "send.chn.moe".upstream.address = "internal.vps7.chn.moe";
                   };
                   applications =
                   {
