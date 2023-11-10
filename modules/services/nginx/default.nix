@@ -346,7 +346,7 @@ inputs:
                           if x.value.upstream.port == null then
                             httpsPort + httpsPortShift.http2
                               + (if x.value.proxyProtocol then httpsPortShift.proxyProtocol else 0)
-                          else streamPort;
+                          else x.value.upstream.port;
                       in "${x.value.upstream.address}:${toString port}";
                 in ''"${x.name}" "${upstream}";'')
               (attrsToList nginx.streamProxy.map))}
@@ -424,7 +424,7 @@ inputs:
         services.nginx.virtualHosts = listToAttrs (map
           (site:
           {
-            inherit (site) name;
+            name = "https.${site.name}";
             value =
             {
               serverName = site.name;
@@ -447,6 +447,9 @@ inputs:
                     ++ (if listen.value.http2 then [ "http2" ] else []);
                 })
                 (attrsToList site.value.listen);
+              # do not automatically add http2 listen
+              http2 = false;
+              onlySSL = true;
               # TODO: disable well-known in 23.11
               useACMEHost = site.name;
               locations = listToAttrs (map
@@ -654,7 +657,7 @@ inputs:
         services.nginx.virtualHosts = listToAttrs (map
           (site:
           {
-            inherit (site) name;
+            name = "http.${site.name}";
             value =
             {
               serverName = site.name;
