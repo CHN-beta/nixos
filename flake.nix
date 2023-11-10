@@ -356,7 +356,7 @@
                   misskey-old = { port = 9727; redis.port = 3546; meilisearch.enable = false; };
                 };
                 synapse.enable = true;
-                xrdp = { enable = true; hostname = "vps7.chn.moe"; };
+                xrdp = { enable = true; hostname = [ "vps7.chn.moe" ]; };
                 vaultwarden.enable = true;
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
                 photoprism.enable = true;

@@ -99,7 +99,7 @@ inputs:
                 https."wallabag.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:4398";
               };
               postgresql = { enable = true; instances.wallabag = {}; };
-              redis.instances.wallabag.port = 8790;
+              redis.instances.wallabag = { user = "root"; port = 8790; };
             };
             # TODO: root docker use config of rootless docker?
             virtualization.docker.enable = true;

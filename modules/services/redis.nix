@@ -39,7 +39,7 @@ inputs:
         })
         (attrsToList redis.instances));
       sops.secrets = listToAttrs (map
-        (server: { name = "redis/${server.name}"; value.owner = inputs.config.users.users.${server.name}.name; })
+        (server: { name = "redis/${server.name}"; value.owner = inputs.config.users.users.${server.value.user}.name; })
         (filter (server: server.value.passwordFile == null) (attrsToList redis.instances)));
     };
 }
