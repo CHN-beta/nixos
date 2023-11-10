@@ -73,7 +73,7 @@ inputs:
           type = types.attrsOf (types.submodule { options =
           {
             http2 = mkOption { type = types.bool; default = true; };
-            proxyProtocol = mkOption { type = types.bool; default = false; };
+            proxyProtocol = mkOption { type = types.bool; default = true; };
             # if proxyProtocol not enabled, add to transparentProxy only
             # if proxyProtocol enabled, add to transparentProxy and streamProxy
             addToTransparentProxy = mkOption { type = types.bool; default = true; };

@@ -283,7 +283,7 @@
                     "anchor.fm" = { upstream = "anchor.fm:443"; proxyProtocol = false; };
                     "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; proxyProtocol = false; };
                     "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; proxyProtocol = false; };
-                    "nix-store.chn.moe" = { upstream = "internal.pc.chn.moe"; proxyProtocol = false; };
+                    "nix-store.chn.moe".upstream.address = "internal.pc.chn.moe";
                     "xn--qbtm095lrg0bfka60z.chn.moe".upstream.address = "internal.pc.chn.moe";
                     "xn--s8w913fdga.chn.moe".upstream.address = "internal.vps7.chn.moe";
                     "misskey.chn.moe".upstream.address = "internal.vps7.chn.moe";

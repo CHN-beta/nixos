@@ -47,11 +47,7 @@ inputs:
           nginx =
           {
             enable = true;
-            https."${send.hostname}" =
-            {
-              listen.main.proxyProtocol = true;
-              location."/".proxy = { upstream = "http://127.0.0.1:1443"; websocket = true; };
-            };
+            https."${send.hostname}".location."/".proxy = { upstream = "http://127.0.0.1:1443"; websocket = true; };
           };
           redis.instances.send = { user = "root"; port = 9184; };
         };

@@ -102,15 +102,8 @@ inputs:
         nginx =
         {
           enable = true;
-          https.${synapse.hostname} =
-          {
-            listen.main.proxyProtocol = true;
-            location."/".proxy =
-            {
-              upstream = "http://127.0.0.1:${toString synapse.port}";
-              websocket = true;
-            };
-          };
+          https.${synapse.hostname}.location."/".proxy =
+            { upstream = "http://127.0.0.1:${toString synapse.port}"; websocket = true; };
         };
       };
       systemd.services.matrix-synapse.enable = synapse.autoStart;
