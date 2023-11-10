@@ -70,7 +70,7 @@ inputs:
         nginx =
         {
           enable = true;
-          https.${nextcloud.hostname} = {};
+          https.${nextcloud.hostname}.global.configName = nextcloud.hostname;
         };
       };
       sops =

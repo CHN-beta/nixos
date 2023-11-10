@@ -58,6 +58,11 @@ inputs:
       {
         global =
         {
+          configName = mkOption
+          {
+            type = types.nonEmptyStr;
+            default = "https:${siteSubmoduleInputs.config._module.args.name}";
+          };
           root = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
           index = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
           detectAuth = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
@@ -424,7 +429,7 @@ inputs:
         services.nginx.virtualHosts = listToAttrs (map
           (site:
           {
-            name = "https.${site.name}";
+            name = site.value.global.configName;
             value =
             {
               serverName = site.name;
