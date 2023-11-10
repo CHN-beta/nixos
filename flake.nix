@@ -362,6 +362,7 @@
                 photoprism.enable = true;
                 nextcloud.enable = true;
                 freshrss.enable = true;
+                send.enable = true;
               };
             };})
           ];

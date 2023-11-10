@@ -28,6 +28,7 @@ inputs:
     ./kmscon.nix
     ./fontconfig.nix
     ./nix-serve.nix
+    ./send.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
