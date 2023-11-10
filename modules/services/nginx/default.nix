@@ -11,6 +11,20 @@ inputs:
     # https without proxyProtocol listen on private ip, with proxyProtocol listen on all ip
     # streamProxy listen on private ip
     # transparentProxy listen on public ip
+    global = mkOption
+    {
+      type = types.anything;
+      readOnly = true;
+      default =
+      {
+        httpsPort = 3065;
+        httpsPortShift = { http2 = 1; proxyProtocol = 2; };
+        httpsLocationTypes = [ "proxy" "static" "php" "return" ];
+        httpTypes = [ "rewriteHttps" "php" ];
+        streamPort = 5575;
+        streamPortShift = { proxyProtocol = 1; };
+      };
+    };
     transparentProxy =
     {
       # only disable in some rare cases
@@ -129,6 +143,7 @@ inputs:
                 };});
                 default = null;
               };
+              return = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
             };});
           default = {};
         };
@@ -168,12 +183,6 @@ inputs:
       inherit (inputs.config.nixos.services) nginx;
       inherit (builtins) map listToAttrs concatStringsSep toString filter attrValues concatLists;
       concatAttrs = list: listToAttrs (concatLists (map (attrs: attrsToList attrs) list));
-      httpsPort = 3065;
-      httpsPortShift = { http2 = 1; proxyProtocol = 2; };
-      httpsLocationTypes = [ "proxy" "static" "php" ];
-      httpTypes = [ "rewriteHttps" "php" ];
-      streamPort = 5575;
-      streamPortShift = { proxyProtocol = 1; };
     in mkIf nginx.enable (mkMerge
     [
       # generic config
@@ -268,7 +277,7 @@ inputs:
             ${concatStringsSep "\n    " (map
               (x: ''"${x.name}" 127.0.0.1:${toString x.value};'')
               (attrsToList nginx.transparentProxy.map))}
-            default 127.0.0.1:${toString (httpsPort + httpsPortShift.http2)};
+            default 127.0.0.1:${toString (with nginx.global; (httpsPort + httpsPortShift.http2))};
           }
           server {
             ${concatStringsSep "\n    " (map (ip: "listen ${ip}:443;") nginx.transparentProxy.externalIp)}
@@ -347,7 +356,7 @@ inputs:
                       x.value.upstream
                     else
                       let
-                        port =
+                        port = with nginx.global;
                           if x.value.upstream.port == null then
                             httpsPort + httpsPortShift.http2
                               + (if x.value.proxyProtocol then httpsPortShift.proxyProtocol else 0)
@@ -357,7 +366,7 @@ inputs:
               (attrsToList nginx.streamProxy.map))}
           }
           server {
-            listen 127.0.0.1:${toString streamPort};
+            listen 127.0.0.1:${toString nginx.global.streamPort};
             ssl_preread on;
             proxy_pass $stream_proxy_backend;
             proxy_connect_timeout 10s;
@@ -366,7 +375,7 @@ inputs:
             access_log syslog:server=unix:/dev/log stream_proxy;
           }
           server {
-            listen 127.0.0.1:${toString (streamPort + streamPortShift.proxyProtocol)};
+            listen 127.0.0.1:${toString (with nginx.global; (streamPort + streamPortShift.proxyProtocol))};
             proxy_protocol on;
             ssl_preread on;
             proxy_pass $stream_proxy_backend;
@@ -381,12 +390,12 @@ inputs:
           transparentProxy.map = listToAttrs
           (
             (map
-              (site: { inherit (site) name; value = streamPort; })
+              (site: { inherit (site) name; value = nginx.global.streamPort; })
               (filter
                 (site: (!(site.value.proxyProtocol or false) && (site.value.addToTransparentProxy or true)))
                 (attrsToList nginx.streamProxy.map)))
             ++ (map
-              (site: { inherit (site) name; value = streamPort + streamPortShift.proxyProtocol; })
+              (site: { inherit (site) name; value = with nginx.global; streamPort + streamPortShift.proxyProtocol; })
               (filter
                 (site: ((site.value.proxyProtocol or false) && (site.value.addToTransparentProxy or true)))
                 (attrsToList nginx.streamProxy.map)))
@@ -404,8 +413,9 @@ inputs:
           (map
             (location:
             {
-              assertion =
-                (inputs.lib.count (x: x != null) (map (type: location.value.${type}) httpsLocationTypes)) <= 1;
+              assertion = (inputs.lib.count
+                (x: x != null)
+                (map (type: location.value.${type}) nginx.global.httpsLocationTypes)) <= 1;
               message = "Only one type shuold be specified in ${location.name}";
             })
             (concatLists (map
@@ -442,7 +452,7 @@ inputs:
                 (listen:
                 {
                   addr = if listen.value.proxyProtocol then "0.0.0.0" else "127.0.0.1";
-                  port = httpsPort
+                  port = with nginx.global; httpsPort
                     + (if listen.value.http2 then httpsPortShift.http2 else 0)
                     + (if listen.value.proxyProtocol then httpsPortShift.proxyProtocol else 0);
                   ssl = true;
@@ -469,7 +479,7 @@ inputs:
                           (detectAuth: detectAuth != null)
                           (map
                             (type: location.value.${type}.detectAuth or null)
-                            httpsLocationTypes);
+                            nginx.global.httpsLocationTypes);
                       in mkIf (builtins.length detectAuthList > 0)
                         inputs.config.sops.templates
                           ."nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}".path;
@@ -517,6 +527,10 @@ inputs:
                         include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
                       '';
                     }
+                    else if (location.value.return != null) then
+                    {
+                      return = location.value.return;
+                    }
                     else {}
                   );
                 })
@@ -542,7 +556,7 @@ inputs:
                 (site:
                 {
                   inherit (site) name;
-                  value = httpsPort + (if site.value.http2 then httpsPortShift.http2 else 0);
+                  value = with nginx.global; httpsPort + (if site.value.http2 then httpsPortShift.http2 else 0);
                 })
                 (filter (listen: !listen.value.proxyProtocol) listens));
               streamProxy.map = listToAttrs (map
@@ -551,7 +565,7 @@ inputs:
                   inherit (site) name;
                   value =
                   {
-                    upstream.port = httpsPort + httpsPortShift.proxyProtocol
+                    upstream.port = with nginx.global; httpsPort + httpsPortShift.proxyProtocol
                       + (if site.value.http2 then httpsPortShift.http2 else 0);
                     proxyProtocol = true;
                     rewriteHttps = mkDefault false;
@@ -586,7 +600,7 @@ inputs:
                           then []
                         else location.value.${type}.detectAuth
                       )
-                      httpsLocationTypes);
+                      nginx.global.httpsLocationTypes);
                     addAuth = location.value.proxy.addAuth or null;
                   })
                   (attrsToList site.value.location))
@@ -655,7 +669,7 @@ inputs:
         assertions = map
           (site:
           {
-            assertion = (inputs.lib.count (x: x != null) (map (type: site.value.${type}) httpTypes)) <= 1;
+            assertion = (inputs.lib.count (x: x != null) (map (type: site.value.${type}) nginx.global.httpTypes)) <= 1;
             message = "Only one type shuold be specified in ${site.name}";
           })
           (attrsToList nginx.http);

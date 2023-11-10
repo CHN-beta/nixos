@@ -319,19 +319,7 @@ inputs:
       (
         mkIf xrayServer.enable (let userList = genList (n: n) 30; in
         {
-          services =
-          {
-            xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
-            nginx.virtualHosts.xray =
-            {
-              serverName = xrayServer.serverName;
-              default = true;
-              listen = [{ addr = "127.0.0.1"; port = 7233; ssl = true; }];
-              useACMEHost = xrayServer.serverName;
-              onlySSL = true;
-              locations."/".return = "400";
-            };
-          };
+          services.xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
           sops =
           {
             templates."xray-server.json" =
@@ -343,39 +331,45 @@ inputs:
                 log.loglevel = "warning";
                 inbounds =
                 [
-                  {
-                    port = 4726;
-                    listen = "127.0.0.1";
-                    protocol = "vless";
-                    settings =
+                  (
+                    let
+                      fallbackPort = toString
+                        (with inputs.config.nixos.services.nginx.global; httpsPort + httpsPortShift.http2);
+                    in
                     {
-                      clients = map
-                        (n:
-                        {
-                          id = inputs.config.sops.placeholder."xray-server/clients/user${toString n}";
-                          flow = "xtls-rprx-vision";
-                          email = "${toString n}@xray.chn.moe";
-                        })
-                        userList;
-                      decryption = "none";
-                      fallbacks = [{ dest = "127.0.0.1:7233"; }];
-                    };
-                    streamSettings =
-                    {
-                      network = "tcp";
-                      security = "reality";
-                      realitySettings =
+                      port = 4726;
+                      listen = "127.0.0.1";
+                      protocol = "vless";
+                      settings =
                       {
-                        dest = "127.0.0.1:7233";
-                        serverNames = [ xrayServer.serverName ];
-                        privateKey = inputs.config.sops.placeholder."xray-server/private-key";
-                        minClientVer = "1.8.0";
-                        shortIds = [ "" ];
+                        clients = map
+                          (n:
+                          {
+                            id = inputs.config.sops.placeholder."xray-server/clients/user${toString n}";
+                            flow = "xtls-rprx-vision";
+                            email = "${toString n}@xray.chn.moe";
+                          })
+                          userList;
+                        decryption = "none";
+                        fallbacks = [{ dest = "127.0.0.1:${fallbackPort}"; }];
                       };
-                    };
-                    sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
-                    tag = "in";
-                  }
+                      streamSettings =
+                      {
+                        network = "tcp";
+                        security = "reality";
+                        realitySettings =
+                        {
+                          dest = "127.0.0.1:${fallbackPort}";
+                          serverNames = [ xrayServer.serverName ];
+                          privateKey = inputs.config.sops.placeholder."xray-server/private-key";
+                          minClientVer = "1.8.0";
+                          shortIds = [ "" ];
+                        };
+                      };
+                      sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
+                      tag = "in";
+                    }
+                  )
                   {
                     port = 4638;
                     listen = "127.0.0.1";
@@ -513,7 +507,16 @@ inputs:
           nixos.services =
           {
             acme = { enable = true; cert.${xrayServer.serverName}.group = inputs.config.users.users.nginx.group; };
-            nginx = { enable = true; transparentProxy.map."${xrayServer.serverName}" = 4726; };
+            nginx =
+            {
+              enable = true;
+              transparentProxy.map."${xrayServer.serverName}" = 4726;
+              https."${xrayServer.serverName}" =
+              {
+                listen.main = { proxyProtocol = false; addToTransparentProxy = false; };
+                location."/".return = "400";
+              };
+            };
           };
         }
       ))
