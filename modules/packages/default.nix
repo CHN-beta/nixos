@@ -66,7 +66,7 @@ inputs:
               # networking
               ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils
               # nix tools
-              nix-output-monitor nix-tree
+              nix-output-monitor nix-tree ssh-to-age
               # office
               todo-txt-cli
               # development
@@ -341,7 +341,7 @@ inputs:
       }
       # >= desktop
       (
-        mkIf (builtins.elem inputs.config.nixos.packages.packageSet [ "desktop" "workstation" ] )
+        mkIf (builtins.elem inputs.config.nixos.packages.packageSet [ "desktop" "desktop-fat" "workstation" ] )
         {
           nixos =
           {
@@ -351,14 +351,7 @@ inputs:
               [
                 # system management
                 gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
-                wayland-utils clinfo glxinfo vulkan-tools dracut etcher unstablePackages.btrfs-assistant
-                # nix tools
-                ssh-to-age deploy-rs.deploy-rs nixpkgs-fmt
-                # instant messager
-                element-desktop telegram-desktop discord inputs.config.nur.repos.linyinfeng.wemeet # native
-                cinny-desktop # nur-xddxdd.wine-wechat thunder
-                # browser
-                google-chrome
+                wayland-utils clinfo glxinfo vulkan-tools dracut                
                 # networking
                 remmina putty mtr-gui
                 # password and key management
@@ -485,6 +478,30 @@ inputs:
             });
           };
           services.pcscd.enable = true;
+        }
+      )
+      # >= desktop-fat
+      (
+        mkIf (builtins.elem inputs.config.nixos.packages.packageSet [ "desktop-fat" "workstation" ] )
+        {
+          nixos =
+          {
+            packages = with inputs.pkgs;
+            {
+              _packages =
+              [
+                # system management
+                etcher unstablePackages.btrfs-assistant
+                # nix tools
+                deploy-rs.deploy-rs nixpkgs-fmt
+                # instant messager
+                element-desktop telegram-desktop discord inputs.config.nur.repos.linyinfeng.wemeet # native
+                cinny-desktop # nur-xddxdd.wine-wechat thunder
+                # browser
+                google-chrome
+              ];
+            };
+          };
         }
       )
       # >= workstation
