@@ -204,7 +204,7 @@
                   enable = true;
                   serverName = "frp.chn.moe";
                   user = "pc";
-                  stcp."yy.vnc".localPort = 6187;
+                  stcpVisitor."yy.vnc".localPort = 6187;
                 };
                 nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
                 smartd.enable = true;

@@ -35,6 +35,18 @@ inputs:
         }));
         default = {};
       };
+      stcpVisitor = mkOption
+      {
+        type = types.attrsOf (types.submodule (inputs:
+        {
+          options =
+          {
+            localIp = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
+            localPort = mkOption { type = types.ints.unsigned; };
+          };
+        }));
+        default = {};
+      };
     };
     frpServer =
     {
@@ -45,6 +57,7 @@ inputs:
   config =
     let
       inherit (inputs.lib) mkMerge mkIf;
+      inherit (inputs.lib.strings) splitString;
       inherit (inputs.localLib) attrsToList;
       inherit (inputs.config.nixos.services) frpClient frpServer;
       inherit (builtins) map listToAttrs;
@@ -56,7 +69,7 @@ inputs:
           systemd.services.frpc =
             let
               frpc = "${inputs.pkgs.frp}/bin/frpc";
-              config = inputs.config.sops.templates."frpc.ini";
+              config = inputs.config.sops.templates."frpc.json";
             in
             {
               description = "Frp Client Service";
@@ -75,60 +88,57 @@ inputs:
             };
           sops =
           {
-            templates."frpc.ini" =
+            templates."frpc.json" =
             {
               owner = inputs.config.users.users.frp.name;
               group = inputs.config.users.users.frp.group;
-              content = inputs.lib.generators.toINI {}
-              (
-                {
-                  common =
-                  {
-                    server_addr = frpClient.serverName;
-                    server_port = 7000;
-                    token = inputs.config.sops.placeholder."frp/token";
-                    user = frpClient.user;
-                    tls_enable = true;
-                  };
-                }
-                // (listToAttrs (map
+              content = builtins.toJSON
+              {
+                auth.token = inputs.config.sops.placeholder."frp/token";
+                user = frpClient.user;
+                serverAddr = frpClient.serverName;
+                serverPort = 7000;
+                proxies =
+                (map
                   (tcp:
                   {
                     name = tcp.name;
-                    value =
-                    {
-                      type = "tcp";
-                      local_ip = tcp.value.localIp;
-                      local_port = tcp.value.localPort;
-                      remote_port = tcp.value.remotePort;
-                      use_compression = true;
-                    };
+                    type = "tcp";
+                    transport.useCompression = true;
+                    inherit (tcp.value) localIp localPort remotePort;
                   })
                   (attrsToList frpClient.tcp))
-                )
-                // (listToAttrs (map
+                ++ (map
                   (stcp:
                   {
                     name = stcp.name;
-                    value =
-                    {
-                      type = "stcp";
-                      sk = inputs.config.sops.placeholder."frp/stcp/${stcp.name}";
-                      local_ip = stcp.value.localIp;
-                      local_port = stcp.value.localPort;
-                      use_compression = true;
-                    };
+                    type = "stcp";
+                    transport.useCompression = true;
+                    secretKey = inputs.config.sops.placeholder."frp/stcp/${stcp.name}";
+                    inherit (stcp.value) localIp localPort;
                   })
-                  (attrsToList frpClient.stcp))
-                )
-              );
+                  (attrsToList frpClient.stcp));
+                visitors = map
+                  (stcp:
+                  {
+                    name = stcp.name;
+                    type = "stcp";
+                    transport.useCompression = true;
+                    secretKey = inputs.config.sops.placeholder."frp/stcp/${stcp.name}";
+                    serverUser = builtins.elemAt (splitString "." stcp.name) 0;
+                    serverName = builtins.elemAt (splitString "." stcp.name) 1;
+                    bindAddr = stcp.value.localIp;
+                    bindPort = stcp.value.localPort;
+                  })
+                  (attrsToList frpClient.stcpVisitor);
+              };
             };
             secrets = listToAttrs
             (
               [{ name = "frp/token"; value = {}; }]
               ++ (map
                 (stcp: { name = "frp/stcp/${stcp.name}"; value = {}; })
-                (attrsToList frpClient.stcp))
+                (attrsToList (with frpClient; stcp // stcpVisitor)))
             );
           };
           users = { users.frp = { isSystemUser = true; group = "frp"; }; groups.frp = {}; };
@@ -140,7 +150,7 @@ inputs:
           systemd.services.frps =
             let
               frps = "${inputs.pkgs.frp}/bin/frps";
-              config = inputs.config.sops.templates."frps.ini";
+              config = inputs.config.sops.templates."frps.json";
             in
             {
               description = "Frp Server Service";
@@ -159,21 +169,20 @@ inputs:
             };
           sops =
           {
-            templates."frps.ini" =
+            templates."frps.json" =
             {
               owner = inputs.config.users.users.frp.name;
               group = inputs.config.users.users.frp.group;
-              content = inputs.lib.generators.toINI {}
+              content = builtins.toJSON
               {
-                common = let cert = inputs.config.security.acme.certs.${frpServer.serverName}.directory; in
+                auth.token = inputs.config.sops.placeholder."frp/token";
+                transport.tls = let cert = inputs.config.security.acme.certs.${frpServer.serverName}.directory; in
                 {
-                  bind_port = 7000;
-                  bind_udp_port = 7000;
-                  token = inputs.config.sops.placeholder."frp/token";
-                  tls_cert_file = "${cert}/full.pem";
-                  tls_key_file = "${cert}/key.pem";
-                  tls_only = true;
-                  user_conn_timeout = 30;
+                  force = true;
+                  certFile = "${cert}/full.pem";
+                  keyFile = "${cert}/key.pem";
+                  trustedCaFile = "${cert}/chain.pem";
+                  serverName = frpServer.serverName;
                 };
               };
             };
