@@ -123,7 +123,7 @@ inputs:
                   {
                     name = stcp.name;
                     type = "stcp";
-                    transport.useCompression = true;
+                    transport = { useCompression = true; tls.enable = true; };
                     secretKey = inputs.config.sops.placeholder."frp/stcp/${stcp.name}";
                     serverUser = builtins.elemAt (splitString "." stcp.name) 0;
                     serverName = builtins.elemAt (splitString "." stcp.name) 1;
@@ -181,7 +181,6 @@ inputs:
                   force = true;
                   certFile = "${cert}/full.pem";
                   keyFile = "${cert}/key.pem";
-                  trustedCaFile = "${cert}/chain.pem";
                   serverName = frpServer.serverName;
                 };
               };
