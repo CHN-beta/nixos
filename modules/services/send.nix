@@ -18,7 +18,7 @@ inputs:
         image = "timvisee/send:1ee4951";
         imageFile = inputs.pkgs.dockerTools.pullImage
         {
-          imageName = "timvisee/send";
+          imageName = "registry.gitlab.com/timvisee/send";
           imageDigest = "sha256:1ee495161f176946e6e4077e17be2b8f8634c2d502172cc530a8cd5affd7078f";
           sha256 = "1dimqga35c2ka4advhv3v60xcsdrhc6c4hh21x36fbyhk90n2vzs";
           finalImageName = "timvisee/send";
