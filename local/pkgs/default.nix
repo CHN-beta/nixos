@@ -39,4 +39,11 @@
   tgbot-cpp = callPackage ./tgbot-cpp {};
   biu = callPackage ./biu { inherit concurrencpp tgbot-cpp nameof; stdenv = gcc13Stdenv; };
   latex-citation-style-language = callPackage ./latex-citation-style-language {};
+  mirism = callPackage ./mirism
+  {
+    inherit cppcoro nameof tgbot-cpp date;
+    nghttp2 = nghttp2.override { enableAsioLib = true; };
+  };
+  cppcoro = callPackage ./cppcoro {};
+  date = callPackage ./date {};
 }
