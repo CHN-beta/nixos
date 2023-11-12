@@ -19,7 +19,7 @@ inputs:
       {
         httpsPort = 3065;
         httpsPortShift = { http2 = 1; proxyProtocol = 2; };
-        httpsLocationTypes = [ "proxy" "static" "php" "return" ];
+        httpsLocationTypes = [ "proxy" "static" "php" "return" "cgi" ];
         httpTypes = [ "rewriteHttps" "php" ];
         streamPort = 5575;
         streamPortShift = { proxyProtocol = 1; };
@@ -100,6 +100,8 @@ inputs:
             let
               genericOptions =
               {
+                # should be set to non null value if global root is null
+                root = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
                 # htpasswd -n username
                 detectAuth = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
               };
@@ -108,8 +110,9 @@ inputs:
               # only one should be specified
               proxy = mkOption
               {
-                type = types.nullOr (types.submodule { options = genericOptions //
+                type = types.nullOr (types.submodule { options =
                 {
+                  inherit (genericOptions) detectAuth;
                   upstream = mkOption { type = types.nonEmptyStr; };
                   websocket = mkOption { type = types.bool; default = false; };
                   setHeaders = mkOption
@@ -124,10 +127,9 @@ inputs:
               };
               static = mkOption
               {
-                type = types.nullOr (types.submodule { options = genericOptions //
+                type = types.nullOr (types.submodule { options =
                 {
-                  # should be set to non null value if global root is null
-                  root = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+                  inherit (genericOptions) detectAuth root;
                   index = mkOption { type = types.listOf types.nonEmptyStr; default = [ "index.html" ]; };
                   tryFiles = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
                 };});
@@ -135,15 +137,22 @@ inputs:
               };
               php = mkOption
               {
-                type = types.nullOr (types.submodule { options = genericOptions //
+                type = types.nullOr (types.submodule { options =
                 {
-                  # should be set to non null value if global root is null
-                  root = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+                  inherit (genericOptions) detectAuth root;
                   fastcgiPass = mkOption { type = types.nonEmptyStr; };
                 };});
                 default = null;
               };
               return = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+              cgi = mkOption
+              {
+                type = types.nullOr (types.submodule { options =
+                {
+                  inherit (genericOptions) detectAuth root;
+                };});
+                default = null;
+              };
             };});
           default = {};
         };
@@ -480,9 +489,18 @@ inputs:
                           (map
                             (type: location.value.${type}.detectAuth or null)
                             nginx.global.httpsLocationTypes);
-                      in mkIf (builtins.length detectAuthList > 0)
+                      in mkIf (detectAuthList != [])
                         inputs.config.sops.templates
                           ."nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}".path;
+                    root =
+                      let
+                        rootList = filter
+                          (root: root != null)
+                          (map
+                            (type: location.value.${type}.root or null)
+                            nginx.global.httpsLocationTypes);
+                      in mkIf (rootList != [])
+                        builtins.head rootList;
                   }
                   // (
                     if (location.value.proxy != null) then
@@ -510,7 +528,6 @@ inputs:
                     }
                     else if (location.value.static != null) then
                     {
-                      root = location.value.static.root;
                       index = mkIf (location.value.static.index != [])
                         (concatStringsSep " " location.value.static.index);
                       tryFiles = mkIf (location.value.static.tryFiles != [])
@@ -518,7 +535,6 @@ inputs:
                     }
                     else if (location.value.php != null) then
                     {
-                      root = location.value.php.root;
                       extraConfig =
                       ''
                         fastcgi_pass ${location.value.php.fastcgiPass};
@@ -530,6 +546,15 @@ inputs:
                     else if (location.value.return != null) then
                     {
                       return = location.value.return;
+                    }
+                    else if (location.value.cgi != null) then
+                    {
+                      extraConfig =
+                      ''
+                        include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
+                        fastcgi_pass unix:${inputs.config.services.fcgiwrap.socketAddress};
+                        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                      '';
                     }
                     else {}
                   );
@@ -583,6 +608,11 @@ inputs:
               (site: { inherit (site) name; value.group = inputs.config.services.nginx.group; })
               (attrsToList nginx.https));
           };
+          fcgiwrap.enable =
+            filter (site: site != []) (map
+              (site: filter (location: location.value.cgi != null) (attrsToList site.value.locations))
+              (attrsToList nginx.https))
+            != [];
         };
         sops =
           let
