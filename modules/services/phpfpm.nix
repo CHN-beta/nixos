@@ -41,6 +41,8 @@ inputs:
             "pm.max_children" = 4;
             "pm.process_idle_timeout" = "60s";
             "pm.max_requests" = 128;
+            "listen.owner" = inputs.config.services.nginx.user;
+            "listen.group" = inputs.config.services.nginx.group;
           };
         };
       })
@@ -48,7 +50,7 @@ inputs:
     users =
     {
       users = listToAttrs (map
-        (pool: { inherit (pool) name; value = { isSystemUser = true; group = pool.name; }; })
+        (pool: { inherit (pool) name; value = { isSystemUser = true; group = pool.name; extraGroups = [ "nginx" ]; }; })
         (filter (pool: pool.value.user == null) (attrsToList phpfpm.instances)));
       groups = listToAttrs (map
         (pool: { inherit (pool) name; value = {}; })
