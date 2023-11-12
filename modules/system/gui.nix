@@ -4,6 +4,7 @@ inputs:
   {
     enable = mkOption { type = types.bool; default = false; };
     preferred = mkOption { type = types.bool; default = false; };
+    autoStart = mkOption { type = types.bool; default = inputs.config.nixos.system.gui.preferred; };
   };
   config =
     let
@@ -18,7 +19,7 @@ inputs:
         desktopManager.plasma5.enable = true;
         videoDrivers = inputs.config.nixos.hardware.gpus;
       };
-      systemd.services.display-manager.after = [ "network-online.target" ];
+      systemd.services.display-manager = { after = [ "network-online.target" ]; enable = gui.autoStart; };
       environment =
       {
         sessionVariables."GTK_USE_PORTAL" = "1";
