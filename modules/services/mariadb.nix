@@ -28,6 +28,7 @@ inputs:
         {
           enable = true;
           package = inputs.pkgs.mariadb;
+          settings.mysqld.skip_name_resolve = true;
           ensureDatabases = map (db: db.value.database) (attrsToList mariadb.instances);
           ensureUsers = map
             (db:
@@ -52,9 +53,8 @@ inputs:
               else inputs.config.sops.secrets."mariadb/${db.value.user}".path;
             mysql = "${inputs.config.services.mysql.package}/bin/mysql";
           in
-            # set user password
-            ''echo "ALTER USER '${db.value.user}' IDENTIFIED VIA unix_socket OR mysql_native_password ''
-              + ''USING PASSWORD('$(cat ${passwordFile})');" | ${mysql} -N'')
+            # force user use password auth
+            ''echo "ALTER USER '${db.value.user}' IDENTIFIED BY '$(cat ${passwordFile})';" | ${mysql} -N'')
         (attrsToList mariadb.instances)));
       sops.secrets = listToAttrs (map
         (db: { name = "mariadb/${db.value.user}"; value.owner = inputs.config.users.users.mysql.name; })
