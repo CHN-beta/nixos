@@ -7,7 +7,7 @@ inputs:
       autoStart = mkOption { type = types.bool; default = true; };
       port = mkOption { type = types.ints.unsigned; default = 9726; };
       redis.port = mkOption { type = types.ints.unsigned; default = 3545; };
-      hostname = mkOption { type = types.str; default = "misskey.chn.moe"; };
+      hostname = mkOption { type = types.nonEmptyStr; default = "misskey.chn.moe"; };
       meilisearch =
       {
         enable = mkOption { type = types.bool; default = true; };

@@ -3,14 +3,12 @@ inputs:
   options.nixos.services.send = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
-    hostname = mkOption { type = types.str; default = "send.chn.moe"; };
+    hostname = mkOption { type = types.nonEmptyStr; default = "send.chn.moe"; };
   };
   config =
     let
       inherit (inputs.lib) mkIf;
-      inherit (inputs.localLib) attrsToList;
       inherit (inputs.config.nixos.services) send;
-      inherit (builtins) map listToAttrs toString;
     in mkIf send.enable
     {
       virtualisation.oci-containers.containers.send =

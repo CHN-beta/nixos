@@ -8,7 +8,13 @@ inputs:
       {
         user = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
         group = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        package = mkOption { type = types.nullOr types.package; default = null; };
+        package = mkOption { type = types.nullOr types.package; default = inputs.pkgs.php; };
+        fastcgi = mkOption
+        {
+          type = types.nonEmptyStr;
+          readOnly = true;
+          default = "unix:${inputs.config.services.phpfpm.pools.${submoduleInputs.config._module.args.name}.socket}";
+        };
       };}));
       default = {};
     };
@@ -28,7 +34,7 @@ inputs:
         {
           user = if pool.value.user == null then pool.name else pool.value.user;
           group = if pool.value.group == null then inputs.config.users.users.${user}.group else pool.value.group;
-          phpPackage = if pool.value.package == null then inputs.pkgs.php else pool.value.package;
+          phpPackage = pool.value.package;
           settings =
           {
             "pm" = "ondemand";
@@ -42,18 +48,10 @@ inputs:
     users =
     {
       users = listToAttrs (map
-        (pool:
-        {
-          inherit (pool) name;
-          value = { isSystemUser = true; group = pool.name; };
-        })
+        (pool: { inherit (pool) name; value = { isSystemUser = true; group = pool.name; }; })
         (filter (pool: pool.value.user == null) (attrsToList phpfpm.instances)));
       groups = listToAttrs (map
-        (pool:
-        {
-          inherit (pool) name;
-          value = {};
-        })
+        (pool: { inherit (pool) name; value = {}; })
         (filter (pool: pool.value.user == null) (attrsToList phpfpm.instances)));
     };
   };
