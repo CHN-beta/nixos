@@ -47,6 +47,7 @@ inputs:
           SMTP_SSL=true
           EMAIL_FROM_ADDRESS=bot@chn.moe
           TIMEZONE=Beijing
+          DO_NOT_CREATE_DATABASE=true
         '';
         secrets = { "huginn/invitationCode" = {}; "mail/bot" = {}; };
       };
