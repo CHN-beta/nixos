@@ -3,14 +3,12 @@ inputs:
   options.nixos.services.huginn = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
-    hostname = mkOption { type = types.str; default = "huginn.chn.moe"; };
+    hostname = mkOption { type = types.nonEmptyStr; default = "huginn.chn.moe"; };
   };
   config =
     let
       inherit (inputs.lib) mkIf;
-      inherit (inputs.localLib) attrsToList;
       inherit (inputs.config.nixos.services) huginn;
-      inherit (builtins) map listToAttrs toString;
     in mkIf huginn.enable
     {
       virtualisation.oci-containers.containers.huginn =

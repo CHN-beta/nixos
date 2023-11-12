@@ -4,12 +4,11 @@ inputs:
   {
     enable = mkOption { type = types.bool; default = false; };
     port = mkOption { type = types.ints.unsigned; default = 5221; };
-    hostname = mkOption { type = types.str; default = "rsshub.chn.moe"; };
+    hostname = mkOption { type = types.nonEmptyStr; default = "rsshub.chn.moe"; };
   };
   config =
     let
       inherit (inputs.config.nixos.services) rsshub;
-      inherit (inputs.localLib) stripeTabs;
       inherit (inputs.lib) mkIf;
       inherit (builtins) map listToAttrs toString;
     in mkIf rsshub.enable

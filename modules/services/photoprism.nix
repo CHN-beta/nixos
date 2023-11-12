@@ -3,7 +3,7 @@ inputs:
   options.nixos.services.photoprism = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
-    hostname = mkOption { type = types.str; default = "photoprism.chn.moe"; };
+    hostname = mkOption { type = types.nonEmptyStr; default = "photoprism.chn.moe"; };
     port = mkOption { type = types.ints.unsigned; default = 2342; };
   };
   config =

@@ -298,6 +298,7 @@
                   };
                 };
                 coturn.enable = true;
+                httpua.enable = true;
               };
             };})
           ];

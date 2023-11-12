@@ -6,7 +6,7 @@ inputs:
     autoStart = mkOption { type = types.bool; default = true; };
     port = mkOption { type = types.ints.unsigned; default = 8000; };
     websocketPort = mkOption { type = types.ints.unsigned; default = 3012; };
-    hostname = mkOption { type = types.str; default = "vaultwarden.chn.moe"; };
+    hostname = mkOption { type = types.nonEmptyStr; default = "vaultwarden.chn.moe"; };
   };
   config =
     let

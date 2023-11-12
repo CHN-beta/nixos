@@ -5,7 +5,7 @@ inputs:
     enable = mkOption { type = types.bool; default = false; };
     autoStart = mkOption { type = types.bool; default = true; };
     port = mkOption { type = types.ints.unsigned; default = 8008; };
-    hostname = mkOption { type = types.str; default = "synapse.chn.moe"; };
+    hostname = mkOption { type = types.nonEmptyStr; default = "synapse.chn.moe"; };
   };
   config =
     let

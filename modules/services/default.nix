@@ -30,6 +30,7 @@ inputs:
     ./nix-serve.nix
     ./send.nix
     ./huginn.nix
+    ./httpua
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
