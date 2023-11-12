@@ -241,6 +241,7 @@ inputs:
             {
               grep = "${inputs.pkgs.gnugrep}/bin/grep";
               awk = "${inputs.pkgs.gawk}/bin/awk";
+              chattr = "${inputs.pkgs.e2fsprogs}/bin/chattr";
             };
             services.roll-rootfs =
             {
@@ -260,6 +261,7 @@ inputs:
                   btrfs property set -ts /mnt${path}/$timestamp-$subvolid ro true
                 fi
                 btrfs subvolume create /mnt${path}/current
+                chattr +C /mnt${path}/current
                 echo $(date '+%Y%m%d%H%M%S') > /mnt${path}/current/.timestamp
                 umount /mnt
               '';

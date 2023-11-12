@@ -28,6 +28,7 @@ inputs:
             "/var/log"
             "/var/spool"
             "/var/backup"
+            { directory = "/var/lib/docker/volumes"; mode = "0710"; }
           ];
           files =
           [
@@ -41,9 +42,14 @@ inputs:
         "${impermanence.root}" =
         {
           hideMounts = true;
-          directories = [ "/var/lib/systemd/linger" "/var/lib/systemd/coredump" ]
-            ++ (if inputs.config.services.xserver.displayManager.sddm.enable then
-              [{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }] else []);
+          directories =
+          [
+            "/var/lib/systemd/linger"
+            "/var/lib/systemd/coredump"
+            { directory = "/var/lib/docker"; mode = "0710"; }
+          ]
+          ++ (if inputs.config.services.xserver.displayManager.sddm.enable then
+            [{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }] else []);
         }
         // (if builtins.elem "chn" inputs.config.nixos.users.users then
         {
