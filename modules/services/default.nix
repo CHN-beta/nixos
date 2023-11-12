@@ -31,6 +31,7 @@ inputs:
     ./send.nix
     ./huginn.nix
     ./httpua
+    ./fcgiwrap.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {

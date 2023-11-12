@@ -299,6 +299,7 @@
                 };
                 coturn.enable = true;
                 httpua.enable = true;
+                fcgiwrap.enable = true;
               };
             };})
           ];
