@@ -29,6 +29,7 @@ inputs:
     ./fontconfig.nix
     ./nix-serve.nix
     ./send.nix
+    ./huginn.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {

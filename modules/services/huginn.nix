@@ -30,30 +30,25 @@ inputs:
       };
       sops =
       {
-        templates."huginn/env".content =
+        templates."huginn/env".content = let placeholder = inputs.config.sops.placeholder; in
         ''
           MYSQL_PORT_3306_TCP_ADDR=host.docker.internal
           HUGINN_DATABASE_NAME=huginn
           HUGINN_DATABASE_USERNAME=huginn
-          HUGINN_DATABASE_PASSWORD=${inputs.config.sops.placeholder."mariadb/huginn"}
+          HUGINN_DATABASE_PASSWORD=${placeholder."mariadb/huginn"}
           DOMAIN=${huginn.hostname}
           RAILS_ENV=production
           FORCE_SSL=true
-          INVITATION_CODE=xxx
+          INVITATION_CODE=${placeholder."huginn/invitationCode"}
           SMTP_DOMAIN=mail.chn.moe
           SMTP_USER_NAME=bot@chn.moe
-          SMTP_PASSWORD="xxx"
+          SMTP_PASSWORD="${placeholder."mail/bot"}"
           SMTP_SERVER=mail.chn.moe
           SMTP_SSL=true
           EMAIL_FROM_ADDRESS=bot@chn.moe
           TIMEZONE=Beijing
-
-          BASE_URL=https://${send.hostname}
-          MAX_FILE_SIZE=17179869184
-          REDIS_HOST=host.docker.internal
-          REDIS_PORT=9184
-          REDIS_PASSWORD=${inputs.config.sops.placeholder."redis/send"}
         '';
+        secrets = { "huginn/invitationCode" = {}; "mail/bot" = {}; };
       };
       nixos =
       {
@@ -64,7 +59,7 @@ inputs:
             enable = true;
             https."${huginn.hostname}".location."/".proxy = { upstream = "http://127.0.0.1:3000"; websocket = true; };
           };
-          redis.instances.huginn = { user = "root"; port = 9184; };
+          mariadb.instances.huginn = {};
         };
         # TODO: root docker use config of rootless docker?
         virtualization.docker.enable = true;
