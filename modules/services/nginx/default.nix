@@ -311,6 +311,7 @@ inputs:
           AmbientCapabilities = [ "CAP_NET_ADMIN" ];
           LimitNPROC = 65536;
           LimitNOFILE = 524288;
+          ReadWritePaths = [ "/srv" ];
         };
       }
       # transparentProxy
