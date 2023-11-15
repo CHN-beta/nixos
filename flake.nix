@@ -284,13 +284,13 @@
                     "anchor.fm" = { upstream = "anchor.fm:443"; proxyProtocol = false; };
                     "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; proxyProtocol = false; };
                     "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; proxyProtocol = false; };
-                    "nix-store.chn.moe".upstream.address = "internal.pc.chn.moe";
-                    "xn--qbtm095lrg0bfka60z.chn.moe".upstream.address = "internal.pc.chn.moe";
-                    "xn--s8w913fdga.chn.moe".upstream.address = "internal.vps7.chn.moe";
-                    "misskey.chn.moe".upstream.address = "internal.vps7.chn.moe";
-                    "synapse.chn.moe".upstream.address = "internal.vps7.chn.moe";
-                    "send.chn.moe".upstream.address = "internal.vps7.chn.moe";
-                  };
+                  }
+                  // (builtins.listToAttrs (builtins.map
+                    (site: { name = "${site}.chn.moe"; value.upstream.address = "internal.pc.chn.moe"; })
+                    [ "nix-store" "xn--qbtm095lrg0bfka60z" ]))
+                  // (builtins.listToAttrs (builtins.map
+                    (site: { name = "${site}.chn.moe"; value.upstream.address = "internal.vps7.chn.moe"; })
+                    [ "xn--s8w913fdga" "misskey" "synapse" "send" "kkmeeting" ]));
                   applications =
                   {
                     element.instances."element.chn.moe" = {};
@@ -368,6 +368,7 @@
                 send.enable = true;
                 huginn.enable = true;
                 fz-new-order.enable = true;
+                nginx.applications.kkmeeting.enable = true;
               };
             };})
           ];

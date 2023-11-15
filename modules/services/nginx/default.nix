@@ -78,7 +78,11 @@ inputs:
             default = "https:${siteSubmoduleInputs.config._module.args.name}";
           };
           root = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-          index = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
+          index = mkOption
+          {
+            type = types.nullOr (types.oneOf [ (types.enum [ "auto" ]) (types.nonEmptyListOf types.nonEmptyStr) ]);
+            default = null;
+          };
           detectAuth = mkOption
           {
             type = types.nullOr (types.submodule { options =
@@ -146,8 +150,17 @@ inputs:
                 type = types.nullOr (types.submodule { options =
                 {
                   inherit (genericOptions) detectAuth root;
-                  index = mkOption { type = types.listOf types.nonEmptyStr; default = [ "index.html" ]; };
-                  tryFiles = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+                  index = mkOption
+                  {
+                    type = types.nullOr
+                      (types.oneOf [ (types.enum [ "auto" ]) (types.nonEmptyListOf types.nonEmptyStr) ]);
+                    default = null;
+                  };
+                  tryFiles = mkOption
+                  {
+                    type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr);
+                    default = null;
+                  };
                 };});
                 default = null;
               };
@@ -511,7 +524,9 @@ inputs:
                   (
                     (
                       let inherit (site.value.global) index; in
-                        if (index != null) then [ "index ${concatStringsSep " " index};" ] else []
+                        if (builtins.typeOf index == "list") then [ "index ${concatStringsSep " " index};" ]
+                        else if (index == "auto") then [ "autoindex on;" ]
+                        else []
                     )
                     ++ (
                       let inherit (site.value.global) detectAuth; in
@@ -574,8 +589,11 @@ inputs:
                       };
                       static =
                       {
-                        index = mkIf (location.value.index != []) (concatStringsSep " " location.value.index);
-                        tryFiles = mkIf (location.value.tryFiles != []) (concatStringsSep " " location.value.tryFiles);
+                        index = mkIf (builtins.typeOf location.value.index == "list")
+                          (concatStringsSep " " location.value.index);
+                        tryFiles = mkIf (location.value.tryFiles != null)
+                          (concatStringsSep " " location.value.tryFiles);
+                        extraConfig = mkIf (location.value.index == "auto") "autoindex on;";
                       };
                       php.extraConfig =
                       ''
