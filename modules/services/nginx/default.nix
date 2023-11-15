@@ -83,6 +83,7 @@ inputs:
             type = types.nullOr (types.oneOf [ (types.enum [ "auto" ]) (types.nonEmptyListOf types.nonEmptyStr) ]);
             default = null;
           };
+          charset = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
           detectAuth = mkOption
           {
             type = types.nullOr (types.submodule { options =
@@ -156,6 +157,7 @@ inputs:
                       (types.oneOf [ (types.enum [ "auto" ]) (types.nonEmptyListOf types.nonEmptyStr) ]);
                     default = null;
                   };
+                  charset = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
                   tryFiles = mkOption
                   {
                     type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr);
@@ -532,6 +534,10 @@ inputs:
                       let inherit (site.value.global) detectAuth; in
                         if (detectAuth != null) then [ ''auth_basic "${detectAuth.text}"'' ] else []
                     )
+                    ++ (
+                      let inherit (site.value.global) charset; in
+                        if (charset != null) then [ "charset ${charset};" ] else []
+                    )
                   );
                   listen = map
                     (listen:
@@ -593,7 +599,11 @@ inputs:
                           (concatStringsSep " " location.value.index);
                         tryFiles = mkIf (location.value.tryFiles != null)
                           (concatStringsSep " " location.value.tryFiles);
-                        extraConfig = mkIf (location.value.index == "auto") "autoindex on;";
+                        extraConfig = mkMerge
+                        [
+                          (mkIf (location.value.index == "auto") "autoindex on;")
+                          (mkIf (location.value.charset != null) "charset ${location.value.charset};")
+                        ];
                       };
                       php.extraConfig =
                       ''

@@ -17,6 +17,7 @@ inputs:
       {
         root = "/srv/kkmeeting";
         index = "auto";
+        charset = "utf-8";
       };
       systemd.tmpfiles.rules = [ "d /srv/kkmeeting 0700 nginx nginx" ];
     };
