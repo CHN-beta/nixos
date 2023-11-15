@@ -488,104 +488,119 @@ inputs:
             (attrsToList nginx.https);
         in
         {
-          services.nginx.virtualHosts = listToAttrs (map
-            (site:
-            {
-              name = site.value.global.configName;
-              value =
+          services =
+          {
+            nginx.virtualHosts = listToAttrs (map
+              (site:
               {
-                serverName = site.name;
-                root = mkIf (site.value.global.root != null) site.value.global.root;
-                basicAuthFile = mkIf (site.value.global.detectAuth != null)
-                  inputs.config.sops.templates."nginx/templates/detectAuth/${escapeURL site.name}-global".path;
-                extraConfig = concatStringsSep "\n"
-                (
-                  let inherit (site.value.global) index; in
-                    if (index != null) then [ "index ${concatStringsSep " " index};" ] else []
-                )
-                ++ (
-                  let inherit (site.value.global) detectAuth; in
-                    if (detectAuth != null) then [ ''auth_basic "${detectAuth.text}"'' ] else []
-                );
-                listen = map
-                  (listen:
-                  {
-                    addr = if listen.proxyProtocol then "0.0.0.0" else "127.0.0.1";
-                    port = with nginx.global; httpsPort
-                      + (if listen.http2 then httpsPortShift.http2 else 0)
-                      + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
-                    ssl = true;
-                    # TODO: use proxy_protocol in 23.11
-                    extraParameters =
-                      (if listen.proxyProtocol then [ "proxy_protocol" ] else [])
-                      ++ (if listen.http2 then [ "http2" ] else []);
-                  })
-                  site.value.listens;
-                # do not automatically add http2 listen
-                http2 = false;
-                onlySSL = true;
-                # TODO: disable well-known in 23.11
-                useACMEHost = site.name;
-                locations = listToAttrs (map
-                (location:
+                name = site.value.global.configName;
+                value =
                 {
-                  inherit (location) name;
-                  value =
+                  serverName = site.name;
+                  root = mkIf (site.value.global.root != null) site.value.global.root;
+                  basicAuthFile = mkIf (site.value.global.detectAuth != null)
+                    inputs.config.sops.templates."nginx/templates/detectAuth/${escapeURL site.name}-global".path;
+                  extraConfig = concatStringsSep "\n"
+                  (
+                    let inherit (site.value.global) index; in
+                      if (index != null) then [ "index ${concatStringsSep " " index};" ] else []
+                  )
+                  ++ (
+                    let inherit (site.value.global) detectAuth; in
+                      if (detectAuth != null) then [ ''auth_basic "${detectAuth.text}"'' ] else []
+                  );
+                  listen = map
+                    (listen:
+                    {
+                      addr = if listen.proxyProtocol then "0.0.0.0" else "127.0.0.1";
+                      port = with nginx.global; httpsPort
+                        + (if listen.http2 then httpsPortShift.http2 else 0)
+                        + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
+                      ssl = true;
+                      # TODO: use proxy_protocol in 23.11
+                      extraParameters =
+                        (if listen.proxyProtocol then [ "proxy_protocol" ] else [])
+                        ++ (if listen.http2 then [ "http2" ] else []);
+                    })
+                    site.value.listens;
+                  # do not automatically add http2 listen
+                  http2 = false;
+                  onlySSL = true;
+                  # TODO: disable well-known in 23.11
+                  useACMEHost = site.name;
+                  locations = listToAttrs (map
+                  (location:
                   {
-                    basicAuthFile = mkIf (location.value.detectAuth or null != null)
-                      inputs.config.sops.templates
-                        ."nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}".path;
-                    root = mkIf (location.value.root or null != null) location.value.root;
-                  }
-                  // {
-                    proxy =
+                    inherit (location) name;
+                    value =
                     {
-                      proxyPass = location.value.upstream;
-                      proxyWebsockets = location.value.websocket;
-                      recommendedProxySettings = false;
-                      recommendedProxySettingsNoHost = true;
-                      extraConfig = concatStringsSep "\n"
-                      (
-                        (map
-                          (header: ''proxy_set_header ${header.name} "${header.value}";'')
-                          (attrsToList location.value.setHeaders))
-                        ++ (
-                          if location.value.detectAuth != null || site.value.global.detectAuth != null
-                            then [ "proxy_hide_header Authorization;" ]
-                            else []
-                        )
-                        ++ (
-                          if location.value.addAuth != null then
-                            let authFile = "nginx/templates/addAuth/${location.value.addAuth}";
-                            in [ "include ${inputs.config.sops.templates.${authFile}.path};" ]
-                          else [])
-                      );
-                    };
-                    static =
-                    {
-                      index = mkIf (location.value.index != []) (concatStringsSep " " location.value.index);
-                      tryFiles = mkIf (location.value.tryFiles != []) (concatStringsSep " " location.value.tryFiles);
-                    };
-                    php.extraConfig =
-                    ''
-                      fastcgi_pass ${location.value.fastcgiPass};
-                      fastcgi_split_path_info ^(.+\.php)(/.*)$;
-                      fastcgi_param PATH_INFO $fastcgi_path_info;
-                      include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
-                    '';
-                    return.return = location.value.return;
-                    cgi.extraConfig =
-                    ''
-                      include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
-                      fastcgi_pass unix:${inputs.config.services.fcgiwrap.socketAddress};
-                      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                    '';
-                  }.${location.value.type};
-                })
-                site.value.location);
-              };
-            })
-            sites);
+                      basicAuthFile = mkIf (location.value.detectAuth or null != null)
+                        inputs.config.sops.templates
+                          ."nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}".path;
+                      root = mkIf (location.value.root or null != null) location.value.root;
+                    }
+                    // {
+                      proxy =
+                      {
+                        proxyPass = location.value.upstream;
+                        proxyWebsockets = location.value.websocket;
+                        recommendedProxySettings = false;
+                        recommendedProxySettingsNoHost = true;
+                        extraConfig = concatStringsSep "\n"
+                        (
+                          (map
+                            (header: ''proxy_set_header ${header.name} "${header.value}";'')
+                            (attrsToList location.value.setHeaders))
+                          ++ (
+                            if location.value.detectAuth != null || site.value.global.detectAuth != null
+                              then [ "proxy_hide_header Authorization;" ]
+                              else []
+                          )
+                          ++ (
+                            if location.value.addAuth != null then
+                              let authFile = "nginx/templates/addAuth/${location.value.addAuth}";
+                              in [ "include ${inputs.config.sops.templates.${authFile}.path};" ]
+                            else [])
+                        );
+                      };
+                      static =
+                      {
+                        index = mkIf (location.value.index != []) (concatStringsSep " " location.value.index);
+                        tryFiles = mkIf (location.value.tryFiles != []) (concatStringsSep " " location.value.tryFiles);
+                      };
+                      php.extraConfig =
+                      ''
+                        fastcgi_pass ${location.value.fastcgiPass};
+                        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+                        fastcgi_param PATH_INFO $fastcgi_path_info;
+                        include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
+                      '';
+                      return.return = location.value.return;
+                      cgi.extraConfig =
+                      ''
+                        include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
+                        fastcgi_pass unix:${inputs.config.services.fcgiwrap.socketAddress};
+                        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+                      '';
+                    }.${location.value.type};
+                  })
+                  site.value.location);
+                };
+              })
+              sites);
+            fcgiwrap = mkIf
+            (
+              filter (site: site != []) (map
+                (site: filter (location: location.value.type == "cgi") (attrsToList site.value.locations))
+                sites)
+              != []
+            )
+            {
+              enable = true;
+              user = inputs.config.users.users.nginx.name;
+              group = inputs.config.users.users.nginx.group;
+            };
+          };
           nixos.services =
           {
             nginx =
