@@ -299,7 +299,6 @@
                 };
                 coturn.enable = true;
                 httpua.enable = true;
-                fcgiwrap.enable = true;
               };
             };})
           ];
@@ -368,6 +367,7 @@
                 freshrss.enable = true;
                 send.enable = true;
                 huginn.enable = true;
+                fz-new-order.enable = true;
               };
             };})
           ];
