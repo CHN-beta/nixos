@@ -89,7 +89,7 @@ inputs:
             type = types.nullOr (types.submodule { options =
             {
               text = mkOption { type = types.nonEmptyStr; default = "Restricted Content"; };
-              users = types.nonEmptyListOf types.nonEmptyStr;
+              users = mkOption { type = types.nonEmptyListOf types.nonEmptyStr; };
             };});
             default = null;
           };
@@ -115,13 +115,12 @@ inputs:
               {
                 # should be set to non null value if global root is null
                 root = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-                # htpasswd -n username
                 detectAuth = mkOption
                 {
                   type = types.nullOr (types.submodule { options =
                   {
                     text = mkOption { type = types.nonEmptyStr; default = "Restricted Content"; };
-                    users = types.nonEmptyListOf types.nonEmptyStr;
+                    users = mkOption { type = types.nonEmptyListOf types.nonEmptyStr; };
                   };});
                   default = null;
                 };
@@ -163,6 +162,7 @@ inputs:
                     type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr);
                     default = null;
                   };
+                  webdav = mkOption { type = types.bool; default = false; };
                 };});
                 default = null;
               };
@@ -603,6 +603,13 @@ inputs:
                         [
                           (mkIf (location.value.index == "auto") "autoindex on;")
                           (mkIf (location.value.charset != null) "charset ${location.value.charset};")
+                          (mkIf location.value.webdav
+                          ''
+                            dav_access user:rw group:rw;
+                            dav_methods PUT DELETE MKCOL COPY MOVE;
+                            dav_ext_methods PROPFIND OPTIONS;
+                            create_full_put_path on;
+                          '')
                         ];
                       };
                       php.extraConfig =

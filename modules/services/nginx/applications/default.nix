@@ -5,5 +5,6 @@ inputs:
     ./element.nix
     ./synapse-admin.nix
     ./kkmeeting.nix
+    ./webdav.nix
   ];
 }

@@ -8,8 +8,6 @@ inputs:
   config =
     let
       inherit (inputs.config.nixos.services.nginx.applications) kkmeeting;
-      inherit (inputs.localLib) attrsToList;
-      inherit (builtins) map listToAttrs toString;
       inherit (inputs.lib) mkIf;
     in mkIf kkmeeting.enable
     {

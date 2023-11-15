@@ -368,7 +368,11 @@
                 send.enable = true;
                 huginn.enable = true;
                 fz-new-order.enable = true;
-                nginx.applications.kkmeeting.enable = true;
+                nginx.applications =
+                {
+                  kkmeeting.enable = true;
+                  webdav.enable = true;
+                };
               };
             };})
           ];
