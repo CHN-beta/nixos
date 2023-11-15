@@ -514,7 +514,7 @@ inputs:
               https."${xrayServer.serverName}" =
               {
                 listen.main = { proxyProtocol = false; addToTransparentProxy = false; };
-                location."/".return = "400";
+                location."/".return.return = "400";
               };
             };
           };
