@@ -33,6 +33,7 @@ inputs:
     ./httpua
     ./fz-new-order
     ./httpapi.nix
+    ./mirism.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {

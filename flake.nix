@@ -270,15 +270,7 @@
                 frpServer = { enable = true; serverName = "frp.chn.moe"; };
                 nginx =
                 {
-                  transparentProxy =
-                  {
-                    externalIp = [ "74.211.99.69" "192.168.82.1" ];
-                    map =
-                    {
-                      "ng01.mirism.one" = 7411;
-                      "beta.mirism.one" = 9114;
-                    };
-                  };
+                  transparentProxy.externalIp = [ "74.211.99.69" "192.168.82.1" ];
                   streamProxy.map =
                   {
                     "anchor.fm" = { upstream = "anchor.fm:443"; proxyProtocol = false; };
@@ -299,6 +291,7 @@
                 };
                 coturn.enable = true;
                 httpua.enable = true;
+                mirism.enable = true;
               };
             };})
           ];
