@@ -6,5 +6,7 @@ inputs:
     ./synapse-admin.nix
     ./kkmeeting.nix
     ./webdav.nix
+    ./blog.nix
+    ./catalog.nix
   ];
 }

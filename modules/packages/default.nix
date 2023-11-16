@@ -10,6 +10,7 @@ inputs:
         "server"
         # gui, for daily use, but not install large programs such as matlab
         "desktop"
+        "desktop-fat"
         # nearly everything
         "workstation"
       ];
