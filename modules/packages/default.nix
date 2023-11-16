@@ -499,7 +499,7 @@ inputs:
                 cinny-desktop # nur-xddxdd.wine-wechat thunder
                 # browser
                 google-chrome
-                john
+                john crunch hashcat
               ];
             };
           };
