@@ -45,5 +45,6 @@ inputs:
         };
         secrets."httpapi/token" = {};
       };
+      systemd.tmpfiles.rules = [ "d /srv/api 0700 nginx nginx" ];
     };
 }

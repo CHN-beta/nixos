@@ -12,24 +12,28 @@ inputs:
     in mkIf mirism.enable
     {
       users = { users.mirism = { isSystemUser = true; group = "mirism"; }; groups.mirism = {}; };
-      systemd.services = listToAttrs (map
-        (instance:
-        {
-          name = "mirism-${instance}";
-          value =
+      systemd =
+      {
+        services = listToAttrs (map
+          (instance:
           {
-            description = "mirism ${instance}";
-            after = [ "network.target" ];
-            wantedBy = [ "multi-user.target" ];
-            serviceConfig =
+            name = "mirism-${instance}";
+            value =
             {
-              User = inputs.config.users.users.mirism.name;
-              Group = inputs.config.users.users.mirism.group;
-              ExecStart = "${inputs.pkgs.localPackages.mirism}/bin/${instance}";
+              description = "mirism ${instance}";
+              after = [ "network.target" ];
+              wantedBy = [ "multi-user.target" ];
+              serviceConfig =
+              {
+                User = inputs.config.users.users.mirism.name;
+                Group = inputs.config.users.users.mirism.group;
+                ExecStart = "${inputs.pkgs.localPackages.mirism}/bin/${instance}";
+              };
             };
-          };
-        })
-        [ "ng01" "beta" ]);
+          })
+          [ "ng01" "beta" ]);
+        tmpfiles.rules = [ "d /srv/entry.mirism 0700 nginx nginx" "d /srv/mirism 0700 nginx nginx" ];
+      };
       nixos.services =
       {
         nginx =
