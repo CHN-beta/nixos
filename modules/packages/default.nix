@@ -235,12 +235,12 @@ inputs:
           udev.packages = with inputs.pkgs; [ yubikey-personalization libfido2 ];
           openssh.knownHosts =
             let
-              servers = rec
+              servers =
               {
                 vps6 =
                 {
                   ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO5ZcvyRyOnUCuRtqrM/Qf+AdUe3a5bhbnfyhw2FSLDZ";
-                  hostnames = [ "vps6.chn.moe" "74.211.99.69" "192.168.82.1" ];
+                  hostnames = [ "internal.vps6.chn.moe" "vps6.chn.moe" "74.211.99.69" "192.168.82.1" ];
                 };
                 "initrd.vps6" =
                 {
@@ -250,7 +250,7 @@ inputs:
                 vps7 =
                 {
                   ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF5XkdilejDAlg5hZZD0oq69k8fQpe9hIJylTo/aLRgY";
-                  hostnames = [ "vps7.chn.moe" "95.111.228.40" "192.168.82.2" ];
+                  hostnames = [ "internal.vps7.chn.moe" "vps7.chn.moe" "95.111.228.40" "192.168.82.2" ];
                 };
                 "initrd.vps7" =
                 {
@@ -260,17 +260,17 @@ inputs:
                 nas =
                 {
                   ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIktNbEcDMKlibXg54u7QOLt0755qB/P4vfjwca8xY6V";
-                  hostnames = [ "[office.chn.moe]:5440" "192.168.82.4" "192.168.1.185" ];
+                  hostnames = [ "internal.nas.chn.moe" "[office.chn.moe]:5440" "192.168.82.4" "192.168.1.185" ];
                 };
                 "initrd.nas" =
                 {
                   ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAoMu0HEaFQsnlJL0L6isnkNZdRq0OiDXyaX3+fl3NjT";
-                  hostnames = nas.hostnames;
+                  hostnames = [ "[office.chn.moe]:5440" "192.168.1.185" ];
                 };
                 pc =
                 {
                   ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMSfREi19OSwQnhdsE8wiNwGSFFJwNGN0M5gN+sdrrLJ";
-                  hostnames = [ "192.168.8.2.3" ];
+                  hostnames = [ "internal.pc.chn.moe" "192.168.8.2.3" ];
                 };
                 hpc =
                 {

@@ -70,19 +70,8 @@ inputs:
               ssh.matchBlocks = builtins.listToAttrs
               (
                 (builtins.map
-                  (host:
-                  {
-                    name = host.name;
-                    value = { host = host.name; hostname = host.value; user = "chn"; };
-                  })
-                  (inputs.localLib.attrsToList
-                  {
-                    vps3 = "vps3.chn.moe";
-                    vps4 = "vps4.chn.moe";
-                    vps5 = "vps5.chn.moe";
-                    vps6 = "vps6.chn.moe";
-                    vps7 = "vps7.chn.moe";
-                  }))
+                  (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
+                  [ "internal.pc" "vps5" "vps6" "internal.vps6" "vps7" "internal.vps7" "internal.nas" ])
                 ++ (builtins.map
                   (host:
                   {
