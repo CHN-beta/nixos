@@ -18,6 +18,10 @@ inputs:
         webdav = true;
         detectAuth.users = [ "chn" ];
       };
-      systemd.tmpfiles.rules = [ "d /srv/webdav 0700 nginx nginx" ];
+      systemd =
+      {
+        tmpfiles.rules = [ "d /srv/webdav 0700 nginx nginx" ];
+        services.nginx.serviceConfig.ReadWritePaths = [ "/srv/webdav" ];
+      };
     };
 }
