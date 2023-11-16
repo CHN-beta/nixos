@@ -420,7 +420,7 @@ inputs:
                 (name:
                 {
                   name = "xray-server/telegram/${name}";
-                  value = (with inputs.config.users.users.v2ray; { owner = name; inherit group; });
+                  value = (let user = inputs.config.users.users.v2ray; in { owner = user.name; inherit (user) group; });
                 })
                 [ "token" "chat" ]))
               // { "xray-server/private-key" = {}; };
