@@ -50,7 +50,7 @@ inputs:
               name = "${instance}mirism.one";
               value.location."/".static =
               {
-                root = "/var/${instance}mirism";
+                root = "/srv/${instance}mirism";
                 index = [ "index.html" ];
               };
             })
