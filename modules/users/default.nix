@@ -62,11 +62,7 @@ inputs:
           {
             programs =
             {
-              git =
-              {
-                userName = "chn";
-                userEmail = "chn@chn.moe";
-              };
+              git = { userName = "chn"; userEmail = "chn@chn.moe"; };
               ssh.matchBlocks = builtins.listToAttrs
               (
                 (builtins.map
@@ -99,41 +95,11 @@ inputs:
                   [ "wlin" "jykang" "hwang" ])
               )
               // {
-                xmupc1 =
-                {
-                  host = "xmupc1";
-                  hostname = "office.chn.moe";
-                  user = "chn";
-                  port = 6007;
-                };
-                nas =
-                {
-                  host = "nas";
-                  hostname = "office.chn.moe";
-                  user = "chn";
-                  port = 5440;
-                };
-                xmupc1-ext =
-                {
-                  host = "xmupc1-ext";
-                  hostname = "vps3.chn.moe";
-                  user = "chn";
-                  port = 6007;
-                };
-                xmuhk =
-                {
-                  host = "xmuhk";
-                  hostname = "10.26.14.56";
-                  user = "xmuhk";
-                  # identityFile = "~/.ssh/xmuhk_id_rsa";
-                };
-                xmuhk2 =
-                {
-                  host = "xmuhk2";
-                  hostname = "183.233.219.132";
-                  user = "xmuhk";
-                  port = 62022;
-                };
+                xmupc1 = { host = "xmupc1"; hostname = "office.chn.moe"; port = 6007; };
+                nas = { host = "nas"; hostname = "office.chn.moe"; port = 5440; };
+                # identityFile = "~/.ssh/xmuhk_id_rsa";
+                xmuhk = { host = "xmuhk"; hostname = "10.26.14.56"; user = "xmuhk"; };
+                xmuhk2 = { host = "xmuhk2"; hostname = "183.233.219.132"; user = "xmuhk"; port = 62022; };
               };
             };
             home.packages =
@@ -256,10 +222,7 @@ inputs:
         inherit (builtins) map attrNames;
         inherit (inputs.lib) mkMerge mkIf;
         inherit (inputs.config.nixos) users;
-      in mkMerge
-      [
-        (mkMerge (map (user: mkIf (builtins.elem user users.users) allUsers.${user}) (attrNames allUsers)))
-      ];
+      in mkMerge (map (user: mkIf (builtins.elem user users.users) allUsers.${user}) (attrNames allUsers));
   }
 
 # environment.persistence."/impermanence".users.chn =

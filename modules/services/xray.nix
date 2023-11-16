@@ -24,7 +24,7 @@ inputs:
       inherit (inputs.lib) mkMerge mkIf;
       inherit (inputs.localLib) stripeTabs attrsToList;
       inherit (inputs.config.nixos.services) xrayClient xrayServer;
-      inherit (builtins) map listToAttrs toString genList length;
+      inherit (builtins) map listToAttrs toString genList length concatStringsSep;
     in mkMerge
     [
       (
@@ -220,95 +220,82 @@ inputs:
                 {
                   Type = "simple";
                   RemainAfterExit = true;
-                  ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start"
-                  ''
-                    ${ipset} create lo_net hash:net
-                    ${ipset} add lo_net 0.0.0.0/8
-                    ${ipset} add lo_net 10.0.0.0/8
-                    ${ipset} add lo_net 100.64.0.0/10
-                    ${ipset} add lo_net 127.0.0.0/8
-                    ${ipset} add lo_net 169.254.0.0/16
-                    ${ipset} add lo_net 172.16.0.0/12
-                    ${ipset} add lo_net 192.0.0.0/24
-                    ${ipset} add lo_net 192.88.99.0/24
-                    ${ipset} add lo_net 192.168.0.0/16
-                    ${ipset} add lo_net 59.77.0.143
-                    ${ipset} add lo_net 198.18.0.0/15
-                    ${ipset} add lo_net 198.51.100.0/24
-                    ${ipset} add lo_net 203.0.113.0/24
-                    ${ipset} add lo_net 224.0.0.0/4
-                    ${ipset} add lo_net 240.0.0.0/4
-                    ${ipset} add lo_net 255.255.255.255/32
-
-                    ${ipset} create xmu_net hash:net
-
-                    ${ipset} create noproxy_net hash:net
-                    ${ipset} add noproxy_net 223.5.5.5
-
-                    ${ipset} create noproxy_src_net hash:net
-
-                    ${ipset} create proxy_net hash:net
-                    ${ipset} add proxy_net 8.8.8.8
-
-                    ${iptables} -t mangle -N v2ray -w
-                    ${iptables} -t mangle -A PREROUTING -j v2ray -w
-                    ${iptables} -t mangle -A v2ray -m set --match-set noproxy_src_net src -j RETURN -w
-                    ${iptables} -t mangle -A v2ray -m set --match-set xmu_net dst -p tcp \
-                      -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1 -w
-                    ${iptables} -t mangle -A v2ray -m set --match-set xmu_net dst -p udp \
-                      -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1 -w
-                    ${iptables} -t mangle -A v2ray -m set --match-set noproxy_net dst -j RETURN -w
-                    ${iptables} -t mangle -A v2ray -m set --match-set proxy_net dst -p tcp \
-                      -j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1 -w
-                    ${iptables} -t mangle -A v2ray -m set --match-set proxy_net dst -p udp \
-                      -j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1 -w
-                    ${iptables} -t mangle -A v2ray -m set --match-set lo_net dst -j RETURN -w
-                    ${iptables} -t mangle -A v2ray -p tcp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1 -w
-                    ${iptables} -t mangle -A v2ray -p udp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1 -w
-
-                    ${iptables} -t mangle -N v2ray_mark -w
-                    ${iptables} -t mangle -A OUTPUT -j v2ray_mark -w
-                    ${iptables} -t mangle -A v2ray_mark -m owner --uid-owner $(id -u v2ray) -j RETURN -w
-                    ${
-                      if inputs.config.nixos.system.networking.nebula.enable then
-                        let user = inputs.config.systemd.services."nebula@nebula".serviceConfig.User; in
-                        "${iptables} -t mangle -A v2ray_mark -m owner --uid-owner $(id -u ${user}) -j RETURN -w"
-                      else ""
-                    }
-                    ${iptables} -t mangle -A v2ray_mark -m set --match-set noproxy_src_net src -j RETURN -w
-                    ${iptables} -t mangle -A v2ray_mark -m set --match-set xmu_net dst -p tcp -j MARK --set-mark 1/1 -w
-                    ${iptables} -t mangle -A v2ray_mark -m set --match-set xmu_net dst -p udp -j MARK --set-mark 1/1 -w
-                    ${iptables} -t mangle -A v2ray_mark -m set --match-set noproxy_net dst -j RETURN -w
-                    ${iptables} -t mangle -A v2ray_mark -m set --match-set proxy_net dst -p tcp \
-                      -j MARK --set-mark 1/1 -w
-                    ${iptables} -t mangle -A v2ray_mark -m set --match-set proxy_net dst -p udp \
-                      -j MARK --set-mark 1/1 -w
-                    ${iptables} -t mangle -A v2ray_mark -m set --match-set lo_net dst -j RETURN -w
-                    ${iptables} -t mangle -A v2ray_mark -p tcp -j MARK --set-mark 1/1 -w
-                    ${iptables} -t mangle -A v2ray_mark -p udp -j MARK --set-mark 1/1 -w
-
-                    ${ip} rule add fwmark 1/1 table 100
-                    ${ip} route add local 0.0.0.0/0 dev lo table 100
-                  '';
-                  ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop"
-                  ''
-                    ${iptables} -t mangle -F v2ray -w
-                    ${iptables} -t mangle -D PREROUTING -j v2ray -w
-                    ${iptables} -t mangle -X v2ray -w
-
-                    ${iptables} -t mangle -F v2ray_mark -w
-                    ${iptables} -t mangle -D OUTPUT -j v2ray_mark -w
-                    ${iptables} -t mangle -X v2ray_mark -w
-
-                    ${ip} rule del fwmark 1/1 table 100
-                    ${ip} route del local 0.0.0.0/0 dev lo table 100
-
-                    ${ipset} destroy lo_net
-                    ${ipset} destroy xmu_net
-                    ${ipset} destroy noproxy_net
-                    ${ipset} destroy noproxy_src_net
-                    ${ipset} destroy proxy_net
-                  '';
+                  ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start" (concatStringsSep "\n"
+                  (
+                    [ "${ipset} create lo_net hash:net" ]
+                    ++ (map (host: "${ipset} add lo_net ${host}")
+                      [
+                        "0.0.0.0/8" "10.0.0.0/8" "100.64.0.0/10" "127.0.0.0/8" "169.254.0.0/16" "172.16.0.0/12"
+                        "192.0.0.0/24" "192.88.99.0/24" "192.168.0.0/16" "59.77.0.143" "198.18.0.0/15"
+                        "198.51.100.0/24" "203.0.113.0/24" "224.0.0.0/4" "240.0.0.0/4" "255.255.255.255/32"
+                      ])
+                    ++ [
+                      "${ipset} create xmu_net hash:net"
+                      "${ipset} create noproxy_net hash:net"
+                      "${ipset} add noproxy_net 223.5.5.5"
+                      "${ipset} create noproxy_src_net hash:net"
+                      "${ipset} create proxy_net hash:net"
+                      "${ipset} add proxy_net 8.8.8.8"
+                    ]
+                    ++ [
+                      "${iptables} -t mangle -N v2ray -w"
+                      "${iptables} -t mangle -A PREROUTING -j v2ray -w"
+                    ]
+                    ++ (map (action: "${iptables} -t mangle -A v2ray ${action} -w")
+                      [
+                        "-m set --match-set noproxy_src_net src -j RETURN"
+                        "-m set --match-set xmu_net dst -p tcp -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1"
+                        "-m set --match-set xmu_net dst -p udp -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1"
+                        "-m set --match-set noproxy_net dst -j RETURN"
+                        "-m set --match-set proxy_net dst -p tcp -j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1"
+                        "-m set --match-set proxy_net dst -p udp -j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1"
+                        "-m set --match-set lo_net dst -j RETURN"
+                        "-p tcp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1"
+                        "-p udp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1"
+                      ])
+                    ++ [
+                      "${iptables} -t mangle -N v2ray_mark -w"
+                      "${iptables} -t mangle -A OUTPUT -j v2ray_mark -w"
+                    ]
+                    ++ (map (action: "${iptables} -t mangle -A v2ray_mark ${action} -w")
+                      (
+                        (if inputs.config.nixos.system.networking.nebula.enable then
+                          let user = inputs.config.systemd.services."nebula@nebula".serviceConfig.User;
+                          in [ "-m owner --uid-owner $(id -u ${user}) -j RETURN" ]
+                          else [])
+                        ++ [
+                          "-m owner --uid-owner $(id -u v2ray) -j RETURN"
+                          "-m set --match-set noproxy_src_net src -j RETURN"
+                          "-m set --match-set xmu_net dst -p tcp -j MARK --set-mark 1/1"
+                          "-m set --match-set xmu_net dst -p udp -j MARK --set-mark 1/1"
+                          "-m set --match-set noproxy_net dst -j RETURN"
+                          "-m set --match-set proxy_net dst -p tcp -j MARK --set-mark 1/1"
+                          "-m set --match-set proxy_net dst -p udp -j MARK --set-mark 1/1"
+                          "-m set --match-set lo_net dst -j RETURN"
+                          "-p tcp -j MARK --set-mark 1/1"
+                          "-p udp -j MARK --set-mark 1/1"
+                        ]
+                      ))
+                    ++ [
+                      "${ip} rule add fwmark 1/1 table 100"
+                      "${ip} route add local 0.0.0.0/0 dev lo table 100"
+                    ]
+                  ));
+                  ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop" (concatStringsSep "\n"
+                  (
+                    [
+                      "${iptables} -t mangle -F v2ray -w"
+                      "${iptables} -t mangle -D PREROUTING -j v2ray -w"
+                      "${iptables} -t mangle -X v2ray -w"
+                      "${iptables} -t mangle -F v2ray_mark -w"
+                      "${iptables} -t mangle -D OUTPUT -j v2ray_mark -w"
+                      "${iptables} -t mangle -X v2ray_mark -w"
+                      "${ip} rule del fwmark 1/1 table 100"
+                      "${ip} route del local 0.0.0.0/0 dev lo table 100"
+                    ]
+                    ++ (map (set: "${ipset} destroy ${set}")
+                      [ "lo_net" "xmu_net" "noproxy_net" "noproxy_src_net" "proxy_net" ])
+                  ));
                 };
             };
           };
@@ -374,11 +361,7 @@ inputs:
                     port = 4638;
                     listen = "127.0.0.1";
                     protocol = "vless";
-                    settings =
-                    {
-                      clients = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; }];
-                      decryption = "none";
-                    };
+                    settings = { clients = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; }]; decryption = "none"; };
                     streamSettings.network = "tcp";
                     sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; };
                     tag = "in-localdns";
@@ -437,11 +420,7 @@ inputs:
                 (name:
                 {
                   name = "xray-server/telegram/${name}";
-                  value =
-                  {
-                    owner = inputs.config.users.users.v2ray.name;
-                    group = inputs.config.users.users.v2ray.group;
-                  };
+                  value = (with inputs.config.users.users.v2ray; { owner = name; inherit group; });
                 })
                 [ "token" "chat" ]))
               // { "xray-server/private-key" = {}; };

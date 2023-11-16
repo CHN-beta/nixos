@@ -21,9 +21,6 @@ inputs:
       };
       sops.secrets."store/signingKey" = {};
       nixos.services.nginx =
-      {
-        enable = true;
-        https.${nix-serve.hostname}.location."/".proxy.upstream = "http://127.0.0.1:5000";
-      };
+        { enable = true; https.${nix-serve.hostname}.location."/".proxy.upstream = "http://127.0.0.1:5000"; };
     };
 }

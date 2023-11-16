@@ -17,11 +17,7 @@ inputs:
   ];
   config =
   {
-    services =
-    {
-      dbus.implementation = "broker";
-      fstrim = { enable = true; interval = "daily"; };
-    };
+    services = { dbus.implementation = "broker"; fstrim = { enable = true; interval = "daily"; }; };
     time.timeZone = "Asia/Shanghai";
     boot =
     {
@@ -53,10 +49,7 @@ inputs:
       _JAVA_OPTIONS = "-Djava.util.prefs.userRoot=${XDG_CONFIG_HOME}/java";
     };
     i18n =
-    {
-      defaultLocale = "C.UTF-8";
-      supportedLocales = [ "zh_CN.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ];
-    };
+      { defaultLocale = "C.UTF-8"; supportedLocales = [ "zh_CN.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ]; };
     users.mutableUsers = false;
     # environment.pathsToLink = [ "/include" ];
     # environment.variables.CPATH = "/run/current-system/sw/include";

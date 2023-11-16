@@ -27,10 +27,7 @@ inputs:
               else toString (inputs.pkgs.element-web.override { conf =
               {
                 default_server_config."m.homeserver" =
-                {
-                  base_url = "https://${defaultServer}";
-                  server_name = defaultServer;
-                };
+                  { base_url = "https://${defaultServer}"; server_name = defaultServer; };
                 disable_guests = false;
               };});
             index = [ "index.html" ];

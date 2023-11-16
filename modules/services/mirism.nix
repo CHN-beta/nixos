@@ -39,28 +39,16 @@ inputs:
         nginx =
         {
           enable = true;
-          transparentProxy.map =
-          {
-            "ng01.mirism.one" = 7411;
-            "beta.mirism.one" = 9114;
-          };
+          transparentProxy.map = { "ng01.mirism.one" = 7411; "beta.mirism.one" = 9114; };
           https = listToAttrs (map
             (instance:
             {
               name = "${instance}mirism.one";
-              value.location."/".static =
-              {
-                root = "/srv/${instance}mirism";
-                index = [ "index.html" ];
-              };
+              value.location."/".static = { root = "/srv/${instance}mirism"; index = [ "index.html" ]; };
             })
             [ "entry." "" ]);
         };
-        acme =
-        {
-          enable = true;
-          cert = { "ng01.mirism.one".group = "mirism"; "beta.mirism.one".group = "mirism"; };
-        };
+        acme = { enable = true; cert = { "ng01.mirism.one".group = "mirism"; "beta.mirism.one".group = "mirism"; }; };
       };
       environment.etc = listToAttrs (concatLists (map
         (instance:

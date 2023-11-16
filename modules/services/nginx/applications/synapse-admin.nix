@@ -19,10 +19,7 @@ inputs:
         {
           name = hostname;
           value.location."/".static =
-          {
-            root = "${inputs.pkgs.synapse-admin}";
-            index = [ "index.html" ];
-          };
+            { root = "${inputs.pkgs.synapse-admin}"; index = [ "index.html" ]; };
         })
         (attrsToList instances));
     };

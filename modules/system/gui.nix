@@ -31,10 +31,6 @@ inputs:
         enabled = "fcitx5";
         fcitx5.addons = with inputs.pkgs; [ fcitx5-rime fcitx5-chinese-addons fcitx5-mozc ];
       };
-      programs =
-      {
-        dconf.enable = true;
-        xwayland.enable = true;
-      };
+      programs = { dconf.enable = true; xwayland.enable = true; };
     };
 }

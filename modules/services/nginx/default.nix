@@ -157,11 +157,7 @@ inputs:
                     default = null;
                   };
                   charset = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-                  tryFiles = mkOption
-                  {
-                    type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr);
-                    default = null;
-                  };
+                  tryFiles = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
                   webdav = mkOption { type = types.bool; default = false; };
                 };});
                 default = null;
@@ -169,26 +165,18 @@ inputs:
               php = mkOption
               {
                 type = types.nullOr (types.submodule { options =
-                {
-                  inherit (genericOptions) detectAuth root;
-                  fastcgiPass = mkOption { type = types.nonEmptyStr; };
-                };});
+                  { inherit (genericOptions) detectAuth root; fastcgiPass = mkOption { type = types.nonEmptyStr; };};});
                 default = null;
               };
               return = mkOption
               {
                 type = types.nullOr (types.submodule { options =
-                {
-                  return = mkOption { type = types.nonEmptyStr; };
-                };});
+                  { return = mkOption { type = types.nonEmptyStr; }; };});
                 default = null;
               };
               cgi = mkOption
               {
-                type = types.nullOr (types.submodule { options =
-                {
-                  inherit (genericOptions) detectAuth root;
-                };});
+                type = types.nullOr (types.submodule { options = { inherit (genericOptions) detectAuth root; };});
                 default = null;
               };
             };});
@@ -212,10 +200,7 @@ inputs:
         php = mkOption
         {
           type = types.nullOr (types.submodule { options =
-          {
-            root = mkOption { type = types.nonEmptyStr; };
-            fastcgiPass = mkOption { type = types.nonEmptyStr; };
-          };});
+            { root = mkOption { type = types.nonEmptyStr; }; fastcgiPass = mkOption { type = types.nonEmptyStr; };};});
           default = null;
         };
       };}));
@@ -639,11 +624,7 @@ inputs:
                 sites)
               != []
             )
-            {
-              enable = true;
-              user = inputs.config.users.users.nginx.name;
-              group = inputs.config.users.users.nginx.group;
-            };
+              (with inputs.config.users.users.nginx; { enable = true; user = name; inherit group; });
           };
           nixos.services =
           {
@@ -653,9 +634,7 @@ inputs:
                 listens = filter
                   (listen: listen.value.addToTransparentProxy)
                   (concatLists (map
-                    (site: map
-                      (listen: { inherit (site) name; value = listen; })
-                      site.value.listens)
+                    (site: map (listen: { inherit (site) name; value = listen; }) site.value.listens)
                     sites));
               in
               {
@@ -774,11 +753,7 @@ inputs:
           (site:
           {
             name = "http.${site.name}";
-            value =
-            {
-              serverName = site.name;
-              listen = [ { addr = "0.0.0.0"; port = 80; } ];
-            }
+            value = { serverName = site.name; listen = [ { addr = "0.0.0.0"; port = 80; } ]; }
             // (if site.value.rewriteHttps != null then
               { locations."/".return = "301 https://${site.value.rewriteHttps.hostname}$request_uri"; }
               else {})

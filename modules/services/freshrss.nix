@@ -17,21 +17,13 @@ inputs:
         baseUrl = "https://${freshrss.hostname}";
         defaultUser = "chn";
         passwordFile = inputs.config.sops.secrets."freshrss/chn".path;
-        database =
-        {
-          type = "mysql";
-          passFile = inputs.config.sops.secrets."freshrss/db".path;
-        };
+        database = { type = "mysql"; passFile = inputs.config.sops.secrets."freshrss/db".path; };
         virtualHost = null;
       };
       sops.secrets =
       {
         "freshrss/chn".owner = inputs.config.users.users.freshrss.name;
-        "freshrss/db" =
-        {
-          owner = inputs.config.users.users.freshrss.name;
-          key = "mariadb/freshrss";
-        };
+        "freshrss/db" = { owner = inputs.config.users.users.freshrss.name; key = "mariadb/freshrss"; };
       };
       systemd.services.freshrss-config.after = [ "mysql.service" ];
       nixos.services =

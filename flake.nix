@@ -334,10 +334,7 @@
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 gui.enable = true;
               };
-              packages =
-              {
-                packageSet = "desktop";
-              };
+              packages.packageSet = "desktop";
               services =
               {
                 snapper = { enable = true; configs.persistent = "/nix/persistent"; };
@@ -361,11 +358,7 @@
                 send.enable = true;
                 huginn.enable = true;
                 fz-new-order.enable = true;
-                nginx.applications =
-                {
-                  kkmeeting.enable = true;
-                  webdav.enable = true;
-                };
+                nginx.applications = { kkmeeting.enable = true; webdav.enable = true; };
                 httpapi.enable = true;
               };
             };})
@@ -424,11 +417,7 @@
                 sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 gui.enable = true;
               };
-              hardware =
-              {
-                cpus = [ "intel" ];
-                gpus = [ "intel" ];
-              };
+              hardware = { cpus = [ "intel" ]; gpus = [ "intel" ]; };
               packages.packageSet = "desktop";
               services =
               {
@@ -438,11 +427,7 @@
                 {
                   enable = true;
                   hostsAllowed = "192.168. 127.";
-                  shares =
-                  {
-                    home.path = "/home";
-                    root.path = "/";
-                  };
+                  shares = { home.path = "/home"; root.path = "/"; };
                 };
                 sshd = { enable = true; passwordAuthentication = true; };
                 xrayClient =
@@ -516,7 +501,7 @@
                 sound.enable = true;
                 halo-keyboard.enable = true;
               };
-              packages.packageSet = "desktop";
+              packages.packageSet = "desktop-fat";
               virtualization.docker.enable = true;
               services =
               {

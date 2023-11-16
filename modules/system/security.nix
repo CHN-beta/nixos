@@ -28,11 +28,7 @@ inputs:
           ])
         ]);
       };
-      yubico =
-      {
-        enable = true;
-        id = "91291";
-      };
+      yubico = { enable = true; id = "91291"; };
     };
   };
 }

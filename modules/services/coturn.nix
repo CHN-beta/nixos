@@ -11,19 +11,16 @@ inputs:
       inherit (inputs.lib) mkIf;
     in mkIf coturn.enable
       {
-        services.coturn =
-          let
-            keydir = inputs.config.security.acme.certs.${coturn.hostname}.directory;
-          in
-          {
-            enable = true;
-            use-auth-secret = true;
-            static-auth-secret-file = inputs.config.sops.secrets."coturn/auth-secret".path;
-            realm = coturn.hostname;
-            cert = "${keydir}/full.pem";
-            pkey = "${keydir}/key.pem";
-            no-cli = true;
-          };
+        services.coturn = let keydir = inputs.config.security.acme.certs.${coturn.hostname}.directory; in
+        {
+          enable = true;
+          use-auth-secret = true;
+          static-auth-secret-file = inputs.config.sops.secrets."coturn/auth-secret".path;
+          realm = coturn.hostname;
+          cert = "${keydir}/full.pem";
+          pkey = "${keydir}/key.pem";
+          no-cli = true;
+        };
         sops.secrets."coturn/auth-secret".owner = inputs.config.systemd.services.coturn.serviceConfig.User;
         nixos.services.acme =
         {

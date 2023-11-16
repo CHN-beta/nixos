@@ -58,7 +58,8 @@ inputs:
           };
           twofactor_webauthn = inputs.pkgs.fetchNextcloudApp
           {
-            url = "https://github.com/nextcloud-releases/twofactor_webauthn/releases/download/v1.2.0/twofactor_webauthn-v1.2.0.tar.gz";
+            url = "https://github.com/nextcloud-releases/twofactor_webauthn/releases/download/v1.2.0/"
+              + "twofactor_webauthn-v1.2.0.tar.gz";
             sha256 = "1lqcw74rsnl8c4sirw9208ra3c8zl8zp93scs7y8fv2n4n60l465";
           };
         };
@@ -67,11 +68,7 @@ inputs:
       {
         postgresql = { enable = true; instances.nextcloud = {}; };
         redis.instances.nextcloud.port = 3499;
-        nginx =
-        {
-          enable = true;
-          https.${nextcloud.hostname}.global.configName = nextcloud.hostname;
-        };
+        nginx = { enable = true; https.${nextcloud.hostname}.global.configName = nextcloud.hostname; };
       };
       sops =
       {

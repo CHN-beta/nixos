@@ -62,11 +62,7 @@ inputs:
                   znver2 = "MZEN2";
                   znver3 = "MZEN3";
                 };
-              in
-              {
-                GENERIC_CPU = inputs.lib.kernel.no;
-                ${kernelConfig.${nixpkgs.march}} = inputs.lib.kernel.yes;
-              };
+              in { GENERIC_CPU = inputs.lib.kernel.no; ${kernelConfig.${nixpkgs.march}} = inputs.lib.kernel.yes; };
           }];
         }
         {

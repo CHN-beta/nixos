@@ -26,13 +26,9 @@ inputs:
           # enable = true;
           rootless =
           {
-            enable = true; setSocketVariable = true;
-            daemon.settings =
-            {
-              features.buildkit = true;
-              dns = [ "1.1.1.1" ];
-              storage-driver = "overlay2";
-            };
+            enable = true;
+            setSocketVariable = true;
+            daemon.settings = { features.buildkit = true; dns = [ "1.1.1.1" ]; storage-driver = "overlay2"; };
           };
           enableNvidia = builtins.elem "nvidia" inputs.config.nixos.hardware.gpus;
           storageDriver = "overlay2";
@@ -48,23 +44,11 @@ inputs:
         boot =
         {
           kernelModules = 
-            let
-              modules =
-              {
-                intel = [ "kvm-intel" ];
-                amd = [];
-              };
-            in
-              builtins.concatLists (builtins.map (cpu: modules.${cpu}) inputs.config.nixos.hardware.cpus);
+            let modules = { intel = [ "kvm-intel" ]; amd = []; };
+            in builtins.concatLists (builtins.map (cpu: modules.${cpu}) inputs.config.nixos.hardware.cpus);
           extraModprobeConfig =
-            let
-              configs =
-              {
-                intel = "options kvm_intel nested=1";
-                amd = "";
-              };
-            in
-              builtins.concatStringsSep "\n" (builtins.map (cpu: configs.${cpu}) inputs.config.nixos.hardware.cpus);
+            let configs = { intel = "options kvm_intel nested=1"; amd = ""; };
+            in builtins.concatStringsSep "\n" (builtins.map (cpu: configs.${cpu}) inputs.config.nixos.hardware.cpus);
         };
         virtualisation =
         {
@@ -154,15 +138,9 @@ inputs:
     )
     # nspawn
     {
-      systemd.nspawn =
-        let
-          f = name: { inherit name; value =
-          {
-            execConfig.PrivateUsers = false;
-            networkConfig.VirtualEthernet = false;
-          }; };
-        in
-          builtins.listToAttrs (builtins.map f inputs.config.nixos.virtualization.nspawn);
+      systemd.nspawn = builtins.listToAttrs (builtins.map
+        (name: { inherit name; value = { execConfig.PrivateUsers = false; networkConfig.VirtualEthernet = false; }; }) 
+        inputs.config.nixos.virtualization.nspawn);
     }
   ];
 }

@@ -4,11 +4,7 @@ inputs:
   {
     enable = mkOption { type = types.bool; default = false; };
     port = mkOption { type = types.ints.unsigned; default = 3389; };
-    hostname = mkOption
-    {
-      type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr);
-      default = null;
-    };
+    hostname = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
   };
   config =
     let
@@ -18,12 +14,7 @@ inputs:
     [
       {
         services.xrdp =
-        {
-          enable = true;
-          port = xrdp.port;
-          openFirewall = true;
-          defaultWindowManager = "startplasma-x11";
-        };
+          { enable = true; port = xrdp.port; openFirewall = true; defaultWindowManager = "startplasma-x11"; };
       }
       (
         mkIf (xrdp.hostname != null)
@@ -39,10 +30,7 @@ inputs:
             {
               enable = true;
               cert.${mainDomain} =
-              {
-                domains = xrdp.hostname;
-                group = inputs.config.systemd.services.xrdp.serviceConfig.Group;
-              };
+                { domains = xrdp.hostname; group = inputs.config.systemd.services.xrdp.serviceConfig.Group; };
             };
           }
         )

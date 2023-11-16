@@ -45,11 +45,7 @@ inputs:
           };
           nixPath = [ "nixpkgs=${inputs.topInputs.nixpkgs}" ];
         };
-        system =
-        {
-          stateVersion = "22.11";
-          configurationRevision = inputs.topInputs.self.rev or "dirty";
-        };
+        system = { stateVersion = "22.11"; configurationRevision = inputs.topInputs.self.rev or "dirty"; };
         systemd.services.nix-daemon =
         {
           serviceConfig = { CacheDirectory = "nix"; Slice = "-.slice"; Nice = "19"; };

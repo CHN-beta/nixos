@@ -31,11 +31,7 @@ inputs:
           settings.mysqld.skip_name_resolve = true;
           ensureDatabases = map (db: db.value.database) (attrsToList mariadb.instances);
           ensureUsers = map
-            (db:
-            {
-              name = db.value.user;
-              ensurePermissions."${db.value.database}.*" = "ALL PRIVILEGES";
-            })
+            (db: { name = db.value.user; ensurePermissions."${db.value.database}.*" = "ALL PRIVILEGES"; })
             (attrsToList mariadb.instances);
         };
         mysqlBackup =

@@ -49,10 +49,7 @@ inputs:
         {
           enable = true;
           https.${photoprism.hostname}.location."/".proxy =
-          {
-            upstream = "http://127.0.0.1:${toString photoprism.port}";
-            websocket = true;
-          };
+            { upstream = "http://127.0.0.1:${toString photoprism.port}"; websocket = true; };
         };
       };
     };

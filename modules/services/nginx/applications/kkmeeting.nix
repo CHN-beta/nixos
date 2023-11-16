@@ -12,11 +12,7 @@ inputs:
     in mkIf kkmeeting.enable
     {
       nixos.services.nginx.https.${kkmeeting.hostname}.location."/".static =
-      {
-        root = "/srv/kkmeeting";
-        index = "auto";
-        charset = "utf-8";
-      };
+        { root = "/srv/kkmeeting"; index = "auto"; charset = "utf-8"; };
       systemd.tmpfiles.rules = [ "d /srv/kkmeeting 0700 nginx nginx" ];
     };
 }

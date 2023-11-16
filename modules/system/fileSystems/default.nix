@@ -40,10 +40,7 @@ inputs:
           default = {};
         };
         keyFile = mkOption
-        {
-          type = types.path;
-          default = ./. + "/${inputs.config.nixos.system.networking.hostname}.key";
-        };
+          { type = types.path; default = ./. + "/${inputs.config.nixos.system.networking.hostname}.key"; };
         delayedMount = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
       };
     };
@@ -56,20 +53,14 @@ inputs:
       type = types.nullOr (types.str or (types.submodule
       {
         options =
-        {
-          device = mkOption { type = types.nonEmptyStr; };
-          offset = mkOption { type = types.ints.unsigned; };
-        };
+          { device = mkOption { type = types.nonEmptyStr; }; offset = mkOption { type = types.ints.unsigned; }; };
       }));
       default = null;
     };
     rollingRootfs = mkOption
     {
       type = types.nullOr (types.submodule { options =
-      {
-        device = mkOption { type = types.nonEmptyStr; };
-        path = mkOption { type = types.nonEmptyStr; };
-      }; });
+        { device = mkOption { type = types.nonEmptyStr; }; path = mkOption { type = types.nonEmptyStr; }; }; });
       default = null;
     };
   };
@@ -87,13 +78,7 @@ inputs:
           (device:
           {
             name = device.value;
-            value =
-            {
-              device = device.name;
-              fsType = "vfat";
-              neededForBoot = true;
-              options = [ "noatime" ];
-            };
+            value = { device = device.name; fsType = "vfat"; neededForBoot = true; options = [ "noatime" ]; };
           })
           (attrsToList fileSystems.mount.vfat));
       }

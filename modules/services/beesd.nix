@@ -9,10 +9,7 @@ inputs:
       [
         types.nonEmptyStr
         (types.submodule { options =
-        {
-          device = mkOption { type = types.nonEmptyStr; };
-          hashTableSizeMB = mkOption { type = types.int; };
-        };})
+          { device = mkOption { type = types.nonEmptyStr; }; hashTableSizeMB = mkOption { type = types.int; }; };})
       ]);
       default = {};
     };

@@ -17,11 +17,7 @@ inputs:
       initrd =
       {
         systemd.enable = true;
-        network =
-        {
-          enable = initrd.network.enable;
-          ssh = { enable = true; hostKeys = initrd.sshd.hostKeys; };
-        };
+        network = { enable = initrd.network.enable; ssh = { enable = true; hostKeys = initrd.sshd.hostKeys; }; };
       };
       kernelParams = if initrd.network.enable then [ "ip=dhcp" ] else [];
     };};

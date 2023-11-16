@@ -136,11 +136,7 @@ inputs:
       nixos.services =
       {
         redis.instances = listToAttrs (map
-          (instance:
-          {
-            name = "misskey-${instance.name}";
-            value.port = instance.value.redis.port;
-          })
+          (instance: { name = "misskey-${instance.name}"; value.port = instance.value.redis.port; })
           (attrsToList misskey.instances));
         postgresql =
         {

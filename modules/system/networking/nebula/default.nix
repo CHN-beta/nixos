@@ -49,10 +49,6 @@ inputs:
         secrets."nebula/key" = {};
       };
       networking.firewall.trustedInterfaces = [ "nebula.nebula" ];
-      systemd.services."nebula@nebula" =
-      {
-        after = [ "network-online.target" ];
-        serviceConfig.Restart = "always";
-      };
+      systemd.services."nebula@nebula" = { after = [ "network-online.target" ]; serviceConfig.Restart = "always"; };
     };
 }

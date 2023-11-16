@@ -8,10 +8,7 @@ inputs:
       type = types.attrsOf (types.submodule (submoduleInputs: { options =
       {
         domains = mkOption
-        {
-          type = types.nonEmptyListOf types.nonEmptyStr;
-          default = [ submoduleInputs.config._module.args.name ];
-        };
+          { type = types.nonEmptyListOf types.nonEmptyStr; default = [ submoduleInputs.config._module.args.name ]; };
         group = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
       };}));
       default = {};

@@ -53,15 +53,9 @@ inputs:
               SMTP_PASSWORD=${placeholder."mail/bot"}
             '';
           };
-        secrets = listToAttrs (map
-          (secret: { name = secret; value = {}; })
-          [ "vaultwarden/admin_token" "mail/bot" ]);
+        secrets = listToAttrs (map (secret: { name = secret; value = {}; }) [ "vaultwarden/admin_token" "mail/bot" ]);
       };
-      systemd.services.vaultwarden =
-      {
-        enable = vaultwarden.autoStart;
-        after = [ "postgresql.service" ];
-      };
+      systemd.services.vaultwarden = { enable = vaultwarden.autoStart; after = [ "postgresql.service" ]; };
       nixos.services =
       {
         postgresql = { enable = true; instances.vaultwarden = {}; };
@@ -88,10 +82,7 @@ inputs:
                 {
                   name = location;
                   value.proxy =
-                  {
-                    upstream = "http://127.0.0.1:${toString vaultwarden.websocketPort}";
-                    websocket = true;
-                  };
+                    { upstream = "http://127.0.0.1:${toString vaultwarden.websocketPort}"; websocket = true; };
                 })
                 [ "/notifications/hub" ])
             );

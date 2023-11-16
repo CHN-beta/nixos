@@ -18,11 +18,7 @@ inputs:
         nginx.https.${httpapi.hostname}.location =
         {
           "/files".static.root = "/srv/api";
-          "/led".static =
-          {
-            root = "/srv/api";
-            detectAuth.users = [ "led" ];
-          };
+          "/led".static = { root = "/srv/api"; detectAuth.users = [ "led" ]; };
           "/notify.php".php =
           {
             root = builtins.dirOf inputs.config.sops.templates."httpapi/notify.php".path;
