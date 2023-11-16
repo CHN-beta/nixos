@@ -290,7 +290,7 @@
                     [ "nix-store" "xn--qbtm095lrg0bfka60z" ]))
                   // (builtins.listToAttrs (builtins.map
                     (site: { name = "${site}.chn.moe"; value.upstream.address = "internal.vps7.chn.moe"; })
-                    [ "xn--s8w913fdga" "misskey" "synapse" "send" "kkmeeting" ]));
+                    [ "xn--s8w913fdga" "misskey" "synapse" "send" "kkmeeting" "api" ]));
                   applications =
                   {
                     element.instances."element.chn.moe" = {};
@@ -373,6 +373,7 @@
                   kkmeeting.enable = true;
                   webdav.enable = true;
                 };
+                httpapi.enable = true;
               };
             };})
           ];

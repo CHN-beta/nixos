@@ -32,6 +32,7 @@ inputs:
     ./huginn.nix
     ./httpua
     ./fz-new-order
+    ./httpapi.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
