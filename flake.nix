@@ -140,17 +140,10 @@
                 joystick.enable = true;
                 printer.enable = true;
                 sound.enable = true;
-                prime =
-                  { enable = true; mode = "offload"; busId = { intel = "PCI:0:2:0"; nvidia = "PCI:1:0:0"; };};
+                prime = { enable = true; mode = "offload"; busId = { intel = "PCI:0:2:0"; nvidia = "PCI:1:0:0"; }; };
                 gamemode.drmDevice = 1;
               };
-              packages =
-              {
-                packageSet = "workstation";
-                extraPrebuildPackages = with inputs.pkgs; [ llvmPackages_git.stdenv ];
-                extraPythonPackages = [(pythonPackages:
-                  [ inputs.pkgs.localPackages.upho inputs.pkgs.localPackages.spectral ])];
-              };
+              packages.packageSet = "workstation";
               virtualization =
               {
                 waydroid.enable = true;
@@ -457,6 +450,12 @@
                   serverName = "frp.chn.moe";
                   user = "nas";
                   stcp.hpc = { localIp = "hpc.xmu.edu.cn"; localPort = 22; };
+                };
+                nginx =
+                {
+                  enable = true;
+                  transparentProxy.externalIp = [ "192.168.82.4" "192.168.1.185" ];
+                  applications.webdav = { enable = true; hostname = "local.webdav.chn.moe"; };
                 };
               };
               users.users = [ "root" "chn" "xll" "zem" "yjq" "yxy" ];
