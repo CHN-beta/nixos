@@ -4,13 +4,13 @@
 }:
 let
   pname = "misskey";
-  version = "2023.11.0";
+  version = "2023.11.1";
   src = fetchFromGitHub
   {
     owner = "CHN-beta";
     repo = "misskey";
-    rev = "aa182cd92ea5dc446f4d1ae2bf942bf46c645811";
-    sha256 = "hotUhy4Rhm4QWO7oYH3UENr7LewF+/dC8rsaKD0y2uc=";
+    rev = "1e5134816cc23600a0448a62b34aadfe573c3bbc";
+    sha256 = "ihkFVTpwEELmxAw4Lw01pWr8j6u2oLpfcw3laVUFCO4=";
     fetchSubmodules = true;
   };
   originalPnpmPackage = mkPnpmPackage
@@ -29,38 +29,38 @@ let
   re2 = stdenv.mkDerivation rec
   {
     pname = "re2";
-    version = "1.20.5";
+    version = "1.20.8";
     srcs =
     [
       (fetchurl
       {
-        url = "https://github.com/uhop/node-re2/releases/download/1.20.5/linux-x64-120.br";
-        sha256 = "07hwfgb7yw7pad2svkmx8qapc490xxxk0bbbx51h3kajckw98b9w";
+        url = "https://github.com/uhop/node-re2/releases/download/1.20.8/linux-x64-120.br";
+        sha256 = "0f2l658xxc2112mbqpkyfic3vhjgdyafbfi14b6n40skyd6lijcq";
       })
       (fetchurl
       {
-        url = "https://github.com/uhop/node-re2/releases/download/1.20.5/linux-x64-120.gz";
-        sha256 = "0c3z7bw4b1hgafv4n86pkg3z627zsmlzaghbzpyb81pilf1hzn8z";
+        url = "https://github.com/uhop/node-re2/releases/download/1.20.8/linux-x64-120.gz";
+        sha256 = "1v5n8i16188xpwx1jr8gcc1a99v83hlbh5hldl4i376vh0lwsxlq";
       })
       (fetchurl
       {
-        url = "https://github.com/uhop/node-re2/releases/download/1.20.5/linux-x64-115.br";
-        sha256 = "17sbfx0dbfqc42qsxbqnn94a3vsih4mc06d8svbarvx5b5x0mg31";
+        url = "https://github.com/uhop/node-re2/releases/download/1.20.8/linux-x64-115.br";
+        sha256 = "0cyqmgqk5cwik27wh4ynaf94v4w6p1fsavm07xh8xfmdim2sr9kd";
       })
       (fetchurl
       {
-        url = "https://github.com/uhop/node-re2/releases/download/1.20.5/linux-x64-115.gz";
-        sha256 = "1lnmad2vqhjck0fjs55z74jm9psl1p81g84k2nn9gxbqnk2lxsjd";
+        url = "https://github.com/uhop/node-re2/releases/download/1.20.8/linux-x64-115.gz";
+        sha256 = "0i3iykw13d5qfd5s6pq6kx6cbd64vfb3w65f9bnj87qz44la84ic";
       })
       (fetchurl
       {
-        url = "https://github.com/uhop/node-re2/releases/download/1.20.5/linux-x64-108.br";
-        sha256 = "1c605zipadwbd8z3mzvjzw4x9v89jdq19m4hmd6bqbrcz3qbgg4n";
+        url = "https://github.com/uhop/node-re2/releases/download/1.20.8/linux-x64-108.br";
+        sha256 = "1467frfapqhi839r2v0p0wh76si3lihwzwgl9098mj7mwhjfl4lx";
       })
       (fetchurl
       {
-        url = "https://github.com/uhop/node-re2/releases/download/1.20.5/linux-x64-108.gz";
-        sha256 = "0sqsn3rdlg8abqcn7i9gyhpsd1znfj1x2bxm1nj222g0svp1mry3";
+        url = "https://github.com/uhop/node-re2/releases/download/1.20.8/linux-x64-108.gz";
+        sha256 = "0hykpqdrn55x83v1kzz6bdvrp24hgz3rwmwbdfl2saz576krzg1c";
       })
     ];
     phases = [ "installPhase" ];
