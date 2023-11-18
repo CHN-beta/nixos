@@ -353,7 +353,7 @@
                 send.enable = true;
                 huginn.enable = true;
                 fz-new-order.enable = true;
-                nginx.applications = { kkmeeting.enable = true; webdav.enable = true; };
+                nginx.applications = { kkmeeting.enable = true; webdav.instances."webdav.chn.moe" = {}; };
                 httpapi.enable = true;
               };
             };})
@@ -455,7 +455,7 @@
                 {
                   enable = true;
                   transparentProxy.externalIp = [ "192.168.82.4" "192.168.1.185" ];
-                  applications.webdav = { enable = true; hostname = "local.webdav.chn.moe"; };
+                  applications.webdav.instances."local.webdav.chn.moe" = {};
                 };
               };
               users.users = [ "root" "chn" "xll" "zem" "yjq" "yxy" ];
