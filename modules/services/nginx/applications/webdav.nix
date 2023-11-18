@@ -13,7 +13,7 @@ inputs:
   config =
     let
       inherit (inputs.config.nixos.services.nginx.applications.webdav) instances;
-      inherit (builtins) map listToAttrs attrNames;
+      inherit (builtins) map listToAttrs attrValues;
       inherit (inputs.lib) mkMerge;
     in
     {
@@ -24,13 +24,13 @@ inputs:
           value.location."/".static =
             { root = site.path; index = "auto"; charset = "utf-8"; webdav = true; detectAuth.users = site.users; };
         })
-        (attrNames instances));
+        (attrValues instances));
       systemd = mkMerge (map
         (site:
         {
           tmpfiles.rules = [ "d ${site.path} 0700 nginx nginx" ];
           services.nginx.serviceConfig.ReadWritePaths = [ site.path ];
         })
-        (attrNames instances));
+        (attrValues instances));
     };
 }
