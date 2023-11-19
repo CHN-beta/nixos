@@ -542,7 +542,7 @@
             {
               hostname = node;
               profiles.system.path = inputs.self.nixosConfigurations.${node}.pkgs.deploy-rs.lib.activate.nixos
-                  inputs.self.nixosConfigurations.${node};
+                inputs.self.nixosConfigurations.${node};
             };
           })
           [ "vps6" "vps7" "nas" "yoga" ]);
