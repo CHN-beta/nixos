@@ -2,8 +2,8 @@ inputs:
 {
   options.nixos.system.sops = let inherit (inputs.lib) mkOption types; in
   {
-    enable = mkOption { type = types.bool; default = false; };
-    keyPathPrefix = mkOption { type = types.str; default = ""; };
+    enable = mkOption { type = types.bool; default = true; };
+    keyPathPrefix = mkOption { type = types.str; default = "/nix/persistent"; };
   };
   config =
     let

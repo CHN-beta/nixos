@@ -135,7 +135,6 @@
                 impermanence.enable = true;
                 networking =
                   { hostname = "pc"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; useRelay = true; }; };
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               hardware =
               {
@@ -159,7 +158,7 @@
               };
               services =
               {
-                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+                snapper.enable = true;
                 fontconfig.enable = true;
                 samba =
                 {
@@ -249,20 +248,15 @@
                   substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                   autoOptimiseStore = true;
                 };
-                initrd =
-                {
-                  network.enable = true;
-                  sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
-                };
+                initrd.sshd.enable = true;
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
                 networking = { hostname = "vps6"; nebula.enable = true; };
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               packages.packageSet = "server";
               services =
               {
-                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+                snapper.enable = true;
                 sshd.enable = true;
                 xrayServer = { enable = true; serverName = "vps6.xserver.chn.moe"; };
                 frpServer = { enable = true; serverName = "frp.chn.moe"; };
@@ -323,21 +317,16 @@
                 grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
                 nixpkgs.march = "broadwell";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-                initrd =
-                {
-                  network.enable = true;
-                  sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
-                };
+                initrd.sshd.enable = true;
                 kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
                 networking = { hostname = "vps7"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; }; };
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 gui.enable = true;
               };
               packages.packageSet = "desktop";
               services =
               {
-                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+                snapper.enable = true;
                 fontconfig.enable = true;
                 sshd.enable = true;
                 rsshub.enable = true;
@@ -402,11 +391,7 @@
                   swap = [ "/nix/swap/swap" ];
                   rollingRootfs = { device = "/dev/mapper/root1"; path = "/nix/rootfs"; };
                 };
-                initrd =
-                {
-                  network.enable = true;
-                  sshd = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
-                };
+                initrd.sshd.enable = true;
                 grub.installDevice = "efi";
                 nixpkgs.march = "silvermont";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
@@ -414,14 +399,13 @@
                 impermanence.enable = true;
                 networking =
                   { hostname = "nas"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; useRelay = true; }; };
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
                 gui.enable = true;
               };
               hardware = { cpus = [ "intel" ]; gpus = [ "intel" ]; };
               packages.packageSet = "desktop";
               services =
               {
-                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+                snapper.enable = true;
                 fontconfig.enable = true;
                 samba =
                 {
@@ -495,7 +479,6 @@
                 kernel.patches = [ "cjktty" "preempt" ];
                 impermanence.enable = true;
                 networking.hostname = "yoga";
-                sops = { enable = true; keyPathPrefix = "/nix/persistent"; };
               };
               hardware =
               {
@@ -511,7 +494,7 @@
               virtualization.docker.enable = true;
               services =
               {
-                snapper = { enable = true; configs.persistent = "/nix/persistent"; };
+                snapper.enable = true;
                 fontconfig.enable = true;
                 sshd.enable = true;
                 xrayClient =
