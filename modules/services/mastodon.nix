@@ -18,7 +18,7 @@ inputs:
         enableUnixSocket = false;
         localDomain = mastodon.hostname;
         database =
-        { 
+        {
           createLocally = false;
           host = "127.0.0.1";
           passwordFile = inputs.config.sops.secrets."mastodon/postgresql".path;
@@ -34,7 +34,7 @@ inputs:
           fromAddress = "bot@chn.moe";
           authenticate = true;
         };
-        extraEnvFiles = [ inputs.config.sops.templates."mastodon/redis.env".path ];
+        extraEnvFiles = [ inputs.config.sops.templates."mastodon/env".path ];
       };
       nixos.services =
       {
@@ -65,8 +65,16 @@ inputs:
           "mastodon/mail" = { owner = "mastodon"; key = "mail/bot"; };
           "mastodon/postgresql" = { owner = "mastodon"; key = "postgresql/mastodon"; };
         };
-        templates."mastodon/redis.env" =
-          { owner = "mastodon"; content = "REDIS_PASSWORD=${inputs.config.sops.placeholder."redis/mastodon"}"; };
+        templates."mastodon/env" =
+        {
+          owner = "mastodon";
+          content =
+          ''
+            REDIS_PASSWORD=${inputs.config.sops.placeholder."redis/mastodon"}
+            SMTP_SSL=true
+            SMTP_AUTH_METHOD=plain
+          '';
+        };
       };
     };
 }
