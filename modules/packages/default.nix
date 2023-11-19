@@ -72,6 +72,7 @@ inputs:
               todo-txt-cli
               # development
               gdb unstablePackages.try
+              inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix
             ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
             _pythonPackages = [(pythonPackages: with pythonPackages;
             [
