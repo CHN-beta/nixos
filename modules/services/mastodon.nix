@@ -76,5 +76,6 @@ inputs:
           '';
         };
       };
+      environment.systemPackages = [ inputs.config.services.mastodon.package ];
     };
 }
