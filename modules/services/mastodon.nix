@@ -9,7 +9,7 @@ inputs:
     let
       inherit (inputs.config.nixos.services) mastodon;
       inherit (inputs.lib) mkIf;
-      inherit (builtins) map listToAttrs toString replaceStrings filter;
+      inherit (builtins) toString;
     in mkIf mastodon.enable
     {
       services.mastodon =
