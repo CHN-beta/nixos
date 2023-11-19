@@ -192,7 +192,7 @@ inputs:
             };
           };
           fileSystems = listToAttrs (map
-            (mount: { name = mount; value.options = [ "x-systemd.device-timeout=15min" ]; })
+            (mount: { name = mount; value.options = [ "x-systemd.device-timeout=48h" ]; })
             fileSystems.decrypt.manual.delayedMount);
         }
       )
