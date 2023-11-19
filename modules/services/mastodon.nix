@@ -3,6 +3,7 @@ inputs:
   options.nixos.services.mastodon = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
+    hostname = mkOption { type = types.str; default = "dudu.chn.moe"; };
   };
   config =
     let
@@ -15,11 +16,12 @@ inputs:
       {
         enable = true;
         enableUnixSocket = false;
+        localDomain = mastodon.hostname;
         database =
-        {
+        { 
           createLocally = false;
           host = "127.0.0.1";
-          passwordFile = inputs.sops.secrets."mastodon/postgresql".path;
+          passwordFile = inputs.config.sops.secrets."mastodon/postgresql".path;
         };
         redis.createLocally = false;
         smtp =
@@ -27,26 +29,32 @@ inputs:
           createLocally = false;
           user = "bot@chn.moe";
           port = 465;
-          passwordFile = inputs.sops.secrets."mastodon/mail".path;
+          passwordFile = inputs.config.sops.secrets."mastodon/mail".path;
           host = "mail.chn.moe";
           fromAddress = "bot@chn.moe";
           authenticate = true;
         };
-        extraEnvFiles = [ inputs.sops.templates."mastodon/redis".path ];
+        extraEnvFiles = [ inputs.config.sops.templates."mastodon/redis.env".path ];
       };
-      nixos =
+      nixos.services =
       {
         postgresql = { enable = true; instances.mastodon = {}; };
         redis.instances.mastodon.port = inputs.config.services.mastodon.redis.port;
         nginx =
         {
           enable = true;
-          https.location =
+          https."${mastodon.hostname}".location =
           {
+            "/system/".alias.path = "/var/lib/mastodon/public-system/";
             "/".static =
               { root = "${inputs.config.services.mastodon.package}/public"; tryFiles = [ "$uri" "@proxy" ]; };
-            "@proxy".proxy.upstream = "http://127.0.0.1:${toString inputs.config.services.mastodon.port}";
-            "/system".static = 
+            "@proxy".proxy =
+              { upstream = "http://127.0.0.1:${toString inputs.config.services.mastodon.webPort}"; websocket = true; };
+            "/api/v1/streaming/".proxy =
+            {
+              upstream = "http://127.0.0.1:${toString inputs.config.services.mastodon.streamingPort}";
+              websocket = true;
+            };
           };
         };
       };
@@ -58,7 +66,7 @@ inputs:
           "mastodon/postgresql" = { owner = "mastodon"; key = "postgresql/mastodon"; };
         };
         templates."mastodon/redis.env" =
-          { owner = "mastodon"; content = "REDIS_PASSWORD=${inputs.sops.placeholders."redis/mastodon"}"; };
+          { owner = "mastodon"; content = "REDIS_PASSWORD=${inputs.config.sops.placeholder."redis/mastodon"}"; };
       };
     };
 }

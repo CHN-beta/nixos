@@ -349,6 +349,7 @@
                 fz-new-order.enable = true;
                 nginx.applications = { kkmeeting.enable = true; webdav.instances."webdav.chn.moe" = {}; };
                 httpapi.enable = true;
+                mastodon.enable = true;
               };
             };})
           ];

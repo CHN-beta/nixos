@@ -34,6 +34,7 @@ inputs:
     ./fz-new-order
     ./httpapi.nix
     ./mirism.nix
+    ./mastodon.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {

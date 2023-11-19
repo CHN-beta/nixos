@@ -19,7 +19,7 @@ inputs:
       {
         httpsPort = 3065;
         httpsPortShift = { http2 = 1; proxyProtocol = 2; };
-        httpsLocationTypes = [ "proxy" "static" "php" "return" "cgi" ];
+        httpsLocationTypes = [ "proxy" "static" "php" "return" "cgi" "alias" ];
         httpTypes = [ "rewriteHttps" "php" ];
         streamPort = 5575;
         streamPortShift = { proxyProtocol = 1; };
@@ -177,6 +177,14 @@ inputs:
               cgi = mkOption
               {
                 type = types.nullOr (types.submodule { options = { inherit (genericOptions) detectAuth root; };});
+                default = null;
+              };
+              alias = mkOption
+              {
+                type = types.nullOr (types.submodule { options =
+                {
+                  path = mkOption { type = types.nonEmptyStr; };
+                };});
                 default = null;
               };
             };});
@@ -611,6 +619,7 @@ inputs:
                         fastcgi_pass unix:${inputs.config.services.fcgiwrap.socketAddress};
                         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
                       '';
+                      alias.alias = location.value.path;
                     }.${location.value.type};
                   })
                   site.value.locations);
