@@ -87,5 +87,6 @@ inputs:
           "nextcloud/admin".owner = inputs.config.users.users.nextcloud.name;
         };
       };
+      systemd.services.nextcloud-setup = rec { requires = [ "postgresql.service" ]; after = requires; };
     };
 }
