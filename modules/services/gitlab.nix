@@ -17,6 +17,7 @@ inputs:
       {
         enable = true;
         host = gitlab.hostname;
+        port = 443;
         https = true;
         smtp =
         {
