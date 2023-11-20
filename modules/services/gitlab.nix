@@ -45,8 +45,7 @@ inputs:
         nginx =
         {
           enable = true;
-          https."${gitlab.hostname}".location."/".proxy.upstream =
-            "http://127.0.0.1:${toString inputs.config.services.gitlab.port}";
+          https."${gitlab.hostname}".location."/".proxy.upstream = "http://unix:/run/gitlab/gitlab-workhorse.socket";
         };
         postgresql.instances.gitlab = {};
       };
