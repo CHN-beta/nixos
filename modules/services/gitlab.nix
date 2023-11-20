@@ -31,6 +31,7 @@ inputs:
           domain = gitlab.hostname;
           authentication = "login";
         };
+        extraConfig.gitlab.email_from = "bot@chn.moe";
         secrets =
         {
           secretFile = inputs.config.sops.secrets."gitlab/secret".path;
