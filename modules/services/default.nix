@@ -35,6 +35,7 @@ inputs:
     ./httpapi.nix
     ./mirism.nix
     ./mastodon.nix
+    ./gitlab.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {

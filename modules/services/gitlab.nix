@@ -4,6 +4,7 @@ inputs:
   {
     enable = mkOption { type = types.bool; default = false; };
     hostname = mkOption { type = types.str; default = "gitlab.chn.moe"; };
+    # TODO: use redis with TCP and password
   };
   config =
     let
@@ -32,10 +33,38 @@ inputs:
           secretFile = inputs.config.sops.secrets."gitlab/secret".path;
           otpFile = inputs.config.sops.secrets."gitlab/otp".path;
           jwsFile = inputs.config.sops.secrets."gitlab/jws".path;
-          dbFile = inputs.config.sops.secrets."gitlab/db".path;
+          dbFile = inputs.config.sops.secrets."gitlab/dbFile".path;
         };
         initialRootPasswordFile = inputs.config.sops.secrets."gitlab/root".path;
         initialRootEmail = "chn@chn.moe";
         databasePasswordFile = inputs.config.sops.secrets."gitlab/db".path;
         databaseHost = "127.0.0.1";
-        redisUrl = "redis://127.0.0.1:6379/"
+      };
+      nixos.services =
+      {
+        nginx =
+        {
+          enable = true;
+          https."${gitlab.hostname}".location."/".proxy.upstream =
+            "http://127.0.0.1:${toString inputs.config.services.gitlab.port}";
+        };
+        postgresql.instances.gitlab = {};
+      };
+      sops.secrets = let owner = inputs.config.services.gitlab.user; in
+      {
+        "gitlab/mail" = { owner = owner; key = "mail/bot"; };
+        "gitlab/secret".owner = owner;
+        "gitlab/otp".owner = owner;
+        "gitlab/jws" =
+        {
+          owner = owner;
+          sopsFile = "${inputs.topInputs.self}/secrets/gitlab/jws.bin";
+          format = "binary";
+        };
+        "gitlab/dbFile".owner = owner;
+        "gitlab/root".owner = owner;
+        "gitlab/db" = { owner = owner; key = "postgresql/gitlab"; };
+        "mail/bot" = {};
+      };
+    };
+}
