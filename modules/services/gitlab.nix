@@ -10,7 +10,6 @@ inputs:
     let
       inherit (inputs.config.nixos.services) gitlab;
       inherit (inputs.lib) mkIf;
-      inherit (builtins) map listToAttrs toString replaceStrings filter;
     in mkIf gitlab.enable
     {
       services.gitlab =

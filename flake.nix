@@ -274,7 +274,7 @@
                     [ "nix-store" "xn--qbtm095lrg0bfka60z" ]))
                   // (builtins.listToAttrs (builtins.map
                     (site: { name = "${site}.chn.moe"; value.upstream.address = "internal.vps7.chn.moe"; })
-                    [ "xn--s8w913fdga" "misskey" "synapse" "send" "kkmeeting" "api" "gitlab" ]));
+                    [ "xn--s8w913fdga" "misskey" "synapse" "send" "kkmeeting" "api" "gitlab" "grafana" ]));
                   applications =
                   {
                     element.instances."element.chn.moe" = {};
@@ -351,6 +351,7 @@
                 httpapi.enable = true;
                 mastodon.enable = true;
                 gitlab.enable = true;
+                grafana.enable = true;
               };
             };})
           ];
