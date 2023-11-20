@@ -77,5 +77,6 @@ inputs:
         };
       };
       environment.systemPackages = [ inputs.config.services.mastodon.package ];
+      # sudo -u mastodon mastodon-tootctl accounts modify chn --role Owner
     };
 }

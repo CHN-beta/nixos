@@ -20,9 +20,22 @@ inputs:
         smtp =
         {
           enable = true;
+          username = "bot@chn.moe";
           tls = true;
           port = 465;
           domain = gitlab.hostname;
-          username = "bot@chn.moe";
+          passwordFile = inputs.config.sops.secrets."gitlab/mail".path;
+          authentication = "login";
         };
+        secrets =
+        {
+          secretFile = inputs.config.sops.secrets."gitlab/secret".path;
+          otpFile = inputs.config.sops.secrets."gitlab/otp".path;
+          jwsFile = inputs.config.sops.secrets."gitlab/jws".path;
+          dbFile = inputs.config.sops.secrets."gitlab/db".path;
+        };
+        initialRootPasswordFile = inputs.config.sops.secrets."gitlab/root".path;
+        initialRootEmail = "chn@chn.moe";
+        databasePasswordFile = inputs.config.sops.secrets."gitlab/db".path;
+        databaseHost = "127.0.0.1";
         redisUrl = "redis://127.0.0.1:6379/"

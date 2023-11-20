@@ -45,3 +45,8 @@ creation_rules:
     - age:
       - *chn
       - *pe
+  - path_regex: secrets/gitlab/jws\.bin$
+    key_groups:
+    - age:
+      - *chn
+      - *vps7
