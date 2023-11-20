@@ -21,11 +21,13 @@ inputs:
         smtp =
         {
           enable = true;
+          address = "mail.chn.moe";
           username = "bot@chn.moe";
+          passwordFile = inputs.config.sops.secrets."gitlab/mail".path;
           tls = true;
+          enableStartTLSAuto = false;
           port = 465;
           domain = gitlab.hostname;
-          passwordFile = inputs.config.sops.secrets."gitlab/mail".path;
           authentication = "login";
         };
         secrets =
@@ -36,7 +38,7 @@ inputs:
           dbFile = inputs.config.sops.secrets."gitlab/dbFile".path;
         };
         initialRootPasswordFile = inputs.config.sops.secrets."gitlab/root".path;
-        initialRootEmail = "chn@chn.moe";
+        initialRootEmail = "bot@chn.moe";
         databasePasswordFile = inputs.config.sops.secrets."gitlab/db".path;
         databaseHost = "127.0.0.1";
       };
