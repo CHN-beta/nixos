@@ -37,6 +37,7 @@ inputs:
     ./mastodon.nix
     ./gitlab.nix
     ./grafana.nix
+    ./fail2ban.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {

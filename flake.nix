@@ -286,6 +286,7 @@
                 coturn.enable = true;
                 httpua.enable = true;
                 mirism.enable = true;
+                fail2ban.enable = true;
               };
             };})
           ];
@@ -352,6 +353,7 @@
                 mastodon.enable = true;
                 gitlab.enable = true;
                 grafana.enable = true;
+                fail2ban.enable = true;
               };
             };})
           ];
