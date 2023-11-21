@@ -29,6 +29,7 @@ inputs:
             "/var/spool"
             "/var/backup"
             { directory = "/var/lib/docker/volumes"; mode = "0710"; }
+            "/srv"
           ];
           files =
           [
