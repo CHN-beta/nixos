@@ -71,7 +71,10 @@ inputs:
             let
               modules =
               {
-                intel = [ "intel_cstate" "aesni_intel" ];
+                intel =
+                [
+                  "intel_cstate" "aesni_intel" "intel_cstate" "intel_uncore" "intel_uncore_frequency" "intel_powerclamp"
+                ];
                 amd = [];
               };
             in
