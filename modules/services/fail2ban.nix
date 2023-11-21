@@ -10,6 +10,10 @@ inputs:
       inherit (inputs.lib) mkIf;
     in mkIf fail2ban.enable
     {
-      services.fail2ban.enable = true;
+      services.fail2ban =
+      {
+        enable = true;
+        ignoreIP = [ "127.0.0.0/8" "192.168.0.0/16" "vps6.chn.moe" ];
+      };
     };
 }
