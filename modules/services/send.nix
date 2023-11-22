@@ -49,7 +49,6 @@ inputs:
           };
           redis.instances.send = { user = "root"; port = 9184; };
         };
-        # TODO: root docker use config of rootless docker?
         virtualization.docker.enable = true;
       };
     };

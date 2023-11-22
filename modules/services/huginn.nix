@@ -60,7 +60,6 @@ inputs:
           };
           mariadb.instances.huginn = {};
         };
-        # TODO: root docker use config of rootless docker?
         virtualization.docker.enable = true;
       };
     };

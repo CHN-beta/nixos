@@ -540,16 +540,13 @@ inputs:
                         + (if listen.http2 then httpsPortShift.http2 else 0)
                         + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
                       ssl = true;
-                      # TODO: use proxy_protocol in 23.11
-                      extraParameters =
-                        (if listen.proxyProtocol then [ "proxy_protocol" ] else [])
-                        ++ (if listen.http2 then [ "http2" ] else []);
+                      proxyProtocol = listen.proxyProtocol;
+                      extraParameters = mkIf listen.http2 [ "http2" ];
                     })
                     site.value.listens;
                   # do not automatically add http2 listen
                   http2 = false;
                   onlySSL = true;
-                  # TODO: disable well-known in 23.11
                   useACMEHost = site.name;
                   locations = listToAttrs (map
                   (location:

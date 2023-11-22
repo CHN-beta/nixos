@@ -20,11 +20,9 @@ inputs:
           (user:
           [
             "d /var/lib/groupshare/${user} 2750 ${user} groupshare"
-            # TODO: auto set 'X' bit in 23.11
-            # systemd 253 does not support 'X' bit, it should be manually set
             # sudo setfacl -m 'xxx' dir
-            # ("a /var/lib/groupshare/${user} - - - - "
-            #   + "d:u:${user}:rwX,u:${user}:rwX,d:g:groupshare:r-X,g:groupshare:r-X,d:o::---,o::---,d:m::r-x,m::r-x")
+            ("a /var/lib/groupshare/${user} - - - - "
+              + "d:u:${user}:rwX,u:${user}:rwX,d:g:groupshare:r-X,g:groupshare:r-X,d:o::---,o::---,d:m::r-x,m::r-x")
           ])
           users));
       fileSystems = listToAttrs (map

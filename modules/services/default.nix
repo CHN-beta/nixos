@@ -111,7 +111,6 @@ inputs:
               postgresql = { enable = true; instances.wallabag = {}; };
               redis.instances.wallabag = { user = "root"; port = 8790; };
             };
-            # TODO: root docker use config of rootless docker?
             virtualization.docker.enable = true;
           };
         }

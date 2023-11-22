@@ -4,7 +4,6 @@ inputs:
   {
     enable = mkOption { type = types.bool; default = false; };
     hostname = mkOption { type = types.str; default = "gitlab.chn.moe"; };
-    # TODO: use redis with TCP and password
   };
   config =
     let

@@ -71,7 +71,6 @@ inputs:
             in
             # set user password
             "$PSQL -tAc \"ALTER USER ${db.value.user} with encrypted password '$(cat ${passwordFile})'\""
-            # TODO: still needed in 23.11?
             # set db owner
               + "\n"
               + "$PSQL -tAc \"select pg_catalog.pg_get_userbyid(d.datdba) FROM pg_catalog.pg_database d"

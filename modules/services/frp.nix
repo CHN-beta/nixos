@@ -1,5 +1,3 @@
-# TODO: update to json config at 23.11
-# TODO: switch to module in nixpkgs
 inputs:
 {
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
