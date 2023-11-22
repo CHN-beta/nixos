@@ -38,7 +38,7 @@ inputs:
                 Group = inputs.config.users.users.${instance.value.user}.group;
                 ExecStart =
                   let
-                    meilisearch = inputs.pkgs.unstablePackages.meilisearch.overrideAttrs (prev:
+                    meilisearch = inputs.pkgs.meilisearch.overrideAttrs (prev:
                     {
                       RUSTFLAGS = prev.RUSTFLAGS or [] ++ [ "-Clto=true" "-Cpanic=abort" "-Cembed-bitcode=yes"]
                         ++ (

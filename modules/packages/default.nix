@@ -45,7 +45,7 @@ inputs:
               ksh
               # basic tools
               beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq zellij neofetch ipfetch localPackages.pslist
-              unstablePackages.fastfetch reptyr
+              fastfetch reptyr
               # lsxx
               pciutils usbutils lshw util-linux lsof
               # top
@@ -71,7 +71,7 @@ inputs:
               # office
               todo-txt-cli
               # development
-              gdb unstablePackages.try inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix
+              gdb try inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix
             ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
             _pythonPackages = [(pythonPackages: with pythonPackages;
             [
@@ -358,7 +358,7 @@ inputs:
                 # password and key management
                 bitwarden
                 # office
-                unstablePackages.crow-translate zotero pandoc ydict
+                crow-translate zotero pandoc ydict
                 # media
                 mpv nomacs
                 # themes
@@ -480,7 +480,7 @@ inputs:
               _packages =
               [
                 # system management
-                etcher unstablePackages.btrfs-assistant
+                etcher btrfs-assistant
                 # password and key management
                 yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui electrum jabref
                 # download
@@ -550,7 +550,7 @@ inputs:
             _prebuildPackages =
             [
               httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran gcc10 python2
-              unstablePackages.gcc13Stdenv
+              gcc13Stdenv
             ];
           };
           programs =
