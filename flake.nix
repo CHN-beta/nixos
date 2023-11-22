@@ -3,9 +3,9 @@
 
   inputs =
   {
-    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-23.05";
-    nixpkgs-unstable.url = "github:CHN-beta/nixpkgs/nixos-unstable-23.05";
-    home-manager = { url = "github:nix-community/home-manager/release-23.05"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-23.11";
+    nixpkgs-unstable.url = "github:CHN-beta/nixpkgs/nixos-unstable";
+    home-manager = { url = "github:nix-community/home-manager/master"; inputs.nixpkgs.follows = "nixpkgs"; };
     sops-nix =
     {
       url = "github:Mic92/sops-nix";
@@ -17,19 +17,19 @@
     nur.url = "github:nix-community/NUR";
     nixos-cn = { url = "github:nixos-cn/flakes"; inputs.nixpkgs.follows = "nixpkgs"; };
     nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nix-vscode-extensions =
+    nix-vscode-extensions = { url = "github:nix-community/nix-vscode-extensions"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nix-alien =
     {
-      url = "github:nix-community/nix-vscode-extensions?rev=50c4bce16b93e7ca8565d51fafabc05e9f0515da";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:thiagokokada/nix-alien";
+      inputs = { nixpkgs.follows = "nixpkgs"; nix-index-database.follows = "nix-index-database"; };
     };
-    nix-alien = { url = "github:thiagokokada/nix-alien"; inputs.nix-index-database.follows = "nix-index-database"; };
     impermanence.url = "github:nix-community/impermanence";
     qchem = { url = "github:Nix-QChem/NixOS-QChem"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixd = { url = "github:nix-community/nixd"; inputs.nixpkgs.follows = "nixpkgs"; };
     napalm = { url = "github:nix-community/napalm"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixpak = { url = "github:nixpak/nixpak"; inputs.nixpkgs.follows = "nixpkgs"; };
     deploy-rs = { url = "github:serokell/deploy-rs"; inputs.nixpkgs.follows = "nixpkgs"; };
-    pnpm2nix-nzbr = { url = "github:CHN-beta/pnpm2nix-nzbr"; inputs.nixpkgs.follows = "nixpkgs"; };
+    pnpm2nix-nzbr = { url = "github:nzbr/pnpm2nix-nzbr"; inputs.nixpkgs.follows = "nixpkgs"; };
     lmix = { url = "github:CHN-beta/lmix"; inputs.nixpkgs.follows = "nixpkgs"; };
     dguibert-nur-packages = { url = "github:CHN-beta/dguibert-nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     plasma-manager =
