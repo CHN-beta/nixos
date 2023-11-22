@@ -15,7 +15,7 @@ inputs:
       services.mastodon =
       {
         enable = true;
-        streamingProcesses = 3;
+        streamingProcesses = 1;
         enableUnixSocket = false;
         localDomain = mastodon.hostname;
         database =
@@ -53,7 +53,7 @@ inputs:
               { upstream = "http://127.0.0.1:${toString inputs.config.services.mastodon.webPort}"; websocket = true; };
             "/api/v1/streaming/".proxy =
             {
-              upstream = "http://127.0.0.1:${toString inputs.config.services.mastodon.streamingPort}";
+              upstream = "http://unix:/run/mastodon-streaming/streaming-1.socket";
               websocket = true;
             };
           };
