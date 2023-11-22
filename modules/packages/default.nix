@@ -53,7 +53,7 @@ inputs:
               # editor
               nano bat
               # downloader
-              wget aria2 curl
+              wget aria2 curl yt-dlp
               # file manager
               tree exa trash-cli lsd broot file xdg-ninja mlocate
               # compress
@@ -71,8 +71,7 @@ inputs:
               # office
               todo-txt-cli
               # development
-              gdb unstablePackages.try
-              inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix
+              gdb unstablePackages.try inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix
             ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
             _pythonPackages = [(pythonPackages: with pythonPackages;
             [
@@ -357,25 +356,13 @@ inputs:
                 # networking
                 remmina putty mtr-gui
                 # password and key management
-                bitwarden yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui
-                # download
-                qbittorrent yt-dlp nur-xddxdd.baidupcs-go wgetpaste
+                bitwarden
                 # office
                 unstablePackages.crow-translate zotero pandoc ydict
-                # development
-                scrcpy
                 # media
-                spotify yesplaymusic mpv nomacs simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc
-                # text editor
-                localPackages.typora
+                mpv nomacs
                 # themes
-                orchis-theme tela-circle-icon-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme
-                arc-kde-theme materia-theme
-                # news
-                fluent-reader rssguard
-                # davinci-resolve playonlinux
-                weston cage openbox krita
-                genymotion hdfview electrum jabref
+                tela-circle-icon-theme
                 (
                   vscode-with-extensions.override
                   {
@@ -494,14 +481,27 @@ inputs:
               [
                 # system management
                 etcher unstablePackages.btrfs-assistant
+                # password and key management
+                yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui electrum jabref
+                # download
+                qbittorrent nur-xddxdd.baidupcs-go wgetpaste
+                # development
+                scrcpy weston cage openbox krita
+                # media
+                spotify yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc
+                # editor
+                localPackages.typora hdfview
+                # themes
+                orchis-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme arc-kde-theme materia-theme
+                # news
+                fluent-reader rssguard newsflash newsboat
                 # nix tools
                 deploy-rs.deploy-rs nixpkgs-fmt
                 # instant messager
                 element-desktop telegram-desktop discord inputs.config.nur.repos.linyinfeng.wemeet # native
                 cinny-desktop # nur-xddxdd.wine-wechat thunder
                 # browser
-                google-chrome
-                john crunch hashcat
+                google-chrome microsoft-edge
               ];
             };
           };
@@ -538,9 +538,10 @@ inputs:
               # math, physics and chemistry
               mathematica octaveFull root ovito paraview localPackages.vesta qchem.quantum-espresso
               localPackages.vasp localPackages.phonon-unfolding localPackages.vaspkit jmol localPackages.v_sim
-              # news
-              newsflash newsboat
-              microsoft-edge
+              # encryption and password management
+              john crunch hashcat
+              # container and vm
+              genymotion # davinci-resolve playonlinux
             ];
             _pythonPackages = [(pythonPackages: with pythonPackages;
             [
