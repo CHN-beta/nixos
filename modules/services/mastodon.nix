@@ -15,6 +15,7 @@ inputs:
       services.mastodon =
       {
         enable = true;
+        streamingProcesses = 3;
         enableUnixSocket = false;
         localDomain = mastodon.hostname;
         database =
