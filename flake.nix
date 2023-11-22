@@ -49,7 +49,7 @@
         default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
           (builtins.concatStringsSep "\n" (builtins.map
             (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-            [ "pc" "vps6" "vps7" "nas" ]));
+            [ "pc" "vps6" "vps7" "nas" "yoga" ]));
       }
       // (
         builtins.listToAttrs (builtins.map
@@ -511,7 +511,7 @@
                 };
                 firewall.trustedInterfaces = [ "virbr0" ];
               };
-              bugs = [ "xmunet" "firmware-unstable" ];
+              bugs = [ "xmunet" ];
             };})
           ];
         }));
