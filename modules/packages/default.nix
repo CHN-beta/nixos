@@ -528,7 +528,7 @@ inputs:
                 inherit (localPackages) latex-citation-style-language;
               })
               # development
-              jetbrains.clion android-studio dbeaver cling clang-tools_16 ccls fprettify
+              jetbrains.clion android-studio dbeaver cling clang-tools_16 ccls fprettify aircrack-ng
               # media
               nur-xddxdd.svp obs-studio waifu2x-converter-cpp inkscape blender
               # virtualization
