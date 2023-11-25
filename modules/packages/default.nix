@@ -504,6 +504,7 @@ inputs:
                 google-chrome microsoft-edge
               ];
             };
+            users.sharedModules = [{ config.programs.doom-emacs = { enable = true; doomPrivateDir = ./doom.d; }; }];
           };
         }
       )

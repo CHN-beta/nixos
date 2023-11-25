@@ -36,7 +36,11 @@ inputs:
                 { inherit (prev) deploy-rs; inherit ((topInputs.deploy-rs.overlay final prev).deploy-rs) lib; };
             })
           ];
-          home-manager.sharedModules = [ topInputs.plasma-manager.homeManagerModules.plasma-manager ];
+          home-manager.sharedModules =
+          [
+            topInputs.plasma-manager.homeManagerModules.plasma-manager
+            topInputs.nix-doom-emacs.hmModule
+          ];
         };
       })
       ./hardware ./packages ./system ./virtualization ./services ./bugs ./users
