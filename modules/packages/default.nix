@@ -537,7 +537,7 @@ inputs:
               appflowy notion-app-enhanced joplin-desktop standardnotes
               # math, physics and chemistry
               mathematica octaveFull root ovito paraview localPackages.vesta qchem.quantum-espresso
-              localPackages.vasp localPackages.phonon-unfolding localPackages.vaspkit jmol localPackages.v_sim
+              localPackages.vasp localPackages.vaspkit jmol localPackages.v_sim
               # encryption and password management
               john crunch hashcat
               # container and vm
