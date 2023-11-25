@@ -39,7 +39,11 @@ inputs:
                 inputs.pkgs.callPackage "${inputs.topInputs.nixpkgs-2305}/pkgs/development/libraries/nghttp2" {};
             })
           ];
-          home-manager.sharedModules = [ topInputs.plasma-manager.homeManagerModules.plasma-manager ];
+          home-manager.sharedModules =
+          [
+            topInputs.plasma-manager.homeManagerModules.plasma-manager
+            topInputs.nix-doom-emacs.hmModule
+          ];
         };
       })
       ./hardware ./packages ./system ./virtualization ./services ./bugs ./users

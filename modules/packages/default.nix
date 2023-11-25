@@ -500,6 +500,7 @@ inputs:
                   plugins = with inputs.pkgs.obs-studio-plugins;
                     [ wlrobs obs-vaapi obs-nvfbc droidcam-obs obs-vkcapture ];
                 };
+                doom-emacs = { enable = true; doomPrivateDir = ./doom.d; };
               };
             }];
           };
