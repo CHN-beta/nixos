@@ -8,8 +8,8 @@ let
   {
     owner = "DIYgod";
     repo = "RSSHub";
-    rev = "4356fad91a268c81b8dacd2e3d9d07dbdce231a0";
-    sha256 = "rUfXHtePIkBGF1U/tqrXHEsYC5jah2A7hoJZfEAnCoQ=";
+    rev = "2cfde2ce5e8bd3591feb85543bb4e0df940aad46";
+    sha256 = "dSq774Qnnpn4y5ky8tHC8ceEx92lXl9G0S5z/XRcoEk=";
   };
   originalPnpmPackage = mkPnpmPackage { inherit name src nodejs; };
   nodeModules = originalPnpmPackage.nodeModules.overrideAttrs { PUPPETEER_SKIP_DOWNLOAD = true; };
