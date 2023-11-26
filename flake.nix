@@ -137,7 +137,7 @@
                 };
                 nixpkgs = { march = "alderlake"; cudaSupport = true; };
                 gui = { enable = true; preferred = true; };
-                kernel.patches = [ "cjktty" "preempt" ];
+                kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
                 networking =
                   { hostname = "pc"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; useRelay = true; }; };
@@ -255,7 +255,6 @@
                   autoOptimiseStore = true;
                 };
                 initrd.sshd.enable = true;
-                kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
                 networking = { hostname = "vps6"; nebula.enable = true; };
               };
@@ -325,7 +324,6 @@
                 nixpkgs.march = "broadwell";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 initrd.sshd.enable = true;
-                kernel.patches = [ "preempt" ];
                 impermanence.enable = true;
                 networking = { hostname = "vps7"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; }; };
                 gui.enable = true;
@@ -406,7 +404,7 @@
                 grub.installDevice = "efi";
                 nixpkgs.march = "silvermont";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-                kernel.patches = [ "cjktty" "preempt" ];
+                kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
                 networking =
                   { hostname = "nas"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; useRelay = true; }; };
@@ -487,7 +485,7 @@
                 gui.enable = true;
                 grub.installDevice = "efi";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-                kernel.patches = [ "cjktty" "preempt" ];
+                kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
                 networking.hostname = "yoga";
               };
