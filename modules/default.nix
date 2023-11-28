@@ -29,7 +29,6 @@ inputs:
             (import "${topInputs.dguibert-nur-packages}/overlays/nvhpc-overlay")
             (final: prev:
             {
-              touchix = topInputs.touchix.packages."${prev.system}";
               nix-vscode-extensions = topInputs.nix-vscode-extensions.extensions."${prev.system}";
               nur-xddxdd = topInputs.nur-xddxdd.overlays.default final prev;
               deploy-rs =

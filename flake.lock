@@ -1124,11 +1124,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1701190958,
-        "narHash": "sha256-h1pMaueQrlE5R1O0a9zEeOYrT04jBxZifLSigAbtuDg=",
+        "lastModified": 1701192922,
+        "narHash": "sha256-1nk+HG9Jfiz43vLSQh+hwsXKV4gH0QcoQ8F+fnSNlIQ=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "36b042006818df5edb3379ee10e66c1474f31e17",
+        "rev": "cf91fc2c961c19472f9d24034edc08bb4c0008d2",
         "type": "github"
       },
       "original": {
@@ -1140,11 +1140,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1701190908,
-        "narHash": "sha256-XRFdNDdzWdcaQXrbNCh5GCNahAWbtrPzaKG+9sUq4K8=",
+        "lastModified": 1701192861,
+        "narHash": "sha256-XzYNYFKN7sSIZs9uZJl/PQ73nxK8ulMHzwlg4zrChj0=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "efac0003c258be91f7355e119bf1e2a834ecad03",
+        "rev": "f32db8aad33f6e82c801e379d68798f4df0df306",
         "type": "github"
       },
       "original": {
@@ -1172,11 +1172,11 @@
     },
     "nur": {
       "locked": {
-        "lastModified": 1701182739,
-        "narHash": "sha256-c9LoBbrjli7d3w1JFhkudIZnnoLY+n243+wLML2Ik14=",
+        "lastModified": 1701194695,
+        "narHash": "sha256-Yvfo/i9O6mdhNg5R74hS4cT7p3qnphHTvunzcflNggE=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "30497442f7f899f6e24bb4bad34414eb8475ac32",
+        "rev": "9b9e0863e8473fbad9df7ecac66fa4eeba3ee229",
         "type": "github"
       },
       "original": {
@@ -1436,8 +1436,7 @@
         "plasma-manager": "plasma-manager",
         "pnpm2nix-nzbr": "pnpm2nix-nzbr",
         "qchem": "qchem",
-        "sops-nix": "sops-nix",
-        "touchix": "touchix"
+        "sops-nix": "sops-nix"
       }
     },
     "rotate-text": {
@@ -1629,26 +1628,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
-        "type": "github"
-      }
-    },
-    "touchix": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1685202181,
-        "narHash": "sha256-yRj9Vh3T1pL+cNxhiQCFyH67Ys1h7pcrOfSZM10Xb+g=",
-        "owner": "CHN-beta",
-        "repo": "touchix",
-        "rev": "9cedc2f3dc007875525af480976d91b2990847de",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "repo": "touchix",
         "type": "github"
       }
     },
