@@ -63,7 +63,7 @@ inputs:
             };
             twofactor_webauthn = inputs.pkgs.fetchNextcloudApp
             {
-              url = githubRelease "nextcloud/twofactor_webauthn" "v1.3.0/twofactor_webauthn-v1.3.0.tar.gz";
+              url = githubRelease "nextcloud-releases/twofactor_webauthn" "v1.3.0/twofactor_webauthn-v1.3.0.tar.gz";
               sha256 = "1akqd5sqz5g58dx3rp15ls7sczviikwwcqn8pj3kii1ffvi9xqx8";
               license = "agpl3";
             };
