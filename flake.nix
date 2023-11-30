@@ -37,11 +37,7 @@
       url = "github:pjones/plasma-manager";
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
-    nix-doom-emacs =
-    {
-      url = "github:nix-community/nix-doom-emacs";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nix-doom-emacs = { url = "github:nix-community/nix-doom-emacs"; inputs.nixpkgs.follows = "nixpkgs"; };
   };
 
   outputs = inputs:
