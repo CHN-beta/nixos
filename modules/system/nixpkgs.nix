@@ -33,7 +33,8 @@ inputs:
       (
         mkConditional (nixpkgs.march != null)
         {
-          programs.ccache.enable = true;
+          programs.ccache = { enable = true; cacheDir = "/var/lib/ccache"; };
+          nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
           nixpkgs =
           {
             hostPlatform = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
