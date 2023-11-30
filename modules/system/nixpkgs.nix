@@ -44,7 +44,7 @@ inputs:
                 localSystem = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
                 config.allowUnfree = true;
               };
-              chromium = prev.chromium.override { ccache = true; };
+              chromium = builtins.trace "enable ccache for chromium" (prev.chromium.override { enableCcache = true; });
             })];
           };
           boot.kernelPatches =
