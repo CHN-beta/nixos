@@ -212,7 +212,6 @@ inputs:
               customPkgs = with inputs.pkgs; [ zsh-nix-shell ];
             };
           };
-          ccache.enable = true;
           command-not-found.enable = false;
           adb.enable = true;
           gnupg.agent = { enable = true; enableSSHSupport = true; };
