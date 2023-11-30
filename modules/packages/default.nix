@@ -324,7 +324,6 @@ inputs:
               ))
               (attrsToList servers)));
         };
-        nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
         nixpkgs.config =
         {
           permittedInsecurePackages = with inputs.pkgs;
