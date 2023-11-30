@@ -37,7 +37,7 @@ inputs:
           nixpkgs =
           {
             hostPlatform = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
-            config = { qchem-config.optArch = nixpkgs.march; oneapiArch = nixpkgs.oneapiArch; };
+            config = { qchem-config.optArch = nixpkgs.march; oneapiArch = nixpkgs.oneapiArch; enableCcache = true; };
             overlays = [(final: prev:
             {
               unstablePackages = import inputs.topInputs.nixpkgs-unstable
@@ -45,7 +45,6 @@ inputs:
                 localSystem = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
                 config.allowUnfree = true;
               };
-              chromium = builtins.trace "enable ccache for chromium" (prev.chromium.override { enableCcache = true; });
             })];
           };
           boot.kernelPatches =
