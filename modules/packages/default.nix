@@ -393,6 +393,8 @@ inputs:
                         feiskyer.chatgpt-copilot yukiuuh2936.vscode-modern-fortran-formatter wolframresearch.wolfram
                         njpipeorgan.wolfram-language-notebook brettm12345.nixfmt-vscode webfreak.debug
                         gruntfuggly.todo-tree
+                        # restrctured text
+                        lextudio.restructuredtext trond-snekvik.simple-rst
                       ];
                   }
                 )
