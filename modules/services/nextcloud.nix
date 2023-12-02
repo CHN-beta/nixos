@@ -49,6 +49,7 @@ inputs:
             githubRelease = repo: file: "https://github.com/${repo}/releases/download/${file}";
           in
           {
+            # nix-prefetch-url --unpack
             maps = inputs.pkgs.fetchNextcloudApp
             {
               url = githubRelease "nextcloud/maps" "v1.1.1/maps-1.1.1.tar.gz";
@@ -64,7 +65,7 @@ inputs:
             twofactor_webauthn = inputs.pkgs.fetchNextcloudApp
             {
               url = githubRelease "nextcloud-releases/twofactor_webauthn" "v1.3.0/twofactor_webauthn-v1.3.0.tar.gz";
-              sha256 = "1akqd5sqz5g58dx3rp15ls7sczviikwwcqn8pj3kii1ffvi9xqx8";
+              sha256 = "0z6m2chq5kxc8f10g6n1lh51yi10svy2qp5gp0v8xs71apqcc2wx";
               license = "agpl3";
             };
           };
