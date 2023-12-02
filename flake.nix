@@ -38,7 +38,12 @@
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
     nix-doom-emacs = { url = "github:nix-community/nix-doom-emacs"; inputs.nixpkgs.follows = "nixpkgs"; };
-    esbonio = { url = "github:swyddfa/esbonio"; inputs.nixpkgs.follows = "nixpkgs"; };
+    lsp-devtools = { url = "github:CHN-beta/lsp-devtools"; inputs.nixpkgs.follows = "nixpkgs"; };
+    esbonio =
+    {
+      url = "github:swyddfa/esbonio";
+      inputs = { nixpkgs.follows = "nixpkgs"; lsp-devtools.follows = "lsp-devtools"; };
+    };
   };
 
   outputs = inputs:
