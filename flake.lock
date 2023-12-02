@@ -212,6 +212,28 @@
         "type": "github"
       }
     },
+    "esbonio": {
+      "inputs": {
+        "lsp-devtools": "lsp-devtools",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "utils": "utils_2"
+      },
+      "locked": {
+        "lastModified": 1701118001,
+        "narHash": "sha256-BmN1rzmBa+556a28y+PdKTy42du+d8iq8iPWMKTSaIs=",
+        "owner": "swyddfa",
+        "repo": "esbonio",
+        "rev": "b983158394a4b0dde3c7f4fa8f730ace3992d42f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "swyddfa",
+        "repo": "esbonio",
+        "type": "github"
+      }
+    },
     "evil-escape": {
       "flake": false,
       "locked": {
@@ -720,7 +742,7 @@
           "nixpkgs"
         ],
         "nurl": "nurl",
-        "utils": "utils_2"
+        "utils": "utils_3"
       },
       "locked": {
         "lastModified": 1693749173,
@@ -749,6 +771,31 @@
       "original": {
         "owner": "kristapsdz",
         "repo": "lowdown",
+        "type": "github"
+      }
+    },
+    "lsp-devtools": {
+      "inputs": {
+        "nixpkgs": [
+          "esbonio",
+          "nixpkgs"
+        ],
+        "utils": [
+          "esbonio",
+          "utils"
+        ]
+      },
+      "locked": {
+        "lastModified": 1694714211,
+        "narHash": "sha256-dxdw33sA729QK4PRTqz3+0Fnrju6fL5peKmhUBzeU7A=",
+        "owner": "swyddfa",
+        "repo": "lsp-devtools",
+        "rev": "884d5a45cd2d07c3fd9b17860f5fd4c928d0c856",
+        "type": "github"
+      },
+      "original": {
+        "owner": "swyddfa",
+        "repo": "lsp-devtools",
         "type": "github"
       }
     },
@@ -1417,6 +1464,7 @@
         "aagl": "aagl",
         "deploy-rs": "deploy-rs",
         "dguibert-nur-packages": "dguibert-nur-packages",
+        "esbonio": "esbonio",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lmix": "lmix",
@@ -1663,6 +1711,21 @@
       }
     },
     "utils_2": {
+      "locked": {
+        "lastModified": 1680776469,
+        "narHash": "sha256-3CXUDK/3q/kieWtdsYpDOBJw3Gw4Af6x+2EiSnIkNQw=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "411e8764155aa9354dbcd6d5faaeb97e9e3dce24",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "utils_3": {
       "inputs": {
         "systems": "systems_3"
       },

@@ -38,6 +38,7 @@
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
     nix-doom-emacs = { url = "github:nix-community/nix-doom-emacs"; inputs.nixpkgs.follows = "nixpkgs"; };
+    esbonio = { url = "github:swyddfa/esbonio"; inputs.nixpkgs.follows = "nixpkgs"; };
   };
 
   outputs = inputs:
