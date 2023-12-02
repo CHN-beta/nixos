@@ -550,7 +550,7 @@ inputs:
             ];
             _pythonPackages = [(pythonPackages: with pythonPackages;
             [
-              phonopy tensorflow keras openai scipy scikit-learn jupyterlab
+              phonopy tensorflow keras openai scipy scikit-learn jupyterlab autograd
             ])];
             _prebuildPackages =
             [
