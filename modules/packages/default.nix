@@ -356,7 +356,7 @@ inputs:
                 # password and key management
                 bitwarden
                 # office
-                unstablePackages.crow-translate zotero pandoc ydict
+                unstablePackages.crow-translate zotero pandoc ydict unstablePackages.logseq
                 # media
                 mpv nomacs
                 # themes
