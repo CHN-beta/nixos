@@ -356,7 +356,7 @@ inputs:
                 # password and key management
                 bitwarden
                 # office
-                crow-translate zotero pandoc ydict
+                crow-translate zotero pandoc ydict logseq
                 # media
                 mpv nomacs
                 # themes
