@@ -389,7 +389,7 @@ inputs:
               _pythonPackages = [(pythonPackages: with pythonPackages;
               [
                 # required by vscode extensions restrucuredtext
-                esbonio
+                localPackages.esbonio
               ])];
             };
             users.sharedModules =

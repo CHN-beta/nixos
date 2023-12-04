@@ -40,4 +40,5 @@
   };
   cppcoro = callPackage ./cppcoro {};
   date = callPackage ./date {};
+  esbonio = python3Packages.callPackage ./esbonio {};
 }
