@@ -409,7 +409,7 @@ inputs:
               enable = true;
               languagePacks = [ "zh-CN" "en-US" ];
             };
-            vim.package = inputs.pkgs.genericPackages.vim-full;
+            vim.package = inputs.pkgs.vim-full;
           };
           nixpkgs.config.packageOverrides = pkgs: 
           {
