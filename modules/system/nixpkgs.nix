@@ -4,12 +4,13 @@ inputs:
   {
     march = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
     cudaSupport = mkOption { type = types.bool; default = false; };
+    replaceTensorflow = mkOption { type = types.bool; default = false; };
   };
   config =
     let
-      inherit (builtins) map listToAttrs filter tryEval attrNames concatStringsSep;
+      inherit (builtins) map listToAttrs filter tryEval attrNames concatStringsSep toString;
       inherit (inputs.lib) mkIf;
-      inherit (inputs.lib.strings) hasPrefix;
+      inherit (inputs.lib.strings) hasPrefix splitString;
       inherit (inputs.localLib) mkConditional attrsToList;
       inherit (inputs.config.nixos.system) nixpkgs;
     in
@@ -21,7 +22,7 @@ inputs:
           hostPlatform = mkConditional (nixpkgs.march != null)
             { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
             "x86_64-linux";
-          noBuildPackages = [ "chromium" "electron" "webkitgtk" "python310Packages" "nodejs" "pandoc" ];
+          noBuildPackages = [ "chromium" "electron" "webkitgtk" "python310Packages" "nodejs" "pandoc" "fastfetch" ];
         in
         {
           inherit hostPlatform;
@@ -78,6 +79,25 @@ inputs:
                   (listToAttrs (map
                     (package: { name = package; value = genericPackages.${package}; })
                     replacedPackages))
+              )
+              // (
+                if nixpkgs.replaceTensorflow then
+                  let
+                    versionString =
+                      concatStringsSep "" (inputs.lib.lists.take 2 (splitString "." genericPackages.python3.version));
+                    pythonName = "python${versionString}";
+                  in
+                  {
+                    ${pythonName} = prev.${pythonName}.override { packageOverrides = final: prev:
+                    {
+                      tensorflow = prev.tensorflow.override
+                      {
+                        cudaSupport = false;
+                        customBazelBuild = genericPackages.${pythonName}.pkgs.tensorflow.passthru.bazel-build;
+                      };
+                    };};
+                  }
+                else {}
               )
           )];
         };

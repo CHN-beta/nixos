@@ -88,7 +88,7 @@
         })
         (localLib.attrsToList
         {
-          "pc" =
+          pc =
           [
             (inputs: { config.nixos =
             {
@@ -136,7 +136,7 @@
                   ];
                   keepOutputs = true;
                 };
-                nixpkgs = { march = "alderlake"; cudaSupport = true; };
+                nixpkgs = { march = "alderlake"; cudaSupport = true; replaceTensorflow = true; };
                 gui = { enable = true; preferred = true; };
                 kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
@@ -223,7 +223,7 @@
               ];
             };})
           ];
-          "vps6" = 
+          vps6 = 
           [
             (inputs: { config.nixos =
             {
@@ -296,7 +296,7 @@
               };
             };})
           ];
-          "vps7" =
+          vps7 =
           [
             (inputs: { config.nixos =
             {
@@ -362,7 +362,7 @@
               };
             };})
           ];
-          "nas" =
+          nas =
           [
             (inputs: { config.nixos =
             {
@@ -460,7 +460,7 @@
               users.users = [ "root" "chn" "xll" "zem" "yjq" "yxy" ];
             };})
           ];
-          "yoga" =
+          yoga =
           [
             (inputs: { config.nixos =
             {
