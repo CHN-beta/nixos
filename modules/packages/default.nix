@@ -404,11 +404,7 @@ inputs:
           programs =
           {
             wireshark = { enable = true; package = inputs.pkgs.wireshark; };
-            firefox =
-            {
-              enable = true;
-              languagePacks = [ "zh-CN" "en-US" ];
-            };
+            firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
             vim.package = inputs.pkgs.vim-full;
           };
           nixpkgs.config.packageOverrides = pkgs: 
