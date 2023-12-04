@@ -26,7 +26,7 @@ inputs:
             topInputs.pnpm2nix-nzbr.overlays.default
             topInputs.lmix.overlays.default
             topInputs.esbonio.overlays.default
-            (final: prev: topInputs.aagl.overlays.default {} final.unstablePackages)
+            topInputs.aagl.overlays.default
             (import "${topInputs.dguibert-nur-packages}/overlays/nvhpc-overlay")
             (final: prev:
             {

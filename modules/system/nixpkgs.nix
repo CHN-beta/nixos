@@ -7,25 +7,29 @@ inputs:
   };
   config =
     let
-      inherit (builtins) map listToAttrs filter tryEval;
+      inherit (builtins) map listToAttrs filter tryEval attrNames concatStringsSep;
       inherit (inputs.lib) mkIf;
+      inherit (inputs.lib.strings) hasPrefix;
       inherit (inputs.localLib) mkConditional attrsToList;
       inherit (inputs.config.nixos.system) nixpkgs;
     in
     {
       nixpkgs =
         let
-          permittedInsecurePackages = map (package: package.name) (with inputs.pkgs;
-            [ openssl_1_1 electron_19 python2 electron_12 electron_24 zotero ]);
+          permittedInsecurePackages =
+            [ "openssl_1_1" "electron_19" "python2" "electron_12" "electron_24" "zotero" ];
           hostPlatform = mkConditional (nixpkgs.march != null)
             { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
             "x86_64-linux";
+          noBuildPackages = [ "chromium" "electron" "webkitgtk" "python310Packages" "nodejs" "pandoc" ];
         in
         {
           inherit hostPlatform;
           config =
           {
-            inherit permittedInsecurePackages;
+            permittedInsecurePackages = map
+              (package: inputs.pkgs.${package}.name)
+              (filter (package: inputs.pkgs ? ${package}) permittedInsecurePackages);
             allowUnfree = true;
             cudaSupport = nixpkgs.cudaSupport;
             qchem-config = mkIf (nixpkgs.march != null) { optArch = nixpkgs.march; };
@@ -37,20 +41,43 @@ inputs:
               genericPackages = import inputs.topInputs.nixpkgs
               {
                 system = "x86_64-linux";
-                config = { allowUnfree = true; inherit permittedInsecurePackages; };
+                config =
+                {
+                  allowUnfree = true;
+                  permittedInsecurePackages = let pkgs = inputs.topInputs.nixpkgs.legacyPackages.x86_64-linux; in map
+                    (package: pkgs.${package}.name)
+                    (filter (package: pkgs ? ${package}) permittedInsecurePackages);
+                };
               };
             in
               { inherit genericPackages; }
               // {
                 unstablePackages = import inputs.topInputs.nixpkgs-unstable
-                { inherit hostPlatform; config.allowUnfree = true; };
+                {
+                  localSystem = hostPlatform;
+                  config =
+                  {
+                    allowUnfree = true;
+                    permittedInsecurePackages =
+                      let pkgs = inputs.topInputs.nixpkgs-unstable.legacyPackages.x86_64-linux;
+                      in map
+                        (package: pkgs.${package}.name)
+                        (filter (package: pkgs ? ${package}) permittedInsecurePackages);
+                  };
+                };
               }
               // (
-                let noBuildPackages = [ "chromium" "electron" "webkitgtk" ];
-                in listToAttrs (filter
-                  (package: let pname = tryEval package.value.pname or null;
-                    in (pname.success && (builtins.elem pname.value noBuildPackages)))
-                  (attrsToList genericPackages))
+                let replacedPackages = filter
+                  (package: let pname = tryEval genericPackages.${package}.pname or null;
+                    in (pname.success && (builtins.elem pname.value noBuildPackages)
+                      || builtins.elem package noBuildPackages))
+                  (filter
+                    (package: builtins.any (prefix: hasPrefix prefix package) noBuildPackages)
+                    (attrNames genericPackages));
+                in builtins.trace "replaced packages: ${concatStringsSep " " replacedPackages}"
+                  (listToAttrs (map
+                    (package: { name = package; value = genericPackages.${package}; })
+                    replacedPackages))
               )
           )];
         };
