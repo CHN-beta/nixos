@@ -323,20 +323,9 @@ inputs:
               ))
               (attrsToList servers)));
         };
-        nixpkgs.config =
-        {
-          permittedInsecurePackages = with inputs.pkgs;
-          [
-            openssl_1_1.name electron_19.name python2.name electron_12.name electron_24.name
-            zotero.name
-          ];
-          allowUnfree = true;
-        };
-        home-manager =
-        {
-          useGlobalPkgs = true;
-          useUserPackages = true;
-        };
+        nixpkgs.config.permittedInsecurePackages = map (p: p.name)
+          (with inputs.pkgs; [ openssl_1_1 electron_19 python2 electron_12 electron_24 zotero ]);
+        home-manager = { useGlobalPkgs = true; useUserPackages = true; };
       }
       # >= desktop
       (
