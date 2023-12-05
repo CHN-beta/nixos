@@ -480,6 +480,7 @@ inputs:
                     { id = "dhdgffkkebhmkfjojejmpbldmpobfkfo"; } # 篡改猴
                     { id = "hipekcciheckooncpjeljhnekcoolahp"; } # Tabliss
                     { id = "nkbihfbeogaeaoehlefnkodbefgpgknn"; } # MetaMask
+                    { id = "bpoadfkcbjbfhfodiogcnhhhpibjhbnh"; } # 沉浸式翻译
                   ];
                 };
                 obs-studio =
