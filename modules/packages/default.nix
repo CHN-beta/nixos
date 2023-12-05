@@ -510,11 +510,7 @@ inputs:
               zoom-us signal-desktop qq nur-xddxdd.wechat-uos slack # jail
               # office
               libreoffice-qt texstudio poppler_utils pdftk gnuplot pdfchain
-              (texlive.combine
-              {
-                inherit (texlive) scheme-full;
-                inherit (localPackages) latex-citation-style-language;
-              })
+              (texlive.combine { inherit (texlive) scheme-full; inherit (localPackages) citation-style-language; })
               # development
               jetbrains.clion android-studio dbeaver cling clang-tools_16 ccls fprettify aircrack-ng
               # media

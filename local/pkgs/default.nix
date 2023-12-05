@@ -32,7 +32,7 @@
   yoga-support = callPackage ./yoga-support {};
   tgbot-cpp = callPackage ./tgbot-cpp {};
   biu = callPackage ./biu { inherit concurrencpp tgbot-cpp nameof; stdenv = gcc13Stdenv; };
-  latex-citation-style-language = callPackage ./latex-citation-style-language {};
+  citation-style-language = callPackage ./citation-style-language {};
   mirism = callPackage ./mirism
   {
     inherit cppcoro nameof tgbot-cpp date;

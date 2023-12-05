@@ -1,6 +1,6 @@
 { stdenvNoCC, texlive, fetchFromGitHub }: stdenvNoCC.mkDerivation (finalAttrs: rec
 {
-  pname = "latex-citation-style-language";
+  pname = "citation-style-language";
   version = "0.4.5";
   passthru = {
     pkgs = [ finalAttrs.finalPackage ];
