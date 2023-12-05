@@ -94,10 +94,9 @@ inputs:
                     (filter
                       (package: builtins.any (prefix: hasPrefix prefix package) noBuildPackages)
                       (attrNames genericPackages));
-                  in builtins.trace "replaced packages: ${concatStringsSep " " replacedPackages}"
-                    (listToAttrs (map
-                      (package: { name = package; value = genericPackages.${package}; })
-                      replacedPackages))
+                  in listToAttrs (map
+                    (package: { name = package; value = genericPackages.${package}; })
+                    replacedPackages)
                 else {}
               )
               // (
