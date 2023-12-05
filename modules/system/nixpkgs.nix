@@ -32,8 +32,6 @@ inputs:
             "nodejs"
             # haskell
             "haskell"
-            # meta tools
-            "fastfetch"
             # libreoffice
             "libreoffice" "libreoffice-qt" "libreoffice-fresh"
             # java
