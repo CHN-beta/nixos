@@ -8,6 +8,7 @@ inputs:
   };
   config =
     let
+      inherit (builtins) map;
       inherit (inputs.lib) mkIf;
       inherit (inputs.config.nixos.system) gui;
     in mkIf gui.enable
@@ -29,7 +30,7 @@ inputs:
       i18n.inputMethod =
       {
         enabled = "fcitx5";
-        fcitx5.addons = with inputs.pkgs; [ fcitx5-rime fcitx5-chinese-addons fcitx5-mozc ];
+        fcitx5.addons = map (p: inputs.pkgs."fcitx5-${p}") [ "rime" "chinese-addons" "mozc" "nord" "material-color" ];
       };
       programs = { dconf.enable = true; xwayland.enable = true; };
     };
