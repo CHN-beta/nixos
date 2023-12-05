@@ -192,6 +192,7 @@
                       "initrd.vps6.chn.moe" = "74.211.99.69";
                       "nix-store.chn.moe" = "127.0.0.1";
                       "initrd.nas.chn.moe" = "192.168.1.185";
+                      "xn--qbtm095lrg0bfka60z.chn.moe" = "192.168.82.3";
                     };
                   };
                 };
