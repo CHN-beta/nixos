@@ -38,6 +38,7 @@
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
     nix-doom-emacs = { url = "github:nix-community/nix-doom-emacs"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nixos-2305.url = "github:CHN-beta/nixos/nixos-23.05";
   };
 
   outputs = inputs:

@@ -36,19 +36,7 @@ inputs:
               {
                 User = instance.value.user;
                 Group = inputs.config.users.users.${instance.value.user}.group;
-                ExecStart =
-                  let
-                    meilisearch = inputs.pkgs.meilisearch.overrideAttrs (prev:
-                    {
-                      RUSTFLAGS = prev.RUSTFLAGS or [] ++ [ "-Clto=true" "-Cpanic=abort" "-Cembed-bitcode=yes"]
-                        ++ (
-                          let inherit (inputs.config.nixos.system.nixpkgs) march;
-                          in (if march != null then [ "-Ctarget-cpu=${march}" ] else [])
-                        );
-                    });
-                    config = inputs.config.sops.templates."meilisearch-${instance.name}.toml".path;
-                  in
-                    "${meilisearch}/bin/meilisearch --config-file-path ${config}";
+                ExecStart = inputs.topInputs.nixos-2305.nixosConfigurations.pc.config.systemd.services."meilisearch-misskey-misskey".serviceConfig.ExecStart;
                 Restart = "always";
                 StartLimitBurst = 3;
                 LimitNOFILE = "infinity";
