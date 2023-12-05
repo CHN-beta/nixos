@@ -22,7 +22,23 @@ inputs:
           hostPlatform = mkConditional (nixpkgs.march != null)
             { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
             "x86_64-linux";
-          noBuildPackages = [ "chromium" "electron" "webkitgtk" "python310Packages" "nodejs" "pandoc" "fastfetch" ];
+          noBuildPackages =
+          [
+            # chromium
+            "chromium" "electron" "webkitgtk"
+            # old python release
+            "python310"
+            # nodejs
+            "nodejs"
+            # haskell
+            "haskell"
+            # meta tools
+            "fastfetch"
+            # libreoffice
+            "libreoffice" "libreoffice-qt" "libreoffice-fresh"
+            # java
+            "openjdk" "jetbrains"
+          ];
         in
         {
           inherit hostPlatform;
@@ -50,6 +66,8 @@ inputs:
                     (filter (package: pkgs ? ${package}) permittedInsecurePackages);
                 };
               };
+              targetPythonVersion = inputs.lib.lists.take 2 (splitString "." genericPackages.python3.version);
+              targetPythonName = "python${concatStringsSep "" targetPythonVersion}";
             in
               { inherit genericPackages; }
               // {
@@ -68,35 +86,32 @@ inputs:
                 };
               }
               // (
-                let replacedPackages = filter
-                  (package: let pname = tryEval genericPackages.${package}.pname or null;
-                    in (pname.success && (builtins.elem pname.value noBuildPackages)
-                      || builtins.elem package noBuildPackages))
-                  (filter
-                    (package: builtins.any (prefix: hasPrefix prefix package) noBuildPackages)
-                    (attrNames genericPackages));
-                in builtins.trace "replaced packages: ${concatStringsSep " " replacedPackages}"
-                  (listToAttrs (map
-                    (package: { name = package; value = genericPackages.${package}; })
-                    replacedPackages))
+                if nixpkgs.march != null then
+                  let replacedPackages = filter
+                    (package: let pname = tryEval genericPackages.${package}.pname or null;
+                      in (pname.success && (builtins.elem pname.value noBuildPackages)
+                        || builtins.elem package noBuildPackages))
+                    (filter
+                      (package: builtins.any (prefix: hasPrefix prefix package) noBuildPackages)
+                      (attrNames genericPackages));
+                  in builtins.trace "replaced packages: ${concatStringsSep " " replacedPackages}"
+                    (listToAttrs (map
+                      (package: { name = package; value = genericPackages.${package}; })
+                      replacedPackages))
+                else {}
               )
               // (
                 if nixpkgs.replaceTensorflow then
-                  let
-                    versionString =
-                      concatStringsSep "" (inputs.lib.lists.take 2 (splitString "." genericPackages.python3.version));
-                    pythonName = "python${versionString}";
-                  in
+                {
+                  ${targetPythonName} = prev.${targetPythonName}.override { packageOverrides = final: prev:
                   {
-                    ${pythonName} = prev.${pythonName}.override { packageOverrides = final: prev:
+                    tensorflow = prev.tensorflow.override
                     {
-                      tensorflow = prev.tensorflow.override
-                      {
-                        cudaSupport = false;
-                        customBazelBuild = genericPackages.${pythonName}.pkgs.tensorflow.passthru.bazel-build;
-                      };
-                    };};
-                  }
+                      cudaSupport = false;
+                      customBazelBuild = genericPackages.${targetPythonName}.pkgs.tensorflow.passthru.bazel-build;
+                    };
+                  };};
+                }
                 else {}
               )
           )];
