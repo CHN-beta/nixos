@@ -32,4 +32,9 @@ lib:
     in
       # Split into lines. Strip leading tabs. Concat back to string.
       builtins.concatStringsSep "\n" (stripTabs (lib.strings.splitString "\n" text));
+  
+  # find an element in a list, return the index
+  findIndex = e: list:
+    let findIndex_ = i: list: if (builtins.elemAt list i) == e then i else findIndex_ (i + 1) list;
+    in findIndex_ 0 list;
 }
