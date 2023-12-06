@@ -199,7 +199,7 @@ inputs:
             core = { quotepath = false; editor = "vim"; };
           };
         };
-        # yazi.enable = true;
+        yazi.enable = true;
         mosh.enable = true;
       };
       services =
