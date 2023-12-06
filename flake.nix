@@ -130,7 +130,12 @@
                   ];
                   keepOutputs = true;
                 };
-                nixpkgs = { march = "alderlake"; cudaSupport = true; replaceTensorflow = true; };
+                nixpkgs =
+                {
+                  march = "alderlake";
+                  cuda = { enable = true; capabilities = [ "8.6" ]; forwardCompat = false; };
+                  replaceTensorflow = true;
+                };
                 gui = { enable = true; preferred = true; };
                 kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
