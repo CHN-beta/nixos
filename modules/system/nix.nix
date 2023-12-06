@@ -6,7 +6,7 @@ inputs:
     marches = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
     keepOutputs = mkOption { type = types.bool; default = false; };
     substituters = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-    autoOptimiseStore = mkOption { type = types.bool; default = false; };
+    autoOptimiseStore = mkOption { type = types.bool; default = true; };
   };
   config =
     let
