@@ -200,6 +200,7 @@ inputs:
           };
         };
         # yazi.enable = true;
+        mosh.enable = true;
       };
       services =
       {
