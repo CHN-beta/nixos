@@ -6,7 +6,7 @@ inputs:
     cuda =
     {
       enable = mkOption { type = types.bool; default = false; };
-      capabilities = mkOption { type = types.nullOr types.nonEmptyListOf types.nonEmptyStr; default = null; };
+      capabilities = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
       forwardCompat = mkOption { type = types.nullOr types.bool; default = null; };
     };
     replaceTensorflow = mkOption { type = types.bool; default = false; };
