@@ -211,6 +211,7 @@
                 nginx.transparentProxy.externalIp = [ "192.168.82.3" ];
                 misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
+                wireguard = { enable = true; peers = [ "vps6" ]; };
               };
               bugs =
               [
@@ -285,6 +286,7 @@
                 httpua.enable = true;
                 mirism.enable = true;
                 fail2ban.enable = true;
+                wireguard = { enable = true; peers = [ "pc" ]; };
               };
             };})
           ];
