@@ -57,7 +57,12 @@ inputs:
         "gitlab/secret".owner = owner;
         "gitlab/otp".owner = owner;
         "gitlab/jws" =
-          { owner = owner; sopsFile = "${inputs.topInputs.self}/secrets/gitlab/jws.bin"; format = "binary"; };
+        {
+          owner = owner;
+          sopsFile =
+            "${inputs.topInputs.self}/secrets/${inputs.config.nixos.system.networking.hostname}/gitlab/jws.bin";
+          format = "binary";
+        };
         "gitlab/dbFile".owner = owner;
         "gitlab/root".owner = owner;
         "gitlab/db" = { owner = owner; key = "postgresql/gitlab"; };

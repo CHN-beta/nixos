@@ -7,46 +7,37 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &pe age1cahahn9hp265dkhduaec65vugk8fct2vt9ur6y54m4mgmyx4v4fq0etjhv
   - &nas age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
 creation_rules:
-  - path_regex: secrets/pc\.yaml$
+  - path_regex: secrets/pc/.*$
     key_groups:
     - age:
       - *chn
       - *pc
-  - path_regex: secrets/vps6\.yaml$
+  - path_regex: secrets/vps6/.*$
     key_groups:
     - age:
       - *chn
       - *vps6
-  - path_regex: secrets/vps4\.yaml$
-    key_groups:
-    - age:
-      - *chn
-  - path_regex: secrets/vps7\.yaml$
+  - path_regex: secrets/vps7/.*$
     key_groups:
     - age:
       - *chn
       - *vps7
-  - path_regex: secrets/nas\.yaml$
+  - path_regex: secrets/nas/.*$
     key_groups:
     - age:
       - *chn
       - *nas
-  - path_regex: secrets/xmupc1\.yaml$
+  - path_regex: secrets/xmupc1/.*$
     key_groups:
     - age:
       - *chn
-  - path_regex: secrets/yoga\.yaml$
+  - path_regex: secrets/yoga/.*$
     key_groups:
     - age:
       - *chn
       - *yoga
-  - path_regex: secrets/pe\.yaml$
+  - path_regex: secrets/pe/.*$
     key_groups:
     - age:
       - *chn
       - *pe
-  - path_regex: secrets/gitlab/jws\.bin$
-    key_groups:
-    - age:
-      - *chn
-      - *vps7
