@@ -286,7 +286,7 @@
                 httpua.enable = true;
                 mirism.enable = true;
                 fail2ban.enable = true;
-                wireguard = { enable = true; peers = [ "pc" ]; };
+                wireguard = { enable = true; peers = [ "pc" "nas" ]; };
               };
             };})
           ];
@@ -450,6 +450,7 @@
                   transparentProxy.externalIp = [ "192.168.82.4" "192.168.1.185" ];
                   applications.webdav.instances."local.webdav.chn.moe" = {};
                 };
+                wireguard = { enable = true; peers = [ "vps6" ]; };
               };
               users.users = [ "root" "chn" "xll" "zem" "yjq" "yxy" ];
             };})
