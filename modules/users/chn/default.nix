@@ -21,10 +21,10 @@ inputs:
           # ykman fido credentials delete f2c1ca2d
           # ssh-keygen -t ed25519-sk -O resident
           # ssh-keygen -K
-          (builtins.concatStringsSep ""
+          (builtins.concatStringsSep " "
           [
-            "sk-ssh-ed25519@openssh.com "
-            "AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIEU/JPpLxsk8UWXiZr8CPNG+4WKFB92o1Ep9OEstmPLzAAAABHNzaDo= "
+            "sk-ssh-ed25519@openssh.com"
+            "AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIEU/JPpLxsk8UWXiZr8CPNG+4WKFB92o1Ep9OEstmPLzAAAABHNzaDo="
             "chn@pc"
           ])
         ];
@@ -37,40 +37,8 @@ inputs:
           programs =
           {
             git = { userName = "chn"; userEmail = "chn@chn.moe"; };
-            ssh.matchBlocks = builtins.listToAttrs
-            (
-              (builtins.map
-                (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
-                [ "internal.pc" "vps5" "vps6" "internal.vps6" "vps7" "internal.vps7" "internal.nas" ])
-              ++ (builtins.map
-                (host:
-                {
-                  name = host;
-                  value =
-                  {
-                    host = host;
-                    hostname = "hpc.xmu.edu.cn";
-                    user = host;
-                    extraOptions =
-                    {
-                      PubkeyAcceptedAlgorithms = "+ssh-rsa";
-                      HostkeyAlgorithms = "+ssh-rsa";
-                      SetEnv = "TERM=chn_unset_ls_colors:xterm-256color";
-                      # in .bash_profile:
-                      # if [[ $TERM == chn_unset_ls_colors* ]]; then
-                      #   export TERM=${TERM#*:}
-                      #   export CHN_LS_USE_COLOR=1
-                      # fi
-                      # in .bashrc
-                      # [ -n "$CHN_LS_USE_COLOR" ] && alias ls="ls --color=auto"
-                    };
-                  };
-                })
-                [ "wlin" "jykang" "hwang" ])
-            )
-            // {
-              xmupc1 = { host = "xmupc1"; hostname = "office.chn.moe"; port = 6007; };
-              nas = { host = "nas"; hostname = "office.chn.moe"; port = 5440; };
+            ssh.matchBlocks =
+            {
               # identityFile = "~/.ssh/xmuhk_id_rsa";
               xmuhk = { host = "xmuhk"; hostname = "10.26.14.56"; user = "xmuhk"; };
               xmuhk2 = { host = "xmuhk2"; hostname = "183.233.219.132"; user = "xmuhk"; port = 62022; };
