@@ -55,7 +55,7 @@ inputs:
     {
       networking = let self = wireguard._peer.${inputs.config.nixos.system.networking.hostname}; in
       {
-        firewall.allowedUDPPorts = [ self.bindPort ];
+        firewall = { allowedUDPPorts = [ self.bindPort ]; trustedInterfaces = [ "wireguard" ]; };
         wireguard.interfaces.wireguard =
         {
           ips = [ "${self.wireguardIp}/24" ];
