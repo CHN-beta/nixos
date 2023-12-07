@@ -7,7 +7,7 @@ inputs:
     printer.enable = mkOption { type = types.bool; default = false; };
     sound.enable = mkOption { type = types.bool; default = false; };
     cpus = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
-    gpus = mkOption { type = types.listOf (types.enum [ "intel" "nvidia" ]); default = []; };
+    gpus = mkOption { type = types.listOf (types.enum [ "intel" "nvidia" "amd" ]); default = []; };
     prime =
     {
       enable = mkOption { type = types.bool; default = false; };
@@ -91,6 +91,7 @@ inputs:
               {
                 intel = [ "i915" ];
                 nvidia = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
+                amd = [ "amdgpu" ];
               };
             in
               concatLists (map (gpu: modules.${gpu}) hardware.gpus);
@@ -107,6 +108,7 @@ inputs:
                   {
                     intel = [ intel-compute-runtime intel-media-driver libvdpau-va-gl ]; # intel-vaapi-driver
                     nvidia = [ vaapiVdpau ];
+                    amd = [];
                   };
                 in
                   concatLists (map (gpu: packages.${gpu}) hardware.gpus);
