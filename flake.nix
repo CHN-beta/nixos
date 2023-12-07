@@ -135,8 +135,7 @@
                 gui = { enable = true; preferred = true; };
                 kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
-                networking =
-                  { hostname = "pc"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; useRelay = true; }; };
+                networking.hostname = "pc";
               };
               hardware =
               {
@@ -193,7 +192,6 @@
                       "initrd.vps6.chn.moe" = "74.211.99.69";
                       "nix-store.chn.moe" = "127.0.0.1";
                       "initrd.nas.chn.moe" = "192.168.1.185";
-                      "xn--qbtm095lrg0bfka60z.chn.moe" = "192.168.82.3";
                     };
                   };
                 };
@@ -208,7 +206,7 @@
                 };
                 nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
                 smartd.enable = true;
-                nginx.transparentProxy.externalIp = [ "192.168.82.3" ];
+                nginx.transparentProxy.externalIp = [ "192.168.83.3" ];
                 misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
                 wireguard = { enable = true; peers = [ "vps6" ]; };
@@ -261,7 +259,7 @@
                 frpServer = { enable = true; serverName = "frp.chn.moe"; };
                 nginx =
                 {
-                  transparentProxy.externalIp = [ "74.211.99.69" "192.168.82.1" ];
+                  transparentProxy.externalIp = [ "74.211.99.69" "192.168.82.1" "192.168.83.1" ];
                   streamProxy.map =
                   {
                     "anchor.fm" = { upstream = "anchor.fm:443"; proxyProtocol = false; };
@@ -269,7 +267,7 @@
                     "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; proxyProtocol = false; };
                   }
                   // (builtins.listToAttrs (builtins.map
-                    (site: { name = "${site}.chn.moe"; value.upstream.address = "internal.pc.chn.moe"; })
+                    (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.pc.chn.moe"; })
                     [ "nix-store" "xn--qbtm095lrg0bfka60z" ]))
                   // (builtins.listToAttrs (builtins.map
                     (site: { name = "${site}.chn.moe"; value.upstream.address = "internal.vps7.chn.moe"; })
@@ -401,8 +399,7 @@
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
-                networking =
-                  { hostname = "nas"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; useRelay = true; }; };
+                networking.hostname = "nas";
                 gui.enable = true;
               };
               hardware = { cpus = [ "intel" ]; gpus = [ "intel" ]; };
@@ -447,7 +444,7 @@
                 nginx =
                 {
                   enable = true;
-                  transparentProxy.externalIp = [ "192.168.82.4" "192.168.1.185" ];
+                  transparentProxy.externalIp = [ "192.168.83.4" "192.168.1.185" ];
                   applications.webdav.instances."local.webdav.chn.moe" = {};
                 };
                 wireguard = { enable = true; peers = [ "vps6" ]; };
