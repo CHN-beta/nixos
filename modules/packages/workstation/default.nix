@@ -36,6 +36,7 @@ inputs:
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
           phonopy tensorflow keras openai scipy scikit-learn jupyterlab autograd
+          # localPackages.pix2tex
         ])];
         _prebuildPackages =
         [

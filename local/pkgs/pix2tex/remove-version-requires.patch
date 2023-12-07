@@ -1,0 +1,13 @@
+diff --git a/setup.py b/setup.py
+index 29b26cb..511012f 100644
+--- a/setup.py
++++ b/setup.py
+@@ -64,7 +64,7 @@ setuptools.setup(
+         'Pillow>=9.1.0',
+         'PyYAML>=5.4.1',
+         'pandas>=1.0.0',
+-        'timm==0.5.4',
++        'timm>=0.5.4',
+         'albumentations>=0.5.2',
+         'pyreadline3>=3.4.1; platform_system=="Windows"',
+     ],

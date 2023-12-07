@@ -41,4 +41,8 @@
   cppcoro = callPackage ./cppcoro {};
   date = callPackage ./date {};
   esbonio = python3Packages.callPackage ./esbonio {};
+  pix2tex = python3Packages.callPackage ./pix2tex {};
+  pyreadline3 = python3Packages.callPackage ./pyreadline3 {};
+  torchdata = python3Packages.callPackage ./torchdata {};
+  torchtext = python3Packages.callPackage ./torchtext { inherit torchdata; };
 }
