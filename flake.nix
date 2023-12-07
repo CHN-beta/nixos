@@ -206,7 +206,6 @@
                 };
                 nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
                 smartd.enable = true;
-                nginx.transparentProxy.externalIp = [ "192.168.83.3" ];
                 misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
                 wireguard = { enable = true; peers = [ "vps6" ]; };
@@ -259,7 +258,6 @@
                 frpServer = { enable = true; serverName = "frp.chn.moe"; };
                 nginx =
                 {
-                  transparentProxy.externalIp = [ "74.211.99.69" "192.168.82.1" "192.168.83.1" ];
                   streamProxy.map =
                   {
                     "anchor.fm" = { upstream = "anchor.fm:443"; proxyProtocol = false; };
@@ -328,7 +326,6 @@
                 fontconfig.enable = true;
                 sshd.enable = true;
                 rsshub.enable = true;
-                nginx.transparentProxy.externalIp = [ "95.111.228.40" "192.168.82.2" ];
                 wallabag.enable = true;
                 misskey.instances =
                 {
@@ -441,12 +438,7 @@
                   user = "nas";
                   stcp.hpc = { localIp = "hpc.xmu.edu.cn"; localPort = 22; };
                 };
-                nginx =
-                {
-                  enable = true;
-                  transparentProxy.externalIp = [ "192.168.83.4" "192.168.1.185" ];
-                  applications.webdav.instances."local.webdav.chn.moe" = {};
-                };
+                nginx = { enable = true; applications.webdav.instances."local.webdav.chn.moe" = {}; };
                 wireguard = { enable = true; peers = [ "vps6" ]; };
               };
               users.users = [ "root" "chn" "xll" "zem" "yjq" "yxy" ];

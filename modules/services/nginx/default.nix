@@ -29,7 +29,7 @@ inputs:
     {
       # only disable in some rare cases
       enable = mkOption { type = types.bool; default = true; };
-      externalIp = mkOption { type = types.listOf types.nonEmptyStr; };
+      externalIp = mkOption { type = types.listOf types.nonEmptyStr; default = [ "0.0.0.0" ]; };
       # proxy to 127.0.0.1:${specified port}
       map = mkOption { type = types.attrsOf types.ints.unsigned; default = {}; };
     };
