@@ -28,21 +28,22 @@ inputs:
             hostPlatform = mkConditional (nixpkgs.march != null)
               { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
               "x86_64-linux";
-            noBuildPackages =
-            [
-              # chromium
-              "chromium" "electron" "webkitgtk"
-              # old python release
-              "python310"
-              # nodejs
-              "nodejs"
-              # haskell
-              "haskell"
-              # libreoffice
-              "libreoffice" "libreoffice-qt" "libreoffice-fresh"
-              # java
-              "openjdk" "jetbrains"
-            ];
+            noBuildPackages = [];
+            # noBuildPackages =
+            # [
+            #   # chromium
+            #   "chromium" "electron" "webkitgtk"
+            #   # old python release
+            #   "python310"
+            #   # nodejs
+            #   "nodejs"
+            #   # haskell
+            #   "haskell"
+            #   # libreoffice
+            #   "libreoffice" "libreoffice-qt" "libreoffice-fresh"
+            #   # java
+            #   "openjdk" "jetbrains"
+            # ];
           in
           {
             inherit hostPlatform;
