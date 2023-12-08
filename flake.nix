@@ -247,7 +247,7 @@
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 initrd.sshd.enable = true;
                 impermanence.enable = true;
-                networking = { hostname = "vps6"; nebula.enable = true; };
+                networking.hostname = "vps6";
               };
               packages.packageSet = "server";
               services =
@@ -268,7 +268,7 @@
                     (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.pc.chn.moe"; })
                     [ "nix-store" "xn--qbtm095lrg0bfka60z" ]))
                   // (builtins.listToAttrs (builtins.map
-                    (site: { name = "${site}.chn.moe"; value.upstream.address = "internal.vps7.chn.moe"; })
+                    (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.vps7.chn.moe"; })
                     [ "xn--s8w913fdga" "misskey" "synapse" "send" "kkmeeting" "api" "gitlab" "grafana" ]));
                   applications =
                   {
@@ -282,7 +282,7 @@
                 httpua.enable = true;
                 mirism.enable = true;
                 fail2ban.enable = true;
-                wireguard = { enable = true; peers = [ "pc" "nas" ]; };
+                wireguard = { enable = true; peers = [ "pc" "nas" "vps7" ]; };
               };
             };})
           ];
@@ -316,7 +316,7 @@
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 initrd.sshd.enable = true;
                 impermanence.enable = true;
-                networking = { hostname = "vps7"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; }; };
+                networking.hostname = "vps7";
                 gui.enable = true;
               };
               packages.packageSet = "desktop";
@@ -348,6 +348,7 @@
                 gitlab.enable = true;
                 grafana.enable = true;
                 fail2ban.enable = true;
+                wireguard = { enable = true; peers = [ "vps6" ]; };
               };
             };})
           ];
