@@ -50,7 +50,7 @@
         default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
           (builtins.concatStringsSep "\n" (builtins.map
             (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-            [ "pc" "vps6" "vps7" "nas" "yoga" ]));
+            [ "pc" "vps6" "vps7" "nas" "yoga" "pe" ]));
       }
       // (
         builtins.listToAttrs (builtins.map
@@ -59,7 +59,7 @@
             name = system;
             value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
           })
-          [ "pc" "vps6" "vps7" "nas" "yoga" ])
+          [ "pc" "vps6" "vps7" "nas" "yoga" "pe" ])
       );
       nixosConfigurations = builtins.listToAttrs (builtins.map
         (system:
@@ -247,7 +247,7 @@
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 initrd.sshd.enable = true;
                 impermanence.enable = true;
-                networking = { hostname = "vps6"; nebula.enable = true; };
+                networking.hostname = "vps6";
               };
               packages.packageSet = "server";
               services =
@@ -268,7 +268,7 @@
                     (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.pc.chn.moe"; })
                     [ "nix-store" "xn--qbtm095lrg0bfka60z" ]))
                   // (builtins.listToAttrs (builtins.map
-                    (site: { name = "${site}.chn.moe"; value.upstream.address = "internal.vps7.chn.moe"; })
+                    (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.vps7.chn.moe"; })
                     [ "xn--s8w913fdga" "misskey" "synapse" "send" "kkmeeting" "api" "gitlab" "grafana" ]));
                   applications =
                   {
@@ -282,7 +282,7 @@
                 httpua.enable = true;
                 mirism.enable = true;
                 fail2ban.enable = true;
-                wireguard = { enable = true; peers = [ "pc" "nas" ]; };
+                wireguard = { enable = true; peers = [ "pc" "nas" "vps7" ]; };
               };
             };})
           ];
@@ -316,7 +316,7 @@
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 initrd.sshd.enable = true;
                 impermanence.enable = true;
-                networking = { hostname = "vps7"; nebula = { enable = true; lighthouse = "vps6.chn.moe"; }; };
+                networking.hostname = "vps7";
                 gui.enable = true;
               };
               packages.packageSet = "desktop";
@@ -348,6 +348,7 @@
                 gitlab.enable = true;
                 grafana.enable = true;
                 fail2ban.enable = true;
+                wireguard = { enable = true; peers = [ "vps6" ]; };
               };
             };})
           ];
@@ -499,6 +500,58 @@
                   dns.extraInterfaces = [ "docker0" ];
                 };
                 firewall.trustedInterfaces = [ "virbr0" ];
+              };
+              bugs = [ "xmunet" ];
+            };})
+          ];
+          pe =
+          [
+            (inputs: { config.nixos =
+            {
+              system =
+              {
+                fileSystems =
+                {
+                  mount =
+                  {
+                    vfat."/dev/disk/by-uuid/86B8-CF80" = "/boot/efi";
+                    btrfs =
+                    {
+                      "/dev/disk/by-uuid/e252f81d-b4b3-479f-8664-380a9b73cf83"."/boot" = "/boot";
+                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+                    };
+                  };
+                  swap = [ "/nix/swap/swap" ];
+                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+                };
+                gui.enable = true;
+                grub.installDevice = "efiRemovable";
+                nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
+                kernel.patches = [ "cjktty" ];
+                impermanence.enable = true;
+                networking.hostname = "pe";
+              };
+              hardware =
+              {
+                cpus = [ "intel" "amd" ];
+                gpus = [ "intel" "amd" "nvidia" ];
+                bluetooth.enable = true;
+                joystick.enable = true;
+                printer.enable = true;
+                sound.enable = true;
+              };
+              packages.packageSet = "desktop";
+              services =
+              {
+                fontconfig.enable = true;
+                sshd.enable = true;
+                xrayClient =
+                {
+                  enable = true;
+                  serverAddress = "74.211.99.69";
+                  serverName = "vps6.xserver.chn.moe";
+                  dns.extraInterfaces = [ "docker0" ];
+                };
               };
               bugs = [ "xmunet" ];
             };})
