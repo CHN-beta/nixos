@@ -58,6 +58,8 @@ inputs:
                     gruntfuggly.todo-tree
                     # restrctured text
                     lextudio.restructuredtext trond-snekvik.simple-rst
+                    # markdown
+                    shd101wyy.markdown-preview-enhanced
                   ];
               }
             )
