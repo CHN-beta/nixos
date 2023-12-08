@@ -52,7 +52,7 @@ inputs:
                 (package: inputs.pkgs.${package}.name)
                 (filter (package: inputs.pkgs ? ${package}) permittedInsecurePackages);
               allowUnfree = true;
-              qchem-config.optArch = mkIf (nixpkgs.march != null) nixpkgs.march;
+              qchem-config = { optArch = nixpkgs.march; useCuda = nixpkgs.cuda.enable; };
               oneapiArch = mkIf (nixpkgs.march != null) nixpkgs.march;
             };
             overlays =
