@@ -11,7 +11,11 @@ inputs:
       inherit (builtins) map listToAttrs toString concatLists;
     in mkIf mirism.enable
     {
-      users = { users.mirism = { isSystemUser = true; group = "mirism"; }; groups.mirism = {}; };
+      users =
+      {
+        users.mirism = { uid = inputs.config.nixos.system.user.user.mirism; group = "mirism"; isSystemUser = true; };
+        groups.mirism.gid = inputs.config.nixos.system.user.group.mirism;
+      };
       systemd =
       {
         services = listToAttrs (map
@@ -32,7 +36,9 @@ inputs:
             };
           })
           [ "ng01" "beta" ]);
-        tmpfiles.rules = [ "d /srv/entry.mirism 0700 nginx nginx" "d /srv/mirism 0700 nginx nginx" ];
+        tmpfiles.rules = concatLists (map
+          (perm: [ "d ${perm}" "Z ${perm}" ])
+          (map (dir: "/srv/${dir}mirism 0700 nginx nginx") [ "" "entry." ]));
       };
       nixos.services =
       {

@@ -14,6 +14,7 @@ inputs:
     ./systemd.nix
     ./security.nix
     ./sops.nix
+    ./user.nix
   ];
   config =
   {

@@ -28,7 +28,7 @@ inputs:
       systemd = mkMerge (map
         (site:
         {
-          tmpfiles.rules = [ "d ${site.path} 0700 nginx nginx" ];
+          tmpfiles.rules = let perm = "${site.path} 0700 nginx nginx"; in [ "d ${perm}" "Z ${perm}" ];
           services.nginx.serviceConfig.ReadWritePaths = [ site.path ];
         })
         (attrValues instances));

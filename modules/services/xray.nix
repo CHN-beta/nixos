@@ -299,7 +299,11 @@ inputs:
                 };
             };
           };
-          users = { users.v2ray = { isSystemUser = true; group = "v2ray"; }; groups.v2ray = {}; };
+          users =
+          {
+            users.v2ray = { uid = inputs.config.nixos.system.user.user.v2ray; group = "v2ray"; isSystemUser = true; };
+            groups.v2ray.gid = inputs.config.nixos.system.user.group.v2ray;
+          };
           environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
         }
       )
@@ -482,7 +486,11 @@ inputs:
               timerConfig = { OnCalendar = "*-*-* 0:00:00"; Unit = "xray-stat.service"; };
             };
           };
-          users = { users.v2ray = { isSystemUser = true; group = "v2ray"; }; groups.v2ray = {}; };
+          users =
+          {
+            users.v2ray = { uid = inputs.config.nixos.system.user.user.v2ray; group = "v2ray"; isSystemUser = true; };
+            groups.v2ray.gid = inputs.config.nixos.system.user.group.v2ray;
+          };
           nixos.services =
           {
             acme = { enable = true; cert.${xrayServer.serverName}.group = inputs.config.users.users.nginx.group; };

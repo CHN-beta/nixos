@@ -17,7 +17,7 @@ inputs:
     let
       inherit (inputs.config.nixos.services) meilisearch;
       inherit (inputs.localLib) stripeTabs attrsToList;
-      inherit (builtins) map listToAttrs;
+      inherit (builtins) map listToAttrs concatLists;
     in
     {
       systemd =
@@ -73,14 +73,15 @@ inputs:
             };
           })
           (attrsToList meilisearch.instances));
-        tmpfiles.rules = map
+        tmpfiles.rules = concatLists (map
           (instance:
             let
               user = instance.value.user;
               group = inputs.config.users.users.${instance.value.user}.group;
+              perm = "/var/lib/meilisearch/${instance.name} 0700 ${user} ${group}";
             in
-              "d /var/lib/meilisearch/${instance.name} 0700 ${user} ${group}")
-          (attrsToList meilisearch.instances);
+              [ "d ${perm}" "Z ${perm}" ])
+          (attrsToList meilisearch.instances));
       };
       sops =
       {

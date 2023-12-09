@@ -52,7 +52,11 @@ inputs:
           "youtube-key" "youtube-client-id" "youtube-client-secret" "youtube-refresh-token"
         ]));
       };
-      users = { users.rsshub = { isSystemUser = true; group = "rsshub"; }; groups.rsshub = {}; };
+      users =
+      {
+        users.rsshub = { uid = inputs.config.nixos.system.user.user.rsshub; group = "rsshub"; isSystemUser = true; };
+        groups.rsshub.gid = inputs.config.nixos.system.user.group.rsshub;
+      };
       nixos.services =
       {
         redis.instances.rsshub.port = 7116;

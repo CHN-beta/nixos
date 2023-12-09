@@ -13,6 +13,6 @@ inputs:
     {
       nixos.services.nginx.https.${kkmeeting.hostname}.location."/".static =
         { root = "/srv/kkmeeting"; index = "auto"; charset = "utf-8"; };
-      systemd.tmpfiles.rules = [ "d /srv/kkmeeting 0700 nginx nginx" ];
+      systemd.tmpfiles.rules = let perm = "/srv/kkmeeting 0700 nginx nginx"; in [ "d ${perm}" "Z ${perm}" ];
     };
 }

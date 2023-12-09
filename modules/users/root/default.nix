@@ -4,7 +4,7 @@ inputs:
     let
       inherit (inputs.lib) mkIf;
       inherit (inputs.config.nixos) users;
-    in mkIf (builtins.elem "root" users.users)
+    in
     {
       users.users.root =
       {

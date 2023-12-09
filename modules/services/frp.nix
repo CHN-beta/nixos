@@ -139,7 +139,11 @@ inputs:
                 (attrsToList (with frpClient; stcp // stcpVisitor)))
             );
           };
-          users = { users.frp = { isSystemUser = true; group = "frp"; }; groups.frp = {}; };
+          users =
+          {
+            users.frp = { uid = inputs.config.nixos.system.user.user.frp; group = "frp"; isSystemUser = true; };
+            groups.frp.gid = inputs.config.nixos.system.user.group.frp;
+          };
         }
       )
       (
@@ -186,7 +190,11 @@ inputs:
             secrets."frp/token" = {};
           };
           nixos.services.acme = { enable = true; cert.${frpServer.serverName}.group = "frp"; };
-          users = { users.frp = { isSystemUser = true; group = "frp"; }; groups.frp = {}; };
+          users =
+          {
+            users.frp = { uid = inputs.config.nixos.system.user.user.frp; group = "frp"; isSystemUser = true; };
+            groups.frp.gid = inputs.config.nixos.system.user.group.frp;
+          };
           networking.firewall.allowedTCPPorts = [ 7000 ];
         }
       )

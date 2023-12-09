@@ -9,7 +9,6 @@ inputs:
     {
       users.users.chn =
       {
-        isNormalUser = true;
         extraGroups = inputs.lib.intersectLists
           [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" "groupshare" ]
           (builtins.attrNames inputs.config.users.groups);

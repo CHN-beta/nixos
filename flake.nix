@@ -442,7 +442,7 @@
                 nginx = { enable = true; applications.webdav.instances."local.webdav.chn.moe" = {}; };
                 wireguard = { enable = true; peers = [ "vps6" ]; };
               };
-              users.users = [ "root" "chn" "xll" "zem" "yjq" "yxy" ];
+              users.users = [ "chn" "xll" "zem" "yjq" "yxy" ];
             };})
           ];
           yoga =

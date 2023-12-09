@@ -50,10 +50,20 @@ inputs:
     users =
     {
       users = listToAttrs (map
-        (pool: { inherit (pool) name; value = { isSystemUser = true; group = pool.name; extraGroups = [ "nginx" ]; }; })
+        (pool:
+        {
+          inherit (pool) name;
+          value =
+          {
+            uid = inputs.config.nixos.system.user.user.${pool.name};
+            group = pool.name;
+            extraGroups = [ "nginx" ];
+            isSystemUser = true;
+          };
+        })
         (filter (pool: pool.value.user == null) (attrsToList phpfpm.instances)));
       groups = listToAttrs (map
-        (pool: { inherit (pool) name; value = {}; })
+        (pool: { inherit (pool) name; value.gid = inputs.config.nixos.system.user.group.${pool.name}; })
         (filter (pool: pool.value.user == null) (attrsToList phpfpm.instances)));
     };
   };

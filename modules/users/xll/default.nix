@@ -8,7 +8,6 @@ inputs:
     {
       users.users.xll =
       {
-        isNormalUser = true;
         extraGroups = inputs.lib.intersectLists
           [ "groupshare" "video" ]
           (builtins.attrNames inputs.config.users.groups);

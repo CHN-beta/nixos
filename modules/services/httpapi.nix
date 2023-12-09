@@ -9,7 +9,7 @@ inputs:
     let
       inherit (inputs.config.nixos.services) httpapi;
       inherit (inputs.lib) mkIf;
-      inherit (builtins) toString;
+      inherit (builtins) toString map;
     in mkIf httpapi.enable
     {
       nixos.services =
@@ -25,7 +25,6 @@ inputs:
             fastcgiPass = inputs.config.nixos.services.phpfpm.instances.httpapi.fastcgi;
           };
         };
-        phpfpm.instances.httpapi = {};
       };
       sops =
       {
@@ -41,6 +40,6 @@ inputs:
         };
         secrets."httpapi/token" = {};
       };
-      systemd.tmpfiles.rules = [ "d /srv/api 0700 nginx nginx" ];
+      systemd.tmpfiles.rules = let perm = "/srv/api 0700 nginx nginx"; in [ "d ${perm}" "Z ${perm}" ];
     };
 }

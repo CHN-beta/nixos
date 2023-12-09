@@ -49,7 +49,8 @@ inputs:
             };
           };
           tmpfiles.rules =
-            [ "d /var/lib/misskey/${instance.name}/files 0700 misskey-${instance.name} misskey-${instance.name}" ];
+            let perm = "/var/lib/misskey/${instance.name}/files 0700 misskey-${instance.name} misskey-${instance.name}";
+            in [ "d ${perm}" "Z ${perm}" ];
         })
         (attrsToList misskey.instances));
       fileSystems = mkMerge (map
@@ -125,12 +126,13 @@ inputs:
         {
           users."misskey-${instance.name}" =
           {
-            isSystemUser = true;
+            uid = inputs.config.nixos.system.user.user."misskey-${instance.name}";
             group = "misskey-${instance.name}";
             home = "/var/lib/misskey/${instance.name}";
             createHome = true;
+            isSystemUser = true;
           };
-          groups."misskey-${instance.name}" = {};
+          groups."misskey-${instance.name}".gid = inputs.config.nixos.system.user.group."misskey-${instance.name}";
         })
         (attrsToList misskey.instances));
       nixos.services =
