@@ -49,11 +49,6 @@ inputs:
             # development
             gdb try inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix
           ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
-          _pythonPackages = [(pythonPackages: with pythonPackages;
-          [
-            inquirerpy requests python-telegram-bot tqdm fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
-            certifi charset-normalizer idna orjson psycopg2 localPackages.eigengdb
-          ])];
         };
         users.sharedModules = [(home-inputs:
         {
@@ -182,7 +177,6 @@ inputs:
           };
         };
         command-not-found.enable = false;
-        adb.enable = true;
         gnupg.agent = { enable = true; enableSSHSupport = true; };
         autojump.enable = true;
         git =
