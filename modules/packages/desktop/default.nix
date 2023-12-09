@@ -11,14 +11,10 @@ inputs:
         packages._packages = with inputs.pkgs;
         [
           # system management
-          gparted snapper-gui libsForQt5.qtstyleplugin-kvantum wl-clipboard-x11 kio-fuse wl-mirror
-          wayland-utils clinfo glxinfo vulkan-tools dracut                
+          gparted wl-clipboard-x11 kio-fuse
+          wayland-utils clinfo glxinfo vulkan-tools dracut
           # networking
           remmina putty mtr-gui
-          # password and key management
-          bitwarden
-          # office
-          crow-translate zotero pandoc ydict logseq
           # media
           mpv nomacs
           # themes
@@ -35,6 +31,7 @@ inputs:
       };
       programs =
       {
+        adb.enable = true;
         wireshark = { enable = true; package = inputs.pkgs.wireshark; };
         firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
         vim.package = inputs.pkgs.vim-full;

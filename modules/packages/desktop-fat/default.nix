@@ -16,9 +16,9 @@ inputs:
           _packages =
           [
             # system management
-            etcher btrfs-assistant
+            etcher btrfs-assistant snapper-gui libsForQt5.qtstyleplugin-kvantum
             # password and key management
-            yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui electrum jabref
+            yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden
             # download
             qbittorrent nur-xddxdd.baidupcs-go wgetpaste
             # development
@@ -26,33 +26,21 @@ inputs:
             # media
             spotify yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc
             # editor
-            localPackages.typora hdfview
+            localPackages.typora
             # themes
             orchis-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme arc-kde-theme materia-theme
             # news
-            fluent-reader rssguard newsflash newsboat
+            fluent-reader
             # nix tools
             deploy-rs.deploy-rs nixpkgs-fmt
             # instant messager
-            element-desktop telegram-desktop discord inputs.config.nur.repos.linyinfeng.wemeet # native
-            cinny-desktop # nur-xddxdd.wine-wechat thunder
+            element-desktop telegram-desktop discord # native
             # browser
-            google-chrome microsoft-edge
+            google-chrome
+            # office
+            crow-translate zotero pandoc ydict
           ] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
         };
-        users.sharedModules =
-        [{
-          config.programs =
-          {
-            obs-studio =
-            {
-              enable = true;
-              plugins = with inputs.pkgs.obs-studio-plugins;
-                [ wlrobs obs-vaapi obs-nvfbc droidcam-obs obs-vkcapture ];
-            };
-            doom-emacs = { enable = true; doomPrivateDir = ./doom.d; };
-          };
-        }];
       };
       programs = { steam.enable = true; kdeconnect.enable = true; };
     };
