@@ -35,7 +35,7 @@ inputs:
             # compress
             pigz rar upx unzip zip lzip p7zip
             # file system management
-            sshfs e2fsprogs adb-sync duperemove compsize
+            sshfs e2fsprogs adb-sync duperemove compsize exfatprogs
             # disk management
             smartmontools hdparm
             # encryption and authentication
