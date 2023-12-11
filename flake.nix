@@ -64,30 +64,11 @@
       # ssh-keygen -t rsa -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_rsa_key
       # ssh-keygen -t ed25519 -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key
       # systemd-machine-id-setup --root=/mnt/nix/persistent
-      nixosConfigurations = builtins.listToAttrs (builtins.map
-        (system:
-        {
-          name = system.name;
-          value = inputs.nixpkgs.lib.nixosSystem
+      nixosConfigurations =
+        let
+          system =
           {
-            system = "x86_64-linux";
-            specialArgs = { topInputs = inputs; inherit localLib; };
-            modules = localLib.mkModules
-            (
-              [
-                (inputs: { config.nixpkgs.overlays = [(final: prev:
-                  { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; }); })]; })
-                ./modules
-              ]
-              ++ system.value
-            );
-          };
-        })
-        (localLib.attrsToList
-        {
-          pc =
-          [
-            (inputs: { config.nixos =
+            pc =
             {
               system =
               {
@@ -218,11 +199,8 @@
                 "intel-hdmi" "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" "xmunet"
                 "suspend-hibernate-waydroid" "embree"
               ];
-            };})
-          ];
-          vps6 = 
-          [
-            (inputs: { config.nixos =
+            };
+            vps6 =
             {
               system =
               {
@@ -287,11 +265,8 @@
                 fail2ban.enable = true;
                 wireguard = { enable = true; peers = [ "pc" "nas" "vps7" ]; };
               };
-            };})
-          ];
-          vps7 =
-          [
-            (inputs: { config.nixos =
+            };
+            vps7 =
             {
               system =
               {
@@ -353,11 +328,8 @@
                 fail2ban.enable = true;
                 wireguard = { enable = true; peers = [ "vps6" ]; };
               };
-            };})
-          ];
-          nas =
-          [
-            (inputs: { config.nixos =
+            };
+            nas =
             {
               system =
               {
@@ -446,11 +418,8 @@
                 wireguard = { enable = true; peers = [ "vps6" ]; };
               };
               users.users = [ "chn" "xll" "zem" "yjq" "yxy" ];
-            };})
-          ];
-          yoga =
-          [
-            (inputs: { config.nixos =
+            };
+            yoga =
             {
               system =
               {
@@ -505,9 +474,26 @@
                 firewall.trustedInterfaces = [ "virbr0" ];
               };
               bugs = [ "xmunet" ];
-            };})
-          ];
-        }));
+            };
+          };
+        in builtins.listToAttrs (builtins.map
+          (system:
+          {
+            name = system.name;
+            value = inputs.nixpkgs.lib.nixosSystem
+            {
+              system = "x86_64-linux";
+              specialArgs = { topInputs = inputs; inherit localLib; };
+              modules = localLib.mkModules
+              [
+                (inputs: { config.nixpkgs.overlays = [(final: prev:
+                  { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; }); })]; })
+                ./modules
+                { config.nixos = system.value; }
+              ];
+            };
+          })
+          (localLib.attrsToList system));
       # sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap --option substituters http://127.0.0.1:5000 --option require-sigs false --option system-features gccarch-silvermont
       # nix-serve -p 5000
       # nix copy --substitute-on-destination --to ssh://server /run/current-system
