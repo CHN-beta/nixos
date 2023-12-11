@@ -61,6 +61,9 @@
           })
           [ "pc" "vps6" "vps7" "nas" "yoga" "pe" ])
       );
+      # ssh-keygen -t rsa -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_rsa_key
+      # ssh-keygen -t ed25519 -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key
+      # systemd-machine-id-setup --root=/mnt/nix/persistent
       nixosConfigurations = builtins.listToAttrs (builtins.map
         (system:
         {
@@ -514,15 +517,17 @@
                 {
                   mount =
                   {
-                    vfat."/dev/disk/by-uuid/86B8-CF80" = "/boot/efi";
+                    vfat."/dev/disk/by-uuid/3BAC-2BAC" = "/boot/efi";
                     btrfs =
                     {
-                      "/dev/disk/by-uuid/e252f81d-b4b3-479f-8664-380a9b73cf83"."/boot" = "/boot";
+                      "/dev/disk/by-uuid/d67f005c-cc25-4785-8731-1d5e207720f7"."/boot" = "/boot";
                       "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
                     };
                   };
                   swap = [ "/nix/swap/swap" ];
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+                  decrypt.auto."/dev/disk/by-uuid/6172996e-5c99-440b-89e9-8be6124e280e"
+                    = { mapper = "root"; ssd = true; };
                 };
                 gui.enable = true;
                 grub.installDevice = "efiRemovable";
