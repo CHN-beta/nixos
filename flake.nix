@@ -50,7 +50,7 @@
         default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
           (builtins.concatStringsSep "\n" (builtins.map
             (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-            [ "pc" "vps6" "vps7" "nas" "yoga" "pe" ]));
+            [ "pc" "vps6" "vps7" "nas" "yoga" ]));
       }
       // (
         builtins.listToAttrs (builtins.map
@@ -59,7 +59,7 @@
             name = system;
             value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
           })
-          [ "pc" "vps6" "vps7" "nas" "yoga" "pe" ])
+          [ "pc" "vps6" "vps7" "nas" "yoga" ])
       );
       # ssh-keygen -t rsa -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_rsa_key
       # ssh-keygen -t ed25519 -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key
