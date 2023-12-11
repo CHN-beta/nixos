@@ -507,60 +507,6 @@
               bugs = [ "xmunet" ];
             };})
           ];
-          pe =
-          [
-            (inputs: { config.nixos =
-            {
-              system =
-              {
-                fileSystems =
-                {
-                  mount =
-                  {
-                    vfat."/dev/disk/by-uuid/3BAC-2BAC" = "/boot/efi";
-                    btrfs =
-                    {
-                      "/dev/disk/by-uuid/d67f005c-cc25-4785-8731-1d5e207720f7"."/boot" = "/boot";
-                      "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-                    };
-                  };
-                  swap = [ "/nix/swap/swap" ];
-                  rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
-                  decrypt.auto."/dev/disk/by-uuid/6172996e-5c99-440b-89e9-8be6124e280e"
-                    = { mapper = "root"; ssd = true; };
-                };
-                gui.enable = true;
-                grub.installDevice = "efiRemovable";
-                nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-                kernel.patches = [ "cjktty" ];
-                impermanence.enable = true;
-                networking.hostname = "pe";
-              };
-              hardware =
-              {
-                cpus = [ "intel" "amd" ];
-                gpus = [ "intel" "amd" "nvidia" ];
-                bluetooth.enable = true;
-                joystick.enable = true;
-                printer.enable = true;
-                sound.enable = true;
-              };
-              packages.packageSet = "desktop";
-              services =
-              {
-                fontconfig.enable = true;
-                sshd.enable = true;
-                xrayClient =
-                {
-                  enable = true;
-                  serverAddress = "74.211.99.69";
-                  serverName = "vps6.xserver.chn.moe";
-                  dns.extraInterfaces = [ "docker0" ];
-                };
-              };
-              bugs = [ "xmunet" ];
-            };})
-          ];
         }));
       # sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap --option substituters http://127.0.0.1:5000 --option require-sigs false --option system-features gccarch-silvermont
       # nix-serve -p 5000
