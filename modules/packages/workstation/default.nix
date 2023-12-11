@@ -14,7 +14,7 @@ inputs:
             # password and key management
             electrum jabref
             # system management
-            wl-mirror
+            wl-mirror ventoy-full
             # nix tools
             nix-template appimage-run nil nixd nix-alien nix-serve node2nix nix-prefetch-github prefetch-npm-deps
             nix-prefetch-docker pnpm-lock-export bundix
