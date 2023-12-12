@@ -28,6 +28,8 @@ inputs:
         "virtio_net" "virtio_pci" "xhci_pci" "virtio_ring" "virtio_scsi" "cryptd" "crypto_simd" "libaes"
         # networking for nas
         "igb"
+        # yoga
+        "lenovo_yogabook"
       ] ++ kernel.modules.initrd ++ (if (!kernel.useLts) then [ "lenovo-yogabook" ] else []);
       extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;
       extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
