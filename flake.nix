@@ -440,7 +440,7 @@
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
                 nixpkgs.march = "silvermont";
-                gui.enable = true;
+                gui = { enable = true; preferred = true; };
                 grub.installDevice = "efi";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 kernel.patches = [ "cjktty" ];
