@@ -14,11 +14,7 @@ inputs:
             vps6 =
             {
               ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO5ZcvyRyOnUCuRtqrM/Qf+AdUe3a5bhbnfyhw2FSLDZ";
-              hostnames =
-              [
-                "vps6.chn.moe" "internal.vps6.chn.moe" "wireguard.vps6.chn.moe"
-                "74.211.99.69" "192.168.82.1" "192.168.83.1"
-              ];
+              hostnames = [ "vps6.chn.moe" "wireguard.vps6.chn.moe" "74.211.99.69" "192.168.83.1" ];
             };
             "initrd.vps6" =
             {
@@ -28,11 +24,7 @@ inputs:
             vps7 =
             {
               ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF5XkdilejDAlg5hZZD0oq69k8fQpe9hIJylTo/aLRgY";
-              hostnames =
-              [
-                "vps7.chn.moe" "internal.vps7.chn.moe" "wireguard.vps7.chn.moe"
-                "95.111.228.40" "192.168.82.2" "192.168.83.2"
-              ];
+              hostnames = [ "vps7.chn.moe" "wireguard.vps7.chn.moe" "95.111.228.40" "192.168.83.2" ];
             };
             "initrd.vps7" =
             {
@@ -42,11 +34,7 @@ inputs:
             nas =
             {
               ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIktNbEcDMKlibXg54u7QOLt0755qB/P4vfjwca8xY6V";
-              hostnames =
-              [
-                "internal.nas.chn.moe" "wireguard.nas.chn.moe" "[office.chn.moe]:5440"
-                "192.168.1.185" "192.168.82.4" "192.168.83.4"
-              ];
+              hostnames = [ "wireguard.nas.chn.moe" "[office.chn.moe]:5440" "192.168.1.185" "192.168.83.4" ];
             };
             "initrd.nas" =
             {
@@ -56,7 +44,7 @@ inputs:
             pc =
             {
               ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMSfREi19OSwQnhdsE8wiNwGSFFJwNGN0M5gN+sdrrLJ";
-              hostnames = [ "internal.pc.chn.moe" "wireguard.pc.chn.moe" "192.168.82.3" "192.168.83.3" ];
+              hostnames = [ "wireguard.pc.chn.moe" "192.168.83.3" ];
             };
             hpc =
             {
@@ -120,10 +108,7 @@ inputs:
           (
             (builtins.map
               (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
-              [
-                "vps6" "internal.vps6" "wireguard.vps6" "vps7" "internal.vps7" "wireguard.vps7"
-                "internal.pc" "wireguard.pc" "internal.nas" "wireguard.nas"
-              ])
+              [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "wireguard.nas" ])
             ++ (builtins.map
               (host:
               {
