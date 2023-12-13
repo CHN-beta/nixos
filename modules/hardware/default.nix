@@ -163,23 +163,13 @@ inputs:
             {
               Type = "simple";
               WorkingDirectory = "/etc/touch_keyboard";
-              # ExecStartPre = let sh = "${inputs.pkgs.bash}/bin/sh"; in
-              # [
-              #   ''-${sh} -c "echo 0 > /sys/class/pwm/pwmchip1/export"''
-              #   ''${sh} -c "echo 0 > /sys/class/pwm/pwmchip1/pwm0/enable"''
-              #   ''${sh} -c "echo 1 > /sys/class/pwm/pwmchip1/pwm0/enable"''
-              # ];
               ExecStart = "${keyboard}/bin/touch_keyboard_handler";
             };
-            yogabook-modes-handler =
+            yogabook-modes-handler.serviceConfig =
             {
-              wantedBy = [ "default.target" ];
-              serviceConfig =
-              {
-                Type = "simple";
-                ExecStart = "${support}/bin/yogabook-modes-handler";
-                StandardOutput = "journal";
-              };
+              Type = "simple";
+              ExecStart = "${support}/bin/yogabook-modes-handler";
+              StandardOutput = "journal";
             };
             monitor-sensor =
             {
@@ -192,6 +182,38 @@ inputs:
             };
           };
           environment.etc."touch_keyboard".source = "${keyboard}/etc/touch_keyboard";
+          boot.initrd =
+          {
+            services.udev.packages = [ keyboard support ];
+            systemd =
+            {
+              extraBin =
+              {
+                touch_keyboard_handler = "${keyboard}/bin/touch_keyboard_handler";
+                yogabook-modes-handler = "${support}/bin/yogabook-modes-handler";
+              };
+              services =
+              {
+                touch-keyboard-handler =
+                {
+                  serviceConfig =
+                  {
+                    Type = "simple";
+                    WorkingDirectory = "/etc/touch_keyboard";
+                    ExecStart = "${keyboard}/bin/touch_keyboard_handler";
+                  };
+                };
+                yogabook-modes-handler.serviceConfig =
+                {
+                  Type = "simple";
+                  ExecStart = "${support}/bin/yogabook-modes-handler";
+                  StandardOutput = "journal";
+                };
+              };
+
+            };
+            extraFiles."/etc/touch_keyboard".source = "${keyboard}/etc/touch_keyboard";
+          };
         }
       ))
     ];
