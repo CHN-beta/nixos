@@ -116,7 +116,6 @@
                 };
                 nixpkgs =
                   { march = "alderlake"; cuda = { enable = true; capabilities = [ "8.6" ]; forwardCompat = false; }; };
-                gui = { enable = true; preferred = true; };
                 kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
                 networking.hostname = "pc";
@@ -295,7 +294,7 @@
                 initrd.sshd.enable = true;
                 impermanence.enable = true;
                 networking.hostname = "vps7";
-                gui.enable = true;
+                gui.preferred = false;
               };
               packages.packageSet = "desktop";
               services =
@@ -373,7 +372,7 @@
                 kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
                 networking.hostname = "nas";
-                gui.enable = true;
+                gui.preferred = false;
               };
               hardware = { cpus = [ "intel" ]; gpus = [ "intel" ]; };
               packages.packageSet = "desktop";
@@ -440,7 +439,6 @@
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
                 nixpkgs.march = "silvermont";
-                gui = { enable = true; preferred = true; };
                 grub.installDevice = "efi";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 kernel.patches = [ "cjktty" ];
@@ -513,7 +511,7 @@
                     forwardCompat = false;
                   };
                 };
-                gui = { enable = true; preferred = false; };
+                gui.preferred = false;
                 kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
                 networking.hostname = "xmupc1";
