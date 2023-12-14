@@ -43,6 +43,12 @@ inputs:
           wireguardIp = "192.168.83.4"; 
           bindPort = 51821;
         };
+        xmupc1 =
+        {
+          publicKey = "JEY7D4ANfTpevjXNvGDYO6aGwtBGRXsf/iwNwjwDRQk=";
+          wireguardIp = "192.168.83.5";
+          bindPort = 51821;
+        };
       };
     };
   };
