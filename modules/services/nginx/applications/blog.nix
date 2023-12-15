@@ -12,6 +12,6 @@ inputs:
     {
       nixos.services.nginx.https."blog.chn.moe".location."/".static =
         { root = "/srv/blog"; index = [ "index.html" ]; };
-      systemd.tmpfiles.rules = let perm = "/srv/blog 0700 nginx nginx"; in [ "d ${perm}" "Z ${perm}" ];
+      systemd.tmpfiles.rules = [ "d /srv/blog 0700 nginx nginx" "Z /srv/blog - nginx nginx" ];
     };
 }

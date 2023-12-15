@@ -78,9 +78,9 @@ inputs:
             let
               user = instance.value.user;
               group = inputs.config.users.users.${instance.value.user}.group;
-              perm = "/var/lib/meilisearch/${instance.name} 0700 ${user} ${group}";
+              dir = "/var/lib/meilisearch/${instance.name}";
             in
-              [ "d ${perm}" "Z ${perm}" ])
+              [ "d ${dir} 0700 ${user} ${group}" "Z ${dir} - ${user} ${group}" ])
           (attrsToList meilisearch.instances));
       };
       sops =

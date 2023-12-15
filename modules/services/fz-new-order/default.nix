@@ -77,7 +77,10 @@ inputs:
           };
         };
         tmpfiles.rules =
-          let perm = "/var/lib/fz-new-order 0700 fz-new-order fz-new-order"; in [ "d ${perm}" "Z ${perm}" ];
+        [
+          "d /var/lib/fz-new-order 0700 fz-new-order fz-new-order"
+          "Z /var/lib/fz-new-order - fz-new-order fz-new-order"
+        ];
       };
       sops = let userNum = 6; configNum = 2; in
       {

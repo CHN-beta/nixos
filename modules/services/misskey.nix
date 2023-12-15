@@ -48,9 +48,8 @@ inputs:
               Restart = "always";
             };
           };
-          tmpfiles.rules =
-            let perm = "/var/lib/misskey/${instance.name}/files 0700 misskey-${instance.name} misskey-${instance.name}";
-            in [ "d ${perm}" "Z ${perm}" ];
+          tmpfiles.rules = let dir = "/var/lib/misskey/${instance.name}/files"; owner = "misskey-${instance.name}"; in
+            [ "d ${dir} 0700 ${owner} ${owner}" "Z ${dir} - ${owner} ${owner}" ];
         })
         (attrsToList misskey.instances));
       fileSystems = mkMerge (map

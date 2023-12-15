@@ -40,6 +40,6 @@ inputs:
         };
         secrets."httpapi/token" = {};
       };
-      systemd.tmpfiles.rules = let perm = "/srv/api 0700 nginx nginx"; in [ "d ${perm}" "Z ${perm}" ];
+      systemd.tmpfiles.rules = [ "d /srv/api 0700 nginx nginx" "Z /srv/api - nginx nginx" ];
     };
 }

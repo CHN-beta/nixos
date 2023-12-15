@@ -20,7 +20,7 @@ inputs:
           (user:
           [
             "d /var/lib/groupshare/${user} 2750 ${user} groupshare"
-            "Z /var/lib/groupshare/${user} 2750 ${user} groupshare"
+            "Z /var/lib/groupshare/${user} - ${user} groupshare"
             ("A /var/lib/groupshare/${user} - - - - "
               # d 指 default, 即目录下新创建的文件和目录的权限
               # 大写 X 指仅给目录执行权限

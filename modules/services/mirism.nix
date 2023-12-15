@@ -37,8 +37,8 @@ inputs:
           })
           [ "ng01" "beta" ]);
         tmpfiles.rules = concatLists (map
-          (perm: [ "d ${perm}" "Z ${perm}" ])
-          (map (dir: "/srv/${dir}mirism 0700 nginx nginx") [ "" "entry." ]));
+          (dir: [ "d /srv/${dir}mirism 0700 nginx nginx" "Z /srv/${dir}mirism - nginx nginx" ])
+          [ "" "entry." ]);
       };
       nixos.services =
       {

@@ -12,6 +12,6 @@ inputs:
     {
       nixos.services.nginx.https."catalog.chn.moe".location."/".static =
         { root = "/srv/catalog"; index = [ "index.html" ]; };
-      systemd.tmpfiles.rules = let perm = "/srv/catalog 0700 nginx nginx"; in [ "d ${perm}" "Z ${perm}" ];
+      systemd.tmpfiles.rules = [ "d /srv/catalog 0700 nginx nginx" "Z /srv/catalog - nginx nginx" ];
     };
 }
