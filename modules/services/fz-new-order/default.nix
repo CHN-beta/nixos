@@ -76,6 +76,8 @@ inputs:
               in "${binary}/bin/fz-new-order";
           };
         };
+        tmpfiles.rules =
+          let perm = "/var/lib/fz-new-order 0700 fz-new-order fz-new-order"; in [ "d ${perm}" "Z ${perm}" ];
       };
       sops = let userNum = 6; configNum = 2; in
       {
