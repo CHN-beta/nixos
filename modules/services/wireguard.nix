@@ -49,7 +49,7 @@ inputs:
           port = 51820 + (if inputs.config.nixos.services.xrayClient.enable then 1 else 0);
         in
         {
-          firewall = { allowedUDPPorts = [ (toString port) ]; trustedInterfaces = [ "wireguard" ]; };
+          firewall = { allowedUDPPorts = [ port ]; trustedInterfaces = [ "wireguard" ]; };
           wireguard.interfaces.wireguard =
           {
             ips = [ "${self.wireguardIp}/24" ];
