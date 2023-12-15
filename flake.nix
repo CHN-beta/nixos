@@ -256,6 +256,7 @@
                     synapse-admin.instances."synapse-admin.chn.moe" = {};
                     catalog.enable = true;
                     blog.enable = true;
+                    main.enable = true;
                   };
                 };
                 coturn.enable = true;

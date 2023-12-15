@@ -8,5 +8,6 @@ inputs:
     ./webdav.nix
     ./blog.nix
     ./catalog.nix
+    ./main.nix
   ];
 }
