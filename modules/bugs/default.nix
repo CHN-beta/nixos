@@ -47,6 +47,10 @@ inputs:
             then
               echo LID0 > /proc/acpi/wakeup
             fi
+            if ${cat} /proc/acpi/wakeup | ${grep} XHCI | ${grep} -q enabled
+            then
+              echo XHCI > /proc/acpi/wakeup
+            fi
           '';
         wantedBy = [ "multi-user.target" ];
       };
