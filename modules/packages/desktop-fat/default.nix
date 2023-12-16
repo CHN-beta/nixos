@@ -34,7 +34,7 @@ inputs:
             # nix tools
             deploy-rs.deploy-rs nixpkgs-fmt
             # instant messager
-            element-desktop telegram-desktop discord # native
+            element-desktop telegram-desktop discord fluffychat
             # browser
             google-chrome
             # office
