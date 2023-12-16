@@ -45,11 +45,11 @@ inputs:
         initialRootEmail = "bot@chn.moe";
         databasePasswordFile = inputs.config.sops.secrets."gitlab/db".path;
         databaseHost = "127.0.0.1";
-        extraGitlabRb =
-        ''
-          gitlab_sshd['enable'] = true
-          gitlab_sshd['listen_address'] = '0.0.0.0:2222'
-        '';
+        # extraGitlabRb =
+        # ''
+        #   Settings.gitlab_sshd['enable'] = true
+        #   Settings.gitlab_sshd['listen_address'] = '0.0.0.0:2222'
+        # '';
       };
       nixos.services =
       {
