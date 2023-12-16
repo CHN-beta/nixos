@@ -249,7 +249,7 @@
                     [ "nix-store" "xn--qbtm095lrg0bfka60z" ]))
                   // (builtins.listToAttrs (builtins.map
                     (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.vps7.chn.moe"; })
-                    [ "xn--s8w913fdga" "misskey" "synapse" "send" "kkmeeting" "api" "gitlab" "grafana" ]));
+                    [ "xn--s8w913fdga" "misskey" "synapse" "send" "kkmeeting" "api" "git" "grafana" ]));
                   applications =
                   {
                     element.instances."element.chn.moe" = {};

@@ -3,7 +3,7 @@ inputs:
   options.nixos.services.gitlab = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
-    hostname = mkOption { type = types.str; default = "gitlab.chn.moe"; };
+    hostname = mkOption { type = types.str; default = "git.chn.moe"; };
   };
   config =
     let
@@ -29,7 +29,11 @@ inputs:
           domain = gitlab.hostname;
           authentication = "login";
         };
-        extraConfig.gitlab.email_from = "bot@chn.moe";
+        extraConfig =
+        {
+          gitlab.email_from = "bot@chn.moe";
+          lfs.enabled = true;
+        };
         secrets =
         {
           secretFile = inputs.config.sops.secrets."gitlab/secret".path;
@@ -41,6 +45,11 @@ inputs:
         initialRootEmail = "bot@chn.moe";
         databasePasswordFile = inputs.config.sops.secrets."gitlab/db".path;
         databaseHost = "127.0.0.1";
+        extraGitlabRb =
+        ''
+          gitlab_sshd['enable'] = true
+          gitlab_sshd['listen_address'] = '0.0.0.0:2222'
+        '';
       };
       nixos.services =
       {
