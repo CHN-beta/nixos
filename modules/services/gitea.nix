@@ -33,6 +33,7 @@ inputs:
             SSH_PORT = 2222;
             ROOT_URL = "https://${gitea.hostname}";
             DOMAIN = gitea.hostname;
+            HTTP_PORT = 3002;
           };
           mailer =
           {
@@ -50,7 +51,7 @@ inputs:
         nginx =
         {
           enable = true;
-          https."${gitea.hostname}".location."/".proxy.upstream = "http://127.0.0.1:3000";
+          https."${gitea.hostname}".location."/".proxy.upstream = "http://127.0.0.1:3002";
         };
         postgresql.instances.gitea = {};
       };
