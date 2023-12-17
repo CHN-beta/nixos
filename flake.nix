@@ -337,7 +337,7 @@
                 nginx.applications = { kkmeeting.enable = true; webdav.instances."webdav.chn.moe" = {}; };
                 httpapi.enable = true;
                 mastodon.enable = true;
-                gitlab.enable = true;
+                gitea.enable = true;
                 grafana.enable = true;
                 fail2ban.enable = true;
                 wireguard =

@@ -35,7 +35,7 @@ inputs:
     ./httpapi.nix
     ./mirism.nix
     ./mastodon.nix
-    ./gitlab.nix
+    ./gitea.nix
     ./grafana.nix
     ./fail2ban.nix
     ./wireguard.nix
