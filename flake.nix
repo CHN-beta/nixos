@@ -560,7 +560,7 @@
                 beesd = { enable = true; instances.root = { device = "/nix/persistent"; hashTableSizeMB = 2048; }; };
                 wireguard = { enable = true; peers = [ "vps6" ]; };
               };
-              bugs = [ "xmunet" ];
+              bugs = [ "xmunet" "firefox" ];
             };
           };
         in builtins.listToAttrs (builtins.map
