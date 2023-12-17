@@ -22,6 +22,7 @@ inputs:
         rsshub = 2006;
         v2ray = 2007;
         fz-new-order = 2008;
+        synapse-synapse = 2009;
       };
     };
     group = mkOption

@@ -324,7 +324,7 @@
                   misskey.hostname = "xn--s8w913fdga.chn.moe";
                   misskey-old = { port = 9727; redis.port = 3546; meilisearch.enable = false; };
                 };
-                synapse.enable = true;
+                synapse.instances.synapse.matrixHostname = "synapse.chn.moe";
                 xrdp = { enable = true; hostname = [ "vps7.chn.moe" ]; };
                 vaultwarden.enable = true;
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
