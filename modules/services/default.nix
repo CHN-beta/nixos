@@ -39,6 +39,7 @@ inputs:
     ./grafana.nix
     ./fail2ban.nix
     ./wireguard.nix
+    ./akkoma.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {

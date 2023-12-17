@@ -348,6 +348,7 @@
                   wireguardIp = "192.168.83.2";
                   externalIp = "95.111.228.40";
                 };
+                akkoma.enable = true;
               };
             };
             nas =
