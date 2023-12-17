@@ -94,6 +94,7 @@ inputs:
             default = null;
           };
           rewriteHttps = mkOption { type = types.bool; default = true; };
+          tlsCert = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
         };
         listen = mkOption
         {
@@ -547,7 +548,11 @@ inputs:
                   # do not automatically add http2 listen
                   http2 = false;
                   onlySSL = true;
-                  useACMEHost = site.name;
+                  useACMEHost = mkIf (site.value.global.tlsCert == null) site.name;
+                  sslCertificate = mkIf (site.value.global.tlsCert != null)
+                    "${site.value.global.tlsCert}/fullchain.pem";
+                  sslCertificateKey = mkIf (site.value.global.tlsCert != null)
+                    "${site.value.global.tlsCert}/privkey.pem";
                   locations = listToAttrs (map
                   (location:
                   {
