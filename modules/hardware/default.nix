@@ -90,7 +90,7 @@ inputs:
               modules =
               {
                 intel = [ "i915" ];
-                nvidia = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
+                nvidia = []; # [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
                 amd = [ "amdgpu" ];
               };
             in
