@@ -191,7 +191,13 @@
                 smartd.enable = true;
                 misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
-                wireguard = { enable = true; peers = [ "vps6" ]; };
+                wireguard =
+                {
+                  enable = true;
+                  peers = [ "vps6" ];
+                  publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
+                  wireguardIp = "192.168.83.3";
+                };
               };
               bugs =
               [
@@ -263,7 +269,15 @@
                 httpua.enable = true;
                 mirism.enable = true;
                 fail2ban.enable = true;
-                wireguard = { enable = true; peers = [ "pc" "nas" "vps7" ]; };
+                wireguard =
+                {
+                  enable = true;
+                  peers = [ "pc" "nas" "vps7" ];
+                  publicKey = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4=";
+                  wireguardIp = "192.168.83.1";
+                  externalIp = "74.211.99.69";
+                  lighthouse = true;
+                };
               };
             };
             vps7 =
@@ -326,7 +340,14 @@
                 gitlab.enable = true;
                 grafana.enable = true;
                 fail2ban.enable = true;
-                wireguard = { enable = true; peers = [ "vps6" ]; };
+                wireguard =
+                {
+                  enable = true;
+                  peers = [ "vps6" ];
+                  publicKey = "n056ppNxC9oECcW7wEbALnw8GeW7nrMImtexKWYVUBk=";
+                  wireguardIp = "192.168.83.2";
+                  externalIp = "95.111.228.40";
+                };
               };
             };
             nas =
@@ -415,7 +436,13 @@
                   stcp.hpc = { localIp = "hpc.xmu.edu.cn"; localPort = 22; };
                 };
                 nginx = { enable = true; applications.webdav.instances."local.webdav.chn.moe" = {}; };
-                wireguard = { enable = true; peers = [ "vps6" ]; };
+                wireguard =
+                {
+                  enable = true;
+                  peers = [ "vps6" ];
+                  publicKey = "xCYRbZEaGloMk7Awr00UR3JcDJy4AzVp4QvGNoyEgFY=";
+                  wireguardIp = "192.168.83.4";
+                };
               };
               users.users = [ "chn" "xll" "zem" "yjq" "yxy" ];
             };
@@ -558,7 +585,13 @@
                 acme = { enable = true; cert."debug.mirism.one" = {}; };
                 smartd.enable = true;
                 beesd = { enable = true; instances.root = { device = "/nix/persistent"; hashTableSizeMB = 2048; }; };
-                wireguard = { enable = true; peers = [ "vps6" ]; };
+                wireguard =
+                {
+                  enable = true;
+                  peers = [ "vps6" ];
+                  publicKey = "JEY7D4ANfTpevjXNvGDYO6aGwtBGRXsf/iwNwjwDRQk=";
+                  wireguardIp = "192.168.83.5";
+                };
               };
               bugs = [ "xmunet" "firefox" ];
             };
