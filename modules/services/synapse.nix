@@ -7,6 +7,7 @@ inputs:
     {
       autoStart = mkOption { type = types.bool; default = true; };
       port = mkOption { type = types.ints.unsigned; default = 8008; };
+      redisPort = mkOption { type = types.ints.unsigned; default = 6379; };
       hostname = mkOption { type = types.nonEmptyStr; default = "synapse.chn.moe"; };
       matrixHostname = mkOption { type = types.nonEmptyStr; default = "chn.moe"; };
     };});
@@ -40,7 +41,8 @@ inputs:
         {
           services."synapse-${instance.name}" =
             let
-              package = inputs.pkgs.matrix-synapse.override { extras = [ "url-preview" "postgres" ]; plugins = []; };
+              package = inputs.pkgs.matrix-synapse.override
+                { extras = [ "url-preview" "postgres" "redis" ]; plugins = []; };
               config = inputs.config.sops.templates."synapse/${instance.name}.yaml".path;
               homeserver = "${package}/bin/synapse_homeserver";
             in
@@ -131,6 +133,12 @@ inputs:
                   };
                   allow_unsafe_locale = true;
                 };
+                redis =
+                {
+                  enabled = true;
+                  port = instance.value.redisPort;
+                  password = placeholder."redis/synapse-${instance.name}";
+                };
                 turn_shared_secret = placeholder."synapse/${instance.name}/coturn";
                 registration_shared_secret = placeholder."synapse/${instance.name}/registration";
                 macaroon_secret_key = placeholder."synapse/${instance.name}/macaroon";
@@ -199,6 +207,9 @@ inputs:
             (instance: { name = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
             (attrsToList synapse.instances));
         };
+        redis.instances = listToAttrs (map
+          (instance: { name = "synapse-${instance.name}"; value.port = instance.value.redisPort; })
+          (attrsToList synapse.instances));
         nginx =
         {
           enable = mkIf (synapse.instances != {}) true;
