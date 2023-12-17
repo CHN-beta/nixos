@@ -24,7 +24,7 @@ inputs:
             vps7 =
             {
               ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF5XkdilejDAlg5hZZD0oq69k8fQpe9hIJylTo/aLRgY";
-              hostnames = [ "vps7.chn.moe" "wireguard.vps7.chn.moe" "95.111.228.40" "192.168.83.2" ];
+              hostnames = [ "vps7.chn.moe" "wireguard.vps7.chn.moe" "ssh.git.chn.moe" "95.111.228.40" "192.168.83.2" ];
             };
             "initrd.vps7" =
             {
@@ -138,6 +138,7 @@ inputs:
           // {
             xmupc1 = { host = "xmupc1"; hostname = "office.chn.moe"; port = 6007; };
             nas = { host = "nas"; hostname = "office.chn.moe"; port = 5440; };
+            gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
           };
         };
       }];
