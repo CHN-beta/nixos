@@ -13,7 +13,7 @@ inputs:
           {
             vscodeExtensions = with nix-vscode-extensions.vscode-marketplace;
               (with equinusocio; [ vsc-community-material-theme vsc-material-theme-icons ])
-              ++ (with github; [ copilot copilot-chat copilot-labs github-vscode-theme ])
+              ++ (with github; [ copilot copilot-chat github-vscode-theme ])
               ++ (with intellsmi; [ comment-translate deepl-translate ])
               ++ (with ms-python; [ isort python vscode-pylance ])
               ++ (with ms-toolsai;
