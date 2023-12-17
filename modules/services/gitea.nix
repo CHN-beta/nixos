@@ -30,7 +30,6 @@ inputs:
           };
           server =
           {
-            SSH_PORT = 2222;
             ROOT_URL = "https://${gitea.hostname}";
             DOMAIN = gitea.hostname;
             HTTP_PORT = 3002;
