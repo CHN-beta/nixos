@@ -85,6 +85,16 @@ inputs:
       (
         mkIf (hardware.gpus != [])
         {
+          boot.initrd.availableKernelModules =
+            let
+              modules =
+              {
+                intel = [ "i915" ];
+                nvidia = []; # [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
+                amd = [ "amdgpu" ];
+              };
+            in
+              concatLists (map (gpu: modules.${gpu}) hardware.gpus);
           hardware =
           {
             opengl =
