@@ -104,6 +104,11 @@ inputs:
                   else {}
                 )
                 // (
+                  if nixpkgs.march != null then
+                    { embree = prev.embree.override { stdenv = final.genericPackages.stdenv; }; }
+                  else {}
+                )
+                // (
                   if nixpkgs.replaceTensorflow then
                   {
                     ${targetPythonName} = prev.${targetPythonName}.override { packageOverrides = final: prev:
