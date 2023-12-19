@@ -10,6 +10,7 @@ inputs:
       redisPort = mkOption { type = types.ints.unsigned; default = 6379; };
       hostname = mkOption { type = types.nonEmptyStr; default = "synapse.chn.moe"; };
       matrixHostname = mkOption { type = types.nonEmptyStr; default = "chn.moe"; };
+      # , synapse_homeserver --config-path homeserver.yaml --generate-config --report-stats=yes --server-name xxx
     };});
     default = {};
   };

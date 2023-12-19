@@ -5,7 +5,7 @@ inputs:
     type = types.attrsOf (types.submodule (submoduleInputs: { options =
     {
       hostname = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-      defaultServer = mkOption { type = types.nullOr types.nonEmptyStr; default = "element.chn.moe"; };
+      defaultServer = mkOption { type = types.nullOr types.nonEmptyStr; default = "matrix.chn.moe"; };
     };}));
     default = {};
   };

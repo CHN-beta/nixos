@@ -23,6 +23,7 @@ inputs:
         v2ray = 2007;
         fz-new-order = 2008;
         synapse-synapse = 2009;
+        synapse-matrix = 2010;
       };
     };
     group = mkOption

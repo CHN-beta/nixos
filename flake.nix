@@ -256,7 +256,7 @@
                     [ "nix-store" "xn--qbtm095lrg0bfka60z" ]))
                   // (builtins.listToAttrs (builtins.map
                     (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.vps7.chn.moe"; })
-                    [ "xn--s8w913fdga" "misskey" "synapse" "send" "kkmeeting" "api" "git" "grafana" ]));
+                    [ "xn--s8w913fdga" "misskey" "synapse" "matrix" "send" "kkmeeting" "api" "git" "grafana" ]));
                   applications =
                   {
                     element.instances."element.chn.moe" = {};
@@ -325,7 +325,11 @@
                   misskey.hostname = "xn--s8w913fdga.chn.moe";
                   misskey-old = { port = 9727; redis.port = 3546; meilisearch.enable = false; };
                 };
-                synapse.instances.synapse.matrixHostname = "synapse.chn.moe";
+                synapse.instances =
+                {
+                  synapse.matrixHostname = "synapse.chn.moe";
+                  matrix = { port = 8009; redisPort = 6380; hostname = "matrix.chn.moe"; };
+                };
                 xrdp = { enable = true; hostname = [ "vps7.chn.moe" ]; };
                 vaultwarden.enable = true;
                 beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
@@ -349,7 +353,6 @@
                   wireguardIp = "192.168.83.2";
                   externalIp = "95.111.228.40";
                 };
-                akkoma.enable = true;
               };
             };
             nas =
