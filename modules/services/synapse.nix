@@ -205,7 +205,7 @@ inputs:
         {
           enable = mkIf (synapse.instances != {}) true;
           instances = listToAttrs (map
-            (instance: { name = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
+            (instance: { name = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value.locale = "C"; })
             (attrsToList synapse.instances));
         };
         redis.instances = listToAttrs (map
