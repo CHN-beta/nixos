@@ -2,7 +2,6 @@ inputs:
 {
   options.nixos.system.kernel = let inherit (inputs.lib) mkOption types; in
   {
-    useLts = mkOption { type = types.bool; default = false; };
     patches = mkOption { type = types.listOf (types.enum [ "cjktty" ]); default = []; };
     modules =
     {
@@ -30,11 +29,11 @@ inputs:
         "igb"
         # yoga
         "lenovo_yogabook"
-      ] ++ kernel.modules.initrd ++ (if (!kernel.useLts) then [ "lenovo-yogabook" ] else []);
+      ];
       extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;
       extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
       kernelParams = [ "delayacct" "acpi_osi=Linux" ];
-      kernelPackages = inputs.pkgs."linuxPackages_xanmod${if kernel.useLts then "" else "_latest"}";
+      kernelPackages = inputs.pkgs.linuxPackages_zen;
       kernelPatches =
         let
           patches =
