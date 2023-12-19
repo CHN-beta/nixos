@@ -202,7 +202,7 @@
               bugs =
               [
                 "intel-hdmi" "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" "xmunet"
-                "suspend-hibernate-waydroid" "acpi"
+                "suspend-hibernate-waydroid"
               ];
             };
             vps6 =

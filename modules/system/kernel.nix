@@ -33,7 +33,7 @@ inputs:
       ] ++ kernel.modules.initrd ++ (if (!kernel.useLts) then [ "lenovo-yogabook" ] else []);
       extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;
       extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
-      kernelParams = [ "delayacct" ];
+      kernelParams = [ "delayacct" "acpi_osi=Linux" ];
       kernelPackages = inputs.pkgs."linuxPackages_xanmod${if kernel.useLts then "" else "_latest"}";
       kernelPatches =
         let
