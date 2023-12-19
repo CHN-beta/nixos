@@ -5,8 +5,6 @@ inputs:
     inherit (inputs.lib) mkMerge mkIf mkOption types;
     bugs =
     {
-      # intel i915 hdmi
-      intel-hdmi.boot.kernelPatches = [{ name = "intel-hdmi"; patch = ./intel-hdmi.patch; }];
       # suspend & hibernate do not use platform
       suspend-hibernate-no-platform.systemd.sleep.extraConfig =
       ''

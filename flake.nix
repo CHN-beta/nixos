@@ -201,7 +201,7 @@
               };
               bugs =
               [
-                "intel-hdmi" "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" "xmunet"
+                "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" "xmunet"
                 "suspend-hibernate-waydroid"
               ];
             };
