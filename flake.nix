@@ -119,6 +119,7 @@
                 kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
                 networking.hostname = "pc";
+                sysctl.laptop-mode = 5;
               };
               hardware =
               {
