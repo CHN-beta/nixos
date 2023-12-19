@@ -10,6 +10,7 @@ inputs:
         database = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
         user = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
         passwordFile = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+        locale = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
       };}));
       default = {};
     };
@@ -68,15 +69,20 @@ inputs:
             passwordFile =
               if db.value.passwordFile or null != null then db.value.passwordFile
               else inputs.config.sops.secrets."postgresql/${db.value.user}".path;
-            in
-            # set user password
-            "$PSQL -tAc \"ALTER USER ${db.value.user} with encrypted password '$(cat ${passwordFile})'\""
-            # set db owner
-              + "\n"
-              + "$PSQL -tAc \"select pg_catalog.pg_get_userbyid(d.datdba) FROM pg_catalog.pg_database d"
-              + " WHERE d.datname = '${db.value.database}' ORDER BY 1\""
-              + " | grep -E '^${db.value.user}$' -q"
-              + " || $PSQL -tAc \"ALTER DATABASE ${db.value.database} OWNER TO ${db.value.user}\"")
+            locale = if db.value.locale != null then " LOCALE ${db.value.locale}" else "";
+          in
+          # create database if not exist
+          "$PSQL -tAc \"SELECT 1 FROM pg_database WHERE datname = '${db.value.database}'\" | grep -q 1"
+            + " || $PSQL -tAc 'CREATE DATABASE \"${db.value.database}\"${locale}'"
+          # set user password
+            + "\n"
+            + "$PSQL -tAc \"ALTER USER ${db.value.user} with encrypted password '$(cat ${passwordFile})'\""
+          # set db owner
+            + "\n"
+            + "$PSQL -tAc \"select pg_catalog.pg_get_userbyid(d.datdba) FROM pg_catalog.pg_database d"
+            + " WHERE d.datname = '${db.value.database}' ORDER BY 1\""
+            + " | grep -E '^${db.value.user}$' -q"
+            + " || $PSQL -tAc \"ALTER DATABASE ${db.value.database} OWNER TO ${db.value.user}\"")
         (attrsToList postgresql.instances)));
       sops.secrets = listToAttrs (map
         (db: { name = "postgresql/${db.value.user}"; value.owner = inputs.config.users.users.postgres.name; })
