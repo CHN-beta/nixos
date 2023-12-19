@@ -69,7 +69,7 @@ inputs:
             passwordFile =
               if db.value.passwordFile or null != null then db.value.passwordFile
               else inputs.config.sops.secrets."postgresql/${db.value.user}".path;
-            locale = if db.value.locale != null then " LOCALE ${db.value.locale}" else "";
+            locale = if db.value.locale != null then " LOCALE \"${db.value.locale}\"" else "";
           in
           # create database if not exist
           "$PSQL -tAc \"SELECT 1 FROM pg_database WHERE datname = '${db.value.database}'\" | grep -q 1"
