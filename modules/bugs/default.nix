@@ -78,7 +78,6 @@ inputs:
           };
         };
       firefox.programs.firefox.enable = inputs.lib.mkForce false;
-      acpi-windows.boot.kernelParams = [ ''acpi_osi="Windows 2022"'' ];
     };
   in
     {
