@@ -2,7 +2,7 @@ inputs:
 {
   options.nixos.system.kernel = let inherit (inputs.lib) mkOption types; in
   {
-    patches = mkOption { type = types.listOf (types.enum [ "cjktty" ]); default = []; };
+    patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     modules =
     {
       install = mkOption { type = types.listOf types.str; default = []; };
@@ -60,6 +60,19 @@ inputs:
                 };
               extraStructuredConfig =
                 { FONT_CJK_16x16 = inputs.lib.kernel.yes; FONT_CJK_32x32 = inputs.lib.kernel.yes; };
+            };
+            lantian =
+            {
+              patch = null;
+              # pick from xddxdd/nur-packages dce93a
+              extraStructuredConfig = with inputs.lib.kernel;
+              {
+                ACPI_PCI_SLOT = yes;
+                ENERGY_MODEL = yes;
+                PARAVIRT_TIME_ACCOUNTING = yes;
+                PM_AUTOSLEEP = yes;
+                WQ_POWER_EFFICIENT_DEFAULT = yes;
+              };
             };
           };
         in

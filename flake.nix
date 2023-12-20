@@ -116,7 +116,7 @@
                 };
                 nixpkgs =
                   { march = "alderlake"; cuda = { enable = true; capabilities = [ "8.6" ]; forwardCompat = false; }; };
-                kernel.patches = [ "cjktty" ];
+                kernel.patches = [ "cjktty" "lantian" ];
                 impermanence.enable = true;
                 networking.hostname = "pc";
                 sysctl.laptop-mode = 5;
