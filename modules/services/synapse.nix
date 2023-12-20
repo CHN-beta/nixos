@@ -205,7 +205,11 @@ inputs:
         {
           enable = mkIf (synapse.instances != {}) true;
           instances = listToAttrs (map
-            (instance: { name = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value.locale = "C"; })
+            (instance:
+            {
+              name = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}";
+              value.initializeFlags = { TEMPLATE = "template0"; LC_CTYPE = "C"; LC_COLLATE = "C"; };
+            })
             (attrsToList synapse.instances));
         };
         redis.instances = listToAttrs (map

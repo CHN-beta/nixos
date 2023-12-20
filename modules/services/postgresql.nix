@@ -10,7 +10,7 @@ inputs:
         database = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
         user = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
         passwordFile = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        locale = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+        initializeFlags = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       };}));
       default = {};
     };
@@ -52,7 +52,6 @@ inputs:
           # chattr +C /path/to/dir
           # cp -a --reflink=never /path/to/dir_old/. /path/to/dir
           # rm -rf /path/to/dir_old
-          ensureDatabases = map (db: db.value.database) (attrsToList postgresql.instances);
           ensureUsers = map (db: { name = db.value.user; }) (attrsToList postgresql.instances);
         };
         postgresqlBackup =
@@ -69,11 +68,17 @@ inputs:
             passwordFile =
               if db.value.passwordFile or null != null then db.value.passwordFile
               else inputs.config.sops.secrets."postgresql/${db.value.user}".path;
-            locale = if db.value.locale != null then " LOCALE \"${db.value.locale}\"" else "";
+            initializeFlag =
+              if db.value.initializeFlags != {} then
+                " WITH "
+                + (concatStringsSep " " (map
+                  (flag: ''${flag.name} = "${flag.value}"'')
+                  (attrsToList db.value.initializeFlags)))
+              else "";
           in
           # create database if not exist
           "$PSQL -tAc \"SELECT 1 FROM pg_database WHERE datname = '${db.value.database}'\" | grep -q 1"
-            + " || $PSQL -tAc 'CREATE DATABASE \"${db.value.database}\"${locale}'"
+            + " || $PSQL -tAc 'CREATE DATABASE \"${db.value.database}\"${initializeFlag}'"
           # set user password
             + "\n"
             + "$PSQL -tAc \"ALTER USER ${db.value.user} with encrypted password '$(cat ${passwordFile})'\""
