@@ -14,8 +14,8 @@ inputs:
         "/".return.return = "302 https://xn--s8w913fdga.chn.moe/@chn";
         "/.well-known/matrix/server".proxy =
         {
-          setHeaders.Host = "synapse.chn.moe";
-          upstream = "https://synapse.chn.moe";
+          setHeaders.Host = "matrix.chn.moe";
+          upstream = "https://matrix.chn.moe";
         };
       };
     };
