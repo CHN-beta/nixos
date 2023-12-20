@@ -145,7 +145,7 @@ inputs:
                 in builtins.readFile ((inputs.pkgs.formats.yaml {}).generate "${instance.name}.yaml"
                 {
                   server_name = instance.value.matrixHostname;
-                  public_baseurl = "https://${instance.value.hostname}";
+                  public_baseurl = "https://${instance.value.hostname}/";
                   listeners =
                   [{
                     bind_addresses = [ "127.0.0.1" ];
