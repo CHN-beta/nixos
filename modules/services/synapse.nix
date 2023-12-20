@@ -239,7 +239,8 @@ inputs:
                     + "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}"
                     + ":${placeholder."postgresql/synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}"}"
                     + "@127.0.0.1:5432"
-                    + "/synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}_sliding_sync";
+                    + "/synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}_sliding_sync"
+                    + "?sslmode=disable";
                 in
                 ''
                   SYNCV3_SERVER=https://${instance.value.hostname}
