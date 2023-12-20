@@ -195,7 +195,6 @@ inputs:
                   turn_uris = [ "turns:coturn.chn.moe" "turn:coturn.chn.moe" ];
                   max_upload_size = "1024M";
                   web_client_location = "https://element.chn.moe/";
-                  serve_server_wellknown = true;
                   extra_well_known_client_content."org.matrix.msc3575.proxy".url =
                     "https://${instance.value.slidingSyncHostname}";
                   report_stats = true;
@@ -287,7 +286,22 @@ inputs:
             [
               {
                 name = hostname;
-                value.location."/".proxy = { upstream = "http://127.0.0.1:${toString port}"; websocket = true; };
+                value.location =
+                {
+                  "/".proxy = { upstream = "http://127.0.0.1:${toString port}"; websocket = true; };
+                  "/.well-known/matrix/server".static =
+                  {
+                    root = builtins.toString (inputs.pkgs.writeTextFile
+                    {
+                      name = "server";
+                      text = builtins.toJSON
+                      {
+                        "m.server" = "${hostname}:443";
+                      };
+                      destination = "/.well-known/matrix/server";
+                    });
+                  };
+                };
               }
               {
                 name = slidingSyncHostname;
