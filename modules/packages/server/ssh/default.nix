@@ -97,7 +97,7 @@ inputs:
           ))
           (attrsToList servers)));
       nixos.users.sharedModules =
-      [{
+      [(hmInputs: {
         config.programs.ssh =
         {
           enable = true;
@@ -122,11 +122,26 @@ inputs:
                   {
                     PubkeyAcceptedAlgorithms = "+ssh-rsa";
                     HostkeyAlgorithms = "+ssh-rsa";
-                    SetEnv = "TERM=chn_unset_ls_colors:xterm-256color";
+                    SetEnv =
+                      let
+                        usernameMap =
+                        {
+                          chn = "linwei/chn";
+                        };
+                        cdString =
+                          if host == "jykang" && (usernameMap ? ${hmInputs.config.home.username}) then
+                            ":chn_cd:${usernameMap.${hmInputs.config.home.username}}"
+                          else "";
+                      in "TERM=chn_unset_ls_colors${cdString}:xterm-256color";
                     # in .bash_profile:
                     # if [[ $TERM == chn_unset_ls_colors* ]]; then
                     #   export TERM=${TERM#*:}
                     #   export CHN_LS_USE_COLOR=1
+                    # fi
+                    # if [[ $TERM == chn_cd* ]]; then
+                    #   export TERM=${TERM#*:}
+                    #   cd ~/${TERM%%:*}
+                    #   export TERM=${TERM#*:}
                     # fi
                     # in .bashrc
                     # [ -n "$CHN_LS_USE_COLOR" ] && alias ls="ls --color=auto"
@@ -141,6 +156,6 @@ inputs:
             gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
           };
         };
-      }];
+      })];
     };
 }
