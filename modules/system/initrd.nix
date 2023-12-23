@@ -25,7 +25,7 @@ inputs:
           boot =
           {
             initrd.network = { enable = true; ssh = { enable = true; hostKeys = initrd.sshd.hostKeys; }; };
-            kernelParams = [ "ip=dhcp,auto6" ];
+            kernelParams = [ "ip=dhcp" ];
           };
         }
       )
