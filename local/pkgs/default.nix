@@ -4,7 +4,7 @@
   vesta = callPackage ./vesta {};
   oneapi = callPackage ./oneapi {};
   rsshub = callPackage ./rsshub {};
-  misskey = callPackage ./misskey {};
+  misskey = callPackage ./misskey { nodejs = nodejs_21; };
   mk-meili-mgn = callPackage ./mk-meili-mgn {};
   # vasp = callPackage ./vasp
   # {
