@@ -48,7 +48,7 @@ inputs:
             # office
             todo-txt-cli
             # development
-            gdb try inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix
+            gdb try inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix hexo-cli
           ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
         };
         users.sharedModules = [(home-inputs:
