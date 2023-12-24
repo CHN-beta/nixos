@@ -1,27 +1,26 @@
 {
-  lib, stdenv, mkPnpmPackage, fetchFromGitHub, fetchurl, nodejs_20, writeShellScript, buildFHSEnv,
+  lib, stdenv, mkPnpmPackage, fetchFromGitHub, fetchurl, nodejs, writeShellScript, buildFHSEnv,
   bash, cypress, vips, pkg-config
 }:
 let
   pname = "misskey";
-  version = "2023.11.1";
+  version = "2023.12.0";
   src = fetchFromGitHub
   {
     owner = "CHN-beta";
     repo = "misskey";
-    rev = "1e5134816cc23600a0448a62b34aadfe573c3bbc";
-    sha256 = "ihkFVTpwEELmxAw4Lw01pWr8j6u2oLpfcw3laVUFCO4=";
+    rev = "bec1dc37598b71c377643ee77330d4d6f7eb31f2";
+    sha256 = "sha256-svLpG4xQ2mtsJ6gm+Ap8fZKTOl5V68XybGDvymsV4F4=";
     fetchSubmodules = true;
   };
   originalPnpmPackage = mkPnpmPackage
   {
-    inherit pname version src;
-    nodejs = nodejs_20;
+    inherit pname version src nodejs;
     copyPnpmStore = true;
   };
   startScript = writeShellScript "misskey"
   ''
-    export PATH=${lib.makeBinPath [ bash nodejs_20 nodejs_20.pkgs.pnpm nodejs_20.pkgs.gulp cypress ]}:$PATH
+    export PATH=${lib.makeBinPath [ bash nodejs nodejs.pkgs.pnpm nodejs.pkgs.gulp cypress ]}:$PATH
     export CYPRESS_RUN_BINARY="${cypress}/bin/Cypress"
     export NODE_ENV=production
     pnpm run migrateandstart
@@ -79,7 +78,7 @@ in
     inherit version src pname;
     buildInputs =
     [
-      bash nodejs_20 nodejs_20.pkgs.typescript nodejs_20.pkgs.pnpm nodejs_20.pkgs.gulp cypress vips pkg-config
+      bash nodejs nodejs.pkgs.typescript nodejs.pkgs.pnpm nodejs.pkgs.gulp cypress vips pkg-config
     ];
     nativeBuildInputs = buildInputs;
     CYPRESS_RUN_BINARY = "${cypress}/bin/Cypress";
@@ -89,7 +88,7 @@ in
     configurePhase =
     ''
       export HOME=$NIX_BUILD_TOP # Some packages need a writable HOME
-      export npm_config_nodedir=${nodejs_20}
+      export npm_config_nodedir=${nodejs}
 
       runHook preConfigure
 
