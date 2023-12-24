@@ -89,7 +89,7 @@ inputs:
                   user: misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}
                   pass: ${placeholder."postgresql/misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}"}
                   extra:
-                    statement_timeout: 60000
+                    statement_timeout: 600000
                 dbReplications: false
                 redis:
                   host: 127.0.0.1
