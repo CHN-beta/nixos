@@ -203,7 +203,7 @@
               bugs =
               [
                 "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" "xmunet"
-                "suspend-hibernate-waydroid"
+                "suspend-hibernate-waydroid" "power"
               ];
             };
             vps6 =
