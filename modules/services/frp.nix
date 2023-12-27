@@ -113,6 +113,7 @@ inputs:
                     type = "stcp";
                     transport.useCompression = true;
                     secretKey = inputs.config.sops.placeholder."frp/stcp/${stcp.name}";
+                    allowUsers = [ "*" ];
                     inherit (stcp.value) localIp localPort;
                   })
                   (attrsToList frpClient.stcp));
