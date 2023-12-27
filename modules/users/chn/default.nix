@@ -5,6 +5,7 @@ inputs:
     let
       inherit (inputs.lib) mkIf;
       inherit (inputs.config.nixos) users;
+      inherit (builtins) listToAttrs;
     in mkIf (builtins.elem "chn" users.users)
     {
       users.users.chn =
@@ -42,7 +43,10 @@ inputs:
               # identityFile = "~/.ssh/xmuhk_id_rsa";
               xmuhk = { host = "xmuhk"; hostname = "10.26.14.56"; user = "xmuhk"; };
               xmuhk2 = { host = "xmuhk2"; hostname = "183.233.219.132"; user = "xmuhk"; port = 62022; };
-            };
+            }
+            // (listToAttrs (map
+              (system: { name = system; value.forwardAgent = true; })
+              [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas" ]));
           };
           home.packages =
           [
