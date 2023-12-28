@@ -49,8 +49,8 @@ inputs:
             {
               owner = "z-shell";
               repo = "zsh-lsd";
-              rev = "029a9cb0a9b39c9eb6c5b5100dd9182813332250";
-              sha256 = "sha256-oWjWnhiimlGBMaZlZB+OM47jd9hporKlPNwCx6524Rk=";
+              rev = "65bb5ac49190beda263aae552a9369127961632d";
+              hash = "sha256-JSNsfpgiqWhtmGQkC3B0R1Y1QnDKp9n0Zaqzjhwt7Xk=";
             };
           }
         ];
