@@ -72,7 +72,6 @@ inputs:
         {
           enable = true;
           plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
-          customPkgs = with inputs.pkgs; [ zsh-nix-shell ];
         };
       };
     };
