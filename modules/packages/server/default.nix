@@ -108,7 +108,6 @@ inputs:
         nix-index-database.comma.enable = true;
         nix-index.enable = true;
         command-not-found.enable = false;
-        gnupg.agent = { enable = true; enableSSHSupport = true; };
         autojump.enable = true;
         git =
         {
