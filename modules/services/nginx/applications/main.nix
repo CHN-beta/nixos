@@ -7,7 +7,8 @@ inputs:
   config =
     let
       inherit (inputs.config.nixos.services.nginx.applications) main;
-    in
+      inherit (inputs.lib) mkIf;
+    in mkIf main.enable
     {
       nixos.services.nginx.https."chn.moe".location =
       {
