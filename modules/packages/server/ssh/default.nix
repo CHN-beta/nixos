@@ -96,7 +96,13 @@ inputs:
             else []
           ))
           (attrsToList servers)));
-      programs.ssh = { enableAskPassword = true; askPassword = "${inputs.pkgs.systemd}/bin/systemd-ask-password"; };
+      programs.ssh =
+      {
+        startAgent = true;
+        enableAskPassword = true;
+        askPassword = "${inputs.pkgs.systemd}/bin/systemd-ask-password";
+        extraConfig = "AddKeysToAgent yes";
+      };
       nixos.users.sharedModules =
       [(hmInputs: {
         config.programs.ssh =
