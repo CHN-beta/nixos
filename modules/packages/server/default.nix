@@ -4,6 +4,7 @@ inputs:
   [
     ./ssh
     ./zsh
+    ./gpg.nix
   ];
   config =
     let
