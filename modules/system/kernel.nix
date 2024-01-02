@@ -72,6 +72,12 @@ inputs:
                 PARAVIRT_TIME_ACCOUNTING = yes;
                 PM_AUTOSLEEP = yes;
                 WQ_POWER_EFFICIENT_DEFAULT = yes;
+                PREEMPT_VOLUNTARY = inputs.lib.mkForce no;
+                PREEMPT = inputs.lib.mkForce yes;
+                NO_HZ_FULL = yes;
+                HZ_1000 = inputs.lib.mkForce yes;
+                HZ_250 = inputs.lib.mkForce no;
+                HZ = inputs.lib.mkForce (freeform "1000");
               };
             };
           };
