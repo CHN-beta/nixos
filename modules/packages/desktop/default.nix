@@ -19,6 +19,7 @@ inputs:
           mpv nomacs
           # themes
           tela-circle-icon-theme
+          firefoxpwa
         ];
         users.sharedModules =
         [{
@@ -33,7 +34,12 @@ inputs:
       {
         adb.enable = true;
         wireshark = { enable = true; package = inputs.pkgs.wireshark; };
-        firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
+        firefox =
+        {
+          enable = true;
+          languagePacks = [ "zh-CN" "en-US" ];
+          nativeMessagingHosts.packages = [ inputs.pkgs.firefoxpwa ];
+        };
         vim.package = inputs.pkgs.vim-full;
       };
       nixpkgs.config.packageOverrides = pkgs: 
