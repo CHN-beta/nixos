@@ -103,6 +103,7 @@ inputs:
         askPassword = "${inputs.pkgs.systemd}/bin/systemd-ask-password";
         extraConfig = "AddKeysToAgent yes";
       };
+      environment.sessionVariables.SSH_ASKPASS_REQUIRE = "prefer";
       nixos.users.sharedModules =
       [(hmInputs: {
         config.programs.ssh =
