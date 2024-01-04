@@ -3,6 +3,7 @@ inputs:
   imports = inputs.localLib.mkModules
   [
     ./chromium.nix
+    ./steam.nix
   ];
   config =
     let
@@ -42,6 +43,6 @@ inputs:
           ] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
         };
       };
-      programs = { steam.enable = true; kdeconnect.enable = true; };
+      programs.kdeconnect.enable = true;
     };
 }
