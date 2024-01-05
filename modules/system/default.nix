@@ -19,7 +19,7 @@ inputs:
   ];
   config =
   {
-    services = { dbus.implementation = "broker"; fstrim = { enable = true; interval = "daily"; }; };
+    services = { dbus.implementation = "broker"; fstrim.enable = true; };
     time.timeZone = "Asia/Shanghai";
     boot =
     {
