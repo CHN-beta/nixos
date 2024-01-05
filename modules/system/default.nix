@@ -51,5 +51,11 @@ inputs:
     # environment.variables.LIBRARY_PATH = "/run/current-system/sw/lib";
     virtualisation.oci-containers.backend = "docker";
     home-manager.sharedModules = [{ home.stateVersion = "22.11"; }];
+    system =
+    {
+      stateVersion = "22.11";
+      configurationRevision = inputs.topInputs.self.rev or "dirty";
+      nixos.versionSuffix = inputs.lib.mkForce "";
+    };
   };
 }
