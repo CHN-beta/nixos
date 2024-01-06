@@ -9,8 +9,8 @@ let
   {
     owner = "CHN-beta";
     repo = "misskey";
-    rev = "579e1b00c1dc053a598ac4fd777459067860cdea";
-    hash = "sha256-jrUqfj8RaF8JeQ6qh8O071o4IWXNhKz6XiC92htJsbY=";
+    rev = "cd1d0ab06eb6b7e06afdfae9a12b2d2829564229";
+    hash = "sha256-sKEZ1ZpyA/02CNwiOMIOS5f/csx6ELDwCVJYc+oMChM=";
     fetchSubmodules = true;
   };
   originalPnpmPackage = mkPnpmPackage
