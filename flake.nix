@@ -111,6 +111,7 @@
                     "znver2" "znver3"
                     # CX16 SAHF FXSR HLE RDSEED
                     "broadwell"
+                    "znver4"
                   ];
                   keepOutputs = true;
                 };
