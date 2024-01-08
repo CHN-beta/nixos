@@ -44,6 +44,8 @@ inputs:
                 lextudio.restructuredtext trond-snekvik.simple-rst
                 # markdown
                 shd101wyy.markdown-preview-enhanced
+                # vasp
+                mystery.vasp-support
               ];
           }
         )];
