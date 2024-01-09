@@ -33,6 +33,7 @@ inputs:
                 Group = inputs.config.users.users.mirism.group;
                 ExecStart = "${inputs.pkgs.localPackages.mirism}/bin/${instance}";
                 RuntimeMaxSec = "1d";
+                Restart = "always";
               };
             };
           })
