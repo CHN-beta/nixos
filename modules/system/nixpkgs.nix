@@ -138,6 +138,7 @@ inputs:
                 sandybridge = "MSANDYBRIDGE";
                 silvermont = "MSILVERMONT";
                 broadwell = "MBROADWELL";
+                skylake = "MSKYLAKE";
                 znver2 = "MZEN2";
                 znver3 = "MZEN3";
               };

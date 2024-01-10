@@ -51,7 +51,7 @@
         default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
           (builtins.concatStringsSep "\n" (builtins.map
             (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-            [ "pc" "vps6" "vps7" "nas" "yoga" ]));
+            [ "pc" "vps6" "vps7" "nas" "surface" ]));
       }
       // (
         builtins.listToAttrs (builtins.map
@@ -60,7 +60,7 @@
             name = system;
             value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
           })
-          [ "pc" "vps6" "vps7" "nas" "yoga" "xmupc1" ])
+          [ "pc" "vps6" "vps7" "nas" "surface" "xmupc1" ])
       );
       # ssh-keygen -t rsa -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_rsa_key
       # ssh-keygen -t ed25519 -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key
@@ -113,6 +113,7 @@
                     # CX16 SAHF FXSR HLE RDSEED
                     "broadwell"
                     "znver4"
+                    "skylake"
                   ];
                   keepOutputs = true;
                 };
@@ -456,7 +457,7 @@
               };
               users.users = [ "chn" "xll" "zem" "yjq" "yxy" ];
             };
-            yoga =
+            surface =
             {
               system =
               {
@@ -476,12 +477,12 @@
                   swap = [ "/nix/swap/swap" ];
                   rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
                 };
-                nixpkgs.march = "silvermont";
+                nixpkgs.march = "skylake";
                 grub.installDevice = "efi";
                 nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
                 kernel.patches = [ "cjktty" ];
                 impermanence.enable = true;
-                networking.hostname = "yoga";
+                networking.hostname = "surface";
               };
               hardware =
               {
@@ -491,7 +492,6 @@
                 joystick.enable = true;
                 printer.enable = true;
                 sound.enable = true;
-                halo-keyboard.enable = true;
               };
               packages.packageSet = "desktop-fat";
               virtualization.docker.enable = true;
