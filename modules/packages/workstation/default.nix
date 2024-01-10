@@ -19,7 +19,7 @@ inputs:
             nix-template appimage-run nil nixd nix-alien nix-serve node2nix nix-prefetch-github prefetch-npm-deps
             nix-prefetch-docker pnpm-lock-export bundix
             # instant messager
-            zoom-us signal-desktop qq nur-xddxdd.wechat-uos slack inputs.config.nur.repos.linyinfeng.wemeet
+            zoom-us signal-desktop qq nur-xddxdd.wechat-uos slack nur-linyinfeng.wemeet
             cinny-desktop nheko
             # office
             libreoffice-qt texstudio poppler_utils pdftk gnuplot pdfchain hdfview
