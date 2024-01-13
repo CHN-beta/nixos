@@ -141,6 +141,7 @@ inputs:
                 skylake = "MSKYLAKE";
                 znver2 = "MZEN2";
                 znver3 = "MZEN3";
+                znver4 = "MZEN4";
               };
             in { GENERIC_CPU = inputs.lib.kernel.no; ${kernelConfig.${nixpkgs.march}} = inputs.lib.kernel.yes; };
         }];

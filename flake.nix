@@ -96,29 +96,31 @@
                 };
                 grub =
                 {
-                  windowsEntries = { "7317-1DB6" = "Windows"; "7321-FA9C" = "Windows for malware"; };
+                  # TODO: install windows
+                  # windowsEntries = { "7317-1DB6" = "Windows"; "7321-FA9C" = "Windows for malware"; };
                   installDevice = "efi";
                 };
                 nix =
                 {
                   marches =
                   [
-                    "alderlake"
-                    # CX16
+                    "znver2" "znver3" "znver4"
+                    # FXSR SAHF XSAVE
                     "sandybridge"
-                    # CX16 SAHF FXSR
+                    # FXSR PREFETCHW RDRND SAHF
                     "silvermont"
-                    # RDSEED MWAITX SHA CLZERO CX16 SSE4A ABM CLFLUSHOPT WBNOINVD
-                    "znver2" "znver3"
-                    # CX16 SAHF FXSR HLE RDSEED
+                    # FXSR HLE LZCNT PREFETCHW RDRND SAHF XSAVE
                     "broadwell"
-                    "znver4"
+                    # AVX-VNNI CLDEMOTE GFNI-SSE HRESET KL LZCNT MOVDIR64B MOVDIRI PCONFIG PREFETCHW PTWRITE RDRND
+                    # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
+                    "alderlake"
+                    # TODO: adjust skylake
                     "skylake"
                   ];
                   keepOutputs = true;
                 };
                 nixpkgs =
-                  { march = "alderlake"; cuda = { enable = true; capabilities = [ "8.6" ]; forwardCompat = false; }; };
+                  { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
                 kernel.patches = [ "cjktty" "lantian" ];
                 impermanence.enable = true;
                 networking.hostname = "pc";
@@ -126,14 +128,12 @@
               };
               hardware =
               {
-                cpus = [ "intel" ];
-                gpus = [ "intel" "nvidia" ];
+                cpus = [ "amd" ];
+                gpus = [ "amd" "nvidia" ];
                 bluetooth.enable = true;
                 joystick.enable = true;
                 printer.enable = true;
                 sound.enable = true;
-                prime = { enable = true; mode = "offload"; busId = { intel = "PCI:0:2:0"; nvidia = "PCI:1:0:0"; }; };
-                gamemode.drmDevice = 1;
               };
               packages.packageSet = "workstation";
               virtualization =
@@ -203,11 +203,7 @@
                   wireguardIp = "192.168.83.3";
                 };
               };
-              bugs =
-              [
-                "suspend-hibernate-no-platform" "hibernate-iwlwifi" "suspend-lid-no-wakeup" "xmunet"
-                "suspend-hibernate-waydroid" "power"
-              ];
+              bugs = [ "xmunet" "suspend-hibernate-waydroid" ];
             };
             vps6 =
             {
