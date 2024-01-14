@@ -204,7 +204,7 @@
                   wireguardIp = "192.168.83.3";
                 };
               };
-              bugs = [ "xmunet" "suspend-hibernate-waydroid" ];
+              bugs = [ "xmunet" "suspend-hibernate-waydroid" "backlight" ];
             };
             vps6 =
             {
