@@ -114,7 +114,11 @@ inputs:
                   concatLists (map (gpu: packages.${gpu}) hardware.gpus);
               driSupport32Bit = true;
             };
-            nvidia.nvidiaSettings = builtins.elem "nvidia" hardware.gpus;
+            nvidia = mkIf (builtins.elem "nvidia" hardware.gpus)
+            {
+              modesetting.enable = true;
+              nvidiaSettings = true;
+            };
           };
         }
       )
