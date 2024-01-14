@@ -134,6 +134,7 @@
                 joystick.enable = true;
                 printer.enable = true;
                 sound.enable = true;
+                legion.enable = true;
               };
               packages.packageSet = "workstation";
               virtualization =

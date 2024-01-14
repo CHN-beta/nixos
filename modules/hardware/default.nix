@@ -1,5 +1,6 @@
 inputs:
 {
+  imports = inputs.localLib.mkModules [ ./legion.nix ];
   options.nixos.hardware = let inherit (inputs.lib) mkOption types; in
   {
     bluetooth.enable = mkOption { type = types.bool; default = false; };
