@@ -2,6 +2,13 @@ inputs:
 {
   options.nixos.virtualization = let inherit (inputs.lib) mkOption types; in
   {
+    # /var/lib/waydroid/waydroid_base.prop
+    # default:
+    # ro.hardware.gralloc=gbm
+    # ro.hardware.egl=mesa
+    # nvidia:
+    # ro.hardware.gralloc=default
+    # ro.hardware.egl=swiftshader
     waydroid.enable = mkOption { default = false; type = types.bool; };
     docker.enable = mkOption { default = false; type = types.bool; };
     kvmHost =
