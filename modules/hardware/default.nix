@@ -118,6 +118,8 @@ inputs:
             nvidia = mkIf (builtins.elem "nvidia" hardware.gpus)
             {
               modesetting.enable = true;
+              powerManagement.enable = true;
+              dynamicBoost.enable = true;
               nvidiaSettings = true;
               package = inputs.config.boot.kernelPackages.nvidiaPackages.production;
             };
