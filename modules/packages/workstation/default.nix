@@ -33,7 +33,7 @@ inputs:
             # text editor
             appflowy notion-app-enhanced joplin-desktop standardnotes logseq
             # math, physics and chemistry
-            mathematica octaveFull root ovito paraview localPackages.vesta qchem.quantum-espresso
+            mathematica octaveFull root ovito paraview localPackages.vesta # qchem.quantum-espresso
             localPackages.vasp localPackages.vaspkit jmol localPackages.v_sim
             # encryption and password management
             john crunch hashcat
