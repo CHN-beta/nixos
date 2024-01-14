@@ -119,6 +119,7 @@ inputs:
             {
               modesetting.enable = true;
               nvidiaSettings = true;
+              package = inputs.config.boot.kernelPackages.nvidiaPackages.production;
             };
           };
         }
