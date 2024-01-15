@@ -117,7 +117,7 @@ inputs:
             };
             nvidia = mkIf (builtins.elem "nvidia" hardware.gpus)
             {
-              modesetting.enable = true;
+              # modesetting.enable = true;
               powerManagement.enable = true;
               dynamicBoost.enable = true;
               nvidiaSettings = true;
