@@ -135,6 +135,12 @@
                 printer.enable = true;
                 sound.enable = true;
                 legion.enable = true;
+                prime =
+                {
+                  enable = true;
+                  mode = "sync";
+                  busId = { amdgpu = "PCI:8:0:0"; nvidia = "PCI:1:0:0"; };
+                };
               };
               packages.packageSet = "workstation";
               virtualization =
@@ -204,7 +210,7 @@
                   wireguardIp = "192.168.83.3";
                 };
               };
-              bugs = [ "xmunet" "suspend-hibernate-waydroid" "backlight" ];
+              bugs = [ "xmunet" "suspend-hibernate-waydroid" "backlight" "amdpstate" ];
             };
             vps6 =
             {

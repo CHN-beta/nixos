@@ -109,7 +109,7 @@ inputs:
                   {
                     intel = [ intel-compute-runtime intel-media-driver libvdpau-va-gl ]; # intel-vaapi-driver
                     nvidia = [ vaapiVdpau ];
-                    amd = [];
+                    amd = [ amdvlk rocmPackages.clr rocmPackages.clr.icd ];
                   };
                 in
                   concatLists (map (gpu: packages.${gpu}) hardware.gpus);
@@ -126,7 +126,8 @@ inputs:
           };
         }
       )
-      (mkIf (builtins.elem "intel" hardware.gpus) { services.xserver.deviceSection = ''Driver "modesetting"''; })
+      (mkIf (builtins.elem "intel" hardware.gpus) { services.xserver.videoDrivers = [ "modesetting" ]; })
+      (mkIf (builtins.elem "amd" hardware.gpus) { services.xserver.videoDrivers = [ "modesetting" ]; })
       # prime
       (
         mkIf hardware.prime.enable
@@ -151,7 +152,6 @@ inputs:
               prime = listToAttrs
                 (map (gpu: { inherit (gpu) value; name = "${gpu.name}BusId"; }) (attrsToList hardware.prime.busId));
             }
-            
           ];
         }
       )

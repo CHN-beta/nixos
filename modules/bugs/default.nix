@@ -80,6 +80,7 @@ inputs:
       firefox.programs.firefox.enable = inputs.lib.mkForce false;
       power.boot.kernelParams = [ "cpufreq.default_governor=powersave" ];
       backlight.boot.kernelParams = [ "nvidia.NVreg_RegistryDwords=EnableBrightnessControl=1" ];
+      amdpstate.boot.kernelParams = [ "amd_pstate=active" ];
     };
   in
     {
