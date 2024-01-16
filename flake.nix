@@ -138,7 +138,7 @@
                 prime =
                 {
                   enable = true;
-                  mode = "sync";
+                  mode = "offload";
                   busId = { amdgpu = "PCI:8:0:0"; nvidia = "PCI:1:0:0"; };
                 };
               };
