@@ -121,7 +121,7 @@
                 };
                 nixpkgs =
                   { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
-                kernel.patches = [ "cjktty" "lantian" ];
+                kernel.patches = [ "lantian" ];
                 impermanence.enable = true;
                 networking.hostname = "pc";
                 sysctl.laptop-mode = 5;
