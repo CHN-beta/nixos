@@ -121,7 +121,7 @@
                 };
                 nixpkgs =
                   { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
-                kernel.patches = [ "lantian" ];
+                kernel.patches = [ "cjktty" "lantian" ];
                 impermanence.enable = true;
                 networking.hostname = "pc";
                 sysctl.laptop-mode = 5;
@@ -129,18 +129,12 @@
               hardware =
               {
                 cpus = [ "amd" ];
-                gpus = [ "amd" "nvidia" ];
+                gpus = [ "nvidia" ];
                 bluetooth.enable = true;
                 joystick.enable = true;
                 printer.enable = true;
                 sound.enable = true;
                 legion.enable = true;
-                prime =
-                {
-                  enable = true;
-                  mode = "offload";
-                  busId = { amdgpu = "PCI:8:0:0"; nvidia = "PCI:1:0:0"; };
-                };
               };
               packages.packageSet = "workstation";
               virtualization =
