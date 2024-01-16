@@ -140,6 +140,5 @@ inputs:
       bugs = [ "xmunet" "suspend-hibernate-waydroid" "backlight" "amdpstate" ];
     };
     services.colord.enable = true;
-    virtualisation.anbox.enable = true;
   };
 }
