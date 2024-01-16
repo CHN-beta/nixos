@@ -32,7 +32,7 @@ inputs:
       ];
       extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;
       extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
-      kernelParams = [ "delayacct" "acpi_osi=Linux" "acpi.ec_no_wakeup=1" ];
+      kernelParams = [ "delayacct" "acpi_osi=Linux" "acpi.ec_no_wakeup=1" "amdgpu.sg_display=0" ];
       kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
       kernelPatches =
         let
