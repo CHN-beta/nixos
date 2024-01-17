@@ -1,5 +1,6 @@
 inputs:
 {
+  imports = inputs.localLib.mkModules [ inputs.topInputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel ];
   config =
   {
     nixos =
