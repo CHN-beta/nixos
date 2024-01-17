@@ -57,5 +57,23 @@ inputs:
       };
       bugs = [ "xmunet" ];
     };
+    # apply patches from nixos-hardware
+    boot.kernelPatches = builtins.map
+      (patch:
+        { inherit (patch) name patch; }
+        // (if patch ? structuredExtraConfig then { extraStructuredConfig = patch.structuredExtraConfig; } else {}))
+      (
+        let
+          version = inputs.config.boot.kernelPackages.kernel.version;
+          majorVersion =
+            let versionArray = builtins.splitVersion version;
+            in "${builtins.elemAt versionArray 0}.${builtins.elemAt versionArray 1}";
+          repoFile = "${inputs.topInputs.nixos-hardware}/microsoft/surface/common/kernel/linux-package.nix";
+          inherit (inputs.pkgs.callPackage repoFile {}) repos;
+          patchDir = repos.linux-surface + "/patches/${majorVersion}";
+          patchFile = "${inputs.topInputs.nixos-hardware}/microsoft/surface/common/kernel/linux-6.6.x/patches.nix";
+        in
+          inputs.pkgs.callPackage patchFile { inherit (inputs.lib) kernel; inherit version patchDir; }
+      );
   };
 }
