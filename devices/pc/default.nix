@@ -72,10 +72,8 @@ inputs:
       packages.packageSet = "workstation";
       virtualization =
       {
-        waydroid.enable = true;
         docker.enable = true;
         kvmHost = { enable = true; gui = true; autoSuspend = [ "win10" "hardconnect" ]; };
-        # kvmGuest.enable = true;
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
       };
       services =
@@ -137,7 +135,7 @@ inputs:
           wireguardIp = "192.168.83.3";
         };
       };
-      bugs = [ "xmunet" "suspend-hibernate-waydroid" "backlight" "amdpstate" ];
+      bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
     services.colord.enable = true;
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
