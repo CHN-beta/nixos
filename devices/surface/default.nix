@@ -11,16 +11,16 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/86B8-CF80" = "/boot/efi";
+            vfat."/dev/disk/by-uuid/7179-9C69" = "/boot/efi";
             btrfs =
             {
-              "/dev/disk/by-uuid/e252f81d-b4b3-479f-8664-380a9b73cf83"."/boot" = "/boot";
+              "/dev/disk/by-uuid/c6d35075-85fe-4129-aaa8-f436ab85ce43"."/boot" = "/boot";
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
-          decrypt.auto."/dev/disk/by-uuid/8186d34e-005c-4461-94c7-1003a5bd86c0" =
+          decrypt.auto."/dev/disk/by-uuid/4f7420f9-ea19-4713-b084-2ac8f0a963ac" =
             { mapper = "root"; ssd = true; };
-          swap = [ "/nix/swap/swap" ];
+          # swap = [ "/nix/swap/swap" ];
           rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
         };
         nixpkgs.march = "skylake";
