@@ -72,6 +72,7 @@ inputs:
       packages.packageSet = "workstation";
       virtualization =
       {
+        waydroid.enable = true;
         docker.enable = true;
         kvmHost = { enable = true; gui = true; autoSuspend = [ "win10" "hardconnect" ]; };
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
