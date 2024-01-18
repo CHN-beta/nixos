@@ -1,10 +1,10 @@
-{ lib, pkgs }: with pkgs; rec
+{ lib, pkgs, topInputs }: with pkgs; rec
 {
   typora = callPackage ./typora {};
   vesta = callPackage ./vesta {};
   oneapi = callPackage ./oneapi {};
   rsshub = callPackage ./rsshub {};
-  misskey = callPackage ./misskey { nodejs = nodejs_21; };
+  misskey = callPackage ./misskey { nodejs = nodejs_21; src = topInputs.misskey; };
   mk-meili-mgn = callPackage ./mk-meili-mgn {};
   # vasp = callPackage ./vasp
   # {

@@ -864,6 +864,24 @@
         "type": "github"
       }
     },
+    "misskey": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1704517504,
+        "narHash": "sha256-sKEZ1ZpyA/02CNwiOMIOS5f/csx6ELDwCVJYc+oMChM=",
+        "ref": "refs/heads/chn-mod",
+        "rev": "cd1d0ab06eb6b7e06afdfae9a12b2d2829564229",
+        "revCount": 25026,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/CHN-beta/misskey"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/CHN-beta/misskey"
+      }
+    },
     "napalm": {
       "inputs": {
         "flake-utils": "flake-utils_3",
@@ -1602,6 +1620,7 @@
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lmix": "lmix",
+        "misskey": "misskey",
         "napalm": "napalm",
         "nix-alien": "nix-alien",
         "nix-doom-emacs": "nix-doom-emacs",

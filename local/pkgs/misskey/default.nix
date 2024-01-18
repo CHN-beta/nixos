@@ -1,18 +1,10 @@
 {
-  lib, stdenv, mkPnpmPackage, fetchFromGitHub, fetchurl, nodejs, writeShellScript, buildFHSEnv,
-  bash, cypress, vips, pkg-config
+  lib, stdenv, mkPnpmPackage, fetchurl, nodejs, writeShellScript, buildFHSEnv,
+  bash, cypress, vips, pkg-config, src ? null
 }:
 let
   pname = "misskey";
   version = "2023.12.2";
-  src = fetchFromGitHub
-  {
-    owner = "CHN-beta";
-    repo = "misskey";
-    rev = "cd1d0ab06eb6b7e06afdfae9a12b2d2829564229";
-    hash = "sha256-sKEZ1ZpyA/02CNwiOMIOS5f/csx6ELDwCVJYc+oMChM=";
-    fetchSubmodules = true;
-  };
   originalPnpmPackage = mkPnpmPackage
   {
     inherit pname version src nodejs;
