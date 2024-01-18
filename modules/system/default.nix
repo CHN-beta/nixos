@@ -24,7 +24,7 @@ inputs:
     boot =
     {
       supportedFilesystems = [ "ntfs" ];
-      consoleLogLevel = 7;
+      # consoleLogLevel = 7;
     };
     hardware.enableAllFirmware = true;
     environment.sessionVariables = rec
