@@ -41,6 +41,11 @@ inputs:
               ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAoMu0HEaFQsnlJL0L6isnkNZdRq0OiDXyaX3+fl3NjT";
               hostnames = [ "initrd.nas.chn.moe" "[office.chn.moe]:5440" "192.168.1.185" ];
             };
+            surface =
+            {
+              ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFdm3DcfHdcLP0oSpVrWwIZ/b9lZuakBSPwCFz2BdTJ7";
+              hostnames = [ "192.168.1.166" ];
+            };
             pc =
             {
               ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMSfREi19OSwQnhdsE8wiNwGSFFJwNGN0M5gN+sdrrLJ";
@@ -161,6 +166,7 @@ inputs:
           // {
             xmupc1 = { host = "xmupc1"; hostname = "office.chn.moe"; port = 6007; };
             nas = { host = "nas"; hostname = "office.chn.moe"; port = 5440; };
+            surface = { host = "surface"; hostname = "192.168.1.166"; };
             gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
           };
         };

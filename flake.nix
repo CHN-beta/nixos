@@ -123,7 +123,7 @@
                 inputs.self.nixosConfigurations.${node};
             };
           })
-          [ "vps6" "vps7" "nas" "yoga" ]);
+          [ "vps6" "vps7" "nas" "surface" ]);
       };
       checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks inputs.self.deploy) inputs.deploy-rs.lib;
       overlays.default = final: prev:
