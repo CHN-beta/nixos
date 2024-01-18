@@ -138,7 +138,12 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
-    services.colord.enable = true;
+    services =
+    {
+      colord.enable = true;
+      # use plasma-x11 as default, instead of plasma-wayland
+      xserver.displayManager.defaultSession = "plasma";
+    };
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
     hardware.nvidia.forceFullCompositionPipeline = true;
   };
