@@ -18,9 +18,14 @@ inputs:
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
-          decrypt.auto."/dev/disk/by-uuid/4f7420f9-ea19-4713-b084-2ac8f0a963ac" =
-            { mapper = "root"; ssd = true; };
-          # swap = [ "/nix/swap/swap" ];
+          decrypt.auto =
+          {
+            "/dev/disk/by-uuid/4f7420f9-ea19-4713-b084-2ac8f0a963ac" = { mapper = "root"; ssd = true; };
+            "/dev/disk/by-uuid/88bd9d44-928b-40a2-8f3d-6dcd257c4601" =
+              { mapper = "swap"; ssd = true; before = [ "root" ]; };
+          };
+          swap = [ "/dev/mapper/swap" ];
+          resume = "/dev/mapper/swap";
           rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
         };
         nixpkgs.march = "skylake";
