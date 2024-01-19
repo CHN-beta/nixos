@@ -50,11 +50,15 @@ inputs:
           serviceConfig = { CacheDirectory = "nix"; Slice = "-.slice"; Nice = "19"; };
           environment = { TMPDIR = "/var/cache/nix"; };
         };
-        environment.etc =
+        environment =
         {
-          "channels/nixpkgs".source = inputs.topInputs.nixpkgs.outPath;
-          "channels/nixpkgs-unstable".source = inputs.topInputs.nixpkgs-unstable.outPath;
-          "nixos".source = inputs.topInputs.self.outPath;
+          etc =
+          {
+            "channels/nixpkgs".source = inputs.topInputs.nixpkgs.outPath;
+            "channels/nixpkgs-unstable".source = inputs.topInputs.nixpkgs-unstable.outPath;
+            "nixos".source = inputs.topInputs.self.outPath;
+          };
+          variables.COMMA_NIXPKGS_FLAKE = "nixpkgs-unstable";
         };
         # environment.pathsToLink = [ "/include" ];
         # environment.variables.CPATH = "/run/current-system/sw/include";
