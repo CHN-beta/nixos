@@ -51,7 +51,7 @@ inputs:
         snapper.enable = true;
         fontconfig.enable = true;
         sshd.enable = true;
-        xrayClient =
+        xray.client =
         {
           enable = true;
           serverAddress = "74.211.99.69";

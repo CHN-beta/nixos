@@ -20,7 +20,7 @@ inputs:
       networking =
         let
           # if the host is behind xray, it should listen on another port, to make xray succeffully listen on 51820
-          port = 51820 + (if inputs.config.nixos.services.xrayClient.enable then 1 else 0);
+          port = 51820 + (if inputs.config.nixos.services.xray.client.enable then 1 else 0);
         in
         {
           firewall = { allowedUDPPorts = [ port ]; trustedInterfaces = [ "wireguard" ]; };

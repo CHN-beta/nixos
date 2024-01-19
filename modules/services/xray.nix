@@ -1,8 +1,8 @@
 inputs:
 {
-  options.nixos.services = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.xray = let inherit (inputs.lib) mkOption types; in
   {
-    xrayClient =
+    client =
     {
       enable = mkOption { type = types.bool; default = false; };
       serverAddress = mkOption { type = types.nonEmptyStr; };
@@ -13,7 +13,7 @@ inputs:
         extraInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
       }; }; };
     };
-    xrayServer =
+    server =
     {
       enable = mkOption { type = types.bool; default = false; };
       serverName = mkOption { type = types.nonEmptyStr; };
@@ -23,12 +23,19 @@ inputs:
     let
       inherit (inputs.lib) mkMerge mkIf;
       inherit (inputs.localLib) stripeTabs attrsToList;
-      inherit (inputs.config.nixos.services) xrayClient xrayServer;
+      inherit (inputs.config.nixos.services) xray;
       inherit (builtins) map listToAttrs toString genList length concatStringsSep;
     in mkMerge
     [
+      {
+        assertions =
+        [{
+          assertion = !(xray.client.enable && xray.server.enable);
+          message = "Currenty xray.client and xray.server could not be simutaniusly enabled.";
+        }];
+      }
       (
-        mkIf xrayClient.enable
+        mkIf xray.client.enable
         {
           services =
           {
@@ -40,14 +47,14 @@ inputs:
                 no-poll = true;
                 log-queries = true;
                 server = [ "127.0.0.1#10853" ];
-                interface = xrayClient.dns.extraInterfaces ++ [ "lo" ];
+                interface = xray.client.dns.extraInterfaces ++ [ "lo" ];
                 bind-dynamic = true;
                 ipset =
                 [
                   "/developer.download.nvidia.com/noproxy_net"
                   "/yuanshen.com/noproxy_net"
                 ];
-                address = map (host: "/${host.name}/${host.value}") (attrsToList xrayClient.dns.hosts);
+                address = map (host: "/${host.name}/${host.value}") (attrsToList xray.client.dns.hosts);
               };
             };
             xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-client.json".path; };
@@ -130,7 +137,7 @@ inputs:
                       protocol = "vless";
                       settings.vnext =
                       [{
-                        address = xrayClient.serverAddress;
+                        address = xray.client.serverAddress;
                         port = 443;
                         users =
                         [{
@@ -145,7 +152,7 @@ inputs:
                         security = "reality";
                         realitySettings =
                         {
-                          serverName = xrayClient.serverName;
+                          serverName = xray.client.serverName;
                           publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
                           fingerprint = "firefox";
                         };
@@ -308,7 +315,7 @@ inputs:
         }
       )
       (
-        mkIf xrayServer.enable (let userList = genList (n: n) 30; in
+        mkIf xray.server.enable (let userList = genList (n: n) 30; in
         {
           services.xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
           sops =
@@ -351,7 +358,7 @@ inputs:
                         realitySettings =
                         {
                           dest = "127.0.0.1:${fallbackPort}";
-                          serverNames = [ xrayServer.serverName ];
+                          serverNames = [ xray.server.serverName ];
                           privateKey = inputs.config.sops.placeholder."xray-server/private-key";
                           minClientVer = "1.8.0";
                           shortIds = [ "" ];
@@ -493,12 +500,12 @@ inputs:
           };
           nixos.services =
           {
-            acme = { enable = true; cert.${xrayServer.serverName}.group = inputs.config.users.users.nginx.group; };
+            acme = { enable = true; cert.${xray.server.serverName}.group = inputs.config.users.users.nginx.group; };
             nginx =
             {
               enable = true;
-              transparentProxy.map."${xrayServer.serverName}" = 4726;
-              https."${xrayServer.serverName}" =
+              transparentProxy.map."${xray.server.serverName}" = 4726;
+              https."${xray.server.serverName}" =
               {
                 listen.main = { proxyProtocol = false; addToTransparentProxy = false; };
                 location."/".return.return = "400";

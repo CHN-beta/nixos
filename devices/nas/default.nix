@@ -61,7 +61,7 @@ inputs:
           shares = { home.path = "/home"; root.path = "/"; };
         };
         sshd = { enable = true; passwordAuthentication = true; };
-        xrayClient =
+        xray.client =
         {
           enable = true;
           serverAddress = "74.211.99.69";
