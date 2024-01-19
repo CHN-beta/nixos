@@ -75,7 +75,7 @@ inputs:
           peers = [ "pc" "nas" "vps7" ];
           publicKey = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4=";
           wireguardIp = "192.168.83.1";
-          externalIp = "74.211.99.69";
+          listenIp = "74.211.99.69";
           lighthouse = true;
         };
       };
