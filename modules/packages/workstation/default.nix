@@ -14,27 +14,21 @@ inputs:
             # password and key management
             electrum jabref
             # system management
-            wl-mirror ventoy-full
+            wl-mirror
             # nix tools
-            nix-template appimage-run nil nixd nix-alien nix-serve node2nix nix-prefetch-github prefetch-npm-deps
-            nix-prefetch-docker pnpm-lock-export bundix
+            nix-template nil nix-alien pnpm-lock-export bundix
             # instant messager
-            zoom-us signal-desktop qq nur-xddxdd.wechat-uos slack nur-linyinfeng.wemeet
-            cinny-desktop nheko
-            # office
-            libreoffice-qt texstudio poppler_utils pdftk gnuplot pdfchain hdfview
-            (texlive.combine { inherit (texlive) scheme-full; inherit (localPackages) citation-style-language; })
+            qq nur-xddxdd.wechat-uos cinny-desktop nheko
             # development
             jetbrains.clion android-studio dbeaver cling clang-tools_16 ccls fprettify aircrack-ng
             # media
-            nur-xddxdd.svp obs-studio waifu2x-converter-cpp inkscape blender
+            nur-xddxdd.svp
             # virtualization
             wineWowPackages.stagingFull virt-viewer bottles # wine64
             # text editor
             appflowy notion-app-enhanced joplin-desktop standardnotes logseq
             # math, physics and chemistry
-            mathematica octaveFull root ovito paraview localPackages.vesta # qchem.quantum-espresso
-            localPackages.vasp localPackages.vaspkit jmol localPackages.v_sim
+            mathematica paraview localPackages.vasp jmol # qchem.quantum-espresso
             # encryption and password management
             john crunch hashcat
             # container and vm
