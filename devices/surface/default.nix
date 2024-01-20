@@ -77,6 +77,5 @@ inputs:
       in
         inputs.lib.mkForce (inputs.pkgs.linuxPackagesFor (originalKernel.override
           (prev: { kernelPatches = prev.kernelPatches ++ kernelPatches; })));
-    systemd.services.iptsd.enable = false;
   };
 }
