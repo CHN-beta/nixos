@@ -77,5 +77,6 @@ inputs:
       in
         inputs.lib.mkForce (inputs.pkgs.linuxPackagesFor (originalKernel.override
           (prev: { kernelPatches = prev.kernelPatches ++ kernelPatches; })));
+    environment.systemPackages = with inputs.pkgs; [ maliit-keyboard maliit-framework ];
   };
 }
