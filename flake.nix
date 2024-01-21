@@ -40,7 +40,9 @@
     nix-doom-emacs = { url = "github:nix-community/nix-doom-emacs"; inputs.nixpkgs.follows = "nixpkgs"; };
     nur-linyinfeng = { url = "github:linyinfeng/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixos-hardware.url = "github:NixOS/nixos-hardware";
+
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
+    rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
   };
 
   outputs = inputs:

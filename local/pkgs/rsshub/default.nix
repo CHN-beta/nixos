@@ -1,16 +1,9 @@
 {
-  lib, stdenv, mkPnpmPackage, fetchFromGitHub, nodejs, writeShellScript,
-  chromium, bash
+  lib, stdenv, mkPnpmPackage, nodejs, writeShellScript,
+  chromium, bash, src
 }:
 let
   name = "rsshub";
-  src = fetchFromGitHub
-  {
-    owner = "DIYgod";
-    repo = "RSSHub";
-    rev = "38a5b0c193bf77d71c4eea33db6e76bc8b565d0b";
-    hash = "sha256-gJsT9W2fFiy2IG89E5th49DpBHsPMfsdONyzAKDG48c=";
-  };
   originalPnpmPackage = mkPnpmPackage { inherit name src nodejs; };
   nodeModules = originalPnpmPackage.nodeModules.overrideAttrs { PUPPETEER_SKIP_DOWNLOAD = true; };
   rsshub-unwrapped = stdenv.mkDerivation

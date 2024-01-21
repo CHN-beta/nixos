@@ -3,7 +3,7 @@
   typora = callPackage ./typora {};
   vesta = callPackage ./vesta {};
   oneapi = callPackage ./oneapi {};
-  rsshub = callPackage ./rsshub {};
+  rsshub = callPackage ./rsshub { src = topInputs.rsshub; };
   misskey = callPackage ./misskey { nodejs = nodejs_21; src = topInputs.misskey; };
   mk-meili-mgn = callPackage ./mk-meili-mgn {};
   # vasp = callPackage ./vasp

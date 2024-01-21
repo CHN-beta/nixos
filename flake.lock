@@ -1639,6 +1639,7 @@
         "plasma-manager": "plasma-manager",
         "pnpm2nix-nzbr": "pnpm2nix-nzbr",
         "qchem": "qchem",
+        "rsshub": "rsshub",
         "sops-nix": "sops-nix"
       }
     },
@@ -1655,6 +1656,22 @@
       "original": {
         "owner": "debug-ito",
         "repo": "rotate-text.el",
+        "type": "github"
+      }
+    },
+    "rsshub": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1705846459,
+        "narHash": "sha256-dT78+2JMAybisamtK7+swqxA6V5nlcyDPcWjQ8vRle0=",
+        "owner": "DIYgod",
+        "repo": "RSSHub",
+        "rev": "4644ce575565c8205cc29aca921282e1b07f24c2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "DIYgod",
+        "repo": "RSSHub",
         "type": "github"
       }
     },
