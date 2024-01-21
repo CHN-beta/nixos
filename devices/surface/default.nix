@@ -45,7 +45,7 @@ inputs:
         sound.enable = true;
       };
       packages.packageSet = "desktop-fat";
-      virtualization.docker.enable = true;
+      virtualization = { docker.enable = true; waydroid.enable = true; };
       services =
       {
         snapper.enable = true;
