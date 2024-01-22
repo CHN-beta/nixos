@@ -1,14 +1,7 @@
-{ stdenv, fetchFromGitHub }: stdenv.mkDerivation rec
+{ stdenv, src }: stdenv.mkDerivation
 {
-  pname = "zpp-bits";
-  version = "4.4.19";
-  src = fetchFromGitHub
-  {
-    owner = "eyalz800";
-    repo = "zpp_bits";
-    rev = "v${version}";
-    sha256 = "ejIwrvCFALuBQbQhTfzjBb11oMR/akKnboB60GWbjlQ=";
-  };
+  inherit src;
+  name = "zpp-bits";
   phases = [ "installPhase" ];
   installPhase =
   ''

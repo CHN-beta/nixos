@@ -23,7 +23,7 @@
   eigengdb = python3Packages.callPackage ./eigengdb {};
   nodesoup = callPackage ./nodesoup {};
   matplotplusplus = callPackage ./matplotplusplus { inherit nodesoup glad; };
-  zpp-bits = callPackage ./zpp-bits {};
+  zpp-bits = callPackage ./zpp-bits { src = topInputs.zpp-bits; };
   eigen = callPackage ./eigen {};
   nameof = callPackage ./nameof {};
   pslist = callPackage ./pslist {};

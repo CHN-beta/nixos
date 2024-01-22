@@ -1640,7 +1640,8 @@
         "pnpm2nix-nzbr": "pnpm2nix-nzbr",
         "qchem": "qchem",
         "rsshub": "rsshub",
-        "sops-nix": "sops-nix"
+        "sops-nix": "sops-nix",
+        "zpp-bits": "zpp-bits"
       }
     },
     "rotate-text": {
@@ -1964,6 +1965,22 @@
       "original": {
         "owner": "hlissner",
         "repo": "ws-butler",
+        "type": "github"
+      }
+    },
+    "zpp-bits": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1701869102,
+        "narHash": "sha256-NG/ClndqIYUcgkienweE+4GiocZm67enqt1QFi2kDgg=",
+        "owner": "eyalz800",
+        "repo": "zpp_bits",
+        "rev": "e949de48dd948ce7bb5c8a23a3652afbab376eb6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "eyalz800",
+        "repo": "zpp_bits",
         "type": "github"
       }
     }

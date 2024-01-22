@@ -43,6 +43,7 @@
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
+    zpp-bits = { url = "github:eyalz800/zpp_bits"; flake = false; };
   };
 
   outputs = inputs:
