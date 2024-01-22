@@ -11,7 +11,9 @@ inputs:
         packages._packages = with inputs.pkgs;
         [
           # system management
-          gparted wl-clipboard-x11 kio-fuse wayland-utils clinfo glxinfo vulkan-tools dracut argyllcms
+          gparted wl-clipboard-x11 kio-fuse wayland-utils clinfo glxinfo vulkan-tools dracut
+          # color management
+          argyllcms xcalib
           # networking
           remmina putty mtr-gui
           # media
