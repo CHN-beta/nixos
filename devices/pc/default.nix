@@ -139,7 +139,11 @@ inputs:
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
     # use plasma-x11 as default, instead of plasma-wayland
-    services.xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
+    services.xserver.displayManager =
+    {
+      defaultSession = inputs.lib.mkForce "plasma";
+      setupCommands = "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
+    };
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
     hardware.nvidia.forceFullCompositionPipeline = true;
   };
