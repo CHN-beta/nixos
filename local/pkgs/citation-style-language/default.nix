@@ -1,20 +1,12 @@
-{ stdenvNoCC, texlive, fetchFromGitHub }: stdenvNoCC.mkDerivation (finalAttrs: rec
+{ stdenvNoCC, texlive, src }: stdenvNoCC.mkDerivation (finalAttrs:
 {
-  pname = "citation-style-language";
-  version = "0.4.5";
-  passthru = {
+  name = "citation-style-language";
+  inherit src;
+  passthru =
+  {
     pkgs = [ finalAttrs.finalPackage ];
     tlDeps = with texlive; [ latex ];
     tlType = "run";
-  };
-
-  src = fetchFromGitHub
-  {
-    owner = "zepinglee";
-    repo = "citeproc-lua";
-    rev = "v${version}";
-    sha256 = "XH+GH+t/10hr4bfaod8F9JPxmBnAQlDmpSvQNDQsslM=";
-    fetchSubmodules = true;
   };
 
   nativeBuildInputs = [ texlive.combined.scheme-full ];

@@ -1,14 +1,7 @@
-{ lib, stdenv, fetchFromGitHub }: stdenv.mkDerivation rec
+{ lib, stdenv, src }: stdenv.mkDerivation
 {
-  pname = "nameof";
-  version = "0.10.3";
-  src = fetchFromGitHub
-  {
-    owner = "Neargye";
-    repo = pname;
-    rev = "v${version}";
-    sha256 = "eHG0Y/BQGbwTrBHjq9SeSiIXaVqWp7PxIq7vCIECYPk=";
-  };
+  name = "nameof";
+  inherit src;
   phases = [ "installPhase" ];
   installPhase =
   ''

@@ -1,12 +1,6 @@
-{ lib, stdenv, fetchFromGitLab, cmake }: stdenv.mkDerivation rec
+{ lib, stdenv, cmake, src }: stdenv.mkDerivation
 {
   name = "eigen";
-  src = fetchFromGitLab
-  {
-    owner = "libeigen";
-    repo = name;
-    rev = "6d829e766ff1b1ab867d93631163cbc63ed5798f";
-    sha256 = "BXUnizcRPrOyiPpoyYJ4VVOjlG49aj80mgzPKmEYPKU=";
-  };
+  inherit src;
   nativeBuildInputs = [ cmake ];
 }

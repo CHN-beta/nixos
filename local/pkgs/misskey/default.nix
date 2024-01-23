@@ -1,13 +1,12 @@
 {
   lib, stdenv, mkPnpmPackage, fetchurl, nodejs, writeShellScript, buildFHSEnv,
-  bash, cypress, vips, pkg-config, src ? null
+  bash, cypress, vips, pkg-config, src
 }:
 let
-  pname = "misskey";
-  version = "2023.12.2";
+  name = "misskey";
   originalPnpmPackage = mkPnpmPackage
   {
-    inherit pname version src nodejs;
+    inherit name src nodejs;
     copyPnpmStore = true;
   };
   startScript = writeShellScript "misskey"
@@ -20,7 +19,7 @@ let
 in
   stdenv.mkDerivation rec
   {
-    inherit version src pname;
+    inherit src name;
     buildInputs =
     [
       bash nodejs nodejs.pkgs.typescript nodejs.pkgs.pnpm nodejs.pkgs.gulp cypress vips pkg-config

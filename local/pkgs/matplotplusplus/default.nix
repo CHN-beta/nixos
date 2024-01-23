@@ -1,17 +1,10 @@
 {
-  stdenv, fetchFromGitHub, cmake, pkg-config, substituteAll,
+  stdenv, src, cmake, pkg-config, substituteAll,
   gnuplot, libjpeg, libtiff, zlib, libpng, lapack, blas, fftw, opencv, nodesoup, cimg, glfw, libGL, python3, glad
 }: stdenv.mkDerivation
 {
-  pname = "matplotplusplus";
-  version = "1.2.0";
-  src = fetchFromGitHub
-  {
-    owner = "alandefreitas";
-    repo = "matplotplusplus";
-    rev = "a40344efa9dc5ea0c312e6e9ef4eb7238d98dc12";
-    sha256 = "6/dH/Rl2aAb8b+Ji5LwzkC+GWPOCBnYCrjy0qk8u/+I=";
-  };
+  name = "matplotplusplus";
+  inherit src;
   cmakeFlags =
   [
     "-DBUILD_SHARED_LIBS=ON" "-DMATPLOTPP_BUILD_SHARED_LIBS=ON" "-DMATPLOTPP_BUILD_EXAMPLES=OFF"

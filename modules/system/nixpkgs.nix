@@ -24,7 +24,7 @@ inputs:
         nixpkgs =
           let
             permittedInsecurePackages =
-              [ "openssl_1_1" "electron_19" "python2" "electron_12" "electron_24" "zotero" ];
+              [ "openssl_1_1" "electron_19" "python2" "electron_12" "electron_24" "zotero" "electron_25" ];
             hostPlatform = mkConditional (nixpkgs.march != null)
               { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
               "x86_64-linux";

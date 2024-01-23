@@ -18,28 +18,28 @@
     openmpi = pkgs.openmpi.override { cudaSupport = false; };
   };
   vaspkit = callPackage ./vaspkit { attrsToList = (import ../lib lib).attrsToList; };
-  v_sim = callPackage ./v_sim {};
-  concurrencpp = callPackage ./concurrencpp { stdenv = gcc13Stdenv; };
+  v-sim = callPackage ./v-sim { src = topInputs.v-sim; };
+  concurrencpp = callPackage ./concurrencpp { stdenv = gcc13Stdenv; src = topInputs.concurrencpp; };
   eigengdb = python3Packages.callPackage ./eigengdb {};
-  nodesoup = callPackage ./nodesoup {};
-  matplotplusplus = callPackage ./matplotplusplus { inherit nodesoup glad; };
+  nodesoup = callPackage ./nodesoup { src = topInputs.nodesoup; };
+  matplotplusplus = callPackage ./matplotplusplus { inherit nodesoup glad; src = topInputs.matplotplusplus; };
   zpp-bits = callPackage ./zpp-bits { src = topInputs.zpp-bits; };
-  eigen = callPackage ./eigen {};
-  nameof = callPackage ./nameof {};
+  eigen = callPackage ./eigen { src = topInputs.eigen; };
+  nameof = callPackage ./nameof { src = topInputs.nameof; };
   pslist = callPackage ./pslist {};
   glad = callPackage ./glad {};
   chromiumos-touch-keyboard = callPackage ./chromiumos-touch-keyboard {};
   yoga-support = callPackage ./yoga-support {};
-  tgbot-cpp = callPackage ./tgbot-cpp {};
+  tgbot-cpp = callPackage ./tgbot-cpp { src = topInputs.tgbot-cpp; };
   biu = callPackage ./biu { inherit concurrencpp tgbot-cpp nameof; stdenv = gcc13Stdenv; };
-  citation-style-language = callPackage ./citation-style-language {};
+  citation-style-language = callPackage ./citation-style-language { src = topInputs.citation-style-language; };
   mirism = callPackage ./mirism
   {
     inherit cppcoro nameof tgbot-cpp date;
     nghttp2 = nghttp2-2305.override { enableAsioLib = true; };
   };
-  cppcoro = callPackage ./cppcoro {};
-  date = callPackage ./date {};
+  cppcoro = callPackage ./cppcoro { src = topInputs.cppcoro; };
+  date = callPackage ./date { src = topInputs.date; };
   esbonio = python3Packages.callPackage ./esbonio {};
   pix2tex = python3Packages.callPackage ./pix2tex {};
   pyreadline3 = python3Packages.callPackage ./pyreadline3 {};

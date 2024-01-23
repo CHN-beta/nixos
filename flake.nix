@@ -24,13 +24,15 @@
       inputs = { nixpkgs.follows = "nixpkgs"; nix-index-database.follows = "nix-index-database"; };
     };
     impermanence.url = "github:nix-community/impermanence";
-    qchem = { url = "github:Nix-QChem/NixOS-QChem"; inputs.nixpkgs.follows = "nixpkgs"; };
+    qchem = { url = "github:Nix-QChem/NixOS-QChem/release-23.11"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixd = { url = "github:nix-community/nixd"; inputs.nixpkgs.follows = "nixpkgs"; };
     napalm = { url = "github:nix-community/napalm"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixpak = { url = "github:nixpak/nixpak"; inputs.nixpkgs.follows = "nixpkgs"; };
     deploy-rs = { url = "github:serokell/deploy-rs"; inputs.nixpkgs.follows = "nixpkgs"; };
     pnpm2nix-nzbr = { url = "github:CHN-beta/pnpm2nix-nzbr"; inputs.nixpkgs.follows = "nixpkgs"; };
+    # oneapi
     lmix = { url = "github:CHN-beta/lmix"; inputs.nixpkgs.follows = "nixpkgs"; };
+    # nvhpc
     dguibert-nur-packages = { url = "github:CHN-beta/dguibert-nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     plasma-manager =
     {
@@ -44,6 +46,16 @@
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
     zpp-bits = { url = "github:eyalz800/zpp_bits"; flake = false; };
+    citation-style-language = { url = "git+https://github.com/zepinglee/citeproc-lua?submodules=1"; flake = false; };
+    concurrencpp = { url = "github:David-Haim/concurrencpp"; flake = false; };
+    cppcoro = { url = "github:Garcia6l20/cppcoro"; flake = false; };
+    date = { url = "github:HowardHinnant/date"; flake = false; };
+    eigen = { url = "gitlab:libeigen/eigen"; flake = false; };
+    matplotplusplus = { url = "github:alandefreitas/matplotplusplus"; flake = false; };
+    nameof = { url = "github:Neargye/nameof"; flake = false; };
+    nodesoup = { url = "github:olvb/nodesoup"; flake = false; };
+    tgbot-cpp = { url = "github:reo7sp/tgbot-cpp"; flake = false; };
+    v-sim = { url = "gitlab:l_sim/v_sim"; flake = false; };
   };
 
   outputs = inputs:
