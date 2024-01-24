@@ -79,7 +79,7 @@ inputs:
       };
       services =
       {
-        snapper.enable = true;
+        snapper.enable = false;
         fontconfig.enable = true;
         samba =
         {
@@ -127,7 +127,7 @@ inputs:
         nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
         smartd.enable = true;
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
-        beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
+        beesd = { enable = false; instances.root = { device = "/"; hashTableSizeMB = 2048; }; };
         wireguard =
         {
           enable = true;
