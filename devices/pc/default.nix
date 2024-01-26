@@ -51,6 +51,7 @@ inputs:
             "alderlake"
           ];
           keepOutputs = true;
+          autoOptimiseStore = false;
         };
         nixpkgs =
           { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
