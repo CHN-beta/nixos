@@ -38,6 +38,7 @@ inputs:
           else grub.installDevice;
         efiSupport = grub.installDevice == "efi" || grub.installDevice == "efiRemovable";
         efiInstallAsRemovable = grub.installDevice == "efiRemovable";
+        memtest86.enable = true;
       };
       efi =
       {
