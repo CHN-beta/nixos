@@ -29,10 +29,10 @@ inputs:
             keep-failed = true;
             auto-optimise-store = nix.autoOptimiseStore;
             substituters = if nix.substituters == null then [ "https://cache.nixos.org/" ] else nix.substituters;
-            max-substitution-jobs = 2;
+            max-substitution-jobs = 1;
             trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
             show-trace = true;
-            max-jobs = 2;
+            max-jobs = 1;
             cores = 0;
             keep-going = true;
           };
