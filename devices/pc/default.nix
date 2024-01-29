@@ -146,5 +146,6 @@ inputs:
     };
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
     hardware.nvidia.forceFullCompositionPipeline = true;
+    system.includeBuildDependencies = true;
   };
 }
