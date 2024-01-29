@@ -49,11 +49,7 @@ inputs:
                 server = [ "127.0.0.1#10853" ];
                 interface = xray.client.dns.extraInterfaces ++ [ "lo" ];
                 bind-dynamic = true;
-                ipset =
-                [
-                  "/developer.download.nvidia.com/noproxy_net"
-                  "/yuanshen.com/noproxy_net"
-                ];
+                ipset = [ "/yuanshen.com/noproxy_net" ];
                 address = map (host: "/${host.name}/${host.value}") (attrsToList xray.client.dns.hosts);
               };
             };
