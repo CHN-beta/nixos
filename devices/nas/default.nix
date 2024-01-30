@@ -46,10 +46,9 @@ inputs:
         kernel.patches = [ "cjktty" ];
         impermanence.enable = true;
         networking.hostname = "nas";
-        gui.preferred = false;
       };
       hardware = { cpus = [ "intel" ]; gpus = [ "intel" ]; };
-      packages.packageSet = "desktop";
+      packages.packageSet = "server";
       services =
       {
         snapper.enable = true;
@@ -68,7 +67,6 @@ inputs:
           serverName = "vps6.xserver.chn.moe";
           dns.extraInterfaces = [ "docker0" ];
         };
-        xrdp = { enable = true; hostname = [ "nas.chn.moe" "office.chn.moe" ]; };
         groupshare.enable = true;
         smartd.enable = true;
         beesd =
