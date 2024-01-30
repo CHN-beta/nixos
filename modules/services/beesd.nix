@@ -8,8 +8,14 @@ inputs:
       type = types.attrsOf (types.oneOf
       [
         types.nonEmptyStr
-        (types.submodule { options =
-          { device = mkOption { type = types.nonEmptyStr; }; hashTableSizeMB = mkOption { type = types.int; }; };})
+        (types.submodule
+        {
+          options =
+          {
+            device = mkOption { type = types.nonEmptyStr; };
+            hashTableSizeMB = mkOption { type = types.ints.unsigned; default = 1024; };
+            threads = mkOption { type = types.ints.unsigned; default = 1; };
+          };})
       ]);
       default = {};
     };
@@ -30,7 +36,7 @@ inputs:
             {
               spec = instance.value.device or instance.value;
               hashTableSizeMB = instance.value.hashTableSizeMB or 1024;
-              extraOptions = [ "--thread-count" "1" "--scan-mode" "3" ];
+              extraOptions = [ "--thread-count" "${toString instance.value.threads or 1}" "--scan-mode" "3" ];
             };
           })
           (attrsToList beesd.instances));
