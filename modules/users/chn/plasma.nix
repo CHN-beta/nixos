@@ -1,104 +1,158 @@
+inputs:
 {
-  # plasma-manager is not mature, so only use 
   config.home-manager.users.chn.config.programs.plasma =
   {
     enable = true;
-    shortcuts =
-    {
+    shortcuts = inputs.lib.mkMerge
+    [
+      # firefox
+      { "firefox.desktop"._launch = "Meta+B"; }
       # crow translate
-      "io.crow_translate.CrowTranslate.desktop"."TranslateSelectedText" = "Ctrl+Alt+E";
-
+      { "io.crow_translate.CrowTranslate.desktop".TranslateSelectedText = "Ctrl+Alt+E"; }
       # display
-      "kded5"."display" = [ "Display" "Meta+P" ];
-      "kwin"."view_actual_size" = "Meta+0";
-      "kwin"."view_zoom_in" = ["Meta++" "Meta+="];
-      "kwin"."view_zoom_out" = "Meta+-";
-      "org_kde_powerdevil"."Decrease Screen Brightness" = "Monitor Brightness Down";
-      "org_kde_powerdevil"."Increase Screen Brightness" = "Monitor Brightness Up";
-
-      # volume
-      "kmix" =
       {
-        "decrease_volume" = "Volume Down";
-        "increase_volume" = "Volume Up";
-        "mic_mute" = [ "Meta+Volume Mute" ];
-        "mute" = "Volume Mute";
-      };
-
+        kded5.display = [ "Display" "Meta+P" ];
+        kwin = { view_actual_size = "Meta+0"; view_zoom_in = [ "Meta++" "Meta+=" ]; view_zoom_out = "Meta+-"; };
+        org_kde_powerdevil =
+        {
+          "Decrease Screen Brightness" = "Monitor Brightness Down";
+          "Increase Screen Brightness" = "Monitor Brightness Up";
+        };
+      }
+      # volume
+      {
+        kmix =
+        {
+          decrease_volume = "Volume Down";
+          increase_volume = "Volume Up";
+          mic_mute = [ "Meta+Volume Mute" ];
+          mute = "Volume Mute";
+        };
+      }
       # session
-      "ksmserver"."Lock Session" = [ "Meta+L" "Screensaver" ];
-      "ksmserver"."Log Out" = "Ctrl+Alt+Del";
-      "org_kde_powerdevil"."Turn Off Screen" = "Meta+Ctrl+L";
-
-      # mouse
-      "kwin"."MoveMouseToCenter" = "Meta+F6";
-
+      {
+        ksmserver = { "Lock Session" = [ "Meta+L" "Screensaver" ]; "Log Out" = "Ctrl+Alt+Del"; };
+        org_kde_powerdevil."Turn Off Screen" = "Meta+Ctrl+L";
+      }
       # window
-      "kwin"."Overview" = "Meta+Tab";
-      "kwin"."Show Desktop" = "Meta+D";
-      "kwin"."Suspend Compositing" = "Alt+Shift+F12";
-      "kwin"."Walk Through Windows" = "Alt+Tab";
-      "kwin"."Walk Through Windows (Reverse)" = "Alt+Shift+Backtab";
-      "kwin"."Window Above Other Windows" = "Meta+Shift+PgUp";
-      "kwin"."Window Below Other Windows" = "Meta+Shift+PgDown";
-      "kwin"."Window Close" = "Alt+F4";
-      "kwin"."Window Maximize" = "Meta+PgUp";
-      "kwin"."Window Minimize" = "Meta+PgDown";
-      "kwin"."Window Operations Menu" = "Alt+F3";
-      "kwin"."Window Quick Tile Bottom" = "Meta+Down";
-      "kwin"."Window Quick Tile Left" = "Meta+Left";
-      "kwin"."Window Quick Tile Right" = "Meta+Right";
-      "kwin"."Window Quick Tile Top" = "Meta+Up";
-
+      {
+        kwin =
+        {
+          Overview = "Meta+Tab";
+          "Show Desktop" = "Meta+D";
+          "Suspend Compositing" = "Alt+Shift+F12";
+          "Walk Through Windows" = "Alt+Tab";
+          "Walk Through Windows (Reverse)" = "Alt+Shift+Backtab";
+          "Window Above Other Windows" = "Meta+Shift+PgUp";
+          "Window Below Other Windows" = "Meta+Shift+PgDown";
+          "Window Close" = "Alt+F4";
+          "Window Maximize" = "Meta+PgUp";
+          "Window Minimize" = "Meta+PgDown";
+          "Window Operations Menu" = "Alt+F3";
+          "Window Quick Tile Bottom" = "Meta+Down";
+          "Window Quick Tile Left" = "Meta+Left";
+          "Window Quick Tile Right" = "Meta+Right";
+          "Window Quick Tile Top" = "Meta+Up";
+        };
+      }
       # virtual desktop
-      "kwin"."Switch One Desktop Down" = "Meta+Ctrl+Down";
-      "kwin"."Switch One Desktop Up" = "Meta+Ctrl+Up";
-      "kwin"."Switch One Desktop to the Left" = "Meta+Ctrl+Left";
-      "kwin"."Switch One Desktop to the Right" = "Meta+Ctrl+Right";
-      "kwin"."Window One Desktop Down" = "Meta+Ctrl+Shift+Down";
-      "kwin"."Window One Desktop Up" = "Meta+Ctrl+Shift+Up";
-      "kwin"."Window One Desktop to the Left" = "Meta+Ctrl+Shift+Left";
-      "kwin"."Window One Desktop to the Right" = "Meta+Ctrl+Shift+Right";
-
+      {
+        kwin =
+        {
+          "Switch One Desktop Down" = "Meta+Ctrl+Down";
+          "Switch One Desktop Up" = "Meta+Ctrl+Up";
+          "Switch One Desktop to the Left" = "Meta+Ctrl+Left";
+          "Switch One Desktop to the Right" = "Meta+Ctrl+Right";
+          "Window One Desktop Down" = "Meta+Ctrl+Shift+Down";
+          "Window One Desktop Up" = "Meta+Ctrl+Shift+Up";
+          "Window One Desktop to the Left" = "Meta+Ctrl+Shift+Left";
+          "Window One Desktop to the Right" = "Meta+Ctrl+Shift+Right";
+        };
+      }
       # media
-      "mediacontrol"."nextmedia" = "Media Next";
-      "mediacontrol"."pausemedia" = "Media Pause";
-      "mediacontrol"."playpausemedia" = [ "Pause" "Media Play" ];
-      "mediacontrol"."previousmedia" = "Media Previous";
-      "mediacontrol"."stopmedia" = "Media Stop";
-
+      {
+        mediacontrol =
+        {
+          nextmedia = "Media Next";
+          pausemedia = "Media Pause";
+          playpausemedia = [ "Pause" "Media Play" ];
+          previousmedia = "Media Previous";
+          stopmedia = "Media Stop";
+        };
+      }
       # dolphin
-      "org.kde.dolphin.desktop"."_launch" = "Meta+E";
-
+      { "org.kde.dolphin.desktop"._launch = "Meta+E"; }
       # konsole
-      "org.kde.konsole.desktop"."_launch" = "Ctrl+Alt+T";
-
+      { "org.kde.konsole.desktop"._launch = "Ctrl+Alt+T"; }
       # krunner
-      "org.kde.krunner.desktop"."_launch" = "Alt+Space";
-
+      { "org.kde.krunner.desktop"._launch = "Alt+Space"; }
       # screenshot
-      "org.kde.spectacle.desktop"."ActiveWindowScreenShot" = "Meta+Print";
-      "org.kde.spectacle.desktop"."CurrentMonitorScreenShot" = [ ];
-      "org.kde.spectacle.desktop"."FullScreenScreenShot" = "Shift+Print";
-      "org.kde.spectacle.desktop"."OpenWithoutScreenshot" = [ ];
-      "org.kde.spectacle.desktop"."RectangularRegionScreenShot" = "Meta+Shift+Print";
-      "org.kde.spectacle.desktop"."WindowUnderCursorScreenShot" = "Meta+Ctrl+Print";
-      "org.kde.spectacle.desktop"."_launch" = "Print";
-
+      {
+        "org.kde.spectacle.desktop" =
+        {
+          OpenWithoutScreenshot = "Ctrl+Print";
+          RectangularRegionScreenShot = "Print";
+        };
+      }
       # settings
-      "systemsettings.desktop"."_launch" = "Meta+I";
-
+      { "systemsettings.desktop"._launch = "Meta+I"; }
       # yakuake
-      "yakuake"."toggle-window-state" = "Meta+Space";
-    };
-    configFile =
-    {
+      { yakuake.toggle-window-state = "Meta+Space"; }
+      # virt-manager
+      { "virt-manager.desktop"._launch = "Meta+V"; }
+    ];
+    configFile = inputs.lib.mkMerge
+    [
       # baloo
       # "baloofilerc"."Basic Settings"."Indexing-Enabled" = false;
-
       # dolphin
-      "dolphinrc"."General"."ShowFullPath" = true;
-      "dolphinrc"."PreviewSettings"."Plugins" = "blenderthumbnail,comicbookthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,marble_thumbnail_geojson,marble_thumbnail_gpx,jpegthumbnail,marble_thumbnail_kmz,marble_thumbnail_kml,kraorathumbnail,windowsimagethumbnail,windowsexethumbnail,mltpreview,mobithumbnail,opendocumentthumbnail,marble_thumbnail_osm,palathumbcreator,gsthumbnail,rawthumbnail,svgthumbnail,imagethumbnail,fontthumbnail,directorythumbnail,textthumbnail,webarchivethumbnail,ffmpegthumbs,audiothumbnail";
+      {
+        dolphinrc =
+        {
+          General = { ShowFullPath = true; FilterBar = true; RememberOpenedTabs = false; };
+          PreviewSettings.Plugins = builtins.concatStringsSep ","
+          [
+            "blenderthumbnail"
+            "comicbookthumbnail"
+            "djvuthumbnail"
+            "ebookthumbnail"
+            "exrthumbnail"
+            "marble_thumbnail_geojson"
+            "marble_thumbnail_gpx"
+            "jpegthumbnail"
+            "marble_thumbnail_kmz"
+            "marble_thumbnail_kml"
+            "kraorathumbnail"
+            "windowsimagethumbnail"
+            "windowsexethumbnail"
+            "mltpreview"
+            "mobithumbnail"
+            "opendocumentthumbnail"
+            "marble_thumbnail_osm"
+            "palathumbcreator"
+            "gsthumbnail"
+            "rawthumbnail"
+            "svgthumbnail"
+            "imagethumbnail"
+            "fontthumbnail"
+            "directorythumbnail"
+            "textthumbnail"
+            "webarchivethumbnail"
+            "ffmpegthumbs"
+            "audiothumbnail"
+          ];
+        };
+      }
+      # theme
+      {
+        kcminputrc.Mouse.cursorTheme = "breeze_cursors";
+      }
+
+    ]
+    {
+
+
+
 
       "kcminputrc"."Mouse"."cursorTheme" = "breeze_cursors";
       "kdeglobals"."KDE"."widgetStyle" = "kvantum";
