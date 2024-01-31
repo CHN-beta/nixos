@@ -37,6 +37,7 @@ inputs:
             microsoft-edge
             # news
             rssguard newsflash newsboat
+            yuzu-early-access
           ];
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
