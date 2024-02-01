@@ -32,7 +32,6 @@ inputs:
         grub.installDevice = "efi";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         kernel.patches = [ "cjktty" "lantian" ];
-        impermanence.enable = true;
         networking.hostname = "surface";
       };
       hardware =

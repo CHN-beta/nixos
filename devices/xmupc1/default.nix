@@ -42,7 +42,6 @@ inputs:
         };
         gui.preferred = false;
         kernel.patches = [ "cjktty" ];
-        impermanence.enable = true;
         networking.hostname = "xmupc1";
       };
       hardware =

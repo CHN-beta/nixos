@@ -2,7 +2,7 @@ inputs:
 {
   options.nixos.system.impermanence = let inherit (inputs.lib) mkOption types; in
   {
-    enable = mkOption { type = types.bool; default = false; };
+    enable = mkOption { type = types.bool; default = true; };
     persistence = mkOption { type = types.nonEmptyStr; default = "/nix/persistent"; };
     root = mkOption { type = types.nonEmptyStr; default = "/nix/rootfs/current"; };
     nodatacow = mkOption { type = types.nullOr types.nonEmptyStr; default = "/nix/nodatacow"; };

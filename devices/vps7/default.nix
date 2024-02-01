@@ -29,7 +29,6 @@ inputs:
         nixpkgs.march = "broadwell";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         initrd.sshd.enable = true;
-        impermanence.enable = true;
         networking.hostname = "vps7";
       };
       packages.packageSet = "server";

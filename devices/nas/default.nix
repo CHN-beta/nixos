@@ -44,7 +44,6 @@ inputs:
         nixpkgs.march = "silvermont";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         kernel.patches = [ "cjktty" ];
-        impermanence.enable = true;
         networking.hostname = "nas";
       };
       hardware = { cpus = [ "intel" ]; gpus = [ "intel" ]; };
