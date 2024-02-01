@@ -11,7 +11,18 @@ inputs:
         packages._packages = with inputs.pkgs;
         [
           # system management
-          gparted wl-clipboard-x11 kio-fuse wayland-utils clinfo glxinfo vulkan-tools dracut
+          gparted kio-fuse wayland-utils clinfo glxinfo vulkan-tools dracut
+          (
+            writeShellScriptBin "xclip"
+            ''
+              #!${bash}/bin/bash
+              if [ "$XDG_SESSION_TYPE" = "x11" ]; then
+                exec ${xclip}/bin/xclip "$@"
+              else
+                exec ${wl-clipboard-x11}/bin/xclip "$@"
+              fi
+            ''
+          )
           # color management
           argyllcms xcalib
           # networking
