@@ -8,7 +8,7 @@
   src = requireFile
   {
     inherit name;
-    sha256 = "1q3f4q4ln9dz68dfc35jybgv861f7acqiiykkm7jxviz8jdgn8c7";
+    sha256 = "0f50pvdafhlmrlbf341mkp9q50v4ld5pbx92d2w1633f18zghbzf";
     hashMode = "recursive";
     message = "Source file not found.";
   };
