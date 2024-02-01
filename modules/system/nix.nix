@@ -4,7 +4,7 @@ inputs:
   {
     # marches allowed to be compiled on this machine
     marches = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-    keepOutputs = mkOption { type = types.bool; default = false; };
+    includeBuildDependencies = mkOption { type = types.bool; default = inputs.topInputs.self.config.production; };
     substituters = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
     autoOptimiseStore = mkOption { type = types.bool; default = false; };
   };
@@ -25,7 +25,7 @@ inputs:
                 else nix.marches
               ));
             experimental-features = [ "nix-command" "flakes" ];
-            keep-outputs = nix.keepOutputs;
+            keep-outputs = nix.includeBuildDependencies;
             keep-failed = true;
             auto-optimise-store = nix.autoOptimiseStore;
             substituters = if nix.substituters == null then [ "https://cache.nixos.org/" ] else nix.substituters;
@@ -61,6 +61,7 @@ inputs:
           };
           variables.COMMA_NIXPKGS_FLAKE = "nixpkgs-unstable";
         };
+        system.includeBuildDependencies = nix.includeBuildDependencies;
         # environment.pathsToLink = [ "/include" ];
         # environment.variables.CPATH = "/run/current-system/sw/include";
         # environment.variables.LIBRARY_PATH = "/run/current-system/sw/lib";

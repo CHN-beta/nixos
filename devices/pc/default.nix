@@ -50,7 +50,6 @@ inputs:
             # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
             "alderlake"
           ];
-          keepOutputs = true;
         };
         nixpkgs =
           { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
