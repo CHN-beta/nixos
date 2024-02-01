@@ -16,6 +16,7 @@ inputs:
     ./sops.nix
     ./user.nix
     ./sysctl.nix
+    ./envfs.nix
   ];
   config =
   {

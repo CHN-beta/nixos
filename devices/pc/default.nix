@@ -147,7 +147,5 @@ inputs:
     };
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
     hardware.nvidia.forceFullCompositionPipeline = true;
-    environment.variables.ENVFS_RESOLVE_ALWAYS = "1";
   };
-  imports = [ inputs.topInputs.envfs.nixosModules.envfs ];
 }
