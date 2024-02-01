@@ -7,45 +7,71 @@ inputs:
     # "efi" using efi, "efiRemovable" using efi with install grub removable, or dev path like "/dev/sda" using bios
     installDevice = mkOption { type = types.str; };
   };
-  config =
-    let
-      inherit (inputs.lib) mkIf;
-      inherit (inputs.localLib) mkConditional attrsToList stripeTabs;
-      inherit (inputs.config.nixos.system) grub;
-      inherit (builtins) concatStringsSep map;
-    in { boot.loader =
+  config = let inherit (inputs.config.nixos.system) grub; in inputs.lib.mkMerge
+  [
+    # general settings
+    { boot.loader.grub = { enable = true; useOSProber = false; }; }
+    # grub timeout
+    { boot.loader.timeout = grub.timeout; }
+    # grub install
     {
-      timeout = grub.timeout;
-      grub =
+      boot.loader =
       {
-        enable = true;
-        useOSProber = false;
-        extraEntries = concatStringsSep "\n" (map
-          (system:
-          ''
-            menuentry "${system.value}" {
-              insmod part_gpt
-              insmod fat
-              insmod search_fs_uuid
-              insmod chain
-              search --fs-uuid --set=root ${system.name}
-              chainloader /EFI/Microsoft/Boot/bootmgfw.efi
-            }
-          '')
-          (attrsToList grub.windowsEntries));
-        device =
-          if grub.installDevice == "efi" || grub.installDevice == "efiRemovable" then "nodev"
-          else grub.installDevice;
-        efiSupport = grub.installDevice == "efi" || grub.installDevice == "efiRemovable";
-        efiInstallAsRemovable = grub.installDevice == "efiRemovable";
+        grub =
+        {
+          device = if builtins.elem grub.installDevice [ "efi" "efiRemovable" ] then "nodev" else grub.installDevice;
+          efiSupport = builtins.elem grub.installDevice [ "efi" "efiRemovable" ];
+          efiInstallAsRemovable = grub.installDevice == "efiRemovable";
+        };
+        efi =
+        {
+          canTouchEfiVariables = grub.installDevice == "efi";
+          efiSysMountPoint = inputs.lib.mkIf (builtins.elem grub.installDevice [ "efi" "efiRemovable" ]) "/boot/efi";
+        };
+      };
+    }
+    # extra grub entries
+    {
+      boot.loader.grub =
+      {
         memtest86.enable = true;
+        extraEntries = builtins.concatStringsSep "\n"
+        (
+          (builtins.map
+            (system:
+            ''
+              menuentry "${system.value}" {
+                insmod part_gpt
+                insmod fat
+                insmod search_fs_uuid
+                insmod chain
+                search --fs-uuid --set=root ${system.name}
+                chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+              }
+            '')
+            (inputs.localLib.attrsToList grub.windowsEntries))
+          ++ [
+            ''
+              menuentry "System shutdown" {
+                echo "System shutting down..."
+                halt
+              }
+              menuentry "System restart" {
+                echo "System rebooting..."
+                reboot
+              }
+            ''
+            (
+              inputs.lib.optionalString (builtins.elem grub.installDevice [ "efi" "efiRemovable" ])
+              ''
+                menuentry 'UEFI Firmware Settings' --id 'uefi-firmware' {
+                  fwsetup
+                }
+              ''
+            )
+          ]
+        );
       };
-      efi =
-      {
-        canTouchEfiVariables = grub.installDevice == "efi";
-        efiSysMountPoint =
-          if grub.installDevice == "efi" || grub.installDevice == "efiRemovable" then "/boot/efi"
-          else inputs.options.boot.loader.efi.efiSysMountPoint.default;
-      };
-    };};
+    }
+  ];
 }
