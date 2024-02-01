@@ -25,7 +25,7 @@ inputs:
             beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq zellij neofetch ipfetch localPackages.pslist
             fastfetch reptyr
             # lsxx
-            pciutils usbutils lshw util-linux lsof
+            pciutils usbutils lshw util-linux lsof dmidecode
             # top
             iotop iftop htop btop powertop s-tui
             # editor
