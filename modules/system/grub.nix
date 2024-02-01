@@ -35,8 +35,10 @@ inputs:
       boot.loader.grub =
       {
         memtest86.enable = true;
-        extraEntries = builtins.concatStringsSep "\n"
-        (
+        extraFiles = inputs.lib.mkIf (builtins.elem grub.installDevice [ "efi" "efiRemovable" ])
+          { "shell.efi" = "${inputs.pkgs.edk2-uefi-shell}/shell.efi"; };
+        extraEntries = inputs.lib.mkMerge (builtins.concatLists
+        [
           (builtins.map
             (system:
             ''
@@ -50,7 +52,7 @@ inputs:
               }
             '')
             (inputs.localLib.attrsToList grub.windowsEntries))
-          ++ [
+          [
             ''
               menuentry "System shutdown" {
                 echo "System shutting down..."
@@ -67,10 +69,15 @@ inputs:
                 menuentry 'UEFI Firmware Settings' --id 'uefi-firmware' {
                   fwsetup
                 }
+                menuentry "UEFI Shell" {
+                  insmod fat
+                  insmod chain
+                  chainloader @bootRoot@/shell.efi
+                }
               ''
             )
           ]
-        );
+        ]);
       };
     }
   ];
