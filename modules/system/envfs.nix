@@ -6,7 +6,7 @@ inputs:
   };
   config = inputs.lib.mkMerge
   [
-    (inputs.topInputs.envfs.nixosModules.envfs inputs)
+    (builtins.elemAt inputs.topInputs.envfs.nixosModules.envfs.imports 0 inputs)
     { environment.variables.ENVFS_RESOLVE_ALWAYS = "1"; }
   ];
 }
