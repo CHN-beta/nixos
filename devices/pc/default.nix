@@ -144,5 +144,11 @@ inputs:
     };
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
     hardware.nvidia.forceFullCompositionPipeline = true;
+    services.ttyd =
+    {
+      enable = true;
+      username = "ttyd";
+      passwordFile = inputs.pkgs.writeText "ttydpw" "0000";
+    };
   };
 }
