@@ -4,7 +4,7 @@ inputs:
   {
     # marches allowed to be compiled on this machine
     marches = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-    includeBuildDependencies = mkOption { type = types.bool; default = inputs.topInputs.self.config.production; };
+    includeBuildDependencies = mkOption { type = types.bool; default = inputs.topInputs.self.config.archive; };
     substituters = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
     autoOptimiseStore = mkOption { type = types.bool; default = false; };
   };
