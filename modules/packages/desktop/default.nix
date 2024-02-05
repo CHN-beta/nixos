@@ -30,7 +30,7 @@ inputs:
           # media
           mpv nomacs
           # themes
-          tela-circle-icon-theme
+          tela-circle-icon-theme localPackages.win11os-kde
         ];
         users.sharedModules =
         [{

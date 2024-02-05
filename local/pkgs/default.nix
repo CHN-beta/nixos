@@ -45,4 +45,5 @@
   pyreadline3 = python3Packages.callPackage ./pyreadline3 {};
   torchdata = python3Packages.callPackage ./torchdata {};
   torchtext = python3Packages.callPackage ./torchtext { inherit torchdata; };
+  win11os-kde = callPackage ./win11os-kde { src = topInputs.win11os-kde; };
 }

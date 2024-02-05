@@ -57,6 +57,7 @@
     nodesoup = { url = "github:olvb/nodesoup"; flake = false; };
     tgbot-cpp = { url = "github:reo7sp/tgbot-cpp"; flake = false; };
     v-sim = { url = "gitlab:l_sim/v_sim"; flake = false; };
+    win11os-kde = { url = "github:yeyushengfan258/Win11OS-kde"; flake = false; };
   };
 
   outputs = inputs:

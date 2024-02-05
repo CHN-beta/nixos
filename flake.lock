@@ -1814,6 +1814,7 @@
         "sops-nix": "sops-nix",
         "tgbot-cpp": "tgbot-cpp",
         "v-sim": "v-sim",
+        "win11os-kde": "win11os-kde",
         "zpp-bits": "zpp-bits"
       }
     },
@@ -2194,6 +2195,22 @@
         "owner": "l_sim",
         "repo": "v_sim",
         "type": "gitlab"
+      }
+    },
+    "win11os-kde": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1684014177,
+        "narHash": "sha256-uumpEiPkrTf98oqYe+rR3zmb7H8esy1vXLuv1WiOV7M=",
+        "owner": "yeyushengfan258",
+        "repo": "Win11OS-kde",
+        "rev": "b5daaa322c312e016ff1508850287c32a8123693",
+        "type": "github"
+      },
+      "original": {
+        "owner": "yeyushengfan258",
+        "repo": "Win11OS-kde",
+        "type": "github"
       }
     },
     "ws-butler": {
