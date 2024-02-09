@@ -41,10 +41,7 @@ inputs:
           ];
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
-            phonopy tensorflow keras openai scipy scikit-learn jupyterlab autograd
-            # localPackages.pix2tex
-            inquirerpy requests python-telegram-bot tqdm fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
-            certifi charset-normalizer idna orjson psycopg2
+            phonopy tensorflow keras scipy scikit-learn jupyterlab autograd # localPackages.pix2tex
           ])];
           _prebuildPackages =
           [

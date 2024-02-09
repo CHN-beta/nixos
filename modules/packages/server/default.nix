@@ -17,7 +17,7 @@ inputs:
       {
         packages = with inputs.pkgs;
         {
-          _packages = 
+          _packages =
           [
             # shell
             ksh
@@ -51,6 +51,11 @@ inputs:
             # development
             gdb try inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix hexo-cli
           ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
+          _pythonPackages = [(pythonPackages: with pythonPackages;
+          [
+            openai python-telegram-bot fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
+            certifi charset-normalizer idna orjson psycopg2 inquirerpy requests tqdm
+          ])];
         };
         users.sharedModules = [(home-inputs:
         {
