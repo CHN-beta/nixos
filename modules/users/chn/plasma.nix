@@ -17,7 +17,7 @@ inputs:
         cursorTheme = "Breeze_Snow";
         lookAndFeel = "com.github.vinceliuice.Fluent-round-light";
         iconTheme = "breeze";
-        wallpaper = "${inputs.topInputs.nixos-wallpaper}/pixiv-96734339-x2.png";
+        wallpaper = ./wallpaper/pixiv-96734339-x2.png;
       };
       configFile =
       {
