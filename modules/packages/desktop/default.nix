@@ -30,16 +30,19 @@ inputs:
           # media
           mpv nomacs
           # themes
-          tela-circle-icon-theme localPackages.win11os-kde
+          tela-circle-icon-theme localPackages.win11os-kde localPackages.fluent-kde
         ];
         users.sharedModules =
-        [{
-          config.home.file.".config/baloofilerc".text =
-          ''
-            [Basic Settings]
-            Indexing-Enabled=false
-          '';
-        }];
+        [(homeInputs: {
+          config.home.file = mkIf (!homeInputs.config.programs.plasma.enable)
+          {
+            ".config/baloofilerc".text =
+            ''
+              [Basic Settings]
+              Indexing-Enabled=false
+            '';
+          };
+        })];
       };
       programs =
       {

@@ -1,111 +1,161 @@
 inputs:
 {
-  config.home-manager.users.chn.config.programs.plasma =
-  {
-    enable = true;
-    shortcuts = inputs.lib.mkMerge
-    [
-      # firefox
-      { "firefox.desktop"._launch = "Meta+B"; }
-      # crow translate
-      { "io.crow_translate.CrowTranslate.desktop".TranslateSelectedText = "Ctrl+Alt+E"; }
-      # display
+  config.home-manager.users.chn.config.programs.plasma = inputs.lib.mkMerge
+  [
+    # TODO: autostart, panel, discard user changed settings
+    # general
+    {
+      enable = inputs.config.nixos.system.gui.enable;
+      configFile.plasma-localerc = { Formats.LANG = "en_US.UTF-8"; Translations.LANGUAGE = "zh_CN"; };
+    }
+    # theme, wallpaper, etc.
+    rec {
+      workspace =
       {
-        kded5.display = [ "Display" "Meta+P" ];
-        kwin = { view_actual_size = "Meta+0"; view_zoom_in = [ "Meta++" "Meta+=" ]; view_zoom_out = "Meta+-"; };
-        org_kde_powerdevil =
+        theme = "Fluent-round-light";
+        colorScheme = "FluentLight";
+        cursorTheme = "Breeze_Snow";
+        lookAndFeel = "com.github.vinceliuice.Fluent-round-light";
+        iconTheme = "breeze";
+        wallpaper = "${inputs.topInputs.nixos-wallpaper}/pixiv-96734339-x2.png";
+      };
+      configFile =
+      {
+        kdeglobals.KDE.widgetStyle = "kvantum";
+        "Kvantum/kvantum.kvconfig".General.theme = "Fluent-round";
+        kwinrc =
         {
-          "Decrease Screen Brightness" = "Monitor Brightness Down";
-          "Increase Screen Brightness" = "Monitor Brightness Up";
+          Effect-blur.BlurStrength = 10;
+          Effect-kwin4_effect_translucency.MoveResize = 75;
+          Effect-wobblywindows = { AdvancedMode = true; Drag = 85; Stiffness = 10; WobblynessLevel = 1; };
+          Plugins =
+          {
+            blurEnabled = true;
+            kwin4_effect_dimscreenEnabled = true;
+            kwin4_effect_translucencyEnabled = true;
+            padding = 4;
+            wobblywindowsEnabled = true;
+          };
         };
-      }
-      # volume
-      {
-        kmix =
+        kscreenlockerrc."Greeter.Wallpaper.org.kde.image.General" = rec
+          { Image = builtins.toString workspace.wallpaper; PreviewImage = Image; };
+      };
+    }
+    # shortcuts
+    {
+      spectacle.shortcuts.captureRectangularRegion = "Print";
+      shortcuts = inputs.lib.mkMerge
+      [
+        # firefox
+        { "firefox.desktop"._launch = "Meta+B"; }
+        # crow translate
+        { "io.crow_translate.CrowTranslate.desktop".TranslateSelectedText = "Ctrl+Alt+E"; }
+        # display
         {
-          decrease_volume = "Volume Down";
-          increase_volume = "Volume Up";
-          mic_mute = [ "Meta+Volume Mute" ];
-          mute = "Volume Mute";
-        };
-      }
-      # session
-      {
-        ksmserver = { "Lock Session" = [ "Meta+L" "Screensaver" ]; "Log Out" = "Ctrl+Alt+Del"; };
-        org_kde_powerdevil."Turn Off Screen" = "Meta+Ctrl+L";
-      }
-      # window
-      {
-        kwin =
+          kded5.display = [ "Display" "Meta+P" ];
+          kwin = { view_actual_size = "Meta+0"; view_zoom_in = [ "Meta++" "Meta+=" ]; view_zoom_out = "Meta+-"; };
+          org_kde_powerdevil =
+          {
+            "Decrease Screen Brightness" = "Monitor Brightness Down";
+            "Increase Screen Brightness" = "Monitor Brightness Up";
+          };
+        }
+        # volume
         {
-          Overview = "Meta+Tab";
-          "Show Desktop" = "Meta+D";
-          "Suspend Compositing" = "Alt+Shift+F12";
-          "Walk Through Windows" = "Alt+Tab";
-          "Walk Through Windows (Reverse)" = "Alt+Shift+Backtab";
-          "Window Above Other Windows" = "Meta+Shift+PgUp";
-          "Window Below Other Windows" = "Meta+Shift+PgDown";
-          "Window Close" = "Alt+F4";
-          "Window Maximize" = "Meta+PgUp";
-          "Window Minimize" = "Meta+PgDown";
-          "Window Operations Menu" = "Alt+F3";
-          "Window Quick Tile Bottom" = "Meta+Down";
-          "Window Quick Tile Left" = "Meta+Left";
-          "Window Quick Tile Right" = "Meta+Right";
-          "Window Quick Tile Top" = "Meta+Up";
-        };
-      }
-      # virtual desktop
-      {
-        kwin =
+          kmix =
+          {
+            decrease_volume = "Volume Down";
+            increase_volume = "Volume Up";
+            mic_mute = [ "Meta+Volume Mute" ];
+            mute = "Volume Mute";
+          };
+        }
+        # session
         {
-          "Switch One Desktop Down" = "Meta+Ctrl+Down";
-          "Switch One Desktop Up" = "Meta+Ctrl+Up";
-          "Switch One Desktop to the Left" = "Meta+Ctrl+Left";
-          "Switch One Desktop to the Right" = "Meta+Ctrl+Right";
-          "Window One Desktop Down" = "Meta+Ctrl+Shift+Down";
-          "Window One Desktop Up" = "Meta+Ctrl+Shift+Up";
-          "Window One Desktop to the Left" = "Meta+Ctrl+Shift+Left";
-          "Window One Desktop to the Right" = "Meta+Ctrl+Shift+Right";
-        };
-      }
-      # media
-      {
-        mediacontrol =
+          ksmserver = { "Lock Session" = [ "Meta+L" "Screensaver" ]; "Log Out" = "Ctrl+Alt+Del"; };
+          org_kde_powerdevil."Turn Off Screen" = "Meta+Ctrl+L";
+        }
+        # window
         {
-          nextmedia = "Media Next";
-          pausemedia = "Media Pause";
-          playpausemedia = [ "Pause" "Media Play" ];
-          previousmedia = "Media Previous";
-          stopmedia = "Media Stop";
-        };
-      }
-      # dolphin
-      { "org.kde.dolphin.desktop"._launch = "Meta+E"; }
-      # konsole
-      { "org.kde.konsole.desktop"._launch = "Ctrl+Alt+T"; }
-      # krunner
-      { "org.kde.krunner.desktop"._launch = "Alt+Space"; }
-      # screenshot
-      {
-        "org.kde.spectacle.desktop" =
+          kwin =
+          {
+            Overview = "Meta+Tab";
+            "Show Desktop" = "Meta+D";
+            "Suspend Compositing" = "Alt+Shift+F12";
+            "Walk Through Windows" = "Alt+Tab";
+            "Walk Through Windows (Reverse)" = "Alt+Shift+Backtab";
+            "Window Above Other Windows" = "Meta+Shift+PgUp";
+            "Window Below Other Windows" = "Meta+Shift+PgDown";
+            "Window Close" = "Alt+F4";
+            "Window Maximize" = "Meta+PgUp";
+            "Window Minimize" = "Meta+PgDown";
+            "Window Operations Menu" = "Alt+F3";
+            "Window Quick Tile Bottom" = "Meta+Down";
+            "Window Quick Tile Left" = "Meta+Left";
+            "Window Quick Tile Right" = "Meta+Right";
+            "Window Quick Tile Top" = "Meta+Up";
+          };
+        }
+        # virtual desktop
         {
-          OpenWithoutScreenshot = "Ctrl+Print";
-          RectangularRegionScreenShot = "Print";
+          kwin =
+          {
+            "Switch One Desktop Down" = "Meta+Ctrl+Down";
+            "Switch One Desktop Up" = "Meta+Ctrl+Up";
+            "Switch One Desktop to the Left" = "Meta+Ctrl+Left";
+            "Switch One Desktop to the Right" = "Meta+Ctrl+Right";
+            "Window One Desktop Down" = "Meta+Ctrl+Shift+Down";
+            "Window One Desktop Up" = "Meta+Ctrl+Shift+Up";
+            "Window One Desktop to the Left" = "Meta+Ctrl+Shift+Left";
+            "Window One Desktop to the Right" = "Meta+Ctrl+Shift+Right";
+          };
+        }
+        # media
+        {
+          mediacontrol =
+          {
+            nextmedia = "Media Next";
+            pausemedia = "Media Pause";
+            playpausemedia = [ "Pause" "Media Play" ];
+            previousmedia = "Media Previous";
+            stopmedia = "Media Stop";
+          };
+        }
+        # dolphin
+        { "org.kde.dolphin.desktop"._launch = "Meta+E"; }
+        # konsole
+        { "org.kde.konsole.desktop"._launch = "Ctrl+Alt+T"; }
+        # krunner
+        { "org.kde.krunner.desktop"._launch = "Alt+Space"; }
+        # settings
+        { "systemsettings.desktop"._launch = "Meta+I"; }
+        # yakuake
+        { yakuake.toggle-window-state = "Meta+Space"; }
+        # virt-manager
+        { "virt-manager.desktop"._launch = "Meta+V"; }
+      ];
+    }
+    # kwin
+    {
+      kwin.titlebarButtons.right = [ "help" "keep-below-windows" "keep-above-windows" "minimize" "maximize" "close" ];
+      windows.allowWindowsToRememberPositions = false;
+      configFile =
+      {
+        plasmanotifyrc.Notifications.PopupPosition = "BottomRight";
+        kwinrc =
+        {
+          Tiling.padding = 4;
+          Wayland."InputMethod[$e]" = "/run/current-system/sw/share/applications/org.fcitx.Fcitx5.desktop";
+          Windows.RollOverDesktops = true;
+          Compositing = { AllowTearing = false; WindowsBlockCompositing = false; };
         };
-      }
-      # settings
-      { "systemsettings.desktop"._launch = "Meta+I"; }
-      # yakuake
-      { yakuake.toggle-window-state = "Meta+Space"; }
-      # virt-manager
-      { "virt-manager.desktop"._launch = "Meta+V"; }
-    ];
-    configFile = inputs.lib.mkMerge
-    [
-      # baloo
-      # "baloofilerc"."Basic Settings"."Indexing-Enabled" = false;
-      # dolphin
+      };
+    }
+    # baloo
+    { configFile.baloofilerc."Basic Settings".Indexing-Enabled = false; }
+    # dolphin and file chooser
+    {
+      configFile =
       {
         dolphinrc =
         {
@@ -142,110 +192,26 @@ inputs:
             "audiothumbnail"
           ];
         };
-      }
-      # theme
-      {
-        kcminputrc.Mouse.cursorTheme = "breeze_cursors";
-      }
-
-    ]
-    {
-
-
-
-
-      "kcminputrc"."Mouse"."cursorTheme" = "breeze_cursors";
-      "kdeglobals"."KDE"."widgetStyle" = "kvantum";
-      "kdeglobals"."KFileDialog Settings"."Allow Expansion" = true;
-      "kdeglobals"."KFileDialog Settings"."Automatically select filename extension" = true;
-      "kdeglobals"."KFileDialog Settings"."Show Bookmarks" = true;
-      "kdeglobals"."KFileDialog Settings"."Show Full Path" = true;
-      "kdeglobals"."KFileDialog Settings"."Show Inline Previews" = true;
-      "kdeglobals"."KFileDialog Settings"."Show Preview" = true;
-      "kdeglobals"."KFileDialog Settings"."Show Speedbar" = true;
-      "kdeglobals"."KFileDialog Settings"."Show hidden files" = true;
-      "kdeglobals"."KFileDialog Settings"."Sort by" = "Name";
-      "kdeglobals"."KFileDialog Settings"."Sort directories first" = true;
-      "kdeglobals"."KFileDialog Settings"."Sort hidden files last" = true;
-      "kdeglobals"."KFileDialog Settings"."View Style" = "DetailTree";
-
-      "krunnerrc"."General"."FreeFloating" = true;
-      "krunnerrc"."Plugins"."baloosearchEnabled" = false;
-      "kscreenlockerrc"."Daemon"."Autolock" = false;
-
-      # https://www.fanbox.cc/@peas0125/posts/5405326
-      "kscreenlockerrc"."Greeter.Wallpaper.org.kde.image.General"."Image" = ./wallpaper/fanbox-5405326-x4-chop.png;
-      "kscreenlockerrc"."Greeter.Wallpaper.org.kde.image.General"."PreviewImage" =
-        ./wallpaper/fanbox-5405326-x4-chop.png;
-
-
-      "kwinrc"."Effect-blur"."BlurStrength" = 10;
-      "kwinrc"."Effect-kwin4_effect_translucency"."MoveResize" = 75;
-      "kwinrc"."Effect-wobblywindows"."AdvancedMode" = true;
-      "kwinrc"."Effect-wobblywindows"."Drag" = 85;
-      "kwinrc"."Effect-wobblywindows"."Stiffness" = 10;
-      "kwinrc"."Effect-wobblywindows"."WobblynessLevel" = 1;
-      "kwinrc"."Plugins"."blurEnabled" = true;
-      "kwinrc"."Plugins"."contrastEnabled" = false;
-      "kwinrc"."Plugins"."kwin4_effect_dimscreenEnabled" = true;
-      "kwinrc"."Plugins"."kwin4_effect_translucencyEnabled" = true;
-      "kwinrc"."Plugins"."padding" = 4;
-      "kwinrc"."Plugins"."wobblywindowsEnabled" = true;
-      "kwinrc"."SubSession: 3435a388-a8b3-4d1d-9794-b8c30162ce16"."active" = "-1";
-      "kwinrc"."SubSession: 3435a388-a8b3-4d1d-9794-b8c30162ce16"."count" = 0;
-      "kwinrc"."SubSession: 6a473a77-85df-4e49-8c74-bdb06d1f0efd"."active" = "-1";
-      "kwinrc"."SubSession: 6a473a77-85df-4e49-8c74-bdb06d1f0efd"."count" = 0;
-      "kwinrc"."Tiling"."padding" = 4;
-      "kwinrc"."Wayland"."InputMethod[$e]" = "/run/current-system/sw/share/applications/org.fcitx.Fcitx5.desktop";
-      "kwinrc"."Windows"."RollOverDesktops" = true;
-      "kwinrc"."Xwayland"."Scale" = 1;
-      "kwinrc"."Xwayland"."XwaylandEavesdrops" = "Combinations";
-      "kwinrc"."org.kde.kdecoration2"."ButtonsOnLeft" = "M";
-      "kwinrc"."org.kde.kdecoration2"."ButtonsOnRight" = "BFIAX";
-      "kwinrulesrc"."06734e18-08f2-47f9-a6dc-9085d95fe9b0"."Description" = "org.kde.kruler 的设置";
-      "kwinrulesrc"."06734e18-08f2-47f9-a6dc-9085d95fe9b0"."above" = true;
-      "kwinrulesrc"."06734e18-08f2-47f9-a6dc-9085d95fe9b0"."aboverule" = 2;
-      "kwinrulesrc"."06734e18-08f2-47f9-a6dc-9085d95fe9b0"."skipswitcher" = true;
-      "kwinrulesrc"."06734e18-08f2-47f9-a6dc-9085d95fe9b0"."skipswitcherrule" = 2;
-      "kwinrulesrc"."06734e18-08f2-47f9-a6dc-9085d95fe9b0"."wmclass" = "org.kde.kruler";
-      "kwinrulesrc"."06734e18-08f2-47f9-a6dc-9085d95fe9b0"."wmclassmatch" = 1;
-      "kwinrulesrc"."1"."Description" = "element 的设置";
-      "kwinrulesrc"."1"."activity" = "00000000-0000-0000-0000-000000000000";
-      "kwinrulesrc"."1"."activityrule" = 2;
-      "kwinrulesrc"."1"."wmclass" = "element";
-      "kwinrulesrc"."1"."wmclassmatch" = 1;
-      "kwinrulesrc"."2"."Description" = "org.telegram.desktop 的设置";
-      "kwinrulesrc"."2"."activity" = "00000000-0000-0000-0000-000000000000";
-      "kwinrulesrc"."2"."activityrule" = 2;
-      "kwinrulesrc"."2"."wmclass" = "org.telegram.desktop";
-      "kwinrulesrc"."2"."wmclassmatch" = 1;
-      "kwinrulesrc"."3"."Description" = "org.kde.kruler 的设置";
-      "kwinrulesrc"."3"."above" = true;
-      "kwinrulesrc"."3"."aboverule" = 2;
-      "kwinrulesrc"."3"."skipswitcher" = true;
-      "kwinrulesrc"."3"."skipswitcherrule" = 2;
-      "kwinrulesrc"."3"."wmclass" = "org.kde.kruler";
-      "kwinrulesrc"."3"."wmclassmatch" = 1;
-      "kwinrulesrc"."8c1ccf0b-abf4-4d24-a848-522a76a2440d"."Description" = "element 的设置";
-      "kwinrulesrc"."8c1ccf0b-abf4-4d24-a848-522a76a2440d"."activity" = "00000000-0000-0000-0000-000000000000";
-      "kwinrulesrc"."8c1ccf0b-abf4-4d24-a848-522a76a2440d"."activityrule" = 2;
-      "kwinrulesrc"."8c1ccf0b-abf4-4d24-a848-522a76a2440d"."wmclass" = "element";
-      "kwinrulesrc"."8c1ccf0b-abf4-4d24-a848-522a76a2440d"."wmclassmatch" = 1;
-      "kwinrulesrc"."General"."count" = 3;
-      "kwinrulesrc"."General"."rules" = "1,2,3";
-      "kwinrulesrc"."e75e010c-c094-4e6c-a98e-fe011e563466"."Description" = "org.telegram.desktop 的设置";
-      "kwinrulesrc"."e75e010c-c094-4e6c-a98e-fe011e563466"."activity" = "00000000-0000-0000-0000-000000000000";
-      "kwinrulesrc"."e75e010c-c094-4e6c-a98e-fe011e563466"."activityrule" = 2;
-      "kwinrulesrc"."e75e010c-c094-4e6c-a98e-fe011e563466"."wmclass" = "org.telegram.desktop";
-      "kwinrulesrc"."e75e010c-c094-4e6c-a98e-fe011e563466"."wmclassmatch" = 1;
-      "kxkbrc"."Layout"."DisplayNames" = "";
-      "kxkbrc"."Layout"."LayoutList" = "us";
-      "kxkbrc"."Layout"."Use" = true;
-      "kxkbrc"."Layout"."VariantList" = "";
-      "plasma-localerc"."Formats"."LANG" = "en_US.UTF-8";
-      "plasma-localerc"."Translations"."LANGUAGE" = "zh_CN";
-      "plasmanotifyrc"."Notifications"."PopupPosition" = "BottomRight";
-      "plasmarc"."Wallpapers"."usersWallpapers" = "/home/chn/Desktop/.桌面/twin_96734339_x2.png,/home/chn/Desktop/.桌面/E_yCTfDUUAgykjX_x8.jpeg,/home/chn/Desktop/.桌面/102692178_p0_[L1][x2.00].png,/home/chn/Desktop/.桌面/111392869_p0.png,/home/chn/Desktop/.桌面/HlszomyrfyxKLtpkVixEtikq_x4_chop.png";
-    };
-  };
+        kdeglobals."KFileDialog Settings" =
+        {
+          "Allow Expansion" = true;
+          "Automatically select filename extension" = true;
+          "Show Bookmarks" = true;
+          "Show Full Path" = true;
+          "Show Inline Previews" = true;
+          "Show Preview" = true;
+          "Show Speedbar" = true;
+          "Show hidden files" = true;
+          "Sort by" = "Name";
+          "Sort directories first" = true;
+          "Sort hidden files last" = true;
+          "View Style" = "DetailTree";
+        };
+      };
+    }
+    # krunner
+    { configFile.krunnerrc = { General.FreeFloating = true; Plugins.baloosearchEnabled = false; }; }
+    # lock screen
+    { configFile.kscreenlockerrc.Daemon.Autolock = false; }
+  ];
 }

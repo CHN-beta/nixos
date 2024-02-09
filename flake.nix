@@ -58,6 +58,8 @@
     tgbot-cpp = { url = "github:reo7sp/tgbot-cpp"; flake = false; };
     v-sim = { url = "gitlab:l_sim/v_sim"; flake = false; };
     win11os-kde = { url = "github:yeyushengfan258/Win11OS-kde"; flake = false; };
+    fluent-kde = { url = "github:vinceliuice/Fluent-kde"; flake = false; };
+    nixos-wallpaper = { url = "git+ssh://gitea@ssh.git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };
   };
 
   outputs = inputs:

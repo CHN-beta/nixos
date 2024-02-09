@@ -844,6 +844,22 @@
         "type": "github"
       }
     },
+    "fluent-kde": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1685119052,
+        "narHash": "sha256-jm8ztgoWV8sewCYbFxReiVPjuHY97NslKM1AIoooSiY=",
+        "owner": "vinceliuice",
+        "repo": "Fluent-kde",
+        "rev": "83d5cc2013751aa9eeb944dafa3a3460652690ce",
+        "type": "github"
+      },
+      "original": {
+        "owner": "vinceliuice",
+        "repo": "Fluent-kde",
+        "type": "github"
+      }
+    },
     "format-all": {
       "flake": false,
       "locked": {
@@ -1287,6 +1303,22 @@
         "ref": "nixos-23.11",
         "repo": "nixpkgs",
         "type": "github"
+      }
+    },
+    "nixos-wallpaper": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1707468537,
+        "narHash": "sha256-JcigJOb2yt7Vrdr91ccgYhRucm7zURIZEiaPNkuVhRc=",
+        "ref": "refs/heads/main",
+        "rev": "1240affcd31ec8e7fee869590533574011a1e974",
+        "revCount": 1,
+        "type": "git",
+        "url": "ssh://gitea@ssh.git.chn.moe/chn/nixos-wallpaper.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://gitea@ssh.git.chn.moe/chn/nixos-wallpaper.git"
       }
     },
     "nixpak": {
@@ -1785,6 +1817,7 @@
         "dguibert-nur-packages": "dguibert-nur-packages",
         "eigen": "eigen",
         "envfs": "envfs",
+        "fluent-kde": "fluent-kde",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lmix": "lmix",
@@ -1799,6 +1832,7 @@
         "nixd": "nixd",
         "nixos-cn": "nixos-cn",
         "nixos-hardware": "nixos-hardware",
+        "nixos-wallpaper": "nixos-wallpaper",
         "nixpak": "nixpak",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-2305": "nixpkgs-2305",
