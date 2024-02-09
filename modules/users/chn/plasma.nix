@@ -9,7 +9,7 @@ inputs:
       configFile.plasma-localerc = { Formats.LANG = "en_US.UTF-8"; Translations.LANGUAGE = "zh_CN"; };
     }
     # theme, wallpaper, etc.
-    rec {
+    {
       workspace =
       {
         theme = "Fluent-round-light";
@@ -17,7 +17,6 @@ inputs:
         cursorTheme = "Breeze_Snow";
         lookAndFeel = "com.github.vinceliuice.Fluent-round-light";
         iconTheme = "breeze";
-        wallpaper = ./wallpaper/pixiv-96734339-x2.png;
       };
       configFile =
       {
@@ -38,7 +37,7 @@ inputs:
           };
         };
         kscreenlockerrc."Greeter.Wallpaper.org.kde.image.General" = rec
-          { Image = builtins.toString workspace.wallpaper; PreviewImage = Image; };
+          { Image = builtins.toString ./wallpaper/pixiv-96734339-x2.png; PreviewImage = Image; };
       };
     }
     # shortcuts
