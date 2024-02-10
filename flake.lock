@@ -21,6 +21,22 @@
         "type": "github"
       }
     },
+    "cascade": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1706712246,
+        "narHash": "sha256-xqA4U7IzGtmqdqFxznB/5d7riHVRCTz7PBiNQrnOpmE=",
+        "owner": "andreasgrafen",
+        "repo": "cascade",
+        "rev": "6b584eb86c45501930e689ca73a60f89521d9896",
+        "type": "github"
+      },
+      "original": {
+        "owner": "andreasgrafen",
+        "repo": "cascade",
+        "type": "github"
+      }
+    },
     "citation-style-language": {
       "flake": false,
       "locked": {
@@ -1793,6 +1809,7 @@
     "root": {
       "inputs": {
         "aagl": "aagl",
+        "cascade": "cascade",
         "citation-style-language": "citation-style-language",
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",

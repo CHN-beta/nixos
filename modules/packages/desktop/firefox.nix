@@ -20,6 +20,10 @@ inputs:
             ublock-origin wallabagger wappalyzer immersive-translate
           ];
           search.default = "Google";
+          userChrome = builtins.concatStringsSep "\n" (builtins.map
+            (file: builtins.readFile "${inputs.topInputs.cascade}/chrome/includes/cascade-${file}.css")
+            [ "config-mouse" "colours" "layout" "responsive" "floating-panel" "nav-bar" "tabs" ]);
+          settings."toolkit.legacyUserProfileCustomizations.stylesheets" = true;
         };
       };
     }];
