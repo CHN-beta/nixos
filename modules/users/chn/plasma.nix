@@ -9,6 +9,8 @@ inputs:
       {
         enable = inputs.config.nixos.system.gui.enable;
         configFile.plasma-localerc = { Formats.LANG = "en_US.UTF-8"; Translations.LANGUAGE = "zh_CN"; };
+        overrideConfig = true;
+        overrideConfigFiles = [ "konsolerc" "yakuakerc" ];
       }
       # theme
       {
@@ -278,11 +280,7 @@ inputs:
       let impermanence = inputs.config.nixos.system.impermanence;
       in inputs.lib.mkIf impermanence.enable
       {
-        "${impermanence.root}".users.chn =
-        {
-          directories = [ ".local/share/konsole" ".local/share/yakuake" ];
-          files = [ ".config/konsolerc" ".config/yakuakerc" ];
-        };
+        "${impermanence.root}".users.chn.directories = [ ".local/share/konsole" ".local/share/yakuake" ];
       };
   };
 }
