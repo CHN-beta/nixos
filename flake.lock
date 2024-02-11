@@ -1825,12 +1825,8 @@
     "root": {
       "inputs": {
         "aagl": "aagl",
-<<<<<<< HEAD
         "cascade": "cascade",
-||||||| fc6cbc6
-=======
         "blurred-wallpaper": "blurred-wallpaper",
->>>>>>> production
         "citation-style-language": "citation-style-language",
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",
@@ -1866,12 +1862,8 @@
         "pnpm2nix-nzbr": "pnpm2nix-nzbr",
         "qchem": "qchem",
         "rsshub": "rsshub",
-<<<<<<< HEAD
         "rycee": "rycee",
-||||||| fc6cbc6
-=======
         "slate": "slate",
->>>>>>> production
         "sops-nix": "sops-nix",
         "tgbot-cpp": "tgbot-cpp",
         "v-sim": "v-sim",
@@ -1911,7 +1903,6 @@
         "type": "github"
       }
     },
-<<<<<<< HEAD
     "rycee": {
       "flake": false,
       "locked": {
@@ -1928,8 +1919,6 @@
         "type": "gitlab"
       }
     },
-||||||| fc6cbc6
-=======
     "slate": {
       "flake": false,
       "locked": {
@@ -1946,7 +1935,6 @@
         "type": "github"
       }
     },
->>>>>>> production
     "sln-mode": {
       "flake": false,
       "locked": {
