@@ -22,7 +22,7 @@ inputs:
             colorScheme = "FluentLight";
             cursorTheme = "Breeze_Snow";
             lookAndFeel = "com.github.vinceliuice.Fluent-round-light";
-            iconTheme = "breeze";
+            iconTheme = "Tela-circle";
           };
           configFile =
           {
