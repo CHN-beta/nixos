@@ -21,6 +21,22 @@
         "type": "github"
       }
     },
+    "blurred-wallpaper": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1700747921,
+        "narHash": "sha256-mCqf03cXlTl4vuJIzVEiYhHQsAPG3i6yHQ3Xdt06HfA=",
+        "owner": "bouteillerAlan",
+        "repo": "blurredwallpaper",
+        "rev": "aecc88d43e458a0962a0091dcdb7baac34e263be",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bouteillerAlan",
+        "repo": "blurredwallpaper",
+        "type": "github"
+      }
+    },
     "citation-style-language": {
       "flake": false,
       "locked": {
@@ -1793,6 +1809,7 @@
     "root": {
       "inputs": {
         "aagl": "aagl",
+        "blurred-wallpaper": "blurred-wallpaper",
         "citation-style-language": "citation-style-language",
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",

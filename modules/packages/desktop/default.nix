@@ -30,7 +30,7 @@ inputs:
           # media
           mpv nomacs
           # themes
-          tela-circle-icon-theme localPackages.win11os-kde localPackages.fluent-kde
+          tela-circle-icon-theme localPackages.win11os-kde localPackages.fluent-kde localPackages.blurred-wallpaper
         ];
         users.sharedModules =
         [(homeInputs: {

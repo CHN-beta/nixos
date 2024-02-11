@@ -8,7 +8,7 @@ inputs:
       enable = inputs.config.nixos.system.gui.enable;
       configFile.plasma-localerc = { Formats.LANG = "en_US.UTF-8"; Translations.LANGUAGE = "zh_CN"; };
     }
-    # theme, wallpaper, etc.
+    # theme
     {
       workspace =
       {
