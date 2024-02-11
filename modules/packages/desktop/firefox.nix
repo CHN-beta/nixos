@@ -30,7 +30,7 @@ inputs:
               }
             )
           ];
-          search.default = "Google";
+          search = { default = "Google"; force = true; };
           userChrome = builtins.concatStringsSep "\n" (builtins.map
             (file: builtins.readFile "${inputs.topInputs.cascade}/chrome/includes/cascade-${file}.css")
             [ "config-mouse" "colours" "layout" "responsive" "floating-panel" "nav-bar" "tabs" ]);
