@@ -32,6 +32,13 @@ inputs:
           # themes
           tela-circle-icon-theme localPackages.win11os-kde localPackages.fluent-kde localPackages.blurred-wallpaper
           localPackages.slate
+          (utterly-nord-plasma.overrideAttrs
+          {
+            postInstall =
+            ''
+              sed -i 's/Opacity=0.6/Opacity=0.4/' $out/share/konsole/Utterly-Nord-Light-Konsole.colorscheme
+            '';
+          })
         ];
         users.sharedModules =
         [(homeInputs: {

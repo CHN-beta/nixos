@@ -247,7 +247,7 @@ inputs:
           {
             AntiAliasFonts = true;
             BoldIntense = true;
-            ColorScheme = "Breeze";
+            ColorScheme = "Utterly-Nord-Light-Konsole";
             Font = "FiraCode Nerd Font Mono,10,-1,5,50,0,0,0,0,0";
             UseFontLineChararacters = true;
             WordModeAttr = false;
