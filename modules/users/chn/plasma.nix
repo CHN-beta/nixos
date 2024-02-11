@@ -36,8 +36,6 @@ inputs:
             wobblywindowsEnabled = true;
           };
         };
-        kscreenlockerrc."Greeter.Wallpaper.org.kde.image.General" = rec
-          { Image = builtins.toString ./wallpaper/pixiv-96734339-x2.png; PreviewImage = Image; };
       };
     }
     # shortcuts
