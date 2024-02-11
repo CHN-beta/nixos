@@ -23,7 +23,20 @@ inputs:
           userChrome = builtins.concatStringsSep "\n" (builtins.map
             (file: builtins.readFile "${inputs.topInputs.cascade}/chrome/includes/cascade-${file}.css")
             [ "config-mouse" "colours" "layout" "responsive" "floating-panel" "nav-bar" "tabs" ]);
-          settings."toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+          settings =
+          {
+            # general
+            "browser.search.region" = "CN";
+            "intl.locale.requested" = "zh-CN,en-US";
+            "browser.aboutConfig.showWarning" = false;
+            "browser.bookmarks.showMobileBookmarks" = true;
+            "browser.download.panel.shown" = true;
+            "browser.download.useDownloadDir" = true;
+            "browser.newtab.extensionControlled" = true;
+            "browser.toolbars.bookmarks.visibility" = "never";
+            # allow to apply userChrome.css
+            "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+          };
         };
       };
     }];
