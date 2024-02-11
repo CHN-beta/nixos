@@ -37,6 +37,22 @@
         "type": "github"
       }
     },
+    "blurred-wallpaper": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1700747921,
+        "narHash": "sha256-mCqf03cXlTl4vuJIzVEiYhHQsAPG3i6yHQ3Xdt06HfA=",
+        "owner": "bouteillerAlan",
+        "repo": "blurredwallpaper",
+        "rev": "aecc88d43e458a0962a0091dcdb7baac34e263be",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bouteillerAlan",
+        "repo": "blurredwallpaper",
+        "type": "github"
+      }
+    },
     "citation-style-language": {
       "flake": false,
       "locked": {
@@ -1809,7 +1825,12 @@
     "root": {
       "inputs": {
         "aagl": "aagl",
+<<<<<<< HEAD
         "cascade": "cascade",
+||||||| fc6cbc6
+=======
+        "blurred-wallpaper": "blurred-wallpaper",
+>>>>>>> production
         "citation-style-language": "citation-style-language",
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",
@@ -1845,7 +1866,12 @@
         "pnpm2nix-nzbr": "pnpm2nix-nzbr",
         "qchem": "qchem",
         "rsshub": "rsshub",
+<<<<<<< HEAD
         "rycee": "rycee",
+||||||| fc6cbc6
+=======
+        "slate": "slate",
+>>>>>>> production
         "sops-nix": "sops-nix",
         "tgbot-cpp": "tgbot-cpp",
         "v-sim": "v-sim",
@@ -1885,6 +1911,7 @@
         "type": "github"
       }
     },
+<<<<<<< HEAD
     "rycee": {
       "flake": false,
       "locked": {
@@ -1901,6 +1928,25 @@
         "type": "gitlab"
       }
     },
+||||||| fc6cbc6
+=======
+    "slate": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1626631298,
+        "narHash": "sha256-3tbB16sWVUqiHAfeFc0FnFb0Cf6ZFxYWsYAyexeZVxk=",
+        "owner": "TheBigWazz",
+        "repo": "Slate",
+        "rev": "ff21b49c6e49b5a9f89497e4fea49a5a0c39bd6b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "TheBigWazz",
+        "repo": "Slate",
+        "type": "github"
+      }
+    },
+>>>>>>> production
     "sln-mode": {
       "flake": false,
       "locked": {
