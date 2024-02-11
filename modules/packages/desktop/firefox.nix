@@ -30,13 +30,8 @@ inputs:
         ];
         search = { default = "Google"; force = true; };
         userChrome = builtins.concatStringsSep "\n" (builtins.map
-          (file: builtins.readFile "${inputs.topInputs.cascade}/${file}")
-          (
-            (builtins.map
-              (file: "chrome/includes/cascade-${file}.css")
-              [ "config-mouse" "layout" "responsive" "floating-panel" "nav-bar" "tabs" ])
-            ++ [ "integrations/catppuccin/cascade-frappe.css" ]
-          ));
+          (file: builtins.readFile "${inputs.topInputs.cascade}/chrome/includes/cascade-${file}.css")
+          [ "config-mouse" "colours" "layout" "responsive" "floating-panel" "nav-bar" "tabs" ]);
         settings =
         {
           # general
