@@ -60,6 +60,7 @@
     win11os-kde = { url = "github:yeyushengfan258/Win11OS-kde"; flake = false; };
     fluent-kde = { url = "github:vinceliuice/Fluent-kde"; flake = false; };
     blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
+    slate = { url = "github:TheBigWazz/Slate"; flake = false; };
   };
 
   outputs = inputs:

@@ -1845,6 +1845,7 @@
         "pnpm2nix-nzbr": "pnpm2nix-nzbr",
         "qchem": "qchem",
         "rsshub": "rsshub",
+        "slate": "slate",
         "sops-nix": "sops-nix",
         "tgbot-cpp": "tgbot-cpp",
         "v-sim": "v-sim",
@@ -1881,6 +1882,22 @@
       "original": {
         "owner": "DIYgod",
         "repo": "RSSHub",
+        "type": "github"
+      }
+    },
+    "slate": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1626631298,
+        "narHash": "sha256-3tbB16sWVUqiHAfeFc0FnFb0Cf6ZFxYWsYAyexeZVxk=",
+        "owner": "TheBigWazz",
+        "repo": "Slate",
+        "rev": "ff21b49c6e49b5a9f89497e4fea49a5a0c39bd6b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "TheBigWazz",
+        "repo": "Slate",
         "type": "github"
       }
     },

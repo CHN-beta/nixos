@@ -48,4 +48,5 @@
   win11os-kde = callPackage ./win11os-kde { src = topInputs.win11os-kde; };
   fluent-kde = callPackage ./fluent-kde { src = topInputs.fluent-kde; };
   blurred-wallpaper = callPackage ./blurred-wallpaper { src = topInputs.blurred-wallpaper; };
+  slate = callPackage ./slate { src = topInputs.slate; };
 }
