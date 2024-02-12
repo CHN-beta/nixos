@@ -94,6 +94,8 @@ inputs:
         { yakuake.toggle-window-state = "Meta+Space"; }
         # virt-manager
         { "virt-manager.desktop"._launch = "Meta+V"; }
+        # system monitor
+        { "org.kde.plasma-systemmonitor.desktop"._launch = "Meta+Esc"; }
       ];
     };
   };
