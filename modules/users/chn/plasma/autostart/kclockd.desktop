@@ -1,0 +1,6 @@
+[Desktop Entry]
+DBusActivatable=true
+Exec=kclockd
+Name=org.kde.kclockd-autostart
+Type=Application
+X-Flatpak=org.kde.kclockd-autostart

@@ -1,6 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules [ ./wallpaper ./konsole.nix ./shortcuts.nix ./theme.nix ];
+  imports = inputs.localLib.mkModules [ ./autostart ./wallpaper ./konsole.nix ./shortcuts.nix ./theme.nix ];
   config = inputs.lib.mkIf inputs.config.nixos.system.gui.enable
   {
     home-manager.users.chn.config.programs.plasma = inputs.lib.mkMerge
