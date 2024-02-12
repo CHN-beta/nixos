@@ -13,7 +13,6 @@ inputs:
         policies.DefaultDownloadDirectory = "\${home}/Downloads";
         profiles.default =
         {
-          # dualsub pakkujs RSSPreview zotero-connector
           extensions = with inputs.pkgs.firefox-addons;
           [
             tampermonkey bitwarden cookies-txt i-dont-care-about-cookies metamask switchyomega rsshub-radar tabliss

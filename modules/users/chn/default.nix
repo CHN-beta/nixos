@@ -1,6 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules [ ./plasma.nix ./wallpaper ];
+  imports = inputs.localLib.mkModules [ ./plasma ];
   config =
     let
       inherit (inputs.lib) mkIf;
