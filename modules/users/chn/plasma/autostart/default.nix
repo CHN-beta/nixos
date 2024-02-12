@@ -52,7 +52,7 @@ inputs:
           name = ".config/autostart/${builtins.baseNameOf (builtins.unsafeDiscardStringContext programs.${file})}";
           value.source = programs.${file};
         })
-        (devices.${inputs.config.nixos.system.networking.hostname}));
+        (devices.${inputs.config.nixos.system.networking.hostname} or []));
     environment.persistence =
       let impermanence = inputs.config.nixos.system.impermanence;
       in inputs.lib.mkIf impermanence.enable
