@@ -15,11 +15,18 @@ inputs:
               drv = inputs.pkgs.writeTextDir "element-desktop.desktop" (builtins.replaceStrings
                 [ "Exec=element-desktop %u" ] [ "Exec=element-desktop --hide" ]
                 (builtins.readFile "${inputs.pkgs.element-desktop.desktopItem}/share/applications/element-desktop.desktop"));
-            in builtins.trace "${drv}" "${drv}/element-desktop.desktop";
+            in "${drv}/element-desktop.desktop";
+          kmail = "${inputs.pkgs.kmail}/share/applications/org.kde.kmail2.desktop";
+          discord =
+            let
+              drv = inputs.pkgs.writeTextDir "discord.desktop" (builtins.replaceStrings
+                [ "Exec=Discord" ] [ "Exec=Discord --start-minimized" ]
+                (builtins.readFile "${inputs.pkgs.discord.desktopItem}/share/applications/discord.desktop"));
+            in "${drv}/discord.desktop";
         };
         devices =
         {
-          pc = [ "nheko" "kclockd" "yakuake" "telegram" "element" ];
+          pc = [ "nheko" "kclockd" "yakuake" "telegram" "element" "kmail" "discord" ];
           surface = [ "kclockd" "yakuake" "telegram" "element" ];
         };
       in builtins.listToAttrs (builtins.map
