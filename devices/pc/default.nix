@@ -146,6 +146,7 @@ inputs:
     {
       blas = prev.blas.override { blasProvider = final.amd-blis; };
       lapack = prev.lapack.override { lapackProvider = final.amd-libflame; };
+      cantor = prev.cantor.override { withSage = false; sage = null; sage-with-env = null; };
     })];
   };
 }
