@@ -30,8 +30,9 @@ inputs:
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         initrd.sshd.enable = true;
         networking.hostname = "vps7";
+        gui.preferred = false;
       };
-      packages.packageSet = "server";
+      packages.packageSet = "desktop";
       services =
       {
         snapper.enable = true;
@@ -49,6 +50,7 @@ inputs:
           synapse.matrixHostname = "synapse.chn.moe";
           matrix = { port = 8009; redisPort = 6380; slidingSyncPort = 9001; };
         };
+        xrdp = { enable = true; hostname = [ "vps7.chn.moe" ]; };
         vaultwarden.enable = true;
         beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 1024; }; };
         photoprism.enable = true;
