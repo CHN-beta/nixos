@@ -2,7 +2,7 @@
 Name=Telegram Desktop
 Comment=Official desktop version of Telegram messaging app
 TryExec=telegram-desktop
-Exec=telegram-desktop -autostart
+Exec=bash -c "sleep 5 && telegram-desktop -autostart"
 Icon=telegram
 Terminal=false
 StartupWMClass=TelegramDesktop
