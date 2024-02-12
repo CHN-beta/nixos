@@ -15,8 +15,9 @@ inputs:
         {
           extensions = with inputs.pkgs.firefox-addons;
           [
-            tampermonkey bitwarden cookies-txt i-dont-care-about-cookies metamask switchyomega rsshub-radar tabliss
-            ublock-origin wallabagger wappalyzer immersive-translate firefox-color dualsub pakkujs rsspreview
+            immersive-translate tampermonkey bitwarden cookies-txt dualsub firefox-color i-dont-care-about-cookies
+            metamask pakkujs switchyomega rsshub-radar rsspreview tabliss tree-style-tab ublock-origin wallabagger
+            wappalyzer grammarly
             (
               buildFirefoxXpiAddon
               {
