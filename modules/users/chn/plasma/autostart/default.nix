@@ -6,16 +6,33 @@ inputs:
       let
         programs =
         {
-          nheko = "${inputs.pkgs.nheko}/share/applications/nheko.desktop";
+          nheko =
+            let
+              drv = inputs.pkgs.writeTextDir "nheko.desktop" (builtins.replaceStrings
+                [ "Exec=nheko %u" ] [ "Exec=bash -c 'sleep 5 && nheko'" ]
+                (builtins.readFile "${inputs.pkgs.nheko}/share/applications/nheko.desktop"));
+            in "${drv}/nheko.desktop";
           kclockd = "${inputs.pkgs.plasma5Packages.kdeGear.kclock}/etc/xdg/autostart/org.kde.kclockd-autostart.desktop";
           yakuake = "${inputs.pkgs.yakuake}/share/applications/org.kde.yakuake.desktop";
-          telegram = ./org.telegram.desktop.desktop;
+          telegram =
+            let
+              drv = inputs.pkgs.writeTextDir "org.telegram.desktop.desktop" (builtins.replaceStrings
+                [ "Exec=telegram-desktop -- %u" ] [ "Exec=bash -c 'sleep 5 && telegram-desktop -autostart'" ]
+                (builtins.readFile "${inputs.pkgs.telegram-desktop}/share/applications/org.telegram.desktop.desktop"));
+            in "${drv}/org.telegram.desktop.desktop";
           element =
             let
               drv = inputs.pkgs.writeTextDir "element-desktop.desktop" (builtins.replaceStrings
-                [ "Exec=element-desktop %u" ] [ "Exec=element-desktop --hide" ]
-                (builtins.readFile "${inputs.pkgs.element-desktop.desktopItem}/share/applications/element-desktop.desktop"));
+                [ "Exec=element-desktop %u" ] [ "Exec=element-desktop --hidden" ]
+                (builtins.readFile
+                  "${inputs.pkgs.element-desktop.desktopItem}/share/applications/element-desktop.desktop"));
             in "${drv}/element-desktop.desktop";
+          # kmail = 
+          #   let
+          #     drv = inputs.pkgs.writeTextDir "org.kde.kmail2.desktop" (builtins.replaceStrings
+          #       [ "Exec=kmail -qwindowtitle %c %u" ] [ "Exec=bash -c 'sleep 5 && kmail -qwindowtitle'" ]
+          #       (builtins.readFile "${inputs.pkgs.kmail}/share/applications/org.kde.kmail2.desktop"));
+          #   in "${drv}/org.kde.kmail2.desktop";
           kmail = "${inputs.pkgs.kmail}/share/applications/org.kde.kmail2.desktop";
           discord =
             let
@@ -32,7 +49,7 @@ inputs:
       in builtins.listToAttrs (builtins.map
         (file:
         {
-          name = ".config/autostart/${builtins.baseNameOf "programs.${file}"}";
+          name = ".config/autostart/${builtins.baseNameOf (builtins.unsafeDiscardStringContext programs.${file})}";
           value.source = programs.${file};
         })
         (devices.${inputs.config.nixos.system.networking.hostname}));
