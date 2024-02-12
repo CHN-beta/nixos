@@ -8,6 +8,6 @@ inputs:
         "Containments.1".wallpaperplugin = "a2n.blur";
         "Containments.1.Wallpaper.a2n\\.blur.General".Image = wallpaper;
       };
-      kscreenlockerrc."Greeter.Wallpaper.org.kde.image.General" = { Image = wallpaper; PreviewImage = wallpaper; };
+      kscreenlockerrc."Greeter.Wallpaper.org\\.kde\\.image.General" = { Image = wallpaper; PreviewImage = wallpaper; };
     };
 }
