@@ -56,7 +56,7 @@ inputs:
         {
           users.chn =
           {
-            directories = [ ".cache" ];
+            directories = [ ".cache" ".config/fontconfig" ];
           };
         } else {});
         "${impermanence.nodatacow}" =

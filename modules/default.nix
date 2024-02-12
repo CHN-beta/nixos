@@ -37,6 +37,7 @@ inputs:
               # needed by mirism
               nghttp2-2305 =
                 inputs.pkgs.callPackage "${inputs.topInputs.nixpkgs-2305}/pkgs/development/libraries/nghttp2" {};
+              firefox-addons = (import "${topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
             })
           ];
           home-manager.sharedModules =

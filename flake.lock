@@ -37,6 +37,22 @@
         "type": "github"
       }
     },
+    "cascade": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1706712246,
+        "narHash": "sha256-xqA4U7IzGtmqdqFxznB/5d7riHVRCTz7PBiNQrnOpmE=",
+        "owner": "andreasgrafen",
+        "repo": "cascade",
+        "rev": "6b584eb86c45501930e689ca73a60f89521d9896",
+        "type": "github"
+      },
+      "original": {
+        "owner": "andreasgrafen",
+        "repo": "cascade",
+        "type": "github"
+      }
+    },
     "citation-style-language": {
       "flake": false,
       "locked": {
@@ -1810,6 +1826,7 @@
       "inputs": {
         "aagl": "aagl",
         "blurred-wallpaper": "blurred-wallpaper",
+        "cascade": "cascade",
         "citation-style-language": "citation-style-language",
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",
@@ -1845,6 +1862,7 @@
         "pnpm2nix-nzbr": "pnpm2nix-nzbr",
         "qchem": "qchem",
         "rsshub": "rsshub",
+        "rycee": "rycee",
         "slate": "slate",
         "sops-nix": "sops-nix",
         "tgbot-cpp": "tgbot-cpp",
@@ -1883,6 +1901,22 @@
         "owner": "DIYgod",
         "repo": "RSSHub",
         "type": "github"
+      }
+    },
+    "rycee": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1707673696,
+        "narHash": "sha256-3+IgVATpdUFJ33QLIuK8mIzg5rSWA/wX0IoBMfPKzWo=",
+        "owner": "rycee",
+        "repo": "nur-expressions",
+        "rev": "22f2d8e0cbb3a8490a104ca5cb7bbc8ba10d262c",
+        "type": "gitlab"
+      },
+      "original": {
+        "owner": "rycee",
+        "repo": "nur-expressions",
+        "type": "gitlab"
       }
     },
     "slate": {

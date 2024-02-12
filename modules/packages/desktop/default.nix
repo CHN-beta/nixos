@@ -1,6 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules [ ./vscode.nix ];
+  imports = inputs.localLib.mkModules [ ./vscode.nix ./firefox.nix ];
   config =
     let
       inherit (inputs.lib) mkIf;
@@ -49,7 +49,6 @@ inputs:
       {
         adb.enable = true;
         wireshark = { enable = true; package = inputs.pkgs.wireshark; };
-        firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
         vim.package = inputs.pkgs.vim-full;
       };
       nixpkgs.config.packageOverrides = pkgs: 
