@@ -48,7 +48,7 @@ inputs:
         gui.preferred = false;
       };
       hardware = { cpus = [ "intel" ]; gpus = [ "intel" ]; };
-      packages.packageSet = "desktop";
+      packages.packageSet = "desktop-fat";
       services =
       {
         snapper.enable = true;
