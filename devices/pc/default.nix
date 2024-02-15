@@ -142,11 +142,10 @@ inputs:
     hardware.nvidia.forceFullCompositionPipeline = true;
     home-manager.users.chn.config.programs.plasma.startup.autoStartScript.xcalib.text =
       "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
-    nixpkgs.overlays = [(final: prev:
+    nixpkgs.overlays = [(final: prev: rec
     {
       blas = prev.blas.override { blasProvider = final.amd-blis; };
       lapack = prev.lapack.override { lapackProvider = final.amd-libflame; };
-      cantor = prev.cantor.override { withSage = false; sage = null; sage-with-env = null; };
     })];
   };
 }
