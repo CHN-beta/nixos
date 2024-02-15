@@ -121,7 +121,7 @@ inputs:
               powerManagement.enable = true;
               dynamicBoost.enable = true;
               nvidiaSettings = true;
-              package = inputs.config.boot.kernelPackages.nvidiaPackages.production;
+              # package = inputs.config.boot.kernelPackages.nvidiaPackages.production;
             };
           };
         }
