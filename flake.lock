@@ -40,15 +40,15 @@
     "cascade": {
       "flake": false,
       "locked": {
-        "lastModified": 1706712246,
-        "narHash": "sha256-xqA4U7IzGtmqdqFxznB/5d7riHVRCTz7PBiNQrnOpmE=",
-        "owner": "andreasgrafen",
+        "lastModified": 1707981987,
+        "narHash": "sha256-6p4t7maih5I5BqkawqArnYSN+35iUPxlsHebk6SRf7A=",
+        "owner": "CHN-beta",
         "repo": "cascade",
-        "rev": "6b584eb86c45501930e689ca73a60f89521d9896",
+        "rev": "7c5645ed390c8b829e241f3ed5495a9d5a473375",
         "type": "github"
       },
       "original": {
-        "owner": "andreasgrafen",
+        "owner": "CHN-beta",
         "repo": "cascade",
         "type": "github"
       }

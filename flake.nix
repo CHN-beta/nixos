@@ -60,7 +60,7 @@
     win11os-kde = { url = "github:yeyushengfan258/Win11OS-kde"; flake = false; };
     fluent-kde = { url = "github:vinceliuice/Fluent-kde"; flake = false; };
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
-    cascade = { url = "github:andreasgrafen/cascade"; flake = false; };
+    cascade = { url = "github:CHN-beta/cascade"; flake = false; };
     blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
     slate = { url = "github:TheBigWazz/Slate"; flake = false; };
   };
