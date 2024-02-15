@@ -60,7 +60,8 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu.type = "amd+nvidia";
+        gpu = { type = "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
+        # gpu.type = "amd";
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
@@ -133,14 +134,14 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
-        gamemode = { enable = true; drmDevice = 0; };
+        gamemode = { enable = true; drmDevice = 1; };
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
     # use plasma-x11 as default, instead of plasma-wayland
-    services.xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
+    # services.xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
-    hardware.nvidia.forceFullCompositionPipeline = true;
+    # hardware.nvidia.forceFullCompositionPipeline = true;
     home-manager.users.chn.config.programs.plasma.startup.autoStartScript.xcalib.text =
       "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
   };

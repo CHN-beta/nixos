@@ -17,7 +17,7 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.hardware) gpu; in inputs.lib.mkIf (gpu.type != null) (inputs.lib.mkMerge
   [
-    # generic settings, install drivers (but do not config)
+    # generic settings
     (
       let gpus = inputs.lib.strings.splitString "+" gpu.type; in
       {
@@ -37,13 +37,15 @@ inputs:
             driSupport = true;
             driSupport32Bit = true;
             extraPackages =
-              with inputs.pkgs;
-              let packages =
+              let packages = with inputs.pkgs;
               {
-                intel = [ intel-compute-runtime intel-media-driver libvdpau-va-gl ]; # intel-vaapi-driver
+                intel = [ intel-vaapi-driver libvdpau-va-gl intel-media-driver ];
                 nvidia = [ vaapiVdpau ];
                 amd = [ amdvlk rocmPackages.clr rocmPackages.clr.icd ];
               };
+              in builtins.concatLists (builtins.map (gpu: packages.${gpu}) gpus);
+            extraPackages32 =
+              let packages = { intel = []; nvidia = []; amd = [ inputs.pkgs.driversi686Linux.amdvlk ]; };
               in builtins.concatLists (builtins.map (gpu: packages.${gpu}) gpus);
           };
           nvidia = inputs.lib.mkIf (builtins.elem "nvidia" gpus)
@@ -55,26 +57,23 @@ inputs:
             # package = inputs.config.boot.kernelPackages.nvidiaPackages.production;
           };
         };
+        boot.kernelParams = inputs.lib.mkIf (builtins.elem "amd" gpus)
+          [ "radeon.cik_support=0" "amdgpu.cik_support=1" "radeon.si_support=0" "amdgpu.si_support=1" "iommu=pt" ];
+        environment.variables.VDPAU_DRIVER = inputs.lib.mkIf (builtins.elem "intel" gpus) "va_gl";
+        services.xserver.videoDrivers =
+          let driver = { intel = "modesetting"; amd = "amdgpu"; nvidia = "nvidia"; };
+          in builtins.map (gpu: driver.${gpu}) gpus;
       }
     )
-    # if use intel or amd as output, use modesetting; else, use nvidia
-    {
-      services.xserver.videoDrivers = inputs.localLib.mkConditional
-        (builtins.any (primayGpu: inputs.lib.strings.hasPrefix primayGpu gpu.type) [ "intel" "amd" ])
-        [ "modesetting" ] [ "nvidia" ];
-    }
     # nvidia prime offload
     (
       inputs.lib.mkIf (inputs.lib.strings.hasSuffix "+nvidia" gpu.type) { hardware.nvidia =
       {
-        prime =
-        {
-          offload = { enable = true; enableOffloadCmd = true; };
-        }
-        // builtins.listToAttrs (builtins.map
-          (gpu: { name = "${gpu.name}BusId"; inherit (gpu) value; })
-          (inputs.localLib.attrsToList gpu.prime.busId));
-        powerManagement = { finegrained = true; enable = true; };
+        prime = { offload = { enable = true; enableOffloadCmd = true; }; }
+          // builtins.listToAttrs (builtins.map
+            (gpu: { name = "${if gpu.name == "amd" then "amdgpu" else gpu.name}BusId"; value = "PCI:${gpu.value}"; })
+            (inputs.localLib.attrsToList gpu.prime.busId));
+        powerManagement.finegrained = true;
       };}
     )
   ]);
