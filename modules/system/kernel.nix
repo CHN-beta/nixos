@@ -54,7 +54,7 @@ inputs:
                       hashes =
                       {
                         "6.1" = "11ddiammvjxx2m9v32p25l1ai759a1d6xhdpszgnihv7g2fzigf5";
-                        "6.6" = "19ib0syj3207ifr315gdrnpv6nhh435fmgl05c7k715nng40i827";
+                        "6.7" = "1yfsmc0873xiwlirir0xfp9zyrpd09q1srgr3z4rl7i7lxzaqls8";
                       };
                     in hashes."${major}.${minor}";
                 };
