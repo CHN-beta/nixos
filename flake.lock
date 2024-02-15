@@ -970,6 +970,22 @@
         "type": "github"
       }
     },
+    "linux-surface": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1707902187,
+        "narHash": "sha256-mGxhAvpBJ3wSgecz9mwghTjRUjwcsjE0cqdcUODLS+0=",
+        "owner": "linux-surface",
+        "repo": "linux-surface",
+        "rev": "fcc945709d89716a0012d3d42d0e9af0f7cd60ee",
+        "type": "github"
+      },
+      "original": {
+        "owner": "linux-surface",
+        "repo": "linux-surface",
+        "type": "github"
+      }
+    },
     "lmix": {
       "inputs": {
         "nixpkgs": [
@@ -1308,15 +1324,15 @@
     },
     "nixos-hardware": {
       "locked": {
-        "lastModified": 1705312285,
-        "narHash": "sha256-rd+dY+v61Y8w3u9bukO/hB55Xl4wXv4/yC8rCGVnK5U=",
-        "owner": "NixOS",
+        "lastModified": 1707989601,
+        "narHash": "sha256-Zq81JV6NnWI4dDOYVB7VeP3BEv/HswEvIvIwrcUZoaA=",
+        "owner": "CHN-beta",
         "repo": "nixos-hardware",
-        "rev": "bee2202bec57e521e3bd8acd526884b9767d7fa0",
+        "rev": "b3e300fcdab6c004e25de94d5e23ae78a267ec4b",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
+        "owner": "CHN-beta",
         "repo": "nixos-hardware",
         "type": "github"
       }
@@ -1838,6 +1854,7 @@
         "fluent-kde": "fluent-kde",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
+        "linux-surface": "linux-surface",
         "lmix": "lmix",
         "matplotplusplus": "matplotplusplus",
         "misskey": "misskey",
