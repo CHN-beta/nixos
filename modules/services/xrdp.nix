@@ -1,6 +1,5 @@
 inputs:
 {
-  # TODO: some xrdp instances should only listen on private interfaces
   options.nixos.services.xrdp = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
