@@ -1,6 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules [ ./legion.nix ];
+  imports = inputs.localLib.mkModules [ ./gpu.nix ./legion.nix ];
   options.nixos.hardware = let inherit (inputs.lib) mkOption types; in
   {
     bluetooth.enable = mkOption { type = types.bool; default = false; };
@@ -8,14 +8,6 @@ inputs:
     printer.enable = mkOption { type = types.bool; default = false; };
     sound.enable = mkOption { type = types.bool; default = false; };
     cpus = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
-    gpus = mkOption { type = types.listOf (types.enum [ "intel" "nvidia" "amd" ]); default = []; };
-    prime =
-    {
-      enable = mkOption { type = types.bool; default = false; };
-      mode = mkOption { type = types.enum [ "offload" "sync" ]; default = "offload"; };
-      busId = mkOption { type = types.attrsOf types.str; default = {}; };
-    };
-    gamemode.drmDevice = mkOption { type = types.int; default = 0; };
     halo-keyboard.enable = mkOption { type = types.bool; default = false; };
   };
   config =
@@ -82,80 +74,6 @@ inputs:
               concatLists (map (cpu: modules.${cpu}) hardware.cpus);
         }
       )
-      # gpus
-      (
-        mkIf (hardware.gpus != [])
-        {
-          boot.initrd.availableKernelModules =
-            let
-              modules =
-              {
-                intel = [ "i915" ];
-                nvidia = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
-                amd = [ "amdgpu" ];
-              };
-            in
-              concatLists (map (gpu: modules.${gpu}) hardware.gpus);
-          hardware =
-          {
-            opengl =
-            {
-              enable = true;
-              driSupport = true;
-              extraPackages =
-                with inputs.pkgs;
-                let
-                  packages =
-                  {
-                    intel = [ intel-compute-runtime intel-media-driver libvdpau-va-gl ]; # intel-vaapi-driver
-                    nvidia = [ vaapiVdpau ];
-                    amd = [ amdvlk rocmPackages.clr rocmPackages.clr.icd ];
-                  };
-                in
-                  concatLists (map (gpu: packages.${gpu}) hardware.gpus);
-              driSupport32Bit = true;
-            };
-            nvidia = mkIf (builtins.elem "nvidia" hardware.gpus)
-            {
-              modesetting.enable = true;
-              powerManagement.enable = true;
-              dynamicBoost.enable = true;
-              nvidiaSettings = true;
-              # package = inputs.config.boot.kernelPackages.nvidiaPackages.production;
-            };
-          };
-        }
-      )
-      (mkIf (builtins.elem "intel" hardware.gpus) { services.xserver.videoDrivers = [ "modesetting" ]; })
-      (mkIf (builtins.elem "amd" hardware.gpus) { services.xserver.videoDrivers = [ "modesetting" ]; })
-      # prime
-      (
-        mkIf hardware.prime.enable
-        {
-          hardware.nvidia = mkMerge
-          [
-            (
-              mkIf (hardware.prime.mode == "offload")
-              {
-                prime.offload = { enable = true; enableOffloadCmd = true; };
-                powerManagement = { finegrained = true; enable = true; };
-              }
-            )
-            (
-              mkIf (hardware.prime.mode == "sync")
-              {
-                prime = { sync.enable = true; };
-                # prime.forceFullCompositionPipeline = true;
-              }
-            )
-            {
-              prime = listToAttrs
-                (map (gpu: { inherit (gpu) value; name = "${gpu.name}BusId"; }) (attrsToList hardware.prime.busId));
-            }
-          ];
-        }
-      )
-      { programs.gamemode.settings.gpu.gpu_device = "${toString hardware.gamemode.drmDevice}"; }
       # halo-keyboard
       (mkIf hardware.halo-keyboard.enable
       (

@@ -47,12 +47,12 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpus = [ "nvidia" ];
+        # gpus = [ "nvidia" ];
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
         sound.enable = true;
-        gamemode.drmDevice = 1;
+        # gamemode.drmDevice = 1;
       };
       packages.packageSet = "workstation";
       virtualization = { docker.enable = true; kvmHost = { enable = true; gui = true; }; };

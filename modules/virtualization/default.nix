@@ -37,7 +37,7 @@ inputs:
             setSocketVariable = true;
             daemon.settings = { features.buildkit = true; dns = [ "1.1.1.1" ]; storage-driver = "overlay2"; };
           };
-          enableNvidia = builtins.elem "nvidia" inputs.config.nixos.hardware.gpus;
+          enableNvidia = inputs.lib.strings.hasInfix "nvidia" inputs.config.nixos.hardware.gpu.type;
           storageDriver = "overlay2";
         };
         nixos.services.firewall.trustedInterfaces = [ "docker0" ];

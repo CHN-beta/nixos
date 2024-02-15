@@ -68,29 +68,7 @@ inputs:
         anime-game-launcher = { enable = true; package = inputs.pkgs.anime-game-launcher; };
         honkers-railway-launcher = { enable = true; package = inputs.pkgs.honkers-railway-launcher; };
         nix-ld.enable = true;
-        gamemode =
-        {
-          enable = true;
-          settings =
-          {
-            general.renice = 10;
-            gpu =
-            {
-              apply_gpu_optimisations = "accept-responsibility";
-              nv_powermizer_mode = 1;
-            };
-            custom = let notify-send = "${inputs.pkgs.libnotify}/bin/notify-send"; in
-            {
-              start = "${notify-send} 'GameMode started'";
-              end = "${notify-send} 'GameMode ended'";
-            };
-          };
-        };
-        chromium =
-        {
-          enable = true;
-          extraOpts.PasswordManagerEnabled = false;
-        };
+        chromium = { enable = true; extraOpts.PasswordManagerEnabled = false; };
       };
     };
 }

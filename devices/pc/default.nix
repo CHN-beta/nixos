@@ -60,7 +60,7 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpus = [ "nvidia" ];
+        gpu.type = "nvidia";
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
@@ -133,6 +133,7 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
+        gamemode = { enable = true; drmDevice = 0; };
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };

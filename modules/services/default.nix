@@ -40,6 +40,7 @@ inputs:
     ./fail2ban.nix
     ./wireguard.nix
     ./akkoma.nix
+    ./gamemode.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {

@@ -37,7 +37,7 @@ inputs:
       hardware =
       {
         cpus = [ "intel" ];
-        gpus = [ "intel" ];
+        gpu.type = "intel";
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
