@@ -60,7 +60,7 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu.type = "nvidia";
+        gpu.type = "amd+nvidia";
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
