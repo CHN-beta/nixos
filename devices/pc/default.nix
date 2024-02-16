@@ -139,28 +139,14 @@ inputs:
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
-    services.colord.enable = true;
-    environment.systemPackages =
-      let profiles = builtins.map (file: ./color/${file}) (builtins.attrNames (builtins.readDir ./color));
-      in [(inputs.pkgs.runCommand "color-profile" { inherit profiles; }
-      ''
-        mkdir -p $out/share/color/icc/colord
-        cp $profiles $out/share/color/icc/colord
-      '')];
-    home-manager.users.chn.config.programs.plasma.startup.autoStartScript.color.text = inputs.lib.mkForce
+    home-manager.users.chn.config.programs.plasma.startup.autoStartScript.xcalib.text =
       "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
+    services.xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
     specialisation.nvidia.configuration =
     {
       system.nixos.tags = [ "discreate-graphic" ];
-      services =
-      {
-        xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
-        colord.enable = inputs.lib.mkForce false;
-      };
       nixos.hardware.gpu.type = inputs.lib.mkForce "nvidia";
       hardware.nvidia.forceFullCompositionPipeline = true;
-      home-manager.users.chn.config.programs.plasma.startup.autoStartScript.color.text = inputs.lib.mkForce
-        "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
     };
   };
 }
