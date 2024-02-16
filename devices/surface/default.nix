@@ -47,7 +47,7 @@ inputs:
       virtualization = { docker.enable = true; waydroid.enable = true; };
       services =
       {
-        snapper.enable = true;
+        snapper.enable = false;
         fontconfig.enable = true;
         sshd.enable = true;
         xray.client =
@@ -65,6 +65,7 @@ inputs:
           publicKey = "j7qEeODVMH31afKUQAmKRGLuqg8Bxd0dIPbo17LHqAo=";
           wireguardIp = "192.168.83.5";
         };
+        beesd = { enable = true; instances.root = "/"; };
       };
       bugs = [ "xmunet" ];
     };
