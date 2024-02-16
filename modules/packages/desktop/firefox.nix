@@ -17,7 +17,7 @@ inputs:
           [
             immersive-translate tampermonkey bitwarden cookies-txt dualsub firefox-color i-dont-care-about-cookies
             metamask pakkujs switchyomega rsshub-radar rsspreview tabliss tree-style-tab ublock-origin wallabagger
-            wappalyzer grammarly
+            wappalyzer grammarly plasma-integration
             (
               buildFirefoxXpiAddon
               {
