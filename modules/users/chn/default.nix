@@ -46,7 +46,10 @@ inputs:
             }
             // (listToAttrs (map
               (system: { name = system; value.forwardAgent = true; })
-              [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas" ]));
+              [
+                "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas"
+                "wireguard.surface"
+              ]));
           };
           home.packages =
           [

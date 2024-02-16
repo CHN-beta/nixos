@@ -58,6 +58,13 @@ inputs:
           dns.extraInterfaces = [ "docker0" ];
         };
         firewall.trustedInterfaces = [ "virbr0" ];
+        wireguard =
+        {
+          enable = true;
+          peers = [ "vps6" ];
+          publicKey = "j7qEeODVMH31afKUQAmKRGLuqg8Bxd0dIPbo17LHqAo=";
+          wireguardIp = "192.168.83.5";
+        };
       };
       bugs = [ "xmunet" ];
     };

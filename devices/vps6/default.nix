@@ -71,7 +71,7 @@ inputs:
         wireguard =
         {
           enable = true;
-          peers = [ "pc" "nas" "vps7" ];
+          peers = [ "pc" "nas" "vps7" "surface" ];
           publicKey = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4=";
           wireguardIp = "192.168.83.1";
           listenIp = "74.211.99.69";

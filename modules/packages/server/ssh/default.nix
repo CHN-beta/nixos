@@ -44,7 +44,7 @@ inputs:
             surface =
             {
               ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFdm3DcfHdcLP0oSpVrWwIZ/b9lZuakBSPwCFz2BdTJ7";
-              hostnames = [ "192.168.1.166" ];
+              hostnames = [ "192.168.1.166" "wireguard.surface.chn.moe" "192.168.83.5" ];
             };
             pc =
             {
@@ -121,7 +121,7 @@ inputs:
           (
             (builtins.map
               (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
-              [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "wireguard.nas" ])
+              [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "wireguard.nas" "wireguard.surface" ])
             ++ (builtins.map
               (host:
               {
