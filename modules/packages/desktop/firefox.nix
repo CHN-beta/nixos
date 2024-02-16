@@ -31,9 +31,9 @@ inputs:
             )
           ];
           search = { default = "Google"; force = true; };
-          userChrome = builtins.concatStringsSep "\n" (builtins.map
-            (file: builtins.readFile "${inputs.topInputs.cascade}/chrome/includes/cascade-${file}.css")
-            [ "config-mouse" "colours" "layout" "responsive" "floating-panel" "nav-bar" "tabs" ]);
+          userChrome = builtins.readFile "${inputs.topInputs.lepton}/userChrome.css";
+          userContent = builtins.readFile "${inputs.topInputs.lepton}/userContent.css";
+          extraConfig = builtins.readFile "${inputs.topInputs.lepton}/user.js";
           settings =
           {
             # general

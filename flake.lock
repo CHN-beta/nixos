@@ -970,6 +970,22 @@
         "type": "github"
       }
     },
+    "lepton": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1707757295,
+        "narHash": "sha256-KvwLiJFbe+YHjuEz9c/NV/eTMiQamRUQ2fAGY6piw8Y=",
+        "owner": "black7375",
+        "repo": "Firefox-UI-Fix",
+        "rev": "a25a08819ad36b3601a23123458edded0d849f7e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "black7375",
+        "repo": "Firefox-UI-Fix",
+        "type": "github"
+      }
+    },
     "linux-surface": {
       "flake": false,
       "locked": {
@@ -1854,6 +1870,7 @@
         "fluent-kde": "fluent-kde",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
+        "lepton": "lepton",
         "linux-surface": "linux-surface",
         "lmix": "lmix",
         "matplotplusplus": "matplotplusplus",
