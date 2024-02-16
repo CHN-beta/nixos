@@ -41,8 +41,9 @@
     };
     nix-doom-emacs = { url = "github:nix-community/nix-doom-emacs"; inputs.nixpkgs.follows = "nixpkgs"; };
     nur-linyinfeng = { url = "github:linyinfeng/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nixos-hardware.url = "github:NixOS/nixos-hardware";
+    nixos-hardware.url = "github:CHN-beta/nixos-hardware";
     envfs = { url = "github:Mic92/envfs"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nix-fast-build = { url = "github:/Mic92/nix-fast-build"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
@@ -60,9 +61,11 @@
     win11os-kde = { url = "github:yeyushengfan258/Win11OS-kde"; flake = false; };
     fluent-kde = { url = "github:vinceliuice/Fluent-kde"; flake = false; };
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
-    cascade = { url = "github:andreasgrafen/cascade"; flake = false; };
+    cascade = { url = "github:CHN-beta/cascade"; flake = false; };
     blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
     slate = { url = "github:TheBigWazz/Slate"; flake = false; };
+    linux-surface = { url = "github:linux-surface/linux-surface"; flake = false; };
+    lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
   };
 
   outputs = inputs:

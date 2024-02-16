@@ -45,7 +45,7 @@ inputs:
             # networking
             ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils wireguard-tools
             # nix tools
-            nix-output-monitor nix-tree ssh-to-age
+            nix-output-monitor nix-tree ssh-to-age (callPackage "${inputs.topInputs.nix-fast-build}" {})
             # office
             todo-txt-cli
             # development

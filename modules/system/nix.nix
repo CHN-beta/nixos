@@ -17,10 +17,10 @@ inputs:
         system-features = [ "big-parallel" "nixos-test" "benchmark" ];
         experimental-features = [ "nix-command" "flakes" ];
         keep-failed = true;
-        max-substitution-jobs = 1;
+        max-substitution-jobs = 4;
         trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
         show-trace = true;
-        max-jobs = 1;
+        max-jobs = 4;
         cores = 0;
         keep-going = true;
       };

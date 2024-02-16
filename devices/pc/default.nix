@@ -53,14 +53,15 @@ inputs:
         };
         nixpkgs =
           { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
-        kernel.patches = [ "cjktty" "lantian" ];
+        kernel.patches = [ "cjktty" "lantian" "hibernate-progress" ];
         networking.hostname = "pc";
         sysctl.laptop-mode = 5;
       };
       hardware =
       {
         cpus = [ "amd" ];
-        gpus = [ "nvidia" ];
+        gpu = { type = "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
+        # gpu.type = "amd";
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
@@ -133,13 +134,11 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
+        gamemode = { enable = true; drmDevice = 1; };
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
-    # use plasma-x11 as default, instead of plasma-wayland
-    services.xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
-    hardware.nvidia.forceFullCompositionPipeline = true;
     home-manager.users.chn.config.programs.plasma.startup.autoStartScript.xcalib.text =
       "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
     nixpkgs.overlays = [(final: prev: rec
@@ -147,5 +146,17 @@ inputs:
       blas = prev.blas.override { blasProvider = final.amd-blis; };
       lapack = prev.lapack.override { lapackProvider = final.amd-libflame; };
     })];
+    services.xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
+    powerManagement.resumeCommands =
+    ''
+      ${inputs.pkgs.kmod}/bin/modprobe -r mt7921e
+      ${inputs.pkgs.kmod}/bin/modprobe mt7921e
+    '';
+    specialisation.nvidia.configuration =
+    {
+      system.nixos.tags = [ "discreate-graphic" ];
+      nixos.hardware.gpu.type = inputs.lib.mkForce "nvidia";
+      hardware.nvidia.forceFullCompositionPipeline = true;
+    };
   };
 }

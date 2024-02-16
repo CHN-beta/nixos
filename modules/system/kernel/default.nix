@@ -39,7 +39,8 @@ inputs:
           patches =
           {
             cjktty =
-            {
+            [{
+              name = "cjktty";
               patch =
                 let
                   version = builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version;
@@ -54,15 +55,16 @@ inputs:
                       hashes =
                       {
                         "6.1" = "11ddiammvjxx2m9v32p25l1ai759a1d6xhdpszgnihv7g2fzigf5";
-                        "6.6" = "19ib0syj3207ifr315gdrnpv6nhh435fmgl05c7k715nng40i827";
+                        "6.7" = "1yfsmc0873xiwlirir0xfp9zyrpd09q1srgr3z4rl7i7lxzaqls8";
                       };
                     in hashes."${major}.${minor}";
                 };
               extraStructuredConfig =
                 { FONT_CJK_16x16 = inputs.lib.kernel.yes; FONT_CJK_32x32 = inputs.lib.kernel.yes; };
-            };
+            }];
             lantian =
-            {
+            [{
+              name = "lantian";
               patch = null;
               # pick from xddxdd/nur-packages dce93a
               extraStructuredConfig = with inputs.lib.kernel;
@@ -79,9 +81,48 @@ inputs:
                 HZ_250 = inputs.lib.mkForce no;
                 HZ = inputs.lib.mkForce (freeform "1000");
               };
-            };
+            }];
+            surface =
+              let
+                version =
+                  let versionArray = builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version;
+                  in "${builtins.elemAt versionArray 0}.${builtins.elemAt versionArray 1}";
+                kernelPatches = builtins.map
+                  (file:
+                  {
+                    name = "surface-${file.name}";
+                    patch = "${inputs.topInputs.linux-surface}/patches/${version}/${file.name}";
+                  })
+                  (builtins.filter
+                    (file: file.value == "regular")
+                    (inputs.localLib.attrsToList (builtins.readDir
+                      "${inputs.topInputs.linux-surface}/patches/${version}")));
+                kernelConfig = builtins.removeAttrs
+                  (builtins.listToAttrs (builtins.concatLists (builtins.map
+                    (configString:
+                      if builtins.match "CONFIG_.*=." configString == [] then
+                      (
+                        let match = builtins.match "CONFIG_(.*)=(.)" configString; in with inputs.lib.kernel;
+                        [{
+                          name = builtins.elemAt match 0;
+                          value = { m = module; y = yes; }.${builtins.elemAt match 1};
+                        }]
+                      )
+                      else if builtins.match "# CONFIG_.* is not set" configString == [] then
+                      [{
+                        name = builtins.elemAt (builtins.match "# CONFIG_(.*) is not set" configString) 0;
+                        value = inputs.lib.kernel.unset;
+                      }]
+                      else if builtins.match "#.*" configString == [] then []
+                      else if configString == "" then []
+                      else throw "could not parse: ${configString}"
+                    )
+                    (inputs.lib.strings.splitString "\n"
+                      (builtins.readFile "${inputs.topInputs.linux-surface}/configs/surface-${version}.config")))))
+                  [ "VIDEO_IPU3_IMGU" ];
+              in kernelPatches ++ [{ name = "surface-config"; patch = null; extraStructuredConfig = kernelConfig; }];
+            hibernate-progress = [{ name = "hibernate-progress"; patch = ./hibernate-progress.patch; }];
           };
-        in
-          builtins.map (name: { inherit name; } // patches.${name}) kernel.patches;
+        in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };};
 }

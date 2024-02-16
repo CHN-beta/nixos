@@ -40,7 +40,7 @@ inputs:
         {
           kwin =
           {
-            Overview = "Meta+Tab";
+            ExposeAll = "Meta+Tab";
             "Show Desktop" = "Meta+D";
             "Suspend Compositing" = "Alt+Shift+F12";
             "Walk Through Windows" = "Alt+Tab";

@@ -19,7 +19,6 @@ inputs:
         enable = true;
         displayManager = { sddm.enable = true; defaultSession = "plasmawayland"; };
         desktopManager.plasma5.enable = true;
-        videoDrivers = inputs.config.nixos.hardware.gpus;
       };
       systemd.services.display-manager = { after = [ "network-online.target" ]; enable = gui.autoStart; };
       environment =

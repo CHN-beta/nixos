@@ -1,6 +1,6 @@
 lib:
 {
-  attrsToList = Attrs: builtins.map ( name: { inherit name; value = Attrs.${name}; } ) ( builtins.attrNames Attrs );
+  attrsToList = attrs: builtins.map (name: { inherit name; value = attrs.${name}; }) (builtins.attrNames attrs);
   mkConditional = condition: trueResult: falseResult: let inherit (lib) mkMerge mkIf; in
     mkMerge [ ( mkIf condition trueResult ) ( mkIf (!condition) falseResult ) ];
 

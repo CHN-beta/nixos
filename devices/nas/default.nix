@@ -47,11 +47,11 @@ inputs:
         networking.hostname = "nas";
         gui.preferred = false;
       };
-      hardware = { cpus = [ "intel" ]; gpus = [ "intel" ]; };
+      hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       packages.packageSet = "desktop-fat";
       services =
       {
-        snapper.enable = true;
+        snapper.enable = false;
         fontconfig.enable = true;
         samba =
         {

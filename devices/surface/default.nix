@@ -31,13 +31,13 @@ inputs:
         nixpkgs.march = "skylake";
         grub.installDevice = "efi";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-        kernel.patches = [ "cjktty" "lantian" ];
+        kernel.patches = [ "cjktty" "lantian" "surface" ];
         networking.hostname = "surface";
       };
       hardware =
       {
         cpus = [ "intel" ];
-        gpus = [ "intel" ];
+        gpu.type = "intel";
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
@@ -61,21 +61,6 @@ inputs:
       };
       bugs = [ "xmunet" ];
     };
-    boot.kernelPackages =
-      let
-        originalKernel = inputs.pkgs.linuxPackages_xanmod_latest.kernel;
-        version = originalKernel.version;
-        majorVersion =
-          let versionArray = builtins.splitVersion version;
-          in "${builtins.elemAt versionArray 0}.${builtins.elemAt versionArray 1}";
-        repoFile = "${inputs.topInputs.nixos-hardware}/microsoft/surface/common/kernel/linux-package.nix";
-        inherit (inputs.pkgs.callPackage repoFile {}) repos;
-        patchDir = repos.linux-surface + "/patches/${majorVersion}";
-        patchFile = "${inputs.topInputs.nixos-hardware}/microsoft/surface/common/kernel/linux-6.6.x/patches.nix";
-        kernelPatches = inputs.pkgs.callPackage patchFile { inherit (inputs.lib) kernel; inherit version patchDir; };
-      in
-        inputs.lib.mkForce (inputs.pkgs.linuxPackagesFor (originalKernel.override
-          (prev: { kernelPatches = prev.kernelPatches ++ kernelPatches; })));
     environment.systemPackages = with inputs.pkgs; [ maliit-keyboard maliit-framework ];
   };
 }
