@@ -25,7 +25,7 @@ inputs:
           let modules =
           {
             intel = [ "i915" ];
-            nvidia = [ "nvidia" "nvidia_drm" "nvidia_modeset" "nvidia_uvm" ];
+            nvidia = [ "nvidia" "nvidia_drm" "nvidia_modeset" ]; # nvidia-uvm should not be loaded
             amd = [ "amdgpu" ];
           };
           in builtins.concatLists (builtins.map (gpu: modules.${gpu}) gpus);
@@ -57,8 +57,12 @@ inputs:
             # package = inputs.config.boot.kernelPackages.nvidiaPackages.production;
           };
         };
-        boot.kernelParams = inputs.lib.mkIf (builtins.elem "amd" gpus)
-          [ "radeon.cik_support=0" "amdgpu.cik_support=1" "radeon.si_support=0" "amdgpu.si_support=1" "iommu=pt" ];
+        boot =
+        {
+          kernelParams = inputs.lib.mkIf (builtins.elem "amd" gpus)
+            [ "radeon.cik_support=0" "amdgpu.cik_support=1" "radeon.si_support=0" "amdgpu.si_support=1" "iommu=pt" ];
+          blacklistedKernelModules = [ "nouveau" ];
+        };
         environment.variables.VDPAU_DRIVER = inputs.lib.mkIf (builtins.elem "intel" gpus) "va_gl";
         services.xserver.videoDrivers =
           let driver = { intel = "modesetting"; amd = "amdgpu"; nvidia = "nvidia"; };
