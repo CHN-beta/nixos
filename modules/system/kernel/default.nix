@@ -121,6 +121,7 @@ inputs:
                       (builtins.readFile "${inputs.topInputs.linux-surface}/configs/surface-${version}.config")))))
                   [ "VIDEO_IPU3_IMGU" ];
               in kernelPatches ++ [{ name = "surface-config"; patch = null; extraStructuredConfig = kernelConfig; }];
+            hibernate-progress = [{ name = "hibernate-progress"; patch = ./hibernate-progress.patch; }];
           };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };};

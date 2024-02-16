@@ -6,7 +6,7 @@ inputs:
     ./fileSystems
     ./grub.nix
     ./initrd.nix
-    ./kernel.nix
+    ./kernel
     ./impermanence.nix
     ./gui.nix
     ./nixpkgs.nix
