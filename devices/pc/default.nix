@@ -138,11 +138,19 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
-    # use plasma-x11 as default, instead of plasma-wayland
-    # services.xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
-    # hardware.nvidia.forceFullCompositionPipeline = true;
-    home-manager.users.chn.config.programs.plasma.startup.autoStartScript.xcalib.text =
-      "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
+    services.colord.enable = true;
+    specialisation.nvidia.configuration =
+    {
+      system.nixos.tags = [ "discreate graphic" ];
+      services =
+      {
+        xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
+        colord.enable = inputs.lib.mkForce false;
+      };
+      hardware.nvidia.forceFullCompositionPipeline = true;
+      home-manager.users.chn.config.programs.plasma.startup.autoStartScript.xcalib.text =
+        "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
+    };
   };
 }
