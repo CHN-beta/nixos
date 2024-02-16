@@ -47,7 +47,7 @@ inputs:
       virtualization = { docker.enable = true; waydroid.enable = true; };
       services =
       {
-        snapper.enable = false;
+        snapper.enable = true;
         fontconfig.enable = true;
         sshd.enable = true;
         xray.client =
