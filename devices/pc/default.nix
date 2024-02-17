@@ -145,6 +145,7 @@ inputs:
       ${inputs.pkgs.kmod}/bin/modprobe -r mt7921e
       ${inputs.pkgs.kmod}/bin/modprobe mt7921e
     '';
+    services.xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
     specialisation.hybrid.configuration =
     {
       nixos.hardware.gpu =
