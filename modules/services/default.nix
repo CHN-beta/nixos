@@ -41,6 +41,7 @@ inputs:
     ./wireguard.nix
     ./akkoma.nix
     ./gamemode.nix
+    ./vikunja.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {

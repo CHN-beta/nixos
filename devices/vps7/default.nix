@@ -72,6 +72,7 @@ inputs:
           wireguardIp = "192.168.83.2";
           listenIp = "95.111.228.40";
         };
+        vikunja.enable = true;
       };
     };
   };
