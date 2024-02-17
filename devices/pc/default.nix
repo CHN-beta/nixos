@@ -138,8 +138,12 @@ inputs:
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
-    home-manager.users.chn.config.programs.plasma.startup.autoStartScript.xcalib.text =
-      "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
+    home-manager.users.chn.config =
+    {
+      programs.plasma.startup.autoStartScript.xcalib.text =
+        "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
+      home.sessionVariables.QSG_RENDER_LOOP = "basic";
+    };
     powerManagement.resumeCommands =
     ''
       ${inputs.pkgs.kmod}/bin/modprobe -r mt7921e
