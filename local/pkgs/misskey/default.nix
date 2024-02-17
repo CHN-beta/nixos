@@ -8,6 +8,7 @@ let
   {
     inherit name src nodejs;
     copyPnpmStore = true;
+    extraIntegritySha256."https://github.com/aiscript-dev/aiscript-languageserver/releases/download/0.1.5/aiscript-dev-aiscript-languageserver-0.1.5.tgz" = "1mhnwa8h48bc21f0zv8q93aphiqz9i70r7m4xsa4sd1mlncfgyl7";
   };
   startScript = writeShellScript "misskey"
   ''
@@ -31,6 +32,7 @@ in
     ''
       export HOME=$NIX_BUILD_TOP # Some packages need a writable HOME
       export npm_config_nodedir=${nodejs}
+      pnpm config set reporter append-only
 
       runHook preConfigure
 
