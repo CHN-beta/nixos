@@ -60,8 +60,7 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu = { type = "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
-        # gpu.type = "amd";
+        gpu.type = "nvidia";
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
@@ -141,17 +140,16 @@ inputs:
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
     home-manager.users.chn.config.programs.plasma.startup.autoStartScript.xcalib.text =
       "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
-    services.xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
     powerManagement.resumeCommands =
     ''
       ${inputs.pkgs.kmod}/bin/modprobe -r mt7921e
       ${inputs.pkgs.kmod}/bin/modprobe mt7921e
     '';
-    specialisation.nvidia.configuration =
+    specialisation.hybrid.configuration =
     {
-      system.nixos.tags = [ "discreate-graphic" ];
-      nixos.hardware.gpu.type = inputs.lib.mkForce "nvidia";
-      hardware.nvidia.forceFullCompositionPipeline = true;
+      nixos.hardware.gpu =
+        { type = inputs.lib.mkForce "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
+      system.nixos.tags = [ "hybrid-graphic" ];
     };
   };
 }
