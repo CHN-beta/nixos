@@ -54,6 +54,7 @@ inputs:
             powerManagement.enable = true;
             dynamicBoost.enable = true;
             nvidiaSettings = true;
+            forceFullCompositionPipeline = true;
             # package = inputs.config.boot.kernelPackages.nvidiaPackages.production;
           };
         };
