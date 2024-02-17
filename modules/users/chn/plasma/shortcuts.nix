@@ -45,11 +45,11 @@ inputs:
             "Suspend Compositing" = "Alt+Shift+F12";
             "Walk Through Windows" = "Alt+Tab";
             "Walk Through Windows (Reverse)" = "Alt+Shift+Backtab";
-            "Window Above Other Windows" = "Meta+Shift+PgUp";
-            "Window Below Other Windows" = "Meta+Shift+PgDown";
+            "Window Above Other Windows" = "Meta+Shift+Up";
+            "Window Below Other Windows" = "Meta+Shift+Down";
             "Window Close" = "Alt+F4";
-            "Window Maximize" = "Meta+PgUp";
-            "Window Minimize" = "Meta+PgDown";
+            "Window Maximize" = "Meta+Ctrl+Up";
+            "Window Minimize" = "Meta+Ctrl+Down";
             "Window Operations Menu" = "Alt+F3";
             "Window Quick Tile Bottom" = "Meta+Down";
             "Window Quick Tile Left" = "Meta+Left";
@@ -61,14 +61,10 @@ inputs:
         {
           kwin =
           {
-            "Switch One Desktop Down" = "Meta+Ctrl+Down";
-            "Switch One Desktop Up" = "Meta+Ctrl+Up";
-            "Switch One Desktop to the Left" = "Meta+Ctrl+Left";
-            "Switch One Desktop to the Right" = "Meta+Ctrl+Right";
-            "Window One Desktop Down" = "Meta+Ctrl+Shift+Down";
-            "Window One Desktop Up" = "Meta+Ctrl+Shift+Up";
-            "Window One Desktop to the Left" = "Meta+Ctrl+Shift+Left";
-            "Window One Desktop to the Right" = "Meta+Ctrl+Shift+Right";
+            "Switch One Desktop to the Left" = "Ctrl+PgUp";
+            "Switch One Desktop to the Right" = "Ctrl+PgDown";
+            "Window One Desktop to the Left" = "Meta+Ctrl+PgUp";
+            "Window One Desktop to the Right" = "Meta+Ctrl+PgDown";
           };
         }
         # media
