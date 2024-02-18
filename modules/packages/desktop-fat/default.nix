@@ -44,6 +44,10 @@ inputs:
           ] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
         };
       };
-      programs.kdeconnect.enable = true;
+      programs =
+      {
+        kdeconnect.enable = true;
+        anime-game-launcher = { enable = true; package = inputs.pkgs.anime-game-launcher; };
+      };
     };
 }
