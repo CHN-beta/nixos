@@ -3,8 +3,9 @@ inputs:
   config =
     let
       inherit (inputs.lib) mkIf;
-    in mkIf (builtins.elem "desktop-fat" inputs.config.nixos.packages._packageSets)
+    in mkIf (builtins.elem "desktop" inputs.config.nixos.packages._packageSets)
     {
+      programs.chromium = { enable = true; extraOpts.PasswordManagerEnabled = false; };
       nixos.users.sharedModules =
       [{
         config.programs.chromium =

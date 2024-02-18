@@ -1,6 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules [ ./vscode.nix ./firefox.nix ];
+  imports = inputs.localLib.mkModules [ ./vscode.nix ./firefox.nix ./chromium.nix ];
   config =
     let
       inherit (inputs.lib) mkIf;

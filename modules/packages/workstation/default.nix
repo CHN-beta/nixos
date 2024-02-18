@@ -68,7 +68,6 @@ inputs:
         anime-game-launcher = { enable = true; package = inputs.pkgs.anime-game-launcher; };
         honkers-railway-launcher = { enable = true; package = inputs.pkgs.honkers-railway-launcher; };
         nix-ld.enable = true;
-        chromium = { enable = true; extraOpts.PasswordManagerEnabled = false; };
       };
     };
 }

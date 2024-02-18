@@ -1,10 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules
-  [
-    ./chromium.nix
-    ./steam.nix
-  ];
+  imports = inputs.localLib.mkModules [ ./steam.nix ];
   config =
     let
       inherit (inputs.lib) mkIf;
