@@ -1042,6 +1042,22 @@
         "type": "github"
       }
     },
+    "lmod": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1704751610,
+        "narHash": "sha256-lDMd3Hp763Tk3H88AnssiYwXc82Bg9AoH0m4+bIK+cY=",
+        "owner": "TACC",
+        "repo": "Lmod",
+        "rev": "eb3e9119ef1ec3a17f2feb693c9dba16e1c93503",
+        "type": "github"
+      },
+      "original": {
+        "owner": "TACC",
+        "repo": "Lmod",
+        "type": "github"
+      }
+    },
     "lowdown-src": {
       "flake": false,
       "locked": {
@@ -1931,6 +1947,7 @@
         "lepton": "lepton",
         "linux-surface": "linux-surface",
         "lmix": "lmix",
+        "lmod": "lmod",
         "matplotplusplus": "matplotplusplus",
         "misskey": "misskey",
         "nameof": "nameof",

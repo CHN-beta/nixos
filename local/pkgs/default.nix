@@ -50,4 +50,5 @@
   blurred-wallpaper = callPackage ./blurred-wallpaper { src = topInputs.blurred-wallpaper; };
   slate = callPackage ./slate { src = topInputs.slate; };
   nvhpc-sdk = callPackage ./nvhpc-sdk {};
+  lmod = callPackage ./lmod { src = topInputs.lmod; };
 }

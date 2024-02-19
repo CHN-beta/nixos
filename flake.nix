@@ -66,6 +66,7 @@
     slate = { url = "github:TheBigWazz/Slate"; flake = false; };
     linux-surface = { url = "github:linux-surface/linux-surface"; flake = false; };
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
+    lmod = { url = "github:TACC/Lmod"; flake = false; };
   };
 
   outputs = inputs:
