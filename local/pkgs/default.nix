@@ -49,6 +49,7 @@
   fluent-kde = callPackage ./fluent-kde { src = topInputs.fluent-kde; };
   blurred-wallpaper = callPackage ./blurred-wallpaper { src = topInputs.blurred-wallpaper; };
   slate = callPackage ./slate { src = topInputs.slate; };
-  nvhpc-sdk = callPackage ./nvhpc-sdk {};
+  nvhpc = callPackage ./nvhpc {};
   lmod = callPackage ./lmod { src = topInputs.lmod; };
+  vasp-gpu = callPackage ./vasp-gpu { inherit nvhpc lmod;};
 }
