@@ -146,13 +146,14 @@ inputs:
             in { GENERIC_CPU = inputs.lib.kernel.no; ${kernelConfig.${nixpkgs.march}} = inputs.lib.kernel.yes; };
         }];
       }
-      {
-        nixpkgs.config = mkIf nixpkgs.cuda.enable
-        (
-          { cudaSupport = true; }
+      (
+        mkIf nixpkgs.cuda.enable
+        {
+          nixpkgs.config = { cudaSupport = true; }
             // (if nixpkgs.cuda.capabilities != null then { cudaCapabilities = nixpkgs.cuda.capabilities; } else {})
-            // (if nixpkgs.cuda.forwardCompat != null then { cudaForwardCompat = nixpkgs.cuda.forwardCompat; }
-              else {}));
-      }
+            // (if nixpkgs.cuda.forwardCompat != null then { cudaForwardCompat = nixpkgs.cuda.forwardCompat; } else {});
+          environment.systemPackages = [ inputs.pkgs.cudatoolkit ];
+        }
+      )
     ];
 }
