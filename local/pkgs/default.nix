@@ -51,5 +51,5 @@
   slate = callPackage ./slate { src = topInputs.slate; };
   nvhpc = callPackage ./nvhpc {};
   lmod = callPackage ./lmod { src = topInputs.lmod; };
-  vasp-gpu = callPackage ./vasp-gpu { inherit nvhpc lmod;};
+  vasp-gpu = callPackage ./vasp-gpu { inherit lmod; nvhpc = nvhpc."24.1"; };
 }
