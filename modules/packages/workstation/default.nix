@@ -28,7 +28,7 @@ inputs:
             # text editor
             appflowy notion-app-enhanced joplin-desktop standardnotes logseq
             # math, physics and chemistry
-            mathematica paraview localPackages.vasp jmol # qchem.quantum-espresso
+            mathematica paraview localPackages.vasp localPackages.vasp-gpu jmol # qchem.quantum-espresso
             # encryption and password management
             john crunch hashcat
             # container and vm

@@ -1,4 +1,8 @@
-{ buildFHSEnv, writeScript, stdenvNoCC, requireFile, nvhpc, lmod }:
+{
+  buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll,
+  config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px",
+  nvhpc, lmod
+}:
 let
   env = buildFHSEnv
   {
@@ -14,6 +18,14 @@ let
     export MKLROOT=/usr
     make DEPS=1 -j$NIX_BUILD_CORES
   '';
+  include = substituteAll
+  {
+    src = ./makefile.include;
+    cudaCapabilities = builtins.concatStringsSep "," (builtins.map
+      (cap: "cc${builtins.replaceStrings ["."] [""] cap}")
+      cudaCapabilities);
+    inherit nvhpcArch;
+  };
   vasp = stdenvNoCC.mkDerivation rec
   {
     pname = "vasp";
@@ -26,7 +38,7 @@ let
       hashMode = "recursive";
       message = "Source file not found.";
     };
-    configurePhase = "cp ${./makefile.include} makefile.include";
+    configurePhase = "cp ${include} makefile.include";
     enableParallelBuilding = true;
     buildPhase = "${env}/bin/env ${buildScript}";
     installPhase =
@@ -35,8 +47,16 @@ let
       cp -r bin $out
     '';
   };
+  startScript = writeScript "start"
+  ''
+    . /usr/share/lmod/lmod/init/bash
+    module use /usr/share/nvhpc/modulefiles
+    module load nvhpc
+    exec $@
+  '';
 in buildFHSEnv
 {
   name = "vasp-gpu";
   targetPkgs = pkgs: with pkgs; [ nvhpc gfortran zlib mkl lmod vasp ];
+  runScript = startScript;
 }

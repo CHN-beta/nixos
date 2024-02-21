@@ -151,7 +151,8 @@ inputs:
         {
           nixpkgs.config = { cudaSupport = true; }
             // (if nixpkgs.cuda.capabilities != null then { cudaCapabilities = nixpkgs.cuda.capabilities; } else {})
-            // (if nixpkgs.cuda.forwardCompat != null then { cudaForwardCompat = nixpkgs.cuda.forwardCompat; } else {});
+            // (if nixpkgs.cuda.forwardCompat != null then { cudaForwardCompat = nixpkgs.cuda.forwardCompat; } else {})
+            // (if nixpkgs.march != null then { nvhpcArch = nixpkgs.march; } else {});
           environment.systemPackages = [ inputs.pkgs.cudatoolkit ];
         }
       )

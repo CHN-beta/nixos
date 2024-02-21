@@ -17,8 +17,8 @@ CPP         = nvfortran -Mpreprocess -Mfree -Mextend -E $(CPP_OPTIONS) $*$(FUFFI
 
 # N.B.: you might need to change the cuda-version here
 #       to one that comes with your NVIDIA-HPC SDK
-FC          = mpif90 -acc -gpu=cc89,cuda12.3 -mp
-FCL         = mpif90 -acc -gpu=cc89,cuda12.3 -mp -c++libs
+FC          = mpif90 -acc -gpu=@cudaCapabilities@ -mp
+FCL         = mpif90 -acc -gpu=@cudaCapabilities@ -mp -c++libs
 
 FREE        = -Mfree
 
@@ -56,7 +56,7 @@ CXX_PARS    = nvc++ --no_warnings
 ##
 # When compiling on the target machine itself , change this to the
 # relevant target when cross-compiling for another architecture
-VASP_TARGET_CPU ?= -tp=zen4
+VASP_TARGET_CPU ?= -tp=@nvhpcArch@
 FFLAGS     += $(VASP_TARGET_CPU)
 
 # Specify your NV HPC-SDK installation (mandatory)
