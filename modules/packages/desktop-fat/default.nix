@@ -24,7 +24,7 @@ inputs:
             spotify yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc obs-studio
             waifu2x-converter-cpp inkscape blender
             # editor
-            localPackages.typora
+            typora
             # themes
             orchis-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme arc-kde-theme materia-theme
             # news
