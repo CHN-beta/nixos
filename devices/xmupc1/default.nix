@@ -64,7 +64,7 @@ inputs:
           enable = true;
           private = true;
           hostsAllowed = "192.168. 127.";
-          shares.home = "/home";
+          shares.home.path = "/home";
         };
         sshd.enable = true;
         xray.client =
