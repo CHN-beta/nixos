@@ -41,18 +41,17 @@ inputs:
           };
         };
         gui.preferred = false;
-        kernel.patches = [ "cjktty" ];
+        kernel.patches = [ "cjktty" "lantian" ];
         networking.hostname = "xmupc1";
       };
       hardware =
       {
         cpus = [ "amd" ];
-        # gpus = [ "nvidia" ];
+        gpu.type = "nvidia";
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
         sound.enable = true;
-        # gamemode.drmDevice = 1;
       };
       packages.packageSet = "workstation";
       virtualization = { docker.enable = true; kvmHost = { enable = true; gui = true; }; };
@@ -65,13 +64,7 @@ inputs:
           enable = true;
           private = true;
           hostsAllowed = "192.168. 127.";
-          shares =
-          {
-            media.path = "/run/media/chn";
-            home.path = "/home/chn";
-            mnt.path = "/mnt";
-            share.path = "/home/chn/share";
-          };
+          shares.home = "/home";
         };
         sshd.enable = true;
         xray.client =
@@ -82,18 +75,25 @@ inputs:
           dns.extraInterfaces = [ "docker0" ];
         };
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
-        acme = { enable = true; cert."debug.mirism.one" = {}; };
         smartd.enable = true;
-        beesd = { enable = true; instances.root = { device = "/nix/persistent"; hashTableSizeMB = 2048; }; };
+        beesd =
+        {
+          enable = true;
+          instances =
+          {
+            root = { device = "/"; hashTableSizeMB = 1536; threads = 4; };
+            nix = { device = "/nix"; hashTableSizeMB = 64; };
+          };
+        };
         wireguard =
         {
           enable = true;
           peers = [ "vps6" ];
           publicKey = "JEY7D4ANfTpevjXNvGDYO6aGwtBGRXsf/iwNwjwDRQk=";
-          wireguardIp = "192.168.83.5";
+          wireguardIp = "192.168.83.6";
         };
       };
-      bugs = [ "xmunet" "firefox" ];
+      bugs = [ "xmunet" "amdpstate" ];
     };
   };
 }

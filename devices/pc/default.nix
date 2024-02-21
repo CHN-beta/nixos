@@ -133,7 +133,7 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
-        gamemode = { enable = true; drmDevice = 1; };
+        gamemode = { enable = true; drmDevice = 0; };
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
@@ -148,8 +148,12 @@ inputs:
     services.xserver.displayManager.defaultSession = inputs.lib.mkForce "plasma";
     specialisation.hybrid.configuration =
     {
-      nixos.hardware.gpu =
-        { type = inputs.lib.mkForce "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
+      nixos =
+      {
+        hardware.gpu =
+          { type = inputs.lib.mkForce "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
+        services.gamemode.drmDevice = inputs.lib.mkForce 1;
+      };
       system.nixos.tags = [ "hybrid-graphic" ];
     };
   };
