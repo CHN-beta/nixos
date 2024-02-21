@@ -47,7 +47,7 @@ inputs:
             # nix tools
             nix-output-monitor nix-tree ssh-to-age (callPackage "${inputs.topInputs.nix-fast-build}" {})
             # office
-            todo-txt-cli
+            todo-txt-cli pdfgrep
             # development
             gdb try inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix hexo-cli
           ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);

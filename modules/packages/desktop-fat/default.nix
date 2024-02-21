@@ -13,7 +13,7 @@ inputs:
           _packages =
           [
             # system management
-            etcher btrfs-assistant snapper-gui libsForQt5.qtstyleplugin-kvantum ventoy-full
+            etcher btrfs-assistant snapper-gui libsForQt5.qtstyleplugin-kvantum ventoy-full cpu-x
             # password and key management
             yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden
             # download
