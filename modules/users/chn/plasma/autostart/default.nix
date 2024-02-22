@@ -6,51 +6,65 @@ inputs:
       let
         programs =
         {
-          nheko =
-            let
-              drv = inputs.pkgs.writeTextDir "nheko.desktop" (builtins.replaceStrings
+          nheko = rec
+          {
+            fileName = "nheko.desktop";
+            path = inputs.pkgs.writeText fileName (builtins.replaceStrings
                 [ "Exec=nheko %u" ] [ "Exec=bash -c 'sleep 5 && nheko'" ]
-                (builtins.readFile "${inputs.pkgs.nheko}/share/applications/nheko.desktop"));
-            in "${drv}/nheko.desktop";
-          kclockd = "${inputs.pkgs.plasma5Packages.kdeGear.kclock}/etc/xdg/autostart/org.kde.kclockd-autostart.desktop";
-          yakuake = "${inputs.pkgs.yakuake}/share/applications/org.kde.yakuake.desktop";
-          telegram =
-            let
-              drv = inputs.pkgs.writeTextDir "org.telegram.desktop.desktop" (builtins.replaceStrings
+                (builtins.readFile "${inputs.pkgs.nheko}/share/applications/${fileName}"));
+          };
+          kclockd = rec
+          {
+            fileName = "org.kde.kclockd-autostart.desktop";
+            path = "${inputs.pkgs.plasma5Packages.kdeGear.kclock}/etc/xdg/autostart/${fileName}";
+          };
+          yakuake = rec
+          {
+            fileName = "org.kde.yakuake.desktop";
+            path = "${inputs.pkgs.yakuake}/share/applications/${fileName}";
+          };
+          telegram = rec
+          {
+            fileName = "org.telegram.desktop.desktop";
+            path = inputs.pkgs.writeText fileName (builtins.replaceStrings
                 [ "Exec=telegram-desktop -- %u" ] [ "Exec=bash -c 'sleep 5 && telegram-desktop -autostart'" ]
-                (builtins.readFile "${inputs.pkgs.telegram-desktop}/share/applications/org.telegram.desktop.desktop"));
-            in "${drv}/org.telegram.desktop.desktop";
-          element =
-            let
-              drv = inputs.pkgs.writeTextDir "element-desktop.desktop" (builtins.replaceStrings
+                (builtins.readFile "${inputs.pkgs.telegram-desktop}/share/applications/${fileName}"));
+          };
+          element = rec
+          {
+            fileName = "element-desktop.desktop";
+            path = inputs.pkgs.writeText fileName (builtins.replaceStrings
                 [ "Exec=element-desktop %u" ] [ "Exec=element-desktop --hidden" ]
-                (builtins.readFile
-                  "${inputs.pkgs.element-desktop.desktopItem}/share/applications/element-desktop.desktop"));
-            in "${drv}/element-desktop.desktop";
-          # kmail = 
-          #   let
-          #     drv = inputs.pkgs.writeTextDir "org.kde.kmail2.desktop" (builtins.replaceStrings
-          #       [ "Exec=kmail -qwindowtitle %c %u" ] [ "Exec=bash -c 'sleep 5 && kmail -qwindowtitle'" ]
-          #       (builtins.readFile "${inputs.pkgs.kmail}/share/applications/org.kde.kmail2.desktop"));
-          #   in "${drv}/org.kde.kmail2.desktop";
-          kmail = "${inputs.pkgs.kmail}/share/applications/org.kde.kmail2.desktop";
-          discord =
-            let
-              drv = inputs.pkgs.writeTextDir "discord.desktop" (builtins.replaceStrings
+                (builtins.readFile "${inputs.pkgs.element-desktop.desktopItem}/share/applications/${fileName}"));
+          };
+          kmail = rec
+          {
+            fileName = "org.kde.kmail2.desktop";
+            path = "${inputs.pkgs.kmail}/share/applications/${fileName}";
+          };
+          discord = rec
+          {
+            fileName = "discord.desktop";
+            path = inputs.pkgs.writeText fileName (builtins.replaceStrings
                 [ "Exec=Discord" ] [ "Exec=Discord --start-minimized" ]
-                (builtins.readFile "${inputs.pkgs.discord.desktopItem}/share/applications/discord.desktop"));
-            in "${drv}/discord.desktop";
+                (builtins.readFile "${inputs.pkgs.discord.desktopItem}/share/applications/${fileName}"));
+          };
+          crow-translate = rec
+          {
+            fileName = "io.crow_translate.CrowTranslate.desktop";
+            path = "${inputs.pkgs.crow-translate}/share/applications/${fileName}";
+          };
         };
         devices =
         {
-          pc = [ "nheko" "kclockd" "yakuake" "telegram" "element" "kmail" "discord" ];
+          pc = [ "nheko" "kclockd" "yakuake" "telegram" "element" "kmail" "discord" "crow-translate" ];
           surface = [ "kclockd" "yakuake" "telegram" "element" ];
         };
       in builtins.listToAttrs (builtins.map
         (file:
         {
-          name = ".config/autostart/${builtins.baseNameOf (builtins.unsafeDiscardStringContext programs.${file})}";
-          value.source = programs.${file};
+          name = ".config/autostart/${programs.${file}.fileName}";
+          value.source = programs.${file}.path;
         })
         (devices.${inputs.config.nixos.system.networking.hostname} or []));
     environment.persistence =
