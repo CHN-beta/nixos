@@ -65,7 +65,7 @@ inputs:
           };
         };
         # set bash history file path, avoid overwriting zsh history
-        bash = { enable = true; historyFile =  "${home-inputs.config.xdg.dataHome}/zsh/zsh_history"; };
+        bash = { enable = true; historyFile =  "${home-inputs.config.xdg.dataHome}/bash/bash_history"; };
       };})];
       programs.zsh =
       {
