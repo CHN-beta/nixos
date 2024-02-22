@@ -54,7 +54,7 @@ inputs:
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
             openai python-telegram-bot fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
-            certifi charset-normalizer idna orjson psycopg2 inquirerpy requests tqdm
+            certifi charset-normalizer idna orjson psycopg2 inquirerpy requests tqdm pydbus
           ])];
         };
         users.sharedModules = [(home-inputs:
