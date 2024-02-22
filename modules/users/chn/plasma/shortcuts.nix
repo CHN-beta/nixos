@@ -4,6 +4,8 @@ inputs:
   {
     home-manager.users.chn.config.programs.plasma =
     {
+      overrideConfig = true;
+      overrideConfigFiles = [ "kglobalshortcutsrc" "khotkeysrc" ];
       spectacle.shortcuts.captureRectangularRegion = "Print";
       shortcuts = inputs.lib.mkMerge
       [
