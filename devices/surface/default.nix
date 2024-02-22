@@ -69,6 +69,7 @@ inputs:
       };
       bugs = [ "xmunet" ];
     };
+    boot.kernelParams = [ "intel_iommu=off" ];
     environment.systemPackages = with inputs.pkgs; [ maliit-keyboard maliit-framework ];
     powerManagement.resumeCommands = ''${inputs.pkgs.systemd}/bin/systemctl restart iptsd'';
   };
