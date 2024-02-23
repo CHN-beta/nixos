@@ -72,6 +72,7 @@
   outputs = inputs:
     let
       localLib = import ./local/lib inputs.nixpkgs.lib;
+      devices = builtins.attrNames (builtins.readDir ./devices);
     in
     {
       packages.x86_64-linux =
@@ -88,7 +89,7 @@
             name = system;
             value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
           })
-          [ "pc" "vps6" "vps7" "nas" "surface" "xmupc1" ])
+          devices)
       );
       # ssh-keygen -t rsa -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_rsa_key
       # ssh-keygen -t ed25519 -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key
@@ -113,7 +114,7 @@
             ];
           };
         })
-        [ "pc" "vps6" "vps7" "nas" "surface" "xmupc1" ]);
+        devices);
       # sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap --option substituters http://127.0.0.1:5000 --option require-sigs false --option system-features gccarch-silvermont
       # nix-serve -p 5000
       # nix copy --substitute-on-destination --to ssh://server /run/current-system
