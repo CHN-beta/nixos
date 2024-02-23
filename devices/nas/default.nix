@@ -51,7 +51,7 @@ inputs:
       packages.packageSet = "desktop-fat";
       services =
       {
-        snapper.enable = false;
+        snapper.enable = true;
         fontconfig.enable = true;
         samba =
         {
