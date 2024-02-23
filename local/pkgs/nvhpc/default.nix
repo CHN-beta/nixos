@@ -1,4 +1,7 @@
-{ stdenvNoCC, fetchurl, buildFHSEnv }:
+{
+  stdenvNoCC, fetchurl, buildFHSEnv,
+  gfortran, flock
+}:
 let
   versions =
   {
@@ -11,7 +14,7 @@ let
   builder = buildFHSEnv
   {
     name = "builder";
-    targetPkgs = pkgs: with pkgs; [ gfortran coreutils flock ];
+    targetPkgs = pkgs: with pkgs; [ coreutils ];
     extraBwrapArgs = [ "--bind" "$out" "$out" ];
   };
 in let buildNvhpc = version: stdenvNoCC.mkDerivation
@@ -25,6 +28,7 @@ in let buildNvhpc = version: stdenvNoCC.mkDerivation
   };
   dontFixup = true;
   dontBuild = true;
+  buildInputs = [ gfortran flock ];
   installPhase =
   ''
     export NVHPC_SILENT=true

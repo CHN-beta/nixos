@@ -1,21 +1,20 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll,
   config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px",
-  nvhpc, lmod
+  nvhpc, lmod, mkl, gfortran, rsync, which
 }:
 let
   env = buildFHSEnv
   {
     name = "env";
-    targetPkgs = pkgs: with pkgs; [ nvhpc gfortran zlib which rsync mkl lmod ];
+    targetPkgs = pkgs: with pkgs; [ zlib ];
   };
   buildScript = writeScript "build"
   ''
-    . /usr/share/lmod/lmod/init/bash
-    module use /usr/share/nvhpc/modulefiles
+    . ${lmod}/share/lmod/lmod/init/bash
+    module use ${nvhpc}/share/nvhpc/modulefiles
     module load nvhpc
     mkdir -p bin
-    export MKLROOT=/usr
     make DEPS=1 -j$NIX_BUILD_CORES
   '';
   include = substituteAll
@@ -40,23 +39,25 @@ let
     };
     configurePhase = "cp ${include} makefile.include";
     enableParallelBuilding = true;
+    buildInputs = [ gfortran mkl rsync which ];
+    MKLROOT = "${mkl}";
     buildPhase = "${env}/bin/env ${buildScript}";
     installPhase =
     ''
-      mkdir -p $out
-      cp -r bin $out
+      mkdir -p $out/bin
+      for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
     '';
   };
   startScript = writeScript "start"
   ''
-    . /usr/share/lmod/lmod/init/bash
-    module use /usr/share/nvhpc/modulefiles
+    . ${lmod}/share/lmod/lmod/init/bash
+    module use ${nvhpc}/share/nvhpc/modulefiles
     module load nvhpc
     exec $@
   '';
 in buildFHSEnv
 {
   name = "vasp-gpu";
-  targetPkgs = pkgs: with pkgs; [ nvhpc gfortran zlib mkl lmod vasp ];
+  targetPkgs = pkgs: with pkgs; [ zlib vasp ];
   runScript = startScript;
 }
