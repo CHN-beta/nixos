@@ -51,5 +51,12 @@
   slate = callPackage ./slate { src = topInputs.slate; };
   nvhpc = callPackage ./nvhpc {};
   lmod = callPackage ./lmod { src = topInputs.lmod; };
-  vasp-gpu = callPackage ./vasp-gpu { inherit lmod; nvhpc = nvhpc."24.1"; };
+  vasp-gpu = callPackage ./vasp-gpu
+  {
+    inherit lmod;
+    nvhpc = nvhpc."24.1";
+    hdf5 = hdf5-nvhpc.override { nvhpc = nvhpc."24.1"; };
+    inherit (unstablePackages) wannier90;
+  };
+  hdf5-nvhpc = callPackage ./hdf5-nvhpc { inherit lmod; inherit (hdf5) src; nvhpc = nvhpc."24.1"; };
 }

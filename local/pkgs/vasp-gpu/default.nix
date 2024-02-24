@@ -1,7 +1,7 @@
 {
-  buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll,
+  buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin,
   config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px",
-  nvhpc, lmod, mkl, gfortran, rsync, which
+  nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90
 }:
 let
   versions =
@@ -44,8 +44,11 @@ let
     };
     configurePhase = "cp ${include version} makefile.include";
     enableParallelBuilding = true;
-    buildInputs = [ gfortran mkl rsync which ];
+    buildInputs = [ mkl hdf5 wannier90 ];
+    nativeBuildInputs = [ gfortran rsync which ];
     MKLROOT = "${mkl}";
+    HDF5_ROOT = "${hdf5}";
+    WANNIER90_ROOT = "${wannier90}";
     buildPhase = "${buildEnv}/bin/buildEnv ${buildScript}";
     installPhase =
     ''

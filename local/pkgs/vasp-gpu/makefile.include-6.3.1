@@ -11,7 +11,7 @@ CPP_OPTIONS = -DHOST=\"LinuxNV\" \
               -Dfock_dblbuf \
               -D_OPENMP \
               -D_OPENACC \
-              -DUSENCCL -DUSENCCLP2P
+              -DUSENCCL -DUSENCCLP2P -Duse_shmem -Dshmem_bcast_buffer -Dshmem_rproj
 
 CPP         = nvfortran -Mpreprocess -Mfree -Mextend -E $(CPP_OPTIONS) $*$(FUFFIX)  > $*$(SUFFIX)
 
@@ -44,7 +44,7 @@ CFLAGS_LIB  = -O
 FFLAGS_LIB  = -O1 -Mfixed
 FREE_LIB    = $(FREE)
 
-OBJECTS_LIB = linpack_double.o
+OBJECTS_LIB = linpack_double.o getshmem.o
 
 # For the parser library
 CXX_PARS    = nvc++ --no_warnings
@@ -79,7 +79,7 @@ INCS       += -I$(QD)/include/qd
 
 # Intel MKL for FFTW, BLAS, LAPACK, and scaLAPACK
 MKLROOT    ?= /path/to/your/mkl/installation
-LLIBS_MKL   = -Mmkl -L$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64
+LLIBS_MKL   = -Mmkl -L$(MKLROOT)/lib -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64
 INCS       += -I$(MKLROOT)/include/fftw
 
 # Use a separate scaLAPACK installation (optional but recommended in combination with OpenMPI)
@@ -90,15 +90,15 @@ INCS       += -I$(MKLROOT)/include/fftw
 LLIBS      += $(LLIBS_MKL)
 
 # HDF5-support (optional but strongly recommended)
-#CPP_OPTIONS+= -DVASP_HDF5
-#HDF5_ROOT  ?= /path/to/your/hdf5/installation
-#LLIBS      += -L$(HDF5_ROOT)/lib -lhdf5_fortran
-#INCS       += -I$(HDF5_ROOT)/include
+CPP_OPTIONS+= -DVASP_HDF5
+HDF5_ROOT  ?= /path/to/your/hdf5/installation
+LLIBS      += -L$(HDF5_ROOT)/lib -lhdf5_fortran
+INCS       += -I$(HDF5_ROOT)/include
 
 # For the VASP-2-Wannier90 interface (optional)
-#CPP_OPTIONS    += -DVASP2WANNIER90
-#WANNIER90_ROOT ?= /path/to/your/wannier90/installation
-#LLIBS          += -L$(WANNIER90_ROOT)/lib -lwannier
+CPP_OPTIONS    += -DVASP2WANNIER90
+WANNIER90_ROOT ?= /path/to/your/wannier90/installation
+LLIBS          += -L$(WANNIER90_ROOT)/lib -lwannier
 
 # For the fftlib library (hardly any benefit for the OpenACC GPU port, especially in combination with MKL's FFTs)
 #CPP_OPTIONS+= -Dsysv
