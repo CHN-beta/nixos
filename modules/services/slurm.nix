@@ -9,6 +9,7 @@ inputs:
       threads = mkOption { type = types.ints.unsigned; default = 1; };
     };
     memoryMB = mkOption { type = types.ints.unsigned; };
+    gpus = mkOption { type = types.ints.unsigned; };
   };
   config = let inherit (inputs.config.nixos.services) slurm; in inputs.lib.mkIf slurm.enable
   {
@@ -17,6 +18,9 @@ inputs:
       slurm =
       {
         server.enable = true;
+        package = (inputs.pkgs.slurm.override { enableGtk2 = true; }).overrideAttrs
+          (prev: let inherit (inputs.pkgs.cudaPackages) cuda_nvml_dev; in
+            { buildInputs = prev.buildInputs ++ [ cuda_nvml_dev ]; LDFLAGS = [ "-L${cuda_nvml_dev}/lib/stubs" ]; });
         clusterName = inputs.config.nixos.system.networking.hostname;
         # dbdserver =
         # {
@@ -26,7 +30,6 @@ inputs:
         #   # extraConfig
         # };
         client.enable = true;
-        # package
         controlMachine = "localhost";
         nodeName = inputs.lib.singleton (builtins.concatStringsSep " "
         [
@@ -35,12 +38,26 @@ inputs:
           "Sockets=1"
           "CoresPerSocket=${builtins.toString slurm.cpu.cores}"
           "ThreadsPerCore=${builtins.toString slurm.cpu.threads}"
+          "Gres=gpu:${builtins.toString slurm.gpus}"
           "State=UNKNOWN"
         ]);
         partitionName = [ "localhost Nodes=localhost Default=YES MaxTime=INFINITE State=UP" ];
         procTrackType = "proctrack/cgroup";
+        extraConfig =
+        ''
+          SelectType=select/cons_tres
+          GresTypes=gpu
+          SlurmdDebug=debug2
+          TaskProlog=${inputs.pkgs.writeShellScript "set_cuda_env" "echo export CUDA_DEVICE_ORDER=PCI_BUS_ID"}
+        '';
+        extraConfigPaths = [(inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml")];
       };
       munge = { enable = true; password = inputs.config.sops.secrets."munge.key".path; };
+    };
+    systemd.services.slurmd.environment =
+    {
+      CUDA_PATH = "${inputs.pkgs.cudatoolkit}";
+      LD_LIBRARY_PATH = "${inputs.config.hardware.nvidia.package}/lib";
     };
     sops =
     {

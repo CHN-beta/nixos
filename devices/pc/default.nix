@@ -134,7 +134,7 @@ inputs:
           wireguardIp = "192.168.83.3";
         };
         gamemode = { enable = true; drmDevice = 0; };
-        slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 94208; };
+        slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 94208; gpus = 1; };
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
