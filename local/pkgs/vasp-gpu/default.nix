@@ -4,9 +4,15 @@
   nvhpc, lmod, mkl, gfortran, rsync, which
 }:
 let
-  env = buildFHSEnv
+  versions =
   {
-    name = "env";
+    # nix-store --query --hash $(nix store add-path ./vasp-6.4.0)
+    "6.3.1" = "1xdr5kjxz6v2li73cbx1ls5b1lnm6z16jaa4fpln7d3arnnr1mgx";
+    "6.4.0" = "189i1l5q33ynmps93p2mwqf5fx7p4l50sls1krqlv8ls14s3m71f";
+  };
+  buildEnv = buildFHSEnv
+  {
+    name = "buildEnv";
     targetPkgs = pkgs: with pkgs; [ zlib ];
   };
   buildScript = writeScript "build"
@@ -17,47 +23,47 @@ let
     mkdir -p bin
     make DEPS=1 -j$NIX_BUILD_CORES
   '';
-  include = substituteAll
+  include = version: substituteAll
   {
-    src = ./makefile.include;
+    src = ./makefile.include-${version};
     cudaCapabilities = builtins.concatStringsSep "," (builtins.map
       (cap: "cc${builtins.replaceStrings ["."] [""] cap}")
       cudaCapabilities);
     inherit nvhpcArch;
   };
-  vasp = stdenvNoCC.mkDerivation rec
+  vasp = version: stdenvNoCC.mkDerivation rec
   {
     pname = "vasp";
-    version = "6.4.0";
-    # nix-store --query --hash $(nix store add-path ./vasp-6.4.0)
+    inherit version;
     src = requireFile
     {
       name = "${pname}-${version}";
-      sha256 = "189i1l5q33ynmps93p2mwqf5fx7p4l50sls1krqlv8ls14s3m71f";
+      sha256 = versions.${version};
       hashMode = "recursive";
       message = "Source file not found.";
     };
-    configurePhase = "cp ${include} makefile.include";
+    configurePhase = "cp ${include version} makefile.include";
     enableParallelBuilding = true;
     buildInputs = [ gfortran mkl rsync which ];
     MKLROOT = "${mkl}";
-    buildPhase = "${env}/bin/env ${buildScript}";
+    buildPhase = "${buildEnv}/bin/buildEnv ${buildScript}";
     installPhase =
     ''
       mkdir -p $out/bin
       for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
     '';
   };
-  startScript = writeScript "start"
+  startScript = version: writeScript "vasp-gpu-${version}"
   ''
     . ${lmod}/share/lmod/lmod/init/bash
     module use ${nvhpc}/share/nvhpc/modulefiles
     module load nvhpc
     exec $@
   '';
-in buildFHSEnv
-{
-  name = "vasp-gpu";
-  targetPkgs = pkgs: with pkgs; [ zlib vasp ];
-  runScript = startScript;
-}
+  runEnv = version: buildFHSEnv
+  {
+    name = "vasp-gpu-${version}";
+    targetPkgs = pkgs: with pkgs; [ zlib (vasp version) ];
+    runScript = startScript version;
+  };
+in builtins.mapAttrs (version: _: runEnv version) versions
