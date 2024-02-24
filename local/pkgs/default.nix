@@ -2,7 +2,6 @@
 {
   typora = callPackage ./typora {};
   vesta = callPackage ./vesta {};
-  oneapi = callPackage ./oneapi {};
   rsshub = callPackage ./rsshub { src = topInputs.rsshub; };
   misskey = callPackage ./misskey { nodejs = nodejs_21; src = topInputs.misskey; };
   mk-meili-mgn = callPackage ./mk-meili-mgn {};
@@ -59,4 +58,5 @@
     inherit (unstablePackages) wannier90;
   };
   hdf5-nvhpc = callPackage ./hdf5-nvhpc { inherit lmod; inherit (hdf5) src; nvhpc = nvhpc."24.1"; };
+  oneapi = callPackage ./oneapi {};
 }
