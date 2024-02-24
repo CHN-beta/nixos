@@ -20,7 +20,11 @@ inputs:
         server.enable = true;
         package = (inputs.pkgs.slurm.override { enableGtk2 = true; }).overrideAttrs
           (prev: let inherit (inputs.pkgs.cudaPackages) cuda_nvml_dev; in
-            { buildInputs = prev.buildInputs ++ [ cuda_nvml_dev ]; LDFLAGS = [ "-L${cuda_nvml_dev}/lib/stubs" ]; });
+          {
+            buildInputs = prev.buildInputs ++ [ cuda_nvml_dev ];
+            LDFLAGS = [ "-L${cuda_nvml_dev}/lib/stubs" ];
+            nativeBuildInputs = prev.nativeBuildInputs ++ [ inputs.pkgs.wrapGAppsHook ];
+          });
         clusterName = inputs.config.nixos.system.networking.hostname;
         # dbdserver =
         # {
