@@ -10,11 +10,11 @@ let
   };
   vasp = version: stdenvNoCC.mkDerivation rec
   {
-    pname = "vasp";
+    pname = "vasp-gnu";
     inherit version;
     src = requireFile
     {
-      name = "${pname}-${version}";
+      name = "vasp-${version}";
       sha256 = versions.${version};
       hashMode = "recursive";
       message = "Source file not found.";

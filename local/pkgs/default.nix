@@ -5,7 +5,7 @@
   rsshub = callPackage ./rsshub { src = topInputs.rsshub; };
   misskey = callPackage ./misskey { nodejs = nodejs_21; src = topInputs.misskey; };
   mk-meili-mgn = callPackage ./mk-meili-mgn {};
-  vasp = callPackage ./vasp { inherit (llvmPackages) openmp; };
+  vasp-gnu = callPackage ./vasp-gnu { inherit (llvmPackages) openmp; };
   vaspkit = callPackage ./vaspkit { attrsToList = (import ../lib lib).attrsToList; };
   v-sim = callPackage ./v-sim { src = topInputs.v-sim; };
   concurrencpp = callPackage ./concurrencpp { stdenv = gcc13Stdenv; src = topInputs.concurrencpp; };
