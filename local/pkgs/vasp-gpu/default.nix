@@ -1,5 +1,5 @@
 {
-  buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin,
+  buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll,
   config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px",
   nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90
 }:

@@ -28,7 +28,7 @@ inputs:
             # text editor
             appflowy notion-app-enhanced joplin-desktop standardnotes logseq
             # math, physics and chemistry
-            mathematica paraview localPackages.vasp localPackages.vasp-gpu."6.4.0" localPackages.vasp-gpu."6.3.1" jmol
+            mathematica paraview jmol
             # qchem.quantum-espresso
             # encryption and password management
             john crunch hashcat
@@ -39,7 +39,7 @@ inputs:
             # news
             rssguard newsflash newsboat
             yuzu-early-access
-          ];
+          ] ++ (with localPackages; [ vasp."6.3.1" vasp."6.4.0" vasp-gpu."6.4.0" vasp-gpu."6.3.1" ]);
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
             phonopy tensorflow keras scipy scikit-learn jupyterlab autograd # localPackages.pix2tex

@@ -5,17 +5,7 @@
   rsshub = callPackage ./rsshub { src = topInputs.rsshub; };
   misskey = callPackage ./misskey { nodejs = nodejs_21; src = topInputs.misskey; };
   mk-meili-mgn = callPackage ./mk-meili-mgn {};
-  # vasp = callPackage ./vasp
-  # {
-  #   stdenv = pkgs.lmix-pkgs.intel21Stdenv;
-  #   intel-mpi = pkgs.lmix-pkgs.intel-oneapi-mpi_2021_9_0;
-  #   ifort = pkgs.lmix-pkgs.intel-oneapi-ifort_2021_9_0;
-  # };
-  vasp = callPackage ./vasp
-  {
-    openmp = llvmPackages.openmp;
-    openmpi = pkgs.openmpi.override { cudaSupport = false; };
-  };
+  vasp = callPackage ./vasp { inherit (llvmPackages) openmp; };
   vaspkit = callPackage ./vaspkit { attrsToList = (import ../lib lib).attrsToList; };
   v-sim = callPackage ./v-sim { src = topInputs.v-sim; };
   concurrencpp = callPackage ./concurrencpp { stdenv = gcc13Stdenv; src = topInputs.concurrencpp; };
