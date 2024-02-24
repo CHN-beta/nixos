@@ -75,8 +75,8 @@ inputs:
           enable = true;
           instances =
           {
-            root = { device = "/"; hashTableSizeMB = 512; };
-            nix = { device = "/nix"; hashTableSizeMB = 32; };
+            root = { device = "/"; hashTableSizeMB = 4096; threads = 4; };
+            nix = { device = "/nix"; hashTableSizeMB = 128; };
           };
         };
         frpClient =
