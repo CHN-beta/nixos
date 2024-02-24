@@ -42,7 +42,11 @@ let
       hashMode = "recursive";
       message = "Source file not found.";
     };
-    configurePhase = "cp ${include version} makefile.include";
+    configurePhase =
+    ''
+      cp ${include version} makefile.include
+      cp ${./constr_cell_relax.F} src/constr_cell_relax.F
+    '';
     enableParallelBuilding = true;
     buildInputs = [ mkl hdf5 wannier90 ];
     nativeBuildInputs = [ gfortran rsync which ];
