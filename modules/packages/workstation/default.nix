@@ -14,7 +14,7 @@ inputs:
             # password and key management
             electrum jabref
             # system management
-            wl-mirror
+            wl-mirror nvtop
             # nix tools
             nix-template nil nix-alien pnpm-lock-export bundix
             # instant messager
