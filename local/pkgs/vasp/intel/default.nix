@@ -24,7 +24,7 @@ let
   {
     src = ./makefile.include-${version};
     inherit oneapiArch;
-    gcc = symlinkJoin { name = "gcc"; paths = [ gcc gcc.cc glibc.dev ]; };
+    gcc = symlinkJoin { name = "gcc"; paths = [ gfortran gfortran.cc gcc ]; };
   };
   vasp = version: stdenvNoCC.mkDerivation rec
   {
@@ -43,7 +43,7 @@ let
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
     '';
     enableParallelBuilding = false;
-    buildInputs = [ hdf5 hdf5.dev wannier90 glibc.dev ];
+    buildInputs = [ hdf5 hdf5.dev wannier90 glibc glibc.dev ];
     nativeBuildInputs = [ gfortran gfortran.cc gcc rsync which ];
     HDF5_ROOT = hdf5.dev;
     WANNIER90_ROOT = wannier90;

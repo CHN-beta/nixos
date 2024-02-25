@@ -30,7 +30,7 @@ OBJECTS_O2 += fft3dlib.o
 # For what used to be vasp.5.lib
 CPP_LIB     = $(CPP)
 FC_LIB      = $(FC)
-CC_LIB      = icx --gcc-toolchain=@gcc@ -I@gcc@/include
+CC_LIB      = icc
 CFLAGS_LIB  = -O
 FFLAGS_LIB  = -O1
 FREE_LIB    = $(FREE)
@@ -38,7 +38,7 @@ FREE_LIB    = $(FREE)
 OBJECTS_LIB = linpack_double.o getshmem.o
 
 # For the parser library
-CXX_PARS    = icpx --gcc-toolchain=@gcc@ -I@gcc@/include
+CXX_PARS    = icpc
 LLIBS       = -lstdc++
 
 ##

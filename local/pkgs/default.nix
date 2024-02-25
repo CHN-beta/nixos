@@ -57,7 +57,7 @@
     intel = callPackage ./vasp/intel
     {
       inherit lmod;
-      oneapi = oneapi."2024.0";
+      oneapi = oneapi."2022.2";
       hdf5 = hdf5.override { mpiSupport = true; fortranSupport = true; };
       inherit (unstablePackages) wannier90;
     };

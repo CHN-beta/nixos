@@ -5,6 +5,32 @@
 let
   versions =
   {
+    "2022.2" =
+    {
+      basekit =
+      {
+        id = "18673";
+        version = "2022.2.0.262";
+        sha256 = "03qx6sb58mkhc7iyc8va4y1ihj6l3155dxwmqj8dfw7j2ma7r5f6";
+        components =
+        [
+          "intel.oneapi.lin.dpcpp-ct"
+          "intel.oneapi.lin.dpcpp_dbg"
+          "intel.oneapi.lin.dpl"
+          "intel.oneapi.lin.tbb.devel"
+          "intel.oneapi.lin.ccl.devel"
+          "intel.oneapi.lin.dpcpp-cpp-compiler"
+          "intel.oneapi.lin.dpl"
+          "intel.oneapi.lin.mkl.devel"
+        ];
+      };
+      hpckit =
+      {
+        id = "18679";
+        version = "2022.2.0.191";
+        sha256 = "0swz4w9bn58wwqjkqhjqnkcs8k8ms9nn9s8k7j5w6rzvsa6817d2";
+      };
+    };
     "2024.0" =
     {
       basekit =
@@ -24,10 +50,12 @@ let
   builder = buildFHSEnv
   {
     name = "builder";
-    targetPkgs = pkgs: with pkgs; [ coreutils ];
+    targetPkgs = pkgs: with pkgs; [ coreutils zlib ];
     extraBwrapArgs = [ "--bind" "$out" "$out" ];
     runScript = "sh";
   };
+  componentString = components: if components == null then "--components default" else
+    " --components " + (builtins.concatStringsSep ":" components);
 in let buildOneapi = version: stdenvNoCC.mkDerivation rec
 {
   pname = "oneapi";
@@ -49,8 +77,10 @@ in let buildOneapi = version: stdenvNoCC.mkDerivation rec
   installPhase =
   ''
     mkdir -p $out
-    ${builder}/bin/builder ${basekit} -a --silent --eula accept --install-dir $out/share/intel
-    ${builder}/bin/builder ${hpckit} -a --silent --eula accept --install-dir $out/share/intel
+    ${builder}/bin/builder ${basekit} -a --silent --eula accept --install-dir $out/share/intel \
+      ${componentString versions.${version}.basekit.components or null}
+    ${builder}/bin/builder ${hpckit} -a --silent --eula accept --install-dir $out/share/intel \
+      ${componentString versions.${version}.hpckit.components or null}
     ${builder}/bin/builder $out/share/intel/modulefiles-setup.sh --output-dir=$out/share/intel/modulefiles \
       --ignore-latest
   '';
