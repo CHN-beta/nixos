@@ -38,7 +38,10 @@ inputs:
             # news
             rssguard newsflash newsboat
             yuzu-early-access
-          ] ++ (with localPackages; [ vasp-gnu."6.3.1" vasp-gnu."6.4.0" vasp-gpu."6.4.0" vasp-gpu."6.3.1" ]);
+          ]
+          ++ (builtins.concatLists (builtins.map
+            (compiler: builtins.map (version: localPackages.vasp.${compiler}.${version}) [ "6.3.1" "6.4.0" ])
+            [ "gnu" "nvidia" ]));
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
             phonopy tensorflow keras scipy scikit-learn jupyterlab autograd # localPackages.pix2tex

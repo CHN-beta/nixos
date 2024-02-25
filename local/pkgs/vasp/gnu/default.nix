@@ -1,13 +1,9 @@
 {
   stdenvNoCC, requireFile,
-  rsync, blas, scalapack, mpi, openmp, gfortran, gcc, fftwMpi
+  rsync, blas, scalapack, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90
 }:
 let
-  versions =
-  {
-    "6.3.1" = "1xdr5kjxz6v2li73cbx1ls5b1lnm6z16jaa4fpln7d3arnnr1mgx";
-    "6.4.0" = "189i1l5q33ynmps93p2mwqf5fx7p4l50sls1krqlv8ls14s3m71f";
-  };
+  versions = import ../source.nix;
   vasp = version: stdenvNoCC.mkDerivation rec
   {
     pname = "vasp-gnu";
@@ -22,19 +18,21 @@ let
     configurePhase =
     ''
       cp ${./makefile.include-${version}} makefile.include
-      cp ${../vasp-gpu/constr_cell_relax.F} src/constr_cell_relax.F
+      cp ${../constr_cell_relax.F} src/constr_cell_relax.F
       mkdir -p bin
     '';
     enableParallelBuilding = true;
     makeFlags = "DEPS=1";
-    buildInputs = [ blas scalapack mpi openmp fftwMpi.dev fftwMpi ];
+    buildInputs = [ blas scalapack mpi openmp fftwMpi.dev fftwMpi hdf5 hdf5.dev wannier90 ];
     nativeBuildInputs = [ rsync gfortran gfortran.cc gcc ];
     FFTW_ROOT = fftwMpi.dev;
+    HDF5_ROOT = hdf5.dev;
+    WANNIER90_ROOT = wannier90;
     installPhase =
     ''
       mkdir -p $out/bin
       for i in std gam ncl; do
-        cp bin/vasp_$i $out/bin/vasp-${version}-$i
+        cp bin/vasp_$i $out/bin/vasp-gnu-${version}-$i
       done
     '';
   };

@@ -5,7 +5,6 @@
   rsshub = callPackage ./rsshub { src = topInputs.rsshub; };
   misskey = callPackage ./misskey { nodejs = nodejs_21; src = topInputs.misskey; };
   mk-meili-mgn = callPackage ./mk-meili-mgn {};
-  vasp-gnu = callPackage ./vasp-gnu { inherit (llvmPackages) openmp; };
   vaspkit = callPackage ./vaspkit { attrsToList = (import ../lib lib).attrsToList; };
   v-sim = callPackage ./v-sim { src = topInputs.v-sim; };
   concurrencpp = callPackage ./concurrencpp { stdenv = gcc13Stdenv; src = topInputs.concurrencpp; };
@@ -40,12 +39,21 @@
   slate = callPackage ./slate { src = topInputs.slate; };
   nvhpc = callPackage ./nvhpc {};
   lmod = callPackage ./lmod { src = topInputs.lmod; };
-  vasp-gpu = callPackage ./vasp-gpu
+  vasp =
   {
-    inherit lmod;
-    nvhpc = nvhpc."24.1";
-    hdf5 = hdf5-nvhpc.override { nvhpc = nvhpc."24.1"; };
-    inherit (unstablePackages) wannier90;
+    gnu = callPackage ./vasp/gnu
+    {
+      inherit (llvmPackages) openmp;
+      inherit (unstablePackages) wannier90;
+      hdf5 = hdf5.override { mpiSupport = true; fortranSupport = true; };
+    };
+    nvidia = callPackage ./vasp/nvidia
+    {
+      inherit lmod;
+      nvhpc = nvhpc."24.1";
+      hdf5 = hdf5-nvhpc.override { nvhpc = nvhpc."24.1"; };
+      inherit (unstablePackages) wannier90;
+    };
   };
   hdf5-nvhpc = callPackage ./hdf5-nvhpc { inherit lmod; inherit (hdf5) src; nvhpc = nvhpc."24.1"; };
   oneapi = callPackage ./oneapi {};

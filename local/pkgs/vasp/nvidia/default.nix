@@ -4,12 +4,7 @@
   nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90
 }:
 let
-  versions =
-  {
-    # nix-store --query --hash $(nix store add-path ./vasp-6.4.0)
-    "6.3.1" = "1xdr5kjxz6v2li73cbx1ls5b1lnm6z16jaa4fpln7d3arnnr1mgx";
-    "6.4.0" = "189i1l5q33ynmps93p2mwqf5fx7p4l50sls1krqlv8ls14s3m71f";
-  };
+  versions = import ../source.nix;
   buildEnv = buildFHSEnv
   {
     name = "buildEnv";
@@ -45,7 +40,7 @@ let
     configurePhase =
     ''
       cp ${include version} makefile.include
-      cp ${./constr_cell_relax.F} src/constr_cell_relax.F
+      cp ${../constr_cell_relax.F} src/constr_cell_relax.F
     '';
     enableParallelBuilding = true;
     buildInputs = [ mkl hdf5 wannier90 ];
@@ -60,7 +55,7 @@ let
       for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
     '';
   };
-  startScript = version: writeScript "vasp-gpu-${version}"
+  startScript = version: writeScript "vasp-nvidia-${version}"
   ''
     . ${lmod}/share/lmod/lmod/init/bash
     module use ${nvhpc}/share/nvhpc/modulefiles
@@ -69,7 +64,7 @@ let
   '';
   runEnv = version: buildFHSEnv
   {
-    name = "vasp-gpu-${version}";
+    name = "vasp-nvidia-${version}";
     targetPkgs = pkgs: with pkgs; [ zlib (vasp version) ];
     runScript = startScript version;
   };
