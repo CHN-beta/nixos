@@ -54,6 +54,13 @@
       hdf5 = hdf5-nvhpc.override { nvhpc = nvhpc."24.1"; };
       inherit (unstablePackages) wannier90;
     };
+    intel = callPackage ./vasp/intel
+    {
+      inherit lmod;
+      oneapi = oneapi."2024.0";
+      hdf5 = hdf5.override { mpiSupport = true; fortranSupport = true; };
+      inherit (unstablePackages) wannier90;
+    };
   };
   hdf5-nvhpc = callPackage ./hdf5-nvhpc { inherit lmod; inherit (hdf5) src; nvhpc = nvhpc."24.1"; };
   oneapi = callPackage ./oneapi {};

@@ -51,7 +51,8 @@ in let buildOneapi = version: stdenvNoCC.mkDerivation rec
     mkdir -p $out
     ${builder}/bin/builder ${basekit} -a --silent --eula accept --install-dir $out/share/intel
     ${builder}/bin/builder ${hpckit} -a --silent --eula accept --install-dir $out/share/intel
-    ${builder}/bin/builder $out/share/intel/modulefiles-setup.sh --output-dir=$out/share/intel/modulefiles
+    ${builder}/bin/builder $out/share/intel/modulefiles-setup.sh --output-dir=$out/share/intel/modulefiles \
+      --ignore-latest
   '';
 };
 in builtins.mapAttrs (version: _: buildOneapi version) versions
