@@ -5,7 +5,7 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &vps7 age137x7csalutwvfygvvzpemlsywvdxj3j4z93a50z2sjx03w6zau8q3r5902
   - &surface age1ck5vzs0xqx0jplmuksrkh45xwmkm2t05m2wyq5k2w2mnkmn79fxs6tvl3l
   - &nas age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-  - &xmupc1 age19ax6vm3pv8rph5tq3mmehd9sy9jk823tw8svsd790r0lkslycquqvlwz9m
+  - &xmupc1 age1hnarptkze0ujpp05dqr8uma04cxg9zqcx68qgpks5uf5l6rpk5gqhh8wxg
 creation_rules:
   - path_regex: secrets/pc/.*$
     key_groups:
