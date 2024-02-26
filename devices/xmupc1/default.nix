@@ -101,5 +101,6 @@ inputs:
       bugs = [ "xmunet" "amdpstate" ];
       users.users = [ "chn" "xll" "zem" "yjq" "gb" ];
     };
+    services.hardware.bolt.enable = true;
   };
 }

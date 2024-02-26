@@ -227,6 +227,7 @@ inputs:
               grep = "${inputs.pkgs.gnugrep}/bin/grep";
               awk = "${inputs.pkgs.gawk}/bin/awk";
               chattr = "${inputs.pkgs.e2fsprogs}/bin/chattr";
+              lsmod = "${inputs.pkgs.kmod}/bin/lsmod";
             };
             services.roll-rootfs =
             {
@@ -237,6 +238,8 @@ inputs:
               serviceConfig.Type = "oneshot";
               script = let inherit (fileSystems.rollingRootfs) device path; in
               ''
+                while ! lsmod | grep -q btrfs; do sleep 1; done
+                while ! [ -e ${device} ]; do sleep 1; done
                 mount ${device} /mnt -m
                 if [ -f /mnt${path}/current/.timestamp ]
                 then
