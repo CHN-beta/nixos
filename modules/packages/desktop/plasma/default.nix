@@ -16,7 +16,7 @@ inputs:
         kwin.titlebarButtons =
         {
           right = [ "help" "keep-below-windows" "keep-above-windows" "minimize" "maximize" "close" ];
-          left = [];
+          left = [ "more-window-actions" ];
         };
         windows.allowWindowsToRememberPositions = false;
         configFile =
