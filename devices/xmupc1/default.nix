@@ -93,7 +93,7 @@ inputs:
         slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 94208; gpus = 2; };
       };
       bugs = [ "xmunet" "amdpstate" ];
-      users.users = [ "chn" "xll" "zem" "yjq" "yxy" "gb" ];
+      users.users = [ "chn" "xll" "zem" "yjq" "gb" ];
     };
   };
 }

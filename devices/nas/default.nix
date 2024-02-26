@@ -95,7 +95,7 @@ inputs:
           wireguardIp = "192.168.83.4";
         };
       };
-      users.users = [ "chn" "xll" "zem" "yjq" "yxy" "gb" ];
+      users.users = [ "chn" "xll" "zem" "yjq" "gb" ];
     };
   };
 }
