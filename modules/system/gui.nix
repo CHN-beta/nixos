@@ -17,7 +17,11 @@ inputs:
       services.xserver =
       {
         enable = true;
-        displayManager = { sddm.enable = true; defaultSession = "plasmawayland"; };
+        displayManager =
+        {
+          sddm.enable = true;
+          defaultSession = if inputs.config.nixos.hardware.gpu.type == "nvidia" then "plasma" else "plasmawayland";
+        };
         desktopManager.plasma5.enable = true;
       };
       systemd.services.display-manager = { after = [ "network-online.target" ]; enable = gui.autoStart; };
