@@ -17,7 +17,7 @@ inputs:
             ''
               #!${bash}/bin/bash
               if [ "$XDG_SESSION_TYPE" = "x11" ]; then
-                exec ${xclip}/bin/xclip "-sel clip $@"
+                exec ${xclip}/bin/xclip -sel clip "$@"
               else
                 exec ${wl-clipboard-x11}/bin/xclip "$@"
               fi

@@ -90,7 +90,13 @@ inputs:
           publicKey = "JEY7D4ANfTpevjXNvGDYO6aGwtBGRXsf/iwNwjwDRQk=";
           wireguardIp = "192.168.83.6";
         };
-        slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 94208; gpus = 2; };
+        slurm =
+        {
+          enable = true;
+          cpu = { cores = 16; threads = 2; };
+          memoryMB = 94208;
+          gpus = { "3090" = 1; "4090" = 1; };
+        };
       };
       bugs = [ "xmunet" "amdpstate" ];
       users.users = [ "chn" "xll" "zem" "yjq" "gb" ];

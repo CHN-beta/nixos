@@ -60,7 +60,7 @@ let
     module use ${oneapi}/share/intel/modulefiles
     module load tbb compiler-rt oclfpga # dependencies
     module load mpi mkl compiler
-    exec $@
+    exec "$@"
   '';
   runEnv = version: buildFHSEnv
   {

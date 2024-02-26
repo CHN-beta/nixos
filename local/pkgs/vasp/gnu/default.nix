@@ -1,5 +1,5 @@
 {
-  stdenvNoCC, requireFile,
+  stdenvNoCC, requireFile, writeShellApplication,
   rsync, blas, scalapack, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90
 }:
 let
@@ -32,8 +32,21 @@ let
     ''
       mkdir -p $out/bin
       for i in std gam ncl; do
-        cp bin/vasp_$i $out/bin/vasp-gnu-${version}-$i
+        cp bin/vasp_$i $out/bin/vasp-$i
       done
     '';
   };
-in builtins.mapAttrs (version: _: vasp version) versions
+  startScript = version: writeShellApplication
+  {
+    name = "vasp-gnu-${version}";
+    runtimeInputs = [ (vasp version) ];
+    text =
+    ''
+      if [ -n "''${SLURM_CPUS_PER_TASK-}" ] && [ -n "''${SLURM_THREADS_PER_CPU-}" ]; then
+        export OMP_NUM_THREADS=$(( SLURM_CPUS_PER_TASK * SLURM_THREADS_PER_CPU ))
+      fi
+      export PATH=$PATH:$PWD
+      exec "$@"
+    '';
+  };
+in builtins.mapAttrs (version: _: startScript version) versions

@@ -9,7 +9,7 @@ inputs:
       threads = mkOption { type = types.ints.unsigned; default = 1; };
     };
     memoryMB = mkOption { type = types.ints.unsigned; };
-    gpus = mkOption { type = types.ints.unsigned; };
+    gpus = mkOption { type = types.attrsOf types.ints.unsigned; };
   };
   config = let inherit (inputs.config.nixos.services) slurm; in inputs.lib.mkIf slurm.enable
   {
@@ -39,32 +39,51 @@ inputs:
         };
         client.enable = true;
         controlMachine = "localhost";
-        nodeName = inputs.lib.singleton (builtins.concatStringsSep " "
-        [
-          "localhost"
-          "RealMemory=${builtins.toString slurm.memoryMB}"
-          "Sockets=1"
-          "CoresPerSocket=${builtins.toString slurm.cpu.cores}"
-          "ThreadsPerCore=${builtins.toString slurm.cpu.threads}"
-          "Gres=gpu:${builtins.toString slurm.gpus}"
-          "State=UNKNOWN"
-        ]);
+        nodeName =
+          let gpuString = builtins.concatStringsSep "," (builtins.map
+            (gpu: "gpu:${gpu.name}:${builtins.toString gpu.value}")
+            (inputs.localLib.attrsToList slurm.gpus));
+          in inputs.lib.singleton (builtins.concatStringsSep " "
+          [
+            "localhost"
+            "RealMemory=${builtins.toString slurm.memoryMB}"
+            "Sockets=1"
+            "CoresPerSocket=${builtins.toString slurm.cpu.cores}"
+            "ThreadsPerCore=${builtins.toString slurm.cpu.threads}"
+            # "Gres=${gpuString}"
+            "Gres=${gpuString}"
+            "State=UNKNOWN"
+          ]);
         partitionName = [ "localhost Nodes=localhost Default=YES MaxTime=INFINITE State=UP" ];
         procTrackType = "proctrack/cgroup";
         extraConfig =
-        ''
-          SelectType=select/cons_tres
-          GresTypes=gpu
-          TaskProlog=${inputs.pkgs.writeShellScript "set_env" "echo export CUDA_DEVICE_ORDER=PCI_BUS_ID"}
+          let taskProlog =
+          ''
+            echo export CUDA_DEVICE_ORDER=PCI_BUS_ID
+            echo export SLURM_THREADS_PER_CPU=${builtins.toString slurm.cpu.threads}
+          '';
+          in
+          ''
+            SelectType=select/cons_tres
+            GresTypes=gpu
+            TaskProlog=${inputs.pkgs.writeShellScript "set_env" taskProlog}
 
-          AccountingStorageType=accounting_storage/slurmdbd
-          AccountingStorageHost=localhost
-          AccountingStoreFlags=job_comment,job_env,job_extra,job_script
+            AccountingStorageType=accounting_storage/slurmdbd
+            AccountingStorageHost=localhost
+            AccountingStoreFlags=job_comment,job_env,job_extra,job_script
 
-          JobCompType=jobcomp/filetxt
-          JobCompLoc=/var/log/slurmctld/jobcomp.log
-        '';
-        extraConfigPaths = [(inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml")];
+            JobCompType=jobcomp/filetxt
+            JobCompLoc=/var/log/slurmctld/jobcomp.log
+
+            SchedulerParameters=enable_user_top
+
+            SlurmdDebug=debug2
+          '';
+        extraConfigPaths =
+          let gpuString = builtins.concatStringsSep "\n" (builtins.map
+            (gpu: "Name=gpu Type=${gpu.name} Count=${builtins.toString gpu.value}")
+            (inputs.localLib.attrsToList slurm.gpus));
+          in [(inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml\n${gpuString}")];
       };
       munge = { enable = true; password = inputs.config.sops.secrets."munge.key".path; };
     };
