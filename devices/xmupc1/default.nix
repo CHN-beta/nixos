@@ -45,7 +45,7 @@ inputs:
             forwardCompat = false;
           };
         };
-        gui.preferred = false;
+        gui = { preferred = false; autoStart = true; };
         kernel.patches = [ "cjktty" "lantian" ];
         networking.hostname = "xmupc1";
       };
