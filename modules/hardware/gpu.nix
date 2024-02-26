@@ -13,6 +13,7 @@ inputs:
       ]);
       default = null;
     };
+    dynamicBoost = mkOption { type = types.bool; default = false; };
     prime.busId = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
   };
   config = let inherit (inputs.config.nixos.hardware) gpu; in inputs.lib.mkIf (gpu.type != null) (inputs.lib.mkMerge
@@ -52,10 +53,11 @@ inputs:
           {
             modesetting.enable = true;
             powerManagement.enable = true;
-            dynamicBoost.enable = true;
+            dynamicBoost.enable = inputs.lib.mkIf gpu.dynamicBoost true;
             nvidiaSettings = true;
             forceFullCompositionPipeline = true;
             # package = inputs.config.boot.kernelPackages.nvidiaPackages.production;
+            prime.allowExternalGpu = true;
           };
         };
         boot =
