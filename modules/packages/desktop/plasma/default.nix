@@ -1,9 +1,9 @@
 inputs:
 {
   imports = inputs.localLib.mkModules [ ./konsole.nix ];
-  config = inputs.lib.mkIf inputs.config.nixos.system.gui.enable
-  {
-    home-manager.users.chn.config.programs.plasma = inputs.lib.mkMerge
+  config.nixos.users.sharedModules = inputs.lib.mkIf inputs.config.nixos.system.gui.enable
+  [{
+    config.programs.plasma = inputs.lib.mkMerge
     [
       # TODO: autostart, panel, discard user changed settings
       # general
@@ -94,5 +94,5 @@ inputs:
       # lock screen
       { configFile.kscreenlockerrc.Daemon.Autolock = false; }
     ];
-  };
+  }];
 }
