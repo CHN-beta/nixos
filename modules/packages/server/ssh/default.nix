@@ -140,6 +140,9 @@ inputs:
                         usernameMap =
                         {
                           chn = "linwei/chn";
+                          xll = "linwei/Xll";
+                          yjq = "linwei/yjq";
+                          gb = "kangjunyong/gongbin";
                         };
                         cdString =
                           if host == "jykang" && (usernameMap ? ${hmInputs.config.home.username}) then
