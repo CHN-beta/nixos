@@ -10,16 +10,21 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/3F57-0EBE" = "/boot/efi";
+            vfat."/dev/disk/by-uuid/467C-02E3" = "/boot/efi";
             btrfs =
             {
-              "/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614"."/" = "/boot";
-              "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+              "/dev/disk/by-uuid/2f9060bc-09b5-4348-ad0f-3a43a91d158b" = { "/nix" = "/nix"; "/nix/boot" = "/boot"; };
+              "/dev/disk/by-uuid/a04a1fb0-e4ed-4c91-9846-2f9e716f6e12" =
+              {
+                "/nix/rootfs" = "/nix/rootfs";
+                "/nix/persistent" = "/nix/persistent";
+                "/nix/nodatacow" = "/nix/nodatacow";
+                "/nix/rootfs/current" = "/";
+              };
             };
           };
-          swap = [ "/dev/mapper/swap" ];
-          resume = "/dev/mapper/swap";
-          rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+          swap = [ "/nix/swap/swap" ];
+          rollingRootfs = { device = "/dev/disk/by-uuid/a04a1fb0-e4ed-4c91-9846-2f9e716f6e12"; path = "/nix/rootfs"; };
         };
         grub.installDevice = "efi";
         nixpkgs =
@@ -54,19 +59,12 @@ inputs:
         sound.enable = true;
       };
       packages.packageSet = "workstation";
-      virtualization = { docker.enable = true; kvmHost = { enable = true; gui = true; }; };
+      virtualization = { waydroid.enable = true; docker.enable = true; kvmHost = { enable = true; gui = true; }; };
       services =
       {
-        snapper.enable = true;
+        snapper.enable = false;
         fontconfig.enable = true;
-        samba =
-        {
-          enable = true;
-          private = true;
-          hostsAllowed = "192.168. 127.";
-          shares.home.path = "/home";
-        };
-        sshd.enable = true;
+        sshd = { enable = true; passwordAuthentication = true; };
         xray.client =
         {
           enable = true;
@@ -78,11 +76,11 @@ inputs:
         smartd.enable = true;
         beesd =
         {
-          enable = true;
+          enable = false;
           instances =
           {
-            root = { device = "/"; hashTableSizeMB = 1536; threads = 4; };
-            nix = { device = "/nix"; hashTableSizeMB = 64; };
+            root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
+            nix = { device = "/nix"; hashTableSizeMB = 512; };
           };
         };
         wireguard =
@@ -92,8 +90,10 @@ inputs:
           publicKey = "JEY7D4ANfTpevjXNvGDYO6aGwtBGRXsf/iwNwjwDRQk=";
           wireguardIp = "192.168.83.6";
         };
+        slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 94208; gpus = 2; };
       };
       bugs = [ "xmunet" "amdpstate" ];
+      users.users = [ "chn" "xll" "zem" "yjq" "yxy" "gb" ];
     };
   };
 }

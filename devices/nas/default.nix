@@ -59,7 +59,7 @@ inputs:
           hostsAllowed = "192.168. 127.";
           shares = { home.path = "/home"; root.path = "/"; };
         };
-        sshd = { enable = true; passwordAuthentication = true; };
+        sshd.enable = true;
         xray.client =
         {
           enable = true;
@@ -95,7 +95,7 @@ inputs:
           wireguardIp = "192.168.83.4";
         };
       };
-      users.users = [ "chn" "xll" "zem" "yjq" "yxy" ];
+      users.users = [ "chn" "xll" "zem" "yjq" "yxy" "gb" ];
     };
   };
 }

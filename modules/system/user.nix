@@ -13,6 +13,7 @@ inputs:
         yjq = 1002;
         yxy = 1003;
         zem = 1004;
+        gb = 1005;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
