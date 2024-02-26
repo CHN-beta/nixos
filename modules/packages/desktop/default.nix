@@ -33,17 +33,6 @@ inputs:
           tela-circle-icon-theme localPackages.win11os-kde localPackages.fluent-kde localPackages.blurred-wallpaper
           localPackages.slate utterly-nord-plasma
         ];
-        users.sharedModules =
-        [(homeInputs: {
-          config.home.file = mkIf (!homeInputs.config.programs.plasma.enable)
-          {
-            ".config/baloofilerc".text =
-            ''
-              [Basic Settings]
-              Indexing-Enabled=false
-            '';
-          };
-        })];
       };
       programs =
       {
