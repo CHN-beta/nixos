@@ -97,3 +97,21 @@ scontrol top job_id
 # 包裹一个二进制程序
 --wrap=
 ```
+
+# ssh
+
+本机可以使用 ssh 登陆。
+* 地址：office.chn.moe（如果在校外，需要厦大 VPN）
+* 端口：6007
+* 用户名：自己名字的拼音首字母
+* 可以用密码登陆，也可以用证书登陆。
+
+要从本机登陆到学校 hpc 的 jykang 账户，使用下面的命令：
+
+```bash
+ssh jykang
+```
+
+# rdp
+
+本机可以使用 rdp 登陆（就是 windows 那个远程桌面）。
