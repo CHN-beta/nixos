@@ -23,6 +23,7 @@ inputs:
         max-jobs = 4;
         cores = 0;
         keep-going = true;
+        keep-outputs = true;
       };
       systemd.services.nix-daemon = { serviceConfig.CacheDirectory = "nix"; environment.TMPDIR = "/var/cache/nix"; };
     }
@@ -66,7 +67,6 @@ inputs:
     }
     # includeBuildDependencies
     {
-      nix.settings.keep-outputs = nix.includeBuildDependencies;
       system.includeBuildDependencies = nix.includeBuildDependencies;
     }
     # substituters
