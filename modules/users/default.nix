@@ -1,6 +1,7 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules [ ./chn ./root ./xll ./yjq ./zem ./gb ];
+  imports = inputs.localLib.mkModules (builtins.map (dir: ././${dir.name})
+    (builtins.filter (dir: dir.value == "directory") (inputs.localLib.attrsToList (builtins.readDir ./.))));
   options.nixos.users = let inherit (inputs.lib) mkOption types; in
   {
     users = mkOption { type = types.listOf types.nonEmptyStr; default = [ "chn" ]; };
