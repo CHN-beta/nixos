@@ -97,6 +97,7 @@ inputs:
           memoryMB = 94208;
           gpus = { "3090" = 1; "4090" = 1; };
         };
+        xrdp = { enable = true; hostname = [ "xmupc1.chn.moe" ]; };
       };
       bugs = [ "xmunet" "amdpstate" ];
       users.users = [ "chn" "xll" "zem" "yjq" "gb" ];
