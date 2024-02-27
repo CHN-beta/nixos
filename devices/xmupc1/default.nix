@@ -98,6 +98,12 @@ inputs:
           gpus = { "3090" = 1; "4090" = 1; };
         };
         xrdp = { enable = true; hostname = [ "xmupc1.chn.moe" ]; };
+        samba =
+        {
+          enable = true;
+          hostsAllowed = "192.168. 127.";
+          shares = { home.path = "/home"; root.path = "/"; };
+        };
       };
       bugs = [ "xmunet" "amdpstate" ];
       users.users = [ "chn" "xll" "zem" "yjq" "gb" ];
