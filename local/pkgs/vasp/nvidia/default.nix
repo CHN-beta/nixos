@@ -54,6 +54,7 @@ let
       mkdir -p $out/bin
       for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
     '';
+    requiredSystemFeatures = [ "nvhpcarch-${nvhpcArch}" ];
   };
   startScript = version: writeScript "vasp-nvidia-${version}"
   ''

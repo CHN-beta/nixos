@@ -57,13 +57,15 @@ inputs:
     }
     # marches
     {
-      nix.settings.system-features = map
+      nix.settings.system-features =
+      (map
         (march: "gccarch-${march}")
         (
           if nix.marches == null then
             (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ march ])
           else nix.marches
-        );
+        ))
+      ++ (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ "nvhpcArch-${march}" ]);
     }
     # includeBuildDependencies
     {
