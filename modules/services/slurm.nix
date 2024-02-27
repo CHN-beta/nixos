@@ -50,7 +50,6 @@ inputs:
             "Sockets=1"
             "CoresPerSocket=${builtins.toString slurm.cpu.cores}"
             "ThreadsPerCore=${builtins.toString slurm.cpu.threads}"
-            # "Gres=${gpuString}"
             "Gres=${gpuString}"
             "State=UNKNOWN"
           ]);
@@ -65,6 +64,7 @@ inputs:
           in
           ''
             SelectType=select/cons_tres
+            SelectTypeParameters=CR_Core
             GresTypes=gpu
             TaskProlog=${inputs.pkgs.writeShellScript "set_env" taskProlog}
 
