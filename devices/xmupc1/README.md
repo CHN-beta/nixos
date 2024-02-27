@@ -100,7 +100,8 @@ scontrol top job_id
 
 # ssh
 
-本机可以使用 ssh 登陆。
+ssh 就是 putty winscp 之类的工具使用的那个协议。
+
 * 地址：office.chn.moe（如果在校外，需要厦大 VPN）
 * 端口：6007
 * 用户名：自己名字的拼音首字母
@@ -114,4 +115,8 @@ ssh jykang
 
 # rdp
 
-本机可以使用 rdp 登陆（就是 windows 那个远程桌面）。
+就是 windows 那个远程桌面。
+
+* 地址：xmupc1.chn.moe（如果在校外，需要厦大 VPN）
+* 用户名：自己名字的拼音首字母
+* 密码和 ssh 一样。
