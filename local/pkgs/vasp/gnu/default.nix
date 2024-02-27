@@ -3,18 +3,12 @@
   rsync, blas, scalapack, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90
 }:
 let
-  versions = import ../source.nix;
+  sources = import ../source.nix { inherit requireFile; };
   vasp = version: stdenvNoCC.mkDerivation rec
   {
     pname = "vasp-gnu";
     inherit version;
-    src = requireFile
-    {
-      name = "vasp-${version}";
-      sha256 = versions.${version};
-      hashMode = "recursive";
-      message = "Source file not found.";
-    };
+    src = sources.${version};
     configurePhase =
     ''
       cp ${./makefile.include-${version}} makefile.include
@@ -49,4 +43,4 @@ let
       exec "$@"
     '';
   };
-in builtins.mapAttrs (version: _: startScript version) versions
+in builtins.mapAttrs (version: _: startScript version) sources

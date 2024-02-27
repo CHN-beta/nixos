@@ -4,7 +4,7 @@
   nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90
 }:
 let
-  versions = import ../source.nix;
+  sources = import ../source.nix { inherit requireFile; };
   buildEnv = buildFHSEnv
   {
     name = "buildEnv";
@@ -30,13 +30,7 @@ let
   {
     pname = "vasp";
     inherit version;
-    src = requireFile
-    {
-      name = "${pname}-${version}";
-      sha256 = versions.${version};
-      hashMode = "recursive";
-      message = "Source file not found.";
-    };
+    src = sources.${version};
     configurePhase =
     ''
       cp ${include version} makefile.include
@@ -74,4 +68,4 @@ let
     targetPkgs = pkgs: with pkgs; [ zlib (vasp version) ];
     runScript = startScript version;
   };
-in builtins.mapAttrs (version: _: runEnv version) versions
+in builtins.mapAttrs (version: _: runEnv version) sources

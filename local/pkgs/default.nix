@@ -41,6 +41,7 @@
   lmod = callPackage ./lmod { src = topInputs.lmod; };
   vasp =
   {
+    source = callPackage ./vasp/source.nix {};
     gnu = callPackage ./vasp/gnu
     {
       inherit (llvmPackages) openmp;
