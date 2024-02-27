@@ -139,7 +139,7 @@
         fastConnection = true;
         autoRollback = false;
         magicRollback = false;
-        nodes = (builtins.listToAttrs (builtins.map
+        nodes = builtins.listToAttrs (builtins.map
           (node:
           {
             name = node;
@@ -150,21 +150,8 @@
                 inputs.self.nixosConfigurations.${node};
             };
           })
-          [ "vps6" "vps7" "nas" "surface" ]
-        ))
-        // {
-          xmupc1 =
-          {
-            hostname = "xmupc1";
-            value =
-            {
-              hostname = "xmupc1";
-              profiles.system.path = inputs.self.nixosConfigurations.xmupc1.pkgs.deploy-rs.lib.activate.nixos
-                inputs.self.nixosConfigurations.xmupc1;
-              remoteBuild = true;
-            };
-          };
-        };
+          [ "vps6" "vps7" "nas" "surface" "xmupc1" ]
+        );
       };
       checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks inputs.self.deploy) inputs.deploy-rs.lib;
       overlays.default = final: prev:
