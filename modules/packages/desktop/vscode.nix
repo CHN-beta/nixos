@@ -46,6 +46,7 @@ inputs:
                 shd101wyy.markdown-preview-enhanced
                 # vasp
                 mystery.vasp-support
+                yutengjing.open-in-external-app
               ];
           }
         )];
