@@ -76,7 +76,7 @@ inputs:
         smartd.enable = true;
         beesd =
         {
-          enable = false;
+          enable = true;
           instances =
           {
             root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
