@@ -62,7 +62,7 @@ inputs:
       virtualization = { waydroid.enable = true; docker.enable = true; kvmHost = { enable = true; gui = true; }; };
       services =
       {
-        snapper.enable = false;
+        snapper.enable = true;
         fontconfig.enable = true;
         sshd = { enable = true; passwordAuthentication = true; };
         xray.client =
