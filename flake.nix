@@ -3,7 +3,7 @@
 
   inputs =
   {
-    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:CHN-beta/nixpkgs/next";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-2305.url = "github:CHN-beta/nixpkgs/nixos-23.05";
     home-manager = { url = "github:nix-community/home-manager/release-23.11"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -30,10 +30,6 @@
     nixpak = { url = "github:nixpak/nixpak"; inputs.nixpkgs.follows = "nixpkgs"; };
     deploy-rs = { url = "github:serokell/deploy-rs"; inputs.nixpkgs.follows = "nixpkgs"; };
     pnpm2nix-nzbr = { url = "github:CHN-beta/pnpm2nix-nzbr"; inputs.nixpkgs.follows = "nixpkgs"; };
-    # oneapi
-    lmix = { url = "github:CHN-beta/lmix"; inputs.nixpkgs.follows = "nixpkgs"; };
-    # nvhpc
-    dguibert-nur-packages = { url = "github:CHN-beta/dguibert-nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     plasma-manager =
     {
       url = "github:pjones/plasma-manager";
@@ -61,7 +57,6 @@
     win11os-kde = { url = "github:yeyushengfan258/Win11OS-kde"; flake = false; };
     fluent-kde = { url = "github:vinceliuice/Fluent-kde"; flake = false; };
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
-    cascade = { url = "github:CHN-beta/cascade"; flake = false; };
     blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
     slate = { url = "github:TheBigWazz/Slate"; flake = false; };
     linux-surface = { url = "github:linux-surface/linux-surface"; flake = false; };

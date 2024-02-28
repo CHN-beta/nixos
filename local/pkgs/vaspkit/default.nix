@@ -7,15 +7,15 @@ let
     hashMode = "recursive";
     message = "POTCAR not found.";
   };
-  unwrapped = stdenv.mkDerivation
+  unwrapped = stdenv.mkDerivation rec
   {
     pname = "vaspkit-unwrapped";
-    version = "1.4.1";
+    version = "1.5.1";
     buildInputs = [ autoPatchelfHook stdenv.cc.cc ];
     src = fetchurl
     {
-      url = "mirror://sourceforge/vaspkit/Binaries/vaspkit.1.4.1.linux.x64.tar.gz";
-      sha256 = "0i5m7nbvqk7hzxisyydjvs2l8lnvj9vsxa170783kv9zmp51lnvs";
+      url = "mirror://sourceforge/vaspkit/Binaries/vaspkit.${version}.linux.x64.tar.gz";
+      sha256 = "1cbj1mv7vx18icwlk9d2vfavsfd653943xg2ywzd8b7pb43xrfs1";
     };
     installPhase =
     ''
