@@ -46,11 +46,6 @@ inputs:
           [
             phonopy tensorflow keras scipy scikit-learn jupyterlab autograd # localPackages.pix2tex
           ])];
-          _prebuildPackages =
-          [
-            httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran gcc10 python2
-            gcc13Stdenv
-          ];
         };
         users.sharedModules =
         [{
