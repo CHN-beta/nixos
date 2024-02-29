@@ -16,7 +16,7 @@ inputs:
             # system management
             wl-mirror nvtop
             # nix tools
-            nix-template nil nix-alien pnpm-lock-export bundix
+            nix-template nil pnpm-lock-export bundix
             # instant messager
             qq nur-xddxdd.wechat-uos cinny-desktop nheko
             # development
