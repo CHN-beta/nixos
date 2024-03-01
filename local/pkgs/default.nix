@@ -65,4 +65,5 @@
   };
   hdf5-nvhpc = callPackage ./hdf5-nvhpc { inherit lmod; inherit (hdf5) src; nvhpc = nvhpc."24.1"; };
   oneapi = callPackage ./oneapi {};
+  mumax = callPackage ./mumax { src = topInputs.mumax; };
 }

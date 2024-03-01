@@ -1125,6 +1125,22 @@
         "url": "https://github.com/CHN-beta/misskey"
       }
     },
+    "mumax": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1709298542,
+        "narHash": "sha256-w3VuxnEqkwwplNXwzdhC2mVMuVG7bBdzzzRcWZ4nRM8=",
+        "owner": "CHN-beta",
+        "repo": "mumax",
+        "rev": "3658ac4ec975a58ba3ad5e7ede61bd26bdadfe23",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "mumax",
+        "type": "github"
+      }
+    },
     "nameof": {
       "flake": false,
       "locked": {
@@ -1950,6 +1966,7 @@
         "lmod": "lmod",
         "matplotplusplus": "matplotplusplus",
         "misskey": "misskey",
+        "mumax": "mumax",
         "nameof": "nameof",
         "napalm": "napalm",
         "nix-alien": "nix-alien",
