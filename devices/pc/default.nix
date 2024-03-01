@@ -141,11 +141,6 @@ inputs:
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
     home-manager.users.chn.config.programs.plasma.startup.autoStartScript.xcalib.text =
       "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
-    powerManagement.resumeCommands =
-    ''
-      ${inputs.pkgs.kmod}/bin/modprobe -r mt7921e
-      ${inputs.pkgs.kmod}/bin/modprobe mt7921e
-    '';
     specialisation.hybrid.configuration =
     {
       nixos =
