@@ -33,7 +33,7 @@ inputs:
           storagePassFile = inputs.config.sops.secrets."slurm/db".path;
           extraConfig =
           ''
-            StorageHost=localhost
+            StorageHost=*
             StorageLoc=slurm
           '';
         };
