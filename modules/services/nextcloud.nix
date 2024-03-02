@@ -52,20 +52,26 @@ inputs:
             # nix-prefetch-url --unpack
             maps = inputs.pkgs.fetchNextcloudApp
             {
-              url = githubRelease "nextcloud/maps" "v1.1.1/maps-1.1.1.tar.gz";
+              url = githubRelease "nextcloud/maps" "v1.3.1/maps-1.3.1.tar.gz";
               sha256 = "1rcmqnm5364h5gaq1yy6b6d7k17napgn0yc9ymrnn75bps9s71v9";
               license = "agpl3";
             };
             phonetrack = inputs.pkgs.fetchNextcloudApp
             {
-              url = githubRelease "julien-nc/phonetrack" "v0.7.6/phonetrack-0.7.6.tar.gz";
-              sha256 = "1p15vw7c5c1h08czyxi1r6svjd5hjmnc0i6is4vl3xq2kfjmcyyx";
+              url = githubRelease "julien-nc/phonetrack" "v0.7.7/phonetrack-0.7.7.tar.gz";
+              sha256 = "1xvdmb2wlcldv8lk4jb8akhi80w26m2jpazfcz641frjm333kxch";
               license = "agpl3";
             };
-            twofactor_webauthn = inputs.pkgs.fetchNextcloudApp
+            twofactorWebauthn = inputs.pkgs.fetchNextcloudApp
             {
-              url = githubRelease "nextcloud-releases/twofactor_webauthn" "v1.3.0/twofactor_webauthn-v1.3.0.tar.gz";
-              sha256 = "0z6m2chq5kxc8f10g6n1lh51yi10svy2qp5gp0v8xs71apqcc2wx";
+              url = githubRelease "nextcloud-releases/twofactor_webauthn" "v1.3.2/twofactor_webauthn-v1.3.2.tar.gz";
+              sha256 = "1p4ng7nprlcgw7sdfd7wqx5az86a856f1v470lahg2nfbx3fg296";
+              license = "agpl3";
+            };
+            calendar = inputs.pkgs.fetchNextcloudApp
+            {
+              url = githubRelease "nextcloud-releases/calendar" "v4.6.5/calendar-v4.6.5.tar.gz";
+              sha256 = "18mi6ccq640jq21hmir35v2967h07bjv226072d9qz5qkzkmrhss";
               license = "agpl3";
             };
           };
