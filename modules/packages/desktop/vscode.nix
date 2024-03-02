@@ -22,7 +22,7 @@ inputs:
               ])
               ++ (with ms-vscode;
               [
-                cmake-tools cpptools cpptools-extension-pack cpptools-themes hexeditor remote-explorer
+                (cmake-tools.overrideAttrs { sourceRoot = "extension"; }) cpptools cpptools-extension-pack cpptools-themes hexeditor remote-explorer
                 test-adapter-converter
               ])
               ++ (with ms-vscode-remote; [ remote-ssh remote-containers remote-ssh-edit ])

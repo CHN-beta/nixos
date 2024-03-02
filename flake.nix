@@ -3,8 +3,8 @@
 
   inputs =
   {
-    nixpkgs.url = "github:CHN-beta/nixpkgs/next";
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-23.11";
+    nixpkgs-unstable.url = "github:CHN-beta/nixpkgs/nixos-unstable";
     nixpkgs-2305.url = "github:CHN-beta/nixpkgs/nixos-23.05";
     home-manager = { url = "github:nix-community/home-manager/release-23.11"; inputs.nixpkgs.follows = "nixpkgs"; };
     sops-nix =
