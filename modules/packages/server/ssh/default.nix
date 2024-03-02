@@ -61,6 +61,11 @@ inputs:
               ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl";
               hostnames = [ "github.com" ];
             };
+            xmupc1 =
+            {
+              ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINTvfywkKRwMrVp73HfHTfjhac2Tn9qX/lRjLr09ycHp";
+              hostnames = [ "[office.chn.moe]:6007" "[xmupc1.chn.moe]:6007" "wireguard.xmupc1.chn.moe" "192.168.83.6" ];
+            };
           };
         in listToAttrs (concatLists (map
           (server:
@@ -121,7 +126,10 @@ inputs:
           (
             (builtins.map
               (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
-              [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "wireguard.nas" "wireguard.surface" ])
+              [
+                "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "wireguard.nas" "wireguard.surface"
+                "wireguard.xmupc1.chn.moe"
+              ])
             ++ (builtins.map
               (host:
               {

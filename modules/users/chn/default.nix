@@ -48,7 +48,7 @@ inputs:
               (system: { name = system; value.forwardAgent = true; })
               [
                 "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas"
-                "wireguard.surface"
+                "wireguard.surface" "xmupc1" "wireguard.xmupc1"
               ]));
           };
           home.packages =
