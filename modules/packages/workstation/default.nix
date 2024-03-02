@@ -16,7 +16,7 @@ inputs:
             # system management
             wl-mirror nvtop
             # nix tools
-            nix-template nil nix-alien pnpm-lock-export bundix
+            nix-template nil pnpm-lock-export bundix
             # instant messager
             qq nur-xddxdd.wechat-uos cinny-desktop nheko
             # development
@@ -46,11 +46,6 @@ inputs:
           [
             phonopy tensorflow keras scipy scikit-learn jupyterlab autograd # localPackages.pix2tex
           ])];
-          _prebuildPackages =
-          [
-            httplib magic-enum xtensor boost cereal cxxopts ftxui yaml-cpp gfortran gcc10 python2
-            gcc13Stdenv
-          ];
         };
         users.sharedModules =
         [{
