@@ -8,7 +8,6 @@ inputs:
     printer.enable = mkOption { type = types.bool; default = false; };
     sound.enable = mkOption { type = types.bool; default = false; };
     cpus = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
-    halo-keyboard.enable = mkOption { type = types.bool; default = false; };
   };
   config =
     let
@@ -74,73 +73,5 @@ inputs:
               concatLists (map (cpu: modules.${cpu}) hardware.cpus);
         }
       )
-      # halo-keyboard
-      (mkIf hardware.halo-keyboard.enable
-      (
-        let
-          keyboard = inputs.pkgs.localPackages.chromiumos-touch-keyboard;
-          support = inputs.pkgs.localPackages.yoga-support;
-        in
-        {
-          services.udev.packages = [ keyboard support ];
-          systemd.services =
-          {
-            touch-keyboard-handler.serviceConfig =
-            {
-              Type = "simple";
-              WorkingDirectory = "/etc/touch_keyboard";
-              ExecStart = "${keyboard}/bin/touch_keyboard_handler";
-            };
-            yogabook-modes-handler.serviceConfig =
-            {
-              Type = "simple";
-              ExecStart = "${support}/bin/yogabook-modes-handler";
-              StandardOutput = "journal";
-            };
-            monitor-sensor =
-            {
-              wantedBy = [ "default.target" ];
-              serviceConfig =
-              {
-                Type = "simple";
-                ExecStart = "${inputs.pkgs.iio-sensor-proxy}/bin/monitor-sensor --hinge";
-              };
-            };
-          };
-          environment.etc."touch_keyboard".source = "${keyboard}/etc/touch_keyboard";
-          boot.initrd =
-          {
-            services.udev.packages = [ keyboard support ];
-            systemd =
-            {
-              extraBin =
-              {
-                touch_keyboard_handler = "${keyboard}/bin/touch_keyboard_handler";
-                yogabook-modes-handler = "${support}/bin/yogabook-modes-handler";
-              };
-              services =
-              {
-                touch-keyboard-handler =
-                {
-                  serviceConfig =
-                  {
-                    Type = "simple";
-                    WorkingDirectory = "/etc/touch_keyboard";
-                    ExecStart = "${keyboard}/bin/touch_keyboard_handler";
-                  };
-                };
-                yogabook-modes-handler.serviceConfig =
-                {
-                  Type = "simple";
-                  ExecStart = "${support}/bin/yogabook-modes-handler";
-                  StandardOutput = "journal";
-                };
-              };
-
-            };
-            extraFiles."/etc/touch_keyboard".source = "${keyboard}/etc/touch_keyboard";
-          };
-        }
-      ))
     ];
 }
