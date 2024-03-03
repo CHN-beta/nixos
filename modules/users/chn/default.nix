@@ -11,7 +11,7 @@ inputs:
       users.users.chn =
       {
         extraGroups = inputs.lib.intersectLists
-          [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" "groupshare" ]
+          [ "users" "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" "groupshare" ]
           (builtins.attrNames inputs.config.users.groups);
         shell = inputs.pkgs.zsh;
         autoSubUidGidRange = true;

@@ -5,7 +5,6 @@ inputs:
     enable = mkOption { type = types.bool; default = false; };
     port = mkOption { type = types.ints.unsigned; default = 3389; };
     hostname = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
-    optimizeForNvidia = mkOption { type = types.bool; default = inputs.config.nixos.hardware.gpu.type == "nvidia"; };
   };
   config =
     let
@@ -17,7 +16,6 @@ inputs:
         services.xrdp =
         {
           enable = true;
-          package = inputs.pkgs.xrdp.override { inherit (xrdp) optimizeForNvidia; };
           port = xrdp.port;
           openFirewall = true;
           defaultWindowManager = "startplasma-x11";

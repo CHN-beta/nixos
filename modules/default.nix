@@ -32,8 +32,8 @@ inputs:
               deploy-rs =
                 { inherit (prev) deploy-rs; inherit ((topInputs.deploy-rs.overlay final prev).deploy-rs) lib; };
               # needed by mirism
-              nghttp2-2305 =
-                inputs.pkgs.callPackage "${inputs.topInputs.nixpkgs-2305}/pkgs/development/libraries/nghttp2" {};
+              "nghttp2-23.05" =
+                inputs.pkgs.callPackage "${inputs.topInputs."nixpkgs-23.05"}/pkgs/development/libraries/nghttp2" {};
               firefox-addons = (import "${topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
             })
           ];

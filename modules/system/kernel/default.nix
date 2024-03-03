@@ -2,6 +2,7 @@ inputs:
 {
   options.nixos.system.kernel = let inherit (inputs.lib) mkOption types; in
   {
+    varient = mkOption { type = types.enum [ "lts" "latest" ]; default = "lts"; };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     modules =
     {
@@ -33,7 +34,11 @@ inputs:
       extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;
       extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
       kernelParams = [ "delayacct" "acpi_osi=Linux" "acpi.ec_no_wakeup=1" ];
-      kernelPackages = inputs.pkgs.linuxPackages_xanmod_latest;
+      kernelPackages =
+      {
+        lts = inputs.pkgs.linuxPackages_xanmod;
+        latest = inputs.pkgs.linuxPackages_xanmod_latest;
+      }.${kernel.varient};
       kernelPatches =
         let
           patches =
@@ -55,6 +60,7 @@ inputs:
                       hashes =
                       {
                         "6.1" = "11ddiammvjxx2m9v32p25l1ai759a1d6xhdpszgnihv7g2fzigf5";
+                        "6.6" = "19ib0syj3207ifr315gdrnpv6nhh435fmgl05c7k715nng40i827";
                         "6.7" = "1yfsmc0873xiwlirir0xfp9zyrpd09q1srgr3z4rl7i7lxzaqls8";
                       };
                     in hashes."${major}.${minor}";

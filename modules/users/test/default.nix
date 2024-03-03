@@ -8,7 +8,7 @@ inputs:
     {
       users.users.test =
       {
-        extraGroups = inputs.lib.intersectLists [ "video" ] (builtins.attrNames inputs.config.users.groups);
+        extraGroups = inputs.lib.intersectLists [ "users" "video" ] (builtins.attrNames inputs.config.users.groups);
         password = "test";
         shell = inputs.pkgs.zsh;
       };

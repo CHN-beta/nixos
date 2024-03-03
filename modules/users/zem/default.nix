@@ -9,7 +9,7 @@ inputs:
       users.users.zem =
       {
         extraGroups = inputs.lib.intersectLists
-          [ "groupshare" "video" ]
+          [ "users" "groupshare" "video" ]
           (builtins.attrNames inputs.config.users.groups);
         hashedPasswordFile = inputs.config.sops.secrets."users/zem".path;
         openssh.authorizedKeys.keys = [ (builtins.readFile ./id_rsa.pub) ];

@@ -1102,11 +1102,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1709347727,
-        "narHash": "sha256-NZ+PPPbt98u14c/dck6vKAig/s0SrKxPw/NgFm68v6Y=",
+        "lastModified": 1709464206,
+        "narHash": "sha256-p5qVVCzTmwMUsjBpHCrPHzXlITmJbw60gC6bwLgjLo8=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "368fcef2234aa8a8689593ac553c01da30e14e1d",
+        "rev": "fc71cf1792071cdb1fc5e2457dd281cd5a5bedcf",
         "type": "github"
       },
       "original": {
@@ -1116,7 +1116,39 @@
         "type": "github"
       }
     },
-    "nixpkgs-2305": {
+    "nixpkgs-22.05": {
+      "locked": {
+        "lastModified": 1685573264,
+        "narHash": "sha256-Zffu01pONhs/pqH07cjlF10NnMDLok8ix5Uk4rhOnZQ=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "380be19fbd2d9079f677978361792cb25e8a3635",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-22.05",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-22.11": {
+      "locked": {
+        "lastModified": 1688392541,
+        "narHash": "sha256-lHrKvEkCPTUO+7tPfjIcb7Trk6k31rz18vkyqmkeJfY=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "ea4c80b39be4c09702b0cb3b42eab59e2ba4f24b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-22.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs-23.05": {
       "locked": {
         "lastModified": 1701326464,
         "narHash": "sha256-WGt5wjvkzCgRVXCS7OHd6vyv2xX6RZDpZk5i/vxLc1U=",
@@ -1527,7 +1559,9 @@
         "nixos-hardware": "nixos-hardware",
         "nixpak": "nixpak",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-2305": "nixpkgs-2305",
+        "nixpkgs-22.05": "nixpkgs-22.05",
+        "nixpkgs-22.11": "nixpkgs-22.11",
+        "nixpkgs-23.05": "nixpkgs-23.05",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nodesoup": "nodesoup",
         "nur": "nur",

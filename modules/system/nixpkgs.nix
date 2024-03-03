@@ -62,22 +62,32 @@ inputs:
                 };
               };
             in
-              {
-                inherit genericPackages;
-                unstablePackages = import inputs.topInputs.nixpkgs-unstable
-                {
-                  localSystem = hostPlatform;
-                  config = cudaConfig //
+              { inherit genericPackages; }
+              // (
+                let
+                  source =
                   {
-                    allowUnfree = true;
-                    permittedInsecurePackages =
-                      let pkgs = inputs.topInputs.nixpkgs-unstable.legacyPackages.x86_64-linux;
-                      in map
-                        (package: pkgs.${package}.name)
-                        (filter (package: pkgs ? ${package}) permittedInsecurePackages);
+                    unstablePackages = "nixpkgs-unstable";
+                    "pkgs-23.05" = "nixpkgs-23.05";
+                    "pkgs-22.11" = "nixpkgs-22.11";
+                    "pkgs-22.05" = "nixpkgs-22.05";
                   };
-                };
-              }
+                  packages = name: import inputs.topInputs.${source.${name}}
+                  {
+                    localSystem = hostPlatform;
+                    config = cudaConfig //
+                    {
+                      allowUnfree = true;
+                      permittedInsecurePackages =
+                        let pkgs = inputs.topInputs.${source.${name}}.legacyPackages.x86_64-linux;
+                        in map
+                          (package: pkgs.${package}.name)
+                          (filter (package: pkgs ? ${package}) permittedInsecurePackages);
+                    };
+                  };
+                in builtins.listToAttrs (map
+                  (name: { inherit name; value = packages name; }) (builtins.attrNames source))
+              )
               // (inputs.lib.optionalAttrs (nixpkgs.march != null)
                   { embree = prev.embree.override { stdenv = final.genericPackages.stdenv; }; })
           )];

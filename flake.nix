@@ -5,7 +5,9 @@
   {
     nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-23.11";
     nixpkgs-unstable.url = "github:CHN-beta/nixpkgs/nixos-unstable";
-    nixpkgs-2305.url = "github:CHN-beta/nixpkgs/nixos-23.05";
+    "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
+    "nixpkgs-22.11".url = "github:NixOS/nixpkgs/nixos-22.11";
+    "nixpkgs-22.05".url = "github:NixOS/nixpkgs/nixos-22.05";
     home-manager = { url = "github:nix-community/home-manager/release-23.11"; inputs.nixpkgs.follows = "nixpkgs"; };
     sops-nix =
     {

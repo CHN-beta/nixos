@@ -20,7 +20,7 @@ inputs:
   ];
   config =
   {
-    services = { dbus.implementation = "broker"; fstrim.enable = true; };
+    services = { dbus.implementation = "broker"; fstrim.enable = true; acpid.enable = true; };
     time.timeZone = "Asia/Shanghai";
     boot =
     {
