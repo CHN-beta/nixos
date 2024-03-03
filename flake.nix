@@ -104,6 +104,8 @@
               })
               ./modules
               ./devices/${system}
+              # TODO: enable xrdp in next release
+              (moduleInputs: { config.nixos.services.xrdp.enable = moduleInputs.lib.mkForce false; })
             ];
           };
         })
