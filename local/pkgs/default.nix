@@ -24,7 +24,7 @@
   mirism = callPackage ./mirism
   {
     inherit cppcoro nameof tgbot-cpp date;
-    nghttp2 = "nghttp2-23.05".override { enableAsioLib = true; };
+    nghttp2 = pkgs."nghttp2-23.05".override { enableAsioLib = true; };
   };
   cppcoro = callPackage ./cppcoro { src = topInputs.cppcoro; };
   date = callPackage ./date { src = topInputs.date; };
