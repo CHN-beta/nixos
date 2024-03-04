@@ -62,7 +62,7 @@ inputs:
               sha256 = "1xvdmb2wlcldv8lk4jb8akhi80w26m2jpazfcz641frjm333kxch";
               license = "agpl3";
             };
-            twofactorWebauthn = inputs.pkgs.fetchNextcloudApp
+            twofactor_webauthn = inputs.pkgs.fetchNextcloudApp
             {
               url = githubRelease "nextcloud-releases/twofactor_webauthn" "v1.3.2/twofactor_webauthn-v1.3.2.tar.gz";
               sha256 = "1p4ng7nprlcgw7sdfd7wqx5az86a856f1v470lahg2nfbx3fg296";
