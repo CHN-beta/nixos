@@ -17,6 +17,11 @@ let
     export NODE_ENV=production
     pnpm run migrateandstart
   '';
+  tensorflow = fetchurl
+  {
+    url = "https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-2.9.1.tar.gz";
+    sha256 = "0wq1ha1cylfabg4x6al989w5hg80i4v4c6fin485xnz38qjhslbz";
+  };
 in
   stdenv.mkDerivation rec
   {
@@ -28,6 +33,7 @@ in
     nativeBuildInputs = buildInputs;
     CYPRESS_RUN_BINARY = "${cypress}/bin/Cypress";
     NODE_ENV = "production";
+    TFJS_NODE_BASE_URI = "file:/${builtins.head (builtins.split "-" "${tensorflow}")}-libtensorflow-";
     configurePhase =
     ''
       export HOME=$NIX_BUILD_TOP # Some packages need a writable HOME
