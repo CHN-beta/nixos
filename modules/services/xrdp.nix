@@ -13,12 +13,19 @@ inputs:
     in mkIf xrdp.enable (mkMerge
     [
       {
+        assertions =
+        [{
+          assertion = !inputs.config.nixos.system.envfs.enable;
+          message = "Somehow xrdp could not start if envfs is enabled";
+        }];
+      }
+      {
         services.xrdp =
         {
           enable = true;
           port = xrdp.port;
           openFirewall = true;
-          defaultWindowManager = "startplasma-x11";
+          defaultWindowManager = "${inputs.pkgs.plasma-workspace}/bin/startplasma-x11";
         };
       }
       (
