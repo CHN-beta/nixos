@@ -114,7 +114,7 @@ inputs:
                   apiKey: ${placeholder."meilisearch/misskey-${instance.name}"}
                   ssl: false
                   index: misskey
-                  scope: globa
+                  scope: global
               '' else "");
             owner = inputs.config.users.users."misskey-${instance.name}".name;
           };
