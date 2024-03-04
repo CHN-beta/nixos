@@ -5,6 +5,16 @@ inputs:
     enable = mkOption { type = types.bool; default = false; };
     port = mkOption { type = types.ints.unsigned; default = 3389; };
     hostname = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
+    optimise =
+    {
+      type = mkOption
+      {
+        type = types.nullOr (types.enum [ "nvidia" "glamor" ]);
+        default =
+          { intel = "glamor"; nvidia = "nvidia"; amd = "glamor"; }.${inputs.config.nixos.hardware.gpu.type} or null;
+      };
+      nvidiaBusId = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+    };
   };
   config =
     let
@@ -14,15 +24,23 @@ inputs:
     [
       {
         assertions =
-        [{
-          assertion = !inputs.config.nixos.system.envfs.enable;
-          message = "Somehow xrdp could not start if envfs is enabled";
-        }];
+        [
+          {
+            assertion = !inputs.config.nixos.system.envfs.enable;
+            message = "Somehow xrdp could not start if envfs is enabled";
+          }
+          {
+            assertion = (xrdp.optimise.type == "nvidia") -> (xrdp.optimise.nvidiaBusId != null);
+            message = "nvidiaBusId must be set if optimise type is nvidia";
+          }
+        ];
       }
       {
         services.xrdp =
         {
           enable = true;
+          package = mkIf (xrdp.optimise.type != null)
+            (inputs.pkgs.xrdp.override { variant = xrdp.optimise.type; inherit (xrdp.optimise) nvidiaBusId; });
           port = xrdp.port;
           openFirewall = true;
           defaultWindowManager = "${inputs.pkgs.plasma-workspace}/bin/startplasma-x11";
