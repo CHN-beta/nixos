@@ -17,6 +17,7 @@ inputs:
     ./user.nix
     ./sysctl.nix
     ./envfs.nix
+    ./binfmt.nix
   ];
   config =
   {
