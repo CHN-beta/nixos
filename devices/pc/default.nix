@@ -140,8 +140,6 @@ inputs:
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
-    home-manager.users.chn.config.programs.plasma.startup.autoStartScript.xcalib.text =
-      "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
     specialisation.hybrid.configuration =
     {
       nixos =

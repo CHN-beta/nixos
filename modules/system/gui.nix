@@ -20,7 +20,7 @@ inputs:
         displayManager =
         {
           sddm.enable = true;
-          defaultSession = if inputs.config.nixos.hardware.gpu.type == "nvidia" then "plasma" else "plasmawayland";
+          defaultSession = "plasmawayland";
         };
         desktopManager.plasma5.enable = true;
       };
