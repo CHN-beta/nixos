@@ -37,7 +37,6 @@ inputs:
             microsoft-edge
             # news
             rssguard newsflash newsboat
-            yuzu-early-access
           ]
           ++ (builtins.concatLists (builtins.map
             (compiler: builtins.map (version: localPackages.vasp.${compiler}.${version}) [ "6.3.1" "6.4.0" ])
