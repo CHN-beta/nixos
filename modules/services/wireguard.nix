@@ -52,7 +52,7 @@ inputs:
                   publicKey = peer.publicKey;
                   allowedIPs = [ (if peer.lighthouse then "192.168.83.0/24" else "${peer.wireguardIp}/32") ];
                   endpoint = mkIf (!peer.behindNat) "${peer.listenIp}:${builtins.toString peer.listenPort}";
-                  persistentKeepalive = 3;
+                  persistentKeepalive = mkIf peer.lighthouse 5;
                 })
                 (map
                   (peer: inputs.topInputs.self.nixosConfigurations.${peer}.config.nixos.services.wireguard)
@@ -72,7 +72,7 @@ inputs:
                 wantedBy = [ "multi-user.target" ];
                 serviceConfig =
                 {
-                  ExecStart = "${inputs.pkgs.iputils}/bin/ping -i 3 ${peer.value.wireguardIp}";
+                  ExecStart = "${inputs.pkgs.iputils}/bin/ping -i 5 ${peer.value.wireguardIp}";
                   Restart = "always";
                 };
               };
