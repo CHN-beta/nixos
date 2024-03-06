@@ -136,6 +136,7 @@ inputs:
         gamemode = { enable = true; drmDevice = 0; };
         slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 94208; gpus."4060" = 1; };
         xrdp = { enable = true; hostname = [ "pc.chn.moe" ]; };
+        kubo.enable = true;
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };

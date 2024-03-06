@@ -43,6 +43,7 @@ inputs:
     ./gamemode.nix
     ./vikunja.nix
     ./slurm.nix
+    ./kubo.nix
   ];
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
