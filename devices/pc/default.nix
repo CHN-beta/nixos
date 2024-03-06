@@ -139,6 +139,7 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
+    services.colord.enable = true;
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
     specialisation.hybrid.configuration =
     {
