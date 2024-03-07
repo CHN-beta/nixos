@@ -60,12 +60,7 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu =
-        {
-          type = "amd+nvidia";
-          prime = { mode = "sync"; busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
-          dynamicBoost = true;
-        };
+        gpu = { type = "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; };
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
@@ -157,10 +152,10 @@ inputs:
         };
         system.nixos.tags = [ "nvidia" ];
       };
-      hybrid-offload.configuration =
+      hybrid-sync.configuration =
       {
-        nixos.hardware.gpu.prime.mode = inputs.lib.mkForce "offload";
-        system.nixos.tags = [ "hybrid-offload" ];
+        nixos.hardware.gpu.prime.mode = "sync";
+        system.nixos.tags = [ "hybrid-sync" ];
       };
     };
   };
