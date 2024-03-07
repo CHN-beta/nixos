@@ -14,7 +14,11 @@ inputs:
       default = null;
     };
     dynamicBoost = mkOption { type = types.bool; default = false; };
-    prime.busId = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+    prime =
+    {
+      mode = mkOption { type = types.enum [ "offload" "sync" ]; default = "offload"; };
+      busId = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+    };
   };
   config = let inherit (inputs.config.nixos.hardware) gpu; in inputs.lib.mkIf (gpu.type != null) (inputs.lib.mkMerge
   [
@@ -76,11 +80,15 @@ inputs:
     (
       inputs.lib.mkIf (inputs.lib.strings.hasSuffix "+nvidia" gpu.type) { hardware.nvidia =
       {
-        prime = { offload = { enable = true; enableOffloadCmd = true; }; }
-          // builtins.listToAttrs (builtins.map
-            (gpu: { name = "${if gpu.name == "amd" then "amdgpu" else gpu.name}BusId"; value = "PCI:${gpu.value}"; })
-            (inputs.localLib.attrsToList gpu.prime.busId));
-        powerManagement.finegrained = true;
+        prime =
+        {
+          offload = inputs.lib.mkIf (gpu.prime.mode == "offload") { enable = true; enableOffloadCmd = true; };
+          sync = inputs.lib.mkIf (gpu.prime.mode == "sync") { enable = true; };
+        }
+        // builtins.listToAttrs (builtins.map
+          (gpu: { name = "${if gpu.name == "amd" then "amdgpu" else gpu.name}BusId"; value = "PCI:${gpu.value}"; })
+          (inputs.localLib.attrsToList gpu.prime.busId));
+        powerManagement.finegrained = inputs.lib.mkIf (gpu.prime.mode == "offload") true;
       };}
     )
   ]);

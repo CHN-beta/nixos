@@ -60,7 +60,12 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu = { type = "nvidia"; dynamicBoost = true; };
+        gpu =
+        {
+          type = "amd+nvidia";
+          prime = { mode = "sync"; busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
+          dynamicBoost = true;
+        };
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
@@ -133,7 +138,7 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
-        gamemode = { enable = true; drmDevice = 0; };
+        gamemode = { enable = true; drmDevice = 1; };
         slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 94208; gpus."4060" = 1; };
         xrdp = { enable = true; hostname = [ "pc.chn.moe" ]; };
       };
@@ -141,15 +146,22 @@ inputs:
     };
     services.colord.enable = true;
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
-    specialisation.hybrid.configuration =
+    specialisation =
     {
-      nixos =
+      nvidia.configuration =
       {
-        hardware.gpu =
-          { type = inputs.lib.mkForce "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
-        services.gamemode.drmDevice = inputs.lib.mkForce 1;
+        nixos =
+        {
+          hardware.gpu.type = inputs.lib.mkForce "nvidia";
+          services.gamemode.drmDevice = inputs.lib.mkForce 0;
+        };
+        system.nixos.tags = [ "nvidia" ];
       };
-      system.nixos.tags = [ "hybrid-graphic" ];
+      hybrid-offload.configuration =
+      {
+        nixos.hardware.gpu.prime.mode = inputs.lib.mkForce "offload";
+        system.nixos.tags = [ "hybrid-offload" ];
+      };
     };
   };
 }
