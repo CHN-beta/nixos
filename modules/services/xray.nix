@@ -261,24 +261,18 @@ inputs:
                       "${iptables} -t mangle -A OUTPUT -j v2ray_mark -w"
                     ]
                     ++ (map (action: "${iptables} -t mangle -A v2ray_mark ${action} -w")
-                      (
-                        (if inputs.config.nixos.system.networking.nebula.enable then
-                          let user = inputs.config.systemd.services."nebula@nebula".serviceConfig.User;
-                          in [ "-m owner --uid-owner $(id -u ${user}) -j RETURN" ]
-                          else [])
-                        ++ [
-                          "-m owner --uid-owner $(id -u v2ray) -j RETURN"
-                          "-m set --match-set noproxy_src_net src -j RETURN"
-                          "-m set --match-set xmu_net dst -p tcp -j MARK --set-mark 1/1"
-                          "-m set --match-set xmu_net dst -p udp -j MARK --set-mark 1/1"
-                          "-m set --match-set noproxy_net dst -j RETURN"
-                          "-m set --match-set proxy_net dst -p tcp -j MARK --set-mark 1/1"
-                          "-m set --match-set proxy_net dst -p udp -j MARK --set-mark 1/1"
-                          "-m set --match-set lo_net dst -j RETURN"
-                          "-p tcp -j MARK --set-mark 1/1"
-                          "-p udp -j MARK --set-mark 1/1"
-                        ]
-                      ))
+                      [
+                        "-m owner --uid-owner $(id -u v2ray) -j RETURN"
+                        "-m set --match-set noproxy_src_net src -j RETURN"
+                        "-m set --match-set xmu_net dst -p tcp -j MARK --set-mark 1/1"
+                        "-m set --match-set xmu_net dst -p udp -j MARK --set-mark 1/1"
+                        "-m set --match-set noproxy_net dst -j RETURN"
+                        "-m set --match-set proxy_net dst -p tcp -j MARK --set-mark 1/1"
+                        "-m set --match-set proxy_net dst -p udp -j MARK --set-mark 1/1"
+                        "-m set --match-set lo_net dst -j RETURN"
+                        "-p tcp -j MARK --set-mark 1/1"
+                        "-p udp -j MARK --set-mark 1/1"
+                      ])
                     ++ [
                       "${ip} rule add fwmark 1/1 table 100"
                       "${ip} route add local 0.0.0.0/0 dev lo table 100"

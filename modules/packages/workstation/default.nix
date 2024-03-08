@@ -28,16 +28,15 @@ inputs:
             # text editor
             appflowy notion-app-enhanced joplin-desktop standardnotes logseq
             # math, physics and chemistry
-            mathematica paraview jmol mpi localPackages.mumax # qchem.quantum-espresso
+            mathematica paraview jmol mpi localPackages.mumax quantum-espresso
             # encryption and password management
             john crunch hashcat
             # container and vm
-            genymotion # davinci-resolve playonlinux
+            genymotion davinci-resolve playonlinux
             # browser
             microsoft-edge
             # news
             rssguard newsflash newsboat
-            yuzu-early-access
           ]
           ++ (builtins.concatLists (builtins.map
             (compiler: builtins.map (version: localPackages.vasp.${compiler}.${version}) [ "6.3.1" "6.4.0" ])

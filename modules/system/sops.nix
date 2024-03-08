@@ -14,7 +14,7 @@ inputs:
       sops =
       {
         defaultSopsFile =
-          "${inputs.topInputs.self}/secrets/${inputs.config.nixos.system.networking.hostname}/default.yaml";
+          "${inputs.topInputs.self}/devices/${inputs.config.nixos.system.networking.hostname}/secrets/default.yaml";
         # sops start before impermanence, so we need to use the absolute path
         age.sshKeyPaths = [ "${sops.keyPathPrefix}/etc/ssh/ssh_host_ed25519_key" ];
         gnupg.sshKeyPaths = [ "${sops.keyPathPrefix}/etc/ssh/ssh_host_rsa_key" ];

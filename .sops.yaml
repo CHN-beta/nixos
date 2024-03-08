@@ -7,32 +7,32 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &nas age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
   - &xmupc1 age1hnarptkze0ujpp05dqr8uma04cxg9zqcx68qgpks5uf5l6rpk5gqhh8wxg
 creation_rules:
-  - path_regex: secrets/pc/.*$
+  - path_regex: devices/pc/secrets/.*$
     key_groups:
     - age:
       - *chn
       - *pc
-  - path_regex: secrets/vps6/.*$
+  - path_regex: devices/vps6/secrets/.*$
     key_groups:
     - age:
       - *chn
       - *vps6
-  - path_regex: secrets/vps7/.*$
+  - path_regex: devices/vps7/secrets/.*$
     key_groups:
     - age:
       - *chn
       - *vps7
-  - path_regex: secrets/nas/.*$
+  - path_regex: devices/nas/secrets/.*$
     key_groups:
     - age:
       - *chn
       - *nas
-  - path_regex: secrets/surface/.*$
+  - path_regex: devices/surface/secrets/.*$
     key_groups:
     - age:
       - *chn
       - *surface
-  - path_regex: secrets/xmupc1/.*$
+  - path_regex: devices/xmupc1/secrets/.*$
     key_groups:
     - age:
       - *chn

@@ -60,7 +60,7 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu.type = "nvidia";
+        gpu = { type = "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; };
         bluetooth.enable = true;
         joystick.enable = true;
         printer.enable = true;
@@ -133,24 +133,55 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
-        gamemode = { enable = true; drmDevice = 0; };
+        gamemode = { enable = true; drmDevice = 1; };
         slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 94208; gpus."4060" = 1; };
         xrdp = { enable = true; hostname = [ "pc.chn.moe" ]; };
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
+    services.colord.enable = true;
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
-    home-manager.users.chn.config.programs.plasma.startup.autoStartScript.xcalib.text =
-      "${inputs.pkgs.xcalib}/bin/xcalib -d :0 ${./color/TPLCD_161B_Default.icm}";
-    specialisation.hybrid.configuration =
+    specialisation =
     {
-      nixos =
+      nvidia.configuration =
       {
-        hardware.gpu =
-          { type = inputs.lib.mkForce "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
-        services.gamemode.drmDevice = inputs.lib.mkForce 1;
+        nixos =
+        {
+          hardware.gpu.type = inputs.lib.mkForce "nvidia";
+          services.gamemode.drmDevice = inputs.lib.mkForce 0;
+        };
+        system.nixos.tags = [ "nvidia" ];
       };
-      system.nixos.tags = [ "hybrid-graphic" ];
+      hybrid-sync.configuration =
+      {
+        nixos.hardware.gpu.prime.mode = "sync";
+        system.nixos.tags = [ "hybrid-sync" ];
+      };
+      amd.configuration =
+      {
+        nixos.hardware.gpu = { type = inputs.lib.mkForce "amd"; dynamicBoost = inputs.lib.mkForce false; };
+        boot =
+        {
+          extraModprobeConfig =
+          ''
+            blacklist nouveau
+            options nouveau modeset=0
+          '';
+          blacklistedKernelModules = [ "nvidia" "nvidia_drm" "nvidia_modeset" ];
+        };
+        services.udev.extraRules =
+        ''
+          # Remove NVIDIA USB xHCI Host Controller devices, if present
+          ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c0330", ATTR{power/control}="auto", ATTR{remove}="1"
+          # Remove NVIDIA USB Type-C UCSI devices, if present
+          ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x0c8000", ATTR{power/control}="auto", ATTR{remove}="1"
+          # Remove NVIDIA Audio devices, if present
+          ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x040300", ATTR{power/control}="auto", ATTR{remove}="1"
+          # Remove NVIDIA VGA/3D controller devices
+          ACTION=="add", SUBSYSTEM=="pci", ATTR{vendor}=="0x10de", ATTR{class}=="0x03[0-9]*", ATTR{power/control}="auto", ATTR{remove}="1"
+        '';
+        system.nixos.tags = [ "amd" ];
+      };
     };
   };
 }

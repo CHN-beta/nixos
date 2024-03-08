@@ -1,4 +1,4 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules [ ./autostart ./wallpaper ./shortcuts.nix ./theme.nix ];
+  imports = inputs.localLib.mkModules [ ./autostart.nix ./wallpaper ./shortcuts.nix ./theme.nix ];
 }

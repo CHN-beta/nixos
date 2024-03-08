@@ -10,13 +10,14 @@ inputs:
     ./impermanence.nix
     ./gui.nix
     ./nixpkgs.nix
-    ./networking
+    ./networking.nix
     ./systemd.nix
     ./security.nix
     ./sops.nix
     ./user.nix
     ./sysctl.nix
     ./envfs.nix
+    ./binfmt.nix
   ];
   config =
   {

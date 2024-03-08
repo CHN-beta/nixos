@@ -28,6 +28,9 @@ sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia-6.4.0 m
 * `--gpus=1` 指定使用一个 GPU（排到这个任务时哪个空闲就使用哪个）。
   可以指定具体使用哪个GPU，例如 `--gpus=4090:1`。
   可以简写为 `-G`。
+  这个选项实际上是 `--gres` 选项的一种简便写法，当需求更复杂时（例如，指定使用一个 3090 和一个 4090）时，就需要用 `--gres`。
+  例如：`--gres=gpu:3090:1,gpu:4090:1`。
+  “gre” 是 “generic resource” 的缩写。
 * `--ntasks-per-gpu=1` 是一定要写的。
 * `--job-name=` 指定任务的名字。可以简写为 `-J`。也可以不指定。
 * 默认情况下，一个 task 会搭配分配一个 CPU 核（两个线程），一般不用修改。如果一定要修改，用 `--cpus-per-task`。

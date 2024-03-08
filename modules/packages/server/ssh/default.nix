@@ -53,7 +53,7 @@ inputs:
             };
             hpc =
             {
-              ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMv22sVyZ0RgFrdrHKbqOvdhq7TKZKImKwbbTbtO5jqy";
+              ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDVpsQW3kZt5alHC6mZhay3ZEe2fRGziG4YJWCv2nn/O";
               hostnames = [ "hpc.xmu.edu.cn" ];
             };
             github =
@@ -128,7 +128,7 @@ inputs:
               (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
               [
                 "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "wireguard.nas" "wireguard.surface"
-                "wireguard.xmupc1.chn.moe"
+                "wireguard.xmupc1"
               ])
             ++ (builtins.map
               (host:
