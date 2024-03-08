@@ -34,7 +34,7 @@ inputs:
             # container and vm
             genymotion davinci-resolve playonlinux
             # browser
-            microsoft-edge
+            microsoft-edge tor-browser
             # news
             rssguard newsflash newsboat
           ]
