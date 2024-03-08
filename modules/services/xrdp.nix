@@ -7,12 +7,7 @@ inputs:
     hostname = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
     optimise =
     {
-      type = mkOption
-      {
-        type = types.nullOr (types.enum [ "nvidia" "glamor" ]);
-        default =
-          { intel = "glamor"; nvidia = "nvidia"; amd = "glamor"; }.${inputs.config.nixos.hardware.gpu.type} or null;
-      };
+      type = mkOption { type = types.nullOr (types.enum [ "nvidia" "glamor" ]); default = null; };
       nvidiaBusId = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
     };
   };
