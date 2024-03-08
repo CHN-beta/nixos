@@ -26,7 +26,7 @@ inputs:
           };
           swap = [ "/dev/mapper/swap" ];
           resume = "/dev/mapper/swap";
-          rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+          rollingRootfs = {};
         };
         nixpkgs.march = "skylake";
         grub.installDevice = "efi";

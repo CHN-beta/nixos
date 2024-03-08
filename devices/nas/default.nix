@@ -37,7 +37,7 @@ inputs:
             delayedMount = [ "/" "/nix" ];
           };
           swap = [ "/nix/swap/swap" ];
-          rollingRootfs = { device = "/dev/mapper/root1"; path = "/nix/rootfs"; };
+          rollingRootfs.device = "/dev/mapper/root1";
         };
         initrd.sshd.enable = true;
         grub.installDevice = "efi";

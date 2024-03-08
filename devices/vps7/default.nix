@@ -23,7 +23,7 @@ inputs:
             delayedMount = [ "/" ];
           };
           swap = [ "/nix/swap/swap" ];
-          rollingRootfs = { device = "/dev/mapper/root"; path = "/nix/rootfs"; };
+          rollingRootfs = {};
         };
         grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
         nixpkgs.march = "broadwell";
