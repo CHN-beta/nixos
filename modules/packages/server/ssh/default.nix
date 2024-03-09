@@ -66,6 +66,11 @@ inputs:
               ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINTvfywkKRwMrVp73HfHTfjhac2Tn9qX/lRjLr09ycHp";
               hostnames = [ "[office.chn.moe]:6007" "[xmupc1.chn.moe]:6007" "wireguard.xmupc1.chn.moe" "192.168.83.6" ];
             };
+            xmupc2 =
+            {
+              ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJZ/+divGnDr0x+UlknA84Tfu6TPD+zBGmxWZY4Z38P6";
+              hostnames = [ "[xmupc2.chn.moe]:6394" "wireguard.xmupc2.chn.moe" "192.168.83.7" ];
+            };
           };
         in listToAttrs (concatLists (map
           (server:
@@ -128,7 +133,7 @@ inputs:
               (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
               [
                 "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "wireguard.nas" "wireguard.surface"
-                "wireguard.xmupc1"
+                "wireguard.xmupc1" "wireguard.xmupc2"
               ])
             ++ (builtins.map
               (host:
@@ -175,7 +180,8 @@ inputs:
               [ "wlin" "jykang" "hwang" ])
           )
           // {
-            xmupc1 = { host = "xmupc1"; hostname = "office.chn.moe"; port = 6007; };
+            xmupc1 = { host = "xmupc1"; hostname = "xmupc1.chn.moe"; port = 6007; };
+            xmupc2 = { host = "xmupc2"; hostname = "xmupc2.chn.moe"; port = 6394; };
             nas = { host = "nas"; hostname = "office.chn.moe"; port = 5440; };
             surface = { host = "surface"; hostname = "192.168.1.166"; };
             gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
