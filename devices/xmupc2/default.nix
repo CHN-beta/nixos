@@ -84,10 +84,10 @@ inputs:
         };
         slurm =
         {
-          enable = false;
-          cpu = { cores = 16; threads = 2; };
-          memoryMB = 94208;
-          gpus = { "3090" = 1; "4090" = 1; };
+          enable = true;
+          cpu = { sockets = 2; cores = 22; threads = 2; };
+          memoryMB = 253952;
+          gpus = { "p400" = 1; };
         };
         xrdp = { enable = false; hostname = [ "xmupc2.chn.moe" ]; };
         samba =

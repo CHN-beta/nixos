@@ -5,6 +5,7 @@ inputs:
     enable = mkOption { type = types.bool; default = false; };
     cpu =
     {
+      sockets = mkOption { type = types.ints.unsigned; default = 1; };
       cores = mkOption { type = types.ints.unsigned; };
       threads = mkOption { type = types.ints.unsigned; default = 1; };
     };
@@ -47,7 +48,7 @@ inputs:
           [
             "localhost"
             "RealMemory=${builtins.toString slurm.memoryMB}"
-            "Sockets=1"
+            "Sockets=${builtins.toString slurm.cpu.sockets}"
             "CoresPerSocket=${builtins.toString slurm.cpu.cores}"
             "ThreadsPerCore=${builtins.toString slurm.cpu.threads}"
             "Gres=${gpuString}"
