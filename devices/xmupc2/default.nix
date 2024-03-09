@@ -10,25 +10,15 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/467C-02E3" = "/boot/efi";
+            vfat."/dev/disk/by-uuid/23CA-F4C4" = "/boot/efi";
             btrfs =
             {
-              "/dev/disk/by-uuid/2f9060bc-09b5-4348-ad0f-3a43a91d158b" = { "/nix" = "/nix"; "/nix/boot" = "/boot"; };
-              "/dev/disk/by-uuid/a04a1fb0-e4ed-4c91-9846-2f9e716f6e12" =
-              {
-                "/nix/rootfs" = "/nix/rootfs";
-                "/nix/persistent" = "/nix/persistent";
-                "/nix/nodatacow" = "/nix/nodatacow";
-                "/nix/rootfs/current" = "/";
-              };
+              "/dev/disk/by-uuid/d187e03c-a2b6-455b-931a-8d35b529edac" =
+                { "/nix/rootfs/current" = "/"; "/nix" = "/nix"; "/nix/boot" = "/boot"; };
             };
           };
           swap = [ "/nix/swap/swap" ];
-          rollingRootfs =
-          {
-            device = "/dev/disk/by-uuid/a04a1fb0-e4ed-4c91-9846-2f9e716f6e12";
-            waitDevices = [ "/dev/disk/by-partuuid/cdbfc7d4-965e-42f2-89a3-eb2202849429" ];
-          };
+          rollingRootfs.device = "/dev/disk/by-uuid/d187e03c-a2b6-455b-931a-8d35b529edac";
         };
         grub.installDevice = "efi";
         nixpkgs =
@@ -68,7 +58,7 @@ inputs:
       virtualization = { waydroid.enable = true; docker.enable = true; kvmHost = { enable = true; gui = true; }; };
       services =
       {
-        snapper.enable = true;
+        snapper.enable = false;
         fontconfig.enable = true;
         sshd = { enable = true; passwordAuthentication = true; };
         xray.client =
@@ -82,24 +72,24 @@ inputs:
         smartd.enable = true;
         beesd =
         {
-          enable = true;
-          instances = { root = { device = "/"; hashTableSizeMB = 16384; threads = 4; }; };
+          enable = false;
+          instances.root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
         };
         wireguard =
         {
           enable = true;
           peers = [ "vps6" ];
-          publicKey = "JEY7D4ANfTpevjXNvGDYO6aGwtBGRXsf/iwNwjwDRQk=";
+          publicKey = "lNTwQqaR0w/loeG3Fh5qzQevuAVXhKXgiPt6fZoBGFE=";
           wireguardIp = "192.168.83.7";
         };
         slurm =
         {
-          enable = true;
+          enable = false;
           cpu = { cores = 16; threads = 2; };
           memoryMB = 94208;
           gpus = { "3090" = 1; "4090" = 1; };
         };
-        xrdp = { enable = true; hostname = [ "xmupc2.chn.moe" ]; };
+        xrdp = { enable = false; hostname = [ "xmupc2.chn.moe" ]; };
         samba =
         {
           enable = true;
@@ -107,7 +97,7 @@ inputs:
           shares = { home.path = "/home"; root.path = "/"; };
         };
       };
-      bugs = [ "xmunet" "amdpstate" ];
+      bugs = [ "xmunet" ];
       users.users = [ "chn" "xll" "zem" "yjq" "gb" ];
     };
   };
