@@ -80,8 +80,9 @@ INCS       += -I$(HDF5_ROOT)/include
 
 # For the VASP-2-Wannier90 interface (optional)
 CPP_OPTIONS    += -DVASP2WANNIER90
-WANNIER90_ROOT ?= /path/to/your/wannier90/installation
-LLIBS          += -L$(WANNIER90_ROOT)/lib -lwannier
+# WANNIER90_ROOT ?= /path/to/your/wannier90/installation
+# LLIBS          += -L$(WANNIER90_ROOT)/lib -lwannier
+LLIBS          += @wannier@
 
 # For the fftlib library (recommended)
 CPP_OPTIONS+= -Dsysv

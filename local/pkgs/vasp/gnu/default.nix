@@ -1,9 +1,14 @@
 {
-  stdenvNoCC, requireFile, writeShellApplication,
+  stdenvNoCC, requireFile, writeShellApplication, substituteAll,
   rsync, blas, scalapack, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
+  include = version: substituteAll
+  {
+    src = ./makefile.include-${version};
+    wannier = "${wannier90}/lib/libwannier.a";
+  };
   vasp = version: stdenvNoCC.mkDerivation rec
   {
     pname = "vasp-gnu";
@@ -11,7 +16,7 @@ let
     src = sources.${version};
     configurePhase =
     ''
-      cp ${./makefile.include-${version}} makefile.include
+      cp ${include version} makefile.include
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
       mkdir -p bin
     '';
@@ -21,7 +26,6 @@ let
     nativeBuildInputs = [ rsync gfortran gfortran.cc gcc ];
     FFTW_ROOT = fftwMpi.dev;
     HDF5_ROOT = hdf5.dev;
-    WANNIER90_ROOT = wannier90;
     installPhase =
     ''
       mkdir -p $out/bin

@@ -69,8 +69,8 @@ NVROOT      =$(shell which nvfortran | awk -F /compilers/bin/nvfortran '{ print 
 #NVROOT      = $(NVHPC)/Linux_x86_64/$(NVVERSION)
 
 ## Improves performance when using NV HPC-SDK >=21.11 and CUDA >11.2
-#OFLAG_IN   = -fast -Mwarperf
-#SOURCE_IN  := nonlr.o
+OFLAG_IN   = -fast -Mwarperf
+SOURCE_IN  := nonlr.o
 
 # Software emulation of quadruple precsion (mandatory)
 QD         ?= $(NVROOT)/compilers/extras/qd
@@ -97,8 +97,9 @@ INCS       += -I$(HDF5_ROOT)/include
 
 # For the VASP-2-Wannier90 interface (optional)
 CPP_OPTIONS    += -DVASP2WANNIER90
-WANNIER90_ROOT ?= /path/to/your/wannier90/installation
-LLIBS          += -L$(WANNIER90_ROOT)/lib -lwannier
+# WANNIER90_ROOT ?= /path/to/your/wannier90/installation
+# LLIBS          += -L$(WANNIER90_ROOT)/lib -lwannier
+LLIBS          += @wannier@
 
 # For the fftlib library (hardly any benefit for the OpenACC GPU port, especially in combination with MKL's FFTs)
 #CPP_OPTIONS+= -Dsysv
