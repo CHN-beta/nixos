@@ -66,7 +66,7 @@ inputs:
         smartd.enable = true;
         beesd =
         {
-          enable = false;
+          enable = true;
           instances.root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
         };
         wireguard =
@@ -83,7 +83,7 @@ inputs:
           memoryMB = 253952;
           gpus = { "p400" = 1; };
         };
-        xrdp = { enable = false; hostname = [ "xmupc2.chn.moe" ]; };
+        xrdp = { enable = true; hostname = [ "xmupc2.chn.moe" ]; };
         samba =
         {
           enable = true;
