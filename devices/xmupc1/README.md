@@ -37,8 +37,8 @@ sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia-6.4.0 m
 ```
 
 * `--gpus=1` 指定使用一个 GPU（排到这个任务时哪个空闲就使用哪个）。
-  可以指定具体使用哪个GPU，例如 `--gpus=4090:1`。
-  可以简写为 `-G`。
+  可以指定具体使用哪个GPU，例如 `--gpus=4090:1`。2080 Ti 需要写为 `2080_ti`。
+  这个选项可以简写为 `-G`。
   这个选项实际上是 `--gres` 选项的一种简便写法，当需求更复杂时（例如，指定使用一个 3090 和一个 4090）时，就需要用 `--gres`。
   例如：`--gres=gpu:3090:1,gpu:4090:1`。
   “gre” 是 “generic resource” 的缩写。

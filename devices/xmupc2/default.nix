@@ -81,7 +81,7 @@ inputs:
           enable = true;
           cpu = { sockets = 2; cores = 22; threads = 2; };
           memoryMB = 253952;
-          gpus = { "4090" = 1; "2080ti" = 1; };
+          gpus = { "4090" = 1; "2080_ti" = 1; };
         };
         xrdp = { enable = true; hostname = [ "xmupc2.chn.moe" ]; };
         samba =
