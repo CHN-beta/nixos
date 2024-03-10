@@ -39,6 +39,12 @@ inputs:
           {
             enable = true;
             config =
+            let
+              lanString = (inputs.lib.optionalString (xray.client.dae.lanInterfaces != []) "lan_interface: ")
+                + builtins.concatStringsSep "," xray.client.dae.lanInterfaces;
+              wanString = (inputs.lib.optionalString (xray.client.dae.wanInterface != []) "wan_interface: ")
+                + builtins.concatStringsSep "," xray.client.dae.wanInterface;
+            in
             ''
               global {
                 tproxy_port: 12345
@@ -46,9 +52,8 @@ inputs:
                 so_mark_from_dae: 0
                 log_level: info
                 disable_waiting_network: false
-
-                lan_interface: ${builtins.concatStringsSep "," xray.client.dae.lanInterfaces}
-                wan_interface: ${builtins.concatStringsSep "," xray.client.dae.wanInterface}
+                ${lanString}
+                ${wanString}
                 auto_config_kernel_parameter: true
 
                 dial_mode: ip
