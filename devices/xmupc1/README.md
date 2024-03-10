@@ -144,11 +144,13 @@ rsync -avzP jykang:/path/to/remote/directory_or_file /path/to/local/directory
 sshfs jykang:/path/to/remote/directory /path/to/local/directory
 ```
 
-用完之后记得卸载（当然不卸载也不会有什么后果）：
+用完之后记得卸载（不卸载也不会有什么后果，只是怕之后忘记了以为这是本地的目录，以及如果网络不稳定的话，运行在这里的软件可能会卡住）：
 
 ```bash
 umount /path/to/local/directory
 ```
+
+如果不喜欢敲命令来挂载/卸载远程目录，也可以 RDP 登陆后用 dolphin。
 
 ## RDP
 
