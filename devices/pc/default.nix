@@ -93,26 +93,7 @@ inputs:
           };
         };
         sshd.enable = true;
-        xray.client =
-        {
-          enable = true;
-          serverAddress = "74.211.99.69";
-          serverName = "vps6.xserver.chn.moe";
-          dns =
-          {
-            extraInterfaces = [ "docker0" ];
-            hosts =
-            {
-              "mirism.one" = "74.211.99.69";
-              "beta.mirism.one" = "74.211.99.69";
-              "ng01.mirism.one" = "74.211.99.69";
-              "debug.mirism.one" = "127.0.0.1";
-              "initrd.vps6.chn.moe" = "74.211.99.69";
-              "nix-store.chn.moe" = "127.0.0.1";
-              "initrd.nas.chn.moe" = "192.168.1.185";
-            };
-          };
-        };
+        xray.client.enable = true;
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         acme = { enable = true; cert."debug.mirism.one" = {}; };
         frpClient =
