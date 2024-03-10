@@ -24,11 +24,7 @@ inputs:
             };
           };
           swap = [ "/nix/swap/swap" ];
-          rollingRootfs =
-          {
-            device = "/dev/disk/by-uuid/a04a1fb0-e4ed-4c91-9846-2f9e716f6e12";
-            waitDevices = [ "/dev/disk/by-partuuid/cdbfc7d4-965e-42f2-89a3-eb2202849429" ];
-          };
+          rollingRootfs.device = "/dev/disk/by-uuid/a04a1fb0-e4ed-4c91-9846-2f9e716f6e12";
         };
         grub.installDevice = "efi";
         nixpkgs =
