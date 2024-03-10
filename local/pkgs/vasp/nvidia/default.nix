@@ -25,7 +25,6 @@ let
       (cap: "cc${builtins.replaceStrings ["."] [""] cap}")
       cudaCapabilities);
     inherit nvhpcArch;
-    wannier = "${wannier90}/lib/libwannier.a";
   };
   vasp = version: stdenvNoCC.mkDerivation rec
   {
@@ -42,6 +41,7 @@ let
     nativeBuildInputs = [ gfortran rsync which ];
     MKLROOT = "${mkl}";
     HDF5_ROOT = "${hdf5}";
+    WANNIER90_ROOT = wannier90;
     buildPhase = "${buildEnv}/bin/buildEnv ${buildScript}";
     installPhase =
     ''

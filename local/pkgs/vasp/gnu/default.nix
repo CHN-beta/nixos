@@ -4,11 +4,7 @@
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
-  include = version: substituteAll
-  {
-    src = ./makefile.include-${version};
-    wannier = "${wannier90}/lib/libwannier.a";
-  };
+  include = version: ./makefile.include-${version};
   vasp = version: stdenvNoCC.mkDerivation rec
   {
     pname = "vasp-gnu";
@@ -26,6 +22,7 @@ let
     nativeBuildInputs = [ rsync gfortran gfortran.cc gcc ];
     FFTW_ROOT = fftwMpi.dev;
     HDF5_ROOT = hdf5.dev;
+    WANNIER90_ROOT = wannier90;
     installPhase =
     ''
       mkdir -p $out/bin

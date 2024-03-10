@@ -45,7 +45,7 @@
     gnu = callPackage ./vasp/gnu
     {
       inherit (llvmPackages) openmp;
-      inherit (unstablePackages) wannier90;
+      wannier90 = callPackage "${topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
       hdf5 = hdf5.override { mpiSupport = true; fortranSupport = true; };
     };
     nvidia = callPackage ./vasp/nvidia
@@ -53,7 +53,7 @@
       inherit lmod;
       nvhpc = nvhpc."24.1";
       hdf5 = hdf5-nvhpc.override { nvhpc = nvhpc."24.1"; };
-      inherit (unstablePackages) wannier90;
+      wannier90 = callPackage "${topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
     };
     intel = callPackage ./vasp/intel
     {
