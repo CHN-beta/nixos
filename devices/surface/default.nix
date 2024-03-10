@@ -50,13 +50,7 @@ inputs:
         snapper.enable = true;
         fontconfig.enable = true;
         sshd.enable = true;
-        xray.client =
-        {
-          enable = true;
-          serverAddress = "74.211.99.69";
-          serverName = "vps6.xserver.chn.moe";
-          dns.extraInterfaces = [ "docker0" ];
-        };
+        xray.client.enable = true;
         firewall.trustedInterfaces = [ "virbr0" ];
         wireguard =
         {
