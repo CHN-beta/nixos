@@ -12,6 +12,7 @@ inputs:
         type = types.listOf types.nonEmptyStr;
         default = inputs.lib.optionals inputs.config.nixos.virtualization.docker.enable [ "docker0" ];
       };
+      dae.wanInterface = mkOption { type = types.listOf types.nonEmptyStr; default = [ "auto" ]; };
     };
     server =
     {
@@ -47,7 +48,7 @@ inputs:
                 disable_waiting_network: false
 
                 lan_interface: ${builtins.concatStringsSep "," xray.client.dae.lanInterfaces}
-                wan_interface: auto
+                wan_interface: ${builtins.concatStringsSep "," xray.client.dae.wanInterface}
                 auto_config_kernel_parameter: true
 
                 dial_mode: ip
