@@ -29,7 +29,7 @@ let
   };
   vasp = version: stdenvNoCC.mkDerivation rec
   {
-    pname = "vasp";
+    pname = "vasp-nvidia";
     inherit version;
     src = sources.${version};
     configurePhase =
