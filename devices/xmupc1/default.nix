@@ -95,7 +95,7 @@ inputs:
         samba =
         {
           enable = true;
-          hostsAllowed = "192.168. 127.";
+          hostsAllowed = "";
           shares = { home.path = "/home"; root.path = "/"; };
         };
       };
