@@ -16,8 +16,11 @@ inputs:
         shell = inputs.pkgs.zsh;
         autoSubUidGidRange = true;
       };
-      home-manager.users.yjq.imports = users.sharedModules;
+      home-manager.users.yjq =
+      {
+        imports = users.sharedModules;
+        config.home.file.groupshare.source = inputs.lib.file.mkOutOfStoreSymlink "/var/lib/groupshare";
+      };
       sops.secrets."users/yjq".neededForUsers = true;
-      nixos.services.groupshare.mountPoints = [ "/home/yjq/groupshare" ];
     };
 }

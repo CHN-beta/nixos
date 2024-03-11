@@ -3,8 +3,6 @@ inputs:
   options.nixos.services.groupshare = let inherit (inputs.lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
-    # hard to read value from inputs.config.users.users.xxx.home, causing infinite recursion
-    mountPoints = mkOption { type = types.listOf types.str; default = []; };
   };
   config =
     let
@@ -30,17 +28,5 @@ inputs:
                 [ "u:${user}:rwX" "g:groupshare:r-X" "o::---" "m::r-x" ]))))
           ])
           users));
-      fileSystems = listToAttrs (map
-        (mountPoint:
-        {
-          name = mountPoint;
-          value =
-          {
-            device = "/var/lib/groupshare";
-            options = [ "bind" "private" "x-gvfs-hide" "X-fstrim.notrim" ];
-            depends = [ "/home" "/var/lib" ];
-          };
-        })
-        groupshare.mountPoints);
     };
 }

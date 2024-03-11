@@ -88,6 +88,5 @@ inputs:
           pam.yubico.authorizedYubiKeys.ids = [ "cccccbgrhnub" ];
         };
       };
-      nixos.services.groupshare.mountPoints = [ "/home/chn/groupshare" ];
     };
 }

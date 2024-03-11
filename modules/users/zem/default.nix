@@ -16,8 +16,11 @@ inputs:
         shell = inputs.pkgs.zsh;
         autoSubUidGidRange = true;
       };
-      home-manager.users.zem.imports = users.sharedModules;
+      home-manager.users.zem =
+      {
+        imports = users.sharedModules;
+        config.home.file.groupshare.source = inputs.lib.file.mkOutOfStoreSymlink "/var/lib/groupshare";
+      };
       sops.secrets."users/zem".neededForUsers = true;
-      nixos.services.groupshare.mountPoints = [ "/home/zem/groupshare" ];
     };
 }
