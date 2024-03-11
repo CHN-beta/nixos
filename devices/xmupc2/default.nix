@@ -44,6 +44,7 @@ inputs:
         gui = { preferred = false; autoStart = true; };
         kernel.patches = [ "cjktty" "lantian" ];
         networking.hostname = "xmupc2";
+        nix.remote.slave = { enable = true; mandatoryFeatures = [ "nvhpcarch-skylake" ]; };
       };
       hardware =
       {

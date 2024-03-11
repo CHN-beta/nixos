@@ -7,6 +7,19 @@ inputs:
     includeBuildDependencies = mkOption { type = types.bool; default = inputs.topInputs.self.config.archive; };
     substituters = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
     autoOptimiseStore = mkOption { type = types.bool; default = false; };
+    remote =
+    {
+      slave =
+      {
+        enable = mkOption { type = types.bool; default = false; };
+        mandatoryFeatures = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+      };
+      master =
+      {
+        enable = mkOption { type = types.bool; default = false; };
+        hosts = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+      };
+    };
   };
   config = let inherit (inputs.config.nixos.system) nix; in inputs.lib.mkMerge
   [
@@ -19,6 +32,7 @@ inputs:
         keep-failed = true;
         max-substitution-jobs = 4;
         trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
+        trusted-users = [ "@wheel" ];
         show-trace = true;
         max-jobs = 4;
         cores = 0;
@@ -68,17 +82,63 @@ inputs:
       ++ (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ "nvhpcarch-${march}" ]);
     }
     # includeBuildDependencies
+    (inputs.lib.mkIf nix.includeBuildDependencies
     {
       system.includeBuildDependencies = nix.includeBuildDependencies;
-    }
+    })
     # substituters
     {
       nix.settings.substituters = if nix.substituters == null then [ "https://cache.nixos.org/" ] else nix.substituters;
     }
     # autoOptimiseStore
+    (inputs.lib.mkIf nix.autoOptimiseStore
     {
       nix.settings.auto-optimise-store = nix.autoOptimiseStore;
-    }
+    })
+    # remote.slave
+    (inputs.lib.mkIf nix.remote.slave.enable
+    {
+      nix =
+      {
+        sshServe =
+        {
+          enable = true;
+          keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAdUiHbT1Vs++5L0OPaMtYG7Wa0ejbJs2KBZ4QAspM4n nix-ssh@pc" ];
+          write = true;
+          protocol = "ssh-ng";
+        };
+        settings.trusted-users = [ "nix-ssh" ];
+      };
+    })
+    # remote.master
+    (inputs.lib.mkIf nix.remote.master.enable
+    {
+      assertions = builtins.map
+        (host: 
+        {
+          assertion = inputs.topInputs.self.nixosConfigurations.${host}.config.nixos.system.nix.remote.slave.enable; 
+          message = "remote.slave.enable is not set for ${host}";
+        })
+        nix.remote.master.hosts;
+      nix =
+      {
+        distributedBuilds = true;
+        buildMachines = builtins.map
+          (host: let hostConfig = inputs.topInputs.self.nixosConfigurations.${host}.config; in
+          {
+            hostName = host;
+            protocol = "ssh-ng";
+            systems = [ "x86_64-linux" ] ++ hostConfig.nix.settings.extra-platforms;
+            sshUser = "nix-ssh";
+            sshKey = inputs.config.sops.secrets."nix/remote".path;
+            maxJobs = 1;
+            inherit (hostConfig.nixos.system.nix.remote.slave) mandatoryFeatures;
+            supportedFeatures = hostConfig.nix.settings.system-features;
+          })
+          nix.remote.master.hosts;
+      };
+      sops.secrets."nix/remote" = {};
+    })
     # c++ include path
     # environment.pathsToLink = [ "/include" ];
     # environment.variables.CPATH = "/run/current-system/sw/include";
