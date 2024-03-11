@@ -35,6 +35,8 @@ inputs:
             enable = true;
             capabilities =
             [
+              # p5000 p400
+              "6.1"
               # 2080 Ti
               "7.5"
               # 3090
