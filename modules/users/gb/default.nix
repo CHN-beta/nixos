@@ -16,10 +16,10 @@ inputs:
         shell = inputs.pkgs.zsh;
         autoSubUidGidRange = true;
       };
-      home-manager.users.gb =
+      home-manager.users.gb = homeInputs:
       {
         imports = users.sharedModules;
-        config.home.file.groupshare.source = inputs.lib.file.mkOutOfStoreSymlink "/var/lib/groupshare";
+        config.home.file.groupshare.source = homeInputs.config.lib.file.mkOutOfStoreSymlink "/var/lib/groupshare";
       };
       sops.secrets."users/gb".neededForUsers = true;
     };
