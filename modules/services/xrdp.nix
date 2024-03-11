@@ -44,6 +44,7 @@ inputs:
           openFirewall = true;
           defaultWindowManager = "${inputs.pkgs.plasma-workspace}/bin/startplasma-x11";
         };
+        environment.etc.xrdp.source = "${inputs.config.services.xrdp.package}/etc/xrdp";
       }
       (
         mkIf (xrdp.hostname != null)

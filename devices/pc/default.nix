@@ -117,9 +117,15 @@ inputs:
         };
         gamemode = { enable = true; drmDevice = 1; };
         slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 94208; gpus."4060" = 1; };
-        xrdp = { enable = true; hostname = [ "pc.chn.moe" ]; };
+        xrdp =
+        {
+          enable = true;
+          hostname = [ "pc.chn.moe" ];
+          # optimise = { type = "nvidia"; nvidiaBusId = "1:0:0"; };
+        };
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
+      # users.users = [ "chn" "test" ];
     };
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
