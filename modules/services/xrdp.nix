@@ -34,8 +34,12 @@ inputs:
         services.xrdp =
         {
           enable = true;
-          package = mkIf (xrdp.optimise.type != null)
-            (inputs.pkgs.xrdp.override { variant = xrdp.optimise.type; inherit (xrdp.optimise) nvidiaBusId; });
+          package = mkIf (xrdp.optimise.type != null) (inputs.pkgs.xrdp.override
+          {
+            variant = xrdp.optimise.type;
+            inherit (xrdp.optimise) nvidiaBusId;
+            nvidiaPackage = inputs.config.hardware.nvidia.package;
+          });
           port = xrdp.port;
           openFirewall = true;
           defaultWindowManager = "${inputs.pkgs.plasma-workspace}/bin/startplasma-x11";
