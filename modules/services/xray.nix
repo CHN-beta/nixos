@@ -374,9 +374,9 @@ inputs:
               };
             };
           };
-          secrets = inputs.localLib.listToAttrs
+          secrets = builtins.listToAttrs
             (map (n: { name = "xray-server/clients/user${toString n}"; value = {}; }) userList)
-            // (inputs.localLib.listToAttrs (map
+            // (builtins.listToAttrs (map
               (name:
               {
                 name = "xray-server/telegram/${name}";
