@@ -121,11 +121,9 @@ inputs:
         {
           enable = true;
           hostname = [ "pc.chn.moe" ];
-          # optimise = { type = "nvidia"; nvidiaBusId = "1:0:0"; };
         };
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
-      # users.users = [ "chn" "test" ];
     };
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
