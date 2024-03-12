@@ -214,7 +214,7 @@ VASP 有很多很多个版本，具体来说：
 ```bash
 vasp-nvidia-6.4.0 mpirun -np 1 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x CUDA_VISIBLE_DEVICES=0 -x OMP_NUM_THREADS=4 vasp-std
 vasp-gnu-6.4.0 mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
-vasp-intel-6.4.0 mpirun -n 2 -genv OMP_NUM_THREADS 4 vasp-std
+vasp-intel-6.4.0 mpirun -n 2 -genv OMP_NUM_THREADS=4 vasp-std
 ```
 
 其中 `CUDA_VISIBLE_DEVICES` 用于指定用哪几个显卡计算（多个显卡用逗号分隔）。
