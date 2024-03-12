@@ -1,15 +1,15 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin,
   config, oneapiArch ? config.oneapiArch or "SSE3",
-  oneapi, gfortran, gcc, glibc, lmod, rsync, which, hdf5, wannier90
+  oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, scalapack
 }:
 let
-  versions = import ../source.nix;
+  sources = import ../source.nix { inherit requireFile; };
   buildEnv = buildFHSEnv
   {
     name = "buildEnv";
     # make "module load mpi" success
-    targetPkgs = pkgs: with pkgs; [ zlib (writeTextDir "etc/release" "") ];
+    targetPkgs = pkgs: with pkgs; [ zlib (writeTextDir "etc/release" "") gccFull ];
   };
   buildScript = writeScript "build"
   ''
@@ -18,35 +18,31 @@ let
     module load tbb compiler-rt oclfpga # dependencies
     module load mpi mkl compiler
     mkdir -p bin
-    make DEPS=1 -j$NIX_BUILD_CORES std
+    make DEPS=1 -j$NIX_BUILD_CORES
   '';
   include = version: substituteAll
   {
     src = ./makefile.include-${version};
     inherit oneapiArch;
-    gcc = symlinkJoin { name = "gcc"; paths = [ gfortran gfortran.cc gcc ]; };
+    gcc = "${gccFull}/bin/gcc";
+    gxx = "${gccFull}/bin/g++";
   };
+  gccFull = symlinkJoin { name = "gcc"; paths = [ gcc gcc.cc gcc.cc.lib glibc.dev binutils.bintools ]; };
   vasp = version: stdenvNoCC.mkDerivation rec
   {
     pname = "vasp";
     inherit version;
-    src = requireFile
-    {
-      name = "${pname}-${version}";
-      sha256 = versions.${version};
-      hashMode = "recursive";
-      message = "Source file not found.";
-    };
+    src = sources.${version};
     configurePhase =
     ''
       cp ${include version} makefile.include
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
     '';
-    enableParallelBuilding = false;
-    buildInputs = [ hdf5 hdf5.dev wannier90 glibc glibc.dev ];
-    nativeBuildInputs = [ gfortran gfortran.cc gcc rsync which ];
-    HDF5_ROOT = hdf5.dev;
+    # enableParallelBuilding = false;
+    nativeBuildInputs = [ rsync which ];
+    # HDF5_ROOT = hdf5;
     WANNIER90_ROOT = wannier90;
+    # SCALAPACK_ROOT = scalapack;
     buildPhase = "${buildEnv}/bin/buildEnv ${buildScript}";
     installPhase =
     ''
@@ -68,4 +64,4 @@ let
     targetPkgs = pkgs: with pkgs; [ zlib (vasp version) (writeTextDir "etc/release" "") ];
     runScript = startScript version;
   };
-in builtins.mapAttrs (version: _: runEnv version) versions
+in builtins.mapAttrs (version: _: runEnv version) sources

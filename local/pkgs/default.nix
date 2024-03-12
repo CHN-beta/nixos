@@ -59,11 +59,12 @@
     {
       inherit lmod;
       oneapi = oneapi."2022.2";
-      hdf5 = hdf5.override { mpiSupport = true; fortranSupport = true; };
+      # hdf5 = hdf5-oneapi.override { oneapi = oneapi."2022.2"; };
       inherit (unstablePackages) wannier90;
     };
   };
   hdf5-nvhpc = callPackage ./hdf5-nvhpc { inherit lmod; inherit (hdf5) src; nvhpc = nvhpc."24.1"; };
+  hdf5-oneapi = callPackage ./hdf5-oneapi { inherit lmod; inherit (hdf5) src; oneapi = oneapi."2024.0"; };
   oneapi = callPackage ./oneapi {};
   mumax = callPackage ./mumax { src = topInputs.mumax; };
 }

@@ -39,8 +39,8 @@ let
     enableParallelBuilding = true;
     buildInputs = [ mkl hdf5 wannier90 ];
     nativeBuildInputs = [ gfortran rsync which ];
-    MKLROOT = "${mkl}";
-    HDF5_ROOT = "${hdf5}";
+    MKLROOT = mkl;
+    HDF5_ROOT = hdf5;
     WANNIER90_ROOT = wannier90;
     buildPhase = "${buildEnv}/bin/buildEnv ${buildScript}";
     installPhase =

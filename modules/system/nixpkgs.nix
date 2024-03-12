@@ -45,8 +45,11 @@ inputs:
               (filter (package: inputs.pkgs ? ${package}) permittedInsecurePackages);
             allowUnfree = true;
             qchem-config = { optArch = nixpkgs.march; useCuda = nixpkgs.cuda.enable; };
-            oneapiArch = mkIf (nixpkgs.march != null) nixpkgs.march;
-          };
+          }
+          // (if nixpkgs.march == null then {} else
+          {
+            oneapiArch = let match.znver4 = "COMMON-AVX512"; in match.${nixpkgs.march} or nixpkgs.march;
+          });
           overlays =
           [(final: prev:
             let

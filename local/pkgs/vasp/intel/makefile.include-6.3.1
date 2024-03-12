@@ -12,8 +12,8 @@ CPP_OPTIONS = -DHOST=\"LinuxIFC\" \
 
 CPP         = fpp -f_com=no -free -w0  $*$(FUFFIX) $*$(SUFFIX) $(CPP_OPTIONS)
 
-FC          = I_MPI_FC=ifort mpif90 -qopenmp
-FCL         = I_MPI_FC=ifort mpif90
+FC          = I_MPI_F90=ifort mpif90 -qopenmp -gcc-name=@gcc@
+FCL         = I_MPI_F90=ifort mpif90 -gcc-name=@gcc@
 
 FREE        = -free -names lowercase
 
@@ -38,7 +38,7 @@ FREE_LIB    = $(FREE)
 OBJECTS_LIB = linpack_double.o getshmem.o
 
 # For the parser library
-CXX_PARS    = icpc
+CXX_PARS    = icpc -gxx-name=@gxx@
 LLIBS       = -lstdc++
 
 ##
@@ -60,14 +60,15 @@ INCS        =-I$(MKLROOT)/include/fftw
 
 # Use a separate scaLAPACK installation (optional but recommended in combination with OpenMPI)
 # Comment out the two lines below if you want to use scaLAPACK from MKL instead
-#SCALAPACK_ROOT ?= /path/to/your/scalapack/installation
-#LLIBS      += -L${SCALAPACK_ROOT}/lib -lscalapack
+# SCALAPACK_ROOT ?= /path/to/your/scalapack/installation
+# LLIBS      += -L${SCALAPACK_ROOT}/lib -lscalapack
+LLIBS      += -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
 
 # HDF5-support (optional but strongly recommended)
-CPP_OPTIONS+= -DVASP_HDF5
-HDF5_ROOT  ?= /path/to/your/hdf5/installation
-LLIBS      += -L$(HDF5_ROOT)/lib -lhdf5_fortran
-INCS       += -I$(HDF5_ROOT)/include
+# CPP_OPTIONS+= -DVASP_HDF5
+# HDF5_ROOT  ?= /path/to/your/hdf5/installation
+# LLIBS      += -L$(HDF5_ROOT)/lib -lhdf5_fortran
+# INCS       += -I$(HDF5_ROOT)/include
 
 # For the VASP-2-Wannier90 interface (optional)
 CPP_OPTIONS    += -DVASP2WANNIER90
