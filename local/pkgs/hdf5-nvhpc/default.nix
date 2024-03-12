@@ -35,5 +35,5 @@ in stdenvNoCC.mkDerivation
     ${buildEnv}/bin/buildEnv ${buildScript}
   '';
   dontInstall = true;
-  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
+  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
 }
