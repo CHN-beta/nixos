@@ -47,7 +47,8 @@ inputs:
           }
           // (if nixpkgs.march == null then {} else
           {
-            oneapiArch = let match.znver4 = "COMMON-AVX512"; in match.${nixpkgs.march} or nixpkgs.march;
+            oneapiArch = let match = { znver3 = "CORE-AVX2"; znver4 = "CORE-AVX512"; };
+              in match.${nixpkgs.march} or nixpkgs.march;
             nvhpcArch = nixpkgs.march;
           });
           overlays =
