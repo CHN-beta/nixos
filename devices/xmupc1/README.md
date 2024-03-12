@@ -50,11 +50,18 @@ sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia-6.4.0 m
 
 ```bash
 sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-gnu-6.4.0 mpirun vasp-std
+sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-intel-6.4.0 mpirun vasp-std
 ```
 
 * `--ntasks=2` 指定在 MPI 层面上并行的数量。
   可以简写为 `-n`。
 * `--cpus-per-task=2` 指定每个 task 使用的 CPU 核的数量，OpenMP 并行的数量等于这个数再乘以 2。
+
+要把其它程序提交到队列里，也是类似的写法。请自行举一反三。
+
+唯二可能要注意的是（使用 VASP 时不需要注意这些，我已经设置好了）：
+* 使用 CUDA 时，要设置环境变量 `CUDA_DEVICE_ORDER=PCI_BUS_ID`，否则可能会分配错 GPU。
+* slurm 不会设置 `OMP_NUM_THREADS`，要根据 `SLURM_CPUS_PER_TASK` 和 `SLURM_THREADS_PER_CPU` 来手动设置。
 
 要列出已经提交（包括已经完成、取消、失败）的任务：
 
@@ -186,6 +193,44 @@ samba 就是 windows 共享文件夹的那个协议。
 
 在 windows 上，可以直接在资源管理器中输入 `\\xmupc1.chn.moe` 访问。
 也可以将它作为一个网络驱动器添加（地址同样是 `\\xmupc1.chn.moe`）。
+
+# 计算软件
+
+## VASP
+
+VASP 有很多很多个版本，具体来说：
+
+* VASP 多个版本可以共存。目前安装了两个版本：6.3.1 和 6.4.0。
+* VASP 可以用不同的编译器编译。目前安装的有：nvidia、gnu 和 intel。nvidia 使用 GPU 计算，其它两个只能用 CPU 计算。
+* VASP 的 std/gam/ncl 版本有一点区别，一般用 std，只有一个 gamma 点的时候用 gam 会快一点，系统中存在方向不平行的磁矩时必须用 ncl。
+* 无论哪个版本，都集成了下面这些补丁：
+  * HDF5：用于生成 hdf5 格式的输出文件。
+  * wannier90：我也不知道干啥的，随手加上的。
+  * OPTCELL：如果存在一个 `OPTCELL` 文件，VASP 会据此决定弛豫时仅优化哪几个晶胞参数。
+  * MPI shared memory：用来减小内存占用。
+
+如何提交 VASP 到队列系统已经在上面介绍过了。下面的例子是，如果要直接运行一个任务的写法：
+
+```bash
+vasp-nvidia-6.4.0 mpirun -np 1 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x CUDA_VISIBLE_DEVICES=0 -x OMP_NUM_THREADS=4 vasp-std
+vasp-gnu-6.4.0 mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
+vasp-intel-6.4.0 mpirun -n 2 -genv OMP_NUM_THREADS 4 vasp-std
+```
+
+其中 `CUDA_VISIBLE_DEVICES` 用于指定用哪几个显卡计算（多个显卡用逗号分隔）。
+要查看显卡的编号，可以用 `CUDA_DEVICE_ORDER=PCI_BUS_ID vasp-nvidia-6.4.0 nvaccelinfo` 命令。
+
+## mumax
+
+问龚斌，我没用过。
+
+## lammps
+
+除了我应该没人用，就不写了。
+
+## quantum espresso
+
+我也只用过一次。大规模用到了再说吧。
 
 # 其它软件
 
