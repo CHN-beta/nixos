@@ -48,7 +48,7 @@ let
       mkdir -p $out/bin
       for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
     '';
-    requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
+    requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
   };
   startScript = version: writeScript "vasp-nvidia-${version}"
   ''

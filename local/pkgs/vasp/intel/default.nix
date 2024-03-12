@@ -1,7 +1,7 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin,
   config, oneapiArch ? config.oneapiArch or "SSE3",
-  oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, scalapack
+  oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -24,13 +24,11 @@ let
   {
     src = ./makefile.include-${version};
     inherit oneapiArch;
-    gcc = "${gccFull}/bin/gcc";
-    gxx = "${gccFull}/bin/g++";
   };
   gccFull = symlinkJoin { name = "gcc"; paths = [ gcc gcc.cc gcc.cc.lib glibc.dev binutils.bintools ]; };
   vasp = version: stdenvNoCC.mkDerivation rec
   {
-    pname = "vasp";
+    pname = "vasp-intel";
     inherit version;
     src = sources.${version};
     configurePhase =
@@ -38,18 +36,17 @@ let
       cp ${include version} makefile.include
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
     '';
-    # enableParallelBuilding = false;
     nativeBuildInputs = [ rsync which ];
-    # HDF5_ROOT = hdf5;
+    HDF5_ROOT = hdf5;
     WANNIER90_ROOT = wannier90;
-    # SCALAPACK_ROOT = scalapack;
+    I_MPI_F90 = "ifx";
     buildPhase = "${buildEnv}/bin/buildEnv ${buildScript}";
     installPhase =
     ''
       mkdir -p $out/bin
       for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
     '';
-    requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
+    requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
   };
   startScript = version: writeScript "vasp-intel-${version}"
   ''

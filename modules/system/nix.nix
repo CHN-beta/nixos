@@ -12,7 +12,7 @@ inputs:
       slave =
       {
         enable = mkOption { type = types.bool; default = false; };
-        mandatoryFeatures = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+        mandatoryFeatures = mkOption { type = types.listOf types.nonEmptyStr; default = [ "big-parallel" ]; };
       };
       master =
       {

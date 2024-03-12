@@ -38,5 +38,6 @@ in let buildNvhpc = version: stdenvNoCC.mkDerivation
     mkdir -p $out
     ${builder}/bin/builder ./install
   '';
+  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
 };
 in builtins.mapAttrs (version: _: buildNvhpc version) versions

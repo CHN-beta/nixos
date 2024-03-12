@@ -12,8 +12,8 @@ CPP_OPTIONS = -DHOST=\"LinuxIFC\" \
 
 CPP         = fpp -f_com=no -free -w0  $*$(FUFFIX) $*$(SUFFIX) $(CPP_OPTIONS)
 
-FC          = I_MPI_F90=ifort mpif90 -qopenmp -gcc-name=@gcc@
-FCL         = I_MPI_F90=ifort mpif90 -gcc-name=@gcc@
+FC          = mpif90 -qopenmp
+FCL         = mpif90
 
 FREE        = -free -names lowercase
 
@@ -30,7 +30,7 @@ OBJECTS_O2 += fft3dlib.o
 # For what used to be vasp.5.lib
 CPP_LIB     = $(CPP)
 FC_LIB      = $(FC)
-CC_LIB      = icc
+CC_LIB      = icx
 CFLAGS_LIB  = -O
 FFLAGS_LIB  = -O1
 FREE_LIB    = $(FREE)
@@ -38,7 +38,7 @@ FREE_LIB    = $(FREE)
 OBJECTS_LIB = linpack_double.o getshmem.o
 
 # For the parser library
-CXX_PARS    = icpc -gxx-name=@gxx@
+CXX_PARS    = icpx
 LLIBS       = -lstdc++
 
 ##
@@ -65,10 +65,10 @@ INCS        =-I$(MKLROOT)/include/fftw
 LLIBS      += -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
 
 # HDF5-support (optional but strongly recommended)
-# CPP_OPTIONS+= -DVASP_HDF5
-# HDF5_ROOT  ?= /path/to/your/hdf5/installation
-# LLIBS      += -L$(HDF5_ROOT)/lib -lhdf5_fortran
-# INCS       += -I$(HDF5_ROOT)/include
+CPP_OPTIONS+= -DVASP_HDF5
+HDF5_ROOT  ?= /path/to/your/hdf5/installation
+LLIBS      += -L$(HDF5_ROOT)/lib -lhdf5_fortran
+INCS       += -I$(HDF5_ROOT)/include
 
 # For the VASP-2-Wannier90 interface (optional)
 CPP_OPTIONS    += -DVASP2WANNIER90

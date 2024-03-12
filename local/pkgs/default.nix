@@ -58,8 +58,8 @@
     intel = callPackage ./vasp/intel
     {
       inherit lmod;
-      oneapi = oneapi."2022.2";
-      # hdf5 = hdf5-oneapi.override { oneapi = oneapi."2022.2"; };
+      oneapi = oneapi."2024.0";
+      hdf5 = hdf5-oneapi.override { oneapi = oneapi."2024.0"; };
       inherit (unstablePackages) wannier90;
     };
   };
