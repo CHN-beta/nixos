@@ -79,7 +79,7 @@ inputs:
             (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ march ])
           else nix.marches
         ))
-      ++ (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ "nvhpcarch-${march}" ]);
+      ++ (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ "gccarch-exact-${march}" ]);
     }
     # includeBuildDependencies
     (inputs.lib.mkIf nix.includeBuildDependencies

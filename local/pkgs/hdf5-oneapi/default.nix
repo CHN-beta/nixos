@@ -43,5 +43,5 @@ in stdenvNoCC.mkDerivation
     ${buildEnv}/bin/buildEnv ${buildScript}
   '';
   dontInstall = true;
-  requiredSystemFeatures = [ "oneapiarch-${oneapiArch}" ];
+  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
 }

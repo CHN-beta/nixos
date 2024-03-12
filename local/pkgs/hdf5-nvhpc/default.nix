@@ -1,8 +1,7 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC,
   src,
-  nvhpc, lmod, cmake, gfortran,
-  config, nvhpcArch ? config.nvhpcArch or "px"
+  nvhpc, lmod, cmake, gfortran
 }:
 let
   buildEnv = buildFHSEnv
@@ -36,5 +35,5 @@ in stdenvNoCC.mkDerivation
     ${buildEnv}/bin/buildEnv ${buildScript}
   '';
   dontInstall = true;
-  requiredSystemFeatures = [ "nvhpcarch-${nvhpcArch}" ];
+  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
 }

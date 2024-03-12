@@ -49,6 +49,7 @@ let
       mkdir -p $out/bin
       for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
     '';
+    requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
   };
   startScript = version: writeScript "vasp-intel-${version}"
   ''

@@ -33,7 +33,6 @@ inputs:
               { cudaCapabilities = nixpkgs.cuda.capabilities; })
             // (inputs.lib.optionalAttrs (nixpkgs.cuda.forwardCompat != null)
               { cudaForwardCompat = nixpkgs.cuda.forwardCompat; })
-            // (inputs.lib.optionalAttrs (nixpkgs.march != null) { nvhpcArch = nixpkgs.march; })
           );
         in
         {
@@ -49,6 +48,7 @@ inputs:
           // (if nixpkgs.march == null then {} else
           {
             oneapiArch = let match.znver4 = "COMMON-AVX512"; in match.${nixpkgs.march} or nixpkgs.march;
+            nvhpcArch = nixpkgs.march;
           });
           overlays =
           [(final: prev:
