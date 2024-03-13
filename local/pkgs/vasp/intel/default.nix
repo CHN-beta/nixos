@@ -39,13 +39,13 @@ let
     nativeBuildInputs = [ rsync which ];
     HDF5_ROOT = hdf5;
     WANNIER90_ROOT = wannier90;
-    I_MPI_F90 = "ifx";
     buildPhase = "${buildEnv}/bin/buildEnv ${buildScript}";
     installPhase =
     ''
       mkdir -p $out/bin
       for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
     '';
+    dontFixup = true;
     requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
   };
   startScript = version: writeScript "vasp-intel-${version}"
@@ -59,12 +59,13 @@ let
     if [ -n "''${SLURM_CPUS_PER_TASK-}" ] && [ -n "''${SLURM_THREADS_PER_CPU-}" ]; then
       export OMP_NUM_THREADS=$(( SLURM_CPUS_PER_TASK * SLURM_THREADS_PER_CPU ))
     fi
+
     exec "$@"
   '';
   runEnv = version: buildFHSEnv
   {
     name = "vasp-intel-${version}";
-    targetPkgs = pkgs: with pkgs; [ zlib (vasp version) (writeTextDir "etc/release" "") ];
+    targetPkgs = pkgs: with pkgs; [ zlib (vasp version) (writeTextDir "etc/release" "") gccFull ];
     runScript = startScript version;
   };
 in builtins.mapAttrs (version: _: runEnv version) sources

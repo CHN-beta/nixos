@@ -84,6 +84,7 @@ in let buildOneapi = version: stdenvNoCC.mkDerivation rec
     ${builder}/bin/builder $out/share/intel/modulefiles-setup.sh --output-dir=$out/share/intel/modulefiles \
       --ignore-latest
   '';
+  dontFixup = true;
   requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
 };
 in builtins.mapAttrs (version: _: buildOneapi version) versions

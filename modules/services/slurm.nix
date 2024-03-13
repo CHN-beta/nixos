@@ -61,7 +61,6 @@ inputs:
           ''
             echo export CUDA_DEVICE_ORDER=PCI_BUS_ID
             echo export SLURM_THREADS_PER_CPU=${builtins.toString slurm.cpu.threads}
-            echo export I_MPI_PMI_LIBRARY=${inputs.config.services.slurm.package}/lib/slurm/mpi_pmi2.so
           '';
           in
           ''

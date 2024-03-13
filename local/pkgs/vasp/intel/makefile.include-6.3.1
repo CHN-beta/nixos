@@ -12,8 +12,8 @@ CPP_OPTIONS = -DHOST=\"LinuxIFC\" \
 
 CPP         = fpp -f_com=no -free -w0  $*$(FUFFIX) $*$(SUFFIX) $(CPP_OPTIONS)
 
-FC          = mpif90 -qopenmp
-FCL         = mpif90
+FC          = mpiifx -qopenmp
+FCL         = mpiifx
 
 FREE        = -free -names lowercase
 
@@ -56,13 +56,13 @@ FFLAGS     += $(VASP_TARGET_CPU)
 # (Note: for Intel Parallel Studio's MKL use -mkl instead of -qmkl)
 FCL        += -qmkl
 MKLROOT    ?= /path/to/your/mkl/installation
+LLIBS      += -L$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
 INCS        =-I$(MKLROOT)/include/fftw
 
 # Use a separate scaLAPACK installation (optional but recommended in combination with OpenMPI)
 # Comment out the two lines below if you want to use scaLAPACK from MKL instead
 # SCALAPACK_ROOT ?= /path/to/your/scalapack/installation
 # LLIBS      += -L${SCALAPACK_ROOT}/lib -lscalapack
-LLIBS      += -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
 
 # HDF5-support (optional but strongly recommended)
 CPP_OPTIONS+= -DVASP_HDF5
