@@ -25,6 +25,12 @@ inputs:
             buildInputs = prev.buildInputs ++ [ cuda_nvml_dev ];
             LDFLAGS = [ "-L${cuda_nvml_dev}/lib/stubs" ];
             nativeBuildInputs = prev.nativeBuildInputs ++ [ inputs.pkgs.wrapGAppsHook ];
+            postInstall =
+            ''
+              pushd contribs/pmi2
+              make install
+              popd
+            '' + prev.postInstall;
           });
         clusterName = inputs.config.nixos.system.networking.hostname;
         dbdserver =
@@ -61,6 +67,7 @@ inputs:
           ''
             echo export CUDA_DEVICE_ORDER=PCI_BUS_ID
             echo export SLURM_THREADS_PER_CPU=${builtins.toString slurm.cpu.threads}
+            echo export I_MPI_PMI_LIBRARY=${inputs.config.services.slurm.package}/lib/libpmi2.so
           '';
           in
           ''
