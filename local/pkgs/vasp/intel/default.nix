@@ -67,5 +67,7 @@ let
     name = "vasp-intel-${version}";
     targetPkgs = pkgs: with pkgs; [ zlib (vasp version) (writeTextDir "etc/release" "") gccFull ];
     runScript = startScript version;
+    extraInstallCommands =
+      "for i in std gam ncl; do ln -s ${vasp version}/bin/vasp-$i $out/bin/vasp-intel-${version}-$i; done";
   };
 in builtins.mapAttrs (version: _: runEnv version) sources
