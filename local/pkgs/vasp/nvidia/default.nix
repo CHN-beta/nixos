@@ -57,10 +57,11 @@ let
     module use ${nvhpc}/share/nvhpc/modulefiles
     module load nvhpc
 
-    # if SLURM_CPUS_PER_TASK and SLURM_THREADS_PER_CPU are set, use them to set OMP_NUM_THREADS
-    if [ -n "''${SLURM_CPUS_PER_TASK-}" ] && [ -n "''${SLURM_THREADS_PER_CPU-}" ]; then
-      export OMP_NUM_THREADS=$(( SLURM_CPUS_PER_TASK * SLURM_THREADS_PER_CPU ))
+    # if SLURM_CPUS_PER_TASK is set, use it to set OMP_NUM_THREADS
+    if [ -n "''${SLURM_CPUS_PER_TASK-}" ]; then
+      export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
     fi
+
     exec "$@"
   '';
   runEnv = version: buildFHSEnv
