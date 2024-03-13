@@ -50,7 +50,7 @@ sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia-6.4.0 m
 
 ```bash
 sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-gnu-6.4.0 mpirun vasp-std
-sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-intel-6.4.0 mpirun vasp-std
+sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-intel-6.4.0 srun --mpi=pmi2 vasp-intel-6.4.0-std
 ```
 
 * `--ntasks=2` 指定在 MPI 层面上并行的数量。
