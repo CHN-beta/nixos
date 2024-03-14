@@ -67,4 +67,7 @@
   hdf5-oneapi = callPackage ./hdf5-oneapi { inherit lmod; inherit (hdf5) src; oneapi = oneapi."2024.0"; };
   oneapi = callPackage ./oneapi {};
   mumax = callPackage ./mumax { src = topInputs.mumax; };
+  aocc = callPackage ./aocc {};
+  aocl = callPackage ./aocl {};
+  hdf5-aocc = callPackage ./hdf5-aocc { inherit (hdf5) src; inherit aocc; };
 }
