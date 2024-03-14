@@ -62,6 +62,13 @@
       hdf5 = hdf5-oneapi.override { oneapi = oneapi."2024.0"; };
       wannier90 = callPackage "${topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
     };
+    amd = callPackage ./vasp/amd
+    {
+      inherit aocc aocl;
+      hdf5 = hdf5-aocc;
+      openmpi = openmpi-aocc;
+      wannier90 = callPackage "${topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
+    };
   };
   hdf5-nvhpc = callPackage ./hdf5-nvhpc { inherit lmod; inherit (hdf5) src; nvhpc = nvhpc."24.1"; };
   hdf5-oneapi = callPackage ./hdf5-oneapi { inherit lmod; inherit (hdf5) src; oneapi = oneapi."2024.0"; };
@@ -69,5 +76,6 @@
   mumax = callPackage ./mumax { src = topInputs.mumax; };
   aocc = callPackage ./aocc {};
   aocl = callPackage ./aocl {};
-  hdf5-aocc = callPackage ./hdf5-aocc { inherit (hdf5) src; inherit aocc; };
+  hdf5-aocc = callPackage ./hdf5-aocc { inherit (hdf5) src; inherit aocc; openmpi = openmpi-aocc; };
+  openmpi-aocc = callPackage ./openmpi-aocc { inherit aocc; };
 }

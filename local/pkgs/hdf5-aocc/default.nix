@@ -1,13 +1,13 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC,
   src,
-  aocc, cmake
+  aocc, cmake, openmpi
 }:
 let
   buildEnv = buildFHSEnv
   {
     name = "buildEnv";
-    targetPkgs = pkgs: with pkgs; [ zlib aocc gcc.cc gcc.cc.lib mpi glibc.dev binutils.bintools ];
+    targetPkgs = pkgs: with pkgs; [ zlib aocc gcc.cc gcc.cc.lib glibc.dev binutils.bintools openmpi pkg-config ];
     extraBwrapArgs = [ "--bind" "$out" "$out" ];
   };
   buildScript = writeScript "build"
@@ -15,7 +15,7 @@ let
     mkdir build
     cd build
     cmake -DCMAKE_INSTALL_PREFIX=$out -DHDF5_INSTALL_CMAKE_DIR=$out/lib/cmake \
-      -DHDF5_BUILD_FORTRAN=ON -DHDF5_ENABLE_PARALLEL=ON -DBUILD_SHARED_LIBS=OFF ..
+      -DHDF5_BUILD_FORTRAN=ON -DHDF5_ENABLE_PARALLEL=ON -DBUILD_SHARED_LIBS=OFF -DBUILD_TESTING=OFF ..
     make -j$NIX_BUILD_CORES
     make install
   '';
@@ -32,6 +32,9 @@ in stdenvNoCC.mkDerivation
   OMPI_CC = "clang";
   OMPI_CXX = "clang++";
   OMPI_FC = "flang";
+  # CFLAGS = "-march=${stdenvNoCC.hostPlatform.gcc.arch} -O2";
+  # CXXFLAGS = "-march=${stdenvNoCC.hostPlatform.gcc.arch} -O2";
+  # FCFLAGS = "-march=${stdenvNoCC.hostPlatform.gcc.arch} -O2";
   buildPhase =
   ''
     mkdir -p $out

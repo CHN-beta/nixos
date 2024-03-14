@@ -33,10 +33,6 @@ in stdenvNoCC.mkDerivation
   dontConfigure = true;
   enableParallelBuilding = true;
   nativeBuildInputs = [ cmake ];
-  # somehow make it build failed, currently remove it
-  # CFLAGS = "-x${oneapiArch}";
-  # CXXFLAGS = "-x${oneapiArch}";
-  # FFLAGS = "-x${oneapiArch}";
   I_MPI_CC = "icx";
   I_MPI_CXX = "icpx";
   I_MPI_FC = "ifx";

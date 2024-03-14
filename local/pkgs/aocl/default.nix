@@ -1,6 +1,6 @@
 { stdenv, fetchurl }:
 
-stdenv.mkDerivation
+stdenv.mkDerivation rec
 {
   pname = "aocl";
   version = "4.2.0";
@@ -12,7 +12,10 @@ stdenv.mkDerivation
   dontBuild = true;
   installPhase =
   ''
-    bash ./install.sh -t $out/share
+    installDir=$(mktemp -d)
+    bash ./install.sh -t $installDir
+    mkdir -p $out
+    cp -r $installDir/${version}/aocc/lib_LP64 $out/lib
   '';
   dontFixup = true;
 }
