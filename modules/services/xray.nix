@@ -263,7 +263,7 @@ inputs:
       }
     )
     (
-      inputs.lib.mkIf xray.server.enable (let userList = builtins.genList (n: n) 30; in
+      inputs.lib.mkIf xray.server.enable (let userList = builtins.genList (n: n) 13; in
       {
         services.xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
         sops =
