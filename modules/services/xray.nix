@@ -16,14 +16,11 @@ inputs:
     };
     server = mkOption
     {
-      type = types.nullOr (types.submodule
+      type = types.nullOr (types.submodule { options =
       {
-        options =
-        {
-          serverName = mkOption { type = types.nonEmptyStr; };
-          userNumber = mkOption { type = types.ints.unsigned; };
-        };
-      });
+        serverName = mkOption { type = types.nonEmptyStr; };
+        userNumber = mkOption { type = types.ints.unsigned; };
+      };});
       default = null;
     };
   };

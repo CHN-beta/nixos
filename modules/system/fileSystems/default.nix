@@ -61,7 +61,7 @@ inputs:
     {
       type = types.nullOr (types.submodule { options =
       {
-        device = mkOption { type = types.nonEmptyStr; default = "/dev/mapper/root"; };
+        device = mkOption { type = types.nonEmptyStr; default = inputs.config.fileSystems."/".device; };
         path = mkOption { type = types.nonEmptyStr; default = "/nix/rootfs"; };
         waitDevices = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
       };});

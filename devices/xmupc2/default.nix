@@ -18,7 +18,7 @@ inputs:
             };
           };
           swap = [ "/nix/swap/swap" ];
-          rollingRootfs.device = "/dev/disk/by-uuid/d187e03c-a2b6-455b-931a-8d35b529edac";
+          rollingRootfs = {};
         };
         grub.installDevice = "efi";
         nixpkgs =
