@@ -49,7 +49,7 @@ sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-intel-6.4.0 s
 sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-amd-6.4.0 mpirun vasp-std
 ```
 
-GNU / AMD 写法差不多，只有 Intel 的特殊一点（Intel 用了自己的 MPI 实现）。
+GNU / AMD 写法差不多，只有 Intel 的特殊一点（Intel 用了自己的 MPI 实现，与 SLURM 的兼容很差）。
 
 * `--ntasks=2` 指定在 MPI 层面上并行的数量。
   可以简写为 `-n`。
