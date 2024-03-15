@@ -49,7 +49,7 @@ inputs:
             # office
             todo-txt-cli pdfgrep
             # development
-            gdb try inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix hexo-cli
+            gdb try inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix hexo-cli gh
           ] ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
