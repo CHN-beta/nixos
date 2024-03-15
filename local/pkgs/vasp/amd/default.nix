@@ -1,6 +1,6 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll,
-  aocc, rsync, which, hdf5, wannier90, aocl, openmpi, gcc, zlib, glibc, binutils
+  aocc, rsync, which, hdf5, wannier90, aocl, openmpi, gcc, zlib, glibc, binutils, libpsm2
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -61,7 +61,7 @@ let
   runEnv = version: buildFHSEnv
   {
     name = "vasp-amd-${version}";
-    targetPkgs = pkgs: with pkgs; [ zlib (vasp version) aocc aocl openmpi gcc.cc.lib ];
+    targetPkgs = _: [ zlib (vasp version) aocc aocl openmpi gcc.cc.lib hdf5 wannier90 libpsm2 ];
     runScript = startScript version;
   };
 in builtins.mapAttrs (version: _: runEnv version) sources
