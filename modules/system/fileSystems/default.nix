@@ -50,11 +50,9 @@ inputs:
     # device or { device, offset }
     resume = mkOption
     {
-      type = types.nullOr (types.str or (types.submodule
-      {
-        options =
-          { device = mkOption { type = types.nonEmptyStr; }; offset = mkOption { type = types.ints.unsigned; }; };
-      }));
+      type = types.nullOr (types.oneOf [ types.nonEmptyStr (types.submodule { options =
+        { device = mkOption { type = types.nonEmptyStr; }; offset = mkOption { type = types.ints.unsigned; }; };
+      })]);
       default = null;
     };
     rollingRootfs = mkOption
