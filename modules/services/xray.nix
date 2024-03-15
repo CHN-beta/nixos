@@ -14,10 +14,17 @@ inputs:
       };
       dae.wanInterface = mkOption { type = types.listOf types.nonEmptyStr; default = [ "auto" ]; };
     };
-    server =
+    server = mkOption
     {
-      enable = mkOption { type = types.bool; default = false; };
-      serverName = mkOption { type = types.nonEmptyStr; };
+      type = types.nullOr (types.submodule
+      {
+        options =
+        {
+          serverName = mkOption { type = types.nonEmptyStr; };
+          userNumber = mkOption { type = types.ints.unsigned; };
+        };
+      });
+      default = null;
     };
   };
   config = let inherit (inputs.config.nixos.services) xray; in inputs.lib.mkMerge
@@ -263,7 +270,7 @@ inputs:
       }
     )
     (
-      inputs.lib.mkIf xray.server.enable (let userList = builtins.genList (n: n) 13; in
+      inputs.lib.mkIf (xray.server != null) (let userList = builtins.genList (n: n) xray.server.userNumber; in
       {
         services.xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
         sops =
