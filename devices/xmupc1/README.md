@@ -49,7 +49,10 @@ sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-intel-6.4.0 s
 sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-amd-6.4.0 mpirun vasp-std
 ```
 
+三个命令的不同之处是，使用了不同的编译器/数学库等。
+
 GNU / AMD 写法差不多，只有 Intel 的特殊一点（Intel 用了自己的 MPI 实现，与 SLURM 的兼容很差）。
+但我建议使用 Intel，因为它最快（按照我的测试，即使是在 AMD 的 CPU 上，也要比 GNU / AMD 快两三倍）。
 
 * `--ntasks=2` 指定在 MPI 层面上并行的数量。
   可以简写为 `-n`。
@@ -222,6 +225,19 @@ vasp-amd-6.4.0 mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
 这里 `vasp-xxx-6.4.0` 命令的作用是，进入一个安装了对应版本的 VASP 的环境，实际上和 VASP 关系不大；
   后面的 `mpirun xxx` 才是真的调用 VASP。
 所以实际上你也可以在这个环境里做别的事情，例如执行上面的 `nvaccelinfo` 命令。
+
+我拿我自己电脑测试了一下各个的速度。我的电脑硬件是（弱显卡，强 CPU）：
+
+* CPU：AMD R9-7945HX
+* GPU：4060
+
+然后测试结果是：
+
+* nvidia，使用一个 CPU 线程：1 分 25 秒。
+* nvidia，使用两个 CPU 线程：1 分 26 秒。
+* gnu，使用 16 个线程（4 个 MPI 任务，每个任务 4 个线程）：1 分 2 秒。
+* intel，使用 16 个线程（4 个 MPI 任务，每个任务 4 个线程）：**27 秒**。
+* amd，使用 16 个线程（4 个 MPI 任务，每个任务 4 个线程）：1 分 23 秒，AMD NOT YES。
 
 ## mumax
 
