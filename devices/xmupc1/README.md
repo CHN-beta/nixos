@@ -20,7 +20,7 @@
 提交任务时， `sbatch` 命令中的 `cpu` 或者 `core` （它俩是同义词）都是指虚拟的 CPU 核数，也就是实际执行时的线程数。
 
 一些软件（例如 VASP）支持两个层面的并行，一个叫 MPI，一个叫 OpenMP，实际运行的线程数是两者的乘积。
-MPI 并行的数量就是提交任务时指定的 task 的数量，
+对应到 slurm 中的说法，MPI 并行的数量就是提交任务时指定的 task 的数量，
   OpenMP 并行的数量就是提交任务时指定的分配给每个 task 的 CPU 的数量，
   最终的线程数等于两者的乘积。
 此外对于 VASP 还有一个限制：当使用 GPU 时，MPI 并行的数量必须等于 GPU 的数量，否则 VASP 会在开头报个警告然后只用 CPU 计算（但不会报错）。
@@ -34,22 +34,22 @@ MPI 并行的数量就是提交任务时指定的 task 的数量，
 sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia-6.4.0 mpirun vasp-std
 ```
 
-* `--gpus=1` 指定使用一个 GPU（排到这个任务时哪个空闲就使用哪个）。
-  可以指定具体使用哪个GPU，例如 `--gpus=4090:1`。2080 Ti 需要写为 `2080_ti`。
-  这个选项可以简写为 `-G`。
-  这个选项实际上是 `--gres` 选项的一种简便写法，当需求更复杂时（例如，指定使用一个 3090 和一个 4090）时，就需要用 `--gres`。
-  例如：`--gres=gpu:3090:1,gpu:4090:1`。
-  “gre” 是 “generic resource” 的缩写。
-* `--ntasks-per-gpu=1` 是一定要写的。
-* `--job-name=` 指定任务的名字。可以简写为 `-J`。也可以不指定。
-* 默认情况下，一个 task 会搭配分配一个 CPU 核（一个线程），一般已经够用，不用修改。如果一定要修改，用 `--cpus-per-task`。
+* `--gpus=1` 指定使用一个 GPU（排到这个任务时哪个空闲就使用哪个）。要占用两个就写 `--gpus=2`，以此类推。
+  要指定具体使用哪个 GPU 时，写 `--gpus=4090:1`。2080 Ti 需要写为 `2080_ti`，P5000 需要写为 `p5000`。
+  当需要使用多个不同类型的显卡（例如，指定使用一个 3090 和一个 4090）时，写 `--gres=gpu:3090:1,gpu:4090:1`。
+* `--ntasks-per-gpu=1` 对于 VASP 来说一定要写。
+* `--job-name=xxx` 指定任务的名字。可以简写为 `-J`。也可以不指定。
+* 默认情况下，一个 task 会搭配分配一个 CPU 核（一个线程），一般已经够用。如果一定要修改，用 `--cpus-per-task`。
 
 提交一个 VASP CPU 任务的例子：
 
 ```bash
 sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-gnu-6.4.0 mpirun vasp-std
 sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-intel-6.4.0 srun --mpi=pmi2 vasp-intel-6.4.0-std
+sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-amd-6.4.0 mpirun vasp-std
 ```
+
+GNU / AMD 写法差不多，只有 Intel 的特殊一点（Intel 用了自己的 MPI 实现）。
 
 * `--ntasks=2` 指定在 MPI 层面上并行的数量。
   可以简写为 `-n`。
@@ -59,7 +59,7 @@ sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-intel-6.4.0 s
 
 唯二可能要注意的是（使用 VASP 时不需要注意这些，我已经设置好了）：
 * 使用 CUDA 时，要设置环境变量 `CUDA_DEVICE_ORDER=PCI_BUS_ID`，否则可能会分配错 GPU。
-* slurm 不会设置 `OMP_NUM_THREADS`，要根据 `SLURM_CPUS_PER_TASK` 和 `SLURM_THREADS_PER_CPU` 来手动设置。
+* slurm 不会设置 `OMP_NUM_THREADS`，要根据 `SLURM_CPUS_PER_TASK` 来手动设置。
 
 要列出已经提交（包括已经完成、取消、失败）的任务：
 
@@ -199,7 +199,7 @@ samba 就是 windows 共享文件夹的那个协议。
 VASP 有很多很多个版本，具体来说：
 
 * VASP 多个版本可以共存。目前安装了两个版本：6.3.1 和 6.4.0。
-* VASP 可以用不同的编译器编译。目前安装的有：nvidia、gnu 和 intel。nvidia 使用 GPU 计算，其它两个只能用 CPU 计算。
+* VASP 可以用不同的编译器编译。目前安装的有：nvidia、gnu、intel 和 amd。nvidia 使用 GPU 计算，其它的只能用 CPU 计算。
 * VASP 的 std/gam/ncl 版本有一点区别，一般用 std，只有一个 gamma 点的时候用 gam 会快一点，系统中存在方向不平行的磁矩时必须用 ncl。
 * 无论哪个版本，都集成了下面这些补丁：
   * HDF5：用于生成 hdf5 格式的输出文件。
@@ -213,10 +213,15 @@ VASP 有很多很多个版本，具体来说：
 vasp-nvidia-6.4.0 mpirun -np 1 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x CUDA_VISIBLE_DEVICES=0 -x OMP_NUM_THREADS=4 vasp-std
 vasp-gnu-6.4.0 mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
 vasp-intel-6.4.0 mpirun -n 2 -genv OMP_NUM_THREADS=4 vasp-std
+vasp-amd-6.4.0 mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
 ```
 
 其中 `CUDA_VISIBLE_DEVICES` 用于指定用哪几个显卡计算（多个显卡用逗号分隔）。
 要查看显卡的编号，可以用 `CUDA_DEVICE_ORDER=PCI_BUS_ID vasp-nvidia-6.4.0 nvaccelinfo` 命令。
+
+这里 `vasp-xxx-6.4.0` 命令的作用是，进入一个安装了对应版本的 VASP 的环境，实际上和 VASP 关系不大；
+  后面的 `mpirun xxx` 才是真的调用 VASP。
+所以实际上你也可以在这个环境里做别的事情，例如执行上面的 `nvaccelinfo` 命令。
 
 ## mumax
 
