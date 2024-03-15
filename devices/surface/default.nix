@@ -50,7 +50,7 @@ inputs:
         snapper.enable = true;
         fontconfig.enable = true;
         sshd.enable = true;
-        xray.client.enable = true;
+        xray.client = {};
         firewall.trustedInterfaces = [ "virbr0" ];
         wireguard =
         {

@@ -2,17 +2,24 @@ inputs:
 {
   options.nixos.services.xray = let inherit (inputs.lib) mkOption types; in
   {
-    client =
+    client = mkOption
     {
-      enable = mkOption { type = types.bool; default = false; };
-      serverAddress = mkOption { type = types.nonEmptyStr; default = "74.211.99.69"; };
-      serverName = mkOption { type = types.nonEmptyStr; default = "vps6.xserver.chn.moe"; };
-      dae.lanInterfaces = mkOption
+      type = types.nullOr (types.submodule { options =
       {
-        type = types.listOf types.nonEmptyStr;
-        default = inputs.lib.optionals inputs.config.nixos.virtualization.docker.enable [ "docker0" ];
-      };
-      dae.wanInterface = mkOption { type = types.listOf types.nonEmptyStr; default = [ "auto" ]; };
+        serverAddress = mkOption { type = types.nonEmptyStr; default = "74.211.99.69"; };
+        serverName = mkOption { type = types.nonEmptyStr; default = "vps6.xserver.chn.moe"; };
+        noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
+        dae =
+        {
+          lanInterfaces = mkOption
+          {
+            type = types.listOf types.nonEmptyStr;
+            default = inputs.lib.optionals inputs.config.nixos.virtualization.docker.enable [ "docker0" ];
+          };
+          wanInterface = mkOption { type = types.listOf types.nonEmptyStr; default = [ "auto" ]; };
+        };
+      };});
+      default = null;
     };
     server = mkOption
     {
@@ -29,12 +36,12 @@ inputs:
     {
       assertions =
       [{
-        assertion = !(xray.client.enable && xray.server.enable);
+        assertion = !(xray.client != null && xray.server != null);
         message = "Currenty xray.client and xray.server could not be simutaniusly enabled.";
       }];
     }
     (
-      inputs.lib.mkIf xray.client.enable
+      inputs.lib.mkIf (xray.client != null)
       {
         services =
         {
@@ -42,6 +49,7 @@ inputs:
           dae =
           {
             enable = true;
+            package = inputs.pkgs.callPackage "${inputs.topInputs.nixpkgs-unstable}/pkgs/tools/networking/dae" {};
             config =
             let
               lanString = (inputs.lib.optionalString (xray.client.dae.lanInterfaces != []) "lan_interface: ")
@@ -94,8 +102,7 @@ inputs:
               }
 
               routing {
-                # TODO: more general rules to bypass the proxy
-                pname(xray) -> direct
+                dscp(0x1) -> direct
 
                 dip(224.0.0.0/3, 'ff00::/8') -> direct
                 dip(geoip:private) -> direct
@@ -235,10 +242,14 @@ inputs:
                     "${iptables} -t mangle -A OUTPUT -j v2ray_mark -w"
                   ]
                   ++ (map (action: "${iptables} -t mangle -A v2ray_mark ${action} -w")
-                  [
-                    "-m set --match-set xmu_net dst -p tcp -j MARK --set-mark 1/1"
-                    "-m set --match-set xmu_net dst -p udp -j MARK --set-mark 1/1"
-                  ])
+                  (
+                    [ "-m set --match-set xmu_net dst -j MARK --set-mark 1/1" ]
+                    ++ (map
+                      (user:
+                        let uid = inputs.config.nixos.system.user.user.${user};
+                        in "-m owner --uid-owner ${toString uid} -j DSCP --set-dscp 0x1")
+                      (xray.client.noproxyUsers ++ [ "v2ray" ]))  
+                  ))
                   ++ [
                     "${ip} rule add fwmark 1/1 table 100"
                     "${ip} route add local 0.0.0.0/0 dev lo table 100"

@@ -94,7 +94,7 @@ inputs:
           };
         };
         sshd.enable = true;
-        xray.client.enable = true;
+        xray.client = {};
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         acme = { enable = true; cert."debug.mirism.one" = {}; };
         frpClient =

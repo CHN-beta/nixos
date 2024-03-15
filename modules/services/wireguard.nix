@@ -9,7 +9,7 @@ inputs:
     behindNat = mkOption
     {
       type = types.bool;
-      default = inputs.config.nixos.services.xray.client.enable;
+      default = inputs.config.nixos.services.xray.client != null;
     };
     listenIp = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
     # if the host is behind xray, it should listen on another port, to make xray succeffully listen on 51820

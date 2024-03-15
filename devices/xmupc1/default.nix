@@ -68,7 +68,7 @@ inputs:
         snapper.enable = true;
         fontconfig.enable = true;
         sshd = { enable = true; passwordAuthentication = true; };
-        xray.client.enable = true;
+        xray.client = {};
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         smartd.enable = true;
         beesd =
