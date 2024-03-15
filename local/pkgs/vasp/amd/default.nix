@@ -1,18 +1,18 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll,
-  aocc, rsync, which, hdf5, wannier90, aocl, openmpi
+  aocc, rsync, which, hdf5, wannier90, aocl, openmpi, gcc, zlib, glibc, binutils
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
   buildEnv = buildFHSEnv
   {
     name = "buildEnv";
-    targetPkgs = pkgs: with pkgs; [ zlib aocc aocl openmpi gcc.cc gcc.cc.lib glibc.dev binutils.bintools ];
+    targetPkgs = _: [ zlib aocc aocl openmpi gcc.cc gcc.cc.lib glibc.dev binutils.bintools ];
   };
   buildScript = writeScript "build"
   ''
     mkdir -p bin
-    make DEPS=1 -j$NIX_BUILD_CORES std
+    make DEPS=1 -j$NIX_BUILD_CORES
   '';
   include = version: substituteAll
   {
@@ -29,8 +29,7 @@ let
       cp ${include version} makefile.include
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
     '';
-    enableParallelBuilding = false;
-    buildInputs = [ hdf5 wannier90 ];
+    buildInputs = [ wannier90 ];
     nativeBuildInputs = [ rsync which ];
     AMDBLIS_ROOT = aocl;
     AMDLIBFLAME_ROOT = aocl;
@@ -62,7 +61,7 @@ let
   runEnv = version: buildFHSEnv
   {
     name = "vasp-amd-${version}";
-    targetPkgs = pkgs: with pkgs; [ zlib (vasp version) aocc aocl ];
+    targetPkgs = pkgs: with pkgs; [ zlib (vasp version) aocc aocl openmpi gcc.cc.lib ];
     runScript = startScript version;
   };
 in builtins.mapAttrs (version: _: runEnv version) sources

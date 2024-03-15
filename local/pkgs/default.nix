@@ -68,6 +68,7 @@
       hdf5 = hdf5-aocc;
       openmpi = openmpi-aocc;
       wannier90 = callPackage "${topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
+      gcc = gcc-pie;
     };
   };
   hdf5-nvhpc = callPackage ./hdf5-nvhpc { inherit lmod; inherit (hdf5) src; nvhpc = nvhpc."24.1"; };
@@ -76,6 +77,14 @@
   mumax = callPackage ./mumax { src = topInputs.mumax; };
   aocc = callPackage ./aocc {};
   aocl = callPackage ./aocl {};
-  hdf5-aocc = callPackage ./hdf5-aocc { inherit (hdf5) src; inherit aocc; openmpi = openmpi-aocc; };
-  openmpi-aocc = callPackage ./openmpi-aocc { inherit aocc; };
+  hdf5-aocc = callPackage ./hdf5-aocc
+  {
+    inherit (hdf5) src;
+    inherit aocc;
+    openmpi = openmpi-aocc;
+    gcc = gcc-pie;
+  };
+  openmpi-aocc = callPackage ./openmpi-aocc { inherit aocc; gcc = gcc-pie; };
+  gcc-pie = wrapCC (gcc.cc.overrideAttrs (prev:
+    { configureFlags = prev.configureFlags ++ [ "--enable-default-pie" ];}));
 }

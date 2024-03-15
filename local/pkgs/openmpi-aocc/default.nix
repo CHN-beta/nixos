@@ -1,13 +1,13 @@
 {
   lib, buildFHSEnv, writeScript, stdenvNoCC,
   openmpi, 
-  aocc, cmake, libnl, pmix, libpsm2, libfabric, zlib, numactl, ucx, ucc, libevent, hwloc, rdma-core, perl
+  aocc, cmake, libnl, pmix, libpsm2, libfabric, zlib, numactl, ucx, ucc, libevent, hwloc, rdma-core, perl, glibc, binutils, gcc
 }:
 let
   buildEnv = buildFHSEnv
   {
     name = "buildEnv";
-    targetPkgs = pkgs: with pkgs; [ zlib aocc gcc.cc gcc.cc.lib glibc.dev binutils.bintools libnl numactl ucx ucc libevent hwloc rdma-core libpsm2 libfabric perl ];
+    targetPkgs = _: [ zlib aocc gcc.cc.lib.lib glibc.dev binutils.bintools libnl numactl ucx ucc libevent hwloc rdma-core libpsm2 libfabric perl ];
     extraBwrapArgs = [ "--bind" "$out" "$out" ];
   };
   buildScript = writeScript "build"

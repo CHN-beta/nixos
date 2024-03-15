@@ -40,7 +40,7 @@ inputs:
           ]
           ++ (builtins.concatLists (builtins.map
             (compiler: builtins.map (version: localPackages.vasp.${compiler}.${version}) [ "6.3.1" "6.4.0" ])
-            [ "gnu" "nvidia" "intel" ]));
+            [ "gnu" "nvidia" "intel" "amd" ]));
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
             phonopy tensorflow keras scipy scikit-learn jupyterlab autograd # localPackages.pix2tex

@@ -10,7 +10,7 @@ CPP_OPTIONS = -DHOST=\"LinuxGNU\" \
               -Dfock_dblbuf \
               -D_OPENMP -Duse_shmem -Dshmem_bcast_buffer -Dshmem_rproj
 
-CPP         = flang -E -ffree-form -C -w $*$(FUFFIX) >$*$(SUFFIX) $(CPP_OPTIONS)
+CPP         = flang -E -ffree-form -C -w $*$(FUFFIX) >$*$(SUFFIX) $(CPP_OPTIONS) -ffree-form
 
 FC          = mpif90 -fopenmp
 FCL         = mpif90 -fopenmp
