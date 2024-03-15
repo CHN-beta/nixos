@@ -78,6 +78,7 @@ inputs:
               }
 
               dns {
+                ipversion_prefer: 4
                 upstream {
                   alidns: 'udp://223.5.5.5:53'
                   googledns: 'tcp+udp://8.8.8.8:53'
