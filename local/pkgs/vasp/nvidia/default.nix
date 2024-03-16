@@ -1,6 +1,6 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll,
-  config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px",
+  config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px", additionalCommands ? "",
   nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90
 }:
 let
@@ -61,6 +61,8 @@ let
     if [ -n "''${SLURM_CPUS_PER_TASK-}" ]; then
       export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
     fi
+
+    ${additionalCommands}
 
     exec "$@"
   '';

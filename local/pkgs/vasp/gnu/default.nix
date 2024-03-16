@@ -1,6 +1,7 @@
 {
   stdenvNoCC, requireFile, writeShellApplication, substituteAll,
-  rsync, blas, scalapack, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90
+  rsync, blas, scalapack, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90,
+  additionalCommands ? ""
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -41,6 +42,9 @@ let
       if [ -n "''${SLURM_CPUS_PER_TASK-}" ]; then
         export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
       fi
+
+      ${additionalCommands}
+
       exec "$@"
     '';
   };

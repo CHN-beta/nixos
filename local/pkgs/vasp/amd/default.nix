@@ -1,6 +1,7 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll,
-  aocc, rsync, which, hdf5, wannier90, aocl, openmpi, gcc, zlib, glibc, binutils, libpsm2
+  aocc, rsync, which, hdf5, wannier90, aocl, openmpi, gcc, zlib, glibc, binutils, libpsm2,
+  additionalCommands ? ""
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -55,6 +56,8 @@ let
     if [ -n "''${SLURM_CPUS_PER_TASK-}" ]; then
       export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
     fi
+
+    ${additionalCommands}
 
     exec "$@"
   '';

@@ -1,6 +1,6 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin,
-  config, oneapiArch ? config.oneapiArch or "SSE3",
+  config, oneapiArch ? config.oneapiArch or "SSE3", additionalCommands ? "",
   oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5
 }:
 let
@@ -59,6 +59,8 @@ let
     if [ -n "''${SLURM_CPUS_PER_TASK-}" ]; then
       export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
     fi
+
+    ${additionalCommands}
 
     exec "$@"
   '';
