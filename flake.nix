@@ -98,11 +98,9 @@
             specialArgs = { topInputs = inputs; inherit localLib; };
             modules = localLib.mkModules
             [
-              (moduleInputs:
-              {
-                config.nixpkgs.overlays = [(final: prev: { localPackages =
-                  import ./local/pkgs { inherit (moduleInputs) lib; pkgs = final; topInputs = inputs; };})];
-              })
+              (moduleInputs: { config.nixpkgs.overlays = [(prev: final:
+                # replace pkgs with final to avoid infinite recursion
+                { localPackages = import ./local/pkgs (moduleInputs // { pkgs = final; }); })]; })
               ./modules
               ./devices/${system}
             ];

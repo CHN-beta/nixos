@@ -1,4 +1,5 @@
 {
+  version ? "2024.0",
   stdenvNoCC, fetchurl, buildFHSEnv,
   ncurses
 }:
@@ -56,7 +57,7 @@ let
   };
   componentString = components: if components == null then "--components default" else
     " --components " + (builtins.concatStringsSep ":" components);
-in let buildOneapi = version: stdenvNoCC.mkDerivation rec
+in stdenvNoCC.mkDerivation rec
 {
   pname = "oneapi";
   inherit version;
@@ -86,5 +87,4 @@ in let buildOneapi = version: stdenvNoCC.mkDerivation rec
   '';
   dontFixup = true;
   requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
-};
-in builtins.mapAttrs (version: _: buildOneapi version) versions
+}

@@ -1,4 +1,5 @@
 {
+  version ? "24.1",
   stdenvNoCC, fetchurl, buildFHSEnv,
   gfortran, flock
 }:
@@ -17,7 +18,7 @@ let
     targetPkgs = pkgs: with pkgs; [ coreutils ];
     extraBwrapArgs = [ "--bind" "$out" "$out" ];
   };
-in let buildNvhpc = version: stdenvNoCC.mkDerivation
+in stdenvNoCC.mkDerivation
 {
   pname = "nvhpc";
   inherit version;
@@ -39,5 +40,4 @@ in let buildNvhpc = version: stdenvNoCC.mkDerivation
     ${builder}/bin/builder ./install
   '';
   requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
-};
-in builtins.mapAttrs (version: _: buildNvhpc version) versions
+}

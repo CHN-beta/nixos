@@ -1,90 +1,73 @@
-{ lib, pkgs, topInputs }: with pkgs; rec
+inputs: rec
 {
-  typora = callPackage ./typora {};
-  vesta = callPackage ./vesta {};
-  rsshub = callPackage ./rsshub { src = topInputs.rsshub; };
-  misskey = callPackage ./misskey { nodejs = nodejs_21; src = topInputs.misskey; };
-  mk-meili-mgn = callPackage ./mk-meili-mgn {};
-  vaspkit = callPackage ./vaspkit { attrsToList = (import ../lib lib).attrsToList; };
-  v-sim = callPackage ./v-sim { src = topInputs.v-sim; };
-  concurrencpp = callPackage ./concurrencpp { stdenv = gcc13Stdenv; src = topInputs.concurrencpp; };
-  eigengdb = python3Packages.callPackage ./eigengdb {};
-  nodesoup = callPackage ./nodesoup { src = topInputs.nodesoup; };
-  matplotplusplus = callPackage ./matplotplusplus { inherit nodesoup glad; src = topInputs.matplotplusplus; };
-  zpp-bits = callPackage ./zpp-bits { src = topInputs.zpp-bits; };
-  eigen = callPackage ./eigen { src = topInputs.eigen; };
-  nameof = callPackage ./nameof { src = topInputs.nameof; };
-  pslist = callPackage ./pslist {};
-  glad = callPackage ./glad {};
-  chromiumos-touch-keyboard = callPackage ./chromiumos-touch-keyboard {};
-  yoga-support = callPackage ./yoga-support {};
-  tgbot-cpp = callPackage ./tgbot-cpp { src = topInputs.tgbot-cpp; };
-  biu = callPackage ./biu { inherit concurrencpp tgbot-cpp nameof; stdenv = gcc13Stdenv; };
-  citation-style-language = callPackage ./citation-style-language { src = topInputs.citation-style-language; };
-  mirism = callPackage ./mirism
+  typora = inputs.pkgs.callPackage ./typora {};
+  vesta = inputs.pkgs.callPackage ./vesta {};
+  rsshub = inputs.pkgs.callPackage ./rsshub { src = inputs.topInputs.rsshub; };
+  misskey = inputs.pkgs.callPackage ./misskey { nodejs = inputs.pkgs.nodejs_21; src = inputs.topInputs.misskey; };
+  mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn {};
+  vaspkit = inputs.pkgs.callPackage ./vaspkit { inherit (inputs.localLib) attrsToList; };
+  v-sim = inputs.pkgs.callPackage ./v-sim { src = inputs.topInputs.v-sim; };
+  concurrencpp = inputs.pkgs.callPackage ./concurrencpp
+    { stdenv = inputs.pkgs.gcc13Stdenv; src = inputs.topInputs.concurrencpp; };
+  eigengdb = inputs.pkgs.python3Packages.callPackage ./eigengdb {};
+  nodesoup = inputs.pkgs.callPackage ./nodesoup { src = inputs.topInputs.nodesoup; };
+  matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus
+    { inherit nodesoup glad; src = inputs.topInputs.matplotplusplus; };
+  zpp-bits = inputs.pkgs.callPackage ./zpp-bits { src = inputs.topInputs.zpp-bits; };
+  eigen = inputs.pkgs.callPackage ./eigen { src = inputs.topInputs.eigen; };
+  nameof = inputs.pkgs.callPackage ./nameof { src = inputs.topInputs.nameof; };
+  pslist = inputs.pkgs.callPackage ./pslist {};
+  glad = inputs.pkgs.callPackage ./glad {};
+  chromiumos-touch-keyboard = inputs.pkgs.callPackage ./chromiumos-touch-keyboard {};
+  yoga-support = inputs.pkgs.callPackage ./yoga-support {};
+  tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp { src = inputs.topInputs.tgbot-cpp; };
+  biu = inputs.pkgs.callPackage ./biu { inherit concurrencpp tgbot-cpp nameof; stdenv = inputs.pkgs.gcc13Stdenv; };
+  citation-style-language = inputs.pkgs.callPackage ./citation-style-language
+    { src = inputs.topInputs.citation-style-language; };
+  mirism = inputs.pkgs.callPackage ./mirism
   {
     inherit cppcoro nameof tgbot-cpp date;
-    nghttp2 = pkgs."nghttp2-23.05".override { enableAsioLib = true; };
+    nghttp2 = inputs.pkgs.callPackage "${inputs.topInputs."nixpkgs-23.05"}/pkgs/development/libraries/nghttp2"
+      { enableAsioLib = true; };
   };
-  cppcoro = callPackage ./cppcoro { src = topInputs.cppcoro; };
-  date = callPackage ./date { src = topInputs.date; };
-  esbonio = python3Packages.callPackage ./esbonio {};
-  pix2tex = python3Packages.callPackage ./pix2tex {};
-  pyreadline3 = python3Packages.callPackage ./pyreadline3 {};
-  torchdata = python3Packages.callPackage ./torchdata {};
-  torchtext = python3Packages.callPackage ./torchtext { inherit torchdata; };
-  win11os-kde = callPackage ./win11os-kde { src = topInputs.win11os-kde; };
-  fluent-kde = callPackage ./fluent-kde { src = topInputs.fluent-kde; };
-  blurred-wallpaper = callPackage ./blurred-wallpaper { src = topInputs.blurred-wallpaper; };
-  slate = callPackage ./slate { src = topInputs.slate; };
-  nvhpc = callPackage ./nvhpc {};
-  lmod = callPackage ./lmod { src = topInputs.lmod; };
-  vasp =
+  cppcoro = inputs.pkgs.callPackage ./cppcoro { src = inputs.topInputs.cppcoro; };
+  date = inputs.pkgs.callPackage ./date { src = inputs.topInputs.date; };
+  esbonio = inputs.pkgs.python3Packages.callPackage ./esbonio {};
+  pix2tex = inputs.pkgs.python3Packages.callPackage ./pix2tex {};
+  pyreadline3 = inputs.pkgs.python3Packages.callPackage ./pyreadline3 {};
+  torchdata = inputs.pkgs.python3Packages.callPackage ./torchdata {};
+  torchtext = inputs.pkgs.python3Packages.callPackage ./torchtext { inherit torchdata; };
+  win11os-kde = inputs.pkgs.callPackage ./win11os-kde { src = inputs.topInputs.win11os-kde; };
+  fluent-kde = inputs.pkgs.callPackage ./fluent-kde { src = inputs.topInputs.fluent-kde; };
+  blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper { src = inputs.topInputs.blurred-wallpaper; };
+  slate = inputs.pkgs.callPackage ./slate { src = inputs.topInputs.slate; };
+  nvhpc = inputs.pkgs.callPackage ./nvhpc {};
+  lmod = inputs.pkgs.callPackage ./lmod { src = inputs.topInputs.lmod; };
+  vasp = rec
   {
-    source = callPackage ./vasp/source.nix {};
-    gnu = callPackage ./vasp/gnu
+    source = inputs.pkgs.callPackage ./vasp/source.nix {};
+    gnu = inputs.pkgs.callPackage ./vasp/gnu
     {
-      inherit (llvmPackages) openmp;
-      wannier90 = callPackage "${topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
-      hdf5 = hdf5.override { mpiSupport = true; fortranSupport = true; };
+      inherit (inputs.pkgs.llvmPackages) openmp;
+      inherit wannier90;
+      hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; };
     };
-    nvidia = callPackage ./vasp/nvidia
-    {
-      inherit lmod;
-      nvhpc = nvhpc."24.1";
-      hdf5 = hdf5-nvhpc.override { nvhpc = nvhpc."24.1"; };
-      wannier90 = callPackage "${topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
-    };
-    intel = callPackage ./vasp/intel
-    {
-      inherit lmod;
-      oneapi = oneapi."2024.0";
-      hdf5 = hdf5-oneapi.override { oneapi = oneapi."2024.0"; };
-      wannier90 = callPackage "${topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
-    };
-    amd = callPackage ./vasp/amd
-    {
-      inherit aocc aocl;
-      hdf5 = hdf5-aocc;
-      openmpi = openmpi-aocc;
-      wannier90 = callPackage "${topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
-      gcc = gcc-pie;
-    };
+    nvidia = inputs.pkgs.callPackage ./vasp/nvidia { inherit lmod nvhpc wannier90; hdf5 = hdf5-nvhpc; };
+    intel = inputs.pkgs.callPackage ./vasp/intel { inherit lmod oneapi wannier90; hdf5 = hdf5-oneapi; };
+    amd = inputs.pkgs.callPackage ./vasp/amd
+      { inherit aocc aocl wannier90; hdf5 = hdf5-aocc; openmpi = openmpi-aocc; gcc = gcc-pie; };
+    wannier90 = inputs.pkgs.callPackage
+      "${inputs.topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
+    hdf5-nvhpc = inputs.pkgs.callPackage ./vasp/hdf5-nvhpc { inherit lmod nvhpc; inherit (inputs.pkgs.hdf5) src; };
+    hdf5-oneapi = inputs.pkgs.callPackage ./vasp/hdf5-oneapi { inherit lmod oneapi; inherit (inputs.pkgs.hdf5) src; };
+    hdf5-aocc = inputs.pkgs.callPackage ./vasp/hdf5-aocc
+      { inherit (inputs.pkgs.hdf5) src; inherit aocc; openmpi = openmpi-aocc; gcc = gcc-pie; };
+    openmpi-aocc = inputs.pkgs.callPackage ./vasp/openmpi-aocc { inherit aocc; gcc = gcc-pie; };
+    gcc-pie = inputs.pkgs.wrapCC (inputs.pkgs.gcc.cc.overrideAttrs (prev:
+      { configureFlags = prev.configureFlags ++ [ "--enable-default-pie" ];}));
   };
-  hdf5-nvhpc = callPackage ./hdf5-nvhpc { inherit lmod; inherit (hdf5) src; nvhpc = nvhpc."24.1"; };
-  hdf5-oneapi = callPackage ./hdf5-oneapi { inherit lmod; inherit (hdf5) src; oneapi = oneapi."2024.0"; };
-  oneapi = callPackage ./oneapi {};
-  mumax = callPackage ./mumax { src = topInputs.mumax; };
-  aocc = callPackage ./aocc {};
-  aocl = callPackage ./aocl {};
-  hdf5-aocc = callPackage ./hdf5-aocc
-  {
-    inherit (hdf5) src;
-    inherit aocc;
-    openmpi = openmpi-aocc;
-    gcc = gcc-pie;
-  };
-  openmpi-aocc = callPackage ./openmpi-aocc { inherit aocc; gcc = gcc-pie; };
-  gcc-pie = wrapCC (gcc.cc.overrideAttrs (prev:
-    { configureFlags = prev.configureFlags ++ [ "--enable-default-pie" ];}));
+  oneapi = inputs.pkgs.callPackage ./oneapi {};
+  mumax = inputs.pkgs.callPackage ./mumax { src = inputs.topInputs.mumax; };
+  aocc = inputs.pkgs.callPackage ./aocc {};
+  aocl = inputs.pkgs.callPackage ./aocl {};
 }
