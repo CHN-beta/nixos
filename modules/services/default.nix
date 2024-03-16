@@ -1,49 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules
-  [
-    ./postgresql.nix
-    ./redis.nix
-    ./rsshub.nix
-    ./misskey.nix
-    ./nginx
-    ./meilisearch.nix
-    ./xray.nix
-    ./coturn.nix
-    ./synapse.nix
-    ./phpfpm.nix
-    ./xrdp.nix
-    ./groupshare.nix
-    ./acme.nix
-    ./samba.nix
-    ./sshd.nix
-    ./vaultwarden.nix
-    ./frp.nix
-    ./beesd.nix
-    ./snapper.nix
-    ./mariadb.nix
-    ./photoprism.nix
-    ./nextcloud.nix
-    ./freshrss.nix
-    ./kmscon.nix
-    ./fontconfig.nix
-    ./nix-serve.nix
-    ./send.nix
-    ./huginn.nix
-    ./httpua
-    ./fz-new-order
-    ./httpapi.nix
-    ./mirism.nix
-    ./mastodon.nix
-    ./gitea.nix
-    ./grafana.nix
-    ./fail2ban.nix
-    ./wireguard.nix
-    ./akkoma.nix
-    ./gamemode.nix
-    ./vikunja.nix
-    ./slurm.nix
-  ];
+  imports = inputs.localLib.mkModules (inputs.localLib.findModules ./.);
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
     firewall.trustedInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };

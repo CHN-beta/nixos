@@ -1,13 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules
-  [
-    ./server
-    ./desktop
-    ./desktop-fat
-    ./workstation
-    ./flatpak.nix
-  ];
+  imports = inputs.localLib.mkModules (inputs.localLib.findModules ./.);
   options.nixos.packages =
     let
       inherit (inputs.lib) mkOption types;

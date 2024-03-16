@@ -1,4 +1,4 @@
-lib:
+lib: rec
 {
   attrsToList = attrs: builtins.map (name: { inherit name; value = attrs.${name}; }) (builtins.attrNames attrs);
   mkConditional = condition: trueResult: falseResult: let inherit (lib) mkMerge mkIf; in
@@ -12,9 +12,9 @@ lib:
   mkModules = moduleList:
     (builtins.map
       (
-        let handle = module:
-          if ( builtins.typeOf module ) == "path" then (handle (import module))
-          else if ( builtins.typeOf module ) == "lambda" then ({ pkgs, utils, ... }@inputs: (module inputs))
+        let handle = module: let type = builtins.typeOf module; in
+          if type == "path" || type == "string" then (handle (import module))
+          else if type == "lambda" then ({ pkgs, utils, ... }@inputs: (module inputs))
           else module;
         in handle
       )
@@ -37,4 +37,21 @@ lib:
   findIndex = e: list:
     let findIndex_ = i: list: if (builtins.elemAt list i) == e then i else findIndex_ (i + 1) list;
     in findIndex_ 0 list;
+
+  # return a list of path, including:
+  # - all .nix file in the directory except for default.nix
+  # - all directories containing a default.nix
+  findModules = path:
+    builtins.filter (path: path != null) (builtins.map
+      (subPath:
+        if subPath.value == "regular" && subPath.name != "default.nix"
+          then if lib.strings.hasSuffix ".nix" subPath.name
+            then "${path}/${subPath.name}"
+            else null
+          else if subPath.value == "directory"
+            then if (builtins.readDir "${path}/${subPath.name}")."default.nix" or null == "regular"
+              then "${path}/${subPath.name}"
+            else null
+          else null)
+      (attrsToList (builtins.readDir path)));
 }

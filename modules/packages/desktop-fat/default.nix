@@ -1,6 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules [ ./steam.nix ];
+  imports = inputs.localLib.mkModules (inputs.localLib.findModules ./.);
   config =
     let
       inherit (inputs.lib) mkIf;

@@ -1,24 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules
-  [
-    ./nix.nix
-    ./fileSystems
-    ./grub.nix
-    ./initrd.nix
-    ./kernel
-    ./impermanence.nix
-    ./gui.nix
-    ./nixpkgs.nix
-    ./networking.nix
-    ./systemd.nix
-    ./security.nix
-    ./sops.nix
-    ./user.nix
-    ./sysctl.nix
-    ./envfs.nix
-    ./binfmt.nix
-  ];
+  imports = inputs.localLib.mkModules (inputs.localLib.findModules ./.);
   config =
   {
     services = { dbus.implementation = "broker"; fstrim.enable = true; acpid.enable = true; };

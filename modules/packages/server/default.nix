@@ -1,11 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules
-  [
-    ./ssh
-    ./zsh
-    ./gpg.nix
-  ];
+  imports = inputs.localLib.mkModules (inputs.localLib.findModules ./.);
   config =
     let
       inherit (inputs.lib) mkIf;
