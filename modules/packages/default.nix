@@ -6,6 +6,7 @@ inputs:
     ./desktop
     ./desktop-fat
     ./workstation
+    ./flatpak.nix
   ];
   options.nixos.packages =
     let

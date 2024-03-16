@@ -13,6 +13,7 @@ inputs:
       topInputs.nur.nixosModules.nur
       topInputs.nur-xddxdd.nixosModules.setupOverlay
       topInputs.impermanence.nixosModules.impermanence
+      topInputs.nix-flatpak.nixosModules.nix-flatpak
       (inputs:
       {
         config =

@@ -48,6 +48,7 @@ inputs:
             "/var/lib/systemd/linger"
             "/var/lib/systemd/coredump"
             { directory = "/var/lib/docker"; mode = "0710"; }
+            "/var/lib/flatpak"
           ]
           ++ (if inputs.config.services.xserver.displayManager.sddm.enable then
             [{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }] else []);
