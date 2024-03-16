@@ -14,6 +14,7 @@ inputs:
       topInputs.nur-xddxdd.nixosModules.setupOverlay
       topInputs.impermanence.nixosModules.impermanence
       topInputs.nix-flatpak.nixosModules.nix-flatpak
+      topInputs.chaotic.nixosModules.default
       (inputs:
       {
         config =
