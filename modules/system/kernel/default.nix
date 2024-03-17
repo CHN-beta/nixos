@@ -2,7 +2,11 @@ inputs:
 {
   options.nixos.system.kernel = let inherit (inputs.lib) mkOption types; in
   {
-    varient = mkOption { type = types.enum [ "lts" "latest" ]; default = "lts"; };
+    varient = mkOption
+    {
+      type = types.enum [ "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" ];
+      default = "xanmod-lts";
+    };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     modules =
     {
@@ -36,8 +40,10 @@ inputs:
       kernelParams = [ "delayacct" "acpi_osi=Linux" "acpi.ec_no_wakeup=1" ];
       kernelPackages =
       {
-        lts = inputs.pkgs.linuxPackages_xanmod;
-        latest = inputs.pkgs.linuxPackages_xanmod_latest;
+        xanmod-lts = inputs.pkgs.linuxPackages_xanmod;
+        xanmod-latest = inputs.pkgs.linuxPackages_xanmod_latest;
+        cachyos = inputs.pkgs.linuxPackages_cachyos;
+        cachyos-lto = inputs.pkgs.linuxPackages_cachyos-lto;
       }.${kernel.varient};
       kernelPatches =
         let
