@@ -145,17 +145,7 @@ inputs:
             scx-rustland = prev.scx-rustland.override { inherit rustPlatform; };
             scx-rusty = prev.scx-rusty.override { inherit rustPlatform; };
           });
-        in
-        {
-          environment.systemPackages = [ scx ];
-          systemd.services.scx =
-          {
-            wantedBy = [ "multi-user.target" ];
-            description = "scheduler daemon";
-            serviceConfig =
-              { Type = "simple"; User = "root"; ExecStart = "${scx}/bin/scx_rustland"; Restart = "on-failure"; };
-          };
-        }
+        in { environment.systemPackages = [ scx ]; }
       )
     )
   ];
