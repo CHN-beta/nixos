@@ -1033,11 +1033,11 @@
     "linux-surface": {
       "flake": false,
       "locked": {
-        "lastModified": 1709062140,
-        "narHash": "sha256-yhNJ/0oQWkNkBrBePEYN4SEzlx8S4w/OK6KFYP/vCbk=",
+        "lastModified": 1710015335,
+        "narHash": "sha256-Mjk332F7vTGupjpfRv9OdvV9MZORb87L2D+cYI7f8CM=",
         "owner": "linux-surface",
         "repo": "linux-surface",
-        "rev": "0a6559d21ea3ccdb12ce2483fa6b6ad416f0c56f",
+        "rev": "3c1b47315d1e4f49b13903f07618310c65b16e64",
         "type": "github"
       },
       "original": {
