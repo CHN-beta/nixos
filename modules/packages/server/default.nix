@@ -46,17 +46,7 @@ inputs:
             # development
             gdb try inputs.topInputs.plasma-manager.packages.x86_64-linux.rc2nix hexo-cli gh
           ]
-          ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ])
-          ++ (inputs.lib.optional (inputs.lib.strings.hasPrefix "cachyos" inputs.config.nixos.system.kernel.varient)
-          (
-            let rustPlatform = inputs.pkgs.unstablePackages.rustPlatform;
-            in inputs.pkgs.scx.override (prev:
-            {
-              scx-layered = prev.scx-layered.override { inherit rustPlatform; };
-              scx-rustland = prev.scx-rustland.override { inherit rustPlatform; };
-              scx-rusty = prev.scx-rusty.override { inherit rustPlatform; };
-            })
-          ));
+          ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
             openai python-telegram-bot fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
