@@ -31,7 +31,7 @@ inputs:
         nixpkgs.march = "skylake";
         grub.installDevice = "efi";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-        kernel.patches = [ "cjktty" "lantian" "surface" ];
+        kernel = { varient = "cachyos"; patches = [ "cjktty" "surface" ]; };
         networking.hostname = "surface";
       };
       hardware =
