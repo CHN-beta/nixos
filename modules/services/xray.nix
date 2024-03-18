@@ -6,9 +6,12 @@ inputs:
     {
       type = types.nullOr (types.submodule { options =
       {
-        serverAddress = mkOption { type = types.nonEmptyStr; default = "74.211.99.69"; };
-        serverName = mkOption { type = types.nonEmptyStr; default = "vps6.xserver.chn.moe"; };
-        noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
+        xray =
+        {
+          serverAddress = mkOption { type = types.nonEmptyStr; default = "74.211.99.69"; };
+          serverName = mkOption { type = types.nonEmptyStr; default = "vps6.xserver.chn.moe"; };
+          noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
+        };
         dae =
         {
           lanInterfaces = mkOption
@@ -17,6 +20,15 @@ inputs:
             default = inputs.lib.optionals inputs.config.nixos.virtualization.docker.enable [ "docker0" ];
           };
           wanInterface = mkOption { type = types.listOf types.nonEmptyStr; default = [ "auto" ]; };
+        };
+        dnsmasq =
+        {
+          extraInterfaces = mkOption
+          {
+            type = types.listOf types.nonEmptyStr;
+            default = inputs.lib.optional inputs.config.nixos.virtualization.docker.enable "docker0";
+          };
+          hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
         };
       };});
       default = null;
@@ -46,6 +58,20 @@ inputs:
         services =
         {
           xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-client.json".path; };
+          dnsmasq =
+          {
+            enable = true;
+            settings =
+            {
+              no-poll = true;
+              log-queries = true;
+              server = [ "1.1.1.1" ]; # use a random DNS, and dns query will be actually handled by dae
+              interface = xray.client.dnsmasq.extraInterfaces ++ [ "lo" ];
+              bind-dynamic = true;
+              address = map (host: "/${host.name}/${host.value}")
+                (inputs.localLib.attrsToList xray.client.dnsmasq.hosts);
+            };
+          };
           dae =
           {
             enable = true;
@@ -150,7 +176,7 @@ inputs:
                     protocol = "vless";
                     settings.vnext =
                     [{
-                      address = xray.client.serverAddress;
+                      address = xray.client.xray.serverAddress;
                       port = 443;
                       users =
                       [{
@@ -165,7 +191,7 @@ inputs:
                       security = "reality";
                       realitySettings =
                       {
-                        serverName = xray.client.serverName;
+                        serverName = xray.client.xray.serverName;
                         publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
                         fingerprint = "firefox";
                       };
@@ -249,7 +275,7 @@ inputs:
                       (user:
                         let uid = inputs.config.nixos.system.user.user.${user};
                         in "-m owner --uid-owner ${toString uid} -j DSCP --set-dscp 0x1")
-                      (xray.client.noproxyUsers ++ [ "v2ray" ]))  
+                      (xray.client.xray.noproxyUsers ++ [ "v2ray" ]))  
                   ))
                   ++ [
                     "${ip} rule add fwmark 1/1 table 100"
@@ -276,6 +302,7 @@ inputs:
           users.v2ray = { uid = inputs.config.nixos.system.user.user.v2ray; group = "v2ray"; isSystemUser = true; };
           groups.v2ray.gid = inputs.config.nixos.system.user.group.v2ray;
         };
+        environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
       }
     )
     (
