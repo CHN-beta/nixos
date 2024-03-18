@@ -1,6 +1,6 @@
 {
   stdenvNoCC, requireFile, writeShellApplication,
-  rsync, blas, scalapack, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90,
+  rsync, mkl, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90,
   additionalCommands ? ""
 }:
 let
@@ -8,7 +8,7 @@ let
   include = version: ./makefile.include-${version};
   vasp = version: stdenvNoCC.mkDerivation rec
   {
-    pname = "vasp-gnu";
+    pname = "vasp-gnu-mkl";
     inherit version;
     src = sources.${version};
     configurePhase =
@@ -19,11 +19,12 @@ let
     '';
     enableParallelBuilding = true;
     makeFlags = "DEPS=1";
-    buildInputs = [ blas scalapack mpi openmp fftwMpi.dev fftwMpi hdf5 hdf5.dev wannier90 ];
+    buildInputs = [ mkl mpi openmp fftwMpi.dev fftwMpi hdf5 hdf5.dev wannier90 ];
     nativeBuildInputs = [ rsync gfortran gfortran.cc gcc ];
     FFTW_ROOT = fftwMpi.dev;
     HDF5_ROOT = hdf5.dev;
     WANNIER90_ROOT = wannier90;
+    MKLROOT = mkl;
     installPhase =
     ''
       mkdir -p $out/bin

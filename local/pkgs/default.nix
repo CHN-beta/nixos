@@ -52,6 +52,12 @@ inputs: rec
       inherit wannier90 additionalCommands;
       hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; };
     };
+    gnu-mkl = inputs.pkgs.callPackage ./vasp/gnu-mkl
+    {
+      inherit (inputs.pkgs.llvmPackages) openmp;
+      inherit wannier90 additionalCommands;
+      hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; };
+    };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
       { inherit lmod nvhpc wannier90 additionalCommands; hdf5 = hdf5-nvhpc; };
     intel = inputs.pkgs.callPackage ./vasp/intel
