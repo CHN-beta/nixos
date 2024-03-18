@@ -65,7 +65,7 @@ inputs:
             {
               no-poll = true;
               log-queries = true;
-              server = [ "1.1.1.1" ]; # use a random DNS, and dns query will be actually handled by dae
+              server = [ "127.0.0.1#10853" ];
               interface = xray.client.dnsmasq.extraInterfaces ++ [ "lo" ];
               bind-dynamic = true;
               address = map (host: "/${host.name}/${host.value}")
@@ -103,25 +103,6 @@ inputs:
                 'socks5://localhost:10884'
               }
 
-              dns {
-                ipversion_prefer: 4
-                upstream {
-                  alidns: 'udp://223.5.5.5:53'
-                  googledns: 'tcp+udp://8.8.8.8:53'
-                }
-                routing {
-                  request {
-                    qname(geosite:geolocation-cn) -> alidns
-                    qname(geosite:geolocation-!cn) -> googledns
-                    fallback: alidns
-                  }
-                  response {
-                    upstream(alidns) && !ip(geoip:cn) -> googledns
-                    fallback: accept
-                  }
-                }
-              }
-
               group {
                 default_group {
                   policy: fixed(0)
@@ -133,8 +114,6 @@ inputs:
 
                 dip(224.0.0.0/3, 'ff00::/8') -> direct
                 dip(geoip:private) -> direct
-                domain(geosite:geolocation-cn) -> direct
-                domain(geosite:geolocation-!cn) -> default_group
                 dip(8.8.8.8) -> default_group
                 dip(223.5.5.5) -> direct
                 dip(geoip:cn) -> direct
@@ -158,8 +137,39 @@ inputs:
               builtins.toJSON
               {
                 log.loglevel = "info";
+                dns =
+                {
+                  servers =
+                  # 先尝试匹配域名列表进行查询，若匹配成功则使用前两个 dns 查询。
+                  # 若匹配域名列表失败，或者匹配成功但是查询到的 IP 不在期望的 IP 列表中，则回落到使用后两个 dns 依次查询。
+                  [
+                    {
+                      address = chinaDns;
+                      domains = [ "geosite:geolocation-cn" ];
+                      expectIPs = [ "geoip:cn" ];
+                      skipFallback = true;
+                    }
+                    {
+                      address = foreignDns;
+                      domains = [ "geosite:geolocation-!cn" ];
+                      expectIPs = [ "geoip:!cn" ];
+                      skipFallback = true;
+                    }
+                    { address = chinaDns; expectIPs = [ "geoip:cn" ]; }
+                    { address = foreignDns; }
+                  ];
+                  disableCache = true;
+                  queryStrategy = "UseIPv4";
+                  tag = "dns-internal";
+                };
                 inbounds =
                 [
+                  {
+                    port = 10853;
+                    protocol = "dokodemo-door";
+                    settings = { address = "8.8.8.8"; network = "tcp,udp"; port = 53; };
+                    tag = "dns-in";
+                  }
                   {
                     port = 10881;
                     protocol = "dokodemo-door";
@@ -167,7 +177,7 @@ inputs:
                     streamSettings.sockopt.tproxy = "tproxy";
                     tag = "xmu-in";
                   }
-                  { port = 10884; protocol = "socks"; settings.udp = true; tag = "proxy-in"; }
+                  { port = 10884; protocol = "socks"; settings.udp = true; tag = "common-in"; }
                   { port = 10882; protocol = "socks"; settings.udp = true; tag = "direct-in"; }
                 ];
                 outbounds =
@@ -212,9 +222,20 @@ inputs:
                   domainStrategy = "AsIs";
                   rules = builtins.map (rule: rule // { type = "field"; })
                   [
+                    { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
+                    { inboundTag = [ "dns-internal" ]; ip = [ chinaDns ]; outboundTag = "direct"; }
+                    { inboundTag = [ "dns-internal" ]; ip = [ foreignDns ]; outboundTag = "proxy-vless"; }
+                    { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
                     { inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
                     { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
-                    { inboundTag = [ "proxy-in" ]; outboundTag = "proxy-vless"; }
+                    { inboundTag = [ "common-in" ]; domain = [ "geosite:geolocation-cn" ]; outboundTag = "direct"; }
+                    {
+                      inboundTag = [ "common-in" ];
+                      domain = [ "geosite:geolocation-!cn" ];
+                      outboundTag = "proxy-vless";
+                    }
+                    { inboundTag = [ "common-in" ]; ip = [ "geoip:cn" ]; outboundTag = "direct"; }
+                    { inboundTag = [ "common-in" ]; outboundTag = "proxy-vless"; }
                   ];
                 };
               };
