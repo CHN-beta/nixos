@@ -13,8 +13,8 @@ inputs:
     {
       users =
       {
-        users.mirism = { uid = inputs.config.nixos.system.user.user.mirism; group = "mirism"; isSystemUser = true; };
-        groups.mirism.gid = inputs.config.nixos.system.user.group.mirism;
+        users.mirism = { uid = inputs.config.nixos.user.uid.mirism; group = "mirism"; isSystemUser = true; };
+        groups.mirism.gid = inputs.config.nixos.user.gid.mirism;
       };
       systemd =
       {

@@ -294,7 +294,7 @@ inputs:
                     [ "-m set --match-set xmu_net dst -j MARK --set-mark 1/1" ]
                     ++ (map
                       (user:
-                        let uid = inputs.config.nixos.system.user.user.${user};
+                        let uid = inputs.config.nixos.user.uid.${user};
                         in "-m owner --uid-owner ${toString uid} -j DSCP --set-dscp 0x1")
                       (xray.client.xray.noproxyUsers ++ [ "v2ray" ]))  
                   ))
@@ -320,8 +320,8 @@ inputs:
         };
         users =
         {
-          users.v2ray = { uid = inputs.config.nixos.system.user.user.v2ray; group = "v2ray"; isSystemUser = true; };
-          groups.v2ray.gid = inputs.config.nixos.system.user.group.v2ray;
+          users.v2ray = { uid = inputs.config.nixos.user.uid.v2ray; group = "v2ray"; isSystemUser = true; };
+          groups.v2ray.gid = inputs.config.nixos.user.gid.v2ray;
         };
         environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
       }
@@ -508,8 +508,8 @@ inputs:
         };
         users =
         {
-          users.v2ray = { uid = inputs.config.nixos.system.user.user.v2ray; group = "v2ray"; isSystemUser = true; };
-          groups.v2ray.gid = inputs.config.nixos.system.user.group.v2ray;
+          users.v2ray = { uid = inputs.config.nixos.user.uid.v2ray; group = "v2ray"; isSystemUser = true; };
+          groups.v2ray.gid = inputs.config.nixos.user.gid.v2ray;
         };
         nixos.services =
         {

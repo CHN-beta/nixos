@@ -55,7 +55,7 @@ inputs:
           inherit (pool) name;
           value =
           {
-            uid = inputs.config.nixos.system.user.user.${pool.name};
+            uid = inputs.config.nixos.user.uid.${pool.name};
             group = pool.name;
             extraGroups = [ "nginx" ];
             isSystemUser = true;
@@ -63,7 +63,7 @@ inputs:
         })
         (filter (pool: pool.value.user == null) (attrsToList phpfpm.instances)));
       groups = listToAttrs (map
-        (pool: { inherit (pool) name; value.gid = inputs.config.nixos.system.user.group.${pool.name}; })
+        (pool: { inherit (pool) name; value.gid = inputs.config.nixos.user.gid.${pool.name}; })
         (filter (pool: pool.value.user == null) (attrsToList phpfpm.instances)));
     };
   };

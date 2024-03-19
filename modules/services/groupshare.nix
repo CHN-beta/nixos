@@ -12,7 +12,7 @@ inputs:
       users = inputs.config.users.groups.groupshare.members;
     in mkIf groupshare.enable
     {
-      users.groups.groupshare.gid = inputs.config.nixos.system.user.group.groupshare;
+      users.groups.groupshare.gid = inputs.config.nixos.user.gid.groupshare;
       systemd.tmpfiles.rules = [ "d /var/lib/groupshare" ]
         ++ (concatLists (map
           (user:

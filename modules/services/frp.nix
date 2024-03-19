@@ -142,8 +142,8 @@ inputs:
           };
           users =
           {
-            users.frp = { uid = inputs.config.nixos.system.user.user.frp; group = "frp"; isSystemUser = true; };
-            groups.frp.gid = inputs.config.nixos.system.user.group.frp;
+            users.frp = { uid = inputs.config.nixos.user.uid.frp; group = "frp"; isSystemUser = true; };
+            groups.frp.gid = inputs.config.nixos.user.gid.frp;
           };
         }
       )
@@ -193,8 +193,8 @@ inputs:
           nixos.services.acme = { enable = true; cert.${frpServer.serverName}.group = "frp"; };
           users =
           {
-            users.frp = { uid = inputs.config.nixos.system.user.user.frp; group = "frp"; isSystemUser = true; };
-            groups.frp.gid = inputs.config.nixos.system.user.group.frp;
+            users.frp = { uid = inputs.config.nixos.user.uid.frp; group = "frp"; isSystemUser = true; };
+            groups.frp.gid = inputs.config.nixos.user.gid.frp;
           };
           networking.firewall.allowedTCPPorts = [ 7000 ];
         }

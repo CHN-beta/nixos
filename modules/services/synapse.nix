@@ -37,14 +37,14 @@ inputs:
         {
           users."synapse-${instance.name}" =
           {
-            uid = inputs.config.nixos.system.user.user."synapse-${instance.name}";
+            uid = inputs.config.nixos.user.uid."synapse-${instance.name}";
             group = "synapse-${instance.name}";
             home = "/var/lib/synapse/${instance.name}";
             createHome = true;
             isSystemUser = true;
             shell = "${inputs.pkgs.bash}/bin/bash";
           };
-          groups."synapse-${instance.name}".gid = inputs.config.nixos.system.user.group."synapse-${instance.name}";
+          groups."synapse-${instance.name}".gid = inputs.config.nixos.user.gid."synapse-${instance.name}";
         })
         (attrsToList synapse.instances));
       systemd = mkMerge (map

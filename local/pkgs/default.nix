@@ -73,7 +73,7 @@ inputs: rec
     openmpi-aocc = inputs.pkgs.callPackage ./vasp/openmpi-aocc { inherit aocc; gcc = gcc-pie; };
     gcc-pie = inputs.pkgs.wrapCC (inputs.pkgs.gcc.cc.overrideAttrs (prev:
       { configureFlags = prev.configureFlags ++ [ "--enable-default-pie" ];}));
-    additionalCommands = let uid = inputs.config.nixos.system.user.user.gb; in
+    additionalCommands = let uid = inputs.config.nixos.user.uid.gb; in
       ''[ "$(${inputs.pkgs.coreutils}/bin/id -u)" -eq ${builtins.toString uid} ] && exit 1'';
   };
   oneapi = inputs.pkgs.callPackage ./oneapi {};

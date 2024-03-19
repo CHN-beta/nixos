@@ -125,13 +125,13 @@ inputs:
         {
           users."misskey-${instance.name}" =
           {
-            uid = inputs.config.nixos.system.user.user."misskey-${instance.name}";
+            uid = inputs.config.nixos.user.uid."misskey-${instance.name}";
             group = "misskey-${instance.name}";
             home = "/var/lib/misskey/${instance.name}";
             createHome = true;
             isSystemUser = true;
           };
-          groups."misskey-${instance.name}".gid = inputs.config.nixos.system.user.group."misskey-${instance.name}";
+          groups."misskey-${instance.name}".gid = inputs.config.nixos.user.gid."misskey-${instance.name}";
         })
         (attrsToList misskey.instances));
       nixos.services =

@@ -16,13 +16,13 @@ inputs:
       {
         users.fz-new-order =
         {
-          uid = inputs.config.nixos.system.user.user.fz-new-order;
+          uid = inputs.config.nixos.user.uid.fz-new-order;
           group = "fz-new-order";
           home = "/var/lib/fz-new-order";
           createHome = true;
           isSystemUser = true;
         };
-        groups.fz-new-order.gid = inputs.config.nixos.system.user.group.fz-new-order;
+        groups.fz-new-order.gid = inputs.config.nixos.user.gid.fz-new-order;
       };
       systemd =
       {

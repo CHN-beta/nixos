@@ -54,8 +54,8 @@ inputs:
       };
       users =
       {
-        users.rsshub = { uid = inputs.config.nixos.system.user.user.rsshub; group = "rsshub"; isSystemUser = true; };
-        groups.rsshub.gid = inputs.config.nixos.system.user.group.rsshub;
+        users.rsshub = { uid = inputs.config.nixos.user.uid.rsshub; group = "rsshub"; isSystemUser = true; };
+        groups.rsshub.gid = inputs.config.nixos.user.gid.rsshub;
       };
       nixos.services =
       {
