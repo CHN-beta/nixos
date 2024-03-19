@@ -13,7 +13,6 @@ inputs:
           (builtins.attrNames inputs.config.users.groups);
         hashedPasswordFile = inputs.config.sops.secrets."users/xll".path;
         openssh.authorizedKeys.keys = [ (builtins.readFile ./id_rsa.pub) ];
-        autoSubUidGidRange = true;
       };
       home-manager.users.xll = homeInputs:
       {
