@@ -53,7 +53,7 @@ inputs:
             certifi charset-normalizer idna orjson psycopg2 inquirerpy requests tqdm pydbus
           ])];
         };
-        users.sharedModules = [(home-inputs:
+        user.sharedModules = [(home-inputs:
         {
           config.programs =
           {

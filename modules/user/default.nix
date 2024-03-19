@@ -1,14 +1,14 @@
 inputs:
 {
   imports = inputs.localLib.mkModules (inputs.localLib.findModules ./.);
-  options.nixos.users = let inherit (inputs.lib) mkOption types; in
+  options.nixos.user = let inherit (inputs.lib) mkOption types; in
   {
     users = mkOption { type = types.listOf types.nonEmptyStr; default = [ "chn" ]; };
     sharedModules = mkOption { type = types.listOf types.anything; default = []; };
   };
   config =
     let
-      inherit (inputs.config.nixos) users;
+      inherit (inputs.config.nixos) user;
       inherit (builtins) map;
       inherit (inputs.lib) mkMerge;
     in
@@ -24,7 +24,7 @@ inputs:
           };
           groups.${name}.gid = inputs.config.nixos.system.user.group.${name};
         })
-        users.users);
+        user.users);
     };
 }
 

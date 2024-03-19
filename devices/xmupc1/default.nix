@@ -104,7 +104,7 @@ inputs:
         groupshare.enable = true;
       };
       bugs = [ "xmunet" "amdpstate" ];
-      users.users = [ "chn" "xll" "zem" "yjq" "gb" ];
+      user.users = [ "chn" "xll" "zem" "yjq" "gb" ];
     };
     services.hardware.bolt.enable = true;
   };

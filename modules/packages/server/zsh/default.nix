@@ -5,7 +5,7 @@ inputs:
       inherit (inputs.lib) mkIf;
     in mkIf (builtins.elem "server" inputs.config.nixos.packages._packageSets)
     {
-      nixos.users.sharedModules = [(home-inputs: { config.programs =
+      nixos.user.sharedModules = [(home-inputs: { config.programs =
       {
         zsh =
         {

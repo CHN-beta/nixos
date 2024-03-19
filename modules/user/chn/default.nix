@@ -4,9 +4,9 @@ inputs:
   config =
     let
       inherit (inputs.lib) mkIf;
-      inherit (inputs.config.nixos) users;
+      inherit (inputs.config.nixos) user;
       inherit (builtins) listToAttrs;
-    in mkIf (builtins.elem "chn" users.users)
+    in mkIf (builtins.elem "chn" user.users)
     {
       users.users.chn =
       {
@@ -32,7 +32,7 @@ inputs:
       };
       home-manager.users.chn =
       {
-        imports = users.sharedModules;
+        imports = user.sharedModules;
         config =
         {
           programs =

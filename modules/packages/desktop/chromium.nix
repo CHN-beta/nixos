@@ -6,7 +6,7 @@ inputs:
     in mkIf (builtins.elem "desktop" inputs.config.nixos.packages._packageSets)
     {
       programs.chromium = { enable = true; extraOpts.PasswordManagerEnabled = false; };
-      nixos.users.sharedModules =
+      nixos.user.sharedModules =
       [{
         config.programs.chromium =
         {

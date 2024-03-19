@@ -46,7 +46,7 @@ inputs:
             phonopy tensorflow keras scipy scikit-learn jupyterlab autograd # localPackages.pix2tex
           ])];
         };
-        users.sharedModules =
+        user.sharedModules =
         [{
           config.programs =
           {

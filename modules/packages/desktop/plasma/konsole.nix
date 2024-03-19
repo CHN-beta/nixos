@@ -2,7 +2,7 @@ inputs:
 {
   config = inputs.lib.mkIf inputs.config.nixos.system.gui.enable
   {
-    nixos.users.sharedModules =
+    nixos.user.sharedModules =
     [(hmInputs: {
       config =
       {
@@ -79,6 +79,6 @@ inputs:
       in inputs.lib.mkIf impermanence.enable (inputs.lib.mkMerge (builtins.map
         (user:
           { "${impermanence.root}".users.${user}.directories = [ ".local/share/konsole" ".local/share/yakuake" ]; })
-        inputs.config.nixos.users.users));
+        inputs.config.nixos.user.users));
   };
 }

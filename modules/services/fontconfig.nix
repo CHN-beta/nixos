@@ -26,6 +26,6 @@ inputs:
           serif = [ "Liberation Serif" "Source Han Serif SC" ];
         };
       };
-      nixos.users.sharedModules = [{ config.xdg.configFile."fontconfig/conf.d/10-hm-fonts.conf".force = true; }];
+      nixos.user.sharedModules = [{ config.xdg.configFile."fontconfig/conf.d/10-hm-fonts.conf".force = true; }];
     };
 }

@@ -3,8 +3,8 @@ inputs:
   config =
     let
       inherit (inputs.lib) mkIf;
-      inherit (inputs.config.nixos) users;
-    in mkIf (builtins.elem "test" users.users)
+      inherit (inputs.config.nixos) user;
+    in mkIf (builtins.elem "test" user.users)
     {
       users.users.test =
       {
@@ -12,6 +12,6 @@ inputs:
         password = "test";
         shell = inputs.pkgs.zsh;
       };
-      home-manager.users.test.imports = users.sharedModules;
+      home-manager.users.test.imports = user.sharedModules;
     };
 }

@@ -44,6 +44,6 @@ inputs:
           ];
         };
       })
-      ./hardware ./packages ./system ./virtualization ./services ./bugs ./users
+      ./hardware ./packages ./system ./virtualization ./services ./bugs ./user
     ];
   }

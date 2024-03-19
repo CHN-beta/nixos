@@ -2,7 +2,7 @@ inputs:
 {
   config = inputs.lib.mkIf (builtins.elem "desktop" inputs.config.nixos.packages._packageSets)
   {
-    nixos.users.sharedModules = [{ config =
+    nixos.user.sharedModules = [{ config =
     {
       programs.firefox =
       {

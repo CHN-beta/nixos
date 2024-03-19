@@ -3,7 +3,7 @@ inputs:
   config =
     let
       inherit (inputs.lib) mkIf;
-      inherit (inputs.config.nixos) users;
+      inherit (inputs.config.nixos) user;
     in
     {
       users.users.root =
@@ -23,7 +23,7 @@ inputs:
       };
       home-manager.users.root =
       {
-        imports = users.sharedModules;
+        imports = user.sharedModules;
         config.programs.git =
           { extraConfig.core.editor = inputs.lib.mkForce "vim"; userName = "chn"; userEmail = "chn@chn.moe"; };
       };

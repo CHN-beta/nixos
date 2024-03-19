@@ -53,7 +53,7 @@ inputs:
           ++ (if inputs.config.services.xserver.displayManager.sddm.enable then
             [{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }] else []);
         }
-        // (if builtins.elem "chn" inputs.config.nixos.users.users then
+        // (if builtins.elem "chn" inputs.config.nixos.user.users then
         {
           users.chn =
           {

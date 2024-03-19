@@ -119,7 +119,7 @@ inputs:
         extraConfig = "AddKeysToAgent yes";
       };
       environment.sessionVariables.SSH_ASKPASS_REQUIRE = "prefer";
-      nixos.users.sharedModules =
+      nixos.user.sharedModules =
       [(hmInputs: {
         config.programs.ssh =
         {
