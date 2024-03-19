@@ -4,6 +4,12 @@ inputs:
   options.nixos.user = let inherit (inputs.lib) mkOption types; in
   {
     users = mkOption { type = types.listOf types.nonEmptyStr; default = [ "chn" ]; };
+    normalUsers = mkOption
+    {
+      type = types.listOf types.nonEmptyStr;
+      readOnly = true;
+      default = [ "chn" "gb" "test" "xll" "yjq" "zem" ];
+    };
     sharedModules = mkOption { type = types.listOf types.anything; default = []; };
     uid = mkOption
     {
@@ -43,17 +49,30 @@ inputs:
   };
   config = let inherit (inputs.config.nixos) user; in
   {
+    assertions = builtins.map
+      (user:
+      {
+        assertion = builtins.elem user user.normalUsers; 
+        message = "user ${user} is not a normal user";
+      })
+      user.users;
     users = inputs.lib.mkMerge (builtins.map
       (name:
       {
         users.${name} =
         {
-          uid = inputs.config.nixos.user.uid.${name};
+          uid = user.uid.${name};
           group = name;
           isNormalUser = true;
+          shell = inputs.pkgs.zsh;
+          extraGroups = inputs.lib.intersectLists [ "users" "video" "audio" ]
+            (builtins.attrNames inputs.config.users.groups);
         };
-        groups.${name}.gid = inputs.config.nixos.user.gid.${name};
+        groups.${name}.gid = user.gid.${name};
       })
+      user.users);
+    home-manager.users = inputs.lib.mkMerge (builtins.map
+      (name: { ${name}.imports = user.sharedModules; })
       user.users);
   };
 }

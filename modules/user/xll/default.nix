@@ -9,16 +9,14 @@ inputs:
       users.users.xll =
       {
         extraGroups = inputs.lib.intersectLists
-          [ "users" "groupshare" "video" ]
+          [ "groupshare" ]
           (builtins.attrNames inputs.config.users.groups);
         hashedPasswordFile = inputs.config.sops.secrets."users/xll".path;
         openssh.authorizedKeys.keys = [ (builtins.readFile ./id_rsa.pub) ];
-        shell = inputs.pkgs.zsh;
         autoSubUidGidRange = true;
       };
       home-manager.users.xll = homeInputs:
       {
-        imports = user.sharedModules;
         config.home.file.groupshare.source = homeInputs.config.lib.file.mkOutOfStoreSymlink "/var/lib/groupshare";
       };
       sops.secrets."users/xll".neededForUsers = true;

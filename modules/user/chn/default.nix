@@ -11,9 +11,8 @@ inputs:
       users.users.chn =
       {
         extraGroups = inputs.lib.intersectLists
-          [ "users" "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "video" "audio" "groupshare" ]
+          [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "groupshare" ]
           (builtins.attrNames inputs.config.users.groups);
-        shell = inputs.pkgs.zsh;
         autoSubUidGidRange = true;
         hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
         openssh.authorizedKeys.keys =
@@ -32,7 +31,6 @@ inputs:
       };
       home-manager.users.chn =
       {
-        imports = user.sharedModules;
         config =
         {
           programs =
