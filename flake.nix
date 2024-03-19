@@ -43,6 +43,7 @@
       url = "github:chaotic-cx/nyx?rev=03b2bea544688068025df1912ff1e9a1ad4a642a";
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
+    gricad = { url = "github:Gricad/nur-packages"; flake = false; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };

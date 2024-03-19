@@ -34,6 +34,7 @@ inputs:
               deploy-rs =
                 { inherit (prev) deploy-rs; inherit ((topInputs.deploy-rs.overlay final prev).deploy-rs) lib; };
               firefox-addons = (import "${topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
+              inherit (import topInputs.gricad { pkgs = final; }) intel-oneapi intel-oneapi-2022;
             })
           ];
           home-manager.sharedModules =

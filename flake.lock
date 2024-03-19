@@ -905,6 +905,22 @@
         "type": "github"
       }
     },
+    "gricad": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1709199491,
+        "narHash": "sha256-J32quO+kCOrOLkYQzFZpiPhUXJHE6GIrmb0VSlECKLM=",
+        "owner": "Gricad",
+        "repo": "nur-packages",
+        "rev": "4b4a489297f3a11b8d0883b02c0d154ce37f24e0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Gricad",
+        "repo": "nur-packages",
+        "type": "github"
+      }
+    },
     "hercules-ci-effects": {
       "inputs": {
         "flake-parts": [
@@ -1915,6 +1931,7 @@
         "eigen": "eigen",
         "envfs": "envfs",
         "fluent-kde": "fluent-kde",
+        "gricad": "gricad",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lepton": "lepton",
