@@ -47,6 +47,8 @@ inputs:
                 # vasp
                 mystery.vasp-support
                 yutengjing.open-in-external-app
+                # ChatGPT-like plugin
+                codeium.codeium
               ];
           }
         )];
