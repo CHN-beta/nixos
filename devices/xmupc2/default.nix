@@ -91,7 +91,7 @@ inputs:
           hostsAllowed = "";
           shares = { home.path = "/home"; root.path = "/"; };
         };
-        groupshare.enable = true;
+        groupshare = {};
       };
       bugs = [ "xmunet" ];
       user.users = [ "chn" "xll" "zem" "yjq" "gb" ];

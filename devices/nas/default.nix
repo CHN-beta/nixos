@@ -62,7 +62,7 @@ inputs:
         sshd.enable = true;
         xray.client = {};
         xrdp = { enable = true; hostname = [ "nas.chn.moe" "office.chn.moe" ]; };
-        groupshare.enable = true;
+        groupshare = {};
         smartd.enable = true;
         beesd =
         {

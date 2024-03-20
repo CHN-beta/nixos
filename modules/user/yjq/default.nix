@@ -8,14 +8,7 @@ inputs:
     {
       users.users.yjq =
       {
-        extraGroups = inputs.lib.intersectLists
-          [ "groupshare" ]
-          (builtins.attrNames inputs.config.users.groups);
         hashedPasswordFile = inputs.config.sops.secrets."users/yjq".path;
-      };
-      home-manager.users.yjq = homeInputs:
-      {
-        config.home.file.groupshare.source = homeInputs.config.lib.file.mkOutOfStoreSymlink "/var/lib/groupshare";
       };
       sops.secrets."users/yjq".neededForUsers = true;
     };

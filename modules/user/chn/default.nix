@@ -11,7 +11,7 @@ inputs:
       users.users.chn =
       {
         extraGroups = inputs.lib.intersectLists
-          [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "groupshare" ]
+          [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" ]
           (builtins.attrNames inputs.config.users.groups);
         autoSubUidGidRange = true;
         hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
@@ -37,40 +37,44 @@ inputs:
                 "wireguard.surface" "xmupc1" "wireguard.xmupc1" "xmupc2" "wireguard.xmupc2"
               ]));
           };
-          home.packages =
-          [
-            (
-              let
-                servers = builtins.filter
-                  (system: system.value.enable)
-                  (builtins.map
-                    (system:
-                    {
-                      name = system.config.nixos.system.networking.hostname;
-                      value = system.config.nixos.system.fileSystems.decrypt.manual;
-                    })
-                    (builtins.attrValues inputs.topInputs.self.nixosConfigurations));
-                cat = "${inputs.pkgs.coreutils}/bin/cat";
-                gpg = "${inputs.pkgs.gnupg}/bin/gpg";
-                ssh = "${inputs.pkgs.openssh}/bin/ssh";
-              in inputs.pkgs.writeShellScriptBin "remote-decrypt" (builtins.concatStringsSep "\n"
-                (
-                  (builtins.map (system: builtins.concatStringsSep "\n"
-                    [
-                      "decrypt-${system.name}() {"
-                      "  key=$(${cat} ${system.value.keyFile} | ${gpg} --decrypt)"
-                      (builtins.concatStringsSep "\n" (builtins.map
-                        (device: "  echo $key | ${ssh} root@initrd.${system.name}.chn.moe cryptsetup luksOpen "
-                          + (if device.value.ssd then "--allow-discards " else "")
-                          + "${device.name} ${device.value.mapper} -")
-                        (inputs.localLib.attrsToList system.value.devices)))
-                      "}"
-                    ])
-                    servers)
-                  ++ [ "decrypt-$1" ]
-                ))
-            )
-          ];
+          home =
+          {
+            file.groupshare.enable = false;
+            packages =
+            [
+              (
+                let
+                  servers = builtins.filter
+                    (system: system.value.enable)
+                    (builtins.map
+                      (system:
+                      {
+                        name = system.config.nixos.system.networking.hostname;
+                        value = system.config.nixos.system.fileSystems.decrypt.manual;
+                      })
+                      (builtins.attrValues inputs.topInputs.self.nixosConfigurations));
+                  cat = "${inputs.pkgs.coreutils}/bin/cat";
+                  gpg = "${inputs.pkgs.gnupg}/bin/gpg";
+                  ssh = "${inputs.pkgs.openssh}/bin/ssh";
+                in inputs.pkgs.writeShellScriptBin "remote-decrypt" (builtins.concatStringsSep "\n"
+                  (
+                    (builtins.map (system: builtins.concatStringsSep "\n"
+                      [
+                        "decrypt-${system.name}() {"
+                        "  key=$(${cat} ${system.value.keyFile} | ${gpg} --decrypt)"
+                        (builtins.concatStringsSep "\n" (builtins.map
+                          (device: "  echo $key | ${ssh} root@initrd.${system.name}.chn.moe cryptsetup luksOpen "
+                            + (if device.value.ssd then "--allow-discards " else "")
+                            + "${device.name} ${device.value.mapper} -")
+                          (inputs.localLib.attrsToList system.value.devices)))
+                        "}"
+                      ])
+                      servers)
+                    ++ [ "decrypt-$1" ]
+                  ))
+              )
+            ];
+          };
           pam.yubico.authorizedYubiKeys.ids = [ "cccccbgrhnub" ];
         };
       };
