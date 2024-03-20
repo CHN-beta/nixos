@@ -79,9 +79,31 @@ inputs:
         (name: { inherit name; value.imports = user.sharedModules; })
         user.users);
     }
+    # set hashedPassword if it exist in secrets
+    (
+      let
+        secrets = inputs.pkgs.localPackages.fromYaml (builtins.readFile inputs.config.sops.defaultSopsFile);
+        hashedPasswordExist = userName: (secrets ? users) && ((secrets.users or {}) ? ${userName});
+      in
+      {
+        users.users = builtins.listToAttrs (builtins.map
+          (name: { inherit name; value.hashedPasswordFile = inputs.config.sops.secrets."users/${name}".path; })
+          (builtins.filter (user: hashedPasswordExist user) user.users));
+        sops.secrets = builtins.listToAttrs (builtins.map
+          (name: { name = "users/${name}"; value.neededForUsers = true; })
+          (builtins.filter (user: hashedPasswordExist user) user.users));
+      }
+    )
     {
-      users.users.root.openssh.authorizedKeys.keys = [(builtins.readFile ./chn/id_ed25519_sk.pub)];
+      users.users.root =
+      {
+        openssh.authorizedKeys.keys = [(builtins.readFile ./chn/id_ed25519_sk.pub)];
+        hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
+      };
+      home-manager.users.root.config.programs.git =
+        { extraConfig.core.editor = inputs.lib.mkForce "vim"; userName = "chn"; userEmail = "chn@chn.moe"; };
     }
+    (inputs.lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
   ];
 }
 

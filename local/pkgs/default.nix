@@ -80,4 +80,8 @@ inputs: rec
   mumax = inputs.pkgs.callPackage ./mumax { src = inputs.topInputs.mumax; };
   aocc = inputs.pkgs.callPackage ./aocc {};
   aocl = inputs.pkgs.callPackage ./aocl {};
+
+  fromYaml = content: builtins.fromJSON (builtins.readFile
+    (inputs.pkgs.runCommand "toJSON" {}
+      "${inputs.pkgs.remarshal}/bin/yaml2json ${builtins.toFile "content.yaml" content} $out"));
 }
