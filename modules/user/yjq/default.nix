@@ -12,7 +12,6 @@ inputs:
           [ "groupshare" ]
           (builtins.attrNames inputs.config.users.groups);
         hashedPasswordFile = inputs.config.sops.secrets."users/yjq".path;
-        openssh.authorizedKeys.keys = [ (builtins.readFile ./id_rsa.pub) ];
       };
       home-manager.users.yjq = homeInputs:
       {

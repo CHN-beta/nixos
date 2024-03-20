@@ -4,12 +4,6 @@ inputs:
   options.nixos.user = let inherit (inputs.lib) mkOption types; in
   {
     users = mkOption { type = types.listOf types.nonEmptyStr; default = [ "chn" ]; };
-    normalUsers = mkOption
-    {
-      type = types.listOf types.nonEmptyStr;
-      readOnly = true;
-      default = [ "chn" "gb" "test" "xll" "yjq" "zem" ];
-    };
     sharedModules = mkOption { type = types.listOf types.anything; default = []; };
     uid = mkOption
     {
@@ -47,34 +41,48 @@ inputs:
       };
     };
   };
-  config = let inherit (inputs.config.nixos) user; in
-  {
-    assertions = builtins.map
-      (user:
+  config = let inherit (inputs.config.nixos) user; in inputs.lib.mkMerge
+  [
+    {
+      users =
       {
-        assertion = builtins.elem user user.normalUsers; 
-        message = "user ${user} is not a normal user";
-      })
-      user.users;
-    users = inputs.lib.mkMerge (builtins.map
-      (name:
-      {
-        users.${name} =
-        {
-          uid = user.uid.${name};
-          group = name;
-          isNormalUser = true;
-          shell = inputs.pkgs.zsh;
-          extraGroups = inputs.lib.intersectLists [ "users" "video" "audio" ]
-            (builtins.attrNames inputs.config.users.groups);
-        };
-        groups.${name}.gid = user.gid.${name};
-      })
-      user.users);
-    home-manager.users = inputs.lib.mkMerge (builtins.map
-      (name: { ${name}.imports = user.sharedModules; })
-      user.users);
-  };
+        users = builtins.listToAttrs (builtins.map
+          (userName:
+          {
+            name = userName;
+            value =
+            {
+              uid = user.uid.${userName};
+              group = userName;
+              isNormalUser = true;
+              shell = inputs.pkgs.zsh;
+              extraGroups = inputs.lib.intersectLists [ "users" "video" "audio" ]
+                (builtins.attrNames inputs.config.users.groups);
+              # ykman fido credentials list
+              # ykman fido credentials delete f2c1ca2d
+              # ssh-keygen -t ed25519-sk -O resident
+              # ssh-keygen -K
+              openssh.authorizedKeys.keys =
+                let
+                  keys = [ "rsa" "ed25519" "ed25519_sk" ];
+                  getKey = user: key: inputs.lib.optional (builtins.pathExists ./${user}/id_${key}.pub)
+                    (builtins.readFile ./${user}/id_${key}.pub);
+                in inputs.lib.mkDefault (builtins.concatLists (builtins.map (key: getKey userName key) keys));
+            };
+          })
+          user.users);
+        groups = builtins.listToAttrs (builtins.map
+          (name: { inherit name; value.gid = user.gid.${name}; })
+          user.users);
+      };
+      home-manager.users = builtins.listToAttrs (builtins.map
+        (name: { inherit name; value.imports = user.sharedModules; })
+        user.users);
+    }
+    {
+      users.users.root.openssh.authorizedKeys.keys = [(builtins.readFile ./chn/id_ed25519_sk.pub)];
+    }
+  ];
 }
 
 # environment.persistence."/impermanence".users.chn =

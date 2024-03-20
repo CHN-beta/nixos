@@ -6,19 +6,7 @@ inputs:
       inherit (inputs.config.nixos) user;
     in
     {
-      users.users.root =
-      {
-        hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
-        openssh.authorizedKeys.keys =
-        [
-          (builtins.concatStringsSep ""
-          [
-            "sk-ssh-ed25519@openssh.com "
-            "AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIEU/JPpLxsk8UWXiZr8CPNG+4WKFB92o1Ep9OEstmPLzAAAABHNzaDo= "
-            "chn@pc"
-          ])
-        ];
-      };
+      users.users.root.hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
       home-manager.users.root =
       {
         config.programs.git =

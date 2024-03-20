@@ -15,19 +15,7 @@ inputs:
           (builtins.attrNames inputs.config.users.groups);
         autoSubUidGidRange = true;
         hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
-        openssh.authorizedKeys.keys =
-        [
-          # ykman fido credentials list
-          # ykman fido credentials delete f2c1ca2d
-          # ssh-keygen -t ed25519-sk -O resident
-          # ssh-keygen -K
-          (builtins.concatStringsSep " "
-          [
-            "sk-ssh-ed25519@openssh.com"
-            "AAAAGnNrLXNzaC1lZDI1NTE5QG9wZW5zc2guY29tAAAAIEU/JPpLxsk8UWXiZr8CPNG+4WKFB92o1Ep9OEstmPLzAAAABHNzaDo="
-            "chn@pc"
-          ])
-        ];
+        openssh.authorizedKeys.keys = [(builtins.readFile ./id_ed25519_sk.pub)];
       };
       home-manager.users.chn =
       {
