@@ -60,7 +60,7 @@ inputs:
             name = "10-${network}";
             value =
             {
-              matchConfig.name = network;
+              matchConfig.Name = network;
               networkConfig =
               {
                 DHCP = "yes";
