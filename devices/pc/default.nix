@@ -96,7 +96,7 @@ inputs:
         sshd.enable = true;
         xray.client.dnsmasq.hosts = builtins.listToAttrs (builtins.map
           (name: { inherit name; value = "74.211.99.69"; })
-          [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" ]);
+          [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ]);
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         acme = { enable = true; cert."debug.mirism.one" = {}; };
         frpClient =
