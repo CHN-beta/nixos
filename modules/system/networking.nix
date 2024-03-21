@@ -3,6 +3,8 @@ inputs:
   options.nixos.system.networking = let inherit (inputs.lib) mkOption types; in
   {
     hostname = mkOption { type = types.nonEmptyStr; };
+    networkManager.enable = mkOption
+      { type = types.bool; default = inputs.config.nixos.system.networking.networkd.dhcp == []; };
     networkd =
     {
       dhcp = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
@@ -12,20 +14,7 @@ inputs:
   [
     # general config
     {
-      networking =
-      {
-        networkmanager =
-        {
-          enable = true;
-          # let networkmanager ignore the kernel command line `ip=xxx`
-          extraConfig =
-          ''
-            [device]
-            keep-configuration=no
-          '';
-        };
-        hostName = networking.hostname;
-      };
+      networking.hostName = networking.hostname;
       boot.kernel.sysctl =
       {
         "net.core.rmem_max" = 67108864;
@@ -48,6 +37,20 @@ inputs:
         "net.bridge.bridge-nf-call-arptables" = false;
       };
     }
+    # networkManager
+    (inputs.lib.mkIf networking.networkManager.enable
+    {
+      networking.networkmanager =
+      {
+        enable = true;
+        # let networkmanager ignore the kernel command line `ip=xxx`
+        extraConfig =
+        ''
+          [device]
+          keep-configuration=no
+        '';
+      };
+    })
     # networkd
     (inputs.lib.mkIf (networking.networkd.dhcp != [])
     {
