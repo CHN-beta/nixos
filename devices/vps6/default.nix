@@ -29,7 +29,7 @@ inputs:
         nixpkgs.march = "sandybridge";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         initrd.sshd.enable = true;
-        networking = { hostname = "vps6"; networkd.dhcp = [ "ens18" ]; };
+        networking = { hostname = "vps6"; networkd = {}; };
       };
       packages.packageSet = "server";
       services =

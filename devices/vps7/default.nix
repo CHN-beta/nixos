@@ -29,7 +29,7 @@ inputs:
         nixpkgs.march = "broadwell";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         initrd.sshd.enable = true;
-        networking = { hostname = "vps7"; networkd.dhcp = [ "ens18" ]; };
+        networking = { hostname = "vps7"; networkd = {}; };
         gui.preferred = false;
       };
       packages.packageSet = "desktop";
