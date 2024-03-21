@@ -20,7 +20,6 @@ inputs:
           hideMounts = true;
           directories =
           [
-            { directory = "/etc/NetworkManager/system-connections"; mode = "0700"; }
             "/home"
             "/root"
             "/var/db"
@@ -30,7 +29,9 @@ inputs:
             "/var/backup"
             { directory = "/var/lib/docker/volumes"; mode = "0710"; }
             "/srv"
-          ];
+          ]
+          ++ (inputs.lib.optional inputs.config.nixos.system.networking.networkManager.enable
+            { directory = "/etc/NetworkManager/system-connections"; mode = "0700"; });
           files =
           [
             "/etc/machine-id"
