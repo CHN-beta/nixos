@@ -3,11 +3,14 @@ inputs:
   options.nixos.system.networking = let inherit (inputs.lib) mkOption types; in
   {
     hostname = mkOption { type = types.nonEmptyStr; };
+    networkd =
+    {
+      dhcp = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+    };
   };
-  config =
-    let
-      inherit (inputs.config.nixos.system) networking;
-    in
+  config = let inherit (inputs.config.nixos.system) networking; in inputs.lib.mkMerge
+  [
+    # general config
     {
       networking =
       {
@@ -44,5 +47,31 @@ inputs:
         "net.bridge.bridge-nf-call-ip6tables" = false;
         "net.bridge.bridge-nf-call-arptables" = false;
       };
-    };
+    }
+    # networkd
+    (inputs.lib.mkIf (networking.networkd.dhcp != [])
+    {
+      systemd.network =
+      {
+        enable = true;
+        networks = builtins.listToAttrs (builtins.map
+          (network:
+          {
+            name = "10-${network}";
+            value =
+            {
+              matchConfig.name = network;
+              networkConfig =
+              {
+                DHCP = "yes";
+                IPv6AcceptRA = true;
+              };
+              linkConfig.RequiredForOnline = "routable";
+            };
+          })
+          networking.networkd.dhcp);
+      };
+      networking = { useDHCP = false; networkmanager.unmanaged = networking.networkd.dhcp; };
+    })
+  ];
 }
