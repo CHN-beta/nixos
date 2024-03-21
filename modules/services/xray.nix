@@ -89,7 +89,7 @@ inputs:
                 tproxy_port_protect: true
                 so_mark_from_dae: 0
                 log_level: info
-                disable_waiting_network: false
+                disable_waiting_network: true
                 ${lanString}
                 ${wanString}
                 auto_config_kernel_parameter: true
