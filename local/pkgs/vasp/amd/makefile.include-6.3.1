@@ -83,9 +83,9 @@ WANNIER90_ROOT ?= /path/to/your/wannier90/installation
 LLIBS          += -L$(WANNIER90_ROOT)/lib -lwannier
 
 # For the fftlib library (recommended)
-#CPP_OPTIONS+= -Dsysv
-#FCL        += fftlib.o
-#CXX_FFTLIB  = clang++ -fopenmp -std=c++11 -DFFTLIB_THREADSAFE
-#INCS_FFTLIB = -I./include -I$(AMDFFTW_ROOT)/include
-#LIBS       += fftlib
-#LLIBS      += -ldl
+CPP_OPTIONS+= -Dsysv
+FCL        += fftlib.o
+CXX_FFTLIB  = clang++ -fopenmp -std=c++11 -DFFTLIB_THREADSAFE
+INCS_FFTLIB = -I./include -I$(AMDFFTW_ROOT)/include
+LIBS       += fftlib
+LLIBS      += -ldl
