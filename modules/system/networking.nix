@@ -68,7 +68,7 @@ inputs:
       };
     })
     # networkd
-    (inputs.lib.mkIf networking.networkd != null
+    (inputs.lib.mkIf (networking.networkd != null)
     {
       systemd.network =
       {
@@ -102,12 +102,16 @@ inputs:
             (inputs.localLib.attrsToList networking.networkd.static))
         );
       };
-      networking.networkmanager.unmanaged = with networking.networkd; dhcp ++ (builtins.attrNames static);
+      networking =
+      {
+        networkmanager.unmanaged = with networking.networkd; dhcp ++ (builtins.attrNames static);
+        useNetworkd = true;
+      };
     })
     # wpa_supplicant
     (inputs.lib.mkIf (networking.wireless != [])
     {
-      services.wpa_supplicant =
+      networking.wireless =
       {
         enable = true;
         networks = builtins.listToAttrs (builtins.map
