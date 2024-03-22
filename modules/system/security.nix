@@ -31,8 +31,14 @@ inputs:
           ]);
         };
         yubico = { enable = true; id = "91291"; };
+        loginLimits =
+        [
+          { domain = "@users"; item = "nofile"; value = 65536; }
+          { domain = "@users"; item = "stack"; value = "unlimited"; }
+        ];
       };
       sudo.extraConfig = "Defaults pwfeedback";
     };
+    systemd.user.extraConfig = "DefaultLimitNOFILE=65536:524288";
   };
 }
