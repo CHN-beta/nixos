@@ -670,13 +670,9 @@ inputs:
                   (site: { inherit (site) name; value.rewriteHttps = {}; })
                   (filter (site: site.value.global.rewriteHttps) sites));
               };
-            acme =
-            {
-              enable = true;
-              cert = listToAttrs (map
-                (site: { inherit (site) name; value.group = inputs.config.services.nginx.group; })
-                sites);
-            };
+            acme.cert = listToAttrs (map
+              (site: { inherit (site) name; value.group = inputs.config.services.nginx.group; })
+              sites);
           };
           sops =
             let

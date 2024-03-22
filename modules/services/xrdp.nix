@@ -56,12 +56,8 @@ inputs:
             services.xrdp =
               let keydir = inputs.config.security.acme.certs.${mainDomain}.directory;
               in { sslCert = "${keydir}/full.pem"; sslKey = "${keydir}/key.pem"; };
-            nixos.services.acme =
-            {
-              enable = true;
-              cert.${mainDomain} =
-                { domains = xrdp.hostname; group = inputs.config.systemd.services.xrdp.serviceConfig.Group; };
-            };
+            nixos.services.acme.cert.${mainDomain} =
+              { domains = xrdp.hostname; group = inputs.config.systemd.services.xrdp.serviceConfig.Group; };
           }
         )
       )

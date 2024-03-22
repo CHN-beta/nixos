@@ -514,7 +514,7 @@ inputs:
         };
         nixos.services =
         {
-          acme = { enable = true; cert.${xray.server.serverName}.group = inputs.config.users.users.nginx.group; };
+          acme.cert.${xray.server.serverName}.group = inputs.config.users.users.nginx.group;
           nginx =
           {
             enable = true;

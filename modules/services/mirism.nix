@@ -56,7 +56,7 @@ inputs:
             })
             [ "entry." "" ]);
         };
-        acme = { enable = true; cert = { "ng01.mirism.one".group = "mirism"; "beta.mirism.one".group = "mirism"; }; };
+        acme.cert = { "ng01.mirism.one".group = "mirism"; "beta.mirism.one".group = "mirism"; };
       };
       environment.etc = listToAttrs (concatLists (map
         (instance:

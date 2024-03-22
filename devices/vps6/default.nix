@@ -64,7 +64,7 @@ inputs:
             main.enable = true;
           };
         };
-        coturn.enable = true;
+        coturn = {};
         httpua.enable = true;
         mirism.enable = true;
         fail2ban.enable = true;

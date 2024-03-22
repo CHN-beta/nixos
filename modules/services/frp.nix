@@ -190,7 +190,7 @@ inputs:
             };
             secrets."frp/token" = {};
           };
-          nixos.services.acme = { enable = true; cert.${frpServer.serverName}.group = "frp"; };
+          nixos.services.acme.cert.${frpServer.serverName}.group = "frp";
           users =
           {
             users.frp = { uid = inputs.config.nixos.user.uid.frp; group = "frp"; isSystemUser = true; };
