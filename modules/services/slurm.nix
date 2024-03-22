@@ -74,6 +74,8 @@ inputs:
             SelectType=select/cons_tres
             SelectTypeParameters=CR_Core
             GresTypes=gpu
+            DefCpuPerGPU=1
+
             TaskProlog=${inputs.pkgs.writeShellScript "set_env" taskProlog}
 
             AccountingStorageType=accounting_storage/slurmdbd
