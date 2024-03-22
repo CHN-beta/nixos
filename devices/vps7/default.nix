@@ -58,7 +58,7 @@ inputs:
         freshrss.enable = true;
         send.enable = true;
         huginn.enable = true;
-        fz-new-order.enable = true;
+        fz-new-order = {};
         nginx.applications = { kkmeeting.enable = true; webdav.instances."webdav.chn.moe" = {}; };
         httpapi.enable = true;
         gitea.enable = true;
