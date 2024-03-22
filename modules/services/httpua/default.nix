@@ -1,25 +1,20 @@
 inputs:
 {
-  options.nixos.services.httpua = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.httpua = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    enable = mkOption { type = types.bool; default = false; };
-    hostname = mkOption { type = types.nonEmptyStr; default = "ua.chn.moe"; };
-  };
-  config =
-    let
-      inherit (inputs.config.nixos.services) httpua;
-      inherit (inputs.lib) mkIf;
-      inherit (builtins) toString;
-    in mkIf httpua.enable
+    type = types.nullOr (types.submodule { options =
     {
-      nixos.services =
-      {
-        phpfpm.instances.httpua = {};
-        nginx.http.${httpua.hostname}.php =
-        {
-          root = toString ./.;
-          fastcgiPass = inputs.config.nixos.services.phpfpm.instances.httpua.fastcgi;
-        };
-      };
+      hostname = mkOption { type = types.nonEmptyStr; default = "ua.chn.moe"; };
+    };});
+    default = null;
+  };
+  config = let inherit (inputs.config.nixos.services) httpua; in inputs.lib.mkIf (httpua != null)
+  {
+    nixos.services =
+    {
+      phpfpm.instances.httpua = {};
+      nginx.http.${httpua.hostname}.php =
+        { root = "${./.}"; fastcgiPass = inputs.config.nixos.services.phpfpm.instances.httpua.fastcgi; };
     };
+  };
 }
