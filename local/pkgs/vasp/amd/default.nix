@@ -52,10 +52,15 @@ let
   };
   startScript = version: writeScript "vasp-nvidia-${version}"
   ''
-    # if SLURM_CPUS_PER_TASK is set, use it to set OMP_NUM_THREADS
-    if [ -n "''${SLURM_CPUS_PER_TASK-}" ]; then
-      export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+    # if OMP_NUM_THREADS is not set, set it according to SLURM_CPUS_PER_TASK or to 1
+    if [ -z "''${OMP_NUM_THREADS-}" ]; then
+      if [ -n "''${SLURM_CPUS_PER_TASK-}" ]; then
+        OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+      else
+        OMP_NUM_THREADS=1
+      fi
     fi
+    export OMP_NUM_THREADS
 
     ${additionalCommands}
 
@@ -63,7 +68,7 @@ let
   '';
   runEnv = version: buildFHSEnv
   {
-    name = "vasp-amd-${version}";
+    name = "vasp-amd-${builtins.replaceStrings ["."] [""] version}-env";
     targetPkgs = _: [ zlib (vasp version) aocc aocl openmpi gcc.cc.lib hdf5 wannier90 libpsm2 ];
     runScript = startScript version;
   };

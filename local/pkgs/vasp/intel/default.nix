@@ -1,7 +1,7 @@
 {
-  buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin,
+  buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin, writeTextDir,
   config, oneapiArch ? config.oneapiArch or "SSE3", additionalCommands ? "",
-  oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5
+  oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5, coreutils, slurm, zlib
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -9,7 +9,7 @@ let
   {
     name = "buildEnv";
     # make "module load mpi" success
-    targetPkgs = pkgs: with pkgs; [ zlib (writeTextDir "etc/release" "") gccFull ];
+    targetPkgs = _: [ zlib (writeTextDir "etc/release" "") gccFull ];
   };
   buildScript = writeScript "build"
   ''
@@ -55,21 +55,62 @@ let
     module load tbb compiler-rt oclfpga # dependencies
     module load mpi mkl compiler
 
-    # if SLURM_CPUS_PER_TASK is set, use it to set OMP_NUM_THREADS
-    if [ -n "''${SLURM_CPUS_PER_TASK-}" ]; then
-      export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+    # if OMP_NUM_THREADS is not set, set it according to SLURM_CPUS_PER_TASK or to 1
+    if [ -z "''${OMP_NUM_THREADS-}" ]; then
+      if [ -n "''${SLURM_CPUS_PER_TASK-}" ]; then
+        OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+      else
+        OMP_NUM_THREADS=1
+      fi
     fi
+    export OMP_NUM_THREADS
+
+    # if I_MPI_PIN_PROCESSOR_LIST is not set and SLURM_JOB_ID is not set, set it to allcores
+    if [ -z "''${I_MPI_PIN_PROCESSOR_LIST-}" ] && [ -z "''${SLURM_JOB_ID-}" ]; then
+      I_MPI_PIN_PROCESSOR_LIST=allcores
+    fi
+    export I_MPI_PIN_PROCESSOR_LIST
+
+    # if I_MPI_PMI_LIBRARY is not set and SLURM_JOB_ID is set, set it to libpmi2.so
+    if [ -z "''${I_MPI_PMI_LIBRARY-}" ] && [ -n "''${SLURM_JOB_ID-}" ]; then
+      I_MPI_PMI_LIBRARY=${slurm}/lib/libpmi2.so
+    fi
+    export I_MPI_PMI_LIBRARY
+
+    # set I_MPI_PIN I_MPI_PIN_DOMAIN I_MPI_DEBUG if not set
+    export I_MPI_PIN=''${I_MPI_PIN-yes}
+    export I_MPI_PIN_DOMAIN=''${I_MPI_PIN_DOMAIN-omp}
+    export I_MPI_DEBUG=''${I_MPI_DEBUG-4}
 
     ${additionalCommands}
 
+    # guess command we want to run
+
+    variant=$(${coreutils}/bin/basename $0 | ${coreutils}/bin/cut -d- -f4)
+    if [ -z "$variant" ]; then
+      variant=std
+    fi
+    if [ "$variant" = "env" ]; then
+      exec "$@"
+    else if [ -n "''${SLURM_JOB_ID-}" ]; then
+      # srun should be in PATH
+      exec srun --mpi=pmi2 ${vasp version}/bin/vasp-$variant
+    else
+      exec mpirun -n 1 ${vasp version}/bin/vasp-$variant
+    fi
+
     exec "$@"
   '';
-  runEnv = version: buildFHSEnv
+  runEnv = version: let shortVersion = builtins.replaceStrings ["."] [""] version; in buildFHSEnv
   {
-    name = "vasp-intel-${version}";
-    targetPkgs = pkgs: with pkgs; [ zlib (vasp version) (writeTextDir "etc/release" "") gccFull ];
+    name = "vasp-intel-${shortVersion}";
+    targetPkgs = _: [ zlib (vasp version) (writeTextDir "etc/release" "") gccFull ];
     runScript = startScript version;
     extraInstallCommands =
-      "for i in std gam ncl; do ln -s ${vasp version}/bin/vasp-$i $out/bin/vasp-intel-${version}-$i; done";
+    ''
+      pushd $out/bin
+        for i in std gam ncl env; do ln -s vasp-intel-${shortVersion} vasp-intel-${shortVersion}-$i; done
+      popd
+    '';
   };
 in builtins.mapAttrs (version: _: runEnv version) sources

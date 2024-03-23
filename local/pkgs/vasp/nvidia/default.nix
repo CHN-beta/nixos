@@ -1,14 +1,14 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll,
   config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px", additionalCommands ? "",
-  nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90
+  nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90, coreutils, zlib
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
   buildEnv = buildFHSEnv
   {
     name = "buildEnv";
-    targetPkgs = pkgs: with pkgs; [ zlib ];
+    targetPkgs = _: [ zlib ];
   };
   buildScript = writeScript "build"
   ''
@@ -57,19 +57,43 @@ let
     module use ${nvhpc}/share/nvhpc/modulefiles
     module load nvhpc
 
-    # if SLURM_CPUS_PER_TASK is set, use it to set OMP_NUM_THREADS
-    if [ -n "''${SLURM_CPUS_PER_TASK-}" ]; then
-      export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+    # if OMP_NUM_THREADS is not set, set it according to SLURM_CPUS_PER_TASK or to 1
+    if [ -z "''${OMP_NUM_THREADS-}" ]; then
+      if [ -n "''${SLURM_CPUS_PER_TASK-}" ]; then
+        OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+      else
+        OMP_NUM_THREADS=1
+      fi
     fi
+    export OMP_NUM_THREADS
 
     ${additionalCommands}
 
+    variant=$(${coreutils}/bin/basename $0 | ${coreutils}/bin/cut -d- -f4)
+    if [ -z "$variant" ]; then
+      variant=std
+    fi
+    if [ "$variant" = "env" ]; then
+      exec "$@"
+    else if [ -n "''${SLURM_JOB_ID-}" ]; then
+      # srun should be in PATH
+      exec mpirun ${vasp version}/bin/vasp-$variant
+    else
+      exec mpirun -np 1 ${vasp version}/bin/vasp-$variant
+    fi
+
     exec "$@"
   '';
-  runEnv = version: buildFHSEnv
+  runEnv = version: let shortVersion = builtins.replaceStrings ["."] [""] version; in buildFHSEnv
   {
-    name = "vasp-nvidia-${version}";
-    targetPkgs = pkgs: with pkgs; [ zlib (vasp version) ];
+    name = "vasp-nvidia-${shortVersion}";
+    targetPkgs = _: [ zlib (vasp version) ];
     runScript = startScript version;
+    extraInstallCommands =
+    ''
+      pushd $out/bin
+        for i in std gam ncl env; do ln -s vasp-intel-${shortVersion} vasp-intel-${shortVersion}-$i; done
+      popd
+    '';
   };
 in builtins.mapAttrs (version: _: runEnv version) sources
