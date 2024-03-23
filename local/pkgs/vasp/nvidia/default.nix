@@ -1,7 +1,7 @@
 {
-  buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll,
+  buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin,
   config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px", additionalCommands ? "",
-  nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90, coreutils, zlib
+  nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90, zlib
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -51,7 +51,7 @@ let
     dontFixup = true;
     requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
   };
-  startScript = version: writeScript "vasp-nvidia-${version}"
+  startScript = { version, variant }: writeScript "vasp-nvidia-${version}"
   ''
     . ${lmod}/share/lmod/lmod/init/bash
     module use ${nvhpc}/share/nvhpc/modulefiles
@@ -69,31 +69,29 @@ let
 
     ${additionalCommands}
 
-    variant=$(${coreutils}/bin/basename $0 | ${coreutils}/bin/cut -d- -f4)
-    if [ -z "$variant" ]; then
-      variant=std
-    fi
-    if [ "$variant" = "env" ]; then
-      exec "$@"
-    else if [ -n "''${SLURM_JOB_ID-}" ]; then
-      # srun should be in PATH
-      exec mpirun ${vasp version}/bin/vasp-$variant
-    else
-      exec mpirun -np 1 ${vasp version}/bin/vasp-$variant
-    fi
-
-    exec "$@"
+    ${
+      if variant == "env" then ''exec "$@"''
+      else
+      ''
+        if [ -n "''${SLURM_JOB_ID-}" ]; then
+          # srun should be in PATH
+          exec mpirun ${vasp version}/bin/vasp-${variant}
+        else
+          exec mpirun -np 1 ${vasp version}/bin/vasp-${variant}
+        fi
+      ''
+    }
   '';
-  runEnv = version: let shortVersion = builtins.replaceStrings ["."] [""] version; in buildFHSEnv
+  runEnv = { version, variant }: let shortVersion = builtins.replaceStrings ["."] [""] version; in buildFHSEnv
   {
-    name = "vasp-nvidia-${shortVersion}";
+    name = "vasp-nvidia-${shortVersion}${if variant == "" then "" else "-${variant}"}";
     targetPkgs = _: [ zlib (vasp version) ];
-    runScript = startScript version;
-    extraInstallCommands =
-    ''
-      pushd $out/bin
-        for i in std gam ncl env; do ln -s vasp-intel-${shortVersion} vasp-intel-${shortVersion}-$i; done
-      popd
-    '';
+    runScript = startScript { inherit version; variant = if variant == "" then "std" else variant; };
   };
-in builtins.mapAttrs (version: _: runEnv version) sources
+in builtins.mapAttrs
+  (version: _: symlinkJoin
+  {
+    name = "vasp-nvidia-${version}";
+    paths = builtins.map (variant: runEnv { inherit version variant; }) [ "" "env" "std" "gam" "ncl" ];
+  })
+  sources

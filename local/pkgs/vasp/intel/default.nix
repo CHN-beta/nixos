@@ -1,7 +1,7 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin, writeTextDir,
   config, oneapiArch ? config.oneapiArch or "SSE3", additionalCommands ? "",
-  oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5, coreutils, slurm, zlib
+  oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5, slurm, zlib
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -48,7 +48,7 @@ let
     dontFixup = true;
     requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
   };
-  startScript = version: writeScript "vasp-intel-${version}"
+  startScript = { version, variant }: writeScript "vasp-intel-${version}"
   ''
     . ${lmod}/share/lmod/lmod/init/bash
     module use ${oneapi}/share/intel/modulefiles
@@ -65,8 +65,8 @@ let
     fi
     export OMP_NUM_THREADS
 
-    # if I_MPI_PIN_PROCESSOR_LIST is not set and SLURM_JOB_ID is not set, set it to allcores
-    if [ -z "''${I_MPI_PIN_PROCESSOR_LIST-}" ] && [ -z "''${SLURM_JOB_ID-}" ]; then
+    # if I_MPI_PIN_PROCESSOR_LIST is not set, set it to allcores
+    if [ -z "''${I_MPI_PIN_PROCESSOR_LIST-}" ]; then
       I_MPI_PIN_PROCESSOR_LIST=allcores
     fi
     export I_MPI_PIN_PROCESSOR_LIST
@@ -84,33 +84,29 @@ let
 
     ${additionalCommands}
 
-    # guess command we want to run
-
-    variant=$(${coreutils}/bin/basename $0 | ${coreutils}/bin/cut -d- -f4)
-    if [ -z "$variant" ]; then
-      variant=std
-    fi
-    if [ "$variant" = "env" ]; then
-      exec "$@"
-    else if [ -n "''${SLURM_JOB_ID-}" ]; then
-      # srun should be in PATH
-      exec srun --mpi=pmi2 ${vasp version}/bin/vasp-$variant
-    else
-      exec mpirun -n 1 ${vasp version}/bin/vasp-$variant
-    fi
-
-    exec "$@"
+    ${
+      if variant == "env" then ''exec "$@"''
+      else
+      ''
+        if [ -n "''${SLURM_JOB_ID-}" ]; then
+          # srun should be in PATH
+          exec srun --mpi=pmi2 ${vasp version}/bin/vasp-${variant}
+        else
+          exec mpirun -n 1 ${vasp version}/bin/vasp-${variant}
+        fi
+      ''
+    }
   '';
-  runEnv = version: let shortVersion = builtins.replaceStrings ["."] [""] version; in buildFHSEnv
+  runEnv = { version, variant }: let shortVersion = builtins.replaceStrings ["."] [""] version; in buildFHSEnv
   {
-    name = "vasp-intel-${shortVersion}";
+    name = "vasp-intel-${shortVersion}${if variant == "" then "" else "-${variant}"}";
     targetPkgs = _: [ zlib (vasp version) (writeTextDir "etc/release" "") gccFull ];
-    runScript = startScript version;
-    extraInstallCommands =
-    ''
-      pushd $out/bin
-        for i in std gam ncl env; do ln -s vasp-intel-${shortVersion} vasp-intel-${shortVersion}-$i; done
-      popd
-    '';
+    runScript = startScript { inherit version; variant = if variant == "" then "std" else variant; };
   };
-in builtins.mapAttrs (version: _: runEnv version) sources
+in builtins.mapAttrs
+  (version: _: symlinkJoin
+  {
+    name = "vasp-intel-${version}";
+    paths = builtins.map (variant: runEnv { inherit version variant; }) [ "" "env" "std" "gam" "ncl" ];
+  })
+  sources
