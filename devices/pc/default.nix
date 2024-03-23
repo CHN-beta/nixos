@@ -10,16 +10,16 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/3F57-0EBE" = "/boot/efi";
+            vfat."/dev/disk/by-uuid/E58F-416A" = "/boot/efi";
             btrfs =
             {
-              "/dev/disk/by-uuid/02e426ec-cfa2-4a18-b3a5-57ef04d66614"."/" = "/boot";
+              "/dev/disk/by-uuid/066be4fd-8617-4fe1-9654-c133c2996d33"."/" = "/boot";
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
           decrypt.auto =
           {
-            "/dev/disk/by-uuid/55fdd19f-0f1d-4c37-bd4e-6df44fc31f26" = { mapper = "root"; ssd = true; };
+            "/dev/disk/by-uuid/4c73288c-bcd8-4a7e-b683-693f9eed2d81" = { mapper = "root"; ssd = true; };
             "/dev/disk/by-uuid/4be45329-a054-4c20-8965-8c5b7ee6b35d" =
               { mapper = "swap"; ssd = true; before = [ "root" ]; };
           };
@@ -77,7 +77,7 @@ inputs:
       };
       services =
       {
-        snapper.enable = true;
+        # snapper.enable = true;
         fontconfig.enable = true;
         samba =
         {
