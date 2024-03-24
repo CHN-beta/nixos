@@ -109,7 +109,7 @@ inputs:
         nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
         smartd.enable = true;
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
-        beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 4096; threads = 4; }; };
+        beesd.instances.root = { device = "/"; hashTableSizeMB = 4096; threads = 4; };
         wireguard =
         {
           enable = true;

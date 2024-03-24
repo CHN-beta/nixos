@@ -77,7 +77,7 @@ inputs:
           listenIp = "74.211.99.69";
           lighthouse = true;
         };
-        beesd = { enable = true; instances.root = { device = "/"; hashTableSizeMB = 64; }; };
+        beesd.instances.root = { device = "/"; hashTableSizeMB = 64; };
       };
     };
   };

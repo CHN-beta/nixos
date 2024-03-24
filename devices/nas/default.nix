@@ -64,14 +64,10 @@ inputs:
         xrdp = { enable = true; hostname = [ "nas.chn.moe" "office.chn.moe" ]; };
         groupshare = {};
         smartd.enable = true;
-        beesd =
+        beesd.instances =
         {
-          enable = true;
-          instances =
-          {
-            root = { device = "/"; hashTableSizeMB = 4096; threads = 4; };
-            nix = { device = "/nix"; hashTableSizeMB = 128; };
-          };
+          root = { device = "/"; hashTableSizeMB = 4096; threads = 4; };
+          nix = { device = "/nix"; hashTableSizeMB = 128; };
         };
         frpClient =
         {

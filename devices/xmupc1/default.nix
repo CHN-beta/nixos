@@ -71,14 +71,10 @@ inputs:
         xray.client = {};
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         smartd.enable = true;
-        beesd =
+        beesd.instances =
         {
-          enable = true;
-          instances =
-          {
-            root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
-            nix = { device = "/nix"; hashTableSizeMB = 512; };
-          };
+          root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
+          nix = { device = "/nix"; hashTableSizeMB = 512; };
         };
         wireguard =
         {
