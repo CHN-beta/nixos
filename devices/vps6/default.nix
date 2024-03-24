@@ -67,7 +67,7 @@ inputs:
         coturn = {};
         httpua = {};
         mirism.enable = true;
-        fail2ban.enable = true;
+        fail2ban = {};
         wireguard =
         {
           enable = true;

@@ -63,7 +63,7 @@ inputs:
         httpapi.enable = true;
         gitea.enable = true;
         grafana.enable = true;
-        fail2ban.enable = true;
+        fail2ban = {};
         wireguard =
         {
           enable = true;
