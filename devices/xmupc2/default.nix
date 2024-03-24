@@ -92,6 +92,6 @@ inputs:
       bugs = [ "xmunet" ];
       user.users = [ "chn" "xll" "zem" "yjq" "gb" ];
     };
-    powerManagement.cpuFreqGovernor = "ondemand";
+    powerManagement = { cpuFreqGovernor = "ondemand"; cpufreq.max = 1900000; };
   };
 }
