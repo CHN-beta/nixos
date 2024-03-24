@@ -66,6 +66,8 @@ inputs:
           keep-configuration=no
         '';
       };
+      environment.persistence."${inputs.config.nixos.system.impermanence.persistence}".directories =
+        [{ directory = "/etc/NetworkManager/system-connections"; mode = "0700"; }];
     })
     # networkd
     (inputs.lib.mkIf (networking.networkd != null)
