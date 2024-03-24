@@ -7,67 +7,46 @@
   * 3090：24 G 显存。
 * 硬盘：2 T。
 
-更详细的硬件如果需要的话，自己去看吧。
-
 # 队列系统（SLURM）
 
 ## 基本概念
 
-队列系统使用 slurm。这是个在集群上广泛使用的队列系统，可靠性应该会比之前好很多。
-学校的 hpc 上用的是 LFS，和这个不一样，但很多概念是相通的，例如队列、节点等（当然这里只有一个队列和一个节点）。
-这里只简单记录一下如何使用。更多内容，网上随便搜一下 slurm 的教程就可以找到很多介绍，也可以看官网文档。
-
-提交任务时， `sbatch` 命令中的 `cpu` 或者 `core` （它俩是同义词）都是指虚拟的 CPU 核数，也就是实际执行时的线程数。
-
-一些软件（例如 VASP）支持两个层面的并行，一个叫 MPI，一个叫 OpenMP，实际运行的线程数是两者的乘积。
-对应到 slurm 中的说法，MPI 并行的数量就是提交任务时指定的 task 的数量，
-  OpenMP 并行的数量就是提交任务时指定的分配给每个 task 的 CPU 的数量，
-  最终的线程数等于两者的乘积。
-此外对于 VASP 还有一个限制：当使用 GPU 时，MPI 并行的数量必须等于 GPU 的数量，否则 VASP 会在开头报个警告然后只用 CPU 计算（但不会报错）。
-其它大多使用 MPI 并行的软件没有这个限制。
+SLURM 是一个用来对任务排队的系统，轮到某个任务时，再调用其它程序来执行这个任务。
 
 ## 常用命令
 
 提交一个 VASP GPU 任务的例子：
 
 ```bash
-sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia-6.4.0 mpirun vasp-std
+sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia-640
 ```
 
-* `--gpus=1` 指定使用一个 GPU（排到这个任务时哪个空闲就使用哪个）。要占用两个就写 `--gpus=2`，以此类推。
-  要指定具体使用哪个 GPU 时，写 `--gpus=4090:1`。2080 Ti 需要写为 `2080_ti`，P5000 需要写为 `p5000`。
-  当需要使用多个不同类型的显卡（例如，指定使用一个 3090 和一个 4090）时，写 `--gres=gpu:3090:1,gpu:4090:1`。
+* `--gpus` 指定使用GPU 的情况：
+  * 要占用任意一个 GPU（排到这个任务时哪个空闲就使用哪个），写 `--gpus=1`。要占用任意两个就写 `--gpus=2`，以此类推。
+    但一般来说，**单个任务不要占用超过一个 GPU**，多个显卡的速度会比单个更慢。
+  * 要指定具体使用哪个 GPU 时，写 `--gpus=4090:1`。2080 Ti 需要写为 `2080_ti`，P5000 需要写为 `p5000`。
+  * 当需要使用多个不同类型的显卡（例如，指定使用一个 3090 和一个 4090）时，写 `--gres=gpu:3090:1,gpu:4090:1`。
 * `--ntasks-per-gpu=1` 对于 VASP 来说一定要写。
 * `--job-name=xxx` 指定任务的名字。可以简写为 `-J`。也可以不指定。
 * 默认情况下，一个 task 会搭配分配一个 CPU 核（一个线程），一般已经够用。如果一定要修改，用 `--cpus-per-task`。
+* `vasp-nvidia-640` 指调用 std 版本，要使用 gam 或 ncl 版本时，写为例如 `vasp-nvidia-640-gam`。
 
 提交一个 VASP CPU 任务的例子：
 
 ```bash
-sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-gnu-6.4.0 mpirun vasp-std
-sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-intel-6.4.0 srun --mpi=pmi2 vasp-intel-6.4.0-std
-sbatch --ntasks=2 --cpus-per-task=2 --job-name="my great job" vasp-amd-6.4.0 mpirun vasp-std
+sbatch --ntasks=4 --cpus-per-task=4 --hint=nomultithread --job-name="my great job" vasp-intel-640
 ```
 
-三个命令的不同之处是，使用了不同的编译器/数学库等。
-
-GNU / AMD 写法差不多，只有 Intel 的特殊一点（Intel 用了自己的 MPI 实现，与 SLURM 的兼容很差）。
-但我建议使用 Intel，因为它最快（按照我的测试，即使是在 AMD 的 CPU 上，也要比 GNU / AMD 快两三倍）。
-
-* `--ntasks=2` 指定在 MPI 层面上并行的数量。
-  可以简写为 `-n`。
-* `--cpus-per-task=2` 指定每个 task 使用的 CPU 核的数量，也就是 OpenMP 并行的数量。
-
-个人觉得（不一定正确）最好是一个任务将 CPU 差不多占满，只留一点给 GPU 任务以及其它的东西用。按照这个原则的话，可以这样投任务：
-
-* 对于 xmupc1：`--ntasks=4 --cpus-per-task=7` 总共 32 个线程，占用 28 个。
-* 对于 xmupc2：`--ntasks=8 --cpus-per-task=10` 总共 88 个线程，占用 80 个。
+* `--ntasks=4 --cpus-per-task=4` 指定使用占用多少核。
+  * CPU 的调度是个非常复杂的问题，而且 slurm 和 Intel MPI 之间的兼容性也不算好，因此**推荐照抄下面的设置**。
+    也可以自己测试一下怎样分配更好，但不要随意地设置。不同的设置会成倍地影响性能。
+    * 对于 xmupc1：`--ntasks=3 --cpus-per-task=4`。
+    * 对于 xmupc2：`--ntasks=4 --cpus-per-task=10`。
+* `--hint=nomultithread` 记得写。
+* `--job-name=xxx` 指定任务的名字。可以简写为 `-J`。也可以不指定。
+* `vasp-intel-640` 指调用 std 版本，要使用 gam 或 ncl 版本时，写为例如 `vasp-intel-640-gam`。
 
 要把其它程序提交到队列里，也是类似的写法。请自行举一反三。
-
-唯二可能要注意的是（使用 VASP 时不需要注意这些，我已经设置好了）：
-* 使用 CUDA 时，要设置环境变量 `CUDA_DEVICE_ORDER=PCI_BUS_ID`，否则可能会分配错 GPU。
-* slurm 不会设置 `OMP_NUM_THREADS`，要根据 `SLURM_CPUS_PER_TASK` 来手动设置。
 
 要列出已经提交（包括已经完成、取消、失败）的任务：
 
@@ -86,7 +65,7 @@ scancel -n my_great_job
 scancel -u chn
 ```
 
-要将自己已经提交的一个任务优先级提到最高（只是自己已经提交任务的最高，不影响别人的任务）：
+要将自己已经提交的一个任务优先级提到最高（相应降低其它任务的优先级，使得总体来说不影响别人的任务）：
 
 ```bash
 scontrol top 114514
@@ -218,31 +197,18 @@ VASP 有很多很多个版本，具体来说：
 如何提交 VASP 到队列系统已经在上面介绍过了。下面的例子是，如果要直接运行一个任务的写法：
 
 ```bash
-vasp-nvidia-6.4.0 mpirun -np 1 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x CUDA_VISIBLE_DEVICES=0 -x OMP_NUM_THREADS=4 vasp-std
-vasp-gnu-6.4.0 mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
-vasp-intel-6.4.0 mpirun -n 2 -genv OMP_NUM_THREADS=4 vasp-std
-vasp-amd-6.4.0 mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
+vasp-nvidia-640-env mpirun -np 1 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x CUDA_VISIBLE_DEVICES=0 -x OMP_NUM_THREADS=4 vasp-std
+vasp-gnu-640-env mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
+vasp-intel-640-env mpirun -n 2 -genv OMP_NUM_THREADS=4 vasp-std
+vasp-amd-640-env mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
 ```
 
 其中 `CUDA_VISIBLE_DEVICES` 用于指定用哪几个显卡计算（多个显卡用逗号分隔）。
-要查看显卡的编号，可以用 `CUDA_DEVICE_ORDER=PCI_BUS_ID vasp-nvidia-6.4.0 nvaccelinfo` 命令。
+要查看显卡的编号，可以用 `CUDA_DEVICE_ORDER=PCI_BUS_ID vasp-nvidia-640-env nvaccelinfo` 命令。
 
 这里 `vasp-xxx-6.4.0` 命令的作用是，进入一个安装了对应版本的 VASP 的环境，实际上和 VASP 关系不大；
   后面的 `mpirun xxx` 才是真的调用 VASP。
 所以实际上你也可以在这个环境里做别的事情，例如执行上面的 `nvaccelinfo` 命令。
-
-我拿我自己电脑测试了一下各个的速度。我的电脑硬件是（弱显卡，强 CPU）：
-
-* CPU：AMD R9-7945HX
-* GPU：4060
-
-然后测试结果是：
-
-* nvidia，使用一个 CPU 线程：1 分 25 秒。
-* nvidia，使用两个 CPU 线程：1 分 26 秒。
-* gnu，使用 16 个线程（4 个 MPI 任务，每个任务 4 个线程）：1 分 2 秒。
-* intel，使用 16 个线程（4 个 MPI 任务，每个任务 4 个线程）：**27 秒**。
-* amd，使用 16 个线程（4 个 MPI 任务，每个任务 4 个线程）：1 分 23 秒，AMD NOT YES。
 
 ## mumax
 
