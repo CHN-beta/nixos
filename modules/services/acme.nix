@@ -36,7 +36,7 @@ inputs:
             group = inputs.lib.mkIf (cert.value.group != null) cert.value.group;
           };
         })
-        (inputs.lib.localLib.attrsToList acme.cert));
+        (inputs.localLib.attrsToList acme.cert));
     };
     sops.secrets."acme/cloudflare.ini" = {};
   };
