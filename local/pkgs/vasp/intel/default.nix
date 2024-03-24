@@ -80,7 +80,7 @@ let
     export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=no
 
     # fork to bootstrap, do not use srun, causing it could not find proper ld
-    I_MPI_HYDRA_BOOTSTRAP=fork
+    export I_MPI_HYDRA_BOOTSTRAP=fork
 
     ${additionalCommands}
 
