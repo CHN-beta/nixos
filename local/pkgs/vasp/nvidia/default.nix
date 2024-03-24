@@ -74,8 +74,7 @@ let
       else
       ''
         if [ -n "''${SLURM_JOB_ID-}" ]; then
-          # srun should be in PATH
-          exec mpirun ${vasp version}/bin/vasp-${variant}
+          exec mpirun --bind-to none ${vasp version}/bin/vasp-${variant}
         else
           exec mpirun -np 1 ${vasp version}/bin/vasp-${variant}
         fi
