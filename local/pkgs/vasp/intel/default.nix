@@ -1,7 +1,7 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin, writeTextDir,
   config, oneapiArch ? config.oneapiArch or "SSE3", additionalCommands ? "",
-  oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5, slurm, zlib
+  oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5, zlib
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -71,16 +71,16 @@ let
     fi
     export I_MPI_PIN_PROCESSOR_LIST
 
-    # if I_MPI_PMI_LIBRARY is not set and SLURM_JOB_ID is set, set it to libpmi2.so
-    if [ -z "''${I_MPI_PMI_LIBRARY-}" ] && [ -n "''${SLURM_JOB_ID-}" ]; then
-      I_MPI_PMI_LIBRARY=${slurm}/lib/libpmi2.so
-    fi
-    export I_MPI_PMI_LIBRARY
-
     # set I_MPI_PIN I_MPI_PIN_DOMAIN I_MPI_DEBUG if not set
     export I_MPI_PIN=''${I_MPI_PIN-yes}
     export I_MPI_PIN_DOMAIN=''${I_MPI_PIN_DOMAIN-omp}
     export I_MPI_DEBUG=''${I_MPI_DEBUG-4}
+
+    # do not respect slurm allocation
+    export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=no
+
+    # fork to bootstrap, do not use srun, causing it could not find proper ld
+    I_MPI_HYDRA_BOOTSTRAP=fork
 
     ${additionalCommands}
 
@@ -89,8 +89,7 @@ let
       else
       ''
         if [ -n "''${SLURM_JOB_ID-}" ]; then
-          # srun should be in PATH
-          exec srun --mpi=pmi2 ${vasp version}/bin/vasp-${variant}
+          exec mpirun -n $SLURM_NTASKS ${vasp version}/bin/vasp-${variant}
         else
           exec mpirun -n 1 ${vasp version}/bin/vasp-${variant}
         fi

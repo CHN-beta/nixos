@@ -25,12 +25,6 @@ inputs:
             buildInputs = prev.buildInputs ++ [ cuda_nvml_dev ];
             LDFLAGS = [ "-L${cuda_nvml_dev}/lib/stubs" ];
             nativeBuildInputs = prev.nativeBuildInputs ++ [ inputs.pkgs.wrapGAppsHook ];
-            postInstall =
-            ''
-              pushd contribs/pmi2
-              make install
-              popd
-            '' + prev.postInstall;
           });
         clusterName = inputs.config.nixos.system.networking.hostname;
         dbdserver =
