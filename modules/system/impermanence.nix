@@ -20,7 +20,6 @@ inputs:
           hideMounts = true;
           directories =
           [
-            "/home"
             "/root"
             "/var/db"
             "/var/lib"
