@@ -76,11 +76,8 @@ let
     export I_MPI_PIN_DOMAIN=''${I_MPI_PIN_DOMAIN-omp}
     export I_MPI_DEBUG=''${I_MPI_DEBUG-4}
 
-    # do not respect slurm allocation
-    export I_MPI_JOB_RESPECT_PROCESS_PLACEMENT=no
-
     # fork to bootstrap, do not use srun, causing it could not find proper ld
-    export I_MPI_HYDRA_BOOTSTRAP=fork
+    export I_MPI_HYDRA_BOOTSTRAP=''${I_MPI_HYDRA_BOOTSTRAP-fork}
 
     ${additionalCommands}
 
