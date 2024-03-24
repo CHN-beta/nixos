@@ -65,7 +65,7 @@ inputs:
           };
         };
         coturn = {};
-        httpua.enable = true;
+        httpua = {};
         mirism.enable = true;
         fail2ban.enable = true;
         wireguard =
