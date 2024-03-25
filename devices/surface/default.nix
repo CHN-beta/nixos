@@ -34,15 +34,7 @@ inputs:
         kernel.patches = [ "cjktty" "lantian" "surface" ];
         networking.hostname = "surface";
       };
-      hardware =
-      {
-        cpus = [ "intel" ];
-        gpu.type = "intel";
-        bluetooth.enable = true;
-        joystick.enable = true;
-        printer.enable = true;
-        sound.enable = true;
-      };
+      hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       packages.packageSet = "desktop-fat";
       virtualization = { docker.enable = true; waydroid.enable = true; };
       services =

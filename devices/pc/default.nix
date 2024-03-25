@@ -62,11 +62,6 @@ inputs:
       {
         cpus = [ "amd" ];
         gpu = { type = "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; };
-        bluetooth.enable = true;
-        joystick.enable = true;
-        printer.enable = true;
-        sound.enable = true;
-        legion.enable = true;
       };
       packages.packageSet = "workstation";
       virtualization =

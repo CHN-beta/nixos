@@ -52,15 +52,7 @@ inputs:
         networking.hostname = "xmupc1";
         nix.remote.slave.enable = true;
       };
-      hardware =
-      {
-        cpus = [ "amd" ];
-        gpu.type = "nvidia";
-        bluetooth.enable = true;
-        joystick.enable = true;
-        printer.enable = true;
-        sound.enable = true;
-      };
+      hardware = { cpus = [ "amd" ]; gpu.type = "nvidia"; };
       packages.packageSet = "workstation";
       virtualization = { waydroid.enable = true; docker.enable = true; kvmHost = { enable = true; gui = true; }; };
       services =
