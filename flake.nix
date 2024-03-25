@@ -94,13 +94,31 @@
       # ssh-keygen -t rsa -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_rsa_key
       # ssh-keygen -t ed25519 -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key
       # systemd-machine-id-setup --root=/mnt/nix/persistent
-      nixosConfigurations = builtins.listToAttrs (builtins.map
-        (system:
-        {
-          name = system;
-          value = inputs.nixpkgs.lib.nixosSystem
+      nixosConfigurations =
+      (
+        (builtins.listToAttrs (builtins.map
+          (system:
           {
-            system = "x86_64-linux";
+            name = system;
+            value = inputs.nixpkgs.lib.nixosSystem
+            {
+              system = "x86_64-linux";
+              specialArgs = { topInputs = inputs; inherit localLib; };
+              modules = localLib.mkModules
+              [
+                (moduleInputs: { config.nixpkgs.overlays = [(prev: final:
+                  # replace pkgs with final to avoid infinite recursion
+                  { localPackages = import ./local/pkgs (moduleInputs // { pkgs = final; }); })]; })
+                ./modules
+                ./devices/${system}
+              ];
+            };
+          })
+          devices))
+        // {
+          pi3b = inputs.nixpkgs.lib.nixosSystem
+          {
+            system = "aarch64-linux";
             specialArgs = { topInputs = inputs; inherit localLib; };
             modules = localLib.mkModules
             [
@@ -108,11 +126,11 @@
                 # replace pkgs with final to avoid infinite recursion
                 { localPackages = import ./local/pkgs (moduleInputs // { pkgs = final; }); })]; })
               ./modules
-              ./devices/${system}
+              ./devices/pi3b
             ];
           };
-        })
-        devices);
+        }
+      );
       # sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap --option substituters http://127.0.0.1:5000 --option require-sigs false --option system-features gccarch-silvermont
       # nix-serve -p 5000
       # nix copy --substitute-on-destination --to ssh://server /run/current-system

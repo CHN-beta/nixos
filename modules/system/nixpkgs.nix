@@ -24,8 +24,8 @@ inputs:
           permittedInsecurePackages =
             [ "openssl_1_1" "electron_19" "python2" "electron_12" "electron_24" "zotero" "electron_25" ];
           hostPlatform = if nixpkgs.march != null
-            then { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
-            else "x86_64-linux";
+            then { inherit (inputs.pkgs) system; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
+            else inputs.pkgs.system;
           cudaConfig = inputs.lib.optionalAttrs nixpkgs.cuda.enable
           (
             { cudaSupport = true; }
@@ -54,13 +54,14 @@ inputs:
           overlays =
           [(final: prev:
             let
+              inherit (final) system;
               genericPackages = import inputs.topInputs.nixpkgs
               {
-                system = "x86_64-linux";
+                inherit system;
                 config =
                 {
                   allowUnfree = true;
-                  permittedInsecurePackages = let pkgs = inputs.topInputs.nixpkgs.legacyPackages.x86_64-linux; in map
+                  permittedInsecurePackages = let pkgs = inputs.topInputs.nixpkgs.legacyPackages.${system}; in map
                     (package: pkgs.${package}.name)
                     (filter (package: pkgs ? ${package}) permittedInsecurePackages);
                 };
@@ -83,7 +84,7 @@ inputs:
                     {
                       allowUnfree = true;
                       permittedInsecurePackages =
-                        let pkgs = inputs.topInputs.${source.${name}}.legacyPackages.x86_64-linux;
+                        let pkgs = inputs.topInputs.${source.${name}}.legacyPackages.${system};
                         in map
                           (package: pkgs.${package}.name)
                           (filter (package: pkgs ? ${package}) permittedInsecurePackages);
