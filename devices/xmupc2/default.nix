@@ -73,12 +73,7 @@ inputs:
           gpus = { "4090" = 1; "p5000" = 1; };
         };
         xrdp = { enable = true; hostname = [ "xmupc2.chn.moe" ]; };
-        samba =
-        {
-          enable = true;
-          hostsAllowed = "";
-          shares = { home.path = "/home"; root.path = "/"; };
-        };
+        samba = { enable = true; hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
         groupshare = {};
       };
       bugs = [ "xmunet" ];
