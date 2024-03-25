@@ -4,7 +4,7 @@ inputs:
   {
     varient = mkOption
     {
-      type = types.enum [ "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" ];
+      type = types.enum [ "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "rpi3" ];
       default = "xanmod-lts";
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
@@ -25,12 +25,18 @@ inputs:
         # modprobe --show-depends
         initrd.availableKernelModules =
         [
-          "ahci" "ata_piix" "bfq" "failover" "net_failover" "nls_cp437" "nls_iso8859-1" "nvme" "sdhci_acpi" "sd_mod"
+          "bfq" "failover" "net_failover" "nls_cp437" "nls_iso8859-1" "sd_mod"
           "sr_mod" "usbcore" "usbhid" "usbip-core" "usb-common" "usb_storage" "vhci-hcd" "virtio" "virtio_blk"
-          "virtio_net" "virtio_pci" "xhci_pci" "virtio_ring" "virtio_scsi" "cryptd" "crypto_simd" "libaes"
-          # networking for nas
-          "igb"
-        ];
+          "virtio_net" "virtio_ring" "virtio_scsi" "cryptd" "libaes"
+        ]
+        ++ (
+          inputs.lib.optionals (kernel.varient != "rpi3")
+          [
+            "ahci" "ata_piix" "nvme" "sdhci_acpi" "virtio_pci" "xhci_pci" "crypto_simd"
+            # networking for nas
+            "igb"
+          ]
+        );
         extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;
         extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
         kernelParams = [ "delayacct" "acpi_osi=Linux" "acpi.ec_no_wakeup=1" ];
@@ -40,6 +46,7 @@ inputs:
           xanmod-latest = inputs.pkgs.linuxPackages_xanmod_latest;
           cachyos = inputs.pkgs.linuxPackages_cachyos;
           cachyos-lto = inputs.pkgs.linuxPackages_cachyos-lto;
+          rpi3 = inputs.pkgs.linuxPackages_rpi3;
         }.${kernel.varient};
         kernelPatches =
           let
@@ -147,6 +154,10 @@ inputs:
           });
         in { environment.systemPackages = [ scx ]; }
       )
+    )
+    (
+      inputs.lib.mkIf (kernel.varient == "rpi3")
+        { boot.initrd = { systemd.enableTpm2 = false; includeDefaultModules = false; }; }
     )
   ];
 }

@@ -24,6 +24,7 @@ inputs:
         networking = { hostname = "pi3b"; networkd = {}; };
         binfmt.enable = false;
         nixpkgs.arch = "aarch64";
+        kernel.varient = "rpi3";
       };
       packages.packageSet = "server";
     };
