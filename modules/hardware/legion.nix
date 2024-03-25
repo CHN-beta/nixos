@@ -1,16 +1,10 @@
 inputs:
 {
-  options.nixos.hardware.legion = let inherit (inputs.lib) mkOption types; in
+  options.nixos.hardware.legion = let inherit (inputs.lib) mkOption types; in mkOption
+    { type = types.nullOr (types.submodule {}); default = null; };
+  config = let inherit (inputs.config.nixos.hardware) legion; in inputs.lib.mkIf (legion != null)
   {
-    enable = mkOption { type = types.bool; default = false; };
+    environment.systemPackages = [ inputs.pkgs.lenovo-legion ];
+    boot.extraModulePackages = [ inputs.config.boot.kernelPackages.lenovo-legion-module ];
   };
-  config =
-    let
-      inherit (inputs.lib) mkIf;
-      inherit (inputs.config.nixos.hardware) legion;
-    in mkIf legion.enable
-    {
-      environment.systemPackages = [ inputs.pkgs.lenovo-legion ];
-      boot.extraModulePackages = [ inputs.config.boot.kernelPackages.lenovo-legion-module ];
-    };
 }

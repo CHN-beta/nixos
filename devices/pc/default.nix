@@ -62,6 +62,7 @@ inputs:
       {
         cpus = [ "amd" ];
         gpu = { type = "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; };
+        legion = {};
       };
       packages.packageSet = "workstation";
       virtualization =
