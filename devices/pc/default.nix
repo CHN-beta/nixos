@@ -74,7 +74,7 @@ inputs:
       };
       services =
       {
-        # snapper.enable = true;
+        snapper.enable = true;
         fontconfig.enable = true;
         samba =
         {
