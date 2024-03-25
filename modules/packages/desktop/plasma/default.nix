@@ -1,6 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules (inputs.localLib.findModules ./.);
+  imports = inputs.localLib.findModules ./.;
   config.nixos.user.sharedModules = inputs.lib.mkIf inputs.config.nixos.system.gui.enable
   [{
     config.programs.plasma = inputs.lib.mkMerge

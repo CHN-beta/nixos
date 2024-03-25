@@ -1,6 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules (inputs.localLib.findModules ./.);
+  imports = inputs.localLib.findModules ./.;
   config =
   {
     services = { dbus.implementation = "broker"; fstrim.enable = true; acpid.enable = true; };

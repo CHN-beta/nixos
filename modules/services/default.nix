@@ -1,6 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules (inputs.localLib.findModules ./.);
+  imports = inputs.localLib.findModules ./.;
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
     firewall.trustedInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };

@@ -1,6 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules (inputs.localLib.findModules ./.);
+  imports = inputs.localLib.findModules ./.;
   options.nixos.user = let inherit (inputs.lib) mkOption types; in
   {
     users = mkOption { type = types.listOf types.nonEmptyStr; default = [ "chn" ]; };

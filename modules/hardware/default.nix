@@ -1,6 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules (inputs.localLib.findModules ./.);
+  imports = inputs.localLib.findModules ./.;
   options.nixos.hardware = let inherit (inputs.lib) mkOption types; in
   {
     bluetooth.enable = mkOption { type = types.bool; default = false; };

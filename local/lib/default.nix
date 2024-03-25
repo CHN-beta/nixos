@@ -42,7 +42,7 @@ lib: rec
   # - all .nix file in the directory except for default.nix
   # - all directories containing a default.nix
   findModules = path:
-    builtins.filter (path: path != null) (builtins.map
+    mkModules (builtins.filter (path: path != null) (builtins.map
       (subPath:
         if subPath.value == "regular" && subPath.name != "default.nix"
           then if lib.strings.hasSuffix ".nix" subPath.name
@@ -53,5 +53,5 @@ lib: rec
               then "${path}/${subPath.name}"
             else null
           else null)
-      (attrsToList (builtins.readDir path)));
+      (attrsToList (builtins.readDir path))));
 }
