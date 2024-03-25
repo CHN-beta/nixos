@@ -10,12 +10,9 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/E58F-416A" = "/boot/efi";
-            btrfs =
-            {
-              "/dev/disk/by-uuid/066be4fd-8617-4fe1-9654-c133c2996d33"."/" = "/boot";
-              "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-            };
+            vfat."/dev/disk/by-uuid/ABC6-6B3E" = "/boot/efi";
+            btrfs."/dev/disk/by-uuid/c459c6c0-23a6-4ef2-945a-0bfafa9a45b6" =
+              { "/nix/rootfs/current" = "/"; "/nix" = "/nix"; "/nix/boot" = "/boot"; };
           };
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};
