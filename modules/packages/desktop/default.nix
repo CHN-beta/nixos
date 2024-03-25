@@ -34,6 +34,8 @@ inputs:
           localPackages.slate utterly-nord-plasma
           # terminal
           unstablePackages.warp-terminal
+          # development
+          adb-sync
         ];
       };
       programs =

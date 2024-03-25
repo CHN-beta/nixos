@@ -30,9 +30,9 @@ inputs:
             # file manager
             tree eza trash-cli lsd broot file xdg-ninja mlocate
             # compress
-            pigz rar upx unzip zip lzip p7zip
+            pigz upx unzip zip lzip p7zip
             # file system management
-            sshfs e2fsprogs adb-sync duperemove compsize exfatprogs
+            sshfs e2fsprogs duperemove compsize exfatprogs
             # disk management
             smartmontools hdparm
             # encryption and authentication
@@ -46,7 +46,8 @@ inputs:
             # development
             gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix hexo-cli gh
           ]
-          ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
+          ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ])
+          ++ (inputs.lib.optional (inputs.config.nixos.system.nixpkgs.arch == "x86_64") rar);
           _pythonPackages = [(pythonPackages: with pythonPackages;
           [
             openai python-telegram-bot fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
