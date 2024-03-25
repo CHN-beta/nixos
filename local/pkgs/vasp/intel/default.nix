@@ -79,6 +79,9 @@ let
     # fork to bootstrap, do not use srun, causing it could not find proper ld
     export I_MPI_HYDRA_BOOTSTRAP=''${I_MPI_HYDRA_BOOTSTRAP-fork}
 
+    # set OMP_STACKSIZE if not set
+    export OMP_STACKSIZE=''${OMP_STACKSIZE-512M}
+
     ${additionalCommands}
 
     ${
