@@ -2,6 +2,7 @@ inputs:
 {
   options.nixos.system.nixpkgs = let inherit (inputs.lib) mkOption types; in
   {
+    arch = mkOption { type = types.enum [ "x86_64" "aarch64" ]; default = "x86_64"; };
     march = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
     cuda =
     {
@@ -24,8 +25,8 @@ inputs:
           permittedInsecurePackages =
             [ "openssl_1_1" "electron_19" "python2" "electron_12" "electron_24" "zotero" "electron_25" ];
           hostPlatform = if nixpkgs.march != null
-            then { inherit (inputs.pkgs) system; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
-            else inputs.pkgs.system;
+            then { system = "${nixpkgs.arch}-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
+            else "${nixpkgs.arch}-linux";
           cudaConfig = inputs.lib.optionalAttrs nixpkgs.cuda.enable
           (
             { cudaSupport = true; }

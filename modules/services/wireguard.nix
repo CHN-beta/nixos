@@ -26,7 +26,7 @@ inputs:
       inherit (inputs.lib) mkIf mkMerge;
       inherit (inputs.config.nixos.services) wireguard;
       inherit (builtins) map toString listToAttrs filter;
-    in mkMerge
+    in mkIf wireguard.enable (mkMerge
     [
       {
         assertions =
@@ -35,56 +35,53 @@ inputs:
           message = "wireguard.listenIp should be not null when behindNat is false.";
         }];
       }
-      (
-        mkIf wireguard.enable
+      {
+        networking =
         {
-          networking =
+          firewall = { allowedUDPPorts = [ wireguard.listenPort ]; trustedInterfaces = [ "wireguard" ]; };
+          wireguard.interfaces.wireguard =
           {
-            firewall = { allowedUDPPorts = [ wireguard.listenPort ]; trustedInterfaces = [ "wireguard" ]; };
-            wireguard.interfaces.wireguard =
-            {
-              ips = [ "${wireguard.wireguardIp}/24" ];
-              inherit (wireguard) listenPort;
-              privateKeyFile = inputs.config.sops.secrets."wireguard/privateKey".path;
-              peers = map
-                (peer:
-                {
-                  publicKey = peer.publicKey;
-                  allowedIPs = [ (if peer.lighthouse then "192.168.83.0/24" else "${peer.wireguardIp}/32") ];
-                  endpoint = mkIf (!peer.behindNat) "${peer.listenIp}:${builtins.toString peer.listenPort}";
-                  persistentKeepalive = mkIf peer.lighthouse 5;
-                })
-                (map
-                  (peer: inputs.topInputs.self.nixosConfigurations.${peer}.config.nixos.services.wireguard)
-                  wireguard.peers);
-            };
-          };
-          sops.secrets."wireguard/privateKey" = {};
-          # somehow fix wireguard connection
-          systemd.services = mkIf wireguard.behindNat (listToAttrs (map
-            (peer:
-            {
-              name = "wireguard-ping-${peer.name}";
-              value =
-              {
-                description = "ping ${peer.name}";
-                after = [ "network.target" ];
-                wantedBy = [ "multi-user.target" ];
-                serviceConfig =
-                {
-                  ExecStart = "${inputs.pkgs.iputils}/bin/ping -i 5 ${peer.value.wireguardIp}";
-                  Restart = "always";
-                };
-              };
-            })
-            (filter (peer: !peer.value.behindNat) (map
+            ips = [ "${wireguard.wireguardIp}/24" ];
+            inherit (wireguard) listenPort;
+            privateKeyFile = inputs.config.sops.secrets."wireguard/privateKey".path;
+            peers = map
               (peer:
               {
-                name = peer;
-                value = inputs.topInputs.self.nixosConfigurations.${peer}.config.nixos.services.wireguard;
+                publicKey = peer.publicKey;
+                allowedIPs = [ (if peer.lighthouse then "192.168.83.0/24" else "${peer.wireguardIp}/32") ];
+                endpoint = mkIf (!peer.behindNat) "${peer.listenIp}:${builtins.toString peer.listenPort}";
+                persistentKeepalive = mkIf peer.lighthouse 5;
               })
-              wireguard.peers))));
-        }
-      )
-    ];
+              (map
+                (peer: inputs.topInputs.self.nixosConfigurations.${peer}.config.nixos.services.wireguard)
+                wireguard.peers);
+          };
+        };
+        sops.secrets."wireguard/privateKey" = {};
+        # somehow fix wireguard connection
+        systemd.services = mkIf wireguard.behindNat (listToAttrs (map
+          (peer:
+          {
+            name = "wireguard-ping-${peer.name}";
+            value =
+            {
+              description = "ping ${peer.name}";
+              after = [ "network.target" ];
+              wantedBy = [ "multi-user.target" ];
+              serviceConfig =
+              {
+                ExecStart = "${inputs.pkgs.iputils}/bin/ping -i 5 ${peer.value.wireguardIp}";
+                Restart = "always";
+              };
+            };
+          })
+          (filter (peer: !peer.value.behindNat) (map
+            (peer:
+            {
+              name = peer;
+              value = inputs.topInputs.self.nixosConfigurations.${peer}.config.nixos.services.wireguard;
+            })
+            wireguard.peers))));
+      }
+    ]);
 }

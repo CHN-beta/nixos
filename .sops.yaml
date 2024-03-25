@@ -7,6 +7,7 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &nas age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
   - &xmupc1 age1hnarptkze0ujpp05dqr8uma04cxg9zqcx68qgpks5uf5l6rpk5gqhh8wxg
   - &xmupc2 age1l4stuz0vr7gs7pqwjrmezam44702jp2vmqaqyxw0l0r42kf9updq4dfhrw
+  - &pi3b age1l4stuz0vr7gs7pqwjrmezam44702jp2vmqaqyxw0l0r42kf9updq4dfhrw
 creation_rules:
   - path_regex: devices/pc/secrets/.*$
     key_groups:
@@ -43,3 +44,8 @@ creation_rules:
     - age:
       - *chn
       - *xmupc2
+  - path_regex: devices/pi3b/secrets/.*$
+    key_groups:
+    - age:
+      - *chn
+      - *pi3b
