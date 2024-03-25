@@ -1,10 +1,8 @@
 inputs:
 {
-  options.nixos.system.envfs = let inherit (inputs.lib) mkOption types; in
-  {
-    enable = mkOption { type = types.bool; default = true; };
-  };
-  config = inputs.lib.mkIf inputs.config.nixos.system.envfs.enable (inputs.lib.mkMerge
+  options.nixos.system.envfs = let inherit (inputs.lib) mkOption types; in mkOption
+    { type = types.nullOr (types.submodule {}); default = {}; };
+  config = let inherit (inputs.config.nixos.system) envfs; in inputs.lib.mkIf (envfs != null) (inputs.lib.mkMerge
   [
     (builtins.elemAt inputs.topInputs.envfs.nixosModules.envfs.imports 0 inputs)
     { environment.variables.ENVFS_RESOLVE_ALWAYS = "1"; }
