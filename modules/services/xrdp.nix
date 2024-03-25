@@ -19,16 +19,10 @@ inputs:
     [
       {
         assertions =
-        [
-          {
-            assertion = !inputs.config.nixos.system.envfs.enable;
-            message = "Somehow xrdp could not start if envfs is enabled";
-          }
-          {
-            assertion = (xrdp.optimise.type == "nvidia") -> (xrdp.optimise.nvidiaBusId != null);
-            message = "nvidiaBusId must be set if optimise type is nvidia";
-          }
-        ];
+        [{
+          assertion = (xrdp.optimise.type == "nvidia") -> (xrdp.optimise.nvidiaBusId != null);
+          message = "nvidiaBusId must be set if optimise type is nvidia";
+        }];
       }
       {
         services.xrdp =

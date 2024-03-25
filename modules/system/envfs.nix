@@ -2,7 +2,7 @@ inputs:
 {
   options.nixos.system.envfs = let inherit (inputs.lib) mkOption types; in
   {
-    enable = mkOption { type = types.bool; default = false; };
+    enable = mkOption { type = types.bool; default = true; };
   };
   config = inputs.lib.mkIf inputs.config.nixos.system.envfs.enable (inputs.lib.mkMerge
   [
