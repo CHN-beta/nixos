@@ -68,7 +68,7 @@ inputs:
             onBoot = "ignore";
             onShutdown = "shutdown";
             parallelShutdown = 4;
-            qemu.ovmf.packages = with inputs.pkgs; [ pkgsCross.aarch64-multiplatform.OVMF.fd OVMF.fd ];
+            qemu.ovmf.packages = with inputs.pkgs; [ OVMF.fd pkgsCross.aarch64-multiplatform.OVMFFull.fd ];
           };
           spiceUSBRedirection.enable = true;
         };
