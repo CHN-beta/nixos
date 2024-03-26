@@ -29,14 +29,17 @@ inputs:
         MATHEMATICA_USERBASE = "${XDG_CONFIG_HOME}/mathematica";
         _JAVA_OPTIONS = "-Djava.util.prefs.userRoot=${XDG_CONFIG_HOME}/java";
       };
-      variables.NIXOS_CONFIGURATION_REVISION = inputs.config.system.configurationRevision;
+      variables =
+      {
+        NIXOS_CONFIGURATION_REVISION = inputs.config.system.configurationRevision;
+        CPATH = "/run/current-system/sw/include";
+        LIBRARY_PATH = "/run/current-system/sw/lib";
+      };
+      pathsToLink = [ "/include" ];
     };
     i18n =
       { defaultLocale = "C.UTF-8"; supportedLocales = [ "zh_CN.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ]; };
     users.mutableUsers = false;
-    # environment.pathsToLink = [ "/include" ];
-    # environment.variables.CPATH = "/run/current-system/sw/include";
-    # environment.variables.LIBRARY_PATH = "/run/current-system/sw/lib";
     virtualisation.oci-containers.backend = "docker";
     home-manager.sharedModules = [{ home.stateVersion = "22.11"; }];
     system =

@@ -44,7 +44,10 @@ inputs:
             # office
             todo-txt-cli pdfgrep
             # development
-            gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix hexo-cli gh
+            gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix hexo-cli gh stdenv gfortran
+            nodejs
+            # library
+            fmt fmt.dev localPackages.nameof
           ]
           ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ])
           ++ (inputs.lib.optional (inputs.config.nixos.system.nixpkgs.arch == "x86_64") rar);
