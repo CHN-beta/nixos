@@ -14,7 +14,10 @@ inputs:
       sops =
       {
         defaultSopsFile =
-          "${inputs.topInputs.self}/devices/${inputs.config.nixos.system.networking.hostname}/secrets/default.yaml";
+          let deviceDir = "${inputs.topInputs.self}/devices/${inputs.config.nixos.system.networking.hostname}";
+          in
+            if builtins.pathExists "${deviceDir}/secrets.yaml" then "${deviceDir}/secrets.yaml"
+            else "${deviceDir}/secrets/default.yaml";
         # sops start before impermanence, so we need to use the absolute path
         age.sshKeyPaths = [ "${sops.keyPathPrefix}/etc/ssh/ssh_host_ed25519_key" ];
         gnupg.sshKeyPaths = [ "${sops.keyPathPrefix}/etc/ssh/ssh_host_rsa_key" ];

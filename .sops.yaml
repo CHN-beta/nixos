@@ -9,42 +9,42 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &xmupc2 age1l4stuz0vr7gs7pqwjrmezam44702jp2vmqaqyxw0l0r42kf9updq4dfhrw
   - &pi3b age1l4stuz0vr7gs7pqwjrmezam44702jp2vmqaqyxw0l0r42kf9updq4dfhrw
 creation_rules:
-  - path_regex: devices/pc/secrets/.*$
+  - path_regex: devices/pc/.*$
     key_groups:
     - age:
       - *chn
       - *pc
-  - path_regex: devices/vps6/secrets/.*$
+  - path_regex: devices/vps6/.*$
     key_groups:
     - age:
       - *chn
       - *vps6
-  - path_regex: devices/vps7/secrets/.*$
+  - path_regex: devices/vps7/.*$
     key_groups:
     - age:
       - *chn
       - *vps7
-  - path_regex: devices/nas/secrets/.*$
+  - path_regex: devices/nas/.*$
     key_groups:
     - age:
       - *chn
       - *nas
-  - path_regex: devices/surface/secrets/.*$
+  - path_regex: devices/surface/.*$
     key_groups:
     - age:
       - *chn
       - *surface
-  - path_regex: devices/xmupc1/secrets/.*$
+  - path_regex: devices/xmupc1/.*$
     key_groups:
     - age:
       - *chn
       - *xmupc1
-  - path_regex: devices/xmupc2/secrets/.*$
+  - path_regex: devices/xmupc2/.*$
     key_groups:
     - age:
       - *chn
       - *xmupc2
-  - path_regex: devices/pi3b/secrets/.*$
+  - path_regex: devices/pi3b/.*$
     key_groups:
     - age:
       - *chn
