@@ -60,7 +60,7 @@ inputs:
           shares = { home.path = "/home"; root.path = "/"; };
         };
         sshd.enable = true;
-        xray.client = {};
+        xray.client.dae.wanInterface = [ "enp3s0" ];
         xrdp = { enable = true; hostname = [ "nas.chn.moe" "office.chn.moe" ]; };
         groupshare = {};
         smartd.enable = true;

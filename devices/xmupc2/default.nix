@@ -54,7 +54,7 @@ inputs:
         snapper.enable = true;
         fontconfig.enable = true;
         sshd = { enable = true; passwordAuthentication = true; };
-        xray.client = {};
+        xray.client.dae.wanInterface = [ "wlp4s0" ];
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         smartd.enable = true;
         beesd.instances.root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };

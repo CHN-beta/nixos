@@ -90,9 +90,13 @@ inputs:
           };
         };
         sshd.enable = true;
-        xray.client.dnsmasq.hosts = builtins.listToAttrs (builtins.map
-          (name: { inherit name; value = "74.211.99.69"; })
-          [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ]);
+        xray.client =
+        {
+          dnsmasq.hosts = builtins.listToAttrs (builtins.map
+            (name: { inherit name; value = "74.211.99.69"; })
+            [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ]);
+          dae.wanInterface = [ "wlp4s0" "enp5s0" ];
+        };
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         acme.cert."debug.mirism.one" = {};
         frpClient =
