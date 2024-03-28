@@ -28,10 +28,7 @@ inputs:
       {
         # snapper.enable = true;
         sshd.enable = true;
-        xray.client =
-        {
-          # dae.wanInterface = [ "wlp4s0" "enp5s0" ];
-        };
+        xray.client.dae.wanInterface = [ "enu1u1" ];
         fail2ban = {};
         wireguard =
         {
@@ -40,7 +37,7 @@ inputs:
           publicKey = "X5SwWQk3JDT8BDxd04PYXTJi5E20mZKP6PplQ+GDnhI=";
           wireguardIp = "192.168.83.8";
         };
-        # beesd.instances.root = { device = "/"; hashTableSizeMB = 64; };
+        beesd.instances.root = { device = "/"; hashTableSizeMB = 32; };
       };
     };
   };
