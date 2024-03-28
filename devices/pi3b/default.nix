@@ -24,6 +24,24 @@ inputs:
         kernel.varient = "rpi3";
       };
       packages.packageSet = "server";
+      services =
+      {
+        # snapper.enable = true;
+        sshd.enable = true;
+        xray.client =
+        {
+          # dae.wanInterface = [ "wlp4s0" "enp5s0" ];
+        };
+        fail2ban = {};
+        wireguard =
+        {
+          enable = true;
+          peers = [ "vps6" ];
+          publicKey = "X5SwWQk3JDT8BDxd04PYXTJi5E20mZKP6PplQ+GDnhI=";
+          wireguardIp = "192.168.83.8";
+        };
+        # beesd.instances.root = { device = "/"; hashTableSizeMB = 64; };
+      };
     };
   };
 }
