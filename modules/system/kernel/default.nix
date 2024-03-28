@@ -31,6 +31,8 @@ inputs:
           "ahci" "ata_piix" "nvme" "sdhci_acpi" "virtio_pci" "xhci_pci"
           # networking for nas
           "igb"
+          # for pi3b to show message over hdmi while boot
+          "vc4" "bcm2835_dma" "i2c_bcm2835"
         ]
         ++ (inputs.lib.optionals (kernel.varient != "nixos") [ "crypto_simd" ]);
         extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;

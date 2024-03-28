@@ -166,7 +166,7 @@
                 inputs.self.nixosConfigurations.${node};
             };
           })
-          [ "vps6" "vps7" "nas" "surface" "xmupc1" "xmupc2" ]
+          [ "vps6" "vps7" "nas" "surface" "xmupc1" "xmupc2" "pi3b" ]
         );
       };
       checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks inputs.self.deploy) inputs.deploy-rs.lib;
