@@ -50,7 +50,7 @@ inputs:
             fmt fmt.dev localPackages.nameof localPackages.matplotplusplus highfive hdf5 hdf5.dev
             eigen (runCommand "eigen" {} "mkdir $out; ln -s ${eigen}/include/eigen3 $out/include")
             # stupid things
-            toilet
+            toilet lolcat
           ]
           ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ])
           ++ (inputs.lib.optional (inputs.config.nixos.system.nixpkgs.arch == "x86_64") rar);
