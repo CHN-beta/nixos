@@ -125,7 +125,7 @@ inputs:
           hostname = [ "pc.chn.moe" ];
         };
       };
-      bugs = [ "xmunet" "backlight" "amdpstate" ];
+      bugs = [ "xmunet" "backlight" "amdpstate" "suspend-hibernate-no-platform" ];
     };
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
