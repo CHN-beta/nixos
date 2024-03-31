@@ -1030,6 +1030,22 @@
         "type": "github"
       }
     },
+    "kylin-virtual-keyboard": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1710313521,
+        "narHash": "sha256-A8Y+lvAPlh0HeTxTaHCdAD/CilQCQwsX4C+fBBKaqTU=",
+        "ref": "refs/heads/upstream",
+        "rev": "a8ec88762d63d676aae4f5f1e6d9d1dedf07cf28",
+        "revCount": 161,
+        "type": "git",
+        "url": "https://gitee.com/openkylin/kylin-virtual-keyboard.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://gitee.com/openkylin/kylin-virtual-keyboard.git"
+      }
+    },
     "lepton": {
       "flake": false,
       "locked": {
@@ -1934,6 +1950,7 @@
         "gricad": "gricad",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
+        "kylin-virtual-keyboard": "kylin-virtual-keyboard",
         "lepton": "lepton",
         "linux-surface": "linux-surface",
         "lmod": "lmod",

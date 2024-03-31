@@ -80,6 +80,8 @@ inputs: rec
   mumax = inputs.pkgs.callPackage ./mumax { src = inputs.topInputs.mumax; };
   aocc = inputs.pkgs.callPackage ./aocc {};
   aocl = inputs.pkgs.callPackage ./aocl {};
+  kylin-virtual-keyboard = inputs.pkgs.libsForQt5.callPackage ./kylin-virtual-keyboard
+    { src = inputs.topInputs.kylin-virtual-keyboard; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

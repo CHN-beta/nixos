@@ -67,6 +67,7 @@
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
     lmod = { url = "github:TACC/Lmod"; flake = false; };
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
+    kylin-virtual-keyboard = { url = "git+https://gitee.com/openkylin/kylin-virtual-keyboard.git"; flake = false; };
   };
 
   outputs = inputs:
