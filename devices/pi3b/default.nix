@@ -27,7 +27,7 @@ inputs:
       services =
       {
         # snapper.enable = true;
-        sshd.enable = true;
+        sshd = {};
         xray.client.dae.wanInterface = [ "enu1u1" ];
         fail2ban = {};
         wireguard =

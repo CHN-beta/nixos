@@ -89,7 +89,7 @@ inputs:
             share.path = "/home/chn/share";
           };
         };
-        sshd.enable = true;
+        sshd = {};
         xray.client =
         {
           dnsmasq.hosts = builtins.listToAttrs (builtins.map

@@ -59,7 +59,7 @@ inputs:
           hostsAllowed = "192.168. 127.";
           shares = { home.path = "/home"; root.path = "/"; };
         };
-        sshd.enable = true;
+        sshd = {};
         xray.client.dae.wanInterface = [ "enp3s0" ];
         xrdp = { enable = true; hostname = [ "nas.chn.moe" "office.chn.moe" ]; };
         groupshare = {};

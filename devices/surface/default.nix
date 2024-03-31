@@ -41,7 +41,7 @@ inputs:
       {
         snapper.enable = true;
         fontconfig.enable = true;
-        sshd.enable = true;
+        sshd = {};
         xray.client.dae.wanInterface = [ "wlp2s0" ];
         firewall.trustedInterfaces = [ "virbr0" ];
         wireguard =

@@ -37,7 +37,7 @@ inputs:
       {
         snapper.enable = true;
         fontconfig.enable = true;
-        sshd.enable = true;
+        sshd = {};
         rsshub.enable = true;
         wallabag.enable = true;
         misskey.instances =
