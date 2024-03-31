@@ -53,7 +53,7 @@ inputs:
         };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
       };
-      bugs = [ "xmunet" ];
+      bugs = [ "xmunet" "suspend-hibernate-no-platform" ];
     };
     boot.kernelParams = [ "intel_iommu=off" ];
     environment.systemPackages = with inputs.pkgs; [ maliit-keyboard maliit-framework ];
