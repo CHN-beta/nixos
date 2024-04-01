@@ -68,6 +68,7 @@
     lmod = { url = "github:TACC/Lmod"; flake = false; };
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
     kylin-virtual-keyboard = { url = "git+https://gitee.com/openkylin/kylin-virtual-keyboard.git"; flake = false; };
+    biu = { url = "github:CHN-beta/biu"; flake = false; };
   };
 
   outputs = inputs:

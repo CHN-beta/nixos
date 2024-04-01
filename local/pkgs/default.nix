@@ -20,7 +20,6 @@ inputs: rec
   chromiumos-touch-keyboard = inputs.pkgs.callPackage ./chromiumos-touch-keyboard {};
   yoga-support = inputs.pkgs.callPackage ./yoga-support {};
   tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp { src = inputs.topInputs.tgbot-cpp; };
-  biu = inputs.pkgs.callPackage ./biu { inherit concurrencpp tgbot-cpp nameof; stdenv = inputs.pkgs.gcc13Stdenv; };
   citation-style-language = inputs.pkgs.callPackage ./citation-style-language
     { src = inputs.topInputs.citation-style-language; };
   mirism = inputs.pkgs.callPackage ./mirism
@@ -81,6 +80,7 @@ inputs: rec
   aocl = inputs.pkgs.callPackage ./aocl {};
   kylin-virtual-keyboard = inputs.pkgs.libsForQt5.callPackage ./kylin-virtual-keyboard
     { src = inputs.topInputs.kylin-virtual-keyboard; };
+  biu = inputs.pkgs.callPackage inputs.topInputs.biu { inherit nameof; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

@@ -48,7 +48,7 @@ inputs:
             nodejs
             # library
             fmt fmt.dev localPackages.nameof localPackages.matplotplusplus highfive hdf5 hdf5.dev
-            localPackages.concurrencpp
+            localPackages.concurrencpp localPackages.biu localPackages.magik-enum
             (
               runCommand "concurrencpp" {}
                 "mkdir $out; ln -s ${localPackages.concurrencpp}/include/concurrencpp-* $out/include"
