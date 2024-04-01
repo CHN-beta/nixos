@@ -7,8 +7,7 @@ inputs: rec
   mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn {};
   vaspkit = inputs.pkgs.callPackage ./vaspkit { inherit (inputs.localLib) attrsToList; };
   v-sim = inputs.pkgs.callPackage ./v-sim { src = inputs.topInputs.v-sim; };
-  concurrencpp = inputs.pkgs.callPackage ./concurrencpp
-    { stdenv = inputs.pkgs.gcc13Stdenv; src = inputs.topInputs.concurrencpp; };
+  concurrencpp = inputs.pkgs.callPackage ./concurrencpp { src = inputs.topInputs.concurrencpp; };
   eigengdb = inputs.pkgs.python3Packages.callPackage ./eigengdb {};
   nodesoup = inputs.pkgs.callPackage ./nodesoup { src = inputs.topInputs.nodesoup; };
   matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus

@@ -48,6 +48,11 @@ inputs:
             nodejs
             # library
             fmt fmt.dev localPackages.nameof localPackages.matplotplusplus highfive hdf5 hdf5.dev
+            localPackages.concurrencpp
+            (
+              runCommand "concurrencpp" {}
+                "mkdir $out; ln -s ${localPackages.concurrencpp}/include/concurrencpp-* $out/include"
+            )
             eigen (runCommand "eigen" {} "mkdir $out; ln -s ${eigen}/include/eigen3 $out/include")
             # stupid things
             toilet lolcat
