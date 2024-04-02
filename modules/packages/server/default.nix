@@ -44,16 +44,17 @@ inputs:
             # office
             todo-txt-cli pdfgrep
             # development
-            gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix hexo-cli gh stdenv gfortran
-            nodejs
+            gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix hexo-cli gh
+            # install per project
+            # stdenv gfortran nodejs
             # library
-            fmt fmt.dev localPackages.nameof localPackages.matplotplusplus highfive hdf5 hdf5.dev
-            localPackages.concurrencpp localPackages.biu localPackages.magik-enum
-            (
-              runCommand "concurrencpp" {}
-                "mkdir $out; ln -s ${localPackages.concurrencpp}/include/concurrencpp-* $out/include"
-            )
-            eigen (runCommand "eigen" {} "mkdir $out; ln -s ${eigen}/include/eigen3 $out/include")
+            # fmt fmt.dev localPackages.nameof localPackages.matplotplusplus highfive hdf5 hdf5.dev
+            # localPackages.concurrencpp localPackages.biu localPackages.magik-enum
+            # (
+            #   runCommand "concurrencpp" {}
+            #     "mkdir $out; ln -s ${localPackages.concurrencpp}/include/concurrencpp-* $out/include"
+            # )
+            # eigen (runCommand "eigen" {} "mkdir $out; ln -s ${eigen}/include/eigen3 $out/include")
             # stupid things
             toilet lolcat
           ]

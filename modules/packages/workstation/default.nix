@@ -20,7 +20,9 @@ inputs:
             # instant messager
             qq nur-xddxdd.wechat-uos cinny-desktop nheko
             # development
-            jetbrains.clion android-studio dbeaver cling clang-tools_16 ccls fprettify aircrack-ng
+            jetbrains.clion android-studio dbeaver cling fprettify aircrack-ng
+            # install per project
+            # clang-tools_16 ccls 
             # media
             nur-xddxdd.svp
             # virtualization

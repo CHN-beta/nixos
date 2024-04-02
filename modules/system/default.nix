@@ -32,10 +32,10 @@ inputs:
       variables =
       {
         NIXOS_CONFIGURATION_REVISION = inputs.config.system.configurationRevision;
-        CPATH = "/run/current-system/sw/include";
-        LIBRARY_PATH = "/run/current-system/sw/lib";
+        # CPATH = "/run/current-system/sw/include";
+        # LIBRARY_PATH = "/run/current-system/sw/lib";
       };
-      pathsToLink = [ "/include" ];
+      # pathsToLink = [ "/include" ];
     };
     i18n =
       { defaultLocale = "C.UTF-8"; supportedLocales = [ "zh_CN.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ]; };
