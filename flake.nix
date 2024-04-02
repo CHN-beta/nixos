@@ -68,7 +68,6 @@
     lmod = { url = "github:TACC/Lmod"; flake = false; };
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
     kylin-virtual-keyboard = { url = "git+https://gitee.com/openkylin/kylin-virtual-keyboard.git"; flake = false; };
-    biu = { url = "github:CHN-beta/biu"; flake = false; };
   };
 
   outputs = inputs:
@@ -175,5 +174,14 @@
       overlays.default = final: prev:
         { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; topInputs = inputs; }); };
       config.archive = false;
+      devShell.x86_64-linux = let inherit (inputs.self.nixosConfigurations.pc) pkgs; in pkgs.mkShell
+      {
+        packages = with pkgs; [ pkg-config cmake ninja clang-tools_17 ];
+        buildInputs =
+          (with pkgs; [ fmt boost magic-enum libbacktrace eigen range-v3 ])
+          ++ (with pkgs.localPackages; [ concurrencpp tgbot-cpp nameof ]);
+        # hardeningDisable = [ "all" ];
+        # NIX_DEBUG = "1";
+      };
     };
 }

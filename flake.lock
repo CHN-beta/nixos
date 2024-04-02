@@ -54,22 +54,6 @@
         "url": "https://flakehub.com/f/zhaofengli/attic/0.1.%2A.tar.gz"
       }
     },
-    "biu": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1711969538,
-        "narHash": "sha256-wGw+f7okXUDueWrUjRVqPb3Kx/OwIP8xrfvYRXbrAww=",
-        "owner": "CHN-beta",
-        "repo": "biu",
-        "rev": "dbdc36394271f859f25cabaceed971898741a1c6",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "repo": "biu",
-        "type": "github"
-      }
-    },
     "blurred-wallpaper": {
       "flake": false,
       "locked": {
@@ -1953,7 +1937,6 @@
     "root": {
       "inputs": {
         "aagl": "aagl",
-        "biu": "biu",
         "blurred-wallpaper": "blurred-wallpaper",
         "chaotic": "chaotic",
         "citation-style-language": "citation-style-language",

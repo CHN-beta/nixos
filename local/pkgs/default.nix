@@ -80,7 +80,7 @@ inputs: rec
   aocl = inputs.pkgs.callPackage ./aocl {};
   kylin-virtual-keyboard = inputs.pkgs.libsForQt5.callPackage ./kylin-virtual-keyboard
     { src = inputs.topInputs.kylin-virtual-keyboard; };
-  biu = inputs.pkgs.callPackage inputs.topInputs.biu { inherit nameof; };
+  biu = inputs.pkgs.callPackage ./biu { inherit nameof; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
