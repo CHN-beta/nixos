@@ -1,6 +1,6 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin, writeTextDir,
-  config, oneapiArch ? config.oneapiArch or "SSE3", additionalCommands ? "",
+  config, oneapiArch ? config.oneapiArch or "SSE3",
   oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5, zlib
 }:
 let
@@ -81,8 +81,6 @@ let
 
     # set OMP_STACKSIZE if not set
     export OMP_STACKSIZE=''${OMP_STACKSIZE-512M}
-
-    ${additionalCommands}
 
     ${
       if variant == "env" then ''exec "$@"''

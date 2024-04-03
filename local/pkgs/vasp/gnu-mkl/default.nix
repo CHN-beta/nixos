@@ -1,7 +1,6 @@
 {
   stdenvNoCC, requireFile, writeShellApplication,
-  rsync, mkl, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90,
-  additionalCommands ? ""
+  rsync, mkl, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -48,8 +47,6 @@ let
         fi
       fi
       export OMP_NUM_THREADS
-
-      ${additionalCommands}
 
       exec "$@"
     '';

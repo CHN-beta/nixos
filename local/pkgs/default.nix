@@ -47,21 +47,19 @@ inputs: rec
     gnu = inputs.pkgs.callPackage ./vasp/gnu
     {
       inherit (inputs.pkgs.llvmPackages) openmp;
-      inherit wannier90 additionalCommands;
+      inherit wannier90;
       hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; };
     };
     gnu-mkl = inputs.pkgs.callPackage ./vasp/gnu-mkl
     {
       inherit (inputs.pkgs.llvmPackages) openmp;
-      inherit wannier90 additionalCommands;
+      inherit wannier90;
       hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; };
     };
-    nvidia = inputs.pkgs.callPackage ./vasp/nvidia
-      { inherit lmod nvhpc wannier90 additionalCommands; hdf5 = hdf5-nvhpc; };
-    intel = inputs.pkgs.callPackage ./vasp/intel
-      { inherit lmod oneapi wannier90 additionalCommands; hdf5 = hdf5-oneapi; };
+    nvidia = inputs.pkgs.callPackage ./vasp/nvidia { inherit lmod nvhpc wannier90; hdf5 = hdf5-nvhpc; };
+    intel = inputs.pkgs.callPackage ./vasp/intel { inherit lmod oneapi wannier90; hdf5 = hdf5-oneapi; };
     amd = inputs.pkgs.callPackage ./vasp/amd
-      { inherit aocc aocl wannier90 additionalCommands; hdf5 = hdf5-aocc; openmpi = openmpi-aocc; gcc = gcc-pie; };
+      { inherit aocc aocl wannier90; hdf5 = hdf5-aocc; openmpi = openmpi-aocc; gcc = gcc-pie; };
     wannier90 = inputs.pkgs.callPackage
       "${inputs.topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
     hdf5-nvhpc = inputs.pkgs.callPackage ./vasp/hdf5-nvhpc { inherit lmod nvhpc; inherit (inputs.pkgs.hdf5) src; };
@@ -71,8 +69,6 @@ inputs: rec
     openmpi-aocc = inputs.pkgs.callPackage ./vasp/openmpi-aocc { inherit aocc; gcc = gcc-pie; };
     gcc-pie = inputs.pkgs.wrapCC (inputs.pkgs.gcc.cc.overrideAttrs (prev:
       { configureFlags = prev.configureFlags ++ [ "--enable-default-pie" ];}));
-    additionalCommands = let uid = inputs.config.nixos.user.uid.gb; in
-      ''[ "$(${inputs.pkgs.coreutils}/bin/id -u)" -eq ${builtins.toString uid} ] && exit 1'';
   };
   oneapi = inputs.pkgs.callPackage ./oneapi {};
   mumax = inputs.pkgs.callPackage ./mumax { src = inputs.topInputs.mumax; };
