@@ -6,46 +6,49 @@
 
 namespace biu
 {
-  namespace detail_
+  namespace detail_::eigen
   {
+    // user-specified size of destination container: dynamic, unspecified(use default), or fixed
     constexpr std::size_t dynamicSize = std::dynamic_extent, unspecifiedSize = std::dynamic_extent - 1;
-    template <std::size_t M = unspecifiedSize, std::size_t N = unspecifiedSize> struct ToEigenHelper {};
-    template <std::size_t M = unspecifiedSize, std::size_t N = unspecifiedSize> struct FromEigenHelper {};
+    static_assert(std::dynamic_extent == std::numeric_limits<std::size_t>::max());
+
+    // supported types of standard containers
+		template <typename T, typename Scalar> struct SpecializationOfArrayHelper : std::false_type {};
+		template <typename Scalar, std::size_t N>
+      struct SpecializationOfArrayHelper<std::array<Scalar, N>, Scalar> : std::true_type {};
+		template <typename Scalar, std::size_t N>
+      struct SpecializationOfArrayHelper<std::array<Scalar, N>, void> : std::true_type {};
+    template <typename T, typename Scalar = void> concept SpecializationOfArray =
+      SpecializationOfArrayHelper<T, Scalar>::value;
+    template <typename T, typename Scalar> concept StandardContainer =
+      SpecializationOf<T, std::vector, Scalar> || SpecializationOfArray<T, Scalar>;
+
+    // helper operator| to specify the size of the destination container
+    // usage: some_value | toEigen<Row, Col>
+    template <std::size_t Row, std::size_t Col> struct ToEigenHelper {};
+    template <std::size_t Row = unspecifiedSize, std::size_t Col = unspecifiedSize>
+      inline constexpr ToEigenHelper<Row, Col> toEigen;
+    // convert 1D standard container to Eigen::Vector
+    // if no size is specified, convert std::vector to dynamic-size Eigen::Vector,
+    //  std::array to fixed-size Eigen::Vector;
+    // if size is std::dynamic_extent, always convert to dynamic-size Eigen::Vector
+    // if size is specified as a number, convert to fixed-size Eigen::Vector if specified size equals the size of the
+    //  input, otherwise throw an error
+    template <template <int N> typename Callback, std::size_t ToSize> auto deduce_eigen_size(auto&& container);
+    template <Arithmetic T, StandardContainer<T> From, std::size_t ToSize> auto operator|
+      (const From&, const ToEigenHelper<ToSize, unspecifiedSize>&);
+    // convert 2D standard container to Eigen::Matrix
+    // the same rules as above apply
+    // besides, all rows must have the same size, otherwise throw an error
+    template
+    <
+      Arithmetic T, StandardContainer<T> FromPerRow, StandardContainer<FromPerRow> From,
+      std::size_t ToRow, std::size_t ToCol
+    >
+      auto operator|(const From&, const ToEigenHelper<ToRow, ToCol>&);
+
+    // TODO: implement fromEigen
   }
-  // convert std::vector or std::array to Eigen::Vector or Eigen::Matrix
-  template <std::size_t M = std::dynamic_extent, std::size_t N = std::dynamic_extent>
-    inline constexpr detail_::ToEigenHelper<M, N> toEigen;
-  // convert Eigen::Vector or Eigen::Matrix to std::vector or std::array
-  inline constexpr detail_::FromEigenHelper fromEigen;
 
-  // convert std::vector to Eigen::Vector
-  // if no size is specified, the result is a dynamic-size Eigen::Vector
-  // otherwise, the result is a fixed-size Eigen::Vector with specified size
-  namespace detail_ { consteval int vector_size_to_eigen_size(std::size_t); }
-  template <Arithmetic T, std::size_t N> Eigen::Vector<T, detail_::vector_size_to_eigen_size(N)> operator|
-    (const std::vector<T>&, const detail_::ToEigenHelper<N, detail_::unspecifiedSize>&);
-  // convert std::array to Eigen::Vector
-  // if no size is specified, the result is a fixed-size Eigen::Vector with the same size as the input
-  // otherwise, if std::dynamic_extent is specified, the result is a dynamic-size Eigen::Vector
-  namespace detail_ { template <std::size_t N> consteval int array_size_to_eigen_size(std::size_t); }
-  template <Arithmetic T, std::size_t fromSize, std::size_t toSize>
-    Eigen::Vector<T, detail_::array_size_to_eigen_size<fromSize>(toSize)> operator|
-    (const std::array<T, fromSize>&, const detail_::ToEigenHelper<toSize, detail_::unspecifiedSize>&);
-
-  // 2D counterpart of the above
-  template <Arithmetic T, std::size_t Row, std::size_t Col>
-    Eigen::Matrix<T, detail_::vector_size_to_eigen_size(Row), detail_::vector_size_to_eigen_size(Col)> operator|
-    (const std::vector<std::vector<T>>&, const detail_::ToEigenHelper<Row, Col>&);
-  template <Arithmetic T, std::size_t RowFrom, std::size_t RowTo, std::size_t Col>
-    Eigen::Matrix<T, detail_::array_size_to_eigen_size<RowFrom>(RowTo), detail_::vector_size_to_eigen_size(Col)>
-    operator|(const std::array<std::vector<T>, RowFrom>&, const detail_::ToEigenHelper<RowTo, Col>&);
-  template <Arithmetic T, std::size_t Row, std::size_t ColFrom, std::size_t ColTo>
-    Eigen::Matrix<T, detail_::vector_size_to_eigen_size(Row), detail_::array_size_to_eigen_size<ColFrom>(ColTo)>
-    operator|(const std::vector<std::array<T, ColFrom>>&, const detail_::ToEigenHelper<Row, ColTo>&);
-  template <Arithmetic T, std::size_t RowFrom, std::size_t RowTo, std::size_t ColFrom, std::size_t ColTo>
-    Eigen::Matrix<T, detail_::array_size_to_eigen_size<RowFrom>(RowTo),
-      detail_::array_size_to_eigen_size<ColFrom>(ColTo)>
-    operator|(const std::array<std::array<T, ColFrom>, RowFrom>&, const detail_::ToEigenHelper<RowTo, ColTo>&);
-  
-  // TODO: handle fromEigen
+  inline namespace eigen { using detail_::eigen::toEigen; using detail_::eigen::operator|; }
 }
