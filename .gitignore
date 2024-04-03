@@ -2,3 +2,6 @@ result
 result-man
 outputs
 .direnv
+build
+.vscode
+.cache
