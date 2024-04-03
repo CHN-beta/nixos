@@ -1,6 +1,7 @@
 {
   stdenvNoCC, requireFile, writeShellApplication,
-  rsync, blas, scalapack, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90
+  rsync, blas, scalapack, mpi, openmp, gfortran, gcc, fftwMpi, hdf5, wannier90,
+  additionalCommands ? ""
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -46,6 +47,8 @@ let
         fi
       fi
       export OMP_NUM_THREADS
+
+      ${additionalCommands}
 
       exec "$@"
     '';

@@ -1,6 +1,6 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin,
-  config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px",
+  config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px", additionalCommands ? "",
   nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90, zlib
 }:
 let
@@ -66,6 +66,8 @@ let
       fi
     fi
     export OMP_NUM_THREADS
+
+    ${additionalCommands}
 
     ${
       if variant == "env" then ''exec "$@"''

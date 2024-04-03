@@ -1,6 +1,7 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll,
-  aocc, rsync, which, hdf5, wannier90, aocl, openmpi, gcc, zlib, glibc, binutils, libpsm2
+  aocc, rsync, which, hdf5, wannier90, aocl, openmpi, gcc, zlib, glibc, binutils, libpsm2,
+  additionalCommands ? ""
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -60,6 +61,8 @@ let
       fi
     fi
     export OMP_NUM_THREADS
+
+    ${additionalCommands}
 
     exec "$@"
   '';
