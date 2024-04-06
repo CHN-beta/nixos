@@ -9,6 +9,7 @@ inputs:
         enable = true;
         # TODO: switch to 24.05
         # nativeMessagingHosts = [ inputs.pkgs.plasma-browser-integration ];
+        # TODO: switch to chromium as default browser
         package = inputs.pkgs.firefox.override { nativeMessagingHosts = [ inputs.pkgs.plasma-browser-integration ]; };
         policies.DefaultDownloadDirectory = "\${home}/Downloads";
         profiles.default =

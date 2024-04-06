@@ -12,6 +12,8 @@ inputs:
         {
           enable = true;
           extensions =
+          # TODO: declartive way to install extensions, with fixed xpi file
+          # TODO: declartively config
           [
             { id = "mpkodccbngfoacfalldjimigbofkhgjn"; } # Aria2 Explorer
             { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
