@@ -73,6 +73,7 @@ inputs:
           listenIp = "95.111.228.40";
         };
         vikunja.enable = true;
+        chatgpt = {};
       };
     };
   };
