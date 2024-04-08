@@ -4,6 +4,7 @@
   inputs =
   {
     nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-23.11";
+    nixpkgs-desktop.url = "github:CHN-beta/nixpkgs/nixos-23.11-desktop";
     nixpkgs-unstable.url = "github:CHN-beta/nixpkgs/nixos-unstable";
     "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
     "nixpkgs-22.11".url = "github:NixOS/nixpkgs/nixos-22.11";
@@ -39,10 +40,7 @@
     nix-fast-build = { url = "github:/Mic92/nix-fast-build"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-flatpak.url = "github:gmodena/nix-flatpak";
     chaotic =
-    {
-      url = "github:chaotic-cx/nyx?rev=03b2bea544688068025df1912ff1e9a1ad4a642a";
-      inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
-    };
+    { url = "github:chaotic-cx/nyx"; inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; }; };
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
@@ -71,55 +69,32 @@
   };
 
   outputs = inputs:
-    let
-      localLib = import ./local/lib inputs.nixpkgs.lib;
-      devices = builtins.attrNames (builtins.readDir ./devices);
-    in
+  {
+    packages.x86_64-linux = let devices = builtins.attrNames (builtins.readDir ./devices); in
     {
-      packages.x86_64-linux =
-      {
-        default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
-          (builtins.concatStringsSep "\n" (builtins.map
-            (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-            devices));
-      }
-      // (
-        builtins.listToAttrs (builtins.map
-          (system:
+      default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
+        (builtins.concatStringsSep "\n" (builtins.map
+          (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
+          devices));
+    }
+    // (
+      builtins.listToAttrs (builtins.map
+        (system:
+        {
+          name = system;
+          value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
+        })
+        devices)
+    );
+    nixosConfigurations = builtins.listToAttrs (builtins.concatLists
+    [
+      (builtins.map
+        (system:
+        {
+          name = system;
+          value = let localLib = import ./local/lib inputs.nixpkgs.lib; in inputs.nixpkgs.lib.nixosSystem
           {
-            name = system;
-            value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
-          })
-          devices)
-      );
-      # ssh-keygen -t rsa -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_rsa_key
-      # ssh-keygen -t ed25519 -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key
-      # systemd-machine-id-setup --root=/mnt/nix/persistent
-      nixosConfigurations =
-      (
-        (builtins.listToAttrs (builtins.map
-          (system:
-          {
-            name = system;
-            value = inputs.nixpkgs.lib.nixosSystem
-            {
-              system = "x86_64-linux";
-              specialArgs = { topInputs = inputs; inherit localLib; };
-              modules = localLib.mkModules
-              [
-                (moduleInputs: { config.nixpkgs.overlays = [(prev: final:
-                  # replace pkgs with final to avoid infinite recursion
-                  { localPackages = import ./local/pkgs (moduleInputs // { pkgs = final; }); })]; })
-                ./modules
-                ./devices/${system}
-              ];
-            };
-          })
-          devices))
-        // {
-          pi3b = inputs.nixpkgs.lib.nixosSystem
-          {
-            system = "aarch64-linux";
+            system = "x86_64-linux";
             specialArgs = { topInputs = inputs; inherit localLib; };
             modules = localLib.mkModules
             [
@@ -127,61 +102,101 @@
                 # replace pkgs with final to avoid infinite recursion
                 { localPackages = import ./local/pkgs (moduleInputs // { pkgs = final; }); })]; })
               ./modules
-              ./devices/pi3b
+              ./devices/${system}
             ];
           };
-        }
-      );
-      # sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap --option substituters http://127.0.0.1:5000 --option require-sigs false --option system-features gccarch-silvermont
-      # nix-serve -p 5000
-      # nix copy --substitute-on-destination --to ssh://server /run/current-system
-      # nix copy --to ssh://nixos@192.168.122.56 ./result
-      # sudo nixos-install --flake .#bootstrap
-      #    --option substituters http://192.168.122.1:5000 --option require-sigs false
-      # sudo chattr -i var/empty
-      # nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
-      # sudo nixos-rebuild switch --flake .#vps6 --log-format internal-json -v |& nom --json
-      # boot.shell_on_fail systemd.setenv=SYSTEMD_SULOGIN_FORCE=1
-      # sudo usbipd
-      # ssh -R 3240:127.0.0.1:3240 root@192.168.122.57
-      # modprobe vhci-hcd
-      # sudo usbip bind -b 3-6
-      # usbip attach -r 127.0.0.1 -b 3-6
-      # systemd-cryptenroll --fido2-device=auto /dev/vda2
-      # systemd-cryptsetup attach root /dev/vda2
-      deploy =
-      {
-        sshUser = "root";
-        user = "root";
-        fastConnection = true;
-        autoRollback = false;
-        magicRollback = false;
-        nodes = builtins.listToAttrs (builtins.map
-          (node:
+        })
+        [ "nas" "pcarm" "vps6" "vps7" "xmupc1" "xmupc2" ])
+      (builtins.map
+        (system:
+        {
+          name = system;
+          value = let localLib = import ./local/lib inputs.nixpkgs-desktop.lib; in inputs.nixpkgs.lib.nixosSystem
           {
-            name = node;
-            value =
-            {
-              hostname = node;
-              profiles.system.path = inputs.self.nixosConfigurations.${node}.pkgs.deploy-rs.lib.activate.nixos
-                inputs.self.nixosConfigurations.${node};
-            };
-          })
-          [ "vps6" "vps7" "nas" "surface" "xmupc1" "xmupc2" "pi3b" ]
-        );
-      };
-      checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks inputs.self.deploy) inputs.deploy-rs.lib;
-      overlays.default = final: prev:
-        { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; topInputs = inputs; }); };
-      config.archive = false;
-      devShell.x86_64-linux = let inherit (inputs.self.nixosConfigurations.pc) pkgs; in pkgs.mkShell
-      {
-        packages = with pkgs; [ pkg-config cmake ninja clang-tools_17 ];
-        buildInputs =
-          (with pkgs; [ fmt boost magic-enum libbacktrace eigen range-v3 ])
-          ++ (with pkgs.localPackages; [ concurrencpp tgbot-cpp nameof ]);
-        # hardeningDisable = [ "all" ];
-        # NIX_DEBUG = "1";
-      };
+            system = "x86_64-linux";
+            specialArgs = { topInputs = inputs; inherit localLib; };
+            modules = localLib.mkModules
+            [
+              (moduleInputs: { config.nixpkgs.overlays = [(prev: final:
+                { localPackages = import ./local/pkgs (moduleInputs // { pkgs = final; }); })]; })
+              ./modules
+              ./devices/${system}
+            ];
+          };
+        })
+        [ "pc" "surface" ])
+      (builtins.map
+        (system:
+        {
+          name = system;
+          value = let localLib = import ./local/lib inputs.nixpkgs.lib; in inputs.nixpkgs.lib.nixosSystem
+          {
+            system = "aarch64-linux";
+            specialArgs = { topInputs = inputs; inherit localLib; };
+            modules = inputs.nixpkgs.lib.mkModules
+            [
+              (moduleInputs: { config.nixpkgs.overlays = [(prev: final:
+                { localPackages = import ./local/pkgs (moduleInputs // { pkgs = final; }); })]; })
+              ./modules
+              ./devices/${system}
+            ];
+          };
+        })
+        [ "pi3b" ])
+    ]);
+    # sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap --option substituters http://127.0.0.1:5000 --option require-sigs false --option system-features gccarch-silvermont
+    # nix-serve -p 5000
+    # nix copy --substitute-on-destination --to ssh://server /run/current-system
+    # nix copy --to ssh://nixos@192.168.122.56 ./result
+    # sudo nixos-install --flake .#bootstrap
+    #    --option substituters http://192.168.122.1:5000 --option require-sigs false
+    # sudo chattr -i var/empty
+    # nix-shell -p ssh-to-age --run 'cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age'
+    # sudo nixos-rebuild switch --flake .#vps6 --log-format internal-json -v |& nom --json
+    # boot.shell_on_fail systemd.setenv=SYSTEMD_SULOGIN_FORCE=1
+    # sudo usbipd
+    # ssh -R 3240:127.0.0.1:3240 root@192.168.122.57
+    # modprobe vhci-hcd
+    # sudo usbip bind -b 3-6
+    # usbip attach -r 127.0.0.1 -b 3-6
+    # systemd-cryptenroll --fido2-device=auto /dev/vda2
+    # systemd-cryptsetup attach root /dev/vda2
+    # ssh-keygen -t rsa -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_rsa_key
+    # ssh-keygen -t ed25519 -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key
+    # systemd-machine-id-setup --root=/mnt/nix/persistent
+    deploy =
+    {
+      sshUser = "root";
+      user = "root";
+      fastConnection = true;
+      autoRollback = false;
+      magicRollback = false;
+      nodes = builtins.listToAttrs (builtins.map
+        (node:
+        {
+          name = node;
+          value =
+          {
+            hostname = node;
+            profiles.system.path = inputs.self.nixosConfigurations.${node}.pkgs.deploy-rs.lib.activate.nixos
+              inputs.self.nixosConfigurations.${node};
+          };
+        })
+        [ "vps6" "vps7" "nas" "surface" "xmupc1" "xmupc2" "pi3b" ]
+      );
     };
+    checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks inputs.self.deploy) inputs.deploy-rs.lib;
+    overlays.default = final: prev:
+      { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; topInputs = inputs; }); };
+    config.archive = false;
+    devShell.x86_64-linux = let inherit (inputs.self.nixosConfigurations.pc) pkgs; in pkgs.mkShell
+    {
+      packages = with pkgs; [ pkg-config cmake ninja clang-tools_17 ];
+      buildInputs =
+        (with pkgs; [ fmt boost magic-enum libbacktrace eigen range-v3 ])
+        ++ (with pkgs.localPackages; [ concurrencpp tgbot-cpp nameof ]);
+      # hardeningDisable = [ "all" ];
+      # NIX_DEBUG = "1";
+    };
+  };
 }
