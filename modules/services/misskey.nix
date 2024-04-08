@@ -8,11 +8,6 @@ inputs:
       port = mkOption { type = types.ints.unsigned; default = 9726; };
       redis.port = mkOption { type = types.ints.unsigned; default = 3545; };
       hostname = mkOption { type = types.nonEmptyStr; default = "misskey.chn.moe"; };
-      meilisearch =
-      {
-        enable = mkOption { type = types.bool; default = true; };
-        port = mkOption { type = types.ints.unsigned; default = 7700; };
-      };
     };});
     default = {};
   };
@@ -31,9 +26,7 @@ inputs:
           {
             enable = instance.value.autoStart;
             description = "misskey ${instance.name}";
-            after = [ "network.target" "redis-misskey-${instance.name}.service" "postgresql.service" ]
-              ++ (if instance.value.meilisearch.enable then [ "meilisearch-misskey-${instance.name}.service" ]
-                else []);
+            after = [ "network.target" "redis-misskey-${instance.name}.service" "postgresql.service" ];
             requires = after;
             wantedBy = [ "multi-user.target" ];
             environment.MISSKEY_CONFIG_YML = inputs.config.sops.templates."misskey/${instance.name}.yml".path;
@@ -77,7 +70,6 @@ inputs:
               let
                 placeholder = inputs.config.sops.placeholder;
                 redis = inputs.config.nixos.services.redis.instances."misskey-${instance.name}";
-                meilisearch = inputs.config.nixos.services.meilisearch.instances."misskey-${instance.name}";
               in
               ''
                 url: https://${instance.value.hostname}/
@@ -105,17 +97,7 @@ inputs:
                 proxyRemoteFiles: true
                 signToActivityPubGet: true
                 maxFileSize: 1073741824
-              ''
-              + (if instance.value.meilisearch.enable then
-              ''
-                meilisearch:
-                  host: 127.0.0.1
-                  port: ${toString meilisearch.port}
-                  apiKey: ${placeholder."meilisearch/misskey-${instance.name}"}
-                  ssl: false
-                  index: misskey
-                  scope: global
-              '' else "");
+              '';
             owner = inputs.config.users.users."misskey-${instance.name}".name;
           };
         })
@@ -146,17 +128,6 @@ inputs:
             (instance: { name = "misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
             (attrsToList misskey.instances));
         };
-        meilisearch.instances = listToAttrs (map
-          (instance:
-          {
-            name = "misskey-${instance.name}";
-            value =
-            {
-              user = inputs.config.users.users."misskey-${instance.name}".name;
-              port = instance.value.meilisearch.port;
-            };
-          })
-          (filter (instance: instance.value.meilisearch.enable) (attrsToList misskey.instances)));
         nginx =
         {
           enable = mkIf (misskey.instances != {}) true;
