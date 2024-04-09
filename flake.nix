@@ -73,7 +73,7 @@
   outputs = inputs:
     let
       localLib = import ./local/lib inputs.nixpkgs.lib;
-      devices = builtins.attrNames (builtins.readDir ./devices);
+      devices = builtins.attrNames (builtins.readDir ./modules/devices);
     in
     {
       packages.x86_64-linux =
@@ -111,7 +111,7 @@
                   # replace pkgs with final to avoid infinite recursion
                   { localPackages = import ./local/pkgs (moduleInputs // { pkgs = final; }); })]; })
                 ./modules
-                ./devices/${system}
+                ./modules/devices/${system}
               ];
             };
           })
@@ -127,7 +127,7 @@
                 # replace pkgs with final to avoid infinite recursion
                 { localPackages = import ./local/pkgs (moduleInputs // { pkgs = final; }); })]; })
               ./modules
-              ./devices/pi3b
+              ./modules/devices/pi3b
             ];
           };
         }

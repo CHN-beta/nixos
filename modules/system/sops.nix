@@ -14,7 +14,7 @@ inputs:
       sops =
       {
         defaultSopsFile =
-          let deviceDir = "${inputs.topInputs.self}/devices/${inputs.config.nixos.system.networking.hostname}";
+          let deviceDir = "${inputs.topInputs.self}/modules/devices/${inputs.config.nixos.system.networking.hostname}";
           in mkIf
             (
               builtins.pathExists "${deviceDir}/secrets.yaml"
