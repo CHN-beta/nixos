@@ -4,7 +4,7 @@ inputs:
     let wallpaper =
     {
       pc = ./pixiv-117612023.png;
-      surface = ./pixiv-116547323.jpg;
+      surface = ./misskey.io-9rr96ml6nti300ds-x4.png;
     }.${inputs.config.nixos.system.networking.hostname} or ./pixiv-96734339-x2.png;
     in
     {
