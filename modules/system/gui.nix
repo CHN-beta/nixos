@@ -6,7 +6,6 @@ inputs:
       { type = types.bool; default = builtins.elem "desktop" inputs.config.nixos.packages._packageSets; };
     preferred = mkOption { type = types.bool; default = inputs.config.nixos.system.gui.enable; };
     autoStart = mkOption { type = types.bool; default = inputs.config.nixos.system.gui.preferred; };
-    defaultX11 = mkOption { type = types.bool; default = false; };
   };
   config =
     let
@@ -21,7 +20,7 @@ inputs:
         displayManager =
         {
           sddm.enable = true;
-          defaultSession = if gui.defaultX11 then "plasma" else "plasmawayland";
+          defaultSession = "plasmawayland";
         };
         desktopManager.plasma5.enable = true;
       };

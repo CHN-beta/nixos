@@ -57,12 +57,11 @@ inputs:
         kernel = { varient = "cachyos"; patches = [ "cjktty" "hibernate-progress" ]; };
         networking.hostname = "pc";
         sysctl.laptop-mode = 5;
-        gui.defaultX11 = true;
       };
       hardware =
       {
         cpus = [ "amd" ];
-        gpu = { type = "nvidia"; dynamicBoost = true; };
+        gpu = { type = "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; };
         legion = {};
       };
       packages.packageSet = "workstation";
@@ -118,7 +117,7 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
-        gamemode = { enable = true; drmDevice = 0; };
+        gamemode = { enable = true; drmDevice = 1; };
         slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 90112; gpus."4060" = 1; };
         xrdp =
         {
@@ -133,16 +132,14 @@ inputs:
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
     specialisation =
     {
-      hybrid-offload.configuration =
+      nvidia.configuration =
       {
         nixos =
         {
-          hardware.gpu =
-            { type = inputs.lib.mkForce "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
-          services.gamemode.drmDevice = inputs.lib.mkForce 1;
-          system.gui.defaultX11 = inputs.lib.mkForce false;
+          hardware.gpu.type = inputs.lib.mkForce "nvidia";
+          services.gamemode.drmDevice = inputs.lib.mkForce 0;
         };
-        system.nixos.tags = [ "hybrid-offload" ];
+        system.nixos.tags = [ "nvidia" ];
       };
       hybrid-sync.configuration =
       {
