@@ -40,7 +40,7 @@
     nix-flatpak.url = "github:gmodena/nix-flatpak";
     chaotic =
     {
-      url = "github:chaotic-cx/nyx?rev=03b2bea544688068025df1912ff1e9a1ad4a642a";
+      url = "github:chaotic-cx/nyx";
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
