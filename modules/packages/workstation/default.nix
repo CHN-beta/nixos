@@ -18,7 +18,7 @@ inputs:
             # nix tools
             nix-template nil pnpm-lock-export bundix
             # instant messager
-            qq nur-xddxdd.wechat-uos cinny-desktop nheko
+            cinny-desktop nheko # qq nur-xddxdd.wechat-uos 
             # development
             jetbrains.clion android-studio dbeaver cling fprettify aircrack-ng
             # install per project
