@@ -56,23 +56,10 @@ inputs:
                 name = "cjktty";
                 patch =
                   let
-                    version = builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version;
-                    major = builtins.elemAt version 0;
-                    minor = builtins.elemAt version 1;
-                  in inputs.pkgs.fetchurl
-                  {
-                    url = "https://raw.githubusercontent.com/zhmars/cjktty-patches/master/"
-                      + "v${major}.x/cjktty-${major}.${minor}.patch";
-                    sha256 =
-                      let
-                        hashes =
-                        {
-                          "6.1" = "11ddiammvjxx2m9v32p25l1ai759a1d6xhdpszgnihv7g2fzigf5";
-                          "6.6" = "19ib0syj3207ifr315gdrnpv6nhh435fmgl05c7k715nng40i827";
-                          "6.7" = "1yfsmc0873xiwlirir0xfp9zyrpd09q1srgr3z4rl7i7lxzaqls8";
-                        };
-                      in hashes."${major}.${minor}";
-                  };
+                    version = builtins.concatStringsSep "." (inputs.lib.lists.take 2
+                      (builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version));
+                    fileVersion = { "6.8" = "6.7"; }.${version} or version;
+                  in "${inputs.topInputs.cjktty}/v6.x/cjktty-${fileVersion}.patch";
                 extraStructuredConfig =
                   { FONT_CJK_16x16 = inputs.lib.kernel.yes; FONT_CJK_32x32 = inputs.lib.kernel.yes; };
               }];

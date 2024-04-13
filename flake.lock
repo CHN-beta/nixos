@@ -125,6 +125,22 @@
         "url": "https://github.com/zepinglee/citeproc-lua"
       }
     },
+    "cjktty": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1704026380,
+        "narHash": "sha256-2PifENv3HD9a1q+uPsMnFp5RHdGcV4qOyX4e5dmDHK4=",
+        "owner": "zhmars",
+        "repo": "cjktty-patches",
+        "rev": "0d0015730edd2190dee7233f87dd72c423bb75e9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zhmars",
+        "repo": "cjktty-patches",
+        "type": "github"
+      }
+    },
     "compare-to": {
       "locked": {
         "lastModified": 1695341185,
@@ -1994,6 +2010,7 @@
         "blurred-wallpaper": "blurred-wallpaper",
         "chaotic": "chaotic",
         "citation-style-language": "citation-style-language",
+        "cjktty": "cjktty",
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",
         "date": "date",
