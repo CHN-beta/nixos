@@ -9,7 +9,7 @@ inputs:
       # general
       {
         enable = true;
-        configFile.plasma-localerc = { Formats.LANG = "en_US.UTF-8"; Translations.LANGUAGE = "zh_CN"; };
+        configFile.plasma-localerc = { Formats.LANG.value = "en_US.UTF-8"; Translations.LANGUAGE.value = "zh_CN"; };
       }
       # kwin
       {
@@ -21,26 +21,26 @@ inputs:
         windows.allowWindowsToRememberPositions = false;
         configFile =
         {
-          plasmanotifyrc.Notifications.PopupPosition = "BottomRight";
+          plasmanotifyrc.Notifications.PopupPosition.value = "BottomRight";
           kwinrc =
           {
-            Tiling.padding = 4;
-            Wayland."InputMethod[$e]" = "/run/current-system/sw/share/applications/org.fcitx.Fcitx5.desktop";
-            Windows.RollOverDesktops = true;
-            Compositing = { AllowTearing = false; WindowsBlockCompositing = false; };
+            Tiling.padding.value = 4;
+            Wayland."InputMethod[$e]".value = "/run/current-system/sw/share/applications/org.fcitx.Fcitx5.desktop";
+            Windows.RollOverDesktops.value = true;
+            Compositing = { AllowTearing.value = false; WindowsBlockCompositing.value = false; };
           };
         };
       }
       # baloo
-      { configFile.baloofilerc."Basic Settings".Indexing-Enabled = false; }
+      { configFile.baloofilerc."Basic Settings".Indexing-Enabled.value = false; }
       # dolphin and file chooser
       {
         configFile =
         {
           dolphinrc =
           {
-            General = { ShowFullPath = true; FilterBar = true; RememberOpenedTabs = false; };
-            PreviewSettings.Plugins = builtins.concatStringsSep ","
+            General = { ShowFullPath.value = true; FilterBar.value = true; RememberOpenedTabs.value = false; };
+            PreviewSettings.Plugins.value = builtins.concatStringsSep ","
             [
               "blenderthumbnail"
               "comicbookthumbnail"
@@ -74,25 +74,25 @@ inputs:
           };
           kdeglobals."KFileDialog Settings" =
           {
-            "Allow Expansion" = true;
-            "Automatically select filename extension" = true;
-            "Show Bookmarks" = true;
-            "Show Full Path" = true;
-            "Show Inline Previews" = true;
-            "Show Preview" = true;
-            "Show Speedbar" = true;
-            "Show hidden files" = true;
-            "Sort by" = "Name";
-            "Sort directories first" = true;
-            "Sort hidden files last" = true;
-            "View Style" = "DetailTree";
+            "Allow Expansion".value = true;
+            "Automatically select filename extension".value = true;
+            "Show Bookmarks".value = true;
+            "Show Full Path".value = true;
+            "Show Inline Previews".value = true;
+            "Show Preview".value = true;
+            "Show Speedbar".value = true;
+            "Show hidden files".value = true;
+            "Sort by".value = "Name";
+            "Sort directories first".value = true;
+            "Sort hidden files last".value = true;
+            "View Style".value = "DetailTree";
           };
         };
       }
       # krunner
-      { configFile.krunnerrc = { General.FreeFloating = true; Plugins.baloosearchEnabled = false; }; }
+      { configFile.krunnerrc = { General.FreeFloating.value = true; Plugins.baloosearchEnabled.value = false; }; }
       # lock screen
-      { configFile.kscreenlockerrc.Daemon.Autolock = false; }
+      { configFile.kscreenlockerrc.Daemon.Autolock.value = false; }
     ];
   }];
 }
