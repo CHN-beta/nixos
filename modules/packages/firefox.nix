@@ -18,7 +18,7 @@ inputs:
           [
             immersive-translate tampermonkey bitwarden cookies-txt dualsub firefox-color i-dont-care-about-cookies
             metamask pakkujs switchyomega rsshub-radar rsspreview tabliss tree-style-tab ublock-origin wallabagger
-            wappalyzer grammarly plasma-integration zotero-connector
+            wappalyzer grammarly plasma-integration zotero-connector.zotero-connector
           ];
           search = { default = "Google"; force = true; };
           userChrome = builtins.readFile "${inputs.topInputs.lepton}/userChrome.css";
