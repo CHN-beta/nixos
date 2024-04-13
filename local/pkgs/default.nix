@@ -74,6 +74,7 @@ inputs: rec
     additionalCommands = let uid = inputs.config.nixos.user.uid.gb; in
       ''[ "$(${inputs.pkgs.coreutils}/bin/id -u)" -eq ${builtins.toString uid} ] && exit 1'';
   };
+  # TODO: use other people packaged hpc version
   oneapi = inputs.pkgs.callPackage ./oneapi {};
   mumax = inputs.pkgs.callPackage ./mumax { src = inputs.topInputs.mumax; };
   aocc = inputs.pkgs.callPackage ./aocc {};

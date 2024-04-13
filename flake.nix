@@ -3,6 +3,7 @@
 
   inputs =
   {
+    # TODO: add color scheme
     nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-23.11";
     nixpkgs-unstable.url = "github:CHN-beta/nixpkgs/nixos-unstable";
     "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
