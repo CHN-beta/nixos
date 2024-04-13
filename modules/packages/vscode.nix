@@ -1,17 +1,26 @@
 inputs:
 {
-  config =
-    let
-      inherit (inputs.lib) mkIf;
-    in mkIf (builtins.elem "desktop" inputs.config.nixos.packages._packageSets)
+  config = inputs.lib.mkIf (builtins.elem "desktop" inputs.config.nixos.packages._packageSets)
+  {
+    nixos.packages = with inputs.pkgs;
     {
-      nixos.packages = with inputs.pkgs;
-      {
-        _packages =
-        [(
-          vscode-with-extensions.override
-          {
-            vscodeExtensions = with nix-vscode-extensions.vscode-marketplace;
+      _packages =
+      [(
+        vscode-with-extensions.override
+        {
+          vscodeExtensions =
+            let extensions = builtins.listToAttrs (builtins.map
+              (set:
+              {
+                name = set;
+                value = nix-vscode-extensions.vscode-marketplace.${set} // vscode-extensions.${set};
+              })
+              (inputs.lib.unique
+              (
+                (builtins.attrNames nix-vscode-extensions.vscode-marketplace)
+                ++ (builtins.attrNames vscode-extensions)
+              )));
+            in with extensions;
               (with equinusocio; [ vsc-community-material-theme vsc-material-theme-icons ])
               ++ (with github; [ copilot copilot-chat github-vscode-theme ])
               ++ (with intellsmi; [ comment-translate deepl-translate ])
@@ -50,13 +59,13 @@ inputs:
                 # ChatGPT-like plugin
                 codeium.codeium
               ];
-          }
-        )];
-        _pythonPackages = [(pythonPackages: with pythonPackages;
-        [
-          # required by vscode extensions restrucuredtext
-          localPackages.esbonio
-        ])];
-      };
+        }
+      )];
+      _pythonPackages = [(pythonPackages: with pythonPackages;
+      [
+        # required by vscode extensions restrucuredtext
+        localPackages.esbonio
+      ])];
     };
+  };
 }
