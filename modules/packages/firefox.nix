@@ -18,18 +18,7 @@ inputs:
           [
             immersive-translate tampermonkey bitwarden cookies-txt dualsub firefox-color i-dont-care-about-cookies
             metamask pakkujs switchyomega rsshub-radar rsspreview tabliss tree-style-tab ublock-origin wallabagger
-            wappalyzer grammarly plasma-integration
-            (
-              buildFirefoxXpiAddon rec
-              {
-                pname = "zotero-connector";
-                version = "5.0.119";
-                addonId = "zotero@chnm.gmu.edu";
-                url = "https://download.zotero.org/connector/firefox/release/Zotero_Connector-${version}.xpi";
-                sha256 = "17yhkp5nrx325q3amlasb4nsw0bldm8i2i9fh8ql2hwj8fmy25mr";
-                meta = {};
-              }
-            )
+            wappalyzer grammarly plasma-integration zotero-connector
           ];
           search = { default = "Google"; force = true; };
           userChrome = builtins.readFile "${inputs.topInputs.lepton}/userChrome.css";
