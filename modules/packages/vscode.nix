@@ -13,7 +13,7 @@ inputs:
               (set:
               {
                 name = set;
-                value = nix-vscode-extensions.vscode-marketplace.${set} // vscode-extensions.${set};
+                value = nix-vscode-extensions.vscode-marketplace.${set} // vscode-extensions.${set} or {};
               })
               (inputs.lib.unique
               (
