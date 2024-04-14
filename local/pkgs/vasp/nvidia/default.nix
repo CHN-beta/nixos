@@ -1,7 +1,7 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin,
   config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px", additionalCommands ? "",
-  nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90, zlib
+  nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90, zlib, vtst
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -31,10 +31,14 @@ let
     pname = "vasp-nvidia";
     inherit version;
     src = sources.${version};
+    patches = [ ../vtst.patch ];
     configurePhase =
     ''
       cp ${include version} makefile.include
+      chmod +w makefile.include
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
+      cp -r ${vtst version}/* src
+      chmod -R +w src
     '';
     enableParallelBuilding = true;
     buildInputs = [ mkl hdf5 wannier90 ];

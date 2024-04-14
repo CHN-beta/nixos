@@ -1,7 +1,7 @@
 {
   buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin, writeTextDir,
   config, oneapiArch ? config.oneapiArch or "SSE3", additionalCommands ? "",
-  oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5, zlib
+  oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5, zlib, vtst
 }:
 let
   sources = import ../source.nix { inherit requireFile; };
@@ -31,10 +31,14 @@ let
     pname = "vasp-intel";
     inherit version;
     src = sources.${version};
+    patches = [ ../vtst.patch ];
     configurePhase =
     ''
       cp ${include version} makefile.include
+      chmod +w makefile.include
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
+      cp -r ${vtst version}/* src
+      chmod -R +w src
     '';
     nativeBuildInputs = [ rsync which ];
     HDF5_ROOT = hdf5;
