@@ -57,9 +57,9 @@ inputs: rec
       hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; };
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
-      { inherit lmod nvhpc wannier90 additionalCommands; hdf5 = hdf5-nvhpc; };
+      { inherit lmod nvhpc wannier90 additionalCommands vtst; hdf5 = hdf5-nvhpc; };
     intel = inputs.pkgs.callPackage ./vasp/intel
-      { inherit lmod oneapi wannier90 additionalCommands; hdf5 = hdf5-oneapi; };
+      { inherit lmod oneapi wannier90 additionalCommands vtst; hdf5 = hdf5-oneapi; };
     amd = inputs.pkgs.callPackage ./vasp/amd
       { inherit aocc aocl wannier90 additionalCommands; hdf5 = hdf5-aocc; openmpi = openmpi-aocc; gcc = gcc-pie; };
     wannier90 = inputs.pkgs.callPackage
@@ -73,6 +73,8 @@ inputs: rec
       { configureFlags = prev.configureFlags ++ [ "--enable-default-pie" ];}));
     additionalCommands = let uid = inputs.config.nixos.user.uid.gb; in
       ''[ "$(${inputs.pkgs.coreutils}/bin/id -u)" -eq ${builtins.toString uid} ] && exit 1'';
+    vtst = (inputs.pkgs.callPackage ./vasp/vtst.nix {});
+    vtstscripts = inputs.pkgs.callPackage ./vasp/vtstscripts.nix {};
   };
   oneapi = inputs.pkgs.callPackage ./oneapi {};
   mumax = inputs.pkgs.callPackage ./mumax { src = inputs.topInputs.mumax; };
