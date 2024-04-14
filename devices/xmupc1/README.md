@@ -186,22 +186,21 @@ samba 就是 windows 共享文件夹的那个协议。
 
 VASP 有很多很多个版本，具体来说：
 
-* VASP 多个版本可以共存。目前安装了两个版本：6.3.1 和 6.4.0。
-* VASP 可以用不同的编译器编译。目前安装的有：nvidia、gnu、intel 和 amd。nvidia 使用 GPU 计算，其它的只能用 CPU 计算。
+* VASP 多个版本可以共存，但为了简单只安装了 6.4.0 版本。
+* VASP 可以用不同的编译器编译。目前安装的有：nvidia、intel。nvidia 使用 GPU 计算，intel 能用 CPU 计算。其它版本性能不佳，没有安装。
 * VASP 的 std/gam/ncl 版本有一点区别，一般用 std，只有一个 gamma 点的时候用 gam 会快一点，系统中存在方向不平行的磁矩时必须用 ncl。
 * 无论哪个版本，都集成了下面这些补丁：
   * HDF5：用于生成 hdf5 格式的输出文件。
   * wannier90：我也不知道干啥的，随手加上的。
   * OPTCELL：如果存在一个 `OPTCELL` 文件，VASP 会据此决定弛豫时仅优化哪几个晶胞参数。
   * MPI shared memory：用来减小内存占用。
+  * VTST tools：用来计算 neb。
 
 如何提交 VASP 到队列系统已经在上面介绍过了。下面的例子是，如果要直接运行一个任务的写法：
 
 ```bash
 vasp-nvidia-640-env mpirun -np 1 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x CUDA_VISIBLE_DEVICES=0 -x OMP_NUM_THREADS=4 vasp-std
-vasp-gnu-640-env mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
 vasp-intel-640-env mpirun -n 2 -genv OMP_NUM_THREADS=4 vasp-std
-vasp-amd-640-env mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
 ```
 
 其中 `CUDA_VISIBLE_DEVICES` 用于指定用哪几个显卡计算（多个显卡用逗号分隔）。
@@ -210,6 +209,12 @@ vasp-amd-640-env mpirun -np 2 -x OMP_NUM_THREADS=4 vasp-std
 这里 `vasp-xxx-6.4.0` 命令的作用是，进入一个安装了对应版本的 VASP 的环境，实际上和 VASP 关系不大；
   后面的 `mpirun xxx` 才是真的调用 VASP。
 所以实际上你也可以在这个环境里做别的事情，例如执行上面的 `nvaccelinfo` 命令。
+
+要使用 VTST tools 里带的脚本，需要在命令前加上 `vtstscripts` 。例如：
+
+```bash
+vtstscripts dist.pl POSCAR.init POSCAR.final
+```
 
 ## mumax
 
