@@ -66,7 +66,8 @@
     win11os-kde = { url = "github:yeyushengfan258/Win11OS-kde"; flake = false; };
     fluent-kde = { url = "github:vinceliuice/Fluent-kde"; flake = false; };
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
-    blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
+    blurred-wallpaper =
+      { url = "github:bouteillerAlan/blurredwallpaper?rev=aecc88d43e458a0962a0091dcdb7baac34e263be"; flake = false; };
     slate = { url = "github:TheBigWazz/Slate"; flake = false; };
     linux-surface = { url = "github:linux-surface/linux-surface"; flake = false; };
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
