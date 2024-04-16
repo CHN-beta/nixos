@@ -48,6 +48,8 @@
       url = "github:chaotic-cx/nyx";
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
+    # TODO: pick it from nixpkgs
+    nix-inspect.url = "github:bluskript/nix-inspect";
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
