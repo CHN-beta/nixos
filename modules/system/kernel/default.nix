@@ -137,6 +137,8 @@ inputs:
             scx-layered = prev.scx-layered.override { inherit rustPlatform; };
             scx-rustland = prev.scx-rustland.override { inherit rustPlatform; };
             scx-rusty = prev.scx-rusty.override { inherit rustPlatform; };
+            scx-rlfifo = prev.scx-rlfifo.override { inherit rustPlatform; };
+            scx-lavd = prev.scx-lavd.override { inherit rustPlatform; };
           });
         in { environment.systemPackages = [ scx ]; }
       )

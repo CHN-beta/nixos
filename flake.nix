@@ -19,7 +19,11 @@
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs-unstable"; };
     nur.url = "github:nix-community/NUR";
     nixos-cn = { url = "github:nixos-cn/flakes"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nur-xddxdd =
+    {
+      url = "github:xddxdd/nur-packages?rev=404bc382a29f3d78b03871b96016579d6a0aa305";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-vscode-extensions = { url = "github:nix-community/nix-vscode-extensions"; inputs.nixpkgs.follows = "nixpkgs"; };
     impermanence.url = "github:nix-community/impermanence";
     qchem = { url = "github:Nix-QChem/NixOS-QChem/release-23.11"; inputs.nixpkgs.follows = "nixpkgs"; };
