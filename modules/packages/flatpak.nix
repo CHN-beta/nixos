@@ -5,7 +5,7 @@ inputs:
     services.flatpak =
     {
       enable = true;
-      uninstallUnmanagedPackages = true;
+      uninstallUnmanaged = true;
     };
   };
 }
