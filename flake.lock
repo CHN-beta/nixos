@@ -71,6 +71,21 @@
         "type": "github"
       }
     },
+    "catppuccin": {
+      "locked": {
+        "lastModified": 1713285896,
+        "narHash": "sha256-hUJ+yeAsmieJUZh19d4p/AUDvGEr8iwbr7b1DhEqFcs=",
+        "owner": "catppuccin",
+        "repo": "nix",
+        "rev": "d2f4a13bd9a4926f90ad80df1c3539e45102f135",
+        "type": "github"
+      },
+      "original": {
+        "owner": "catppuccin",
+        "repo": "nix",
+        "type": "github"
+      }
+    },
     "chaotic": {
       "inputs": {
         "attic": "attic",
@@ -2159,6 +2174,7 @@
       "inputs": {
         "aagl": "aagl",
         "blurred-wallpaper": "blurred-wallpaper",
+        "catppuccin": "catppuccin",
         "chaotic": "chaotic",
         "citation-style-language": "citation-style-language",
         "cjktty": "cjktty",

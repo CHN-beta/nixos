@@ -51,6 +51,7 @@
     # TODO: pick it from nixpkgs
     nix-inspect.url = "github:bluskript/nix-inspect";
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
+    catppuccin.url = "github:catppuccin/nix";
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };

@@ -15,6 +15,7 @@ inputs:
       topInputs.impermanence.nixosModules.impermanence
       topInputs.nix-flatpak.nixosModules.nix-flatpak
       topInputs.chaotic.nixosModules.default
+      topInputs.catppuccin.nixosModules.catppuccin
       (inputs:
       {
         config =
@@ -41,6 +42,7 @@ inputs:
           [
             topInputs.plasma-manager.homeManagerModules.plasma-manager
             topInputs.nix-doom-emacs.hmModule
+            topInputs.catppuccin.homeManagerModules.catppuccin
           ];
         };
       })
