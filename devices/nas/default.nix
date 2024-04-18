@@ -45,14 +45,12 @@ inputs:
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         kernel.patches = [ "cjktty" "lantian" ];
         networking = { hostname = "nas"; networkd = {}; };
-        gui.preferred = false;
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
-      packages.packageSet = "desktop-fat";
+      packages.packageSet = "server";
       services =
       {
         snapper.enable = true;
-        fontconfig.enable = true;
         samba =
         {
           enable = true;
@@ -61,20 +59,12 @@ inputs:
         };
         sshd = {};
         xray.client.dae.wanInterface = [ "enp3s0" ];
-        xrdp = { enable = true; hostname = [ "nas.chn.moe" "office.chn.moe" ]; };
         groupshare = {};
         smartd.enable = true;
         beesd.instances =
         {
           root = { device = "/"; hashTableSizeMB = 4096; threads = 4; };
           nix = { device = "/nix"; hashTableSizeMB = 128; };
-        };
-        frpClient =
-        {
-          enable = true;
-          serverName = "frp.chn.moe";
-          user = "nas";
-          stcp.hpc = { localIp = "hpc.xmu.edu.cn"; localPort = 22; };
         };
         nginx = { enable = true; applications.webdav.instances."local.webdav.chn.moe" = {}; };
         wireguard =
