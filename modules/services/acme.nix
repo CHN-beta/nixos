@@ -22,15 +22,19 @@ inputs:
     security.acme =
     {
       acceptTerms = true;
-      defaults.email = "chn@chn.moe";
+      defaults =
+      {
+        email = "chn@chn.moe";
+        dnsPropagationCheck = false;
+        dnsProvider = "cloudflare";
+        dnsResolver = "8.8.8.8";
+      };
       certs = builtins.listToAttrs (builtins.map
         (cert:
         {
           name = builtins.elemAt cert.value.domains 0;
           value =
           {
-            dnsResolver = "8.8.8.8";
-            dnsProvider = "cloudflare";
             credentialsFile = inputs.config.sops.secrets."acme/cloudflare.ini".path;
             extraDomainNames = builtins.tail cert.value.domains;
             group = inputs.lib.mkIf (cert.value.group != null) cert.value.group;
