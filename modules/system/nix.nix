@@ -12,7 +12,11 @@ inputs:
       slave =
       {
         enable = mkOption { type = types.bool; default = false; };
-        mandatoryFeatures = mkOption { type = types.listOf types.nonEmptyStr; default = [ "big-parallel" ]; };
+        mandatoryFeatures = mkOption
+        {
+          type = types.listOf types.nonEmptyStr;
+          default = [ "gccarch-exact-${inputs.config.nixos.system.nixpkgs.march}" ];
+        };
       };
       master =
       {

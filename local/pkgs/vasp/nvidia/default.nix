@@ -53,7 +53,7 @@ let
       for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
     '';
     dontFixup = true;
-    requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
+    requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
   };
   startScript = { version, variant }: writeScript "vasp-nvidia-${version}"
   ''

@@ -86,5 +86,5 @@ in stdenvNoCC.mkDerivation rec
       --ignore-latest
   '';
   dontFixup = true;
-  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
+  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
 }

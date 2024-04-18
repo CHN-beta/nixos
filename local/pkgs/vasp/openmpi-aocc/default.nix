@@ -41,5 +41,5 @@ in stdenvNoCC.mkDerivation
   postBuild = with openmpi; postInstall + postFixup;
   dontInstall = true;
   dontFixup = true;
-  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
+  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
 }
