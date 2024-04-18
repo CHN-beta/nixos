@@ -10,7 +10,7 @@ inputs:
       hostname = mkOption { type = types.nonEmptyStr; default = "misskey.chn.moe"; };
       meilisearch =
       {
-        enable = mkOption { type = types.bool; default = true; };
+        enable = mkOption { type = types.bool; default = false; };
         port = mkOption { type = types.ints.unsigned; default = 7700; };
       };
     };});
