@@ -20,7 +20,7 @@ inputs:
         networking = { hostname = "pcarm"; networkd = {}; };
         binfmt.enable = false;
         nixpkgs.arch = "aarch64";
-        kernel.varient = "nixos";
+        kernel.variant = "nixos";
       };
       packages.packageSet = "server";
       services.sshd = {};

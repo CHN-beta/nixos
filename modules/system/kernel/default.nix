@@ -2,7 +2,7 @@ inputs:
 {
   options.nixos.system.kernel = let inherit (inputs.lib) mkOption types; in
   {
-    varient = mkOption
+    variant = mkOption
     {
       type = types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "cachyos-server" ];
       default = if inputs.config.nixos.system.gui.preferred then "cachyos" else "cachyos-server";
@@ -32,9 +32,9 @@ inputs:
           # networking for nas
           "igb"
         ]
-        ++ (inputs.lib.optionals (kernel.varient != "nixos") [ "crypto_simd" ])
+        ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ])
         # for pi3b to show message over hdmi while boot
-        ++ (inputs.lib.optionals (kernel.varient == "nixos") [ "vc4" "bcm2835_dma" "i2c_bcm2835" ]);
+        ++ (inputs.lib.optionals (kernel.variant == "nixos") [ "vc4" "bcm2835_dma" "i2c_bcm2835" ]);
         extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;
         extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
         kernelParams = [ "delayacct" "acpi_osi=Linux" "acpi.ec_no_wakeup=1" ];
@@ -47,7 +47,7 @@ inputs:
           cachyos-lto = inputs.pkgs.linuxPackages_cachyos-lto;
           cachyos-server = inputs.pkgs.linuxPackages_cachyos-server;
           rpi3 = inputs.pkgs.linuxPackages_rpi3;
-        }.${kernel.varient};
+        }.${kernel.variant};
         kernelPatches =
           let
             patches =
@@ -129,7 +129,7 @@ inputs:
       };
     }
     (
-      inputs.lib.mkIf (inputs.lib.strings.hasPrefix "cachyos" kernel.varient)
+      inputs.lib.mkIf (inputs.lib.strings.hasPrefix "cachyos" kernel.variant)
       (
         let scx =
           let rustPlatform = inputs.pkgs.unstablePackages.rustPlatform;
@@ -145,7 +145,7 @@ inputs:
       )
     )
     (
-      inputs.lib.mkIf (kernel.varient == "rpi3")
+      inputs.lib.mkIf (kernel.variant == "rpi3")
         { boot.initrd = { systemd.enableTpm2 = false; includeDefaultModules = false; }; }
     )
   ];
