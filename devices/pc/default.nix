@@ -54,7 +54,7 @@ inputs:
         };
         nixpkgs =
           { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
-        kernel = { varient = "cachyos"; patches = [ "cjktty" "hibernate-progress" ]; };
+        kernel.patches = [ "cjktty" "hibernate-progress" ];
         networking.hostname = "pc";
         sysctl.laptop-mode = 5;
       };

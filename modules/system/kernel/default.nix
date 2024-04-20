@@ -4,10 +4,10 @@ inputs:
   {
     varient = mkOption
     {
-      type = types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" ];
-      default = "xanmod-lts";
+      type = types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "cachyos-server" ];
+      default = if inputs.config.nixos.system.gui.preferred then "cachyos" else "cachyos-server";
     };
-    patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+    patches = mkOption { type = types.listOf types.nonEmptyStr; default = [ "cjktty" ]; };
     modules =
     {
       install = mkOption { type = types.listOf types.str; default = []; };
@@ -45,6 +45,7 @@ inputs:
           xanmod-latest = inputs.pkgs.linuxPackages_xanmod_latest;
           cachyos = inputs.pkgs.linuxPackages_cachyos;
           cachyos-lto = inputs.pkgs.linuxPackages_cachyos-lto;
+          cachyos-server = inputs.pkgs.linuxPackages_cachyos-server;
           rpi3 = inputs.pkgs.linuxPackages_rpi3;
         }.${kernel.varient};
         kernelPatches =

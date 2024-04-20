@@ -31,7 +31,7 @@ inputs:
         nixpkgs.march = "skylake";
         grub.installDevice = "efi";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-        kernel.patches = [ "cjktty" "lantian" "surface" ];
+        kernel = { variant = "xanmod-lts"; patches = [ "cjktty" "lantian" "surface" ]; };
         networking.hostname = "surface";
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };

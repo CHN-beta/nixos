@@ -48,7 +48,6 @@ inputs:
           };
         };
         gui = { preferred = false; autoStart = true; };
-        kernel.patches = [ "cjktty" "lantian" ];
         networking.hostname = "xmupc1";
         nix.remote.slave.enable = true;
       };

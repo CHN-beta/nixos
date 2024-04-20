@@ -43,7 +43,6 @@ inputs:
         grub.installDevice = "efi";
         nixpkgs.march = "silvermont";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
-        kernel.patches = [ "cjktty" "lantian" ];
         networking = { hostname = "nas"; networkd = {}; };
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
