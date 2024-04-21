@@ -19,7 +19,6 @@ inputs:
         };
         grub.installDevice = "efi";
         networking = { hostname = "pi3b"; networkd = {}; };
-        binfmt.enable = false;
         nixpkgs.arch = "aarch64";
         kernel.variant = "nixos";
       };

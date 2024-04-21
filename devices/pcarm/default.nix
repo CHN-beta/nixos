@@ -18,7 +18,6 @@ inputs:
         };
         grub.installDevice = "efi";
         networking = { hostname = "pcarm"; networkd = {}; };
-        binfmt.enable = false;
         nixpkgs.arch = "aarch64";
         kernel.variant = "nixos";
       };

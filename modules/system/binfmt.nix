@@ -2,7 +2,7 @@ inputs:
 {
   options.nixos.system.binfmt = let inherit (inputs.lib) mkOption types; in
   {
-    enable = mkOption { type = types.bool; default = true; };
+    enable = mkOption { type = types.bool; default = inputs.config.nixos.packages.packageSet == "workstation"; };
   };
   config = inputs.lib.mkIf inputs.config.nixos.system.binfmt.enable
   {
