@@ -31,7 +31,7 @@ inputs:
         initrd.sshd.enable = true;
         networking = { hostname = "vps7"; networkd = {}; };
       };
-      packages.packageSet = "desktop";
+      packages.packageSet = "server";
       services =
       {
         snapper.enable = true;
