@@ -144,40 +144,10 @@ inputs:
                   host = host;
                   hostname = "hpc.xmu.edu.cn";
                   user = host;
-                  extraOptions =
-                  {
-                    PubkeyAcceptedAlgorithms = "+ssh-rsa";
-                    HostkeyAlgorithms = "+ssh-rsa";
-                    SetEnv =
-                      let
-                        usernameMap =
-                        {
-                          chn = "linwei/chn";
-                          xll = "linwei/Xll";
-                          yjq = "linwei/yjq";
-                          gb = "kangjunyong/gongbin";
-                        };
-                        cdString =
-                          if host == "jykang" && (usernameMap ? ${hmInputs.config.home.username}) then
-                            ":chn_cd:${usernameMap.${hmInputs.config.home.username}}"
-                          else "";
-                      in "TERM=chn_unset_ls_colors${cdString}:xterm-256color";
-                    # in .bash_profile:
-                    # if [[ $TERM == chn_unset_ls_colors* ]]; then
-                    #   export TERM=${TERM#*:}
-                    #   export CHN_LS_USE_COLOR=1
-                    # fi
-                    # if [[ $TERM == chn_cd* ]]; then
-                    #   export TERM=${TERM#*:}
-                    #   cd ~/${TERM%%:*}
-                    #   export TERM=${TERM#*:}
-                    # fi
-                    # in .bashrc
-                    # [ -n "$CHN_LS_USE_COLOR" ] && alias ls="ls --color=auto"
-                  };
+                  extraOptions.SetEnv = "TERM=chn_unset_ls_colors:xterm-256color";
                 };
               })
-              [ "wlin" "jykang" "hwang" ])
+              [ "wlin" "hwang" ])
           )
           // {
             xmupc1 = { host = "xmupc1"; hostname = "xmupc1.chn.moe"; port = 6007; };
@@ -185,6 +155,39 @@ inputs:
             nas = { host = "nas"; hostname = "office.chn.moe"; port = 5440; };
             surface = { host = "surface"; hostname = "192.168.1.166"; };
             gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
+            jykang =
+            {
+              host = "jykang";
+              hostname = "hpc.xmu.edu.cn";
+              user = "jykang";
+              forwardAgent = true;
+              extraOptions.SetEnv =
+                # in .bash_profile:
+                # if [[ $TERM == chn_unset_ls_colors* ]]; then
+                #   export TERM=${TERM#*:}
+                #   export CHN_LS_USE_COLOR=1
+                # fi
+                # if [[ $TERM == chn_cd* ]]; then
+                #   export TERM=${TERM#*:}
+                #   cd ~/${TERM%%:*}
+                #   export TERM=${TERM#*:}
+                # fi
+                # in .bashrc
+                # [ -n "$CHN_LS_USE_COLOR" ] && alias ls="ls --color=auto"
+                let
+                  usernameMap =
+                  {
+                    chn = "linwei/chn";
+                    xll = "linwei/Xll";
+                    yjq = "linwei/yjq";
+                    gb = "kangjunyong/gongbin";
+                  };
+                  cdString =
+                    if usernameMap ? ${hmInputs.config.home.username} then
+                      ":chn_cd:${usernameMap.${hmInputs.config.home.username}}"
+                    else "";
+                in "TERM=chn_unset_ls_colors${cdString}:xterm-256color";
+            };
           };
         };
       })];
