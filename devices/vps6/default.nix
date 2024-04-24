@@ -34,7 +34,7 @@ inputs:
       packages.packageSet = "server";
       services =
       {
-        snapper.enable = false;
+        snapper.enable = true;
         sshd = {};
         xray.server = { serverName = "vps6.xserver.chn.moe"; userNumber = 14; };
         frpServer = { enable = true; serverName = "frp.chn.moe"; };
