@@ -129,7 +129,11 @@ inputs:
       };
     }
     (
-      inputs.lib.mkIf (inputs.lib.strings.hasPrefix "cachyos" kernel.variant)
+      inputs.lib.mkIf
+      (
+        inputs.lib.strings.hasPrefix "cachyos" kernel.variant
+        && builtins.elem "server-extra" inputs.config.nixos.packages._packageSets
+      )
       (
         let scx =
           let rustPlatform = inputs.pkgs.unstablePackages.rustPlatform;
