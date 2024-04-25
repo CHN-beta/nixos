@@ -47,7 +47,7 @@ inputs:
             forwardCompat = false;
           };
         };
-        gui = { preferred = false; autoStart = true; };
+        gui = { enable = true; preferred = false; autoStart = true; };
         networking.hostname = "xmupc1";
         nix.remote.slave.enable = true;
       };

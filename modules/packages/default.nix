@@ -17,7 +17,11 @@ inputs:
       ];
     in
     {
-      packageSet = mkOption { type = types.enum packageSets; default = "server"; };
+      packageSet = mkOption
+      {
+        type = types.enum packageSets;
+        default = if inputs.config.nixos.system.gui.enable then "desktop" else "server";
+      };
       extraPackages = mkOption { type = types.listOf types.unspecified; default = []; };
       excludePackages = mkOption { type = types.listOf types.unspecified; default = []; };
       extraPythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };

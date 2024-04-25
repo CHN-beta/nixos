@@ -57,6 +57,7 @@ inputs:
         kernel.patches = [ "cjktty" "hibernate-progress" ];
         networking.hostname = "pc";
         sysctl.laptop-mode = 5;
+        gui.enable = true;
       };
       hardware =
       {

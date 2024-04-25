@@ -1,14 +1,18 @@
 inputs:
 {
   imports = inputs.localLib.findModules ./.;
-  options.nixos.hardware = let inherit (inputs.lib) mkOption types; in
-  {
-    bluetooth = mkOption { type = types.nullOr (types.submodule {}); default = {}; };
-    joystick = mkOption { type = types.nullOr (types.submodule {}); default = {}; };
-    printer = mkOption { type = types.nullOr (types.submodule {}); default = {}; };
-    sound = mkOption { type = types.nullOr (types.submodule {}); default = {}; };
-    cpus = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
-  };
+  options.nixos.hardware =
+    let
+      inherit (inputs.lib) mkOption types;
+      default = if inputs.config.nixos.system.gui.enable then {} else null;
+    in
+    {
+      bluetooth = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
+      joystick = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
+      printer = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
+      sound = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
+      cpus = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
+    };
   config = let inherit (inputs.config.nixos) hardware; in inputs.lib.mkMerge
   [
     # bluetooth

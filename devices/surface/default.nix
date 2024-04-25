@@ -33,6 +33,7 @@ inputs:
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         kernel = { variant = "xanmod-lts"; patches = [ "cjktty" "lantian" "surface" ]; };
         networking.hostname = "surface";
+        gui.enable = true;
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       packages.packageSet = "desktop-extra";

@@ -2,8 +2,7 @@ inputs:
 {
   options.nixos.system.gui = let inherit (inputs.lib) mkOption types; in
   {
-    enable = mkOption
-      { type = types.bool; default = builtins.elem "desktop" inputs.config.nixos.packages._packageSets; };
+    enable = mkOption { type = types.bool; default = false; };
     preferred = mkOption { type = types.bool; default = inputs.config.nixos.system.gui.enable; };
     autoStart = mkOption { type = types.bool; default = inputs.config.nixos.system.gui.preferred; };
   };
