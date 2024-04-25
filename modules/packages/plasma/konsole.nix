@@ -1,9 +1,9 @@
 inputs:
 {
-  config = inputs.lib.mkIf inputs.config.nixos.system.gui.enable
+  config = inputs.lib.mkIf (builtins.elem "desktop" inputs.config.nixos.packages._packageSets)
   {
     nixos.user.sharedModules =
-    [(hmInputs: {
+    [{
       config =
       {
         programs.plasma =
@@ -69,7 +69,7 @@ inputs:
           [ "Opacity=1" ] [ "Opacity=0.9\nBlur=true" ]
           (builtins.readFile "${inputs.pkgs.konsole}/share/konsole/Breeze.colorscheme");
       };
-    })];
+    }];
     environment.persistence =
       let impermanence = inputs.config.nixos.system.impermanence;
       in inputs.lib.mkIf impermanence.enable (inputs.lib.mkMerge (builtins.map

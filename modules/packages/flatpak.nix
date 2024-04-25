@@ -1,6 +1,6 @@
 inputs:
 {
-  config = inputs.lib.mkIf (builtins.elem "desktop" inputs.config.nixos.packages._packageSets)
+  config = inputs.lib.mkIf (builtins.elem "desktop-extra" inputs.config.nixos.packages._packageSets)
   {
     services.flatpak =
     {

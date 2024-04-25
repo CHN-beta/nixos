@@ -8,9 +8,10 @@ inputs:
       [
         # no gui, only used for specific purpose
         "server"
+        "server-extra"
         # gui, for daily use, but not install large programs such as matlab
         "desktop"
-        "desktop-fat"
+        "desktop-extra"
         # nearly everything
         "workstation"
       ];
@@ -35,32 +36,31 @@ inputs:
       _prebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
     };
   config =
-    let
-      inherit (builtins) concatLists map;
-    in
-    {
-      environment.systemPackages = let inherit (inputs.lib.lists) subtractLists; in with inputs.config.nixos.packages;
-        (subtractLists excludePackages (_packages ++ extraPackages))
-        ++ [
-          (inputs.pkgs.python3.withPackages (pythonPackages:
-            subtractLists
-              (concatLists (map (packageFunction: packageFunction pythonPackages) excludePythonPackages))
-              (concatLists (map (packageFunction: packageFunction pythonPackages)
-                (_pythonPackages ++ extraPythonPackages)))))
-          (inputs.pkgs.callPackage ({ stdenv }: stdenv.mkDerivation
-          {
-            name = "prebuild-packages";
-            propagateBuildInputs = subtractLists excludePrebuildPackages (_prebuildPackages ++ extraPrebuildPackages);
-            phases = [ "installPhase" ];
-            installPhase =
-            ''
-              runHook preInstall
-              mkdir -p $out
-              runHook postInstall
-            '';
-          }) {})
-        ];
-    };
+  {
+    environment.systemPackages = let inherit (inputs.lib.lists) subtractLists; in with inputs.config.nixos.packages;
+      (inputs.lib.lists.subtractLists excludePackages (_packages ++ extraPackages))
+      ++ [
+        (inputs.pkgs.python3.withPackages (pythonPackages:
+          inputs.lib.lists.subtractLists
+            (builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages)
+              excludePythonPackages))
+            (builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages)
+              (_pythonPackages ++ extraPythonPackages)))))
+        (inputs.pkgs.callPackage ({ stdenv }: stdenv.mkDerivation
+        {
+          name = "prebuild-packages";
+          propagateBuildInputs = inputs.lib.lists.subtractLists excludePrebuildPackages
+            (_prebuildPackages ++ extraPrebuildPackages);
+          phases = [ "installPhase" ];
+          installPhase =
+          ''
+            runHook preInstall
+            mkdir -p $out
+            runHook postInstall
+          '';
+        }) {})
+      ];
+  };
 }
 
     # programs.firejail =

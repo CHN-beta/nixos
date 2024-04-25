@@ -35,7 +35,7 @@ inputs:
         networking.hostname = "surface";
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
-      packages.packageSet = "desktop-fat";
+      packages.packageSet = "desktop-extra";
       virtualization = { docker.enable = true; waydroid.enable = true; };
       services =
       {
