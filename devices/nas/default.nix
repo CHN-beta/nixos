@@ -46,7 +46,6 @@ inputs:
         networking = { hostname = "nas"; networkd = {}; };
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
-      packages.packageSet = "server";
       services =
       {
         snapper.enable = true;

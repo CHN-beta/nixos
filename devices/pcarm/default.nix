@@ -21,7 +21,6 @@ inputs:
         nixpkgs.arch = "aarch64";
         kernel.variant = "nixos";
       };
-      packages.packageSet = "server";
       services.sshd = {};
     };
   };
