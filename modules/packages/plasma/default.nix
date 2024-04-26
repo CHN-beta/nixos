@@ -97,5 +97,17 @@ inputs:
         { configFile.kscreenlockerrc.Daemon.Autolock.value = false; }
       ];
     }];
+    nixpkgs.overlays = [(final: prev:
+    {
+      libsForQt5 = prev.libsForQt5.overrideScope (final: prev:
+      {
+        plasma5 = prev.plasma5.overrideScope (final: prev:
+        {
+          xdg-desktop-portal-kde = prev.xdg-desktop-portal-kde.overrideAttrs (prev:
+            { patches = (prev.patches or []) ++ [ ./krfb.patch ]; });
+        });
+        xdg-desktop-portal-kde = final.plasma5.xdg-desktop-portal-kde;
+      });
+    })];
   };
 }
