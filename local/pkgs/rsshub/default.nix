@@ -1,6 +1,6 @@
 {
   lib, stdenv, mkPnpmPackage, nodejs, writeShellScript,
-  chromium, bash, src
+  chromium, bash, src, git
 }:
 let
   name = "rsshub";
@@ -32,7 +32,7 @@ let
   startScript = writeShellScript "rsshub"
   ''
     cd ${rsshub-unwrapped}
-    export PATH=${lib.makeBinPath [ bash nodejs nodejs.pkgs.pnpm chromium ]}:$PATH
+    export PATH=${lib.makeBinPath [ bash nodejs nodejs.pkgs.pnpm chromium git ]}:$PATH
     export CHROMIUM_EXECUTABLE_PATH=chromium
     pnpm start
   '';
