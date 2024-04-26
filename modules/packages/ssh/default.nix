@@ -44,7 +44,7 @@ inputs:
           pc =
           {
             ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMSfREi19OSwQnhdsE8wiNwGSFFJwNGN0M5gN+sdrrLJ";
-            hostnames = [ "wireguard.pc.chn.moe" "192.168.83.3" ];
+            hostnames = [ "wireguard.pc.chn.moe" "[office.chn.moe]:3673" "192.168.1.105" "192.168.83.3" ];
           };
           hpc =
           {
@@ -148,6 +148,7 @@ inputs:
           xmupc1 = { host = "xmupc1"; hostname = "xmupc1.chn.moe"; port = 6007; };
           xmupc2 = { host = "xmupc2"; hostname = "xmupc2.chn.moe"; port = 6394; };
           nas = { host = "nas"; hostname = "office.chn.moe"; port = 5440; };
+          pc = { host = "pc"; hostname = "office.chn.moe"; port = 3673; };
           surface = { host = "surface"; hostname = "192.168.1.166"; };
           gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
           jykang =
