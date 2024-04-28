@@ -81,6 +81,17 @@ inputs:
       power.boot.kernelParams = [ "cpufreq.default_governor=powersave" ];
       backlight.boot.kernelParams = [ "nvidia.NVreg_RegistryDwords=EnableBrightnessControl=1" ];
       amdpstate.boot.kernelParams = [ "amd_pstate=active" ];
+      wireplumber.environment.etc."wireplumber/main.lua.d/50-alsa-config.lua".text =
+        let
+          content = builtins.readFile
+            (inputs.pkgs.wireplumber + "/share/wireplumber/main.lua.d/50-alsa-config.lua");
+          matched = builtins.match
+            ".*\n([[:space:]]*)(--\\[\"session\\.suspend-timeout-seconds\"][^\n]*)[\n].*" content;
+          spaces = builtins.elemAt matched 0;
+          comment = builtins.elemAt matched 1;
+          config = ''["session.suspend-timeout-seconds"] = 0'';
+        in
+          builtins.replaceStrings [(spaces + comment)] [(spaces + config)] content;
     };
   in
     {
