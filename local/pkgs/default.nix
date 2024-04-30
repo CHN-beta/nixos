@@ -84,6 +84,7 @@ inputs: rec
   kylin-virtual-keyboard = inputs.pkgs.libsForQt5.callPackage ./kylin-virtual-keyboard
     { src = inputs.topInputs.kylin-virtual-keyboard; };
   biu = inputs.pkgs.callPackage ./biu { inherit nameof; };
+  zxorm = inputs.pkgs.callPackage ./zxorm { src = inputs.topInputs.zxorm; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

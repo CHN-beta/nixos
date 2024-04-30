@@ -2226,7 +2226,8 @@
         "tgbot-cpp": "tgbot-cpp",
         "v-sim": "v-sim",
         "win11os-kde": "win11os-kde",
-        "zpp-bits": "zpp-bits"
+        "zpp-bits": "zpp-bits",
+        "zxorm": "zxorm"
       }
     },
     "rotate-text": {
@@ -2756,6 +2757,22 @@
       "original": {
         "owner": "eyalz800",
         "repo": "zpp_bits",
+        "type": "github"
+      }
+    },
+    "zxorm": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1689774784,
+        "narHash": "sha256-QO0jrZqYcYxIdL1EWnEjaODr+q9inlbBgKaDSlu+ot0=",
+        "owner": "crabmandable",
+        "repo": "zxorm",
+        "rev": "92cd52ec0530fb3e66061058548916fb879879e7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "crabmandable",
+        "repo": "zxorm",
         "type": "github"
       }
     }
