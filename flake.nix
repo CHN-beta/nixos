@@ -81,6 +81,7 @@
     zxorm = { url = "github:crabmandable/zxorm"; flake = false; };
     hpcstat = { url = "github:CHN-beta/hpcstat"; flake = false; };
     xmuhpc-dotfiles = { url = "git+https://git.chn.moe/chn/xmuhpc-dotfiles.git"; flake = false; };
+    openxlsx = { url = "github:troldal/OpenXLSX"; flake = false; };
   };
 
   outputs = inputs:

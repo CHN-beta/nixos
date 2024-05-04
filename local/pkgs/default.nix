@@ -86,6 +86,7 @@ inputs: rec
   biu = inputs.pkgs.callPackage ./biu { inherit nameof; };
   zxorm = inputs.pkgs.callPackage ./zxorm { src = inputs.topInputs.zxorm; };
   hpcstat = inputs.pkgs.callPackage "${inputs.topInputs.hpcstat}" { inherit nameof zxorm zpp-bits; };
+  openxlsx = inputs.pkgs.callPackage ./openxlsx { src = inputs.topInputs.openxlsx; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

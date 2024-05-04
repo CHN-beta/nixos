@@ -1957,6 +1957,22 @@
         "type": "github"
       }
     },
+    "openxlsx": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1656848604,
+        "narHash": "sha256-Bdik5tY6DsNKMMXvfVOHngLHud3OJ8q9OTwv4eaDMvY=",
+        "owner": "troldal",
+        "repo": "OpenXLSX",
+        "rev": "b80da42d1454f361c29117095ebe1989437db390",
+        "type": "github"
+      },
+      "original": {
+        "owner": "troldal",
+        "repo": "OpenXLSX",
+        "type": "github"
+      }
+    },
     "org": {
       "flake": false,
       "locked": {
@@ -2233,6 +2249,7 @@
         "nur": "nur",
         "nur-linyinfeng": "nur-linyinfeng",
         "nur-xddxdd": "nur-xddxdd",
+        "openxlsx": "openxlsx",
         "plasma-manager": "plasma-manager",
         "pnpm2nix-nzbr": "pnpm2nix-nzbr",
         "qchem": "qchem",
