@@ -24,21 +24,25 @@ inputs:
             ssh = "${inputs.pkgs.openssh}/bin/ssh -i ${key} -o StrictHostKeyChecking=no"
               + " -o ForwardAgent=yes -o AddKeysToAgent=yes";
             key = inputs.config.sops.secrets."hpcstat/key".path;
+            jykang = "${inputs.topInputs.xmuhpc-dotfiles}/jykang";
+            ssh-agent = "${inputs.pkgs.openssh}/bin/ssh-agent";
           in
           ''
+            eval $(${ssh-agent})
             # check if the file content differ
-            if ${rsync} -e "${ssh}" -acnri jykang/ jykang@hpc.xmu.edu.cn:~/ | ${grep} -E '^[<>]' -q; then
+            if ${rsync} -e "${ssh}" -acnri ${jykang}/ jykang@hpc.xmu.edu.cn:~/ | ${grep} -E '^[<>]' -q; then
               ${curl} -X POST -H 'Content-Type: application/json' \
                 -d "{\"chat_id\": \"$(${cat} ${chat})\", \"text\": \"File content differ!\"}" \
                 https://api.telegram.org/bot$(${cat} ${token})/sendMessage
               exit 1
             fi
             # check finishjob
-            ${ssh} jykang@@hpc.xmu.edu.cn hpcstat finishjob
+            ${ssh} jykang@hpc.xmu.edu.cn hpcstat finishjob
             # download database
             now=$(${date} '+%Y%m%d%H%M%S')
             ${rsync} -e "${ssh}" \
-              jykang@hpc.xmu.edu.cn:~/linwei/chn/software/hpcstat/hpcstat.db /var/lib/hpcstat/hpcstat.db.$now
+              jykang@hpc.xmu.edu.cn:~/linwei/chn/software/hpcstat/var/lib/hpcstat/hpcstat.db \
+              /var/lib/hpcstat/hpcstat.db.$now
             if [ $? -ne 0 ]; then
               ${curl} -X POST -H 'Content-Type: application/json' \
                 -d "{\"chat_id\": \"$(${cat} ${chat})\", \"text\": \"Download database failed!\"}" \
@@ -46,8 +50,9 @@ inputs:
               exit 1
             fi
             # diff database
-            [ -f /var/lib/hpcstat/hpcstat.db.last ] \
-              && ${hpcstat} verify /var/lib/hpcstat/hpcstat.db.last /var/lib/hpcstat/hpcstat.db.$now
+            if [ -f /var/lib/hpcstat/hpcstat.db.last ]; then
+              ${hpcstat} verify /var/lib/hpcstat/hpcstat.db.last /var/lib/hpcstat/hpcstat.db.$now
+            fi
             if [ $? -ne 0 ]; then
               ${curl} -X POST -H 'Content-Type: application/json' \
                 -d "{\"chat_id\": \"$(${cat} ${chat})\", \"text\": \"Database verification failed!\"}" \
