@@ -444,7 +444,7 @@ inputs:
             // (builtins.listToAttrs (map
               (name:
               {
-                name = "xray-server/telegram/${name}";
+                name = "telegram/${name}";
                 value = (let user = inputs.config.users.users.v2ray; in { owner = user.name; inherit (user) group; });
               })
               [ "token" "chat" ]))
@@ -478,8 +478,8 @@ inputs:
                   jq = "${inputs.pkgs.jq}/bin/jq";
                   sed = "${inputs.pkgs.gnused}/bin/sed";
                   cat = "${inputs.pkgs.coreutils}/bin/cat";
-                  token = inputs.config.sops.secrets."xray-server/telegram/token".path;
-                  chat = inputs.config.sops.secrets."xray-server/telegram/chat".path;
+                  token = inputs.config.sops.secrets."telegram/token".path;
+                  chat = inputs.config.sops.secrets."telegram/chat".path;
                 in
                 ''
                   message='xray:\n'

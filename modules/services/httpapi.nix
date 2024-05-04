@@ -35,7 +35,8 @@ inputs:
           content =
             let
               placeholder = inputs.config.sops.placeholder;
-              request = "https://api.telegram.org/${placeholder."httpapi/token"}/sendMessage?chat_id=861886506&text=";
+              request = "https://api.telegram.org/${placeholder."telegram/token"}"
+                + "/sendMessage?chat_id=${placeholder."telegram/chat"}&text=";
             in ''<?php print file_get_contents("${request}".urlencode($_GET["message"])); ?>'';
         };
         secrets."httpapi/token" = {};

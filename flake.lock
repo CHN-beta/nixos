@@ -1039,6 +1039,22 @@
         "type": "github"
       }
     },
+    "hpcstat": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1714808857,
+        "narHash": "sha256-UtAqI6xTRqoHr7b7E9CTZrZ5q2x9R4ybS3xGCXIZH+g=",
+        "owner": "CHN-beta",
+        "repo": "hpcstat",
+        "rev": "07dd607ae6f2c336824aff062d666b7281eb550b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "hpcstat",
+        "type": "github"
+      }
+    },
     "impermanence": {
       "locked": {
         "lastModified": 1708968331,
@@ -2187,6 +2203,7 @@
         "fluent-kde": "fluent-kde",
         "gricad": "gricad",
         "home-manager": "home-manager",
+        "hpcstat": "hpcstat",
         "impermanence": "impermanence",
         "kylin-virtual-keyboard": "kylin-virtual-keyboard",
         "lepton": "lepton",
@@ -2226,6 +2243,7 @@
         "tgbot-cpp": "tgbot-cpp",
         "v-sim": "v-sim",
         "win11os-kde": "win11os-kde",
+        "xmuhpc-dotfiles": "xmuhpc-dotfiles",
         "zpp-bits": "zpp-bits",
         "zxorm": "zxorm"
       }
@@ -2718,6 +2736,22 @@
         "owner": "hlissner",
         "repo": "ws-butler",
         "type": "github"
+      }
+    },
+    "xmuhpc-dotfiles": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1714809169,
+        "narHash": "sha256-sdpb3W/EvMbpyT/COP37CDVJJBKXsPSpW+gnov8Imno=",
+        "ref": "refs/heads/main",
+        "rev": "b90c83c9a2849129c6501a9b1023ecaa2bf79c93",
+        "revCount": 7,
+        "type": "git",
+        "url": "https://git.chn.moe/chn/xmuhpc-dotfiles.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.chn.moe/chn/xmuhpc-dotfiles.git"
       }
     },
     "yafas": {

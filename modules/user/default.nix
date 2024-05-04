@@ -29,6 +29,7 @@ inputs:
         fz-new-order = 2008;
         synapse-synapse = 2009;
         synapse-matrix = 2010;
+        hpcstat = 2011;
       };
     };
     gid = mkOption

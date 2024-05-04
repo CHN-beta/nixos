@@ -72,6 +72,7 @@ inputs:
           publicKey = "xCYRbZEaGloMk7Awr00UR3JcDJy4AzVp4QvGNoyEgFY=";
           wireguardIp = "192.168.83.4";
         };
+        hpcstat = {};
       };
       user.users = [ "chn" "xll" "zem" "yjq" "gb" ];
     };
