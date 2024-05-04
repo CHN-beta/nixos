@@ -22,12 +22,12 @@ inputs:
             date = "${inputs.pkgs.coreutils}/bin/date";
             hpcstat = "${inputs.pkgs.localPackages.hpcstat}/bin/hpcstat";
             ssh = "${inputs.pkgs.openssh}/bin/ssh -i ${key} -o StrictHostKeyChecking=no"
-              + " -o AllowAgentForwarding=yes -o AddKeysToAgent=yes";
+              + " -o ForwardAgent=yes -o AddKeysToAgent=yes";
             key = inputs.config.sops.secrets."hpcstat/key".path;
           in
           ''
             # check if the file content differ
-            if rsync -e "${ssh}" -acnri jykang/ jykang@hpc.xmu.edu.cn:~/ | grep -E '^[<>]' -q; then
+            if ${rsync} -e "${ssh}" -acnri jykang/ jykang@hpc.xmu.edu.cn:~/ | ${grep} -E '^[<>]' -q; then
               ${curl} -X POST -H 'Content-Type: application/json' \
                 -d "{\"chat_id\": \"$(${cat} ${chat})\", \"text\": \"File content differ!\"}" \
                 https://api.telegram.org/bot$(${cat} ${token})/sendMessage
@@ -36,8 +36,8 @@ inputs:
             # check finishjob
             ${ssh} jykang@@hpc.xmu.edu.cn hpcstat finishjob
             # download database
-            now=$(date '+%Y%m%d%H%M%S')
-            rsync -e "${ssh}" \
+            now=$(${date} '+%Y%m%d%H%M%S')
+            ${rsync} -e "${ssh}" \
               jykang@hpc.xmu.edu.cn:~/linwei/chn/software/hpcstat/hpcstat.db /var/lib/hpcstat/hpcstat.db.$now
             if [ $? -ne 0 ]; then
               ${curl} -X POST -H 'Content-Type: application/json' \
