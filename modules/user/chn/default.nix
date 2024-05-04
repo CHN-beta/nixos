@@ -24,18 +24,27 @@ inputs:
           programs =
           {
             git = { userName = "chn"; userEmail = "chn@chn.moe"; };
-            ssh.matchBlocks =
+            ssh =
             {
-              # identityFile = "~/.ssh/xmuhk_id_rsa";
-              xmuhk = { host = "xmuhk"; hostname = "10.26.14.56"; user = "xmuhk"; };
-              xmuhk2 = { host = "xmuhk2"; hostname = "183.233.219.132"; user = "xmuhk"; port = 62022; };
-            }
-            // (listToAttrs (map
-              (system: { name = system; value.forwardAgent = true; })
-              [
-                "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas" "pc"
-                "wireguard.surface" "xmupc1" "wireguard.xmupc1" "xmupc2" "wireguard.xmupc2"
-              ]));
+              matchBlocks =
+              {
+                # identityFile = "~/.ssh/xmuhk_id_rsa";
+                xmuhk = { host = "xmuhk"; hostname = "10.26.14.56"; user = "xmuhk"; };
+                xmuhk2 = { host = "xmuhk2"; hostname = "183.233.219.132"; user = "xmuhk"; port = 62022; };
+              }
+              // (listToAttrs (map
+                (system: { name = system; value.forwardAgent = true; })
+                [
+                  "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas" "pc"
+                  "wireguard.surface" "xmupc1" "wireguard.xmupc1" "xmupc2" "wireguard.xmupc2"
+                ]));
+              extraConfig =
+                inputs.lib.mkIf (builtins.elem inputs.config.nixos.system.networking.hostname [ "pc" "surface" ])
+                ''
+                  IdentityFile ~/.ssh/id_rsa
+                  IdentityFile ~/.ssh/id_ed25519_sk
+                '';
+            };
           };
           home =
           {
