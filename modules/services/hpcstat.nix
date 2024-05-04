@@ -66,11 +66,26 @@ inputs:
       };
       tmpfiles.rules = [ "d /var/lib/hpcstat 0700 hpcstat hpcstat" ];
     };
-    sops.secrets = { "telegram/token" = {}; "telegram/chat" = {}; "hpcstat/key" = {}; };
+    sops.secrets =
+    {
+      "telegram/token" = { group = "telegram"; mode = "0440"; };
+      "telegram/chat" = { group = "telegram"; mode = "0440"; };
+      "hpcstat/key" = { owner = "hpcstat"; group = "hpcstat"; };
+    };
     users =
     {
-      users.hpcstat = { uid = inputs.config.nixos.user.uid.hpcstat; group = "hpcstat"; isSystemUser = true; };
-      groups.hpcstat.gid = inputs.config.nixos.user.gid.hpcstat;
+      users.hpcstat =
+      {
+        uid = inputs.config.nixos.user.uid.hpcstat;
+        group = "hpcstat";
+        extraGroups = [ "telegram" ];
+        isSystemUser = true;
+      };
+      groups =
+      {
+        hpcstat.gid = inputs.config.nixos.user.gid.hpcstat;
+        telegram.gid = inputs.config.nixos.user.gid.telegram;
+      };
     };
   };
 }

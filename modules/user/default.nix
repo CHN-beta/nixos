@@ -39,6 +39,7 @@ inputs:
       default = inputs.config.nixos.user.uid //
       {
         groupshare = 3000;
+        telegram = 3001;
       };
     };
   };

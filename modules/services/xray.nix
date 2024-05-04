@@ -442,11 +442,7 @@ inputs:
           secrets = builtins.listToAttrs
             (map (n: { name = "xray-server/clients/user${toString n}"; value = {}; }) userList)
             // (builtins.listToAttrs (map
-              (name:
-              {
-                name = "telegram/${name}";
-                value = (let user = inputs.config.users.users.v2ray; in { owner = user.name; inherit (user) group; });
-              })
+              (name: { name = "telegram/${name}"; value = { group = "telegram"; mode = "0440"; }; })
               [ "token" "chat" ]))
             // { "xray-server/private-key" = {}; };
         };
@@ -509,8 +505,18 @@ inputs:
         };
         users =
         {
-          users.v2ray = { uid = inputs.config.nixos.user.uid.v2ray; group = "v2ray"; isSystemUser = true; };
-          groups.v2ray.gid = inputs.config.nixos.user.gid.v2ray;
+          users.v2ray =
+          {
+            uid = inputs.config.nixos.user.uid.v2ray;
+            group = "v2ray";
+            extraGroups = [ "telegram" ];
+            isSystemUser = true;
+          };
+          groups =
+          {
+            v2ray.gid = inputs.config.nixos.user.gid.v2ray;
+            telegram.gid = inputs.config.nixos.user.gid.telegram;
+          };
         };
         nixos.services =
         {
