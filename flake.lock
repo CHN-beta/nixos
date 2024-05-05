@@ -2758,11 +2758,11 @@
     "xmuhpc-dotfiles": {
       "flake": false,
       "locked": {
-        "lastModified": 1714814038,
-        "narHash": "sha256-jiCdHJ4Sv3NnvW7jf1jLRMD0r4wnmc7LsTAFYszTEeo=",
+        "lastModified": 1714896563,
+        "narHash": "sha256-b0d/2VgL/dxqJsLI4ppjBgjm3686Mx0q1T/+u86Zxls=",
         "ref": "refs/heads/main",
-        "rev": "cf24e4352810bd39896e6d4038dd8193539f9862",
-        "revCount": 8,
+        "rev": "2b4aa48f138b68e81c514be69cfc4140b937f40e",
+        "revCount": 9,
         "type": "git",
         "url": "https://git.chn.moe/chn/xmuhpc-dotfiles.git"
       },
