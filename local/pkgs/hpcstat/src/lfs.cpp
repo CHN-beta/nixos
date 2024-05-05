@@ -72,7 +72,13 @@ namespace hpcstat::lfs
         if (!std::set<std::string>{ "DONE", "EXIT" }.contains(status)) continue;
         std::string submit_time = job["SUBMIT_TIME"];
         std::string cpu_used_str = job["CPU_USED"];
-        double cpu_used = std::stof(cpu_used_str.substr(0, cpu_used_str.find(' ')));
+        double cpu_used = 0;
+        if (!cpu_used_str.empty())
+        {
+          try { cpu_used = std::stof(cpu_used_str.substr(0, cpu_used_str.find(' '))); }
+          catch (std::invalid_argument& e)
+            { std::cerr << fmt::format("Failed to parse cpu used: {}\n", e.what()); return std::nullopt; }
+        }
         jobs[std::stoi(job["JOBID"].get<std::string>())] = { submit_time, status, cpu_used };
       }
       return jobs;
