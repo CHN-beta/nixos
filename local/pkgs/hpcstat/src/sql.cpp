@@ -234,14 +234,12 @@ namespace hpcstat::sql
         stat[{it.Key,it.Subaccount }].SubmitJob++;
       // add all result with subaccount into result without subaccount
       std::map<std::string, StatResult> stat_without_subaccount;
-      for (auto& [key, value] : stat) if (key.second) stat_without_subaccount[key.first] += value;
+      for (auto& [key, value] : stat) stat_without_subaccount[key.first] += value;
       // remove all result without subaccount
-      for (auto it = stat.begin(); it != stat.end(); it++)
-        while (it != stat.end() && !it->first.second) stat.erase(it++);
+      std::erase_if(stat, [](auto& it) { return !it.first.second; });
       // write to excel
       OpenXLSX::XLDocument doc;
       doc.create(filename);
-      doc.workbook().deleteSheet("Sheet1");
       doc.workbook().addWorksheet("Statistics");
       auto wks1 = doc.workbook().worksheet("Statistics");
       wks1.row(1).values() = std::vector<std::string>
@@ -280,6 +278,7 @@ namespace hpcstat::sql
           std::to_string(it->second.SubmitJob), std::to_string(it->second.FinishJobSuccess),
           std::to_string(it->second.FinishJobFailed)
         };
+      doc.workbook().deleteSheet("Sheet1");
       doc.save();
       return true;
     }
