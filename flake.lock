@@ -2814,15 +2814,15 @@
     "zxorm": {
       "flake": false,
       "locked": {
-        "lastModified": 1689774784,
-        "narHash": "sha256-QO0jrZqYcYxIdL1EWnEjaODr+q9inlbBgKaDSlu+ot0=",
-        "owner": "crabmandable",
+        "lastModified": 1714876963,
+        "narHash": "sha256-PYUs76SpsbCUHSV8n1+u10U4aEpA0u3L+IEXkRKzMXM=",
+        "owner": "CHN-beta",
         "repo": "zxorm",
-        "rev": "92cd52ec0530fb3e66061058548916fb879879e7",
+        "rev": "c72543439eac41dae7aa44065fee657cad336bab",
         "type": "github"
       },
       "original": {
-        "owner": "crabmandable",
+        "owner": "CHN-beta",
         "repo": "zxorm",
         "type": "github"
       }

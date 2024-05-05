@@ -78,7 +78,7 @@
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
     kylin-virtual-keyboard = { url = "git+https://gitee.com/openkylin/kylin-virtual-keyboard.git"; flake = false; };
     cjktty = { url = "github:zhmars/cjktty-patches"; flake = false; };
-    zxorm = { url = "github:crabmandable/zxorm"; flake = false; };
+    zxorm = { url = "github:CHN-beta/zxorm"; flake = false; };
     hpcstat = { url = "github:CHN-beta/hpcstat"; flake = false; };
     xmuhpc-dotfiles = { url = "git+https://git.chn.moe/chn/xmuhpc-dotfiles.git"; flake = false; };
     openxlsx = { url = "github:troldal/OpenXLSX"; flake = false; };
