@@ -1039,22 +1039,6 @@
         "type": "github"
       }
     },
-    "hpcstat": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1714877893,
-        "narHash": "sha256-+SdY8chXNGqwBPuAOA7XlCze+qME7SXQ3p6I3YVM3J8=",
-        "owner": "CHN-beta",
-        "repo": "hpcstat",
-        "rev": "af962707c4696fb5f6c5f43d6fa9c713a7dc9ca5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "repo": "hpcstat",
-        "type": "github"
-      }
-    },
     "impermanence": {
       "locked": {
         "lastModified": 1708968331,
@@ -2219,7 +2203,6 @@
         "fluent-kde": "fluent-kde",
         "gricad": "gricad",
         "home-manager": "home-manager",
-        "hpcstat": "hpcstat",
         "impermanence": "impermanence",
         "kylin-virtual-keyboard": "kylin-virtual-keyboard",
         "lepton": "lepton",

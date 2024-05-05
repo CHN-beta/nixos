@@ -79,7 +79,6 @@
     kylin-virtual-keyboard = { url = "git+https://gitee.com/openkylin/kylin-virtual-keyboard.git"; flake = false; };
     cjktty = { url = "github:zhmars/cjktty-patches"; flake = false; };
     zxorm = { url = "github:CHN-beta/zxorm"; flake = false; };
-    hpcstat = { url = "github:CHN-beta/hpcstat"; flake = false; };
     xmuhpc-dotfiles = { url = "git+https://git.chn.moe/chn/xmuhpc-dotfiles.git"; flake = false; };
     openxlsx = { url = "github:troldal/OpenXLSX"; flake = false; };
   };
@@ -91,21 +90,32 @@
     in
     {
       packages.x86_64-linux =
-      {
-        default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
-          (builtins.concatStringsSep "\n" (builtins.map
-            (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-            devices));
-      }
-      // (
-        builtins.listToAttrs (builtins.map
-          (system:
-          {
-            name = system;
-            value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
-          })
-          devices)
-      );
+        let pkgs = (import inputs.nixpkgs
+        {
+          system = "x86_64-linux";
+          config.allowUnfree = true;
+          overlays = [ inputs.self.overlays.default ];
+        });
+        in
+        {
+          default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
+            (builtins.concatStringsSep "\n" (builtins.map
+              (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
+              devices));
+          hpcstat =
+            let openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
+              (prev: { doCheck = false; patches = prev.patches ++ [ ./local/pkgs/hpcstat/openssh.patch ];});
+            in pkgs.pkgsStatic.localPackages.hpcstat.override { inherit openssh; standalone = true; };
+        }
+        // (
+          builtins.listToAttrs (builtins.map
+            (system:
+            {
+              name = system;
+              value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
+            })
+            devices)
+        );
       nixosConfigurations =
       (
         (builtins.listToAttrs (builtins.map
@@ -168,14 +178,30 @@
       overlays.default = final: prev:
         { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; topInputs = inputs; }); };
       config.archive = false;
-      devShell.x86_64-linux = let inherit (inputs.self.nixosConfigurations.pc) pkgs; in pkgs.mkShell
-      {
-        packages = with pkgs; [ pkg-config cmake ninja clang-tools_17 ];
-        buildInputs =
-          (with pkgs; [ fmt boost magic-enum libbacktrace eigen range-v3 ])
-          ++ (with pkgs.localPackages; [ concurrencpp tgbot-cpp nameof ]);
-        # hardeningDisable = [ "all" ];
-        # NIX_DEBUG = "1";
-      };
+      devShells.x86_64-linux =
+        let pkgs = (import inputs.nixpkgs
+        {
+          system = "x86_64-linux";
+          config.allowUnfree = true;
+          overlays = [ inputs.self.overlays.default ];
+        });
+        in
+        {
+          biu = pkgs.mkShell
+          {
+            packages = with pkgs; [ pkg-config cmake ninja clang-tools_17 ];
+            buildInputs =
+              (with pkgs; [ fmt boost magic-enum libbacktrace eigen range-v3 ])
+              ++ (with pkgs.localPackages; [ concurrencpp tgbot-cpp nameof ]);
+            # hardeningDisable = [ "all" ];
+            # NIX_DEBUG = "1";
+          };
+          hpcstat = pkgs.mkShell
+          {
+            inputsFrom = [ inputs.self.packages.x86_64-linux.hpcstat ];
+            packages = [ pkgs.clang-tools_17 ];
+            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+          };
+        };
     };
 }

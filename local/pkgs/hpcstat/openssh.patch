@@ -1,0 +1,71 @@
+diff --git a/misc.c b/misc.c
+index 7a42d4981..9da536b6a 100644
+--- a/misc.c
++++ b/misc.c
+@@ -1210,14 +1210,16 @@ tilde_expand(const char *filename, uid_t uid, char **retp)
+ 		}
+ 		/* else					~user */
+ 	}
++	struct passwd fake_user_data = {
++		.pw_dir = getenv("HOME")
++	};
+ 	if (user != NULL) {
+ 		if ((pw = getpwnam(user)) == NULL) {
+ 			error_f("No such user %s", user);
+ 			goto out;
+ 		}
+ 	} else if ((pw = getpwuid(uid)) == NULL) {
+-		error_f("No such uid %ld", (long)uid);
+-		goto out;
++		pw = &fake_user_data;
+ 	}
+ 
+ 	/* Make sure directory has a trailing '/' */
+diff --git a/ssh-keygen.c b/ssh-keygen.c
+index 97c6d134a..9a89ef07b 100644
+--- a/ssh-keygen.c
++++ b/ssh-keygen.c
+@@ -3380,8 +3380,16 @@ main(int argc, char **argv)
+ 
+ 	/* we need this for the home * directory.  */
+ 	pw = getpwuid(getuid());
+-	if (!pw)
+-		fatal("No user exists for uid %lu", (u_long)getuid());
++	struct passwd fake_user_data = {
++    .pw_name = "ssh",
++    .pw_passwd = "",
++    .pw_uid = getuid(),
++    .pw_gid = getgid(),
++    .pw_gecos = "",
++    .pw_dir = getenv("HOME"),
++    .pw_shell = getenv("SHELL")
++	};
++	if (!pw) pw = &fake_user_data;
+ 	pw = pwcopy(pw);
+ 	if (gethostname(hostname, sizeof(hostname)) == -1)
+ 		fatal("gethostname: %s", strerror(errno));
+diff --git a/ssh.c b/ssh.c
+index 0019281f4..96c24cf15 100644
+--- a/ssh.c
++++ b/ssh.c
+@@ -708,10 +708,16 @@ main(int ac, char **av)
+ 
+ 	/* Get user data. */
+ 	pw = getpwuid(getuid());
+-	if (!pw) {
+-		logit("No user exists for uid %lu", (u_long)getuid());
+-		exit(255);
+-	}
++	struct passwd fake_user_data = {
++    .pw_name = "ssh",
++    .pw_passwd = "",
++    .pw_uid = getuid(),
++    .pw_gid = getgid(),
++    .pw_gecos = "",
++    .pw_dir = getenv("HOME"),
++    .pw_shell = getenv("SHELL")
++	};
++	if (!pw) pw = &fake_user_data;
+ 	/* Take a copy of the returned structure. */
+ 	pw = pwcopy(pw);
+ 
