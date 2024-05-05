@@ -2240,6 +2240,7 @@
         "rycee": "rycee",
         "slate": "slate",
         "sops-nix": "sops-nix",
+        "sqlite-orm": "sqlite-orm",
         "tgbot-cpp": "tgbot-cpp",
         "v-sim": "v-sim",
         "win11os-kde": "win11os-kde",
@@ -2432,6 +2433,22 @@
       "original": {
         "owner": "Mic92",
         "repo": "sops-nix",
+        "type": "github"
+      }
+    },
+    "sqlite-orm": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1679666045,
+        "narHash": "sha256-KqphGFcnR1Y11KqL7sxODSv7lEvcURdF6kLd3cg84kc=",
+        "owner": "fnc12",
+        "repo": "sqlite_orm",
+        "rev": "ff7c878af872f7987b62d825284fb25d6043af10",
+        "type": "github"
+      },
+      "original": {
+        "owner": "fnc12",
+        "repo": "sqlite_orm",
         "type": "github"
       }
     },

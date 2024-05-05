@@ -87,6 +87,7 @@ inputs: rec
   zxorm = inputs.pkgs.callPackage ./zxorm { src = inputs.topInputs.zxorm; };
   hpcstat = inputs.pkgs.callPackage ./hpcstat { inherit nameof zxorm zpp-bits; };
   openxlsx = inputs.pkgs.callPackage ./openxlsx { src = inputs.topInputs.openxlsx; };
+  sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm { src = inputs.topInputs.sqlite-orm; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
