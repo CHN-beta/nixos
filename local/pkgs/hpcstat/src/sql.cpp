@@ -76,7 +76,14 @@ namespace hpcstat::sql
         return decltype(conn())();
       else dbfile = std::filesystem::path(*datadir) / "hpcstat.db";
     }
-    return conn();
+    auto result = conn();
+    if (!result) std::cerr << "Failed to connect to database.\n";
+    return result;
+  }
+  bool initdb()
+  {
+    if (auto conn = connect(); !conn) return false;
+    else { conn->sync_schema(); return true; }
   }
   bool writedb(auto value)
     { if (auto conn = connect(); !conn) return false; else { conn->insert(value); return true; } }

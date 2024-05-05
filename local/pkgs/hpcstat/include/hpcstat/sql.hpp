@@ -42,6 +42,8 @@ namespace hpcstat::sql
   };
   // 序列化任意数据，用于之后签名
   std::string serialize(auto data);
+  // 初始化数据库
+  bool initdb();
   // 将数据写入数据库
   bool writedb(auto value);
   // 查询 bjobs -a 的结果中，有哪些是已经被写入到数据库中的（按照任务 id 和提交时间计算），返回未被写入的任务 id
