@@ -44,7 +44,8 @@ namespace hpcstat::lfs
       }
     }
   }
-  std::optional<std::map<unsigned, std::tuple<std::string, std::string, double, std::string>>> bjobs_list()
+  std::optional<std::map<unsigned, std::tuple<std::string, std::string, double, std::string>>> bjobs_list
+    (bool finished_jobs_only)
   {
     if
     (
@@ -70,7 +71,7 @@ namespace hpcstat::lfs
       for (auto& job : j["RECORDS"])
       {
         std::string status = job["STAT"];
-        if (!std::set<std::string>{ "DONE", "EXIT" }.contains(status)) continue;
+        if (finished_jobs_only && !std::set<std::string>{ "DONE", "EXIT" }.contains(status)) continue;
         std::string cpu_used_str = job["CPU_USED"];
         double cpu_used = 0;
         if (!cpu_used_str.empty())

@@ -171,8 +171,18 @@ namespace hpcstat::sql
     std::optional<SubmitJobData> result;
     long submit_date = [&]
     {
-      std::chrono::system_clock::time_point submit_date;
-      std::stringstream(submit_time) >> date::parse("%b %d %H:%M:%S %Y", submit_date);
+      std::chrono::system_clock::time_point submit_date_with_local;
+      std::stringstream(submit_time) >> date::parse("%b %d %H:%M:%S %Y", submit_date_with_local);
+      date::zoned_time submit_date_with_zone
+      (
+        date::current_zone(),
+        date::local_seconds
+        {
+          std::chrono::seconds(std::chrono::duration_cast<std::chrono::seconds>
+            (submit_date_with_local.time_since_epoch()).count())
+        }
+      );
+      auto submit_date = submit_date_with_zone.get_sys_time();
       return std::chrono::duration_cast<std::chrono::seconds>(submit_date.time_since_epoch()).count();
     }();
     auto submit_jobs = connection->template get_all<SubmitJobData>
@@ -317,7 +327,7 @@ namespace hpcstat::sql
             result[job_id] =
               { std::get<3>(status), std::get<1>(status), job_in_submit->Key, job_in_submit->Subaccount };
       conn->remove_all<CheckJobData>();
-      auto new_data = result
+      auto new_data = *jobs_current
         | ranges::views::transform
           ([](auto& it) { return CheckJobData{ .JobId = it.first, .Status = std::get<1>(it.second) }; })
         | ranges::to<std::vector<CheckJobData>>;

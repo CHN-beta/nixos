@@ -34,7 +34,8 @@ namespace hpcstat::push
             token,
             boost::urls::encode
             (
-              fmt::format("{} {} {}", id, std::get<0>(info), std::get<1>(info)), boost::urls::unreserved_chars
+              fmt::format("{} {} {}", std::get<1>(info), std::get<0>(info), id),
+              boost::urls::unreserved_chars
             ),
             users[user_string]
           );

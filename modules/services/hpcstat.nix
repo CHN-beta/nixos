@@ -38,6 +38,7 @@ inputs:
             fi
             # check finishjob
             ${ssh} jykang@hpc.xmu.edu.cn hpcstat finishjob
+            ${ssh} jykang@hpc.xmu.edu.cn hpcstat push
             # download database
             now=$(${date} '+%Y%m%d%H%M%S')
             ${rsync} -e "${ssh}" \

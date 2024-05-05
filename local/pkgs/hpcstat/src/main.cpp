@@ -77,7 +77,7 @@ int main(int argc, const char** argv)
       if (auto fp = ssh::fingerprint(); !fp) return 1;
       else if (auto session = env::env("XDG_SESSION_ID", true); !session)
         return 1;
-      else if (auto all_jobs = lfs::bjobs_list(); !all_jobs) return 1;
+      else if (auto all_jobs = lfs::bjobs_list(true); !all_jobs) return 1;
       else if
       (
         auto not_recorded = sql::finishjob_remove_existed
