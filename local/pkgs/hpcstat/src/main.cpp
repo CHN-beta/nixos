@@ -14,7 +14,8 @@ int main(int argc, const char** argv)
     using namespace std::literals;
     std::vector<std::string> args(argv, argv + argc);
 
-    if (args.size() == 1) { std::cout << "Usage: hpcstat initdb|login|logout|submitjob|finishjob|verify\n"; return 1; }
+    if (args.size() == 1)
+      { std::cout << "Usage: hpcstat initdb|login|logout|submitjob|finishjob|verify|export\n"; return 1; }
     else if (args[1] == "initdb") { if (!sql::initdb()) { std::cerr << "Failed to initialize database\n"; return 1; } }
     else if (args[1] == "login")
     {
@@ -115,6 +116,21 @@ int main(int argc, const char** argv)
       else for (auto& data : *db_verify_result)
         if (!std::apply(ssh::verify, data))
           { std::cerr << fmt::format("Failed to verify data: {}\n", std::get<0>(data)); return 1; }
+    }
+    else if (args[1] == "export")
+    {
+      if (args.size() < 4) { std::cerr << "Usage: hpcstat export <year> <month>\n"; return 1; }
+      auto year_n = std::stoi(args[2]), month_n = std::stoi(args[3]);
+      using namespace std::chrono;
+      auto begin = sys_seconds(sys_days(month(month_n) / 1 / year_n)).time_since_epoch().count();
+      auto end = sys_seconds(sys_days(month(month_n) / 1 / year_n + months(1)))
+        .time_since_epoch().count();
+      if 
+      (
+        !sql::export_data
+          (begin, end, fmt::format("hpcstat-{}-{}.xlsx", year_n, month_n))
+      )
+        return 1;
     }
     else { std::cerr << "Unknown command.\n"; return 1; }
   }

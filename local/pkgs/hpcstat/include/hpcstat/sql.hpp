@@ -52,4 +52,6 @@ namespace hpcstat::sql
   // 三个字符串分别是序列化后的数据，签名，指纹
   std::optional<std::vector<std::tuple<std::string, std::string, std::string>>>
     verify(std::string old_db, std::string new_db);
+  // 将某个月份的数据导出到文件
+  bool export_data(long start_time, long end_time, std::string filename);
 }

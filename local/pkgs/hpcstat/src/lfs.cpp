@@ -51,7 +51,8 @@ namespace hpcstat::lfs
       auto result = exec
       (
         boost::process::search_path("bjobs").string(),
-        { "-a", "-o", "jobid submit_time stat cpu_used", "-json" }
+        { "-a", "-o", "jobid submit_time stat cpu_used", "-json" },
+        std::nullopt, { { "LSB_DISPLAY_YEAR", "Y" } }
       );
       !result
     )

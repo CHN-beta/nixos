@@ -1,13 +1,7 @@
-{ stdenv, src }: stdenv.mkDerivation
+{ stdenv, src, cmake, pkg-config }: stdenv.mkDerivation
 {
   name = "date";
   inherit src;
-  phases = [ "installPhase" ];
-  installPhase =
-  ''
-    runHook preInstall
-    mkdir -p $out
-    cp -r $src/{include,src} $out
-    runHook postInstall
-  '';
+  nativeBuildInputs = [ cmake pkg-config ];
+  cmakeFlags = [ "-DBUILD_TZ_LIB=ON" "-DUSE_SYSTEM_TZ_DB=ON" ];
 }

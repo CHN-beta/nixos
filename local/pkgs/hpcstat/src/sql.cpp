@@ -1,10 +1,12 @@
 # include <hpcstat/sql.hpp>
 # include <hpcstat/env.hpp>
+# include <hpcstat/keys.hpp>
 # include <range/v3/range.hpp>
 # include <range/v3/view.hpp>
 # include <nameof.hpp>
 # define SQLITE_ORM_OPTIONAL_SUPPORTED
 # include <sqlite_orm/sqlite_orm.h>
+# include <OpenXLSX.hpp>
 
 namespace hpcstat::sql
 {
@@ -153,6 +155,133 @@ namespace hpcstat::sql
         else { diff->insert(diff->end(), diff2->begin(), diff2->end()); return diff; }
       };
       return check_many.operator()<LoginData, LogoutData, SubmitJobData, FinishJobData>(check_many);
+    }
+  }
+  bool export_data(long start_time, long end_time, std::string filename)
+  {
+    if (auto conn = connect(); !conn) return false;
+    else
+    {
+      struct StatResult
+      {
+        double CpuTime = 0;
+        unsigned LoginInteractive = 0, LoginNonInteractive = 0, SubmitJob = 0, FinishJobSuccess = 0,
+          FinishJobFailed = 0;
+        StatResult& operator+=(const StatResult& rhs)
+        {
+          CpuTime += rhs.CpuTime;
+          LoginInteractive += rhs.LoginInteractive;
+          LoginNonInteractive += rhs.LoginNonInteractive;
+          SubmitJob += rhs.SubmitJob;
+          FinishJobSuccess += rhs.FinishJobSuccess;
+          FinishJobFailed += rhs.FinishJobFailed;
+          return *this;
+        }
+      };
+      // Key SubAccount -> StatResult
+      std::map<std::pair<std::string, std::optional<std::string>>, StatResult> stat;
+      // CpuTime & FinishJobSuccess & FinishJobFailed
+      for
+      (
+        auto& it : conn->get_all<FinishJobData>(sqlite_orm::where
+          (sqlite_orm::between(&FinishJobData::Time, start_time, end_time)))
+      )
+      {
+        auto job_in_submit = [&conn](FinishJobData& job) -> std::optional<SubmitJobData>
+        {
+          std::optional<SubmitJobData> result;
+          long submit_date = [&]
+          {
+            std::chrono::system_clock::time_point submit_date;
+            std::stringstream(job.SubmitTime) >> date::parse("%b %d %H:%M:%S %Y", submit_date);
+            return std::chrono::duration_cast<std::chrono::seconds>(submit_date.time_since_epoch()).count();
+          }();
+          auto submit_jobs = conn->get_all<SubmitJobData>
+            (sqlite_orm::where(sqlite_orm::is_equal(&SubmitJobData::JobId, job.JobId)));
+          for (auto& job_submit : submit_jobs)
+            if (auto diff = job.Time - submit_date; std::abs(diff) < 3600)
+            {
+              result = job_submit;
+              if (std::abs(diff) > 60)
+                std::cerr << fmt::format("large difference found: {} {}\n", job.JobId, diff);
+              break;
+            }
+          return result;
+        }(it);
+        std::pair<std::string, std::optional<std::string>> key;
+        if (!job_in_submit) key = { "", {} };
+        else key = std::make_pair(job_in_submit->Key, job_in_submit->Subaccount);
+        stat[key].CpuTime += it.CpuTime / 3600;
+        if (it.JobResult == "Done") stat[key].FinishJobSuccess++;
+        else stat[key].FinishJobFailed++;
+      }
+      // LoginInteractive & LoginNonInteractive
+      for
+      (
+        auto& it : conn->get_all<LoginData>(sqlite_orm::where
+          (sqlite_orm::between(&LoginData::Time, start_time, end_time)))
+      )
+      {
+        auto key = std::make_pair(it.Key, it.Subaccount);
+        if (it.Interactive) stat[key].LoginInteractive++; else stat[key].LoginNonInteractive++;
+      }
+      // SubmitJob
+      for
+      (
+        auto& it : conn->get_all<SubmitJobData>(sqlite_orm::where
+          (sqlite_orm::between(&SubmitJobData::Time, start_time, end_time)))
+      )
+        stat[{it.Key,it.Subaccount }].SubmitJob++;
+      // add all result with subaccount into result without subaccount
+      std::map<std::string, StatResult> stat_without_subaccount;
+      for (auto& [key, value] : stat) if (key.second) stat_without_subaccount[key.first] += value;
+      // remove all result without subaccount
+      for (auto it = stat.begin(); it != stat.end(); it++)
+        while (it != stat.end() && !it->first.second) stat.erase(it++);
+      // write to excel
+      OpenXLSX::XLDocument doc;
+      doc.create(filename);
+      doc.workbook().deleteSheet("Sheet1");
+      doc.workbook().addWorksheet("Statistics");
+      auto wks1 = doc.workbook().worksheet("Statistics");
+      wks1.row(1).values() = std::vector<std::string>
+      {
+        "Username", "FingerPrint", "CpuTime", "LoginInteractive", "LoginNonInteractive",
+        "SubmitJob", "FinishJobSuccess", "FinishJobFailed"
+      };
+      for
+      (
+        auto [row, it] = std::tuple(2, stat_without_subaccount.begin());
+        it != stat_without_subaccount.end();
+        it++, row++
+      )
+        wks1.row(row).values() = std::vector<std::string>
+        {
+          Keys.contains(it->first) ? Keys[it->first].Username : "(unknown)",
+          it->first, fmt::format("{:.2f}", it->second.CpuTime),
+          std::to_string(it->second.LoginInteractive), std::to_string(it->second.LoginNonInteractive),
+          std::to_string(it->second.SubmitJob), std::to_string(it->second.FinishJobSuccess),
+          std::to_string(it->second.FinishJobFailed)
+        };
+      doc.workbook().addWorksheet("StatisticsWithSubAccount");
+      auto wks2 = doc.workbook().worksheet("StatisticsWithSubAccount");
+      wks2.row(1).values() = std::vector<std::string>
+      {
+        "Username::SubAccount", "CpuTime", "LoginInteractive", "LoginNonInteractive",
+        "SubmitJob", "FinishJobSuccess", "FinishJobFailed"
+      };
+      for (auto [row, it] = std::tuple(2, stat.begin()); it != stat.end(); it++, row++)
+        wks2.row(row).values() = std::vector<std::string>
+        {
+          (Keys.contains(it->first.first) ? Keys[it->first.first].Username : "(unknown)")
+            + "::" + *it->first.second,
+          fmt::format("{:.2f}", it->second.CpuTime),
+          std::to_string(it->second.LoginInteractive), std::to_string(it->second.LoginNonInteractive),
+          std::to_string(it->second.SubmitJob), std::to_string(it->second.FinishJobSuccess),
+          std::to_string(it->second.FinishJobFailed)
+        };
+      doc.save();
+      return true;
     }
   }
 }
