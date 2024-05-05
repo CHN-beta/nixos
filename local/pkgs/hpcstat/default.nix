@@ -1,12 +1,11 @@
 {
   stdenv, cmake, pkg-config, standalone ? false, makeWrapper,
-  boost, fmt, zxorm, nlohmann_json, zpp-bits, range-v3, nameof, openssh, sqlite
+  boost, fmt, sqlite-orm, nlohmann_json, zpp-bits, range-v3, nameof, openssh, sqlite
 }: stdenv.mkDerivation
 {
   name = "hpcstat";
   src = ./.;
-  buildInputs =
-    [ boost fmt zxorm nlohmann_json zpp-bits range-v3 nameof sqlite ];
+  buildInputs = [ boost fmt sqlite-orm nlohmann_json zpp-bits range-v3 nameof sqlite ];
   nativeBuildInputs = [ cmake pkg-config makeWrapper ];
   postInstall =
     if standalone then "cp ${openssh}/bin/{ssh-add,ssh-keygen} $out/bin"

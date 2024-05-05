@@ -1,6 +1,5 @@
 # pragma once
-# include <optional>
-# include <string>
+# include <hpcstat/common.hpp>
 
 namespace hpcstat::env
 {

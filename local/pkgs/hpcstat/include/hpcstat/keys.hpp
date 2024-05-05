@@ -1,6 +1,5 @@
 # pragma once
-# include <string>
-# include <map>
+# include <hpcstat/common.hpp>
 
 namespace hpcstat
 {

@@ -1,11 +1,8 @@
-# include <thread>
 # include <hpcstat/sql.hpp>
 # include <hpcstat/ssh.hpp>
 # include <hpcstat/env.hpp>
-# include <hpcstat/common.hpp>
 # include <hpcstat/keys.hpp>
 # include <hpcstat/lfs.hpp>
-# include <fmt/format.h>
 # include <range/v3/view.hpp>
 # include <boost/exception/diagnostic_information.hpp>
 
@@ -17,11 +14,7 @@ int main(int argc, const char** argv)
     using namespace std::literals;
     std::vector<std::string> args(argv, argv + argc);
 
-    if (args.size() == 1) { std::cout << "Usage: hpcstat initdb|login|logout|submitjob|finishjob|verify\n"; return 1; }
-    else if (args[1] == "initdb")
-    {
-      if (!sql::initdb()) { std::cerr << "Failed to initialize database\n"; return 1; }
-    }
+    if (args.size() == 1) { std::cout << "Usage: hpcstat login|logout|submitjob|finishjob|verify\n"; return 1; }
     else if (args[1] == "login")
     {
       if (env::interactive())

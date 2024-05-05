@@ -1,11 +1,10 @@
-# include <filesystem>
-# include <set>
 # include <hpcstat/sql.hpp>
 # include <hpcstat/env.hpp>
 # include <range/v3/range.hpp>
 # include <range/v3/view.hpp>
 # include <nameof.hpp>
-# include <fmt/format.h>
+# define SQLITE_ORM_OPTIONAL_SUPPORTED
+# include <sqlite_orm/sqlite_orm.h>
 
 namespace hpcstat::sql
 {
@@ -19,24 +18,68 @@ namespace hpcstat::sql
   template std::string serialize(LoginData);
   template std::string serialize(SubmitJobData);
   template std::string serialize(FinishJobData);
-  std::optional<zxorm::Connection<LoginTable, LogoutTable, SubmitJobTable, FinishJobTable>> connect
-    (std::optional<std::string> dbfile = std::nullopt)
+  auto connect(std::optional<std::string> dbfile = std::nullopt)
   {
-    if (dbfile) return std::make_optional<zxorm::Connection<LoginTable, LogoutTable, SubmitJobTable, FinishJobTable>>
-      (dbfile->c_str(), SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX);
-    else if (auto datadir = env::env("HPCSTAT_DATADIR", true); !datadir)
-      return std::nullopt;
-    else
+    auto conn = [&]() { return std::make_optional(sqlite_orm::make_storage
+    (
+      *dbfile,
+      sqlite_orm::make_table
+      (
+        "login",
+        sqlite_orm::make_column("id", &LoginData::Id, sqlite_orm::primary_key().autoincrement()),
+        sqlite_orm::make_column("time", &LoginData::Time),
+        sqlite_orm::make_column("key", &LoginData::Key),
+        sqlite_orm::make_column("session_id", &LoginData::SessionId),
+        sqlite_orm::make_column("signature", &LoginData::Signature),
+        sqlite_orm::make_column("subaccount", &LoginData::Subaccount),
+        sqlite_orm::make_column("ip", &LoginData::Ip),
+        sqlite_orm::make_column("interactive", &LoginData::Interactive)
+      ),
+      sqlite_orm::make_table
+      (
+        "logout",
+        sqlite_orm::make_column("id", &LogoutData::Id, sqlite_orm::primary_key().autoincrement()),
+        sqlite_orm::make_column("time", &LogoutData::Time),
+        sqlite_orm::make_column("session_id", &LogoutData::SessionId)
+      ),
+      sqlite_orm::make_table
+      (
+        "submit_job",
+        sqlite_orm::make_column("id", &SubmitJobData::Id, sqlite_orm::primary_key().autoincrement()),
+        sqlite_orm::make_column("time", &SubmitJobData::Time),
+        sqlite_orm::make_column("job_id", &SubmitJobData::JobId),
+        sqlite_orm::make_column("key", &SubmitJobData::Key),
+        sqlite_orm::make_column("session_id", &SubmitJobData::SessionId),
+        sqlite_orm::make_column("submit_dir", &SubmitJobData::SubmitDir),
+        sqlite_orm::make_column("job_command", &SubmitJobData::JobCommand),
+        sqlite_orm::make_column("signature", &SubmitJobData::Signature),
+        sqlite_orm::make_column("subaccount", &SubmitJobData::Subaccount),
+        sqlite_orm::make_column("ip", &SubmitJobData::Ip)
+      ),
+      sqlite_orm::make_table
+      (
+        "finish_job",
+        sqlite_orm::make_column("id", &FinishJobData::Id, sqlite_orm::primary_key().autoincrement()),
+        sqlite_orm::make_column("time", &FinishJobData::Time),
+        sqlite_orm::make_column("job_id", &FinishJobData::JobId),
+        sqlite_orm::make_column("job_result", &FinishJobData::JobResult),
+        sqlite_orm::make_column("submit_time", &FinishJobData::SubmitTime),
+        sqlite_orm::make_column("job_detail", &FinishJobData::JobDetail),
+        sqlite_orm::make_column("key", &FinishJobData::Key),
+        sqlite_orm::make_column("signature", &FinishJobData::Signature),
+        sqlite_orm::make_column("cpu_time", &FinishJobData::CpuTime)
+      )
+    ));};
+    if (!dbfile)
     {
-      auto dbfile = std::filesystem::path(*datadir) / "hpcstat.db";
-      return std::make_optional<zxorm::Connection<LoginTable, LogoutTable, SubmitJobTable, FinishJobTable>>
-        (dbfile.c_str(), SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX);
+      if (auto datadir = env::env("HPCSTAT_DATADIR", true); !datadir)
+        return decltype(conn())();
+      else dbfile = std::filesystem::path(*datadir) / "hpcstat.db";
     }
+    return conn();
   }
-  bool initdb()
-    { if (auto conn = connect(); !conn) return false; else { conn->create_tables(); return true; } }
   bool writedb(auto value)
-    { if (auto conn = connect(); !conn) return false; else { conn->insert_record(value); return true; } }
+    { if (auto conn = connect(); !conn) return false; else { conn->insert(value); return true; } }
   template bool writedb(LoginData);
   template bool writedb(LogoutData);
   template bool writedb(SubmitJobData);
@@ -47,11 +90,10 @@ namespace hpcstat::sql
     else
     {
       auto all_job = jobid_submit_time | ranges::views::keys | ranges::to<std::vector<unsigned>>;
+      auto logged_job = conn->get_all<FinishJobData>
+        (sqlite_orm::where(sqlite_orm::in(&FinishJobData::JobId, all_job)));
       auto not_logged_job = all_job | ranges::to<std::set<unsigned>>;
-      for (auto it : conn->select_query<FinishJobData>()
-        .order_by<FinishJobTable::field_t<"id">>(zxorm::order_t::DESC)
-        .where_many(FinishJobTable::field_t<"job_id">().in(all_job))
-        .exec())
+      for (auto it : logged_job)
         if (jobid_submit_time[it.JobId] == it.SubmitTime)
           not_logged_job.erase(it.JobId);
       return not_logged_job;
@@ -67,8 +109,7 @@ namespace hpcstat::sql
       auto check_one = [&]<typename T>()
         -> std::optional<std::vector<std::tuple<std::string, std::string, std::string>>>
       {
-        auto old_query = old_conn->select_query<T>().many().exec(),
-          new_query = new_conn->select_query<T>().many().exec();
+        auto old_query = old_conn->get_all<T>(), new_query = new_conn->get_all<T>();
         auto old_data_it = old_query.begin(), new_data_it = new_query.begin();
         for (; old_data_it != old_query.end() && new_data_it != new_query.end(); ++old_data_it, ++new_data_it)
           if (*old_data_it != *new_data_it)

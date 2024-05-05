@@ -1,6 +1,4 @@
-# include <iostream>
 # include <hpcstat/env.hpp>
-# include <fmt/format.h>
 # include <unistd.h>
 
 namespace hpcstat::env

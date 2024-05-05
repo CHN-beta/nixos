@@ -1,9 +1,5 @@
 # pragma once
-# include <optional>
-# include <utility>
-# include <string>
-# include <vector>
-# include <map>
+# include <hpcstat/common.hpp>
 
 namespace hpcstat::lfs
 {

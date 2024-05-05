@@ -3,6 +3,13 @@
 # include <string>
 # include <filesystem>
 # include <vector>
+# include <map>
+# include <utility>
+# include <set>
+# include <iostream>
+# include <regex>
+# include <thread>
+# include <fmt/format.h>
 
 namespace hpcstat
 {

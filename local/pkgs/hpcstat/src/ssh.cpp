@@ -1,11 +1,6 @@
-# include <filesystem>
-# include <iostream>
-# include <regex>
 # include <hpcstat/ssh.hpp>
 # include <hpcstat/keys.hpp>
 # include <hpcstat/env.hpp>
-# include <hpcstat/common.hpp>
-# include <fmt/format.h>
 # include <boost/filesystem.hpp>
 # include <boost/process.hpp>
 # include <boost/dll.hpp>
@@ -73,7 +68,7 @@ namespace hpcstat::ssh
       bf::create_directories(tempdir);
       auto signaturefile = tempdir / "signature";
       std::ofstream(signaturefile) << signature;
-      return exec
+      auto result = exec
       (
         std::filesystem::path(*sshbindir) / "ssh-keygen",
         {
@@ -82,7 +77,9 @@ namespace hpcstat::ssh
           "-n", "hpcstat@chn.moe", "-s", signaturefile.string()
         },
         message
-      ).has_value();
+      );
+      std::filesystem::remove_all(tempdir.string());
+      return result.has_value();
     }
   }
 }
