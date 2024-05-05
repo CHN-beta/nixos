@@ -1,6 +1,7 @@
 # include <hpcstat/sql.hpp>
 # include <hpcstat/env.hpp>
 # include <hpcstat/keys.hpp>
+# include <hpcstat/lfs.hpp>
 # include <range/v3/range.hpp>
 # include <range/v3/view.hpp>
 # include <nameof.hpp>
@@ -70,6 +71,13 @@ namespace hpcstat::sql
         sqlite_orm::make_column("key", &FinishJobData::Key),
         sqlite_orm::make_column("signature", &FinishJobData::Signature),
         sqlite_orm::make_column("cpu_time", &FinishJobData::CpuTime)
+      ),
+      sqlite_orm::make_table
+      (
+        "check_job",
+        sqlite_orm::make_column("id", &CheckJobData::Id, sqlite_orm::primary_key().autoincrement()),
+        sqlite_orm::make_column("job_id", &CheckJobData::JobId),
+        sqlite_orm::make_column("status", &CheckJobData::Status)
       )
     ));};
     if (!dbfile)
@@ -157,6 +165,28 @@ namespace hpcstat::sql
       return check_many.operator()<LoginData, LogoutData, SubmitJobData, FinishJobData>(check_many);
     }
   }
+  // search corresponding job in submit table
+  std::optional<SubmitJobData> search_job_in_submit(auto connection, unsigned job_id, std::string submit_time)
+  {
+    std::optional<SubmitJobData> result;
+    long submit_date = [&]
+    {
+      std::chrono::system_clock::time_point submit_date;
+      std::stringstream(submit_time) >> date::parse("%b %d %H:%M:%S %Y", submit_date);
+      return std::chrono::duration_cast<std::chrono::seconds>(submit_date.time_since_epoch()).count();
+    }();
+    auto submit_jobs = connection->template get_all<SubmitJobData>
+      (sqlite_orm::where(sqlite_orm::is_equal(&SubmitJobData::JobId, job_id)));
+    for (auto& job_submit : submit_jobs)
+      if (auto diff = job_submit.Time - submit_date; std::abs(diff) < 3600)
+      {
+        result = job_submit;
+        if (std::abs(diff) > 60)
+          std::cerr << fmt::format("large difference found: {} {}\n", job_id, diff);
+        break;
+      }
+    return result;
+  }
   bool export_data(long start_time, long end_time, std::string filename)
   {
     if (auto conn = connect(); !conn) return false;
@@ -187,27 +217,8 @@ namespace hpcstat::sql
           (sqlite_orm::between(&FinishJobData::Time, start_time, end_time)))
       )
       {
-        auto job_in_submit = [&conn](FinishJobData& job) -> std::optional<SubmitJobData>
-        {
-          std::optional<SubmitJobData> result;
-          long submit_date = [&]
-          {
-            std::chrono::system_clock::time_point submit_date;
-            std::stringstream(job.SubmitTime) >> date::parse("%b %d %H:%M:%S %Y", submit_date);
-            return std::chrono::duration_cast<std::chrono::seconds>(submit_date.time_since_epoch()).count();
-          }();
-          auto submit_jobs = conn->get_all<SubmitJobData>
-            (sqlite_orm::where(sqlite_orm::is_equal(&SubmitJobData::JobId, job.JobId)));
-          for (auto& job_submit : submit_jobs)
-            if (auto diff = job.Time - submit_date; std::abs(diff) < 3600)
-            {
-              result = job_submit;
-              if (std::abs(diff) > 60)
-                std::cerr << fmt::format("large difference found: {} {}\n", job.JobId, diff);
-              break;
-            }
-          return result;
-        }(it);
+        auto job_in_submit = search_job_in_submit
+          (conn, it.JobId, it.SubmitTime);
         std::pair<std::string, std::optional<std::string>> key;
         if (!job_in_submit) key = { "", {} };
         else key = std::make_pair(job_in_submit->Key, job_in_submit->Subaccount);
@@ -281,6 +292,37 @@ namespace hpcstat::sql
       doc.workbook().deleteSheet("Sheet1");
       doc.save();
       return true;
+    }
+  }
+  std::optional<std::map<unsigned, std::tuple<std::string, std::string, std::string, std::optional<std::string>>>>
+    check_job_status()
+  {
+    if (auto conn = connect(); !conn) return std::nullopt;
+    else if (auto jobs_current = lfs::bjobs_list(); !jobs_current) return std::nullopt;
+    else
+    {
+      auto jobs_previous_query_result = conn->get_all<CheckJobData>();
+      auto jobs_previous = jobs_previous_query_result
+        | ranges::views::transform([](auto& it) { return std::pair{it.JobId, it.Status}; })
+        | ranges::to<std::map<unsigned, std::string>>;
+      std::map<unsigned,  std::tuple<std::string, std::string, std::string, std::optional<std::string>>> result;
+      for (auto& [job_id, status] : *jobs_current)
+        if (!jobs_previous.contains(job_id) || jobs_previous[job_id] != std::get<1>(status))
+          if
+          (
+            auto job_in_submit =
+              search_job_in_submit(conn, job_id, std::get<0>(status));
+            job_in_submit
+          )
+            result[job_id] =
+              { std::get<3>(status), std::get<1>(status), job_in_submit->Key, job_in_submit->Subaccount };
+      conn->remove_all<CheckJobData>();
+      auto new_data = result
+        | ranges::views::transform
+          ([](auto& it) { return CheckJobData{ .JobId = it.first, .Status = std::get<1>(it.second) }; })
+        | ranges::to<std::vector<CheckJobData>>;
+      conn->insert_range(new_data.begin(), new_data.end());
+      return result;
     }
   }
 }

@@ -3,6 +3,7 @@
 # include <hpcstat/env.hpp>
 # include <hpcstat/keys.hpp>
 # include <hpcstat/lfs.hpp>
+# include <hpcstat/push.hpp>
 # include <range/v3/view.hpp>
 # include <boost/exception/diagnostic_information.hpp>
 
@@ -132,6 +133,8 @@ int main(int argc, const char** argv)
       )
         return 1;
     }
+    else if (args[1] == "push")
+      { if (auto jobs = sql::check_job_status(); !jobs) return 1; else if (!push::push(*jobs)) return 1; }
     else { std::cerr << "Unknown command.\n"; return 1; }
   }
   catch (...) { std::cerr << boost::current_exception_diagnostic_information() << std::endl; return 1; }

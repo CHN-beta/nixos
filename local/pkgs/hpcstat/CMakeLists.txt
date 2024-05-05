@@ -18,12 +18,14 @@ find_package(range-v3 REQUIRED)
 find_path(NAMEOF_INCLUDE_DIR nameof.hpp REQUIRED)
 find_package(date REQUIRED)
 find_package(OpenXLSX REQUIRED)
+find_package(httplib REQUIRED)
 
-add_executable(hpcstat src/main.cpp src/env.cpp src/keys.cpp src/ssh.cpp src/sql.cpp src/lfs.cpp src/common.cpp)
+add_executable(hpcstat src/main.cpp src/env.cpp src/keys.cpp src/ssh.cpp src/sql.cpp src/lfs.cpp src/common.cpp
+  src/push.cpp)
 target_compile_features(hpcstat PUBLIC cxx_std_23)
 target_include_directories(hpcstat PRIVATE ${PROJECT_SOURCE_DIR}/include ${ZPP_BITS_INCLUDE_DIR})
 target_link_libraries(hpcstat PRIVATE fmt::fmt Boost::headers Boost::filesystem sqlite_orm::sqlite_orm
-  nlohmann_json::nlohmann_json range-v3::range-v3 date::date date::date-tz OpenXLSX::OpenXLSX)
+  nlohmann_json::nlohmann_json range-v3::range-v3 date::date date::date-tz OpenXLSX::OpenXLSX httplib::httplib)
 
 install(TARGETS hpcstat RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(DIRECTORY share/ DESTINATION ${CMAKE_INSTALL_DATADIR}/hpcstat)

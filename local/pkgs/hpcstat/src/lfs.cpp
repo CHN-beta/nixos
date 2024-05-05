@@ -44,14 +44,14 @@ namespace hpcstat::lfs
       }
     }
   }
-  std::optional<std::map<unsigned, std::tuple<std::string, std::string, double>>> bjobs_list()
+  std::optional<std::map<unsigned, std::tuple<std::string, std::string, double, std::string>>> bjobs_list()
   {
     if
     (
       auto result = exec
       (
         boost::process::search_path("bjobs").string(),
-        { "-a", "-o", "jobid submit_time stat cpu_used", "-json" },
+        { "-a", "-o", "jobid submit_time stat cpu_used job_name", "-json" },
         std::nullopt, { { "LSB_DISPLAY_YEAR", "Y" } }
       );
       !result
@@ -66,12 +66,11 @@ namespace hpcstat::lfs
         std::cerr << fmt::format("Failed to parse bjobs output: {}\n", e.what());
         return std::nullopt;
       }
-      std::map<unsigned, std::tuple<std::string, std::string, double>> jobs;
+      std::map<unsigned, std::tuple<std::string, std::string, double, std::string>> jobs;
       for (auto& job : j["RECORDS"])
       {
         std::string status = job["STAT"];
         if (!std::set<std::string>{ "DONE", "EXIT" }.contains(status)) continue;
-        std::string submit_time = job["SUBMIT_TIME"];
         std::string cpu_used_str = job["CPU_USED"];
         double cpu_used = 0;
         if (!cpu_used_str.empty())
@@ -80,7 +79,8 @@ namespace hpcstat::lfs
           catch (std::invalid_argument& e)
             { std::cerr << fmt::format("Failed to parse cpu used: {}\n", e.what()); return std::nullopt; }
         }
-        jobs[std::stoi(job["JOBID"].get<std::string>())] = { submit_time, status, cpu_used };
+        jobs[std::stoi(job["JOBID"].get<std::string>())] =
+          { job["SUBMIT_TIME"], status, cpu_used, job["JOB_NAME"] };
       }
       return jobs;
     }
