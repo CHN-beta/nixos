@@ -1,5 +1,5 @@
 {
-  stdenv, cmake, pkg-config, standalone ? false, makeWrapper,
+  stdenv, cmake, pkg-config, standalone ? false, makeWrapper, version ? null, lib,
   boost, fmt, sqlite-orm, nlohmann_json, zpp-bits, range-v3, nameof, openssh, sqlite
 }: stdenv.mkDerivation
 {
@@ -7,6 +7,7 @@
   src = ./.;
   buildInputs = [ boost fmt sqlite-orm nlohmann_json zpp-bits range-v3 nameof sqlite ];
   nativeBuildInputs = [ cmake pkg-config makeWrapper ];
+  cmakeFlags = lib.optionals (version != null) [ ''-DHPCSTAT_VERSION="${version}"'' ];
   postInstall =
     if standalone then "cp ${openssh}/bin/{ssh-add,ssh-keygen} $out/bin"
     else

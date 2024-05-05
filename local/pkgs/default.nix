@@ -85,7 +85,8 @@ inputs: rec
     { src = inputs.topInputs.kylin-virtual-keyboard; };
   biu = inputs.pkgs.callPackage ./biu { inherit nameof; };
   zxorm = inputs.pkgs.callPackage ./zxorm { src = inputs.topInputs.zxorm; };
-  hpcstat = inputs.pkgs.callPackage ./hpcstat { inherit nameof sqlite-orm zpp-bits; };
+  hpcstat = inputs.pkgs.callPackage ./hpcstat
+    { inherit nameof sqlite-orm zpp-bits; version = inputs.topInputs.self.rev or "dirty"; };
   openxlsx = inputs.pkgs.callPackage ./openxlsx { src = inputs.topInputs.openxlsx; };
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm { src = inputs.topInputs.sqlite-orm; };
 
