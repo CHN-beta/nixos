@@ -1042,11 +1042,11 @@
     "hpcstat": {
       "flake": false,
       "locked": {
-        "lastModified": 1714874258,
-        "narHash": "sha256-rEyWxfnScWDYW2w3r+aFRGyzC5M/OfNrEKmV9suXyA8=",
+        "lastModified": 1714877893,
+        "narHash": "sha256-+SdY8chXNGqwBPuAOA7XlCze+qME7SXQ3p6I3YVM3J8=",
         "owner": "CHN-beta",
         "repo": "hpcstat",
-        "rev": "3a4ba7a94f6a5c21a6725b9f91c991a2831c6736",
+        "rev": "af962707c4696fb5f6c5f43d6fa9c713a7dc9ca5",
         "type": "github"
       },
       "original": {
