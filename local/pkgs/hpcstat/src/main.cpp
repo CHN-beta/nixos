@@ -6,10 +6,6 @@
 # include <range/v3/view.hpp>
 # include <boost/exception/diagnostic_information.hpp>
 
-# ifndef HPCSTAT_VERSION
-#   define HPCSTAT_VERSION "dirty"
-# endif
-
 int main(int argc, const char** argv)
 {
   try
@@ -18,7 +14,7 @@ int main(int argc, const char** argv)
     using namespace std::literals;
     std::vector<std::string> args(argv, argv + argc);
 
-    if (args.size() == 1) { std::cout << "Usage: hpcstat login|logout|submitjob|finishjob|verify|version\n"; return 1; }
+    if (args.size() == 1) { std::cout << "Usage: hpcstat login|logout|submitjob|finishjob|verify\n"; return 1; }
     else if (args[1] == "login")
     {
       if (env::interactive())
@@ -119,7 +115,6 @@ int main(int argc, const char** argv)
         if (!std::apply(ssh::verify, data))
           { std::cerr << fmt::format("Failed to verify data: {}\n", std::get<0>(data)); return 1; }
     }
-    else if (args[1] == "version") std::cout << HPCSTAT_VERSION << std::endl;
     else { std::cerr << "Unknown command.\n"; return 1; }
   }
   catch (...) { std::cerr << boost::current_exception_diagnostic_information() << std::endl; return 1; }

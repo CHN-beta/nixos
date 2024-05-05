@@ -31,7 +31,7 @@ namespace hpcstat::sql
         sqlite_orm::make_column("key", &LoginData::Key),
         sqlite_orm::make_column("session_id", &LoginData::SessionId),
         sqlite_orm::make_column("signature", &LoginData::Signature),
-        sqlite_orm::make_column("subaccount", &LoginData::Subaccount),
+        sqlite_orm::make_column("sub_account", &LoginData::Subaccount),
         sqlite_orm::make_column("ip", &LoginData::Ip),
         sqlite_orm::make_column("interactive", &LoginData::Interactive)
       ),
@@ -53,7 +53,7 @@ namespace hpcstat::sql
         sqlite_orm::make_column("submit_dir", &SubmitJobData::SubmitDir),
         sqlite_orm::make_column("job_command", &SubmitJobData::JobCommand),
         sqlite_orm::make_column("signature", &SubmitJobData::Signature),
-        sqlite_orm::make_column("subaccount", &SubmitJobData::Subaccount),
+        sqlite_orm::make_column("sub_account", &SubmitJobData::Subaccount),
         sqlite_orm::make_column("ip", &SubmitJobData::Ip)
       ),
       sqlite_orm::make_table
