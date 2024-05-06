@@ -10,7 +10,7 @@
 
 接下来将分别说明这三个步骤。
 
-**Pageant**:
+## Pageant:
 
 1. 找到 Pageant 程序。Pageant 会随着 PuTTY 一起安装，一般来说您可以直接在开始菜单中搜索 “pageant” 找到它，也可以在 PuTTY 的安装目录中找到它。
 2. 启动 Pageant。启动后可能没有任何反应，也可能有一个黑框闪过，这是正常的。只要右下角的系统托盘中出现了 pageant 的图标就可以了。
@@ -34,7 +34,7 @@
 > 
 > 因为每个人的密钥文件以及 Pageant 的路径都可能不同，所以这里无法提供通用的批处理文件。
 
-**PuTTY**:
+## PuTTY:
 
 1. 在 Connection -> SSH -> Auth，勾选“Attempt authentication using Pageant”和“Allow agent forwarding”。
    
@@ -46,7 +46,7 @@
 
 3. （选做但推荐）在 Connection -> Data 中，将 “Auto-login username” 设置为 `jykang`，这样每次登陆时就不需要手动输入用户名了。
 
-**WinSCP**:
+## WinSCP:
 
 1. 在 SSH -> Authentication，勾选 “使用 Pageant 进行认证”，勾选 “允许代理转发”，清空 “密钥文件”，然后保存。
    
@@ -73,7 +73,7 @@
 * 解释为什么不转发 agent 就无法区分不同密钥。
 * 介绍一些可能有用的附加功能，例如区分使用同一个密钥的不同用户，以及如何设置任务进度微信通知。
 
-**为什么不转发 agent 就无法区分不同密钥？**:
+## 为什么不转发 agent 就无法区分不同密钥？
 
 如果你好奇为什么不使用 Pageant 就无法区分使用不同密钥的登陆：
 
@@ -123,7 +123,7 @@ flowchart TB
 大家都使用同一个账户的情况下，很多管理的功能没有现成的解决方案（要自己手写代码、思考如何设计），甚至完全无法实现。
 整这个东西真的挺麻烦的。
 
-**设置子账户**:
+## 设置子账户:
 
 一个老师拿到密钥后，可能会将它分发给多个不同的学生。
 如果希望区分不同学生的使用情况，可以修改 `TERM` 变量，加上 `hpcstat_subaccount:your_name:` 前缀，
@@ -142,7 +142,7 @@ flowchart TB
 > [!WARNING]
 > 如果 `TERM` 变量的格式设置得不正确，PuTTY 登陆后一些程序会无法正常工作，因此尝试时应该仔细且小心。
 
-**PuTTY 登陆时自动跳转**:
+## PuTTY 登陆时自动跳转:
 
 如果您希望在登陆时自动跳转到自己的目录下，可以在 `TERM` 中再增加以下前缀：`chn_cd:your_path:`。
 
@@ -151,7 +151,7 @@ flowchart TB
 如果同时使用了 `hpcstat_subaccount` 和 `chn_cd`，那么 `hpcstat_subaccount` 必须在 `chn_cd` 之后，
    例如 `chn_cd:linwei/chn:hpcstat_subaccount:chn:xterm`。
 
-**任务进度微信通知**:
+## 任务进度微信通知:
 
 用微信打开下面的链接：
 
