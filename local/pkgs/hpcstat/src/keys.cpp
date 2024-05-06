@@ -13,6 +13,7 @@ namespace hpcstat
     { "dtx0QxdgFrXn2SYxtIRz43jIAH6rLgJidSdTvuTuews", { "01", "Jing Li" } },
     { "8crUO9u4JiVqw3COyjXfzZe87s6XZFhvi0LaY0Mv6bg", { "02", "Huahan Zhan" } },
     { "QkmIYw7rmDEAP+LDWxm6L2/XLnAqTwRUB7B0pxYlOUs", { "03", "Na Gao" } },
+    { "WfUP4s0BzEspDweDIrOIed4MbW4v9W1spbp0EN6O5dk", { "04", "Duanjun Cai" } },
     { "6NmbGMvtcNlsmN61ZtiV1cg0aOGeM8sCa4rk2brsS4k", { "hpcstat", "hpcstat" } }
   };
 }
