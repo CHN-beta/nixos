@@ -172,6 +172,11 @@ inputs:
         '';
         system.nixos.tags = [ "amd" ];
       };
+      xanmod.configuration =
+      {
+        nixos.system.kernel.variant = "xanmod-latest";
+        system.nixos.tags = [ "xanmod" ];
+      };
     };
   };
 }
