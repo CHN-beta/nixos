@@ -27,6 +27,7 @@ int main(int argc, const char** argv)
         return 1;
       else
       {
+        auto sub_account = env::env("HPCSTAT_SUBACCOUNT");
         sql::LoginData data
         {
           .Time = now(), .Key = *fp, .SessionId = *session, .Subaccount = env::env("HPCSTAT_SUBACCOUNT"),
@@ -36,8 +37,11 @@ int main(int argc, const char** argv)
         if (!signature) return 1;
         data.Signature = *signature;
         sql::writedb(data);
-        if (env::interactive())
-          std::cout << fmt::format("\33[2K\rLogged in as {} (fingerprint: SHA256:{}).\n", Keys[*fp].Username, *fp);
+        if (env::interactive()) std::cout << fmt::format
+        (
+          "\33[2K\rLogged in as {} (Fingerprint: SHA256:{}{}).\n", Keys[*fp].Username, *fp,
+          sub_account ? fmt::format(" Subaccount {}", *sub_account) : ""
+        );
       }
     }
     else if (args[1] == "logout")
