@@ -1,0 +1,165 @@
+# cp how_to_set_environment_variables ~/.vaspkit and modify the ~/.vaspkit file based on the settings in your supercomputer!
+# All environment variables are case sensitive.
+VASP5                         =     .TRUE.                         # .TRUE. or .FALSE.; Set .FALSE. if you are using vasp.4.x
+LDA_PATH                      =     /data/gpfs01/jykang/linwei/chn/software/vaspkit-1.4.1/POTCAR/PAW_LDA
+PBE_PATH                      =     /data/gpfs01/jykang/linwei/chn/software/vaspkit-1.4.1/POTCAR/PAW_PBE
+GGA_PATH                      =     /data/gpfs01/jykang/linwei/chn/software/vaspkit-1.4.1/POTCAR/PAW_PW91
+VASPKIT_UTILITIES_PATH        =     /data/gpfs01/jykang/linwei/chn/software/vaspkit-1.4.1/utilities
+PYTHON_BIN                    =     /data/gpfs01/jykang/linwei/chn/software/scripts/chn_python3.sh
+POTCAR_TYPE                   =      PBE                           #  PBE, PW91 or LDA; Set PBE if you want to make PBE-POTCAR file
+GW_POTCAR                     =     .FALSE.                        # .TRUE. or .FALSE.; For example, H_GW, O_GW will be chose when POTCAR_GW set to .TRUE.
+RECOMMENDED_POTCAR            =     .TRUE.                         # .TRUE. or .FALSE.; The recommended PAW potential will be chose when RECOMMENDED_POTCAR set to .TRUE.
+SET_FERMI_ENERGY_ZERO         =     .TRUE.                         # .TRUE. or .FALSE.; The Fermi Energy will be set to zero eV when SET_FERMI_ENERGY_ZERO set to .TRUE.
+SET_MINI_INCAR                =     .FALSE.                        # .TRUE. or .FALSE.; A simplified INCAR will be written when MINI_INCAR set to .TRUE.
+USER_DEFINED_INCAR            =     .FALSE.                        # .TRUE. or .FALSE.; whether to use embedded INCAR templates or user defined INCAR templates
+WRITE_SELECTIVE_DYNAMICS      =     .FALSE.                        # .TRUE. or .FALSE.; the selective dymanics set will be forced to write when SET_SELECTIVE_DYNAMICS_MODE set to .TRUE.
+GET_DOS_FROM_HYBRID_BAND      =     .FASLE.                        # .TRUE. or .FALSE.; whether to calculate DOS using optimized tetrahedron method in the hybrid band strucutre calculations
+ADVANCED_USER                 =     .TRUE.                         # .TRUE. or .FALSE.; Please fill in your settings in the block 'USER_DEFINED' if you want vaspkit to integrate your own scripts in the 'UTILITIES' file.
+SET_INCAR_WRITE_MODE          =      OVERRIDE                      #  OVERRIDE, APPEND, BACK-UP-OLD,BACK-UP-NEW;  "Customize INCAR File"  whether to override existing or appending existing INCAR/backup existing INCAR to INCAR.old && write into INCAR/write into INCAR.new
+APPLY_SCISSOR_CORRECTION      =     .FALSE.                        # .TRUE. or .FALSE.; whether to rigidly shift of the conduction band with respect to the valence band of nonmagnetic semiconductors to matches with that of the experimental, HSE or GW value (default: .FALSE)
+APPLY_PHS_CORRECTION          =     .FALSE.                        # .TRUE. or .FALSE.; whether to make PHS correction during linear optical calculations. More details are given in Comput. Mater. Sci. 172 (2020) 109315 
+NORMALIZE_ORBITAL_WEIGHTS     =     .FALSE.                        # .TRUE. or .FALSE.; whether to normalize orbital-projected weights in each state (default: .FALSE.)
+REORIENTATE_LATTICE_VECTORS   =     .FALSE.                        # .TRUE. or .FALSE.; reorientate lattice vectors when build supercell or heterojunction or not (default: .FALSE.) 
+GET_IRREDUCIBLE_KPOINTS       =     .TRUE.                         # .TRUE. or .FALSE.; Control whether to generate k-points in the symmetry-irreducible wedge of the Brillouin Zone (default: .TRUE.)
+FACTOR_ENCUT2NPWS             =      0.262465831d0                 # Adjust the final decimal place (or one beyond that) of this parameter if you encounter an error message saying that “Error: the calculated NPWS is not equal to the read NPWS”. 
+SYMMETRY_TOLERANCE            =      1E-5                          # Tolerance in Cartesian coordinates to find crystal symmetry, compatibility with SYMPREC (default: 1E-5)
+LATTICE_TOLERANCE             =      0.2                           # Float lattice tolerance for the lattice vectors (default: 0.2 angstrom) 
+ANGLE_TOLERANCE               =      0.2                           # Float angle tolerance for the lattice vectors in degrees (default: 0.2 degree) 
+EMIN                          =     -20.0                          # Minimum energy for evaluation of DOS (default: -20.0 eV)
+EMAX                          =      20.0                          # Maximum energy for evaluation of DOS (default:  20.0 eV)
+SIGMA                         =      0.2                           # The width of the smearing to calculate DOS from eigenvalue (default: 0.2 eV)
+NEDOS                         =      2001                          # Number of grid points in DOS (default: 2001)
+GAMMA_CENTERED                =     .TRUE.                         # .TRUE. or .FALSE. (default: .TRUE.).
+VACUUM_THICKNESS              =      15.0                          # The thickness of vacuum to build slab or 2D materials (default: 10 angstrom)
+CENTER_SLAB                   =     .TRUE.                         # Center the slab in the z direction; (default: .TRUE.)
+                                 
+# New added in Version 1.3.0       
+MAX_ATOM_NUMBER               =      10000                         # The maximum number of atoms to screen heterostructures (default: 10000)
+MIN_ATOM_NUMBER               =      1                             # The minimum number of atoms to screen heterostructures (default: 1)
+MIN_LATTICE_ANGLE             =      0.0                           # The minimum lattice angle to screen heterostructures (default: 0.0)
+MAX_LATTICE_ANGLE             =      180.0                         # The maximum lattice angle to screen heterostructures (default: 180.0)
+GET_INTERPOLATED_DATA         =     .FALSE.                        # .TRUE. or .FALSE.; Whether to interpolate the grid data of charge/spin density, potential, band structure, etc. (default: .FALSE.)
+INTERPOLATION_SPACING         =      0.04                          # Determines the number of interpolation grids, in unit of A in real-space or 1/A in reciprocal space (default: 0.04)
+INTERPOLATION_METHOD          =     'cubic'                        # 'linear', 'cubic' (3rd order-spline interpolation), quartic (4th order-spline interpolation), or FFT available only for 2D and 3D grids (default method: 'cubic')
+AUTO_SUBMIT_JOB               =     .FALSE.                        # .TRUE. or .FALSE. (default: .FASLE.). Whether to auto-submit vaspkit or vasp job or not.   
+SUBMIT_JOB_COMMAND            =     'qsub job.sh'                  # The command line to submit job
+AUTO_PLOT                     =     .TRUE.                        # TRUE. or .FALSE. (default: .FASLE.). Whether to auto-plot data graphs in the post-processing.
+
+# New added in Version 1.4.1
+REDUCE_FERMISURFACE_FILE      =     .FALSE.                        # TRUE. or .FALSE. (default: .FASLE.). Whether to write only the bands which cross the Fermi energy.
+WEIGHT_THRESHOLD              =      0.00                          # Threshold value of spectra weight in the band structure unfolding.
+
+# New added in Version 1.5.0
+CENTER_DEFECT_POSITION        =     .TRUE.                         # Move the position of defect to the center of the supercell; (default value: .TRUE.)                              
+VACUUM_THICKNES               =     10                             # Vacuum thickness (default value: 10 Angstrom).                     
+UNWRAP_TRAJECTORIES           =     .TRUE.                         # Unwrap MD trajectories or not; (default value: .TRUE.)  
+
+#USER_DEFINED                 
+#Synopsis:The first parameter is the command-id,starting with 'u'; the second is the interpreter, like 'python/bash/perl'(Please left it blank if you are using an executive binary); the third is the name of a script or an executive binary; the fourth one is a switch, if any extra argv is needed, please set if .TRUE. ; the last on is the description, MUST use '_' as delimiter.
+#           id      interpreter      script          argv       description
+#Example1  'u1        python      get_entropy.py    .TRUE.      get_entropy'
+#Example2  'u2                      hello.exe       .FALSE.     ls         '
+                              
+u1        python      get_entropy.py    .TRUE.      get_entropy_for_adsorbate
+u2        python      bader2pqr.py      .FALSE.     bader2pqr
+#END_USER_DEFINED             
+                              
+#+------------------------------------------------------------------------------------------------------------------+
+#| Customize VASP job script                                                                                        |
+#| Must copy the block from #BEGIN_CUSTOMIZE_JOB_SCRIPT to #END_CUSTOMIZE_JOB_SCRIPT                                |             
+#+------------------------------------------------------------------------------------------------------------------+
+#BEGIN_CUSTOMIZE_JOB_SCRIPT   
+#PBS -N name                  
+#PBS -o out                   
+#PBS -e err                   
+#PBS -l nodes=2:ppn=4         
+#PBS -r y                     
+cd $PBS_O_WORKDIR             
+mpirun -np 8 vasp_std > vasp-out
+#END_CUSTOMIZE_JOB_SCRIPT     
+#+------------------------------------------------------------------------------------------------------------------+
+                              
+#BEGIN_CUSTOMIZE_PLOT         
+#+------------------------------------------------------------------------------------------------------------------+
+#| WARNNING! The character-type values of plot variables are case sensitive and must be enclosed in single quotes.  |
+#+------------------------------------------------------------------------------------------------------------------+
+# https://matplotlib.org/3.3.3/tutorials/introductory/customizing.html
+# https://matplotlib.org/tutorials/text/text_props.html
+# https://github.com/rougier/matplotlib-cheatsheet                             
+# Advanced Features of VASPKIT Pro version
+figure_format                 =     'pdf'                          # string type (default: 'jpg'). Options: 'png', 'pdf', 'eps', 'jpg', etc.
+figure_height                 =      4.0                           # float type (default: 4.0). The height of the figure.
+figure_width                  =      5.0                           # float type (default: 5.0). The width of the figure.
+dpi                           =      400                           # integer type (default: 400). The resolution of the figure in dots-per-inch.
+set_tight_layout              =     .FALSE.                        # .TRUE. or .FALSE (default: .FALSE.). Automatically adjust the padding between and around subplots. 
+                                                                
+# Global settings             =                                    
+figure_style                  =     'default'                      # string type (default: 'default'). Options: 'default', 'classic', 'grayscale', 'seaborn', 'bmh', 'seaborn-notebook', etc.
+font_family                   =     'arial'                        # string type (default: 'arial'). Options: 'fantasy','arial','sans-serif', 'monospace', 'cursive', 'serif', etc.
+global_fontsize               =      12.0                          # float type (default: 15.0).
+label_fontsize                =      12.0                          # float type (default: 15.0).
+number_format                 =      '%.3f'                        # string type (default: 15.0).
+                                                                 
+# Legend-related settings     =                                    
+show_legend                   =     .TRUE.                         # .TRUE. or .FALSE (default: .TRUE.).
+legend_location               =     'best'                         # string type (default: 'best'). Options: 'best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left', 'center right', 'lower center', 'upper center', 'center', etc.
+legend_fontsize               =      12.0                          # float type (default: 14.0).
+                              =                                    
+# Line-related settings       =                                    
+line_colors                   =     ['b', 'g', 'r', 'm']           # string type (default: 'blue'). Options: 'red', 'green', 'cyan', '#4c005c', etc.
+line_styles                   =     ['-', '-', '-', '-']           # string type (default: '-'). Options: '-' or solid, '--' or 'dashed', '-.' or 'dashdot', etc.
+line_widths                   =     [1.5, 1.5, 1.5]                # float type (default: 1.5).
+line_alpha                    =     [1.0, 1.0, 1.0]                # float type (default: 1.0). 0.0< alpha <=1.0, adjust the transparency of each line (by default, alpha=1.0)
+fill_areas                    =     .FALSE.                        # .TRUE. or .FALSE (default: .FLASE.). Fill the area between two horizontal curves.
+
+# Marker-related settings     =     
+#marker_colors                =     ['blue', 'cyan', 'red', 'magenta', 'orange', 'lawngreen', 'deeppink', 'brown', 'dodgerblue']
+marker_symbols                =     ['o','o','o']                  # string type (default: 'o'). Options: 'o': Circle, 'x': Cross, '+': Plus sign, 'D': Filled diamond, 's': Square, '^': Triangle, etc.
+marker_colors                 =     ['#0db14b', '#4c005c', '#d93b2b','#0075dc', '#740aff', '#993f00', '#4c005c', '#426600']
+marker_sizes                  =     [60, 60.0, 60.0]               # float type (default: 10.0).
+marker_scale                  =     1.0                            # float type (default: 1.0). marker_sizes = marker_sizes * marker_scale        
+marker_alpha                  =     [0.8, 0.7, 0.6, 0.5, 0.4]      # float type (default: 1.0). 0.0< alpha <=1.0), adjust the transparency of markers (by default, alpha=1.0)
+                                   
+# Tick-related settings       =     
+#x_label                      =     'Wave vector'                  # string type (No default value).
+#y_label                      =     'Energy (eV)'                  # string type (No default value).
+#z_label                      =     'k$_x$ ($\\mathrm{\\AA}$)'     # string type (No default value).
+#x_limits                     =     [-8.0, 8.0]                    # float type [xmin, xmax] (No default value).
+#y_limits                     =     [-8.0, 8.0]                    # float type [ymin, ymax] (No default value).
+#z_limits                     =     [-8.0, 8.0]                    # float type [zmin, zmax] (No default value).
+#x_major_locator              =      2.0                           # float type (No default value).
+#y_major_locator              =      2.0                           # float type (No default value).
+#z_major_locator              =      2.0                           # float type (No default value).
+#x_minor_locator              =      1.0                           # float type (No default value).
+#y_minor_locator              =      1.0                           # float type (No default value).
+#z_minor_locator              =      1.0                           # float type (No default value).
+                                                                   
+# contour-related settings                                         
+colormap                      =     'RdBu'                         # string typ (default: 'jet'). Options: 'jet', 'hsv', 'viridis', 'gray', etc.
+contour_levels                =      5                             # integer type (default: 5).
+contour_limits                =     [0.0, 0.5]                     # float type (No default value).
+display_colorbar              =     .FLASE.                        # .TRUE. or .FALSE (default: .FLASE.).
+display_level_value           =     .FLASE.                        # .TRUE. or .FALSE (default: .FLASE.).
+display_contour               =     .FLASE.                        # .TRUE. or .FALSE (default: .FLASE.).  
+colorbar_shrink               =      0.5                           # float type (default: 0.4).
+colorbar_orientation          =     'vertical'                     # 'horizontal' or 'vertical' (default: 'horizontal')
+                                                                   
+# 3D-plot related settings                                         
+elevation                     =     12.0                           # float type (default: 12).
+azimuth                       =     24.0                           # float type (default: 23).
+display_coordinate_axes       =    .TRUE.                          # .TRUE. or .FALSE (default: .TRUE.).
+display_brillouin_zone        =    .TRUE.                          # .TRUE. or .FALSE (default: .TRUE.).
+axis_length                   =    [1.0, 1.0, 1.0]                 # Determine the length of each axis
+box_linewidth                 =     1.0                            # Specify the transparency level for the lines of the box or Brillouin zone  
+box_linealpha                 =     1.0                            # Evaluate the line width of the box or Brillouin zone
+                                                                   
+# XKCD sketch-style related settings                               
+xkcd_style                    =    .FALSE.                         # .TRUE. or .FALSE (default: .FLASE.). Turn on xkcd sketch-style drawing mode or not. 
+xkcd_scale                    =     1                              # float type (default: 1.0). The amplitude of the wiggle perpendicular to the source line (default: 1).  
+xkcd_length                   =     100                            # float type (default: 100.0). The length of the wiggle along the line (default: 100). 
+xkcd_randomness               =     2                              # float type (default: 2.0). The scale factor by which the length is shrunken or expanded (default: 2).
+
+# band structure related settings
+disconnecte_band_paths        =   .TRUE.                           # .TRUE. or .FALSE (default: .TRUE.). Turn on disconnected band paths drawing mode or not.
+
+#END_CUSTOMIZE_PLOT

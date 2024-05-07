@@ -24,7 +24,7 @@ inputs:
             ssh = "${inputs.pkgs.openssh}/bin/ssh -i ${key} -o StrictHostKeyChecking=no"
               + " -o ForwardAgent=yes -o AddKeysToAgent=yes";
             key = inputs.config.sops.secrets."hpcstat/key".path;
-            jykang = "${inputs.topInputs.xmuhpc-dotfiles}/jykang";
+            jykang = "${inputs.topInputs.self}/devices/jykang.xmuhpc";
             ssh-agent = "${inputs.pkgs.openssh}/bin/ssh-agent";
           in
           ''

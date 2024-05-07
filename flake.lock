@@ -2244,7 +2244,6 @@
         "tgbot-cpp": "tgbot-cpp",
         "v-sim": "v-sim",
         "win11os-kde": "win11os-kde",
-        "xmuhpc-dotfiles": "xmuhpc-dotfiles",
         "zpp-bits": "zpp-bits",
         "zxorm": "zxorm"
       }
@@ -2753,22 +2752,6 @@
         "owner": "hlissner",
         "repo": "ws-butler",
         "type": "github"
-      }
-    },
-    "xmuhpc-dotfiles": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1715006235,
-        "narHash": "sha256-ZgjVSzGlOaM5GH5Wt8PP12BmyMQpSegyxHvefAAFbI4=",
-        "ref": "refs/heads/main",
-        "rev": "87fded8f4b68dd4fca5c1ea2959fbc54961cbc99",
-        "revCount": 10,
-        "type": "git",
-        "url": "https://git.chn.moe/chn/xmuhpc-dotfiles.git"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.chn.moe/chn/xmuhpc-dotfiles.git"
       }
     },
     "yafas": {

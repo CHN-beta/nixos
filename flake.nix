@@ -79,7 +79,6 @@
     kylin-virtual-keyboard = { url = "git+https://gitee.com/openkylin/kylin-virtual-keyboard.git"; flake = false; };
     cjktty = { url = "github:zhmars/cjktty-patches"; flake = false; };
     zxorm = { url = "github:CHN-beta/zxorm"; flake = false; };
-    xmuhpc-dotfiles = { url = "git+https://git.chn.moe/chn/xmuhpc-dotfiles.git"; flake = false; };
     openxlsx = { url = "github:troldal/OpenXLSX"; flake = false; };
     sqlite-orm = { url = "github:fnc12/sqlite_orm"; flake = false; };
   };
