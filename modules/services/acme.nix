@@ -25,9 +25,8 @@ inputs:
       defaults =
       {
         email = "chn@chn.moe";
-        dnsPropagationCheck = false;
         dnsProvider = "cloudflare";
-        dnsResolver = "8.8.8.8";
+        dnsResolver = "1.1.1.1";
       };
       certs = builtins.listToAttrs (builtins.map
         (cert:
