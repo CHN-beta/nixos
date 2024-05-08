@@ -61,6 +61,7 @@ inputs:
             catalog.enable = true;
             blog.enable = true;
             main.enable = true;
+            nekomia.enable = true;
           };
         };
         coturn = {};
