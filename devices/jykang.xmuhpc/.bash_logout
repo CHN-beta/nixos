@@ -1,3 +1,3 @@
-if [ -n "${SSH_AUTH_SOCK-}" ]; then
+if [ -z "${CHN_DEBUG-}" ]; then
   hpcstat logout
 fi

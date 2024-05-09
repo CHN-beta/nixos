@@ -18,6 +18,15 @@ if [ -z "${BASHRC_SOURCED-}" ]; then
 		export TERM=${TERM#*:}
 		export CHN_DEBUG=1
 	fi
+
+	export HPCSTAT_DATADIR=$HOME/linwei/chn/software/hpcstat/var/lib/hpcstat
+	export HPCSTAT_SHAREDIR=$HOME/linwei/chn/software/hpcstat/share/hpcstat
+	export HPCSTAT_SSH_BINDIR=$HOME/linwei/chn/software/hpcstat/bin
+	export HPCSTAT_BSUB=/opt/ibm/lsfsuite/lsf/10.1/linux2.6-glibc2.3-x86_64/bin/bsub
+	${HPCSTAT_SSH_BINDIR}/hpcstat login
+	if [ "$?" -ne 0 ]; then
+		exit 1
+	fi
 fi
 
 if [ -f /etc/bashrc ]; then
@@ -25,26 +34,8 @@ if [ -f /etc/bashrc ]; then
 fi
 
 if [ -z "${BASHRC_SOURCED-}" ]; then
+	export PATH=$HPCSTAT_SSH_BINDIR:$PATH:$HOME/bin:$HOME/linwei/chn/software/scripts
 	export BASHRC_SOURCED=1
-	export PATH=$PATH:$HOME/bin:$HOME/linwei/chn/software/scripts
-
-	# script in ~/linwei/chn/software/hpcstat should have higher priority
-	if [ -n "${SSH_AUTH_SOCK-}" ]; then
-		export PATH=$HOME/linwei/chn/software/hpcstat/bin:$PATH
-		export HPCSTAT_DATADIR=$HOME/linwei/chn/software/hpcstat/var/lib/hpcstat
-		export HPCSTAT_SHAREDIR=$HOME/linwei/chn/software/hpcstat/share/hpcstat
-		export HPCSTAT_SSH_BINDIR=$HOME/linwei/chn/software/hpcstat/bin
-		export HPCSTAT_BSUB=/opt/ibm/lsfsuite/lsf/10.1/linux2.6-glibc2.3-x86_64/bin/bsub
-		hpcstat login
-		if [ "$?" -ne 0 ]; then
-			exit 1
-		fi
-	fi
-
-	# check if there exists non-interative login without ssh
-	if [ -z "${SSH_CONNECTION-}" ]; then
-		echo "Non-interactive login detected" >> $HOME/linwei/chn/log
-	fi
 fi
 
 [ -n "$CHN_LS_USE_COLOR" ] && alias ls="ls --color=auto"
