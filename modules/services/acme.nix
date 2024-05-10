@@ -34,13 +34,21 @@ inputs:
           name = builtins.elemAt cert.value.domains 0;
           value =
           {
-            credentialsFile = inputs.config.sops.secrets."acme/cloudflare.ini".path;
+            credentialsFile = inputs.config.sops.templates."acme/cloudflare.ini".path;
             extraDomainNames = builtins.tail cert.value.domains;
             group = inputs.lib.mkIf (cert.value.group != null) cert.value.group;
           };
         })
         (inputs.localLib.attrsToList acme.cert));
     };
-    sops.secrets."acme/cloudflare.ini" = {};
+    sops =
+    {
+      templates."acme/cloudflare.ini".content =
+      ''
+        CLOUDFLARE_DNS_API_TOKEN=${inputs.config.sops.placeholder."acme/token"}
+        CLOUDFLARE_PROPAGATION_TIMEOUT=300
+      '';
+      secrets."acme/token" = {};
+    };
   };
 }
