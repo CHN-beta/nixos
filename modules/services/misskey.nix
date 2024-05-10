@@ -136,27 +136,25 @@ inputs:
         (attrsToList misskey.instances));
       nixos.services =
       {
-        redis.instances = listToAttrs (map
+        redis = mkIf (misskey.instances != {}) { instances = listToAttrs (map
           (instance: { name = "misskey-${instance.name}"; value.port = instance.value.redis.port; })
-          (attrsToList misskey.instances));
-        postgresql =
-        {
-          enable = mkIf (misskey.instances != {}) true;
-          instances = listToAttrs (map
-            (instance: { name = "misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
-            (attrsToList misskey.instances));
-        };
-        meilisearch.instances = listToAttrs (map
-          (instance:
-          {
-            name = "misskey-${instance.name}";
-            value =
+          (attrsToList misskey.instances)); };
+        postgresql = mkIf (misskey.instances != {}) { instances = listToAttrs (map
+          (instance: { name = "misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
+          (attrsToList misskey.instances)); };
+        meilisearch =
+          let instances = filter (instance: instance.value.meilisearch.enable) (attrsToList misskey.instances);
+          in mkIf (instances != []) { instances = listToAttrs (map
+            (instance:
             {
-              user = inputs.config.users.users."misskey-${instance.name}".name;
-              port = instance.value.meilisearch.port;
-            };
-          })
-          (filter (instance: instance.value.meilisearch.enable) (attrsToList misskey.instances)));
+              name = "misskey-${instance.name}";
+              value =
+              {
+                user = inputs.config.users.users."misskey-${instance.name}".name;
+                port = instance.value.meilisearch.port;
+              };
+            })
+            instances); };
         nginx =
         {
           enable = mkIf (misskey.instances != {}) true;

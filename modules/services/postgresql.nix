@@ -1,19 +1,22 @@
 inputs:
 {
-  options.nixos.services.postgresql = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.postgresql = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    enable = mkOption { type = types.bool; default = false; };
-    instances = mkOption
+    type = types.nullOr (types.submodule { options =
     {
-      type = types.attrsOf (types.submodule (submoduleInputs: { options =
+      instances = mkOption
       {
-        database = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-        user = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-        passwordFile = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        initializeFlags = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
-      };}));
-      default = {};
-    };
+        type = types.attrsOf (types.submodule (submoduleInputs: { options =
+        {
+          database = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+          user = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+          passwordFile = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+          initializeFlags = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+        };}));
+        default = {};
+      };
+    };});
+    default = null;
   };
   config =
     let
@@ -21,7 +24,7 @@ inputs:
       inherit (inputs.lib) mkAfter concatStringsSep mkIf;
       inherit (inputs.localLib) attrsToList;
       inherit (builtins) map listToAttrs filter;
-    in mkIf postgresql.enable
+    in mkIf (postgresql != null)
     {
       services =
       {

@@ -78,7 +78,7 @@ inputs:
         };
       nixos.services =
       {
-        postgresql = { enable = true; instances.nextcloud = {}; };
+        postgresql.instances.nextcloud = {};
         redis.instances.nextcloud.port = 3499;
         nginx = { enable = true; https.${nextcloud.hostname}.global.configName = nextcloud.hostname; };
       };

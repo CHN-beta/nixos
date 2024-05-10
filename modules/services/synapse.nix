@@ -258,26 +258,22 @@ inputs:
         (attrsToList synapse.instances));
       nixos.services =
       {
-        postgresql =
-        {
-          enable = mkIf (synapse.instances != {}) true;
-          instances = listToAttrs (concatLists (map
-            (instance:
-            [
-              {
-                name = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}";
-                value.initializeFlags = { TEMPLATE = "template0"; LC_CTYPE = "C"; LC_COLLATE = "C"; };
-              }
-              {
-                name = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}_sliding_sync";
-                value.user = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}";
-              }
-            ])
-            (attrsToList synapse.instances)));
-        };
-        redis.instances = listToAttrs (map
+        postgresql = mkIf (synapse.instances != {}) { instances = listToAttrs (concatLists (map
+          (instance:
+          [
+            {
+              name = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}";
+              value.initializeFlags = { TEMPLATE = "template0"; LC_CTYPE = "C"; LC_COLLATE = "C"; };
+            }
+            {
+              name = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}_sliding_sync";
+              value.user = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}";
+            }
+          ])
+          (attrsToList synapse.instances)));};
+        redis = mkIf (synapse.instances != {}) { instances = listToAttrs (map
           (instance: { name = "synapse-${instance.name}"; value.port = instance.value.redisPort; })
-          (attrsToList synapse.instances));
+          (attrsToList synapse.instances));};
         nginx =
         {
           enable = mkIf (synapse.instances != {}) true;

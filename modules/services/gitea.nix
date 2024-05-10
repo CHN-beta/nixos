@@ -10,7 +10,6 @@ inputs:
     services.gitea =
     {
       enable = true;
-      
       package = inputs.pkgs.unstablePackages.gitea.overrideAttrs { src = builtins.fetchurl
       {
         url = "https://dl.gitea.com/gitea/1.22.0-rc1/gitea-src-1.22.0-rc1.tar.gz";

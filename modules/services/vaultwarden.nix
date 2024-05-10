@@ -58,7 +58,7 @@ inputs:
       systemd.services.vaultwarden = { enable = vaultwarden.autoStart; after = [ "postgresql.service" ]; };
       nixos.services =
       {
-        postgresql = { enable = true; instances.vaultwarden = {}; };
+        postgresql.instances.vaultwarden = {};
         nginx =
         {
           enable = true;

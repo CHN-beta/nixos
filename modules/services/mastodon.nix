@@ -39,7 +39,7 @@ inputs:
       };
       nixos.services =
       {
-        postgresql = { enable = true; instances.mastodon = {}; };
+        postgresql.instances.mastodon = {};
         redis.instances.mastodon.port = inputs.config.services.mastodon.redis.port;
         nginx =
         {

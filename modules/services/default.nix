@@ -70,7 +70,7 @@ inputs:
                 enable = true;
                 https."wallabag.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:4398";
               };
-              postgresql = { enable = true; instances.wallabag = {}; };
+              postgresql.instances.wallabag = {};
               redis.instances.wallabag = { user = "root"; port = 8790; };
             };
             virtualization.docker.enable = true;

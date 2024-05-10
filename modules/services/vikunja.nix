@@ -37,7 +37,7 @@ inputs:
     systemd.services.vikunja-api.enable = vikunja.autoStart;
     nixos.services =
     {
-      postgresql = { enable = true; instances.vikunja = {}; };
+      postgresql.instances.vikunja = {};
       nginx = { enable = true; https.${vikunja.hostname}.global.configName = vikunja.hostname; };
     };
   };
