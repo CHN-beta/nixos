@@ -54,7 +54,7 @@ inputs:
         fz-new-order = {};
         nginx.applications = { kkmeeting.enable = true; webdav.instances."webdav.chn.moe" = {}; };
         httpapi.enable = true;
-        gitea.enable = true;
+        gitea = { enable = true; ssh = {}; };
         grafana.enable = true;
         fail2ban = {};
         wireguard =
