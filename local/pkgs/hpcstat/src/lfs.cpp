@@ -11,7 +11,7 @@ namespace hpcstat::lfs
       return std::nullopt;
     else
     {
-      std::set<std::string> valid_args = { "J", "q", "n", "R", "o" };
+      std::set<std::string> valid_args = { "J", "q", "n", "R", "o", "e", "c" };
       for (auto it = args.begin(); it != args.end(); ++it)
       {
         if (it->length() > 0 && (*it)[0] == '-')
