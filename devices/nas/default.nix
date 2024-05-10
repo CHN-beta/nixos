@@ -73,6 +73,7 @@ inputs:
           wireguardIp = "192.168.83.4";
         };
         hpcstat = {};
+        gitea = { enable = true; hostname = "git.nas.chn.moe"; };
       };
       user.users = [ "chn" "xll" "zem" "yjq" "gb" ];
     };
