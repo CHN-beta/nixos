@@ -59,5 +59,10 @@ inputs:
     boot.kernelParams = [ "intel_iommu=off" ];
     environment.systemPackages = with inputs.pkgs; [ maliit-keyboard maliit-framework ];
     powerManagement.resumeCommands = ''${inputs.pkgs.systemd}/bin/systemctl restart iptsd'';
+    services.iptsd.config =
+    {
+      Touch = { DisableOnPalm = true; DisableOnStylus = true; Overshoot = 0.5; };
+      Contacts = { Neutral = "Average"; NeutralValue = 50; };
+    };
   };
 }
