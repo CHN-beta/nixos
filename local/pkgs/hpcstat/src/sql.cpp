@@ -233,7 +233,7 @@ namespace hpcstat::sql
         if (!job_in_submit) key = { "", {} };
         else key = std::make_pair(job_in_submit->Key, job_in_submit->Subaccount);
         stat[key].CpuTime += it.CpuTime / 3600;
-        if (it.JobResult == "Done") stat[key].FinishJobSuccess++;
+        if (it.JobResult == "DONE") stat[key].FinishJobSuccess++;
         else stat[key].FinishJobFailed++;
       }
       // LoginInteractive & LoginNonInteractive
