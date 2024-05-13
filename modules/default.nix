@@ -27,6 +27,7 @@ inputs:
             topInputs.napalm.overlays.default
             topInputs.pnpm2nix-nzbr.overlays.default
             topInputs.aagl.overlays.default
+            topInputs.bscpkgs.overlays.default
             (final: prev:
             {
               nix-vscode-extensions = topInputs.nix-vscode-extensions.extensions."${prev.system}";

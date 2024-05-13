@@ -71,6 +71,26 @@
         "type": "github"
       }
     },
+    "bscpkgs": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1713974364,
+        "narHash": "sha256-ilZTVWSaNP1ibhQIIRXE+q9Lj2XOH+F9W3Co4QyY1eU=",
+        "ref": "refs/heads/master",
+        "rev": "de89197a4a7b162db7df9d41c9d07759d87c5709",
+        "revCount": 937,
+        "type": "git",
+        "url": "https://pm.bsc.es/gitlab/rarias/bscpkgs.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://pm.bsc.es/gitlab/rarias/bscpkgs.git"
+      }
+    },
     "catppuccin": {
       "locked": {
         "lastModified": 1713285896,
@@ -2190,6 +2210,7 @@
       "inputs": {
         "aagl": "aagl",
         "blurred-wallpaper": "blurred-wallpaper",
+        "bscpkgs": "bscpkgs",
         "catppuccin": "catppuccin",
         "chaotic": "chaotic",
         "citation-style-language": "citation-style-language",
