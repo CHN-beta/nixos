@@ -1,43 +1,36 @@
 {
-  buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin,
-  config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px", additionalCommands ? "",
+  buildFHSEnv, writeScript, stdenvNoCC, substituteAll, symlinkJoin, src,
+  config, cudaCapabilities ? config.cudaCapabilities, nvhpcArch ? config.nvhpcArch or "px",
   nvhpc, lmod, mkl, gfortran, rsync, which, hdf5, wannier90, zlib, vtst
 }:
 let
-  sources = import ../source.nix { inherit requireFile; };
-  buildEnv = buildFHSEnv
-  {
-    name = "buildEnv";
-    targetPkgs = _: [ zlib ];
-  };
+  buildEnv = buildFHSEnv { name = "buildEnv"; targetPkgs = _: [ zlib ]; };
   buildScript = writeScript "build"
   ''
     . ${lmod}/share/lmod/lmod/init/bash
     module use ${nvhpc}/share/nvhpc/modulefiles
     module load nvhpc
-    mkdir -p bin
     make DEPS=1 -j$NIX_BUILD_CORES
   '';
-  include = version: substituteAll
+  include = substituteAll
   {
-    src = ./makefile.include-${version};
+    src = ./makefile.include;
     cudaCapabilities = builtins.concatStringsSep "," (builtins.map
       (cap: "cc${builtins.replaceStrings ["."] [""] cap}")
       cudaCapabilities);
     inherit nvhpcArch;
   };
-  vasp = version: stdenvNoCC.mkDerivation rec
+  vasp = stdenvNoCC.mkDerivation
   {
-    pname = "vasp-nvidia";
-    inherit version;
-    src = sources.${version};
+    name = "vasp-nvidia";
+    inherit src;
     patches = [ ../vtst.patch ];
     configurePhase =
     ''
-      cp ${include version} makefile.include
+      cp ${include} makefile.include
       chmod +w makefile.include
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
-      cp -r ${vtst version}/* src
+      cp -r ${vtst}/* src
       chmod -R +w src
     '';
     enableParallelBuilding = true;
@@ -55,7 +48,7 @@ let
     dontFixup = true;
     requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
   };
-  startScript = { version, variant }: writeScript "vasp-nvidia-${version}"
+  startScript = variant: writeScript "vasp-nvidia"
   ''
     . ${lmod}/share/lmod/lmod/init/bash
     module use ${nvhpc}/share/nvhpc/modulefiles
@@ -71,30 +64,26 @@ let
     fi
     export OMP_NUM_THREADS
 
-    ${additionalCommands}
-
     ${
       if variant == "env" then ''exec "$@"''
       else
       ''
         if [ -n "''${SLURM_JOB_ID-}" ]; then
-          exec mpirun --bind-to none ${vasp version}/bin/vasp-${variant}
+          exec mpirun --bind-to none ${vasp}/bin/vasp-${variant}
         else
-          exec mpirun -np 1 ${vasp version}/bin/vasp-${variant}
+          exec mpirun -np 1 ${vasp}/bin/vasp-${variant}
         fi
       ''
     }
   '';
-  runEnv = { version, variant }: let shortVersion = builtins.replaceStrings ["."] [""] version; in buildFHSEnv
+  runEnv = variant: buildFHSEnv
   {
-    name = "vasp-nvidia-${shortVersion}${if variant == "" then "" else "-${variant}"}";
-    targetPkgs = _: [ zlib (vasp version) ];
-    runScript = startScript { inherit version; variant = if variant == "" then "std" else variant; };
+    name = "vasp-nvidia${if variant == "" then "" else "-${variant}"}";
+    targetPkgs = _: [ zlib vasp ];
+    runScript = startScript (if variant == "" then "std" else variant);
   };
-in builtins.mapAttrs
-  (version: _: symlinkJoin
+in symlinkJoin
   {
-    name = "vasp-nvidia-${version}";
-    paths = builtins.map (variant: runEnv { inherit version variant; }) [ "" "env" "std" "gam" "ncl" ];
-  })
-  sources
+    name = "vasp-nvidia";
+    paths = builtins.map (variant: runEnv variant) [ "" "env" "std" "gam" "ncl" ];
+  }

@@ -43,44 +43,27 @@ inputs: rec
   lmod = inputs.pkgs.callPackage ./lmod { src = inputs.topInputs.lmod; };
   vasp = rec
   {
-    source = inputs.pkgs.callPackage ./vasp/source.nix {};
+    src = inputs.pkgs.callPackage ./vasp/source.nix {};
     gnu = inputs.pkgs.callPackage ./vasp/gnu
     {
       inherit (inputs.pkgs.llvmPackages) openmp;
-      inherit wannier90 additionalCommands;
-      hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; };
-    };
-    gnu-mkl = inputs.pkgs.callPackage ./vasp/gnu-mkl
-    {
-      inherit (inputs.pkgs.llvmPackages) openmp;
-      inherit wannier90 additionalCommands;
+      inherit wannier90 src;
       hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; };
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
-      { inherit lmod nvhpc wannier90 additionalCommands vtst; hdf5 = hdf5-nvhpc; };
+      { inherit lmod nvhpc wannier90 vtst src; hdf5 = hdf5-nvhpc; };
     intel = inputs.pkgs.callPackage ./vasp/intel
-      { inherit lmod oneapi wannier90 additionalCommands vtst; hdf5 = hdf5-oneapi; };
-    amd = inputs.pkgs.callPackage ./vasp/amd
-      { inherit aocc aocl wannier90 additionalCommands; hdf5 = hdf5-aocc; openmpi = openmpi-aocc; gcc = gcc-pie; };
+      { inherit lmod oneapi wannier90 vtst src; hdf5 = hdf5-oneapi; };
     wannier90 = inputs.pkgs.callPackage
       "${inputs.topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
     hdf5-nvhpc = inputs.pkgs.callPackage ./vasp/hdf5-nvhpc { inherit lmod nvhpc; inherit (inputs.pkgs.hdf5) src; };
     hdf5-oneapi = inputs.pkgs.callPackage ./vasp/hdf5-oneapi { inherit lmod oneapi; inherit (inputs.pkgs.hdf5) src; };
-    hdf5-aocc = inputs.pkgs.callPackage ./vasp/hdf5-aocc
-      { inherit (inputs.pkgs.hdf5) src; inherit aocc; openmpi = openmpi-aocc; gcc = gcc-pie; };
-    openmpi-aocc = inputs.pkgs.callPackage ./vasp/openmpi-aocc { inherit aocc; gcc = gcc-pie; };
-    gcc-pie = inputs.pkgs.wrapCC (inputs.pkgs.gcc.cc.overrideAttrs (prev:
-      { configureFlags = prev.configureFlags ++ [ "--enable-default-pie" ];}));
-    additionalCommands = let uid = inputs.config.nixos.user.uid.gb; in
-      ''[ "$(${inputs.pkgs.coreutils}/bin/id -u)" -eq ${builtins.toString uid} ] && exit 1'';
     vtst = (inputs.pkgs.callPackage ./vasp/vtst.nix {});
     vtstscripts = inputs.pkgs.callPackage ./vasp/vtstscripts.nix {};
   };
   # TODO: use other people packaged hpc version
   oneapi = inputs.pkgs.callPackage ./oneapi {};
   mumax = inputs.pkgs.callPackage ./mumax { src = inputs.topInputs.mumax; };
-  aocc = inputs.pkgs.callPackage ./aocc {};
-  aocl = inputs.pkgs.callPackage ./aocl {};
   kylin-virtual-keyboard = inputs.pkgs.libsForQt5.callPackage ./kylin-virtual-keyboard
     { src = inputs.topInputs.kylin-virtual-keyboard; };
   biu = inputs.pkgs.callPackage ./biu { inherit nameof; };
