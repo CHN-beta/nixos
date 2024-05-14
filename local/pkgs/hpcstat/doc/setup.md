@@ -3,6 +3,9 @@
 为了区分登陆 jykang@hpc.xmu.edu.cn 时使用的密钥，并分密钥统计使用情况，需要启用一项名为“SSH agent forwarding”的功能。
 接下来的内容将带领您在 Windows 系统上配置 SSH agent forwarding。
 
+> [!NOTE]
+> 在 Linux 上的配置方法放在了文章末尾。大多数用户不需要阅读。
+
 要启用“SSH agent forwarding”，需要下面三个步骤：
 1. 启动 Pageant 并添加密钥。 **这一步骤每次登陆前都需要执行。**
 2. 配置 PuTTY，使 PuTTY 在每次登陆时不直接使用密钥，而是利用 Pageant 完成认证。这一步骤只需要执行一次。
@@ -184,3 +187,28 @@ https://wxpusher.zjiecode.com/wxuser/?type=1&id=75864#/follow
 
 需要注意的是，这个 UID 会被明文写到 jykang 上的文件里。
 也就是说存在这样的风险：有权限登陆 jykang 的人都有权限通过这个公众号给您发消息。
+
+## 在 Linux 上配置 SSH agent forwarding
+
+1. 使用以下命令将 `.ppk` 的私钥部分拆分出来：
+
+   ```bash
+   puttygen id_rsa.ppk -O private-openssh -o ./id_rsa
+   ```
+
+   确保 `id_rsa` 的权限为 `600`。
+
+2. 在 `~/.ssh/config` 中添加以下内容：
+
+   ```
+   Host jykang
+      AddKeysToAgent yes
+      ForwardAgent yes
+      IdentityFile ~/path/to/id_rsa
+   ```
+
+然后就可以正常使用了，例如：
+
+```bash
+ssh jykang
+```
