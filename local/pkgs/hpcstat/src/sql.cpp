@@ -88,6 +88,7 @@ namespace hpcstat::sql
     }
     auto result = conn();
     if (!result) std::cerr << "Failed to connect to database.\n";
+    else result->busy_timeout(10000);
     return result;
   }
   bool initdb()
