@@ -11,7 +11,7 @@ CPP_OPTIONS = -DHOST=\"LinuxNV\" \
               -Dfock_dblbuf \
               -D_OPENMP \
               -D_OPENACC \
-              -DUSENCCL -Duse_shmem -Dshmem_bcast_buffer -Dshmem_rproj
+              -DUSENCCL -DUSENCCLP2P -Duse_shmem -Dshmem_bcast_buffer -Dshmem_rproj
 
 CPP         = nvfortran -Mpreprocess -Mfree -Mextend -E $(CPP_OPTIONS) $*$(FUFFIX)  > $*$(SUFFIX)
 
@@ -79,7 +79,7 @@ INCS       += -I$(QD)/include/qd
 
 # Intel MKL for FFTW, BLAS, LAPACK, and scaLAPACK
 MKLROOT    ?= /path/to/your/mkl/installation
-LLIBS_MKL   = -Mmkl -L$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64
+LLIBS_MKL   = -Mmkl -L$(MKLROOT)/lib -lmkl_scalapack_lp64 -lmkl_blacs_openmpi_lp64
 INCS       += -I$(MKLROOT)/include/fftw
 
 # Use a separate scaLAPACK installation (optional but recommended in combination with OpenMPI)

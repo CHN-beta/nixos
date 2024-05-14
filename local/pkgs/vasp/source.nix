@@ -1,7 +1,7 @@
 { requireFile }: requireFile
 {
-  name = "vasp.6.4.3.tgz";
+  name = "vasp.6.4.2.tgz";
   # nix-prefetch-url file://$(pwd)/vasp.6.4.3.tgz
-  sha256 = "1x14dixils77rr4c6yqmxkvyzgfz6906badsw2shksd3y9ryfc7y";
+  sha256 = "03j14fqjkp3w3x356d32v4vffzycqpnh7j7vmn8kyrw4fdzn615p";
   message = "Source file not found.";
 }
