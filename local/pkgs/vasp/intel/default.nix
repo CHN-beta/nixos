@@ -1,10 +1,9 @@
 {
-  buildFHSEnv, writeScript, stdenvNoCC, requireFile, substituteAll, symlinkJoin, writeTextDir,
-  config, oneapiArch ? config.oneapiArch or "SSE3", additionalCommands ? "",
+  buildFHSEnv, writeScript, stdenvNoCC, substituteAll, symlinkJoin, writeTextDir, src,
+  config, oneapiArch ? config.oneapiArch or "SSE3",
   oneapi, gcc, glibc, lmod, rsync, which, wannier90, binutils, hdf5, zlib, vtst
 }:
 let
-  sources = import ../source.nix { inherit requireFile; };
   buildEnv = buildFHSEnv
   {
     name = "buildEnv";
@@ -17,27 +16,21 @@ let
     module use ${oneapi}/share/intel/modulefiles
     module load tbb compiler-rt oclfpga # dependencies
     module load mpi mkl compiler
-    mkdir -p bin
     make DEPS=1 -j$NIX_BUILD_CORES
   '';
-  include = version: substituteAll
-  {
-    src = ./makefile.include-${version};
-    inherit oneapiArch;
-  };
+  include = substituteAll { src = ./makefile.include; inherit oneapiArch; };
   gccFull = symlinkJoin { name = "gcc"; paths = [ gcc gcc.cc gcc.cc.lib glibc.dev binutils.bintools ]; };
-  vasp = version: stdenvNoCC.mkDerivation rec
+  vasp = stdenvNoCC.mkDerivation
   {
-    pname = "vasp-intel";
-    inherit version;
-    src = sources.${version};
+    name = "vasp-intel";
+    inherit src;
     patches = [ ../vtst.patch ];
     configurePhase =
     ''
-      cp ${include version} makefile.include
+      cp ${include} makefile.include
       chmod +w makefile.include
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
-      cp -r ${vtst version}/* src
+      cp -r ${vtst}/* src
       chmod -R +w src
     '';
     nativeBuildInputs = [ rsync which ];
@@ -52,7 +45,7 @@ let
     dontFixup = true;
     requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
   };
-  startScript = { version, variant }: writeScript "vasp-intel-${version}"
+  startScript = variant: writeScript "vasp-intel"
   ''
     . ${lmod}/share/lmod/lmod/init/bash
     module use ${oneapi}/share/intel/modulefiles
@@ -86,30 +79,26 @@ let
     # set OMP_STACKSIZE if not set
     export OMP_STACKSIZE=''${OMP_STACKSIZE-512M}
 
-    ${additionalCommands}
-
     ${
       if variant == "env" then ''exec "$@"''
       else
       ''
         if [ -n "''${SLURM_JOB_ID-}" ]; then
-          exec mpirun -n $SLURM_NTASKS ${vasp version}/bin/vasp-${variant}
+          exec mpirun -n $SLURM_NTASKS ${vasp}/bin/vasp-${variant}
         else
-          exec mpirun -n 1 ${vasp version}/bin/vasp-${variant}
+          exec mpirun -n 1 ${vasp}/bin/vasp-${variant}
         fi
       ''
     }
   '';
-  runEnv = { version, variant }: let shortVersion = builtins.replaceStrings ["."] [""] version; in buildFHSEnv
+  runEnv = variant: buildFHSEnv
   {
-    name = "vasp-intel-${shortVersion}${if variant == "" then "" else "-${variant}"}";
-    targetPkgs = _: [ zlib (vasp version) (writeTextDir "etc/release" "") gccFull ];
-    runScript = startScript { inherit version; variant = if variant == "" then "std" else variant; };
+    name = "vasp-intel${if variant == "" then "" else "-${variant}"}";
+    targetPkgs = _: [ zlib vasp (writeTextDir "etc/release" "") gccFull ];
+    runScript = startScript (if variant == "" then "std" else variant);
   };
-in builtins.mapAttrs
-  (version: _: symlinkJoin
-  {
-    name = "vasp-intel-${version}";
-    paths = builtins.map (variant: runEnv { inherit version variant; }) [ "" "env" "std" "gam" "ncl" ];
-  })
-  sources
+in symlinkJoin
+{
+  name = "vasp-intel";
+  paths = builtins.map (variant: runEnv variant) [ "" "env" "std" "gam" "ncl" ];
+}

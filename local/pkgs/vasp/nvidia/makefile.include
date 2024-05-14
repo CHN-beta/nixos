@@ -91,13 +91,11 @@ LLIBS      += $(LLIBS_MKL)
 
 # HDF5-support (optional but strongly recommended)
 CPP_OPTIONS+= -DVASP_HDF5
-HDF5_ROOT  ?= /path/to/your/hdf5/installation
 LLIBS      += -L$(HDF5_ROOT)/lib -lhdf5_fortran
 INCS       += -I$(HDF5_ROOT)/include
 
 # For the VASP-2-Wannier90 interface (optional)
 CPP_OPTIONS    += -DVASP2WANNIER90
-WANNIER90_ROOT ?= /path/to/your/wannier90/installation
 LLIBS          += -L$(WANNIER90_ROOT)/lib -lwannier
 
 # For the fftlib library (hardly any benefit for the OpenACC GPU port, especially in combination with MKL's FFTs)
