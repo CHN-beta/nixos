@@ -2,7 +2,7 @@ inputs: rec
 {
   typora = inputs.pkgs.callPackage ./typora {};
   vesta = inputs.pkgs.callPackage ./vesta {};
-  rsshub = inputs.pkgs.callPackage ./rsshub { src = inputs.topInputs.rsshub; };
+  rsshub = inputs.pkgs.callPackage ./rsshub { src = inputs.topInputs.rsshub; nodejs = inputs.pkgs.nodejs_21; };
   misskey = inputs.pkgs.callPackage ./misskey { nodejs = inputs.pkgs.nodejs_21; src = inputs.topInputs.misskey; };
   mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn {};
   vaspkit = inputs.pkgs.callPackage ./vaspkit { inherit (inputs.localLib) attrsToList; };
