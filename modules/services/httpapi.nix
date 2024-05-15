@@ -39,7 +39,7 @@ inputs:
                 + "/sendMessage?chat_id=${placeholder."telegram/chat"}&text=";
             in ''<?php print file_get_contents("${request}".urlencode($_GET["message"])); ?>'';
         };
-        secrets."httpapi/token" = {};
+        secrets = { "telegram/token" = {}; "telegram/chat" = {}; };
       };
       systemd.tmpfiles.rules = [ "d /srv/api 0700 nginx nginx" "Z /srv/api - nginx nginx" ];
     };
