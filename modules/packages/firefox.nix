@@ -48,7 +48,7 @@ inputs:
     {
       enable = true;
       languagePacks = [ "zh-CN" "en-US" ];
-      nativeMessagingHosts.ugetIntegrator = true;
+      nativeMessagingHosts.packages = with inputs.pkgs; [ uget-integrator ];
     };
   };
 }
