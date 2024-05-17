@@ -44,6 +44,11 @@ inputs:
       home.file.".mozilla/firefox/profiles.ini".force = true;
     };}];
     # still enable global firefox, to install language packs
-    programs.firefox = { enable = true; languagePacks = [ "zh-CN" "en-US" ]; };
+    programs.firefox =
+    {
+      enable = true;
+      languagePacks = [ "zh-CN" "en-US" ];
+      nativeMessagingHosts.ugetIntegrator = true;
+    };
   };
 }
