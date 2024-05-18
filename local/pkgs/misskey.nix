@@ -22,6 +22,7 @@
         ''
           mkdir -p $out/bin
           cp ${startScript} $out/bin/misskey
+          mkdir -p $out/files
         '';
     };
   }
