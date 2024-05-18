@@ -142,11 +142,7 @@ inputs:
         };
         system.nixos.tags = [ "nvidia" ];
       };
-      xanmod.configuration =
-      {
-        nixos.system.kernel.variant = "xanmod-latest";
-        system.nixos.tags = [ "xanmod" ];
-      };
+      cachyos.configuration = { nixos.system.kernel.variant = "cachyos"; system.nixos.tags = [ "cachyos" ]; };
     };
   };
 }
