@@ -946,24 +946,6 @@
         "type": "github"
       }
     },
-    "flake-utils_8": {
-      "inputs": {
-        "systems": "systems_8"
-      },
-      "locked": {
-        "lastModified": 1701680307,
-        "narHash": "sha256-kAuep2h5ajznlPMD9rnQyffWG8EM/C73lejGofXvdM8=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "4022d587cbbfd70fe950c1e2083a02621806a725",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
     "fluent-kde": {
       "flake": false,
       "locked": {
@@ -2107,27 +2089,6 @@
         "type": "github"
       }
     },
-    "pnpm2nix-nzbr": {
-      "inputs": {
-        "flake-utils": "flake-utils_8",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1708175105,
-        "narHash": "sha256-in16QROQJUoZ1NFvBo2jwKJAhOes1w7kR+jQZr42glQ=",
-        "owner": "CHN-beta",
-        "repo": "pnpm2nix-nzbr",
-        "rev": "6b9e77486722b925f51077e891c41dd5c64fabdb",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "repo": "pnpm2nix-nzbr",
-        "type": "github"
-      }
-    },
     "purescript-overlay": {
       "inputs": {
         "nixpkgs": [
@@ -2255,7 +2216,6 @@
         "nur-xddxdd": "nur-xddxdd",
         "openxlsx": "openxlsx",
         "plasma-manager": "plasma-manager",
-        "pnpm2nix-nzbr": "pnpm2nix-nzbr",
         "qchem": "qchem",
         "rsshub": "rsshub",
         "rycee": "rycee",
@@ -2563,21 +2523,6 @@
       }
     },
     "systems_7": {
-      "locked": {
-        "lastModified": 1681028828,
-        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
-        "owner": "nix-systems",
-        "repo": "default",
-        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-systems",
-        "repo": "default",
-        "type": "github"
-      }
-    },
-    "systems_8": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",

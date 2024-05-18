@@ -25,7 +25,6 @@ inputs:
             topInputs.qchem.overlays.default
             topInputs.nixd.overlays.default
             topInputs.napalm.overlays.default
-            topInputs.pnpm2nix-nzbr.overlays.default
             topInputs.aagl.overlays.default
             topInputs.bscpkgs.overlays.default
             (final: prev:

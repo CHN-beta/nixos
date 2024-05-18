@@ -2,8 +2,10 @@ inputs: rec
 {
   typora = inputs.pkgs.callPackage ./typora {};
   vesta = inputs.pkgs.callPackage ./vesta {};
-  rsshub = inputs.pkgs.callPackage ./rsshub { src = inputs.topInputs.rsshub; nodejs = inputs.pkgs.nodejs_21; };
-  misskey = inputs.pkgs.callPackage ./misskey { nodejs = inputs.pkgs.nodejs_21; src = inputs.topInputs.misskey; };
+  rsshub = inputs.pkgs.callPackage ./rsshub.nix
+    { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; nodejs = inputs.pkgs.nodejs_21; };
+  misskey = inputs.pkgs.callPackage ./misskey.nix
+    { inherit mkPnpmPackage; nodejs = inputs.pkgs.nodejs_21; src = inputs.topInputs.misskey; };
   mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn {};
   vaspkit = inputs.pkgs.callPackage ./vaspkit { inherit (inputs.localLib) attrsToList; };
   v-sim = inputs.pkgs.callPackage ./v-sim { src = inputs.topInputs.v-sim; };
@@ -71,6 +73,7 @@ inputs: rec
   hpcstat = inputs.pkgs.callPackage ./hpcstat { inherit nameof sqlite-orm zpp-bits date openxlsx; };
   openxlsx = inputs.pkgs.callPackage ./openxlsx { src = inputs.topInputs.openxlsx; };
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm { src = inputs.topInputs.sqlite-orm; };
+  mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
