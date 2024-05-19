@@ -44,7 +44,22 @@ namespace hpcstat::push
             { fmt::print("Push failed: {}\n", nameof::nameof_enum(res.error())); return false; }
         }
       }
-      return true;
     }
+    // push to telegram for chn
+    for (const auto& [id, info] : data)
+      if (std::get<2>(info) == "LNoYfq/SM7l8sFAy325WpC+li+kZl3jwST7TmP72Tz8")
+      {
+        httplib::Client cli("https://api.chn.moe");
+        auto path = fmt::format
+        (
+          "/notify.php?message={}",
+          boost::urls::encode
+            (fmt::format("{} {} {}", std::get<1>(info), std::get<0>(info), id), boost::urls::unreserved_chars)
+        );
+        auto res = cli.Get(path.c_str());
+        if (res.error() != httplib::Error::Success)
+          { fmt::print("Push failed: {}\n", nameof::nameof_enum(res.error())); return false; }
+      }
+    return true;
   }
 }
