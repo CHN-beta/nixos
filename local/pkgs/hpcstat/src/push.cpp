@@ -50,6 +50,7 @@ namespace hpcstat::push
       if (std::get<2>(info) == "LNoYfq/SM7l8sFAy325WpC+li+kZl3jwST7TmP72Tz8")
       {
         httplib::Client cli("https://api.chn.moe");
+        cli.enable_server_certificate_verification(false);
         auto path = fmt::format
         (
           "/notify.php?message={}",
