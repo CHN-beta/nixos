@@ -93,9 +93,18 @@ inputs:
         sshd = {};
         xray.client =
         {
-          dnsmasq.hosts = builtins.listToAttrs (builtins.map
-            (name: { inherit name; value = "74.211.99.69"; })
-            [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ]);
+          dnsmasq.hosts = builtins.listToAttrs
+          (
+            (builtins.map
+              (name: { inherit name; value = "74.211.99.69"; })
+              [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
+            ++ (builtins.map
+              (name: { inherit name; value = "0.0.0.0"; })
+              [
+                "log-upload.mihoyo.com" "uspider.yuanshen.com" "ys-log-upload.mihoyo.com"
+                "dispatchcnglobal.yuanshen.com"
+              ])
+          );
           dae.wanInterface = [ "wlp4s0" "enp5s0" ];
         };
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
