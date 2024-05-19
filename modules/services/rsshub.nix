@@ -24,6 +24,7 @@ inputs:
           User = inputs.config.users.users.rsshub.name;
           Group = inputs.config.users.users.rsshub.group;
           EnvironmentFile = inputs.config.sops.templates."rsshub/env".path;
+          WorkingDirectory = "${inputs.pkgs.localPackages.rsshub}";
           ExecStart = "${inputs.pkgs.localPackages.rsshub}/bin/rsshub";
           CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
           AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
