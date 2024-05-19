@@ -68,7 +68,7 @@ inputs:
       timers.hpcstat =
       {
         wantedBy = [ "timers.target" ];
-        timerConfig = { OnCalendar = "minutely"; Unit = "hpcstat.service"; };
+        timerConfig = { OnCalendar = "*-*-* *:00/5:00"; Unit = "hpcstat.service"; };
       };
       tmpfiles.rules = [ "d /var/lib/hpcstat 0700 hpcstat hpcstat" ];
     };
