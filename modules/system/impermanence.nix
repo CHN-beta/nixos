@@ -45,6 +45,7 @@ inputs:
           [
             "/var/lib/systemd/linger"
             "/var/lib/systemd/coredump"
+            "/var/lib/systemd/backlight"
             { directory = "/var/lib/docker"; mode = "0710"; }
             "/var/lib/flatpak"
           ]
