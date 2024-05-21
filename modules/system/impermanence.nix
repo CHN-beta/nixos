@@ -49,7 +49,7 @@ inputs:
             { directory = "/var/lib/docker"; mode = "0710"; }
             "/var/lib/flatpak"
           ]
-          ++ (if inputs.config.services.xserver.displayManager.sddm.enable then
+          ++ (if inputs.config.services.displayManager.sddm.enable then
             [{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }] else []);
         }
         // (if builtins.elem "chn" inputs.config.nixos.user.users then

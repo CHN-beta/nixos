@@ -13,15 +13,10 @@ inputs:
       inherit (inputs.config.nixos.system) gui;
     in mkIf gui.enable
     {
-      services.xserver =
+      services =
       {
-        enable = true;
-        displayManager =
-        {
-          sddm.enable = true;
-          defaultSession = "plasmawayland";
-        };
-        desktopManager.plasma6.enable = true; 
+        displayManager = { sddm.enable = true; defaultSession = "plasmawayland"; };
+        xserver = { enable = true; desktopManager.plasma6.enable = true; };
       };
       systemd.services.display-manager = { after = [ "network-online.target" ]; enable = gui.autoStart; };
       environment =
