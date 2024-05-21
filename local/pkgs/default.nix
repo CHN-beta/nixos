@@ -2,10 +2,8 @@ inputs: rec
 {
   typora = inputs.pkgs.callPackage ./typora {};
   vesta = inputs.pkgs.callPackage ./vesta {};
-  rsshub = inputs.pkgs.callPackage ./rsshub.nix
-    { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; nodejs = inputs.pkgs.nodejs_21; };
-  misskey = inputs.pkgs.callPackage ./misskey.nix
-    { inherit mkPnpmPackage; nodejs = inputs.pkgs.nodejs_21; src = inputs.topInputs.misskey; };
+  rsshub = inputs.pkgs.callPackage ./rsshub.nix { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; };
+  misskey = inputs.pkgs.callPackage ./misskey.nix { inherit mkPnpmPackage; src = inputs.topInputs.misskey; };
   mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn {};
   vaspkit = inputs.pkgs.callPackage ./vaspkit { inherit (inputs.localLib) attrsToList; };
   v-sim = inputs.pkgs.callPackage ./v-sim { src = inputs.topInputs.v-sim; };
