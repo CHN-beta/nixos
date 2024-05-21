@@ -34,7 +34,7 @@ inputs:
           google-chrome
           # office
           crow-translate zotero pandoc ydict libreoffice-qt texstudio poppler_utils pdftk gnuplot pdfchain hdfview
-          (texlive.combine { inherit (texlive) scheme-full; inherit (localPackages) citation-style-language; })
+          texliveFull
           # math, physics and chemistry
           octaveFull root ovito localPackages.vesta localPackages.vaspkit localPackages.v-sim
         ] ++ (with inputs.lib; filter isDerivation (attrValues kdePackages.kdeGear));
