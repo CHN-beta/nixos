@@ -3,13 +3,13 @@
 
   inputs =
   {
-    # TODO: add color scheme
-    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-24.05";
     nixpkgs-unstable.url = "github:CHN-beta/nixpkgs/nixos-unstable";
+    "nixpkgs-23.11".url = "github:CHN-beta/nixpkgs/nixos-23.11";
     "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
     "nixpkgs-22.11".url = "github:NixOS/nixpkgs/nixos-22.11";
     "nixpkgs-22.05".url = "github:NixOS/nixpkgs/nixos-22.05";
-    home-manager = { url = "github:nix-community/home-manager/release-23.11"; inputs.nixpkgs.follows = "nixpkgs"; };
+    home-manager = { url = "github:nix-community/home-manager/master"; inputs.nixpkgs.follows = "nixpkgs"; };
     sops-nix =
     {
       url = "github:Mic92/sops-nix";
@@ -19,14 +19,10 @@
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs-unstable"; };
     nur.url = "github:nix-community/NUR";
     nixos-cn = { url = "github:nixos-cn/flakes"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nur-xddxdd =
-    {
-      url = "github:xddxdd/nur-packages?rev=404bc382a29f3d78b03871b96016579d6a0aa305";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-vscode-extensions = { url = "github:nix-community/nix-vscode-extensions"; inputs.nixpkgs.follows = "nixpkgs"; };
     impermanence.url = "github:nix-community/impermanence";
-    qchem = { url = "github:Nix-QChem/NixOS-QChem/release-23.11"; inputs.nixpkgs.follows = "nixpkgs"; };
+    qchem = { url = "github:Nix-QChem/NixOS-QChem/master"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixd = { url = "github:nix-community/nixd"; inputs.nixpkgs.follows = "nixpkgs"; };
     napalm = { url = "github:nix-community/napalm"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixpak = { url = "github:nixpak/nixpak"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -47,8 +43,6 @@
       url = "github:chaotic-cx/nyx";
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
-    # TODO: pick it from nixpkgs
-    nix-inspect.url = "github:bluskript/nix-inspect";
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
     catppuccin.url = "github:catppuccin/nix";
     bscpkgs = { url = "git+https://pm.bsc.es/gitlab/rarias/bscpkgs.git"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -56,7 +50,6 @@
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
     zpp-bits = { url = "github:eyalz800/zpp_bits"; flake = false; };
-    citation-style-language = { url = "git+https://github.com/zepinglee/citeproc-lua?submodules=1"; flake = false; };
     concurrencpp = { url = "github:David-Haim/concurrencpp"; flake = false; };
     cppcoro = { url = "github:Garcia6l20/cppcoro"; flake = false; };
     date = { url = "github:HowardHinnant/date"; flake = false; };
@@ -69,8 +62,7 @@
     win11os-kde = { url = "github:yeyushengfan258/Win11OS-kde"; flake = false; };
     fluent-kde = { url = "github:vinceliuice/Fluent-kde"; flake = false; };
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
-    blurred-wallpaper =
-      { url = "github:bouteillerAlan/blurredwallpaper?rev=aecc88d43e458a0962a0091dcdb7baac34e263be"; flake = false; };
+    blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
     slate = { url = "github:TheBigWazz/Slate"; flake = false; };
     linux-surface = { url = "github:linux-surface/linux-surface"; flake = false; };
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };

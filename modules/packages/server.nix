@@ -32,7 +32,7 @@ inputs:
           # networking
           ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils wireguard-tools
           # nix tools
-          nix-output-monitor nix-tree ssh-to-age (callPackage "${inputs.topInputs.nix-fast-build}" {})
+          nix-output-monitor nix-tree ssh-to-age (callPackage "${inputs.topInputs.nix-fast-build}" {}) nix-inspect
           # development
           gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix
           # stupid things

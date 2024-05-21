@@ -22,8 +22,6 @@ inputs: rec
   chromiumos-touch-keyboard = inputs.pkgs.callPackage ./chromiumos-touch-keyboard {};
   yoga-support = inputs.pkgs.callPackage ./yoga-support {};
   tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp { src = inputs.topInputs.tgbot-cpp; };
-  citation-style-language = inputs.pkgs.callPackage ./citation-style-language
-    { src = inputs.topInputs.citation-style-language; };
   mirism = inputs.pkgs.callPackage ./mirism
   {
     inherit cppcoro nameof tgbot-cpp date;
