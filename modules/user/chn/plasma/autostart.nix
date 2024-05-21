@@ -16,7 +16,7 @@ inputs:
           kclockd = rec
           {
             fileName = "org.kde.kclockd-autostart.desktop";
-            path = "${inputs.pkgs.plasma5Packages.kdeGear.kclock}/etc/xdg/autostart/${fileName}";
+            path = "${inputs.pkgs.kdePackages.kdeGear.kclock}/etc/xdg/autostart/${fileName}";
           };
           yakuake = rec
           {

@@ -37,7 +37,7 @@ inputs:
           (texlive.combine { inherit (texlive) scheme-full; inherit (localPackages) citation-style-language; })
           # math, physics and chemistry
           octaveFull root ovito localPackages.vesta localPackages.vaspkit localPackages.v-sim
-        ] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
+        ] ++ (with inputs.lib; filter isDerivation (attrValues kdePackages.kdeGear));
       };
     };
     programs.kdeconnect.enable = true;

@@ -21,13 +21,13 @@ inputs:
           sddm.enable = true;
           defaultSession = "plasmawayland";
         };
-        desktopManager.plasma5.enable = true;
+        desktopManager.plasma6.enable = true; 
       };
       systemd.services.display-manager = { after = [ "network-online.target" ]; enable = gui.autoStart; };
       environment =
       {
         sessionVariables."GTK_USE_PORTAL" = "1";
-        plasma5.excludePackages = inputs.lib.mkIf (!gui.preferred) [ inputs.pkgs.plasma5Packages.plasma-nm ];
+        plasma6.excludePackages = inputs.lib.mkIf (!gui.preferred) [ inputs.pkgs.kdePackages.plasma-nm ];
       };
       xdg.portal.extraPortals = map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "kde" "wlr" ];
       i18n.inputMethod =
