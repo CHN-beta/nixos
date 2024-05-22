@@ -58,7 +58,7 @@ inputs:
           shares = { home.path = "/home"; root.path = "/"; };
         };
         sshd = {};
-        xray.client.dae.wanInterface = [ "enp3s0" ];
+        xray.client = { dae.wanInterface = [ "enp3s0" ]; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
         groupshare = {};
         smartd.enable = true;
         beesd.instances =
