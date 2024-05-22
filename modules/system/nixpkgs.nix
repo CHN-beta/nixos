@@ -94,8 +94,13 @@ inputs:
                 in builtins.listToAttrs (map
                   (name: { inherit name; value = packages name; }) (builtins.attrNames source))
               )
-              // (inputs.lib.optionalAttrs (nixpkgs.march != null)
-                  { embree = prev.embree.override { stdenv = final.genericPackages.stdenv; }; })
+              // (
+                inputs.lib.optionalAttrs (nixpkgs.march != null)
+                {
+                  embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
+                  libvorbis = prev.libvorbis.override { stdenv = final.genericPackages.stdenv; };
+                }
+              )
           )];
         };
       programs.ccache = { enable = true; cacheDir = "/var/lib/ccache"; };

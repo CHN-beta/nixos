@@ -46,7 +46,7 @@ inputs: rec
     {
       inherit (inputs.pkgs.llvmPackages) openmp;
       inherit wannier90 src;
-      hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; };
+      hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; cppSupport = false; };
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
       { inherit lmod nvhpc wannier90 vtst src; hdf5 = hdf5-nvhpc; };

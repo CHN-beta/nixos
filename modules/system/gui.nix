@@ -15,10 +15,11 @@ inputs:
     {
       services =
       {
-        displayManager = { sddm.enable = true; defaultSession = "plasmawayland"; };
-        xserver = { enable = true; desktopManager.plasma6.enable = true; };
+        displayManager = { sddm.enable = true; defaultSession = "plasma"; };
+        desktopManager.plasma6.enable = true;
+        xserver.enable = true;
       };
-      systemd.services.display-manager = { after = [ "network-online.target" ]; enable = gui.autoStart; };
+      systemd.services.display-manager.enable = gui.autoStart;
       environment =
       {
         sessionVariables."GTK_USE_PORTAL" = "1";

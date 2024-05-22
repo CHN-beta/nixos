@@ -51,12 +51,7 @@ inputs:
       services =
       {
         snapper.enable = true;
-        samba =
-        {
-          enable = true;
-          hostsAllowed = "192.168. 127.";
-          shares = { home.path = "/home"; root.path = "/"; };
-        };
+        samba = { enable = true; hostsAllowed = "192.168. 127."; shares = { home.path = "/home"; root.path = "/"; }; };
         sshd = {};
         xray.client.dae.wanInterface = [ "enp3s0" ];
         groupshare = {};

@@ -56,11 +56,9 @@ inputs:
               [{
                 name = "cjktty";
                 patch =
-                  let
-                    version = builtins.concatStringsSep "." (inputs.lib.lists.take 2
-                      (builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version));
-                    fileVersion = { "6.8" = "6.7"; }.${version} or version;
-                  in "${inputs.topInputs.cjktty}/v6.x/cjktty-${fileVersion}.patch";
+                  let version = builtins.concatStringsSep "." (inputs.lib.lists.take 2
+                    (builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version));
+                  in "${inputs.topInputs.cjktty}/v6.x/cjktty-${version}.patch";
                 extraStructuredConfig =
                   { FONT_CJK_16x16 = inputs.lib.kernel.yes; FONT_CJK_32x32 = inputs.lib.kernel.yes; };
               }];
@@ -134,19 +132,7 @@ inputs:
         inputs.lib.strings.hasPrefix "cachyos" kernel.variant
         && builtins.elem "server-extra" inputs.config.nixos.packages._packageSets
       )
-      (
-        let scx =
-          let rustPlatform = inputs.pkgs.unstablePackages.rustPlatform;
-          in inputs.pkgs.scx.override (prev:
-          {
-            scx-layered = prev.scx-layered.override { inherit rustPlatform; };
-            scx-rustland = prev.scx-rustland.override { inherit rustPlatform; };
-            scx-rusty = prev.scx-rusty.override { inherit rustPlatform; };
-            scx-rlfifo = prev.scx-rlfifo.override { inherit rustPlatform; };
-            scx-lavd = prev.scx-lavd.override { inherit rustPlatform; };
-          });
-        in { environment.systemPackages = [ scx ]; }
-      )
+      { environment.systemPackages = [ inputs.pkgs.scx ]; }
     )
     (
       inputs.lib.mkIf (kernel.variant == "rpi3")

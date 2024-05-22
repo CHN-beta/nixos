@@ -11,7 +11,7 @@ inputs:
       {
         "vm.oom_kill_allocating_task" = true;
         "vm.oom_dump_tasks" = false;
-        "vm.overcommit_memory" = 1;
+        "vm.overcommit_memory" = inputs.lib.mkDefault 1;
         "kernel.sysrq" = 438;
       };
     }

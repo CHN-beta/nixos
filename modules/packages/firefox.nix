@@ -7,11 +7,9 @@ inputs:
       programs.firefox =
       {
         enable = true;
-        # TODO: switch to 24.05
-        # nativeMessagingHosts = [ inputs.pkgs.plasma-browser-integration ];
+        nativeMessagingHosts = [ inputs.pkgs.plasma-browser-integration ];
         # TODO: switch to chromium as default browser
         # TODO: use fixed-version of plugins
-        package = inputs.pkgs.firefox.override { nativeMessagingHosts = [ inputs.pkgs.plasma-browser-integration ]; };
         policies.DefaultDownloadDirectory = "\${home}/Downloads";
         profiles.default =
         {
@@ -19,7 +17,7 @@ inputs:
           [
             immersive-translate tampermonkey bitwarden cookies-txt dualsub firefox-color i-dont-care-about-cookies
             metamask pakkujs switchyomega rsshub-radar rsspreview tabliss tree-style-tab ublock-origin wallabagger
-            wappalyzer grammarly plasma-integration zotero-connector.zotero-connector
+            wappalyzer grammarly plasma-integration zotero-connector
           ];
           search = { default = "Google"; force = true; };
           userChrome = builtins.readFile "${inputs.topInputs.lepton}/userChrome.css";

@@ -30,7 +30,7 @@ inputs:
             enable = true;
             drivers = inputs.lib.mkIf (inputs.config.nixos.system.nixpkgs.arch == "x86_64") [ inputs.pkgs.cnijfilter2 ];
           };
-          avahi = { enable = true; nssmdns = true; openFirewall = true; };
+          avahi = { enable = true; nssmdns4 = true; openFirewall = true; };
         };
       }
     )

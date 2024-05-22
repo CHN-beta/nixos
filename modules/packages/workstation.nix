@@ -11,13 +11,13 @@ inputs:
           # password and key management
           electrum jabref
           # system management
-          wl-mirror nvtop
+          wl-mirror nvtopPackages.full
           # nix tools
           nix-template nil pnpm-lock-export bundix
           # instant messager
           cinny-desktop nheko # qq nur-xddxdd.wechat-uos 
           # development
-          jetbrains.clion android-studio dbeaver cling fprettify aircrack-ng
+          jetbrains.clion android-studio dbeaver-bin cling fprettify aircrack-ng
           # install per project
           # clang-tools_16 ccls 
           # media

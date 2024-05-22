@@ -9,7 +9,7 @@ inputs:
         _packages =
         [
           # system management
-          etcher btrfs-assistant snapper-gui libsForQt5.qtstyleplugin-kvantum ventoy-full cpu-x
+          btrfs-assistant snapper-gui libsForQt5.qtstyleplugin-kvantum ventoy-full cpu-x # etcher
           # password and key management
           yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden
           # download
@@ -20,7 +20,7 @@ inputs:
           spotify yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc obs-studio
           waifu2x-converter-cpp inkscape blender
           # editor
-          unstablePackages.typora
+          typora
           # themes
           orchis-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme arc-kde-theme materia-theme
           # news
@@ -37,7 +37,9 @@ inputs:
           texliveFull
           # math, physics and chemistry
           octaveFull root ovito localPackages.vesta localPackages.vaspkit localPackages.v-sim
-        ] ++ (with inputs.lib; filter isDerivation (attrValues kdePackages.kdeGear));
+        ]
+        ++ (builtins.filter (p: !(p.meta.broken or false))
+          (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
       };
     };
     programs.kdeconnect.enable = true;

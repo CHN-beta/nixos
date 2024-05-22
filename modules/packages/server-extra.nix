@@ -12,8 +12,6 @@ inputs:
           ksh
           # basic tools
           neofetch
-          # nix tools
-          inputs.topInputs.nix-inspect.packages."${inputs.config.nixos.system.nixpkgs.arch}-linux".default
           # office
           todo-txt-cli pdfgrep ffmpeg-full
           # development
