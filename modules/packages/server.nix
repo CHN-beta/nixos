@@ -56,7 +56,7 @@ inputs:
               advice.detachedHead = false;
               merge.conflictstyle = "diff3";
               diff.colorMoved = "default";
-              lfs.activitytimeout = 600;
+              lfs.activitytimeout = 3600;
             };
             package = inputs.pkgs.gitFull;
             delta =
