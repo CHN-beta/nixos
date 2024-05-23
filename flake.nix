@@ -101,7 +101,8 @@
           hpcstat =
             let openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
               (prev: { doCheck = false; patches = prev.patches ++ [ ./local/pkgs/hpcstat/openssh.patch ];});
-            in pkgs.pkgsStatic.localPackages.hpcstat.override { inherit openssh; standalone = true; };
+            in pkgs.pkgsStatic.localPackages.hpcstat.override
+              { inherit openssh; standalone = true; version = inputs.self.rev or "dirty"; };
         }
         // (
           builtins.listToAttrs (builtins.map
@@ -194,7 +195,7 @@
           };
           hpcstat = pkgs.mkShell
           {
-            inputsFrom = [ inputs.self.packages.x86_64-linux.hpcstat ];
+            inputsFrom = [ (inputs.self.packages.x86_64-linux.hpcstat.override { version = null; }) ];
             packages = [ pkgs.clang-tools_17 ];
             CMAKE_EXPORT_COMPILE_COMMANDS = "1";
           };

@@ -22,7 +22,7 @@ int main(int argc, const char** argv)
     std::vector<std::string> args(argv, argv + argc);
 
     if (args.size() == 1)
-      { std::cout << "Usage: hpcstat initdb|login|logout|submitjob|finishjob|verify|export\n"; return 1; }
+      { std::cout << "Usage: hpcstat initdb|login|logout|submitjob|finishjob|verify|export|version\n"; return 1; }
     else if (args[1] == "initdb")
     {
       lock.lock();
@@ -157,6 +157,7 @@ int main(int argc, const char** argv)
       if (auto jobs = sql::check_job_status(); !jobs) return 1;
       else if (!push::push(*jobs)) return 1;
     }
+    else if (args[1] == "version") { std::cout << HPCSTAT_VERSION << std::endl; }
     else { std::cerr << "Unknown command.\n"; return 1; }
   }
   catch (...) { std::cerr << boost::current_exception_diagnostic_information() << std::endl; return 1; }
