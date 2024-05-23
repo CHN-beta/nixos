@@ -48,22 +48,28 @@ namespace hpcstat::push
     }
     // push to telegram for chn
     {
-      auto message = data
+      auto messages = data
         | ranges::views::filter([](const auto& pair)
           { return std::get<2>(pair.second) == "LNoYfq/SM7l8sFAy325WpC+li+kZl3jwST7TmP72Tz8"; })
         | ranges::views::transform([](const auto& pair)
           { return fmt::format("{} {} {}", std::get<1>(pair.second), std::get<0>(pair.second), pair.first); })
-        | ranges::views::join('\n')
-        | ranges::to<std::string>;
-      if (message != "")
+        | ranges::views::chunk(20)
+        | ranges::views::transform([](auto chunk) { return chunk | ranges::views::join('\n'); })
+        | ranges::to<std::vector<std::string>>;
+      if (!messages.empty())
       {
         httplib::Client cli("https://api.chn.moe");
         cli.enable_server_certificate_verification(false);
-        auto path = fmt::format
-          ("/notify.php?message={}", boost::urls::encode(message, boost::urls::unreserved_chars));
-        auto res = cli.Get(path.c_str());
-        if (res.error() != httplib::Error::Success)
-          { fmt::print("Push failed: {}\n", nameof::nameof_enum(res.error())); return false; }
+        for (auto& message : messages)
+        {
+          auto path = fmt::format
+            ("/notify.php?message={}", boost::urls::encode(message, boost::urls::unreserved_chars));
+          auto res = cli.Get(path.c_str());
+          if (res.error() != httplib::Error::Success)
+            { fmt::print("Push failed: {}\n", nameof::nameof_enum(res.error())); return false; }
+          else if (res->status != 200)
+            { fmt::print("Push failed: status code {}\n", res->status); return false; }
+        }
       }
     }
     return true;
