@@ -10,7 +10,6 @@ inputs:
       topInputs.sops-nix.nixosModules.sops
       topInputs.aagl.nixosModules.default
       topInputs.nix-index-database.nixosModules.nix-index
-      topInputs.nur.nixosModules.nur
       topInputs.nur-xddxdd.nixosModules.setupOverlay
       topInputs.impermanence.nixosModules.impermanence
       topInputs.nix-flatpak.nixosModules.nix-flatpak
@@ -23,8 +22,6 @@ inputs:
           nixpkgs.overlays =
           [
             topInputs.qchem.overlays.default
-            topInputs.nixd.overlays.default
-            topInputs.napalm.overlays.default
             topInputs.aagl.overlays.default
             topInputs.bscpkgs.overlays.default
             (final: prev:
