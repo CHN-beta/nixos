@@ -24,6 +24,7 @@ inputs:
         hosts = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
       };
     };
+    githubToken.enable = mkOption { type = types.bool; default = false; };
   };
   config = let inherit (inputs.config.nixos.system) nix; in inputs.lib.mkMerge
   [
@@ -142,6 +143,19 @@ inputs:
           nix.remote.master.hosts;
       };
       sops.secrets."nix/remote" = {};
+    })
+    (inputs.lib.mkIf nix.githubToken.enable
+    {
+      nix.extraOptions = "!include ${inputs.config.sops.templates."nix-github.conf".path}";
+      sops =
+      {
+        templates."nix-github.conf" =
+        {
+          content = "access-tokens = github.com=${inputs.config.sops.placeholder."github/token"}";
+          mode = "0444";
+        };
+        secrets."github/token" = {};
+      };
     })
     # c++ include path
     # environment.pathsToLink = [ "/include" ];

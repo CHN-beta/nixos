@@ -30,7 +30,7 @@ inputs:
         };
         nixpkgs.march = "skylake";
         grub.installDevice = "efi";
-        nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
+        nix = { substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ]; githubToken.enable = true; };
         kernel = { variant = "xanmod-lts"; patches = [ "cjktty" "lantian" "surface" "hibernate-progress" ]; };
         networking.hostname = "surface";
         gui.enable = true;
