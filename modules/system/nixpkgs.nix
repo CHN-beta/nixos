@@ -100,6 +100,7 @@ inputs:
                   embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
                   libvorbis = prev.libvorbis.override { stdenv = final.genericPackages.stdenv; };
                   _7zz = prev._7zz.override { stdenv = final.genericPackages.stdenv; };
+                  ispc = prev.ispc.override { stdenv = final.genericPackages.stdenv; };
                 }
               )
           )];
