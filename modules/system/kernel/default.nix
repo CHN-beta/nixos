@@ -56,8 +56,7 @@ inputs:
               [{
                 name = "cjktty";
                 patch =
-                  let version = builtins.concatStringsSep "." (inputs.lib.lists.take 2
-                    (builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version));
+                  let version = inputs.lib.versions.majorMinor inputs.config.boot.kernelPackages.kernel.version;
                   in "${inputs.topInputs.cjktty}/v6.x/cjktty-${version}.patch";
                 extraStructuredConfig =
                   { FONT_CJK_16x16 = inputs.lib.kernel.yes; FONT_CJK_32x32 = inputs.lib.kernel.yes; };
@@ -121,7 +120,13 @@ inputs:
                         (builtins.readFile "${inputs.topInputs.linux-surface}/configs/surface-${version}.config")))))
                     [ "VIDEO_IPU3_IMGU" ];
                 in kernelPatches ++ [{ name = "surface-config"; patch = null; extraStructuredConfig = kernelConfig; }];
-              hibernate-progress = [{ name = "hibernate-progress"; patch = ./hibernate-progress.patch; }];
+              hibernate-progress =
+              [{
+                name = "hibernate-progress";
+                patch =
+                  let version = inputs.lib.versions.majorMinor inputs.config.boot.kernelPackages.kernel.version;
+                  in ./hibernate-progress-${version}.patch;
+              }];
             };
           in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
       };
