@@ -102,6 +102,7 @@ inputs:
                   _7zz = prev._7zz.override { stdenv = final.genericPackages.stdenv; };
                   ispc = (prev.ispc.override { stdenv = final.genericPackages.stdenv; })
                     .overrideAttrs { doCheck = false; };
+                  opencolorio = prev.opencolorio.overrideAttrs { doCheck = false; };
                 }
               )
           )];
