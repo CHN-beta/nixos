@@ -35,7 +35,7 @@ inputs:
       {
         snapper.enable = true;
         sshd = {};
-        xray.server = { serverName = "vps6.xserver.chn.moe"; userNumber = 17; };
+        xray.server = { serverName = "vps6.xserver.chn.moe"; userNumber = 18; };
         frpServer = { enable = true; serverName = "frp.chn.moe"; };
         nginx =
         {
