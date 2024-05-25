@@ -26,7 +26,7 @@ inputs:
         sessionVariables."GTK_USE_PORTAL" = "1";
         plasma6.excludePackages = inputs.lib.mkIf (!gui.preferred) [ inputs.pkgs.kdePackages.plasma-nm ];
       };
-      xdg.portal.extraPortals = map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "kde" "wlr" ];
+      xdg.portal.extraPortals = map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" ];
       i18n.inputMethod =
       {
         enabled = "fcitx5";
