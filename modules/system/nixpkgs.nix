@@ -134,6 +134,5 @@ inputs:
             };
           in { GENERIC_CPU = inputs.lib.kernel.no; ${kernelConfig.${nixpkgs.march}} = inputs.lib.kernel.yes; };
       }];
-      environment.systemPackages = mkIf nixpkgs.cuda.enable [ inputs.pkgs.cudatoolkit ];
     };
 }
