@@ -3,7 +3,7 @@ inputs:
   imports = inputs.localLib.findModules ./.;
   config =
   {
-    services = { dbus.implementation = "broker"; fstrim.enable = true; acpid.enable = true; };
+    services = { fstrim.enable = true; acpid.enable = true; };
     time.timeZone = "Asia/Shanghai";
     boot =
     {
