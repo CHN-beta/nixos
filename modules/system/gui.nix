@@ -15,7 +15,8 @@ inputs:
     {
       services =
       {
-        displayManager = { sddm.enable = true; defaultSession = "plasma"; };
+        displayManager =
+          { sddm = { enable = true; wayland.enable = true; theme = "breeze"; }; defaultSession = "plasma"; };
         desktopManager.plasma6.enable = true;
         xserver.enable = true;
       };
