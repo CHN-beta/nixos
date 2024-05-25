@@ -17,7 +17,7 @@ inputs:
       {
         displayManager =
           { sddm = { enable = true; wayland.enable = true; theme = "breeze"; }; defaultSession = "plasma"; };
-        desktopManager.plasma6.enable = true;
+        desktopManager.plasma6 = { enable = true; enableQt5Integration = false; };
         xserver.enable = true;
       };
       systemd.services.display-manager.enable = gui.autoStart;
