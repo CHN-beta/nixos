@@ -7,7 +7,7 @@ inputs:
       packages._packages = with inputs.pkgs;
       [
         # system management
-        gparted kio-fuse wayland-utils clinfo glxinfo vulkan-tools dracut
+        gparted wayland-utils clinfo glxinfo vulkan-tools dracut
         (
           writeShellScriptBin "xclip"
           ''
