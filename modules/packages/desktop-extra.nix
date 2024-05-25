@@ -38,7 +38,7 @@ inputs:
           # math, physics and chemistry
           octaveFull root ovito localPackages.vesta localPackages.vaspkit localPackages.v-sim
         ]
-        ++ (builtins.filter (p: !(p.meta.broken or false))
+        ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" ])))
           (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
       };
     };
