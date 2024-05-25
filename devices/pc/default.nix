@@ -129,6 +129,7 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "suspend-hibernate-no-platform" ];
     };
+    system.nixos.tags = [ "next" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
     specialisation =
@@ -138,7 +139,7 @@ inputs:
         nixos =
         {
           hardware.gpu = 
-            { type = inputs.lib.mkForce "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; };
+            { type = inputs.lib.mkForce "amd+nvidia"; prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; };
           services.gamemode.drmDevice = inputs.lib.mkForce 1;
         };
         system.nixos.tags = [ "hybrid" ];
