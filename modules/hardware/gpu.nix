@@ -56,10 +56,10 @@ inputs:
           nvidia = inputs.lib.mkIf (builtins.elem "nvidia" gpus)
           {
             modesetting.enable = true;
-            powerManagement.enable = false;
+            powerManagement.enable = true;
             dynamicBoost.enable = inputs.lib.mkIf gpu.dynamicBoost true;
             nvidiaSettings = true;
-            # forceFullCompositionPipeline = true;
+            forceFullCompositionPipeline = true;
             # package = inputs.config.boot.kernelPackages.nvidiaPackages.production;
             prime.allowExternalGpu = true;
           };
