@@ -27,7 +27,7 @@ inputs:
           # text editor
           appflowy notion-app-enhanced joplin-desktop standardnotes logseq
           # math, physics and chemistry
-          mathematica paraview jmol mpi quantum-espresso # localPackages.mumax
+          mathematica paraview jmol mpi # quantum-espresso # localPackages.mumax
           # encryption and password management
           john crunch hashcat
           # container and vm
