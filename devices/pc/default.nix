@@ -62,7 +62,7 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu = { type = "amd+nvidia"; prime.busId = { amd = "8:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; };
+        gpu = { type = "amd+nvidia"; prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; };
         legion = {};
       };
       packages.packageSet = "workstation";
@@ -137,6 +137,7 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "suspend-hibernate-no-platform" ];
     };
+    system.nixos.tags = [ "production" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
     virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
