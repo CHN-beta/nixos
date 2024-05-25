@@ -104,6 +104,13 @@ inputs:
                   opencolorio = prev.opencolorio.overrideAttrs { doCheck = false; };
                 }
               )
+              // (
+                inputs.lib.optionalAttrs nixpkgs.cuda.enable
+                {
+                  waifu2x-converter-cpp = prev.waifu2x-converter-cpp.override
+                    { stdenv = final.cudaPackages.backendStdenv; };
+                }
+              )
           )];
         };
       programs.ccache = { enable = true; cacheDir = "/var/lib/ccache"; };
