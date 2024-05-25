@@ -32,6 +32,6 @@ inputs:
         enabled = "fcitx5";
         fcitx5.addons = map (p: inputs.pkgs."fcitx5-${p}") [ "rime" "chinese-addons" "mozc" "nord" "material-color" ];
       };
-      programs = { dconf.enable = true; xwayland.enable = true; };
+      programs = { dconf.enable = true; };
     };
 }
