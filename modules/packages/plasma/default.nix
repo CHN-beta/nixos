@@ -10,7 +10,7 @@ inputs:
         # TODO: autostart, panel, discard user changed settings
         # general
         {
-          enable = false;
+          enable = true;
           configFile.plasma-localerc = { Formats.LANG.value = "en_US.UTF-8"; Translations.LANGUAGE.value = "zh_CN"; };
         }
         # kwin
