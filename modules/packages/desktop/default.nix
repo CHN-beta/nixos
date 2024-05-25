@@ -33,7 +33,7 @@ inputs:
         # development
         adb-sync
         # virtual keyboard
-        localPackages.kylin-virtual-keyboard
+        # localPackages.kylin-virtual-keyboard
       ];
     };
     programs =
