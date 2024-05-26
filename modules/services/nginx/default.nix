@@ -246,9 +246,9 @@ inputs:
               access_log syslog:server=unix:/dev/log http;
               proxy_ssl_server_name on;
               proxy_ssl_session_reuse off;
-              send_timeout 10m;
+              send_timeout 1d;
             '';
-            proxyTimeout = "10m";
+            proxyTimeout = "1d";
             recommendedZstdSettings = true;
             recommendedTlsSettings = true;
             recommendedProxySettings = true;

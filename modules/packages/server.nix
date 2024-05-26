@@ -53,10 +53,19 @@ inputs:
             extraConfig =
             {
               core.editor = if inputs.config.nixos.system.gui.preferred then "code --wait" else "vim";
+              http.postBuffer = 624288000;
               advice.detachedHead = false;
               merge.conflictstyle = "diff3";
               diff.colorMoved = "default";
-              lfs.activitytimeout = 600;
+              lfs =
+              {
+                concurrenttransfers = 10;
+                activitytimeout = 3600;
+                dialtimeout = 3600;
+                keepalive = 3600;
+                tlstimeout = 3600;
+                transfer.maxretries = 1;
+              };
             };
             package = inputs.pkgs.gitFull;
             delta =

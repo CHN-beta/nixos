@@ -62,7 +62,7 @@ inputs:
     services.iptsd.config =
     {
       Touch = { DisableOnPalm = true; DisableOnStylus = true; Overshoot = 0.5; };
-      Contacts = { Neutral = "Average"; NeutralValue = 50; };
+      Contacts = { Neutral = "Average"; NeutralValue = 100; };
     };
   };
 }
