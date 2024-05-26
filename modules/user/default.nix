@@ -96,18 +96,21 @@ inputs:
     }
     # set hashedPassword if it exist in secrets
     (
-      let
-        secrets = inputs.pkgs.localPackages.fromYaml (builtins.readFile inputs.config.sops.defaultSopsFile);
-        hashedPasswordExist = userName: (secrets ? users) && ((secrets.users or {}) ? ${userName});
-      in
-      {
-        users.users = builtins.listToAttrs (builtins.map
-          (name: { inherit name; value.hashedPasswordFile = inputs.config.sops.secrets."users/${name}".path; })
-          (builtins.filter (user: hashedPasswordExist user) user.users));
-        sops.secrets = builtins.listToAttrs (builtins.map
-          (name: { name = "users/${name}"; value.neededForUsers = true; })
-          (builtins.filter (user: hashedPasswordExist user) user.users));
-      }
+      inputs.lib.mkIf inputs.config.nixos.system.sops.enable
+      (
+        let
+          secrets = inputs.pkgs.localPackages.fromYaml (builtins.readFile inputs.config.sops.defaultSopsFile);
+          hashedPasswordExist = userName: (secrets ? users) && ((secrets.users or {}) ? ${userName});
+        in
+        {
+          users.users = builtins.listToAttrs (builtins.map
+            (name: { inherit name; value.hashedPasswordFile = inputs.config.sops.secrets."users/${name}".path; })
+            (builtins.filter (user: hashedPasswordExist user) user.users));
+          sops.secrets = builtins.listToAttrs (builtins.map
+            (name: { name = "users/${name}"; value.neededForUsers = true; })
+            (builtins.filter (user: hashedPasswordExist user) user.users));
+        }
+      )
     )
     {
       users.users.root =
