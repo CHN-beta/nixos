@@ -10,14 +10,17 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/E58F-416A" = "/boot/efi";
+            vfat."/dev/disk/by-uuid/ABD2-C06A" = "/boot/efi";
             btrfs =
             {
-              "/dev/disk/by-uuid/066be4fd-8617-4fe1-9654-c133c2996d33"."/" = "/boot";
-              "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+              "/dev/disk/by-uuid/e80edd17-f127-4820-8951-222d22d0301a" =
+              {
+                "/nix" = "/nix";
+                "/nix/rootfs/current" = "/";
+                "/nix/boot" = "/boot";
+              };
             };
           };
-          swap = [ "/dev/mapper/swap" ];
           rollingRootfs = {};
         };
         grub.installDevice = "efi";
