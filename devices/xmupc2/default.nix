@@ -51,7 +51,6 @@ inputs:
       services =
       {
         snapper.enable = true;
-        fontconfig.enable = true;
         sshd = { passwordAuthentication = true; groupBanner = true; };
         xray.client = {};
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
