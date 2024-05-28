@@ -122,7 +122,7 @@ inputs:
                   {
                     name = stcp.name;
                     type = "stcp";
-                    transport = { useCompression = true; tls.enable = true; };
+                    transport.useCompression = true;
                     secretKey = inputs.config.sops.placeholder."frp/stcp/${stcp.name}";
                     serverUser = builtins.elemAt (splitString "." stcp.name) 0;
                     serverName = builtins.elemAt (splitString "." stcp.name) 1;
