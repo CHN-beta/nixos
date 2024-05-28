@@ -46,6 +46,7 @@ inputs:
         nixpkgs.march = "silvermont";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         networking = { hostname = "nas"; networkd = {}; };
+        kernel.variant = "xanmod-latest";
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
