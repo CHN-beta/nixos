@@ -27,7 +27,7 @@ inputs:
         mpv nomacs
         # themes
         localPackages.win11os-kde localPackages.fluent-kde localPackages.blurred-wallpaper
-        localPackages.slate utterly-nord-plasma
+        localPackages.slate
         # terminal
         warp-terminal
         # development

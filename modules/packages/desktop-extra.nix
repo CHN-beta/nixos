@@ -21,8 +21,6 @@ inputs:
           waifu2x-converter-cpp inkscape blender
           # editor
           typora
-          # themes
-          orchis-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme arc-kde-theme materia-theme
           # news
           fluent-reader
           # nix tools
