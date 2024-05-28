@@ -9,13 +9,13 @@
     "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
     "nixpkgs-22.11".url = "github:NixOS/nixpkgs/nixos-22.11";
     "nixpkgs-22.05".url = "github:NixOS/nixpkgs/nixos-22.05";
-    home-manager = { url = "github:nix-community/home-manager/master"; inputs.nixpkgs.follows = "nixpkgs"; };
+    home-manager = { url = "github:nix-community/home-manager/release-24.05"; inputs.nixpkgs.follows = "nixpkgs"; };
     sops-nix =
     {
       url = "github:Mic92/sops-nix";
       inputs = { nixpkgs.follows = "nixpkgs"; nixpkgs-stable.follows = "nixpkgs"; };
     };
-    aagl = { url = "github:ezKEa/aagl-gtk-on-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
+    aagl = { url = "github:ezKEa/aagl-gtk-on-nix/release-24.05"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs-unstable"; };
     nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-vscode-extensions = { url = "github:nix-community/nix-vscode-extensions"; inputs.nixpkgs.follows = "nixpkgs"; };
