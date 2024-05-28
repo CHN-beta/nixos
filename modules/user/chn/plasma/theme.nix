@@ -8,9 +8,10 @@ inputs:
       {
         theme = "Fluent-round-light";
         colorScheme = "FluentLight";
-        cursorTheme = "Breeze_Snow";
+        cursorTheme = "Breeze_Light";
         lookAndFeel = "com.github.vinceliuice.Fluent-round-light";
-        # iconTheme = "Breeze";
+        # ~/.config/kdeglobals [Icons]
+        iconTheme = "Tela-circle-light";
       };
       configFile =
       {
