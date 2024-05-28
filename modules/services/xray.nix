@@ -75,7 +75,6 @@ inputs:
           dae =
           {
             enable = true;
-            package = inputs.pkgs.callPackage "${inputs.topInputs.nixpkgs-unstable}/pkgs/tools/networking/dae" {};
             config =
             let
               lanString = (inputs.lib.optionalString (xray.client.dae.lanInterfaces != []) "lan_interface: ")
