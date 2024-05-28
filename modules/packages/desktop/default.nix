@@ -26,7 +26,7 @@ inputs:
         # media
         mpv nomacs
         # themes
-        localPackages.win11os-kde localPackages.fluent-kde localPackages.blurred-wallpaper
+        tela-circle-icon-theme localPackages.win11os-kde localPackages.fluent-kde localPackages.blurred-wallpaper
         localPackages.slate
         # terminal
         warp-terminal
