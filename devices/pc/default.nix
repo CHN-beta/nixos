@@ -101,7 +101,6 @@ inputs:
                 "dispatchcnglobal.yuanshen.com"
               ])
           );
-          dae.wanInterface = [ "wlp4s0" "enp5s0" ];
         };
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         acme.cert."debug.mirism.one" = {};

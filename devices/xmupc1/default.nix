@@ -59,7 +59,7 @@ inputs:
         snapper.enable = true;
         fontconfig.enable = true;
         sshd = { passwordAuthentication = true; groupBanner = true; };
-        xray.client.dae.wanInterface = [ "wlp57s0" ];
+        xray.client = {};
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         smartd.enable = true;
         beesd.instances =
