@@ -130,7 +130,6 @@ inputs:
     system.nixos.tags = [ "next" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
-    chaotic.mesa-git.enable = true;
     specialisation =
     {
       hybrid.configuration =
