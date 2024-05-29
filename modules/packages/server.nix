@@ -121,7 +121,11 @@ inputs:
         };
       };
     };
-    services.udev.packages = with inputs.pkgs; [ yubikey-personalization libfido2 ];
+    services =
+    {
+      udev.packages = with inputs.pkgs; [ yubikey-personalization libfido2 ];
+      nixseparatedebuginfod.enable = true;
+    };
     home-manager = { useGlobalPkgs = true; useUserPackages = true; };
   };
 }
