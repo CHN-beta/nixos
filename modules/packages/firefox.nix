@@ -2,7 +2,7 @@ inputs:
 {
   config = inputs.lib.mkIf (builtins.elem "desktop" inputs.config.nixos.packages._packageSets)
   {
-    nixos.user.sharedModules = [{ config =
+    home-manager.users.chn.config =
     {
       programs.firefox =
       {
@@ -40,7 +40,7 @@ inputs:
         };
       };
       home.file.".mozilla/firefox/profiles.ini".force = true;
-    };}];
+    };
     # still enable global firefox, to install language packs
     programs.firefox =
     {
