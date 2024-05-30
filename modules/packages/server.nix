@@ -45,43 +45,6 @@ inputs:
       {
         config.programs =
         {
-          direnv = { enable = true; nix-direnv.enable = true; };
-          git =
-          {
-            enable = true;
-            lfs.enable = true;
-            extraConfig =
-            {
-              core.editor = if inputs.config.nixos.system.gui.preferred then "code --wait" else "vim";
-              http.postBuffer = 624288000;
-              advice.detachedHead = false;
-              merge.conflictstyle = "diff3";
-              diff.colorMoved = "default";
-              lfs =
-              {
-                concurrenttransfers = 10;
-                activitytimeout = 3600;
-                dialtimeout = 3600;
-                keepalive = 3600;
-                tlstimeout = 3600;
-                transfer.maxretries = 1;
-              };
-            };
-            package = inputs.pkgs.gitFull;
-            delta =
-            {
-              enable = true;
-              options =
-              {
-                side-by-side = true;
-                navigate = true;
-                syntax-theme = "GitHub";
-                light = true;
-                zero-style = "syntax white";
-                line-numbers-zero-style = "#ffffff";
-              };
-            };
-          };
           vim =
           {
             enable = true;
@@ -109,17 +72,7 @@ inputs:
       nix-index.enable = true;
       command-not-found.enable = false;
       autojump.enable = true;
-      git =
-      {
-        enable = true;
-        package = inputs.pkgs.gitFull;
-        lfs.enable = true;
-        config =
-        {
-          init.defaultBranch = "main";
-          core = { quotepath = false; editor = "vim"; };
-        };
-      };
+      direnv = { enable = true; nix-direnv.enable = true; };
     };
     services.udev.packages = with inputs.pkgs; [ yubikey-personalization libfido2 ];
     home-manager = { useGlobalPkgs = true; useUserPackages = true; };
