@@ -136,9 +136,9 @@ inputs:
         (attrsToList misskey.instances));
       nixos.services =
       {
-        redis = mkIf (misskey.instances != {}) { instances = listToAttrs (map
+        redis.instances = listToAttrs (map
           (instance: { name = "misskey-${instance.name}"; value.port = instance.value.redis.port; })
-          (attrsToList misskey.instances)); };
+          (attrsToList misskey.instances));
         postgresql.instances = listToAttrs (map
           (instance: { name = "misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
           (attrsToList misskey.instances));

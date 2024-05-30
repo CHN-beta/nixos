@@ -271,9 +271,9 @@ inputs:
             }
           ])
           (attrsToList synapse.instances)));
-        redis = mkIf (synapse.instances != {}) { instances = listToAttrs (map
+        redis.instances = listToAttrs (map
           (instance: { name = "synapse-${instance.name}"; value.port = instance.value.redisPort; })
-          (attrsToList synapse.instances));};
+          (attrsToList synapse.instances));
         nginx =
         {
           enable = mkIf (synapse.instances != {}) true;

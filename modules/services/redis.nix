@@ -13,33 +13,28 @@ inputs:
       default = {};
     };
   };
-  config =
-    let
-      inherit (inputs.config.nixos.services) redis;
-      inherit (inputs.localLib) attrsToList;
-      inherit (builtins) map listToAttrs filter;
-    in
-    {
-      services.redis.servers = listToAttrs (map
-        (server:
+  config = let inherit (inputs.config.nixos.services) redis; in
+  {
+    services.redis.servers = inputs.localLib.listToAttrs (builtins.map
+      (server:
+      {
+        inherit (server) name;
+        value =
         {
-          inherit (server) name;
-          value =
-          {
-            enable = true;
-            bind = null;
-            port = server.value.port;
-            user = server.value.user;
-            # unixSocket = null; # bug
-            unixSocketPerm = 600;
-            requirePassFile =
-              if server.value.passwordFile == null then inputs.config.sops.secrets."redis/${server.name}".path
-              else server.value.passwordFile;
-          };
-        })
-        (attrsToList redis.instances));
-      sops.secrets = listToAttrs (map
-        (server: { name = "redis/${server.name}"; value.owner = inputs.config.users.users.${server.value.user}.name; })
-        (filter (server: server.value.passwordFile == null) (attrsToList redis.instances)));
-    };
+          enable = true;
+          bind = null;
+          port = server.value.port;
+          user = server.value.user;
+          # unixSocket = null; # bug
+          unixSocketPerm = 600;
+          requirePassFile =
+            if server.value.passwordFile == null then inputs.config.sops.secrets."redis/${server.name}".path
+            else server.value.passwordFile;
+        };
+      })
+      (builtins.attrsToList redis.instances));
+    sops.secrets = inputs.localLib.listToAttrs (builtins.map
+      (server: { name = "redis/${server.name}"; value.owner = inputs.config.users.users.${server.value.user}.name; })
+      (builtins.filter (server: server.value.passwordFile == null) (builtins.attrsToList redis.instances)));
+  };
 }
