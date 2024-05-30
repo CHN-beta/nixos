@@ -19,9 +19,9 @@ inputs:
       "plasma-org.kde.plasma.desktop-appletsrc" =
       {
         "Containments/1".wallpaperplugin.value = "a2n.blur";
-        "Containments/1/Wallpaper/a2n.blur.General".Image.value = wallpaper;
+        "Containments/1/Wallpaper/a2n.blur/General".Image.value = wallpaper;
       };
-      kscreenlockerrc."Greeter/Wallpaper/org.kde.image.General" =
+      kscreenlockerrc."Greeter/Wallpaper/org.kde.image/General" =
         { Image.value = wallpaper; PreviewImage.value = wallpaper; };
       kdeglobals.General.accentColorFromWallpaper.value = true;
     };

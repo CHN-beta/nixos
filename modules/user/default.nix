@@ -82,7 +82,7 @@ inputs:
         user.users);
       environment.persistence."${inputs.config.nixos.system.impermanence.persistence}".directories = builtins.map
         (user: { directory = "/home/${user}"; inherit user; group = user; mode = "0700"; })
-        user.users;
+        (builtins.filter (user: user != "chn") user.users);
     }
     # set hashedPassword if it exist in secrets
     (
