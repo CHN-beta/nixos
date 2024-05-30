@@ -83,16 +83,6 @@ inputs:
       environment.persistence."${inputs.config.nixos.system.impermanence.persistence}".directories = builtins.map
         (user: { directory = "/home/${user}"; inherit user; group = user; mode = "0700"; })
         user.users;
-      nixos.user.sharedModules =
-      [{
-        config.home.file =
-        {
-          ".config/.keep".text = "";
-          ".local/.keep".text = "";
-          ".local/share/.keep".text = "";
-          ".local/state/.keep".text = "";
-        };
-      }];
     }
     # set hashedPassword if it exist in secrets
     (
