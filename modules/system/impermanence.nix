@@ -44,14 +44,7 @@ inputs:
           { directory = "/var/lib/docker"; mode = "0710"; }
           "/var/lib/flatpak"
         ];
-      }
-      // (if builtins.elem "chn" inputs.config.nixos.user.users then
-      {
-        users.chn =
-        {
-          directories = [ ".cache" ".config/fontconfig" ];
-        };
-      } else {});
+      };
       "${impermanence.nodatacow}" =
       {
         hideMounts = true;
