@@ -137,6 +137,9 @@ inputs:
             # kde
             ".config/akonadi" ".config/KDE" ".config/kde.org" ".config/kdeconnect" ".config/kdedefaults"
             ".config/Kvantum" ".config/kactivitymanagerdrc" ".config/plasma-org.kde.plasma.desktop-appletsrc"
+            ".config/kactivitymanagerd-switcher" ".config/kactivitymanagerd-statsrc"
+            ".config/kactivitymanagerd-pluginsrc"
+            ".config/plasmarc" ".config/plasmashellrc" ".config/kwinrc" ".config/krunnerrc"
             ".config/kdeglobals" ".config/kglobalshortcutsrc" ".config/kio_fishrc" ".config/kiorc"
             ".config/kleopatrarc" ".config/kmail2rc" ".config/kmailsearchindexingrc" ".config/kscreenlockerrc"
             ".config/user-dirs.dirs" ".config/yakuakerc" ".local/share/akonadi" ".local/share/akonadi-davgroupware"
