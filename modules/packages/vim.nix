@@ -2,24 +2,27 @@ inputs:
 {
   config = inputs.lib.mkIf (builtins.elem "server" inputs.config.nixos.packages._packageSets)
   {
-    home-manager.users.chn.config.programs.vim =
-    {
-      enable = true;
-      defaultEditor = true;
-      packageConfigurable = inputs.config.programs.vim.package;
-      settings =
+    nixos.user.sharedModules =
+    [{
+      config.programs.vim =
       {
-        number = true;
-        expandtab = false;
-        shiftwidth = 2;
-        tabstop = 2;
+        enable = true;
+        defaultEditor = true;
+        packageConfigurable = inputs.config.programs.vim.package;
+        settings =
+        {
+          number = true;
+          expandtab = false;
+          shiftwidth = 2;
+          tabstop = 2;
+        };
+        extraConfig =
+        ''
+          set clipboard=unnamedplus
+          colorscheme evening
+        '';
       };
-      extraConfig =
-      ''
-        set clipboard=unnamedplus
-        colorscheme evening
-      '';
-    };
+    }];
     programs.vim.package = inputs.pkgs.vim-full;
   };
 }
