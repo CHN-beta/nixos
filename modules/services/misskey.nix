@@ -142,9 +142,9 @@ inputs:
         postgresql.instances = listToAttrs (map
           (instance: { name = "misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
           (attrsToList misskey.instances));
-        meilisearch =
+        meilisearch.instances =
           let instances = filter (instance: instance.value.meilisearch.enable) (attrsToList misskey.instances);
-          in mkIf (instances != []) { instances = listToAttrs (map
+          in listToAttrs (map
             (instance:
             {
               name = "misskey-${instance.name}";
@@ -154,7 +154,7 @@ inputs:
                 port = instance.value.meilisearch.port;
               };
             })
-            instances); };
+            instances);
         nginx =
         {
           enable = mkIf (misskey.instances != {}) true;

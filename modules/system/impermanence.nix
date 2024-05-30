@@ -63,7 +63,6 @@ inputs:
           hideMounts = true;
           directories =
             [{ directory = "/var/log/journal"; user = "root"; group = "systemd-journal"; mode = "u=rwx,g=rx+s,o=rx"; }]
-            ++ (if inputs.config.nixos.services.meilisearch.instances != {} then [ "/var/lib/meilisearch" ] else [])
             ++ (
               if inputs.config.nixos.virtualization.kvmHost.enable then
                 [{ directory = "/var/lib/libvirt/images"; mode = "0711"; }]
