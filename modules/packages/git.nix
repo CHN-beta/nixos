@@ -45,7 +45,7 @@ inputs:
       config =
       {
         init.defaultBranch = "main";
-        core = { quotepath = false; editor = "vim"; };
+        core.quotepath = false;
       };
     };
   };
