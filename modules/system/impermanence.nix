@@ -64,11 +64,6 @@ inputs:
           hideMounts = true;
           directories =
             [{ directory = "/var/log/journal"; user = "root"; group = "systemd-journal"; mode = "u=rwx,g=rx+s,o=rx"; }]
-            ++ (
-              if inputs.config.nixos.services.postgresql != null then let user = inputs.config.users.users.postgres; in
-                [{ directory = "/var/lib/postgresql"; user = user.name; group = user.group; mode = "0750"; }]
-              else []
-            )
             ++ (if inputs.config.nixos.services.meilisearch.instances != {} then [ "/var/lib/meilisearch" ] else [])
             ++ (
               if inputs.config.nixos.virtualization.kvmHost.enable then

@@ -139,9 +139,9 @@ inputs:
         redis = mkIf (misskey.instances != {}) { instances = listToAttrs (map
           (instance: { name = "misskey-${instance.name}"; value.port = instance.value.redis.port; })
           (attrsToList misskey.instances)); };
-        postgresql = mkIf (misskey.instances != {}) { instances = listToAttrs (map
+        postgresql.instances = listToAttrs (map
           (instance: { name = "misskey_${replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
-          (attrsToList misskey.instances)); };
+          (attrsToList misskey.instances));
         meilisearch =
           let instances = filter (instance: instance.value.meilisearch.enable) (attrsToList misskey.instances);
           in mkIf (instances != []) { instances = listToAttrs (map
