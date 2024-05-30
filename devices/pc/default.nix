@@ -126,6 +126,7 @@ inputs:
         xrdp = { enable = true; hostname = [ "pc.chn.moe" ]; };
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "suspend-hibernate-no-platform" ];
+      user.users = [ "chn" "test" ];
     };
     system.nixos.tags = [ "next" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
