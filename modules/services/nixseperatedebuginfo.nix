@@ -12,8 +12,8 @@ inputs:
       environment.persistence =
         let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
         {
-          "${impermanence.nodatacow}" = let user = inputs.config.users.users.nixseparatedebuginfod; in
-            [{ directory = "/var/cache/nixseparatedebuginfod"; user = user.name; group = user.group; mode = "0755"; }];
+          "${impermanence.nodatacow}".directories = let user = "nixseparatedebuginfod"; in
+          [{ directory = "/var/cache/nixseparatedebuginfod"; inherit user; group = user; mode = "0755"; }];
         };
     };
 }

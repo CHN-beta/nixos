@@ -46,14 +46,14 @@ inputs:
         # chattr +C /path/to/dir
         # cp -a --reflink=never /path/to/dir_old/. /path/to/dir
         # rm -rf /path/to/dir_old
-        ensureUsers = builtins.map (db: { name = db.value.user; }) (builtins.attrsToList postgresql.instances);
+        ensureUsers = builtins.map (db: { name = db.value.user; }) (inputs.localLib.attrsToList postgresql.instances);
       };
       postgresqlBackup =
       {
         enable = true;
         pgdumpOptions = "-Fc";
         compression = "none";
-        databases = builtins.map (db: db.value.database) (builtins.attrsToList postgresql.instances);
+        databases = builtins.map (db: db.value.database) (inputs.localLib.attrsToList postgresql.instances);
       };
     };
     systemd.services.postgresql.postStart = inputs.lib.mkAfter (builtins.concatStringsSep "\n" (builtins.map
@@ -67,7 +67,7 @@ inputs:
               " WITH "
               + (builtins.concatStringsSep " " (map
                 (flag: ''${flag.name} = "${flag.value}"'')
-                (builtins.attrsToList db.value.initializeFlags)))
+                (inputs.localLib.attrsToList db.value.initializeFlags)))
             else "";
         in
         # create database if not exist
@@ -82,15 +82,15 @@ inputs:
           + " WHERE d.datname = '${db.value.database}' ORDER BY 1\""
           + " | grep -E '^${db.value.user}$' -q"
           + " || $PSQL -tAc \"ALTER DATABASE ${db.value.database} OWNER TO ${db.value.user}\"")
-      (builtins.attrsToList postgresql.instances)));
-    sops.secrets = inputs.localLib.listToAttrs (builtins.map
+      (inputs.localLib.attrsToList postgresql.instances)));
+    sops.secrets = builtins.listToAttrs (builtins.map
       (db: { name = "postgresql/${db.value.user}"; value.owner = inputs.config.users.users.postgres.name; })
-      (builtins.filter (db: db.value.passwordFile == null) (builtins.attrsToList postgresql.instances)));
+      (builtins.filter (db: db.value.passwordFile == null) (inputs.localLib.attrsToList postgresql.instances)));
     environment.persistence =
       let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
       {
-        "${impermanence.nodatacow}" = let user = inputs.config.users.users.postgres; in
-          [{ directory = "/var/lib/postgresql"; user = user.name; group = user.group; mode = "0750"; }];
+        "${impermanence.nodatacow}".directories = let user = "postgres"; in
+          [{ directory = "/var/lib/postgresql"; inherit user; group = user; mode = "0750"; }];
       };
   };
 }

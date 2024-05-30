@@ -15,7 +15,7 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.services) redis; in
   {
-    services.redis.servers = inputs.localLib.listToAttrs (builtins.map
+    services.redis.servers = builtins.listToAttrs (builtins.map
       (server:
       {
         inherit (server) name;
@@ -32,9 +32,9 @@ inputs:
             else server.value.passwordFile;
         };
       })
-      (builtins.attrsToList redis.instances));
-    sops.secrets = inputs.localLib.listToAttrs (builtins.map
+      (inputs.localLib.attrsToList redis.instances));
+    sops.secrets = builtins.listToAttrs (builtins.map
       (server: { name = "redis/${server.name}"; value.owner = inputs.config.users.users.${server.value.user}.name; })
-      (builtins.filter (server: server.value.passwordFile == null) (builtins.attrsToList redis.instances)));
+      (builtins.filter (server: server.value.passwordFile == null) (inputs.localLib.attrsToList redis.instances)));
   };
 }
