@@ -122,8 +122,7 @@ inputs:
       home-manager.users.root =
       {
         imports = user.sharedModules;
-        config.programs.git =
-          { extraConfig.core.editor = inputs.lib.mkForce "vim"; userName = "chn"; userEmail = "chn@chn.moe"; };
+        config.programs.git = { userName = "chn"; userEmail = "chn@chn.moe"; };
       };
     }
     (inputs.lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })

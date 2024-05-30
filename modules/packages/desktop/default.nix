@@ -40,7 +40,6 @@ inputs:
     {
       adb.enable = true;
       wireshark = { enable = true; package = inputs.pkgs.wireshark; };
-      vim.package = inputs.pkgs.vim-full;
       yubikey-touch-detector.enable = true;
     };
     nixpkgs.config.packageOverrides = pkgs: 
