@@ -32,8 +32,8 @@ inputs:
         warp-terminal
         # development
         adb-sync
-        # virtual keyboard
-        # localPackages.kylin-virtual-keyboard
+        # desktop sharing
+        rustdesk-flutter
       ];
     };
     programs =
