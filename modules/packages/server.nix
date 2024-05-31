@@ -6,7 +6,7 @@ inputs:
     [
       # basic tools
       beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq zellij ipfetch localPackages.pslist
-      fastfetch reptyr
+      fastfetch reptyr nushellFull
       # lsxx
       pciutils usbutils lshw util-linux lsof dmidecode
       # top
