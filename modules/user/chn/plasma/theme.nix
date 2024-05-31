@@ -11,7 +11,7 @@ inputs:
         cursorTheme = "Breeze_Light";
         lookAndFeel = "com.github.vinceliuice.Fluent-round-light";
         # ~/.config/kdeglobals [Icons]
-        iconTheme = "Tela-circle-light";
+        iconTheme = "Fluent";
       };
       configFile =
       {
