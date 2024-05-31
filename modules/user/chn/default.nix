@@ -85,6 +85,7 @@ inputs:
     environment.persistence =
       let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
       {
+        # TODO: make copy or soft link of files
         "${impermanence.persistence}".users.chn =
         {
           directories = builtins.map

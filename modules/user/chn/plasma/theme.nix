@@ -4,6 +4,7 @@ inputs:
   {
     home-manager.users.chn.config.programs.plasma =
     {
+      # TODO: use catppucin theme
       workspace =
       {
         theme = "Fluent-round-light";
