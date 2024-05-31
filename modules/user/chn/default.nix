@@ -85,119 +85,129 @@ inputs:
     environment.persistence =
       let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
       {
-        "${impermanence.persistence}".users.chn.directories = builtins.map
-          (dir: { directory = dir.dir or dir; user = "chn"; group = "chn"; mode = dir.mode or "0755"; })
-          [
-            # common things
-            "bin" "Desktop" "Documents" "Downloads" "Music" "Pictures" "repo" "share" "Public" "Videos"
-            # gnome
-            { dir = ".config/dconf"; mode = "0700"; } ".config/gtk-2.0" ".config/gtk-3.0" ".config/gtk-4.0"
-            ".config/libaccounts-glib"
-            # android
-            { dir = ".android"; mode = "0750";}
-            # xmuvpn
-            ".ecdata"
-            # firefox
-            { dir = ".mozilla/firefox/default"; mode = "0700"; }
-            # ssh
-            { dir = ".ssh"; mode = "0700"; }
-            # steam
-            ".steam" ".local/share/Steam"
-            # vscode
-            ".vscode" ".config/Code" ".config/grammarly-languageserver"
-            # zotero
-            ".zotero" "Zotero"
-            # akonadi
-            # 百度网盘
-            ".config/BaiduPCS-Go"
-            # bitwarden
-            ".config/Bitwarden"
-            # blender
-            ".config/blender"
-            # chromium
-            ".config/chromium"
-            # crow-translate
-            ".config/crow-translate"
-            # discord
-            ".config/discord"
-            # element
-            ".config/Element"
-            # fcitx
-            ".config/fcitx5" ".local/share/fcitx5"
-            # github
-            ".config/gh"
-            # gimp
-            ".config/GIMP"
-            # chrome
-            ".config/google-chrome"
-            # inkscape
-            ".config/inkscape"
-            # jetbrain
-            ".config/JetBrains" ".local/share/JetBrains"
-            # kde
-            ".config/akonadi" ".config/KDE" ".config/kde.org" ".config/kdeconnect" ".config/kdedefaults"
-            ".config/Kvantum" ".config/kactivitymanagerdrc" ".config/plasma-org.kde.plasma.desktop-appletsrc"
-            ".config/kactivitymanagerd-switcher" ".config/kactivitymanagerd-statsrc"
-            ".config/kactivitymanagerd-pluginsrc"
-            ".config/plasmarc" ".config/plasmashellrc" ".config/kwinrc" ".config/krunnerrc"
-            ".config/kdeglobals" ".config/kglobalshortcutsrc" ".config/kio_fishrc" ".config/kiorc"
-            ".config/kleopatrarc" ".config/kmail2rc" ".config/kmailsearchindexingrc" ".config/kscreenlockerrc"
-            ".config/user-dirs.dirs" ".config/yakuakerc" ".local/share/akonadi" ".local/share/akonadi-davgroupware"
-            ".local/share/kactivitymanagerd" ".local/share/kwalletd" ".local/share/plasma"
-            ".local/share/plasma-systemmonitor" ".local/share/plasma_notes"
-            # libreoffice
-            ".config/libreoffice"
-            # mathematica
-            ".config/mathematica"
-            # netease-cloud-music-gtk
-            ".config/netease-cloud-music" ".local/share/netease-cloud-music-gtk4"
-            # nheko
-            ".config/nheko" ".local/share/nheko"
-            # ovito
-            ".config/Ovito"
-            # qbittorrent
-            ".config/qBittorrent" ".local/share/qBittorrent"
-            # remmina
-            ".config/remmina" ".local/share/remmina"
-            # slack
-            ".config/Slack"
-            # age TODO: use sops to storage
-            ".config/sops/age/keys.txt"
-            # spotify
-            ".config/spotify"
-            # systemd TODO: use declarative
-            ".config/systemd/user"
-            # typora
-            ".config/Typora"
-            # xsettingsd
-            ".config/xsettingsd"
-            # yesplaymusic
-            ".config/yesplaymusic"
-            # genshin
-            ".local/share/anime-game-launcher"
-            # applications
-            ".local/share/applications" ".local/share/desktop-directories"
-            # theme TODO: remove them
-            ".local/share/color-schemes" ".local/share/icons" ".local/share/wallpapers"
-            # dbeaver
-            ".local/share/DbeaverData"
-            # docker
-            ".local/share/docker"
-            # fonts TODO: use declarative
-            ".local/share/fonts"
-            # gpg
-            ".local/share/gnupg"
-            # TODO: what is this?
-            ".local/share/mime"
-            # telegram
-            ".local/share/TelegramDesktop"
-            # trash
-            ".local/share/Trash"
-            # waydroid
-            ".local/share/waydroid"
-            # zsh
-            ".local/share/zsh"
-          ];
+        "${impermanence.persistence}".users.chn =
+        {
+          directories = builtins.map
+            (dir: { directory = dir.dir or dir; user = "chn"; group = "chn"; mode = dir.mode or "0755"; })
+            [
+              # common things
+              "bin" "Desktop" "Documents" "Downloads" "Music" "Pictures" "repo" "share" "Public" "Videos"
+              # gnome
+              { dir = ".config/dconf"; mode = "0700"; } ".config/gtk-2.0" ".config/gtk-3.0" ".config/gtk-4.0"
+              ".config/libaccounts-glib"
+              # android
+              { dir = ".android"; mode = "0750";}
+              # xmuvpn
+              ".ecdata"
+              # firefox
+              { dir = ".mozilla/firefox/default"; mode = "0700"; }
+              # ssh
+              { dir = ".ssh"; mode = "0700"; }
+              # steam
+              ".steam" ".local/share/Steam"
+              # vscode
+              ".vscode" ".config/Code" ".config/grammarly-languageserver"
+              # zotero
+              ".zotero" "Zotero"
+              # 百度网盘
+              ".config/BaiduPCS-Go"
+              # bitwarden
+              ".config/Bitwarden"
+              # blender
+              ".config/blender"
+              # chromium
+              ".config/chromium"
+              # crow-translate
+              ".config/crow-translate"
+              # discord
+              ".config/discord"
+              # element
+              ".config/Element"
+              # fcitx
+              ".config/fcitx5" ".local/share/fcitx5"
+              # github
+              ".config/gh"
+              # gimp
+              ".config/GIMP"
+              # chrome
+              ".config/google-chrome"
+              # inkscape
+              ".config/inkscape"
+              # jetbrain
+              ".config/JetBrains" ".local/share/JetBrains"
+              # kde
+              ".config/akonadi" ".config/KDE" ".config/kde.org" ".config/kdeconnect" ".config/kdedefaults"
+              ".config/Kvantum"
+              ".local/share/akonadi" ".local/share/akonadi-davgroupware"
+              ".local/share/kactivitymanagerd" ".local/share/kwalletd" ".local/share/plasma"
+              ".local/share/plasma-systemmonitor" ".local/share/plasma_notes"
+              # libreoffice
+              ".config/libreoffice"
+              # mathematica
+              ".config/mathematica"
+              # netease-cloud-music-gtk
+              ".config/netease-cloud-music" ".local/share/netease-cloud-music-gtk4"
+              # nheko
+              ".config/nheko" ".local/share/nheko"
+              # ovito
+              ".config/Ovito"
+              # qbittorrent
+              ".config/qBittorrent" ".local/share/qBittorrent"
+              # remmina
+              ".config/remmina" ".local/share/remmina"
+              # slack
+              ".config/Slack"
+              # spotify
+              ".config/spotify"
+              # systemd TODO: use declarative
+              ".config/systemd/user"
+              # typora
+              ".config/Typora"
+              # xsettingsd
+              ".config/xsettingsd"
+              # yesplaymusic
+              ".config/yesplaymusic"
+              # genshin
+              ".local/share/anime-game-launcher"
+              # applications
+              ".local/share/applications" ".local/share/desktop-directories"
+              # theme TODO: remove them
+              ".local/share/color-schemes" ".local/share/icons" ".local/share/wallpapers"
+              # dbeaver
+              ".local/share/DbeaverData"
+              # docker
+              ".local/share/docker"
+              # fonts TODO: use declarative
+              ".local/share/fonts"
+              # gpg
+              ".local/share/gnupg"
+              # TODO: what is this?
+              ".local/share/mime"
+              # telegram
+              ".local/share/TelegramDesktop"
+              # trash
+              ".local/share/Trash"
+              # waydroid
+              ".local/share/waydroid"
+              # zsh
+              ".local/share/zsh"
+            ];
+          # TODO: create file if not exist
+          files = builtins.map
+            (file: { inherit file; parentDirectory = { user = "chn"; group = "chn"; mode = "0755"; }; })
+            [
+              # kde
+              ".config/kactivitymanagerdrc" ".config/plasma-org.kde.plasma.desktop-appletsrc"
+              ".config/kactivitymanagerd-switcher" ".config/kactivitymanagerd-statsrc"
+              ".config/kactivitymanagerd-pluginsrc"
+              ".config/plasmarc" ".config/plasmashellrc" ".config/kwinrc" ".config/krunnerrc"
+              ".config/kdeglobals" ".config/kglobalshortcutsrc" ".config/kio_fishrc" ".config/kiorc"
+              ".config/kleopatrarc" ".config/kmail2rc" ".config/kmailsearchindexingrc" ".config/kscreenlockerrc"
+              ".config/user-dirs.dirs" ".config/yakuakerc"
+              # age TODO: use sops to storage
+              ".config/sops/age/keys.txt"
+            ];
+        };
       };
   };
 }
