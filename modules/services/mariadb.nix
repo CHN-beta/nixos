@@ -2,7 +2,7 @@ inputs:
 {
   options.nixos.services.mariadb = let inherit (inputs.lib) mkOption types; in
   {
-    enable = mkOption { type = types.bool; default = inputs.nixos.services.mariadb.instances != {}; };
+    enable = mkOption { type = types.bool; default = inputs.config.nixos.services.mariadb.instances != {}; };
     instances = mkOption
     {
       type = types.attrsOf (types.submodule (submoduleInputs: { options =
