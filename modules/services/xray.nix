@@ -252,7 +252,7 @@ inputs:
                     "${ipset} create noproxy_net hash:net"
                     "${ipset} add noproxy_net 223.5.5.5"
                     "${ipset} create noproxy_src_net hash:net"
-                    "${ipset} create noproxy_port bitmap:port"
+                    "${ipset} create noproxy_port bitmap:port range 0-65535"
                     "${ipset} create proxy_net hash:net"
                     "${ipset} add proxy_net 8.8.8.8"
                     "${iptables} -t mangle -N v2ray -w"
@@ -315,7 +315,7 @@ inputs:
                     "${ip} route del local 0.0.0.0/0 dev lo table 100"
                   ]
                   ++ (map (set: "${ipset} destroy ${set}")
-                    [ "lo_net" "xmu_net" "noproxy_net" "noproxy_src_net" "proxy_net" "noproxy_port"])
+                    [ "lo_net" "xmu_net" "noproxy_net" "noproxy_src_net" "proxy_net" "noproxy_port" ])
                 ));
               };
           };
