@@ -7,25 +7,25 @@ inputs:
     [
       # TODO: autostart, panel, discard user changed settings
       # kwin
-      {
-        kwin.titlebarButtons =
-        {
-          right = [ "help" "keep-below-windows" "keep-above-windows" "minimize" "maximize" "close" ];
-          left = [ "more-window-actions" ];
-        };
-        windows.allowWindowsToRememberPositions = false;
-        configFile =
-        {
-          plasmanotifyrc.Notifications.PopupPosition.value = "BottomRight";
-          kwinrc =
-          {
-            Tiling.padding.value = 4;
-            Wayland."InputMethod[$e]".value = "/run/current-system/sw/share/applications/org.fcitx.Fcitx5.desktop";
-            Windows.RollOverDesktops.value = true;
-            Compositing = { AllowTearing.value = false; WindowsBlockCompositing.value = false; };
-          };
-        };
-      }
+      # {
+      #   kwin.titlebarButtons =
+      #   {
+      #     right = [ "help" "keep-below-windows" "keep-above-windows" "minimize" "maximize" "close" ];
+      #     left = [ "more-window-actions" ];
+      #   };
+      #   windows.allowWindowsToRememberPositions = false;
+      #   configFile =
+      #   {
+      #     plasmanotifyrc.Notifications.PopupPosition.value = "BottomRight";
+      #     kwinrc =
+      #     {
+      #       Tiling.padding.value = 4;
+      #       Wayland."InputMethod[$e]".value = "/run/current-system/sw/share/applications/org.fcitx.Fcitx5.desktop";
+      #       Windows.RollOverDesktops.value = true;
+      #       Compositing = { AllowTearing.value = false; WindowsBlockCompositing.value = false; };
+      #     };
+      #   };
+      # }
       # dolphin and file chooser
       {
         configFile =
