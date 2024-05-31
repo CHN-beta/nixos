@@ -38,7 +38,11 @@ inputs:
       {
         networking =
         {
-          firewall = { allowedUDPPorts = [ wireguard.listenPort ]; trustedInterfaces = [ "wireguard" ]; };
+          firewall =
+          {
+            allowedUDPPorts = inputs.lib.mkIf (!wireguard.behindNat) [ wireguard.listenPort ];
+            trustedInterfaces = [ "wireguard" ];
+          };
           wireguard.interfaces.wireguard =
           {
             ips = [ "${wireguard.wireguardIp}/24" ];
