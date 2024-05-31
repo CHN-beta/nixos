@@ -23,6 +23,7 @@ inputs:
         UsePAM = true;
       };
     };
+    nixos.services.xray.client.v2ray-forwarder.noproxyTcpPorts = [ 22 ];
     # generate from https://patorjk.com/software/taag with font "BlurVision ASCII"
     # generate using `toilet -f wideterm -F border "InAlGaN / SiC"`
     # somehow lolcat could not run with these characters, use rendered directly

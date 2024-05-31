@@ -17,6 +17,7 @@ inputs:
           openFirewall = true;
           defaultWindowManager = "${inputs.pkgs.plasma-workspace}/bin/startplasma-x11";
         };
+        nixos.services.xray.client.v2ray-forwarder.noproxyTcpPorts = [ xrdp.port ];
       }
       (
         inputs.lib.mkIf (xrdp.hostname != null)

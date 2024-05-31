@@ -10,7 +10,6 @@ inputs:
         {
           serverAddress = mkOption { type = types.nonEmptyStr; default = "74.211.99.69"; };
           serverName = mkOption { type = types.nonEmptyStr; default = "vps6.xserver.chn.moe"; };
-          noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
         };
         dnsmasq =
         {
@@ -20,6 +19,12 @@ inputs:
             default = inputs.lib.optional inputs.config.nixos.virtualization.docker.enable "docker0";
           };
           hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+        };
+        v2ray-forwarder =
+        {
+          noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
+          noproxyTcpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
+          noproxyUdpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
         };
       };});
       default = null;
@@ -253,6 +258,11 @@ inputs:
                     "${iptables} -t mangle -N v2ray -w"
                     "${iptables} -t mangle -A PREROUTING -j v2ray -w"
                   ]
+                  ++ (map (port: "${ipset} add noproxy_port ${port}")
+                    (with xray.client.v2ray-forwarder;
+                      (map (port: "tcp:${toString port}") noproxyTcpPorts)
+                        ++ (map (port: "udp:${toString port}") noproxyUdpPorts))
+                  )
                   ++ (map (action: "${iptables} -t mangle -A v2ray ${action} -w")
                   [
                     "-m set --match-set noproxy_src_net src -j RETURN"
@@ -276,7 +286,7 @@ inputs:
                       (user:
                         let uid = inputs.config.nixos.user.uid.${user};
                         in "-m owner --uid-owner ${toString uid} -j RETURN")
-                      (xray.client.xray.noproxyUsers ++ [ "v2ray" ]))
+                      (xray.client.v2ray-forwarder.noproxyUsers ++ [ "v2ray" ]))
                     ++ [
                       "-m set --match-set noproxy_src_net src -j RETURN"
                       "-m set --match-set noproxy_net dst -j RETURN"
