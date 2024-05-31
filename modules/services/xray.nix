@@ -247,7 +247,7 @@ inputs:
                     "${ipset} create noproxy_net hash:net"
                     "${ipset} add noproxy_net 223.5.5.5"
                     "${ipset} create noproxy_src_net hash:net"
-                    "${ipset} create noproxy_port hash:port"
+                    "${ipset} create noproxy_port bitmap:port"
                     "${ipset} create proxy_net hash:net"
                     "${ipset} add proxy_net 8.8.8.8"
                     "${iptables} -t mangle -N v2ray -w"
