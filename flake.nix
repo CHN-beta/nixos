@@ -98,6 +98,7 @@
               (prev: { doCheck = false; patches = prev.patches ++ [ ./local/pkgs/hpcstat/openssh.patch ];});
             in pkgs.pkgsStatic.localPackages.hpcstat.override
               { inherit openssh; standalone = true; version = inputs.self.rev or "dirty"; };
+          nixpkgs = pkgs;
         }
         // (
           builtins.listToAttrs (builtins.map
