@@ -125,7 +125,7 @@ inputs:
         slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 90112; gpus."4060" = 1; };
         xrdp = { enable = true; hostname = [ "pc.chn.moe" ]; };
       };
-      bugs = [ "xmunet" "backlight" "amdpstate" "suspend-hibernate-no-platform" ];
+      bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
     system.nixos.tags = [ "next" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
