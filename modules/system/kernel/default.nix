@@ -5,7 +5,7 @@ inputs:
     variant = mkOption
     {
       type = types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "cachyos-server" ];
-      default = if inputs.config.nixos.system.gui.preferred then "cachyos" else "cachyos-server";
+      default = "xanmod-latest";
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = [ "cjktty" ]; };
     modules =

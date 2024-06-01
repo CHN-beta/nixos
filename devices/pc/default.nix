@@ -142,11 +142,6 @@ inputs:
         };
         system.nixos.tags = [ "hybrid" ];
       };
-      xanmod.configuration =
-      {
-        nixos.system.kernel.variant = "xanmod-latest";
-        system.nixos.tags = [ "xanmod" ];
-      };
     };
   };
 }
