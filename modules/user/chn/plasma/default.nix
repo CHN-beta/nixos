@@ -5,6 +5,7 @@ inputs:
   {
     home-manager.users.chn.config.programs.plasma = inputs.lib.mkMerge
     [
+      { enable = inputs.lib.mkForce false; }
       # TODO: autostart, panel, discard user changed settings
       # kwin
       {
