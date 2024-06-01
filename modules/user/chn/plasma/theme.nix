@@ -4,20 +4,20 @@ inputs:
   {
     home-manager.users.chn.config.programs.plasma =
     {
-      # TODO: use catppucin theme
-      workspace =
-      {
-        theme = "Fluent-round-light";
-        colorScheme = "FluentLight";
-        cursorTheme = "Breeze_Light";
-        lookAndFeel = "com.github.vinceliuice.Fluent-round-light";
-        # ~/.config/kdeglobals [Icons]
-        iconTheme = "Fluent";
-      };
+      # TODO: do not setup theme before clean these configs
+      # workspace =
+      # {
+      #   theme = "Fluent-round-light";
+      #   colorScheme = "FluentLight";
+      #   cursorTheme = "Breeze_Light";
+      #   lookAndFeel = "com.github.vinceliuice.Fluent-round-light";
+      #   # ~/.config/kdeglobals [Icons]
+      #   iconTheme = "Fluent";
+      # };
       configFile =
       {
-        kdeglobals.KDE.widgetStyle.value = "kvantum";
-        "Kvantum/kvantum.kvconfig".General.theme.value = "Fluent-round";
+        # kdeglobals.KDE.widgetStyle.value = "kvantum";
+        # "Kvantum/kvantum.kvconfig".General.theme.value = "Fluent-round";
         kwinrc =
         {
           Effect-blur.BlurStrength.value = 10;
