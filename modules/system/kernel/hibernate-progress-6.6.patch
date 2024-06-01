@@ -1,1 +1,116 @@
-hibernate-progress-6.8.patch
+diff --git a/kernel/power/swap.c b/kernel/power/swap.c
+index d44f5937f1e5..8905c0438b64 100644
+--- a/kernel/power/swap.c
++++ b/kernel/power/swap.c
+@@ -552,7 +552,7 @@ static int save_image(struct swap_map_handle *handle,
+ 
+ 	hib_init_batch(&hb);
+ 
+-	pr_info("Saving image data pages (%u pages)...\n",
++	pr_err("Saving image data pages (%u pages)...\n",
+ 		nr_to_write);
+ 	m = nr_to_write / 10;
+ 	if (!m)
+@@ -567,7 +567,7 @@ static int save_image(struct swap_map_handle *handle,
+ 		if (ret)
+ 			break;
+ 		if (!(nr_pages % m))
+-			pr_info("Image saving progress: %3d%%\n",
++			pr_err("Image saving progress: %3d%%\n",
+ 				nr_pages / m * 10);
+ 		nr_pages++;
+ 	}
+@@ -577,7 +577,7 @@ static int save_image(struct swap_map_handle *handle,
+ 	if (!ret)
+ 		ret = err2;
+ 	if (!ret)
+-		pr_info("Image saving done\n");
++		pr_err("Image saving done\n");
+ 	swsusp_show_speed(start, stop, nr_to_write, "Wrote");
+ 	return ret;
+ }
+@@ -767,8 +767,8 @@ static int save_image_lzo(struct swap_map_handle *handle,
+ 	 */
+ 	handle->reqd_free_pages = reqd_free_pages();
+ 
+-	pr_info("Using %u thread(s) for compression\n", nr_threads);
+-	pr_info("Compressing and saving image data (%u pages)...\n",
++	pr_err("Using %u thread(s) for compression\n", nr_threads);
++	pr_err("Compressing and saving image data (%u pages)...\n",
+ 		nr_to_write);
+ 	m = nr_to_write / 10;
+ 	if (!m)
+@@ -789,7 +789,7 @@ static int save_image_lzo(struct swap_map_handle *handle,
+ 				       data_of(*snapshot), PAGE_SIZE);
+ 
+ 				if (!(nr_pages % m))
+-					pr_info("Image saving progress: %3d%%\n",
++					pr_err("Image saving progress: %3d%%\n",
+ 						nr_pages / m * 10);
+ 				nr_pages++;
+ 			}
+@@ -860,7 +860,7 @@ static int save_image_lzo(struct swap_map_handle *handle,
+ 	if (!ret)
+ 		ret = err2;
+ 	if (!ret)
+-		pr_info("Image saving done\n");
++		pr_err("Image saving done\n");
+ 	swsusp_show_speed(start, stop, nr_to_write, "Wrote");
+ out_clean:
+ 	hib_finish_batch(&hb);
+@@ -1071,7 +1071,7 @@ static int load_image(struct swap_map_handle *handle,
+ 	hib_init_batch(&hb);
+ 
+ 	clean_pages_on_read = true;
+-	pr_info("Loading image data pages (%u pages)...\n", nr_to_read);
++	pr_err("Loading image data pages (%u pages)...\n", nr_to_read);
+ 	m = nr_to_read / 10;
+ 	if (!m)
+ 		m = 1;
+@@ -1089,7 +1089,7 @@ static int load_image(struct swap_map_handle *handle,
+ 		if (ret)
+ 			break;
+ 		if (!(nr_pages % m))
+-			pr_info("Image loading progress: %3d%%\n",
++			pr_err("Image loading progress: %3d%%\n",
+ 				nr_pages / m * 10);
+ 		nr_pages++;
+ 	}
+@@ -1099,7 +1099,7 @@ static int load_image(struct swap_map_handle *handle,
+ 	if (!ret)
+ 		ret = err2;
+ 	if (!ret) {
+-		pr_info("Image loading done\n");
++		pr_err("Image loading done\n");
+ 		snapshot_write_finalize(snapshot);
+ 		if (!snapshot_image_loaded(snapshot))
+ 			ret = -ENODATA;
+@@ -1283,8 +1283,8 @@ static int load_image_lzo(struct swap_map_handle *handle,
+ 	}
+ 	want = ring_size = i;
+ 
+-	pr_info("Using %u thread(s) for decompression\n", nr_threads);
+-	pr_info("Loading and decompressing image data (%u pages)...\n",
++	pr_err("Using %u thread(s) for decompression\n", nr_threads);
++	pr_err("Loading and decompressing image data (%u pages)...\n",
+ 		nr_to_read);
+ 	m = nr_to_read / 10;
+ 	if (!m)
+@@ -1414,7 +1414,7 @@ static int load_image_lzo(struct swap_map_handle *handle,
+ 				       data[thr].unc + off, PAGE_SIZE);
+ 
+ 				if (!(nr_pages % m))
+-					pr_info("Image loading progress: %3d%%\n",
++					pr_err("Image loading progress: %3d%%\n",
+ 						nr_pages / m * 10);
+ 				nr_pages++;
+ 
+@@ -1440,7 +1440,7 @@ static int load_image_lzo(struct swap_map_handle *handle,
+ 	}
+ 	stop = ktime_get();
+ 	if (!ret) {
+-		pr_info("Image loading done\n");
++		pr_err("Image loading done\n");
+ 		snapshot_write_finalize(snapshot);
+ 		if (!snapshot_image_loaded(snapshot))
+ 			ret = -ENODATA;
