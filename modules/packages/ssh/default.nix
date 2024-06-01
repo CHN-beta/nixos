@@ -139,7 +139,7 @@ inputs:
                 host = host;
                 hostname = "hpc.xmu.edu.cn";
                 user = host;
-                extraOptions.SetEnv = "TERM=chn_unset_ls_colors:xterm-256color";
+                setEnv.TERM = "chn_unset_ls_colors:xterm-256color";
               };
             })
             [ "wlin" "hwang" ])
@@ -157,7 +157,8 @@ inputs:
             hostname = "hpc.xmu.edu.cn";
             user = "jykang";
             forwardAgent = true;
-            extraOptions.SetEnv =
+            extraOptions.AddKeysToAgent = "yes";
+            setEnv.TERM =
               # in .bash_profile:
               # if [[ $TERM == chn_unset_ls_colors* ]]; then
               #   export TERM=${TERM#*:}
