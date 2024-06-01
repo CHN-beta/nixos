@@ -8,7 +8,7 @@ inputs:
       beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq zellij ipfetch localPackages.pslist
       fastfetch reptyr nushellFull
       # lsxx
-      pciutils usbutils lshw util-linux lsof dmidecode
+      pciutils usbutils lshw util-linux lsof dmidecode lm_sensors
       # top
       iotop iftop htop btop powertop s-tui
       # editor
