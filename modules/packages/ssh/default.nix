@@ -158,32 +158,6 @@ inputs:
             user = "jykang";
             forwardAgent = true;
             extraOptions.AddKeysToAgent = "yes";
-            setEnv.TERM =
-              # in .bash_profile:
-              # if [[ $TERM == chn_unset_ls_colors* ]]; then
-              #   export TERM=${TERM#*:}
-              #   export CHN_LS_USE_COLOR=1
-              # fi
-              # if [[ $TERM == chn_cd* ]]; then
-              #   export TERM=${TERM#*:}
-              #   cd ~/${TERM%%:*}
-              #   export TERM=${TERM#*:}
-              # fi
-              # in .bashrc
-              # [ -n "$CHN_LS_USE_COLOR" ] && alias ls="ls --color=auto"
-              let
-                usernameMap =
-                {
-                  chn = "linwei/chn";
-                  xll = "linwei/Xll";
-                  yjq = "linwei/yjq";
-                  gb = "kangjunyong/gongbin";
-                };
-                cdString =
-                  if usernameMap ? ${hmInputs.config.home.username} then
-                    ":chn_cd:${usernameMap.${hmInputs.config.home.username}}"
-                  else "";
-              in "TERM=chn_unset_ls_colors${cdString}:xterm-256color";
           };
         };
       };
