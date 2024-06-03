@@ -42,7 +42,7 @@ inputs:
       {
         snapper.enable = true;
         sshd = {};
-        xray.client = {};
+        xray.client.enable = true;
         firewall.trustedInterfaces = [ "virbr0" ];
         wireguard =
         {

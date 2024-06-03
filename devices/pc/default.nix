@@ -88,6 +88,7 @@ inputs:
         sshd = {};
         xray.client =
         {
+          enable = true;
           dnsmasq.hosts = builtins.listToAttrs
           (
             (builtins.map

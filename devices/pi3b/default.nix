@@ -26,7 +26,7 @@ inputs:
       {
         # snapper.enable = true;
         sshd = {};
-        xray.client = {};
+        xray.client.enable = true;
         fail2ban = {};
         wireguard =
         {

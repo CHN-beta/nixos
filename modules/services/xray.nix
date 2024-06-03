@@ -2,32 +2,29 @@ inputs:
 {
   options.nixos.services.xray = let inherit (inputs.lib) mkOption types; in
   {
-    client = mkOption
+    client =
     {
-      type = types.nullOr (types.submodule { options =
+      enable = mkOption { type = types.bool; default = false; };
+      xray =
       {
-        xray =
+        serverAddress = mkOption { type = types.nonEmptyStr; default = "74.211.99.69"; };
+        serverName = mkOption { type = types.nonEmptyStr; default = "vps6.xserver.chn.moe"; };
+      };
+      dnsmasq =
+      {
+        extraInterfaces = mkOption
         {
-          serverAddress = mkOption { type = types.nonEmptyStr; default = "74.211.99.69"; };
-          serverName = mkOption { type = types.nonEmptyStr; default = "vps6.xserver.chn.moe"; };
+          type = types.listOf types.nonEmptyStr;
+          default = inputs.lib.optional inputs.config.nixos.virtualization.docker.enable "docker0";
         };
-        dnsmasq =
-        {
-          extraInterfaces = mkOption
-          {
-            type = types.listOf types.nonEmptyStr;
-            default = inputs.lib.optional inputs.config.nixos.virtualization.docker.enable "docker0";
-          };
-          hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
-        };
-        v2ray-forwarder =
-        {
-          noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
-          noproxyTcpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
-          noproxyUdpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
-        };
-      };});
-      default = null;
+        hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+      };
+      v2ray-forwarder =
+      {
+        noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
+        noproxyTcpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
+        noproxyUdpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
+      };
     };
     server = mkOption
     {
@@ -44,12 +41,12 @@ inputs:
     {
       assertions =
       [{
-        assertion = !(xray.client != null && xray.server != null);
+        assertion = !(xray.client.enable && xray.server != null);
         message = "Currenty xray.client and xray.server could not be simutaniusly enabled.";
       }];
     }
     (
-      inputs.lib.mkIf (xray.client != null)
+      inputs.lib.mkIf xray.client.enable
       {
         services =
         {

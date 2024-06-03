@@ -52,7 +52,7 @@ inputs:
       {
         snapper.enable = true;
         sshd = { passwordAuthentication = true; groupBanner = true; };
-        xray.client = {};
+        xray.client.enable = true;
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         smartd.enable = true;
         beesd.instances.root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
