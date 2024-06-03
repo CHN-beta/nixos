@@ -5,7 +5,15 @@ inputs:
     home-manager.users.chn.config.programs.plasma =
     {
       # TODO: do not setup theme before clean these configs
-      workspace = { theme = "Utterly-Round"; };
+      workspace =
+      {
+        theme = "Utterly-Round";
+        colorScheme = "UtterlyNordLight";
+        cursorTheme = "Tela-circle-nord-light";
+        lookAndFeel = "Utterly-Nord-Light";
+        # ~/.config/kdeglobals [Icons]
+        iconTheme = "Tela-circle-nord-light";
+      };
       configFile =
       {
         kdeglobals.KDE.widgetStyle.value = "kvantum";
