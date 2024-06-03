@@ -63,6 +63,7 @@
         export HOME=$NIX_BUILD_TOP # Some packages need a writable HOME
         export npm_config_nodedir=${nodejs}
         pnpm config set reporter append-only
+        pnpm config set package-manager-strict false
         cp -f ${patchedLockFile} pnpm-lock.yaml
         runHook postConfigure
       '';
