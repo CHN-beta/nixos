@@ -23,6 +23,6 @@ inputs:
       # };
       kscreenlockerrc."Greeter/Wallpaper/org.kde.image/General" =
         { Image.value = wallpaper; PreviewImage.value = wallpaper; };
-      kdeglobals.General.accentColorFromWallpaper.value = true;
+      # kdeglobals.General.accentColorFromWallpaper.value = true;
     };
 }
