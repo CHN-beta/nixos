@@ -28,7 +28,7 @@
                 version = lib.last (lib.splitString "@" nameAtVersion);
                 name = lib.last (lib.init (lib.splitString "@" nameAtVersion));
                 baseName = lib.last (lib.splitString "/" name);
-                url = "${registry}/${name}/-/${baseName}-${version}.tgz";
+                url = "${registry}/${if name == baseName then "" else "@"}${name}/-/${baseName}-${version}.tgz";
                 tarball = fetchurl { inherit url; sha512 = value.resolution.integrity; };
               in value // { resolution.tarball = "file:${tarball}"; }
             else # if value.resolution ? tarball then
