@@ -8,10 +8,15 @@ inputs:
       # TODO: panel, discard user changed settings
       # kwin
       {
-        kwin.titlebarButtons =
+        kwin =
         {
-          right = [ "help" "keep-below-windows" "keep-above-windows" "minimize" "maximize" "close" ];
-          left = [ "more-window-actions" ];
+          titlebarButtons =
+          {
+            right = [ "help" "keep-below-windows" "keep-above-windows" "minimize" "maximize" "close" ];
+            left = [ "more-window-actions" ];
+          };
+          virtualDesktops = { animation = "slide"; rows = 1; number = 6; };
+          effects.shakeCursor.enable = true;
         };
         windows.allowWindowsToRememberPositions = false;
         configFile =
@@ -82,6 +87,7 @@ inputs:
             "View Style".value = "DetailTree";
           };
         };
+        workspace.clickItemTo = "open";
       }
       # krunner
       { configFile.krunnerrc = { General.FreeFloating.value = true; Plugins.baloosearchEnabled.value = false; }; }
