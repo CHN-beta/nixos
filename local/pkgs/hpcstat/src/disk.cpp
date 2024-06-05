@@ -25,52 +25,39 @@ bool hpcstat::disk::stat(boost::interprocess::file_lock &lock)
     { std::cerr << "HOME not set\n"; return false; }
   else
   {
-    auto all_size  = [&] -> std::optional<std::map<std::string, double>>
+    auto get_size  = [](std::string path) -> std::optional<double>
     {
-      if
-      (
-        auto result =
-          exec("/usr/bin/du", { "-a", "--max-depth=2", *homedir });
-        !result
-      )
-        { std::cerr << fmt::format("failed to stat home.\n"); return std::nullopt; }
+      if (auto result = exec("/usr/bin/du", { "-s", path }); !result)
+        { std::cerr << fmt::format("failed to stat {}\n", path); return std::nullopt; }
       else
       {
-        std::map<std::string, double> size;
-        std::regex re(R"((\d+)\s+(.*)\n)");
-        for (auto i = std::sregex_iterator(result->begin(), result->end(), re);
-          i != std::sregex_iterator(); ++i)
-        {
-          if (i->str(2).find(*homedir) != 0)
-            { std::cerr << fmt::format("invalid path: {}\n", i->str(2)); return std::nullopt; }
-          else size[i->str(2).substr(homedir->size())] = std::stoul(i->str(1)) / 1024. / 1024;
-        }
-        return size;
+        std::smatch match;
+        if (!std::regex_search(*result, match, std::regex(R"((\d+))")))
+          { std::cerr << fmt::format("failed to parse {}\n", *result); return std::nullopt; }
+        return std::stod(match[1]) / 1024 / 1024;
       }
-    }();
-    if (!all_size) return false;
+    };
+    auto get_subdir = [](std::string path) -> std::vector<std::string>
+    {
+      std::filesystem::directory_iterator it(path);
+      std::vector<std::string> result;
+      for (const auto& entry : it)
+        if (entry.is_directory()) result.push_back(entry.path().filename().string());
+      return result;
+    };
     Usage usage;
     usage.Time = now();
-    if (!all_size->contains("")) { std::cerr << "Failed to get size of home\n"; return false; }
-    usage.Total = (*all_size)[""];
+    if (auto size = get_size(*homedir); size) usage.Total = *size; else return false;
     for (const auto& [dir, recursive] : Directories)
     {
-      if (!all_size->contains(dir))
-        { std::cerr << fmt::format("Failed to get size of {}\n", dir); return false; }
-      else usage.Teacher.push_back({ dir, (*all_size)[dir] });
-      auto get_subdir = [](std::string path) -> std::vector<std::string>
-      {
-        std::filesystem::directory_iterator it(path);
-        std::vector<std::string> result;
-        for (const auto& entry : it)
-          if (entry.is_directory()) result.push_back(entry.path().filename().string());
-        return result;
-      };
+      if (auto size = get_size(*homedir + "/" + dir); size)
+        usage.Teacher.push_back({ dir, *size });
+      else return false;
       if (recursive) for (const auto& subdir : get_subdir(*homedir + "/" + dir))
       {
-        if (!all_size->contains(dir + "/" + subdir))
-          { std::cerr << fmt::format("Failed to get size of {}/{}\n", dir, subdir); return false; }
-        else usage.Student.push_back({ dir + "/" + subdir, (*all_size)[dir + "/" + subdir] });
+        if (auto size = get_size(*homedir + "/" + dir + "/" + subdir); size)
+          usage.Student.push_back({ dir + "/" + subdir, *size });
+        else return false;
       }
     }
     std::sort(usage.Teacher.begin(), usage.Teacher.end(),
