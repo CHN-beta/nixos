@@ -13,6 +13,7 @@
         ''
           export PATH=${lib.makeBinPath [ bash nodejs nodejs.pkgs.pnpm chromium git ]}:$PATH
           export CHROMIUM_EXECUTABLE_PATH=chromium
+          export COREPACK_ENABLE_STRICT=0
           pnpm start
         '';
         in

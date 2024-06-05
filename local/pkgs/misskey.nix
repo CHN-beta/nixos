@@ -16,6 +16,7 @@
           export PATH=${lib.makeBinPath [ bash nodejs nodejs.pkgs.pnpm nodejs.pkgs.gulp cypress ]}:$PATH
           export CYPRESS_RUN_BINARY="${cypress}/bin/Cypress"
           export NODE_ENV=production
+          export COREPACK_ENABLE_STRICT=0
           pnpm run migrateandstart
         '';
         in
