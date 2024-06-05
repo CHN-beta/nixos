@@ -50,9 +50,10 @@ inputs:
       {
         hardware.cpu = builtins.listToAttrs
           (map (name: { inherit name; value = { updateMicrocode = true; }; }) hardware.cpus);
-        boot.initrd.availableKernelModules =
-          let
-            modules =
+        boot =
+        {
+          initrd.availableKernelModules =
+            let modules =
             {
               intel =
               [
@@ -60,8 +61,11 @@ inputs:
               ];
               amd = [];
             };
-          in
-            builtins.concatLists (map (cpu: modules.${cpu}) hardware.cpus);
+            in builtins.concatLists (map (cpu: modules.${cpu}) hardware.cpus);
+          kernelParams =
+            let params = { intel = [ "intel_iommu=off" ]; amd = [ "amd_iommu=fullflush" ]; };
+            in builtins.concatLists (map (cpu: params.${cpu}) hardware.cpus);
+        };
       }
     )
   ];
