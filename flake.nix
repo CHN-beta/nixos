@@ -94,10 +94,12 @@
               (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
               devices));
           hpcstat =
-            let openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
-              (prev: { doCheck = false; patches = prev.patches ++ [ ./local/pkgs/hpcstat/openssh.patch ];});
+            let
+              openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
+                (prev: { doCheck = false; patches = prev.patches ++ [ ./local/pkgs/hpcstat/openssh.patch ];});
+              duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
             in pkgs.pkgsStatic.localPackages.hpcstat.override
-              { inherit openssh; standalone = true; version = inputs.self.rev or "dirty"; };
+              { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
           nixpkgs = pkgs;
         }
         // (
