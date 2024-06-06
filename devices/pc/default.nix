@@ -128,7 +128,6 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "hibernate-mt7921e" "suspend-hibernate-no-platform" ];
     };
-    system.nixos.tags = [ "next" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
     specialisation =
