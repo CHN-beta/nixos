@@ -1,16 +1,16 @@
 {
   lib, stdenv, fetchurl, autoPatchelfHook, wrapGAppsHook, makeWrapper,
-  glib, gtk2, xorg, libGLU, gtk3, writeShellScript, gsettings-desktop-schemas, xdg-utils
+  glib, gtk2, xorg, libGLU, gtk3, writeShellScript, gsettings-desktop-schemas, xdg-utils, webkitgtk, jdk
 }:
 
 stdenv.mkDerivation rec
 {
   pname = "vesta";
-  version = "3.5.5";
+  version = "3.90.0a";
   src = fetchurl
   {
-    url = "https://jp-minerals.org/vesta/archives/${version}/VESTA-gtk3.tar.bz2";
-    sha256 = "sRzQNJA7+hsjLWmykqe6bH0p1/aGEB8hCuxCyPzxYHs=";
+    url = "https://jp-minerals.org/vesta/archives/testing/VESTA-gtk3-x86_64.tar.bz2";
+    sha256 = "0bsvfr3409g2v1wgnfixpkjz1yzl2j1nlrk5a5rkdfs94rrvxzaa";
   };
   desktopFile = fetchurl
   {
@@ -18,8 +18,8 @@ stdenv.mkDerivation rec
     sha256 = "Tq4AzQgde2KIWKA1k6JlxvdphGG9JluHMZjVw0fBUeQ=";
   };
 
-  nativeBuildInputs = [ autoPatchelfHook wrapGAppsHook makeWrapper ];
-  buildInputs = [ glib gtk2 xorg.libXxf86vm libGLU gtk3 xorg.libXtst ];
+  nativeBuildInputs =
+    [ autoPatchelfHook wrapGAppsHook makeWrapper glib gtk2 xorg.libXxf86vm libGLU gtk3 xorg.libXtst webkitgtk jdk ];
 
   unpackPhase = "tar -xf ${src}";
 
@@ -32,11 +32,13 @@ stdenv.mkDerivation rec
     sed -i "s|Icon=.*|Icon=$out/opt/VESTA-gtk3/img/logo.png|" $out/share/applications/vesta.desktop
 
     mkdir -p $out/opt
-    cp -r VESTA-gtk3 $out/opt/VESTA-gtk3
+    cp -r VESTA-gtk3-x86_64 $out/opt/VESTA-gtk3-x86_64
 
     mkdir -p $out/bin
-    makeWrapper $out/opt/VESTA-gtk3/VESTA $out/bin/vesta
+    makeWrapper $out/opt/VESTA-gtk3-x86_64/VESTA $out/bin/vesta
 
-    patchelf --remove-needed libjawt.so $out/opt/VESTA-gtk3/PowderPlot/libswt-awt-gtk-3346.so
+    patchelf --remove-needed libjawt.so $out/opt/VESTA-gtk3-x86_64/PowderPlot/libswt-awt-gtk-3346.so
+    
+    ln -s ${src} $out/src
   '';
 }
