@@ -27,7 +27,7 @@ inputs:
             Tiling.padding.value = 4;
             Wayland."InputMethod" =
             {
-              value = "/run/current-system/sw/share/applications/fcitx5-wayland-launcher.desktop";
+              value = "/run/current-system/sw/share/applications/org.fcitx.Fcitx5.desktop";
               shellExpand = true;
             };
             Windows.RollOverDesktops.value = true;
