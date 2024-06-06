@@ -11,6 +11,8 @@ namespace hpcstat::disk
     long Time;
     using serialize = zpp::bits::members<4>;
   };
-  // 统计当前磁盘使用情况，并写入数据库
+  // 统计当前磁盘使用情况，并存入数据库
   bool stat(boost::interprocess::file_lock& lock);
+  // 从数据库中读取磁盘使用情况
+  std::optional<Usage> get();
 }
