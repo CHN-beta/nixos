@@ -20,7 +20,10 @@ inputs:
         secretKeyFile = inputs.config.sops.secrets."store/signingKey".path;
       };
       sops.secrets."store/signingKey" = {};
-      nixos.services.nginx =
-        { enable = true; https.${nix-serve.hostname}.location."/".proxy.upstream = "http://127.0.0.1:5000"; };
+      nixos.services =
+      {
+        nginx = { enable = true; https.${nix-serve.hostname}.location."/".proxy.upstream = "http://127.0.0.1:5000"; };
+        xray.client.v2ray-forwarder.noproxyTcpPorts = [ 5000 ];
+      };
     };
 }

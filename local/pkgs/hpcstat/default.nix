@@ -1,13 +1,15 @@
 {
-  stdenv, cmake, pkg-config, standalone ? false, makeWrapper,
-  boost, fmt, sqlite-orm, nlohmann_json, zpp-bits, range-v3, nameof, openssh, sqlite, date, openxlsx, httplib, openssl
+  stdenv, cmake, pkg-config, standalone ? false, version ? null, makeWrapper, lib,
+  boost, fmt, sqlite-orm, nlohmann_json, zpp-bits, range-v3, nameof, openssh, sqlite, date, openxlsx, httplib, openssl,
+  termcolor
 }: stdenv.mkDerivation
 {
   name = "hpcstat";
   src = ./.;
   buildInputs =
-    [ boost fmt sqlite-orm nlohmann_json zpp-bits range-v3 nameof sqlite date openxlsx httplib openssl.dev ];
+    [ boost fmt sqlite-orm nlohmann_json zpp-bits range-v3 nameof sqlite date openxlsx httplib termcolor ];
   nativeBuildInputs = [ cmake pkg-config makeWrapper ];
+  cmakeFlags = lib.optionals (version != null) [ "-DHPCSTAT_VERSION=${version}" ];
   postInstall =
     if standalone then "cp ${openssh}/bin/{ssh-add,ssh-keygen} $out/bin"
     else

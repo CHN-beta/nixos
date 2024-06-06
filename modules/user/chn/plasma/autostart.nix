@@ -9,14 +9,12 @@ inputs:
           nheko = rec
           {
             fileName = "nheko.desktop";
-            path = inputs.pkgs.writeText fileName (builtins.replaceStrings
-                [ "Exec=nheko %u" ] [ "Exec=bash -c 'sleep 5 && nheko'" ]
-                (builtins.readFile "${inputs.pkgs.nheko}/share/applications/${fileName}"));
+            path = "${inputs.pkgs.nheko}/share/applications/${fileName}";
           };
           kclockd = rec
           {
             fileName = "org.kde.kclockd-autostart.desktop";
-            path = "${inputs.pkgs.plasma5Packages.kdeGear.kclock}/etc/xdg/autostart/${fileName}";
+            path = "${inputs.pkgs.kdePackages.kdeGear.kclock}/etc/xdg/autostart/${fileName}";
           };
           yakuake = rec
           {
@@ -27,7 +25,7 @@ inputs:
           {
             fileName = "org.telegram.desktop.desktop";
             path = inputs.pkgs.writeText fileName (builtins.replaceStrings
-                [ "Exec=telegram-desktop -- %u" ] [ "Exec=bash -c 'sleep 5 && telegram-desktop -autostart'" ]
+                [ "Exec=telegram-desktop -- %u" ] [ "Exec=telegram-desktop -autostart" ]
                 (builtins.readFile "${inputs.pkgs.telegram-desktop}/share/applications/${fileName}"));
           };
           element = rec

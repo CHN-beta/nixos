@@ -258,7 +258,7 @@ inputs:
         (attrsToList synapse.instances));
       nixos.services =
       {
-        postgresql = mkIf (synapse.instances != {}) { instances = listToAttrs (concatLists (map
+        postgresql.instances = listToAttrs (concatLists (map
           (instance:
           [
             {
@@ -270,10 +270,10 @@ inputs:
               value.user = "synapse_${replaceStrings [ "-" ] [ "_" ] instance.name}";
             }
           ])
-          (attrsToList synapse.instances)));};
-        redis = mkIf (synapse.instances != {}) { instances = listToAttrs (map
+          (attrsToList synapse.instances)));
+        redis.instances = listToAttrs (map
           (instance: { name = "synapse-${instance.name}"; value.port = instance.value.redisPort; })
-          (attrsToList synapse.instances));};
+          (attrsToList synapse.instances));
         nginx =
         {
           enable = mkIf (synapse.instances != {}) true;

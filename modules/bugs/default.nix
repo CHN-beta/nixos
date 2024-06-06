@@ -11,47 +11,6 @@ inputs:
         SuspendState=freeze
         HibernateMode=shutdown
       '';
-      # reload iwlwifi after resume from hibernate
-      hibernate-iwlwifi =
-      {
-        systemd.services.reload-iwlwifi-after-hibernate =
-        {
-          description = "reload iwlwifi after resume from hibernate";
-          after = [ "systemd-hibernate.service" ];
-          serviceConfig.Type = "oneshot";
-          script = let modprobe = "${inputs.pkgs.kmod}/bin/modprobe"; in
-          ''
-            ${modprobe} -r iwlwifi
-            ${modprobe} iwlwifi
-            echo 0 > /sys/devices/system/cpu/intel_pstate/no_turbo
-          '';
-          wantedBy = [ "systemd-hibernate.service" ];
-        };
-        nixos.system.kernel.modules.modprobeConfig =
-          [ "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
-      };
-      # disable wakeup on lid open
-      suspend-lid-no-wakeup.systemd.services.lid-no-wakeup =
-      {
-        description = "lid no wake up";
-        serviceConfig.Type = "oneshot";
-        script =
-          let
-            cat = "${inputs.pkgs.coreutils}/bin/cat";
-            grep = "${inputs.pkgs.gnugrep}/bin/grep";
-          in
-          ''
-            if ${cat} /proc/acpi/wakeup | ${grep} LID0 | ${grep} -q enabled
-            then
-              echo LID0 > /proc/acpi/wakeup
-            fi
-            if ${cat} /proc/acpi/wakeup | ${grep} XHCI | ${grep} -q enabled
-            then
-              echo XHCI > /proc/acpi/wakeup
-            fi
-          '';
-        wantedBy = [ "multi-user.target" ];
-      };
       # xmunet use old encryption
       xmunet.nixpkgs.config.packageOverrides = pkgs: { wpa_supplicant = pkgs.wpa_supplicant.overrideAttrs
         (attrs: { patches = attrs.patches ++ [ ./xmunet.patch ];}); };
@@ -77,21 +36,10 @@ inputs:
             script = "${systemctl} start waydroid-container";
           };
         };
-      firefox.programs.firefox.enable = inputs.lib.mkForce false;
-      power.boot.kernelParams = [ "cpufreq.default_governor=powersave" ];
       backlight.boot.kernelParams = [ "nvidia.NVreg_RegistryDwords=EnableBrightnessControl=1" ];
       amdpstate.boot.kernelParams = [ "amd_pstate=active" ];
-      wireplumber.environment.etc."wireplumber/main.lua.d/50-alsa-config.lua".text =
-        let
-          content = builtins.readFile
-            (inputs.pkgs.wireplumber + "/share/wireplumber/main.lua.d/50-alsa-config.lua");
-          matched = builtins.match
-            ".*\n([[:space:]]*)(--\\[\"session\\.suspend-timeout-seconds\"][^\n]*)[\n].*" content;
-          spaces = builtins.elemAt matched 0;
-          comment = builtins.elemAt matched 1;
-          config = ''["session.suspend-timeout-seconds"] = 0'';
-        in
-          builtins.replaceStrings [(spaces + comment)] [(spaces + config)] content;
+      hibernate-mt7921e.powerManagement.resumeCommands =
+        let modprobe = "${inputs.pkgs.kmod}/bin/modprobe"; in "${modprobe} -r -w 3000 mt7921e && ${modprobe} mt7921e";
     };
   in
     {

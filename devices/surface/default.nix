@@ -41,9 +41,8 @@ inputs:
       services =
       {
         snapper.enable = true;
-        fontconfig.enable = true;
         sshd = {};
-        xray.client.dae.wanInterface = [ "wlp2s0" ];
+        xray.client.enable = true;
         firewall.trustedInterfaces = [ "virbr0" ];
         wireguard =
         {
@@ -56,7 +55,6 @@ inputs:
       };
       bugs = [ "xmunet" "suspend-hibernate-no-platform" ];
     };
-    boot.kernelParams = [ "intel_iommu=off" ];
     environment.systemPackages = with inputs.pkgs; [ maliit-keyboard maliit-framework ];
     powerManagement.resumeCommands = ''${inputs.pkgs.systemd}/bin/systemctl restart iptsd'';
     services.iptsd.config =

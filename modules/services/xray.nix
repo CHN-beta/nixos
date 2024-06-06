@@ -2,36 +2,29 @@ inputs:
 {
   options.nixos.services.xray = let inherit (inputs.lib) mkOption types; in
   {
-    client = mkOption
+    client =
     {
-      type = types.nullOr (types.submodule { options =
+      enable = mkOption { type = types.bool; default = false; };
+      xray =
       {
-        xray =
+        serverAddress = mkOption { type = types.nonEmptyStr; default = "74.211.99.69"; };
+        serverName = mkOption { type = types.nonEmptyStr; default = "vps6.xserver.chn.moe"; };
+      };
+      dnsmasq =
+      {
+        extraInterfaces = mkOption
         {
-          serverAddress = mkOption { type = types.nonEmptyStr; default = "74.211.99.69"; };
-          serverName = mkOption { type = types.nonEmptyStr; default = "vps6.xserver.chn.moe"; };
-          noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
+          type = types.listOf types.nonEmptyStr;
+          default = inputs.lib.optional inputs.config.nixos.virtualization.docker.enable "docker0";
         };
-        dae =
-        {
-          lanInterfaces = mkOption
-          {
-            type = types.listOf types.nonEmptyStr;
-            default = inputs.lib.optionals inputs.config.nixos.virtualization.docker.enable [ "docker0" ];
-          };
-          wanInterface = mkOption { type = types.listOf types.nonEmptyStr; default = [ "auto" ]; };
-        };
-        dnsmasq =
-        {
-          extraInterfaces = mkOption
-          {
-            type = types.listOf types.nonEmptyStr;
-            default = inputs.lib.optional inputs.config.nixos.virtualization.docker.enable "docker0";
-          };
-          hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
-        };
-      };});
-      default = null;
+        hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+      };
+      v2ray-forwarder =
+      {
+        noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
+        noproxyTcpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
+        noproxyUdpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
+      };
     };
     server = mkOption
     {
@@ -48,12 +41,12 @@ inputs:
     {
       assertions =
       [{
-        assertion = !(xray.client != null && xray.server != null);
+        assertion = !(xray.client.enable && xray.server != null);
         message = "Currenty xray.client and xray.server could not be simutaniusly enabled.";
       }];
     }
     (
-      inputs.lib.mkIf (xray.client != null)
+      inputs.lib.mkIf xray.client.enable
       {
         services =
         {
@@ -71,56 +64,6 @@ inputs:
               address = map (host: "/${host.name}/${host.value}")
                 (inputs.localLib.attrsToList xray.client.dnsmasq.hosts);
             };
-          };
-          dae =
-          {
-            enable = true;
-            package = inputs.pkgs.callPackage "${inputs.topInputs.nixpkgs-unstable}/pkgs/tools/networking/dae" {};
-            config =
-            let
-              lanString = (inputs.lib.optionalString (xray.client.dae.lanInterfaces != []) "lan_interface: ")
-                + builtins.concatStringsSep "," xray.client.dae.lanInterfaces;
-              wanString = (inputs.lib.optionalString (xray.client.dae.wanInterface != []) "wan_interface: ")
-                + builtins.concatStringsSep "," xray.client.dae.wanInterface;
-            in
-            ''
-              global {
-                tproxy_port: 12345
-                tproxy_port_protect: true
-                so_mark_from_dae: 0
-                log_level: info
-                disable_waiting_network: true
-                ${lanString}
-                ${wanString}
-                auto_config_kernel_parameter: true
-
-                dial_mode: ip
-                allow_insecure: false
-                tls_implementation: tls
-              }
-
-              node {
-                'socks5://localhost:10884'
-              }
-
-              group {
-                default_group {
-                  policy: fixed(0)
-                }
-              }
-
-              routing {
-                dscp(0x1) -> direct
-
-                dip(224.0.0.0/3, 'ff00::/8') -> direct
-                dip(geoip:private) -> direct
-                dip(8.8.8.8) -> default_group
-                dip(223.5.5.5) -> direct
-                dip(geoip:cn) -> direct
-                !dip(geoip:cn) -> default_group
-                fallback: default_group
-              }
-            '';
           };
           resolved.enable = false;
         };
@@ -172,13 +115,28 @@ inputs:
                     tag = "dns-in";
                   }
                   {
+                    port = 10880;
+                    protocol = "dokodemo-door";
+                    settings = { network = "tcp,udp"; followRedirect = true; };
+                    streamSettings.sockopt.tproxy = "tproxy";
+                    sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
+                    tag = "common-in";
+                  }
+                  {
                     port = 10881;
                     protocol = "dokodemo-door";
                     settings = { network = "tcp,udp"; followRedirect = true; };
                     streamSettings.sockopt.tproxy = "tproxy";
                     tag = "xmu-in";
                   }
-                  { port = 10884; protocol = "socks"; settings.udp = true; tag = "common-in"; }
+                  {
+                    port = 10883;
+                    protocol = "dokodemo-door";
+                    settings = { network = "tcp,udp"; followRedirect = true; };
+                    streamSettings.sockopt.tproxy = "tproxy";
+                    tag = "proxy-in";
+                  }
+                  { port = 10884; protocol = "socks"; settings.udp = true; tag = "proxy-socks-in"; }
                   { port = 10882; protocol = "socks"; settings.udp = true; tag = "direct-in"; }
                 ];
                 outbounds =
@@ -229,6 +187,7 @@ inputs:
                     { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
                     { inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
                     { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
+                    { inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = "proxy-vless"; }
                     { inboundTag = [ "common-in" ]; domain = [ "geosite:geolocation-cn" ]; outboundTag = "direct"; }
                     {
                       inboundTag = [ "common-in" ];
@@ -269,22 +228,50 @@ inputs:
                 ipset = "${inputs.pkgs.ipset}/bin/ipset";
                 iptables = "${inputs.pkgs.iptables}/bin/iptables";
                 ip = "${inputs.pkgs.iproute}/bin/ip";
+                autoPort = "10880";
                 xmuPort = "10881";
+                proxyPort = "10883";
               in
               {
                 Type = "simple";
                 RemainAfterExit = true;
                 ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start" (builtins.concatStringsSep "\n"
                 (
+                  [ "${ipset} create lo_net hash:net" ]
+                  ++ (builtins.map (host: "${ipset} add lo_net ${host}")
                   [
+                    "0.0.0.0/8" "10.0.0.0/8" "100.64.0.0/10" "127.0.0.0/8" "169.254.0.0/16" "172.16.0.0/12"
+                    "192.0.0.0/24" "192.88.99.0/24" "192.168.0.0/16" "59.77.0.143" "198.18.0.0/15"
+                    "198.51.100.0/24" "203.0.113.0/24" "224.0.0.0/4" "240.0.0.0/4" "255.255.255.255/32"
+                  ])
+                  ++ [
                     "${ipset} create xmu_net hash:net"
+                    "${ipset} create noproxy_net hash:net"
+                    "${ipset} add noproxy_net 223.5.5.5"
+                    "${ipset} create noproxy_src_net hash:net"
+                    "${ipset} create noproxy_port bitmap:port range 0-65535"
+                    "${ipset} create proxy_net hash:net"
+                    "${ipset} add proxy_net 8.8.8.8"
                     "${iptables} -t mangle -N v2ray -w"
                     "${iptables} -t mangle -A PREROUTING -j v2ray -w"
                   ]
+                  ++ (map (port: "${ipset} add noproxy_port ${port}")
+                    (with xray.client.v2ray-forwarder;
+                      (map (port: "tcp:${toString port}") noproxyTcpPorts)
+                        ++ (map (port: "udp:${toString port}") noproxyUdpPorts))
+                  )
                   ++ (map (action: "${iptables} -t mangle -A v2ray ${action} -w")
                   [
+                    "-m set --match-set noproxy_src_net src -j RETURN"
+                    "-m set --match-set noproxy_net dst -j RETURN"
+                    "-m set --match-set noproxy_port src -j RETURN"
                     "-m set --match-set xmu_net dst -p tcp -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1"
                     "-m set --match-set xmu_net dst -p udp -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1"
+                    "-m set --match-set proxy_net dst -p tcp -j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1"
+                    "-m set --match-set proxy_net dst -p udp -j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1"
+                    "-m set --match-set lo_net dst -j RETURN"
+                    "-p tcp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1"
+                    "-p udp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1"
                   ])
                   ++ [
                     "${iptables} -t mangle -N v2ray_mark -w"
@@ -292,30 +279,41 @@ inputs:
                   ]
                   ++ (map (action: "${iptables} -t mangle -A v2ray_mark ${action} -w")
                   (
-                    [ "-m set --match-set xmu_net dst -j MARK --set-mark 1/1" ]
-                    ++ (map
+                    (map
                       (user:
                         let uid = inputs.config.nixos.user.uid.${user};
-                        in "-m owner --uid-owner ${toString uid} -j DSCP --set-dscp 0x1")
-                      (xray.client.xray.noproxyUsers ++ [ "v2ray" ]))  
+                        in "-m owner --uid-owner ${toString uid} -j RETURN")
+                      (xray.client.v2ray-forwarder.noproxyUsers ++ [ "v2ray" ]))
+                    ++ [
+                      "-m set --match-set noproxy_src_net src -j RETURN"
+                      "-m set --match-set noproxy_net dst -j RETURN"
+                      "-m set --match-set noproxy_port src -j RETURN"
+                      "-m set --match-set xmu_net dst -j MARK --set-mark 1/1"
+                      "-m set --match-set proxy_net dst -j MARK --set-mark 1/1"
+                      "-m set --match-set lo_net dst -j RETURN"
+                      "-j MARK --set-mark 1/1"
+                    ]
                   ))
                   ++ [
                     "${ip} rule add fwmark 1/1 table 100"
                     "${ip} route add local 0.0.0.0/0 dev lo table 100"
                   ]
                 ));
-                ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop"
-                ''
-                  ${iptables} -t mangle -F v2ray -w
-                  ${iptables} -t mangle -D PREROUTING -j v2ray -w
-                  ${iptables} -t mangle -X v2ray -w
-                  ${iptables} -t mangle -F v2ray_mark -w
-                  ${iptables} -t mangle -D OUTPUT -j v2ray_mark -w
-                  ${iptables} -t mangle -X v2ray_mark -w
-                  ${ip} rule del fwmark 1/1 table 100
-                  ${ip} route del local 0.0.0.0/0 dev lo table 100
-                  ${ipset} destroy xmu_net
-                '';
+                ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop" (builtins.concatStringsSep "\n"
+                (
+                  [
+                    "${iptables} -t mangle -F v2ray -w"
+                    "${iptables} -t mangle -D PREROUTING -j v2ray -w"
+                    "${iptables} -t mangle -X v2ray -w"
+                    "${iptables} -t mangle -F v2ray_mark -w"
+                    "${iptables} -t mangle -D OUTPUT -j v2ray_mark -w"
+                    "${iptables} -t mangle -X v2ray_mark -w"
+                    "${ip} rule del fwmark 1/1 table 100"
+                    "${ip} route del local 0.0.0.0/0 dev lo table 100"
+                  ]
+                  ++ (map (set: "${ipset} destroy ${set}")
+                    [ "lo_net" "xmu_net" "noproxy_net" "noproxy_src_net" "proxy_net" "noproxy_port" ])
+                ));
               };
           };
         };

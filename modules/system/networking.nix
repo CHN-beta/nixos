@@ -59,12 +59,7 @@ inputs:
       networking.networkmanager =
       {
         enable = true;
-        # let networkmanager ignore the kernel command line `ip=xxx`
-        extraConfig =
-        ''
-          [device]
-          keep-configuration=no
-        '';
+        settings.device.keep-configuration = "no";
       };
       environment.persistence."${inputs.config.nixos.system.impermanence.persistence}".directories =
         [{ directory = "/etc/NetworkManager/system-connections"; mode = "0700"; }];

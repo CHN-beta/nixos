@@ -39,7 +39,7 @@ inputs:
                 donjayamanne.githistory genieai.chatgpt-vscode fabiospampinato.vscode-diff cschlosser.doxdocgen
                 llvm-vs-code-extensions.vscode-clangd ms-ceintl.vscode-language-pack-zh-hans
                 oderwat.indent-rainbow
-                twxs.cmake guyutongxue.cpp-reference znck.grammarly thfriedrich.lammps leetcode.vscode-leetcode
+                twxs.cmake guyutongxue.cpp-reference thfriedrich.lammps leetcode.vscode-leetcode # znck.grammarly
                 james-yu.latex-workshop gimly81.matlab affenwiesel.matlab-formatter ckolkman.vscode-postgres
                 yzhang.markdown-all-in-one pkief.material-icon-theme bbenoist.nix ms-ossdata.vscode-postgresql
                 redhat.vscode-xml dotjoshjohnson.xml jnoortheen.nix-ide xdebug.php-debug

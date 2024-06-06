@@ -94,8 +94,24 @@ inputs:
                 in builtins.listToAttrs (map
                   (name: { inherit name; value = packages name; }) (builtins.attrNames source))
               )
-              // (inputs.lib.optionalAttrs (nixpkgs.march != null)
-                  { embree = prev.embree.override { stdenv = final.genericPackages.stdenv; }; })
+              // (
+                inputs.lib.optionalAttrs (nixpkgs.march != null)
+                {
+                  embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
+                  libvorbis = prev.libvorbis.override { stdenv = final.genericPackages.stdenv; };
+                  _7zz = prev._7zz.override { stdenv = final.genericPackages.stdenv; };
+                  ispc = genericPackages.ispc;
+                  opencolorio = prev.opencolorio.overrideAttrs { doCheck = false; };
+                  redis = prev.redis.overrideAttrs { doCheck = false; };
+                }
+              )
+              // (
+                inputs.lib.optionalAttrs nixpkgs.cuda.enable
+                {
+                  waifu2x-converter-cpp = prev.waifu2x-converter-cpp.override
+                    { stdenv = final.cudaPackages.backendStdenv; };
+                }
+              )
           )];
         };
       programs.ccache = { enable = true; cacheDir = "/var/lib/ccache"; };
@@ -119,6 +135,5 @@ inputs:
             };
           in { GENERIC_CPU = inputs.lib.kernel.no; ${kernelConfig.${nixpkgs.march}} = inputs.lib.kernel.yes; };
       }];
-      environment.systemPackages = mkIf nixpkgs.cuda.enable [ inputs.pkgs.cudatoolkit ];
     };
 }

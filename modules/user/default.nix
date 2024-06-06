@@ -82,32 +82,25 @@ inputs:
         user.users);
       environment.persistence."${inputs.config.nixos.system.impermanence.persistence}".directories = builtins.map
         (user: { directory = "/home/${user}"; inherit user; group = user; mode = "0700"; })
-        user.users;
-      nixos.user.sharedModules =
-      [{
-        config.home.file =
-        {
-          ".config/.keep".text = "";
-          ".local/.keep".text = "";
-          ".local/share/.keep".text = "";
-          ".local/state/.keep".text = "";
-        };
-      }];
+        (builtins.filter (user: user != "chn") user.users);
     }
     # set hashedPassword if it exist in secrets
     (
-      let
-        secrets = inputs.pkgs.localPackages.fromYaml (builtins.readFile inputs.config.sops.defaultSopsFile);
-        hashedPasswordExist = userName: (secrets ? users) && ((secrets.users or {}) ? ${userName});
-      in
-      {
-        users.users = builtins.listToAttrs (builtins.map
-          (name: { inherit name; value.hashedPasswordFile = inputs.config.sops.secrets."users/${name}".path; })
-          (builtins.filter (user: hashedPasswordExist user) user.users));
-        sops.secrets = builtins.listToAttrs (builtins.map
-          (name: { name = "users/${name}"; value.neededForUsers = true; })
-          (builtins.filter (user: hashedPasswordExist user) user.users));
-      }
+      inputs.lib.mkIf inputs.config.nixos.system.sops.enable
+      (
+        let
+          secrets = inputs.pkgs.localPackages.fromYaml (builtins.readFile inputs.config.sops.defaultSopsFile);
+          hashedPasswordExist = userName: (secrets ? users) && ((secrets.users or {}) ? ${userName});
+        in
+        {
+          users.users = builtins.listToAttrs (builtins.map
+            (name: { inherit name; value.hashedPasswordFile = inputs.config.sops.secrets."users/${name}".path; })
+            (builtins.filter (user: hashedPasswordExist user) user.users));
+          sops.secrets = builtins.listToAttrs (builtins.map
+            (name: { name = "users/${name}"; value.neededForUsers = true; })
+            (builtins.filter (user: hashedPasswordExist user) user.users));
+        }
+      )
     )
     {
       users.users.root =
@@ -119,8 +112,7 @@ inputs:
       home-manager.users.root =
       {
         imports = user.sharedModules;
-        config.programs.git =
-          { extraConfig.core.editor = inputs.lib.mkForce "vim"; userName = "chn"; userEmail = "chn@chn.moe"; };
+        config.programs.git = { userName = "chn"; userEmail = "chn@chn.moe"; };
       };
     }
     (inputs.lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })

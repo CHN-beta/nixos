@@ -9,7 +9,7 @@ inputs:
     behindNat = mkOption
     {
       type = types.bool;
-      default = inputs.config.nixos.services.xray.client != null;
+      default = inputs.config.nixos.services.xray.client.enable;
     };
     listenIp = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
     # if the host is behind xray, it should listen on another port, to make xray succeffully listen on 51820
@@ -38,7 +38,11 @@ inputs:
       {
         networking =
         {
-          firewall = { allowedUDPPorts = [ wireguard.listenPort ]; trustedInterfaces = [ "wireguard" ]; };
+          firewall =
+          {
+            allowedUDPPorts = inputs.lib.mkIf (!wireguard.behindNat) [ wireguard.listenPort ];
+            trustedInterfaces = [ "wireguard" ];
+          };
           wireguard.interfaces.wireguard =
           {
             ips = [ "${wireguard.wireguardIp}/24" ];

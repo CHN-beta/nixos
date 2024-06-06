@@ -30,7 +30,7 @@ inputs:
             enable = true;
             drivers = inputs.lib.mkIf (inputs.config.nixos.system.nixpkgs.arch == "x86_64") [ inputs.pkgs.cnijfilter2 ];
           };
-          avahi = { enable = true; nssmdns = true; openFirewall = true; };
+          avahi = { enable = true; nssmdns4 = true; openFirewall = true; };
         };
       }
     )
@@ -50,9 +50,10 @@ inputs:
       {
         hardware.cpu = builtins.listToAttrs
           (map (name: { inherit name; value = { updateMicrocode = true; }; }) hardware.cpus);
-        boot.initrd.availableKernelModules =
-          let
-            modules =
+        boot =
+        {
+          initrd.availableKernelModules =
+            let modules =
             {
               intel =
               [
@@ -60,8 +61,11 @@ inputs:
               ];
               amd = [];
             };
-          in
-            builtins.concatLists (map (cpu: modules.${cpu}) hardware.cpus);
+            in builtins.concatLists (map (cpu: modules.${cpu}) hardware.cpus);
+          kernelParams =
+            let params = { intel = [ "intel_iommu=off" ]; amd = [ "amd_iommu=fullflush" ]; };
+            in builtins.concatLists (map (cpu: params.${cpu}) hardware.cpus);
+        };
       }
     )
   ];

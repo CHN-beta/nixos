@@ -10,9 +10,12 @@
 # include <regex>
 # include <thread>
 # include <chrono>
+# include <fstream>
 # include <fmt/format.h>
 # include <date/date.h>
 # include <date/tz.h>
+# include <boost/interprocess/sync/file_lock.hpp>
+# include <zpp_bits.h>
 
 namespace hpcstat
 {
@@ -25,4 +28,10 @@ namespace hpcstat
 
   // get current time
   long now();
+
+  // 序列化任意数据
+  std::string serialize(auto data);
+
+  // 反序列化任意数据
+  template <typename T> T deserialize(std::string serialized_data);
 }

@@ -11,16 +11,6 @@
 
 namespace hpcstat::sql
 {
-  std::string serialize(auto data)
-  {
-    auto [serialized_data_byte, out] = zpp::bits::data_out();
-    out(data).or_throw();
-    static_assert(sizeof(char) == sizeof(std::byte));
-    return { reinterpret_cast<char*>(serialized_data_byte.data()), serialized_data_byte.size() };
-  }
-  template std::string serialize(LoginData);
-  template std::string serialize(SubmitJobData);
-  template std::string serialize(FinishJobData);
   auto connect(std::optional<std::string> dbfile = std::nullopt)
   {
     auto conn = [&]() { return std::make_optional(sqlite_orm::make_storage
@@ -78,6 +68,12 @@ namespace hpcstat::sql
         sqlite_orm::make_column("id", &CheckJobData::Id, sqlite_orm::primary_key().autoincrement()),
         sqlite_orm::make_column("job_id", &CheckJobData::JobId),
         sqlite_orm::make_column("status", &CheckJobData::Status)
+      ),
+      sqlite_orm::make_table
+      (
+        "disk_stat",
+        sqlite_orm::make_column("id", &DiskStatData::Id, sqlite_orm::primary_key().autoincrement()),
+        sqlite_orm::make_column("stat", &DiskStatData::Stat)
       )
     ));};
     if (!dbfile)
@@ -102,6 +98,7 @@ namespace hpcstat::sql
   template bool writedb(LogoutData);
   template bool writedb(SubmitJobData);
   template bool writedb(FinishJobData);
+  template bool writedb(DiskStatData);
   std::optional<std::set<unsigned>> finishjob_remove_existed(std::map<unsigned, std::string> jobid_submit_time)
   {
     if (auto conn = connect(); !conn) return std::nullopt;
@@ -334,6 +331,17 @@ namespace hpcstat::sql
         | ranges::to<std::vector<CheckJobData>>;
       conn->insert_range(new_data.begin(), new_data.end());
       return result;
+    }
+  }
+  std::optional<disk::Usage> get_disk_stat()
+  {
+    if (auto conn = connect(); !conn) return std::nullopt;
+    else
+    {
+      auto result =
+        conn->get_all<DiskStatData>(sqlite_orm::order_by(&DiskStatData::Id).desc(), sqlite_orm::limit(1));
+      if (result.size() != 1) return std::nullopt;
+      else return deserialize<disk::Usage>(result[0].Stat);
     }
   }
 }

@@ -28,7 +28,7 @@
                 version = lib.last (lib.splitString "@" nameAtVersion);
                 name = lib.last (lib.init (lib.splitString "@" nameAtVersion));
                 baseName = lib.last (lib.splitString "/" name);
-                url = "${registry}/${name}/-/${baseName}-${version}.tgz";
+                url = "${registry}/${if name == baseName then "" else "@"}${name}/-/${baseName}-${version}.tgz";
                 tarball = fetchurl { inherit url; sha512 = value.resolution.integrity; };
               in value // { resolution.tarball = "file:${tarball}"; }
             else # if value.resolution ? tarball then
@@ -63,6 +63,7 @@
         export HOME=$NIX_BUILD_TOP # Some packages need a writable HOME
         export npm_config_nodedir=${nodejs}
         pnpm config set reporter append-only
+        pnpm config set package-manager-strict false
         cp -f ${patchedLockFile} pnpm-lock.yaml
         runHook postConfigure
       '';

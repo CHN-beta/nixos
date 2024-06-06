@@ -55,17 +55,12 @@ inputs:
         };
         nixpkgs =
           { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
-        kernel.patches = [ "cjktty" "hibernate-progress" ];
+        kernel = { variant = "cachyos"; patches = [ "cjktty" "hibernate-progress" ]; };
         networking.hostname = "pc";
         sysctl.laptop-mode = 5;
         gui.enable = true;
       };
-      hardware =
-      {
-        cpus = [ "amd" ];
-        gpu = { type = "amd+nvidia"; prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; };
-        legion = {};
-      };
+      hardware = { cpus = [ "amd" ]; gpu = { type = "nvidia"; dynamicBoost = true; }; legion = {}; };
       packages.packageSet = "workstation";
       virtualization =
       {
@@ -77,7 +72,6 @@ inputs:
       services =
       {
         snapper.enable = true;
-        fontconfig.enable = true;
         samba =
         {
           enable = true;
@@ -94,6 +88,7 @@ inputs:
         sshd = {};
         xray.client =
         {
+          enable = true;
           dnsmasq.hosts = builtins.listToAttrs
           (
             (builtins.map
@@ -106,7 +101,6 @@ inputs:
                 "dispatchcnglobal.yuanshen.com"
               ])
           );
-          dae.wanInterface = [ "wlp4s0" "enp5s0" ];
         };
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         acme.cert."debug.mirism.one" = {};
@@ -128,35 +122,26 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
-        gamemode = { enable = true; drmDevice = 1; };
+        gamemode = { enable = true; drmDevice = 0; };
         slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 90112; gpus."4060" = 1; };
-        xrdp =
-        {
-          enable = true;
-          hostname = [ "pc.chn.moe" ];
-        };
+        xrdp = { enable = true; hostname = [ "pc.chn.moe" ]; };
       };
-      bugs = [ "xmunet" "backlight" "amdpstate" "suspend-hibernate-no-platform" ];
+      bugs = [ "xmunet" "backlight" "amdpstate" "hibernate-mt7921e" "suspend-hibernate-no-platform" ];
     };
-    system.nixos.tags = [ "production" ];
+    system.nixos.tags = [ "next" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
-    virtualisation.virtualbox.host = { enable = true; enableExtensionPack = true; };
     specialisation =
     {
-      nvidia.configuration =
+      hybrid.configuration =
       {
         nixos =
         {
-          hardware.gpu.type = inputs.lib.mkForce "nvidia";
-          services.gamemode.drmDevice = inputs.lib.mkForce 0;
+          hardware.gpu = 
+            { type = inputs.lib.mkForce "amd+nvidia"; prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; };
+          services.gamemode.drmDevice = inputs.lib.mkForce 1;
         };
-        system.nixos.tags = [ "nvidia" ];
-      };
-      xanmod.configuration =
-      {
-        nixos.system.kernel.variant = "xanmod-latest";
-        system.nixos.tags = [ "xanmod" ];
+        system.nixos.tags = [ "hybrid" ];
       };
     };
   };

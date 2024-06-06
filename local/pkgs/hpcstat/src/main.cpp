@@ -4,20 +4,34 @@
 # include <hpcstat/keys.hpp>
 # include <hpcstat/lfs.hpp>
 # include <hpcstat/push.hpp>
+# include <hpcstat/disk.hpp>
 # include <range/v3/view.hpp>
 # include <boost/exception/diagnostic_information.hpp>
+# include <boost/filesystem.hpp>
+# include <termcolor/termcolor.hpp>
 
 int main(int argc, const char** argv)
 {
+  using namespace hpcstat;
+  using namespace std::literals;
   try
   {
-    using namespace hpcstat;
-    using namespace std::literals;
+    auto lockfile = (boost::filesystem::temp_directory_path() / "hpcstat.lock").string();
+    std::ofstream{lockfile};
+    boost::interprocess::file_lock lock(lockfile.c_str());
+
     std::vector<std::string> args(argv, argv + argc);
 
     if (args.size() == 1)
-      { std::cout << "Usage: hpcstat initdb|login|logout|submitjob|finishjob|verify|export\n"; return 1; }
-    else if (args[1] == "initdb") { if (!sql::initdb()) { std::cerr << "Failed to initialize database\n"; return 1; } }
+    {
+      std::cout << "Usage: hpcstat initdb|login|logout|submitjob|finishjob|verify|export|version|diskstat\n";
+      return 1;
+    }
+    else if (args[1] == "initdb")
+    {
+      lock.lock();
+      if (!sql::initdb()) { std::cerr << "Failed to initialize database\n"; return 1; }
+    }
     else if (args[1] == "login")
     {
       if (env::interactive()) std::cout << "Communicating with the agent..." << std::flush;
@@ -33,22 +47,53 @@ int main(int argc, const char** argv)
           .Time = now(), .Key = *fp, .SessionId = *session, .Subaccount = env::env("HPCSTAT_SUBACCOUNT"),
           .Ip = env::env("SSH_CONNECTION"), .Interactive = env::interactive()
         };
-        auto signature = ssh::sign(sql::serialize(data), *fp);
+        auto signature = ssh::sign(serialize(data), *fp);
         if (!signature) return 1;
         data.Signature = *signature;
+        lock.lock();
         sql::writedb(data);
-        if (env::interactive()) std::cout << fmt::format
-        (
-          "\33[2K\rLogged in as {} (Fingerprint: SHA256:{}{}).\n", Keys[*fp].Username, *fp,
-          sub_account ? fmt::format(" Subaccount {}", *sub_account) : ""
-        );
+        if (env::interactive())
+        {
+          std::cout << fmt::format
+          (
+            "\33[2K\rLogged in as {} (Fingerprint: SHA256:{}{}).\n", Keys[*fp].Username, *fp,
+            sub_account ? fmt::format(" Subaccount {}", *sub_account) : ""
+          );
+          if (auto disk_stat = sql::get_disk_stat(); !disk_stat)
+            std::cerr << "Failed to get disk usage statistic.\n";
+          else
+          {
+            double percent = disk_stat->Total / 800;
+            auto color = percent > 95 ? termcolor::red<char> :
+              percent > 80 ? termcolor::yellow<char> : termcolor::green<char>;
+            auto bgcolor = percent > 95 ? termcolor::on_red<char> :
+              percent > 80 ? termcolor::on_yellow<char> : termcolor::on_green<char>;
+            auto time = std::format("{:%F:%R}", std::chrono::zoned_time(std::chrono::current_zone(),
+              std::chrono::sys_seconds(std::chrono::seconds(disk_stat->Time))));
+            std::cout
+              << color << "disk usage: " << termcolor::reset
+              << bgcolor << termcolor::white
+                << fmt::format("{:.1f}% ({:.1f}GB / ~800GB)", percent, disk_stat->Total) << termcolor::reset
+              << color << fmt::format(" (estimated, counted at {})\n", time) << termcolor::reset;
+            if (percent > 80)
+            {
+              std::cout << color << "Top 3 directories owned by teacher:\n";
+              for (auto& [name, size] : disk_stat->Teacher | ranges::views::take(3))
+                std::cout << fmt::format("  {:.1f}GB {}\n", size, name);
+              std::cout << color << "Top 3 directories owned by student:\n";
+              for (auto& [name, size] : disk_stat->Student | ranges::views::take(3))
+                std::cout << fmt::format("  {:.1f}GB {}\n", size, name);
+              std::cout << termcolor::reset;
+            }
+          }
+        }
       }
     }
     else if (args[1] == "logout")
     {
       if (auto session_id = env::env("XDG_SESSION_ID", true); !session_id)
         return 1;
-      else sql::writedb(sql::LogoutData{ .Time = now(), .SessionId = *session_id });
+      else { lock.lock(); sql::writedb(sql::LogoutData{ .Time = now(), .SessionId = *session_id }); }
     }
     else if (args[1] == "submitjob")
     {
@@ -68,9 +113,10 @@ int main(int argc, const char** argv)
           .JobCommand = args | ranges::views::drop(2) | ranges::views::join(' ') | ranges::to<std::string>(),
           .Subaccount = env::env("HPCSTAT_SUBACCOUNT"), .Ip = env::env("SSH_CONNECTION")
         };
-        auto signature = ssh::sign(sql::serialize(data), *fp);
+        auto signature = ssh::sign(serialize(data), *fp);
         if (!signature) return 1;
         data.Signature = *signature;
+        lock.lock();
         sql::writedb(data);
         std::cout << fmt::format
           ("Job <{}> was submitted to <{}> by <{}>.\n", bsub->first, bsub->second, Keys[*fp].Username);
@@ -78,6 +124,7 @@ int main(int argc, const char** argv)
     }
     else if (args[1] == "finishjob")
     {
+      lock.lock();
       if (auto fp = ssh::fingerprint(); !fp) return 1;
       else if (auto session = env::env("XDG_SESSION_ID", true); !session)
         return 1;
@@ -106,7 +153,7 @@ int main(int argc, const char** argv)
           };
           if
           (
-            auto signature = ssh::sign(sql::serialize(data), *fp);
+            auto signature = ssh::sign(serialize(data), *fp);
             !signature
           )
             return 1;
@@ -130,6 +177,7 @@ int main(int argc, const char** argv)
       auto begin = sys_seconds(sys_days(month(month_n) / 1 / year_n)).time_since_epoch().count();
       auto end = sys_seconds(sys_days(month(month_n) / 1 / year_n + months(1)))
         .time_since_epoch().count();
+      lock.lock();
       if 
       (
         !sql::export_data
@@ -138,7 +186,14 @@ int main(int argc, const char** argv)
         return 1;
     }
     else if (args[1] == "push")
-      { if (auto jobs = sql::check_job_status(); !jobs) return 1; else if (!push::push(*jobs)) return 1; }
+    {
+      lock.lock();
+      if (auto jobs = sql::check_job_status(); !jobs) return 1;
+      else if (!push::push(*jobs)) return 1;
+    }
+    else if (args[1] == "version") { std::cout << HPCSTAT_VERSION << std::endl; }
+    else if (args[1] == "diskstat")
+      { if (!disk::stat(lock)) { std::cerr << "Failed to get disk stat\n"; return 1; } }
     else { std::cerr << "Unknown command.\n"; return 1; }
   }
   catch (...) { std::cerr << boost::current_exception_diagnostic_information() << std::endl; return 1; }

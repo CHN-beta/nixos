@@ -19,4 +19,6 @@ systemd-cryptsetup attach root /dev/vda2
 ssh-keygen -t rsa -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_rsa_key
 ssh-keygen -t ed25519 -C root@pe -f /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key
 systemd-machine-id-setup --root=/mnt/nix/persistent
+pg_dump -h 127.0.0.1 -U synapse -Fc -f synaps.dump synapse
+pg_restore -h 127.0.0.1 -U misskey -d misskey --data-only --jobs=4 misskey.dump
 ```

@@ -4,18 +4,20 @@ inputs:
   {
     home-manager.users.chn.config.programs.plasma =
     {
+      # TODO: do not setup theme before clean these configs
       workspace =
       {
-        theme = "Fluent-round-light";
-        colorScheme = "FluentLight";
-        cursorTheme = "Breeze_Snow";
-        lookAndFeel = "com.github.vinceliuice.Fluent-round-light";
-        iconTheme = "Tela-circle";
+        theme = "Utterly-Round";
+        colorScheme = "UtterlyNordLight";
+        cursorTheme = "Tela-circle-nord-light";
+        lookAndFeel = "Utterly-Nord-Light";
+        # ~/.config/kdeglobals [Icons]
+        iconTheme = "Tela-circle-nord-light";
       };
       configFile =
       {
         kdeglobals.KDE.widgetStyle.value = "kvantum";
-        "Kvantum/kvantum.kvconfig".General.theme.value = "Fluent-round";
+        "Kvantum/kvantum.kvconfig".General.theme.value = "Utterly-Nord-Light";
         kwinrc =
         {
           Effect-blur.BlurStrength.value = 10;

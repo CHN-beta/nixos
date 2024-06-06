@@ -67,7 +67,7 @@ inputs:
         boot =
         {
           kernelParams = inputs.lib.mkIf (builtins.elem "amd" gpus)
-            [ "radeon.cik_support=0" "amdgpu.cik_support=1" "radeon.si_support=0" "amdgpu.si_support=1" "iommu=pt" ];
+            [ "radeon.cik_support=0" "amdgpu.cik_support=1" "radeon.si_support=0" "amdgpu.si_support=1" ];
           blacklistedKernelModules = [ "nouveau" ];
         };
         environment.variables.VDPAU_DRIVER = inputs.lib.mkIf (builtins.elem "intel" gpus) "va_gl";

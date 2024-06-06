@@ -9,7 +9,7 @@ inputs:
         _packages =
         [
           # system management
-          etcher btrfs-assistant snapper-gui libsForQt5.qtstyleplugin-kvantum ventoy-full cpu-x
+          btrfs-assistant snapper-gui kdePackages.qtstyleplugin-kvantum ventoy-full cpu-x # etcher
           # password and key management
           yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden
           # download
@@ -20,9 +20,7 @@ inputs:
           spotify yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc obs-studio
           waifu2x-converter-cpp inkscape blender
           # editor
-          unstablePackages.typora
-          # themes
-          orchis-theme plasma-overdose-kde-theme materia-kde-theme graphite-kde-theme arc-kde-theme materia-theme
+          typora
           # news
           fluent-reader
           # nix tools
@@ -34,10 +32,12 @@ inputs:
           google-chrome
           # office
           crow-translate zotero pandoc ydict libreoffice-qt texstudio poppler_utils pdftk gnuplot pdfchain hdfview
-          (texlive.combine { inherit (texlive) scheme-full; inherit (localPackages) citation-style-language; })
+          texliveFull
           # math, physics and chemistry
           octaveFull root ovito localPackages.vesta localPackages.vaspkit localPackages.v-sim
-        ] ++ (with inputs.lib; filter isDerivation (attrValues plasma5Packages.kdeGear));
+        ]
+        ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" ])))
+          (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
       };
     };
     programs.kdeconnect.enable = true;

@@ -46,20 +46,14 @@ inputs:
         nixpkgs.march = "silvermont";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         networking = { hostname = "nas"; networkd = {}; };
-        kernel.variant = "xanmod-latest";
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
       {
         snapper.enable = true;
-        samba =
-        {
-          enable = true;
-          hostsAllowed = "192.168. 127.";
-          shares = { home.path = "/home"; root.path = "/"; };
-        };
+        samba = { enable = true; hostsAllowed = "192.168. 127."; shares = { home.path = "/home"; root.path = "/"; }; };
         sshd = {};
-        xray.client = { dae.wanInterface = [ "enp3s0" ]; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
+        xray.client = { enable = true; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
         groupshare = {};
         smartd.enable = true;
         beesd.instances =

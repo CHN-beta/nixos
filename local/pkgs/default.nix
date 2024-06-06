@@ -2,10 +2,9 @@ inputs: rec
 {
   typora = inputs.pkgs.callPackage ./typora {};
   vesta = inputs.pkgs.callPackage ./vesta {};
-  rsshub = inputs.pkgs.callPackage ./rsshub.nix
-    { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; nodejs = inputs.pkgs.nodejs_21; };
+  rsshub = inputs.pkgs.callPackage ./rsshub.nix { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; };
   misskey = inputs.pkgs.callPackage ./misskey.nix
-    { inherit mkPnpmPackage; nodejs = inputs.pkgs.nodejs_21; src = inputs.topInputs.misskey; };
+    { inherit mkPnpmPackage; src = inputs.topInputs.misskey; nodejs = nodejs-with-pnpm9; };
   mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn {};
   vaspkit = inputs.pkgs.callPackage ./vaspkit { inherit (inputs.localLib) attrsToList; };
   v-sim = inputs.pkgs.callPackage ./v-sim { src = inputs.topInputs.v-sim; };
@@ -22,8 +21,6 @@ inputs: rec
   chromiumos-touch-keyboard = inputs.pkgs.callPackage ./chromiumos-touch-keyboard {};
   yoga-support = inputs.pkgs.callPackage ./yoga-support {};
   tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp { src = inputs.topInputs.tgbot-cpp; };
-  citation-style-language = inputs.pkgs.callPackage ./citation-style-language
-    { src = inputs.topInputs.citation-style-language; };
   mirism = inputs.pkgs.callPackage ./mirism
   {
     inherit cppcoro nameof tgbot-cpp date;
@@ -50,7 +47,7 @@ inputs: rec
     {
       inherit (inputs.pkgs.llvmPackages) openmp;
       inherit wannier90 src;
-      hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; };
+      hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; cppSupport = false; };
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
       { inherit lmod nvhpc wannier90 vtst src; hdf5 = hdf5-nvhpc; };
@@ -74,6 +71,7 @@ inputs: rec
   openxlsx = inputs.pkgs.callPackage ./openxlsx { src = inputs.topInputs.openxlsx; };
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
+  nodejs-with-pnpm9 = inputs.pkgs.callPackage ./nodejs-with-pnpm9.nix {};
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

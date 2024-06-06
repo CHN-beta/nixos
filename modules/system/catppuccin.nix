@@ -2,7 +2,7 @@ inputs:
 {
   config =
   {
-    catppuccin.flavour = "latte";
+    catppuccin.flavor = "latte";
     console.catppuccin.enable = true;
     boot.loader.grub.catppuccin.enable = true;
     nixos.user.sharedModules =

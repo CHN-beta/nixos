@@ -7,7 +7,7 @@ inputs:
       packages._packages = with inputs.pkgs;
       [
         # system management
-        gparted kio-fuse wayland-utils clinfo glxinfo vulkan-tools dracut
+        gparted wayland-utils clinfo glxinfo vulkan-tools dracut
         (
           writeShellScriptBin "xclip"
           ''
@@ -27,20 +27,22 @@ inputs:
         mpv nomacs
         # themes
         tela-circle-icon-theme localPackages.win11os-kde localPackages.fluent-kde localPackages.blurred-wallpaper
-        localPackages.slate utterly-nord-plasma
+        localPackages.slate utterly-nord-plasma catppuccin catppuccin-sddm
+        catppuccin-cursors catppuccinifier-gui catppuccinifier-cli catppuccin-plymouth
+        (catppuccin-kde.override { flavour = [ "latte" ]; })
+        (catppuccin-gtk.override { variant = "latte"; })
         # terminal
-        unstablePackages.warp-terminal
+        warp-terminal
         # development
         adb-sync
-        # virtual keyboard
-        localPackages.kylin-virtual-keyboard
+        # desktop sharing
+        rustdesk-flutter
       ];
     };
     programs =
     {
       adb.enable = true;
       wireshark = { enable = true; package = inputs.pkgs.wireshark; };
-      vim.package = inputs.pkgs.vim-full;
       yubikey-touch-detector.enable = true;
     };
     nixpkgs.config.packageOverrides = pkgs: 
