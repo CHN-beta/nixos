@@ -25,7 +25,6 @@ inputs:
         {
           dbtype = "pgsql";
           dbpassFile = inputs.config.sops.secrets."nextcloud/postgresql".path;
-          dbport = 5432;
           adminuser = "admin";
           adminpassFile = inputs.config.sops.secrets."nextcloud/admin".path;
           overwriteProtocol = "https";
@@ -52,27 +51,27 @@ inputs:
             # nix-prefetch-url --unpack
             maps = inputs.pkgs.fetchNextcloudApp
             {
-              url = githubRelease "nextcloud/maps" "v1.3.1/maps-1.3.1.tar.gz";
-              sha256 = "1rcmqnm5364h5gaq1yy6b6d7k17napgn0yc9ymrnn75bps9s71v9";
-              license = "agpl3";
+              url = githubRelease "nextcloud/maps" "v1.4.0/maps-1.4.0.tar.gz";
+              sha256 = "1gqms3rrdpjmpb1h5d72b4lwbvsl8p10zwnkhgnsmvfcf93h3r1c";
+              license = "agpl3Only";
             };
             phonetrack = inputs.pkgs.fetchNextcloudApp
             {
-              url = githubRelease "julien-nc/phonetrack" "v0.7.7/phonetrack-0.7.7.tar.gz";
-              sha256 = "1xvdmb2wlcldv8lk4jb8akhi80w26m2jpazfcz641frjm333kxch";
-              license = "agpl3";
+              url = githubRelease "julien-nc/phonetrack" "v0.8.1/phonetrack-0.8.1.tar.gz";
+              sha256 = "1i28xgzp85yb44ay2l2zw18fk00yd6fh6yddj92gdrljb3w9zpap";
+              license = "agpl3Only";
             };
             twofactor_webauthn = inputs.pkgs.fetchNextcloudApp
             {
-              url = githubRelease "nextcloud-releases/twofactor_webauthn" "v1.3.2/twofactor_webauthn-v1.3.2.tar.gz";
-              sha256 = "1p4ng7nprlcgw7sdfd7wqx5az86a856f1v470lahg2nfbx3fg296";
-              license = "agpl3";
+              url = githubRelease "nextcloud-releases/twofactor_webauthn" "v1.4.0/twofactor_webauthn-v1.4.0.tar.gz";
+              sha256 = "0llxakzcdcy9hscyzw3na5zp1p57h03w5fmm0gs9g62k1b88k6kw";
+              license = "agpl3Only";
             };
             calendar = inputs.pkgs.fetchNextcloudApp
             {
-              url = githubRelease "nextcloud-releases/calendar" "v4.6.5/calendar-v4.6.5.tar.gz";
-              sha256 = "18mi6ccq640jq21hmir35v2967h07bjv226072d9qz5qkzkmrhss";
-              license = "agpl3";
+              url = githubRelease "nextcloud-releases/calendar" "v4.7.6/calendar-v4.7.6.tar.gz";
+              sha256 = "09rsp5anpaqzwmrixza5qh12vmq9hd3an045064vm3rnynz537qc";
+              license = "agpl3Only";
             };
           };
         };
