@@ -130,6 +130,13 @@ inputs:
     };
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
+    environment.persistence."/nix/archive" =
+    {
+      hideMounts = true;
+      users.chn.directories = builtins.map
+        (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
+        [ "lammps-SiC" "BPD-paper" ];
+    };
     specialisation =
     {
       hybrid.configuration =
