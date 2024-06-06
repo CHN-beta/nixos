@@ -25,8 +25,11 @@ inputs:
           kwinrc =
           {
             Tiling.padding.value = 4;
-            Wayland."InputMethod\\[\\$e\\]".value =
-              "/run/current-system/sw/share/applications/fcitx5-wayland-launcher.desktop";
+            Wayland."InputMethod" =
+            {
+              value = "/run/current-system/sw/share/applications/fcitx5-wayland-launcher.desktop";
+              shellExpand = true;
+            };
             Windows.RollOverDesktops.value = true;
             Compositing = { AllowTearing.value = false; WindowsBlockCompositing.value = false; };
           };
