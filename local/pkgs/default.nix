@@ -25,7 +25,8 @@ inputs: rec
   {
     inherit cppcoro nameof tgbot-cpp date;
     nghttp2 = inputs.pkgs.callPackage "${inputs.topInputs."nixpkgs-23.05"}/pkgs/development/libraries/nghttp2"
-      { enableAsioLib = true; };
+      { enableAsioLib = true; stdenv = inputs.pkgs.gcc12Stdenv; };
+    stdenv = inputs.pkgs.gcc12Stdenv;
   };
   cppcoro = inputs.pkgs.callPackage ./cppcoro { src = inputs.topInputs.cppcoro; };
   date = inputs.pkgs.callPackage ./date { src = inputs.topInputs.date; };
