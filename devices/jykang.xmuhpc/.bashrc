@@ -22,6 +22,7 @@ if [ -z "${BASHRC_SOURCED-}" ]; then
 	export HPCSTAT_DATADIR=$HOME/linwei/chn/software/hpcstat/var/lib/hpcstat
 	export HPCSTAT_SHAREDIR=$HOME/linwei/chn/software/hpcstat/share/hpcstat
 	export HPCSTAT_SSH_BINDIR=$HOME/linwei/chn/software/hpcstat/bin
+	export HPCSTAT_DUC_BINDIR=$HOME/linwei/chn/software/hpcstat/bin
 	export HPCSTAT_BSUB=/opt/ibm/lsfsuite/lsf/10.1/linux2.6-glibc2.3-x86_64/bin/bsub
 	${HPCSTAT_SSH_BINDIR}/hpcstat login
 	if [ "$?" -ne 0 ]; then

@@ -11,6 +11,7 @@
 # include <thread>
 # include <chrono>
 # include <fstream>
+# include <future>
 # include <fmt/format.h>
 # include <date/date.h>
 # include <date/tz.h>
