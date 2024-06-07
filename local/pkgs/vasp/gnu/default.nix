@@ -24,6 +24,7 @@ let vasp = stdenvNoCC.mkDerivation
     for i in std gam ncl; do
       cp bin/vasp_$i $out/bin/vasp-$i
     done
+    ln -s ${src} $out/src
   '';
 };
 in writeShellApplication
