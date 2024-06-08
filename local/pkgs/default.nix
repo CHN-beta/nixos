@@ -2,7 +2,12 @@ inputs: rec
 {
   typora = inputs.pkgs.callPackage ./typora {};
   vesta = inputs.pkgs.callPackage ./vesta {};
-  rsshub = inputs.pkgs.callPackage ./rsshub.nix { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; };
+  rsshub = inputs.pkgs.callPackage ./rsshub.nix
+  {
+    inherit mkPnpmPackage;
+    src = inputs.topInputs.rsshub;
+    nodejs = nodejs-with-pnpm9.override { nodejs = inputs.pkgs.nodejs_22; };
+  };
   misskey = inputs.pkgs.callPackage ./misskey.nix
     { inherit mkPnpmPackage; src = inputs.topInputs.misskey; nodejs = nodejs-with-pnpm9; };
   mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn {};
@@ -25,7 +30,8 @@ inputs: rec
   {
     inherit cppcoro nameof tgbot-cpp date;
     nghttp2 = inputs.pkgs.callPackage "${inputs.topInputs."nixpkgs-23.05"}/pkgs/development/libraries/nghttp2"
-      { enableAsioLib = true; };
+      { enableAsioLib = true; stdenv = inputs.pkgs.gcc12Stdenv; };
+    stdenv = inputs.pkgs.gcc12Stdenv;
   };
   cppcoro = inputs.pkgs.callPackage ./cppcoro { src = inputs.topInputs.cppcoro; };
   date = inputs.pkgs.callPackage ./date { src = inputs.topInputs.date; };
@@ -36,7 +42,7 @@ inputs: rec
   torchtext = inputs.pkgs.python3Packages.callPackage ./torchtext { inherit torchdata; };
   win11os-kde = inputs.pkgs.callPackage ./win11os-kde { src = inputs.topInputs.win11os-kde; };
   fluent-kde = inputs.pkgs.callPackage ./fluent-kde { src = inputs.topInputs.fluent-kde; };
-  blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper { src = inputs.topInputs.blurred-wallpaper; };
+  blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper.nix { src = inputs.topInputs.blurred-wallpaper; };
   slate = inputs.pkgs.callPackage ./slate { src = inputs.topInputs.slate; };
   nvhpc = inputs.pkgs.callPackage ./nvhpc {};
   lmod = inputs.pkgs.callPackage ./lmod { src = inputs.topInputs.lmod; };

@@ -70,7 +70,7 @@ inputs:
             diskstat =
             ''
               eval $(${ssh-agent})
-              ${ssh} jykang@hpc.xmu.edu.cn hpcstat diskstat
+              # ${ssh} jykang@hpc.xmu.edu.cn hpcstat diskstat
             '';
           };
         calenders =
@@ -82,18 +82,26 @@ inputs:
       in
       {
         services = builtins.listToAttrs (builtins.map
-          (script: { "hpcstat-${script.name}" =
+          (script:
           {
-            script = script.value;
-            serviceConfig = { Type = "oneshot"; User = "hpcstat"; Group = "hpcstat"; };
-          };})
+            name = "hpcstat-${script.name}";
+            value =
+            {
+              script = script.value;
+              serviceConfig = { Type = "oneshot"; User = "hpcstat"; Group = "hpcstat"; };
+            };
+          })
           (inputs.localLib.attrsToList scripts));
         timers = builtins.listToAttrs (builtins.map
-          (calender: { "hpcstat-${calender.name}" =
+          (calender:
           {
-            wantedBy = [ "timers.target" ];
-            timerConfig = { OnCalendar = calender.value; Unit = "hpcstat-${calender.name}.service"; };
-          };})
+            name = "hpcstat-${calender.name}";
+            value =
+            {
+              wantedBy = [ "timers.target" ];
+              timerConfig = { OnCalendar = calender.value; Unit = "hpcstat-${calender.name}.service"; };
+            };
+          })
           (inputs.localLib.attrsToList calenders));
         tmpfiles.rules = [ "d /var/lib/hpcstat 0700 hpcstat hpcstat" ];
       };

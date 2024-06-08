@@ -24,6 +24,7 @@
     runHook preInstall
     mkdir -p $out/bin
     cp build/{ng01,beta} $out/bin
+    ln -s ${src} $out/src
     runHook postInstall
   '';
 }

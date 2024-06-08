@@ -5,7 +5,7 @@
   phases = [ "installPhase" ];
   installPhase =
   ''
-    mkdir -p $out/share/plasma/wallpapers/a2n.blur
-    cp -r $src/* $out/share/plasma/wallpapers/a2n.blur
+    mkdir -p $out/share/plasma/wallpapers
+    cp -r $src/a2n.blur $out/share/plasma/wallpapers
   '';
 }

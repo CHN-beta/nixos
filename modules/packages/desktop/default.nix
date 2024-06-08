@@ -27,7 +27,7 @@ inputs:
         mpv nomacs
         # themes
         tela-circle-icon-theme localPackages.win11os-kde localPackages.fluent-kde localPackages.blurred-wallpaper
-        localPackages.slate utterly-nord-plasma catppuccin catppuccin-sddm
+        localPackages.slate utterly-nord-plasma utterly-round-plasma-style catppuccin catppuccin-sddm
         catppuccin-cursors catppuccinifier-gui catppuccinifier-cli catppuccin-plymouth
         (catppuccin-kde.override { flavour = [ "latte" ]; })
         (catppuccin-gtk.override { variant = "latte"; })
@@ -45,14 +45,27 @@ inputs:
       wireshark = { enable = true; package = inputs.pkgs.wireshark; };
       yubikey-touch-detector.enable = true;
     };
-    nixpkgs.config.packageOverrides = pkgs: 
+    nixpkgs.overlays = [(final: prev:
     {
-      telegram-desktop = pkgs.telegram-desktop.overrideAttrs (attrs:
+      telegram-desktop = prev.telegram-desktop.overrideAttrs (attrs:
       {
         patches = (if (attrs ? patches) then attrs.patches else []) ++ [ ./telegram.patch ];
       });
-    };
+      kdePackages = prev.kdePackages.overrideScope (final: prev:
+      {
+        kwin = prev.kwin.overrideAttrs (prev: { patches = prev.patches ++
+        [
+          {
+            "6.0.5" = inputs.pkgs.fetchurl
+            {
+              url = "https://aur.archlinux.org/cgit/aur.git/plain/explicit-sync.patch?h=kwin-explicit-sync"
+                + "&id=b6fb7e1b8651365af426cfc7be0d03b9615fdd3a";
+              sha256 = "1zcksalmkf0mifmv0zl5awy1ch3fvfkkknxqk4mqg0vk1bbpjh2b";
+            };
+          }.${prev.version}
+        ]; });
+      });
+    })];
     services.pcscd.enable = true;
   };
 }
-

@@ -13,11 +13,15 @@ inputs:
       ]);
       default = null;
     };
-    dynamicBoost = mkOption { type = types.bool; default = false; };
-    prime =
+    nvidia =
     {
-      mode = mkOption { type = types.enum [ "offload" "sync" ]; default = "offload"; };
-      busId = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+      dynamicBoost = mkOption { type = types.bool; default = false; };
+      prime =
+      {
+        mode = mkOption { type = types.enum [ "offload" "sync" ]; default = "offload"; };
+        busId = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+      };
+      driver = mkOption { type = types.enum [ "production" "beta" ]; default = "production"; };
     };
   };
   config = let inherit (inputs.config.nixos.hardware) gpu; in inputs.lib.mkIf (gpu.type != null) (inputs.lib.mkMerge
@@ -57,10 +61,10 @@ inputs:
           {
             modesetting.enable = true;
             powerManagement.enable = true;
-            dynamicBoost.enable = inputs.lib.mkIf gpu.dynamicBoost true;
+            dynamicBoost.enable = inputs.lib.mkIf gpu.nvidia.dynamicBoost true;
             nvidiaSettings = true;
             forceFullCompositionPipeline = true;
-            # package = inputs.config.boot.kernelPackages.nvidiaPackages.production;
+            package = inputs.config.boot.kernelPackages.nvidiaPackages.${gpu.nvidia.driver};
             prime.allowExternalGpu = true;
           };
         };
@@ -82,13 +86,13 @@ inputs:
       {
         prime =
         {
-          offload = inputs.lib.mkIf (gpu.prime.mode == "offload") { enable = true; enableOffloadCmd = true; };
-          sync = inputs.lib.mkIf (gpu.prime.mode == "sync") { enable = true; };
+          offload = inputs.lib.mkIf (gpu.nvidia.prime.mode == "offload") { enable = true; enableOffloadCmd = true; };
+          sync = inputs.lib.mkIf (gpu.nvidia.prime.mode == "sync") { enable = true; };
         }
         // builtins.listToAttrs (builtins.map
           (gpu: { name = "${if gpu.name == "amd" then "amdgpu" else gpu.name}BusId"; value = "PCI:${gpu.value}"; })
-          (inputs.localLib.attrsToList gpu.prime.busId));
-        powerManagement.finegrained = inputs.lib.mkIf (gpu.prime.mode == "offload") true;
+          (inputs.localLib.attrsToList gpu.nvidia.prime.busId));
+        powerManagement.finegrained = inputs.lib.mkIf (gpu.nvidia.prime.mode == "offload") true;
       };}
     )
   ]);

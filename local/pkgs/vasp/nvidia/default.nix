@@ -44,6 +44,9 @@ let
     ''
       mkdir -p $out/bin
       for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
+      mkdir $out/src
+      ln -s ${src} $out/src/vasp
+      ln -s ${vtst} $out/src/vtst
     '';
     dontFixup = true;
     requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
