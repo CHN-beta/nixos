@@ -2,7 +2,12 @@ inputs: rec
 {
   typora = inputs.pkgs.callPackage ./typora {};
   vesta = inputs.pkgs.callPackage ./vesta {};
-  rsshub = inputs.pkgs.callPackage ./rsshub.nix { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; };
+  rsshub = inputs.pkgs.callPackage ./rsshub.nix
+  {
+    inherit mkPnpmPackage;
+    src = inputs.topInputs.rsshub;
+    nodejs = nodejs-with-pnpm9.override { nodejs = inputs.pkgs.nodejs_22; };
+  };
   misskey = inputs.pkgs.callPackage ./misskey.nix
     { inherit mkPnpmPackage; src = inputs.topInputs.misskey; nodejs = nodejs-with-pnpm9; };
   mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn {};
