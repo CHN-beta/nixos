@@ -63,7 +63,7 @@ int main(int argc, const char** argv)
             std::cerr << "Failed to get disk usage statistic.\n";
           else
           {
-            double percent = disk_stat->Total / 800;
+            double percent = disk_stat->Total / 800 * 100;
             auto color = percent > 95 ? termcolor::red<char> :
               percent > 80 ? termcolor::yellow<char> : termcolor::green<char>;
             auto bgcolor = percent > 95 ? termcolor::on_red<char> :
