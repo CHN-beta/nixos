@@ -9,14 +9,16 @@ inputs:
         type = types.attrsOf (types.oneOf
         [
           types.nonEmptyStr
-          (types.submodule
+          (types.submodule (submoduleInputs:
           {
             options =
             {
               device = mkOption { type = types.nonEmptyStr; };
               hashTableSizeMB = mkOption { type = types.ints.unsigned; default = 1024; };
               threads = mkOption { type = types.ints.unsigned; default = 1; };
-            };})
+              loadAverage = mkOption { type = types.ints.unsigned; default = submoduleInputs.config.threads; };
+            };
+          }))
         ]);
         default = {};
       };
@@ -37,6 +39,7 @@ inputs:
           [
             "--workaround-btrfs-send"
             "--thread-count" "${builtins.toString instance.value.threads or 1}"
+            "--loadavg-target" "${builtins.toString instance.value.loadAverage or 1}"
             "--scan-mode" "3"
           ];
         };
