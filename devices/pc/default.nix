@@ -127,7 +127,13 @@ inputs:
           wireguardIp = "192.168.83.3";
         };
         gamemode = { enable = true; drmDevice = 0; };
-        slurm = { enable = true; cpu = { cores = 16; threads = 2; }; memoryMB = 90112; gpus."4060" = 1; };
+        slurm =
+        {
+          enable = true;
+          cpu = { cores = 16; threads = 2; mpiThreads = 2; openmpThreads = 4; };
+          memoryMB = 90112;
+          gpus."4060" = 1;
+        };
         xrdp = { enable = true; hostname = [ "pc.chn.moe" ]; };
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "hibernate-mt7921e" "suspend-hibernate-no-platform" ];

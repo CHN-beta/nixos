@@ -8,6 +8,8 @@ inputs:
       sockets = mkOption { type = types.ints.unsigned; default = 1; };
       cores = mkOption { type = types.ints.unsigned; };
       threads = mkOption { type = types.ints.unsigned; default = 1; };
+      mpiThreads = mkOption { type = types.ints.unsigned; default = 1; };
+      openmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
     };
     memoryMB = mkOption { type = types.ints.unsigned; };
     gpus = mkOption { type = types.attrsOf types.ints.unsigned; };
@@ -112,6 +114,30 @@ inputs:
         "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; };
       };
     };
-    nixos.services.mariadb = { enable = true; instances.slurm = {}; };
+    nixos =
+    {
+      packages._packages = [(inputs.pkgs.localPackages.sbatch-tui.overrideAttrs (prev: { src =
+        let device = inputs.pkgs.substituteAll
+        {
+          src = "${prev.src}/src/device.cpp.template";
+          CpuMpiThreads = slurm.cpu.mpiThreads;
+          CpuOpenmpThreads = slurm.cpu.openmpThreads;
+          GpuIds = builtins.concatStringsSep ", " (builtins.map (gpu: ''"${gpu}"'') (builtins.attrNames slurm.gpus));
+        };
+        in inputs.pkgs.runCommand "src" {}
+          ''cp -r ${prev.src} $out; chmod +w -R $out; cp ${device} $out/src/device.cpp''; }))];
+      user.sharedModules = [{ home.packages =
+      [
+        (inputs.pkgs.writeShellScriptBin "sbatch"
+        ''
+          if [ "$#" -eq 0 ]; then
+            sbatch-tui
+          else
+            /run/current-system/sw/bin/sbatch "$@"
+          fi
+        '')
+      ];}];
+      services.mariadb = { enable = true; instances.slurm = {}; };
+    };
   };
 }

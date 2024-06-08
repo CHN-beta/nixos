@@ -66,7 +66,7 @@ inputs:
         slurm =
         {
           enable = true;
-          cpu = { sockets = 2; cores = 22; threads = 2; };
+          cpu = { sockets = 2; cores = 22; threads = 2; mpiThreads = 4; openmpThreads = 10; };
           memoryMB = 253952;
           gpus = { "4090" = 1; "p5000" = 1; };
         };

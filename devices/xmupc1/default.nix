@@ -76,7 +76,7 @@ inputs:
         slurm =
         {
           enable = true;
-          cpu = { cores = 16; threads = 2; };
+          cpu = { cores = 16; threads = 2; mpiThreads = 3; openmpThreads = 4; };
           memoryMB = 94208;
           gpus = { "2080_ti" = 1; "3090" = 1; "4090" = 1; };
         };
