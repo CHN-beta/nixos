@@ -48,7 +48,7 @@ inputs:
         vaultwarden.enable = true;
         beesd.instances.root = { device = "/"; hashTableSizeMB = 1024; };
         photoprism.enable = true;
-        nextcloud.enable = true;
+        nextcloud = {};
         freshrss.enable = true;
         send.enable = true;
         huginn.enable = true;
