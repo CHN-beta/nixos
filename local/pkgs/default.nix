@@ -42,7 +42,7 @@ inputs: rec
   torchtext = inputs.pkgs.python3Packages.callPackage ./torchtext { inherit torchdata; };
   win11os-kde = inputs.pkgs.callPackage ./win11os-kde { src = inputs.topInputs.win11os-kde; };
   fluent-kde = inputs.pkgs.callPackage ./fluent-kde { src = inputs.topInputs.fluent-kde; };
-  blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper { src = inputs.topInputs.blurred-wallpaper; };
+  blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper.nix { src = inputs.topInputs.blurred-wallpaper; };
   slate = inputs.pkgs.callPackage ./slate { src = inputs.topInputs.slate; };
   nvhpc = inputs.pkgs.callPackage ./nvhpc {};
   lmod = inputs.pkgs.callPackage ./lmod { src = inputs.topInputs.lmod; };
