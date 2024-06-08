@@ -59,7 +59,7 @@ int main(int argc, const char** argv)
             "\33[2K\rLogged in as {} (Fingerprint: SHA256:{}{}).\n", Keys[*fp].Username, *fp,
             sub_account ? fmt::format(" Subaccount {}", *sub_account) : ""
           );
-          if (auto disk_stat = sql::get_disk_stat(); !disk_stat)
+          if (auto disk_stat = disk::get(); !disk_stat)
             std::cerr << "Failed to get disk usage statistic.\n";
           else
           {
@@ -68,13 +68,11 @@ int main(int argc, const char** argv)
               percent > 80 ? termcolor::yellow<char> : termcolor::green<char>;
             auto bgcolor = percent > 95 ? termcolor::on_red<char> :
               percent > 80 ? termcolor::on_yellow<char> : termcolor::on_green<char>;
-            auto time = std::format("{:%F:%R}", std::chrono::zoned_time(std::chrono::current_zone(),
-              std::chrono::sys_seconds(std::chrono::seconds(disk_stat->Time))));
             std::cout
               << color << "disk usage: " << termcolor::reset
               << bgcolor << termcolor::white
                 << fmt::format("{:.1f}% ({:.1f}GB / ~800GB)", percent, disk_stat->Total) << termcolor::reset
-              << color << fmt::format(" (estimated, counted at {})\n", time) << termcolor::reset;
+              << color << fmt::format(" (estimated, counted at {})\n", disk_stat->Time) << termcolor::reset;
             if (percent > 80)
             {
               std::cout << color << "Top 3 directories owned by teacher:\n";
@@ -193,7 +191,13 @@ int main(int argc, const char** argv)
     }
     else if (args[1] == "version") { std::cout << HPCSTAT_VERSION << std::endl; }
     else if (args[1] == "diskstat")
-      { if (!disk::stat(lock)) { std::cerr << "Failed to get disk stat\n"; return 1; } }
+    {
+      auto stat_thread = std::async(std::launch::async, []{ return disk::stat(); });
+      std::cout << "Waiting for disk usage statistic to be collected... 0s" << std::flush;
+      for (unsigned i = 1; stat_thread.wait_for(1s) != std::future_status::ready; i++)
+        std::cout << fmt::format("\rWaiting for disk usage statistic to be collected... {}s", i) << std::flush;
+      if (!stat_thread.get()) { std::cerr << "Failed to collect disk usage statistic.\n"; return 1; }
+    }
     else { std::cerr << "Unknown command.\n"; return 1; }
   }
   catch (...) { std::cerr << boost::current_exception_diagnostic_information() << std::endl; return 1; }
