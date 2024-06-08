@@ -1003,22 +1003,6 @@
         "type": "github"
       }
     },
-    "json2cpp": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1717845292,
-        "narHash": "sha256-mxS6UwDzzM3ids+p8Ht8AgvDi7/GhFIND3pV/QffGKc=",
-        "owner": "CHN-beta",
-        "repo": "json2cpp",
-        "rev": "ea1f3bc37aae628124c404898f2fc23f1801bde5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "repo": "json2cpp",
-        "type": "github"
-      }
-    },
     "jujutsu": {
       "inputs": {
         "flake-utils": [
@@ -1961,7 +1945,6 @@
         "gricad": "gricad",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
-        "json2cpp": "json2cpp",
         "kylin-virtual-keyboard": "kylin-virtual-keyboard",
         "lepton": "lepton",
         "linux-surface": "linux-surface",

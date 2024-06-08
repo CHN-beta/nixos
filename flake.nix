@@ -68,7 +68,6 @@
     zxorm = { url = "github:CHN-beta/zxorm"; flake = false; };
     openxlsx = { url = "github:troldal/OpenXLSX"; flake = false; };
     sqlite-orm = { url = "github:fnc12/sqlite_orm"; flake = false; };
-    json2cpp = { url = "github:CHN-beta/json2cpp"; flake = false; };
 
     # does not support lfs yet
     # nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };

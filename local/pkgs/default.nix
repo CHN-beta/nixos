@@ -79,7 +79,6 @@ inputs: rec
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
   nodejs-with-pnpm9 = inputs.pkgs.callPackage ./nodejs-with-pnpm9.nix {};
   sbatch-cli = inputs.pkgs.callPackage ./sbatch-cli {};
-  json2cpp = inputs.pkgs.callPackage ./json2cpp.nix { src = inputs.topInputs.json2cpp; fmt = inputs.pkgs.fmt_9; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
