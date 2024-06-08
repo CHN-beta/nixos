@@ -108,7 +108,7 @@ namespace hpcstat::disk
     Usage usage;
     if (auto size = get_size({})) usage.Total = *size; else return {};
     if (auto date = get_date()) usage.Time = *date; else return {};
-    if (size / 800 * 100 > 80)
+    if (usage.Total / 800 * 100 > 80)
     {
       for (const auto& [dir, recursive] : Directories)
       {
