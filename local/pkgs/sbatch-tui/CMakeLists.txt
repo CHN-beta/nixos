@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(sbatch-cli VERSION 0.0.0 LANGUAGES CXX)
+project(sbatch-tui VERSION 0.0.0 LANGUAGES CXX)
 enable_testing()
 include(GNUInstallDirs)
 
@@ -9,13 +9,18 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-set(HPCSTAT_VERSION "unknown" CACHE STRING "Version of the hpcstat")
+find_package(fmt REQUIRED)
+find_package(ftxui REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem)
+find_package(range-v3 REQUIRED)
 
-add_executable(sbatch-cli src/main.cpp)
-target_compile_features(sbatch-cli PUBLIC cxx_std_23)
-# target_link_libraries(sbatch-cli PRIVATE)
+add_executable(sbatch-tui src/main.cpp src/device.cpp)
+target_compile_features(sbatch-tui PUBLIC cxx_std_23)
+target_include_directories(sbatch-tui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(sbatch-tui PRIVATE fmt::fmt ftxui::screen ftxui::dom ftxui::component Boost::filesystem
+  range-v3::range-v3)
 
-install(TARGETS sbatch-cli RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS sbatch-tui RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 get_property(ImportedTargets DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
 message("Imported targets: ${ImportedTargets}")

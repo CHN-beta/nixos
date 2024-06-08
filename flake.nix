@@ -197,9 +197,9 @@
             packages = [ pkgs.clang-tools_17 ];
             CMAKE_EXPORT_COMPILE_COMMANDS = "1";
           };
-          sbatch-cli = pkgs.mkShell
+          sbatch-tui = pkgs.mkShell
           {
-            packages = with pkgs; [ sbatch-cli ];
+            inputsFrom = with pkgs.localPackages; [ sbatch-tui ];
             buildInputs = [ pkgs.clang-tools_17 ];
             CMAKE_EXPORT_COMPILE_COMMANDS = "1";
           };

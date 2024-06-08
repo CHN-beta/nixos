@@ -1,0 +1,8 @@
+# include <sbatch-tui/device.hpp>
+
+decltype(Device) Device
+{
+  .CpuMpiThreads = @CpuMpiThreads@,
+  .CpuOpenMPThreads = @CpuOpenMPThreads@,
+  .GpuIds = { @GpuIds@ }
+};
