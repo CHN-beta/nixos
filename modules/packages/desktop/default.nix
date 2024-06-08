@@ -27,7 +27,7 @@ inputs:
         mpv nomacs
         # themes
         tela-circle-icon-theme localPackages.win11os-kde localPackages.fluent-kde localPackages.blurred-wallpaper
-        localPackages.slate utterly-nord-plasma catppuccin catppuccin-sddm
+        localPackages.slate utterly-nord-plasma utterly-round-plasma-style catppuccin catppuccin-sddm
         catppuccin-cursors catppuccinifier-gui catppuccinifier-cli catppuccin-plymouth
         (catppuccin-kde.override { flavour = [ "latte" ]; })
         (catppuccin-gtk.override { variant = "latte"; })
