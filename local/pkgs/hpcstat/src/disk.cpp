@@ -108,26 +108,23 @@ namespace hpcstat::disk
     Usage usage;
     if (auto size = get_size({})) usage.Total = *size; else return {};
     if (auto date = get_date()) usage.Time = *date; else return {};
-    if (size / 800 * 100 > 80)
+    for (const auto& [dir, recursive] : Directories)
     {
-      for (const auto& [dir, recursive] : Directories)
+      if (!std::filesystem::exists(*homedir + "/" + dir))
+        { std::cerr << fmt::format("{} does not exist\n", *homedir + "/" + dir); continue; }
+      if (auto size = get_size(dir)) usage.Teacher.push_back({ dir, *size });
+      else return {};
+      if (recursive) for (const auto& subdir : get_subdir(dir))
       {
-        if (!std::filesystem::exists(*homedir + "/" + dir))
-          { std::cerr << fmt::format("{} does not exist\n", *homedir + "/" + dir); continue; }
-        if (auto size = get_size(dir)) usage.Teacher.push_back({ dir, *size });
+        if (auto size = get_size(dir + "/" + subdir); size)
+          usage.Student.push_back({ dir + "/" + subdir, *size });
         else return {};
-        if (recursive) for (const auto& subdir : get_subdir(dir))
-        {
-          if (auto size = get_size(dir + "/" + subdir); size)
-            usage.Student.push_back({ dir + "/" + subdir, *size });
-          else return {};
-        }
       }
-      std::sort(usage.Teacher.begin(), usage.Teacher.end(),
-        [](const auto& a, const auto& b) { return a.second > b.second; });
-      std::sort(usage.Student.begin(), usage.Student.end(),
-        [](const auto& a, const auto& b) { return a.second > b.second; });
     }
+    std::sort(usage.Teacher.begin(), usage.Teacher.end(),
+      [](const auto& a, const auto& b) { return a.second > b.second; });
+    std::sort(usage.Student.begin(), usage.Student.end(),
+      [](const auto& a, const auto& b) { return a.second > b.second; });
     return usage;
   }
 }
