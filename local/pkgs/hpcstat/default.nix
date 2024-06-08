@@ -7,7 +7,7 @@
   name = "hpcstat";
   src = ./.;
   buildInputs =
-    [ boost fmt sqlite-orm nlohmann_json zpp-bits range-v3 nameof sqlite date openxlsx httplib termcolor ];
+    [ boost fmt sqlite-orm nlohmann_json zpp-bits range-v3 nameof sqlite date openxlsx httplib termcolor openssl ];
   nativeBuildInputs = [ cmake pkg-config makeWrapper ];
   cmakeFlags = lib.optionals (version != null) [ "-DHPCSTAT_VERSION=${version}" ];
   postInstall =
