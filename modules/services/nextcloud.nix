@@ -27,8 +27,6 @@ inputs:
           dbpassFile = inputs.config.sops.secrets."nextcloud/postgresql".path;
           adminuser = "admin";
           adminpassFile = inputs.config.sops.secrets."nextcloud/admin".path;
-          overwriteProtocol = "https";
-          defaultPhoneRegion = "CN";
         };
         configureRedis = true;
         settings =
@@ -41,6 +39,8 @@ inputs:
           mail_smtpauth = true;
           mail_smtpname = "bot@chn.moe";
           updatechecker = false;
+          overwriteprotocol = "https";
+          default_phone_region = "CN";
         };
         secretFile = inputs.config.sops.templates."nextcloud/secret".path;
         extraApps =
