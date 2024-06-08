@@ -31,7 +31,7 @@ inputs:
           defaultPhoneRegion = "CN";
         };
         configureRedis = true;
-        extraOptions =
+        settings =
         {
           mail_domain = "chn.moe";
           mail_from_address = "bot";
