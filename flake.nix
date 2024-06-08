@@ -197,6 +197,12 @@
             packages = [ pkgs.clang-tools_17 ];
             CMAKE_EXPORT_COMPILE_COMMANDS = "1";
           };
+          sbatch-cli = pkgs.mkShell
+          {
+            packages = with pkgs; [ sbatch-cli ];
+            buildInputs = [ pkgs.clang-tools_17 ];
+            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+          };
         };
     };
 }
