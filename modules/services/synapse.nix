@@ -63,7 +63,7 @@ inputs:
                 description = "synapse-${instance.name}";
                 enable = instance.value.autoStart;
                 after = [ "network-online.target" "postgresql.service" ];
-                requires = [ "postgresql.service" ];
+                requires = [ "network-online.target" "postgresql.service" ];
                 wantedBy = [ "multi-user.target" ];
                 serviceConfig =
                 {
