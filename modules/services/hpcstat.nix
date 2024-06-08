@@ -70,7 +70,7 @@ inputs:
             diskstat =
             ''
               eval $(${ssh-agent})
-              ${ssh} jykang@hpc.xmu.edu.cn hpcstat diskstat
+              # ${ssh} jykang@hpc.xmu.edu.cn hpcstat diskstat
             '';
           };
         calenders =
