@@ -9,7 +9,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-find_package(fmt REQUIRED)
 find_package(ftxui REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem iostreams)
 find_package(range-v3 REQUIRED)

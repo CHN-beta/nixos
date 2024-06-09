@@ -3,7 +3,6 @@
 # include <ftxui/component/component_options.hpp>
 # include <ftxui/component/screen_interactive.hpp>
 # include <boost/algorithm/string.hpp>
-# include <fmt/format.h>
 # include <range/v3/view.hpp>
 # include <sbatch-tui/device.hpp>
 # include <biu.hpp>
@@ -96,24 +95,22 @@ int main()
       throw std::runtime_error("user_command is not recognized");
     else if (state.device_selected < 0 || state.device_selected >= state.device_entries.size())
       throw std::runtime_error("device_selected is out of range");
-    else if (state.device_selected == 0) state.submit_command = fmt::format
-    (
-      "sbatch --ntasks=1\n--gpus=1\n--job-name='{}'\n--output=output.txt\nvasp-nvidia-{}",
-      std::filesystem::current_path().filename().string(), state.vasp_version_entries[state.vasp_version_selected]
-    );
-    else if (state.device_selected == state.device_entries.size() - 1) state.submit_command = fmt::format
-    (
+    else if (state.device_selected == 0) state.submit_command =
+      "sbatch --ntasks=1\n--gpus=1\n--job-name='{}'\n--output=output.txt\nvasp-nvidia-{}"_f
+        (std::filesystem::current_path().filename().string(), state.vasp_version_entries[state.vasp_version_selected]);
+    else if (state.device_selected == state.device_entries.size() - 1) state.submit_command =
       "sbatch --ntasks={}\n--cpus-per-task={}\n--hint=nomultithread\n--job-name='{}'\n--output=output.txt"
-        "\nvasp-intel-{}",
-      Device.CpuMpiThreads, Device.CpuOpenmpThreads, std::filesystem::current_path().filename().string(),
-      state.vasp_version_entries[state.vasp_version_selected]
-    );
-    else state.submit_command = fmt::format
-    (
-      "sbatch --ntasks=1\n--gpus={}:1\n--job-name='{}'\n--output=output.txt\nvasp-nvidia-{}",
-      state.device_entries[state.device_selected], std::filesystem::current_path().filename().string(),
-      state.vasp_version_entries[state.vasp_version_selected]
-    );
+        "\nvasp-intel-{}"_f
+      (
+        Device.CpuMpiThreads, Device.CpuOpenmpThreads, std::filesystem::current_path().filename().string(),
+        state.vasp_version_entries[state.vasp_version_selected]
+      );
+    else state.submit_command =
+      "sbatch --ntasks=1\n--gpus={}:1\n--job-name='{}'\n--output=output.txt\nvasp-nvidia-{}"_f
+      (
+        state.device_entries[state.device_selected], std::filesystem::current_path().filename().string(),
+        state.vasp_version_entries[state.vasp_version_selected]
+      );
     screen.Loop(confirm_interface);
     if (state.user_command == "quit")
       return EXIT_FAILURE;
