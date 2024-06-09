@@ -5,8 +5,7 @@
 
 namespace biu
 {
-  std::regex literals::operator""_re(const char* str, std::size_t len)
-    { return std::regex{str, len}; }
+  std::regex literals::operator""_re(const char* str, std::size_t len) { return std::regex{str, len}; }
   namespace common
   {
     void block_forever() { std::promise<void>().get_future().wait(); std::unreachable(); }
@@ -25,12 +24,14 @@ namespace biu
       if (stdin)
       {
         process = std::make_unique<bp::child>
-          (program.string(), bp::args(args), bp::std_out > stdout, bp::std_err > stderr, bp::std_in < input, env);
+          (program.string(), bp::args(args), bp::std_out > stdout, bp::std_err > stderr,
+            bp::std_in < input, env);
         input << *stdin;
         input.pipe().close();
       }
       else process = std::make_unique<bp::child>
-        (program.string(), bp::args(args), bp::std_out > stdout, bp::std_err > stderr, bp::std_in < bp::null, env);
+        (program.string(), bp::args(args), bp::std_out > stdout, bp::std_err > stderr,
+          bp::std_in < bp::null, env);
       process->wait();
       return
       {

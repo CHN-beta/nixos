@@ -40,3 +40,10 @@ std::regex operator""_re(const char* str, std::size_t len);
 inline namespace stream_operators { using namespace magic_enum::iostream_operators; }
 ```
 
+# `env`
+
+```c++
+bool is_interactive();
+std::optional<std::string> env(std::string name);
+std::map<std::string, std::string> env();
+```
