@@ -116,16 +116,12 @@ inputs:
     };
     nixos =
     {
-      packages._packages = [(inputs.pkgs.localPackages.sbatch-tui.overrideAttrs (prev: { src =
-        let device = inputs.pkgs.substituteAll
-        {
-          src = "${prev.src}/src/device.cpp.template";
-          CpuMpiThreads = slurm.cpu.mpiThreads;
-          CpuOpenmpThreads = slurm.cpu.openmpThreads;
-          GpuIds = builtins.concatStringsSep ", " (builtins.map (gpu: ''"${gpu}"'') (builtins.attrNames slurm.gpus));
-        };
-        in inputs.pkgs.runCommand "src" {}
-          ''cp -r ${prev.src} $out; chmod +w -R $out; cp ${device} $out/src/device.cpp''; }))];
+      packages._packages = [(inputs.pkgs.localPackages.sbatch-tui.override { sbatchConfig =
+      {
+        cpuMpiThreads = slurm.cpu.mpiThreads;
+        cpuOpenmpThreads = slurm.cpu.openmpThreads;
+        gpuIds = builtins.concatStringsSep ", " (builtins.map (gpu: ''"${gpu}"'') (builtins.attrNames slurm.gpus));
+      };})];
       user.sharedModules = [{ home.packages =
       [
         (inputs.pkgs.writeShellScriptBin "sbatch"

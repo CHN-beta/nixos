@@ -4,7 +4,7 @@
 
 struct Device_t
 {
-  unsigned CpuMpiThreads, CpuOpenMPThreads;
+  unsigned CpuMpiThreads, CpuOpenmpThreads;
   std::vector<std::string> GpuIds;
 };
 extern Device_t Device;
