@@ -185,19 +185,19 @@
           biu = pkgs.mkShell
           {
             inputsFrom = with pkgs.localPackages; [ biu ];
-            buildInputs = [ pkgs.clang-tools_17 ];
+            buildInputs = [ pkgs.clang-tools_18 ];
             CMAKE_EXPORT_COMPILE_COMMANDS = "1";
           };
           hpcstat = pkgs.mkShell
           {
             inputsFrom = [ (inputs.self.packages.x86_64-linux.hpcstat.override { version = null; }) ];
-            packages = [ pkgs.clang-tools_17 ];
+            packages = [ pkgs.clang-tools_18 ];
             CMAKE_EXPORT_COMPILE_COMMANDS = "1";
           };
           sbatch-tui = pkgs.mkShell
           {
             inputsFrom = with pkgs.localPackages; [ sbatch-tui ];
-            buildInputs = [ pkgs.clang-tools_17 ];
+            buildInputs = [ pkgs.clang-tools_18 ];
             CMAKE_EXPORT_COMPILE_COMMANDS = "1";
           };
         };
