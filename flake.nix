@@ -184,12 +184,9 @@
         {
           biu = pkgs.mkShell
           {
-            packages = with pkgs; [ pkg-config cmake ninja clang-tools_17 ];
-            buildInputs =
-              (with pkgs; [ fmt boost magic-enum libbacktrace eigen range-v3 ])
-              ++ (with pkgs.localPackages; [ concurrencpp tgbot-cpp nameof ]);
-            # hardeningDisable = [ "all" ];
-            # NIX_DEBUG = "1";
+            inputsFrom = with pkgs.localPackages; [ biu ];
+            buildInputs = [ pkgs.clang-tools_17 ];
+            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
           };
           hpcstat = pkgs.mkShell
           {

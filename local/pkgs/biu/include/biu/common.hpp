@@ -1,5 +1,6 @@
 # pragma once
 # include <regex>
+# include <filesystem>
 # include <fmt/format.h>
 # include <magic_enum_all.hpp>
 
@@ -62,5 +63,12 @@ namespace biu
     }
     template <typename T, typename Fallback = void> using FallbackIfNoTypeDeclared
       = typename detail_::FallbackIfNoTypeDeclaredHelper<T, Fallback>::Type;
+
+    namespace detail_ { struct ExecResult { int exit_code; std::string stdout, stderr; }; }
+    detail_::ExecResult exec
+    (
+      std::filesystem::path program, std::vector<std::string> args, std::optional<std::string> stdin,
+      std::map<std::string, std::string> extra_env
+    );
   }
 }

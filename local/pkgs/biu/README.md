@@ -7,6 +7,11 @@ std::size_t hash(auto&&... objs);
 void unused(auto&&...);
 // block forever
 void block_forever();
+detail_::ExecResult exec
+(
+  std::filesystem::path program, std::vector<std::string> args, std::optional<std::string> stdin,
+  std::map<std::string, std::string> extra_env
+);
 
 using int128_t = ...;
 using uint128_t = ...;
