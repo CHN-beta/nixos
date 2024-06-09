@@ -1,16 +1,14 @@
-# include <map>
 # include <filesystem>
 # include <ftxui/component/component.hpp>
 # include <ftxui/component/component_options.hpp>
 # include <ftxui/component/screen_interactive.hpp>
-# include <boost/process.hpp>
 # include <boost/algorithm/string.hpp>
 # include <fmt/format.h>
 # include <range/v3/view.hpp>
 # include <sbatch-tui/device.hpp>
+# include <biu.hpp>
 
-using namespace fmt::literals;
-using namespace std::literals;
+using namespace biu::literals;
 
 int main()
 {
@@ -85,14 +83,7 @@ int main()
   {
     // replace \n with space
     boost::replace_all(submit_command, "\n", " ");
-    auto process = boost::process::child
-    (
-      boost::process::search_path("sh"), "-c", submit_command,
-      boost::process::std_in.close(),
-      boost::process::std_out > stdout,
-      boost::process::std_err > stderr
-    );
-    process.wait();
+    biu::common::exec<false, true, true, true>("sh", { "-c", submit_command });
   };
 
   // 进入事件循环

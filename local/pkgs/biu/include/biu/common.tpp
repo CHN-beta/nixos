@@ -22,10 +22,11 @@ namespace biu::common
       [](char c1, char c2){return std::tolower(c1) < std::tolower(c2);}
     );
   }
-  template <bool directStdin, bool directStdout, bool directStderr> detail_::ExecResult<directStdout, directStderr> exec
+  template <bool directStdin, bool directStdout, bool directStderr, bool SearchPath>
+    detail_::ExecResult<directStdout, directStderr> detail_::exec
   (
-    std::filesystem::path program, std::vector<std::string> args, std::optional<std::string> stdin,
-    std::map<std::string, std::string> extra_env
+    std::conditional_t<SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
+    std::optional<std::string> stdin, std::map<std::string, std::string> extra_env
   )
   {
     namespace bp = boost::process;
@@ -35,43 +36,49 @@ namespace biu::common
       [&]{ if constexpr (directStdout) return bp::std_out > ::stdout; else return bp::std_out > stdout_stream; }();
     auto&& stderr =
       [&]{ if constexpr (directStderr) return bp::std_err > ::stderr; else return bp::std_err > stderr_stream; }();
-    auto&& input = [&]
-    {
-      if constexpr (directStdin) return bp::std_in < ::stdin;
-      else if (stdin) return bp::std_in < input_stream; else return bp::std_in < bp::null;
-    }();
+    auto&& actual_program =
+      [&]{ if constexpr (SearchPath) return bp::search_path(program); else return program.string(); }();
     std::unique_ptr<bp::child> process;
     bp::environment env = boost::this_process::environment();
     for (const auto& [key, value] : extra_env) env[key] = value;
-    process = std::make_unique<bp::child>(program.string(), bp::args(args), stdout, stderr, input, env);
-    if (stdin) { input << *stdin; input.pipe().close(); }
+    process = [&]
+    {
+      if constexpr (directStdin) return std::make_unique<bp::child>
+        (actual_program, bp::args(args), stdout, stderr, bp::std_in < ::stdin, env);
+      else if (stdin) return std::make_unique<bp::child>
+        (actual_program, bp::args(args), stdout, stderr, bp::std_in < input_stream, env);
+      else return std::make_unique<bp::child>
+        (actual_program, bp::args(args), stdout, stderr, bp::std_in < bp::null, env);
+    }();
+    if (stdin) { input_stream << *stdin; input_stream.pipe().close(); }
     process->wait();
     return
     {
-      process->exit_code(),
-      [&]
+      .exit_code = process->exit_code(),
+      .stdout = [&]
       {
-        if constexpr (directStdout) return std::string{std::istreambuf_iterator<char>{stdout.rdbuf()}, {}};
-        else return Empty{};
+        if constexpr (directStdout) return Empty{};
+        else return std::string{std::istreambuf_iterator<char>{stdout_stream.rdbuf()}, {}};
       }(),
-      [&]
+      .stderr = [&]
       {
-        if constexpr (directStderr) return std::string{std::istreambuf_iterator<char>{stderr.rdbuf()}, {}};
-        else return Empty{};
+        if constexpr (directStderr) return Empty{};
+        else return std::string{std::istreambuf_iterator<char>{stderr_stream.rdbuf()}, {}};
       }()
     };
   }
-  template <bool DirectStdin, bool DirectStdout, bool DirectStderr> requires (!DirectStdin)
+  template <bool DirectStdin, bool DirectStdout, bool DirectStderr, bool SearchPath> requires (!DirectStdin)
     detail_::ExecResult<DirectStdout, DirectStderr> exec
   (
-    std::filesystem::path program, std::vector<std::string> args, std::optional<std::string> stdin,
+    std::conditional_t<SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
+    std::optional<std::string> stdin, std::map<std::string, std::string> extra_env
+  )
+    { return detail_::exec<DirectStdin, DirectStdout, DirectStderr, SearchPath>(program, args, stdin, extra_env); }
+  template <bool DirectStdin, bool DirectStdout, bool DirectStderr, bool SearchPath> requires DirectStdin
+    detail_::ExecResult<DirectStdout, DirectStderr> exec
+  (
+    std::conditional_t<SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
     std::map<std::string, std::string> extra_env
   )
-    { return exec<DirectStdout, DirectStderr>(program, args, stdin, extra_env); }
-  template <bool DirectStdin, bool DirectStdout, bool DirectStderr> requires DirectStdin
-    detail_::ExecResult<DirectStdout, DirectStderr> exec
-  (
-    std::filesystem::path program, std::vector<std::string> args, std::map<std::string, std::string> extra_env
-  )
-    { return exec<DirectStdin, DirectStdout, DirectStderr>(program, args, {}, extra_env); }
+    { return detail_::exec<DirectStdin, DirectStdout, DirectStderr, SearchPath>(program, args, {}, extra_env); }
 }

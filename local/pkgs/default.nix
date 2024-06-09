@@ -78,7 +78,7 @@ inputs: rec
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
   nodejs-with-pnpm9 = inputs.pkgs.callPackage ./nodejs-with-pnpm9.nix {};
-  sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui {};
+  sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

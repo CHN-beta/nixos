@@ -74,23 +74,24 @@ namespace biu
         std::conditional_t<DirectStdout, Empty, std::string> stdout;
         std::conditional_t<DirectStderr, Empty, std::string> stderr;
       };
-      template <bool DirectStdin, bool DirectStdout, bool DirectStderr>
+      template <bool DirectStdin, bool DirectStdout, bool DirectStderr, bool SearchPath>
         detail_::ExecResult<DirectStdout, DirectStderr> exec
       (
-        std::filesystem::path program, std::vector<std::string> args, std::optional<std::string> stdin,
-        std::map<std::string, std::string> extra_env
+        std::conditional_t<SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
+        std::optional<std::string> stdin, std::map<std::string, std::string> extra_env
       );
     }
-    template <bool DirectStdin = false, bool DirectStdout = false, bool DirectStderr = false> requires (!DirectStdin)
-      detail_::ExecResult<DirectStdout, DirectStderr> exec
+    template <bool DirectStdin = false, bool DirectStdout = false, bool DirectStderr = false, bool SearchPath = false>
+      requires (!DirectStdin) detail_::ExecResult<DirectStdout, DirectStderr> exec
     (
-      std::filesystem::path program, std::vector<std::string> args, std::optional<std::string> stdin = {},
-      std::map<std::string, std::string> extra_env = {}
+      std::conditional_t<SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
+      std::optional<std::string> stdin = {}, std::map<std::string, std::string> extra_env = {}
     );
-    template <bool DirectStdin = false, bool DirectStdout = false, bool DirectStderr = false> requires DirectStdin
-      detail_::ExecResult<DirectStdout, DirectStderr> exec
+    template <bool DirectStdin = false, bool DirectStdout = false, bool DirectStderr = false, bool SearchPath = false>
+      requires DirectStdin detail_::ExecResult<DirectStdout, DirectStderr> exec
     (
-      std::filesystem::path program, std::vector<std::string> args, std::map<std::string, std::string> extra_env = {}
+      std::conditional_t<SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
+      std::map<std::string, std::string> extra_env = {}
     );
   }
 }
