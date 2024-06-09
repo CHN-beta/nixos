@@ -22,6 +22,8 @@ namespace biu
     using int128_t = __int128_t;
     using uint128_t = __uint128_t;
 
+    struct Empty {};
+
     struct CaseInsensitiveStringLessComparator
     {
       template <typename String> constexpr bool operator()(const String& s1, const String& s2) const;
@@ -64,11 +66,31 @@ namespace biu
     template <typename T, typename Fallback = void> using FallbackIfNoTypeDeclared
       = typename detail_::FallbackIfNoTypeDeclaredHelper<T, Fallback>::Type;
 
-    namespace detail_ { struct ExecResult { int exit_code; std::string stdout, stderr; }; }
-    detail_::ExecResult exec
+    namespace detail_
+    {
+      template <bool DirectStdout, bool DirectStderr> struct ExecResult
+      {
+        int exit_code;
+        std::conditional_t<DirectStdout, Empty, std::string> stdout;
+        std::conditional_t<DirectStderr, Empty, std::string> stderr;
+      };
+      template <bool DirectStdin, bool DirectStdout, bool DirectStderr>
+        detail_::ExecResult<DirectStdout, DirectStderr> exec
+      (
+        std::filesystem::path program, std::vector<std::string> args, std::optional<std::string> stdin,
+        std::map<std::string, std::string> extra_env
+      );
+    }
+    template <bool DirectStdin = false, bool DirectStdout = false, bool DirectStderr = false> requires (!DirectStdin)
+      detail_::ExecResult<DirectStdout, DirectStderr> exec
     (
-      std::filesystem::path program, std::vector<std::string> args, std::optional<std::string> stdin,
-      std::map<std::string, std::string> extra_env
+      std::filesystem::path program, std::vector<std::string> args, std::optional<std::string> stdin = {},
+      std::map<std::string, std::string> extra_env = {}
+    );
+    template <bool DirectStdin = false, bool DirectStdout = false, bool DirectStderr = false> requires DirectStdin
+      detail_::ExecResult<DirectStdout, DirectStderr> exec
+    (
+      std::filesystem::path program, std::vector<std::string> args, std::map<std::string, std::string> extra_env = {}
     );
   }
 }
