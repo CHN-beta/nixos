@@ -77,6 +77,7 @@ namespace biu
         int exit_code;
         std::conditional_t<DirectStdout, Empty, std::string> std_out;
         std::conditional_t<DirectStderr, Empty, std::string> std_err;
+        operator bool() const;
       };
       struct ExecInput { bool DirectStdin = false, DirectStdout = false, DirectStderr = false, SearchPath = false; };
     }
