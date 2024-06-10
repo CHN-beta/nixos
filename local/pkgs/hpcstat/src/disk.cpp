@@ -32,11 +32,11 @@ namespace hpcstat::disk
       { std::cerr << "HPCSTAT_DATADIR not set\n"; return false; }
     else if
     (
-      auto result = exec
+      auto result = biu::exec
       (
         // duc index -d ./duc.db -p ~
-        fmt::format("{}/duc", *ducbindir),
-        { "index", "-d", fmt::format("{}/duc.db", *datadir), "-p", *homedir }
+        "{}/duc"_f(*ducbindir),
+        { "index", "-d", "{}/duc.db"_f(*datadir), "-p", *homedir }
       );
       !result
     )
@@ -56,13 +56,13 @@ namespace hpcstat::disk
     {
       if
       (
-        auto result = exec
+        auto result = biu::exec
         (
           // duc ls -d ./duc.db -b -D /data/gpfs01/jykang/linwei/xxx
-          fmt::format("{}/duc", *ducbindir),
+          "{}/duc"_f(*ducbindir),
           {
-            "ls", "-d", fmt::format("{}/duc.db", *datadir), "-b", "-D",
-            fmt::format("{}{}{}", *homedir, path ? "/" : "", path.value_or(""))
+            "ls", "-d", "{}/duc.db"_f(*datadir), "-b", "-D",
+            "{}{}{}"_f(*homedir, path ? "/" : "", path.value_or(""))
           }
         );
         !result
@@ -71,8 +71,8 @@ namespace hpcstat::disk
       else
       {
         std::smatch match;
-        if (!std::regex_search(*result, match, std::regex(R"((\d+))")))
-          { std::cerr << fmt::format("failed to parse {}\n", *result); return std::nullopt; }
+        if (!std::regex_search(result.std_out, match, std::regex(R"((\d+))")))
+          { std::cerr << fmt::format("failed to parse {}\n", result.std_out); return std::nullopt; }
         return std::stod(match[1]) / 1024 / 1024 / 1024;
       }
     };
@@ -88,11 +88,9 @@ namespace hpcstat::disk
     {
       if
       (
-        auto result = exec
-        (
-          // duc info -d ./duc.db
-          fmt::format("{}/duc", *ducbindir),
-          { "info", "-d", fmt::format("{}/duc.db", *datadir) });
+        // duc info -d ./duc.db
+        auto result = biu::exec
+          ("{}/duc"_f(*ducbindir), { "info", "-d", "{}/duc.db"_f(*datadir) });
         !result
       )
         { std::cerr << fmt::format("failed to get duc info\n"); return {}; }
@@ -100,8 +98,8 @@ namespace hpcstat::disk
       {
         std::smatch match;
         // search string like 2024-06-08 13:45:19
-        if (!std::regex_search(*result, match, std::regex(R"((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}))")))
-          { std::cerr << fmt::format("failed to parse {}\n", *result); return {}; }
+        if (!std::regex_search(result.std_out, match, std::regex(R"((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}))")))
+          { std::cerr << fmt::format("failed to parse {}\n", result.std_out); return {}; }
         return match[1];
       }
     };

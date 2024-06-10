@@ -18,6 +18,9 @@ namespace biu
       else return value;
     }
 
+    template <bool DirectStdout, bool DirectStderr>
+      detail_::ExecResult<DirectStdout, DirectStderr>::operator bool() const
+      { return exit_code == 0; }
     namespace detail_
     {
       template <ExecInput Input>

@@ -17,16 +17,11 @@
 # include <date/tz.h>
 # include <boost/interprocess/sync/file_lock.hpp>
 # include <zpp_bits.h>
+# include <biu.hpp>
 
 namespace hpcstat
 {
-  // run a program, wait until it exit, return its stdout if it return 0, otherwise nullopt
-  std::optional<std::string> exec
-  (
-    std::filesystem::path program, std::vector<std::string> args, std::optional<std::string> stdin = std::nullopt,
-    std::map<std::string, std::string> extra_env = {}
-  );
-
+  using namespace biu::literals;
   // get current time
   long now();
 

@@ -1,6 +1,5 @@
 # include <hpcstat/lfs.hpp>
 # include <hpcstat/env.hpp>
-# include <boost/process.hpp>
 # include <nlohmann/json.hpp>
 
 namespace hpcstat::lfs
@@ -28,17 +27,17 @@ namespace hpcstat::lfs
         }
         else break;
       }
-      if (auto result = exec(*bsub, args); !result) return std::nullopt;
+      if (auto result = biu::exec(*bsub, args); !result) return std::nullopt;
       else
       {
         // Job <462270> is submitted to queue <normal_1day>.
         std::regex re(R"r(Job <(\d+)> is submitted to queue <(\w+)>.)r");
         std::smatch match;
-        if (std::regex_search(*result, match, re))
+        if (std::regex_search(result.std_out, match, re))
           return std::make_pair(std::stoi(match[1]), match[2]);
         else
         {
-          std::cerr << fmt::format("Failed to parse job id from output: {}\n", *result);
+          std::cerr << fmt::format("Failed to parse job id from output: {}\n", result.std_out);
           return std::nullopt;
         }
       }
@@ -49,11 +48,10 @@ namespace hpcstat::lfs
   {
     if
     (
-      auto result = exec
+      auto result = biu::exec<{.SearchPath = true}>
       (
-        boost::process::search_path("bjobs").string(),
-        { "-a", "-o", "jobid submit_time stat cpu_used job_name", "-json" },
-        std::nullopt, { { "LSB_DISPLAY_YEAR", "Y" } }
+        "bjobs", { "-a", "-o", "jobid submit_time stat cpu_used job_name", "-json" },
+        {}, { { "LSB_DISPLAY_YEAR", "Y" } }
       );
       !result
     )
@@ -61,7 +59,7 @@ namespace hpcstat::lfs
     else
     {
       nlohmann::json j;
-      try { j = nlohmann::json::parse(*result); }
+      try { j = nlohmann::json::parse(result.std_out); }
       catch (nlohmann::json::parse_error& e)
       {
         std::cerr << fmt::format("Failed to parse bjobs output: {}\n", e.what());
@@ -90,14 +88,11 @@ namespace hpcstat::lfs
   {
     if
     (
-      auto result = exec
-      (
-        boost::process::search_path("bjobs").string(),
-        { "-l", std::to_string(jobid) }
-      );
+      auto result = biu::exec<{.SearchPath = true}>
+        ("bjobs", { "-l", std::to_string(jobid) });
       !result
     )
       return std::nullopt;
-    else return *result;
+    else return result.std_out;
   }
 }

@@ -2,7 +2,6 @@
 # include <hpcstat/keys.hpp>
 # include <hpcstat/env.hpp>
 # include <boost/filesystem.hpp>
-# include <boost/process.hpp>
 # include <boost/dll.hpp>
 
 namespace hpcstat::ssh
@@ -13,8 +12,7 @@ namespace hpcstat::ssh
       return std::nullopt;
     else if
     (
-      auto output =
-        exec(std::filesystem::path(*sshbindir) / "ssh-add", { "-l" });
+      auto output = biu::exec(std::filesystem::path(*sshbindir) / "ssh-add", { "-l" });
       !output
     )
       { std::cerr << "Failed to get ssh fingerprints\n"; return std::nullopt; }
@@ -24,11 +22,13 @@ namespace hpcstat::ssh
       std::smatch match;
       for
       (
-        auto i = std::sregex_iterator(output->begin(), output->end(), pattern);
-        i != std::sregex_iterator(); ++i
+        auto i = std::sregex_iterator
+          (output.std_out.begin(), output.std_out.end(), pattern);
+        i != std::sregex_iterator();
+        ++i
       )
         if (Keys.contains(i->str(1))) return i->str(1);
-      std::cerr << fmt::format("No valid fingerprint found in:\n{}\n", *output);
+      std::cerr << fmt::format("No valid fingerprint found in:\n{}\n", output.std_out);
       return std::nullopt;
     }
   }
@@ -40,12 +40,12 @@ namespace hpcstat::ssh
       return std::nullopt;
     else if
     (
-      auto output = exec
+      auto output = biu::exec
       (
         std::filesystem::path(*sshbindir) / "ssh-keygen",
         {
           "-Y", "sign", "-q",
-          "-f", fmt::format("{}/keys/{}", *sharedir, Keys[fingerprint].PubkeyFilename),
+          "-f", "{}/keys/{}"_f(*sharedir, Keys[fingerprint].PubkeyFilename),
           "-n", "hpcstat@chn.moe", "-"
         },
         message
@@ -53,7 +53,7 @@ namespace hpcstat::ssh
       !output
     )
       { std::cerr << fmt::format("Failed to sign message: {}\n", message); return std::nullopt; }
-    else return *output;
+    else return output.std_out;
   }
   bool verify(std::string message, std::string signature, std::string fingerprint)
   {
@@ -68,18 +68,18 @@ namespace hpcstat::ssh
       bf::create_directories(tempdir);
       auto signaturefile = tempdir / "signature";
       std::ofstream(signaturefile) << signature;
-      auto result = exec
+      auto result = biu::exec
       (
         std::filesystem::path(*sshbindir) / "ssh-keygen",
         {
           "-Y", "verify",
-          "-f", fmt::format("{}/keys/{}", *sharedir, Keys[fingerprint].PubkeyFilename),
+          "-f", "{}/keys/{}"_f(*sharedir, Keys[fingerprint].PubkeyFilename),
           "-n", "hpcstat@chn.moe", "-s", signaturefile.string()
         },
         message
       );
       std::filesystem::remove_all(tempdir.string());
-      return result.has_value();
+      return result;
     }
   }
 }
