@@ -9,9 +9,8 @@ namespace hpcstat::disk
     std::vector<std::pair<std::string, double>> Teacher;  // 已排序
     std::vector<std::pair<std::string, double>> Student;  // 已排序
     std::string Time;
+    using serialize = zpp::bits::members<4>;
   };
-  // 统计当前磁盘使用情况，并存入数据库
-  bool stat();
-  // 从数据库中读取磁盘使用情况
-  std::optional<Usage> get();
+  // 刷新 duc 数据库，并读取
+  std::optional<Usage> stat();
 }

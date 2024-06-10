@@ -68,6 +68,12 @@ namespace hpcstat::sql
         sqlite_orm::make_column("id", &CheckJobData::Id, sqlite_orm::primary_key().autoincrement()),
         sqlite_orm::make_column("job_id", &CheckJobData::JobId),
         sqlite_orm::make_column("status", &CheckJobData::Status)
+      ),
+      sqlite_orm::make_table
+      (
+        "disk",
+        sqlite_orm::make_column("id", &DiskData::Id, sqlite_orm::primary_key().autoincrement()),
+        sqlite_orm::make_column("data", &DiskData::Data)
       )
     ));};
     if (!dbfile)
@@ -92,6 +98,7 @@ namespace hpcstat::sql
   template bool writedb(LogoutData);
   template bool writedb(SubmitJobData);
   template bool writedb(FinishJobData);
+  template bool writedb(DiskData);
   std::optional<std::set<unsigned>> finishjob_remove_existed(std::map<unsigned, std::string> jobid_submit_time)
   {
     if (auto conn = connect(); !conn) return std::nullopt;
@@ -318,5 +325,17 @@ namespace hpcstat::sql
       conn->insert_range(new_data.begin(), new_data.end());
       return result;
     }
+  }
+  std::optional<std::string> get_disk()
+  {
+    if (auto conn = connect(); !conn) return {};
+    else if
+    (
+      auto result = 
+        conn->get_all<DiskData>(sqlite_orm::order_by(&DiskData::Id).desc(), sqlite_orm::limit(1));
+      result.size() != 1
+    )
+      return {};
+    else return result[0].Data;
   }
 }

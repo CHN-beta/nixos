@@ -1,10 +1,8 @@
 # include <hpcstat/disk.hpp>
 # include <hpcstat/env.hpp>
-# include <hpcstat/sql.hpp>
 
 namespace hpcstat::disk
 {
-
   // 需要统计的目录，是否统计子目录
   std::map<std::string, bool> Directories =
   {
@@ -22,14 +20,14 @@ namespace hpcstat::disk
     { "zhanhuahan", false }
   };
 
-  bool stat()
+  std::optional<Usage> stat()
   {
     if (auto homedir = env::env("HOME"); !homedir)
-      { std::cerr << "HOME not set\n"; return false; }
+      { std::cerr << "HOME not set\n"; return {}; }
     else if (auto ducbindir = env::env("HPCSTAT_DUC_BINDIR"); !ducbindir)
-      { std::cerr << "HPCSTAT_DUC_BINDIR not set\n"; return false; }
+      { std::cerr << "HPCSTAT_DUC_BINDIR not set\n"; return {}; }
     else if (auto datadir = env::env("HPCSTAT_DATADIR"); !datadir)
-      { std::cerr << "HPCSTAT_DATADIR not set\n"; return false; }
+      { std::cerr << "HPCSTAT_DATADIR not set\n"; return {}; }
     else if
     (
       auto result = biu::exec
@@ -40,74 +38,63 @@ namespace hpcstat::disk
       );
       !result
     )
-      { std::cerr << "failed to index\n"; return false; }
-    else return true;
-  }
-  std::optional<Usage> get()
-  {
-    std::optional<std::string> homedir, ducbindir, datadir;
-    if (homedir = env::env("HOME"); !homedir)
-      { std::cerr << "HOME not set\n"; return {}; }
-    else if (ducbindir = env::env("HPCSTAT_DUC_BINDIR"); !ducbindir)
-      { std::cerr << "HPCSTAT_DUC_BINDIR not set\n"; return {}; }
-    else if (datadir = env::env("HPCSTAT_DATADIR"); !datadir)
-      { std::cerr << "HPCSTAT_DATADIR not set\n"; return {}; }
-    auto get_size  = [&](std::optional<std::string> path) -> std::optional<double>
+      { std::cerr << "failed to index\n"; return {}; }
+    else
     {
-      if
-      (
-        auto result = biu::exec
+      auto get_size  = [&](std::optional<std::string> path) -> std::optional<double>
+      {
+        if
         (
-          // duc ls -d ./duc.db -b -D /data/gpfs01/jykang/linwei/xxx
-          "{}/duc"_f(*ducbindir),
-          {
-            "ls", "-d", "{}/duc.db"_f(*datadir), "-b", "-D",
-            "{}{}{}"_f(*homedir, path ? "/" : "", path.value_or(""))
-          }
-        );
-        !result
-      )
-        { std::cerr << "failed to ls {}\n"_f(path); return {}; }
-      else
+          auto result = biu::exec
+          (
+            // duc ls -d ./duc.db -b -D /data/gpfs01/jykang/linwei/xxx
+            "{}/duc"_f(*ducbindir),
+            {
+              "ls", "-d", "{}/duc.db"_f(*datadir), "-b", "-D",
+              "{}{}{}"_f(*homedir, path ? "/" : "", path.value_or(""))
+            }
+          );
+          !result
+        )
+          { std::cerr << "failed to ls {}\n"_f(path); return {}; }
+        else
+        {
+          std::smatch match;
+          if (!std::regex_search(result.Stdout, match, std::regex(R"((\d+))")))
+            { std::cerr << "failed to parse {}\n"_f(result.Stdout); return std::nullopt; }
+          return std::stod(match[1]) / 1024 / 1024 / 1024;
+        }
+      };
+      auto get_subdir = [&](std::string path) -> std::vector<std::string>
       {
-        std::smatch match;
-        if (!std::regex_search(result.Stdout, match, std::regex(R"((\d+))")))
-          { std::cerr << "failed to parse {}\n"_f(result.Stdout); return std::nullopt; }
-        return std::stod(match[1]) / 1024 / 1024 / 1024;
-      }
-    };
-    auto get_subdir = [&](std::string path) -> std::vector<std::string>
-    {
-      std::filesystem::directory_iterator it(*homedir + "/" + path);
-      std::vector<std::string> result;
-      for (const auto& entry : it)
-        if (entry.is_directory()) result.push_back(entry.path().filename().string());
-      return result;
-    };
-    auto get_date = [&]() -> std::optional<std::string>
-    {
-      if
-      (
-        // duc info -d ./duc.db
-        auto result = biu::exec
-          ("{}/duc"_f(*ducbindir), { "info", "-d", "{}/duc.db"_f(*datadir) });
-        !result
-      )
-        { std::cerr << "failed to get duc info\n"; return {}; }
-      else
+        std::filesystem::directory_iterator it(*homedir + "/" + path);
+        std::vector<std::string> result;
+        for (const auto& entry : it)
+          if (entry.is_directory()) result.push_back(entry.path().filename().string());
+        return result;
+      };
+      auto get_date = [&]() -> std::optional<std::string>
       {
-        std::smatch match;
-        // search string like 2024-06-08 13:45:19
-        if (!std::regex_search(result.Stdout, match, std::regex(R"((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}))")))
-          { std::cerr << "failed to parse {}\n"_f(result.Stdout); return {}; }
-        return match[1];
-      }
-    };
-    Usage usage;
-    if (auto size = get_size({})) usage.Total = *size; else return {};
-    if (auto date = get_date()) usage.Time = *date; else return {};
-    if (usage.Total / 800 * 100 > 80)
-    {
+        if
+        (
+          // duc info -d ./duc.db
+          auto result = biu::exec
+            ("{}/duc"_f(*ducbindir), { "info", "-d", "{}/duc.db"_f(*datadir) });
+          !result
+        )
+          { std::cerr << "failed to get duc info\n"; return {}; }
+        else
+        {
+          std::smatch match;
+          // search string like 2024-06-08 13:45:19
+          if (!std::regex_search(result.Stdout, match, std::regex(R"((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}))")))
+            { std::cerr << "failed to parse {}\n"_f(result.Stdout); return {}; }
+          return match[1];
+        }
+      };
+      Usage usage;
+      if (auto size = get_size({})) usage.Total = *size; else return {};
+      if (auto date = get_date()) usage.Time = *date; else return {};
       for (const auto& [dir, recursive] : Directories)
       {
         if (!std::filesystem::exists(*homedir + "/" + dir))
@@ -125,7 +112,7 @@ namespace hpcstat::disk
         [](const auto& a, const auto& b) { return a.second > b.second; });
       std::sort(usage.Student.begin(), usage.Student.end(),
         [](const auto& a, const auto& b) { return a.second > b.second; });
+      return usage;
     }
-    return usage;
   }
 }

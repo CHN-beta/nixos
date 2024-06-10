@@ -47,6 +47,11 @@ namespace hpcstat::sql
     std::string Status;
     bool operator==(const CheckJobData& other) const = default;
   };
+  struct DiskData
+  {
+    unsigned Id = 0;
+    std::string Data;
+  };
   // 初始化数据库
   bool initdb();
   // 将数据写入数据库
@@ -63,4 +68,6 @@ namespace hpcstat::sql
   // 如果没有找到提交时的信息，则忽略这个任务
   std::optional<std::map<unsigned, std::tuple<std::string, std::string, std::string, std::optional<std::string>>>>
     check_job_status();
+  // 获取最新的磁盘使用情况
+  std::optional<std::string> get_disk();
 }

@@ -19,6 +19,7 @@ namespace hpcstat
   template std::string serialize(sql::LoginData);
   template std::string serialize(sql::SubmitJobData);
   template std::string serialize(sql::FinishJobData);
+  template std::string serialize(disk::Usage);
   template <typename T> T deserialize(std::string serialized_data)
   {
     auto [serialized_data_byte, in] = zpp::bits::data_in();
@@ -29,4 +30,5 @@ namespace hpcstat
     in(data).or_throw();
     return data;
   }
+  template disk::Usage deserialize<disk::Usage>(std::string);
 }
