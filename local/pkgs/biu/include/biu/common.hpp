@@ -78,17 +78,18 @@ namespace biu
         std::conditional_t<DirectStdout, Empty, std::string> std_out;
         std::conditional_t<DirectStderr, Empty, std::string> std_err;
       };
+      struct ExecInput { bool DirectStdin = false, DirectStdout = false, DirectStderr = false, SearchPath = false; };
     }
-    template <bool DirectStdin = false, bool DirectStdout = false, bool DirectStderr = false, bool SearchPath = false>
-      requires (!DirectStdin) detail_::ExecResult<DirectStdout, DirectStderr> exec
+    template <detail_::ExecInput Input = {}> requires (!Input.DirectStdin)
+      detail_::ExecResult<Input.DirectStdout, Input.DirectStderr> exec
     (
-      std::conditional_t<SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
+      std::conditional_t<Input.SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
       std::optional<std::string> stdin_string = {}, std::map<std::string, std::string> extra_env = {}
     );
-    template <bool DirectStdin = false, bool DirectStdout = false, bool DirectStderr = false, bool SearchPath = false>
-      requires DirectStdin detail_::ExecResult<DirectStdout, DirectStderr> exec
+    template <detail_::ExecInput Input = {}> requires (Input.DirectStdin)
+      detail_::ExecResult<Input.DirectStdout, Input.DirectStderr> exec
     (
-      std::conditional_t<SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
+      std::conditional_t<Input.SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
       std::map<std::string, std::string> extra_env = {}
     );
   }
