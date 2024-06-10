@@ -2,7 +2,7 @@
 # include <tuple>
 # include <biu/concepts.hpp>
 
-namespace biu::inline concepts
+namespace biu::concepts
 {
   template <typename ProvidedArgs, typename ActualArgs> consteval bool
     detail_::specialization_of_detail_::check_provided_args()

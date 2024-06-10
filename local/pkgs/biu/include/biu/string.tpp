@@ -3,7 +3,7 @@
 
 namespace biu
 {
-  inline namespace string
+  namespace string
   {
     template <DecayedType Char, std::size_t N> constexpr
       BasicFixedString<Char, N>::BasicFixedString(const Char (&str)[N])

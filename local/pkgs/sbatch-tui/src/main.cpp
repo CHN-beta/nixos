@@ -82,7 +82,7 @@ int main()
   {
     // replace \n with space
     boost::replace_all(submit_command, "\n", " ");
-    biu::common::exec<false, true, true, true>("sh", { "-c", submit_command });
+    biu::exec<false, true, true, true>("sh", { "-c", submit_command });
   };
 
   // 进入事件循环

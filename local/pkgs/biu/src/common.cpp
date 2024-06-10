@@ -11,6 +11,12 @@ namespace biu
   namespace common
   {
     void block_forever() { std::promise<void>().get_future().wait(); std::unreachable(); }
+    bool is_interactive() { return isatty(fileno(stdin)); }
+    std::optional<std::string> env(std::string name)
+    {
+      if (auto value = std::getenv(name.c_str()); !value) return std::nullopt;
+      else return value;
+    }
 
     namespace detail_
     {

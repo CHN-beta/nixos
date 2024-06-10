@@ -24,7 +24,7 @@ find_path(NAMEOF_INCLUDE_DIR nameof.hpp REQUIRED)
 # find_library(BACKTRACE_LIB backtrace REQUIRED)
 
 # add_library(biu SHARED src/common.cpp src/logger.cpp src/string.cpp)
-add_library(biu src/common.cpp src/env.cpp)
+add_library(biu src/common.cpp)
 target_include_directories(biu PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>

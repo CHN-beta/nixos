@@ -1,5 +1,6 @@
 # pragma once
 # include <regex>
+# include <optional>
 # include <filesystem>
 # include <fmt/format.h>
 # include <magic_enum_all.hpp>
@@ -18,6 +19,9 @@ namespace biu
     std::size_t hash(auto&&... objs);
     [[gnu::always_inline]] void unused(auto&&...);
     [[noreturn]] void block_forever();
+
+    bool is_interactive();
+    std::optional<std::string> env(std::string name);
 
     using int128_t = __int128_t;
     using uint128_t = __uint128_t;
@@ -88,4 +92,7 @@ namespace biu
       std::map<std::string, std::string> extra_env = {}
     );
   }
+  using common::hash, common::unused, common::block_forever, common::is_interactive, common::env, common::int128_t,
+    common::uint128_t, common::Empty, common::CaseInsensitiveStringLessComparator, common::RemoveMemberPointer,
+    common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec;
 }

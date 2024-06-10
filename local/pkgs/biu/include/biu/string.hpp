@@ -8,7 +8,7 @@
 
 namespace biu
 {
-  inline namespace string
+  namespace string
   {
     // Store a string in a static member of a class; or, use a class to represent a string.
     template <DecayedType Char, Char... c> struct BasicStaticString
@@ -37,6 +37,9 @@ namespace biu
     };
     template <std::size_t N> using VariableString = BasicVariableString<char, N>;
   }
+  using string::BasicStaticString, string::StaticString, string::BasicFixedString, string::FixedString,
+    string::BasicVariableString, string::VariableString;
+
   inline namespace stream_operators
   {
     template <typename Char, Char... c>
@@ -51,7 +54,7 @@ namespace biu
     template <typename Char, Char... c> consteval BasicStaticString<Char, c...> operator""_ss();
     template <BasicFixedString FS> constexpr decltype(FS) operator""_fs();
   }
-  inline namespace concepts
+  namespace concepts
   {
     namespace detail_
     {
@@ -98,6 +101,9 @@ namespace biu
         && detail_::SpecializationOfBasicVariableString<T, void>;
     template <typename T> concept SpecializationOfVariableString = SpecializationOfBasicVariableString<T, char>;
   }
+  using concepts::SpecializationOfBasicStaticString, concepts::SpecializationOfStaticString,
+    concepts::SpecializationOfBasicFixedString, concepts::SpecializationOfFixedString,
+    concepts::SpecializationOfBasicVariableString, concepts::SpecializationOfVariableString;
 }
 // namespace string
 // {

@@ -9,6 +9,7 @@ namespace biu
 {
   namespace concepts
     { template <typename T, typename Char = char> concept Formattable = fmt::is_formattable<T, Char>::value; }
+  using concepts::Formattable;
 
   namespace detail_
   {
