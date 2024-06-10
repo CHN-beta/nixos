@@ -71,8 +71,8 @@ namespace hpcstat::disk
       else
       {
         std::smatch match;
-        if (!std::regex_search(result.std_out, match, std::regex(R"((\d+))")))
-          { std::cerr << fmt::format("failed to parse {}\n", result.std_out); return std::nullopt; }
+        if (!std::regex_search(result.Stdout, match, std::regex(R"((\d+))")))
+          { std::cerr << fmt::format("failed to parse {}\n", result.Stdout); return std::nullopt; }
         return std::stod(match[1]) / 1024 / 1024 / 1024;
       }
     };
@@ -98,8 +98,8 @@ namespace hpcstat::disk
       {
         std::smatch match;
         // search string like 2024-06-08 13:45:19
-        if (!std::regex_search(result.std_out, match, std::regex(R"((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}))")))
-          { std::cerr << fmt::format("failed to parse {}\n", result.std_out); return {}; }
+        if (!std::regex_search(result.Stdout, match, std::regex(R"((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}))")))
+          { std::cerr << fmt::format("failed to parse {}\n", result.Stdout); return {}; }
         return match[1];
       }
     };

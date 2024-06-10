@@ -74,9 +74,9 @@ namespace biu
     {
       template <bool DirectStdout, bool DirectStderr> struct ExecResult
       {
-        int exit_code;
-        std::conditional_t<DirectStdout, Empty, std::string> std_out;
-        std::conditional_t<DirectStderr, Empty, std::string> std_err;
+        int ExitCode;
+        std::conditional_t<DirectStdout, Empty, std::string> Stdout;
+        std::conditional_t<DirectStderr, Empty, std::string> Stderr;
         operator bool() const;
       };
       struct ExecInput { bool DirectStdin = false, DirectStdout = false, DirectStderr = false, SearchPath = false; };

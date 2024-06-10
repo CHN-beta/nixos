@@ -33,11 +33,11 @@ namespace hpcstat::lfs
         // Job <462270> is submitted to queue <normal_1day>.
         std::regex re(R"r(Job <(\d+)> is submitted to queue <(\w+)>.)r");
         std::smatch match;
-        if (std::regex_search(result.std_out, match, re))
+        if (std::regex_search(result.Stdout, match, re))
           return std::make_pair(std::stoi(match[1]), match[2]);
         else
         {
-          std::cerr << fmt::format("Failed to parse job id from output: {}\n", result.std_out);
+          std::cerr << fmt::format("Failed to parse job id from output: {}\n", result.Stdout);
           return std::nullopt;
         }
       }
@@ -59,7 +59,7 @@ namespace hpcstat::lfs
     else
     {
       nlohmann::json j;
-      try { j = nlohmann::json::parse(result.std_out); }
+      try { j = nlohmann::json::parse(result.Stdout); }
       catch (nlohmann::json::parse_error& e)
       {
         std::cerr << fmt::format("Failed to parse bjobs output: {}\n", e.what());
@@ -93,6 +93,6 @@ namespace hpcstat::lfs
       !result
     )
       return std::nullopt;
-    else return result.std_out;
+    else return result.Stdout;
   }
 }

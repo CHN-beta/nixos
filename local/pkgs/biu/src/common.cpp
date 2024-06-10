@@ -20,7 +20,7 @@ namespace biu
 
     template <bool DirectStdout, bool DirectStderr>
       detail_::ExecResult<DirectStdout, DirectStderr>::operator bool() const
-      { return exit_code == 0; }
+      { return ExitCode == 0; }
 #   define BIU_EXECRESULT_PRED(r, state) BOOST_PP_NOT_EQUAL(state, 4)
 #   define BIU_EXECRESULT_OP(r, state) BOOST_PP_INC(state)
 #   define BIU_EXECRESULT_MACRO(r, state) \
@@ -60,13 +60,13 @@ namespace biu
         process->wait();
         return
         {
-          .exit_code = process->exit_code(),
-          .std_out = [&]
+          .ExitCode = process->exit_code(),
+          .Stdout = [&]
           {
             if constexpr (Input.DirectStdout) return Empty{};
             else return std::string{std::istreambuf_iterator<char>{stdout_stream.rdbuf()}, {}};
           }(),
-          .std_err = [&]
+          .Stderr = [&]
           {
             if constexpr (Input.DirectStderr) return Empty{};
             else return std::string{std::istreambuf_iterator<char>{stderr_stream.rdbuf()}, {}};

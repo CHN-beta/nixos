@@ -23,12 +23,12 @@ namespace hpcstat::ssh
       for
       (
         auto i = std::sregex_iterator
-          (output.std_out.begin(), output.std_out.end(), pattern);
+          (output.Stdout.begin(), output.Stdout.end(), pattern);
         i != std::sregex_iterator();
         ++i
       )
         if (Keys.contains(i->str(1))) return i->str(1);
-      std::cerr << fmt::format("No valid fingerprint found in:\n{}\n", output.std_out);
+      std::cerr << fmt::format("No valid fingerprint found in:\n{}\n", output.Stdout);
       return std::nullopt;
     }
   }
@@ -53,7 +53,7 @@ namespace hpcstat::ssh
       !output
     )
       { std::cerr << fmt::format("Failed to sign message: {}\n", message); return std::nullopt; }
-    else return output.std_out;
+    else return output.Stdout;
   }
   bool verify(std::string message, std::string signature, std::string fingerprint)
   {
