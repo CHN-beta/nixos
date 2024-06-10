@@ -21,6 +21,11 @@ namespace biu
     template <bool DirectStdout, bool DirectStderr>
       detail_::ExecResult<DirectStdout, DirectStderr>::operator bool() const
       { return exit_code == 0; }
+#   define BIU_EXECRESULT_PRED(r, state) BOOST_PP_NOT_EQUAL(state, 4)
+#   define BIU_EXECRESULT_OP(r, state) BOOST_PP_INC(state)
+#   define BIU_EXECRESULT_MACRO(r, state) \
+      template detail_::ExecResult<(state & 1) != 0, (state & 2) != 0>::operator bool() const;
+    BOOST_PP_FOR(0, BIU_EXECRESULT_PRED, BIU_EXECRESULT_OP, BIU_EXECRESULT_MACRO)
     namespace detail_
     {
       template <ExecInput Input>
