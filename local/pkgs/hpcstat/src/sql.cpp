@@ -142,7 +142,7 @@ namespace hpcstat::sql
             auto data = *old_data_it;
             data.Signature = "";
             data.Id = 0;
-            diff.push_back({ serialize(data), old_data_it->Signature, old_data_it->Key });
+            diff.push_back({ biu::serialize<char>(data), old_data_it->Signature, old_data_it->Key });
           }
           return diff;
         }

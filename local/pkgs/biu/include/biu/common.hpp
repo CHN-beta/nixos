@@ -93,8 +93,16 @@ namespace biu
       std::conditional_t<Input.SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
       std::map<std::string, std::string> extra_env = {}
     );
+
+    static_assert(sizeof(char) == sizeof(std::byte));
+    template <typename Char = std::byte, typename T> requires (std::same_as<Char, std::byte>)
+      std::vector<std::byte> serialize(const T& data);
+    template <typename Char = std::byte, typename T> requires (std::same_as<Char, char>)
+      std::string serialize(const T& data);
+    template <typename T> T deserialize(const std::string& serialized_data);
+    template <typename T> T deserialize(const std::vector<std::byte>& serialized_data);
   }
   using common::hash, common::unused, common::block_forever, common::is_interactive, common::env, common::int128_t,
     common::uint128_t, common::Empty, common::CaseInsensitiveStringLessComparator, common::RemoveMemberPointer,
-    common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec;
+    common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec, common::serialize, common::deserialize;
 }

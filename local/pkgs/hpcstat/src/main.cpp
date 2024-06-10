@@ -47,7 +47,7 @@ int main(int argc, const char** argv)
           .Time = now(), .Key = *fp, .SessionId = *session, .Subaccount = env::env("HPCSTAT_SUBACCOUNT"),
           .Ip = env::env("SSH_CONNECTION"), .Interactive = env::interactive()
         };
-        auto signature = ssh::sign(serialize(data), *fp);
+        auto signature = ssh::sign(biu::serialize<char>(data), *fp);
         if (!signature) return 1;
         data.Signature = *signature;
         lock.lock();
@@ -60,7 +60,7 @@ int main(int argc, const char** argv)
             std::cerr << "Failed to get disk usage statistic.\n";
           else
           {
-            auto disk_stat = deserialize<disk::Usage>(*sql_data);
+            auto disk_stat = biu::deserialize<disk::Usage>(*sql_data);
             double percent = disk_stat.Total / 800 * 100;
             auto color = percent > 95 ? termcolor::red<char> :
               percent > 80 ? termcolor::yellow<char> : termcolor::green<char>;
@@ -109,7 +109,7 @@ int main(int argc, const char** argv)
           .JobCommand = args | ranges::views::drop(2) | ranges::views::join(' ') | ranges::to<std::string>(),
           .Subaccount = env::env("HPCSTAT_SUBACCOUNT"), .Ip = env::env("SSH_CONNECTION")
         };
-        auto signature = ssh::sign(serialize(data), *fp);
+        auto signature = ssh::sign(biu::serialize<char>(data), *fp);
         if (!signature) return 1;
         data.Signature = *signature;
         lock.lock();
@@ -146,12 +146,7 @@ int main(int argc, const char** argv)
             .SubmitTime = std::get<0>(all_jobs->at(jobid)), .JobDetail = *detail, .Key = *fp,
             .CpuTime = std::get<2>(all_jobs->at(jobid)),
           };
-          if
-          (
-            auto signature = ssh::sign(serialize(data), *fp);
-            !signature
-          )
-            return 1;
+          if (auto signature = ssh::sign(biu::serialize<char>(data), *fp); !signature) return 1;
           else { data.Signature = *signature; sql::writedb(data); }
         }
       }
@@ -195,7 +190,7 @@ int main(int argc, const char** argv)
         lock.lock();
         if
         (
-          auto write_result = sql::writedb(sql::DiskData{.Data = serialize(*stat_thread.get())});
+          auto write_result = sql::writedb(sql::DiskData{.Data = biu::serialize<char>(*stat_thread.get())});
           !write_result
         )
           { std::cerr << "Failed to write disk usage statistic to database.\n"; return 1; }

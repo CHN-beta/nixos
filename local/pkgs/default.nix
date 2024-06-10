@@ -71,7 +71,7 @@ inputs: rec
   mumax = inputs.pkgs.callPackage ./mumax { src = inputs.topInputs.mumax; };
   kylin-virtual-keyboard = inputs.pkgs.libsForQt5.callPackage ./kylin-virtual-keyboard
     { src = inputs.topInputs.kylin-virtual-keyboard; };
-  biu = inputs.pkgs.callPackage ./biu { inherit nameof; };
+  biu = inputs.pkgs.callPackage ./biu { inherit nameof zpp-bits; };
   zxorm = inputs.pkgs.callPackage ./zxorm { src = inputs.topInputs.zxorm; };
   hpcstat = inputs.pkgs.callPackage ./hpcstat { inherit nameof sqlite-orm zpp-bits date openxlsx biu; };
   openxlsx = inputs.pkgs.callPackage ./openxlsx { src = inputs.topInputs.openxlsx; };
