@@ -1,5 +1,6 @@
 # include <future>
 # include <utility>
+# include <cstdio>
 # include <biu.hpp>
 # include <boost/process.hpp>
 # include <boost/preprocessor.hpp>
@@ -17,16 +18,16 @@ namespace biu
         detail_::ExecResult<directStdout, directStderr> exec
       (
         std::conditional_t<SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
-        std::optional<std::string> stdin, std::map<std::string, std::string> extra_env
+        std::optional<std::string> stdin_string, std::map<std::string, std::string> extra_env
       )
       {
         namespace bp = boost::process;
         bp::ipstream stdout_stream, stderr_stream;
         bp::opstream input_stream;
-        auto&& stdout =
-          [&]{ if constexpr (directStdout) return bp::std_out > ::stdout; else return bp::std_out > stdout_stream; }();
-        auto&& stderr =
-          [&]{ if constexpr (directStderr) return bp::std_err > ::stderr; else return bp::std_err > stderr_stream; }();
+        auto&& stdout_format =
+          [&]{ if constexpr (directStdout) return bp::std_out > stdout; else return bp::std_out > stdout_stream; }();
+        auto&& stderr_format =
+          [&]{ if constexpr (directStderr) return bp::std_err > stderr; else return bp::std_err > stderr_stream; }();
         auto&& actual_program =
           [&]{ if constexpr (SearchPath) return bp::search_path(program); else return program.string(); }();
         std::unique_ptr<bp::child> process;
@@ -35,23 +36,23 @@ namespace biu
         process = [&]
         {
           if constexpr (directStdin) return std::make_unique<bp::child>
-            (actual_program, bp::args(args), stdout, stderr, bp::std_in < ::stdin, env);
-          else if (stdin) return std::make_unique<bp::child>
-            (actual_program, bp::args(args), stdout, stderr, bp::std_in < input_stream, env);
+            (actual_program, bp::args(args), stdout_format, stderr_format, bp::std_in < stdin, env);
+          else if (stdin_string) return std::make_unique<bp::child>
+            (actual_program, bp::args(args), stdout_format, stderr_format, bp::std_in < input_stream, env);
           else return std::make_unique<bp::child>
-            (actual_program, bp::args(args), stdout, stderr, bp::std_in < bp::null, env);
+            (actual_program, bp::args(args), stdout_format, stderr_format, bp::std_in < bp::null, env);
         }();
-        if (stdin) { input_stream << *stdin; input_stream.pipe().close(); }
+        if (stdin_string) { input_stream << *stdin_string; input_stream.pipe().close(); }
         process->wait();
         return
         {
           .exit_code = process->exit_code(),
-          .stdout = [&]
+          .std_out = [&]
           {
             if constexpr (directStdout) return Empty{};
             else return std::string{std::istreambuf_iterator<char>{stdout_stream.rdbuf()}, {}};
           }(),
-          .stderr = [&]
+          .std_err = [&]
           {
             if constexpr (directStderr) return Empty{};
             else return std::string{std::istreambuf_iterator<char>{stderr_stream.rdbuf()}, {}};
@@ -63,9 +64,11 @@ namespace biu
       detail_::ExecResult<DirectStdout, DirectStderr> exec
     (
       std::conditional_t<SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
-      std::optional<std::string> stdin, std::map<std::string, std::string> extra_env
+      std::optional<std::string> stdin_string, std::map<std::string, std::string> extra_env
     )
-      { return detail_::exec<DirectStdin, DirectStdout, DirectStderr, SearchPath>(program, args, stdin, extra_env); }
+    {
+      return detail_::exec<DirectStdin, DirectStdout, DirectStderr, SearchPath>(program, args, stdin_string, extra_env);
+    }
     template <bool DirectStdin, bool DirectStdout, bool DirectStderr, bool SearchPath> requires DirectStdin
       detail_::ExecResult<DirectStdout, DirectStderr> exec
     (
