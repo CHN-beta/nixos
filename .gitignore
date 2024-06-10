@@ -1,5 +1,5 @@
 result
-result-man
+result-*
 outputs
 .direnv
 build

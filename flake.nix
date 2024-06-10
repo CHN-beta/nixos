@@ -100,6 +100,7 @@
               duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
             in pkgs.pkgsStatic.localPackages.hpcstat.override
               { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
+          ufo = pkgs.pkgsStatic.localPackages.ufo.override { version = inputs.self.rev or "dirty"; };
           nixpkgs = pkgs;
         }
         // (
@@ -198,6 +199,12 @@
           {
             inputsFrom = with pkgs.localPackages; [ sbatch-tui ];
             buildInputs = [ pkgs.clang-tools_18 ];
+            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+          };
+          ufo = pkgs.mkShell
+          {
+            inputsFrom = [ (inputs.self.packages.x86_64-linux.ufo.override { version = null; }) ];
+            packages = [ pkgs.clang-tools_18 ];
             CMAKE_EXPORT_COMPILE_COMMANDS = "1";
           };
         };
