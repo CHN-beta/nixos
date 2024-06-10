@@ -122,15 +122,11 @@ namespace hpcstat::sql
         for (; old_data_it != old_query.end() && new_data_it != new_query.end(); ++old_data_it, ++new_data_it)
           if (*old_data_it != *new_data_it)
           {
-            std::cerr << fmt::format
-              ("Data mismatch: {} {} != {}.\n", nameof::nameof_type<T>(), old_data_it->Id, new_data_it->Id);
-            return std::nullopt;
+            std::cerr << "Data mismatch: {} {} != {}.\n"_f(nameof::nameof_type<T>(), old_data_it->Id, new_data_it->Id);
+            return {};
           }
         if (old_data_it != old_query.end() && new_data_it == new_query.end())
-        {
-          std::cerr << fmt::format("Data mismatch in {}.\n", nameof::nameof_type<T>());
-          return std::nullopt;
-        }
+          { std::cerr << "Data mismatch in {}.\n"_f(nameof::nameof_type<T>()); return {}; }
         else if constexpr (requires(T data) { data.Signature; })
         {
           std::vector<std::tuple<std::string, std::string, std::string>> diff;
@@ -182,8 +178,7 @@ namespace hpcstat::sql
       if (auto diff = job_submit.Time - submit_date; std::abs(diff) < 3600)
       {
         result = job_submit;
-        if (std::abs(diff) > 60)
-          std::cerr << fmt::format("large difference found: {} {}\n", job_id, diff);
+        if (std::abs(diff) > 60) std::cerr << "large difference found: {} {}\n"_f(job_id, diff);
         break;
       }
     return result;
@@ -267,11 +262,10 @@ namespace hpcstat::sql
       )
         wks1.row(row).values() = std::vector<std::string>
         {
-          Keys.contains(it->first) ? Keys[it->first].Username : "(unknown)",
-          it->first, fmt::format("{:.2f}", it->second.CpuTime),
-          std::to_string(it->second.LoginInteractive), std::to_string(it->second.LoginNonInteractive),
-          std::to_string(it->second.SubmitJob), std::to_string(it->second.FinishJobSuccess),
-          std::to_string(it->second.FinishJobFailed)
+          Keys.contains(it->first) ? Keys[it->first].Username : "(unknown)", it->first,
+          "{:.2f}"_f(it->second.CpuTime), "{}"_f(it->second.LoginInteractive),
+          "{}"_f(it->second.LoginNonInteractive), "{}"_f(it->second.SubmitJob),
+          "{}"_f(it->second.FinishJobSuccess), "{}"_f(it->second.FinishJobFailed)
         };
       doc.workbook().addWorksheet("StatisticsWithSubAccount");
       auto wks2 = doc.workbook().worksheet("StatisticsWithSubAccount");
@@ -285,10 +279,9 @@ namespace hpcstat::sql
         {
           (Keys.contains(it->first.first) ? Keys[it->first.first].Username : "(unknown)")
             + "::" + *it->first.second,
-          fmt::format("{:.2f}", it->second.CpuTime),
-          std::to_string(it->second.LoginInteractive), std::to_string(it->second.LoginNonInteractive),
-          std::to_string(it->second.SubmitJob), std::to_string(it->second.FinishJobSuccess),
-          std::to_string(it->second.FinishJobFailed)
+          "{:.2f}"_f(it->second.CpuTime), "{}"_f(it->second.LoginInteractive),
+          "{}"_f(it->second.LoginNonInteractive), "{}"_f(it->second.SubmitJob),
+          "{}"_f(it->second.FinishJobSuccess), "{}"_f(it->second.FinishJobFailed)
         };
       doc.workbook().deleteSheet("Sheet1");
       doc.save();

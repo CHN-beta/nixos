@@ -54,11 +54,8 @@ int main(int argc, const char** argv)
         sql::writedb(data);
         if (env::interactive())
         {
-          std::cout << fmt::format
-          (
-            "\33[2K\rLogged in as {} (Fingerprint: SHA256:{}{}).\n", Keys[*fp].Username, *fp,
-            sub_account ? fmt::format(" Subaccount {}", *sub_account) : ""
-          );
+          std::cout << "\33[2K\rLogged in as {} (Fingerprint: SHA256:{}{}).\n"_f
+            (Keys[*fp].Username, *fp, sub_account ? " Subaccount {}"_f(*sub_account) : "");
           if (auto disk_stat = disk::get(); !disk_stat)
             std::cerr << "Failed to get disk usage statistic.\n";
           else
@@ -71,16 +68,16 @@ int main(int argc, const char** argv)
             std::cout
               << color << "disk usage: " << termcolor::reset
               << bgcolor << termcolor::white
-                << fmt::format("{:.1f}% ({:.1f}GB / ~800GB)", percent, disk_stat->Total) << termcolor::reset
-              << color << fmt::format(" (estimated, counted at {})\n", disk_stat->Time) << termcolor::reset;
+                << "{:.1f}% ({:.1f}GB / ~800GB)"_f(percent, disk_stat->Total) << termcolor::reset
+              << color << " (estimated, counted at {})\n"_f(disk_stat->Time) << termcolor::reset;
             if (percent > 80)
             {
               std::cout << color << "Top 3 directories owned by teacher:\n";
               for (auto& [name, size] : disk_stat->Teacher | ranges::views::take(3))
-                std::cout << fmt::format("  {:.1f}GB {}\n", size, name);
+                std::cout << "  {:.1f}GB {}\n"_f(size, name);
               std::cout << color << "Top 3 directories owned by student:\n";
               for (auto& [name, size] : disk_stat->Student | ranges::views::take(3))
-                std::cout << fmt::format("  {:.1f}GB {}\n", size, name);
+                std::cout << "  {:.1f}GB {}\n"_f(size, name);
               std::cout << termcolor::reset;
             }
           }
@@ -116,8 +113,7 @@ int main(int argc, const char** argv)
         data.Signature = *signature;
         lock.lock();
         sql::writedb(data);
-        std::cout << fmt::format
-          ("Job <{}> was submitted to <{}> by <{}>.\n", bsub->first, bsub->second, Keys[*fp].Username);
+        std::cout << "Job <{}> was submitted to <{}> by <{}>.\n"_f(bsub->first, bsub->second, Keys[*fp].Username);
       }
     }
     else if (args[1] == "finishjob")
@@ -165,7 +161,7 @@ int main(int argc, const char** argv)
       if (auto db_verify_result = sql::verify(args[2], args[3]); !db_verify_result) return 1;
       else for (auto& data : *db_verify_result)
         if (!std::apply(ssh::verify, data))
-          { std::cerr << fmt::format("Failed to verify data: {}\n", std::get<0>(data)); return 1; }
+          { std::cerr << "Failed to verify data: {}\n"_f(std::get<0>(data)); return 1; }
     }
     else if (args[1] == "export")
     {
@@ -176,11 +172,7 @@ int main(int argc, const char** argv)
       auto end = sys_seconds(sys_days(month(month_n) / 1 / year_n + months(1)))
         .time_since_epoch().count();
       lock.lock();
-      if 
-      (
-        !sql::export_data
-          (begin, end, fmt::format("hpcstat-{}-{}.xlsx", year_n, month_n))
-      )
+      if (!sql::export_data(begin, end, "hpcstat-{}-{}.xlsx"_f(year_n, month_n)))
         return 1;
     }
     else if (args[1] == "push")
@@ -195,7 +187,7 @@ int main(int argc, const char** argv)
       auto stat_thread = std::async(std::launch::async, []{ return disk::stat(); });
       std::cout << "Waiting for disk usage statistic to be collected... 0s" << std::flush;
       for (unsigned i = 1; stat_thread.wait_for(1s) != std::future_status::ready; i++)
-        std::cout << fmt::format("\rWaiting for disk usage statistic to be collected... {}s", i) << std::flush;
+        std::cout << "\rWaiting for disk usage statistic to be collected... {}s"_f(i) << std::flush;
       if (!stat_thread.get()) { std::cerr << "Failed to collect disk usage statistic.\n"; return 1; }
     }
     else { std::cerr << "Unknown command.\n"; return 1; }

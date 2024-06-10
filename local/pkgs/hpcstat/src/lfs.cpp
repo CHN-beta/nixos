@@ -17,7 +17,7 @@ namespace hpcstat::lfs
         {
           if (!valid_args.contains(it->substr(1)))
           {
-            std::cerr << fmt::format("Unknown bsub argument: {}\n", *it)
+            std::cerr << "Unknown bsub argument: {}\n"_f(*it)
               << "bsub might support this argument, but hpcstat currently does not support it.\n"
                 "If you are sure this argument is supported by bsub,\n"
                 "please submit issue on [github](https://github.com/CHN-beta/hpcstat) or contact chn@chn.moe.\n";
@@ -35,11 +35,7 @@ namespace hpcstat::lfs
         std::smatch match;
         if (std::regex_search(result.Stdout, match, re))
           return std::make_pair(std::stoi(match[1]), match[2]);
-        else
-        {
-          std::cerr << fmt::format("Failed to parse job id from output: {}\n", result.Stdout);
-          return std::nullopt;
-        }
+        else { std::cerr << "Failed to parse job id from output: {}\n"_f(result.Stdout); return std::nullopt; }
       }
     }
   }
@@ -61,10 +57,7 @@ namespace hpcstat::lfs
       nlohmann::json j;
       try { j = nlohmann::json::parse(result.Stdout); }
       catch (nlohmann::json::parse_error& e)
-      {
-        std::cerr << fmt::format("Failed to parse bjobs output: {}\n", e.what());
-        return std::nullopt;
-      }
+        { std::cerr << "Failed to parse bjobs output: {}\n"_f(e.what()); return std::nullopt; }
       std::map<unsigned, std::tuple<std::string, std::string, double, std::string>> jobs;
       for (auto& job : j["RECORDS"])
       {
@@ -76,7 +69,7 @@ namespace hpcstat::lfs
         {
           try { cpu_used = std::stof(cpu_used_str.substr(0, cpu_used_str.find(' '))); }
           catch (std::invalid_argument& e)
-            { std::cerr << fmt::format("Failed to parse cpu used: {}\n", e.what()); return std::nullopt; }
+            { std::cerr << "Failed to parse cpu used: {}\n"_f(e.what()); return std::nullopt; }
         }
         jobs[std::stoi(job["JOBID"].get<std::string>())] =
           { job["SUBMIT_TIME"], status, cpu_used, job["JOB_NAME"] };
@@ -86,12 +79,7 @@ namespace hpcstat::lfs
   }
   std::optional<std::string> bjobs_detail(unsigned jobid)
   {
-    if
-    (
-      auto result = biu::exec<{.SearchPath = true}>
-        ("bjobs", { "-l", std::to_string(jobid) });
-      !result
-    )
+    if (auto result = biu::exec<{.SearchPath = true}>("bjobs", { "-l", "{}"_f(jobid) }); !result)
       return std::nullopt;
     else return result.Stdout;
   }

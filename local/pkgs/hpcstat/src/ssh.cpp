@@ -28,7 +28,7 @@ namespace hpcstat::ssh
         ++i
       )
         if (Keys.contains(i->str(1))) return i->str(1);
-      std::cerr << fmt::format("No valid fingerprint found in:\n{}\n", output.Stdout);
+      std::cerr << "No valid fingerprint found in:\n{}\n"_f(output.Stdout);
       return std::nullopt;
     }
   }
@@ -44,15 +44,14 @@ namespace hpcstat::ssh
       (
         std::filesystem::path(*sshbindir) / "ssh-keygen",
         {
-          "-Y", "sign", "-q",
-          "-f", "{}/keys/{}"_f(*sharedir, Keys[fingerprint].PubkeyFilename),
+          "-Y", "sign", "-q", "-f", "{}/keys/{}"_f(*sharedir, Keys[fingerprint].PubkeyFilename),
           "-n", "hpcstat@chn.moe", "-"
         },
         message
       );
       !output
     )
-      { std::cerr << fmt::format("Failed to sign message: {}\n", message); return std::nullopt; }
+      { std::cerr << "Failed to sign message: {}\n"_f(message); return {}; }
     else return output.Stdout;
   }
   bool verify(std::string message, std::string signature, std::string fingerprint)

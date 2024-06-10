@@ -50,8 +50,6 @@ namespace biu
 
 namespace fmt
 {
-  using namespace biu::stream_operators;
-
   template <typename Char, biu::detail_::OptionalWrap Wrap> struct formatter<Wrap, Char>
     : biu::detail_::FormatterReuseProxy<typename biu::detail_::UnderlyingTypeOfOptionalWrap<Wrap>::Type>
   {

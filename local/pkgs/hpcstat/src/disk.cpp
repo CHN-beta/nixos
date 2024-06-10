@@ -67,12 +67,12 @@ namespace hpcstat::disk
         );
         !result
       )
-        { std::cerr << fmt::format("failed to ls {}\n", path.value_or("home")); return {}; }
+        { std::cerr << "failed to ls {}\n"_f(path); return {}; }
       else
       {
         std::smatch match;
         if (!std::regex_search(result.Stdout, match, std::regex(R"((\d+))")))
-          { std::cerr << fmt::format("failed to parse {}\n", result.Stdout); return std::nullopt; }
+          { std::cerr << "failed to parse {}\n"_f(result.Stdout); return std::nullopt; }
         return std::stod(match[1]) / 1024 / 1024 / 1024;
       }
     };
@@ -93,13 +93,13 @@ namespace hpcstat::disk
           ("{}/duc"_f(*ducbindir), { "info", "-d", "{}/duc.db"_f(*datadir) });
         !result
       )
-        { std::cerr << fmt::format("failed to get duc info\n"); return {}; }
+        { std::cerr << "failed to get duc info\n"; return {}; }
       else
       {
         std::smatch match;
         // search string like 2024-06-08 13:45:19
         if (!std::regex_search(result.Stdout, match, std::regex(R"((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}))")))
-          { std::cerr << fmt::format("failed to parse {}\n", result.Stdout); return {}; }
+          { std::cerr << "failed to parse {}\n"_f(result.Stdout); return {}; }
         return match[1];
       }
     };
@@ -111,7 +111,7 @@ namespace hpcstat::disk
       for (const auto& [dir, recursive] : Directories)
       {
         if (!std::filesystem::exists(*homedir + "/" + dir))
-          { std::cerr << fmt::format("{} does not exist\n", *homedir + "/" + dir); continue; }
+          { std::cerr << "{} does not exist\n"_f(*homedir + "/" + dir); continue; }
         if (auto size = get_size(dir)) usage.Teacher.push_back({ dir, *size });
         else return {};
         if (recursive) for (const auto& subdir : get_subdir(dir))

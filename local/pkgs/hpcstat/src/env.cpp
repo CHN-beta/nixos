@@ -8,7 +8,7 @@ namespace hpcstat::env
   {
     if (auto value = std::getenv(name.c_str()); !value)
     {
-      if (required) std::cerr << fmt::format("Failed to get environment variable {}\n", name);
+      if (required) std::cerr << "Failed to get environment variable {}\n"_f(name);
       return std::nullopt;
     }
     else return value;
