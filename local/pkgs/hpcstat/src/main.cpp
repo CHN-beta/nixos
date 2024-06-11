@@ -180,19 +180,12 @@ int main(int argc, const char** argv)
     else if (args[1] == "version") { std::cout << HPCSTAT_VERSION << std::endl; }
     else if (args[1] == "diskstat")
     {
-      auto stat_thread = std::async(std::launch::async, []{ return disk::stat(); });
-      std::cout << "Waiting for disk usage statistic to be collected... 0s" << std::flush;
-      for (unsigned i = 1; stat_thread.wait_for(1s) != std::future_status::ready; i++)
-        std::cout << "\rWaiting for disk usage statistic to be collected... {}s"_f(i) << std::flush;
-      if (!stat_thread.get()) { std::cerr << "Failed to collect disk usage statistic.\n"; return 1; }
+      if (auto stat = disk::stat(); !stat)
+        { std::cerr << "Failed to collect disk usage statistic.\n"; return 1; }
       else
       {
         lock.lock();
-        if
-        (
-          auto write_result = sql::writedb(sql::DiskData{.Data = biu::serialize<char>(*stat_thread.get())});
-          !write_result
-        )
+        if (auto write_result = sql::writedb(sql::DiskData{.Data = biu::serialize<char>(*stat)}); !write_result)
           { std::cerr << "Failed to write disk usage statistic to database.\n"; return 1; }
       }
     }

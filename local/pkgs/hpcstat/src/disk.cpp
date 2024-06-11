@@ -30,7 +30,7 @@ namespace hpcstat::disk
       { std::cerr << "HPCSTAT_DATADIR not set\n"; return {}; }
     else if
     (
-      auto result = biu::exec
+      auto result = biu::exec<{.DirectStdout = true, .DirectStderr = true}>
       (
         // duc index -d ./duc.db -p ~
         "{}/duc"_f(*ducbindir),
