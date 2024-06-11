@@ -20,14 +20,14 @@ namespace hpcstat::disk
     { "zhanhuahan", false }
   };
 
-  std::optional<Usage> stat()
+  bool stat()
   {
     if (auto homedir = env::env("HOME"); !homedir)
-      { std::cerr << "HOME not set\n"; return {}; }
+      { std::cerr << "HOME not set\n"; return false; }
     else if (auto ducbindir = env::env("HPCSTAT_DUC_BINDIR"); !ducbindir)
-      { std::cerr << "HPCSTAT_DUC_BINDIR not set\n"; return {}; }
+      { std::cerr << "HPCSTAT_DUC_BINDIR not set\n"; return false; }
     else if (auto datadir = env::env("HPCSTAT_DATADIR"); !datadir)
-      { std::cerr << "HPCSTAT_DATADIR not set\n"; return {}; }
+      { std::cerr << "HPCSTAT_DATADIR not set\n"; return false; }
     else if
     (
       auto result = biu::exec<{.DirectStdout = true, .DirectStderr = true}>
@@ -38,7 +38,18 @@ namespace hpcstat::disk
       );
       !result
     )
-      { std::cerr << "failed to index\n"; return {}; }
+      { std::cerr << "failed to index\n"; return false; }
+    else return true;
+  }
+
+  std::optional<Usage> get()
+  {
+    if (auto homedir = env::env("HOME"); !homedir)
+      { std::cerr << "HOME not set\n"; return {}; }
+    else if (auto ducbindir = env::env("HPCSTAT_DUC_BINDIR"); !ducbindir)
+      { std::cerr << "HPCSTAT_DUC_BINDIR not set\n"; return {}; }
+    else if (auto datadir = env::env("HPCSTAT_DATADIR"); !datadir)
+      { std::cerr << "HPCSTAT_DATADIR not set\n"; return {}; }
     else
     {
       auto get_size  = [&](std::optional<std::string> path) -> std::optional<double>
@@ -87,7 +98,7 @@ namespace hpcstat::disk
         {
           std::smatch match;
           // search string like 2024-06-08 13:45:19
-          if (!std::regex_search(result.Stdout, match, std::regex(R"((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}))")))
+          if (!std::regex_search(result.Stdout, match, R"((\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}))"_re))
             { std::cerr << "failed to parse {}\n"_f(result.Stdout); return {}; }
           return match[1];
         }

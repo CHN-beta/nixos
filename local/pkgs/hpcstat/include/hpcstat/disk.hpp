@@ -11,6 +11,8 @@ namespace hpcstat::disk
     std::string Time;
     using serialize = zpp::bits::members<4>;
   };
-  // 刷新 duc 数据库，并读取
-  std::optional<Usage> stat();
+  // 刷新 duc 数据库
+  bool stat();
+  // 从 duc 数据库中读取数据
+  std::optional<Usage> get();
 }

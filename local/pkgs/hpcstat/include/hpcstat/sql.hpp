@@ -68,6 +68,4 @@ namespace hpcstat::sql
   // 如果没有找到提交时的信息，则忽略这个任务
   std::optional<std::map<unsigned, std::tuple<std::string, std::string, std::string, std::optional<std::string>>>>
     check_job_status();
-  // 获取最新的磁盘使用情况
-  std::optional<std::string> get_disk();
 }
