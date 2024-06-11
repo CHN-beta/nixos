@@ -141,7 +141,7 @@ inputs:
         };
         xrdp = { enable = true; hostname = [ "pc.chn.moe" ]; };
       };
-      bugs = [ "xmunet" "backlight" "amdpstate" "hibernate-mt7921e" "suspend-hibernate-no-platform" ];
+      bugs = [ "xmunet" "backlight" "amdpstate" "suspend-hibernate-no-platform" ];
     };
     boot.kernelParams = [ "acpi_osi=!" ''acpi_osi="Windows 2015"'' ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
