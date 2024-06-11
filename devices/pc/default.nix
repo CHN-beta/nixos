@@ -75,7 +75,7 @@ inputs:
       {
         waydroid.enable = true;
         docker.enable = true;
-        kvmHost = { enable = true; gui = true; autoSuspend = [ "win10" "hardconnect" ]; };
+        kvmHost = { enable = true; gui = true; };
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
       };
       services =
