@@ -58,6 +58,8 @@ inputs:
                 yutengjing.open-in-external-app
                 # ChatGPT-like plugin
                 codeium.codeium
+                # git graph
+                mhutchie.git-graph
               ];
         }
       )];
