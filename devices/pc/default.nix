@@ -143,7 +143,7 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "hibernate-mt7921e" "suspend-hibernate-no-platform" ];
     };
-    boot.kernelParams = [ "acpi_osi=!" ''acpi_osi="Windows 2015"'' ];
+    boot.kernelParams = [ "acpi_osi=!" ''acpi_osi="Windows 2015"'' "nvidia.NVreg_EnableGpuFirmware=0" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
     environment.persistence."/nix/archive" =
