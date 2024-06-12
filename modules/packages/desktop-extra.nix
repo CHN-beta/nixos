@@ -9,7 +9,8 @@ inputs:
         _packages =
         [
           # system management
-          btrfs-assistant snapper-gui kdePackages.qtstyleplugin-kvantum ventoy-full cpu-x # etcher
+          btrfs-assistant snapper-gui kdePackages.qtstyleplugin-kvantum ventoy-full cpu-x
+          inputs.pkgs."pkgs-23.11".etcher
           # password and key management
           yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden
           # download
