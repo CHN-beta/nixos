@@ -144,7 +144,6 @@ inputs:
       bugs = [ "xmunet" "backlight" "amdpstate" "suspend-hibernate-no-platform" ];
     };
     boot.kernelParams = [ "acpi_osi=!" ''acpi_osi="Windows 2015"'' "mt7921e.disable_aspm=y" ];
-    chaotic.scx.enable = true;
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
     environment.persistence."/nix/archive" =
