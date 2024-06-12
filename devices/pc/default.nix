@@ -63,7 +63,12 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu = { type = "nvidia"; nvidia = { dynamicBoost = true; driver = "beta"; }; }; legion = {};
+        gpu =
+        {
+          type = "amd+nvidia";
+          nvidia = { prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; driver = "beta"; };
+        };
+        legion = {};
       };
       packages.packageSet = "workstation";
       virtualization =
@@ -126,7 +131,7 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
-        gamemode = { enable = true; drmDevice = 0; };
+        gamemode = { enable = true; drmDevice = 1; };
         slurm =
         {
           enable = true;
@@ -151,15 +156,14 @@ inputs:
     };
     specialisation =
     {
-      hybrid.configuration =
+      nvidia.configuration =
       {
         nixos =
         {
-          hardware.gpu = 
-            { type = inputs.lib.mkForce "amd+nvidia"; nvidia.prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; };
-          services.gamemode.drmDevice = inputs.lib.mkForce 1;
+          hardware.gpu.type = inputs.lib.mkForce "nvidia";
+          services.gamemode.drmDevice = inputs.lib.mkForce 0;
         };
-        system.nixos.tags = [ "hybrid" ];
+        system.nixos.tags = [ "nvidia" ];
       };
     };
   };
