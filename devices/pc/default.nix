@@ -143,7 +143,7 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
-    boot.kernelParams = [ "acpi_osi=!" ''acpi_osi="Windows 2015"'' "mt7921e.disable_aspm=y" ];
+    boot.kernelParams = [ "acpi_osi=!" ''acpi_osi="Windows 2015"'' "mt7921e.disable_aspm=y" "amdgpu.sg_display=0" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
     environment.persistence."/nix/archive" =
