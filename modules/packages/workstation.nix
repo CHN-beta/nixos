@@ -28,6 +28,7 @@ inputs:
           appflowy notion-app-enhanced joplin-desktop standardnotes logseq
           # math, physics and chemistry
           (mathematica.overrideAttrs (prev: { postInstall = prev.postInstall or "" + "ln -s ${src} $out/src"; }))
+          (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; })
           paraview jmol mpi # quantum-espresso # localPackages.mumax
           # encryption and password management
           john crunch hashcat
