@@ -29,7 +29,7 @@ inputs:
           # math, physics and chemistry
           (mathematica.overrideAttrs (prev: { postInstall = prev.postInstall or "" + "ln -s ${src} $out/src"; }))
           (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; })
-          paraview jmol mpi # quantum-espresso # localPackages.mumax
+          paraview jmol mpi localPackages.mumax
           # encryption and password management
           john crunch hashcat
           # container and vm
