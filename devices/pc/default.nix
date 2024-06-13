@@ -153,6 +153,7 @@ inputs:
         (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
         [ "lammps-SiC" "BPD-paper" "kurumi-asmr" "linwei-stuff" "BPD-paper-old" ];
     };
+    hardware.nvidia.open = true;
     specialisation =
     {
       nvidia.configuration =
