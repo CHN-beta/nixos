@@ -38,7 +38,11 @@ inputs:
     nixos.services =
     {
       postgresql.instances.vikunja = {};
-      nginx = { enable = true; https.${vikunja.hostname}.global.configName = vikunja.hostname; };
+      nginx =
+      {
+        enable = true;
+        https.${vikunja.hostname}.location."/".proxy.upstream = "http://127.0.0.1:${builtins.toString vikunja.port}";
+      };
     };
   };
 }
