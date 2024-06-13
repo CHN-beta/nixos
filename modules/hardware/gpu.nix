@@ -64,8 +64,12 @@ inputs:
             dynamicBoost.enable = inputs.lib.mkIf gpu.nvidia.dynamicBoost true;
             nvidiaSettings = true;
             forceFullCompositionPipeline = true;
-            package = inputs.config.boot.kernelPackages.nvidiaPackages.${gpu.nvidia.driver};
+            package =
+              let actualDriver = { production = "legacy_535"; }.${gpu.nvidia.driver} or gpu.nvidia.driver;
+              in inputs.config.boot.kernelPackages.nvidiaPackages.${actualDriver};
             prime.allowExternalGpu = true;
+            # nvidia 555 package have some bug, should use open
+            open = inputs.lib.mkIf (gpu.nvidia.driver == "beta") true;
           };
         };
         boot =
