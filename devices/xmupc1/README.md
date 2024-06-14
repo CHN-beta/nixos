@@ -16,10 +16,25 @@ SLURM 是一个用来对任务排队的系统，轮到某个任务时，再调�
 
 ## 常用命令
 
+我做了一个 TUI 界面，用起来比较简单，大多情况下可以满足需求。命令为：
+
+```bash
+sbatch-tui
+```
+
+或
+
+```bash
+sbatch
+```
+
+如果需要在提交任务时指定更详细的细节，或者要编写脚本批量提交任务，则在 `sbatch` 后面加上参数，这时是直接调用来自 SLURM 的 `sbatch` 命令。
+常用的参数见下文。更详细的内容见 SLURM 的官方文档。
+
 提交一个 VASP GPU 任务的例子：
 
 ```bash
-sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia-640
+sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia
 ```
 
 * `--gpus` 指定使用GPU 的情况：
@@ -30,12 +45,12 @@ sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia-640
 * `--ntasks-per-gpu=1` 对于 VASP 来说一定要写。
 * `--job-name=xxx` 指定任务的名字。可以简写为 `-J`。也可以不指定。
 * 默认情况下，一个 task 会搭配分配一个 CPU 核（一个线程），一般已经够用。如果一定要修改，用 `--cpus-per-task`。
-* `vasp-nvidia-640` 指调用 std 版本，要使用 gam 或 ncl 版本时，写为例如 `vasp-nvidia-640-gam`。
+* `vasp-nvidia` 指调用 std 版本，要使用 gam 或 ncl 版本时，写为例如 `vasp-nvidia-gam`。
 
 提交一个 VASP CPU 任务的例子：
 
 ```bash
-sbatch --ntasks=4 --cpus-per-task=4 --hint=nomultithread --job-name="my great job" vasp-intel-640
+sbatch --ntasks=4 --cpus-per-task=4 --hint=nomultithread --job-name="my great job" vasp-intel
 ```
 
 * `--ntasks=4 --cpus-per-task=4` 指定使用占用多少核。
@@ -45,7 +60,7 @@ sbatch --ntasks=4 --cpus-per-task=4 --hint=nomultithread --job-name="my great jo
     * 对于 xmupc2：`--ntasks=4 --cpus-per-task=10`。
 * `--hint=nomultithread` 记得写。
 * `--job-name=xxx` 指定任务的名字。可以简写为 `-J`。也可以不指定。
-* `vasp-intel-640` 指调用 std 版本，要使用 gam 或 ncl 版本时，写为例如 `vasp-intel-640-gam`。
+* `vasp-intel` 指调用 std 版本，要使用 gam 或 ncl 版本时，写为例如 `vasp-intel-gam`。
 
 要把其它程序提交到队列里，也是类似的写法。请自行举一反三。
 
@@ -186,7 +201,6 @@ samba 就是 windows 共享文件夹的那个协议。
 
 VASP 有很多很多个版本，具体来说：
 
-* VASP 多个版本可以共存，但为了简单只安装了 6.4.0 版本。
 * VASP 可以用不同的编译器编译。目前安装的有：nvidia、intel。nvidia 使用 GPU 计算，intel 能用 CPU 计算。其它版本性能不佳，没有安装。
 * VASP 的 std/gam/ncl 版本有一点区别，一般用 std，只有一个 gamma 点的时候用 gam 会快一点，系统中存在方向不平行的磁矩时必须用 ncl。
 * 无论哪个版本，都集成了下面这些补丁：
@@ -199,14 +213,14 @@ VASP 有很多很多个版本，具体来说：
 如何提交 VASP 到队列系统已经在上面介绍过了。下面的例子是，如果要直接运行一个任务的写法：
 
 ```bash
-vasp-nvidia-640-env mpirun -np 1 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x CUDA_VISIBLE_DEVICES=0 -x OMP_NUM_THREADS=4 vasp-std
-vasp-intel-640-env mpirun -n 2 -genv OMP_NUM_THREADS=4 vasp-std
+vasp-nvidia-env mpirun -np 1 -x CUDA_DEVICE_ORDER=PCI_BUS_ID -x CUDA_VISIBLE_DEVICES=0 -x OMP_NUM_THREADS=4 vasp-std
+vasp-intel-env mpirun -n 2 -genv OMP_NUM_THREADS=4 vasp-std
 ```
 
 其中 `CUDA_VISIBLE_DEVICES` 用于指定用哪几个显卡计算（多个显卡用逗号分隔）。
-要查看显卡的编号，可以用 `CUDA_DEVICE_ORDER=PCI_BUS_ID vasp-nvidia-640-env nvaccelinfo` 命令。
+要查看显卡的编号，可以用 `CUDA_DEVICE_ORDER=PCI_BUS_ID vasp-nvidia-env nvaccelinfo` 命令。
 
-这里 `vasp-xxx-6.4.0` 命令的作用是，进入一个安装了对应版本的 VASP 的环境，实际上和 VASP 关系不大；
+这里 `vasp-xxx-env` 命令的作用是，进入一个安装了对应版本的 VASP 的环境，实际上和 VASP 关系不大；
   后面的 `mpirun xxx` 才是真的调用 VASP。
 所以实际上你也可以在这个环境里做别的事情，例如执行上面的 `nvaccelinfo` 命令。
 
