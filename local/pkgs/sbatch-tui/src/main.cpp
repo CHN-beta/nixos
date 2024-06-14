@@ -16,16 +16,11 @@ int main()
   {
     int vasp_version_selected = 0;
     std::vector<std::string> vasp_version_entries = { "std", "gam", "ncl" };
-    int device_selected = 0;
-    std::vector<std::string> device_entries = []
-    {
-      std::vector<std::string> devices(Device.GpuIds.size() + 2);
-      for (std::size_t i = 0; i < Device.GpuIds.size(); ++i)
-        devices[i + 1] = Device.GpuIds[i];
-      devices[0] = "any single GPU";
-      devices.back() = "CPU";
-      return devices;
-    }();
+    int device_type_selected = 0;
+    std::vector<std::string> device_type_entries = { "any single GPU", "manually select GPU", "CPU" };
+    std::deque<bool> device_selected = std::deque<bool>(Device.GpuIds.size(), false);
+    std::vector<std::string> device_entries = Device.GpuIds;
+
     std::string user_command;
     std::string submit_command;
   } state;
@@ -52,8 +47,27 @@ int main()
   ({
     ftxui::Menu(&state.vasp_version_entries, &state.vasp_version_selected)
       | with_title("Select VASP version:"),
-    ftxui::Menu(&state.device_entries, &state.device_selected)
-      | with_title("Select device:"),
+    ftxui::Container::Horizontal
+    ({
+      ftxui::Menu(&state.device_type_entries, &state.device_type_selected),
+      ftxui::Container::Vertical([&]
+      {
+        std::vector<std::shared_ptr<ftxui::ComponentBase>> devices;
+        auto checkbox_option = ftxui::CheckboxOption::Simple();
+        checkbox_option.transform = [](const ftxui::EntryState& s)
+        {
+          auto prefix = ftxui::text(s.state ? "[X] " : "[ ] ");
+          auto t = ftxui::text(s.label);
+          if (s.active) t |= ftxui::bold;
+          if (s.focused) t |= ftxui::inverted;
+          return ftxui::hbox({prefix, t});
+        };
+        for (int i = 0; i < state.device_selected.size(); i++)
+          devices.push_back(ftxui::Checkbox
+            (state.device_entries[i], &state.device_selected[i], checkbox_option));
+        return devices;
+      }()) | ftxui::Maybe([&]{ return state.device_type_selected == 1; })
+    }) | with_title("Select device:"),
     ftxui::Container::Horizontal
     ({
       ftxui::Button("Continue",
@@ -90,35 +104,41 @@ int main()
   while (true)
   {
     screen.Loop(request_interface);
-    if (state.user_command == "quit")
-      return EXIT_FAILURE;
-    else if (state.user_command != "continue")
-      throw std::runtime_error("user_command is not recognized");
-    else if (state.device_selected < 0 || state.device_selected >= state.device_entries.size())
-      throw std::runtime_error("device_selected is out of range");
-    else if (state.device_selected == 0) state.submit_command =
-      "sbatch --ntasks=1\n--gpus=1\n--job-name='{}'\n--output=output.txt\nvasp-nvidia-{}"_f
-        (std::filesystem::current_path().filename().string(), state.vasp_version_entries[state.vasp_version_selected]);
-    else if (state.device_selected == state.device_entries.size() - 1) state.submit_command =
-      "sbatch --ntasks={}\n--cpus-per-task={}\n--hint=nomultithread\n--job-name='{}'\n--output=output.txt"
+    if (state.user_command == "quit") return EXIT_FAILURE;
+    else if (state.device_type_selected == 0)
+      state.submit_command =
+        "sbatch --ntasks=1\n--gpus=1\n--job-name='{}'\n--output=output.txt\nvasp-nvidia-{}"_f
+        (
+          std::filesystem::current_path().filename().string(),
+          state.vasp_version_entries[state.vasp_version_selected]
+        );
+    else if (state.device_type_selected == 2)
+      state.submit_command =
+        "sbatch --ntasks={}\n--cpus-per-task={}\n--hint=nomultithread\n--job-name='{}'\n--output=output.txt"
         "\nvasp-intel-{}"_f
-      (
-        Device.CpuMpiThreads, Device.CpuOpenmpThreads, std::filesystem::current_path().filename().string(),
-        state.vasp_version_entries[state.vasp_version_selected]
-      );
-    else state.submit_command =
-      "sbatch --ntasks=1\n--gpus={}:1\n--job-name='{}'\n--output=output.txt\nvasp-nvidia-{}"_f
-      (
-        state.device_entries[state.device_selected], std::filesystem::current_path().filename().string(),
-        state.vasp_version_entries[state.vasp_version_selected]
-      );
+        (
+          Device.CpuMpiThreads, Device.CpuOpenmpThreads, std::filesystem::current_path().filename().string(),
+          state.vasp_version_entries[state.vasp_version_selected]
+        );
+    else
+    {
+      std::vector<std::string> selected_gpus;
+      for (int i = 0; i < state.device_selected.size(); i++)
+        if (state.device_selected[i]) selected_gpus.push_back(state.device_entries[i]);
+      state.submit_command =
+        "sbatch --ntasks={}\n--gres={}\n--job-name='{}'\n--output=output.txt\nvasp-nvidia-{}"_f
+        (
+          selected_gpus.size(),
+          selected_gpus
+            | ranges::views::transform([](auto& entry) { return "gpu:{}:1"_f(entry); })
+            | ranges::views::join(',') | ranges::to<std::string>,
+          std::filesystem::current_path().filename().string(),
+          state.vasp_version_entries[state.vasp_version_selected]
+        );
+    }
     screen.Loop(confirm_interface);
-    if (state.user_command == "quit")
-      return EXIT_FAILURE;
-    else if (state.user_command == "back")
-      continue;
-    else if (state.user_command != "submit")
-      throw std::runtime_error("user_command is not recognized");
+    if (state.user_command == "quit") return EXIT_FAILURE;
+    else if (state.user_command == "back") continue;
     submit(state.submit_command);
     break;
   }
