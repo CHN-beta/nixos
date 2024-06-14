@@ -68,17 +68,14 @@ inputs:
               let actualDriver = { production = "legacy_535"; }.${gpu.nvidia.driver} or gpu.nvidia.driver;
               in inputs.config.boot.kernelPackages.nvidiaPackages.${actualDriver};
             prime.allowExternalGpu = true;
+            # nvidia 555 package have some bug, should use open
+            open = inputs.lib.mkIf (gpu.nvidia.driver == "beta") true;
           };
         };
         boot =
         {
-          kernelParams =
-            let params =
-            {
-              amd = [ "radeon.cik_support=0" "amdgpu.cik_support=1" "radeon.si_support=0" "amdgpu.si_support=1" ];
-              nvidia = if gpu.nvidia.driver == "beta" then [ "nvidia.NVreg_EnableGpuFirmware=0" ] else [];
-            };
-            in builtins.concatLists (builtins.map (gpu: params.gpu or []) gpus);
+          kernelParams = inputs.lib.mkIf (builtins.elem "amd" gpus)
+            [ "radeon.cik_support=0" "amdgpu.cik_support=1" "radeon.si_support=0" "amdgpu.si_support=1" ];
           blacklistedKernelModules = [ "nouveau" ];
         };
         environment.variables.VDPAU_DRIVER = inputs.lib.mkIf (builtins.elem "intel" gpus) "va_gl";
