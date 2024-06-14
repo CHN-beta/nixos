@@ -143,7 +143,16 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
-    boot.kernelParams = [ "acpi_osi=!" ''acpi_osi="Windows 2015"'' "mt7921e.disable_aspm=y" "amdgpu.sg_display=0" ];
+    boot.kernelParams =
+    [
+      "acpi_osi=!" ''acpi_osi="Windows 2015"''
+      "mt7921e.disable_aspm=y"  # 避免休眠恢复后无wifi
+      "amdgpu.sg_display=0"     # 混合模式下避免外接屏幕闪烁，和内置外接屏幕延迟
+      "acpi.ec_no_wakeup"       # 睡眠时避免开盖唤醒
+    ];
+    # 禁止鼠标等在睡眠时唤醒
+    systemd.tmpfiles.rules = builtins.map (dev: "w+ /proc/acpi/wakeup - - - - ${dev}")
+      [ "GPP0" "GPP1" "GPP2" "GPP3" "GPP5" "GP17" "XHC0" "XHC1" "XHC2" ] ;
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
     environment.persistence."/nix/archive" =
