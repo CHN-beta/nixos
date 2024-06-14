@@ -40,6 +40,9 @@ int main()
     auto empty = ftxui::emptyElement() | ftxui::flex_grow;
     return ftxui::vbox(empty, ftxui::hbox(empty, element | ftxui::center, empty), empty);
   };
+  // 在组件左边增加分割线
+  auto with_separator = [](ftxui::Element element)
+    { return ftxui::hbox(ftxui::separatorLight(), element); };
 
   // 构建界面
   auto screen = ftxui::ScreenInteractive::Fullscreen();
@@ -66,7 +69,7 @@ int main()
           devices.push_back(ftxui::Checkbox
             (state.device_entries[i], &state.device_selected[i], checkbox_option));
         return devices;
-      }()) | ftxui::Maybe([&]{ return state.device_type_selected == 1; })
+      }()) | with_separator | ftxui::Maybe([&]{ return state.device_type_selected == 1; })
     }) | with_title("Select device:"),
     ftxui::Container::Horizontal
     ({
