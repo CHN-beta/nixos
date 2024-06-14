@@ -1,0 +1,16 @@
+diff --git a/disable-splice.patch b/disable-splice.patch
+new file mode 100644
+index 0000000..e69de29
+diff --git a/proxy/proxy.go b/proxy/proxy.go
+index 6a5a179..ca71241 100644
+--- a/proxy/proxy.go
++++ b/proxy/proxy.go
+@@ -474,7 +474,7 @@ func CopyRawConnIfExist(ctx context.Context, readerConn net.Conn, writerConn net
+ 	readerConn, readCounter, _ := UnwrapRawConn(readerConn)
+ 	writerConn, _, writeCounter := UnwrapRawConn(writerConn)
+ 	reader := buf.NewReader(readerConn)
+-	if inbound := session.InboundFromContext(ctx); inbound != nil {
++	if inbound := session.InboundFromContext(ctx); false {
+ 		if tc, ok := writerConn.(*net.TCPConn); ok && readerConn != nil && writerConn != nil && (runtime.GOOS == "linux" || runtime.GOOS == "android") {
+ 			for inbound.CanSpliceCopy != 3 {
+ 				if inbound.CanSpliceCopy == 1 {

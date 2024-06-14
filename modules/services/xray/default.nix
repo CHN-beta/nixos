@@ -50,7 +50,13 @@ inputs:
       {
         services =
         {
-          xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-client.json".path; };
+          xray =
+          {
+            enable = true;
+            settingsFile = inputs.config.sops.templates."xray-client.json".path;
+            package = inputs.pkgs.xray.overrideAttrs
+              (prev: { patches = prev.patches or [] ++ [ ./disable-splice.patch ];});
+          };
           dnsmasq =
           {
             enable = true;
@@ -328,7 +334,13 @@ inputs:
     (
       inputs.lib.mkIf (xray.server != null) (let userList = builtins.genList (n: n) xray.server.userNumber; in
       {
-        services.xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
+        services.xray =
+        {
+          enable = true;
+          settingsFile = inputs.config.sops.templates."xray-server.json".path;
+          package = inputs.pkgs.xray.overrideAttrs
+            (prev: { patches = prev.patches or [] ++ [ ./disable-splice.patch ];});
+        };
         sops =
         {
           templates."xray-server.json" =
