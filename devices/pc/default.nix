@@ -149,7 +149,6 @@ inputs:
       "mt7921e.disable_aspm=y"  # 避免休眠恢复后无wifi
       "amdgpu.sg_display=0"     # 混合模式下避免外接屏幕闪烁，和内置外接屏幕延迟
       "acpi.ec_no_wakeup"       # 睡眠时避免开盖唤醒
-      "nvidia.NVreg_EnableGpuFirmware=0"
     ];
     # 禁止鼠标等在睡眠时唤醒
     services.udev.extraRules = ''ACTION=="add", ATTR{power/wakeup}="disabled"'';
@@ -162,7 +161,6 @@ inputs:
         (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
         [ "lammps-SiC" "BPD-paper" "kurumi-asmr" "linwei-stuff" "BPD-paper-old" ];
     };
-    hardware.nvidia.open = inputs.lib.mkForce false;
     specialisation =
     {
       nvidia.configuration =
