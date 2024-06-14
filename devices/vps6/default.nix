@@ -30,7 +30,7 @@ inputs:
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         initrd.sshd.enable = true;
         networking = { hostname = "vps6"; networkd = {}; };
-        kernel.variant = "cachyos-server";
+        # do not use cachyos kernel, beesd + cachyos kernel + heavy io = system freeze, not sure why
       };
       services =
       {
