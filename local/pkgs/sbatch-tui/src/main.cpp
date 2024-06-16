@@ -20,6 +20,10 @@ int main()
     std::vector<std::string> device_type_entries = { "any single GPU", "manually select GPU", "CPU" };
     std::deque<bool> device_selected = std::deque<bool>(Device.GpuIds.size(), false);
     std::vector<std::string> device_entries = Device.GpuIds;
+    std::string job_name = std::filesystem::current_path().filename().string();
+    std::string output_file = "output.txt";
+    std::string mpi_threads = std::to_string(Device.CpuMpiThreads);
+    std::string openmp_threads = std::to_string(Device.CpuOpenmpThreads);
 
     std::string user_command;
     std::string submit_command;
@@ -43,6 +47,9 @@ int main()
   // 在组件左边增加分割线
   auto with_separator = [](ftxui::Element element)
     { return ftxui::hbox(ftxui::separatorLight(), element); };
+  // 在组件左边增加小标题
+  auto with_subtitle = [](std::string title)
+    { return [title](ftxui::Element element) { return ftxui::hbox(ftxui::text(title), element); }; };
 
   // 构建界面
   auto screen = ftxui::ScreenInteractive::Fullscreen();
@@ -69,8 +76,17 @@ int main()
           devices.push_back(ftxui::Checkbox
             (state.device_entries[i], &state.device_selected[i], checkbox_option));
         return devices;
-      }()) | with_separator | ftxui::Maybe([&]{ return state.device_type_selected == 1; })
+      }()) | with_separator | ftxui::Maybe([&]{ return state.device_type_selected == 1; }),
+      ftxui::Container::Vertical
+      ({
+        ftxui::Input(&state.mpi_threads) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
+          | with_subtitle("MPI threads: "),
+        ftxui::Input(&state.openmp_threads) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
+          | with_subtitle("OpenMP threads: ")
+      }) | with_separator | ftxui::Maybe([&]{ return state.device_type_selected == 2; }),
     }) | with_title("Select device:"),
+    ftxui::Input(&state.job_name) | with_title("Job name:"),
+    ftxui::Input(&state.output_file) | with_title("Output file:"),
     ftxui::Container::Horizontal
     ({
       ftxui::Button("Continue",
@@ -110,17 +126,14 @@ int main()
     if (state.user_command == "quit") return EXIT_FAILURE;
     else if (state.device_type_selected == 0)
       state.submit_command =
-        "sbatch --ntasks=1\n--gpus=1\n--job-name='{}'\n--output=output.txt\nvasp-nvidia-{}"_f
-        (
-          std::filesystem::current_path().filename().string(),
-          state.vasp_version_entries[state.vasp_version_selected]
-        );
+        "sbatch --ntasks=1\n--gpus=1\n--job-name='{}'\n--output='{}'\nvasp-nvidia-{}"_f
+        (state.job_name, state.output_file, state.vasp_version_entries[state.vasp_version_selected]);
     else if (state.device_type_selected == 2)
       state.submit_command =
-        "sbatch --ntasks={}\n--cpus-per-task={}\n--hint=nomultithread\n--job-name='{}'\n--output=output.txt"
+        "sbatch --ntasks={}\n--cpus-per-task={}\n--hint=nomultithread\n--job-name='{}'\n--output='{}'"
         "\nvasp-intel-{}"_f
         (
-          Device.CpuMpiThreads, Device.CpuOpenmpThreads, std::filesystem::current_path().filename().string(),
+          state.mpi_threads, state.openmp_threads, state.job_name, state.output_file,
           state.vasp_version_entries[state.vasp_version_selected]
         );
     else
@@ -129,14 +142,13 @@ int main()
       for (int i = 0; i < state.device_selected.size(); i++)
         if (state.device_selected[i]) selected_gpus.push_back(state.device_entries[i]);
       state.submit_command =
-        "sbatch --ntasks={}\n--gres={}\n--job-name='{}'\n--output=output.txt\nvasp-nvidia-{}"_f
+        "sbatch --ntasks={}\n--gres={}\n--job-name='{}'\n--output='{}'\nvasp-nvidia-{}"_f
         (
           selected_gpus.size(),
           selected_gpus
             | ranges::views::transform([](auto& entry) { return "gpu:{}:1"_f(entry); })
             | ranges::views::join(',') | ranges::to<std::string>,
-          std::filesystem::current_path().filename().string(),
-          state.vasp_version_entries[state.vasp_version_selected]
+          state.job_name, state.output_file, state.vasp_version_entries[state.vasp_version_selected]
         );
     }
     screen.Loop(confirm_interface);
