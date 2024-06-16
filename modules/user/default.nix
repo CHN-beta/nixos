@@ -69,7 +69,7 @@ inputs:
                   keys = [ "rsa" "ed25519" "ed25519_sk" ];
                   getKey = user: key: inputs.lib.optional (builtins.pathExists ./${user}/id_${key}.pub)
                     (builtins.readFile ./${user}/id_${key}.pub);
-                in inputs.lib.mkDefault (builtins.concatLists (builtins.map (key: getKey userName key) keys));
+                in builtins.concatLists (builtins.map (key: getKey userName key) keys);
             };
           })
           user.users);
