@@ -125,7 +125,7 @@ inputs:
         matchBlocks = builtins.listToAttrs
         (
           (builtins.map
-            (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
+            (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; }; })
             [
               "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "wireguard.nas" "wireguard.surface"
               "wireguard.xmupc1" "wireguard.xmupc2"
