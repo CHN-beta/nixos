@@ -101,6 +101,7 @@
             in pkgs.pkgsStatic.localPackages.hpcstat.override
               { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
           ufo = pkgs.pkgsStatic.localPackages.ufo.override { version = inputs.self.rev or "dirty"; };
+          chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
           nixpkgs = pkgs;
         }
         // (
@@ -205,6 +206,12 @@
           {
             inputsFrom = [ (inputs.self.packages.x86_64-linux.ufo.override { version = null; }) ];
             packages = [ pkgs.clang-tools_18 ];
+            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+          };
+          chn-bsub = pkgs.mkShell
+          {
+            inputsFrom = with pkgs.localPackages; [ chn-bsub ];
+            buildInputs = [ pkgs.clang-tools_18 ];
             CMAKE_EXPORT_COMPILE_COMMANDS = "1";
           };
         };
