@@ -172,6 +172,11 @@ inputs:
         };
         system.nixos.tags = [ "nvidia" ];
       };
+      xanmod.configuration =
+      {
+        nixos.system.kernel.variant = inputs.lib.mkForce "xanmod-latest";
+        system.nixos.tags = [ "xanmod" ];
+      };
     };
   };
 }
