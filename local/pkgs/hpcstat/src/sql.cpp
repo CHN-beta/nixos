@@ -261,7 +261,7 @@ namespace hpcstat::sql
       }
       // export to markdown
       std::cout << "| 账号 | 使用核时 | 登陆次数(交互式) | 登陆次数(非交互式) | 成功任务数 | 失败任务数 | SSH密钥编号::指纹 |\n";
-      std::cout << "| :--: | :--: | :--: | :--: | :--: | :--: |\n";
+      std::cout << "| :--: | :--: | :--: | :--: | :--: | :--: | :--: |\n";
       for (auto& [key, stat] : stat_account)
         std::cout << "| {} | {:.2f} | {} | {} | {} | {} | `{}::{}` |\n"_f
         (
