@@ -251,6 +251,7 @@ namespace hpcstat::sql
           (sqlite_orm::between(&LoginData::Time, start_time, end_time)))
       )
       {
+        if (Keys[it.Key].Username == "hpcstat") continue;
         if (it.Interactive) stat_account[it.Key].LoginInteractive++; else stat_account[it.Key].LoginNonInteractive++;
         if (it.Subaccount)
         {
