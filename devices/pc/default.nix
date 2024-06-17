@@ -146,9 +146,9 @@ inputs:
     boot.kernelParams =
     [
       "acpi_osi=!" ''acpi_osi="Windows 2015"''
-      "mt7921e.disable_aspm=y"  # 避免休眠恢复后无wifi
+      "mt7921e.disable_aspm=y"  # 避免休眠恢复后无 wifi，似乎有时还是有问题
       "amdgpu.sg_display=0"     # 混合模式下避免外接屏幕闪烁，和内置外接屏幕延迟
-      "acpi.ec_no_wakeup"       # 睡眠时避免开盖唤醒
+      "acpi.ec_no_wakeup"       # 睡眠时避免开盖唤醒，似乎没有用
     ];
     # 禁止鼠标等在睡眠时唤醒
     services.udev.extraRules = ''ACTION=="add", ATTR{power/wakeup}="disabled"'';
