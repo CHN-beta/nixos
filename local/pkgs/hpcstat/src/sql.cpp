@@ -7,7 +7,6 @@
 # include <nameof.hpp>
 # define SQLITE_ORM_OPTIONAL_SUPPORTED
 # include <sqlite_orm/sqlite_orm.h>
-# include <OpenXLSX.hpp>
 
 namespace hpcstat::sql
 {
@@ -183,29 +182,30 @@ namespace hpcstat::sql
       }
     return result;
   }
-  bool export_data(long start_time, long end_time, std::string filename)
+  bool export_data(long start_time, long end_time)
   {
     if (auto conn = connect(); !conn) return false;
     else
     {
-      struct StatResult
+      // 对于一个账户的总计
+      struct StatAccount
       {
         double CpuTime = 0;
-        unsigned LoginInteractive = 0, LoginNonInteractive = 0, SubmitJob = 0, FinishJobSuccess = 0,
-          FinishJobFailed = 0;
-        StatResult& operator+=(const StatResult& rhs)
-        {
-          CpuTime += rhs.CpuTime;
-          LoginInteractive += rhs.LoginInteractive;
-          LoginNonInteractive += rhs.LoginNonInteractive;
-          SubmitJob += rhs.SubmitJob;
-          FinishJobSuccess += rhs.FinishJobSuccess;
-          FinishJobFailed += rhs.FinishJobFailed;
-          return *this;
-        }
+        unsigned LoginInteractive = 0, LoginNonInteractive = 0, FinishJobSuccess = 0, FinishJobFailed = 0;
       };
-      // Key SubAccount -> StatResult
-      std::map<std::pair<std::string, std::optional<std::string>>, StatResult> stat;
+      // Key SubAccount -> StatAccount
+      std::map<std::pair<std::string, std::string>, StatAccount> stat_subaccount;
+      // Key -> StatAccount
+      std::map<std::optional<std::string>, StatAccount> stat_account;
+      // 每一个任务
+      struct StatJob
+      {
+        unsigned JobId;
+        std::optional<std::string> Key, SessionId, SubmitDir, JobCommand, Ip;
+        std::string JobResult, SubmitTime;
+        double CpuTime;
+      };
+      std::vector<StatJob> stat_job;
       // CpuTime & FinishJobSuccess & FinishJobFailed
       for
       (
@@ -213,14 +213,36 @@ namespace hpcstat::sql
           (sqlite_orm::between(&FinishJobData::Time, start_time, end_time)))
       )
       {
-        auto job_in_submit = search_job_in_submit
-          (conn, it.JobId, it.SubmitTime);
-        std::pair<std::string, std::optional<std::string>> key;
-        if (!job_in_submit) key = { "", {} };
-        else key = std::make_pair(job_in_submit->Key, job_in_submit->Subaccount);
-        stat[key].CpuTime += it.CpuTime / 3600;
-        if (it.JobResult == "DONE") stat[key].FinishJobSuccess++;
-        else stat[key].FinishJobFailed++;
+        stat_job.push_back
+          ({ .JobId = it.JobId, .JobResult = it.JobResult, .SubmitTime = it.SubmitTime, .CpuTime = it.CpuTime });
+        if (auto job_in_submit = search_job_in_submit
+          (conn, it.JobId, it.SubmitTime))
+        {
+          {
+            auto& _ = stat_job.back();
+            _.Key = job_in_submit->Key;
+            _.SessionId = job_in_submit->SessionId;
+            _.SubmitDir = job_in_submit->SubmitDir;
+            _.JobCommand = job_in_submit->JobCommand;
+            _.Ip = job_in_submit->Ip;
+          }
+          stat_account[job_in_submit->Key].CpuTime += it.CpuTime / 3600;
+          if (it.JobResult == "DONE") stat_account[job_in_submit->Key].FinishJobSuccess++;
+          else stat_account[job_in_submit->Key].FinishJobFailed++;
+          if (job_in_submit->Subaccount)
+          {
+            stat_subaccount[{job_in_submit->Key, *job_in_submit->Subaccount}].CpuTime += it.CpuTime / 3600;
+            if (it.JobResult == "DONE")
+              stat_subaccount[{job_in_submit->Key, *job_in_submit->Subaccount}].FinishJobSuccess++;
+            else stat_subaccount[{job_in_submit->Key, *job_in_submit->Subaccount}].FinishJobFailed++;
+          }
+        }
+        else
+        {
+          stat_account[std::nullopt].CpuTime += it.CpuTime / 3600;
+          if (it.JobResult == "DONE") stat_account[std::nullopt].FinishJobSuccess++;
+          else stat_account[std::nullopt].FinishJobFailed++;
+        }
       }
       // LoginInteractive & LoginNonInteractive
       for
@@ -229,62 +251,35 @@ namespace hpcstat::sql
           (sqlite_orm::between(&LoginData::Time, start_time, end_time)))
       )
       {
-        auto key = std::make_pair(it.Key, it.Subaccount);
-        if (it.Interactive) stat[key].LoginInteractive++; else stat[key].LoginNonInteractive++;
+        if (it.Interactive) stat_account[it.Key].LoginInteractive++; else stat_account[it.Key].LoginNonInteractive++;
+        if (it.Subaccount)
+        {
+          if (it.Interactive) stat_subaccount[{it.Key, *it.Subaccount}].LoginInteractive++;
+          else stat_subaccount[{it.Key, *it.Subaccount}].LoginNonInteractive++;
+        }
       }
-      // SubmitJob
-      for
-      (
-        auto& it : conn->get_all<SubmitJobData>(sqlite_orm::where
-          (sqlite_orm::between(&SubmitJobData::Time, start_time, end_time)))
-      )
-        stat[{it.Key,it.Subaccount }].SubmitJob++;
-      // add all result with subaccount into result without subaccount
-      std::map<std::string, StatResult> stat_without_subaccount;
-      for (auto& [key, value] : stat) stat_without_subaccount[key.first] += value;
-      // remove all result without subaccount
-      std::erase_if(stat, [](auto& it) { return !it.first.second; });
-      // write to excel
-      OpenXLSX::XLDocument doc;
-      doc.create(filename);
-      doc.workbook().addWorksheet("Statistics");
-      auto wks1 = doc.workbook().worksheet("Statistics");
-      wks1.row(1).values() = std::vector<std::string>
-      {
-        "Username", "FingerPrint", "CpuTime", "LoginInteractive", "LoginNonInteractive",
-        "SubmitJob", "FinishJobSuccess", "FinishJobFailed"
-      };
-      for
-      (
-        auto [row, it] = std::tuple(2, stat_without_subaccount.begin());
-        it != stat_without_subaccount.end();
-        it++, row++
-      )
-        wks1.row(row).values() = std::vector<std::string>
-        {
-          Keys.contains(it->first) ? Keys[it->first].Username : "(unknown)", it->first,
-          "{:.2f}"_f(it->second.CpuTime), "{}"_f(it->second.LoginInteractive),
-          "{}"_f(it->second.LoginNonInteractive), "{}"_f(it->second.SubmitJob),
-          "{}"_f(it->second.FinishJobSuccess), "{}"_f(it->second.FinishJobFailed)
-        };
-      doc.workbook().addWorksheet("StatisticsWithSubAccount");
-      auto wks2 = doc.workbook().worksheet("StatisticsWithSubAccount");
-      wks2.row(1).values() = std::vector<std::string>
-      {
-        "Username::SubAccount", "CpuTime", "LoginInteractive", "LoginNonInteractive",
-        "SubmitJob", "FinishJobSuccess", "FinishJobFailed"
-      };
-      for (auto [row, it] = std::tuple(2, stat.begin()); it != stat.end(); it++, row++)
-        wks2.row(row).values() = std::vector<std::string>
-        {
-          (Keys.contains(it->first.first) ? Keys[it->first.first].Username : "(unknown)")
-            + "::" + *it->first.second,
-          "{:.2f}"_f(it->second.CpuTime), "{}"_f(it->second.LoginInteractive),
-          "{}"_f(it->second.LoginNonInteractive), "{}"_f(it->second.SubmitJob),
-          "{}"_f(it->second.FinishJobSuccess), "{}"_f(it->second.FinishJobFailed)
-        };
-      doc.workbook().deleteSheet("Sheet1");
-      doc.save();
+      // export to markdown
+      std::cout << "| 账号 | 使用核时 | 登陆次数(交互式) | 登陆次数(非交互式) | 成功任务数 | 失败任务数 | SSH密钥编号::指纹 |\n";
+      std::cout << "| :--: | :--: | :--: | :--: | :--: | :--: |\n";
+      for (auto& [key, stat] : stat_account)
+        std::cout << "| {} | {:.2f} | {} | {} | {} | {} | `{}::{}` |\n"_f
+        (
+          key ? Keys[*key].Username : "(unknown)", stat.CpuTime, stat.LoginInteractive, stat.LoginNonInteractive,
+          stat.FinishJobSuccess, stat.FinishJobFailed, key ? Keys[*key].PubkeyFilename : "", key
+        );
+      for (auto& [key_subaccount, stat] : stat_subaccount)
+        std::cout << "| {}::{} | {:.2f} | {} | {} | {} | {} | `{}::{}` |\n"_f
+        (
+          Keys[key_subaccount.first].Username, key_subaccount.second, stat.CpuTime,
+          stat.LoginInteractive, stat.LoginNonInteractive, stat.FinishJobSuccess, stat.FinishJobFailed,
+          Keys[key_subaccount.first].PubkeyFilename, key_subaccount.first
+        );
+      std::cout << "\n";
+      std::cout << "| 任务ID | 任务结果 | 提交时间 | 使用核时 | SSH指纹 | 会话ID | 提交目录 | 任务命令 | TCP连接 |\n";
+      std::cout << "| :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: |\n";
+      for (auto& it : stat_job)
+        std::cout << "| {} | {} | {} | {:.2f} | `{}` | `{}` | `{}` | `{}` | `{}` |\n"_f
+          (it.JobId, it.JobResult, it.SubmitTime, it.CpuTime, it.Key, it.SessionId, it.SubmitDir, it.JobCommand, it.Ip);
       return true;
     }
   }

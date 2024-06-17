@@ -167,7 +167,7 @@ int main(int argc, const char** argv)
       auto end = sys_seconds(sys_days(month(month_n) / 1 / year_n + months(1)))
         .time_since_epoch().count();
       lock.lock();
-      if (!sql::export_data(begin, end, "hpcstat-{}-{}.xlsx"_f(year_n, month_n)))
+      if (!sql::export_data(begin, end))
         return 1;
     }
     else if (args[1] == "push")

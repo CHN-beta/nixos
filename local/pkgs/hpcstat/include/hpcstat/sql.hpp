@@ -62,8 +62,8 @@ namespace hpcstat::sql
   // 三个字符串分别是序列化后的数据，签名，指纹
   std::optional<std::vector<std::tuple<std::string, std::string, std::string>>>
     verify(std::string old_db, std::string new_db);
-  // 将某个月份的数据导出到文件
-  bool export_data(long start_time, long end_time, std::string filename);
+  // 将某个月份的数据导出
+  bool export_data(long start_time, long end_time);
   // 检查任务状态，返回有变化的任务 id、名称、现在的状态、提交时的 key、subaccount
   // 如果没有找到提交时的信息，则忽略这个任务
   std::optional<std::map<unsigned, std::tuple<std::string, std::string, std::string, std::optional<std::string>>>>

@@ -18,7 +18,6 @@ find_path(ZPP_BITS_INCLUDE_DIR zpp_bits.h REQUIRED)
 find_package(range-v3 REQUIRED)
 find_path(NAMEOF_INCLUDE_DIR nameof.hpp REQUIRED)
 find_package(date REQUIRED)
-find_package(OpenXLSX REQUIRED)
 find_package(httplib REQUIRED)
 find_package(termcolor REQUIRED)
 find_package(biu REQUIRED)
@@ -28,7 +27,7 @@ add_executable(hpcstat src/main.cpp src/env.cpp src/keys.cpp src/ssh.cpp src/sql
 target_compile_features(hpcstat PRIVATE cxx_std_23)
 target_include_directories(hpcstat PRIVATE ${PROJECT_SOURCE_DIR}/include ${ZPP_BITS_INCLUDE_DIR})
 target_link_libraries(hpcstat PRIVATE Boost::headers Boost::filesystem sqlite_orm::sqlite_orm
-  nlohmann_json::nlohmann_json range-v3::range-v3 date::date date::date-tz OpenXLSX::OpenXLSX httplib::httplib
+  nlohmann_json::nlohmann_json range-v3::range-v3 date::date date::date-tz httplib::httplib
   termcolor::termcolor biu::biu)
 target_compile_definitions(hpcstat PRIVATE HPCSTAT_VERSION="${HPCSTAT_VERSION}")
 
