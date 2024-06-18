@@ -21,6 +21,7 @@ find_package(date REQUIRED)
 find_package(httplib REQUIRED)
 find_package(termcolor REQUIRED)
 find_package(biu REQUIRED)
+find_package(OpenXLSX REQUIRED)
 
 add_executable(hpcstat src/main.cpp src/env.cpp src/keys.cpp src/ssh.cpp src/sql.cpp src/lfs.cpp src/common.cpp
   src/push.cpp src/disk.cpp)
@@ -28,7 +29,7 @@ target_compile_features(hpcstat PRIVATE cxx_std_23)
 target_include_directories(hpcstat PRIVATE ${PROJECT_SOURCE_DIR}/include ${ZPP_BITS_INCLUDE_DIR})
 target_link_libraries(hpcstat PRIVATE Boost::headers Boost::filesystem sqlite_orm::sqlite_orm
   nlohmann_json::nlohmann_json range-v3::range-v3 date::date date::date-tz httplib::httplib
-  termcolor::termcolor biu::biu)
+  termcolor::termcolor biu::biu OpenXLSX::OpenXLSX)
 target_compile_definitions(hpcstat PRIVATE HPCSTAT_VERSION="${HPCSTAT_VERSION}")
 
 install(TARGETS hpcstat RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
