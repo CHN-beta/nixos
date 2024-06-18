@@ -43,6 +43,7 @@ inputs:
       command-not-found.enable = false;
       autojump.enable = true;
       direnv = { enable = true; nix-direnv.enable = true; };
+      mosh.enable = true;
     };
     services.udev.packages = with inputs.pkgs; [ yubikey-personalization libfido2 ];
     home-manager = { useGlobalPkgs = true; useUserPackages = true; };

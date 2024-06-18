@@ -26,11 +26,7 @@ inputs:
         ])];
       };
     };
-    programs =
-    {
-      yazi.enable = true;
-      mosh.enable = true;
-    };
+    programs.yazi.enable = true;
     services.fwupd.enable = true;
   };
 }
