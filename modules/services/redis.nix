@@ -36,5 +36,8 @@ inputs:
     sops.secrets = builtins.listToAttrs (builtins.map
       (server: { name = "redis/${server.name}"; value.owner = inputs.config.users.users.${server.value.user}.name; })
       (builtins.filter (server: server.value.passwordFile == null) (inputs.localLib.attrsToList redis.instances)));
+    systemd.services = builtins.listToAttrs (builtins.map
+      (server: { name = "redis-${server}"; value.serviceConfig.TimeoutStartSec = 0; })
+      (builtins.attrNames redis.instances));
   };
 }
