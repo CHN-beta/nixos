@@ -13,14 +13,14 @@ inputs:
     {
       virtualisation.oci-containers.containers.huginn =
       {
-        image = "huginn/huginn:2d5fcafc507da3e8c115c3479e9116a0758c5375";
+        image = "huginn/huginn:5a1509b51188e0d16868be893c983d6fcfd232a5";
         imageFile = inputs.pkgs.dockerTools.pullImage
         {
           imageName = "ghcr.io/huginn/huginn";
-          imageDigest = "sha256:aa694519b196485c6c31582dde007859fc8b8bbe9b1d4d94c6db8558843d0458";
-          sha256 = "0471v20d7ilwx81kyrxjcb90nnmqyyi9mwazbpy3z4rhnzv7pz76";
+          imageDigest = "sha256:6f7a5b41457b94490210221a8bd3aae32d4ebfc2652f97c14919aa8036d7294e";
+          sha256 = "1ha6c6bwdpdl98cwwxw5fan0j77ylgaziidqhnyh6anpzq35f540";
           finalImageName = "huginn/huginn";
-          finalImageTag = "2d5fcafc507da3e8c115c3479e9116a0758c5375";
+          finalImageTag = "5a1509b51188e0d16868be893c983d6fcfd232a5";
         };
         ports = [ "127.0.0.1:3000:3000/tcp" ];
         extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
