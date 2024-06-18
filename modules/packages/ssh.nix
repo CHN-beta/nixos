@@ -96,11 +96,11 @@ inputs:
         matchBlocks = builtins.listToAttrs
         (
           (builtins.map
+            (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
+            [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.nas" ])
+          ++ (builtins.map
             (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; }; })
-            [
-              "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "wireguard.nas" "wireguard.surface"
-              "wireguard.xmupc1" "wireguard.xmupc2"
-            ])
+            [ "wireguard.pc" "wireguard.surface" "wireguard.xmupc1" "wireguard.xmupc2" ])
           ++ (builtins.map
             (host:
             {
@@ -116,11 +116,11 @@ inputs:
             [ "wlin" "hwang" ])
         )
         // {
-          xmupc1 = { host = "xmupc1"; hostname = "xmupc1.chn.moe"; port = 6007; };
-          xmupc2 = { host = "xmupc2"; hostname = "xmupc2.chn.moe"; port = 6394; };
+          xmupc1 = { host = "xmupc1"; hostname = "xmupc1.chn.moe"; port = 6007; forwardX11 = true; };
+          xmupc2 = { host = "xmupc2"; hostname = "xmupc2.chn.moe"; port = 6394; forwardX11 = true; };
           nas = { host = "nas"; hostname = "office.chn.moe"; port = 5440; };
-          pc = { host = "pc"; hostname = "office.chn.moe"; port = 3673; };
-          surface = { host = "surface"; hostname = "192.168.1.166"; };
+          pc = { host = "pc"; hostname = "office.chn.moe"; port = 3673; forwardX11 = true; };
+          surface = { host = "surface"; hostname = "192.168.1.166"; forwardX11 = true; };
           gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
           jykang =
           {
