@@ -217,7 +217,7 @@ namespace hpcstat::sql
         stat_job.push_back
         ({
           .JobId = it.JobId, .JobResult = it.JobResult, .SubmitTime = it.SubmitTime, .JobDetail = it.JobDetail,
-          .CpuTime = it.CpuTime
+          .CpuTime = it.CpuTime / 3600
         });
         if (auto job_in_submit = search_job_in_submit
           (conn, it.JobId, it.SubmitTime))
