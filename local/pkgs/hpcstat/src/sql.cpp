@@ -7,6 +7,7 @@
 # include <nameof.hpp>
 # define SQLITE_ORM_OPTIONAL_SUPPORTED
 # include <sqlite_orm/sqlite_orm.h>
+# include <OpenXLSX.hpp>
 
 namespace hpcstat::sql
 {
@@ -182,7 +183,7 @@ namespace hpcstat::sql
       }
     return result;
   }
-  bool export_data(long start_time, long end_time)
+  bool export_data(long start_time, long end_time, std::string filename)
   {
     if (auto conn = connect(); !conn) return false;
     else
@@ -201,8 +202,8 @@ namespace hpcstat::sql
       struct StatJob
       {
         unsigned JobId;
-        std::optional<std::string> Key, SessionId, SubmitDir, JobCommand, Ip;
-        std::string JobResult, SubmitTime;
+        std::optional<std::string> Key, SubmitDir, JobCommand;
+        std::string JobResult, SubmitTime, JobDetail;
         double CpuTime;
       };
       std::vector<StatJob> stat_job;
@@ -214,17 +215,18 @@ namespace hpcstat::sql
       )
       {
         stat_job.push_back
-          ({ .JobId = it.JobId, .JobResult = it.JobResult, .SubmitTime = it.SubmitTime, .CpuTime = it.CpuTime });
+        ({
+          .JobId = it.JobId, .JobResult = it.JobResult, .SubmitTime = it.SubmitTime, .JobDetail = it.JobDetail,
+          .CpuTime = it.CpuTime
+        });
         if (auto job_in_submit = search_job_in_submit
           (conn, it.JobId, it.SubmitTime))
         {
           {
             auto& _ = stat_job.back();
             _.Key = job_in_submit->Key;
-            _.SessionId = job_in_submit->SessionId;
             _.SubmitDir = job_in_submit->SubmitDir;
             _.JobCommand = job_in_submit->JobCommand;
-            _.Ip = job_in_submit->Ip;
           }
           stat_account[job_in_submit->Key].CpuTime += it.CpuTime / 3600;
           if (it.JobResult == "DONE") stat_account[job_in_submit->Key].FinishJobSuccess++;
@@ -260,8 +262,8 @@ namespace hpcstat::sql
         }
       }
       // export to markdown
-      std::cout << "| 账号 | 使用核时 | 登陆次数(交互式) | 登陆次数(非交互式) | 成功任务数 | 失败任务数 | SSH密钥编号::指纹 |\n";
-      std::cout << "| :--: | :--: | :--: | :--: | :--: | :--: | :--: |\n";
+      std::cout << "| 账号 | 使用核时 | 登陆次数(总计/交互式/非交互式) | 完成任务(总计/成功/失败) | SSH密钥编号::指纹 |\n";
+      std::cout << "| :--: | :--: | :--: | :--: | :--: |\n";
       std::vector<std::pair<std::optional<std::string>, StatAccount>> stat_account_vector
         (stat_account.begin(), stat_account.end());
       auto compare = [](auto& a, auto& b)
@@ -272,10 +274,12 @@ namespace hpcstat::sql
       };
       std::sort(stat_account_vector.begin(), stat_account_vector.end(), compare);
       for (auto& [key, stat] : stat_account_vector)
-        std::cout << "| {} | {:.2f} | {} | {} | {} | {} | `{}::{}` |\n"_f
+        std::cout << "| {} | {:.2f} | {}/{}/{} | {}/{}/{} | `{}` |\n"_f
         (
-          key ? Keys[*key].Username : "(unknown)", stat.CpuTime, stat.LoginInteractive, stat.LoginNonInteractive,
-          stat.FinishJobSuccess, stat.FinishJobFailed, key ? Keys[*key].PubkeyFilename : "", key
+          key ? Keys[*key].Username : "(unknown)", stat.CpuTime,
+          stat.LoginInteractive + stat.LoginNonInteractive, stat.LoginInteractive, stat.LoginNonInteractive,
+          stat.FinishJobSuccess + stat.FinishJobFailed, stat.FinishJobSuccess, stat.FinishJobFailed,
+          key ? "{}::SHA256:{}"_f(Keys[*key].PubkeyFilename, *key) : "(unknown)"
         );
       for (auto& [key_subaccount, stat] : stat_subaccount)
         std::cout << "| {}::{} | {:.2f} | {} | {} | {} | {} | `{}::{}` |\n"_f
@@ -284,12 +288,24 @@ namespace hpcstat::sql
           stat.LoginInteractive, stat.LoginNonInteractive, stat.FinishJobSuccess, stat.FinishJobFailed,
           Keys[key_subaccount.first].PubkeyFilename, key_subaccount.first
         );
-      std::cout << "\n";
-      std::cout << "| 任务ID | 任务结果 | 提交时间 | 使用核时 | SSH指纹 | 会话ID | 提交目录 | 任务命令 | TCP连接 |\n";
-      std::cout << "| :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: | :--: |\n";
-      for (auto& it : stat_job)
-        std::cout << "| {} | {} | {} | {:.2f} | `{}` | `{}` | `{}` | `{}` | `{}` |\n"_f
-          (it.JobId, it.JobResult, it.SubmitTime, it.CpuTime, it.Key, it.SessionId, it.SubmitDir, it.JobCommand, it.Ip);
+      // export to excel
+      OpenXLSX::XLDocument doc;
+      doc.create(filename);
+      auto wks1 = doc.workbook().worksheet("Sheet1");
+      wks1.row(1).values() = std::vector<std::string>
+      {
+        "用户", "任务ID", "结果", "核时", "提交时间", "提交时当前目录", "提交命令",
+        "详情"
+      };
+      for (auto [row, it] = std::tuple(2, stat_job.begin()); it != stat_job.end(); it++, row++)
+        wks1.row(row).values() = std::vector<std::string>
+        {
+          Keys.contains(*it->Key) ? Keys[*it->Key].Username : "(unknown)",
+          "{}"_f(it->JobId), it->JobResult, "{:.2f}"_f(it->CpuTime), it->SubmitTime,
+          it->SubmitDir.value_or("(unknown)"), it->JobCommand.value_or("(unknown)"),
+          it->JobDetail
+        };
+      doc.save();
       return true;
     }
   }
