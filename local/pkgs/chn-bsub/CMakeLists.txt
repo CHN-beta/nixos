@@ -13,11 +13,12 @@ find_package(ftxui REQUIRED)
 find_package(Boost REQUIRED COMPONENTS filesystem iostreams)
 find_package(range-v3 REQUIRED)
 find_package(biu REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 add_executable(chn-bsub src/main.cpp)
 target_compile_features(chn-bsub PUBLIC cxx_std_23)
 target_link_libraries(chn-bsub PRIVATE fmt::fmt ftxui::screen ftxui::dom ftxui::component Boost::filesystem
-  range-v3::range-v3 biu::biu)
+  range-v3::range-v3 biu::biu nlohmann_json::nlohmann_json)
 
 install(TARGETS chn-bsub RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
