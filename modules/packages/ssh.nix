@@ -115,7 +115,7 @@ inputs:
             })
             [ "wlin" "hwang" ])
         )
-        // {
+        // rec {
           xmupc1 = { host = "xmupc1"; hostname = "xmupc1.chn.moe"; port = 6007; forwardX11 = true; };
           xmupc2 = { host = "xmupc2"; hostname = "xmupc2.chn.moe"; port = 6394; forwardX11 = true; };
           nas = { host = "nas"; hostname = "office.chn.moe"; port = 5440; };
@@ -130,6 +130,7 @@ inputs:
             forwardAgent = true;
             extraOptions.AddKeysToAgent = "yes";
           };
+          "internal.jykang" = jykang // { host = "internal.jykang"; proxyJump = "wireguard.nas"; };
         };
       };
     })];
