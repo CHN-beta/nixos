@@ -62,6 +62,7 @@ inputs:
                 config =
                 {
                   allowUnfree = true;
+                  contentAddressedByDefault = true;
                   permittedInsecurePackages = let pkgs = inputs.topInputs.nixpkgs.legacyPackages.${system}; in map
                     (package: pkgs.${package}.name)
                     (filter (package: pkgs ? ${package}) permittedInsecurePackages);
@@ -84,6 +85,7 @@ inputs:
                     config = cudaConfig //
                     {
                       allowUnfree = true;
+                      contentAddressedByDefault = true;
                       permittedInsecurePackages =
                         let pkgs = inputs.topInputs.${source.${name}}.legacyPackages.${system};
                         in map
