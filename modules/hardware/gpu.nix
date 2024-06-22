@@ -43,8 +43,6 @@ inputs:
           opengl =
           {
             enable = true;
-            driSupport = true;
-            driSupport32Bit = true;
             extraPackages =
               let packages = with inputs.pkgs;
               {
