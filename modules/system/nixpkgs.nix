@@ -73,7 +73,6 @@ inputs:
                 let
                   source =
                   {
-                    unstablePackages = "nixpkgs-unstable";
                     "pkgs-23.11" = "nixpkgs-23.11";
                     "pkgs-23.05" = "nixpkgs-23.05";
                     "pkgs-22.11" = "nixpkgs-22.11";
