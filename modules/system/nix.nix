@@ -33,7 +33,7 @@ inputs:
       nix.settings =
       {
         system-features = [ "big-parallel" "nixos-test" "benchmark" ];
-        experimental-features = [ "nix-command" "flakes" ];
+        experimental-features = [ "nix-command" "flakes" "ca-derivations" ];
         keep-failed = true;
         max-substitution-jobs = 4;
         trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
