@@ -52,15 +52,13 @@ inputs: rec
     gnu = inputs.pkgs.callPackage ./vasp/gnu
     {
       inherit (inputs.pkgs.llvmPackages) openmp;
-      inherit wannier90 src;
+      inherit src;
       hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; cppSupport = false; };
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
-      { inherit lmod nvhpc wannier90 vtst src; hdf5 = hdf5-nvhpc; };
+      { inherit lmod nvhpc vtst src; hdf5 = hdf5-nvhpc; };
     intel = inputs.pkgs.callPackage ./vasp/intel
-      { inherit lmod oneapi wannier90 vtst src; hdf5 = hdf5-oneapi; };
-    wannier90 = inputs.pkgs.callPackage
-      "${inputs.topInputs.nixpkgs-unstable}/pkgs/by-name/wa/wannier90/package.nix" {};
+      { inherit lmod oneapi vtst src; hdf5 = hdf5-oneapi; };
     hdf5-nvhpc = inputs.pkgs.callPackage ./vasp/hdf5-nvhpc { inherit lmod nvhpc; inherit (inputs.pkgs.hdf5) src; };
     hdf5-oneapi = inputs.pkgs.callPackage ./vasp/hdf5-oneapi { inherit lmod oneapi; inherit (inputs.pkgs.hdf5) src; };
     vtst = (inputs.pkgs.callPackage ./vasp/vtst.nix {});
