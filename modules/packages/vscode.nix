@@ -21,7 +21,7 @@ inputs:
                 ++ (builtins.attrNames vscode-extensions)
               )));
             in with extensions;
-              (with equinusocio; [ vsc-community-material-theme vsc-material-theme-icons ])
+              (with equinusocio; [ vsc-material-theme vsc-material-theme-icons ])
               ++ (with github; [ copilot copilot-chat github-vscode-theme ])
               ++ (with intellsmi; [ comment-translate deepl-translate ])
               ++ (with ms-python; [ isort python vscode-pylance ])
