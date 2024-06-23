@@ -11,7 +11,6 @@ inputs:
       joystick = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
       printer = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
       sound = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
-      cpus = mkOption { type = types.listOf (types.enum [ "intel" "amd" ]); default = []; };
     };
   config = let inherit (inputs.config.nixos) hardware; in inputs.lib.mkMerge
   [
@@ -42,30 +41,6 @@ inputs:
         services.pipewire = { enable = true; alsa = { enable = true; support32Bit = true; }; pulse.enable = true; };
         sound.enable = true;
         security.rtkit.enable = true;
-      }
-    )
-    # cpus
-    (
-      inputs.lib.mkIf (hardware.cpus != [])
-      {
-        hardware.cpu = builtins.listToAttrs
-          (map (name: { inherit name; value = { updateMicrocode = true; }; }) hardware.cpus);
-        boot =
-        {
-          initrd.availableKernelModules =
-            let modules =
-            {
-              intel =
-              [
-                "intel_cstate" "aesni_intel" "intel_cstate" "intel_uncore" "intel_uncore_frequency" "intel_powerclamp"
-              ];
-              amd = [];
-            };
-            in builtins.concatLists (map (cpu: modules.${cpu}) hardware.cpus);
-          kernelParams =
-            let params = { intel = [ "intel_iommu=off" ]; amd = [ "amd_iommu=fullflush" ]; };
-            in builtins.concatLists (map (cpu: params.${cpu}) hardware.cpus);
-        };
       }
     )
   ];
