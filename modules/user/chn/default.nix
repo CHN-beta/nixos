@@ -6,7 +6,7 @@ inputs:
     users.users.chn =
     {
       extraGroups = inputs.lib.intersectLists
-        [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" ]
+        [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "ipfs" ]
         (builtins.attrNames inputs.config.users.groups);
       autoSubUidGidRange = true;
       hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
