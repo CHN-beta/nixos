@@ -23,7 +23,7 @@ inputs:
       nixpkgs =
         let
           permittedInsecurePackages =
-            [ "openssl_1_1" "python2" "electron_24" "zotero" "electron_25" "electron_28" ];
+            [ "openssl_1_1" "python2" "zotero" "electron_28" ];
           hostPlatform = if nixpkgs.march != null
             then { system = "${nixpkgs.arch}-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
             else "${nixpkgs.arch}-linux";
@@ -40,9 +40,7 @@ inputs:
           inherit hostPlatform;
           config = cudaConfig //
           {
-            permittedInsecurePackages = map
-              (package: inputs.pkgs.${package}.name)
-              (filter (package: inputs.pkgs ? ${package}) permittedInsecurePackages);
+            permittedInsecurePackages = map (package: inputs.pkgs.${package}.name) permittedInsecurePackages;
             allowUnfree = true;
             qchem-config = { optArch = nixpkgs.march; useCuda = nixpkgs.cuda.enable; };
           }
@@ -79,6 +77,7 @@ inputs:
                     "pkgs-22.11" = "nixpkgs-22.11";
                     "pkgs-22.05" = "nixpkgs-22.05";
                   };
+                  permittedInsecurePackages."pkgs-23.11" = [ "electron_19" ];
                   packages = name: import inputs.topInputs.${source.${name}}
                   {
                     localSystem = hostPlatform;
@@ -90,7 +89,7 @@ inputs:
                         let pkgs = inputs.topInputs.${source.${name}}.legacyPackages.${system};
                         in map
                           (package: pkgs.${package}.name)
-                          (filter (package: pkgs ? ${package}) permittedInsecurePackages);
+                          permittedInsecurePackages.${name} or [];
                     };
                   };
                 in builtins.listToAttrs (map
