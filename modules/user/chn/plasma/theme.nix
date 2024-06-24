@@ -9,7 +9,7 @@ inputs:
       {
         theme = "Utterly-Round";
         colorScheme = "UtterlyNordLight";
-        cursorTheme = "Tela-circle-nord-light";
+        cursor.theme = "Tela-circle-nord-light";
         lookAndFeel = "Utterly-Nord-Light";
         # ~/.config/kdeglobals [Icons]
         iconTheme = "Tela-circle-nord-light";

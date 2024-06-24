@@ -7,7 +7,7 @@ inputs:
       programs.plasma =
       {
         overrideConfig = true;
-        overrideConfigFiles = [ "konsolerc" "yakuakerc" ];
+        resetFiles = [ "konsolerc" "yakuakerc" ];
         configFile =
         {
           yakuakerc =

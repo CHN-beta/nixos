@@ -40,7 +40,7 @@ inputs:
           in builtins.concatLists (builtins.map (gpu: modules.${gpu}) gpus);
         hardware =
         {
-          opengl =
+          graphics =
           {
             enable = true;
             extraPackages =

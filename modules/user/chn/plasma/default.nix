@@ -15,8 +15,8 @@ inputs:
             right = [ "help" "keep-below-windows" "keep-above-windows" "minimize" "maximize" "close" ];
             left = [ "more-window-actions" ];
           };
-          virtualDesktops = { animation = "slide"; rows = 1; number = 6; };
-          effects.shakeCursor.enable = true;
+          virtualDesktops = { rows = 1; number = 6; };
+          effects = { shakeCursor.enable = true; desktopSwitching.animation = "slide"; };
         };
         windows.allowWindowsToRememberPositions = false;
         configFile =
