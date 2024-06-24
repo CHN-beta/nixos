@@ -71,5 +71,10 @@ inputs:
         xray.server = { serverName = "xserver.vps7.chn.moe"; userNumber = 4; };
       };
     };
+    specialisation.generic.configuration =
+    {
+      nixos.system.nixpkgs.march = inputs.lib.mkForce null;
+      system.nixos.tags = [ "generic" ];
+    };
   };
 }

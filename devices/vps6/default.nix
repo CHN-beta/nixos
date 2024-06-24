@@ -81,5 +81,10 @@ inputs:
         beesd.instances.root = { device = "/"; hashTableSizeMB = 64; };
       };
     };
+    specialisation.generic.configuration =
+    {
+      nixos.system.nixpkgs.march = inputs.lib.mkForce null;
+      system.nixos.tags = [ "generic" ];
+    };
   };
 }

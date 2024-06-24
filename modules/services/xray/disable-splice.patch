@@ -1,5 +1,5 @@
 diff --git a/proxy/proxy.go b/proxy/proxy.go
-index db92051..3c902ae 100644
+index db92051..54d36b4 100644
 --- a/proxy/proxy.go
 +++ b/proxy/proxy.go
 @@ -504,7 +504,8 @@ func CopyRawConnIfExist(ctx context.Context, readerConn net.Conn, writerConn net
@@ -7,7 +7,7 @@ index db92051..3c902ae 100644
  			}
  		}
 -		if splice {
-+		_ := splice
++		_ = splice
 +		if false {
  			newError("CopyRawConn splice").WriteToLog(session.ExportIDToError(ctx))
  			statWriter, _ := writer.(*dispatcher.SizeStatWriter)
