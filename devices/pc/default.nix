@@ -139,7 +139,6 @@ inputs:
           memoryMB = 90112;
           gpus."4060" = 1;
         };
-        xrdp = { enable = true; hostname = [ "pc.chn.moe" ]; };
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
