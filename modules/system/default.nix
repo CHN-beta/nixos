@@ -8,7 +8,7 @@ inputs:
       dbus.implementation = "broker";
       fstrim.enable = true;
       acpid.enable = true;
-      kubo = { enable = true; autoMount = true; };
+      kubo.enable = true;
     };
     time.timeZone = "Asia/Shanghai";
     boot =
