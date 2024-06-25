@@ -7,17 +7,17 @@ inputs:
       # TODO: do not setup theme before clean these configs
       workspace =
       {
-        theme = "Utterly-Round";
-        colorScheme = "UtterlyNordLight";
-        cursor.theme = "Tela-circle-nord-light";
-        lookAndFeel = "Utterly-Nord-Light";
+        theme = "Fluent-light";
+        colorScheme = "FluentLight";
+        cursor.theme = "breeze_cursors";
+        lookAndFeel = "com.github.vinceliuice.Fluent-light";
         # ~/.config/kdeglobals [Icons]
-        iconTheme = "Tela-circle-nord-light";
+        iconTheme = "Fluent";
       };
       configFile =
       {
         kdeglobals.KDE.widgetStyle.value = "kvantum";
-        "Kvantum/kvantum.kvconfig".General.theme.value = "Utterly-Nord-Light";
+        "Kvantum/kvantum.kvconfig".General.theme.value = "Fluent";
         kwinrc =
         {
           Effect-blur.BlurStrength.value = 10;
