@@ -12,19 +12,25 @@ inputs:
           {
             btrfs =
             {
-              "/dev/disk/by-uuid/24577c0e-d56b-45ba-8b36-95a848228600"."/boot" = "/boot";
+              "/dev/disk/by-uuid/403fe853-8648-4c16-b2b5-3dfa88aee351"."/boot" = "/boot";
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
+          };
+          decrypt.manual =
+          {
+            enable = true;
+            devices."/dev/disk/by-uuid/bf7646f9-496c-484e-ada0-30335da57068" = { mapper = "root"; ssd = true; };
+            delayedMount = [ "/" ];
           };
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};
         };
-        grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
+        grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
         nixpkgs.march = "znver2";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         initrd.sshd.enable = true;
         networking = { hostname = "vps4"; networkd = {}; };
-        kernel.variant = "cachyos-server";
+        kernel.variant = "xanmod-latest";
       };
       services =
       {

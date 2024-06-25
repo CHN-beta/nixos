@@ -61,6 +61,7 @@ inputs:
                 cat = "${inputs.pkgs.coreutils}/bin/cat";
                 gpg = "${inputs.pkgs.gnupg}/bin/gpg";
                 ssh = "${inputs.pkgs.openssh}/bin/ssh";
+              # generate using echo -n key | gpg --encrypt --recipient chn > xxx.key
               in inputs.pkgs.writeShellScriptBin "remote-decrypt" (builtins.concatStringsSep "\n"
                 (
                   (builtins.map (system: builtins.concatStringsSep "\n"
