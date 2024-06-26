@@ -87,11 +87,11 @@
         "yafas": "yafas"
       },
       "locked": {
-        "lastModified": 1718993733,
-        "narHash": "sha256-Ww0NQoZ/kUVMuV/alkkj1mv2rU5OBHvAu+qhAETXfc4=",
+        "lastModified": 1719341523,
+        "narHash": "sha256-UhbsY1ECPo0aqyXx8mR/y7f389ZH3lzEigrgsnrvA6U=",
         "owner": "chaotic-cx",
         "repo": "nyx",
-        "rev": "3e5fc61611c1ce8f84d4ea326799f7c773723652",
+        "rev": "d2754bc296923da7f710100e9cafee14b4f97a2e",
         "type": "github"
       },
       "original": {
@@ -800,11 +800,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1718977552,
-        "narHash": "sha256-kyilmbeCDdHFxup6L0UKvxyZ9T2lhy2vRNv0yeqh5j4=",
+        "lastModified": 1719292813,
+        "narHash": "sha256-6w/buoRKo4ijH9O4D/0KjNtiWjtrJebuV7djTEEa0+k=",
         "owner": "Jovian-Experiments",
         "repo": "Jovian-NixOS",
-        "rev": "a7a9774538612c75324f785ab1300e67abc039d3",
+        "rev": "d6222e7818aa5528f8369afe84bc53556a57c329",
         "type": "github"
       },
       "original": {
