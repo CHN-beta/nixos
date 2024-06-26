@@ -19,7 +19,7 @@ inputs:
           scrcpy weston cage openbox krita
           # media
           spotify yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc obs-studio
-          waifu2x-converter-cpp inkscape blender
+          waifu2x-converter-cpp inkscape blender whalebird
           # editor
           typora
           # news
