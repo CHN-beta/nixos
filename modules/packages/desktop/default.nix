@@ -32,6 +32,7 @@ inputs:
         (catppuccin-kde.override { flavour = [ "latte" ]; })
         (catppuccin-gtk.override { variant = "latte"; })
         (tela-circle-icon-theme.override { allColorVariants = true; })
+        whitesur-kde whitesur-gtk-theme
         # terminal
         warp-terminal
         # development
