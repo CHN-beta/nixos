@@ -151,8 +151,9 @@ inputs:
     boot.kernelParams =
     [
       "acpi_osi=!" ''acpi_osi="Windows 2015"''
-      "amdgpu.sg_display=0"     # 混合模式下避免外接屏幕闪烁，和内置外接屏幕延迟
-      "acpi.ec_no_wakeup"       # 睡眠时避免开盖唤醒，似乎没有用
+      "amdgpu.sg_display=0" # 混合模式下避免外接屏幕闪烁，和内置外接屏幕延迟
+      "acpi.ec_no_wakeup=1" # 睡眠时避免开盖唤醒，似乎没有用
+      "nvidia.NVreg_EnableGpuFirmware=0"  # workaround for nvidia driver 555.52.04
     ];
     # 禁止鼠标等在睡眠时唤醒
     services.udev.extraRules = ''ACTION=="add", ATTR{power/wakeup}="disabled"'';
