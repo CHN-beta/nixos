@@ -26,7 +26,7 @@ inputs:
         # media
         mpv nomacs
         # themes
-        localPackages.blurred-wallpaper (tela-circle-icon-theme.override { allColorVariants = true; })
+        localPackages.slate localPackages.blurred-wallpaper tela-circle-icon-theme
         # terminal
         warp-terminal
         # development
