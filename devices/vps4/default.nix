@@ -26,7 +26,7 @@ inputs:
           rollingRootfs = {};
         };
         grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
-        nixpkgs.march = "znver2";
+        # nixpkgs.march = "znver2";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         initrd.sshd.enable = true;
         networking = { hostname = "vps4"; networkd = {}; };
