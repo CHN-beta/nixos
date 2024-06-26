@@ -26,13 +26,7 @@ inputs:
         # media
         mpv nomacs
         # themes
-        localPackages.win11os-kde localPackages.fluent-kde localPackages.blurred-wallpaper
-        localPackages.slate utterly-nord-plasma utterly-round-plasma-style catppuccin catppuccin-sddm
-        catppuccin-cursors catppuccinifier-gui catppuccinifier-cli catppuccin-plymouth
-        (catppuccin-kde.override { flavour = [ "latte" ]; })
-        (catppuccin-gtk.override { variant = "latte"; })
-        (tela-circle-icon-theme.override { allColorVariants = true; })
-        whitesur-kde whitesur-gtk-theme
+        localPackages.blurred-wallpaper (tela-circle-icon-theme.override { allColorVariants = true; })
         # terminal
         warp-terminal
         # development
