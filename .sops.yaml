@@ -1,6 +1,7 @@
 keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &chn age19ax6vm3pv8rph5tq3mmehd9sy9jk823tw8svsd790r0lkslycquqvlwz9m
   - &pc age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
+  - &vps4 age1nnd6u8l20julg4jz4l6kw5gmj6h2tsngpm7n8dx59umgw2s66y4shq6jv4
   - &vps6 age164tyqklwhdm57tfm5u863mdt2xrzrrzac4py8a0j9y6kzqcjy9zsp073t6
   - &vps7 age137x7csalutwvfygvvzpemlsywvdxj3j4z93a50z2sjx03w6zau8q3r5902
   - &surface age1ck5vzs0xqx0jplmuksrkh45xwmkm2t05m2wyq5k2w2mnkmn79fxs6tvl3l
@@ -14,6 +15,11 @@ creation_rules:
     - age:
       - *chn
       - *pc
+  - path_regex: devices/vps4/.*$
+    key_groups:
+    - age:
+      - *chn
+      - *vps4
   - path_regex: devices/vps6/.*$
     key_groups:
     - age:
