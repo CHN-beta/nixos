@@ -1,6 +1,7 @@
 ```bash
-sudo HTTPS_PROXY=socks5://127.0.0.1:10884 nixos-install --flake .#bootstrap \
-  --option substituters http://127.0.0.1:5000 --option require-sigs false --option system-features gccarch-silvermont
+nixos-install --flake .#vps4 --option substituters https://nix-store.chn.moe \
+  --option require-sigs false --option system-features gccarch-znver2 \
+  --option extra-experimental-features ca-derivations
 nix-serve -p 5000
 nix copy --substitute-on-destination --to ssh://server /run/current-system
 nix copy --to ssh://nixos@192.168.122.56 ./result
