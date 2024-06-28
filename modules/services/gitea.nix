@@ -19,11 +19,6 @@ inputs:
     services.gitea =
     {
       enable = true;
-      package = inputs.pkgs.gitea.overrideAttrs { src = builtins.fetchurl
-      {
-        url = "https://dl.gitea.com/gitea/1.22.0-rc1/gitea-src-1.22.0-rc1.tar.gz";
-        sha256 = "1h7kjzk7zck7j2advcxc0gsmv3qkwmhcnqi9zl7ypiffy40p6l9y";
-      };};
       lfs.enable = true;
       mailerPasswordFile = inputs.config.sops.secrets."gitea/mail".path;
       database =
