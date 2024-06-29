@@ -467,22 +467,6 @@
         "type": "github"
       }
     },
-    "fluent-kde": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1718966612,
-        "narHash": "sha256-UqSBZAqP0UbZcBFrxQFTZyw9eqDZ4S1fveDousB1ndw=",
-        "owner": "vinceliuice",
-        "repo": "Fluent-kde",
-        "rev": "ff5a90bad970225b5680609a41aba15d586d56c5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "vinceliuice",
-        "repo": "Fluent-kde",
-        "type": "github"
-      }
-    },
     "gitignore": {
       "inputs": {
         "nixpkgs": [
@@ -1199,7 +1183,6 @@
         "date": "date",
         "eigen": "eigen",
         "envfs": "envfs",
-        "fluent-kde": "fluent-kde",
         "gricad": "gricad",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
