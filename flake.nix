@@ -75,38 +75,29 @@
         (builtins.attrNames (builtins.readDir ./devices));
     in
     {
-      packages.x86_64-linux =
-        let pkgs = (import inputs.nixpkgs
-        {
-          system = "x86_64-linux";
-          config.allowUnfree = true;
-          overlays = [ inputs.self.overlays.default ];
-        });
-        in
-        {
-          default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
-            (builtins.concatStringsSep "\n" (builtins.map
-              (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-              devices));
-          hpcstat =
-            let
-              openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
-                (prev: { doCheck = false; patches = prev.patches ++ [ ./local/pkgs/hpcstat/openssh.patch ];});
-              duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
-            in pkgs.pkgsStatic.localPackages.hpcstat.override
-              { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
-          ufo = pkgs.pkgsStatic.localPackages.ufo.override { version = inputs.self.rev or "dirty"; };
-          chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
-          nixpkgs = pkgs;
-        }
-        // (
-          builtins.listToAttrs (builtins.map
-            (system:
-            {
-              name = system;
-              value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
-            })
-            devices)
+      packages.x86_64-linux = rec
+      {
+        pkgs = (import inputs.nixpkgs
+          { system = "x86_64-linux"; config.allowUnfree = true; overlays = [ inputs.self.overlays.default ]; });
+        default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
+          (builtins.concatStringsSep "\n" (builtins.map
+            (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
+            devices));
+        hpcstat =
+          let
+            openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
+              (prev: { doCheck = false; patches = prev.patches ++ [ ./local/pkgs/hpcstat/openssh.patch ];});
+            duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
+          in pkgs.pkgsStatic.localPackages.hpcstat.override
+            { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
+        ufo = pkgs.pkgsStatic.localPackages.ufo.override { version = inputs.self.rev or "dirty"; };
+        chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
+      }
+      // (
+        builtins.listToAttrs (builtins.map
+          (system:
+            { name = system; value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel; })
+          devices)
         );
       nixosConfigurations =
       (
@@ -148,45 +139,38 @@
       overlays.default = final: prev:
         { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; topInputs = inputs; }); };
       config = { archive = false; branch = "production"; };
-      devShells.x86_64-linux =
-        let pkgs = (import inputs.nixpkgs
+      devShells.x86_64-linux = let inherit (inputs.self.packages.x86_64-linux) pkgs; in
+      {
+        biu = pkgs.mkShell
         {
-          system = "x86_64-linux";
-          config.allowUnfree = true;
-          overlays = [ inputs.self.overlays.default ];
-        });
-        in
-        {
-          biu = pkgs.mkShell
-          {
-            inputsFrom = with pkgs.localPackages; [ biu ];
-            buildInputs = [ pkgs.clang-tools_18 ];
-            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-          };
-          hpcstat = pkgs.mkShell
-          {
-            inputsFrom = [ (inputs.self.packages.x86_64-linux.hpcstat.override { version = null; }) ];
-            packages = [ pkgs.clang-tools_18 ];
-            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-          };
-          sbatch-tui = pkgs.mkShell
-          {
-            inputsFrom = with pkgs.localPackages; [ sbatch-tui ];
-            buildInputs = [ pkgs.clang-tools_18 ];
-            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-          };
-          ufo = pkgs.mkShell
-          {
-            inputsFrom = [ (inputs.self.packages.x86_64-linux.ufo.override { version = null; }) ];
-            packages = [ pkgs.clang-tools_18 ];
-            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-          };
-          chn-bsub = pkgs.mkShell
-          {
-            inputsFrom = with pkgs.localPackages; [ chn-bsub ];
-            buildInputs = [ pkgs.clang-tools_18 ];
-            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-          };
+          inputsFrom = [ pkgs.localPackages.biu ];
+          buildInputs = [ pkgs.clang-tools_18 ];
+          CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
+        hpcstat = pkgs.mkShell
+        {
+          inputsFrom = [ (inputs.self.packages.x86_64-linux.hpcstat.override { version = null; }) ];
+          packages = [ pkgs.clang-tools_18 ];
+          CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+        };
+        sbatch-tui = pkgs.mkShell
+        {
+          inputsFrom = [ pkgs.localPackages.sbatch-tui ];
+          buildInputs = [ pkgs.clang-tools_18 ];
+          CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+        };
+        ufo = pkgs.mkShell
+        {
+          inputsFrom = [ (inputs.self.packages.x86_64-linux.ufo.override { version = null; }) ];
+          packages = [ pkgs.clang-tools_18 ];
+          CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+        };
+        chn-bsub = pkgs.mkShell
+        {
+          inputsFrom = [ pkgs.localPackages.chn-bsub ];
+          buildInputs = [ pkgs.clang-tools_18 ];
+          CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+        };
+      };
     };
 }
