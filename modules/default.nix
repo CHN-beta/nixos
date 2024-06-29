@@ -37,7 +37,6 @@ inputs:
           home-manager.sharedModules =
           [
             topInputs.plasma-manager.homeManagerModules.plasma-manager
-            topInputs.nix-doom-emacs.hmModule
             topInputs.catppuccin.homeManagerModules.catppuccin
           ];
         };
