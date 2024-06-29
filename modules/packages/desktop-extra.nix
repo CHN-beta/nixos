@@ -25,7 +25,7 @@ inputs:
           # news
           fluent-reader
           # nix tools
-          deploy-rs.deploy-rs nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github prefetch-npm-deps
+          nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github prefetch-npm-deps
           nix-prefetch-docker
           # instant messager
           element-desktop telegram-desktop discord fluffychat zoom-us signal-desktop slack nur-linyinfeng.wemeet

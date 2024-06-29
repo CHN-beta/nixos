@@ -20,7 +20,6 @@
     nix-vscode-extensions = { url = "github:nix-community/nix-vscode-extensions"; inputs.nixpkgs.follows = "nixpkgs"; };
     impermanence.url = "github:nix-community/impermanence";
     qchem = { url = "github:Nix-QChem/NixOS-QChem/master"; inputs.nixpkgs.follows = "nixpkgs"; };
-    deploy-rs = { url = "github:serokell/deploy-rs"; inputs.nixpkgs.follows = "nixpkgs"; };
     plasma-manager =
     {
       url = "github:pjones/plasma-manager";
@@ -149,28 +148,6 @@
           };
         }
       );
-      deploy =
-      {
-        sshUser = "root";
-        user = "root";
-        fastConnection = true;
-        autoRollback = false;
-        magicRollback = false;
-        nodes = builtins.listToAttrs (builtins.map
-          (node:
-          {
-            name = node;
-            value =
-            {
-              hostname = node;
-              profiles.system.path = inputs.self.nixosConfigurations.${node}.pkgs.deploy-rs.lib.activate.nixos
-                inputs.self.nixosConfigurations.${node};
-            };
-          })
-          [ "vps6" "vps7" "nas" "surface" "xmupc1" "xmupc2" "pi3b" ]
-        );
-      };
-      checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks inputs.self.deploy) inputs.deploy-rs.lib;
       overlays.default = final: prev:
         { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; topInputs = inputs; }); };
       config = { archive = false; branch = "production"; };

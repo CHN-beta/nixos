@@ -30,8 +30,6 @@ inputs:
               nix-vscode-extensions = topInputs.nix-vscode-extensions.extensions."${prev.system}";
               nur-xddxdd = topInputs.nur-xddxdd.overlays.default final prev;
               nur-linyinfeng = (topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
-              deploy-rs =
-                { inherit (prev) deploy-rs; inherit ((topInputs.deploy-rs.overlay final prev).deploy-rs) lib; };
               firefox-addons = (import "${topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
               inherit (import topInputs.gricad { pkgs = final; }) intel-oneapi intel-oneapi-2022;
             })
