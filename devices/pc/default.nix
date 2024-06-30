@@ -14,18 +14,19 @@ inputs:
             btrfs =
             {
               "/dev/disk/by-uuid/066be4fd-8617-4fe1-9654-c133c2996d33"."/" = "/boot";
-              "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+              "/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
           decrypt.auto =
           {
-            "/dev/disk/by-uuid/4c73288c-bcd8-4a7e-b683-693f9eed2d81" = { mapper = "root"; ssd = true; };
+            "/dev/disk/by-uuid/4c73288c-bcd8-4a7e-b683-693f9eed2d81" = { mapper = "root1"; ssd = true; };
+            "/dev/disk/by-uuid/a9bf47e2-8731-4236-a3eb-0666d49f6150" = { mapper = "root2"; ssd = true; };
             "/dev/disk/by-uuid/4be45329-a054-4c20-8965-8c5b7ee6b35d" =
-              { mapper = "swap"; ssd = true; before = [ "root" ]; };
+              { mapper = "swap"; ssd = true; before = [ "root1" "root2" ]; };
           };
           swap = [ "/dev/mapper/swap" ];
           resume = "/dev/mapper/swap";
-          rollingRootfs = {};
+          rollingRootfs.waitDevices = [ "/dev/mapper/root2" ];
         };
         grub =
         {
