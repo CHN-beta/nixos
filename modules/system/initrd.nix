@@ -14,14 +14,20 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.system) initrd; in inputs.lib.mkMerge
   [
-    { boot.initrd.systemd.enable = true; }
+    {
+      boot =
+      {
+        initrd.systemd.enable = true;
+        kernelParams = [ "boot.shell_on_fail" "systemd.setenv=SYSTEMD_SULOGIN_FORCE=1" ];
+      };
+    }
     (
       inputs.lib.mkIf (initrd.sshd.enable)
       {
         boot =
         {
           initrd.network = { enable = true; ssh = { enable = true; hostKeys = initrd.sshd.hostKeys; }; };
-          kernelParams = [ "ip=dhcp" "boot.shell_on_fail" "systemd.setenv=SYSTEMD_SULOGIN_FORCE=1" ];
+          kernelParams = [ "ip=dhcp" ];
         };
       }
     )
