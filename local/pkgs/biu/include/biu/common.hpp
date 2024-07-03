@@ -72,27 +72,24 @@ namespace biu
 
     namespace detail_
     {
-      template <bool DirectStdout, bool DirectStderr> struct ExecResult
+      struct ExecMode { bool DirectStdin = false, DirectStdout = false, DirectStderr = false, SearchPath = false; };
+      template <ExecMode Mode> struct ExecResult
       {
         int ExitCode;
-        std::conditional_t<DirectStdout, Empty, std::string> Stdout;
-        std::conditional_t<DirectStderr, Empty, std::string> Stderr;
+        std::conditional_t<Mode.DirectStdout, Empty, std::string> Stdout;
+        std::conditional_t<Mode.DirectStderr, Empty, std::string> Stderr;
         operator bool() const;
       };
-      struct ExecInput { bool DirectStdin = false, DirectStdout = false, DirectStderr = false, SearchPath = false; };
+      template <ExecMode Mode> struct ExecInput
+      {
+        std::conditional_t<Mode.SearchPath, std::string, std::filesystem::path> Program;
+        std::vector<std::string> Args;
+        std::conditional_t<Mode.DirectStdin, Empty, std::string> Stdin = {};
+        std::map<std::string, std::string> ExtraEnv = {};
+        std::optional<std::chrono::milliseconds> Timeout;
+      };
     }
-    template <detail_::ExecInput Input = {}> requires (!Input.DirectStdin)
-      detail_::ExecResult<Input.DirectStdout, Input.DirectStderr> exec
-    (
-      std::conditional_t<Input.SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
-      std::optional<std::string> stdin_string = {}, std::map<std::string, std::string> extra_env = {}
-    );
-    template <detail_::ExecInput Input = {}> requires (Input.DirectStdin)
-      detail_::ExecResult<Input.DirectStdout, Input.DirectStderr> exec
-    (
-      std::conditional_t<Input.SearchPath, std::string, std::filesystem::path> program, std::vector<std::string> args,
-      std::map<std::string, std::string> extra_env = {}
-    );
+    template <detail_::ExecMode Mode = {}> detail_::ExecResult<Mode> exec(detail_::ExecInput<Mode> input);
 
     static_assert(sizeof(char) == sizeof(std::byte));
     template <typename Char = std::byte, typename T> requires (std::same_as<Char, std::byte>)
