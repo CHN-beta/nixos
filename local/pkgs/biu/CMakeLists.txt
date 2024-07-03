@@ -4,6 +4,7 @@ enable_testing()
 include(GNUInstallDirs)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+option(BUILD_FOR_WINDOWS "Do not pull in dependencies not available on Windows" OFF)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message("Setting build type to 'Release' as none was specified.")
@@ -14,16 +15,21 @@ endif()
 find_package(magic_enum REQUIRED)
 find_package(fmt REQUIRED)
 find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem)
-find_package(Eigen3 REQUIRED)
 find_package(range-v3 REQUIRED)
 find_path(NAMEOF_INCLUDE_DIR nameof.hpp REQUIRED)
 find_path(ZPP_BITS_INCLUDE_DIR zpp_bits.h REQUIRED)
+if (NOT BUILD_FOR_WINDOWS)
+  find_package(Eigen3 REQUIRED)
+endif()
 
 add_library(biu src/common.cpp)
 target_include_directories(biu PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> ${NAMEOF_INCLUDE_DIR} ${ZPP_BITS_INCLUDE_DIR})
 target_link_libraries(biu PUBLIC magic_enum::magic_enum fmt::fmt Boost::headers Boost::iostreams Boost::filesystem
-  Eigen3::Eigen range-v3::range-v3)
+  range-v3::range-v3)
+if (NOT BUILD_FOR_WINDOWS)
+  target_link_libraries(biu PUBLIC Eigen3::Eigen)
+endif()
 set_property(TARGET biu PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON)
 install(TARGETS biu EXPORT biuTargets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

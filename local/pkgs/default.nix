@@ -79,6 +79,7 @@ inputs: rec
   ufo = inputs.pkgs.callPackage ./ufo
     { inherit concurrencpp biu glad matplotplusplus zpp-bits; tbb = inputs.pkgs.tbb_2021_11; };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
+  winjob = inputs.pkgs.callPackage ./winjob { inherit sqlite-orm biu; stdenv = inputs.pkgs.gcc14Stdenv; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
