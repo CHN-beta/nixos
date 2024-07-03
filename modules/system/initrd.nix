@@ -12,22 +12,18 @@ inputs:
       };
     };
   };
-  config =
-    let
-      inherit (inputs.config.nixos.system) initrd;
-      inherit (inputs.lib) mkIf mkMerge;
-    in mkMerge
-    [
-      { boot.initrd.systemd.enable = true; }
-      (
-        mkIf (initrd.sshd.enable)
+  config = let inherit (inputs.config.nixos.system) initrd; in inputs.lib.mkMerge
+  [
+    { boot.initrd.systemd.enable = true; }
+    (
+      inputs.lib.mkIf (initrd.sshd.enable)
+      {
+        boot =
         {
-          boot =
-          {
-            initrd.network = { enable = true; ssh = { enable = true; hostKeys = initrd.sshd.hostKeys; }; };
-            kernelParams = [ "ip=dhcp" ];
-          };
-        }
-      )
-    ];
+          initrd.network = { enable = true; ssh = { enable = true; hostKeys = initrd.sshd.hostKeys; }; };
+          kernelParams = [ "ip=dhcp" "boot.shell_on_fail" "systemd.setenv=SYSTEMD_SULOGIN_FORCE=1" ];
+        };
+      }
+    )
+  ];
 }
