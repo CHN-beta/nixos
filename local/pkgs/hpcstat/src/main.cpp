@@ -7,7 +7,6 @@
 # include <hpcstat/disk.hpp>
 # include <range/v3/view.hpp>
 # include <boost/exception/diagnostic_information.hpp>
-# include <boost/filesystem.hpp>
 # include <termcolor/termcolor.hpp>
 
 int main(int argc, const char** argv)
@@ -16,10 +15,6 @@ int main(int argc, const char** argv)
   using namespace std::literals;
   try
   {
-    auto lockfile = (boost::filesystem::temp_directory_path() / "hpcstat.lock").string();
-    std::ofstream{lockfile};
-    boost::interprocess::file_lock lock(lockfile.c_str());
-
     std::vector<std::string> args(argv, argv + argc);
 
     if (args.size() == 1)
@@ -27,11 +22,7 @@ int main(int argc, const char** argv)
       std::cout << "Usage: hpcstat initdb|login|logout|submitjob|finishjob|verify|export|version|diskstat\n";
       return 1;
     }
-    else if (args[1] == "initdb")
-    {
-      lock.lock();
-      if (!sql::initdb()) { std::cerr << "Failed to initialize database\n"; return 1; }
-    }
+    else if (args[1] == "initdb") { if (!sql::initdb()) { std::cerr << "Failed to initialize database\n"; return 1; } }
     else if (args[1] == "login")
     {
       if (env::interactive()) std::cout << "Communicating with the agent..." << std::flush;
@@ -50,7 +41,6 @@ int main(int argc, const char** argv)
         auto signature = ssh::sign(biu::serialize<char>(data), *fp);
         if (!signature) return 1;
         data.Signature = *signature;
-        lock.lock();
         sql::writedb(data);
         if (env::interactive())
         {
@@ -88,7 +78,7 @@ int main(int argc, const char** argv)
     {
       if (auto session_id = env::env("XDG_SESSION_ID", true); !session_id)
         return 1;
-      else { lock.lock(); sql::writedb(sql::LogoutData{ .Time = now(), .SessionId = *session_id }); }
+      else sql::writedb(sql::LogoutData{ .Time = now(), .SessionId = *session_id });
     }
     else if (args[1] == "submitjob")
     {
@@ -111,14 +101,12 @@ int main(int argc, const char** argv)
         auto signature = ssh::sign(biu::serialize<char>(data), *fp);
         if (!signature) return 1;
         data.Signature = *signature;
-        lock.lock();
         sql::writedb(data);
         std::cout << "Job <{}> was submitted to <{}> by <{}>.\n"_f(bsub->first, bsub->second, Keys[*fp].Username);
       }
     }
     else if (args[1] == "finishjob")
     {
-      lock.lock();
       if (auto fp = ssh::fingerprint(); !fp) return 1;
       else if (auto session = env::env("XDG_SESSION_ID", true); !session)
         return 1;
@@ -166,12 +154,10 @@ int main(int argc, const char** argv)
       auto begin = sys_seconds(sys_days(month(month_n) / 1 / year_n)).time_since_epoch().count();
       auto end = sys_seconds(sys_days(month(month_n) / 1 / year_n + months(1)))
         .time_since_epoch().count();
-      lock.lock();
       if (!sql::export_data(begin, end, "{}{}.xlsx"_f(year_n, month_n))) return 1;
     }
     else if (args[1] == "push")
     {
-      lock.lock();
       if (auto jobs = sql::check_job_status(); !jobs) return 1;
       else if (!push::push(*jobs)) return 1;
     }

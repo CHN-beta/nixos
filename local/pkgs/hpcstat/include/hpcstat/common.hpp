@@ -15,7 +15,6 @@
 # include <date/date.h>
 # include <date/tz.h>
 # include <boost/interprocess/sync/file_lock.hpp>
-# include <zpp_bits.h>
 # include <biu.hpp>
 
 namespace hpcstat

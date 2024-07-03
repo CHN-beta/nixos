@@ -147,7 +147,7 @@
           buildInputs = [ pkgs.clang-tools_18 ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
-        hpcstat = pkgs.mkShell
+        hpcstat = pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
         {
           inputsFrom = [ (inputs.self.packages.x86_64-linux.hpcstat.override { version = null; }) ];
           packages = [ pkgs.clang-tools_18 ];
