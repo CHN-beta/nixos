@@ -17,7 +17,7 @@ inputs:
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
-          decrypt.auto."/dev/disk/by-uuid/a9e4a508-3f0b-492e-b9320e2019be28615" = { mapper = "root"; ssd = true; };
+          decrypt.auto."/dev/disk/by-uuid/a9e4a508-3f0b-492e-b932-e2019be28615" = { mapper = "root"; ssd = true; };
           rollingRootfs = {};
         };
         grub.installDevice = "efi";
