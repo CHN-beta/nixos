@@ -27,7 +27,7 @@ namespace hpcstat::lfs
         }
         else break;
       }
-      if (auto result = biu::exec(*bsub, args); !result) return std::nullopt;
+      if (auto result = biu::exec({*bsub, args}); !result) return std::nullopt;
       else
       {
         // Job <462270> is submitted to queue <normal_1day>.
@@ -45,10 +45,11 @@ namespace hpcstat::lfs
     if
     (
       auto result = biu::exec<{.SearchPath = true}>
-      (
-        "bjobs", { "-a", "-o", "jobid submit_time stat cpu_used job_name", "-json" },
-        {}, { { "LSB_DISPLAY_YEAR", "Y" } }
-      );
+      ({
+        .Program="bjobs",
+        .Args={ "-a", "-o", "jobid submit_time stat cpu_used job_name", "-json" },
+        .ExtraEnv={ { "LSB_DISPLAY_YEAR", "Y" } }
+      });
       !result
     )
       return std::nullopt;
@@ -79,7 +80,11 @@ namespace hpcstat::lfs
   }
   std::optional<std::string> bjobs_detail(unsigned jobid)
   {
-    if (auto result = biu::exec<{.SearchPath = true}>("bjobs", { "-l", "{}"_f(jobid) }); !result)
+    if
+    (
+      auto result = biu::exec<{.SearchPath = true}>({"bjobs", { "-l", "{}"_f(jobid) }});
+      !result
+    )
       return std::nullopt;
     else return result.Stdout;
   }

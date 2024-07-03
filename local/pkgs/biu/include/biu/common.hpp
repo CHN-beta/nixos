@@ -83,10 +83,10 @@ namespace biu
       template <ExecMode Mode> struct ExecInput
       {
         std::conditional_t<Mode.SearchPath, std::string, std::filesystem::path> Program;
-        std::vector<std::string> Args;
+        std::vector<std::string> Args = {};
         std::conditional_t<Mode.DirectStdin, Empty, std::string> Stdin = {};
         std::map<std::string, std::string> ExtraEnv = {};
-        std::optional<std::chrono::milliseconds> Timeout;
+        std::optional<std::chrono::milliseconds> Timeout = {};
       };
     }
     template <detail_::ExecMode Mode = {}> detail_::ExecResult<Mode> exec(detail_::ExecInput<Mode> input);
