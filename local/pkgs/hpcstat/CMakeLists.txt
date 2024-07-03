@@ -15,9 +15,7 @@ set(HPCSTAT_VERSION "unknown" CACHE STRING "Version of the hpcstat")
 find_package(Boost REQUIRED COMPONENTS headers filesystem)
 find_package(SqliteOrm REQUIRED)
 find_package(nlohmann_json REQUIRED)
-find_path(ZPP_BITS_INCLUDE_DIR zpp_bits.h REQUIRED)
 find_package(range-v3 REQUIRED)
-find_path(NAMEOF_INCLUDE_DIR nameof.hpp REQUIRED)
 find_package(date REQUIRED)
 find_package(httplib REQUIRED)
 find_package(termcolor REQUIRED)
@@ -28,7 +26,7 @@ add_executable(hpcstat src/main.cpp src/env.cpp src/keys.cpp src/ssh.cpp src/sql
   src/push.cpp src/disk.cpp)
 # target_compile_features(hpcstat PRIVATE cxx_std_26)
 target_compile_options(hpcstat PRIVATE "-std=c++26")
-target_include_directories(hpcstat PRIVATE ${PROJECT_SOURCE_DIR}/include ${ZPP_BITS_INCLUDE_DIR})
+target_include_directories(hpcstat PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(hpcstat PRIVATE Boost::headers Boost::filesystem sqlite_orm::sqlite_orm
   nlohmann_json::nlohmann_json range-v3::range-v3 date::date date::date-tz httplib::httplib
   termcolor::termcolor biu::biu OpenXLSX::OpenXLSX)

@@ -70,7 +70,7 @@ inputs: rec
   biu = inputs.pkgs.callPackage ./biu { inherit nameof zpp-bits; };
   zxorm = inputs.pkgs.callPackage ./zxorm { src = inputs.topInputs.zxorm; };
   hpcstat = inputs.pkgs.callPackage ./hpcstat
-    { inherit nameof sqlite-orm zpp-bits date biu openxlsx; stdenv = inputs.pkgs.gcc14Stdenv; };
+    { inherit sqlite-orm date biu openxlsx; stdenv = inputs.pkgs.gcc14Stdenv; };
   openxlsx = inputs.pkgs.callPackage ./openxlsx { src = inputs.topInputs.openxlsx; };
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
