@@ -2,14 +2,8 @@ inputs: rec
 {
   typora = inputs.pkgs.callPackage ./typora {};
   vesta = inputs.pkgs.callPackage ./vesta {};
-  rsshub = inputs.pkgs.callPackage ./rsshub.nix
-  {
-    inherit mkPnpmPackage;
-    src = inputs.topInputs.rsshub;
-    nodejs = nodejs-with-pnpm9.override { nodejs = inputs.pkgs.nodejs_22; };
-  };
-  misskey = inputs.pkgs.callPackage ./misskey.nix
-    { inherit mkPnpmPackage; src = inputs.topInputs.misskey; nodejs = nodejs-with-pnpm9; };
+  rsshub = inputs.pkgs.callPackage ./rsshub.nix { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; };
+  misskey = inputs.pkgs.callPackage ./misskey.nix { inherit mkPnpmPackage; src = inputs.topInputs.misskey; };
   mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn {};
   vaspkit = inputs.pkgs.callPackage ./vaspkit { inherit (inputs.localLib) attrsToList; };
   v-sim = inputs.pkgs.callPackage ./v-sim { src = inputs.topInputs.v-sim; };
@@ -73,7 +67,6 @@ inputs: rec
   openxlsx = inputs.pkgs.callPackage ./openxlsx { src = inputs.topInputs.openxlsx; };
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
-  nodejs-with-pnpm9 = inputs.pkgs.callPackage ./nodejs-with-pnpm9.nix {};
   sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
   ufo = inputs.pkgs.callPackage ./ufo
     { inherit concurrencpp biu glad matplotplusplus zpp-bits; tbb = inputs.pkgs.tbb_2021_11; };
