@@ -16,7 +16,6 @@ find_package(Boost REQUIRED COMPONENTS headers filesystem)
 find_package(SqliteOrm REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(range-v3 REQUIRED)
-find_package(biu REQUIRED)
 
 add_executable(winjob src/winjob.cpp)
 # target_compile_features(winjob PRIVATE cxx_std_26)
@@ -35,7 +34,6 @@ target_link_libraries(winjobd PRIVATE Boost::headers Boost::filesystem sqlite_or
 target_compile_definitions(winjobd PRIVATE winjob_VERSION="${winjob_VERSION}")
 
 install(TARGETS winjob RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(DIRECTORY share/ DESTINATION ${CMAKE_INSTALL_DATADIR}/winjob)
 
 get_property(ImportedTargets DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
 message("Imported targets: ${ImportedTargets}")

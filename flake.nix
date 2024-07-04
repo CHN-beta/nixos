@@ -108,7 +108,7 @@
         {
           pkgs = (import inputs.nixpkgs
           {
-            crossSystem = inputs.nixpkgs.lib.systems.examples.mingwW64 // { isStatic = true; libc = "ucrt"; };
+            crossSystem = inputs.nixpkgs.lib.systems.examples.mingwW64 // { isStatic = true; };
             system = "x86_64-linux";
             config.allowUnfree = true;
             overlays = [ inputs.self.overlays.default ];
@@ -118,8 +118,7 @@
             [ "-DMAGIC_ENUM_OPT_BUILD_EXAMPLES=OFF" "-DMAGIC_ENUM_OPT_BUILD_TESTS=OFF" ]; });
           range-v3 = pkgs.range-v3.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++
             [ "-DRANGE_V3_DOCS=OFF" "-DRANGE_V3_TESTS=OFF" "-DRANGE_V3_EXAMPLES=OFF" ]; });
-          biu = pkgs.localPackages.biu.override { inherit boost magic-enum range-v3; };
-          winjob = pkgs.localPackages.winjob.override { inherit biu; };
+          winjob = pkgs.localPackages.winjob.override { inherit boost range-v3; };
         };
       };
       nixosConfigurations =
