@@ -1213,6 +1213,7 @@
         "rsshub": "rsshub",
         "rycee": "rycee",
         "slate": "slate",
+        "sockpp": "sockpp",
         "sops-nix": "sops-nix",
         "sqlite-orm": "sqlite-orm",
         "tgbot-cpp": "tgbot-cpp",
@@ -1266,6 +1267,22 @@
       "original": {
         "owner": "TheBigWazz",
         "repo": "Slate",
+        "type": "github"
+      }
+    },
+    "sockpp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1707078447,
+        "narHash": "sha256-lV3K6OGs4bFaCKKu1FeMwTMT5Q47Gxl+GzVf4rNnYjE=",
+        "owner": "fpagliughi",
+        "repo": "sockpp",
+        "rev": "04002daccc8f66a77edf019124089a3ce966b2e3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "fpagliughi",
+        "repo": "sockpp",
         "type": "github"
       }
     },
