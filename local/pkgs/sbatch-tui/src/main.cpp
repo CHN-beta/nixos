@@ -115,8 +115,7 @@ int main()
   {
     // replace \n with space
     boost::replace_all(submit_command, "\n", " ");
-    biu::exec<{.DirectStdout = true, .DirectStderr = true, .SearchPath = true}>
-      ("sh", { "-c", submit_command });
+    biu::exec<{.DirectStdout = true, .DirectStderr = true, .SearchPath = true}>({"sh", { "-c", submit_command }});
   };
 
   // 进入事件循环
