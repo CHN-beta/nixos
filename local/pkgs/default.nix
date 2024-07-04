@@ -63,7 +63,8 @@ inputs: rec
     { src = inputs.topInputs.kylin-virtual-keyboard; };
   biu = inputs.pkgs.callPackage ./biu { inherit nameof zpp-bits; };
   zxorm = inputs.pkgs.callPackage ./zxorm { src = inputs.topInputs.zxorm; };
-  hpcstat = inputs.pkgs.callPackage ./hpcstat { inherit nameof sqlite-orm zpp-bits date biu openxlsx; };
+  hpcstat = inputs.pkgs.callPackage ./hpcstat
+    { inherit sqlite-orm date biu openxlsx; stdenv = inputs.pkgs.gcc14Stdenv; };
   openxlsx = inputs.pkgs.callPackage ./openxlsx { src = inputs.topInputs.openxlsx; };
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
@@ -71,6 +72,8 @@ inputs: rec
   ufo = inputs.pkgs.callPackage ./ufo
     { inherit concurrencpp biu glad matplotplusplus zpp-bits; tbb = inputs.pkgs.tbb_2021_11; };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
+  winjob = inputs.pkgs.callPackage ./winjob { stdenv = inputs.pkgs.gcc14Stdenv; };
+  sockpp = inputs.pkgs.callPackage ./sockpp.nix { src = inputs.topInputs.sockpp; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

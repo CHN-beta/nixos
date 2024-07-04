@@ -31,11 +31,11 @@ namespace hpcstat::disk
     else if
     (
       auto result = biu::exec<{.DirectStdout = true, .DirectStderr = true}>
-      (
+      ({
         // duc index -d ./duc.db -p ~
         "{}/duc"_f(*ducbindir),
         { "index", "-d", "{}/duc.db"_f(*datadir), "-p", *homedir }
-      );
+      });
       !result
     )
       { std::cerr << "failed to index\n"; return false; }
@@ -57,14 +57,14 @@ namespace hpcstat::disk
         if
         (
           auto result = biu::exec
-          (
+          ({
             // duc ls -d ./duc.db -b -D /data/gpfs01/jykang/linwei/xxx
             "{}/duc"_f(*ducbindir),
             {
               "ls", "-d", "{}/duc.db"_f(*datadir), "-b", "-D",
               "{}{}{}"_f(*homedir, path ? "/" : "", path.value_or(""))
             }
-          );
+          });
           !result
         )
           { std::cerr << "failed to ls {}\n"_f(path); return {}; }
@@ -90,7 +90,7 @@ namespace hpcstat::disk
         (
           // duc info -d ./duc.db
           auto result = biu::exec
-            ("{}/duc"_f(*ducbindir), { "info", "-d", "{}/duc.db"_f(*datadir) });
+            ({"{}/duc"_f(*ducbindir), { "info", "-d", "{}/duc.db"_f(*datadir) }});
           !result
         )
           { std::cerr << "failed to get duc info\n"; return {}; }

@@ -26,7 +26,12 @@ inputs:
       {
         boot =
         {
-          initrd.network = { enable = true; ssh = { enable = true; hostKeys = initrd.sshd.hostKeys; }; };
+          initrd =
+          {
+            network = { enable = true; ssh = { enable = true; hostKeys = initrd.sshd.hostKeys; }; };
+            # resolved does not work in initrd, causing network.target to fail
+            services.resolved.enable = false;
+          };
           kernelParams = [ "ip=dhcp" ];
         };
       }

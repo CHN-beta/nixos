@@ -8,14 +8,16 @@
 # define SQLITE_ORM_OPTIONAL_SUPPORTED
 # include <sqlite_orm/sqlite_orm.h>
 # include <OpenXLSX.hpp>
+# include <boost/filesystem.hpp>
 
 namespace hpcstat::sql
 {
-  auto connect(std::optional<std::string> dbfile = std::nullopt)
+  auto connect(std::optional<std::string> dbfile = std::nullopt, bool need_lock = true)
   {
-    auto conn = [&]() { return std::make_optional(sqlite_orm::make_storage
+    // a function to actually connecto to db
+    auto conn = [](std::string dbfile) { return std::make_optional(sqlite_orm::make_storage
     (
-      *dbfile,
+      dbfile,
       sqlite_orm::make_table
       (
         "login",
@@ -70,31 +72,52 @@ namespace hpcstat::sql
         sqlite_orm::make_column("status", &CheckJobData::Status)
       )
     ));};
+
+    // a class to take care of lock
+    struct conn_with_lock
+    {
+      // lock should be declared before conn, so that it will be destructed after conn
+      boost::interprocess::file_lock lock;
+      decltype(conn(std::declval<std::string>())) connection;
+    };
+
+    // set default db path
     if (!dbfile)
     {
       if (auto datadir = env::env("HPCSTAT_DATADIR", true); !datadir)
-        return decltype(conn())();
+        return conn_with_lock{};
       else dbfile = std::filesystem::path(*datadir) / "hpcstat.db";
     }
-    auto result = conn();
-    if (!result) std::cerr << "Failed to connect to database.\n";
-    else result->busy_timeout(10000);
-    return result;
+
+    // set file lock
+    auto lockfile = (boost::filesystem::temp_directory_path() / "hpcstat.lock").string();
+    std::ofstream{lockfile};  // create file
+    boost::interprocess::file_lock lock(lockfile.c_str());
+    if (need_lock) lock.lock();
+
+    // try to connect
+    if (auto result = conn(*dbfile); !result)
+      { std::cerr << "Failed to connect to database.\n"; return conn_with_lock{}; }
+    else
+    {
+      result->busy_timeout(10000);
+      return conn_with_lock{std::move(lock), std::move(result)};
+    }
   }
   bool initdb()
   {
-    if (auto conn = connect(); !conn) return false;
+    if (auto [lock, conn] = connect(); !conn) return false;
     else { conn->sync_schema(); return true; }
   }
   bool writedb(auto value)
-    { if (auto conn = connect(); !conn) return false; else { conn->insert(value); return true; } }
+    { if (auto [lock, conn] = connect(); !conn) return false; else { conn->insert(value); return true; } }
   template bool writedb(LoginData);
   template bool writedb(LogoutData);
   template bool writedb(SubmitJobData);
   template bool writedb(FinishJobData);
   std::optional<std::set<unsigned>> finishjob_remove_existed(std::map<unsigned, std::string> jobid_submit_time)
   {
-    if (auto conn = connect(); !conn) return std::nullopt;
+    if (auto [lock, conn] = connect(); !conn) return std::nullopt;
     else
     {
       auto all_job = jobid_submit_time | ranges::views::keys | ranges::to<std::vector<unsigned>>;
@@ -110,7 +133,8 @@ namespace hpcstat::sql
   std::optional<std::vector<std::tuple<std::string, std::string, std::string>>>
     verify(std::string old_db, std::string new_db)
   {
-    auto old_conn = connect(old_db), new_conn = connect(new_db);
+    auto [_, old_conn] = connect(old_db);
+    auto [_, new_conn] = connect(new_db);
     if (!old_conn || !new_conn) { std::cerr << "Failed to connect to database.\n"; return std::nullopt; }
     else
     {
@@ -153,7 +177,8 @@ namespace hpcstat::sql
     }
   }
   // search corresponding job in submit table
-  std::optional<SubmitJobData> search_job_in_submit(auto connection, unsigned job_id, std::string submit_time)
+  std::optional<SubmitJobData> search_job_in_submit
+    (auto connection, unsigned job_id, std::string submit_time)
   {
     std::optional<SubmitJobData> result;
     long submit_date = [&]
@@ -185,7 +210,7 @@ namespace hpcstat::sql
   }
   bool export_data(long start_time, long end_time, std::string filename)
   {
-    if (auto conn = connect(); !conn) return false;
+    if (auto [lock, conn] = connect(); !conn) return false;
     else
     {
       // 对于一个账户的总计
@@ -312,7 +337,7 @@ namespace hpcstat::sql
   std::optional<std::map<unsigned, std::tuple<std::string, std::string, std::string, std::optional<std::string>>>>
     check_job_status()
   {
-    if (auto conn = connect(); !conn) return std::nullopt;
+    if (auto [lock, conn] = connect(); !conn) return std::nullopt;
     else if (auto jobs_current = lfs::bjobs_list(); !jobs_current) return std::nullopt;
     else
     {

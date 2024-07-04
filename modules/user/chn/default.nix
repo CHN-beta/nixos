@@ -31,7 +31,7 @@ inputs:
             // (builtins.listToAttrs (builtins.map
               (system: { name = system; value = { forwardAgent = true; extraOptions.AddKeysToAgent = "yes"; }; })
               [
-                "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas" "pc"
+                "vps4" "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas" "pc"
                 "wireguard.surface" "xmupc1" "wireguard.xmupc1" "xmupc2" "wireguard.xmupc2"
               ]));
             extraConfig =

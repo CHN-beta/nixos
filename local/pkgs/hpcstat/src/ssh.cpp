@@ -12,7 +12,8 @@ namespace hpcstat::ssh
       return std::nullopt;
     else if
     (
-      auto output = biu::exec(std::filesystem::path(*sshbindir) / "ssh-add", { "-l" });
+      auto output = biu::exec
+        ({.Program=std::filesystem::path(*sshbindir) / "ssh-add", .Args{ "-l" }, .Timeout=10s});
       !output
     )
       { std::cerr << "Failed to get ssh fingerprints\n"; return std::nullopt; }
@@ -41,14 +42,15 @@ namespace hpcstat::ssh
     else if
     (
       auto output = biu::exec
-      (
-        std::filesystem::path(*sshbindir) / "ssh-keygen",
-        {
+      ({
+        .Program=std::filesystem::path(*sshbindir) / "ssh-keygen",
+        .Args={
           "-Y", "sign", "-q", "-f", "{}/keys/{}"_f(*sharedir, Keys[fingerprint].PubkeyFilename),
           "-n", "hpcstat@chn.moe", "-"
         },
-        message
-      );
+        .Stdin=message,
+        .Timeout=10s
+      });
       !output
     )
       { std::cerr << "Failed to sign message: {}\n"_f(message); return {}; }
@@ -68,15 +70,16 @@ namespace hpcstat::ssh
       auto signaturefile = tempdir / "signature";
       std::ofstream(signaturefile) << signature;
       auto result = biu::exec
-      (
-        std::filesystem::path(*sshbindir) / "ssh-keygen",
-        {
+      ({
+        .Program=std::filesystem::path(*sshbindir) / "ssh-keygen",
+        .Args={
           "-Y", "verify",
           "-f", "{}/keys/{}"_f(*sharedir, Keys[fingerprint].PubkeyFilename),
           "-n", "hpcstat@chn.moe", "-s", signaturefile.string()
         },
-        message
-      );
+        .Stdin=message,
+        .Timeout=10s
+      });
       std::filesystem::remove_all(tempdir.string());
       return result;
     }
