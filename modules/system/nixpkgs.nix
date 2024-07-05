@@ -104,6 +104,8 @@ inputs:
                   ispc = genericPackages.ispc;
                   opencolorio = prev.opencolorio.overrideAttrs { doCheck = false; };
                   redis = prev.redis.overrideAttrs { doCheck = false; };
+                  krita = final.genericPackages.krita;
+                  geos = prev.geos.overrideAttrs { doCheck = false; };
                 }
               )
               // (
