@@ -29,7 +29,7 @@ inputs:
           # math, physics and chemistry
           (mathematica.overrideAttrs (prev: { postInstall = prev.postInstall or "" + "ln -s ${src} $out/src"; }))
           (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; })
-          paraview jmol mpi localPackages.mumax
+          paraview jmol mpi
           # encryption and password management
           john crunch hashcat
           # container and vm
@@ -38,7 +38,7 @@ inputs:
           microsoft-edge tor-browser
           # news
           rssguard newsflash newsboat
-        ];
+        ] ++ inputs.lib.optional (inputs.config.nixos.system.nixpkgs.march != null) localPackages.mumax;
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
           phonopy tensorflow keras scipy scikit-learn jupyterlab autograd # localPackages.pix2tex
