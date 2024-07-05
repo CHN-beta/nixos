@@ -35,7 +35,7 @@ inputs:
           {
             intel = [ "i915" ];
             nvidia = [ "nvidia" "nvidia_drm" "nvidia_modeset" ]; # nvidia-uvm should not be loaded
-            amd = [ "amdgpu" ];
+            amd = [];
           };
           in builtins.concatLists (builtins.map (gpu: modules.${gpu}) gpus);
         hardware =
@@ -48,11 +48,8 @@ inputs:
               {
                 intel = [ intel-vaapi-driver libvdpau-va-gl intel-media-driver ];
                 nvidia = [ vaapiVdpau ];
-                amd = [ amdvlk rocmPackages.clr rocmPackages.clr.icd ];
+                amd = [];
               };
-              in builtins.concatLists (builtins.map (gpu: packages.${gpu}) gpus);
-            extraPackages32 =
-              let packages = { intel = []; nvidia = []; amd = [ inputs.pkgs.driversi686Linux.amdvlk ]; };
               in builtins.concatLists (builtins.map (gpu: packages.${gpu}) gpus);
           };
           nvidia = inputs.lib.mkIf (builtins.elem "nvidia" gpus)
@@ -70,12 +67,7 @@ inputs:
             open = inputs.lib.mkIf (gpu.nvidia.driver == "beta") true;
           };
         };
-        boot =
-        {
-          kernelParams = inputs.lib.mkIf (builtins.elem "amd" gpus)
-            [ "radeon.cik_support=0" "amdgpu.cik_support=1" "radeon.si_support=0" "amdgpu.si_support=1" ];
-          blacklistedKernelModules = [ "nouveau" ];
-        };
+        boot.blacklistedKernelModules = [ "nouveau" ];
         environment.variables.VDPAU_DRIVER = inputs.lib.mkIf (builtins.elem "intel" gpus) "va_gl";
         services.xserver.videoDrivers =
           let driver = { intel = "modesetting"; amd = "amdgpu"; nvidia = "nvidia"; };
@@ -95,6 +87,16 @@ inputs:
           (gpu: { name = "${if gpu.name == "amd" then "amdgpu" else gpu.name}BusId"; value = "PCI:${gpu.value}"; })
           (inputs.localLib.attrsToList gpu.nvidia.prime.busId));
         powerManagement.finegrained = inputs.lib.mkIf (gpu.nvidia.prime.mode == "offload") true;
+      };}
+    )
+    # amdgpu
+    (
+      inputs.lib.mkIf (inputs.lib.strings.hasPrefix "amd" gpu.type) { hardware.amdgpu =
+      {
+        opencl.enable = true;
+        legacySupport.enable = true;
+        initrd.enable = true;
+        amdvlk = { enable = true; support32Bit.enable = true; supportExperimental.enable = true; };
       };}
     )
   ]);
