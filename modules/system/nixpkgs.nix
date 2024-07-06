@@ -49,6 +49,7 @@ inputs:
             oneapiArch = let match = { znver3 = "CORE-AVX2"; znver4 = "CORE-AVX512"; };
               in match.${nixpkgs.march} or nixpkgs.march;
             nvhpcArch = nixpkgs.march;
+            contentAddressedByDefault = true;
           });
           overlays =
           [(final: prev:
@@ -60,7 +61,6 @@ inputs:
                 config =
                 {
                   allowUnfree = true;
-                  contentAddressedByDefault = true;
                   permittedInsecurePackages = let pkgs = inputs.topInputs.nixpkgs.legacyPackages.${system}; in map
                     (package: pkgs.${package}.name)
                     (filter (package: pkgs ? ${package}) permittedInsecurePackages);
