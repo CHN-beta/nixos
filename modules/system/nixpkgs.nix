@@ -49,7 +49,7 @@ inputs:
             oneapiArch = let match = { znver3 = "CORE-AVX2"; znver4 = "CORE-AVX512"; };
               in match.${nixpkgs.march} or nixpkgs.march;
             nvhpcArch = nixpkgs.march;
-            contentAddressedByDefault = true;
+            # contentAddressedByDefault = true;
           });
           overlays =
           [(final: prev:
@@ -84,7 +84,7 @@ inputs:
                     config = cudaConfig //
                     {
                       allowUnfree = true;
-                      contentAddressedByDefault = true;
+                      # contentAddressedByDefault = true;
                       permittedInsecurePackages =
                         let pkgs = inputs.topInputs.${source.${name}}.legacyPackages.${system};
                         in map
