@@ -15,7 +15,7 @@ inputs:
           appId = "pam://chn.moe";
           origin = "pam://chn.moe";
           # generate using: `pamu2fcfg -u chn -o pam://chn.moe -i pam://chn.moe`
-          authFile = inputs.pkgs.writeText "yubikey_mappings" (builtins.concatStringsSep "\n"
+          authFile = builtins.toString (inputs.pkgs.writeText "yubikey_mappings" (builtins.concatStringsSep "\n"
           [
             (builtins.concatStringsSep ":"
             [
@@ -28,7 +28,7 @@ inputs:
                 "+presence"
               ])
             ])
-          ]);
+          ]));
         };
         yubico = { enable = true; id = "91291"; };
         loginLimits =
