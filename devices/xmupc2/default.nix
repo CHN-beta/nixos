@@ -77,5 +77,12 @@ inputs:
       bugs = [ "xmunet" ];
       user.users = [ "chn" "xll" "zem" "yjq" "gb" ];
     };
+    environment.persistence."/nix/archive" =
+    {
+      hideMounts = true;
+      users.chn.directories = builtins.map
+        (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
+        [ "lammps-SiC" "linwei-stuff" ];
+    };
   };
 }
