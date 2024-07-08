@@ -47,10 +47,7 @@ inputs:
       systemd.services.nix-daemon = { serviceConfig.CacheDirectory = "nix"; environment.TMPDIR = "/var/cache/nix"; };
     }
     # nix daemon use lower io/cpu priority
-    {
-      nix = { daemonIOSchedClass = "idle"; daemonCPUSchedPolicy = "idle"; };
-      systemd.services.nix-daemon.serviceConfig = { Slice = "-.slice"; Nice = "19"; };
-    }
+    { nix = { daemonIOSchedClass = "idle"; daemonCPUSchedPolicy = "idle"; }; }
     # nix channel & nix flake registry
     {
       nix =
