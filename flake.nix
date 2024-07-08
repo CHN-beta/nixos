@@ -167,7 +167,7 @@
         biu = pkgs.mkShell
         {
           inputsFrom = [ pkgs.localPackages.biu ];
-          buildInputs = [ pkgs.clang-tools_18 ];
+          packages = [ pkgs.clang-tools_18 ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
         hpcstat = pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
@@ -179,7 +179,7 @@
         sbatch-tui = pkgs.mkShell
         {
           inputsFrom = [ pkgs.localPackages.sbatch-tui ];
-          buildInputs = [ pkgs.clang-tools_18 ];
+          packages = [ pkgs.clang-tools_18 ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
         ufo = pkgs.mkShell
@@ -191,15 +191,17 @@
         chn-bsub = pkgs.mkShell
         {
           inputsFrom = [ pkgs.localPackages.chn-bsub ];
-          buildInputs = [ pkgs.clang-tools_18 ];
+          packages = [ pkgs.clang-tools_18 ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
-        winjob = pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
-        {
-          inputsFrom = [ pkgs.localPackages.winjob ];
-          buildInputs = [ pkgs.clang-tools_18 ];
-          CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-        };
+        winjob =
+          let inherit (pkgs) clang-tools_18; in let inherit (inputs.self.packages.x86_64-w64-mingw32) pkgs winjob;
+          in pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
+          {
+            inputsFrom = [ winjob ];
+            packages = [ clang-tools_18 ];
+            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+          };
       };
     };
 }
