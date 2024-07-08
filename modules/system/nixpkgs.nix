@@ -106,6 +106,8 @@ inputs:
                   redis = prev.redis.overrideAttrs { doCheck = false; };
                   krita = final.genericPackages.krita;
                   geos = prev.geos.overrideAttrs { doCheck = false; };
+                  chromium = prev.chromium.override
+                    { stdenv = final.ccacheStdenv.override { stdenv = prev.chromium.stdenv; }; };
                 }
               )
               // (
