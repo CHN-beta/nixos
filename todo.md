@@ -4,3 +4,4 @@
 * 切换到 kde 6.1，使用 krdp
 * 尝试一些别的计算软件
 * 解决 vscode 中的英语语法检查插件，尝试 valentjn.vscode-ltex
+* 降低 bees 和 xray 的日志等级
