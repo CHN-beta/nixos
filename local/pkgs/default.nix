@@ -1,26 +1,24 @@
 inputs: rec
 {
-  typora = inputs.pkgs.callPackage ./typora {};
-  vesta = inputs.pkgs.callPackage ./vesta {};
+  vesta = inputs.pkgs.callPackage ./vesta.nix {};
   rsshub = inputs.pkgs.callPackage ./rsshub.nix { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; };
   misskey = inputs.pkgs.callPackage ./misskey.nix { inherit mkPnpmPackage; src = inputs.topInputs.misskey; };
-  mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn {};
-  vaspkit = inputs.pkgs.callPackage ./vaspkit { inherit (inputs.localLib) attrsToList; };
-  v-sim = inputs.pkgs.callPackage ./v-sim { src = inputs.topInputs.v-sim; };
-  concurrencpp = inputs.pkgs.callPackage ./concurrencpp { src = inputs.topInputs.concurrencpp; };
-  eigengdb = inputs.pkgs.python3Packages.callPackage ./eigengdb {};
-  nodesoup = inputs.pkgs.callPackage ./nodesoup { src = inputs.topInputs.nodesoup; };
-  matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus
+  mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn.nix {};
+  vaspkit = inputs.pkgs.callPackage ./vaspkit.nix { inherit (inputs.localLib) attrsToList; };
+  v-sim = inputs.pkgs.callPackage ./v-sim.nix { src = inputs.topInputs.v-sim; };
+  concurrencpp = inputs.pkgs.callPackage ./concurrencpp.nix { src = inputs.topInputs.concurrencpp; };
+  eigengdb = inputs.pkgs.python3Packages.callPackage ./eigengdb.nix {};
+  nodesoup = inputs.pkgs.callPackage ./nodesoup.nix { src = inputs.topInputs.nodesoup; };
+  matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix
     { inherit nodesoup glad; src = inputs.topInputs.matplotplusplus; };
-  zpp-bits = inputs.pkgs.callPackage ./zpp-bits { src = inputs.topInputs.zpp-bits; };
-  eigen = inputs.pkgs.callPackage ./eigen { src = inputs.topInputs.eigen; };
-  nameof = inputs.pkgs.callPackage ./nameof { src = inputs.topInputs.nameof; };
-  pslist = inputs.pkgs.callPackage ./pslist {};
-  glad = inputs.pkgs.callPackage ./glad {};
-  chromiumos-touch-keyboard = inputs.pkgs.callPackage ./chromiumos-touch-keyboard {};
-  yoga-support = inputs.pkgs.callPackage ./yoga-support {};
-  tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp { src = inputs.topInputs.tgbot-cpp; };
-  mirism = inputs.pkgs.callPackage ./mirism
+  zpp-bits = inputs.pkgs.callPackage ./zpp-bits.nix { src = inputs.topInputs.zpp-bits; };
+  eigen = inputs.pkgs.callPackage ./eigen.nix { src = inputs.topInputs.eigen; };
+  nameof = inputs.pkgs.callPackage ./nameof.nix { src = inputs.topInputs.nameof; };
+  pslist = inputs.pkgs.callPackage ./pslist.nix {};
+  glad = inputs.pkgs.callPackage ./glad.nix {};
+  yoga-support = inputs.pkgs.callPackage ./yoga-support.nix {};
+  tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp.nix { src = inputs.topInputs.tgbot-cpp; };
+  mirism = inputs.pkgs.callPackage ./mirism.nix
   {
     inherit cppcoro nameof tgbot-cpp date;
     nghttp2 = inputs.pkgs.callPackage "${inputs.topInputs."nixpkgs-23.05"}/pkgs/development/libraries/nghttp2"
@@ -28,16 +26,16 @@ inputs: rec
     stdenv = inputs.pkgs.gcc12Stdenv;
   };
   cppcoro = inputs.pkgs.callPackage ./cppcoro { src = inputs.topInputs.cppcoro; };
-  date = inputs.pkgs.callPackage ./date { src = inputs.topInputs.date; };
-  esbonio = inputs.pkgs.python3Packages.callPackage ./esbonio {};
+  date = inputs.pkgs.callPackage ./date.nix { src = inputs.topInputs.date; };
+  esbonio = inputs.pkgs.python3Packages.callPackage ./esbonio.nix {};
   pix2tex = inputs.pkgs.python3Packages.callPackage ./pix2tex {};
-  pyreadline3 = inputs.pkgs.python3Packages.callPackage ./pyreadline3 {};
-  torchdata = inputs.pkgs.python3Packages.callPackage ./torchdata {};
-  torchtext = inputs.pkgs.python3Packages.callPackage ./torchtext { inherit torchdata; };
+  pyreadline3 = inputs.pkgs.python3Packages.callPackage ./pyreadline3.nix {};
+  torchdata = inputs.pkgs.python3Packages.callPackage ./torchdata.nix {};
+  torchtext = inputs.pkgs.python3Packages.callPackage ./torchtext.nix { inherit torchdata; };
   blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper.nix { src = inputs.topInputs.blurred-wallpaper; };
-  slate = inputs.pkgs.callPackage ./slate { src = inputs.topInputs.slate; };
-  nvhpc = inputs.pkgs.callPackage ./nvhpc {};
-  lmod = inputs.pkgs.callPackage ./lmod { src = inputs.topInputs.lmod; };
+  slate = inputs.pkgs.callPackage ./slate.nix { src = inputs.topInputs.slate; };
+  nvhpc = inputs.pkgs.callPackage ./nvhpc.nix {};
+  lmod = inputs.pkgs.callPackage ./lmod.nix { src = inputs.topInputs.lmod; };
   vasp = rec
   {
     src = inputs.pkgs.callPackage ./vasp/source.nix {};
@@ -57,16 +55,16 @@ inputs: rec
     vtstscripts = inputs.pkgs.callPackage ./vasp/vtstscripts.nix {};
   };
   # TODO: use other people packaged hpc version
-  oneapi = inputs.pkgs.callPackage ./oneapi {};
-  mumax = inputs.pkgs.callPackage ./mumax { src = inputs.topInputs.mumax; };
-  kylin-virtual-keyboard = inputs.pkgs.libsForQt5.callPackage ./kylin-virtual-keyboard
+  oneapi = inputs.pkgs.callPackage ./oneapi.nix {};
+  mumax = inputs.pkgs.callPackage ./mumax.nix { src = inputs.topInputs.mumax; };
+  kylin-virtual-keyboard = inputs.pkgs.libsForQt5.callPackage ./kylin-virtual-keyboard.nix
     { src = inputs.topInputs.kylin-virtual-keyboard; };
   biu = inputs.pkgs.callPackage ./biu { inherit nameof zpp-bits; };
-  zxorm = inputs.pkgs.callPackage ./zxorm { src = inputs.topInputs.zxorm; };
+  zxorm = inputs.pkgs.callPackage ./zxorm.nix { src = inputs.topInputs.zxorm; };
   hpcstat = inputs.pkgs.callPackage ./hpcstat
     { inherit sqlite-orm date biu openxlsx; stdenv = inputs.pkgs.gcc14Stdenv; };
-  openxlsx = inputs.pkgs.callPackage ./openxlsx { src = inputs.topInputs.openxlsx; };
-  sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm { src = inputs.topInputs.sqlite-orm; };
+  openxlsx = inputs.pkgs.callPackage ./openxlsx.nix { src = inputs.topInputs.openxlsx; };
+  sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm.nix { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
   sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
   ufo = inputs.pkgs.callPackage ./ufo
