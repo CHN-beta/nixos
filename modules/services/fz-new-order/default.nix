@@ -1,10 +1,7 @@
 inputs:
 {
   options.nixos.services.fz-new-order = let inherit (inputs.lib) mkOption types; in mkOption
-  {
-    type = types.nullOr (types.submodule {});
-    default = null;
-  };
+    { type = types.nullOr (types.submodule {}); default = null; };
   config = let inherit (inputs.config.nixos.services) fz-new-order; in inputs.lib.mkIf (fz-new-order != null)
   {
     users =
@@ -72,7 +69,7 @@ inputs:
         "Z /var/lib/fz-new-order - fz-new-order fz-new-order"
       ];
     };
-    sops = let userNum = 6; configNum = 2; in
+    sops = let userNum = 5; configNum = 2; in
     {
       templates."fz-new-order/config.json" =
       {
@@ -80,7 +77,6 @@ inputs:
         group = inputs.config.users.users."fz-new-order".group;
         content = let placeholder = inputs.config.sops.placeholder; in builtins.toJSON
         {
-          manager = placeholder."fz-new-order/manager";
           token = placeholder."fz-new-order/token";
           uids = builtins.map (j: placeholder."fz-new-order/uids/user${builtins.toString j}")
             (builtins.genList (n: n) userNum);
@@ -92,7 +88,7 @@ inputs:
         };
       };
       secrets =
-        { "fz-new-order/manager" = {}; "fz-new-order/token" = {}; }
+        { "fz-new-order/token" = {}; }
         // (builtins.listToAttrs (builtins.map
           (i: { name = "fz-new-order/uids/user${toString i}"; value = {}; })
           (builtins.genList (n: n) userNum)))

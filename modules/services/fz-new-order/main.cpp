@@ -48,7 +48,7 @@ std::string urlencode(std::string s)
 void oneshot
 (
   const std::string& username, const std::string& password, const std::string& comment,
-  const std::set<std::string>& wxuser, const std::set<std::string>& manager, const std::string& token
+  const std::set<std::string>& wxuser, const std::string& token
 )
 {
   httplib::Client fzclient("http://scmv9.fengzhansy.com:8882");
@@ -152,16 +152,6 @@ void oneshot
     for (const auto& order : order_list)
       if (!order_old.contains(order.first))
       {
-        for (const auto& user : manager)
-        {
-          auto path = fmt::format
-          (
-            "/api/send/message/?appToken={}&content={}&uid={}",
-            token, urlencode(fmt::format("push {}", order.first)), user
-          );
-          auto wxresult = wxclient.Get(path.c_str());
-        }
-
         auto body = fmt::format
         (
           "method=dgate&rand=1234&op=scmmgr_pcggl&nv%5B%5D=opmode&nv%5B%5D=ddsp_qry&nv%5B%5D=bill&nv%5B%5D={}",
@@ -248,7 +238,7 @@ int main(int argc, char** argv)
     oneshot
     (
       config["username"].asString(), config["password"].asString(), config["comment"].asString(),
-      uids, { configs["manager"].asString() }, configs["token"].asString()
+      uids, configs["token"].asString()
     );
 }
 
