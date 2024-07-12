@@ -146,6 +146,7 @@ inputs:
           memoryMB = 90112;
           gpus."4060" = 1;
         };
+        ollama = {};
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
