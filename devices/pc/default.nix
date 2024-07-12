@@ -164,7 +164,7 @@ inputs:
       hideMounts = true;
       users.chn.directories = builtins.map
         (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
-        [ "lammps-SiC" "BPD-paper" "kurumi-asmr" "linwei-stuff" "BPD-paper-old" "SiC-20240705" ];
+        [ "BPD-paper" "kurumi-asmr" "BPD-paper-old" "SiC-20240705" ];
     };
     specialisation =
     {
