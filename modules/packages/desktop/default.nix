@@ -7,7 +7,8 @@ inputs:
       packages._packages = with inputs.pkgs;
       [
         # system management
-        gparted wayland-utils clinfo glxinfo vulkan-tools dracut
+        # TODO: module should add yubikey-touch-detector into path
+        gparted wayland-utils clinfo glxinfo vulkan-tools dracut yubikey-touch-detector
         (
           writeShellScriptBin "xclip"
           ''
