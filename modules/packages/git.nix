@@ -13,5 +13,6 @@ inputs:
         core.quotepath = false;
       };
     };
+    nixos.packages._packages = [ inputs.pkgs.localPackages.git-lfs-transfer ]; # make pure ssh lfs work
   };
 }

@@ -467,6 +467,22 @@
         "type": "github"
       }
     },
+    "git-lfs-transfer": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1720471270,
+        "narHash": "sha256-8r3D6d6nbv5vL33PskgSixoIZt7+wqXYWAxE5KoqAzg=",
+        "owner": "charmbracelet",
+        "repo": "git-lfs-transfer",
+        "rev": "bacbfdb68d928c8c16a08e75b6c6c67cc314a0b8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "charmbracelet",
+        "repo": "git-lfs-transfer",
+        "type": "github"
+      }
+    },
     "gitignore": {
       "inputs": {
         "nixpkgs": [
@@ -1183,6 +1199,7 @@
         "date": "date",
         "eigen": "eigen",
         "envfs": "envfs",
+        "git-lfs-transfer": "git-lfs-transfer",
         "gricad": "gricad",
         "home-manager": "home-manager",
         "impermanence": "impermanence",

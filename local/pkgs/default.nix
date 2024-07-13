@@ -72,6 +72,7 @@ inputs: rec
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
   winjob = inputs.pkgs.callPackage ./winjob { stdenv = inputs.pkgs.gcc14Stdenv; };
   sockpp = inputs.pkgs.callPackage ./sockpp.nix { src = inputs.topInputs.sockpp; };
+  git-lfs-transfer = inputs.pkgs.callPackage ./git-lfs-transfer.nix { src = inputs.topInputs.git-lfs-transfer; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
