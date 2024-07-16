@@ -29,13 +29,13 @@ inputs:
           # math, physics and chemistry
           (mathematica.overrideAttrs (prev: { postInstall = prev.postInstall or "" + "ln -s ${src} $out/src"; }))
           (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; })
-          paraview jmol mpi
+          jmol mpi
           # encryption and password management
           john crunch hashcat
           # container and vm
           genymotion davinci-resolve playonlinux
           # browser
-          microsoft-edge tor-browser
+          microsoft-edge
           # news
           rssguard newsflash newsboat
         ] ++ inputs.lib.optional (inputs.config.nixos.system.nixpkgs.march != null) localPackages.mumax;

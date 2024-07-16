@@ -19,7 +19,7 @@ inputs:
           scrcpy weston cage openbox krita
           # media
           spotify yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc obs-studio
-          waifu2x-converter-cpp inkscape blender whalebird
+          waifu2x-converter-cpp inkscape blender whalebird paraview
           # editor
           typora
           # news
@@ -30,7 +30,7 @@ inputs:
           # instant messager
           element-desktop telegram-desktop discord fluffychat zoom-us signal-desktop slack nur-linyinfeng.wemeet
           # browser
-          google-chrome
+          google-chrome tor-browser
           # office
           crow-translate zotero pandoc ydict libreoffice-qt texstudio poppler_utils pdftk gnuplot pdfchain hdfview
           texliveFull
