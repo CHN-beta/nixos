@@ -26,7 +26,6 @@
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
     nur-linyinfeng = { url = "github:linyinfeng/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nixos-hardware.url = "github:CHN-beta/nixos-hardware";
     envfs = { url = "github:Mic92/envfs"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-fast-build = { url = "github:/Mic92/nix-fast-build"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-flatpak.url = "github:gmodena/nix-flatpak";
@@ -54,7 +53,6 @@
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
     blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
     slate = { url = "github:TheBigWazz/Slate"; flake = false; };
-    linux-surface = { url = "github:linux-surface/linux-surface"; flake = false; };
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
     lmod = { url = "github:TACC/Lmod"; flake = false; };
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };

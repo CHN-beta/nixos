@@ -9,11 +9,8 @@ inputs:
         sha256 = "0faahbzsr44bjmwr6508wi5hg59dfb57fzh5x6jh7zwmv4pzhqlb";
         fetchLFS = true;
       };
-      wallpaper =
-      {
-        pc = "${nixos-wallpaper}/pixiv-117612023.png";
-        surface = "${nixos-wallpaper}/fanbox-6682738.png";
-      }.${inputs.config.nixos.system.networking.hostname} or "${nixos-wallpaper}/pixiv-96734339-x2.png";
+      wallpaper = { pc = "${nixos-wallpaper}/pixiv-117612023.png"; }
+        .${inputs.config.nixos.system.networking.hostname} or "${nixos-wallpaper}/pixiv-96734339-x2.png";
     in
     {
       # "plasma-org.kde.plasma.desktop-appletsrc" =

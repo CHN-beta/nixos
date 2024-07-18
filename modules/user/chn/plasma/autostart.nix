@@ -53,11 +53,7 @@ inputs:
             path = "${inputs.pkgs.crow-translate}/share/applications/${fileName}";
           };
         };
-        devices =
-        {
-          pc = [ "nheko" "kclockd" "yakuake" "telegram" "element" "kmail" "discord" "crow-translate" ];
-          surface = [ "kclockd" "yakuake" "telegram" "element" "crow-translate" ];
-        };
+        devices.pc = [ "nheko" "kclockd" "yakuake" "telegram" "element" "kmail" "discord" "crow-translate" ];
       in builtins.listToAttrs (builtins.map
         (file:
         {

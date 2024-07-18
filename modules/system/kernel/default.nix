@@ -81,45 +81,6 @@ inputs:
                   HZ = inputs.lib.mkForce (freeform "1000");
                 };
               }];
-              surface =
-                let
-                  version =
-                    let versionArray = builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version;
-                    in "${builtins.elemAt versionArray 0}.${builtins.elemAt versionArray 1}";
-                  kernelPatches = builtins.map
-                    (file:
-                    {
-                      name = "surface-${file.name}";
-                      patch = "${inputs.topInputs.linux-surface}/patches/${version}/${file.name}";
-                    })
-                    (builtins.filter
-                      (file: file.value == "regular")
-                      (inputs.localLib.attrsToList (builtins.readDir
-                        "${inputs.topInputs.linux-surface}/patches/${version}")));
-                  kernelConfig = builtins.removeAttrs
-                    (builtins.listToAttrs (builtins.concatLists (builtins.map
-                      (configString:
-                        if builtins.match "CONFIG_.*=." configString == [] then
-                        (
-                          let match = builtins.match "CONFIG_(.*)=(.)" configString; in with inputs.lib.kernel;
-                          [{
-                            name = builtins.elemAt match 0;
-                            value = { m = module; y = yes; }.${builtins.elemAt match 1};
-                          }]
-                        )
-                        else if builtins.match "# CONFIG_.* is not set" configString == [] then
-                        [{
-                          name = builtins.elemAt (builtins.match "# CONFIG_(.*) is not set" configString) 0;
-                          value = inputs.lib.kernel.unset;
-                        }]
-                        else if builtins.match "#.*" configString == [] then []
-                        else if configString == "" then []
-                        else throw "could not parse: ${configString}"
-                      )
-                      (inputs.lib.strings.splitString "\n"
-                        (builtins.readFile "${inputs.topInputs.linux-surface}/configs/surface-${version}.config")))))
-                    [ "VIDEO_IPU3_IMGU" ];
-                in kernelPatches ++ [{ name = "surface-config"; patch = null; extraStructuredConfig = kernelConfig; }];
               hibernate-progress =
               [{
                 name = "hibernate-progress";
