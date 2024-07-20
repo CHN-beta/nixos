@@ -86,7 +86,7 @@ inputs:
               in
               builtins.toJSON
               {
-                log.loglevel = "info";
+                log.loglevel = "warning";
                 dns =
                 {
                   servers =

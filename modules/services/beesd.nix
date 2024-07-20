@@ -41,6 +41,7 @@ inputs:
             "--thread-count" "${builtins.toString instance.value.threads or 1}"
             "--loadavg-target" "${builtins.toString instance.value.loadAverage or 1}"
             "--scan-mode" "3"
+            "--verbose" "6"
           ];
         };
       })
