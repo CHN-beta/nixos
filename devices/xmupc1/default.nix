@@ -88,6 +88,7 @@ inputs:
           shares = { home.path = "/home"; root.path = "/"; };
         };
         groupshare = {};
+        hpcstat = {};
       };
       bugs = [ "xmunet" "amdpstate" ];
       user.users = [ "chn" "xll" "zem" "yjq" "gb" ];
