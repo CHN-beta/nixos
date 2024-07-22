@@ -46,6 +46,7 @@ inputs:
         nixpkgs.march = "silvermont";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         networking = { hostname = "nas"; networkd = {}; };
+        gui = { enable = true; preferred = false; };
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
@@ -71,6 +72,7 @@ inputs:
         };
         gitea = { enable = true; hostname = "git.nas.chn.moe"; ssh = { hostname = "office.chn.moe"; port = 5440; }; };
       };
+      packages.packageSet = "desktop-extra";
       user.users = [ "chn" "xll" "zem" "yjq" "gb" ];
     };
   };
