@@ -69,7 +69,6 @@ inputs:
           publicKey = "xCYRbZEaGloMk7Awr00UR3JcDJy4AzVp4QvGNoyEgFY=";
           wireguardIp = "192.168.83.4";
         };
-        hpcstat = {};
         gitea = { enable = true; hostname = "git.nas.chn.moe"; ssh = { hostname = "office.chn.moe"; port = 5440; }; };
       };
       user.users = [ "chn" "xll" "zem" "yjq" "gb" ];
