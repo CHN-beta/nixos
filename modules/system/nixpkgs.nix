@@ -107,6 +107,7 @@ inputs:
                   redis = prev.redis.overrideAttrs { doCheck = false; };
                   krita = final.genericPackages.krita;
                   geos = prev.geos.overrideAttrs { doCheck = false; };
+                  c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; };
                 }
               )
               // (
