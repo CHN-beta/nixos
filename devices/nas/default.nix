@@ -67,6 +67,7 @@ inputs:
           publicKey = "xCYRbZEaGloMk7Awr00UR3JcDJy4AzVp4QvGNoyEgFY=";
           wireguardIp = "192.168.83.4";
         };
+        xrdp = { enable = true; hostname = [ "nas.chn.moe" ]; };
       };
       packages.packageSet = "desktop-extra";
     };
