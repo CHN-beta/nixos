@@ -16,7 +16,7 @@ find_package(Boost REQUIRED COMPONENTS headers filesystem)
 find_package(nlohmann_json REQUIRED)
 find_package(range-v3 REQUIRED)
 
-add_executable(winjob src/winjob.cpp)
+add_executable(winjob src/winjob.cpp src/windows.cpp)
 # target_compile_features(winjob PRIVATE cxx_std_26)
 target_compile_options(winjob PRIVATE "-std=c++26")
 target_include_directories(winjob PRIVATE ${PROJECT_SOURCE_DIR}/include)
