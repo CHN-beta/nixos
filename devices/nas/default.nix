@@ -70,6 +70,7 @@ inputs:
         xrdp = { enable = true; hostname = [ "nas.chn.moe" ]; };
       };
       packages.packageSet = "desktop-extra";
+      virtualization = { docker.enable = true; kvmHost = { enable = true; gui = true; }; };
     };
   };
 }
