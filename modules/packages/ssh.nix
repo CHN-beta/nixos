@@ -38,12 +38,12 @@ inputs:
         nas =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIIktNbEcDMKlibXg54u7QOLt0755qB/P4vfjwca8xY6V";
-          hostnames = [ "wireguard.nas.chn.moe" "[office.chn.moe]:5440" "192.168.1.185" "192.168.83.4" ];
+          hostnames = [ "wireguard.nas.chn.moe" "192.168.1.2" "192.168.83.4" ];
         };
         "initrd.nas" =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIAoMu0HEaFQsnlJL0L6isnkNZdRq0OiDXyaX3+fl3NjT";
-          hostnames = [ "initrd.nas.chn.moe" "[office.chn.moe]:5440" "192.168.1.185" ];
+          hostnames = [ "initrd.nas.chn.moe" "192.168.1.2" ];
         };
         pc =
         {
@@ -123,8 +123,8 @@ inputs:
         // rec {
           xmupc1 = { host = "xmupc1"; hostname = "xmupc1.chn.moe"; port = 6007; forwardX11 = true; };
           xmupc2 = { host = "xmupc2"; hostname = "xmupc2.chn.moe"; port = 6394; forwardX11 = true; };
-          nas = { host = "nas"; hostname = "office.chn.moe"; port = 5440; };
-          pc = { host = "pc"; hostname = "office.chn.moe"; port = 3673; forwardX11 = true; };
+          nas = { host = "nas"; hostname = "192.168.1.2"; forwardX11 = true; };
+          pc = { host = "pc"; hostname = "192.168.1.3"; forwardX11 = true; };
           gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
           jykang =
           {
@@ -134,7 +134,7 @@ inputs:
             forwardAgent = true;
             extraOptions.AddKeysToAgent = "yes";
           };
-          "internal.jykang" = jykang // { host = "internal.jykang"; proxyJump = "wireguard.nas"; };
+          "wireguard.jykang" = jykang // { host = "internal.jykang"; proxyJump = "wireguard.xmupc1"; };
         };
       };
     })];
