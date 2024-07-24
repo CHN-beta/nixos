@@ -106,7 +106,8 @@ inputs:
         (inputs.localLib.attrsToList meilisearch.instances));
     };
     environment.persistence =
-      let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
+      let inherit (inputs.config.nixos.system) impermanence;
+      in inputs.lib.mkIf (impermanence.enable && meilisearch.instances != {})
         { "${impermanence.nodatacow}".directories = [ "/var/lib/meilisearch" ]; };
   };
 }
