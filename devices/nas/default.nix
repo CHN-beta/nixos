@@ -52,17 +52,14 @@ inputs:
       services =
       {
         snapper.enable = true;
-        samba = { enable = true; hostsAllowed = "192.168. 127."; shares = { home.path = "/home"; root.path = "/"; }; };
         sshd = {};
         xray.client = { enable = true; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
-        groupshare = {};
         smartd.enable = true;
         beesd.instances =
         {
           root = { device = "/"; hashTableSizeMB = 4096; threads = 4; };
           nix = { device = "/nix"; hashTableSizeMB = 128; };
         };
-        nginx = { enable = true; applications.webdav.instances."local.webdav.chn.moe" = {}; };
         wireguard =
         {
           enable = true;
@@ -70,10 +67,8 @@ inputs:
           publicKey = "xCYRbZEaGloMk7Awr00UR3JcDJy4AzVp4QvGNoyEgFY=";
           wireguardIp = "192.168.83.4";
         };
-        gitea = { enable = true; hostname = "git.nas.chn.moe"; ssh = { hostname = "office.chn.moe"; port = 5440; }; };
       };
       packages.packageSet = "desktop-extra";
-      user.users = [ "chn" "xll" "zem" "yjq" "gb" ];
     };
   };
 }
