@@ -610,6 +610,22 @@
         "type": "github"
       }
     },
+    "linux-surface": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1719778916,
+        "narHash": "sha256-CfxfDxzCMwrZg375n89rljR6hchJQQ+SOHTBgNCR82w=",
+        "owner": "linux-surface",
+        "repo": "linux-surface",
+        "rev": "dbc445a23d3b546447eab6d46b49ed76af544070",
+        "type": "github"
+      },
+      "original": {
+        "owner": "linux-surface",
+        "repo": "linux-surface",
+        "type": "github"
+      }
+    },
     "lmod": {
       "flake": false,
       "locked": {
@@ -812,6 +828,21 @@
       "original": {
         "owner": "nix-community",
         "repo": "nix-vscode-extensions",
+        "type": "github"
+      }
+    },
+    "nixos-hardware": {
+      "locked": {
+        "lastModified": 1719984813,
+        "narHash": "sha256-/zRdv5J5exywcZXxIatB0Megh1QUs2vC7BCyvBB73ZA=",
+        "owner": "CHN-beta",
+        "repo": "nixos-hardware",
+        "rev": "a939cbb5dfd3648debce81492a17b0bafa301948",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "nixos-hardware",
         "type": "github"
       }
     },
@@ -1174,6 +1205,7 @@
         "impermanence": "impermanence",
         "kylin-virtual-keyboard": "kylin-virtual-keyboard",
         "lepton": "lepton",
+        "linux-surface": "linux-surface",
         "lmod": "lmod",
         "matplotplusplus": "matplotplusplus",
         "misskey": "misskey",
@@ -1183,6 +1215,7 @@
         "nix-flatpak": "nix-flatpak",
         "nix-index-database": "nix-index-database",
         "nix-vscode-extensions": "nix-vscode-extensions",
+        "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixpkgs-22.05": "nixpkgs-22.05",
         "nixpkgs-22.11": "nixpkgs-22.11",

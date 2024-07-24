@@ -45,6 +45,11 @@ inputs:
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIAoMu0HEaFQsnlJL0L6isnkNZdRq0OiDXyaX3+fl3NjT";
           hostnames = [ "initrd.nas.chn.moe" "192.168.1.2" ];
         };
+        surface =
+        {
+          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIFdm3DcfHdcLP0oSpVrWwIZ/b9lZuakBSPwCFz2BdTJ7";
+          hostnames = [ "192.168.1.166" "wireguard.surface.chn.moe" "192.168.83.5" ];
+        };
         pc =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIMSfREi19OSwQnhdsE8wiNwGSFFJwNGN0M5gN+sdrrLJ";
@@ -105,7 +110,7 @@ inputs:
             [ "vps4" "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.nas" ])
           ++ (builtins.map
             (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; }; })
-            [ "wireguard.pc" "wireguard.xmupc1" "wireguard.xmupc2" ])
+            [ "wireguard.pc" "wireguard.surface" "wireguard.xmupc1" "wireguard.xmupc2" ])
           ++ (builtins.map
             (host:
             {
@@ -125,6 +130,7 @@ inputs:
           xmupc2 = { host = "xmupc2"; hostname = "xmupc2.chn.moe"; port = 6394; forwardX11 = true; };
           nas = { host = "nas"; hostname = "192.168.1.2"; forwardX11 = true; };
           pc = { host = "pc"; hostname = "192.168.1.3"; forwardX11 = true; };
+          surface = { host = "surface"; hostname = "192.168.1.4"; forwardX11 = true; };
           gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
           jykang =
           {
