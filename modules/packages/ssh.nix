@@ -48,7 +48,7 @@ inputs:
         surface =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIFdm3DcfHdcLP0oSpVrWwIZ/b9lZuakBSPwCFz2BdTJ7";
-          hostnames = [ "192.168.1.166" "wireguard.surface.chn.moe" "192.168.83.5" ];
+          hostnames = [ "192.168.1.4" "wireguard.surface.chn.moe" "192.168.83.5" ];
         };
         pc =
         {
