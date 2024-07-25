@@ -4,19 +4,8 @@
 int main()
 {
   boost::asio::io_context io_context;
-  boost::asio::local::stream_protocol::endpoint ep("/tmp/winjobd.sock");
+  boost::asio::local::stream_protocol::endpoint ep("winjobd.sock");
   boost::asio::local::stream_protocol::acceptor acceptor(io_context, ep);
-  auto getuid = [](boost::asio::local::stream_protocol::socket& socket)
-  {
-    struct ucred ucred;
-    socklen_t len = sizeof(ucred);
-    if (getsockopt(socket.native_handle(), SOL_SOCKET, SO_PEERCRED, &ucred, &len) == -1)
-    {
-      std::cerr << "Failed to get SO_PEERCRED\n";
-      return 0u;
-    }
-    return ucred.uid;
-  };
   std::function<void(const boost::system::error_code&, boost::asio::local::stream_protocol::socket)> func =
     [&](const boost::system::error_code& ec, boost::asio::local::stream_protocol::socket socket)
   {
@@ -32,7 +21,6 @@ int main()
     std::string line;
     std::getline(is, line);
     std::cout << "Received: " << line << '\n';
-    std::cout << "Peer UID: " << getuid(socket) << '\n';
     // write a message to the client
     std::string message = "thanks for the message\n";
     boost::asio::write(socket, boost::asio::buffer(message));

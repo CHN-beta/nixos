@@ -13,26 +13,25 @@ endif()
 set(WINJOB_VERSION "unknown" CACHE STRING "Version of the winjob")
 
 find_package(Boost REQUIRED COMPONENTS headers filesystem)
-find_package(nlohmann_json REQUIRED)
-find_package(range-v3 REQUIRED)
+find_package(protobuf REQUIRED)
+find_package(gRPC REQUIRED)
 
 add_executable(winjob src/winjob.cpp src/windows.cpp)
 # target_compile_features(winjob PRIVATE cxx_std_26)
 target_compile_options(winjob PRIVATE "-std=c++26")
 target_include_directories(winjob PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(winjob PRIVATE Boost::headers Boost::filesystem
-  nlohmann_json::nlohmann_json range-v3::range-v3)
+target_link_libraries(winjob PRIVATE Boost::headers Boost::filesystem ws2_32 wsock32)
 target_compile_definitions(winjob PRIVATE winjob_VERSION="${winjob_VERSION}")
 
 add_executable(winjobd src/winjobd.cpp)
 # target_compile_features(winjob PRIVATE cxx_std_26)
 target_compile_options(winjobd PRIVATE "-std=c++26")
 target_include_directories(winjobd PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(winjobd PRIVATE Boost::headers Boost::filesystem
-  nlohmann_json::nlohmann_json range-v3::range-v3)
+target_link_libraries(winjobd PRIVATE Boost::headers Boost::filesystem ws2_32 wsock32)
 target_compile_definitions(winjobd PRIVATE winjob_VERSION="${winjob_VERSION}")
 
 install(TARGETS winjob RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS winjobd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 get_property(ImportedTargets DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
 message("Imported targets: ${ImportedTargets}")

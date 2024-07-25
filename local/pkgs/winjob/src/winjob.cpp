@@ -4,11 +4,12 @@
 int main()
 {
   boost::asio::io_context io_context;
-  boost::asio::local::stream_protocol::endpoint ep("/tmp/winjobd.sock");
+  boost::asio::local::stream_protocol::endpoint ep("winjobd.sock");
   // send a message to the server
   boost::asio::local::stream_protocol::socket socket(io_context);
   socket.connect(ep);
-  std::string message = "Hello, world!\n";
+  std::string message;
+  std::getline(std::cin, message);
   boost::asio::write(socket, boost::asio::buffer(message));
   // receive a message from the server
   boost::asio::streambuf buf;
