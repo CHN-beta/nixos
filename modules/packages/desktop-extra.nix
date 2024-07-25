@@ -14,7 +14,7 @@ inputs:
           # password and key management
           yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden
           # download
-          qbittorrent nur-xddxdd.baidupcs-go wgetpaste
+          qbittorrent nur-xddxdd.baidupcs-go wgetpaste onedrive onedrivegui rclone
           # development
           scrcpy weston cage openbox krita
           # media
