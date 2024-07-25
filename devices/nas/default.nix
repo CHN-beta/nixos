@@ -68,6 +68,7 @@ inputs:
           wireguardIp = "192.168.83.4";
         };
         xrdp = { enable = true; hostname = [ "nas.chn.moe" ]; };
+        firewall.trustedInterfaces = [ "virbr0" ];
       };
       packages.packageSet = "desktop-extra";
       virtualization = { docker.enable = true; kvmHost = { enable = true; gui = true; }; };
