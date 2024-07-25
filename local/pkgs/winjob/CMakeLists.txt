@@ -13,6 +13,7 @@ endif()
 set(WINJOB_VERSION "unknown" CACHE STRING "Version of the winjob")
 
 find_package(Boost REQUIRED COMPONENTS headers filesystem)
+find_package(nlohmann_json REQUIRED)
 
 add_executable(winjob src/winjob.cpp src/windows.cpp)
 # target_compile_features(winjob PRIVATE cxx_std_26)

@@ -4,7 +4,7 @@
 int main()
 {
   boost::asio::io_context io_context;
-  boost::asio::local::stream_protocol::endpoint ep("winjobd.sock");
+  boost::asio::local::stream_protocol::endpoint ep(R"(C:\ProgramData\winjob\winjobd.sock)");
   // send a message to the server
   boost::asio::local::stream_protocol::socket socket(io_context);
   socket.connect(ep);

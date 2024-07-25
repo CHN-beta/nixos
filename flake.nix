@@ -199,8 +199,9 @@
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
         winjob =
-          let inherit (pkgs) clang-tools_18; in let inherit (inputs.self.packages.x86_64-w64-mingw32) pkgs winjob;
-          in pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
+          let inherit (pkgs) clang-tools_18 mkShell;
+          in let inherit (inputs.self.packages.x86_64-w64-mingw32) pkgs winjob;
+          in mkShell.override { stdenv = pkgs.gcc14Stdenv; }
           {
             inputsFrom = [ winjob ];
             packages = [ clang-tools_18 ];

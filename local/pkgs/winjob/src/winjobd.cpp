@@ -1,10 +1,25 @@
 # include <boost/asio.hpp>
 # include <iostream>
 
+
+
 int main()
 {
+  // clear temp files
+  std::filesystem::create_directories(R"(C:\ProgramData\winjob)");
+  if (std::filesystem::exists(R"(C:\ProgramData\winjob\winjobd.sock)"))
+    std::filesystem::remove(R"(C:\ProgramData\winjob\winjobd.sock)");
+  if (std::filesystem::exists(R"(C:\ProgramData\winjob\auth)"))
+    std::filesystem::remove(R"(C:\ProgramData\winjob\auth)");
+  std::filesystem::create_directories(R"(C:\ProgramData\winjob\auth)");
+
+  // 
+
+
+  
+
   boost::asio::io_context io_context;
-  boost::asio::local::stream_protocol::endpoint ep("winjobd.sock");
+  boost::asio::local::stream_protocol::endpoint ep(R"(C:\ProgramData\winjob\winjobd.sock)");
   boost::asio::local::stream_protocol::acceptor acceptor(io_context, ep, false);
   std::function<void(const boost::system::error_code&, boost::asio::local::stream_protocol::socket)> func =
     [&](const boost::system::error_code& ec, boost::asio::local::stream_protocol::socket socket)
