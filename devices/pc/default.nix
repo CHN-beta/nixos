@@ -149,11 +149,33 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
-    boot.kernelParams =
-    [
-      "acpi_osi=!" ''acpi_osi="Windows 2015"''
-      "amdgpu.sg_display=0" # 混合模式下避免外接屏幕闪烁，和内置外接屏幕延迟
-    ];
+    boot =
+    {
+      kernelParams =
+      [
+        "acpi_osi=!" ''acpi_osi="Windows 2015"''
+        "amdgpu.sg_display=0" # 混合模式下避免外接屏幕闪烁，和内置外接屏幕延迟
+      ];
+      loader.grub =
+      {
+        extraFiles =
+        {
+          "shell.efi" = "${inputs.pkgs.edk2-uefi-shell}/shell.efi";
+          "efi/DisplayEngine.efi" = ./bios/DisplayEngine.efi;
+          "efi/SetupBrowser.efi" = ./bios/SetupBrowser.efi;
+          "efi/UiApp.efi" = ./bios/UiApp.efi;
+          "efi/Bootx64.efi" = ./bios/Bootx64.efi;
+        };
+        extraEntries = 
+        ''
+          menuentry 'Advanced UEFI Firmware Settings' {
+            insmod fat
+            insmod chain
+            chainloader @bootRoot@/Bootx64.efi
+          }
+        '';
+      };
+    };
     # 禁止鼠标等在睡眠时唤醒
     services.udev.extraRules = ''ACTION=="add", ATTR{power/wakeup}="disabled"'';
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
