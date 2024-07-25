@@ -73,5 +73,12 @@ inputs:
       packages.packageSet = "desktop-extra";
       virtualization = { docker.enable = true; kvmHost = { enable = true; gui = true; }; };
     };
+    networking.nat =
+    {
+      enable = true;
+      internalInterfaces = [ "enp3s0" ];
+      externalInterface = "virbr0";
+      forwardPorts = [{ sourcePort = 515; proto = "tcp"; destination = "192.168.122.166:515"; }];
+    };
   };
 }
