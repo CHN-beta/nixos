@@ -122,7 +122,7 @@
           );
         x86_64-w64-mingw32 = rec
         {
-          pkgs = x86_64-linux.pkgs.pkgsCross.mingwW64;
+          pkgs = x86_64-linux.pkgs.pkgsCross.mingwW64Static;
           winjob = pkgs.localPackages.winjob;
         };
       };
