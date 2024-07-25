@@ -5,7 +5,7 @@ int main()
 {
   boost::asio::io_context io_context;
   boost::asio::local::stream_protocol::endpoint ep("winjobd.sock");
-  boost::asio::local::stream_protocol::acceptor acceptor(io_context, ep);
+  boost::asio::local::stream_protocol::acceptor acceptor(io_context, ep, false);
   std::function<void(const boost::system::error_code&, boost::asio::local::stream_protocol::socket)> func =
     [&](const boost::system::error_code& ec, boost::asio::local::stream_protocol::socket socket)
   {
