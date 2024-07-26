@@ -70,7 +70,7 @@ inputs: rec
   ufo = inputs.pkgs.callPackage ./ufo
     { inherit concurrencpp biu glad matplotplusplus zpp-bits; tbb = inputs.pkgs.tbb_2021_11; };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
-  winjob = inputs.pkgs.callPackage ./winjob { stdenv = inputs.pkgs.gcc14Stdenv; };
+  winjob = inputs.pkgs.callPackage ./winjob {};
   sockpp = inputs.pkgs.callPackage ./sockpp.nix { src = inputs.topInputs.sockpp; };
   git-lfs-transfer = inputs.pkgs.callPackage ./git-lfs-transfer.nix { src = inputs.topInputs.git-lfs-transfer; };
 

@@ -3,7 +3,6 @@
 # include <tchar.h>
 # include <accctrl.h>
 # include <aclapi.h>
-# include <winbase.h>
 
 namespace winjob
 {
@@ -102,23 +101,5 @@ namespace winjob
     if (!SetFileSecurityW(fileName.c_str(), DACL_SECURITY_INFORMATION, pSD))
       { FreeSid(pUsersSID); LocalFree(pACL); LocalFree(pSD); return false; }
     else { FreeSid(pUsersSID); LocalFree(pACL); LocalFree(pSD); return true; }
-  }
-
-  std::unique_ptr<boost::process::child> run_as(std::pair<std::wstring, std::wstring> user, std::wstring program)
-  {
-    auto password = L"";
-
-    // Initialize the STARTUPINFO structure
-    STARTUPINFOW si = { sizeof(si) };
-    PROCESS_INFORMATION pi;
-
-    // Create the process as the specified user
-    BOOL result = CreateProcessWithLogonW
-    (
-      user.second.c_str(), user.first.c_str(), password, LOGON_WITH_PROFILE, program.c_str(), NULL, // args
-      CREATE_UNICODE_ENVIRONMENT, NULL, NULL, &si, &pi
-    );
-    if (!result) return {};
-    else return new boost::process::child(boost::process::detail::windows::child_handle(pi.hProcess, true));
   }
 }

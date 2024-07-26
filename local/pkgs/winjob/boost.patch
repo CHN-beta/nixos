@@ -1,0 +1,12 @@
+diff --color -ur a/boost/process/v2/detail/impl/utf8.ipp b/boost/process/v2/detail/impl/utf8.ipp
+--- a/boost/process/v2/detail/impl/utf8.ipp	2024-07-26 15:50:15.844632780 +0800
++++ b/boost/process/v2/detail/impl/utf8.ipp	2024-07-26 15:50:09.036567016 +0800
+@@ -11,7 +11,7 @@
+ #include <boost/process/v2/error.hpp>
+ 
+ #if defined(BOOST_PROCESS_V2_WINDOWS)
+-#include <Windows.h>
++#include <windows.h>
+ #endif
+ 
+ BOOST_PROCESS_V2_BEGIN_NAMESPACE

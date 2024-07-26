@@ -86,7 +86,8 @@
           overlays = [ inputs.self.overlays.default ];
           crossOverlays = [(final: prev:
           {
-            boost = prev.boost.override { zstd = null; };
+            boost = (prev.boost.override { zstd = null; }).overrideAttrs (prev:
+              { patches = prev.patches or [] ++ [ ./local/pkgs/winjob/boost.patch ]; });
             magic-enum = prev.magic-enum.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++
               [ "-DMAGIC_ENUM_OPT_BUILD_EXAMPLES=OFF" "-DMAGIC_ENUM_OPT_BUILD_TESTS=OFF" ]; });
             range-v3 = prev.range-v3.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++
@@ -191,7 +192,7 @@
           packages = [ pkgs.clang-tools_18 ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
-        winjob = pkgs.mkShell.override { stdenv = pkgs.pkgsCross.mingwW64Static.gcc14Stdenv; }
+        winjob = pkgs.mkShell
         {
           inputsFrom = [ pkgs.pkgsCross.mingwW64Static.winjob ];
           packages = [ pkgs.clang-tools_18 ];
