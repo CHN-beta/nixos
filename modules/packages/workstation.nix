@@ -33,7 +33,9 @@ inputs:
           # encryption and password management
           john crunch hashcat
           # container and vm
-          genymotion davinci-resolve playonlinux
+          genymotion davinci-resolve
+          # TODO: broken on python 3.12
+          # playonlinux
           # browser
           microsoft-edge
           # news
@@ -41,7 +43,9 @@ inputs:
         ] ++ inputs.lib.optional (inputs.config.nixos.system.nixpkgs.march != null) localPackages.mumax;
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
-          phonopy tensorflow keras scipy scikit-learn jupyterlab autograd # localPackages.pix2tex
+          phonopy scipy scikit-learn jupyterlab autograd # localPackages.pix2tex
+          # TODO: broken on python 3.12
+          # tensorflow keras
         ])];
       };
       user.sharedModules =
