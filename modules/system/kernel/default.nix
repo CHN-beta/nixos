@@ -7,7 +7,7 @@ inputs:
       type = types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "cachyos-server" ];
       default = "xanmod-latest";
     };
-    patches = mkOption { type = types.listOf types.nonEmptyStr; default = [ "cjktty" ]; };
+    patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     modules =
     {
       install = mkOption { type = types.listOf types.str; default = []; };
