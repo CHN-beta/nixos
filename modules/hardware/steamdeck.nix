@@ -10,6 +10,7 @@ inputs:
       steamos.useSteamOSConfig = true;
       decky-loader.enable = true;
       devices.steamdeck.enable = true;
+      overlay.enable = true;
     };
   };
 }

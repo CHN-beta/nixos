@@ -22,6 +22,7 @@ inputs:
         {
           steamos.useSteamOSConfig = inputs.lib.mkDefault false;
           devices.steamdeck.enableKernelPatches = inputs.lib.mkDefault false;
+          overlay.enable = inputs.lib.mkDefault false;
         };
       }
       (inputs:
