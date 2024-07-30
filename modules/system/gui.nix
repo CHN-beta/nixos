@@ -11,11 +11,14 @@ inputs:
     services =
     {
       displayManager =
-        { sddm = { enable = true; wayland.enable = true; theme = "breeze"; }; defaultSession = "plasma"; };
+      {
+        sddm = { enable = inputs.lib.mkDefault true; wayland.enable = true; theme = "breeze"; };
+        defaultSession = "plasma";
+      };
       desktopManager.plasma6.enable = true;
       xserver.enable = true;
     };
-    systemd.services.display-manager.enable = gui.autoStart;
+    systemd.services.display-manager.enable = inputs.lib.mkDefault gui.autoStart;
     environment =
     {
       sessionVariables =

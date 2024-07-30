@@ -5,7 +5,7 @@ inputs:
     programs.steam =
     {
       enable = true;
-      package = inputs.pkgs.steam.override (prev:
+      package = inputs.lib.mkIf (inputs.config.nixos.hardware.steamdeck == null) (inputs.pkgs.steam.override (prev:
       {
         steam = prev.steam.overrideAttrs (prev:
         {
@@ -14,7 +14,7 @@ inputs:
             sed -i 's#Comment\[zh_CN\]=.*$#Comment\[zh_CN\]=思题慕®学习平台#' $out/share/applications/steam.desktop
           '';
         });
-      });
+      }));
     };
   };
 }

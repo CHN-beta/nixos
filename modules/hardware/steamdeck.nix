@@ -6,11 +6,13 @@ inputs:
   {
     jovian =
     {
-      steam = { enable = true; autoStart = true; desktopSession = "plasma"; };
+      steam = { enable = true; autoStart = true; user = "chn"; desktopSession = "plasma"; };
       steamos.useSteamOSConfig = true;
       decky-loader.enable = true;
       devices.steamdeck.enable = true;
       overlay.enable = true;
     };
+    services.displayManager.sddm.enable = false;
+    systemd.services.display-manager.enable = false;
   };
 }

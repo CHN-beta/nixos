@@ -30,7 +30,7 @@ inputs:
         nixpkgs.march = "znver2";
         grub.installDevice = "efi";
         nix = { substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ]; githubToken.enable = true; };
-        kernel = { variant = "steamos"; patches = [ "hibernate-progress" ]; };
+        kernel.variant = "steamos";
         networking.hostname = "steamdeck";
         gui.enable = true;
       };
