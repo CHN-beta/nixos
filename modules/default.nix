@@ -16,6 +16,14 @@ inputs:
       topInputs.chaotic.nixosModules.default
       { config.chaotic.nyx.overlay.onTopOf = "user-pkgs"; }
       topInputs.catppuccin.nixosModules.catppuccin
+      topInputs.jovian.nixosModules.default
+      {
+        config.jovian =
+        {
+          steamos.useSteamOSConfig = inputs.lib.mkDefault false;
+          devices.steamdeck.enableKernelPatches = inputs.lib.mkDefault false;
+        };
+      }
       (inputs:
       {
         config =

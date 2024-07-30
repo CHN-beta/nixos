@@ -1,6 +1,5 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules [ inputs.topInputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel ];
   config =
   {
     nixos =
@@ -28,14 +27,14 @@ inputs:
           resume = "/dev/mapper/swap";
           rollingRootfs = {};
         };
-        nixpkgs.march = "skylake";
+        nixpkgs.march = "znver2";
         grub.installDevice = "efi";
         nix = { substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ]; githubToken.enable = true; };
-        kernel = { variant = "xanmod-lts"; patches = [ "cjktty" "lantian" "surface" "hibernate-progress" ]; };
-        networking.hostname = "surface";
+        kernel = { variant = "steamos"; patches = [ "hibernate-progress" ]; };
+        networking.hostname = "steamdeck";
         gui.enable = true;
       };
-      hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
+      hardware = { cpus = [ "amd" ]; gpu.type = "amd"; steamdeck = {}; };
       packages.packageSet = "desktop-extra";
       virtualization = { docker.enable = true; waydroid.enable = true; };
       services =
@@ -53,14 +52,7 @@ inputs:
         };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
       };
-      bugs = [ "xmunet" "suspend-hibernate-no-platform" ];
-    };
-    environment.systemPackages = with inputs.pkgs; [ maliit-keyboard maliit-framework ];
-    powerManagement.resumeCommands = ''${inputs.pkgs.systemd}/bin/systemctl restart iptsd'';
-    services.iptsd.config =
-    {
-      Touch = { DisableOnPalm = true; DisableOnStylus = true; Overshoot = 0.5; };
-      Contacts = { Neutral = "Average"; NeutralValue = 10; };
+      bugs = [ "xmunet" ];
     };
   };
 }
