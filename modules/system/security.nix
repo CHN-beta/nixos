@@ -11,24 +11,27 @@ inputs:
         u2f =
         {
           enable = true;
-          cue = true;
-          appId = "pam://chn.moe";
-          origin = "pam://chn.moe";
-          # generate using: `pamu2fcfg -u chn -o pam://chn.moe -i pam://chn.moe`
-          authFile = builtins.toString (inputs.pkgs.writeText "yubikey_mappings" (builtins.concatStringsSep "\n"
-          [
-            (builtins.concatStringsSep ":"
+          settings =
+          {
+            cue = true;
+            appid = "pam://chn.moe";
+            origin = "pam://chn.moe";
+            # generate using: `pamu2fcfg -u chn -o pam://chn.moe -i pam://chn.moe`
+            authfile = builtins.toString (inputs.pkgs.writeText "yubikey_mappings" (builtins.concatStringsSep "\n"
             [
-              "chn"
-              (builtins.concatStringsSep ","
+              (builtins.concatStringsSep ":"
               [
-                "83Y3cLxhcmwbDOH1h67SQ1xy0dFBcoKYM0VO/YVq+9lpOpdPdmFaB7BNngO3xCmAxJeO/Fg9jNmEF9vMJEmAaw=="
-                "9bSjr+12JVwtHlyoa70J7w3bEQff+MwLxg5elzdP1OGHcfWGkolRvS+luAgcWjKn1g0swaYdnklCYWYOoCAJbA=="
-                "es256"
-                "+presence"
+                "chn"
+                (builtins.concatStringsSep ","
+                [
+                  "83Y3cLxhcmwbDOH1h67SQ1xy0dFBcoKYM0VO/YVq+9lpOpdPdmFaB7BNngO3xCmAxJeO/Fg9jNmEF9vMJEmAaw=="
+                  "9bSjr+12JVwtHlyoa70J7w3bEQff+MwLxg5elzdP1OGHcfWGkolRvS+luAgcWjKn1g0swaYdnklCYWYOoCAJbA=="
+                  "es256"
+                  "+presence"
+                ])
               ])
-            ])
-          ]));
+            ]));
+          };
         };
         yubico = { enable = true; id = "91291"; };
         loginLimits =

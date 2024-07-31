@@ -37,7 +37,8 @@ inputs:
     xdg.portal.extraPortals = builtins.map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" ];
     i18n.inputMethod =
     {
-      enabled = "fcitx5";
+      enable = true;
+      type = "fcitx5";
       fcitx5.addons = builtins.map (p: inputs.pkgs."fcitx5-${p}")
         [ "rime" "chinese-addons" "mozc" "nord" "material-color" ];
     };
