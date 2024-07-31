@@ -46,7 +46,6 @@ inputs:
         nixpkgs.march = "silvermont";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         networking = { hostname = "nas"; networkd = {}; };
-        gui = { enable = true; preferred = false; };
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
@@ -67,18 +66,7 @@ inputs:
           publicKey = "xCYRbZEaGloMk7Awr00UR3JcDJy4AzVp4QvGNoyEgFY=";
           wireguardIp = "192.168.83.4";
         };
-        xrdp = { enable = true; hostname = [ "nas.chn.moe" ]; };
-        firewall.trustedInterfaces = [ "virbr0" ];
       };
-      packages.packageSet = "desktop-extra";
-      virtualization = { docker.enable = true; kvmHost = { enable = true; gui = true; }; };
-    };
-    networking.nat =
-    {
-      enable = true;
-      internalInterfaces = [ "enp3s0" ];
-      externalInterface = "virbr0";
-      forwardPorts = [{ sourcePort = 515; proto = "tcp"; destination = "192.168.122.166:515"; }];
     };
   };
 }
