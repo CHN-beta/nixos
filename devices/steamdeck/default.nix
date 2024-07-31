@@ -33,6 +33,7 @@ inputs:
         kernel.variant = "steamos";
         networking.hostname = "steamdeck";
         gui.enable = true;
+        initrd.unl0kr = {};
       };
       hardware = { cpus = [ "amd" ]; gpu.type = "amd"; steamdeck = {}; };
       packages.packageSet = "desktop-extra";

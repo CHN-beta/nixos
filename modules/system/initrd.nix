@@ -11,6 +11,7 @@ inputs:
         default = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ];
       };
     };
+    unl0kr = mkOption { type = types.nullOr (types.submodule {}); default = null; };
   };
   config = let inherit (inputs.config.nixos.system) initrd; in inputs.lib.mkMerge
   [
@@ -36,5 +37,6 @@ inputs:
         };
       }
     )
+    (inputs.lib.mkIf (initrd.unl0kr != null) { boot.initrd.unl0kr.enable = true; })
   ];
 }
