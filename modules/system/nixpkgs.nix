@@ -108,6 +108,8 @@ inputs:
                   krita = final.genericPackages.krita;
                   geos = prev.geos.overrideAttrs { doCheck = false; };
                   c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; };
+                  binaryen = prev.binaryen.overrideAttrs
+                    { cmakeFlags = (prev.cmakeFlags or []) ++ [ "-DCMAKE_CXX_FLAGS=-Wno-maybe-uninitialized" ]; };
                 }
               )
               // (
