@@ -71,7 +71,7 @@
 
   outputs = inputs:
     let
-      localLib = import ./local/lib inputs.nixpkgs.lib;
+      localLib = import ./lib.nix inputs.nixpkgs.lib;
       devices = builtins.filter (dir: (builtins.readDir ./devices/${dir})."default.nix" or null == "regular" )
         (builtins.attrNames (builtins.readDir ./devices));
     in
