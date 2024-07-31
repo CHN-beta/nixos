@@ -103,7 +103,7 @@
           hpcstat =
             let
               openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
-                (prev: { doCheck = false; patches = prev.patches ++ [ ./local/pkgs/hpcstat/openssh.patch ];});
+                (prev: { doCheck = false; patches = prev.patches ++ [ ./packages/hpcstat/openssh.patch ];});
               duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
             in pkgs.pkgsStatic.localPackages.hpcstat.override
               { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
@@ -139,7 +139,7 @@
               [
                 (moduleInputs: { config.nixpkgs.overlays = [(prev: final:
                   # replace pkgs with final to avoid infinite recursion
-                  { localPackages = import ./local/pkgs (moduleInputs // { pkgs = final; }); })]; })
+                  { localPackages = import ./packages (moduleInputs // { pkgs = final; }); })]; })
                 ./modules
                 ./devices/${system}
               ];
@@ -155,7 +155,7 @@
             [
               (moduleInputs: { config.nixpkgs.overlays = [(prev: final:
                 # replace pkgs with final to avoid infinite recursion
-                { localPackages = import ./local/pkgs (moduleInputs // { pkgs = final; }); })]; })
+                { localPackages = import ./packages (moduleInputs // { pkgs = final; }); })]; })
               ./modules
               ./devices/pi3b
             ];
@@ -163,7 +163,7 @@
         }
       );
       overlays.default = final: prev:
-        { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; topInputs = inputs; }); };
+        { localPackages = (import ./packages { inherit (inputs) lib; pkgs = final; topInputs = inputs; }); };
       config = { archive = false; branch = "production"; };
       devShells.x86_64-linux = let inherit (inputs.self.packages.x86_64-linux) pkgs; in
       {
