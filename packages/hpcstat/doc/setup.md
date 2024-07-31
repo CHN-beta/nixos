@@ -1,10 +1,10 @@
 # 设置 SSH agent forwarding
 
 为了区分登陆 jykang@hpc.xmu.edu.cn 时使用的密钥，并分密钥统计使用情况，需要启用一项名为“SSH agent forwarding”的功能。
-接下来的内容将带领您在 Windows 系统上配置 SSH agent forwarding。
+接下来的内容将带领您在 Windows 系统上启用 SSH agent forwarding。
 
 > [!NOTE]
-> 在 Linux 上的配置方法放在了文章末尾。大多数用户不需要阅读。
+> 在 Linux 和 MacOS 上启用 SSH agent forwarding 的方法放在了文章末尾，大多数用户不需要阅读，仅供有需要的用户参考。
 
 要启用“SSH agent forwarding”，需要下面三个步骤：
 1. 启动 Pageant 并添加密钥。 **这一步骤每次登陆前都需要执行。**
@@ -15,7 +15,11 @@
 
 ## Pageant:
 
-1. 找到 Pageant 程序。Pageant 会随着 PuTTY 一起安装，一般来说您可以直接在开始菜单中搜索 “pageant” 找到它，也可以在 PuTTY 的安装目录中找到它。
+1. 找到 Pageant 程序。
+   Pageant 会随着 PuTTY 一起安装，一般来说您可以直接在开始菜单中搜索 “pageant” 找到它，也可以在 PuTTY 的安装目录中找到它。
+   
+   ![](pageant3.png)
+
 2. 启动 Pageant。启动后可能没有任何反应，也可能有一个黑框闪过，这是正常的。只要右下角的系统托盘中出现了 pageant 的图标就可以了。
    
    ![](pageant1.png)
@@ -31,8 +35,8 @@
 > 无论是使用 WinSCP 还是 PuTTY，每次使用前，都需要如此启动 Pageant 并添加密钥。
 
 > [!TIP]
-> 如果您觉得每次打开 Pageant 都要手动添加密钥很麻烦，并且熟悉 Windows 命令行的使用，
->   可以编写一个批处理文件（将下方代码用记事本保存，然后将扩展名从 `.txt` 改为 `.bat`），每次双击该文件即可启动 Pageant 并自动添加密钥：
+> 如果您觉得每次打开 Pageant 都要手动添加密钥很麻烦，希望可以将这个过程自动化；并且熟悉 Windows 命令行的使用，可以编写一个批处理文件。
+> 将下方代码用记事本保存，然后将扩展名从 `.txt` 改为 `.bat`，之后每次双击该文件即可启动 Pageant 并自动添加密钥：
 > 
 > `"C:\ProgramData\chocolatey\bin\PAGEANT.EXE" "Z:\.ssh\id_rsa.ppk"`
 > 
@@ -42,29 +46,45 @@
 
 ## PuTTY:
 
-1. 在 Connection -> SSH -> Auth，勾选“Attempt authentication using Pageant”和“Allow agent forwarding”。
+1. 在 Session 中设置 “Host Name (or IP address)” 为 `hpc.xmu.edu.cn`，“Port” 为 `22`。
+   
+   ![](putty5.png)
+
+2. 在 Connection -> SSH -> Auth，勾选“Attempt authentication using Pageant”和“Allow agent forwarding”。
    
    ![](putty1.png)
 
-2. 在 Connection -> SSH -> Auth -> Credentials，清空 “Private key file for authentication”，然后保存。
+3. 在 Connection -> SSH -> Auth -> Credentials，清空 “Private key file for authentication”。
    
    ![](putty2.png)
 
-3. （选做但推荐）在 Connection -> Data 中，将 “Auto-login username” 设置为 `jykang`，这样每次登陆时就不需要手动输入用户名了。
+4. （选做但推荐）在 Connection -> Data 中，将 “Auto-login username” 设置为 `jykang`，这样每次登陆时就不需要手动输入用户名了。
+5. 回到 Session，在 “Saved Sessions” 中输入任意一个名字（例如 `jykang`）并点击 “Save”，以保存配置。之后双击这个配置文件的名字即可登陆。
+   
+   ![](putty4.png)
 
 ## WinSCP:
 
-1. 在 SSH -> Authentication，勾选 “使用 Pageant 进行认证”，勾选 “允许代理转发”，清空 “密钥文件”，然后保存。
+1. 在登陆界面，点击 “新建站点”。
+   设置 “文件协议” 为 `SCP`，“主机名” 为 `hpc.xmu.edu.cn`，“端口号” 为 `22`，“用户名” 为 `jykang`，密码为空。
+   然后点击右下角 “高级” 继续修改设置。
+   
+   ![](winscp3.png)
+
+> [!NOTE]
+> 文件协议设置为 “SFTP” 大多功能也可以使用，但相比于 SCP 协议，SFTP 可用的功能较少（例如不能远程复制）。因此建议使用 SCP。
+
+2. 在 SSH -> Authentication，勾选 “使用 Pageant 进行认证”，勾选 “允许代理转发”，清空 “密钥文件”，然后点击 “确定”，再点击 “保存”。
    
    ![](winscp1.png)
 
-2. (选做)如果您需要通过 WinSCP 打开 PuTTY 的话，需要在 WinSCP 主界面 -> 工具 -> 选项 -> 集成 -> 应用程序路径中，
-    在原来的基础上增加 `-A` 参数。
+3. (选做)如果您需要通过 WinSCP 打开 PuTTY 的话，需要在 WinSCP 主界面 -> 工具 -> 选项 -> 集成 -> 应用程序路径中，
+      在原来的基础上增加 `-A` 参数。
    
    ![](winscp2.png)
 
 > [!TIP]
-> 如果 WinSCP 不让你直接修改那个字符串，就把它复制到记事本里修改，然后再复制回去。
+> 如果难以直接在文本框中修改，就把它复制到记事本里修改，然后再复制回去。
 
 至此，您已经成功配置了 SSH agent forwarding。
 之后使用 PuTTY 登陆 `jykang@hpc.xmu.edu.cn` 时，会收到包含了您的名字的提示（如图所示），表明您已经成功启用了 SSH agent forwarding。
@@ -72,10 +92,7 @@
    ![](putty3.png)
 
 > [!NOTE]
-> 无论是 PuTTY 还是 WinSCP，改完设置后都记得保存。
-
-> [!IMPORTANT]
-> 如果您确认已经按照教程设置好了却仍然不能连接，可以尝试将 WinSCP 和 PuTTY 都更新到最新。
+> 如果您确认已经按照教程设置好了却仍然不能连接，可以尝试将 WinSCP 和 PuTTY 都更新到最新。已知非常旧的版本在设置过程中会出现问题。
 >
 > 我测试使用的版本是：PuTTY 0.78 和 WinSCP 6.3.3。
 
@@ -188,7 +205,7 @@ https://wxpusher.zjiecode.com/wxuser/?type=1&id=75864#/follow
 需要注意的是，这个 UID 会被明文写到 jykang 上的文件里。
 也就是说存在这样的风险：有权限登陆 jykang 的人都有权限通过这个公众号给您发消息。
 
-## 在 Linux 上配置 SSH agent forwarding
+## 在类 UNIX 系统上配置 SSH agent forwarding
 
 1. 使用以下命令将 `.ppk` 的私钥部分拆分出来：
 
@@ -202,6 +219,8 @@ https://wxpusher.zjiecode.com/wxuser/?type=1&id=75864#/follow
 
    ```
    Host jykang
+      HostName hpc.xmu.edu.cn
+      User jykang
       AddKeysToAgent yes
       ForwardAgent yes
       IdentityFile ~/path/to/id_rsa
@@ -211,4 +230,12 @@ https://wxpusher.zjiecode.com/wxuser/?type=1&id=75864#/follow
 
 ```bash
 ssh jykang
+```
+
+若要设置 `TERM` 变量，参照：
+
+```
+Host jykang
+   ...
+   SetEnv TERM="chn_unset_ls_colors:chn_cd:linwei/chn:chn_debug:xterm-256color"
 ```
