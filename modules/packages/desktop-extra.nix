@@ -41,6 +41,11 @@ inputs:
           (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
       };
     };
-    programs.kdeconnect.enable = true;
+    programs =
+    {
+      kdeconnect.enable = true;
+      anime-game-launcher = { enable = true; package = inputs.pkgs.anime-game-launcher; };
+      honkers-railway-launcher = { enable = true; package = inputs.pkgs.honkers-railway-launcher; };
+    };
   };
 }
