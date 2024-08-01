@@ -37,7 +37,16 @@ inputs:
       {
         snapper.enable = true;
         sshd = {};
-        xray.client.enable = true;
+        xray.client =
+        {
+          enable = true;
+          dnsmasq.hosts = builtins.listToAttrs (builtins.map
+            (name: { inherit name; value = "0.0.0.0"; })
+            [
+              "log-upload.mihoyo.com" "uspider.yuanshen.com" "ys-log-upload.mihoyo.com"
+              "dispatchcnglobal.yuanshen.com"
+            ]);
+        };
         firewall.trustedInterfaces = [ "virbr0" ];
         wireguard =
         {
