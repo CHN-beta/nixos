@@ -10,21 +10,16 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/7179-9C69" = "/boot/efi";
+            vfat."/dev/disk/by-uuid/A44C-6DB4" = "/boot/efi";
             btrfs =
             {
-              "/dev/disk/by-uuid/c6d35075-85fe-4129-aaa8-f436ab85ce43"."/boot" = "/boot";
+              "/dev/disk/by-uuid/10c2ee85-b5bf-41ff-9901-d36d2edd8a69"."/boot" = "/boot";
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
-          decrypt.auto =
-          {
-            "/dev/disk/by-uuid/4f7420f9-ea19-4713-b084-2ac8f0a963ac" = { mapper = "root"; ssd = true; };
-            "/dev/disk/by-uuid/88bd9d44-928b-40a2-8f3d-6dcd257c4601" =
-              { mapper = "swap"; ssd = true; before = [ "root" ]; };
-          };
-          swap = [ "/dev/mapper/swap" ];
-          resume = "/dev/mapper/swap";
+          decrypt.auto."/dev/disk/by-uuid/124ce605-93b4-454f-924b-fe741f39e065" = { mapper = "root"; ssd = true; };
+          swap = [ "/nix/swap/swap" ];
+          resume = { device = "/dev/mapper/root"; offset = 533760; };
           rollingRootfs = {};
         };
         nixpkgs.march = "znver2";

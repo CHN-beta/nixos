@@ -214,7 +214,7 @@ inputs:
           else
           {
             resumeDevice = fileSystems.resume.device;
-            kernelModules = [ "resume_offset=${fileSystems.resume.offset}" ];
+            kernelModules = [ "resume_offset=${builtins.toString fileSystems.resume.offset}" ];
           }
         );}
       )
