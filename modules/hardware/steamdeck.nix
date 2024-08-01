@@ -14,5 +14,10 @@ inputs:
     };
     services.displayManager.sddm.enable = false;
     systemd.services.display-manager.enable = false;
+    boot.initrd.kernelModules =
+    [
+      "hid_generic" "hid_multitouch" "i2c_designware_core" "i2c_designware_platform" "i2c_hid_acpi" "evdev"
+      "i2c_hid_api"
+    ];
   };
 }

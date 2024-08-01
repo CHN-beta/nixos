@@ -50,5 +50,10 @@ inputs:
       };
       bugs = [ "xmunet" ];
     };
+    specialisation.debug.configuration =
+    {
+      nixos.system.initrd.unl0kr = inputs.lib.mkForce null;
+      system.nixos.tags = [ "no-unl0kr" ];
+    };
   };
 }
