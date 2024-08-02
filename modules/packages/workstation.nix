@@ -20,10 +20,6 @@ inputs:
           jetbrains.clion android-studio dbeaver-bin cling fprettify aircrack-ng
           # install per project
           # clang-tools_16 ccls 
-          # media
-          nur-xddxdd.svp
-          # virtualization
-          wineWowPackages.stagingFull virt-viewer bottles # wine64
           # text editor
           appflowy notion-app-enhanced joplin-desktop standardnotes logseq
           # math, physics and chemistry
