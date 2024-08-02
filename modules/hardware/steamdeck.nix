@@ -8,7 +8,7 @@ inputs:
     {
       steam = { enable = true; autoStart = true; user = "chn"; desktopSession = "plasma"; };
       steamos.useSteamOSConfig = true;
-      decky-loader.enable = true;
+      decky-loader = { enable = true; package = inputs.pkgs.decky-loader-prerelease; };
       devices.steamdeck.enable = true;
       overlay.enable = true;
     };
