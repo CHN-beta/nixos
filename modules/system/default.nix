@@ -8,7 +8,8 @@ inputs:
       dbus.implementation = "broker";
       fstrim.enable = true;
       acpid.enable = true;
-      kubo = { enable = true; autoMount = true; };
+      # TODO: set ipfs as separate service
+      # kubo = { enable = true; autoMount = true; };
     };
     time.timeZone = "Asia/Shanghai";
     boot =
