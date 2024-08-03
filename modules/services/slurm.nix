@@ -116,7 +116,7 @@ inputs:
     };
     nixos =
     {
-      packages._packages = [(inputs.pkgs.localPackages.sbatch-tui.override { sbatchConfig =
+      packages.packages._packages = [(inputs.pkgs.localPackages.sbatch-tui.override { sbatchConfig =
       {
         cpuMpiThreads = slurm.cpu.mpiThreads;
         cpuOpenmpThreads = slurm.cpu.openmpThreads;

@@ -31,7 +31,7 @@ inputs:
         initrd.unl0kr = {};
       };
       hardware = { cpus = [ "amd" ]; gpu.type = "amd"; steamdeck = {}; };
-      packages.packageSet = "desktop-extra";
+      packages.vasp = null;
       virtualization = { docker.enable = true; waydroid.enable = true; };
       services =
       {

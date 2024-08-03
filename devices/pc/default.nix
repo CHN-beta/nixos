@@ -76,7 +76,6 @@ inputs:
         };
         legion = {};
       };
-      packages.packageSet = "workstation";
       virtualization =
       {
         waydroid.enable = true;

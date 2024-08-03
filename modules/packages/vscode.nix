@@ -1,8 +1,13 @@
 inputs:
 {
-  config = inputs.lib.mkIf (builtins.elem "desktop" inputs.config.nixos.packages._packageSets)
+  options.nixos.packages.vscode = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    nixos.packages = with inputs.pkgs;
+    type = types.nullOr (types.submodule {});
+    default = if inputs.config.nixos.system.gui.enable then {} else null;
+  };
+  config = let inherit (inputs.config.nixos.packages) vscode; in inputs.lib.mkIf (vscode != null)
+  {
+    nixos.packages.packages = with inputs.pkgs;
     {
       _packages =
       [(

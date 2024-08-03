@@ -1,6 +1,6 @@
 inputs:
 {
-  config = inputs.lib.mkIf (builtins.elem "server" inputs.config.nixos.packages._packageSets)
+  config = inputs.lib.mkIf (inputs.config.nixos.packages.git != null)
   {
     home-manager.users.chn.config.programs.git =
     {

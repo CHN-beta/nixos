@@ -1,47 +1,21 @@
 inputs:
 {
   imports = inputs.localLib.findModules ./.;
-  options.nixos.packages =
-    let
-      inherit (inputs.lib) mkOption types;
-      packageSets =
-      [
-        # no gui, only used for specific purpose
-        "server"
-        "server-extra"
-        # gui, for daily use, but not install large programs such as matlab
-        "desktop"
-        "desktop-extra"
-        # nearly everything
-        "workstation"
-      ];
-    in
-    {
-      packageSet = mkOption
-      {
-        type = types.enum packageSets;
-        default = if inputs.config.nixos.system.gui.enable then "desktop" else "server";
-      };
-      extraPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-      excludePackages = mkOption { type = types.listOf types.unspecified; default = []; };
-      extraPythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-      excludePythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-      extraPrebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-      excludePrebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-      _packageSets = mkOption
-      {
-        type = types.listOf types.nonEmptyStr;
-        readOnly = true;
-        default = builtins.genList (i: builtins.elemAt packageSets i)
-          ((inputs.localLib.findIndex inputs.config.nixos.packages.packageSet packageSets) + 1);
-      };
-      _packages = mkOption { type = types.listOf types.unspecified; default = []; };
-      _pythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-      _prebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
-    };
+  options.nixos.packages.packages = let inherit (inputs.lib) mkOption types; in
+  {
+    extraPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+    excludePackages = mkOption { type = types.listOf types.unspecified; default = []; };
+    extraPythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+    excludePythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+    extraPrebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+    excludePrebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+    _packages = mkOption { type = types.listOf types.unspecified; default = []; };
+    _pythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+    _prebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+  };
   config =
   {
-    environment.systemPackages = let inherit (inputs.lib.lists) subtractLists; in with inputs.config.nixos.packages;
+    environment.systemPackages = with inputs.config.nixos.packages.packages;
       (inputs.lib.lists.subtractLists excludePackages (_packages ++ extraPackages))
       ++ [
         (inputs.pkgs.python3.withPackages (pythonPackages:

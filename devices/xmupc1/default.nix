@@ -52,7 +52,6 @@ inputs:
         nix.remote.slave.enable = true;
       };
       hardware = { cpus = [ "amd" ]; gpu.type = "nvidia"; };
-      packages.packageSet = "workstation";
       virtualization = { waydroid.enable = true; docker.enable = true; kvmHost = { enable = true; gui = true; }; };
       services =
       {

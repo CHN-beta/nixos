@@ -1,10 +1,11 @@
 inputs:
 {
-  options.nixos.system.binfmt = let inherit (inputs.lib) mkOption types; in
+  options.nixos.system.binfmt = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    enable = mkOption { type = types.bool; default = inputs.config.nixos.packages.packageSet == "workstation"; };
+    type = types.nullOr (types.submodule {});
+    default = if inputs.config.nixos.system.gui.enable then {} else null;
   };
-  config = inputs.lib.mkIf inputs.config.nixos.system.binfmt.enable
+  config = let inherit (inputs.config.nixos.system) binfmt; in inputs.lib.mkIf (binfmt != null)
   {
     programs.java = { enable = true; binfmt = true; };
     boot.binfmt.emulatedSystems = [ "aarch64-linux" "x86_64-windows" ];

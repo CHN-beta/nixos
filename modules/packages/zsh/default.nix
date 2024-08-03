@@ -1,6 +1,8 @@
 inputs:
 {
-  config = inputs.lib.mkIf (builtins.elem "server" inputs.config.nixos.packages._packageSets)
+  options.nixos.packages.zsh = let inherit (inputs.lib) mkOption types; in mkOption
+    { type = types.nullOr (types.submodule {}); default = {}; };
+  config = let inherit (inputs.config.nixos.packages) zsh; in inputs.lib.mkIf (zsh != null)
   {
     nixos.user.sharedModules = [(home-inputs: { config.programs =
     {
@@ -37,11 +39,7 @@ inputs:
             name = "powerlevel10k";
             src = "${inputs.pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k";
           }
-          {
-            file = "p10k.zsh";
-            name = "powerlevel10k-config";
-            src = ./p10k-config;
-          }
+          { file = "p10k.zsh"; name = "powerlevel10k-config"; src = ./p10k-config; }
           {
             name = "zsh-lsd";
             src = inputs.pkgs.fetchFromGitHub
@@ -71,10 +69,7 @@ inputs:
       autosuggestions.enable = true;
       enableCompletion = true;
       ohMyZsh =
-      {
-        enable = true;
-        plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
-      };
+        { enable = true; plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ]; };
     };
   };
 }

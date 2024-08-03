@@ -1,6 +1,6 @@
 inputs:
 {
-  config = inputs.lib.mkIf (builtins.elem "desktop-extra" inputs.config.nixos.packages._packageSets)
+  config = inputs.lib.mkIf (inputs.config.nixos.packages.chromium != null)
   {
     home-manager.users.chn.config.programs.chromium =
     {

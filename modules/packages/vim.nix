@@ -1,6 +1,8 @@
 inputs:
 {
-  config = inputs.lib.mkIf (builtins.elem "server" inputs.config.nixos.packages._packageSets)
+  options.nixos.packages.vim = let inherit (inputs.lib) mkOption types; in mkOption
+    { type = types.nullOr (types.submodule {}); default = {}; };
+  config = let inherit (inputs.config.nixos.packages) vim; in inputs.lib.mkIf (vim != null)
   {
     nixos.user.sharedModules =
     [{

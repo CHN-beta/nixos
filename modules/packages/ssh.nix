@@ -1,6 +1,8 @@
 inputs:
 {
-  config = inputs.lib.mkIf (builtins.elem "server" inputs.config.nixos.packages._packageSets)
+  options.nixos.packages.ssh = let inherit (inputs.lib) mkOption types; in mkOption
+    { type = types.nullOr (types.submodule {}); default = {}; };
+  config = let inherit (inputs.config.nixos.packages) ssh; in inputs.lib.mkIf (ssh != null)
   {
     services.openssh.knownHosts =
       let servers =

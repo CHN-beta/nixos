@@ -94,12 +94,8 @@ inputs:
       };
     }
     (
-      inputs.lib.mkIf
-      (
-        inputs.lib.strings.hasPrefix "cachyos" kernel.variant
-        && builtins.elem "server-extra" inputs.config.nixos.packages._packageSets
-      )
-      { environment.systemPackages = [ inputs.pkgs.scx ]; }
+      inputs.lib.mkIf (inputs.lib.strings.hasPrefix "cachyos" kernel.variant)
+        { nixos.packages.packages._packages = [ inputs.pkgs.scx ]; }
     )
     (
       inputs.lib.mkIf (kernel.variant == "rpi3")

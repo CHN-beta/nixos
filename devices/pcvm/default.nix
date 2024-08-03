@@ -26,7 +26,6 @@ inputs:
         initrd.sshd.enable = true;
       };
       hardware.cpus = [ "amd" ];
-      packages.packageSet = "server";
       services.sshd = {};
     };
   };

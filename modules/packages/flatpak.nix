@@ -1,11 +1,12 @@
 inputs:
 {
-  config = inputs.lib.mkIf (builtins.elem "desktop-extra" inputs.config.nixos.packages._packageSets)
+  options.nixos.packages.flatpak = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    services.flatpak =
-    {
-      enable = true;
-      uninstallUnmanaged = true;
-    };
+    type = types.nullOr (types.submodule {});
+    default = if inputs.config.nixos.system.gui.enable then {} else null;
+  };
+  config = let inherit (inputs.config.nixos.packages) flatpak; in inputs.lib.mkIf (flatpak != null)
+  {
+    services.flatpak = { enable = true; uninstallUnmanaged = true; };
   };
 }
