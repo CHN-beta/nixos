@@ -666,11 +666,11 @@
     "misskey": {
       "flake": false,
       "locked": {
-        "lastModified": 1717405331,
-        "narHash": "sha256-NV/H8ah8YKpnzytR4OFKf23TPPlOdyGYesbRZDznAb4=",
+        "lastModified": 1722697975,
+        "narHash": "sha256-bQF7YRA3C3aoR4CGLLc6bD37EH0b7oF6GIEIflAcOLo=",
         "ref": "refs/heads/chn-mod",
-        "rev": "93f76cfe6a458915a3980d389d4c1dec3c117aaa",
-        "revCount": 25668,
+        "rev": "e1f5c4a8e8d3c35b9bde2fca911c21e8b830bbe6",
+        "revCount": 25885,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/CHN-beta/misskey"
