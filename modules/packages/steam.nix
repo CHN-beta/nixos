@@ -21,6 +21,16 @@ inputs:
         });
       }));
       extraCompatPackages = [ inputs.pkgs.proton-ge-bin ];
+      remotePlay.openFirewall = true;
+      protontricks.enable = true;
+      localNetworkGameTransfers.openFirewall = true;
+      dedicatedServer.openFirewall = true;
+    };
+    # not easy to override steamdeck's steam package env, just write env vars to global
+    environment.sessionVariables = inputs.lib.mkIf (inputs.config.nixos.hardware.steamdeck != null)
+    {
+      STEAM_EXTRA_COMPAT_TOOLS_PATHS =
+        inputs.lib.makeSearchPathOutput "steamcompattool" "" inputs.config.programs.steam.extraCompatPackages;
     };
   };
 }
