@@ -19,5 +19,6 @@ inputs:
       "hid_generic" "hid_multitouch" "i2c_designware_core" "i2c_designware_platform" "i2c_hid_acpi" "evdev"
       "i2c_hid_api"
     ];
+    nixos.packages.packages._packages = [ inputs.pkgs.steamdeck-firmware ];
   };
 }
