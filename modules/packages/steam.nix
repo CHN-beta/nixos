@@ -20,6 +20,7 @@ inputs:
           '';
         });
       }));
+      extraCompatPackages = [ inputs.pkgs.proton-ge-bin ];
     };
   };
 }
