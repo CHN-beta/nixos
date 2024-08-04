@@ -128,7 +128,7 @@ inputs:
           {
             hostName = host;
             protocol = "ssh-ng";
-            systems = [ "x86_64-linux" ] ++ hostConfig.nix.settings.extra-platforms;
+            systems = [ "x86_64-linux" ] ++ hostConfig.nix.settings.extra-platforms or [];
             sshUser = "nix-ssh";
             sshKey = inputs.config.sops.secrets."nix/remote".path;
             maxJobs = 1;

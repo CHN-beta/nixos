@@ -1,10 +1,7 @@
 inputs:
 {
   options.nixos.system.binfmt = let inherit (inputs.lib) mkOption types; in mkOption
-  {
-    type = types.nullOr (types.submodule {});
-    default = if inputs.config.nixos.system.gui.enable then {} else null;
-  };
+    { type = types.nullOr (types.submodule {}); default = null; };
   config = let inherit (inputs.config.nixos.system) binfmt; in inputs.lib.mkIf (binfmt != null)
   {
     programs.java = { enable = true; binfmt = true; };
