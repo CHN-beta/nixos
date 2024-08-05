@@ -25,6 +25,7 @@ inputs:
       {
         GTK_USE_PORTAL = "1";
         NIXOS_OZONE_WL = inputs.lib.mkIf gui.preferred "1";
+        KWIN_DRM_DISABLE_TRIPLE_BUFFERING = "1";
       };
       plasma6.excludePackages = inputs.lib.mkIf (!gui.preferred) [ inputs.pkgs.kdePackages.plasma-nm ];
       persistence = let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
