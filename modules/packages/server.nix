@@ -18,7 +18,7 @@ inputs:
         # editor
         nano bat
         # downloader
-        wget aria2 curl yt-dlp
+        wget aria2 curl yt-dlp ffsend
         # file manager
         tree eza trash-cli lsd broot file xdg-ninja mlocate
         # compress
