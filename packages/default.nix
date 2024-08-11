@@ -9,8 +9,7 @@ inputs: rec
   concurrencpp = inputs.pkgs.callPackage ./concurrencpp.nix { src = inputs.topInputs.concurrencpp; };
   eigengdb = inputs.pkgs.python3Packages.callPackage ./eigengdb.nix {};
   nodesoup = inputs.pkgs.callPackage ./nodesoup.nix { src = inputs.topInputs.nodesoup; };
-  matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix
-    { inherit nodesoup glad; src = inputs.topInputs.matplotplusplus; };
+  matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix { src = inputs.topInputs.matplotplusplus; };
   zpp-bits = inputs.pkgs.callPackage ./zpp-bits.nix { src = inputs.topInputs.zpp-bits; };
   eigen = inputs.pkgs.callPackage ./eigen.nix { src = inputs.topInputs.eigen; };
   nameof = inputs.pkgs.callPackage ./nameof.nix { src = inputs.topInputs.nameof; };
@@ -68,7 +67,7 @@ inputs: rec
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
   sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
   ufo = inputs.pkgs.callPackage ./ufo
-    { inherit concurrencpp biu glad matplotplusplus zpp-bits; tbb = inputs.pkgs.tbb_2021_11; };
+    { inherit concurrencpp biu matplotplusplus zpp-bits; tbb = inputs.pkgs.tbb_2021_11; };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
   winjob = inputs.pkgs.callPackage ./winjob { stdenv = inputs.pkgs.gcc14Stdenv; };
   sockpp = inputs.pkgs.callPackage ./sockpp.nix { src = inputs.topInputs.sockpp; };

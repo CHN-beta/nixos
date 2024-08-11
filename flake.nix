@@ -76,54 +76,49 @@
         (builtins.attrNames (builtins.readDir ./devices));
     in
     {
-      packages = rec
+      packages.x86_64-linux = rec
       {
-        x86_64-linux = rec
+        pkgs = (import inputs.nixpkgs
         {
-          pkgs = (import inputs.nixpkgs
+          system = "x86_64-linux";
+          config.allowUnfree = true;
+          overlays = [ inputs.self.overlays.default ];
+          crossOverlays = [(final: prev:
           {
-            system = "x86_64-linux";
-            config.allowUnfree = true;
-            overlays = [ inputs.self.overlays.default ];
-            crossOverlays = [(final: prev:
+            boost = prev.boost.override { zstd = null; };
+            magic-enum = prev.magic-enum.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++
+              [ "-DMAGIC_ENUM_OPT_BUILD_EXAMPLES=OFF" "-DMAGIC_ENUM_OPT_BUILD_TESTS=OFF" ]; });
+            range-v3 = prev.range-v3.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++
+              [ "-DRANGE_V3_DOCS=OFF" "-DRANGE_V3_TESTS=OFF" "-DRANGE_V3_EXAMPLES=OFF" ]; });
+            abseil-cpp = prev.abseil-cpp.overrideAttrs (prev: { buildInputs = prev.buildInputs ++
+              [ final.windows.pthreads ]; });
+          })];
+        });
+        default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
+          (builtins.concatStringsSep "\n" (builtins.map
+            (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
+            devices));
+        hpcstat =
+          let
+            openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
+              (prev: { doCheck = false; patches = prev.patches ++ [ ./packages/hpcstat/openssh.patch ];});
+            duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
+          in pkgs.pkgsStatic.localPackages.hpcstat.override
+            { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
+        ufo =
+          let
+            range-v3 = pkgs.pkgsStatic.range-v3.overrideAttrs (prev:
             {
-              boost = prev.boost.override { zstd = null; };
-              magic-enum = prev.magic-enum.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++
-                [ "-DMAGIC_ENUM_OPT_BUILD_EXAMPLES=OFF" "-DMAGIC_ENUM_OPT_BUILD_TESTS=OFF" ]; });
-              range-v3 = prev.range-v3.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++
-                [ "-DRANGE_V3_DOCS=OFF" "-DRANGE_V3_TESTS=OFF" "-DRANGE_V3_EXAMPLES=OFF" ]; });
-              abseil-cpp = prev.abseil-cpp.overrideAttrs (prev: { buildInputs = prev.buildInputs ++
-                [ final.windows.pthreads ]; });
-            })];
-          });
-          default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
-            (builtins.concatStringsSep "\n" (builtins.map
-              (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-              devices));
-          hpcstat =
-            let
-              openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
-                (prev: { doCheck = false; patches = prev.patches ++ [ ./packages/hpcstat/openssh.patch ];});
-              duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
-            in pkgs.pkgsStatic.localPackages.hpcstat.override
-              { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
-          ufo = pkgs.pkgsStatic.localPackages.ufo.override { version = inputs.self.rev or "dirty"; };
-          chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
-        }
-        // (
-          builtins.listToAttrs (builtins.map
-            (system:
-            {
-              name = system;
-              value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
-            })
-            devices)
-          );
-        x86_64-w64-mingw32 = rec
-        {
-          pkgs = x86_64-linux.pkgs.pkgsCross.mingwW64Static;
-          winjob = pkgs.localPackages.winjob;
-        };
+              cmakeFlags = prev.cmakeFlags or []
+                ++ [ "-DRANGE_V3_DOCS=OFF" "-DRANGE_V3_TESTS=OFF" "-DRANGE_V3_EXAMPLES=OFF" ];
+              doCheck = false;
+            });
+            tbb = pkgs.pkgsStatic.tbb_2021_11.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags or [] ++
+              [ "-DTBB_TEST=OFF" ]; });
+            biu = pkgs.pkgsStatic.localPackages.biu.override { inherit range-v3; };
+            matplotplusplus = pkgs.pkgsStatic.localPackages.matplotplusplus.override { libtiff = null; };
+          in pkgs.pkgsStatic.localPackages.ufo.override { inherit biu tbb matplotplusplus; };
+        chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
       };
       nixosConfigurations =
       (
