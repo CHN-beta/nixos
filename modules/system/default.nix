@@ -44,8 +44,7 @@ inputs:
       };
       # pathsToLink = [ "/include" ];
     };
-    i18n =
-      { defaultLocale = "C.UTF-8"; supportedLocales = [ "zh_CN.UTF-8/UTF-8" "en_US.UTF-8/UTF-8" "C.UTF-8/UTF-8" ]; };
+    i18n = { defaultLocale = "C.UTF-8"; supportedLocales = [ "all" ]; };
     users.mutableUsers = false;
     virtualisation.oci-containers.backend = "docker";
     home-manager.sharedModules = [{ home.stateVersion = "22.11"; }];
