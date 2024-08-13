@@ -83,16 +83,6 @@
           system = "x86_64-linux";
           config.allowUnfree = true;
           overlays = [ inputs.self.overlays.default ];
-          crossOverlays = [(final: prev:
-          {
-            boost = prev.boost.override { zstd = null; };
-            magic-enum = prev.magic-enum.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++
-              [ "-DMAGIC_ENUM_OPT_BUILD_EXAMPLES=OFF" "-DMAGIC_ENUM_OPT_BUILD_TESTS=OFF" ]; });
-            range-v3 = prev.range-v3.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++
-              [ "-DRANGE_V3_DOCS=OFF" "-DRANGE_V3_TESTS=OFF" "-DRANGE_V3_EXAMPLES=OFF" ]; });
-            abseil-cpp = prev.abseil-cpp.overrideAttrs (prev: { buildInputs = prev.buildInputs ++
-              [ final.windows.pthreads ]; });
-          })];
         });
         default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
           (builtins.concatStringsSep "\n" (builtins.map

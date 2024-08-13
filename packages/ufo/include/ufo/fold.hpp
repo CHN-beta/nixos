@@ -18,6 +18,7 @@ namespace ufo
       struct OutputType
       {
         std::vector<Eigen::Vector3d> Qpoints;
+        using serialize = zpp::bits::members<1>;
         void write(std::string filename) const;
       };
     protected:

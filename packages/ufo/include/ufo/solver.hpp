@@ -30,17 +30,12 @@
 
 namespace Eigen
 {
-  // template <typename Scalar, int Rows, int Cols> constexpr inline auto serialize
-  //   (auto & archive, Eigen::Matrix<Scalar, Rows, Cols>& matrix)
-  //   { return archive(std::span(matrix.data(), matrix.size())); }
-  constexpr inline auto serialize(auto & archive, Eigen::Matrix3d& matrix)
+  template <typename Matrix> constexpr inline auto serialize
+    (auto & archive, Matrix& matrix)
     { return archive(std::span(matrix.data(), matrix.size())); }
-  constexpr inline auto serialize(auto & archive, const Eigen::Matrix3d& matrix)
+  template <typename Scalar, int Rows, int Cols> constexpr inline auto serialize
+    (auto & archive, const Eigen::Matrix<Scalar, Rows, Cols>& matrix)
     { return archive(std::span(matrix.data(), matrix.size())); }
-  constexpr inline auto serialize(auto & archive, Eigen::Vector3d& vector)
-    { return archive(std::span(vector.data(), vector.size())); }
-  constexpr inline auto serialize(auto & archive, const Eigen::Vector3d& vector)
-    { return archive(std::span(vector.data(), vector.size())); }
 }
 
 namespace ufo

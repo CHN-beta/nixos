@@ -5,7 +5,8 @@
 # include <biu/concepts.tpp>
 # include <biu/string.tpp>
 # include <biu/format.tpp>
+# include <biu/eigen.hpp>
 // # include <biu/logger.tpp>
 // # include <biu/smartref.tpp>
 
-// # include <biu/eigen.hpp>
+
