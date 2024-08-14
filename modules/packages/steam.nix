@@ -20,6 +20,7 @@ inputs:
           '';
         });
       }));
+      extraPackages = [ inputs.pkgs.openssl_1_1 ];
       extraCompatPackages = [ inputs.pkgs.proton-ge-bin ];
       remotePlay.openFirewall = true;
       protontricks.enable = true;
