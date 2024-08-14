@@ -109,7 +109,15 @@
             matplotplusplus = pkgs.pkgsStatic.localPackages.matplotplusplus.override { libtiff = null; };
           in pkgs.pkgsStatic.localPackages.ufo.override { inherit biu tbb matplotplusplus; };
         chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
-      };
+      }
+      // (builtins.listToAttrs (builtins.map
+        (system:
+        {
+          name = system;
+          value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
+        })
+        devices)
+      );
       nixosConfigurations =
       (
         (builtins.listToAttrs (builtins.map
