@@ -1,11 +1,12 @@
 {
-  version ? "24.1",
+  version ? "24.7",
   stdenvNoCC, fetchurl, buildFHSEnv,
   gfortran, flock
 }:
 let
   versions =
   {
+    "24.7" = "0lzqfpvdjl13vd4hd622jdpgl6zdrg0xs3zskfzvrgf55ym9885z";
     "24.1" = "1n0x1x7ywvr3623ylvrjagayn44mbvfas3c3062p7y3asmgjx697";
     "23.1" = "1xg933f4n1bw39y1x1vrjrbzpx36sbmjgvi332hfck3dbx0n982m";
   };
