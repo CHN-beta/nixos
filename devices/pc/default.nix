@@ -186,22 +186,14 @@ inputs:
         (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
         [ "BPD-paper" "kurumi-asmr" "BPD-paper-old" "SiC-20240705" ];
     };
-    specialisation =
+    specialisation.nvidia.configuration =
     {
-      nvidia.configuration =
+      nixos =
       {
-        nixos =
-        {
-          hardware.gpu.type = inputs.lib.mkForce "nvidia";
-          services.gamemode.drmDevice = inputs.lib.mkForce 0;
-        };
-        system.nixos.tags = [ "nvidia" ];
+        hardware.gpu.type = inputs.lib.mkForce "nvidia";
+        services.gamemode.drmDevice = inputs.lib.mkForce 0;
       };
-      cachyos.configuration =
-      {
-        nixos.system.kernel.variant = inputs.lib.mkForce "cachyos";
-        system.nixos.tags = [ "cachyos" ];
-      };
+      system.nixos.tags = [ "nvidia" ];
     };
   };
 }
