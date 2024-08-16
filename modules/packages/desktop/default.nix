@@ -101,7 +101,7 @@ inputs:
               plasma-localerc = { Formats.LANG.value = "en_US.UTF-8"; Translations.LANGUAGE.value = "zh_CN"; };
               baloofilerc."Basic Settings".Indexing-Enabled.value = false;
             };
-            powerdevil.autoSuspend.action = "nothing";
+            powerdevil = { AC.autoSuspend.action = "nothing"; battery.autoSuspend.action = "nothing"; };
           };
           obs-studio =
           {
