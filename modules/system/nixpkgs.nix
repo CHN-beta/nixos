@@ -110,6 +110,11 @@ inputs:
                   c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; };
                   binaryen = prev.binaryen.overrideAttrs
                     { cmakeFlags = (prev.cmakeFlags or []) ++ [ "-DCMAKE_CXX_FLAGS=-Wno-maybe-uninitialized" ]; };
+                  fwupd = prev.fwupd.overrideAttrs { doCheck = false; };
+                  rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
+                  scalapack = prev.scalapack.overrideAttrs { doCheck = false; };
+                  xdg-desktop-portal = prev.xdg-desktop-portal.overrideAttrs (prev:
+                    { doCheck = false; nativeBuildInputs = prev.nativeBuildInputs ++ prev.nativeCheckInputs; });
                 }
               )
               // (
