@@ -18,9 +18,6 @@ inputs:
           amd = [];
         };
         in builtins.concatLists (builtins.map (cpu: modules.${cpu}) cpus);
-      kernelParams =
-        let params = { intel = [ "intel_iommu=off" ]; amd = [ "amd_iommu=fullflush" ]; };
-        in builtins.concatLists (builtins.map (cpu: params.${cpu}) cpus);
     };
     environment.systemPackages =
       let packages = with inputs.pkgs; { intel = []; amd = [ zenmonitor ]; };
