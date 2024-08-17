@@ -193,6 +193,15 @@ inputs:
         nixos.system.kernel.variant = inputs.lib.mkForce "cachyos";
         system.nixos.tags = [ "cachyos" ];
       };
+      generic.configuration =
+      {
+        nixos =
+        {
+          system.nixpkgs = { march = inputs.lib.mkForce null; cuda.enable = inputs.lib.mkForce false; };
+          packages.vasp = null;
+        };
+        system.nixos.tags = [ "generic" ];
+      };
     };
   };
 }
