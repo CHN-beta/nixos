@@ -56,7 +56,7 @@ inputs:
         devices =
         {
           pc = [ "nheko" "kclockd" "yakuake" "telegram" "element" "kmail" "discord" "crow-translate" ];
-          steamdeck = [ "kclockd" "yakuake" "telegram" "element" "crow-translate" ];
+          surface = [ "kclockd" "yakuake" "telegram" "element" "crow-translate" ];
         };
       in builtins.listToAttrs (builtins.map
         (file:

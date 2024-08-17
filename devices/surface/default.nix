@@ -1,5 +1,6 @@
 inputs:
 {
+  imports = inputs.localLib.mkModules [ inputs.topInputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel ];
   config =
   {
     nixos =
@@ -22,16 +23,15 @@ inputs:
           resume = { device = "/dev/mapper/root"; offset = 533760; };
           rollingRootfs = {};
         };
-        nixpkgs.march = "znver2";
+        nixpkgs.march = "skylake";
         grub.installDevice = "efi";
         nix = { substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ]; githubToken.enable = true; };
-        kernel.variant = "steamos";
-        networking.hostname = "steamdeck";
+        kernel = { variant = "xanmod-lts"; patches = [ "surface" "hibernate-progress" ]; };
+        networking.hostname = "surface";
         gui.enable = true;
         initrd.unl0kr = {};
       };
-      hardware = { cpus = [ "amd" ]; gpu.type = "amd"; steamdeck = {}; };
-      packages.vasp = null;
+      hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       virtualization = { docker.enable = true; waydroid.enable = true; };
       services =
       {
@@ -57,12 +57,13 @@ inputs:
         };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
       };
-      bugs = [ "xmunet" ];
+      bugs = [ "xmunet" "suspend-hibernate-no-platform" ];
     };
-    specialisation.debug.configuration =
+    powerManagement.resumeCommands = ''${inputs.pkgs.systemd}/bin/systemctl restart iptsd'';
+    services.iptsd.config =
     {
-      nixos.system.initrd.unl0kr = inputs.lib.mkForce null;
-      system.nixos.tags = [ "no-unl0kr" ];
+      Touch = { DisableOnPalm = true; DisableOnStylus = true; Overshoot = 0.5; };
+      Contacts = { Neutral = "Average"; NeutralValue = 10; };
     };
   };
 }

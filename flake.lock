@@ -597,27 +597,6 @@
         "type": "github"
       }
     },
-    "jovian_2": {
-      "inputs": {
-        "nix-github-actions": "nix-github-actions_2",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1723695386,
-        "narHash": "sha256-nZ5ue5VGb7ZLfYT3ob4TwBDcA9dY6gOgGDQ5ad2nu6g=",
-        "owner": "CHN-beta",
-        "repo": "Jovian-NixOS",
-        "rev": "5715c891a73d81a11c2eba359359aa1919c5fb16",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "repo": "Jovian-NixOS",
-        "type": "github"
-      }
-    },
     "kylin-virtual-keyboard": {
       "flake": false,
       "locked": {
@@ -647,6 +626,22 @@
       "original": {
         "owner": "black7375",
         "repo": "Firefox-UI-Fix",
+        "type": "github"
+      }
+    },
+    "linux-surface": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1723804050,
+        "narHash": "sha256-MYwEgnw3KjEm6oh39XUmCq12tKdH+0QZj9SZlWbwyxo=",
+        "owner": "linux-surface",
+        "repo": "linux-surface",
+        "rev": "4439a5efb6516c443df5f52173cb55aef01560d1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "linux-surface",
+        "repo": "linux-surface",
         "type": "github"
       }
     },
@@ -792,28 +787,6 @@
         "type": "github"
       }
     },
-    "nix-github-actions_2": {
-      "inputs": {
-        "nixpkgs": [
-          "jovian",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1690328911,
-        "narHash": "sha256-fxtExYk+aGf2YbjeWQ8JY9/n9dwuEt+ma1eUFzF8Jeo=",
-        "owner": "zhaofengli",
-        "repo": "nix-github-actions",
-        "rev": "96df4a39c52f53cb7098b923224d8ce941b64747",
-        "type": "github"
-      },
-      "original": {
-        "owner": "zhaofengli",
-        "ref": "matrix-name",
-        "repo": "nix-github-actions",
-        "type": "github"
-      }
-    },
     "nix-index-database": {
       "inputs": {
         "nixpkgs": [
@@ -874,6 +847,21 @@
       "original": {
         "owner": "nix-community",
         "repo": "nix-vscode-extensions",
+        "type": "github"
+      }
+    },
+    "nixos-hardware": {
+      "locked": {
+        "lastModified": 1723854545,
+        "narHash": "sha256-3CE8MTrYLMNzPr90Y09Js3EI9D0MR3JnQtYENVcdKB4=",
+        "owner": "CHN-beta",
+        "repo": "nixos-hardware",
+        "rev": "0b3a6ecaa0be2e528b6a5619cf29aea77b61e5bc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "nixos-hardware",
         "type": "github"
       }
     },
@@ -1251,9 +1239,9 @@
         "gricad": "gricad",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
-        "jovian": "jovian_2",
         "kylin-virtual-keyboard": "kylin-virtual-keyboard",
         "lepton": "lepton",
+        "linux-surface": "linux-surface",
         "lmod": "lmod",
         "matplotplusplus": "matplotplusplus",
         "misskey": "misskey",
@@ -1263,6 +1251,7 @@
         "nix-flatpak": "nix-flatpak",
         "nix-index-database": "nix-index-database",
         "nix-vscode-extensions": "nix-vscode-extensions",
+        "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixpkgs-22.05": "nixpkgs-22.05",
         "nixpkgs-22.11": "nixpkgs-22.11",

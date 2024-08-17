@@ -4,7 +4,7 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &vps4 age1nnd6u8l20julg4jz4l6kw5gmj6h2tsngpm7n8dx59umgw2s66y4shq6jv4
   - &vps6 age164tyqklwhdm57tfm5u863mdt2xrzrrzac4py8a0j9y6kzqcjy9zsp073t6
   - &vps7 age137x7csalutwvfygvvzpemlsywvdxj3j4z93a50z2sjx03w6zau8q3r5902
-  - &steamdeck age1ck5vzs0xqx0jplmuksrkh45xwmkm2t05m2wyq5k2w2mnkmn79fxs6tvl3l
+  - &surface age1ck5vzs0xqx0jplmuksrkh45xwmkm2t05m2wyq5k2w2mnkmn79fxs6tvl3l
   - &nas age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
   - &xmupc1 age1hnarptkze0ujpp05dqr8uma04cxg9zqcx68qgpks5uf5l6rpk5gqhh8wxg
   - &xmupc2 age1l4stuz0vr7gs7pqwjrmezam44702jp2vmqaqyxw0l0r42kf9updq4dfhrw
@@ -36,11 +36,11 @@ creation_rules:
     - age:
       - *chn
       - *nas
-  - path_regex: devices/steamdeck/.*$
+  - path_regex: devices/surface/.*$
     key_groups:
     - age:
       - *chn
-      - *steamdeck
+      - *surface
   - path_regex: devices/xmupc1/.*$
     key_groups:
     - age:

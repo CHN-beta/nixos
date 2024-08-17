@@ -10,7 +10,7 @@ inputs:
     programs.steam =
     {
       enable = true;
-      package = inputs.lib.mkIf (inputs.config.nixos.hardware.steamdeck == null) (inputs.pkgs.steam.override (prev:
+      package = inputs.pkgs.steam.override (prev:
       {
         steam = prev.steam.overrideAttrs (prev:
         {
@@ -19,19 +19,13 @@ inputs:
             sed -i 's#Comment\[zh_CN\]=.*$#Comment\[zh_CN\]=思题慕®学习平台#' $out/share/applications/steam.desktop
           '';
         });
-      }));
+      });
       extraPackages = [ inputs.pkgs.openssl_1_1 ];
       extraCompatPackages = [ inputs.pkgs.proton-ge-bin ];
       remotePlay.openFirewall = true;
       protontricks.enable = true;
       localNetworkGameTransfers.openFirewall = true;
       dedicatedServer.openFirewall = true;
-    };
-    # not easy to override steamdeck's steam package env, just write env vars to global
-    environment.sessionVariables = inputs.lib.mkIf (inputs.config.nixos.hardware.steamdeck != null)
-    {
-      STEAM_EXTRA_COMPAT_TOOLS_PATHS =
-        inputs.lib.makeSearchPathOutput "steamcompattool" "" inputs.config.programs.steam.extraCompatPackages;
     };
   };
 }
