@@ -10,12 +10,8 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/E58F-416A" = "/boot/efi";
-            btrfs =
-            {
-              "/dev/disk/by-uuid/066be4fd-8617-4fe1-9654-c133c2996d33"."/" = "/boot";
-              "/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-            };
+            vfat."/dev/disk/by-uuid/7A60-4232" = "/boot";
+            btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
           decrypt.auto =
           {
@@ -169,7 +165,7 @@ inputs:
           menuentry 'Advanced UEFI Firmware Settings' {
             insmod fat
             insmod chain
-            chainloader EFI/Boot/Bootx64.efi
+            chainloader @bootRoot@/EFI/Boot/Bootx64.efi
           }
         '';
       };

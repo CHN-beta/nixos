@@ -10,9 +10,10 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/ABC6-6B3E" = "/boot/efi";
+            # TODO: reparition
+            vfat."/dev/disk/by-uuid/ABC6-6B3E" = "/boot";
             btrfs."/dev/disk/by-uuid/c459c6c0-23a6-4ef2-945a-0bfafa9a45b6" =
-              { "/nix/rootfs/current" = "/"; "/nix" = "/nix"; "/nix/boot" = "/boot"; };
+              { "/nix/rootfs/current" = "/"; "/nix" = "/nix"; };
           };
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};

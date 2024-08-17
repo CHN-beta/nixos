@@ -11,12 +11,8 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/A44C-6DB4" = "/boot/efi";
-            btrfs =
-            {
-              "/dev/disk/by-uuid/10c2ee85-b5bf-41ff-9901-d36d2edd8a69"."/boot" = "/boot";
-              "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-            };
+            vfat."/dev/disk/by-uuid/A44C-6DB4" = "/boot";
+            btrfs."/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
           decrypt.auto."/dev/disk/by-uuid/124ce605-93b4-454f-924b-fe741f39e065" = { mapper = "root"; ssd = true; };
           swap = [ "/nix/swap/swap" ];

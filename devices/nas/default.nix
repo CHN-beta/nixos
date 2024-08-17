@@ -10,10 +10,9 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/13BC-F0C9" = "/boot/efi";
+            vfat."/dev/disk/by-uuid/13BC-F0C9" = "/boot";
             btrfs =
             {
-              "/dev/disk/by-uuid/0e184f3b-af6c-4f5d-926a-2559f2dc3063"."/boot" = "/boot";
               "/dev/mapper/nix"."/nix" = "/nix";
               "/dev/mapper/root3" =
               {

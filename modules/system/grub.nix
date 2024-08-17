@@ -23,11 +23,7 @@ inputs:
           efiSupport = builtins.elem grub.installDevice [ "efi" "efiRemovable" ];
           efiInstallAsRemovable = grub.installDevice == "efiRemovable";
         };
-        efi =
-        {
-          canTouchEfiVariables = grub.installDevice == "efi";
-          efiSysMountPoint = inputs.lib.mkIf (builtins.elem grub.installDevice [ "efi" "efiRemovable" ]) "/boot/efi";
-        };
+        efi.canTouchEfiVariables = grub.installDevice == "efi";
       };
     }
     # extra grub entries
@@ -36,7 +32,7 @@ inputs:
       {
         memtest86.enable = inputs.lib.mkIf (inputs.config.nixos.system.nixpkgs.arch == "x86_64") true;
         extraFiles = inputs.lib.mkIf (builtins.elem grub.installDevice [ "efi" "efiRemovable" ])
-          { "shell.efi" = "${inputs.pkgs.edk2-uefi-shell}/shell.efi"; };
+          { "shell.efi" = "${inputs.pkgs.genericPackages.edk2-uefi-shell}/shell.efi"; };
         extraEntries = inputs.lib.mkMerge (builtins.concatLists
         [
           (builtins.map
@@ -72,7 +68,7 @@ inputs:
                 menuentry "UEFI Shell" {
                   insmod fat
                   insmod chain
-                  chainloader /shell.efi
+                  chainloader @bootRoot@/shell.efi
                 }
               ''
             )

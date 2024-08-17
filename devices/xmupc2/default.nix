@@ -10,11 +10,11 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/23CA-F4C4" = "/boot/efi";
+            vfat."/dev/disk/by-uuid/23CA-F4C4" = "/boot";
             btrfs =
             {
               "/dev/disk/by-uuid/d187e03c-a2b6-455b-931a-8d35b529edac" =
-                { "/nix/rootfs/current" = "/"; "/nix" = "/nix"; "/nix/boot" = "/boot"; };
+                { "/nix/rootfs/current" = "/"; "/nix" = "/nix"; };
             };
           };
           swap = [ "/nix/swap/swap" ];

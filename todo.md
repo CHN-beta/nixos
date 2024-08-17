@@ -3,3 +3,4 @@
 * 挑选一个好看的主题
 * 尝试一些别的计算软件
 * 解决 vscode 中的英语语法检查插件，尝试 valentjn.vscode-ltex
+* 调整 xmupc1 xmupc2 启动分区

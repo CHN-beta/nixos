@@ -10,10 +10,11 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/467C-02E3" = "/boot/efi";
+            # TODO: reparition
+            vfat."/dev/disk/by-uuid/467C-02E3" = "/boot";
             btrfs =
             {
-              "/dev/disk/by-uuid/2f9060bc-09b5-4348-ad0f-3a43a91d158b" = { "/nix" = "/nix"; "/nix/boot" = "/boot"; };
+              "/dev/disk/by-uuid/2f9060bc-09b5-4348-ad0f-3a43a91d158b"."/nix" = "/nix";
               "/dev/disk/by-uuid/a04a1fb0-e4ed-4c91-9846-2f9e716f6e12" =
               {
                 "/nix/rootfs" = "/nix/rootfs";
