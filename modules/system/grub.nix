@@ -72,7 +72,7 @@ inputs:
                 menuentry "UEFI Shell" {
                   insmod fat
                   insmod chain
-                  chainloader @bootRoot@/shell.efi
+                  chainloader /shell.efi
                 }
               ''
             )

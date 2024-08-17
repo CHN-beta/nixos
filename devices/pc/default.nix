@@ -159,18 +159,17 @@ inputs:
       {
         extraFiles =
         {
-          "shell.efi" = "${inputs.pkgs.edk2-uefi-shell}/shell.efi";
-          "efi/DisplayEngine.efi" = ./bios/DisplayEngine.efi;
-          "efi/SetupBrowser.efi" = ./bios/SetupBrowser.efi;
-          "efi/UiApp.efi" = ./bios/UiApp.efi;
-          "efi/Bootx64.efi" = ./bios/Bootx64.efi;
+          "DisplayEngine.efi" = ./bios/DisplayEngine.efi;
+          "SetupBrowser.efi" = ./bios/SetupBrowser.efi;
+          "UiApp.efi" = ./bios/UiApp.efi;
+          "EFI/Boot/Bootx64.efi" = ./bios/Bootx64.efi;
         };
         extraEntries = 
         ''
           menuentry 'Advanced UEFI Firmware Settings' {
             insmod fat
             insmod chain
-            chainloader @bootRoot@/Bootx64.efi
+            chainloader EFI/Boot/Bootx64.efi
           }
         '';
       };
