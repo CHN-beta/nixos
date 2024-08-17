@@ -4,7 +4,7 @@ inputs:
   {
     variant = mkOption
     {
-      type = types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "cachyos-server" "steamos" ];
+      type = types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "cachyos-server" "zen" ];
       default = "xanmod-latest";
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
@@ -47,6 +47,7 @@ inputs:
           cachyos-lto = inputs.pkgs.linuxPackages_cachyos-lto;
           cachyos-server = inputs.pkgs.linuxPackages_cachyos-server;
           rpi3 = inputs.pkgs.linuxPackages_rpi3;
+          zen = inputs.pkgs.linuxPackages_zen;
         }.${kernel.variant};
         kernelPatches =
           let

@@ -188,19 +188,10 @@ inputs:
         };
         system.nixos.tags = [ "nvidia" ];
       };
-      cachyos.configuration =
+      zen.configuration =
       {
-        nixos.system.kernel.variant = inputs.lib.mkForce "cachyos";
-        system.nixos.tags = [ "cachyos" ];
-      };
-      generic.configuration =
-      {
-        nixos =
-        {
-          system.nixpkgs = { march = inputs.lib.mkForce null; cuda.enable = inputs.lib.mkForce false; };
-          packages.vasp = null;
-        };
-        system.nixos.tags = [ "generic" ];
+        nixos.system.kernel = { variant = inputs.lib.mkForce "zen"; patches = inputs.lib.mkForce []; };
+        system.nixos.tags = [ "zen" ];
       };
     };
   };
