@@ -34,7 +34,7 @@ inputs:
           let modules =
           {
             intel = [ "i915" ];
-            nvidia = [ "nvidia" "nvidia_drm" "nvidia_modeset" ]; # nvidia-uvm should not be loaded
+            nvidia = []; # early loading breaks resume from hibernation
             amd = [];
           };
           in builtins.concatLists (builtins.map (gpu: modules.${gpu}) gpus);
