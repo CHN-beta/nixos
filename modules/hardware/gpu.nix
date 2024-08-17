@@ -21,7 +21,7 @@ inputs:
         mode = mkOption { type = types.enum [ "offload" "sync" ]; default = "offload"; };
         busId = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       };
-      driver = mkOption { type = types.enum [ "production" "beta" ]; default = "production"; };
+      driver = mkOption { type = types.enum [ "production" "latest" "beta" ]; default = "production"; };
     };
   };
   config = let inherit (inputs.config.nixos.hardware) gpu; in inputs.lib.mkIf (gpu.type != null) (inputs.lib.mkMerge
@@ -59,9 +59,8 @@ inputs:
             dynamicBoost.enable = inputs.lib.mkIf gpu.nvidia.dynamicBoost true;
             nvidiaSettings = true;
             forceFullCompositionPipeline = true;
-            package =
-              let actualDriver = { production = "legacy_535"; }.${gpu.nvidia.driver} or gpu.nvidia.driver;
-              in inputs.config.boot.kernelPackages.nvidiaPackages.${actualDriver};
+            package = inputs.config.boot.kernelPackages.nvidiaPackages.${gpu.nvidia.driver};
+            open = true; # TODO: remove when 560 is stable
             prime.allowExternalGpu = true;
           };
         };

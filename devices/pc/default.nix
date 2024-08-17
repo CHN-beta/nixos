@@ -68,7 +68,7 @@ inputs:
         gpu =
         {
           type = "amd+nvidia";
-          nvidia = { prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; driver = "beta"; };
+          nvidia = { prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; driver = "latest"; };
         };
         legion = {};
       };
@@ -146,11 +146,7 @@ inputs:
     };
     boot =
     {
-      kernelParams =
-      [
-        "acpi_osi=!" ''acpi_osi="Windows 2015"''
-        "amdgpu.sg_display=0" # 混合模式下避免外接屏幕闪烁，和内置外接屏幕延迟
-      ];
+      kernelParams = [ "acpi_osi=!" ''acpi_osi="Windows 2015"'' ];
       loader.grub =
       {
         extraFiles =
