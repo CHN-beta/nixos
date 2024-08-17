@@ -54,7 +54,7 @@ inputs:
         kernel =
         {
           variant = "xanmod-latest";
-          patches = [ "hibernate-progress" "amdgpu" "lantian" ];
+          patches = [ "hibernate-progress" "amdgpu" ];
           modules.modprobeConfig =
             [ "options iwlwifi power_save=0" "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
         };
