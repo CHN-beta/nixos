@@ -17,7 +17,6 @@ inputs:
           decrypt.auto."/dev/disk/by-uuid/a9e4a508-3f0b-492e-b932-e2019be28615" = { mapper = "root"; ssd = true; };
           rollingRootfs = {};
         };
-        grub.installDevice = "efi";
         kernel.variant = "xanmod-latest";
         networking.hostname = "pcvm";
         initrd.sshd.enable = true;

@@ -5,7 +5,7 @@ inputs:
     timeout = mkOption { type = types.int; default = 5; };
     windowsEntries = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
     # "efi" using efi, "efiRemovable" using efi with install grub removable, or dev path like "/dev/sda" using bios
-    installDevice = mkOption { type = types.str; };
+    installDevice = mkOption { type = types.str; default = "efi"; };
   };
   config = let inherit (inputs.config.nixos.system) grub; in inputs.lib.mkMerge
   [

@@ -20,7 +20,6 @@ inputs:
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};
         };
-        grub.installDevice = "efi";
         nixpkgs =
         {
           march = "skylake";

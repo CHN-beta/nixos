@@ -39,7 +39,6 @@ inputs:
           rollingRootfs.waitDevices = [ "/dev/mapper/root4" ];
         };
         initrd.sshd.enable = true;
-        grub.installDevice = "efi";
         nixpkgs.march = "silvermont";
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         networking = { hostname = "nas"; networkd = {}; };

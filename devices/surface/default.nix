@@ -20,7 +20,6 @@ inputs:
           rollingRootfs = {};
         };
         nixpkgs.march = "skylake";
-        grub.installDevice = "efi";
         nix = { substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ]; githubToken.enable = true; };
         kernel = { variant = "xanmod-lts"; patches = [ "surface" "hibernate-progress" ]; };
         networking.hostname = "surface";

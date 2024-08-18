@@ -17,7 +17,6 @@ inputs:
           };
           rollingRootfs = {};
         };
-        grub.installDevice = "efi";
         networking = { hostname = "pcarm"; networkd = {}; };
         nixpkgs.arch = "aarch64";
         kernel.variant = "nixos";

@@ -23,12 +23,7 @@ inputs:
           resume = "/dev/mapper/swap";
           rollingRootfs = {};
         };
-        grub =
-        {
-          # TODO: install windows
-          # windowsEntries = { "7317-1DB6" = "Windows"; "7321-FA9C" = "Windows for malware"; };
-          installDevice = "efi";
-        };
+        grub.windowsEntries."7AF0-D2F2" = "Windows";
         nix =
         {
           marches =

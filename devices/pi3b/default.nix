@@ -18,7 +18,6 @@ inputs:
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};
         };
-        grub.installDevice = "efi";
         networking = { hostname = "pi3b"; networkd = {}; };
         nixpkgs.arch = "aarch64";
         kernel.variant = "nixos";
