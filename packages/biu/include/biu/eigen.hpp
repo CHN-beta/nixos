@@ -32,27 +32,30 @@ namespace biu
       // if size is specified as a number, convert to fixed-size Eigen::Vector if specified size equals the size of the
       //  input, otherwise throw an error
       // return deduced size if the size is deducible in compile time, otherwise return Empty
-      template <std::size_t ToSize, typename Container> auto deduce_eigen_size();
+      template <std::size_t ToSize, typename Container> constexpr auto deduce_eigen_size();
 
       // helper operator| to specify the size of the destination container
       template <std::size_t Row, std::size_t Col> struct ToEigenHelper {};
+
+      // convert 1D standard container to Eigen::Matrix, the second argument should always be unspecified
+      template <typename From, std::size_t ToSize> auto operator|
+        (const From&, const detail_::ToEigenHelper<ToSize, detail_::unspecifiedSize>&)
+        requires (detail_::StandardContainer<From, typename From::value_type> && Arithmetic<typename From::value_type>);
+
+      // convert 2D standard container to Eigen::Matrix
+      template <typename From, std::size_t ToRow, std::size_t ToCol> auto operator|
+        (const From&, const detail_::ToEigenHelper<ToRow, ToCol>&)
+        requires
+        (
+          detail_::StandardContainer<From, typename From::value_type>
+          && detail_::StandardContainer<typename From::value_type, typename From::value_type::value_type>
+          && Arithmetic<typename From::value_type::value_type>
+        );
     }
 
     // usage: some_value | toEigen<Row, Col>
     template <std::size_t Row = detail_::unspecifiedSize, std::size_t Col = detail_::unspecifiedSize>
       inline constexpr detail_::ToEigenHelper<Row, Col> toEigen;
-
-    // convert 1D standard container to Eigen::Matrix, the second argument should always be unspecified
-    template <Arithmetic T, detail_::StandardContainer<T> From, std::size_t ToSize> auto operator|
-      (const From&, const detail_::ToEigenHelper<ToSize, detail_::unspecifiedSize>&);
-
-    // convert 2D standard container to Eigen::Matrix
-    template
-    <
-      Arithmetic T, detail_::StandardContainer<T> FromPerRow, detail_::StandardContainer<FromPerRow> From,
-      std::size_t ToRow, std::size_t ToCol
-    >
-      auto operator|(const From&, const detail_::ToEigenHelper<ToRow, ToCol>&);
 
     // test if a class is an eigen matrix
     namespace detail_
@@ -63,7 +66,7 @@ namespace biu
     }
     template <typename Matrix> concept EigenMatrix = detail_::EigenMatrix<Matrix>::value;
   }
-  using eigen::toEigen, eigen::operator|, eigen::EigenMatrix;
+  using eigen::toEigen, eigen::EigenMatrix;
 }
 
 // archive a matrix

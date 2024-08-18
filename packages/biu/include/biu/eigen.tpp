@@ -6,47 +6,60 @@
 
 namespace biu::eigen
 {
-  template <std::size_t ToSize, typename Container> auto detail_::deduce_eigen_size()
+  template <std::size_t ToSize, typename Container> constexpr auto detail_::deduce_eigen_size()
   {
     if constexpr (ToSize == detail_::dynamicSize) return Empty{};
     else if constexpr (ToSize == detail_::unspecifiedSize)
-      if constexpr (SpecializationOfArray<Container>) return Container::size();
+      if constexpr (SpecializationOfArray<Container>) return Container{}.size();
       else return Empty{};
     else
       if constexpr (SpecializationOfArray<Container>)
-        if (Container::size() == ToSize) return ToSize;
+        if (Container{}.size() == ToSize) return ToSize;
         else throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
       else return ToSize;
   }
-  template <Arithmetic T, detail_::StandardContainer<T> From, std::size_t ToSize> auto operator|
+
+  template <typename From, std::size_t ToSize> auto detail_::operator|
     (const From& from, const detail_::ToEigenHelper<ToSize, detail_::unspecifiedSize>&)
+    requires (detail_::StandardContainer<From, typename From::value_type> && Arithmetic<typename From::value_type>)
   {
+    using Scalar = typename From::value_type;
     // dynamic size
-    if (detail_::deduce_eigen_size<ToSize, From>() == Empty{})
-      return Eigen::Vector<T, Eigen::Dynamic>(from.data(), from.size());
+    if constexpr (detail_::deduce_eigen_size<ToSize, From>() == Empty{})
+    {
+      using Vector = Eigen::Vector<Scalar, Eigen::Dynamic>;
+      return Vector(Eigen::Map<const Vector>(from.data(), from.size()));
+    }
     // fixed size
     else
-      // from vector, vector.size() == ToSize
-      if (SpecializationOf<From, std::vector, T> && from.size() == ToSize)
-        return Eigen::Vector<T, ToSize>(from.data());
+      // from std::array, or from std::vector and vector.size() == ToSize
+      if (!SpecializationOf<From, std::vector, Scalar> || from.size() == ToSize)
+      {
+        using Vector = Eigen::Vector<Scalar, static_cast<int>(detail_::deduce_eigen_size<ToSize, From>())>;
+        return Vector(Eigen::Map<const Vector>(from.data()));
+      }
       else
         throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
   }
-  template
-  <
-    Arithmetic T, detail_::StandardContainer<T> FromPerRow, detail_::StandardContainer<FromPerRow> From,
-    std::size_t ToRow, std::size_t ToCol
-  >
-    auto operator|(const From& from, const detail_::ToEigenHelper<ToRow, ToCol>&)
+  template <typename From, std::size_t ToRow, std::size_t ToCol> auto detail_::operator|
+    (const From& from, const detail_::ToEigenHelper<ToRow, ToCol>&)
+    requires
+    (
+      detail_::StandardContainer<From, typename From::value_type>
+      && detail_::StandardContainer<typename From::value_type, typename From::value_type::value_type>
+      && Arithmetic<typename From::value_type::value_type>
+    )
   {
-    auto nRow = detail_::deduce_eigen_size<ToRow, From>();
-    auto nCol = detail_::deduce_eigen_size<ToCol, FromPerRow>();
+    constexpr auto nRow = detail_::deduce_eigen_size<ToRow, From>();
+    constexpr auto nCol = detail_::deduce_eigen_size<ToCol, typename From::value_type>();
+    using FromPerRow = typename From::value_type;
+    using Scalar = typename FromPerRow::value_type;
 
     // ensure all rows have the same size
     std::vector<std::size_t> size_in_each_row;
     // each row is a std::array, they must have the same size
-    if constexpr (!SpecializationOf<FromPerRow, std::vector, T>)
-      size_in_each_row.push_back(FromPerRow::size());
+    if constexpr (!SpecializationOf<FromPerRow, std::vector, Scalar>)
+      size_in_each_row.push_back(FromPerRow{}.size());
     else
       size_in_each_row = from
         | ranges::views::transform([](const auto& row) { return row.size(); })
@@ -57,44 +70,68 @@ namespace biu::eigen
     else if (size_in_each_row.empty()) size_in_each_row.push_back(0);
 
     // ensure specified size is consistent with the input
-    if (nRow != Empty{} && SpecializationOf<From, std::vector> && from.size() != nRow)
-      throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
-    if (nCol != Empty{} && size_in_each_row[0] != nCol)
-      throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
+    if constexpr (nRow != Empty{})
+      if (SpecializationOf<From, std::vector> && from.size() != nRow)
+        throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
+    if constexpr (nCol != Empty{})
+      if (size_in_each_row[0] != nCol)
+        throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
 
     // copy all data into a single vector
-    auto data = from | ranges::views::join | ranges::to<std::vector<T>>;
+    auto data = from | ranges::views::join | ranges::to<std::vector<Scalar>>;
 
     // dynamic row and dynamic col
     if constexpr (nRow == Empty{} && nCol == Empty{})
-      return Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor | Eigen::AutoAlign>
-        (data.data(), from.size(), size_in_each_row[0]);
+    {
+      using Matrix = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor | Eigen::AutoAlign>;
+      return Matrix(Eigen::Map<const Matrix>(data.data(), from.size(), size_in_each_row[0]));
+    }
     // fixed row and dynamic col
     else if constexpr (nRow != Empty{} && nCol == Empty{})
-      return Eigen::Matrix<T, nRow, Eigen::Dynamic, Eigen::RowMajor | Eigen::AutoAlign>
-        (data.data(), size_in_each_row[0]);
+    {
+      using Matrix = Eigen::Matrix<Scalar, nRow, Eigen::Dynamic, Eigen::RowMajor | Eigen::AutoAlign>;
+      return Matrix(Eigen::Map<const Matrix>(data.data(), nRow, size_in_each_row[0]));
+    }
     // dynamic row and fixed col
     else if constexpr (nRow == Empty{} && nCol != Empty{})
-      return Eigen::Matrix<T, Eigen::Dynamic, nCol, Eigen::RowMajor | Eigen::AutoAlign>
-        (data.data(), from.size());
+    {
+      using Matrix = Eigen::Matrix<Scalar, Eigen::Dynamic, nCol, Eigen::RowMajor | Eigen::AutoAlign>;
+      return Matrix(Eigen::Map<const Matrix>(data.data(), from.size(), nCol));
+    }
     // fixed row and fixed col
     else
-      return Eigen::Matrix<T, ToRow, ToCol, Eigen::RowMajor | Eigen::AutoAlign>
-        (data.data());
+    {
+      using Matrix = Eigen::Matrix<Scalar, nRow, nCol, Eigen::RowMajor | Eigen::AutoAlign>;
+      return Matrix(Eigen::Map<const Matrix>(data.data()));
+    }
   }
 }
 template <typename Matrix> constexpr auto Eigen::serialize(auto & archive, Matrix& matrix)
   requires biu::EigenMatrix<std::remove_cvref_t<Matrix>>
+{
+  // this function will be called twice, first to get how many members to archive, then to archive the members
+  // first call
+  if constexpr (std::integral<decltype(archive())>)
+    return 1 + (Matrix::CompileTimeTraits::RowsAtCompileTime == Eigen::Dynamic)
+      + (Matrix::CompileTimeTraits::ColsAtCompileTime == Eigen::Dynamic);
+  // second call
+  else
   {
-    auto nRow = matrix.rows(), nCol = matrix.cols();
+    typename Matrix::Index nRow, nCol;
+    std::vector<typename Matrix::Scalar> data;
+    if constexpr (archive.kind() == zpp::bits::kind::out)
+      { nRow = matrix.rows(); nCol = matrix.cols(); data = std::vector(matrix.data(), matrix.data() + matrix.size()); }
     zpp::bits::errc result;
-    if (result.code == std::errc{} && Matrix::CompileTimeTraits::RowsAtCompileTime == Eigen::Dynamic)
-      result = archive(nRow);
-    if (result.code == std::errc{} && Matrix::CompileTimeTraits::ColsAtCompileTime == Eigen::Dynamic)
-      result = archive(nCol);
-    if (archive.kind() == zpp::bits::kind::in)
-      matrix.resize(nRow, nCol);
-    if (result.code == std::errc{})
-      result = archive(matrix.data(), matrix.size());
+    if constexpr (Matrix::CompileTimeTraits::RowsAtCompileTime == Eigen::Dynamic)
+      { if (result = archive(nRow); result.code != std::errc{}) [[unlikely]] return result; }
+    else nRow = Matrix::CompileTimeTraits::RowsAtCompileTime;
+    if constexpr (Matrix::CompileTimeTraits::ColsAtCompileTime == Eigen::Dynamic)
+      { if (result = archive(nCol); result.code != std::errc{}) [[unlikely]] return result; }
+    else nCol = Matrix::CompileTimeTraits::ColsAtCompileTime;
+    result = archive(data);
+    if (result.code != std::errc{}) [[unlikely]] return result;
+    if constexpr (archive.kind() == zpp::bits::kind::in)
+      matrix = Eigen::Map<const Matrix>(data.data(), nRow, nCol);
     return result;
   }
+}

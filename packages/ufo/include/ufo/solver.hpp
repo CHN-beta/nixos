@@ -22,21 +22,12 @@
 # include <highfive/H5File.hpp>
 # include <zpp_bits.h>
 # include <matplot/matplot.h>
+# include <biu.hpp>
 
 // 在相位中, 约定为使用 $\exp (2 \pi i \vec{q} \cdot \vec{r})$ 来表示原子的运动状态
 //  (而不是 $\exp (-2 \pi i \vec{q} \cdot \vec{r})$)
 // 一些书定义的倒格矢中包含了 $2 \pi$ 的部分, 我们这里约定不包含这部分.
 //  也就是说, 正格子与倒格子的转置相乘, 得到单位矩阵.
-
-namespace Eigen
-{
-  template <typename Matrix> constexpr inline auto serialize
-    (auto & archive, Matrix& matrix)
-    { return archive(std::span(matrix.data(), matrix.size())); }
-  template <typename Scalar, int Rows, int Cols> constexpr inline auto serialize
-    (auto & archive, const Eigen::Matrix<Scalar, Rows, Cols>& matrix)
-    { return archive(std::span(matrix.data(), matrix.size())); }
-}
 
 namespace ufo
 {

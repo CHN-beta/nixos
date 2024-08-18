@@ -26,12 +26,14 @@ namespace biu
     using int128_t = __int128_t;
     using uint128_t = __uint128_t;
 
-    struct Empty {};
+    struct Empty
+    {
+      template <typename T> consteval bool operator==(const T&) const
+        { return std::same_as<std::remove_cvref_t<T>, Empty>; }
+    };
 
     struct CaseInsensitiveStringLessComparator
-    {
-      template <typename String> constexpr bool operator()(const String& s1, const String& s2) const;
-    };
+      { template <typename String> constexpr bool operator()(const String& s1, const String& s2) const; };
     namespace detail_
     {
       template <typename T> struct RemoveMemberPointerHelper { using Type = T; };
