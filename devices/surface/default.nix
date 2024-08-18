@@ -54,6 +54,7 @@ inputs:
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
       };
       bugs = [ "xmunet" "suspend-hibernate-no-platform" ];
+      packages.vasp = null;
     };
     powerManagement.resumeCommands = ''${inputs.pkgs.systemd}/bin/systemctl restart iptsd'';
     services.iptsd.config =
