@@ -69,6 +69,14 @@ inputs:
         services.xserver.videoDrivers =
           let driver = { intel = "modesetting"; amd = "amdgpu"; nvidia = "nvidia"; };
           in builtins.map (gpu: driver.${gpu}) gpus;
+        nixos.packages.packages._packages =
+          let packages = with inputs.pkgs;
+          {
+            intel = [ intel-gpu-tools ];
+            nvidia = [ nvtopPackages.full ];
+            amd = [];
+          };
+          in builtins.concatLists (builtins.map (gpu: packages.${gpu}) gpus);
       }
     )
     # nvidia prime offload
