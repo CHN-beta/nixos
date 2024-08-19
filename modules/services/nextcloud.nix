@@ -42,36 +42,23 @@ inputs:
       secretFile = inputs.config.sops.templates."nextcloud/secret".path;
       extraApps =
         let
-          githubRelease = repo: file: "https://github.com/${repo}/releases/download/${file}";
-        in
-        {
-          # nix-prefetch-url --unpack
-          maps = inputs.pkgs.fetchNextcloudApp
+          version = inputs.lib.versions.major inputs.config.services.nextcloud.package.version;
+          info = builtins.fromJSON (builtins.readFile "${inputs.topInputs.nc4nix}/${version}.json");
+          getInfo = package:
           {
-            url = githubRelease "nextcloud/maps" "v1.4.0/maps-1.4.0.tar.gz";
-            sha256 = "1gqms3rrdpjmpb1h5d72b4lwbvsl8p10zwnkhgnsmvfcf93h3r1c";
-            license = "agpl3Only";
+            inherit (info.${package}) hash url description homepage;
+            appName = package;
+            appVersion = info.${package}.version;
+            license =
+              let
+                licenses = { agpl = "agpl3Only"; };
+                originalLincense = builtins.head info.${package}.licenses;
+              in licenses.${originalLincense} or originalLincense;
           };
-          phonetrack = inputs.pkgs.fetchNextcloudApp
-          {
-            url = githubRelease "julien-nc/phonetrack" "v0.8.1/phonetrack-0.8.1.tar.gz";
-            sha256 = "1i28xgzp85yb44ay2l2zw18fk00yd6fh6yddj92gdrljb3w9zpap";
-            license = "agpl3Only";
-          };
-          twofactor_webauthn = inputs.pkgs.fetchNextcloudApp
-          {
-            url = githubRelease "nextcloud-releases/twofactor_webauthn" "v1.4.0/twofactor_webauthn-v1.4.0.tar.gz";
-            sha256 = "0llxakzcdcy9hscyzw3na5zp1p57h03w5fmm0gs9g62k1b88k6kw";
-            license = "agpl3Only";
-          };
-          calendar = inputs.pkgs.fetchNextcloudApp
-          {
-            url = githubRelease "nextcloud-releases/calendar" "v4.7.6/calendar-v4.7.6.tar.gz";
-            sha256 = "09rsp5anpaqzwmrixza5qh12vmq9hd3an045064vm3rnynz537qc";
-            license = "agpl3Only";
-          };
-        };
-      };
+        in builtins.listToAttrs (builtins.map
+          (package: { name = package; value = inputs.pkgs.fetchNextcloudApp (getInfo package); })
+          [ "maps" "phonetrack" "twofactor_webauthn" "calendar" ]);
+    };
     nixos.services =
     {
       postgresql.instances.nextcloud = {};

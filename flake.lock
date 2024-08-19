@@ -727,6 +727,22 @@
         "type": "github"
       }
     },
+    "nc4nix": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1724033015,
+        "narHash": "sha256-L0HSyoCAfrPF0zdlMmwu7Bpcqz43UsRFkTnXPZjLRiY=",
+        "owner": "helsinki-systems",
+        "repo": "nc4nix",
+        "rev": "924dc2b20cac3bf48f7204d58255a9c62bf80f96",
+        "type": "github"
+      },
+      "original": {
+        "owner": "helsinki-systems",
+        "repo": "nc4nix",
+        "type": "github"
+      }
+    },
     "nix-fast-build": {
       "inputs": {
         "flake-parts": "flake-parts_2",
@@ -1247,6 +1263,7 @@
         "misskey": "misskey",
         "mumax": "mumax",
         "nameof": "nameof",
+        "nc4nix": "nc4nix",
         "nix-fast-build": "nix-fast-build",
         "nix-flatpak": "nix-flatpak",
         "nix-index-database": "nix-index-database",

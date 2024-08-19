@@ -65,6 +65,7 @@
     sqlite-orm = { url = "github:fnc12/sqlite_orm"; flake = false; };
     sockpp = { url = "github:fpagliughi/sockpp"; flake = false; };
     git-lfs-transfer = { url = "github:charmbracelet/git-lfs-transfer"; flake = false; };
+    nc4nix = { url = "github:helsinki-systems/nc4nix"; flake = false; };
 
     # does not support lfs yet
     # nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };
