@@ -1,5 +1,6 @@
 inputs:
 {
+  imports = inputs.localLib.findModules ./.;
   config =
   {
     nixos =
@@ -64,13 +65,6 @@ inputs:
         {
           root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
           nix = { device = "/nix"; hashTableSizeMB = 512; };
-        };
-        wireguard =
-        {
-          enable = true;
-          peers = [ "vps6" ];
-          publicKey = "JEY7D4ANfTpevjXNvGDYO6aGwtBGRXsf/iwNwjwDRQk=";
-          wireguardIp = "192.168.83.6";
         };
         slurm =
         {

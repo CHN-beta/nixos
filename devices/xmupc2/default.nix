@@ -1,5 +1,6 @@
 inputs:
 {
+  imports = inputs.localLib.findModules ./.;
   config =
   {
     nixos =
@@ -54,13 +55,6 @@ inputs:
         firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         smartd.enable = true;
         beesd.instances.root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
-        wireguard =
-        {
-          enable = true;
-          peers = [ "vps6" ];
-          publicKey = "lNTwQqaR0w/loeG3Fh5qzQevuAVXhKXgiPt6fZoBGFE=";
-          wireguardIp = "192.168.83.7";
-        };
         slurm =
         {
           enable = true;

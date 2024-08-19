@@ -1,6 +1,7 @@
 inputs:
 {
-  imports = inputs.localLib.mkModules [ inputs.topInputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel ];
+  imports = (inputs.localLib.mkModules [ inputs.topInputs.nixos-hardware.nixosModules.microsoft-surface-pro-intel ])
+    ++ inputs.localLib.findModules ./.;
   config =
   {
     nixos =
@@ -43,13 +44,6 @@ inputs:
             ]);
         };
         firewall.trustedInterfaces = [ "virbr0" ];
-        wireguard =
-        {
-          enable = true;
-          peers = [ "vps6" ];
-          publicKey = "j7qEeODVMH31afKUQAmKRGLuqg8Bxd0dIPbo17LHqAo=";
-          wireguardIp = "192.168.83.5";
-        };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
       };
       bugs = [ "xmunet" "suspend-hibernate-no-platform" ];

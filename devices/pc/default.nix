@@ -1,5 +1,6 @@
 inputs:
 {
+  imports = inputs.localLib.findModules ./.;
   config =
   {
     nixos =
@@ -120,13 +121,6 @@ inputs:
         smartd.enable = true;
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
         beesd.instances.root = { device = "/"; hashTableSizeMB = 4096; threads = 4; };
-        wireguard =
-        {
-          enable = true;
-          peers = [ "vps6" ];
-          publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
-          wireguardIp = "192.168.83.3";
-        };
         gamemode = { enable = true; drmDevice = 1; };
         slurm =
         {
