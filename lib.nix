@@ -54,11 +54,4 @@ lib: rec
             else null
           else null)
       (attrsToList (builtins.readDir path))));
-  
-  # check if "${config}.nix" file exist in specified device directory
-  # if exist, import and return it, otherwise return full config
-  getConfig = inputs: device: config:
-    let path = "${inputs.topInputs.self}/devices/${device}/${config}.nix"; in
-    if builtins.pathExists path then (import path).config
-    else inputs.topInputs.self.outputs.nixosConfigurations.${device}.config;
 }

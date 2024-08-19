@@ -1,6 +1,5 @@
 inputs:
 {
-  imports = inputs.localLib.findModules ./.;
   config =
   {
     nixos =

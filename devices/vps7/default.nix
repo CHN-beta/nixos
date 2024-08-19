@@ -1,6 +1,5 @@
 inputs:
 {
-  imports = inputs.localLib.findModules ./.;
   config =
   {
     nixos =
@@ -58,6 +57,14 @@ inputs:
         gitea = { enable = true; ssh = {}; };
         grafana.enable = true;
         fail2ban = {};
+        wireguard =
+        {
+          enable = true;
+          peers = [ "vps6" ];
+          publicKey = "n056ppNxC9oECcW7wEbALnw8GeW7nrMImtexKWYVUBk=";
+          wireguardIp = "192.168.83.2";
+          listenIp = "95.111.228.40";
+        };
         vikunja.enable = true;
         chatgpt = {};
         xray.server = { serverName = "xserver.vps7.chn.moe"; userNumber = 4; };
