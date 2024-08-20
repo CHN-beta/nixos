@@ -53,16 +53,16 @@ inputs:
             (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.vps7.chn.moe"; })
             [
               "xn--s8w913fdga" "misskey" "synapse" "syncv3.synapse" "matrix" "syncv3.matrix"
-              "send" "kkmeeting" "api" "git" "grafana" "vikunja"
+              "send" "kkmeeting" "api" "git" "grafana" "vikunja" "write"
             ]));
           applications =
           {
             element.instances."element.chn.moe" = {};
             synapse-admin.instances."synapse-admin.chn.moe" = {};
             catalog.enable = true;
-            blog.enable = true;
             main.enable = true;
             nekomia.enable = true;
+            blog.enable = true;
           };
         };
         coturn = {};
