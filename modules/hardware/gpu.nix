@@ -58,14 +58,16 @@ inputs:
             powerManagement.enable = true;
             dynamicBoost.enable = inputs.lib.mkIf gpu.nvidia.dynamicBoost true;
             nvidiaSettings = true;
-            forceFullCompositionPipeline = true;
             package = inputs.config.boot.kernelPackages.nvidiaPackages.${gpu.nvidia.driver};
             open = true; # TODO: remove when 560 is stable
             prime.allowExternalGpu = true;
           };
         };
         boot.blacklistedKernelModules = [ "nouveau" ];
-        environment.variables.VDPAU_DRIVER = inputs.lib.mkIf (builtins.elem "intel" gpus) "va_gl";
+        environment.variables =
+          if builtins.elem "nvidia" gpus then { VDPAU_DRIVER = "nvidia"; }
+          else if builtins.elem "intel" gpus then { VDPAU_DRIVER = "va_gl"; }
+          else {};
         services.xserver.videoDrivers =
           let driver = { intel = "modesetting"; amd = "amdgpu"; nvidia = "nvidia"; };
           in builtins.map (gpu: driver.${gpu}) gpus;
