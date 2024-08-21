@@ -86,5 +86,34 @@ inputs:
       nixos.system.nixpkgs.march = inputs.lib.mkForce null;
       system.nixos.tags = [ "generic" ];
     };
+    networking =
+    {
+      nftables =
+      {
+        enable = true;
+        ruleset =
+        ''
+          table ip nat {
+            chain PREROUTING {
+              type nat hook prerouting priority dstnat; policy accept;
+              iifname "ens18" tcp dport 6007 dnat to 192.168.83.6:22
+              iifname "ens18" tcp dport 6394 dnat to 192.168.83.7:22
+            }
+          }
+        '';
+      };
+      firewall.allowedTCPPorts = [ 6007 6394 ];
+      nat =
+      {
+        enable = true;
+        internalInterfaces = [ "ens18" ];
+        externalInterface = "wireguard";
+        forwardPorts =
+        [
+          { sourcePort = 6007; proto = "tcp"; destination = "192.168.83.6:22"; }
+          { sourcePort = 6394; proto = "tcp"; destination = "192.168.83.7:22"; }
+        ];
+      };
+    };
   };
 }
