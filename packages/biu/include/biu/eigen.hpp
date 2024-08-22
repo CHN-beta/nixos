@@ -32,10 +32,12 @@ namespace biu
       // if size is specified as a number, convert to fixed-size Eigen::Vector if specified size equals the size of the
       //  input, otherwise throw an error
       // return deduced size if the size is deducible in compile time, otherwise return Empty
-      template <std::size_t ToSize, typename Container> constexpr auto deduce_eigen_size();
+      template <std::size_t ToSize, typename Container> consteval auto deduce_eigen_size();
 
       // helper operator| to specify the size of the destination container
       template <std::size_t Row, std::size_t Col> struct ToEigenHelper {};
+      template <std::size_t Size> struct FromEigenVectorHelper {};
+      template <std::size_t Row, std::size_t Col> struct FromEigenMatrixHelper {};
 
       // convert 1D standard container to Eigen::Matrix, the second argument should always be unspecified
       template <typename From, std::size_t ToSize> auto operator|
@@ -51,11 +53,23 @@ namespace biu
           && detail_::StandardContainer<typename From::value_type, typename From::value_type::value_type>
           && Arithmetic<typename From::value_type::value_type>
         );
+
+      // convert 1D Eigen matrix to std::vector or std::array
+      template <typename Vector, std::size_t ToSize> auto operator|
+        (const Vector&, const detail_::FromEigenVectorHelper<ToSize>&);
+
+      // convert 2D Eigen matrix to std::vector or std::array
+      template <typename Matrix, std::size_t ToRow, std::size_t ToCol> auto operator|
+        (const Matrix&, const detail_::FromEigenMatrixHelper<ToRow, ToCol>&);
     }
 
     // usage: some_value | toEigen<Row, Col>
     template <std::size_t Row = detail_::unspecifiedSize, std::size_t Col = detail_::unspecifiedSize>
       inline constexpr detail_::ToEigenHelper<Row, Col> toEigen;
+    template <std::size_t Size = detail_::unspecifiedSize>
+      inline constexpr detail_::FromEigenVectorHelper<Size> fromEigenVector;
+    template <std::size_t Row = detail_::unspecifiedSize, std::size_t Col = detail_::unspecifiedSize>
+      inline constexpr detail_::FromEigenMatrixHelper<Row, Col> fromEigenMatrix;
 
     // test if a class is an eigen matrix
     namespace detail_
@@ -66,7 +80,7 @@ namespace biu
     }
     template <typename Matrix> concept EigenMatrix = detail_::EigenMatrix<Matrix>::value;
   }
-  using eigen::toEigen, eigen::EigenMatrix;
+  using eigen::toEigen, eigen::fromEigenVector, eigen::fromEigenMatrix, eigen::EigenMatrix;
 }
 
 // archive a matrix

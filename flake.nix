@@ -162,7 +162,7 @@
       config = { archive = false; branch = "production"; };
       devShells.x86_64-linux = let inherit (inputs.self.packages.x86_64-linux) pkgs; in
       {
-        biu = pkgs.mkShell
+        biu = pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
         {
           inputsFrom = [ pkgs.localPackages.biu ];
           packages = [ pkgs.clang-tools_18 ];

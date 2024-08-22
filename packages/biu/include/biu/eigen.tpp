@@ -1,4 +1,5 @@
 # pragma once
+# include <utility>
 # include <biu/eigen.hpp>
 # include <biu/common.hpp>
 # include <range/v3/view.hpp>
@@ -6,10 +7,10 @@
 
 namespace biu::eigen
 {
-  template <std::size_t ToSize, typename Container> constexpr auto detail_::deduce_eigen_size()
+  template <std::size_t ToSize, typename Container> consteval auto detail_::deduce_eigen_size()
   {
-    if constexpr (ToSize == detail_::dynamicSize) return Empty{};
-    else if constexpr (ToSize == detail_::unspecifiedSize)
+    if constexpr (ToSize == dynamicSize) return Empty{};
+    else if constexpr (ToSize == unspecifiedSize)
       if constexpr (SpecializationOfArray<Container>) return Container{}.size();
       else return Empty{};
     else
@@ -104,6 +105,150 @@ namespace biu::eigen
       using Matrix = Eigen::Matrix<Scalar, nRow, nCol, Eigen::RowMajor | Eigen::AutoAlign>;
       return Matrix(Eigen::Map<const Matrix>(data.data()));
     }
+  }
+
+  template <typename Vector, std::size_t ToSize> auto detail_::operator|
+    (const Vector& vector, const detail_::FromEigenVectorHelper<ToSize>&)
+  {
+    // 尽量在编译时获得大小并检查大小是否匹配，第一个返回值为确定的大小，第二个返回值为用于在运行时检查大小的函数
+    auto get_size = []<std::size_t to_size>(this auto&& self) consteval
+    {
+      // 如果没有指定
+      if constexpr (to_size == unspecifiedSize)
+        // 如果两个维度都是动态的，那么作为动态大小处理
+        if constexpr
+        (
+          Vector::CompileTimeTraits::RowsAtCompileTime == Eigen::Dynamic
+            && Vector::CompileTimeTraits::ColsAtCompileTime == Eigen::Dynamic
+        )
+          return std::make_pair
+            (dynamicSize, [](const Vector& vector) { return vector.nrows() <= 1 && vector.ncols() <= 1; });
+        // 如果两个维度都是固定的
+        else if constexpr
+        (
+          Vector::CompileTimeTraits::RowsAtCompileTime != Eigen::Dynamic
+            && Vector::CompileTimeTraits::ColsAtCompileTime != Eigen::Dynamic
+        )
+          // 如果两个维度都超过了 1
+          if constexpr
+            (Vector::CompileTimeTraits::RowsAtCompileTime > 1 && Vector::CompileTimeTraits::ColsAtCompileTime > 1)
+            throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
+          // 否则返回两个维度的乘积
+          else return std::make_pair
+          (
+            Vector::CompileTimeTraits::RowsAtCompileTime * Vector::CompileTimeTraits::ColsAtCompileTime,
+            [](const Vector&) consteval { return true; }
+          );
+        // 如果固定的那个维度等于 1，那么为动态大小（大小取决于另外一个没有固定的维度）
+        // 否则，大小等于这个维度，另一个维度是否为 1 留作之后检查
+        else if constexpr (Vector::CompileTimeTraits::RowsAtCompileTime != Eigen::Dynamic)
+          if constexpr (Vector::CompileTimeTraits::RowsAtCompileTime == 1)
+            return std::make_pair(dynamicSize, [](const Vector&) consteval { return true; });
+          else
+            return std::make_pair
+            (
+              Vector::CompileTimeTraits::RowsAtCompileTime,
+              [](const Vector& vector) { return vector.ncols() <= 1; }
+            );
+        else if constexpr (Vector::CompileTimeTraits::ColsAtCompileTime != Eigen::Dynamic)
+          if constexpr (Vector::CompileTimeTraits::ColsAtCompileTime == 1)
+            return std::make_pair(dynamicSize, [](const Vector&) consteval { return true; });
+          else
+            return std::make_pair
+            (
+              Vector::CompileTimeTraits::ColsAtCompileTime,
+              [](const Vector& vector) { return vector.nrows() <= 1; }
+            );
+        else
+          std::unreachable();
+      // 如果指定了为动态：同样按照上述检查，但返回动态大小
+      else if constexpr (to_size == dynamicSize)
+        return std::make_pair(dynamicSize, self->template operator()<unspecifiedSize>().second);
+      // 如果指定了大小：按照上述检查，如果判断为静态大小且大小不一致则报错，如果判断为动态大小则额外判断大小
+      else
+      {
+        auto result = self->template operator()<unspecifiedSize>();
+        if constexpr (result.first != dynamicSize)
+          if constexpr (result.first != to_size)
+            throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
+          else
+            return result;
+        else
+          return std::make_pair
+          (
+            to_size,
+            [size = to_size](const Vector& vector) { return vector.size() == size; }
+          );
+      }
+    };
+
+    // decomposition declarations can't be constexpr
+    constexpr auto size = get_size.template operator()<ToSize>();
+    if (!size.second(vector))
+      throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
+    if constexpr (size.first == dynamicSize)
+      return std::vector<typename Vector::Scalar>(vector.data(), vector.data() + vector.size());
+    else
+      return std::array<typename Vector::Scalar, size.first>(vector.data(), vector.data() + vector.size());
+  }
+
+  template <typename Matrix, std::size_t ToRow, std::size_t ToCol> auto detail_::operator|
+    (const Matrix& matrix, const detail_::FromEigenMatrixHelper<ToRow, ToCol>&)
+  {
+    auto get_size = [] consteval
+    {
+      auto get_one_size = []<std::size_t to_size, int eigen_size> consteval
+      {
+        // 如果没有指定
+        if constexpr (to_size == unspecifiedSize)
+          // 如果原大小是动态的，那么作为动态大小处理
+          if constexpr (eigen_size == Eigen::Dynamic)
+            return std::make_pair(dynamicSize, [](int) { return true; });
+          // 否则返回原大小
+          else return std::make_pair(eigen_size, [](int) { return true; });
+        // 如果指定为动态大小：直接返回动态大小
+        else if constexpr (to_size == dynamicSize)
+          return std::make_pair(dynamicSize, [](int) { return true; });
+        // 如果指定了大小：如果原大小是动态的则返回指定的大小，并在稍后检查；否则现在检查并返回
+        else
+          if constexpr (eigen_size == Eigen::Dynamic)
+            return std::make_pair(to_size, [](int original_size) { return to_size == original_size; });
+          else
+            if constexpr (to_size == eigen_size)
+              return std::make_pair(to_size, [](int) { return true; });
+            else
+              throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
+      };
+      constexpr auto row = get_one_size.template operator()<ToRow, Matrix::CompileTimeTraits::RowsAtCompileTime>();
+      constexpr auto col = get_one_size.template operator()<ToCol, Matrix::CompileTimeTraits::ColsAtCompileTime>();
+      return std::make_pair
+      (
+        std::make_pair(row.first, col.first),
+        [row_check = row.second, col_check = col.second](const Matrix& matrix)
+          { return row_check(matrix.rows()) && col_check(matrix.cols()); }
+      );
+    };
+
+    // decomposition declarations can't be constexpr
+    constexpr auto size = get_size();
+    if (!size.second(matrix))
+      throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
+  
+    // 首先构造每一行
+    using container_per_row = std::conditional_t<size.first.second == dynamicSize,
+      std::vector<typename Matrix::Scalar>, std::array<typename Matrix::Scalar, size.first.second>>;
+    using container = std::conditional_t<size.first.first == dynamicSize,
+      std::vector<container_per_row>, std::array<container_per_row, size.first.first>>;
+    container result;
+    if constexpr (size.first.first == dynamicSize) result.resize(matrix.rows());
+    if constexpr (size.first.second == dynamicSize) for (auto& row : result) row.resize(matrix.cols());
+    for (int i = 0; i < matrix.rows(); i++)
+    {
+      using RowVector = Eigen::RowVector
+        <typename Matrix::Scalar, size.first.second == dynamicSize ? Eigen::Dynamic : size.first.second>;
+      Eigen::Map<RowVector>(result[i].data(), 1, matrix.cols()) = matrix.row(i);
+    }
+    return result;
   }
 }
 template <typename Matrix> constexpr auto Eigen::serialize(auto & archive, Matrix& matrix)
