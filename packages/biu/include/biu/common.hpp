@@ -2,6 +2,7 @@
 # include <regex>
 # include <optional>
 # include <filesystem>
+# include <generator>
 # include <fmt/format.h>
 # include <magic_enum_all.hpp>
 
@@ -100,8 +101,14 @@ namespace biu
       std::string serialize(const T& data);
     template <typename T> T deserialize(const std::string& serialized_data);
     template <typename T> T deserialize(const std::vector<std::byte>& serialized_data);
+
+    template <std::size_t N> std::generator<std::pair<std::array<std::size_t, N>, std::size_t>>
+      sequence(std::array<std::size_t, N> from, std::array<std::size_t, N> to);
+    template <std::size_t N> std::generator<std::pair<std::array<std::size_t, N>, std::size_t>>
+      sequence(std::array<std::size_t, N> to);
   }
   using common::hash, common::unused, common::block_forever, common::is_interactive, common::env, common::int128_t,
     common::uint128_t, common::Empty, common::CaseInsensitiveStringLessComparator, common::RemoveMemberPointer,
-    common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec, common::serialize, common::deserialize;
+    common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec, common::serialize, common::deserialize,
+    common::sequence;
 }

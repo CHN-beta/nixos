@@ -2,6 +2,7 @@
 # include <nameof.hpp>
 # include <biu/format.hpp>
 # include <fmt/core.h>
+# include <fmt/ranges.h>
 
 namespace biu
 {

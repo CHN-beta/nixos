@@ -47,4 +47,21 @@ namespace biu::common
     auto begin = reinterpret_cast<const std::byte*>(serialized_data.data()), end = begin + serialized_data.size();
     return deserialize<T>(std::vector<std::byte>{begin, end});
   }
+  template <std::size_t N> std::generator<std::pair<std::array<std::size_t, N>, std::size_t>>
+    sequence(std::array<std::size_t, N> from, std::array<std::size_t, N> to)
+  {
+    std::array<std::size_t, N> current = from;
+    std::size_t total = 0;
+    auto make_next = [&](this auto&& self, std::size_t i)
+    {
+      if (i == N) return false;
+      else if (current[i] + 1 == to[i]) { current[i] = from[i]; return self(i + 1); }
+      else { current[i]++; total++; return true; }
+    };
+    for (std::size_t i = 0; i < N; i++) assert(from[i] < to[i]);
+    do { co_yield {current, total}; } while (make_next(0));
+  }
+  template <std::size_t N> std::generator<std::pair<std::array<std::size_t, N>, std::size_t>>
+    sequence(std::array<std::size_t, N> to)
+    { return sequence(std::array<std::size_t, N>{}, to); }
 }
