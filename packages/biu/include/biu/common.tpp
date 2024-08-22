@@ -50,8 +50,10 @@ namespace biu::common
 
   template <typename Array> std::generator<std::pair<Array, std::size_t>> sequence(Array from, Array to)
   {
+# ifndef NDEBUG
     assert(from.size() == to.size());
     for (std::size_t i = 0; i < from.size(); i++) assert(from[i] < to[i]);
+# endif
     Array current = from;
     std::size_t total = 0;
     auto make_next = [&](this auto&& self, std::size_t i)

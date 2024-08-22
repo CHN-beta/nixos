@@ -184,8 +184,10 @@ namespace biu::eigen
 
     // decomposition declarations can't be constexpr
     constexpr auto size = get_size.template operator()<ToSize>();
+# ifndef NDEBUG
     if (!size.second(vector))
       throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
+# endif
     if constexpr (size.first == dynamicSize)
       return std::vector<typename Vector::Scalar>(vector.data(), vector.data() + vector.size());
     else
@@ -235,8 +237,10 @@ namespace biu::eigen
 
     // decomposition declarations can't be constexpr
     constexpr auto size = get_size();
+# ifndef NDEBUG
     if (!size.second(matrix))
       throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
+# endif
 
     using container_per_row = std::conditional_t<size.first.second == dynamicSize,
       std::vector<typename Matrix::Scalar>, std::array<typename Matrix::Scalar, size.first.second>>;
