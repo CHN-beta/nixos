@@ -27,7 +27,7 @@ inputs:
         nix = { substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ]; githubToken.enable = true; };
         kernel = { variant = "xanmod-lts"; patches = [ "surface" "hibernate-progress" ]; };
         networking.hostname = "surface";
-        gui.enable = true;
+        gui = { enable = true; touchscreen = true; };
         initrd.unl0kr = {};
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };

@@ -238,6 +238,22 @@
         "type": "github"
       }
     },
+    "fcitx5-virtualkeyboard-ui": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1724249565,
+        "narHash": "sha256-flMCrq4HEhugiwKXCd4xZkgZVF+XUo0C+L0OhRXCfIE=",
+        "owner": "CHN-beta",
+        "repo": "fcitx5-virtualkeyboard-ui",
+        "rev": "695bf005da908c79f1d461c3b0801ce651f34ade",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "fcitx5-virtualkeyboard-ui",
+        "type": "github"
+      }
+    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -1251,6 +1267,7 @@
         "date": "date",
         "eigen": "eigen",
         "envfs": "envfs",
+        "fcitx5-virtualkeyboard-ui": "fcitx5-virtualkeyboard-ui",
         "git-lfs-transfer": "git-lfs-transfer",
         "gricad": "gricad",
         "home-manager": "home-manager",

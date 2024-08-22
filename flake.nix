@@ -66,6 +66,7 @@
     sockpp = { url = "github:fpagliughi/sockpp"; flake = false; };
     git-lfs-transfer = { url = "github:charmbracelet/git-lfs-transfer"; flake = false; };
     nc4nix = { url = "github:helsinki-systems/nc4nix"; flake = false; };
+    fcitx5-virtualkeyboard-ui = { url = "github:CHN-beta/fcitx5-virtualkeyboard-ui"; flake = false; };
 
     # does not support lfs yet
     # nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };

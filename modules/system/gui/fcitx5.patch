@@ -1,0 +1,248 @@
+From 5662218e904bc245c47ce4b33f04c2e3a74c7d92 Mon Sep 17 00:00:00 2001
+From: Daijiro Fukuda <fukuda@clear-code.com>
+Date: Mon, 28 Feb 2022 15:08:40 +0900
+Subject: [PATCH 1/3] Add simple group enumerating function for addons (#452)
+
+---
+ src/lib/fcitx/inputmethodmanager.cpp | 22 ++++++++++++++++++++++
+ src/lib/fcitx/inputmethodmanager.h   |  3 +++
+ 2 files changed, 25 insertions(+)
+
+diff --git a/src/lib/fcitx/inputmethodmanager.cpp b/src/lib/fcitx/inputmethodmanager.cpp
+index 6e842ee07..e2e0d6184 100644
+--- a/src/lib/fcitx/inputmethodmanager.cpp
++++ b/src/lib/fcitx/inputmethodmanager.cpp
+@@ -276,6 +276,28 @@ const InputMethodGroup &InputMethodManager::currentGroup() const {
+     return d->groups_.find(d->groupOrder_.front())->second;
+ }
+ 
++void InputMethodManager::enumerateGroup(bool forward) {
++    FCITX_D();
++    if (groupCount() < 2) {
++        return;
++    }
++    emit<InputMethodManager::CurrentGroupAboutToChange>(d->groupOrder_.front());
++    if (forward) {
++        d->groupOrder_.splice(
++            d->groupOrder_.end(),
++            d->groupOrder_,
++            d->groupOrder_.begin()
++        );
++    } else {
++        d->groupOrder_.splice(
++            d->groupOrder_.begin(),
++            d->groupOrder_,
++            std::prev(d->groupOrder_.end())
++        );
++    }
++    emit<InputMethodManager::CurrentGroupChanged>(d->groupOrder_.front());
++}
++
+ void InputMethodManager::setDefaultInputMethod(const std::string &name) {
+     FCITX_D();
+     auto &currentGroup = d->groups_.find(d->groupOrder_.front())->second;
+diff --git a/src/lib/fcitx/inputmethodmanager.h b/src/lib/fcitx/inputmethodmanager.h
+index 0069c4108..0be42630d 100644
+--- a/src/lib/fcitx/inputmethodmanager.h
++++ b/src/lib/fcitx/inputmethodmanager.h
+@@ -84,6 +84,9 @@ class FCITXCORE_EXPORT InputMethodManager : public ConnectableObject {
+     /// Return the current group.
+     const InputMethodGroup &currentGroup() const;
+ 
++    /// Simply enumerate input method groups.
++    void enumerateGroup(bool forward);
++
+     /**
+      * Set default input method for current group.
+      *
+
+From 3891b04380a5dd36b48af753b85c81472e6c03a4 Mon Sep 17 00:00:00 2001
+From: Takuro Ashie <ashie@clear-code.com>
+Date: Mon, 7 Mar 2022 12:09:34 +0900
+Subject: [PATCH 2/3] Make sure to show UI on activate
+
+---
+ src/frontend/waylandim/waylandimserver.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/frontend/waylandim/waylandimserver.cpp b/src/frontend/waylandim/waylandimserver.cpp
+index 58a4b713f..abbe3d8a4 100644
+--- a/src/frontend/waylandim/waylandimserver.cpp
++++ b/src/frontend/waylandim/waylandimserver.cpp
+@@ -168,6 +168,7 @@ void WaylandIMInputContextV1::activate(wayland::ZwpInputMethodContextV1 *ic) {
+     ic_->modifiersMap(&array);
+     wl_array_release(&array);
+     focusIn();
++    updateUserInterface(UserInterfaceComponent::InputPanel);
+ }
+ 
+ void WaylandIMInputContextV1::deactivate(wayland::ZwpInputMethodContextV1 *ic) {
+
+From 861f59bd40916936daeac796fc74844a43f11aaa Mon Sep 17 00:00:00 2001
+From: daipom <fukuda@clear-code.com>
+Date: Fri, 14 Jan 2022 11:24:42 +0900
+Subject: [PATCH 3/3] Add function to handle virtual key events to InputContext
+
+We can use `InputContext::virtualKeyEvent` to handle KeyEvents the same
+way as physical key events.
+---
+ src/frontend/waylandim/waylandimserver.cpp | 41 +++++++++++++++++++---
+ src/frontend/waylandim/waylandimserver.h   |  2 ++
+ src/lib/fcitx/inputcontext.cpp             | 18 ++++++++++
+ src/lib/fcitx/inputcontext.h               | 13 +++++++
+ 4 files changed, 70 insertions(+), 4 deletions(-)
+
+diff --git a/src/frontend/waylandim/waylandimserver.cpp b/src/frontend/waylandim/waylandimserver.cpp
+index abbe3d8a4..87bd3da33 100644
+--- a/src/frontend/waylandim/waylandimserver.cpp
++++ b/src/frontend/waylandim/waylandimserver.cpp
+@@ -413,13 +413,44 @@ void WaylandIMInputContextV1::keyCallback(uint32_t serial, uint32_t time,
+                        server_->modifiers_, code),
+                    state == WL_KEYBOARD_KEY_STATE_RELEASED, time);
+ 
+-    if (state == WL_KEYBOARD_KEY_STATE_RELEASED && key == repeatKey_) {
++    processKeyEvent(event, false, serial);
++}
++
++void WaylandIMInputContextV1::virtualKeyEventImpl(KeyEvent &event) {
++    // `mods_locked` value seems to be 16 usually.
++    // It will be 18 with the capslocked state,
++    // but we don't have to consider about it in virtual key process.
++    if (event.rawKey().hasModifier()) {
++        if (event.rawKey().states().test(KeyState::Shift)) {
++            modifiersCallback(serial_, (uint32_t)KeyState::Shift, 0, 16, 0);
++        }
++    } else {
++        modifiersCallback(serial_, 0, 0, 16, 0);
++    }
++
++    processKeyEvent(event, true, serial_);
++}
++
++void WaylandIMInputContextV1::processKeyEvent(KeyEvent &event,
++                                              bool isVirtualKey,
++                                              uint32_t serial) {
++    const uint32_t key = event.rawKey().code() > 8 ? event.rawKey().code() - 8
++                                                   : 0;
++    const auto state = event.isRelease() ? WL_KEYBOARD_KEY_STATE_RELEASED
++                                         : WL_KEYBOARD_KEY_STATE_PRESSED;
++
++    const auto cancelRepeat = isVirtualKey
++        ? (state == WL_KEYBOARD_KEY_STATE_RELEASED)
++        // Strict condition for physical keys.
++        : (state == WL_KEYBOARD_KEY_STATE_RELEASED && key == repeatKey_);
++
++    if (cancelRepeat) {
+         timeEvent_->setEnabled(false);
+     } else if (state == WL_KEYBOARD_KEY_STATE_PRESSED &&
+-               xkb_keymap_key_repeats(server_->keymap_.get(), code)) {
++               xkb_keymap_key_repeats(server_->keymap_.get(), event.rawKey().code())) {
+         if (repeatRate_) {
+             repeatKey_ = key;
+-            repeatTime_ = time;
++            repeatTime_ = event.time();
+             repeatSym_ = event.rawKey().sym();
+             // Let's trick the key event system by fake our first.
+             // Remove 100 from the initial interval.
+@@ -430,11 +461,13 @@ void WaylandIMInputContextV1::keyCallback(uint32_t serial, uint32_t time,
+ 
+     WAYLANDIM_DEBUG() << event.key().toString()
+                       << " IsRelease=" << event.isRelease();
++
+     if (!keyEvent(event)) {
+-        ic_->key(serial, time, key, state);
++        ic_->key(serial, event.time(), key, state);
+     }
+     server_->display_->flush();
+ }
++
+ void WaylandIMInputContextV1::modifiersCallback(uint32_t serial,
+                                                 uint32_t mods_depressed,
+                                                 uint32_t mods_latched,
+diff --git a/src/frontend/waylandim/waylandimserver.h b/src/frontend/waylandim/waylandimserver.h
+index 1ffed14db..3b7871a2f 100644
+--- a/src/frontend/waylandim/waylandimserver.h
++++ b/src/frontend/waylandim/waylandimserver.h
+@@ -84,6 +84,7 @@ class WaylandIMInputContextV1 : public InputContext {
+     void deactivate(wayland::ZwpInputMethodContextV1 *id);
+ 
+ protected:
++    void virtualKeyEventImpl(KeyEvent &event) override;
+     void commitStringImpl(const std::string &text) override {
+         if (!ic_) {
+             return;
+@@ -120,6 +121,7 @@ class WaylandIMInputContextV1 : public InputContext {
+     void keymapCallback(uint32_t format, int32_t fd, uint32_t size);
+     void keyCallback(uint32_t serial, uint32_t time, uint32_t key,
+                      uint32_t state);
++    void processKeyEvent(KeyEvent &event, bool isVirtualKey, uint32_t serial);
+     void modifiersCallback(uint32_t serial, uint32_t mods_depressed,
+                            uint32_t mods_latched, uint32_t mods_locked,
+                            uint32_t group);
+diff --git a/src/lib/fcitx/inputcontext.cpp b/src/lib/fcitx/inputcontext.cpp
+index e6138036f..1fdc16358 100644
+--- a/src/lib/fcitx/inputcontext.cpp
++++ b/src/lib/fcitx/inputcontext.cpp
+@@ -243,6 +243,19 @@ bool InputContext::keyEvent(KeyEvent &event) {
+     return result;
+ }
+ 
++void InputContext::virtualKeyEvent(KeyEvent &event) {
++    decltype(std::chrono::steady_clock::now()) start;
++    // Don't query time if we don't want log.
++    if (::keyTrace().checkLogLevel(LogLevel::Debug)) {
++        start = std::chrono::steady_clock::now();
++    }
++    virtualKeyEventImpl(event);
++    FCITX_KEYTRACE() << "KeyEvent handling time: "
++                     << std::chrono::duration_cast<std::chrono::milliseconds>(
++                            std::chrono::steady_clock::now() - start)
++                            .count();
++}
++
+ void InputContext::invokeAction(InvokeActionEvent &event) {
+     FCITX_D();
+     RETURN_IF_HAS_NO_FOCUS();
+@@ -333,6 +346,11 @@ StatusArea &InputContext::statusArea() {
+     return d->statusArea_;
+ }
+ 
++void InputContext::virtualKeyEventImpl(KeyEvent &event) {
++    FCITX_D();
++    d->postEvent(event);
++}
++
+ void InputContext::updateClientSideUIImpl() {}
+ 
+ InputContextEventBlocker::InputContextEventBlocker(InputContext *inputContext)
+diff --git a/src/lib/fcitx/inputcontext.h b/src/lib/fcitx/inputcontext.h
+index 58363b506..8e56f7628 100644
+--- a/src/lib/fcitx/inputcontext.h
++++ b/src/lib/fcitx/inputcontext.h
+@@ -133,6 +133,10 @@ class FCITXCORE_EXPORT InputContext : public TrackableObject<InputContext> {
+     /// Send a key event to current input context.
+     bool keyEvent(KeyEvent &event);
+ 
++    /// Send a virtual key event to current input context.
++    /// This handles the event the same way as physical key events.
++    void virtualKeyEvent(KeyEvent &event);
++
+     /// Returns whether the input context holds the input focus. Input context
+     /// need to have focus.
+     bool hasFocus() const;
+@@ -253,6 +257,15 @@ class FCITXCORE_EXPORT InputContext : public TrackableObject<InputContext> {
+     void updateProperty(const InputContextPropertyFactory *factory);
+ 
+ protected:
++    /**
++     * Process the virtual key event.
++     *
++     * @param event KeyEvent
++     * 
++     * @see virtualKeyEvent
++     */
++    virtual void virtualKeyEventImpl(KeyEvent &event);
++
+     /**
+      * Send the committed string to client
+      *

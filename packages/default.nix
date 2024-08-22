@@ -72,6 +72,8 @@ inputs: rec
   winjob = inputs.pkgs.callPackage ./winjob { stdenv = inputs.pkgs.gcc14Stdenv; };
   sockpp = inputs.pkgs.callPackage ./sockpp.nix { src = inputs.topInputs.sockpp; };
   git-lfs-transfer = inputs.pkgs.callPackage ./git-lfs-transfer.nix { src = inputs.topInputs.git-lfs-transfer; };
+  fcitx5-virtualkeyboard-ui = inputs.pkgs.callPackage ./fcitx5-virtualkeyboard-ui.nix
+    { src = inputs.topInputs.fcitx5-virtualkeyboard-ui; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

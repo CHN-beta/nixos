@@ -5,6 +5,7 @@ inputs:
     enable = mkOption { type = types.bool; default = false; };
     preferred = mkOption { type = types.bool; default = inputs.config.nixos.system.gui.enable; };
     autoStart = mkOption { type = types.bool; default = inputs.config.nixos.system.gui.preferred; };
+    touchscreen = mkOption { type = types.bool; default = false; };
   };
   config = let inherit (inputs.config.nixos.system) gui; in inputs.lib.mkIf gui.enable
   {
@@ -38,9 +39,13 @@ inputs:
     {
       enable = true;
       type = "fcitx5";
-      fcitx5.addons = builtins.map (p: inputs.pkgs."fcitx5-${p}")
-        [ "rime" "chinese-addons" "mozc" "nord" "material-color" ];
+      fcitx5.addons = (builtins.map (p: inputs.pkgs."fcitx5-${p}")
+        [ "rime" "chinese-addons" "mozc" "nord" "material-color" ])
+        ++ inputs.lib.mkIf gui.touchscreen (inputs.pkgs.localPackages.fcitx5-virtualkeyboard-ui);
     };
     programs.dconf.enable = true;
+    nixpkgs.overlays = inputs.lib.mkIf gui.touchscreen
+      [(final: prev: { fcitx5 = prev.fcitx5.overrideAttrs (prev:
+        { patches = prev.patches or [] ++ [ ./fcitx5.patch ]; });})];
   };
 }
