@@ -16,7 +16,7 @@ inputs:
           # system management
           # TODO: module should add yubikey-touch-detector into path
           gparted wayland-utils clinfo glxinfo vulkan-tools dracut yubikey-touch-detector btrfs-assistant snapper-gui
-          kdePackages.qtstyleplugin-kvantum ventoy-full cpu-x inputs.pkgs."pkgs-23.11".etcher wl-mirror maliit-keyboard
+          kdePackages.qtstyleplugin-kvantum ventoy-full cpu-x inputs.pkgs."pkgs-23.11".etcher wl-mirror
           (
             writeShellScriptBin "xclip"
             ''
