@@ -100,7 +100,16 @@ inputs:
               plasma-localerc = { Formats.LANG.value = "en_US.UTF-8"; Translations.LANGUAGE.value = "zh_CN"; };
               baloofilerc."Basic Settings".Indexing-Enabled.value = false;
             };
-            powerdevil = { AC.autoSuspend.action = "nothing"; battery.autoSuspend.action = "nothing"; };
+            powerdevil =
+              let config =
+              {
+                autoSuspend.action = "nothing";
+                dimDisplay.enable = false;
+                powerButtonAction = "turnOffScreen";
+                turnOffDisplay.idleTimeout = "never";
+                whenLaptopLidClosed = "turnOffScreen";
+              };
+              in { AC = config; battery = config; lowBattery = config; };
           };
           obs-studio =
           {
