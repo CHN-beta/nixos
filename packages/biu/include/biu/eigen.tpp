@@ -189,7 +189,11 @@ namespace biu::eigen
     if constexpr (size.first == dynamicSize)
       return std::vector<typename Vector::Scalar>(vector.data(), vector.data() + vector.size());
     else
-      return std::array<typename Vector::Scalar, size.first>(vector.data(), vector.data() + vector.size());
+    {
+      auto to_array = []<std::size_t N, std::size_t... I>(const auto& vector, std::index_sequence<I...>)
+        { return std::array<typename Vector::Scalar, N>{vector[I]...}; };
+      return to_array.template operator()<size.first>(vector.data(), std::make_index_sequence<size.first>());
+    }
   }
 
   template <typename Matrix, std::size_t ToRow, std::size_t ToCol> auto detail_::operator|
@@ -233,8 +237,7 @@ namespace biu::eigen
     constexpr auto size = get_size();
     if (!size.second(matrix))
       throw std::invalid_argument("The size of the destination Eigen container mismatches the input container");
-  
-    // 首先构造每一行
+
     using container_per_row = std::conditional_t<size.first.second == dynamicSize,
       std::vector<typename Matrix::Scalar>, std::array<typename Matrix::Scalar, size.first.second>>;
     using container = std::conditional_t<size.first.first == dynamicSize,

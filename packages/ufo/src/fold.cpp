@@ -26,7 +26,7 @@ namespace ufo
       std::stringstream print;
       print << "Qpoints:\n";
       for (auto& qpoint : Qpoints)
-        print << fmt::format("  - [ {:.8f}, {:.8f}, {:.8f} ]\n", qpoint(0), qpoint(1), qpoint(2));
+        print << ("  - [ {:.8f}, {:.8f}, {:.8f} ]\n"_f(qpoint(0), qpoint(1), qpoint(2)));
       return print.str();
     }();
   }

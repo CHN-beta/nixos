@@ -10,9 +10,7 @@ namespace ufo
   PlotSolver::InputType::InputType(std::string config_file)
   {
     auto input = YAML::LoadFile(config_file);
-    for (unsigned i = 0; i < 3; i++)
-      for (unsigned j = 0; j < 3; j++)
-        PrimativeCell(i, j) = input["PrimativeCell"][i][j].as<double>();
+    PrimativeCell = input["PrimativeCell"].as<std::array<std::array<double, 3>, 3>>() | biu::toEigen<>;
     for (auto& figure : input["Figures"].as<std::vector<YAML::Node>>())
     {
       Figures.emplace_back();
@@ -53,11 +51,11 @@ namespace ufo
     {
       std::vector resolution{ Resolution.first, Resolution.second };
       std::vector range{ Range.first, Range.second };
-      Hdf5file{}.open_for_write(filename).write(Values, "Values")
-        .write(XTicks, "XTicks")
-        .write(YTicks, "YTicks")
-        .write(resolution, "Resolution")
-        .write(range, "Range");
+      biu::Hdf5file(filename).write("Values", Values)
+        .write("XTicks", XTicks)
+        .write("YTicks", YTicks)
+        .write("Resolution", resolution)
+        .write("Range", range);
     }
     return *this;
   }

@@ -1,3 +1,6 @@
+# include <thread>
+# include <syncstream>
+# include <execution>
 # include <ufo/unfold.hpp>
 
 namespace ufo
@@ -7,23 +10,12 @@ namespace ufo
     // read main input file
     {
       auto node = YAML::LoadFile(filename);
-        for (unsigned i = 0; i < 3; i++)
-          for (unsigned j = 0; j < 3; j++)
-            PrimativeCell(i, j) = node["PrimativeCell"][i][j].as<double>();
-
-      for (unsigned i = 0; i < 3; i++)
-        SuperCellMultiplier(i) = node["SuperCellMultiplier"][i].as<int>();
+      PrimativeCell = node["PrimativeCell"].as<std::array<std::array<double, 3>, 3>>() | biu::toEigen<>;
+      SuperCellMultiplier = node["SuperCellMultiplier"].as<std::array<unsigned, 3>>() | biu::toEigen<>;
 
       if (auto value = node["SuperCellDeformation"])
-      {
-        SuperCellDeformation.emplace();
-        for (unsigned i = 0; i < 3; i++)
-          for (unsigned j = 0; j < 3; j++)
-            (*SuperCellDeformation)(i, j) = value[i][j].as<double>();
-      }
-
-      for (unsigned i = 0; i < 3; i++)
-        PrimativeCellBasisNumber(i) = node["PrimativeCellBasisNumber"][i].as<int>();
+        SuperCellDeformation = value.as<std::array<std::array<double, 3>, 3>>() | biu::toEigen<>;
+      PrimativeCellBasisNumber = node["PrimativeCellBasisNumber"].as<std::array<unsigned, 3>>() | biu::toEigen<>;
 
       AtomPositionInputFile = DataFile
       (
@@ -57,8 +49,7 @@ namespace ufo
         points = node["unit_cell"]["points"].as<std::vector<YAML::Node>>();
       auto atom_position_to_super_cell = Eigen::MatrixX3d(points.size(), 3);
       for (unsigned i = 0; i < points.size(); i++)
-        for (unsigned j = 0; j < 3; j++)
-          atom_position_to_super_cell(i, j) = points[i]["coordinates"][j].as<double>();
+        atom_position_to_super_cell.row(i) = points[i]["coordinates"].as<std::array<double, 3>>() | biu::toEigen<>;
       auto super_cell = (SuperCellDeformation.value_or(Eigen::Matrix3d::Identity())
         * SuperCellMultiplier.cast<double>().asDiagonal() * PrimativeCell).eval();
       AtomPosition = atom_position_to_super_cell * super_cell;
@@ -70,8 +61,7 @@ namespace ufo
       QpointData.resize(phonon.size());
       for (unsigned i = 0; i < phonon.size(); i++)
       {
-        for (unsigned j = 0; j < 3; j++)
-          QpointData[i].Qpoint(j) = phonon[i]["q-position"][j].as<double>();
+        QpointData[i].Qpoint = phonon[i]["q-position"].as<std::array<double, 3>>() | biu::toEigen<>;
         auto band = phonon[i]["band"].as<std::vector<YAML::Node>>();
         QpointData[i].ModeData.resize(band.size());
         for (unsigned j = 0; j < band.size(); j++)
@@ -98,10 +88,10 @@ namespace ufo
     else if (QpointDataInputFile.Format == "hdf5")
     {
       std::vector<std::vector<std::vector<double>>> frequency, path;
-      std::vector<std::vector<std::vector<std::vector<PhonopyComplex>>>> eigenvector_vector;
-      Hdf5file{}.open_for_read(QpointDataInputFile.Filename).read(frequency, "/frequency")
-        .read(eigenvector_vector, "/eigenvector")
-        .read(path, "/path");
+      std::vector<std::vector<std::vector<std::vector<biu::PhonopyComplex>>>> eigenvector_vector;
+      biu::Hdf5file(QpointDataInputFile.Filename, true).read("/frequency", frequency)
+        .read("/eigenvector", eigenvector_vector)
+        .read("/path", path);
       std::vector size = { frequency.size(), frequency[0].size(), frequency[0][0].size() };
       QpointData.resize(size[0] * size[1]);
       for (unsigned i = 0; i < size[0]; i++)
@@ -138,14 +128,14 @@ namespace ufo
         print << "QpointData:\n";
         for (auto& qpoint: QpointData)
         {
-          print << fmt::format("  - Qpoint: [ {1:.{0}f}, {2:.{0}f}, {3:.{0}f} ]\n",
-            percision, qpoint.Qpoint[0], qpoint.Qpoint[1], qpoint.Qpoint[2]);
-          print << fmt::format("    Source: [ {1:.{0}f}, {2:.{0}f}, {3:.{0}f} ]\n",
-            percision, qpoint.Source[0], qpoint.Source[1], qpoint.Source[2]);
+          print << "  - Qpoint: [ {1:.{0}f}, {2:.{0}f}, {3:.{0}f} ]\n"_f
+            (percision, qpoint.Qpoint[0], qpoint.Qpoint[1], qpoint.Qpoint[2]);
+          print << "    Source: [ {1:.{0}f}, {2:.{0}f}, {3:.{0}f} ]\n"_f
+            (percision, qpoint.Source[0], qpoint.Source[1], qpoint.Source[2]);
           print << "    ModeData:\n";
           for (auto& mode: qpoint.ModeData)
-            print << fmt::format("      - {{ Frequency: {1:.{0}f}, Weight: {2:.{0}f} }}\n",
-              percision, mode.Frequency, mode.Weight);
+            print << "      - {{ Frequency: {1:.{0}f}, Weight: {2:.{0}f} }}\n"_f
+              (percision, mode.Frequency, mode.Weight);
         }
         return print.str();
       }();
@@ -211,10 +201,10 @@ namespace ufo
           Weight.back().push_back(mode.Weight);
         }
       }
-      Hdf5file{}.open_for_write(filename).write(Qpoint, "/Qpoint")
-        .write(Source, "/Source")
-        .write(Frequency, "/Frequency")
-        .write(Weight, "/Weight");
+      biu::Hdf5file(filename).write("/Qpoint", Qpoint)
+        .write("/Source", Source)
+        .write("/Frequency", Frequency)
+        .write("/Weight", Weight);
     }
   }
 
@@ -301,10 +291,10 @@ namespace ufo
     // 每个 q 点对应的一组 sub qpoint。不同的 q 点所对应的 sub qpoint 是不一样的，但 sub qpoint 与 q 点的相对位置一致。
     // 这里 xyz_of_diff_of_sub_qpoint 即表示这个相对位置，单位为超胞的倒格矢
     for (auto [xyz_of_diff_of_sub_qpoint_by_reciprocal_modified_super_cell, i_of_sub_qpoint]
-      : triplet_sequence(super_cell_multiplier))
+      : biu::sequence(super_cell_multiplier))
     {
       basis[i_of_sub_qpoint].resize(primative_cell_basis_number.prod());
-      for (auto [xyz_of_basis, i_of_basis] : triplet_sequence(primative_cell_basis_number))
+      for (auto [xyz_of_basis, i_of_basis] : biu::sequence(primative_cell_basis_number))
       {
         // 计算 q 点的坐标, 单位为单胞的倒格矢
         auto diff_of_sub_qpoint_by_reciprocal_primative_cell = xyz_of_basis.cast<double>()
@@ -378,7 +368,7 @@ namespace ufo
     )
     {
       for (auto [xyz_of_diff_of_sub_qpoint_by_reciprocal_modified_super_cell, i_of_sub_qpoint]
-        : triplet_sequence(super_cell_multiplier))
+        : biu::sequence(super_cell_multiplier))
       {
         auto& _ = output.QpointData.emplace_back();
         /*

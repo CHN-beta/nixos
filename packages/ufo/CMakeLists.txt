@@ -10,18 +10,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 find_package(yaml-cpp REQUIRED)
-find_package(Eigen3 REQUIRED)
-find_package(fmt REQUIRED)
-find_package(concurrencpp REQUIRED)
-find_package(HighFive REQUIRED)
 find_package(TBB REQUIRED)
 find_package(Matplot++ REQUIRED)
-find_path(ZPP_BITS_INCLUDE_DIR zpp_bits.h REQUIRED)
+find_package(biu REQUIRED)
+find_package(Threads REQUIRED)
 
 add_executable(ufo src/solver.cpp src/fold.cpp src/unfold.cpp src/plot.cpp src/main.cpp)
-target_include_directories(ufo PRIVATE ${PROJECT_SOURCE_DIR}/include ${ZPP_BITS_INCLUDE_DIR})
-target_link_libraries(ufo PRIVATE
-  yaml-cpp Eigen3::Eigen fmt::fmt concurrencpp::concurrencpp HighFive_HighFive TBB::tbb Matplot++::matplot)
+target_include_directories(ufo PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(ufo PRIVATE yaml-cpp TBB::tbb Matplot++::matplot biu::biu)
 target_compile_features(ufo PRIVATE cxx_std_23)
 
 install(TARGETS ufo RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

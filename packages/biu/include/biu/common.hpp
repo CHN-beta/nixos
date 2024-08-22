@@ -102,10 +102,8 @@ namespace biu
     template <typename T> T deserialize(const std::string& serialized_data);
     template <typename T> T deserialize(const std::vector<std::byte>& serialized_data);
 
-    template <std::size_t N> std::generator<std::pair<std::array<std::size_t, N>, std::size_t>>
-      sequence(std::array<std::size_t, N> from, std::array<std::size_t, N> to);
-    template <std::size_t N> std::generator<std::pair<std::array<std::size_t, N>, std::size_t>>
-      sequence(std::array<std::size_t, N> to);
+    template <typename Array> std::generator<std::pair<Array, std::size_t>> sequence(Array from, Array to);
+    template <typename Array> std::generator<std::pair<Array, std::size_t>> sequence(Array to);
   }
   using common::hash, common::unused, common::block_forever, common::is_interactive, common::env, common::int128_t,
     common::uint128_t, common::Empty, common::CaseInsensitiveStringLessComparator, common::RemoveMemberPointer,

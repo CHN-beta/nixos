@@ -67,7 +67,11 @@ inputs: rec
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
   sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
   ufo = inputs.pkgs.callPackage ./ufo
-    { inherit concurrencpp biu matplotplusplus zpp-bits; tbb = inputs.pkgs.tbb_2021_11; };
+  {
+    inherit concurrencpp biu matplotplusplus zpp-bits;
+    tbb = inputs.pkgs.tbb_2021_11;
+    stdenv = inputs.pkgs.gcc14Stdenv;
+  };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
   winjob = inputs.pkgs.callPackage ./winjob { stdenv = inputs.pkgs.gcc14Stdenv; };
   sockpp = inputs.pkgs.callPackage ./sockpp.nix { src = inputs.topInputs.sockpp; };
