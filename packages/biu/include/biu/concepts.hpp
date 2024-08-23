@@ -46,9 +46,11 @@ namespace biu
       = std::is_invocable_r_v<Result, Function, Args...>;
     
     template <typename T> concept Arithmetic = std::is_arithmetic<T>::value || SpecializationOf<T, std::complex>;
+
+    template <typename T> concept Nullptr = std::is_null_pointer_v<std::remove_cvref_t<T>>;
   }
   using concepts::DecayedType, concepts::SpecializationOf, concepts::CompletedType, concepts::ImplicitlyConvertibleTo,
     concepts::ImplicitlyConvertibleFrom, concepts::ExplicitlyConvertibleTo, concepts::ExplicitlyConvertibleFrom,
     concepts::ConvertibleTo, concepts::ConvertibleFrom, concepts::ConstevalInvokable, concepts::Enumerable,
-    concepts::InvocableWithResult, concepts::Arithmetic;
+    concepts::InvocableWithResult, concepts::Arithmetic, concepts::Nullptr;
 }

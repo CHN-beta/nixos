@@ -10,14 +10,14 @@
 namespace biu
 {
   template <typename Char, Char... c> template <typename... Param>
-    std::basic_string<Char> detail_::FormatLiteralHelper<Char, c...>::operator() (Param&&... param) const
+    std::basic_string<Char> format::detail_::FormatLiteralHelper<Char, c...>::operator() (Param&&... param) const
     { return fmt::format(BasicStaticString<Char, c...>::StringView, std::forward<Param>(param)...); }
   template <typename Char, Char... c> consteval
-    detail_::FormatLiteralHelper<Char, c...> literals::operator""_f()
+    format::detail_::FormatLiteralHelper<Char, c...> literals::operator""_f()
     { return {}; }
 
   template <typename T, typename Char> constexpr
-    auto detail_::FormatterReuseProxy<T, Char>::parse(fmt::basic_format_parse_context<Char>& ctx)
+    auto format::detail_::FormatterReuseProxy<T, Char>::parse(fmt::basic_format_parse_context<Char>& ctx)
     -> typename fmt::basic_format_parse_context<Char>::iterator
   {
     if (ctx.begin() != ctx.end() && *ctx.begin() != '}')
@@ -49,17 +49,17 @@ namespace biu
 
 namespace fmt
 {
-  template <typename Char, biu::detail_::OptionalWrap Wrap> template <typename FormatContext>
+  template <typename Char, biu::format::detail_::OptionalWrap Wrap> template <typename FormatContext>
     auto formatter<Wrap, Char>::format(const Wrap& wrap, FormatContext& ctx) const
     -> typename FormatContext::iterator
   {
-    using value_t = biu::detail_::UnderlyingTypeOfOptionalWrap<Wrap>::Type;
+    using value_t = biu::format::detail_::UnderlyingTypeOfOptionalWrap<Wrap>::Type;
     auto format_value_type = [&, this](const value_t& value)
     {
       if constexpr (!fmt::is_formattable<value_t, Char>::value)
         return fmt::format_to(ctx.out(), "non-null unformattable value");
       else if constexpr (std::default_initializable<formatter<value_t>>)
-        biu::detail_::FormatterReuseProxy<value_t, Char>::format(value, ctx);
+        biu::format::detail_::FormatterReuseProxy<value_t, Char>::format(value, ctx);
       else fmt::format_to(ctx.out(), "{}", value);
     };
     fmt::format_to(ctx.out(), "(");

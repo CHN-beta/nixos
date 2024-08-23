@@ -7,15 +7,15 @@
 
 namespace biu
 {
-  namespace detail_
+  namespace format::detail_
   {
     template <typename Char, Char... c> struct FormatLiteralHelper : protected BasicStaticString<Char, c...>
       {template <typename... Param> std::basic_string<Char> operator()(Param&&... param) const;};
   }
   inline namespace literals
-    { template <typename Char, Char... c> consteval detail_::FormatLiteralHelper<Char, c...> operator""_f(); }
+    { template <typename Char, Char... c> consteval format::detail_::FormatLiteralHelper<Char, c...> operator""_f(); }
 
-  namespace detail_
+  namespace format::detail_
   {
     template <typename T> concept OptionalWrap
       = SpecializationOf<T, std::optional> || SpecializationOf<T, std::shared_ptr>
@@ -46,8 +46,9 @@ namespace biu
 
 namespace fmt
 {
-  template <typename Char, biu::detail_::OptionalWrap Wrap> struct formatter<Wrap, Char>
-    : biu::detail_::FormatterReuseProxy<typename biu::detail_::UnderlyingTypeOfOptionalWrap<Wrap>::Type, Char>
+  template <typename Char, biu::format::detail_::OptionalWrap Wrap> struct formatter<Wrap, Char>
+    : biu::format::detail_::FormatterReuseProxy
+      <typename biu::format::detail_::UnderlyingTypeOfOptionalWrap<Wrap>::Type, Char>
   {
     template <typename FormatContext> auto format(const Wrap& wrap, FormatContext& ctx) const
       -> typename FormatContext::iterator;
