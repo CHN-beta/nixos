@@ -58,7 +58,12 @@ inputs: rec
   mumax = inputs.pkgs.callPackage ./mumax.nix { src = inputs.topInputs.mumax; };
   kylin-virtual-keyboard = inputs.pkgs.libsForQt5.callPackage ./kylin-virtual-keyboard.nix
     { src = inputs.topInputs.kylin-virtual-keyboard; };
-  biu = inputs.pkgs.callPackage ./biu { inherit nameof zpp-bits; stdenv = inputs.pkgs.gcc14Stdenv; };
+  biu = inputs.pkgs.callPackage ./biu
+  {
+    inherit nameof zpp-bits;
+    stdenv = inputs.pkgs.gcc14Stdenv;
+    fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
+  };
   zxorm = inputs.pkgs.callPackage ./zxorm.nix { src = inputs.topInputs.zxorm; };
   hpcstat = inputs.pkgs.callPackage ./hpcstat
     { inherit sqlite-orm date biu openxlsx; stdenv = inputs.pkgs.gcc14Stdenv; };

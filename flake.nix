@@ -61,7 +61,7 @@
     kylin-virtual-keyboard = { url = "git+https://gitee.com/openkylin/kylin-virtual-keyboard.git"; flake = false; };
     cjktty = { url = "github:CHN-beta/cjktty-patches"; flake = false; };
     zxorm = { url = "github:CHN-beta/zxorm"; flake = false; };
-    openxlsx = { url = "github:troldal/OpenXLSX"; flake = false; };
+    openxlsx = { url = "github:troldal/OpenXLSX?rev=f85f7f1bd632094b5d78d4d1f575955fc3801886"; flake = false; };
     sqlite-orm = { url = "github:fnc12/sqlite_orm"; flake = false; };
     sockpp = { url = "github:fpagliughi/sockpp"; flake = false; };
     git-lfs-transfer = { url = "github:charmbracelet/git-lfs-transfer"; flake = false; };

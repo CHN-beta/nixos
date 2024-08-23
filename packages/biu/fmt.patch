@@ -1,0 +1,57 @@
+diff --git a/include/fmt/std.h b/include/fmt/std.h
+index 1e69b8b2..ae485344 100644
+--- a/include/fmt/std.h
++++ b/include/fmt/std.h
+@@ -211,7 +211,7 @@ template <typename Char>
+ struct formatter<std::thread::id, Char> : basic_ostream_formatter<Char> {};
+ FMT_END_NAMESPACE
+ 
+-#ifdef __cpp_lib_optional
++#ifdef __cpp_lib_optional_
+ FMT_BEGIN_NAMESPACE
+ FMT_EXPORT
+ template <typename T, typename Char>
+diff --git a/test/std-test.cc b/test/std-test.cc
+index bcc7bd5f..24981d87 100644
+--- a/test/std-test.cc
++++ b/test/std-test.cc
+@@ -56,7 +56,7 @@ TEST(ranges_std_test, format_quote_path) {
+       std::vector<std::filesystem::path>{"path1/file1.txt", "path2/file2.txt"};
+   EXPECT_EQ(fmt::format("{}", vec),
+             "[\"path1/file1.txt\", \"path2/file2.txt\"]");
+-#  ifdef __cpp_lib_optional
++#  ifdef __cpp_lib_optional_
+   auto o = std::optional<std::filesystem::path>("path/file.txt");
+   EXPECT_EQ(fmt::format("{}", o), "optional(\"path/file.txt\")");
+   EXPECT_EQ(fmt::format("{:?}", o), "optional(\"path/file.txt\")");
+@@ -109,7 +109,7 @@ TEST(std_test, source_location) {
+ #endif
+ 
+ TEST(std_test, optional) {
+-#ifdef __cpp_lib_optional
++#ifdef __cpp_lib_optional_
+   EXPECT_EQ(fmt::format("{}", std::optional<int>{}), "none");
+   EXPECT_EQ(fmt::format("{}", std::pair{1, "second"}), "(1, \"second\")");
+   EXPECT_EQ(fmt::format("{}", std::vector{std::optional{1}, std::optional{2},
+@@ -184,7 +184,7 @@ class my_class {
+ };
+ }  // namespace my_nso
+ TEST(std_test, optional_format_as) {
+-#ifdef __cpp_lib_optional
++#ifdef __cpp_lib_optional_
+   EXPECT_EQ(fmt::format("{}", std::optional<my_nso::my_number>{}), "none");
+   EXPECT_EQ(fmt::format("{}", std::optional{my_nso::my_number::one}),
+             "optional(\"first\")");
+diff --git a/test/xchar-test.cc b/test/xchar-test.cc
+index 312e632b..6210e244 100644
+--- a/test/xchar-test.cc
++++ b/test/xchar-test.cc
+@@ -590,7 +590,7 @@ TEST(std_test_xchar, complex) {
+ }
+ 
+ TEST(std_test_xchar, optional) {
+-#  ifdef __cpp_lib_optional
++#  ifdef __cpp_lib_optional_
+   EXPECT_EQ(fmt::format(L"{}", std::optional{L'C'}), L"optional(\'C\')");
+   EXPECT_EQ(fmt::format(L"{}", std::optional{std::wstring{L"wide string"}}),
+             L"optional(\"wide string\")");

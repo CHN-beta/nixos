@@ -1,9 +1,11 @@
 # pragma once
-# include <nameof.hpp>
-# include <biu/format.hpp>
 # include <fmt/core.h>
 # include <fmt/ranges.h>
 # include <fmt/std.h>
+# include <fmt/ostream.h>
+# include <fmt/xchar.h>
+# include <nameof.hpp>
+# include <biu/format.hpp>
 
 namespace biu
 {
@@ -14,9 +16,9 @@ namespace biu
     detail_::FormatLiteralHelper<Char, c...> literals::operator""_f()
     { return {}; }
 
-  template <typename T> constexpr
-    auto detail_::FormatterReuseProxy<T>::parse(fmt::format_parse_context& ctx)
-    -> std::invoke_result_t<decltype(&fmt::format_parse_context::begin), fmt::format_parse_context>
+  template <typename T, typename Char> constexpr
+    auto detail_::FormatterReuseProxy<T, Char>::parse(fmt::basic_format_parse_context<Char>& ctx)
+    -> typename fmt::basic_format_parse_context<Char>::iterator
   {
     if (ctx.begin() != ctx.end() && *ctx.begin() != '}')
       throw fmt::format_error
@@ -35,7 +37,8 @@ namespace biu
     {
       if (holds_alternative<T>(value))
       {
-        if constexpr (biu::Formattable<T, Char>) os << "({}: {})"_f(nameof::nameof_full_type<T>(), get<T>(value));
+        if constexpr (fmt::is_formattable<T, Char>::value)
+          os << "({}: {})"_f(nameof::nameof_full_type<T>(), get<T>(value));
         else os << "({}: {})"_f(nameof::nameof_full_type<T>(), "non-null unformattable value");
       }
     };
@@ -47,15 +50,16 @@ namespace biu
 namespace fmt
 {
   template <typename Char, biu::detail_::OptionalWrap Wrap> template <typename FormatContext>
-    auto formatter<Wrap, Char>::format(const Wrap& wrap, FormatContext& ctx)
-    -> std::invoke_result_t<decltype(&FormatContext::out), FormatContext>
+    auto formatter<Wrap, Char>::format(const Wrap& wrap, FormatContext& ctx) const
+    -> typename FormatContext::iterator
   {
     using value_t = biu::detail_::UnderlyingTypeOfOptionalWrap<Wrap>::Type;
     auto format_value_type = [&, this](const value_t& value)
     {
-      if constexpr (!biu::Formattable<value_t, Char>) return fmt::format_to(ctx.out(), "non-null unformattable value");
+      if constexpr (!fmt::is_formattable<value_t, Char>::value)
+        return fmt::format_to(ctx.out(), "non-null unformattable value");
       else if constexpr (std::default_initializable<formatter<value_t>>)
-        biu::detail_::FormatterReuseProxy<value_t>::format(value, ctx);
+        biu::detail_::FormatterReuseProxy<value_t, Char>::format(value, ctx);
       else fmt::format_to(ctx.out(), "{}", value);
     };
     fmt::format_to(ctx.out(), "(");
@@ -75,8 +79,8 @@ namespace fmt
     return fmt::format_to(ctx.out(), ")");
   }
 
-  template <typename Char, biu::Enumerable T> constexpr auto formatter<T, Char>::parse(format_parse_context& ctx)
-    -> std::invoke_result_t<decltype(&format_parse_context::begin), format_parse_context>
+  template <typename Char, biu::Enumerable T> constexpr auto formatter<T, Char>::parse
+    (fmt::basic_format_parse_context<Char>& ctx) -> typename fmt::basic_format_parse_context<Char>::iterator
   {
     auto it = ctx.begin();
     if (it != ctx.end() && *it == 'f') { full = true; it++; }
@@ -85,8 +89,7 @@ namespace fmt
   }
 
   template <typename Char, biu::Enumerable T> template <typename FormatContext>
-    auto formatter<T, Char>::format(const T& value, FormatContext& ctx)
-    -> std::invoke_result_t<decltype(&FormatContext::out), FormatContext>
+    auto formatter<T, Char>::format(const T& value, FormatContext& ctx) const -> typename FormatContext::iterator
   {
     if (full) return fmt::format_to(ctx.out(), "{}::{}", nameof::nameof_type<T>(), nameof::nameof_enum(value));
     else return fmt::format_to(ctx.out(), "{}", nameof::nameof_enum(value));

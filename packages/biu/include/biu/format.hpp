@@ -1,16 +1,12 @@
 # pragma once
 # include <variant>
+# include <optional>
 # include <experimental/memory>
-# include <fmt/ostream.h>
 # include <biu/string.hpp>
 # include <biu/concepts.hpp>
 
 namespace biu
 {
-  namespace concepts
-    { template <typename T, typename Char = char> concept Formattable = fmt::is_formattable<T, Char>::value; }
-  using concepts::Formattable;
-
   namespace detail_
   {
     template <typename Char, Char... c> struct FormatLiteralHelper : protected BasicStaticString<Char, c...>
@@ -32,14 +28,14 @@ namespace biu
     template <typename Wrap> requires requires() {typename Wrap::element_type;}
       struct UnderlyingTypeOfOptionalWrap<Wrap>
       {using Type = std::remove_cvref_t<typename Wrap::element_type>;};
-    template <typename T> struct FormatterReuseProxy
+    template <typename T, typename Char> struct FormatterReuseProxy
     {
-      constexpr auto parse(fmt::format_parse_context& ctx)
-        -> std::invoke_result_t<decltype(&fmt::format_parse_context::begin), fmt::format_parse_context>;
+      constexpr auto parse(fmt::basic_format_parse_context<Char>& ctx)
+        -> typename fmt::basic_format_parse_context<Char>::iterator;
     };
-    template <typename T>
+    template <typename T, typename Char>
       requires (!SpecializationOf<T, std::weak_ptr> && std::default_initializable<fmt::formatter<T>>)
-      struct FormatterReuseProxy<T> : fmt::formatter<T> {};
+      struct FormatterReuseProxy<T, Char> : fmt::formatter<T, Char> {};
   }
   inline namespace stream_operators
   {
@@ -51,19 +47,19 @@ namespace biu
 namespace fmt
 {
   template <typename Char, biu::detail_::OptionalWrap Wrap> struct formatter<Wrap, Char>
-    : biu::detail_::FormatterReuseProxy<typename biu::detail_::UnderlyingTypeOfOptionalWrap<Wrap>::Type>
+    : biu::detail_::FormatterReuseProxy<typename biu::detail_::UnderlyingTypeOfOptionalWrap<Wrap>::Type, Char>
   {
-    template <typename FormatContext> auto format(const Wrap& wrap, FormatContext& ctx)
-      -> std::invoke_result_t<decltype(&FormatContext::out), FormatContext>;
+    template <typename FormatContext> auto format(const Wrap& wrap, FormatContext& ctx) const
+      -> typename FormatContext::iterator;
   };
 
   template <typename Char, biu::Enumerable T> struct formatter<T, Char>
   {
     bool full = false;
-    constexpr auto parse(fmt::format_parse_context& ctx)
-      -> std::invoke_result_t<decltype(&fmt::format_parse_context::begin), fmt::format_parse_context>;
-    template <typename FormatContext> auto format(const T& value, FormatContext& ctx)
-      -> std::invoke_result_t<decltype(&FormatContext::out), FormatContext>;
+    constexpr auto parse(fmt::basic_format_parse_context<Char>& ctx)
+      -> typename fmt::basic_format_parse_context<Char>::iterator;
+    template <typename FormatContext> auto format(const T& value, FormatContext& ctx) const
+      -> typename FormatContext::iterator;
   };
 
   template <typename Char, typename... Ts> struct formatter<std::variant<Ts...>, Char>

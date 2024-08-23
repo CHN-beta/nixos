@@ -3,6 +3,7 @@
 # include <optional>
 # include <filesystem>
 # include <generator>
+# include <type_traits>
 # include <fmt/format.h>
 # include <magic_enum_all.hpp>
 
