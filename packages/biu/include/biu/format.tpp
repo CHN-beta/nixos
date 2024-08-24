@@ -80,6 +80,14 @@ namespace fmt
     return fmt::format_to(ctx.out(), ")");
   }
 
+  template <biu::SpecializationOf<std::sub_match> SubMatch> template <typename FormatContext>
+    auto formatter<SubMatch, typename SubMatch::value_type>::format(const SubMatch& match, FormatContext& ctx) const
+    -> typename FormatContext::iterator
+  {
+    return formatter<std::basic_string<typename SubMatch::value_type>, typename SubMatch::value_type>::format
+      (match.str(), ctx);
+  }
+
   template <typename Char, biu::Enumerable T> constexpr auto formatter<T, Char>::parse
     (fmt::basic_format_parse_context<Char>& ctx) -> typename fmt::basic_format_parse_context<Char>::iterator
   {

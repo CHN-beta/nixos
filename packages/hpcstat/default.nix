@@ -17,4 +17,5 @@
         --set HPCSTAT_DATADIR /var/lib/hpcstat --set HPCSTAT_SSH_BINDIR ${openssh}/bin \
         --set HPCSTAT_DUC_BINDIR ${duc}/bin
     '';
+  doCheck = true;
 }

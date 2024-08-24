@@ -54,6 +54,13 @@ namespace fmt
       -> typename FormatContext::iterator;
   };
 
+  template <biu::SpecializationOf<std::sub_match> SubMatch> struct formatter<SubMatch, typename SubMatch::value_type>
+    : formatter<std::basic_string<typename SubMatch::value_type>, typename SubMatch::value_type>
+  {
+    template <typename FormatContext> auto format(const SubMatch& match, FormatContext& ctx) const
+      -> typename FormatContext::iterator;
+  };
+
   template <typename Char, biu::Enumerable T> struct formatter<T, Char>
   {
     bool full = false;

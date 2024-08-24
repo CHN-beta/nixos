@@ -31,10 +31,10 @@ namespace hpcstat::lfs
       else
       {
         // Job <462270> is submitted to queue <normal_1day>.
-        std::regex re(R"r(Job <(\d+)> is submitted to queue <(\w+)>.)r");
+        // Job <462270> is submitted to default queue <normal>.
+        std::regex re(R"r(Job <(\d+)> is submitted to(?: default)? queue <(\w+)>.)r");
         std::smatch match;
-        if (std::regex_search(result.Stdout, match, re))
-          return std::make_pair(std::stoi(match[1]), match[2]);
+        if (std::regex_search(result.Stdout, match, re)) return std::make_pair(std::stoi(match[1]), match[2]);
         else { std::cerr << "Failed to parse job id from output: {}\n"_f(result.Stdout); return std::nullopt; }
       }
     }
