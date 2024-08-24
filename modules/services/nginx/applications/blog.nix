@@ -1,17 +1,13 @@
 inputs:
 {
-  options.nixos.services.nginx.applications.blog = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.nginx.applications.blog = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    enable = mkOption { type = types.bool; default = false; };
+    type = types.nullOr (types.submodule {});
+    default = null;
   };
-  config =
-    let
-      inherit (inputs.config.nixos.services.nginx.applications) blog;
-      inherit (inputs.lib) mkIf;
-    in mkIf blog.enable
+  config = let inherit (inputs.config.nixos.services.nginx.applications) blog; in inputs.lib.mkIf (blog != null)
     {
       nixos.services.nginx.https."blog.chn.moe".location."/".static =
-        { root = "/srv/blog"; index = [ "index.html" ]; };
-      systemd.tmpfiles.rules = [ "d /srv/blog 0700 nginx nginx" "Z /srv/blog - nginx nginx" ];
+        { root = builtins.toString inputs.topInputs.self.packages.x86_64-linux.blog; index = [ "index.html" ]; };
     };
 }

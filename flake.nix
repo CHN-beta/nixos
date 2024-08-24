@@ -66,6 +66,7 @@
     sockpp = { url = "github:fpagliughi/sockpp"; flake = false; };
     git-lfs-transfer = { url = "github:charmbracelet/git-lfs-transfer"; flake = false; };
     nc4nix = { url = "github:helsinki-systems/nc4nix"; flake = false; };
+    hextra = { url = "github:imfing/hextra"; flake = false; };
 
     # does not support lfs yet
     # nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };
@@ -111,6 +112,7 @@
             matplotplusplus = pkgs.pkgsStatic.localPackages.matplotplusplus.override { libtiff = null; };
           in pkgs.pkgsStatic.localPackages.ufo.override { inherit biu tbb matplotplusplus; };
         chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
+        blog = pkgs.callPackage ./blog { inherit (inputs) hextra; };
       }
       // (builtins.listToAttrs (builtins.map
         (system:

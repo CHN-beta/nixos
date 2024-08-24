@@ -540,6 +540,22 @@
         "type": "github"
       }
     },
+    "hextra": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1724317530,
+        "narHash": "sha256-luENDR+fn9NbqNkn9wpLRnD41MeerFEUsrDgKRpnmg8=",
+        "owner": "imfing",
+        "repo": "hextra",
+        "rev": "c6de4b5b6b1ec04647b0235e9c8b1158b1d58c09",
+        "type": "github"
+      },
+      "original": {
+        "owner": "imfing",
+        "repo": "hextra",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -1254,6 +1270,7 @@
         "envfs": "envfs",
         "git-lfs-transfer": "git-lfs-transfer",
         "gricad": "gricad",
+        "hextra": "hextra",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "kylin-virtual-keyboard": "kylin-virtual-keyboard",
