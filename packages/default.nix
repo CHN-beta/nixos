@@ -60,7 +60,7 @@ inputs: rec
     { src = inputs.topInputs.kylin-virtual-keyboard; };
   biu = inputs.pkgs.callPackage ./biu
   {
-    inherit nameof zpp-bits;
+    inherit nameof zpp-bits tgbot-cpp;
     stdenv = inputs.pkgs.gcc14Stdenv;
     fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
   };

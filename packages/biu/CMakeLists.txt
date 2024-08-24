@@ -13,17 +13,22 @@ endif()
 
 find_package(magic_enum REQUIRED)
 find_package(fmt REQUIRED)
-find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem)
+find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem system)
 find_package(range-v3 REQUIRED)
 find_path(NAMEOF_INCLUDE_DIR nameof.hpp REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(HighFive REQUIRED)
+find_path(ZPP_BITS_INCLUDE_DIR zpp_bits.h REQUIRED)
+find_package(TgBot REQUIRED)
+find_path(LIBBACKTRACE_INCLUDE_DIR backtrace.h REQUIRED)
+find_library(LIBBACKTRACE_LIBRARY NAMES backtrace REQUIRED)
 
-add_library(biu src/common.cpp src/hdf5.cpp)
+add_library(biu src/common.cpp src/hdf5.cpp src/logger.cpp src/string.cpp)
 target_include_directories(biu PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> ${NAMEOF_INCLUDE_DIR} ${ZPP_BITS_INCLUDE_DIR})
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> ${NAMEOF_INCLUDE_DIR} ${ZPP_BITS_INCLUDE_DIR}
+  ${LIBBACKTRACE_INCLUDE_DIR})
 target_link_libraries(biu PUBLIC magic_enum::magic_enum fmt::fmt Boost::headers Boost::iostreams Boost::filesystem
-  range-v3::range-v3 Eigen3::Eigen HighFive_HighFive)
+  range-v3::range-v3 Eigen3::Eigen HighFive_HighFive TgBot::TgBot ${LIBBACKTRACE_LIBRARY})
 set_property(TARGET biu PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON)
 install(TARGETS biu EXPORT biuTargets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

@@ -7,7 +7,5 @@
 # include <biu/format.tpp>
 # include <biu/eigen.tpp>
 # include <biu/hdf5.tpp>
-// # include <biu/logger.tpp>
-// # include <biu/smartref.tpp>
-
-
+# include <biu/logger.tpp>
+# include <biu/smartref.tpp>

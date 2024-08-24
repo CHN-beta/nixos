@@ -3,34 +3,37 @@
 
 namespace biu
 {
-	Atomic<std::optional<typename Logger::LoggerConfigType_>, false> Logger::LoggerConfig_;
+	Atomic<std::optional<Logger::LoggerConfigType_>> Logger::LoggerConfig_;
 	void Logger::init(std::experimental::observer_ptr<std::ostream> stream, Level level)
-	{
-		auto&& lock = LoggerConfig_.lock();
-		lock->emplace(stream, nullptr, level);
-	}
+		{ LoggerConfig_ = LoggerConfigType_{stream, nullptr, level}; }
 	void Logger::init(std::shared_ptr<std::ostream> stream, Level level)
-	{
-		auto&& lock = LoggerConfig_.lock();
-		lock->emplace(std::experimental::make_observer(stream.get()), stream, level);
-	}
+		{ LoggerConfig_ = LoggerConfigType_{std::experimental::make_observer(stream.get()), stream, level}; }
 
-	Atomic<std::optional<std::pair<std::string, std::string>>, false> Logger::TelegramConfig_;
+	Atomic<std::optional<std::pair<std::string, std::string>>> Logger::TelegramConfig_;
 	void Logger::telegram_init(const std::string& token, const std::string& chat_id)
-		{TelegramConfig_ = std::make_pair(token, chat_id);}
-	void Logger::telegram_notify(const std::string& message)
+		{ TelegramConfig_ = std::make_pair(token, chat_id); }
+	void Logger::telegram_notify(const std::string& message, bool async)
 	{
-		if (auto&& lock = TelegramConfig_.lock(); *lock)
+		auto notify = [](const std::string& message)
 		{
-			TgBot::Bot bot{lock.value()->first};
+			auto&& lock = TelegramConfig_.lock();
+			TgBot::Bot bot(lock.value()->first);
 			bot.getApi().sendMessage(lock.value()->first, message);
-		}
+		};
+		if (async) std::thread(notify, message).detach();
+		else notify(message);
 	}
-	void Logger::telegram_notify_async(const std::string& message)
-		{std::thread{Logger::telegram_notify, message}.detach();}
 
-	Atomic<std::multimap<const void*, std::string_view>, false> Logger::Objects_;
+	Atomic<std::multimap<const void*, std::string_view>> Logger::Objects_;
 
 	thread_local unsigned Logger::Guard::Indent_ = 0;
-	Atomic<std::map<std::size_t, std::size_t>, false> Logger::Threads_;
+	std::size_t Logger::Guard::get_time_ms() const
+	{
+		return std::chrono::duration_cast<std::chrono::milliseconds>
+			(std::chrono::steady_clock::now() - StartTime_).count();
+	}
+	std::size_t Logger::Guard::get_thread_id() const
+		{ return std::hash<std::thread::id>{}(std::this_thread::get_id()); }
+
+	Atomic<std::map<std::size_t, std::size_t>> Logger::Threads_;
 }

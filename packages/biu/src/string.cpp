@@ -1,9 +1,8 @@
-# include <fmt/chrono.h>
 # include <biu.hpp>
 
 namespace biu
 {
-  concurrencpp::generator<std::pair<std::string_view, std::sregex_iterator>> string::find
+  std::generator<std::pair<std::string_view, std::sregex_iterator>> string::find
     (SmartRef<const std::string> data, SmartRef<const std::regex> regex)
   {
     Logger::Guard log;
@@ -11,17 +10,14 @@ namespace biu
     std::sregex_iterator regit;
     while (true)
     {
-      if (regit == std::sregex_iterator{})
-        regit = std::sregex_iterator{data->begin(), data->end(), *regex};
-      else
-        regit++;
+      if (regit == std::sregex_iterator{}) regit = std::sregex_iterator{data->begin(), data->end(), *regex};
+      else regit++;
       if (regit == std::sregex_iterator{})
       {
         unmatched_prefix_end = data->cend();
-        log.log<Logger::Level::Debug>("distance: {}"_f(std::distance(unmatched_prefix_begin, unmatched_prefix_end)));
+        log.debug("distance: {}"_f(std::distance(unmatched_prefix_begin, unmatched_prefix_end)));
       }
-      else
-        unmatched_prefix_end = (*regit)[0].first;
+      else unmatched_prefix_end = (*regit)[0].first;
       co_yield
       {
         std::string_view
@@ -31,8 +27,7 @@ namespace biu
         },
         regit
       };
-      if (regit == std::sregex_iterator{})
-        break;
+      if (regit == std::sregex_iterator{}) break;
       unmatched_prefix_begin = (*regit)[0].second;
     }
   }
@@ -45,8 +40,7 @@ namespace biu
     for (auto matched : find(data, regex))
     {
       result.append(matched.first);
-      if (matched.second != std::sregex_iterator{})
-        result.append(function(*matched.second));
+      if (matched.second != std::sregex_iterator{}) result.append(function(*matched.second));
     }
     return result;
   }

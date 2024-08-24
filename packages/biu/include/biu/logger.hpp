@@ -1,7 +1,7 @@
 # pragma once
 # include <map>
 # include <boost/stacktrace.hpp>
-# include <biu/atomic/nolog.hpp>
+# include <biu/atomic.hpp>
 
 namespace biu
 {
@@ -17,7 +17,6 @@ namespace biu
 		{
 			None,
 			Error,
-			Access,
 			Info,
 			Debug
 		};
@@ -27,18 +26,17 @@ namespace biu
 			std::shared_ptr<std::ostream> StreamStorage;
 			Logger::Level Level;
 		};
-		protected: static Atomic<std::optional<LoggerConfigType_>, false> LoggerConfig_;
+		protected: static Atomic<std::optional<LoggerConfigType_>> LoggerConfig_;
 		public: static void init(std::experimental::observer_ptr<std::ostream> stream, Level level);
 		public: static void init(std::shared_ptr<std::ostream> stream, Level level);
 
 		// Send a telegram message if token and chat id are set, all the functions are thread-safe
-		protected: static Atomic<std::optional<std::pair<std::string, std::string>>, false> TelegramConfig_;
+		protected: static Atomic<std::optional<std::pair<std::string, std::string>>> TelegramConfig_;
 		public: static void telegram_init(const std::string& token, const std::string& chat_id);
-		public: static void telegram_notify(const std::string& message);
-		public: static void telegram_notify_async(const std::string& message);
+		public: static void telegram_notify(const std::string& message, bool async = false);
 
 		// Monitor the lifetime of an object
-		// usage: struct my_class : protected Logger::ObjectMonitor<my_class> {}
+		// usage: struct my_class : protected Logger::ObjectMonitor<my_class> { ... }
 		public: template <typename T> class ObjectMonitor
 		{
 			protected: const std::chrono::time_point<std::chrono::steady_clock> CreateTime_;
@@ -52,7 +50,7 @@ namespace biu
 		template <typename T> friend class ObjectMonitor;
 
 		// List of objects that is being monitored by ObjectMonitor, {address, type}
-		protected: static Atomic<std::multimap<const void*, std::string_view>, false> Objects_;
+		protected: static Atomic<std::multimap<const void*, std::string_view>> Objects_;
 
 		public: template <typename FinalException> class Exception : public std::exception
 		{
@@ -70,16 +68,18 @@ namespace biu
 		{
 			protected: thread_local static unsigned Indent_;
 			protected: const std::chrono::time_point<std::chrono::steady_clock> StartTime_;
+			protected: std::size_t get_time_ms() const;
+			protected: std::size_t get_thread_id() const;
 
 			// if sizeof...(Param) > 0, call log<Debug>("begin function with {arguments}.");
 			// else call log<Debug>("begin function.");
 			public: template <typename... Param> [[gnu::always_inline]] explicit Guard(Param&&... param);
 
 			// call log<Debug>("end function after {duration} ms.")
-			public: [[gnu::always_inline]] virtual ~Guard();
+			public: [[gnu::always_inline]] inline virtual ~Guard();
 
 			// call log<Debug>("reached after {duration} ms.")
-			public: [[gnu::always_inline]] void operator()() const;
+			public: [[gnu::always_inline]] inline void operator()() const;
 
 			// call log<Debug>("return {return} after {duration} ms.")
 			public: template <typename T> [[gnu::always_inline]] T rtn(T&& value) const;
@@ -88,6 +88,9 @@ namespace biu
 			// LoggerConfig_
 			// [ {time} {thread} {indent} {filename}:{line} {function_name} ] {message}
 			public: template <Level L> [[gnu::always_inline]] void log(const std::string& message) const;
+			public: [[gnu::always_inline]] inline void error(const std::string& message) const;
+			public: [[gnu::always_inline]] inline void info(const std::string& message) const;
+			public: [[gnu::always_inline]] inline void debug(const std::string& message) const;
 
 			public: template <typename FinalException> [[gnu::always_inline]] void print_exception
 			(
@@ -98,6 +101,6 @@ namespace biu
 		friend class Guard;
 
 		// list of threads which is being monitored by Guard and number of Guard created in this thread so far
-		protected: static Atomic<std::map<std::size_t, std::size_t>, false> Threads_;
+		protected: static Atomic<std::map<std::size_t, std::size_t>> Threads_;
 	};
 }

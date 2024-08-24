@@ -59,9 +59,8 @@ namespace biu
 				if constexpr (Throw) throw std::runtime_error("Timeout");
 				else return std::optional<Guard<std::is_const_v<decltype(self)>>>();
 			}
-			else
-				return std::optional<Guard<std::is_const_v<decltype(self)>>>
-					(std::move(lock), std::experimental::make_observer(&self), {});
+			else return std::optional(Guard<std::is_const_v<decltype(self)>>
+				(std::move(lock), std::experimental::make_observer(&self), {}));
 		}
 	}
 
@@ -77,7 +76,7 @@ namespace biu
 			if (!lock)
 				if constexpr (std::is_void_v<function_return_type>) return false;
 				else return std::optional<function_return_type>();
-			// 否则，执行函数并返回
+			// 否则，执行函数
 			else
 			  if constexpr (std::is_void_v<function_return_type>)
 				{
@@ -94,13 +93,17 @@ namespace biu
 						(std::forward<MoveQualifiers<decltype(self), ValueType>>(self.Value_));
 					return std::make_optional(std::forward<decltype(result)>(result));
 				}
-		// 否则，执行函数并返回 *this
+		// 否则，说明不可能超时，返回函数的返回值或者 *this
 		else
-		{
-			std::forward<decltype(function)>(function)
-				(std::forward<MoveQualifiers<decltype(self), ValueType>>(self.Value_));
-			return std::forward<decltype(self)>(self);
-		}
+			if constexpr (std::is_void_v<function_return_type>)
+			{
+				std::forward<decltype(function)>(function)
+					(std::forward<MoveQualifiers<decltype(self), ValueType>>(self.Value_));
+				return std::forward<decltype(self)>(self);
+			}
+			else
+				return std::forward<decltype(function)>(function)
+					(std::forward<MoveQualifiers<decltype(self), ValueType>>(self.Value_));
 	}
 	template <DecayedType ValueType> template <bool NoReturn> decltype(auto) Atomic<ValueType>::apply
 		(this auto&& self, auto&& function, auto&& condition_function)

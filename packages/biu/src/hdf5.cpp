@@ -1,4 +1,4 @@
-# include <biu/hdf5.hpp>
+# include <biu.hpp>
 
 namespace biu::hdf5
 {

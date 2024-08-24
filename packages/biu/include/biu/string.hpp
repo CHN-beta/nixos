@@ -4,7 +4,9 @@
 # include <string>
 # include <string_view>
 # include <iostream>
+# include <generator>
 # include <biu/concepts.hpp>
+# include <biu/smartref.hpp>
 
 namespace biu
 {
@@ -36,6 +38,13 @@ namespace biu
       template <std::size_t M> requires (M<=N) constexpr BasicVariableString(const Char (&str)[M]);
     };
     template <std::size_t N> using VariableString = BasicVariableString<char, N>;
+
+    // Find specific content in a string. Return unmatched content before the match and the match result every
+    // time. If match reached the end, the second returned value will be std::sregex_iterator().
+    std::generator<std::pair<std::string_view, std::sregex_iterator>> find
+      (SmartRef<const std::string> data, SmartRef<const std::regex> regex);
+    std::string replace
+      (const std::string& data, const std::regex& regex, std::function<std::string(const std::smatch&)> function);
   }
   using string::BasicStaticString, string::StaticString, string::BasicFixedString, string::FixedString,
     string::BasicVariableString, string::VariableString;
@@ -105,13 +114,3 @@ namespace biu
     concepts::SpecializationOfBasicFixedString, concepts::SpecializationOfFixedString,
     concepts::SpecializationOfBasicVariableString, concepts::SpecializationOfVariableString;
 }
-// namespace string
-// {
-//   // Find specific content in a string. Return unmatched content before the match and the match result every
-//   // time. If match reached the end, the second returned value will be std::sregex_iterator().
-//   concurrencpp::generator<std::pair<std::string_view, std::sregex_iterator>> find
-//     (SmartRef<const std::string> data, SmartRef<const std::regex> regex);
-//   // Use a regex to find all matches and replace them with a callback function
-//   std::string replace
-//     (const std::string& data, const std::regex& regex, std::function<std::string(const std::smatch&)> function);
-// }
