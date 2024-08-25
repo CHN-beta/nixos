@@ -38,6 +38,7 @@ inputs:
         sshd = {};
         fail2ban = {};
         beesd.instances.root = { device = "/"; hashTableSizeMB = 64; };
+        xray.server = { serverName = "xserver.vps4.chn.moe"; userNumber = 4; };
       };
     };
   };
