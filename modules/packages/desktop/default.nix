@@ -77,6 +77,8 @@ inputs:
           wineWowPackages.stagingFull virt-viewer bottles genymotion
           # media
           nur-xddxdd.svp
+          # for kdenlive auto subtitle
+          openai-whisper
         ]
           ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" "kalzium" ])))
             (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
