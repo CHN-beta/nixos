@@ -33,7 +33,8 @@ inputs:
             # resolved does not work in initrd, causing network.target to fail
             services.resolved.enable = false;
           };
-          kernelParams = [ "ip=dhcp" ];
+          # ip=dhcp only attain ipv4
+          kernelParams = [ "ip=on" ];
         };
       }
     )
