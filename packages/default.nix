@@ -70,7 +70,7 @@ inputs: rec
   openxlsx = inputs.pkgs.callPackage ./openxlsx.nix { src = inputs.topInputs.openxlsx; };
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm.nix { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
-  sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
+  sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; stdenv = inputs.pkgs.gcc14Stdenv; };
   ufo = inputs.pkgs.callPackage ./ufo
   {
     inherit concurrencpp biu matplotplusplus zpp-bits;
