@@ -28,7 +28,6 @@ inputs:
         kernel = { variant = "xanmod-lts"; patches = [ "surface" "hibernate-progress" ]; };
         networking.hostname = "surface";
         gui.enable = true;
-        initrd.unl0kr = {};
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       virtualization = { docker.enable = true; waydroid.enable = true; };
