@@ -38,6 +38,8 @@ inputs:
         adb-sync
         # desktop sharing
         rustdesk-flutter
+        # tts
+        openai-whisper
       ];
     };
     programs =
