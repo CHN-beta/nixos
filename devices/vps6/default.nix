@@ -80,7 +80,6 @@ inputs:
         };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 64; };
       };
-      user.users = [ "chn" "zqq" ];
     };
   };
 }
