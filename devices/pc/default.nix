@@ -183,11 +183,6 @@ inputs:
         };
         system.nixos.tags = [ "nvidia" ];
       };
-      zen.configuration =
-      {
-        nixos.system.kernel = { variant = inputs.lib.mkForce "zen"; patches = inputs.lib.mkForce []; };
-        system.nixos.tags = [ "zen" ];
-      };
     };
   };
 }
