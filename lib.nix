@@ -54,4 +54,36 @@ lib: rec
             else null
           else null)
       (attrsToList (builtins.readDir path))));
+
+  # replace the value in a nested attrset. example:
+  # deepReplace
+  #   [ { path = [ "a" "b" 1 ]; value = "new value"; } ]
+  #   { a = { b = [ "old value" "old value" ]; }; }
+  # => { a = { b = [ "old value" "new value" ]; }; }
+  deepReplace = pattern: origin:
+    let replace = { path, value, content }:
+      if path == [] then
+        if (builtins.typeOf value) == "lambda" then value content
+        else value
+      else let currentPath = builtins.head path; nextPath = builtins.tail path; in
+        if (builtins.typeOf currentPath) == "string" then
+          if (builtins.typeOf content) != "set" then builtins.throw "content should be a set"
+          else builtins.mapAttrs
+            (n: v: if n == currentPath then replace { path = nextPath; inherit value; content = v; } else v) content
+        else if (builtins.typeOf currentPath) == "int" then
+          if (builtins.typeOf content) != "list" then builtins.throw "content should be a list"
+          else lib.imap0
+            (i: v: if i == currentPath then replace { path = nextPath; inherit value; content = v; } else v) content
+        else if (builtins.typeOf currentPath) != "lambda" then throw "path should be a lambda"
+        else
+          if (builtins.typeOf content) == "list" then builtins.map
+            (v: if currentPath v then replace { path = nextPath; inherit value; content = v; } else v) content
+          else if (builtins.typeOf content) == "set" then builtins.listToAttrs (builtins.map
+            (v: if currentPath v then replace { path = nextPath; inherit value; content = v; } else v)
+            (attrsToList content))
+          else throw "content should be a list or a set.";
+    in
+      if (builtins.typeOf pattern) != "list" then throw "pattern should be a list"
+      else if pattern == [] then origin
+      else deepReplace (builtins.tail pattern) (replace ((builtins.head pattern) // { content = origin; }));
 }
