@@ -38,6 +38,7 @@ inputs:
           # themes
           catppuccin catppuccin-sddm catppuccin-cursors catppuccinifier-gui catppuccinifier-cli catppuccin-plymouth
           (catppuccin-kde.override { flavour = [ "latte" ]; }) (catppuccin-kvantum.override { variant = "latte"; })
+          klassy
           localPackages.slate localPackages.blurred-wallpaper tela-circle-icon-theme
           # terminal
           warp-terminal
