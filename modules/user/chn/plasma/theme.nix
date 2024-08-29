@@ -4,29 +4,31 @@ inputs:
   {
     home-manager.users.chn.config =
     {
-      home.file.".config/Kvantum/catppuccin-latte-blue#/catppuccin-latte-blue#.kvconfig".source =
-        ./catppuccin-latte-blue.kvconfig;
       programs.plasma =
       {
         workspace =
         {
           theme = "breeze-light";
-          colorScheme = "CatppuccinLatteBlue";
+          colorScheme = "BreezeLight";
           cursor.theme = "breeze_cursors";
-          lookAndFeel = "Catppuccin-Latte-Blue";
+          lookAndFeel = "org.kde.klassylighttraditional.desktop";
           # ~/.config/kdeglobals [Icons]
-          iconTheme = "Tela-circle";
+          iconTheme = "klassy";
         };
         configFile =
         {
-          kdeglobals.KDE.widgetStyle.value = "kvantum";
-          "Kvantum/kvantum.kvconfig".General.theme.value = "catppuccin-latte-blue#";
           kwinrc =
           {
             Effect-blur.BlurStrength.value = 10;
             Effect-kwin4_effect_translucency.MoveResize.value = 75;
             Effect-wobblywindows =
-              { AdvancedMode.value = true; Drag.value = 85; Stiffness.value = 10; WobblynessLevel.value = 1; };
+            {
+              AdvancedMode.value = true;
+              Drag.value = 85;
+              Stiffness.value = 10;
+              WobblynessLevel.value = 1;
+              ResizeWobble.value = false;
+            };
             Plugins =
             {
               blurEnabled.value = true;
