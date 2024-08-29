@@ -128,11 +128,6 @@ inputs:
                   let version = inputs.lib.versions.majorMinor inputs.config.boot.kernelPackages.kernel.version;
                   in ./hibernate-progress-${version}.patch;
               }];
-              amdgpu =
-              [{
-                name = "amdgpu";
-                patch = ./0001-drm-amdgpu-sdma5.2-limit-wptr-workaround-to-sdma-5.2.patch;
-              }];
             };
           in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
       };
