@@ -13,22 +13,26 @@ inputs:
       inherit (builtins) map listToAttrs toString;
     in mkIf rsshub.enable
     {
-      systemd.services.rsshub =
+      systemd =
       {
-        description = "rsshub";
-        after = [ "network.target" "redis-rsshub.service" ];
-        requires = [ "redis-rsshub.service" ];
-        wantedBy = [ "multi-user.target" ];
-        serviceConfig =
+        services.rsshub =
         {
-          User = inputs.config.users.users.rsshub.name;
-          Group = inputs.config.users.users.rsshub.group;
-          EnvironmentFile = inputs.config.sops.templates."rsshub/env".path;
-          WorkingDirectory = "${inputs.pkgs.localPackages.rsshub}";
-          ExecStart = "${inputs.pkgs.localPackages.rsshub}/bin/rsshub";
-          CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
-          AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
+          description = "rsshub";
+          after = [ "network.target" "redis-rsshub.service" ];
+          requires = [ "redis-rsshub.service" ];
+          wantedBy = [ "multi-user.target" ];
+          serviceConfig =
+          {
+            User = inputs.config.users.users.rsshub.name;
+            Group = inputs.config.users.users.rsshub.group;
+            EnvironmentFile = inputs.config.sops.templates."rsshub/env".path;
+            WorkingDirectory = "${inputs.pkgs.localPackages.rsshub}";
+            ExecStart = "${inputs.pkgs.localPackages.rsshub}/bin/rsshub";
+            CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
+            AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
+          };
         };
+        tmpfiles.rules = [ "d /var/cache/rsshub 0700 rsshub rsshub" ];
       };
       sops =
       {
@@ -46,6 +50,8 @@ inputs:
             YOUTUBE_CLIENT_ID='${placeholder."rsshub/youtube-client-id"}'
             YOUTUBE_CLIENT_SECRET='${placeholder."rsshub/youtube-client-secret"}'
             YOUTUBE_REFRESH_TOKEN='${placeholder."rsshub/youtube-refresh-token"}'
+            XDG_CONFIG_HOME='/var/cache/rsshub/chromium'
+            XDG_CACHE_HOME='/var/cache/rsshub/chromium'
           '';
         secrets = (listToAttrs (map (secret: { name = "rsshub/${secret}"; value = {}; })
         [
