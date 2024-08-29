@@ -61,7 +61,7 @@ inputs:
           nix-template nil pnpm-lock-export bundix
           # instant messager
           element-desktop telegram-desktop discord fluffychat zoom-us signal-desktop slack nur-linyinfeng.wemeet
-          cinny-desktop nheko # qq nur-xddxdd.wechat-uos
+          nheko # qq nur-xddxdd.wechat-uos TODO: cinny-desktop
           # browser
           google-chrome tor-browser microsoft-edge
           # office

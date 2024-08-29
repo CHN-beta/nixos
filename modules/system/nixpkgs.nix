@@ -23,7 +23,7 @@ inputs:
       nixpkgs =
         let
           permittedInsecurePackages =
-            [ "openssl_1_1" "python2" "zotero"  "electron_27" "electron_28" ];
+            [ "openssl_1_1" "python2" "zotero"  "electron_27" "electron_28" "olm" "fluffychat" ];
           hostPlatform = if nixpkgs.march != null
             then { system = "${nixpkgs.arch}-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
             else "${nixpkgs.arch}-linux";
