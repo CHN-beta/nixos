@@ -44,7 +44,7 @@ inputs:
         ++ (inputs.lib.optional (inputs.config.nixos.system.nixpkgs.arch == "x86_64") rar);
       _pythonPackages = [(pythonPackages: with pythonPackages;
       [
-        openai python-telegram-bot fastapi pypdf2 pandas matplotlib plotly gunicorn redis jinja2
+        openai python-telegram-bot fastapi-cli pypdf2 pandas matplotlib plotly gunicorn redis jinja2
         certifi charset-normalizer idna orjson psycopg2 inquirerpy requests tqdm pydbus
       ])];
     };
