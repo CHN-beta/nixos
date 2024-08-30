@@ -110,13 +110,11 @@ namespace hpcstat::disk
       {
         if (!std::filesystem::exists(*homedir + "/" + dir))
           { std::cerr << "{} does not exist\n"_f(*homedir + "/" + dir); continue; }
-        if (auto size = get_size(dir)) usage.Teacher.push_back({ dir, *size });
-        else return {};
-        if (recursive) for (const auto& subdir : get_subdir(dir))
+        if (auto size = get_size(dir))
         {
-          if (auto size = get_size(dir + "/" + subdir); size)
+          usage.Teacher.push_back({ dir, *size });
+          if (recursive) for (const auto& subdir : get_subdir(dir)) if (auto size = get_size(dir + "/" + subdir); size)
             usage.Student.push_back({ dir + "/" + subdir, *size });
-          else return {};
         }
       }
       std::sort(usage.Teacher.begin(), usage.Teacher.end(),
