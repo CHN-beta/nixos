@@ -17,7 +17,11 @@ inputs:
           nushell =
           {
             enable = true;
-            extraConfig = "source ${inputs.topInputs.nu-scripts}/aliases/git/git-aliases.nu";
+            extraConfig =
+            ''
+              source ${inputs.topInputs.nu-scripts}/aliases/git/git-aliases.nu
+              $env.PATH = ($env.PATH | split row (char esep) | append "~/bin")
+            '';
           };
           carapace.enable = true;
           oh-my-posh =
