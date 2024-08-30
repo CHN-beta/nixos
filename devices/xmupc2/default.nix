@@ -66,7 +66,7 @@ inputs:
           enable = true;
           cpu = { sockets = 2; cores = 22; threads = 2; mpiThreads = 4; openmpThreads = 10; };
           memoryMB = 253952;
-          gpus = { "4090" = 1; "p5000" = 1; };
+          gpus."4090" = 1;
         };
         xrdp = { enable = true; hostname = [ "xmupc2.chn.moe" ]; };
         samba = { enable = true; hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
