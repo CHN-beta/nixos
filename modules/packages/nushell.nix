@@ -34,7 +34,7 @@ inputs:
                 }
                 {
                   path = [ "blocks" 0 "segments" (v: v.type or "" == "executiontime") "template" ];
-                  value = v: builtins.replaceStrings [ "\u2800" ] [ "\u0020" ] v;
+                  value = v: builtins.replaceStrings [ "⠀" ] [ " " ] v;
                 }
               ]
               (builtins.fromJSON (builtins.readFile
