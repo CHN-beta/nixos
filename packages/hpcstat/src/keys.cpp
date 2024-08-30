@@ -10,6 +10,8 @@ namespace hpcstat
     { "fdq5k13N2DAzIK/2a1Mm4/ZVsDUgT623TSOXsVswxT8", { "yjq", "Junqi Yao" } },
     { "8USxEYi8ePPpLhk5FYBo2udT7/NFmEe8c2+oQajGXzA", { "zem", "Enming Zhang" } },
     { "C52EURGhRHtf+odfmE2qofh7NO24MnGB3Q8GhRQhHiM", { "xly", "Linyang Xie" } },
+    { "JODRKZ9E0+pjruWN9TPksC6Xsns/GZijKLbYfZqpSeY", { "wp", "Peng Wang" } },
+    { "uL/ZfBXKko30VpeuKb5dnnxbhJ8IAuHo8W+n2uwQhCI", { "hjp", "JiaPeng Huang" } },
     { "7bmG24muNsaAZkCy7mQ9Nf2HuNafmvUO+Hf1bId9zts", { "00", "Yaping Wu" } },
     { "dtx0QxdgFrXn2SYxtIRz43jIAH6rLgJidSdTvuTuews", { "01", "Jing Li" } },
     { "8crUO9u4JiVqw3COyjXfzZe87s6XZFhvi0LaY0Mv6bg", { "02", "Huahan Zhan" } },

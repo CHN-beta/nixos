@@ -4,7 +4,11 @@ inputs:
   {
     type = types.nullOr (types.submodule { options =
     {
-      users = mkOption { type = types.listOf types.nonEmptyStr; default = [ "chn" "gb" "xll" "yjq" "zem" ]; };
+      users = mkOption
+      {
+        type = types.listOf types.nonEmptyStr;
+        default = [ "chn" "gb" "xll" "yjq" "zem" "gb" "wp" "hjp" ];
+      };
     };});
     default = null;
   };
