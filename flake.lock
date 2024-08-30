@@ -1065,6 +1065,22 @@
         "type": "github"
       }
     },
+    "nu-scripts": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1725014865,
+        "narHash": "sha256-EmlwDTEby2PAOQBUAhjiBJ8ymVW3H23V78dFaF8DQKw=",
+        "owner": "nushell",
+        "repo": "nu_scripts",
+        "rev": "614b0733104a7753ed7d775224fe5918877b71de",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nushell",
+        "repo": "nu_scripts",
+        "type": "github"
+      }
+    },
     "nur-linyinfeng": {
       "inputs": {
         "devshell": "devshell",
@@ -1293,6 +1309,7 @@
         "nixpkgs-23.05": "nixpkgs-23.05",
         "nixpkgs-23.11": "nixpkgs-23.11",
         "nodesoup": "nodesoup",
+        "nu-scripts": "nu-scripts",
         "nur-linyinfeng": "nur-linyinfeng",
         "nur-xddxdd": "nur-xddxdd",
         "openxlsx": "openxlsx",

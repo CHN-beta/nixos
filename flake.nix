@@ -67,6 +67,7 @@
     git-lfs-transfer = { url = "github:charmbracelet/git-lfs-transfer"; flake = false; };
     nc4nix = { url = "github:helsinki-systems/nc4nix"; flake = false; };
     hextra = { url = "github:imfing/hextra"; flake = false; };
+    nu-scripts = { url = "github:nushell/nu_scripts"; flake = false; };
 
     # does not support lfs yet
     # nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };

@@ -17,10 +17,8 @@ inputs:
           nushell =
           {
             enable = true;
-            # configFile.source = ./.../config.nu;
-            # extraConfig = "";
-            # shellAliases.vi = "hx";
-          };  
+            extraConfig = "source ${inputs.topInputs.nu-scripts}/aliases/git/git-aliases.nu";
+          };
           carapace.enable = true;
           oh-my-posh =
           {
