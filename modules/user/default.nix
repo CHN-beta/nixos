@@ -18,6 +18,8 @@ inputs:
         zem = 1004;
         gb = 1005;
         test = 1006;
+        wp = 1007;
+        hjp = 1008;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
