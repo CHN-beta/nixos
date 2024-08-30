@@ -104,6 +104,8 @@ inputs:
         networkmanager.unmanaged = with networking.networkd; dhcp ++ (builtins.attrNames static);
         useNetworkd = true;
       };
+      # dnsable dns fallback, use provided dns servers or no dns
+      services.resolved.fallbackDns = [];
     })
     # wpa_supplicant
     (inputs.lib.mkIf (networking.wireless != [])
