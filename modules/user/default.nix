@@ -20,6 +20,7 @@ inputs:
         test = 1006;
         wp = 1007;
         hjp = 1008;
+        zzn = 1009;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
