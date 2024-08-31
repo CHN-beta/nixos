@@ -34,7 +34,7 @@ sbatch
 提交一个 VASP GPU 任务的例子：
 
 ```bash
-sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia
+sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" --output=output.txt vasp-nvidia
 ```
 
 * `--gpus` 指定使用GPU 的情况：
@@ -50,7 +50,7 @@ sbatch --gpus=1 --ntasks-per-gpu=1 --job-name="my great job" vasp-nvidia
 提交一个 VASP CPU 任务的例子：
 
 ```bash
-sbatch --ntasks=4 --cpus-per-task=4 --hint=nomultithread --job-name="my great job" vasp-intel
+sbatch --ntasks=4 --cpus-per-task=4 --hint=nomultithread --job-name="my great job" --output=output.txt vasp-intel
 ```
 
 * `--ntasks=4 --cpus-per-task=4` 指定使用占用多少核。
@@ -85,6 +85,7 @@ scancel -u chn
 
 ```bash
 scontrol top 114514
+sudo scontrol update JobId=3337 Nice=-2147483645
 ```
 
 要显示一个任务的详细信息（不包括服务器重启之前算过的任务）：
@@ -130,6 +131,8 @@ sacct --units M --format=ALL -j 114514 | bat -S
 -s, --oversubscribe
 # 包裹一个二进制程序
 --wrap=
+# 设置为最低优先级
+--nice=10000
 ```
 
 # 支持的连接协议
