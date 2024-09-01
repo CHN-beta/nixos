@@ -109,8 +109,7 @@ inputs:
       users.users.root =
       {
         shell = inputs.pkgs.zsh;
-        openssh.authorizedKeys.keys =
-          [ (builtins.readFile ./chn/id_ed25519_sk.pub) (builtins.readFile ./chn/id_ed25519.pub) ];
+        openssh.authorizedKeys.keys = [(builtins.readFile ./chn/id_ed25519_sk.pub)];
         hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
       };
       home-manager.users.root =
