@@ -12,7 +12,8 @@ inputs:
     {
       enable = true;
       languagePacks = [ "zh-CN" "en-US" ];
-      nativeMessagingHosts.packages = with inputs.pkgs; [ uget-integrator ];
+      nativeMessagingHosts.packages = with inputs.pkgs; [ uget-integrator firefoxpwa ];
     };
+    nixos.packages.packages._packages = [ inputs.pkgs.firefoxpwa ];
   };
 }
