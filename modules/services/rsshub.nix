@@ -31,6 +31,7 @@ inputs:
             CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
             AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
           };
+          restartTriggers = [ inputs.config.sops.templates."rsshub/env".content ];
         };
         tmpfiles.rules = [ "d /var/cache/rsshub 0700 rsshub rsshub" ];
       };
