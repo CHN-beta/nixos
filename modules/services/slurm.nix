@@ -83,6 +83,9 @@ inputs:
             SchedulerParameters=enable_user_top
 
             SlurmdDebug=debug2
+
+            # automatically resume node after drain
+            ReturnToService=2
           '';
         extraConfigPaths =
           let gpuString = builtins.concatStringsSep "\n" (builtins.map
