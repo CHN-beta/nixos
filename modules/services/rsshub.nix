@@ -50,6 +50,7 @@ inputs:
             YOUTUBE_CLIENT_ID='${placeholder."rsshub/youtube-client-id"}'
             YOUTUBE_CLIENT_SECRET='${placeholder."rsshub/youtube-client-secret"}'
             YOUTUBE_REFRESH_TOKEN='${placeholder."rsshub/youtube-refresh-token"}'
+            TWITTER_AUTH_TOKEN='${placeholder."rsshub/twitter-auth-token"}'
             XDG_CONFIG_HOME='/var/cache/rsshub/chromium'
             XDG_CACHE_HOME='/var/cache/rsshub/chromium'
           '';
@@ -57,6 +58,7 @@ inputs:
         [
           "pixiv-refreshtoken"
           "youtube-key" "youtube-client-id" "youtube-client-secret" "youtube-refresh-token"
+          "twitter-auth-token"
         ]));
       };
       users =
