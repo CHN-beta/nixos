@@ -54,12 +54,14 @@ inputs:
             TWITTER_AUTH_TOKEN='${placeholder."rsshub/twitter-auth-token"}'
             XDG_CONFIG_HOME='/var/cache/rsshub/chromium'
             XDG_CACHE_HOME='/var/cache/rsshub/chromium'
+            BILIBILI_COOKIE_data0='${placeholder."rsshub/bilibili-cookie"}'
           '';
         secrets = (listToAttrs (map (secret: { name = "rsshub/${secret}"; value = {}; })
         [
           "pixiv-refreshtoken"
           "youtube-key" "youtube-client-id" "youtube-client-secret" "youtube-refresh-token"
           "twitter-auth-token"
+          "bilibili-cookie"
         ]));
       };
       users =
