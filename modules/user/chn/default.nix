@@ -10,7 +10,6 @@ inputs:
         (builtins.attrNames inputs.config.users.groups);
       autoSubUidGidRange = true;
       hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
-      shell = inputs.lib.mkForce inputs.pkgs.nushell;
     };
     home-manager.users.chn =
     {
