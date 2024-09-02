@@ -30,12 +30,12 @@ inputs:
         vps7 =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIF5XkdilejDAlg5hZZD0oq69k8fQpe9hIJylTo/aLRgY";
-          hostnames = [ "vps7.chn.moe" "wireguard.vps7.chn.moe" "ssh.git.chn.moe" "95.111.228.40" "192.168.83.2" ];
+          hostnames = [ "vps7.chn.moe" "wireguard.vps7.chn.moe" "ssh.git.chn.moe" "144.126.144.62" "192.168.83.2" ];
         };
         "initrd.vps7" =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIGZyQpdQmEZw3nLERFmk2tS1gpSvXwW0Eish9UfhrRxC";
-          hostnames = [ "initrd.vps7.chn.moe" "95.111.228.40" ];
+          hostnames = [ "initrd.vps7.chn.moe" "144.126.144.62" ];
         };
         nas =
         {
