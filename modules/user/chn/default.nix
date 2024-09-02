@@ -8,8 +8,8 @@ inputs:
       extraGroups = inputs.lib.intersectLists
         [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "ipfs" ]
         (builtins.attrNames inputs.config.users.groups);
-      subUidRanges = [{ start = 100000; count = 65536; } ];
-      subGidRanges = [{ start = 100000; count = 65536; } ];
+      subUidRanges = [{ startUid = 100000; count = 65536; } ];
+      subGidRanges = [{ startGid = 100000; count = 65536; } ];
       hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
     };
     home-manager.users.chn =
