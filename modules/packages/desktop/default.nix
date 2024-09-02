@@ -95,13 +95,21 @@ inputs:
       [{
         config.programs =
         {
-          plasma = 
+          plasma =
           {
             enable = true;
             configFile =
             {
               plasma-localerc = { Formats.LANG.value = "en_US.UTF-8"; Translations.LANGUAGE.value = "zh_CN"; };
               baloofilerc."Basic Settings".Indexing-Enabled.value = false;
+              plasmarc.Wallpapers.usersWallpapers.value =
+                let
+                  inherit (inputs.topInputs.self.src) nixos-wallpaper;
+                  isPicture = f: builtins.elem (inputs.lib.last (inputs.lib.splitString "." f))
+                    [ "png" "jpg" "jpeg" "webp" ];
+                in builtins.concatStringsSep "," (builtins.map (f: "${nixos-wallpaper}/${f.name}")
+                  (builtins.filter (f: (isPicture f.name) && (f.value == "regular"))
+                    (inputs.localLib.attrsToList (builtins.readDir nixos-wallpaper))));
             };
             powerdevil =
               let config =
