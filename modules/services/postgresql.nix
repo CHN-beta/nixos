@@ -28,7 +28,7 @@ inputs:
         settings =
         {
           unix_socket_permissions = "0700";
-          shared_buffers = "8192MB";
+          shared_buffers = "512MB";
           work_mem = "512MB";
           autovacuum = "on";
         };
