@@ -40,27 +40,25 @@ enableInlineShortcodes: true
 
 menu:
   main:
-    - identifier: documentation
-      name: Documentation
-      pageRef: /docs
-      weight: 1
-    - identifier: blog
-      name: Blog
-      pageRef: /blog
-      weight: 2
-    - identifier: about
-      name: About
-      pageRef: /about
-      weight: 3
     - name: Search
       weight: 4
       params:
         type: search
     - name: GitHub
       weight: 5
-      url: "https://github.com/imfing/hextra"
+      url: "https://github.com/CHN-beta"
       params:
         icon: github
+    - name: Misskey
+      weight: 6
+      url: "https://xn--s8w913fdga.chn.moe/@chn"
+      params:
+        icon: misskey
+    - name: Matrix
+      weight: 7
+      url: "https://matrix.to/#/#chn:chn.moe"
+      params:
+        icon: matrix
   sidebar:
     - identifier: more
       name: More
