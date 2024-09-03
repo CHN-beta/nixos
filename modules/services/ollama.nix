@@ -11,7 +11,6 @@ inputs:
         { enable = true; package = inputs.pkgs.genericPackages.open-webui; environment.WEBUI_AUTH = "False"; };
       nextjs-ollama-llm-ui.enable = true;
     };
-    # TODO: broken in python 3.12
-    # nixos.packages._packages = [ inputs.pkgs.oterm ];
+    nixos.packages.packages._packages = [ inputs.pkgs.oterm ];
   };
 }

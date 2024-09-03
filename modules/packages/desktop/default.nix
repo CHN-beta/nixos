@@ -74,8 +74,7 @@ inputs:
           (mathematica.overrideAttrs (prev: { postInstall = prev.postInstall or "" + "ln -s ${src} $out/src"; }))
           (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; }) jmol mpi
           # virtualization
-          # TODO: broken on python 3.12: playonlinux
-          wineWowPackages.stagingFull virt-viewer bottles genymotion
+          wineWowPackages.stagingFull virt-viewer bottles genymotion playonlinux
           # media
           nur-xddxdd.svp
           # for kdenlive auto subtitle
@@ -83,12 +82,10 @@ inputs:
         ]
           ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" "kalzium" ])))
             (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
-          # TODO: fix it
-          # ++ inputs.lib.optional (inputs.config.nixos.system.nixpkgs.march != null) localPackages.mumax;
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
           phonopy scipy scikit-learn jupyterlab autograd # localPackages.pix2tex
-          # TODO: broken on python 3.12: tensorflow keras
+          # TODO: broken on python 3.12 tensorflow keras
         ])];
       };
       user.sharedModules =
