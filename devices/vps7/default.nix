@@ -70,6 +70,7 @@ inputs:
         xray.server = { serverName = "xserver.vps7.chn.moe"; userNumber = 4; };
         writefreely = {};
       };
+      virtualization.docker.enable = true;
     };
     specialisation.generic.configuration =
     {
