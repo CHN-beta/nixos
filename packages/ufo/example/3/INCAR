@@ -1,0 +1,33 @@
+# write many output files
+LWAVE = F
+LCHARG = F
+LELF = F
+LEPSILON = F
+LCALCEPS = F
+
+# use high precision
+PREC = Accurate
+EDIFF = 1E-7
+EDIFFG = -1E-3
+
+# enough ionic steps
+NSW = 100
+
+# calculate forces and stress tensor, and allow all degrees of freedom (atom positions, cell shape, and cell volume)
+ISIF = 3
+
+# use conjugate gradient algorithm to do ionic relaxation
+IBRION = 2
+
+# use Gaussian smearing to set partial occupancies for each orbital, commonly suggested
+ISMEAR = 0
+
+# use Vosko-Wilk-Nusair interpolation to enchange the estimation of magnetic moments and energies
+VOSKOWN = 1
+
+# set symmetry
+ISYM = 2
+
+# projection done in reciprocal space for small unit cells,
+# in real space for large unit cells
+LREAL = F
