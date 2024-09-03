@@ -41,38 +41,28 @@ enableInlineShortcodes: true
 menu:
   main:
     - name: Search
-      weight: 4
+      weight: 1
       params:
         type: search
-    - name: GitHub
-      weight: 5
-      url: "https://github.com/CHN-beta"
-      params:
-        icon: github
-    - name: Misskey
-      weight: 6
-      url: "https://xn--s8w913fdga.chn.moe/@chn"
-      params:
-        icon: misskey
-    - name: Matrix
-      weight: 7
-      url: "https://matrix.to/#/#chn:chn.moe"
-      params:
-        icon: matrix
+
   sidebar:
     - identifier: more
       name: More
       params:
         type: separator
       weight: 1
-    - identifier: about
-      name: "About"
-      pageRef: "/about"
+    - identifier: welcome
+      name: 欢迎页
+      pageRef: /
       weight: 2
-    - identifier: hugoDocs
-      name: "Hugo Docs ↗"
-      url: "https://gohugo.io/documentation/"
+    - identifier: about
+      name: 关于本站
+      pageRef: /about
       weight: 3
+    - identifier: contact
+      name: 联系我
+      pageRef: /contact
+      weight: 4
 
 params:
   description: Modern, responsive, batteries-included Hugo theme for creating beautiful static websites.
