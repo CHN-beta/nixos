@@ -64,5 +64,8 @@ inputs:
       fwupd.enable = true;
     };
     home-manager = { useGlobalPkgs = true; useUserPackages = true; };
+    # allow everyone run compsize
+    security.wrappers.compsize =
+      { setuid = true; owner = "root"; group = "root"; source = "${inputs.pkgs.compsize}/bin/compsize"; };
   };
 }
