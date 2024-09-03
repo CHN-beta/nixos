@@ -8,7 +8,7 @@ inputs:
   # TODO: add more options to correctly configure VASP
   config = let inherit (inputs.config.nixos.packages) vasp; in inputs.lib.mkIf (vasp != null)
   {
-    nixos.packages.packages._packages = inputs.lib.optionals (inputs.config.nixos.system.nixpkgs.march != null)
-      (with inputs.pkgs.localPackages.vasp; [ intel nvidia vtstscripts ]);
+    nixos.packages.packages._packages = (with inputs.pkgs.localPackages.vasp; [ intel nvidia vtstscripts ])
+      ++ (with inputs.pkgs.localPackages; [ py4vasp vaspkit ]);
   };
 }

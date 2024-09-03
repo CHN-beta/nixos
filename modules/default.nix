@@ -25,6 +25,7 @@ inputs:
             topInputs.qchem.overlays.default
             topInputs.aagl.overlays.default
             topInputs.bscpkgs.overlays.default
+            topInputs.poetry2nix.overlays.default
             (final: prev:
             {
               nix-vscode-extensions = topInputs.nix-vscode-extensions.extensions."${prev.system}";

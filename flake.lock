@@ -486,6 +486,24 @@
         "type": "github"
       }
     },
+    "flake-utils_4": {
+      "inputs": {
+        "systems": "systems_5"
+      },
+      "locked": {
+        "lastModified": 1710146030,
+        "narHash": "sha256-SZ5L6eA7HJ/nmkzGG7/ISclqe6oZdOZTNoesiInkXPQ=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "b1d9ab70662946ef0850d488da1c9019f3a9752a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "git-lfs-transfer": {
       "flake": false,
       "locked": {
@@ -815,6 +833,27 @@
       "original": {
         "owner": "zhaofengli",
         "ref": "matrix-name",
+        "repo": "nix-github-actions",
+        "type": "github"
+      }
+    },
+    "nix-github-actions_2": {
+      "inputs": {
+        "nixpkgs": [
+          "poetry2nix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1703863825,
+        "narHash": "sha256-rXwqjtwiGKJheXB43ybM8NwWB8rO2dSRrEqes0S7F5Y=",
+        "owner": "nix-community",
+        "repo": "nix-github-actions",
+        "rev": "5163432afc817cf8bd1f031418d1869e4c9d5547",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
         "repo": "nix-github-actions",
         "type": "github"
       }
@@ -1226,6 +1265,30 @@
         "type": "github"
       }
     },
+    "poetry2nix": {
+      "inputs": {
+        "flake-utils": "flake-utils_4",
+        "nix-github-actions": "nix-github-actions_2",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "systems": "systems_6",
+        "treefmt-nix": "treefmt-nix_5"
+      },
+      "locked": {
+        "lastModified": 1725358301,
+        "narHash": "sha256-clY4INR7RjOVKya3FGNYvOhyFyUhd3dGQsnV2Za3rz0=",
+        "owner": "CHN-beta",
+        "repo": "poetry2nix",
+        "rev": "1f803d2b2faa5b785dfd2fafe99b2411731bf08c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "poetry2nix",
+        "type": "github"
+      }
+    },
     "pre-commit-hooks-nix": {
       "inputs": {
         "flake-compat": "flake-compat_5",
@@ -1247,6 +1310,22 @@
       "original": {
         "owner": "cachix",
         "repo": "pre-commit-hooks.nix",
+        "type": "github"
+      }
+    },
+    "py4vasp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1718736886,
+        "narHash": "sha256-uAKhxPwiI3glSKMfynDIUrXQ7s2sfKw/PGVNoP40y00=",
+        "owner": "vasp-dev",
+        "repo": "py4vasp",
+        "rev": "661b9efed3824b36e67c559f4120b5ecfd231bce",
+        "type": "github"
+      },
+      "original": {
+        "owner": "vasp-dev",
+        "repo": "py4vasp",
         "type": "github"
       }
     },
@@ -1314,6 +1393,8 @@
         "nur-xddxdd": "nur-xddxdd",
         "openxlsx": "openxlsx",
         "plasma-manager": "plasma-manager",
+        "poetry2nix": "poetry2nix",
+        "py4vasp": "py4vasp",
         "qchem": "qchem",
         "rsshub": "rsshub",
         "rycee": "rycee",
@@ -1507,6 +1588,35 @@
         "type": "github"
       }
     },
+    "systems_5": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_6": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "id": "systems",
+        "type": "indirect"
+      }
+    },
     "tgbot-cpp": {
       "flake": false,
       "locked": {
@@ -1599,6 +1709,27 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "rev": "1d07739554fdc4f8481068f1b11d6ab4c1a4167a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "treefmt-nix_5": {
+      "inputs": {
+        "nixpkgs": [
+          "poetry2nix",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1719749022,
+        "narHash": "sha256-ddPKHcqaKCIFSFc/cvxS14goUhCOAwsM1PbMr0ZtHMg=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "8df5ff62195d4e67e2264df0b7f5e8c9995fd0bd",
         "type": "github"
       },
       "original": {

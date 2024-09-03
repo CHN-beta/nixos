@@ -38,6 +38,7 @@
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
     catppuccin.url = "github:catppuccin/nix";
     bscpkgs = { url = "git+https://pm.bsc.es/gitlab/rarias/bscpkgs.git"; inputs.nixpkgs.follows = "nixpkgs"; };
+    poetry2nix = { url = "github:CHN-beta/poetry2nix"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
@@ -68,6 +69,7 @@
     nc4nix = { url = "github:helsinki-systems/nc4nix"; flake = false; };
     hextra = { url = "github:imfing/hextra"; flake = false; };
     nu-scripts = { url = "github:nushell/nu_scripts"; flake = false; };
+    py4vasp = { url = "github:vasp-dev/py4vasp"; flake = false; };
 
     # does not support lfs yet
     # nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };
