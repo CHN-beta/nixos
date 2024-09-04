@@ -2,7 +2,7 @@
 
 namespace biu
 {
-  std::generator<std::pair<std::string_view, std::sregex_iterator>> string::find
+  concurrencpp::generator<std::pair<std::string_view, std::sregex_iterator>> string::find
     (SmartRef<const std::string> data, SmartRef<const std::regex> regex)
   {
     Logger::Guard log;

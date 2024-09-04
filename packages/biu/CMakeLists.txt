@@ -24,14 +24,16 @@ find_package(TgBot REQUIRED)
 find_path(LIBBACKTRACE_INCLUDE_DIR backtrace.h REQUIRED)
 find_library(LIBBACKTRACE_LIBRARY NAMES backtrace REQUIRED)
 find_package(HDF5 REQUIRED)
+find_package(concurrencpp REQUIRED)
 
 add_library(biu src/common.cpp src/hdf5.cpp src/logger.cpp src/string.cpp)
 target_include_directories(biu PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> ${NAMEOF_INCLUDE_DIR} ${ZPP_BITS_INCLUDE_DIR}
   ${LIBBACKTRACE_INCLUDE_DIR})
 target_link_libraries(biu PUBLIC magic_enum::magic_enum fmt::fmt Boost::headers Boost::iostreams Boost::filesystem
-  range-v3::range-v3 Eigen3::Eigen HighFive TgBot::TgBot ${LIBBACKTRACE_LIBRARY} hdf5::hdf5)
-set_property(TARGET biu PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON)
+  range-v3::range-v3 Eigen3::Eigen HighFive TgBot::TgBot ${LIBBACKTRACE_LIBRARY} hdf5::hdf5 concurrencpp::concurrencpp)
+target_compile_features(biu PUBLIC cxx_std_23)
+target_compile_options(biu PUBLIC -Wno-gnu-string-literal-operator-template)
 install(TARGETS biu EXPORT biuTargets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

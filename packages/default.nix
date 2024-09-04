@@ -60,22 +60,22 @@ inputs: rec
     { src = inputs.topInputs.kylin-virtual-keyboard; };
   biu = inputs.pkgs.callPackage ./biu
   {
-    inherit nameof zpp-bits tgbot-cpp;
-    stdenv = inputs.pkgs.gcc14Stdenv;
+    inherit nameof zpp-bits tgbot-cpp concurrencpp;
+    stdenv = inputs.pkgs.clang18Stdenv;
     fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
   };
   zxorm = inputs.pkgs.callPackage ./zxorm.nix { src = inputs.topInputs.zxorm; };
   hpcstat = inputs.pkgs.callPackage ./hpcstat
-    { inherit sqlite-orm date biu openxlsx; stdenv = inputs.pkgs.gcc14Stdenv; };
+    { inherit sqlite-orm date biu openxlsx; stdenv = inputs.pkgs.clang18Stdenv; };
   openxlsx = inputs.pkgs.callPackage ./openxlsx.nix { src = inputs.topInputs.openxlsx; };
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm.nix { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
-  sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; stdenv = inputs.pkgs.gcc14Stdenv; };
+  sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   ufo = inputs.pkgs.callPackage ./ufo
   {
     inherit concurrencpp biu matplotplusplus zpp-bits;
     tbb = inputs.pkgs.tbb_2021_11;
-    stdenv = inputs.pkgs.gcc14Stdenv;
+    stdenv = inputs.pkgs.clang18Stdenv;
   };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
   winjob = inputs.pkgs.callPackage ./winjob { stdenv = inputs.pkgs.gcc14Stdenv; };

@@ -137,13 +137,15 @@ namespace biu::eigen
           else return std::make_pair
           (
             Vector::CompileTimeTraits::RowsAtCompileTime * Vector::CompileTimeTraits::ColsAtCompileTime,
-            [](const Vector&) consteval { return true; }
+            // consteval need c++23 P2280
+            [](const Vector&) { return true; }
           );
         // 如果固定的那个维度等于 1，那么为动态大小（大小取决于另外一个没有固定的维度）
         // 否则，大小等于这个维度，另一个维度是否为 1 留作之后检查
         else if constexpr (Vector::CompileTimeTraits::RowsAtCompileTime != Eigen::Dynamic)
           if constexpr (Vector::CompileTimeTraits::RowsAtCompileTime == 1)
-            return std::make_pair(dynamicSize, [](const Vector&) consteval { return true; });
+            // consteval need c++23 P2280
+            return std::make_pair(dynamicSize, [](const Vector&) { return true; });
           else
             return std::make_pair
             (
@@ -152,7 +154,8 @@ namespace biu::eigen
             );
         else if constexpr (Vector::CompileTimeTraits::ColsAtCompileTime != Eigen::Dynamic)
           if constexpr (Vector::CompileTimeTraits::ColsAtCompileTime == 1)
-            return std::make_pair(dynamicSize, [](const Vector&) consteval { return true; });
+            // consteval need c++23 P2280
+            return std::make_pair(dynamicSize, [](const Vector&) { return true; });
           else
             return std::make_pair
             (
@@ -181,7 +184,6 @@ namespace biu::eigen
           );
       }
     };
-
     // decomposition declarations can't be constexpr
     constexpr auto size = get_size.template operator()<ToSize>();
 # ifndef NDEBUG
@@ -269,9 +271,10 @@ template <typename Matrix> constexpr auto Eigen::serialize(auto & archive, Matri
   // second call
   else
   {
+    using archive_type = std::remove_cvref_t<decltype(archive)>;
     typename Matrix::Index nRow, nCol;
     std::vector<typename Matrix::Scalar> data;
-    if constexpr (archive.kind() == zpp::bits::kind::out)
+    if constexpr (archive_type::kind() == zpp::bits::kind::out)
       { nRow = matrix.rows(); nCol = matrix.cols(); data = std::vector(matrix.data(), matrix.data() + matrix.size()); }
     zpp::bits::errc result;
     if constexpr (Matrix::CompileTimeTraits::RowsAtCompileTime == Eigen::Dynamic)
@@ -282,7 +285,7 @@ template <typename Matrix> constexpr auto Eigen::serialize(auto & archive, Matri
     else nCol = Matrix::CompileTimeTraits::ColsAtCompileTime;
     result = archive(data);
     if (result.code != std::errc{}) [[unlikely]] return result;
-    if constexpr (archive.kind() == zpp::bits::kind::in)
+    if constexpr (archive_type::kind() == zpp::bits::kind::in)
       matrix = Eigen::Map<const Matrix>(data.data(), nRow, nCol);
     return result;
   }

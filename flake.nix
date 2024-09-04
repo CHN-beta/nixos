@@ -167,28 +167,25 @@
       config = { archive = false; branch = "production"; };
       devShells.x86_64-linux = let inherit (inputs.self.packages.x86_64-linux) pkgs; in
       {
-        biu = pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
+        biu = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
         {
           inputsFrom = [ pkgs.localPackages.biu ];
           packages = [ pkgs.clang-tools_18 ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
-        hpcstat = pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
+        hpcstat = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
         {
           inputsFrom = [ (inputs.self.packages.x86_64-linux.hpcstat.override { version = null; }) ];
-          packages = [ pkgs.clang-tools_18 ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
-        sbatch-tui = pkgs.mkShell
+        sbatch-tui = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
         {
           inputsFrom = [ pkgs.localPackages.sbatch-tui ];
-          packages = [ pkgs.clang-tools_18 ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
-        ufo = pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
+        ufo = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
         {
           inputsFrom = [ (inputs.self.packages.x86_64-linux.ufo.override { version = null; }) ];
-          packages = [ pkgs.ccls ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
         chn-bsub = pkgs.mkShell

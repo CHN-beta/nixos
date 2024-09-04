@@ -4,7 +4,7 @@
 # include <string>
 # include <string_view>
 # include <iostream>
-# include <generator>
+# include <concurrencpp/concurrencpp.h>
 # include <biu/concepts.hpp>
 # include <biu/smartref.hpp>
 
@@ -41,7 +41,7 @@ namespace biu
 
     // Find specific content in a string. Return unmatched content before the match and the match result every
     // time. If match reached the end, the second returned value will be std::sregex_iterator().
-    std::generator<std::pair<std::string_view, std::sregex_iterator>> find
+    concurrencpp::generator<std::pair<std::string_view, std::sregex_iterator>> find
       (SmartRef<const std::string> data, SmartRef<const std::regex> regex);
     std::string replace
       (const std::string& data, const std::regex& regex, std::function<std::string(const std::smatch&)> function);

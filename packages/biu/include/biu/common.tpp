@@ -48,7 +48,7 @@ namespace biu::common
     return deserialize<T>(std::vector<std::byte>{begin, end});
   }
 
-  template <typename Array> std::generator<std::pair<Array, std::size_t>> sequence(Array from, Array to)
+  template <typename Array> concurrencpp::generator<std::pair<Array, std::size_t>> sequence(Array from, Array to)
   {
 # ifndef NDEBUG
     assert(from.size() == to.size());
@@ -64,7 +64,7 @@ namespace biu::common
     };
     do { co_yield {current, total}; } while (make_next(0));
   }
-  template <typename Array> std::generator<std::pair<Array, std::size_t>> sequence(Array to)
+  template <typename Array> concurrencpp::generator<std::pair<Array, std::size_t>> sequence(Array to)
   {
     auto from = to;
     for (std::size_t i = 0; i < from.size(); i++) from[i] = 0;
