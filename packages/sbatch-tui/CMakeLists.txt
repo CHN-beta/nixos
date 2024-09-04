@@ -10,15 +10,12 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 find_package(ftxui REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem iostreams)
-find_package(range-v3 REQUIRED)
 find_package(biu REQUIRED)
 
 add_executable(sbatch-tui src/main.cpp src/device.cpp)
 target_compile_features(sbatch-tui PUBLIC cxx_std_23)
 target_include_directories(sbatch-tui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(sbatch-tui PRIVATE fmt::fmt ftxui::screen ftxui::dom ftxui::component Boost::filesystem
-  range-v3::range-v3 biu::biu)
+target_link_libraries(sbatch-tui PRIVATE ftxui::screen ftxui::dom ftxui::component biu::biu)
 
 install(TARGETS sbatch-tui RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
