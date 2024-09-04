@@ -21,6 +21,7 @@ inputs:
         wp = 1007;
         hjp = 1008;
         zzn = 1009;
+        wm = 1010;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
