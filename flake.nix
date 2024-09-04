@@ -188,7 +188,7 @@
         ufo = pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
         {
           inputsFrom = [ (inputs.self.packages.x86_64-linux.ufo.override { version = null; }) ];
-          packages = [ pkgs.clang-tools_18 ];
+          packages = [ pkgs.ccls ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
         chn-bsub = pkgs.mkShell

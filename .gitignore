@@ -5,3 +5,4 @@ outputs
 build
 .vscode
 .cache
+.ccls-cache

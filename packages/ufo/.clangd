@@ -1,3 +1,0 @@
-CompileFlags:
-  Add: [ -Wall, -Wextra, -std=c++26 ]
-  Compiler: g++
