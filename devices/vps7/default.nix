@@ -30,6 +30,7 @@ inputs:
         nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         initrd.sshd.enable = true;
         networking = { hostname = "vps7"; networkd = {}; };
+        kernel.variant = "xanmod-lts";
       };
       services =
       {
