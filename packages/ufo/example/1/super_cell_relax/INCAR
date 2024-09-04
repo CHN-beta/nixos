@@ -1,5 +1,5 @@
 # write many output files
-LWAVE = F
+LWAVE = T
 LCHARG = F
 LELF = F
 LEPSILON = F
