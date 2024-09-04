@@ -24,13 +24,13 @@ let
   {
     name = "vasp-nvidia";
     inherit src;
-    patches = [ ../vtst.patch ];
+    # patches = [ ../vtst.patch ];
     configurePhase =
     ''
       cp ${include} makefile.include
       chmod +w makefile.include
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
-      cp -r ${vtst}/* src
+      # cp -r ${vtst}/* src
       chmod -R +w src
     '';
     enableParallelBuilding = true;
