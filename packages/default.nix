@@ -9,7 +9,11 @@ inputs: rec
   concurrencpp = inputs.pkgs.callPackage ./concurrencpp.nix { src = inputs.topInputs.concurrencpp; };
   eigengdb = inputs.pkgs.python3Packages.callPackage ./eigengdb.nix {};
   nodesoup = inputs.pkgs.callPackage ./nodesoup.nix { src = inputs.topInputs.nodesoup; };
-  matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix { src = inputs.topInputs.matplotplusplus; };
+  matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix
+  {
+    inherit glad nodesoup;
+    src = inputs.topInputs.matplotplusplus;
+  };
   zpp-bits = inputs.pkgs.callPackage ./zpp-bits.nix { src = inputs.topInputs.zpp-bits; };
   eigen = inputs.pkgs.callPackage ./eigen.nix { src = inputs.topInputs.eigen; };
   nameof = inputs.pkgs.callPackage ./nameof.nix { src = inputs.topInputs.nameof; };
