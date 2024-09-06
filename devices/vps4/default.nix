@@ -31,6 +31,8 @@ inputs:
         initrd.sshd.enable = true;
         networking = { hostname = "vps4"; networkd = {}; };
         kernel.variant = "xanmod-latest";
+        nix-ld = null;
+        binfmt = null;
       };
       services =
       {
