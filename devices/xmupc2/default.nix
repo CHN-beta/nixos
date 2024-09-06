@@ -43,6 +43,7 @@ inputs:
         gui = { enable = true; preferred = false; autoStart = true; };
         networking.hostname = "xmupc2";
         nix.remote.slave.enable = true;
+        grub.windowsEntries."8F50-83B8" = "猿神，启动！";
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "nvidia"; };
       virtualization = { waydroid.enable = true; docker.enable = true; kvmHost = { enable = true; gui = true; }; };
