@@ -11,10 +11,10 @@ namespace ufo
     {
       auto node = YAML::LoadFile(filename);
       PrimativeCell = node["PrimativeCell"].as<std::array<std::array<double, 3>, 3>>() | biu::toEigen<>;
-      SuperCellMultiplier = node["SuperCellMultiplier"].as<std::array<unsigned, 3>>() | biu::toEigen<>;
-
-      if (auto value = node["SuperCellDeformation"])
-        SuperCellDeformation = value.as<std::array<std::array<double, 3>, 3>>() | biu::toEigen<>;
+      SuperCellTransformation =
+        node["SuperCellTransformation"].as<std::array<std::array<int, 3>, 3>>() | biu::toEigen<>;
+      std::tie(SuperCellDeformation, SuperCellMultiplier) =
+        decompose_transformation(SuperCellTransformation);
       PrimativeCellBasisNumber = node["PrimativeCellBasisNumber"].as<std::array<unsigned, 3>>() | biu::toEigen<>;
 
       AtomPositionInputFile = DataFile
@@ -50,8 +50,7 @@ namespace ufo
       auto atom_position_to_super_cell = Eigen::MatrixX3d(points.size(), 3);
       for (unsigned i = 0; i < points.size(); i++)
         atom_position_to_super_cell.row(i) = points[i]["coordinates"].as<std::array<double, 3>>() | biu::toEigen<>;
-      auto super_cell = (SuperCellDeformation.value_or(Eigen::Matrix3d::Identity())
-        * SuperCellMultiplier.cast<double>().asDiagonal() * PrimativeCell).eval();
+      auto super_cell = (SuperCellTransformation.cast<double>() * PrimativeCell).eval();
       AtomPosition = atom_position_to_super_cell * super_cell;
     }
     if (QpointDataInputFile.Format == "yaml")
@@ -279,6 +278,131 @@ namespace ufo
     return *this;
   }
 
+  std::pair<Eigen::Matrix3d, Eigen::Vector3i> UnfoldSolver::decompose_transformation(Eigen::Matrix3i transformation)
+  {
+    struct Multiply { unsigned at; int multiply; };
+    struct Add { unsigned from, to; int multiply; };
+    struct Exchange { unsigned from, to; };
+
+    auto decompose = [](Eigen::Matrix3i matrix)
+      -> concurrencpp::generator<std::variant<Add, Exchange, Multiply>>
+    {
+      // 首先将第一列转变为只有一个元素不为零
+      while (true)
+      {
+        // 统计第一列零的个数，以及非零值中，绝对值最大和最小的行
+        unsigned n_non_zero = 0;
+        std::optional<unsigned> i_max, i_min;
+        for (unsigned i = 0; i < 3; i++)
+          if (matrix(i, 0) != 0)
+          {
+            n_non_zero++;
+            if (!i_max || std::abs(matrix(i, 0)) > std::abs(matrix(*i_max, 0))) i_max = i;
+            else if (!i_min || std::abs(matrix(i, 0)) < std::abs(matrix(*i_min, 0)))
+              i_min = i;
+          }
+        // 如果都是零，报错
+        if (n_non_zero == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
+        // 如果只有一个非零值，那么将它移到第一行
+        if (n_non_zero == 1)
+        {
+          if (*i_max != 0)
+          {
+            auto transform = Eigen::Matrix3i::Identity().eval();
+            transform(0, 0) = 0;
+            transform(0, *i_max) = 1;
+            transform(*i_max, *i_max) = 0;
+            transform(*i_max, 0) = 1;
+            matrix = transform * matrix;
+            co_yield Exchange{0, *i_max};
+          }
+          break;
+        }
+        // 否则，将最小值乘以整数倍，加到最大值上
+        else
+        {
+          auto multiply = -matrix(*i_max, 0) / matrix(*i_min, 0);
+          auto transform = Eigen::Matrix3i::Identity().eval();
+          transform(*i_max, *i_min) = multiply;
+          matrix = transform * matrix;
+          // 分解出来的矩阵需要是操作的逆
+          co_yield Add{*i_min, *i_max, -multiply};
+        }
+      }
+      // 然后将第二列后两行转变为只有一个元素不为零
+      while (true)
+      {
+        // 如果都是零，报错
+        if (matrix(1, 1) == 0 && matrix(2, 1) == 0) [[unlikely]]
+          throw std::runtime_error("Transformation matrix is singular.");
+        // 如果只有一个不是零，将它移到第二行
+        else if (matrix(2, 1) == 0) break;
+        else if (matrix(1, 1) == 0)
+        {
+          Eigen::Matrix3i transform{{1, 0, 0}, {0, 0, 1}, {0, 1, 0}};
+          matrix = transform * matrix;
+          co_yield Exchange{1, 2};
+          break;
+        }
+        // 否则，将最小值乘以整数倍，加到最大值上
+        else
+        {
+          unsigned i_max, i_min;
+          if (std::abs(matrix(1, 1)) > std::abs(matrix(2, 1))) { i_max = 1; i_min = 2; }
+          else { i_max = 2; i_min = 1; }
+          auto multiply = -matrix(i_max, 1) / matrix(i_min, 1);
+          auto transform = Eigen::Matrix3i::Identity().eval();
+          transform(i_max, i_min) = multiply;
+          matrix = transform * matrix;
+          co_yield Add{i_min, i_max, -multiply};
+        }
+      }
+      // 然后将第三行第三列元素化为 1
+      if (matrix(2, 2) == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
+      else if (matrix(2, 2) != 1)
+      {
+        co_yield Multiply{2, matrix(2, 2)};
+        matrix(2, 2) = 1;
+      }
+      // 将第三列的其它元素化为 0
+      if (matrix(0, 2) != 0) { co_yield Add{2, 0, matrix(0, 2)}; matrix(0, 2) = 0; }
+      if (matrix(1, 2) != 0) { co_yield Add{2, 1, matrix(1, 2)}; matrix(1, 2) = 0; }
+      // 将第二行第二列元素化为 1
+      if (matrix(1, 1) == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
+      else if (matrix(1, 1) != 1) { co_yield Multiply{1, matrix(1, 1)}; matrix(1, 1) = 1; }
+      // 将第一行第二列元素化为 0
+      if (matrix(0, 1) != 0) { co_yield Add{1, 0, matrix(0, 1)}; matrix(0, 1) = 0; }
+      // 将第一行第一列元素化为 1
+      if (matrix(0, 0) == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
+      else if (matrix(0, 0) != 1) { co_yield Multiply{0, matrix(0, 0)}; matrix(0, 0) = 1; }
+    };
+
+    auto deformatin = Eigen::Matrix3d::Identity().eval();
+    auto multiplier = Eigen::Vector3i::Ones().eval();
+    for (auto i : decompose(transformation))
+    {
+      if (std::holds_alternative<Multiply>(i))
+      {
+        auto [at, multiply] = std::get<Multiply>(i);
+        multiplier(at) *= multiply;
+      }
+      else if (std::holds_alternative<Add>(i))
+      {
+        auto [from, to, multiply] = std::get<Add>(i);
+        auto transform = Eigen::Matrix3d::Identity().eval();
+        transform(to, from) = multiply / multiplier(from) * multiplier(to);
+        deformatin = deformatin * transform;
+      }
+      else if (std::holds_alternative<Exchange>(i))
+      {
+        auto [from, to] = std::get<Exchange>(i);
+        deformatin.col(from).swap(deformatin.col(to));
+        std::swap(multiplier(from), multiplier(to));
+      }
+    }
+    return {deformatin, multiplier};
+  }
+
   UnfoldSolver::BasisType UnfoldSolver::construct_basis
   (
     const decltype(InputType::PrimativeCell)& primative_cell,
@@ -397,7 +521,7 @@ namespace ufo
           super_cell_multiplier.cast<double>().cwiseInverse().asDiagonal()
           * (
             xyz_of_diff_of_sub_qpoint_by_reciprocal_modified_super_cell.cast<double>()
-            + super_cell_deformation.value_or(Eigen::Matrix3d::Identity()).inverse()
+            + super_cell_deformation.inverse()
               * meta_qpoint_by_reciprocal_super_cell[i_of_meta_qpoint].get().cast<double>()
           )
         ).eval();

@@ -165,7 +165,7 @@
       overlays.default = final: prev:
         { localPackages = (import ./packages { inherit (inputs) lib; pkgs = final; topInputs = inputs; }); };
       config = { archive = false; branch = "production"; };
-      devShells.x86_64-linux = let inherit (inputs.self.packages.x86_64-linux) pkgs; in
+      devShells.x86_64-linux = let inherit (inputs.self.nixosConfigurations.pc) pkgs; in
       {
         biu = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
         {
@@ -175,7 +175,7 @@
         };
         hpcstat = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
         {
-          inputsFrom = [ (inputs.self.packages.x86_64-linux.hpcstat.override { version = null; }) ];
+          inputsFrom = [ (pkgs.localPackages.hpcstat.override { version = null; }) ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
         sbatch-tui = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
@@ -185,7 +185,8 @@
         };
         ufo = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
         {
-          inputsFrom = [ (inputs.self.packages.x86_64-linux.ufo.override { version = null; }) ];
+          inputsFrom = [ (pkgs.localPackages.ufo.override { version = null; }) ];
+          packages = [ pkgs.clang-tools_18 ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
         chn-bsub = pkgs.mkShell

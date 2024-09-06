@@ -28,8 +28,9 @@ namespace ufo
         // PositionToSuperCell(line vector) * SuperCell = PositionToPrimativeCell(line vector) * PrimativeCell
         // ReciprocalPositionToSuperCell(line vector) * ReciprocalSuperCell
         //  = ReciprocalPositionToPrimativeCell(line vector) * ReciprocalPrimativeCell
-        Eigen::Vector<unsigned, 3> SuperCellMultiplier;
-        std::optional<Eigen::Matrix<double, 3, 3>> SuperCellDeformation;
+        Eigen::Matrix3i SuperCellTransformation;
+        Eigen::Matrix3d SuperCellDeformation;
+        Eigen::Vector3i SuperCellMultiplier;
         // 在单胞内取几个平面波的基矢
         Eigen::Vector<unsigned, 3> PrimativeCellBasisNumber;
 
@@ -126,6 +127,9 @@ namespace ufo
     public:
       UnfoldSolver(std::string config_file);
       UnfoldSolver& operator()() override;
+
+      // 将 Transformation 矩阵分解为一个正交矩阵乘以一个整数对角矩阵
+      static std::pair<Eigen::Matrix3d, Eigen::Vector3i> decompose_transformation(Eigen::Matrix3i transformation);
 
       // 构建基
       // 每个 q 点对应的一组 sub qpoint。不同的 q 点所对应的 sub qpoint 是不一样的，但 sub qpoint 与 q 点的相对位置一致。
