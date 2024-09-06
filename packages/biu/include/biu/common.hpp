@@ -105,9 +105,20 @@ namespace biu
 
     template <typename Array> concurrencpp::generator<std::pair<Array, std::size_t>> sequence(Array from, Array to);
     template <typename Array> concurrencpp::generator<std::pair<Array, std::size_t>> sequence(Array to);
+
+    namespace detail_
+    {
+      template <typename Byte> struct ReadFileReturnType;
+      template <> struct ReadFileReturnType<std::byte> { using Type = std::vector<std::byte>; };
+      template <> struct ReadFileReturnType<char> { using Type = std::string; };
+    }
+    template <typename Byte = std::byte> detail_::ReadFileReturnType<Byte>::Type
+      read_file(const std::filesystem::path& path);
+    template<> std::vector<std::byte> read_file<std::byte>(const std::filesystem::path& path);
+    template<> std::string read_file<char>(const std::filesystem::path& path);
   }
   using common::hash, common::unused, common::block_forever, common::is_interactive, common::env, common::int128_t,
     common::uint128_t, common::Empty, common::CaseInsensitiveStringLessComparator, common::RemoveMemberPointer,
     common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec, common::serialize, common::deserialize,
-    common::sequence;
+    common::sequence, common::read_file;
 }
