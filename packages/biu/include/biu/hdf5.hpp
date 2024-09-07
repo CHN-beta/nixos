@@ -14,7 +14,7 @@ namespace biu
     class Hdf5file
     {
       public:
-        Hdf5file(std::string filename, bool readonly = false);
+        Hdf5file(std::string filename, bool truncate = false);
         template <typename T> Hdf5file& read(std::string name, T& object);
         template <typename T> T read(std::string name);
         template <typename T> Hdf5file& write(std::string name, const T& object);
