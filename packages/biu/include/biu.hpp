@@ -9,5 +9,6 @@
 # include <biu/hdf5.tpp>
 # include <biu/logger.tpp>
 # include <biu/smartref.tpp>
+# include <biu/fft.tpp>
 
 # include <range/v3/all.hpp>

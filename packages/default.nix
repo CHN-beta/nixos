@@ -64,7 +64,7 @@ inputs: rec
     { src = inputs.topInputs.kylin-virtual-keyboard; };
   biu = inputs.pkgs.callPackage ./biu
   {
-    inherit nameof zpp-bits tgbot-cpp concurrencpp;
+    inherit nameof zpp-bits tgbot-cpp concurrencpp pocketfft;
     stdenv = inputs.pkgs.clang18Stdenv;
     fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
   };
@@ -86,6 +86,7 @@ inputs: rec
   sockpp = inputs.pkgs.callPackage ./sockpp.nix { src = inputs.topInputs.sockpp; };
   git-lfs-transfer = inputs.pkgs.callPackage ./git-lfs-transfer.nix { src = inputs.topInputs.git-lfs-transfer; };
   py4vasp = inputs.pkgs.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; };
+  pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.topInputs.pocketfft; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

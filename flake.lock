@@ -1265,6 +1265,22 @@
         "type": "github"
       }
     },
+    "pocketfft": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1722531938,
+        "narHash": "sha256-1kfMW9xGHtYiiCD4Qh4rXEuAi9EIzJ4lR+YLGjqzoaU=",
+        "owner": "mreineck",
+        "repo": "pocketfft",
+        "rev": "bb87ca50df0478415a12d9011dc374eeed4e9d93",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mreineck",
+        "repo": "pocketfft",
+        "type": "github"
+      }
+    },
     "poetry2nix": {
       "inputs": {
         "flake-utils": "flake-utils_4",
@@ -1393,6 +1409,7 @@
         "nur-xddxdd": "nur-xddxdd",
         "openxlsx": "openxlsx",
         "plasma-manager": "plasma-manager",
+        "pocketfft": "pocketfft",
         "poetry2nix": "poetry2nix",
         "py4vasp": "py4vasp",
         "qchem": "qchem",
