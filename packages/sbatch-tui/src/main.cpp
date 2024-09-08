@@ -17,7 +17,7 @@ int main()
     int vasp_version_selected = 0;
     std::vector<std::string> vasp_version_entries = { "std", "gam", "ncl" };
     int device_type_selected = 0;
-    std::vector<std::string> device_type_entries = { "any single GPU", "manually select GPU", "CPU" };
+    std::vector<std::string> device_type_entries = { "manually select GPU", "any single GPU", "CPU" };
     std::deque<bool> device_selected = std::deque<bool>(Device.GpuIds.size(), false);
     std::vector<std::string> device_entries = Device.GpuIds;
     std::string job_name = std::filesystem::current_path().filename().string();
@@ -76,7 +76,7 @@ int main()
           devices.push_back(ftxui::Checkbox
             (state.device_entries[i], &state.device_selected[i], checkbox_option));
         return devices;
-      }()) | with_separator | ftxui::Maybe([&]{ return state.device_type_selected == 1; }),
+      }()) | with_separator | ftxui::Maybe([&]{ return state.device_type_selected == 0; }),
       ftxui::Container::Vertical
       ({
         ftxui::Input(&state.mpi_threads) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
@@ -123,7 +123,7 @@ int main()
   {
     screen.Loop(request_interface);
     if (state.user_command == "quit") return EXIT_FAILURE;
-    else if (state.device_type_selected == 0)
+    else if (state.device_type_selected == 1)
       state.submit_command =
         "sbatch --ntasks=1\n--gpus=1\n--job-name='{}'\n--output='{}'\nvasp-nvidia-{}"_f
         (state.job_name, state.output_file, state.vasp_version_entries[state.vasp_version_selected]);
