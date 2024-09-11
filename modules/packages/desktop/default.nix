@@ -73,7 +73,7 @@ inputs:
           # math, physics and chemistry
           octaveFull root ovito localPackages.vesta localPackages.v-sim
           (mathematica.overrideAttrs (prev: { postInstall = prev.postInstall or "" + "ln -s ${src} $out/src"; }))
-          (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; }) jmol mpi
+          (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; }) jmol mpi localPackages.ufo
           # virtualization
           wineWowPackages.stagingFull virt-viewer bottles genymotion playonlinux
           # media
