@@ -108,17 +108,19 @@ namespace biu
 
     namespace detail_
     {
-      template <typename Byte> struct ReadFileReturnType;
-      template <> struct ReadFileReturnType<std::byte> { using Type = std::vector<std::byte>; };
-      template <> struct ReadFileReturnType<char> { using Type = std::string; };
+      template <typename Byte> struct ReadReturnType;
+      template <> struct ReadReturnType<std::byte> { using Type = std::vector<std::byte>; };
+      template <> struct ReadReturnType<char> { using Type = std::string; };
     }
-    template <typename Byte = std::byte> detail_::ReadFileReturnType<Byte>::Type
-      read_file(const std::filesystem::path& path);
-    template<> std::vector<std::byte> read_file<std::byte>(const std::filesystem::path& path);
-    template<> std::string read_file<char>(const std::filesystem::path& path);
+    template <typename Byte> detail_::ReadReturnType<Byte>::Type read(const std::filesystem::path& path);
+    template <typename Byte> detail_::ReadReturnType<Byte>::Type read(std::istream& input);
+    template<> std::vector<std::byte> read<std::byte>(const std::filesystem::path& path);
+    template<> std::string read<char>(const std::filesystem::path& path);
+    template<> std::vector<std::byte> read<std::byte>(std::istream& input);
+    template<> std::string read<char>(std::istream& input);
   }
   using common::hash, common::unused, common::block_forever, common::is_interactive, common::env, common::int128_t,
     common::uint128_t, common::Empty, common::CaseInsensitiveStringLessComparator, common::RemoveMemberPointer,
     common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec, common::serialize, common::deserialize,
-    common::sequence, common::read_file;
+    common::sequence, common::read;
 }

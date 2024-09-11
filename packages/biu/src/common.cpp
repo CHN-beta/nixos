@@ -67,7 +67,7 @@ namespace biu
     template detail_::ExecResult<detail_::ExecMode##i> \
       exec<detail_::ExecMode##i>(detail_::ExecInput<detail_::ExecMode##i>);
     BOOST_PP_FOR(0, BIU_EXEC_PRED, BIU_EXEC_OP, BIU_EXEC_MACRO)
-    template<> std::vector<std::byte> read_file<std::byte>(const std::filesystem::path& path)
+    template<> std::vector<std::byte> read<std::byte>(const std::filesystem::path& path)
     {
       auto length = std::filesystem::file_size(path);
       std::vector<std::byte> buffer(length);
@@ -75,10 +75,20 @@ namespace biu
       in.read(reinterpret_cast<char*>(buffer.data()), length);
       return buffer;
     }
-    template<> std::string read_file<char>(const std::filesystem::path& path)
+    template<> std::string read<char>(const std::filesystem::path& path)
     {
-      auto buffer = read_file<std::byte>(path);
+      auto buffer = read<std::byte>(path);
       return std::string{reinterpret_cast<char*>(buffer.data()), buffer.size()};
     }
+    template<> std::vector<std::byte> read<std::byte>(std::istream& input)
+    {
+      static_assert(sizeof(std::byte) == sizeof(char));
+      auto buffer = read<char>(input);
+      return buffer
+        | ranges::views::transform([](char c){ return std::byte(static_cast<unsigned char>(c)); })
+        | ranges::to<std::vector<std::byte>>;
+    }
+    template<> std::string read<char>(std::istream& input)
+      { return std::string{std::istreambuf_iterator<char>{input}, {}}; }
   }
 }

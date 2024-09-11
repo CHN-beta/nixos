@@ -9,16 +9,16 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-find_package(yaml-cpp REQUIRED)
 find_package(TBB REQUIRED)
 find_package(Matplot++ REQUIRED)
 find_package(biu REQUIRED)
 find_package(Threads REQUIRED)
 
-add_executable(ufo src/solver.cpp src/fold.cpp src/unfold.cpp src/plot.cpp src/main.cpp)
+add_executable(ufo src/fold.cpp src/unfold.cpp src/plot.cpp src/main.cpp)
 target_include_directories(ufo PRIVATE ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(ufo PRIVATE yaml-cpp TBB::tbb Matplot++::matplot biu::biu)
+target_link_libraries(ufo PRIVATE TBB::tbb Matplot++::matplot Matplot++::matplot_opengl biu::biu)
 target_compile_features(ufo PRIVATE cxx_std_23)
+target_compile_options(ufo PRIVATE -fexperimental-library)
 
 install(TARGETS ufo RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

@@ -14,4 +14,13 @@ int main()
   auto serialized_bob = biu::serialize(bob);
   auto bob2 = biu::deserialize<student>(serialized_bob);
   assert(bob == bob2);
+  struct A
+  {
+    int x;
+    std::string y;
+  };
+  A a{ 123, "abc" };
+  auto b = biu::deserialize<A>(biu::serialize(a));
+  assert(a.x == b.x);
+  assert(a.y == b.y);
 }

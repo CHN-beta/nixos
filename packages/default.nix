@@ -13,6 +13,7 @@ inputs: rec
   {
     inherit glad nodesoup;
     src = inputs.topInputs.matplotplusplus;
+    stdenv = inputs.pkgs.clang18Stdenv;
   };
   zpp-bits = inputs.pkgs.callPackage ./zpp-bits.nix { src = inputs.topInputs.zpp-bits; };
   eigen = inputs.pkgs.callPackage ./eigen.nix { src = inputs.topInputs.eigen; };
@@ -66,6 +67,7 @@ inputs: rec
   {
     inherit nameof zpp-bits tgbot-cpp concurrencpp pocketfft;
     stdenv = inputs.pkgs.clang18Stdenv;
+    boost = inputs.pkgs.boost186;
     fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
   };
   zxorm = inputs.pkgs.callPackage ./zxorm.nix { src = inputs.topInputs.zxorm; };
@@ -77,7 +79,7 @@ inputs: rec
   sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   ufo = inputs.pkgs.callPackage ./ufo
   {
-    inherit concurrencpp biu matplotplusplus zpp-bits;
+    inherit biu matplotplusplus;
     tbb = inputs.pkgs.tbb_2021_11;
     stdenv = inputs.pkgs.clang18Stdenv;
   };

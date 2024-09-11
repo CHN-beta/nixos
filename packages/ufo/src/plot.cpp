@@ -1,227 +1,166 @@
-# include <ufo/plot.hpp>
+# include <ufo.hpp>
+# include <matplot/matplot.h>
+# include <matplot/backend/opengl.h>
+# include <boost/container/flat_map.hpp>
 
-namespace ufo
+void ufo::plot(std::string config_file)
 {
-  PlotSolver::InputType::UnfoldedDataType::UnfoldedDataType(std::string filename)
+  struct Input
   {
-    static_cast<UnfoldSolver::OutputType&>(*this) = zpp_read<UnfoldSolver::OutputType>(filename);
-  }
+    std::string UnfoldedDataFile;
+    // 要画图的 q 点路径列表
+    // 内层表示一个路径上的 q 点，外层表示不同的路径
+    // 单位为倒格矢
+    std::vector<std::vector<Eigen::Vector3d>> Qpoints;
+    struct { std::size_t X, Y; } Resolution;
+    // 画图的频率范围
+    struct { double Min, Max; } FrequencyRange;
+    // 搜索 q 点时的阈值，单位为埃^-1
+    std::optional<double> ThresholdWhenSearchingQpoints;
+    // 是否要在 z 轴上作一些标记
+    std::optional<std::vector<double>> YTicks;
+    // 是否输出图片
+    std::optional<std::string> OutputPictureFile;
+    // 是否输出数据，可以进一步使用 matplotlib 画图
+    std::optional<std::string> OutputDataFile;
+  };
 
-  PlotSolver::InputType::InputType(std::string config_file)
-  {
-    auto input = YAML::LoadFile(config_file);
-    PrimativeCell = input["PrimativeCell"].as<std::array<std::array<double, 3>, 3>>() | biu::toEigen<>;
-    for (auto& figure : input["Figures"].as<std::vector<YAML::Node>>())
-    {
-      Figures.emplace_back();
-      auto qpoints = figure["Qpoints"]
-        .as<std::vector<std::vector<std::vector<double>>>>();
-      for (auto& line : qpoints)
-      {
-        Figures.back().Qpoints.emplace_back();
-        for (auto& point : line)
-          Figures.back().Qpoints.back().emplace_back(point.at(0), point.at(1), point.at(2));
-        if (Figures.back().Qpoints.back().size() < 2)
-          throw std::runtime_error("Not enough points in a line");
-      }
-      if (Figures.back().Qpoints.size() < 1)
-        throw std::runtime_error("Not enough lines in a figure");
-      Figures.back().Resolution = figure["Resolution"].as<std::pair<unsigned, unsigned>>();
-      Figures.back().Range = figure["Range"].as<std::pair<double, double>>();
-      Figures.back().PictureFile
-        = DataFile(figure["PictureFile"], {"png"}, config_file);
-      if (figure["YTicks"])
-        Figures.back().YTicks = figure["YTicks"].as<std::vector<double>>();
-      if (figure["DataFiles"])
-      {
-        Figures.back().DataFiles.emplace();
-        for (auto& data_file : figure["DataFiles"].as<std::vector<YAML::Node>>())
-          Figures.back().DataFiles->emplace_back()
-            = DataFile(data_file, {"hdf5", "zpp"}, config_file);
-      }
-    }
-    UnfoldedDataFile = DataFile(input["UnfoldedDataFile"], {"zpp"}, config_file);
-    UnfoldedData = UnfoldedDataType(UnfoldedDataFile.Filename);
-  }
-  const PlotSolver::OutputType& PlotSolver::OutputType::write(std::string filename, std::string format) const
-  {
-    if (format == "zpp")
-      zpp_write(*this, filename);
-    else if (format == "hdf5")
-    {
-      std::vector resolution{ Resolution.first, Resolution.second };
-      std::vector range{ Range.first, Range.second };
-      biu::Hdf5file(filename).write("Values", Values)
-        .write("XTicks", XTicks)
-        .write("YTicks", YTicks)
-        .write("Resolution", resolution)
-        .write("Range", range);
-    }
-    return *this;
-  }
-
-  PlotSolver::PlotSolver(std::string config_file) : Input_(config_file) {}
-
-  PlotSolver& PlotSolver::operator()()
-  {
-    Output_.emplace();
-    for (auto& figure : Input_.Figures)
-    {
-      // 外层表示不同的线段的端点，内层表示这个线段上的 q 点
-      std::vector<std::vector<std::reference_wrapper<const UnfoldSolver::OutputType::QpointDataType>>> qpoints;
-      std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d>> lines;
-      for (auto& path : figure.Qpoints)
-        for (unsigned i = 0; i < path.size() - 1; i++)
-        {
-          lines.emplace_back(path[i], path[i + 1]);
-          qpoints.push_back(search_qpoints
-          (
-            lines.back(), Input_.UnfoldedData.QpointData,
-            0.001, i != path.size() - 2
-          ));
-        }
-      auto [values, x_ticks] = calculate_values
-      (
-        Input_.PrimativeCell, lines, qpoints, figure.Resolution, figure.Range
-      );
-      auto y_ticks = figure.YTicks.value_or(std::vector<double>{});
-      for (auto& _ : y_ticks)
-        _ = (_ - figure.Range.first) / (figure.Range.second - figure.Range.first) * figure.Resolution.second;
-      plot(values, figure.PictureFile.Filename, x_ticks, y_ticks);
-      Output_->emplace_back();
-      Output_->back().Values = std::move(values);
-      Output_->back().XTicks = std::move(x_ticks);
-      Output_->back().YTicks = std::move(y_ticks);
-      Output_->back().Resolution = figure.Resolution;
-      Output_->back().Range = figure.Range;
-      if (figure.DataFiles)
-        for (auto& data_file : *figure.DataFiles)
-          Output_->back().write(data_file.Filename, data_file.Format);
-    }
-    return *this;
-  }
-
-  std::vector<std::reference_wrapper<const UnfoldSolver::OutputType::QpointDataType>> PlotSolver::search_qpoints
+  // 根据 q 点路径, 搜索要使用的 q 点，返回的是 q 点在 QpointData 中的索引以及到路径起点的距离，以及这段路径的总长度
+  auto search_qpoints = []
   (
+    const Eigen::Matrix3d& primative_cell,
     const std::pair<Eigen::Vector3d, Eigen::Vector3d>& path,
-    const decltype(InputType::UnfoldedDataType::QpointData)& available_qpoints,
-    double threshold, bool exclude_endpoint
+    const std::vector<Eigen::Vector3d>& qpoints,
+    double threshold, bool exclude_endpoint = false
   )
   {
-    std::multimap<double, std::reference_wrapper<const UnfoldSolver::OutputType::QpointDataType>> selected_qpoints;
     // 对于 output 中的每一个点, 检查这个点是否在路径上. 如果在, 把它加入到 selected_qpoints 中
-    for (auto& qpoint : available_qpoints)
-    {
-      // 计算三点围成的三角形的面积的两倍
-      auto area = (path.second - path.first).cross(qpoint.Qpoint - path.first).norm();
-      // 计算这个点到前两个点所在直线的距离
-      auto distance = area / (path.second - path.first).norm();
-      // 如果这个点到前两个点所在直线的距离小于阈值, 则认为这个点在路径上
-      if (distance < threshold)
+    // 键为这个点到起点的距离
+    boost::container::flat_map<double, std::size_t> selected_qpoints;
+    auto begin = (path.first.transpose() * primative_cell.reverse()).transpose().eval();
+    auto end = (path.second.transpose() * primative_cell.reverse()).transpose().eval();
+    for (std::size_t i = 0; i < qpoints.size(); i++)
+      for (auto cell_shift
+        : biu::sequence(Eigen::Vector3i(-1, -1, -1), Eigen::Vector3i(2, 2, 2)))
       {
-        // 计算这个点到前两个点的距离, 两个距离都应该小于两点之间的距离
-        auto distance1 = (qpoint.Qpoint - path.first).norm();
-        auto distance2 = (qpoint.Qpoint - path.second).norm();
-        auto distance3 = (path.second - path.first).norm();
-        if (distance1 < distance3 + threshold && distance2 < distance3 + threshold)
-          // 如果这个点不在终点处, 或者不排除终点, 则加入
-          if (distance2 > threshold || !exclude_endpoint)
-            selected_qpoints.emplace(distance1, std::ref(qpoint));
+        auto qpoint
+          = ((qpoints[i] + cell_shift.first.cast<double>()).transpose() * primative_cell.reverse()).transpose().eval();
+        // 计算这个点到前两个点所在直线的距离
+        auto distance = (end - begin).cross(qpoint - begin).norm()
+          / (path.second - path.first).norm();
+        // 如果这个点到前两个点所在直线的距离小于阈值, 则认为这个点在这条直线上，但不一定在这两个点之间
+        if (distance < threshold)
+        {
+          // 计算这个点到前两个点的距离, 两个距离都应该小于两点之间的距离
+          auto distance1 = (qpoint - begin).norm();
+          auto distance2 = (qpoint - end).norm();
+          auto distance3 = (end - begin).norm();
+          if (distance1 < distance3 + threshold && distance2 < distance3 + threshold)
+            // 如果这个点不在终点处, 或者不排除终点, 则加入
+            if (distance2 > threshold || !exclude_endpoint) selected_qpoints.emplace(distance1, i);
+        }
       }
-    }
     // 去除非常接近的点
     for (auto it = selected_qpoints.begin(); it != selected_qpoints.end();)
     {
       auto next = std::next(it);
-      if (next == selected_qpoints.end())
-        break;
-      else if (next->first - it->first < threshold)
-        selected_qpoints.erase(next);
-      else
-        it = next;
+      if (next == selected_qpoints.end()) break;
+      else if (next->first - it->first < threshold) selected_qpoints.erase(next);
+      else it = next;
     }
-    if (selected_qpoints.empty())
-      throw std::runtime_error("No q points found");
-    std::vector<std::reference_wrapper<const UnfoldSolver::OutputType::QpointDataType>> result;
-    for (auto& qpoint : selected_qpoints)
-      result.push_back(qpoint.second);
-    return result;
-  }
+    if (selected_qpoints.empty()) throw std::runtime_error("No q points found");
+    return std::make_pair(selected_qpoints, (end - begin).norm());
+  };
 
-  std::tuple<std::vector<std::vector<double>>, std::vector<double>> PlotSolver::calculate_values
+  // 根据搜索到的 q 点, 计算图中每个点的值
+  auto calculate_values = []
   (
-    const Eigen::Matrix3d primative_cell,
-    const std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d>>& path,
-    const std::vector<std::vector<std::reference_wrapper<const UnfoldSolver::OutputType::QpointDataType>>>& qpoints,
-    const decltype(InputType::FigureConfigType::Resolution)& resolution,
-    const decltype(InputType::FigureConfigType::Range)& range
+    // search_qpoints 的第一个返回值
+    const boost::container::flat_map<double, std::size_t>& path,
+    // 每一条连续路径的第一个 q 点的索引
+    const std::set<std::size_t>& path_begin,
+    // 所有 q 点的数据（需要用到它的频率和权重）
+    const std::vector<UnfoldOutput::QpointDataType>& qpoints,
+    // 用于插值的分辨率和范围
+    const std::pair<unsigned, unsigned>& resolution,
+    const std::pair<double, double>& frequency_range,
+    // 路径的总长度
+    double total_distance
   )
   {
-    // 整理输入
-    std::map<double, std::reference_wrapper<const UnfoldSolver::OutputType::QpointDataType>> qpoints_with_distance;
-    double total_distance = 0;
-    std::vector<double> x_ticks;
-    for (unsigned i = 0; i < path.size(); i++)
-    {
-      for (auto& _ : qpoints[i])
-        qpoints_with_distance.emplace
-        (
-          total_distance
-            + ((_.get().Qpoint - path[i].first).transpose() * primative_cell.inverse().transpose()).norm(),
-          _
-        );
-      total_distance += ((path[i].second - path[i].first).transpose() * primative_cell.inverse().transpose()).norm();
-      if (i != path.size() - 1)
-        x_ticks.push_back(total_distance);
-    }
-    for (auto& _ : x_ticks)
-      _ = _ / total_distance * resolution.first;
-
-    // 插值
-    std::vector<std::vector<double>> values;
-    auto blend = []
+    // 按比例混合两个 q 点的结果，得到可以用于画图的那一列数据
+    auto blend = [&]
     (
-      const UnfoldSolver::OutputType::QpointDataType& a,
-      const UnfoldSolver::OutputType::QpointDataType& b,
-      double ratio, unsigned resolution, std::pair<double, double> range
+      // 两个点的索引
+      std::size_t a, std::size_t b,
+      // 按照连续路径混合还是按照断开的路径混合
+      bool continuous,
+      // 第一个点占的比例
+      double ratio,
+      unsigned resolution, std::pair<double, double> frequency_range
     ) -> std::vector<double>
     {
-      // 计算插值结果
+      // 混合得到的频率和权重
       std::vector<double> frequency, weight;
-      for (unsigned i = 0; i < a.ModeData.size(); i++)
+      // 如果是连续路径，将每个模式的频率和权重按照比例混合
+      if (continuous)
       {
-        frequency.push_back(a.ModeData[i].Frequency * ratio + b.ModeData[i].Frequency * (1 - ratio));
-        weight.push_back(a.ModeData[i].Weight * ratio + b.ModeData[i].Weight * (1 - ratio));
+        assert(qpoints[a].ModeData.size() == qpoints[b].ModeData.size());
+        for (unsigned i = 0; i < qpoints[a].ModeData.size(); i++)
+        {
+          frequency.push_back
+            (qpoints[a].ModeData[i].Frequency * ratio + qpoints[b].ModeData[i].Frequency * (1 - ratio));
+          weight.push_back(qpoints[a].ModeData[i].Weight * ratio + qpoints[b].ModeData[i].Weight * (1 - ratio));
+        }
+      }
+      // 如果是不连续路径，将每个模式的权重乘以比例，最后相加
+      else
+      {
+        for (unsigned i = 0; i < qpoints[a].ModeData.size(); i++)
+        {
+          frequency.push_back(qpoints[a].ModeData[i].Frequency);
+          weight.push_back(qpoints[a].ModeData[i].Weight * ratio);
+        }
+        for (unsigned i = 0; i < qpoints[b].ModeData.size(); i++)
+        {
+          frequency.push_back(qpoints[b].ModeData[i].Frequency);
+          weight.push_back(qpoints[b].ModeData[i].Weight * (1 - ratio));
+        }
       }
       std::vector<double> result(resolution);
       for (unsigned i = 0; i < frequency.size(); i++)
       {
-        int index = (frequency[i] - range.first) / (range.second - range.first) * resolution;
-        if (index >= 0 && index < static_cast<int>(resolution))
-          result[index] += weight[i];
+        int index = (frequency[i] - frequency_range.first) / (frequency_range.second - frequency_range.first)
+          * resolution;
+        if (index >= 0 && index < static_cast<int>(resolution)) result[index] += weight[i];
       }
       return result;
     };
+
+    std::vector<std::vector<double>> values;
     for (unsigned i = 0; i < resolution.first; i++)
     {
       auto current_distance = total_distance * i / resolution.first;
-      auto it = qpoints_with_distance.lower_bound(current_distance);
-      if (it == qpoints_with_distance.begin())
-        values.push_back(blend(it->second.get(), it->second.get(), 1, resolution.second, range));
-      else if (it == qpoints_with_distance.end())
-        values.push_back(blend(std::prev(it)->second.get(), std::prev(it)->second.get(), 1, resolution.second,
-          range));
-      else
-        values.push_back(blend
-        (
-          std::prev(it)->second.get(), it->second.get(),
-          (it->first - current_distance) / (it->first - std::prev(it)->first),
-          resolution.second, range)
-        );
+      auto it = path.lower_bound(current_distance);
+      if (it == path.begin()) values.push_back(blend
+          (it->second, it->second, true, 1, resolution.second, frequency_range));
+      else if (it == path.end()) values.push_back(blend
+      (
+        std::prev(it)->second, std::prev(it)->second, true, 1,
+        resolution.second, frequency_range
+      ));
+      else values.push_back(blend
+      (
+        std::prev(it)->second, it->second, !path_begin.contains(it->second),
+        (it->first - current_distance) / (it->first - std::prev(it)->first),
+        resolution.second, frequency_range
+      ));
     }
-    return {values, x_ticks};
-  }
-  void PlotSolver::plot
+    return values;
+  };
+
+  // 根据数值, 画图
+  auto plot = []
   (
     const std::vector<std::vector<double>>& values,
     const std::string& filename,
@@ -237,20 +176,16 @@ namespace ufo
       for (unsigned j = 0; j < values.size(); j++)
       {
         auto v = values[j][i];
-        if (v < 0.05)
-          v = 0;
+        if (v < 0.05) v = 0;
         a[i][j] = v * 100 * 255;
-        if (a[i][j] > 255)
-          a[i][j] = 255;
+        if (a[i][j] > 255) a[i][j] = 255;
         r[i][j] = 255 - v * 2 * 255;
-        if (r[i][j] < 0)
-          r[i][j] = 0;
+        if (r[i][j] < 0) r[i][j] = 0;
         g[i][j] = 255 - v * 2 * 255;
-        if (g[i][j] < 0)
-          g[i][j] = 0;
+        if (g[i][j] < 0) g[i][j] = 0;
         b[i][j] = 255;
       }
-    auto f = matplot::figure<matplot::backend::gnuplot>(true);
+    auto f = matplot::figure<matplot::backend::opengl>(true);
     auto ax = f->current_axes();
     auto image = ax->image(std::tie(r, g, b));
     image->matrix_a(a);
@@ -260,5 +195,67 @@ namespace ufo
     ax->y_axis().tick_values(y_ticks);
     ax->y_axis().tick_length(1);
     f->save(filename, "png");
+  };
+
+  auto input = YAML::LoadFile(config_file).as<Input>();
+  auto unfolded_data = biu::deserialize<UnfoldOutput>
+    (biu::read<std::byte>(input.UnfoldedDataFile));
+  
+  // 搜索画图需要用到的 q 点
+  // key 到起点的距离，value 为 q 点在 QpointData 中的索引
+  boost::container::flat_map<double, std::size_t> path;
+  // 每一条连续路径的第一个 q 点在 path 中的索引
+  std::set<std::size_t> path_begin;
+  // x 轴的刻度，为 path 中的索引
+  std::set<std::size_t> x_ticks_index;
+  double total_distance = 0;
+  for (auto& line : input.Qpoints)
+  {
+    assert(line.size() >= 2);
+    path_begin.insert(path.size());
+    for (std::size_t i = 0; i < line.size() - 1; i++)
+    {
+      x_ticks_index.insert(path.size());
+      auto [this_path, this_distance] = search_qpoints
+      (
+        unfolded_data.PrimativeCell, {line[i], line[i + 1]},
+        unfolded_data.QpointData
+          | ranges::views::transform(&UnfoldOutput::QpointDataType::Qpoint)
+          | ranges::to_vector,
+        input.ThresholdWhenSearchingQpoints.value_or(0.001),
+        i != line.size() - 2
+      );
+      path.merge
+      (
+        this_path
+        | ranges::views::transform([&](auto& p)
+          { return std::make_pair(p.first + total_distance, p.second); })
+        | ranges::to<boost::container::flat_map>
+      );
+      total_distance += this_distance;
+    }
   }
+
+  // 计算画图的数据
+  auto values = calculate_values
+  (
+    path, path_begin, unfolded_data.QpointData, {input.Resolution.X, input.Resolution.Y},
+    {input.FrequencyRange.Min, input.FrequencyRange.Max}, total_distance
+  );
+  auto x_ticks = x_ticks_index | ranges::views::transform([&](auto i)
+    { return path.nth(i)->first / total_distance * input.Resolution.X; }) | ranges::to<std::vector>;
+  std::vector<double> y_ticks;
+  if (input.YTicks) y_ticks = input.YTicks.value()
+    | ranges::views::transform([&](auto i)
+      { return (i - input.FrequencyRange.Min) / (input.FrequencyRange.Max - input.FrequencyRange.Min)
+        * input.Resolution.Y; })
+    | ranges::to<std::vector>;
+  if (input.OutputPictureFile) plot(values, input.OutputPictureFile.value(), x_ticks, y_ticks);
+  if (input.OutputDataFile)
+    biu::Hdf5file(input.OutputDataFile.value(), true)
+      .write("Values", values)
+      .write("XTicks", x_ticks)
+      .write("YTicks", y_ticks)
+      .write("Resolution", std::vector{input.Resolution.X, input.Resolution.Y})
+      .write("Range", std::vector{input.FrequencyRange.Min, input.FrequencyRange.Max});
 }

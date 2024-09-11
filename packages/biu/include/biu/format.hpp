@@ -4,6 +4,8 @@
 # include <experimental/memory>
 # include <biu/string.hpp>
 # include <biu/concepts.hpp>
+# include <fmt/format.h>
+# include <fmt/ostream.h>
 
 namespace biu
 {

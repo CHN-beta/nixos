@@ -1,4 +1,4 @@
-Transformation:
+SuperCellTransformation:
   - [ 3, 0, 0 ]
   - [ 2, 4, 0 ]
   - [ 0, 0, 1 ]
@@ -14,6 +14,4 @@ Qpoints:
   - [0.4, 0, 0]
   - [0.45, 0, 0]
   - [0.5, 0, 0]
-OutputFile:
-  Filename: fold-output.yaml
-  Format: yaml
+OutputFile: fold-output.yaml

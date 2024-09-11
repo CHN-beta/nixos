@@ -11,6 +11,7 @@ namespace biu
 		protected: T& Ref_;
 
 		public: SmartRef(T& val);
+		public: SmartRef(T&& val);
 		public: template <typename... Us> requires (std::is_constructible_v<T, Us...>) SmartRef(Us&&... val);
 		public: T& operator*();
 		public: T* operator->();

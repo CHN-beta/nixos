@@ -254,11 +254,25 @@ namespace biu::eigen
     for (int i = 0; i < matrix.rows(); i++)
     {
       using RowVector = Eigen::RowVector
-        <typename Matrix::Scalar, size.first.second == dynamicSize ? Eigen::Dynamic : size.first.second>;
+      <
+        typename Matrix::Scalar,
+        size.first.second == dynamicSize ? Eigen::Dynamic
+          : static_cast<decltype(Eigen::Dynamic)>(size.first.second)
+      >;
       Eigen::Map<RowVector>(result[i].data(), 1, matrix.cols()) = matrix.row(i);
     }
     return result;
   }
+  template <typename Matrix> auto detail_::operator|(const Matrix& matrix, const detail_::FromEigenHelper&)
+  {
+    constexpr auto
+      ncols = Matrix::CompileTimeTraits::ColsAtCompileTime, nrows = Matrix::CompileTimeTraits::RowsAtCompileTime;
+    if constexpr ((ncols <= 1 && ncols != Eigen::Dynamic) || (nrows <= 1 && nrows != Eigen::Dynamic))
+      return matrix | fromEigenVector<>;
+    else
+      return matrix | fromEigenMatrix<>;
+  }
+
 }
 template <typename Matrix> constexpr auto Eigen::serialize(auto & archive, Matrix& matrix)
   requires biu::EigenMatrix<std::remove_cvref_t<Matrix>>

@@ -1,11 +1,11 @@
 {
   stdenv, cmake, pkg-config, version ? null,
-  yaml-cpp, eigen, fmt, concurrencpp, highfive, tbb, matplotplusplus, biu, zpp-bits
+  tbb, matplotplusplus, biu
 }: stdenv.mkDerivation
 {
   name = "ufo";
   src = ./.;
-  buildInputs = [ yaml-cpp eigen fmt concurrencpp highfive tbb matplotplusplus biu zpp-bits ];
+  buildInputs = [ tbb matplotplusplus biu ];
   nativeBuildInputs = [ cmake pkg-config ];
   doCheck = true;
 }

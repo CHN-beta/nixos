@@ -38,6 +38,7 @@ namespace biu
       template <std::size_t Row, std::size_t Col> struct ToEigenHelper {};
       template <std::size_t Size> struct FromEigenVectorHelper {};
       template <std::size_t Row, std::size_t Col> struct FromEigenMatrixHelper {};
+      struct FromEigenHelper {};
 
       // convert 1D standard container to Eigen::Matrix, the second argument should always be unspecified
       template <typename From, std::size_t ToSize> auto operator|
@@ -61,6 +62,10 @@ namespace biu
       // convert 2D Eigen matrix to std::vector or std::array
       template <typename Matrix, std::size_t ToRow, std::size_t ToCol> auto operator|
         (const Matrix&, const detail_::FromEigenMatrixHelper<ToRow, ToCol>&);
+      
+      // 自动选择 fromEigenVector 还是 fromEigenMatrix
+      // 如果行数或者列数 <= 1，那么选择 fromEigenVector，否则选择 fromEigenMatrix
+      template <typename Matrix> auto operator|(const Matrix&, const detail_::FromEigenHelper&);
     }
 
     // usage: some_value | toEigen<Row, Col>
@@ -70,6 +75,7 @@ namespace biu
       inline constexpr detail_::FromEigenVectorHelper<Size> fromEigenVector;
     template <std::size_t Row = detail_::unspecifiedSize, std::size_t Col = detail_::unspecifiedSize>
       inline constexpr detail_::FromEigenMatrixHelper<Row, Col> fromEigenMatrix;
+    inline constexpr detail_::FromEigenHelper fromEigen;
 
     // test if a class is an eigen matrix
     namespace detail_
@@ -80,7 +86,7 @@ namespace biu
     }
     template <typename Matrix> concept EigenMatrix = detail_::EigenMatrix<Matrix>::value;
   }
-  using eigen::toEigen, eigen::fromEigenVector, eigen::fromEigenMatrix, eigen::EigenMatrix;
+  using eigen::toEigen, eigen::fromEigenVector, eigen::fromEigenMatrix, eigen::fromEigen, eigen::EigenMatrix;
 }
 
 // archive a matrix

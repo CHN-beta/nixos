@@ -1,45 +1,22 @@
-# include <ufo/fold.hpp>
+# include <ufo.hpp>
 
-namespace ufo
+void ufo::fold(std::string config_file)
 {
-  FoldSolver::InputType::InputType(std::string config_file)
+  struct Input
   {
-    auto input = YAML::LoadFile(config_file);
-    SuperCellTransformation = input["SuperCellTransformation"].as<std::array<std::array<int, 3>, 3>>() | biu::toEigen<>;
-    for (auto& qpoint : input["Qpoints"].as<std::vector<std::array<double, 3>>>())
-      Qpoints.push_back(qpoint | biu::toEigen<>);
-    OutputFile = DataFile(input["OutputFile"], {"yaml"}, config_file);
-  }
-  void FoldSolver::OutputType::write(std::string filename) const
+    Eigen::Matrix<int, 3, 3> SuperCellTransformation;
+    std::vector<Eigen::Vector3d> Qpoints;
+    std::optional<std::string> OutputFile;
+  };
+  struct Output
   {
-    std::ofstream(filename) << [&]
-    {
-      std::stringstream print;
-      print << "Qpoints:\n";
-      for (auto& qpoint : Qpoints)
-        print << ("  - [ {:.8f}, {:.8f}, {:.8f} ]\n"_f(qpoint(0), qpoint(1), qpoint(2)));
-      return print.str();
-    }();
-  }
-
-  FoldSolver::FoldSolver(std::string config_file) : Input_(config_file) {}
-  FoldSolver& FoldSolver::operator()()
-  {
-    if (!Output_)
-    {
-      Output_.emplace();
-      for (auto& qpoint : Input_.Qpoints)
-        Output_->Qpoints.push_back(fold(qpoint, Input_.Transformation));
-    }
-    Output_->write(Input_.OutputFile.Filename);
-    return *this;
-  }
-
-  Eigen::Vector3d FoldSolver::fold
+    std::vector<Eigen::Vector3d> Qpoints;
+  };
+  auto fold = []
   (
     Eigen::Vector3d qpoint_in_reciprocal_primitive_cell_by_reciprocal_primitive_cell,
-    Eigen::Matrix<int, 3, 3> transformation
-  )
+    Eigen::Matrix<int, 3, 3> super_cell_transformation
+  ) -> Eigen::Vector3d
   {
     /*
       首先需要将 q 点坐标的单位转换为 ModifiedSuperCell 的格矢，可知：
@@ -58,7 +35,7 @@ namespace ufo
     */
     auto qpoint_by_reciprocal_super_cell =
     (
-      transformation.cast<double>()
+      super_cell_transformation.cast<double>()
         * qpoint_in_reciprocal_primitive_cell_by_reciprocal_primitive_cell
     ).eval();
     /*
@@ -66,5 +43,16 @@ namespace ufo
       这等价于直接取 QpointByReciprocalSuperCell - QpointByReciprocalSuperCell.floor()。
     */
     return (qpoint_by_reciprocal_super_cell.array() - qpoint_by_reciprocal_super_cell.array().floor()).matrix();
-  }
+  };
+  auto input = YAML::LoadFile(config_file).as<Input>();
+  Output output;
+  output.Qpoints = input.Qpoints
+    | ranges::views::transform([&](auto& qpoint)
+    {
+      return fold(qpoint, input.SuperCellTransformation);
+    })
+    | ranges::to_vector;
+  
+  // 默认的输出太丑了，但是不想手动写了，忍一下
+  std::ofstream(input.OutputFile.value_or("output.yaml")) << YAML::Node(output);
 }

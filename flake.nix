@@ -186,7 +186,7 @@
         };
         ufo = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
         {
-          inputsFrom = [ (pkgs.localPackages.ufo.override { version = null; }) ];
+          inputsFrom = [ pkgs.localPackages.ufo ];
           packages = [ pkgs.clang-tools_18 ];
           CMAKE_EXPORT_COMPILE_COMMANDS = "1";
         };
