@@ -66,9 +66,10 @@ inputs:
           # browser
           google-chrome tor-browser microsoft-edge
           # office
-          crow-translate zotero pandoc ydict libreoffice-qt texstudio poppler_utils pdftk gnuplot pdfchain hdfview
-          davinci-resolve
-          texliveFull
+          crow-translate zotero pandoc ydict libreoffice-qt texstudio poppler_utils pdftk pdfchain hdfview
+          davinci-resolve texliveFull
+          # matplot++ needs old gnuplot
+          inputs.pkgs."pkgs-23.11".gnuplot
           # math, physics and chemistry
           octaveFull root ovito localPackages.vesta localPackages.v-sim
           (mathematica.overrideAttrs (prev: { postInstall = prev.postInstall or "" + "ln -s ${src} $out/src"; }))
