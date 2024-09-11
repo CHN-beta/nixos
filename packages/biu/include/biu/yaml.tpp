@@ -41,7 +41,7 @@ namespace YAML
   template <biu::SpecializationOf<std::optional> Optional> bool convert<Optional>::decode
     (const Node& node, Optional& optional)
   {
-    if (node.IsNull() || !node.IsDefined()) optional = std::nullopt;
+    if (!node.IsDefined() || node.IsNull()) optional = std::nullopt;
     else
     {
       typename Optional::value_type value;
