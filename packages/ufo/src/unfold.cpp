@@ -123,42 +123,37 @@ void ufo::unfold(std::string config_file)
       while (true)
       {
         // 统计第一列零的个数，以及非零值中，绝对值最大和最小的行
-        unsigned n_non_zero = 0;
-        std::optional<unsigned> i_max, i_min;
-        for (unsigned i = 0; i < 3; i++)
-          if (matrix(i, 0) != 0)
-          {
-            n_non_zero++;
-            if (!i_max || std::abs(matrix(i, 0)) > std::abs(matrix(*i_max, 0))) i_max = i;
-            else if (!i_min || std::abs(matrix(i, 0)) < std::abs(matrix(*i_min, 0)))
-              i_min = i;
-          }
+        std::multimap<unsigned, unsigned> values;
+        for (unsigned i = 0; i < 3; i++) if (matrix(i, 0) != 0)
+          values.insert({std::abs(matrix(i, 0)), i});
         // 如果都是零，报错
-        if (n_non_zero == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
+        if (values.size() == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
         // 如果只有一个非零值，那么将它移到第一行
-        if (n_non_zero == 1)
+        if (values.size() == 1)
         {
-          if (*i_max != 0)
+          if (auto i = values.begin()->second; i != 0)
           {
             auto transform = Eigen::Matrix3i::Identity().eval();
             transform(0, 0) = 0;
-            transform(0, *i_max) = 1;
-            transform(*i_max, *i_max) = 0;
-            transform(*i_max, 0) = 1;
+            transform(0, i) = 1;
+            transform(i, i) = 0;
+            transform(i, 0) = 1;
             matrix = transform * matrix;
-            co_yield Exchange{0, *i_max};
+            co_yield Exchange{0, i};
           }
           break;
         }
         // 否则，将最小值乘以整数倍，加到最大值上
         else
         {
-          auto multiply = -matrix(*i_max, 0) / matrix(*i_min, 0);
+          auto i_max = values.rbegin()->second;
+          auto i_min = values.begin()->second;
+          auto multiply = -matrix(i_max, 0) / matrix(i_min, 0);
           auto transform = Eigen::Matrix3i::Identity().eval();
-          transform(*i_max, *i_min) = multiply;
+          transform(i_max, i_min) = multiply;
           matrix = transform * matrix;
           // 分解出来的矩阵需要是操作的逆
-          co_yield Add{*i_min, *i_max, -multiply};
+          co_yield Add{i_min, i_max, -multiply};
         }
       }
       // 然后将第二列后两行转变为只有一个元素不为零
@@ -197,16 +192,21 @@ void ufo::unfold(std::string config_file)
         matrix(2, 2) = 1;
       }
       // 将第三列的其它元素化为 0
-      if (matrix(0, 2) != 0) { co_yield Add{2, 0, matrix(0, 2)}; matrix(0, 2) = 0; }
-      if (matrix(1, 2) != 0) { co_yield Add{2, 1, matrix(1, 2)}; matrix(1, 2) = 0; }
+      if (matrix(0, 2) != 0)
+        { co_yield Add{2, 0, matrix(0, 2)}; matrix(0, 2) = 0; }
+      if (matrix(1, 2) != 0)
+        { co_yield Add{2, 1, matrix(1, 2)}; matrix(1, 2) = 0; }
       // 将第二行第二列元素化为 1
       if (matrix(1, 1) == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
-      else if (matrix(1, 1) != 1) { co_yield Multiply{1, matrix(1, 1)}; matrix(1, 1) = 1; }
+      else if (matrix(1, 1) != 1)
+        { co_yield Multiply{1, matrix(1, 1)}; matrix(1, 1) = 1; }
       // 将第一行第二列元素化为 0
-      if (matrix(0, 1) != 0) { co_yield Add{1, 0, matrix(0, 1)}; matrix(0, 1) = 0; }
+      if (matrix(0, 1) != 0)
+        { co_yield Add{1, 0, matrix(0, 1)}; matrix(0, 1) = 0; }
       // 将第一行第一列元素化为 1
       if (matrix(0, 0) == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
-      else if (matrix(0, 0) != 1) { co_yield Multiply{0, matrix(0, 0)}; matrix(0, 0) = 1; }
+      else if (matrix(0, 0) != 1)
+        { co_yield Multiply{0, matrix(0, 0)}; matrix(0, 0) = 1; }
     };
 
     auto deformatin = Eigen::Matrix3d::Identity().eval();
