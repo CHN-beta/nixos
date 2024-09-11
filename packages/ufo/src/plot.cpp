@@ -1,6 +1,5 @@
 # include <ufo.hpp>
 # include <matplot/matplot.h>
-# include <matplot/backend/opengl.h>
 # include <boost/container/flat_map.hpp>
 
 void ufo::plot(std::string config_file)
@@ -185,7 +184,7 @@ void ufo::plot(std::string config_file)
         if (g[i][j] < 0) g[i][j] = 0;
         b[i][j] = 255;
       }
-    auto f = matplot::figure<matplot::backend::opengl>(true);
+    auto f = matplot::figure(true);
     auto ax = f->current_axes();
     auto image = ax->image(std::tie(r, g, b));
     image->matrix_a(a);
