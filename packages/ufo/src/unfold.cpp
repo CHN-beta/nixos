@@ -468,10 +468,8 @@ void ufo::unfold(std::string config_file)
       input.PrimativeCell, super_cell_multiplier, super_cell_deformation,
       projection_coefficient, qpoint_data, output_file.SelectedAtoms
     );
-    if (output_file.OutputAsYaml.value_or(false))
-      std::ofstream(output_file.Filename, std::ios::binary) << biu::serialize<char>(output);
-    else
-      std::ofstream(output_file.Filename) << YAML::Node(output);
+    if (output_file.OutputAsYaml.value_or(false)) std::ofstream(output_file.Filename) << YAML::Node(output);
+    else std::ofstream(output_file.Filename, std::ios::binary) << biu::serialize<char>(output);
   }
   std::clog << "Done." << std::endl;
 }
