@@ -61,12 +61,12 @@ namespace biu
 	void Logger::Guard::operator()() const { debug("reached after {} ms."_f(get_time_ms())); }
 	template <Logger::Level L> void Logger::Guard::log(const std::string& message) const
 	{
-		if (auto&& lock = LoggerConfig_.lock(); *lock && lock.value()->Level >= L)
+		if (auto&& lock = LoggerConfig_.lock(); lock->Level >= L)
 		{
 			static_assert(std::same_as<std::size_t, std::uint64_t>);
 			auto time = std::chrono::system_clock::now();
 			boost::stacktrace::stacktrace stack;
-			*lock.value()->Stream << "[ {:%Y-%m-%d %H:%M:%S}:{:03} {:08x} {:04} {}:{} {} ] {}\n"_f
+			*lock->Stream << "[ {:%Y-%m-%d %H:%M:%S}:{:03} {:08x} {:04} {}:{} {} ] {}\n"_f
 			(
 				time,
 				std::chrono::time_point_cast<std::chrono::milliseconds>(time).time_since_epoch().count() % 1000,
@@ -96,17 +96,17 @@ namespace biu
 	) const
 	{
 		log<Level::Error>("{}: {}"_f(type, message));
-		if (auto&& lock = LoggerConfig_.lock(); *lock && lock.value()->Level >= Logger::Level::Error)
+		if (auto&& lock = LoggerConfig_.lock(); lock->Level >= Logger::Level::Error)
 		{
 			static_assert(std::same_as<std::size_t, std::uint64_t>);
 			for (auto frame : stacktrace)
-				*lock.value()->Stream << "\tfrom {}:{} {}\n"_f
+				*lock->Stream << "\tfrom {}:{} {}\n"_f
 				(
 					frame.source_file().empty() ? "??"s : frame.source_file(),
 					frame.source_line() == 0 ? "??"s : "{}"_f(frame.source_line()),
 					frame.name()
 				);
-			*lock.value()->Stream << std::flush;
+			*lock->Stream << std::flush;
 		}
 	}
 }

@@ -3,11 +3,22 @@
 
 namespace biu
 {
-	Atomic<std::optional<Logger::LoggerConfigType_>> Logger::LoggerConfig_;
+	Atomic<Logger::LoggerConfigType_> Logger::LoggerConfig_ = Logger::LoggerConfigType_
+	{
+		std::experimental::make_observer(&std::clog), nullptr,
+# ifdef NDEBUG
+		Logger::Level::Debug
+# else
+		Logger::Level::Info
+# endif
+	};
 	void Logger::init(std::experimental::observer_ptr<std::ostream> stream, Level level)
 		{ LoggerConfig_ = LoggerConfigType_{stream, nullptr, level}; }
 	void Logger::init(std::shared_ptr<std::ostream> stream, Level level)
-		{ LoggerConfig_ = LoggerConfigType_{std::experimental::make_observer(stream.get()), stream, level}; }
+	{
+		LoggerConfig_ = LoggerConfigType_
+			{std::experimental::make_observer(stream.get()), stream, level};
+	}
 
 	Atomic<std::optional<std::pair<std::string, std::string>>> Logger::TelegramConfig_;
 	void Logger::telegram_init(const std::string& token, const std::string& chat_id)

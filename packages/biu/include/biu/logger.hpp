@@ -26,7 +26,7 @@ namespace biu
 			std::shared_ptr<std::ostream> StreamStorage;
 			Logger::Level Level;
 		};
-		protected: static Atomic<std::optional<LoggerConfigType_>> LoggerConfig_;
+		protected: static Atomic<LoggerConfigType_> LoggerConfig_;
 		public: static void init(std::experimental::observer_ptr<std::ostream> stream, Level level);
 		public: static void init(std::shared_ptr<std::ostream> stream, Level level);
 
