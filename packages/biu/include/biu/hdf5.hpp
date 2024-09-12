@@ -18,8 +18,7 @@ namespace biu
         template <typename T> Hdf5file& read(std::string name, T& object);
         template <typename T> T read(std::string name);
         template <typename T> Hdf5file& write(std::string name, const T& object);
-      protected:
-        HighFive::File File_;
+        HighFive::File File;
     };
   }
   using hdf5::Hdf5file, hdf5::PhonopyComplex;

@@ -78,32 +78,54 @@ void ufo::unfold(std::string config_file)
   auto read_qpoint_data = [](std::string filename)
   {
     // 读入原始数据
-    std::vector<std::vector<std::vector<double>>> frequency, path;
-    std::vector<std::vector<std::vector<std::vector<biu::PhonopyComplex>>>> eigenvector_vector;
-    biu::Hdf5file(filename).read("/frequency", frequency)
-      .read("/eigenvector", eigenvector_vector)
-      .read("/path", path);
+    // phonopy 的输出有两种可能
+    // 直接指定计算的 q 点时，frequency 是 2 维，这时第一个维度是 q 点，第二个维度是不同模式
+    // 计算能带时，frequency 是 3 维，相比于二维的情况多了第一个维度，表示 q 点所在路径
+    // qpoint 或 path，以及 eigenvector 也有类似的变化
+    // eigenvector 是三维或四维的数组，后两个维度分别表示原子运动和模式（而不是模式和原子），
+    //  因为后两个维度的尺寸总是一样的（模式个数等于原子坐标个数），非常容易搞错
+    std::vector<std::array<double, 3>> qpoint;
+    std::vector<std::vector<double>> frequency;
+    std::vector<std::vector<std::vector<biu::PhonopyComplex>>> eigenvector_vector;
+    auto file = biu::Hdf5file(filename);
+
+    if (file.File.getDataSet("/frequency").getDimensions().size() == 2)
+      file.read("/frequency", frequency)
+        .read("/eigenvector", eigenvector_vector)
+        .read("/qpoint", qpoint);
+    else
+    {
+      std::vector<std::vector<std::array<double, 3>>> temp_path;
+      std::vector<std::vector<std::vector<double>>> temp_frequency;
+      std::vector<std::vector<std::vector<std::vector<biu::PhonopyComplex>>>> temp_eigenvector_vector;
+      file.read("/frequency", temp_frequency)
+        .read("/eigenvector", temp_eigenvector_vector)
+        .read("/path", temp_path);
+      frequency = temp_frequency | ranges::views::join | ranges::to_vector;
+      qpoint = temp_path | ranges::views::join | ranges::to_vector;
+      eigenvector_vector = temp_eigenvector_vector | ranges::views::join | ranges::to_vector;
+    }
 
     // 整理得到结果
-    std::vector size = { frequency.size(), frequency[0].size(), frequency[0][0].size() };
-    std::vector<QpointData> qpoint(size[0] * size[1]);
-    for (unsigned i = 0; i < size[0]; i++) for (unsigned j = 0; j < size[1]; j++)
+    auto number_of_qpoints = frequency.size(), num_of_modes = frequency[0].size();
+    std::vector<QpointData> qpoint_data(number_of_qpoints);
+    for (unsigned i = 0; i < number_of_qpoints; i++)
     {
-      qpoint[i * size[1] + j].Qpoint = Eigen::Vector3d(path[i][j].data());
-      qpoint[i * size[1] + j].ModeData.resize(size[2]);
-      for (unsigned k = 0; k < size[2]; k++)
+      qpoint_data[i].Qpoint = qpoint[i] | biu::toEigen<>;
+      qpoint_data[i].ModeData.resize(num_of_modes);
+      for (unsigned j = 0; j < num_of_modes; j++)
       {
-        qpoint[i * size[1] + j].ModeData[k].Frequency = frequency[i][j][k];
-        auto n_modes = eigenvector_vector[i][j].size() / 3;
+        qpoint_data[i].ModeData[j].Frequency = frequency[i][j];
+        auto n_modes = eigenvector_vector[i].size() / 3;
         Eigen::MatrixX3cd eigenvectors(n_modes, 3);
-        for (unsigned l = 0; l < n_modes; l++) for (unsigned m = 0; m < 3; m++) eigenvectors(l, m)
-          = eigenvector_vector[i][j][l * 3 + m][k].r + eigenvector_vector[i][j][l * 3 + m][k].i * 1i;
+        for (unsigned k = 0; k < n_modes; k++) for (unsigned l = 0; l < 3; l++) eigenvectors(k, l)
+          = eigenvector_vector[i][k * 3 + l][j].r + eigenvector_vector[i][k * 3 + l][j].i * 1i;
         // 原则上讲，需要对读入的原子运动状态作相位转换, 使得它们与我们的约定一致(对超胞周期性重复)，但这个转换 phonopy 已经做了
         // 这里还要需要做归一化处理 (指将数据简单地作为向量处理的归一化)
-        qpoint[i * size[1] + j].ModeData[k].AtomMovement = eigenvectors / eigenvectors.norm();
+        qpoint_data[i].ModeData[j].AtomMovement = eigenvectors / eigenvectors.norm();
       }
     }
-    return qpoint;
+    return qpoint_data;
   };
 
   // 将 SuperCellTransformation 矩阵分解为 SuperCellDeformation 和 SuperCellMultiplier

@@ -3,7 +3,7 @@
 namespace biu::hdf5
 {
   Hdf5file::Hdf5file(std::string filename, bool truncate)
-  : File_
+  : File
   (
     filename, 
     ({ using _ = HighFive::File; truncate ? _::ReadWrite | _::Create | _::Truncate : _::ReadOnly; })
