@@ -36,7 +36,7 @@ inputs:
             # FXSR HLE LZCNT PREFETCHW RDRND SAHF XSAVE
             "broadwell"
             # FXSR HLE LZCNT PREFETCHW RDRND SAHF SGX XSAVE
-            "skylake"
+            "skylake" "cascadelake"
             # AVX-VNNI CLDEMOTE GFNI-SSE HRESET KL LZCNT MOVDIR64B MOVDIRI PCONFIG PREFETCHW PTWRITE RDRND
             # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
             "alderlake"

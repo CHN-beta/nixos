@@ -21,6 +21,7 @@ inputs:
         networking.hostname = "srv1-node0";
         gui.enable = true;
       };
+      packages.vasp = null;
       hardware.cpus = [ "intel" ];
       services =
       {
