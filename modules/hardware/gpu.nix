@@ -102,7 +102,6 @@ inputs:
       {
         opencl.enable = true;
         legacySupport.enable = true;
-        initrd.enable = true;
         amdvlk = { enable = true; support32Bit.enable = true; supportExperimental.enable = true; };
       };}
     )
