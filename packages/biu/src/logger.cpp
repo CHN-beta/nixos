@@ -7,9 +7,9 @@ namespace biu
 	{
 		std::experimental::make_observer(&std::clog), nullptr,
 # ifdef NDEBUG
-		Logger::Level::Debug
-# else
 		Logger::Level::Info
+# else
+		Logger::Level::Debug
 # endif
 	};
 	void Logger::init(std::experimental::observer_ptr<std::ostream> stream, Level level)
