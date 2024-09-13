@@ -17,7 +17,7 @@ void ufo::plot_band(std::string config_file)
     // 搜索 q 点时的阈值，单位为埃^-1
     std::optional<double> ThresholdWhenSearchingQpoints;
     // 是否要在 y 轴上作一些标记
-    std::optional<std::vector<double>> YTicks;
+    std::optional<std::vector<std::pair<double, std::string>>> YTicks;
     // 是否输出图片
     std::optional<std::string> OutputPictureFile;
     // 是否输出数据，可以进一步使用 matplotlib 画图
@@ -246,18 +246,16 @@ void ufo::plot_band(std::string config_file)
   );
   auto x_ticks = x_ticks_index | ranges::views::transform([&](auto i)
     { return path.nth(i)->first / total_distance * input.Resolution.X; }) | ranges::to<std::vector>;
-  auto y_ticks = input.YTicks.value_or(std::vector<double>{})
-    | biu::toLvalue
+  auto y_ticks = input.YTicks.value_or(std::vector<std::pair<double, std::string>>{})
+    | biu::toLvalue | ranges::views::keys
     | ranges::views::transform([&](auto i)
     {
       return (i - input.FrequencyRange.Min) / (input.FrequencyRange.Max - input.FrequencyRange.Min)
         * input.Resolution.Y;
     })
     | ranges::to_vector;
-  auto y_ticklabels = input.YTicks.value_or(std::vector<double>{})
-    | biu::toLvalue
-    | ranges::views::transform([](auto i) { return std::to_string(i); })
-    | ranges::to_vector;
+  auto y_ticklabels = input.YTicks.value_or(std::vector<std::pair<double, std::string>>{})
+    | biu::toLvalue | ranges::views::values | ranges::to_vector;
   if (input.OutputPictureFile) plot(values, input.OutputPictureFile.value(), x_ticks, y_ticks, y_ticklabels);
   if (input.OutputDataFile)
     biu::Hdf5file(input.OutputDataFile.value(), true)
@@ -283,7 +281,7 @@ void ufo::plot_point(std::string config_file)
     // 搜索 q 点时的阈值，单位为埃^-1
     std::optional<double> ThresholdWhenSearchingQpoints;
     // 是否要在 z 轴上作一些标记
-    std::optional<std::vector<double>> XTicks;
+    std::optional<std::vector<std::pair<double, std::string>>> XTicks;
     // 是否输出图片
     std::optional<std::string> OutputPictureFile;
     // 是否输出数据，可以进一步使用 matplotlib 画图
@@ -387,18 +385,16 @@ void ufo::plot_point(std::string config_file)
     unfolded_data.QpointData[qpoint_index],
     input.Resolution.X, {input.FrequencyRange.Min, input.FrequencyRange.Max}
   );
-  auto x_ticks = input.XTicks.value_or(std::vector<double>{})
-    | biu::toLvalue
+  auto x_ticks = input.XTicks.value_or(std::vector<std::pair<double, std::string>>{})
+    | biu::toLvalue | ranges::views::keys
     | ranges::views::transform([&](auto i)
     {
       return (i - input.FrequencyRange.Min) / (input.FrequencyRange.Max - input.FrequencyRange.Min)
         * input.Resolution.X;
     })
     | ranges::to_vector;
-  auto x_ticklabels = input.XTicks.value_or(std::vector<double>{})
-    | biu::toLvalue
-    | ranges::views::transform([](auto i) { return std::to_string(i); })
-    | ranges::to_vector;
+  auto x_ticklabels = input.XTicks.value_or(std::vector<std::pair<double, std::string>>{})
+    | biu::toLvalue | ranges::views::values | ranges::to_vector;
   if (input.OutputPictureFile)
     plot(values, input.OutputPictureFile.value(), x_ticks, x_ticklabels, input.Resolution.Y);
   if (input.OutputDataFile)
