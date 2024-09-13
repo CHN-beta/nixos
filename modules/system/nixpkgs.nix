@@ -133,19 +133,12 @@ inputs:
         name = "native kernel";
         patch = null;
         extraStructuredConfig =
-          let
-            kernelConfig =
-            {
-              alderlake = "MALDERLAKE";
-              sandybridge = "MSANDYBRIDGE";
-              silvermont = "MSILVERMONT";
-              broadwell = "MBROADWELL";
-              skylake = "MSKYLAKE";
-              znver2 = "MZEN2";
-              znver3 = "MZEN3";
-              znver4 = "MZEN4";
-            };
-          in { GENERIC_CPU = inputs.lib.kernel.no; ${kernelConfig.${nixpkgs.march}} = inputs.lib.kernel.yes; };
+          let kernelConfig = { znver2 = "MZEN2"; znver3 = "MZEN3"; znver4 = "MZEN4"; };
+          in
+          {
+            GENERIC_CPU = inputs.lib.kernel.no;
+            ${kernelConfig.${nixpkgs.march} or "M${inputs.lib.toUpper nixpkgs.march}"} = inputs.lib.kernel.yes;
+          };
       }];
     };
 }
