@@ -12,7 +12,7 @@ inputs:
       openmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
     };
     memoryMB = mkOption { type = types.ints.unsigned; };
-    gpus = mkOption { type = types.attrsOf types.ints.unsigned; };
+    gpus = mkOption { type = types.nullOr (types.attrsOf types.ints.unsigned); default = null; };
   };
   config = let inherit (inputs.config.nixos.services) slurm; in inputs.lib.mkIf slurm.enable
   {
@@ -43,9 +43,11 @@ inputs:
         client.enable = true;
         controlMachine = "localhost";
         nodeName =
-          let gpuString = builtins.concatStringsSep "," (builtins.map
-            (gpu: "gpu:${gpu.name}:${builtins.toString gpu.value}")
-            (inputs.localLib.attrsToList slurm.gpus));
+          let gpuString =
+            if slurm.gpus == null then ""
+            else "Gres=" + builtins.concatStringsSep "," (builtins.map
+              (gpu: "gpu:${gpu.name}:${builtins.toString gpu.value}")
+              (inputs.lib.attrsToList slurm.gpus));
           in inputs.lib.singleton (builtins.concatStringsSep " "
           [
             "localhost"
@@ -53,7 +55,7 @@ inputs:
             "Sockets=${builtins.toString slurm.cpu.sockets}"
             "CoresPerSocket=${builtins.toString slurm.cpu.cores}"
             "ThreadsPerCore=${builtins.toString slurm.cpu.threads}"
-            "Gres=${gpuString}"
+            "${gpuString}"
             "State=UNKNOWN"
           ]);
         partitionName = [ "localhost Nodes=localhost Default=YES MaxTime=INFINITE State=UP" ];
@@ -87,11 +89,13 @@ inputs:
             # automatically resume node after drain
             ReturnToService=2
           '';
-        extraConfigPaths =
-          let gpuString = builtins.concatStringsSep "\n" (builtins.map
-            (gpu: "Name=gpu Type=${gpu.name} Count=${builtins.toString gpu.value}")
-            (inputs.localLib.attrsToList slurm.gpus));
-          in [(inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml\n${gpuString}")];
+        extraConfigPaths = inputs.lib.mkIf (slurm.gpus != null)
+          (
+            let gpuString = builtins.concatStringsSep "\n" (builtins.map
+              (gpu: "Name=gpu Type=${gpu.name} Count=${builtins.toString gpu.value}")
+              (inputs.localLib.attrsToList slurm.gpus));
+            in [(inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml\n${gpuString}")]
+          );
       };
       munge = { enable = true; password = inputs.config.sops.secrets."munge.key".path; };
     };
@@ -123,7 +127,9 @@ inputs:
       {
         cpuMpiThreads = slurm.cpu.mpiThreads;
         cpuOpenmpThreads = slurm.cpu.openmpThreads;
-        gpuIds = builtins.concatStringsSep ", " (builtins.map (gpu: ''"${gpu}"'') (builtins.attrNames slurm.gpus));
+        gpuIds =
+          if slurm.gpus == null then ""
+          else builtins.concatStringsSep ", " (builtins.map (gpu: ''"${gpu}"'') (builtins.attrNames slurm.gpus));
       };})];
       user.sharedModules = [{ home.packages =
       [
