@@ -11,4 +11,5 @@
 # include <biu/smartref.tpp>
 # include <biu/fft.tpp>
 # include <biu/yaml.tpp>
+# include <biu/serialize.tpp>
 # include <range/v3/all.hpp>

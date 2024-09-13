@@ -16,10 +16,13 @@ namespace ufo
   void plot_point(std::string config_file);
 
   // unfold 和 plot 都需要用到这个，所以写出来
-  // TODO: 把输入的数据也保留进来
   struct UnfoldOutput
   {
     Eigen::Matrix3d PrimativeCell;
+    Eigen::Matrix3i SuperCellTransformation;
+    Eigen::Vector3i SuperCellMultiplier;
+    Eigen::Matrix3d SuperCellDeformation;
+    std::optional<std::vector<std::size_t>> SelectedAtoms;
 
     // 关于各个 Q 点的数据
     struct QpointDataType
@@ -42,5 +45,27 @@ namespace ufo
       std::vector<ModeDataType> ModeData;
     };
     std::vector<QpointDataType> QpointData;
+
+    struct MetaQpointDataType
+    {
+      // Q 点的坐标，单位为单胞的倒格矢
+      Eigen::Vector3d Qpoint;
+
+      // 关于这个 Q 点上各个模式的数据
+      struct ModeDataType
+      {
+        // 模式的频率，单位为 THz
+        double Frequency;
+        // 模式中各个原子的运动状态
+        // 这个数据应当是这样得到的：动态矩阵的 eigenvector 乘以 $\exp(-2 \pi i \vec q \cdot \vec r)$
+        // 这个数据可以认为是原子位移中, 关于超胞有周期性的那一部分, 再乘以原子质量的开方.
+        // 这个数据会在 unfold 时被归一化
+        Eigen::MatrixX3cd AtomMovement;
+      };
+      std::vector<ModeDataType> ModeData;
+    };
+    std::vector<MetaQpointDataType> MetaQpointData;
+
+    using serialize = zpp::bits::members<7>;
   };
 }

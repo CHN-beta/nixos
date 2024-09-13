@@ -54,26 +54,6 @@ void ufo::unfold(std::string config_file)
     std::vector<QpointDataOutputFileType> QpointDataOutputFile;
   };
 
-  // 关于各个 Q 点的数据
-  struct QpointData
-  {
-    // Q 点的坐标，单位为超胞的倒格矢
-    Eigen::Vector3d Qpoint;
-
-    // 关于这个 Q 点上各个模式的数据
-    struct ModeDataType
-    {
-      // 模式的频率，单位为 THz
-      double Frequency;
-      // 模式中各个原子的运动状态
-      // 这个数据应当是这样得到的：动态矩阵的 eigenvector 乘以 $\exp(-2 \pi i \vec q \cdot \vec r)$
-      // 这个数据可以认为是原子位移中, 关于超胞有周期性的那一部分, 再乘以原子质量的开方.
-      // 这个数据在读入后会被立即归一化.
-      Eigen::MatrixX3cd AtomMovement;
-    };
-    std::vector<ModeDataType> ModeData;
-  };
-
   // 从文件中读取 QpointData
   auto read_qpoint_data = [](std::string filename)
   {
@@ -108,7 +88,7 @@ void ufo::unfold(std::string config_file)
 
     // 整理得到结果
     auto number_of_qpoints = frequency.size(), num_of_modes = frequency[0].size();
-    std::vector<QpointData> qpoint_data(number_of_qpoints);
+    std::vector<UnfoldOutput::MetaQpointDataType> qpoint_data(number_of_qpoints);
     for (unsigned i = 0; i < number_of_qpoints; i++)
     {
       qpoint_data[i].Qpoint = qpoint[i] | biu::toEigen<>;
@@ -306,7 +286,7 @@ void ufo::unfold(std::string config_file)
   (
     const std::vector<std::vector<Eigen::VectorXcd>>& basis,
     // 实际上只需要其中的 AtomMovement
-    const std::vector<QpointData>& qpoint_data,
+    const std::vector<UnfoldOutput::MetaQpointDataType>& qpoint_data,
     std::atomic<unsigned>& number_of_finished_modes
   )
   {
@@ -358,16 +338,21 @@ void ufo::unfold(std::string config_file)
   // 组装输出，即将投影系数应用到原始数据上
   auto construct_output = []
   (
-    const Eigen::Matrix3d& primative_cell,
+    const Input& input,
     const Eigen::Vector3i& super_cell_multiplier,
     const Eigen::Matrix3d& super_cell_deformation,
     const std::vector<std::vector<std::vector<double>>>& projection_coefficient,
-    const std::vector<QpointData>& qpoint_data,
+    const std::vector<UnfoldOutput::MetaQpointDataType>& qpoint_data,
     const std::optional<std::vector<std::size_t>>& selected_atoms
   )
   {
     UnfoldOutput output;
-    output.PrimativeCell = primative_cell;
+    output.PrimativeCell = input.PrimativeCell;
+    output.SuperCellTransformation = input.SuperCellTransformation;
+    output.SuperCellMultiplier = super_cell_multiplier;
+    output.SuperCellDeformation = super_cell_deformation;
+    output.SelectedAtoms = selected_atoms;
+    output.MetaQpointData = qpoint_data;
     for (unsigned i_of_meta_qpoint = 0; i_of_meta_qpoint < qpoint_data.size(); i_of_meta_qpoint++)
     {
       // 如果需要投影到特定的原子上，需要先计算当前 meta qpoint 的不同模式的投影系数
@@ -487,7 +472,7 @@ void ufo::unfold(std::string config_file)
   {
     auto output = construct_output
     (
-      input.PrimativeCell, super_cell_multiplier, super_cell_deformation,
+      input, super_cell_multiplier, super_cell_deformation,
       projection_coefficient, qpoint_data, output_file.SelectedAtoms
     );
     if (output_file.OutputAsYaml.value_or(false)) std::ofstream(output_file.Filename) << YAML::Node(output);

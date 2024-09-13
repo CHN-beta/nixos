@@ -18,9 +18,11 @@ int main()
   {
     int x;
     std::string y;
+    std::complex<double> z;
   };
-  A a{ 123, "abc" };
+  A a{ 123, "abc", 3i };
   auto b = biu::deserialize<A>(biu::serialize(a));
   assert(a.x == b.x);
   assert(a.y == b.y);
+  assert(a.z == b.z);
 }

@@ -95,14 +95,6 @@ namespace biu
     }
     template <detail_::ExecMode Mode = {}> detail_::ExecResult<Mode> exec(detail_::ExecInput<Mode> input);
 
-    static_assert(sizeof(char) == sizeof(std::byte));
-    template <typename Char = std::byte, typename T> requires (std::same_as<Char, std::byte>)
-      std::vector<std::byte> serialize(const T& data);
-    template <typename Char = std::byte, typename T> requires (std::same_as<Char, char>)
-      std::string serialize(const T& data);
-    template <typename T> T deserialize(const std::string& serialized_data);
-    template <typename T> T deserialize(const std::vector<std::byte>& serialized_data);
-
     template <typename Array> concurrencpp::generator<std::pair<Array, std::size_t>> sequence(Array from, Array to);
     template <typename Array> concurrencpp::generator<std::pair<Array, std::size_t>> sequence(Array to);
 
@@ -128,6 +120,6 @@ namespace biu
   }
   using common::hash, common::unused, common::block_forever, common::is_interactive, common::env, common::int128_t,
     common::uint128_t, common::Empty, common::CaseInsensitiveStringLessComparator, common::RemoveMemberPointer,
-    common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec, common::serialize, common::deserialize,
-    common::sequence, common::read, common::toLvalue;
+    common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec, common::sequence, common::read,
+    common::toLvalue;
 }
