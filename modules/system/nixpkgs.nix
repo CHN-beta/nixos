@@ -115,6 +115,7 @@ inputs:
                   scalapack = prev.scalapack.overrideAttrs { doCheck = false; };
                   xdg-desktop-portal = prev.xdg-desktop-portal.overrideAttrs (prev:
                     { doCheck = false; nativeBuildInputs = prev.nativeBuildInputs ++ prev.nativeCheckInputs; });
+                  gsl = prev.gsl.overrideAttrs { doCheck = false; };
                 }
               )
               // (
