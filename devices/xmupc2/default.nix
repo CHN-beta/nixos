@@ -52,6 +52,7 @@ inputs:
             # "cascadelake"
           ];
           remote.slave.enable = true;
+          substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
         };
         grub.windowsEntries."8F50-83B8" = "猿神，启动！";
       };
