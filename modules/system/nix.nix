@@ -88,7 +88,7 @@ inputs:
     })
     # substituters
     {
-      nix.settings.substituters = if nix.substituters == null then [ "https://cache.nixos.org/" ] else nix.substituters;
+      nix.settings.substituters = inputs.lib.mkIf (nix.substituters != null) nix.substituters;
     }
     # autoOptimiseStore
     (inputs.lib.mkIf nix.autoOptimiseStore

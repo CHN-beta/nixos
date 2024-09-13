@@ -40,7 +40,7 @@ inputs:
         };
         initrd.sshd.enable = true;
         nixpkgs.march = "silvermont";
-        nix.substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ];
+        nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
         networking = { hostname = "nas"; networkd = {}; };
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };

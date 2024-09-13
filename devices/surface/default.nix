@@ -24,7 +24,7 @@ inputs:
           rollingRootfs = {};
         };
         nixpkgs.march = "skylake";
-        nix = { substituters = [ "https://cache.nixos.org/" "https://nix-store.chn.moe" ]; githubToken.enable = true; };
+        nix = { substituters = [ "https://nix-store.chn.moe?priority=100" ]; githubToken.enable = true; };
         kernel = { variant = "xanmod-lts"; patches = [ "surface" "hibernate-progress" ]; };
         networking.hostname = "surface";
         gui.enable = true;
