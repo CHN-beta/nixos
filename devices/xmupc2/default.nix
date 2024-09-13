@@ -42,7 +42,16 @@ inputs:
         };
         gui = { enable = true; preferred = false; autoStart = true; };
         networking.hostname = "xmupc2";
-        nix.remote.slave.enable = true;
+        nix =
+        {
+          marches =
+          [
+            "broadwell" "skylake"
+            # AVX512F CLWB AVX512VL AVX512BW AVX512DQ AVX512CD AVX512VNNI
+            # "cascadelake"
+          ];
+          remote.slave.enable = true;
+        };
         grub.windowsEntries."8F50-83B8" = "猿神，启动！";
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "nvidia"; };
