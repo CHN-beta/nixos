@@ -46,7 +46,7 @@ let
       ln -s ${vtst} $out/src/vtst
     '';
     dontFixup = true;
-    requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
+    requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
   };
   startScript = variant: writeScript "vasp-intel"
   ''

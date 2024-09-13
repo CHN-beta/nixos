@@ -36,5 +36,5 @@ in stdenvNoCC.mkDerivation
   '';
   dontInstall = true;
   dontFixup = true;
-  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
+  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
 }

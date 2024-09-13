@@ -40,5 +40,5 @@ in stdenvNoCC.mkDerivation
     mkdir -p $out
     ${builder}/bin/builder ./install
   '';
-  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" ];
+  requiredSystemFeatures = [ "gccarch-exact-${stdenvNoCC.hostPlatform.gcc.arch}" "big-parallel" ];
 }

@@ -15,7 +15,7 @@ inputs:
         mandatoryFeatures = mkOption
         {
           type = types.listOf types.nonEmptyStr;
-          default = [ "gccarch-exact-${inputs.config.nixos.system.nixpkgs.march}" ];
+          default = [ "big-parallel" ];
         };
       };
       master =
