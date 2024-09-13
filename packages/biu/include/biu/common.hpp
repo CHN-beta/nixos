@@ -118,9 +118,16 @@ namespace biu
     template<> std::string read<char>(const std::filesystem::path& path);
     template<> std::vector<std::byte> read<std::byte>(std::istream& input);
     template<> std::string read<char>(std::istream& input);
+
+    namespace detail_
+    {
+      struct ToLvalueHelper {};
+      template <typename T> T& operator|(T&& obj, const ToLvalueHelper&);
+    }
+    constexpr detail_::ToLvalueHelper toLvalue;
   }
   using common::hash, common::unused, common::block_forever, common::is_interactive, common::env, common::int128_t,
     common::uint128_t, common::Empty, common::CaseInsensitiveStringLessComparator, common::RemoveMemberPointer,
     common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec, common::serialize, common::deserialize,
-    common::sequence, common::read;
+    common::sequence, common::read, common::toLvalue;
 }

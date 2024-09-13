@@ -2,7 +2,7 @@
 # include <matplot/matplot.h>
 # include <boost/container/flat_map.hpp>
 
-void ufo::plot(std::string config_file)
+void ufo::plot_band(std::string config_file)
 {
   struct Input
   {
@@ -255,6 +255,140 @@ void ufo::plot(std::string config_file)
       .write("Values", values)
       .write("XTicks", x_ticks)
       .write("YTicks", y_ticks)
+      .write("Resolution", std::vector{input.Resolution.X, input.Resolution.Y})
+      .write("Range", std::vector{input.FrequencyRange.Min, input.FrequencyRange.Max});
+}
+
+void ufo::plot_point(std::string config_file)
+{
+  struct Input
+  {
+    std::string UnfoldedDataFile;
+    // 要画图的 q 点
+    Eigen::Vector3d Qpoint;
+    // x 方向为频率，y 方向没有用
+    struct { std::size_t X, Y; } Resolution;
+    // 画图的频率范围
+    struct { double Min, Max; } FrequencyRange;
+    // 搜索 q 点时的阈值，单位为埃^-1
+    std::optional<double> ThresholdWhenSearchingQpoints;
+    // 是否要在 z 轴上作一些标记
+    std::optional<std::vector<double>> XTicks;
+    // 是否输出图片
+    std::optional<std::string> OutputPictureFile;
+    // 是否输出数据，可以进一步使用 matplotlib 画图
+    std::optional<std::string> OutputDataFile;
+  };
+
+  // 根据 q 点路径, 搜索要使用的 q 点，返回的是 q 点在 QpointData 中的索引
+  auto search_qpoints = []
+  (
+    const Eigen::Matrix3d& primative_cell,
+    const Eigen::Vector3d& qpoint, const std::vector<Eigen::Vector3d>& qpoints,
+    double threshold
+  )
+  {
+    biu::Logger::Guard log(qpoint);
+    // 对于 output 中的每一个点, 检查这个点是否与所寻找的点足够近，如果足够近则返回
+    for (std::size_t i = 0; i < qpoints.size(); i++)
+      for (auto cell_shift
+        : biu::sequence(Eigen::Vector3i(-1, -1, -1), Eigen::Vector3i(2, 2, 2)))
+      {
+        auto this_qpoint
+          = (primative_cell.reverse().transpose() * (qpoints[i] + cell_shift.first.cast<double>())).eval();
+        if ((this_qpoint - primative_cell.reverse().transpose() * qpoint).norm() < threshold) return log.rtn(i);
+      }
+    throw std::runtime_error("No q points found");
+  };
+
+  // 根据搜索到的 q 点, 计算图中每个点的值
+  auto calculate_values = []
+  (
+    // q 点的数据（需要用到它的频率和权重）
+    const UnfoldOutput::QpointDataType& qpoint,
+    // 用于插值的分辨率和范围
+    unsigned resolution,
+    const std::pair<double, double>& frequency_range
+  )
+  {
+    biu::Logger::Guard log;
+    std::vector<double> result(resolution);
+    for (auto& mode : qpoint.ModeData)
+    {
+      int index = mode.Frequency - frequency_range.first / (frequency_range.second - frequency_range.first)
+        * resolution;
+      if (index >= 0 && index < static_cast<int>(resolution)) result[index] += mode.Weight;
+    }
+    return log.rtn(result);
+  };
+
+  // 根据数值, 画图
+  auto plot = []
+  (
+    const std::vector<double>& values, const std::string& filename,
+    const std::vector<double>& x_ticks, unsigned y_resolution
+  )
+  {
+    biu::Logger::Guard log;
+    std::vector<std::vector<double>>
+      r(y_resolution, std::vector<double>(values.size(), 0)),
+      g(y_resolution, std::vector<double>(values.size(), 0)),
+      b(y_resolution, std::vector<double>(values.size(), 0)),
+      a(y_resolution, std::vector<double>(values.size(), 0));
+    for (unsigned i = 0; i < y_resolution; i++) for (unsigned j = 0; j < values.size(); j++)
+    {
+      auto v = values[j];
+      if (v < 0.05) v = 0;
+      a[i][j] = v * 100 * 255;
+      if (a[i][j] > 255) a[i][j] = 255;
+      r[i][j] = 255 - v * 2 * 255;
+      if (r[i][j] < 0) r[i][j] = 0;
+      g[i][j] = 255 - v * 2 * 255;
+      if (g[i][j] < 0) g[i][j] = 0;
+      b[i][j] = 255;
+    }
+    auto f = matplot::figure(true);
+    auto ax = f->current_axes();
+    auto image = ax->image(std::tie(r, g, b));
+    image->matrix_a(a);
+    ax->y_axis().reverse(false);
+    ax->x_axis().tick_values(x_ticks);
+    ax->x_axis().tick_length(1);
+    f->save(filename, "png");
+  };
+
+  biu::Logger::Guard log;
+  auto input = YAML::LoadFile(config_file).as<Input>();
+  auto unfolded_data = biu::deserialize<UnfoldOutput>
+    (biu::read<std::byte>(input.UnfoldedDataFile));
+  
+  auto qpoint_index = search_qpoints
+  (
+    unfolded_data.PrimativeCell, input.Qpoint,
+    unfolded_data.QpointData
+      | ranges::views::transform(&UnfoldOutput::QpointDataType::Qpoint)
+      | ranges::to_vector,
+    input.ThresholdWhenSearchingQpoints.value_or(0.001)
+  );
+  auto values = calculate_values
+  (
+    unfolded_data.QpointData[qpoint_index],
+    input.Resolution.X, {input.FrequencyRange.Min, input.FrequencyRange.Max}
+  );
+  auto x_ticks = input.XTicks.value_or(std::vector<double>{})
+    | biu::toLvalue
+    | ranges::views::transform([&](auto i)
+    {
+      return (i - input.FrequencyRange.Min) / (input.FrequencyRange.Max - input.FrequencyRange.Min)
+        * input.Resolution.X;
+    })
+    | ranges::to_vector;
+  if (input.OutputPictureFile)
+    plot(values, input.OutputPictureFile.value(), x_ticks, input.Resolution.Y);
+  if (input.OutputDataFile)
+    biu::Hdf5file(input.OutputDataFile.value(), true)
+      .write("Values", values)
+      .write("XTicks", x_ticks)
       .write("Resolution", std::vector{input.Resolution.X, input.Resolution.Y})
       .write("Range", std::vector{input.FrequencyRange.Min, input.FrequencyRange.Max});
 }

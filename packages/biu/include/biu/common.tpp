@@ -70,4 +70,5 @@ namespace biu::common
     for (std::size_t i = 0; i < from.size(); i++) from[i] = 0;
     return sequence(from, to);
   }
+  template <typename T> T& detail_::operator|(T&& obj, const ToLvalueHelper&) { return static_cast<T&>(obj); }
 }

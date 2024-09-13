@@ -12,9 +12,11 @@ namespace ufo
 
   void fold(std::string config_file);
   void unfold(std::string config_file);
-  void plot(std::string config_file);
+  void plot_band(std::string config_file);
+  void plot_point(std::string config_file);
 
   // unfold 和 plot 都需要用到这个，所以写出来
+  // TODO: 把输入的数据也保留进来
   struct UnfoldOutput
   {
     Eigen::Matrix3d PrimativeCell;
