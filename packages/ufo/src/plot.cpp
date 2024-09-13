@@ -16,7 +16,7 @@ void ufo::plot_band(std::string config_file)
     struct { double Min, Max; } FrequencyRange;
     // 搜索 q 点时的阈值，单位为埃^-1
     std::optional<double> ThresholdWhenSearchingQpoints;
-    // 是否要在 z 轴上作一些标记
+    // 是否要在 y 轴上作一些标记
     std::optional<std::vector<double>> YTicks;
     // 是否输出图片
     std::optional<std::string> OutputPictureFile;
@@ -163,7 +163,8 @@ void ufo::plot_band(std::string config_file)
   (
     const std::vector<std::vector<double>>& values,
     const std::string& filename,
-    const std::vector<double>& x_ticks, const std::vector<double>& y_ticks
+    const std::vector<double>& x_ticks, const std::vector<double>& y_ticks,
+    const std::vector<std::string>& y_ticklabels
   )
   {
     std::vector<std::vector<double>>
@@ -191,8 +192,10 @@ void ufo::plot_band(std::string config_file)
     ax->y_axis().reverse(false);
     ax->x_axis().tick_values(x_ticks);
     ax->x_axis().tick_length(1);
+    ax->x_axis().ticklabels(std::vector<std::string>(x_ticks.size()));
     ax->y_axis().tick_values(y_ticks);
     ax->y_axis().tick_length(1);
+    ax->y_axis().ticklabels(y_ticklabels);
     f->save(filename, "png");
   };
 
@@ -243,18 +246,25 @@ void ufo::plot_band(std::string config_file)
   );
   auto x_ticks = x_ticks_index | ranges::views::transform([&](auto i)
     { return path.nth(i)->first / total_distance * input.Resolution.X; }) | ranges::to<std::vector>;
-  std::vector<double> y_ticks;
-  if (input.YTicks) y_ticks = input.YTicks.value()
+  auto y_ticks = input.YTicks.value_or(std::vector<double>{})
+    | biu::toLvalue
     | ranges::views::transform([&](auto i)
-      { return (i - input.FrequencyRange.Min) / (input.FrequencyRange.Max - input.FrequencyRange.Min)
-        * input.Resolution.Y; })
-    | ranges::to<std::vector>;
-  if (input.OutputPictureFile) plot(values, input.OutputPictureFile.value(), x_ticks, y_ticks);
+    {
+      return (i - input.FrequencyRange.Min) / (input.FrequencyRange.Max - input.FrequencyRange.Min)
+        * input.Resolution.Y;
+    })
+    | ranges::to_vector;
+  auto y_ticklabels = input.YTicks.value_or(std::vector<double>{})
+    | biu::toLvalue
+    | ranges::views::transform([](auto i) { return std::to_string(i); })
+    | ranges::to_vector;
+  if (input.OutputPictureFile) plot(values, input.OutputPictureFile.value(), x_ticks, y_ticks, y_ticklabels);
   if (input.OutputDataFile)
     biu::Hdf5file(input.OutputDataFile.value(), true)
       .write("Values", values)
       .write("XTicks", x_ticks)
       .write("YTicks", y_ticks)
+      .write("YTickLabels", y_ticklabels)
       .write("Resolution", std::vector{input.Resolution.X, input.Resolution.Y})
       .write("Range", std::vector{input.FrequencyRange.Min, input.FrequencyRange.Max});
 }
@@ -326,7 +336,7 @@ void ufo::plot_point(std::string config_file)
   auto plot = []
   (
     const std::vector<double>& values, const std::string& filename,
-    const std::vector<double>& x_ticks, unsigned y_resolution
+    const std::vector<double>& x_ticks, const std::vector<std::string>& x_ticklabels, unsigned y_resolution
   )
   {
     biu::Logger::Guard log;
@@ -354,6 +364,7 @@ void ufo::plot_point(std::string config_file)
     ax->y_axis().reverse(false);
     ax->x_axis().tick_values(x_ticks);
     ax->x_axis().tick_length(1);
+    ax->x_axis().ticklabels(x_ticklabels);
     ax->y_axis().tick_values({});
     f->save(filename, "png");
   };
@@ -384,12 +395,17 @@ void ufo::plot_point(std::string config_file)
         * input.Resolution.X;
     })
     | ranges::to_vector;
+  auto x_ticklabels = input.XTicks.value_or(std::vector<double>{})
+    | biu::toLvalue
+    | ranges::views::transform([](auto i) { return std::to_string(i); })
+    | ranges::to_vector;
   if (input.OutputPictureFile)
-    plot(values, input.OutputPictureFile.value(), x_ticks, input.Resolution.Y);
+    plot(values, input.OutputPictureFile.value(), x_ticks, x_ticklabels, input.Resolution.Y);
   if (input.OutputDataFile)
     biu::Hdf5file(input.OutputDataFile.value(), true)
       .write("Values", values)
       .write("XTicks", x_ticks)
+      .write("XTickLabels", x_ticklabels)
       .write("Resolution", std::vector{input.Resolution.X, input.Resolution.Y})
       .write("Range", std::vector{input.FrequencyRange.Min, input.FrequencyRange.Max});
 }
