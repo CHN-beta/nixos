@@ -11,13 +11,14 @@ void ufo::plot_band(std::string config_file)
     // 内层表示一个路径上的 q 点，外层表示不同的路径
     // 单位为倒格矢
     std::vector<std::vector<Eigen::Vector3d>> Qpoints;
-    // 插值时使用的分辨率（影响图片的精细度但不影响图片的横纵比例）
-    struct { std::size_t X, Y; } Resolution;
+    // 插值时使用的分辨率（不影响画出来图片的分辨率和横纵比）
+    std::array<std::size_t, 2> InterpolationResolution;
     // 画图区域的y轴和x轴的比例。如果不指定，则由matplot++自动调整（通常调整为正方形，即 1）
-    // 例如，如果指定为 0.5，最终的图片会是一个长方形，y轴的长度是x轴的一半
     std::optional<double> AspectRatio;
+    // 整张图片的分辨率
+    std::optional<std::array<std::size_t, 2>> PictureResolution;
     // 画图的频率范围
-    struct { double Min, Max; } FrequencyRange;
+    std::array<double, 2> FrequencyRange;
     // 搜索 q 点时的阈值，单位为埃^-1
     std::optional<double> ThresholdWhenSearchingQpoints;
     // 是否要在 y 轴上作一些标记
@@ -85,8 +86,8 @@ void ufo::plot_band(std::string config_file)
     // 所有 q 点的数据（需要用到它的频率和权重）
     const std::vector<UnfoldOutput::QpointDataType>& qpoints,
     // 用于插值的分辨率和范围
-    const std::pair<unsigned, unsigned>& resolution,
-    const std::pair<double, double>& frequency_range,
+    const std::array<std::size_t, 2>& resolution,
+    const std::array<double, 2>& frequency_range,
     // 路径的总长度
     double total_distance
   )
@@ -100,7 +101,7 @@ void ufo::plot_band(std::string config_file)
       bool continuous,
       // 第一个点占的比例
       double ratio,
-      unsigned resolution, std::pair<double, double> frequency_range
+      std::size_t resolution, std::array<double, 2> frequency_range
     ) -> std::vector<double>
     {
       // 混合得到的频率和权重
@@ -109,7 +110,7 @@ void ufo::plot_band(std::string config_file)
       if (continuous)
       {
         assert(qpoints[a].ModeData.size() == qpoints[b].ModeData.size());
-        for (unsigned i = 0; i < qpoints[a].ModeData.size(); i++)
+        for (std::size_t i = 0; i < qpoints[a].ModeData.size(); i++)
         {
           frequency.push_back
             (qpoints[a].ModeData[i].Frequency * ratio + qpoints[b].ModeData[i].Frequency * (1 - ratio));
@@ -119,44 +120,44 @@ void ufo::plot_band(std::string config_file)
       // 如果是不连续路径，将每个模式的权重乘以比例，最后相加
       else
       {
-        for (unsigned i = 0; i < qpoints[a].ModeData.size(); i++)
+        for (std::size_t i = 0; i < qpoints[a].ModeData.size(); i++)
         {
           frequency.push_back(qpoints[a].ModeData[i].Frequency);
           weight.push_back(qpoints[a].ModeData[i].Weight * ratio);
         }
-        for (unsigned i = 0; i < qpoints[b].ModeData.size(); i++)
+        for (std::size_t i = 0; i < qpoints[b].ModeData.size(); i++)
         {
           frequency.push_back(qpoints[b].ModeData[i].Frequency);
           weight.push_back(qpoints[b].ModeData[i].Weight * (1 - ratio));
         }
       }
       std::vector<double> result(resolution);
-      for (unsigned i = 0; i < frequency.size(); i++)
+      for (std::size_t i = 0; i < frequency.size(); i++)
       {
-        int index = (frequency[i] - frequency_range.first) / (frequency_range.second - frequency_range.first)
+        std::ptrdiff_t index = (frequency[i] - frequency_range[0]) / (frequency_range[1] - frequency_range[0])
           * resolution;
-        if (index >= 0 && index < static_cast<int>(resolution)) result[index] += weight[i];
+        if (index >= 0 && index < static_cast<std::ptrdiff_t>(resolution)) result[index] += weight[i];
       }
       return result;
     };
 
     std::vector<std::vector<double>> values;
-    for (unsigned i = 0; i < resolution.first; i++)
+    for (std::size_t i = 0; i < resolution[0]; i++)
     {
-      auto current_distance = total_distance * i / resolution.first;
+      auto current_distance = total_distance * i / resolution[0];
       auto it = path.lower_bound(current_distance);
       if (it == path.begin()) values.push_back(blend
-          (it->second, it->second, true, 1, resolution.second, frequency_range));
+          (it->second, it->second, true, 1, resolution[1], frequency_range));
       else if (it == path.end()) values.push_back(blend
       (
         std::prev(it)->second, std::prev(it)->second, true, 1,
-        resolution.second, frequency_range
+        resolution[1], frequency_range
       ));
       else values.push_back(blend
       (
         std::prev(it)->second, it->second, !path_begin.contains(it->second),
         (it->first - current_distance) / (it->first - std::prev(it)->first),
-        resolution.second, frequency_range
+        resolution[1], frequency_range
       ));
     }
     return values;
@@ -169,7 +170,8 @@ void ufo::plot_band(std::string config_file)
     const std::string& filename,
     const std::vector<double>& x_ticks, const std::vector<double>& y_ticks,
     const std::vector<std::string>& y_ticklabels,
-    const std::optional<double>& aspect_ratio
+    const std::optional<double>& aspect_ratio,
+    const std::optional<std::array<std::size_t, 2>>& resolution
   )
   {
     std::vector<std::vector<double>>
@@ -177,8 +179,8 @@ void ufo::plot_band(std::string config_file)
       g(values[0].size(), std::vector<double>(values.size(), 0)),
       b(values[0].size(), std::vector<double>(values.size(), 0)),
       a(values[0].size(), std::vector<double>(values.size(), 0));
-    for (unsigned i = 0; i < values[0].size(); i++)
-      for (unsigned j = 0; j < values.size(); j++)
+    for (std::size_t i = 0; i < values[0].size(); i++)
+      for (std::size_t j = 0; j < values.size(); j++)
       {
         auto v = values[j][i];
         if (v < 0.05) v = 0;
@@ -205,6 +207,11 @@ void ufo::plot_band(std::string config_file)
     {
       ax->axes_aspect_ratio_auto(false);
       ax->axes_aspect_ratio(*aspect_ratio);
+    }
+    if (resolution)
+    {
+      f->width((*resolution)[0]);
+      f->height((*resolution)[1]);
     }
     f->save(filename, "png");
   };
@@ -251,17 +258,17 @@ void ufo::plot_band(std::string config_file)
   // 计算画图的数据
   auto values = calculate_values
   (
-    path, path_begin, unfolded_data.QpointData, {input.Resolution.X, input.Resolution.Y},
-    {input.FrequencyRange.Min, input.FrequencyRange.Max}, total_distance
+    path, path_begin, unfolded_data.QpointData, input.InterpolationResolution,
+    input.FrequencyRange, total_distance
   );
   auto x_ticks = x_ticks_index | ranges::views::transform([&](auto i)
-    { return path.nth(i)->first / total_distance * input.Resolution.X; }) | ranges::to<std::vector>;
+    { return path.nth(i)->first / total_distance * input.InterpolationResolution[0]; }) | ranges::to<std::vector>;
   auto y_ticks = input.YTicks.value_or(std::vector<std::pair<double, std::string>>{})
     | biu::toLvalue | ranges::views::keys
     | ranges::views::transform([&](auto i)
     {
-      return (i - input.FrequencyRange.Min) / (input.FrequencyRange.Max - input.FrequencyRange.Min)
-        * input.Resolution.Y;
+      return (i - input.FrequencyRange[0]) / (input.FrequencyRange[1] - input.FrequencyRange[0])
+        * input.InterpolationResolution[1];
     })
     | ranges::to_vector;
   auto y_ticklabels = input.YTicks.value_or(std::vector<std::pair<double, std::string>>{})
@@ -269,7 +276,7 @@ void ufo::plot_band(std::string config_file)
   if (input.OutputPictureFile) plot
   (
     values, input.OutputPictureFile.value(),
-    x_ticks, y_ticks, y_ticklabels, input.AspectRatio
+    x_ticks, y_ticks, y_ticklabels, input.AspectRatio, input.PictureResolution
   );
   if (input.OutputDataFile)
     biu::Hdf5file(input.OutputDataFile.value(), true)
@@ -277,8 +284,8 @@ void ufo::plot_band(std::string config_file)
       .write("XTicks", x_ticks)
       .write("YTicks", y_ticks)
       .write("YTickLabels", y_ticklabels)
-      .write("Resolution", std::vector{input.Resolution.X, input.Resolution.Y})
-      .write("Range", std::vector{input.FrequencyRange.Min, input.FrequencyRange.Max});
+      .write("InterpolationResolution", input.InterpolationResolution)
+      .write("FrequencyRange", input.FrequencyRange);
 }
 
 void ufo::plot_point(std::string config_file)
@@ -288,11 +295,12 @@ void ufo::plot_point(std::string config_file)
     std::string UnfoldedDataFile;
     // 要画图的 q 点
     Eigen::Vector3d Qpoint;
-    // x 方向为频率，y 方向没有用
-    struct { std::size_t X, Y; } Resolution;
+    // 插值的分辨率
+    std::size_t InterpolationResolution;
     std::optional<double> AspectRatio;
+    std::optional<std::array<std::size_t, 2>> PictureResolution;
     // 画图的频率范围
-    struct { double Min, Max; } FrequencyRange;
+    std::array<double, 2> FrequencyRange;
     // 搜索 q 点时的阈值，单位为埃^-1
     std::optional<double> ThresholdWhenSearchingQpoints;
     // 是否要在 z 轴上作一些标记
@@ -330,17 +338,17 @@ void ufo::plot_point(std::string config_file)
     // q 点的数据（需要用到它的频率和权重）
     const UnfoldOutput::QpointDataType& qpoint,
     // 用于插值的分辨率和范围
-    unsigned resolution,
-    const std::pair<double, double>& frequency_range
+    std::size_t resolution,
+    const std::array<double, 2>& frequency_range
   )
   {
     biu::Logger::Guard log;
     std::vector<double> result(resolution);
     for (auto& mode : qpoint.ModeData)
     {
-      int index = (mode.Frequency - frequency_range.first) / (frequency_range.second - frequency_range.first)
+      std::ptrdiff_t index = (mode.Frequency - frequency_range[0]) / (frequency_range[1] - frequency_range[0])
         * resolution;
-      if (index >= 0 && index < static_cast<int>(resolution)) result[index] += mode.Weight;
+      if (index >= 0 && index < static_cast<std::ptrdiff_t>(resolution)) result[index] += mode.Weight;
     }
     return log.rtn(result);
   };
@@ -349,8 +357,8 @@ void ufo::plot_point(std::string config_file)
   auto plot = []
   (
     const std::vector<double>& values, const std::string& filename,
-    const std::vector<double>& x_ticks, const std::vector<std::string>& x_ticklabels, unsigned y_resolution,
-    const std::optional<double>& aspect_ratio
+    const std::vector<double>& x_ticks, const std::vector<std::string>& x_ticklabels, std::size_t y_resolution,
+    const std::optional<double>& aspect_ratio, const std::optional<std::array<std::size_t, 2>>& resolution
   )
   {
     biu::Logger::Guard log;
@@ -359,7 +367,7 @@ void ufo::plot_point(std::string config_file)
       g(y_resolution, std::vector<double>(values.size(), 0)),
       b(y_resolution, std::vector<double>(values.size(), 0)),
       a(y_resolution, std::vector<double>(values.size(), 0));
-    for (unsigned i = 0; i < y_resolution; i++) for (unsigned j = 0; j < values.size(); j++)
+    for (std::size_t i = 0; i < y_resolution; i++) for (std::size_t j = 0; j < values.size(); j++)
     {
       auto v = values[j];
       if (v < 0.05) v = 0;
@@ -385,6 +393,11 @@ void ufo::plot_point(std::string config_file)
       ax->axes_aspect_ratio_auto(false);
       ax->axes_aspect_ratio(*aspect_ratio);
     }
+    if (resolution)
+    {
+      f->width((*resolution)[0]);
+      f->height((*resolution)[1]);
+    }
     f->save(filename, "png");
   };
 
@@ -404,14 +417,14 @@ void ufo::plot_point(std::string config_file)
   auto values = calculate_values
   (
     unfolded_data.QpointData[qpoint_index],
-    input.Resolution.X, {input.FrequencyRange.Min, input.FrequencyRange.Max}
+    input.InterpolationResolution, input.FrequencyRange
   );
   auto x_ticks = input.XTicks.value_or(std::vector<std::pair<double, std::string>>{})
     | biu::toLvalue | ranges::views::keys
     | ranges::views::transform([&](auto i)
     {
-      return (i - input.FrequencyRange.Min) / (input.FrequencyRange.Max - input.FrequencyRange.Min)
-        * input.Resolution.X;
+      return (i - input.FrequencyRange[0]) / (input.FrequencyRange[1] - input.FrequencyRange[0])
+        * input.InterpolationResolution;
     })
     | ranges::to_vector;
   auto x_ticklabels = input.XTicks.value_or(std::vector<std::pair<double, std::string>>{})
@@ -419,13 +432,13 @@ void ufo::plot_point(std::string config_file)
   if (input.OutputPictureFile) plot
   (
     values, input.OutputPictureFile.value(),
-    x_ticks, x_ticklabels, input.Resolution.Y, input.AspectRatio
+    x_ticks, x_ticklabels, 10, input.AspectRatio, input.PictureResolution
   );
   if (input.OutputDataFile)
     biu::Hdf5file(input.OutputDataFile.value(), true)
       .write("Values", values)
       .write("XTicks", x_ticks)
       .write("XTickLabels", x_ticklabels)
-      .write("Resolution", std::vector{input.Resolution.X, input.Resolution.Y})
-      .write("Range", std::vector{input.FrequencyRange.Min, input.FrequencyRange.Max});
+      .write("InterpolationResolution", input.InterpolationResolution)
+      .write("FrequencyRange", input.FrequencyRange);
 }
