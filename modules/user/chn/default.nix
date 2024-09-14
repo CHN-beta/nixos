@@ -82,26 +82,31 @@ inputs:
                 ))
             )
           ];
-          persistence."/nix/persistent/home/chn" =
+          persistence =
           {
-            directories =
-            [
-              # common things
-              "bin" "Desktop" "Documents" "Downloads" "Music" "Pictures" "repo" "share" "Public" "Videos"
-              ".config" ".local/share"
-              # xmuvpn
-              ".ecdata"
-              # firefox
-              { dir = ".mozilla/firefox/default"; mode = "0700"; }
-              # ssh
-              { dir = ".ssh"; mode = "0700"; }
-              # steam
-              ".steam" # ".local/share/Steam"
-              # vscode
-              ".vscode" # ".config/Code" ".config/grammarly-languageserver"
-              # zotero
-              ".zotero" "Zotero"
-            ];
+            "/nix/persistent/home/chn" =
+            {
+              directories =
+              [
+                # common things
+                "bin" "Desktop" "Documents" "Downloads" "Music" "Pictures" "repo" "share" "Public" "Videos"
+                ".config" ".local/share"
+                # xmuvpn
+                ".ecdata"
+                # firefox
+                ".mozilla/firefox/default"
+                # ssh
+                ".ssh"
+                # steam
+                ".steam" # ".local/share/Steam"
+                # vscode
+                ".vscode" # ".config/Code" ".config/grammarly-languageserver"
+                # zotero
+                ".zotero" "Zotero"
+              ];
+              allowOther = true;
+            };
+            "/nix/rootfs/current/home/chn".allowOther = true;
           };
         };
         pam.yubico.authorizedYubiKeys.ids = [ "cccccbgrhnub" ];
