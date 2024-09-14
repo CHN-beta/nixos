@@ -63,12 +63,13 @@ inputs:
           "Terminal Features".BlinkingCursorEnabled.value = true;
         };
       };
-      home.file.".local/share/konsole/Breeze.colorscheme".text = builtins.replaceStrings
-        [ "Opacity=1" ] [ "Opacity=0.9\nBlur=true" ]
-        (builtins.readFile "${inputs.pkgs.konsole}/share/konsole/Breeze.colorscheme");
+      home =
+      {
+        file.".local/share/konsole/Breeze.colorscheme".text = builtins.replaceStrings
+          [ "Opacity=1" ] [ "Opacity=0.9\nBlur=true" ]
+          (builtins.readFile "${inputs.pkgs.konsole}/share/konsole/Breeze.colorscheme");
+        persistence."/nix/rootfs/current/home/chn".directories = [ ".local/share/konsole" ".local/share/yakuake" ];
+      };
     };
-    environment.persistence =
-      let impermanence = inputs.config.nixos.system.impermanence; in inputs.lib.mkIf impermanence.enable
-        { "${impermanence.root}".users.chn.directories = [ ".local/share/konsole" ".local/share/yakuake" ]; };
   };
 }
