@@ -78,129 +78,16 @@
 
   outputs = inputs:
     let
-      localLib = import ./lib.nix inputs.nixpkgs.lib;
-      devices = builtins.filter (dir: (builtins.readDir ./devices/${dir})."default.nix" or null == "regular" )
-        (builtins.attrNames (builtins.readDir ./devices));
+      localLib = import ./flake/lib.nix inputs.nixpkgs.lib;
+      devices = [ "nas" "pc" "pi3b" "srv1-node0" "srv1-node3" "surface" "vps4" "vps6" "vps7" "xmupc1" "xmupc2" ];
     in
     {
-      packages.x86_64-linux = rec
-      {
-        pkgs = (import inputs.nixpkgs
-        {
-          system = "x86_64-linux";
-          config.allowUnfree = true;
-          overlays = [ inputs.self.overlays.default ];
-        });
-        default = inputs.nixpkgs.legacyPackages.x86_64-linux.writeText "systems"
-          (builtins.concatStringsSep "\n" (builtins.map
-            (system: builtins.toString inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel)
-            devices));
-        hpcstat =
-          let
-            openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
-              (prev: { doCheck = false; patches = prev.patches ++ [ ./packages/hpcstat/openssh.patch ];});
-            duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
-          in pkgs.pkgsStatic.localPackages.hpcstat.override
-            { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
-        chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
-        blog = pkgs.callPackage ./blog { inherit (inputs) hextra; };
-      }
-      // (builtins.listToAttrs (builtins.map
-        (system:
-        {
-          name = system;
-          value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
-        })
-        devices)
-      );
-      nixosConfigurations =
-      (
-        (builtins.listToAttrs (builtins.map
-          (system:
-          {
-            name = system;
-            value = inputs.nixpkgs.lib.nixosSystem
-            {
-              system = "x86_64-linux";
-              specialArgs = { topInputs = inputs; inherit localLib; };
-              modules = localLib.mkModules
-              [
-                (moduleInputs: { config.nixpkgs.overlays = [(prev: final:
-                  # replace pkgs with final to avoid infinite recursion
-                  { localPackages = import ./packages (moduleInputs // { pkgs = final; }); })]; })
-                ./modules
-                ./devices/${system}
-              ];
-            };
-          })
-          devices))
-        // {
-          pi3b = inputs.nixpkgs.lib.nixosSystem
-          {
-            system = "aarch64-linux";
-            specialArgs = { topInputs = inputs; inherit localLib; };
-            modules = localLib.mkModules
-            [
-              (moduleInputs: { config.nixpkgs.overlays = [(prev: final:
-                # replace pkgs with final to avoid infinite recursion
-                { localPackages = import ./packages (moduleInputs // { pkgs = final; }); })]; })
-              ./modules
-              ./devices/pi3b
-            ];
-          };
-        }
-      );
+      packages.x86_64-linux = import ./flake/packages.nix { inherit inputs devices; };
+      nixosConfigurations = import ./flake/nixos.nix { inherit inputs devices localLib; };
       overlays.default = final: prev:
-        { localPackages = (import ./packages { inherit (inputs) lib; pkgs = final; topInputs = inputs; }); };
+        { localPackages = (import ./packages { inherit localLib; pkgs = final; topInputs = inputs; }); };
       config = { archive = false; branch = "production"; };
-      devShells.x86_64-linux = let inherit (inputs.self.nixosConfigurations.pc) pkgs; in
-      {
-        biu = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
-        {
-          inputsFrom = [ pkgs.localPackages.biu ];
-          packages = [ pkgs.clang-tools_18 ];
-          CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-        };
-        hpcstat = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
-        {
-          inputsFrom = [ (pkgs.localPackages.hpcstat.override { version = null; }) ];
-          CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-        };
-        sbatch-tui = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
-        {
-          inputsFrom = [ pkgs.localPackages.sbatch-tui ];
-          CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-        };
-        ufo = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
-        {
-          inputsFrom = [ pkgs.localPackages.ufo ];
-          packages = [ pkgs.clang-tools_18 ];
-          CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-        };
-        chn-bsub = pkgs.mkShell
-        {
-          inputsFrom = [ pkgs.localPackages.chn-bsub ];
-          packages = [ pkgs.clang-tools_18 ];
-          CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-        };
-        winjob =
-          let inherit (pkgs) clang-tools_18; in let inherit (inputs.self.packages.x86_64-w64-mingw32) pkgs winjob;
-          in pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
-          {
-            inputsFrom = [ winjob ];
-            packages = [ clang-tools_18 ];
-            CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-          };
-      };
-      src = let inherit (inputs.self.packages.x86_64-linux) pkgs; in
-      {
-        nixos-wallpaper = pkgs.fetchgit
-        {
-          url = "https://git.chn.moe/chn/nixos-wallpaper.git";
-          rev = "1ad78b20b21c9f4f7ba5f4c897f74276763317eb";
-          sha256 = "0faahbzsr44bjmwr6508wi5hg59dfb57fzh5x6jh7zwmv4pzhqlb";
-          fetchLFS = true;
-        };
-      };
+      devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
+      src = import ./flake/src.nix { inherit inputs; };
     };
 }
