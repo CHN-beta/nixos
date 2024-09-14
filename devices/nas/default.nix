@@ -41,7 +41,7 @@ inputs:
         initrd.sshd.enable = true;
         nixpkgs.march = "silvermont";
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
-        networking = { hostname = "nas"; networkd = {}; };
+        networking.networkd = {};
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =

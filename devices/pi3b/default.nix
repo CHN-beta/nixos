@@ -18,7 +18,7 @@ inputs:
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};
         };
-        networking = { hostname = "pi3b"; networkd = {}; };
+        networking.networkd = {};
         nixpkgs.arch = "aarch64";
         kernel.variant = "nixos";
       };

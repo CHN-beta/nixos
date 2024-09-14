@@ -48,7 +48,6 @@ inputs:
           };
         };
         gui = { enable = true; preferred = false; autoStart = true; };
-        networking.hostname = "xmupc1";
         nix.remote.slave.enable = true;
       };
       hardware = { cpus = [ "amd" ]; gpu.type = "nvidia"; };

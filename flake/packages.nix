@@ -1,4 +1,4 @@
-{ inputs, devices }: rec
+{ inputs, localLib }: rec
 {
   pkgs = (import inputs.nixpkgs
   {
@@ -17,10 +17,6 @@
   blog = pkgs.callPackage ../blog { inherit (inputs) hextra; };
 }
 // (builtins.listToAttrs (builtins.map
-  (system:
-  {
-    name = system;
-    value = inputs.self.outputs.nixosConfigurations.${system}.config.system.build.toplevel;
-  })
-  devices)
+  (system: { inherit (system) name; value = system.value.config.system.build.toplevel; })
+  localLib.attrsToList inputs.self.outputs.nixosConfigurations)
 )

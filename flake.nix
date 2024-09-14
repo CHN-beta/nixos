@@ -76,18 +76,14 @@
     # nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };
   };
 
-  outputs = inputs:
-    let
-      localLib = import ./flake/lib.nix inputs.nixpkgs.lib;
-      devices = [ "nas" "pc" "pi3b" "srv1-node0" "srv1-node3" "surface" "vps4" "vps6" "vps7" "xmupc1" "xmupc2" ];
-    in
-    {
-      packages.x86_64-linux = import ./flake/packages.nix { inherit inputs devices; };
-      nixosConfigurations = import ./flake/nixos.nix { inherit inputs devices localLib; };
-      overlays.default = final: prev:
-        { localPackages = (import ./packages { inherit localLib; pkgs = final; topInputs = inputs; }); };
-      config = { archive = false; branch = "production"; };
-      devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
-      src = import ./flake/src.nix { inherit inputs; };
-    };
+  outputs = inputs: let localLib = import ./flake/lib.nix inputs.nixpkgs.lib; in
+  {
+    packages.x86_64-linux = import ./flake/packages.nix { inherit inputs localLib; };
+    nixosConfigurations = import ./flake/nixos.nix { inherit inputs localLib; };
+    overlays.default = final: prev:
+      { localPackages = (import ./packages { inherit localLib; pkgs = final; topInputs = inputs; }); };
+    config = { archive = false; branch = "production"; };
+    devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
+    src = import ./flake/src.nix { inherit inputs; };
+  };
 }
