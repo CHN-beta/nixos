@@ -29,10 +29,11 @@ void ufo::unfold(std::string config_file)
     // PositionToSuperCell(line vector) * SuperCell = PositionToPrimativeCell(line vector) * PrimativeCell
     // ReciprocalPositionToSuperCell(line vector) * ReciprocalSuperCell
     //  = ReciprocalPositionToPrimativeCell(line vector) * ReciprocalPrimativeCell
-    Eigen::Matrix3i SuperCellTransformation;
+    Eigen::Matrix3d SuperCellDeformation;
+    Eigen::Vector3i SuperCellMultiplier;
 
     // 在单胞内取几个平面波的基矢
-    Eigen::Vector<unsigned, 3> PrimativeCellBasisNumber;
+    Eigen::Vector<std::size_t, 3> PrimativeCellBasisNumber;
 
     // 超胞中原子的坐标，每行表示一个原子的坐标，单位为超胞的格矢
     Eigen::MatrixX3d AtomPositionBySuperCell;
@@ -89,152 +90,24 @@ void ufo::unfold(std::string config_file)
     // 整理得到结果
     auto number_of_qpoints = frequency.size(), num_of_modes = frequency[0].size();
     std::vector<UnfoldOutput::MetaQpointDataType> qpoint_data(number_of_qpoints);
-    for (unsigned i = 0; i < number_of_qpoints; i++)
+    for (std::size_t i = 0; i < number_of_qpoints; i++)
     {
       qpoint_data[i].Qpoint = qpoint[i] | biu::toEigen<>;
       qpoint_data[i].ModeData.resize(num_of_modes);
-      for (unsigned j = 0; j < num_of_modes; j++)
+      for (std::size_t j = 0; j < num_of_modes; j++)
       {
         qpoint_data[i].ModeData[j].Frequency = frequency[i][j];
-        auto n_modes = eigenvector_vector[i].size() / 3;
-        Eigen::MatrixX3cd eigenvectors(n_modes, 3);
-        for (unsigned k = 0; k < n_modes; k++) for (unsigned l = 0; l < 3; l++) eigenvectors(k, l)
-          = eigenvector_vector[i][k * 3 + l][j].r + eigenvector_vector[i][k * 3 + l][j].i * 1i;
+        auto number_of_atoms = eigenvector_vector[i].size() / 3;
+        Eigen::MatrixX3cd eigenvectors(number_of_atoms, 3);
+        for (std::size_t k = 0; k < number_of_atoms; k++) for (std::size_t l = 0; l < 3; l++)
+          eigenvectors(k, l)
+            = eigenvector_vector[i][k * 3 + l][j].r + eigenvector_vector[i][k * 3 + l][j].i * 1i;
         // 原则上讲，需要对读入的原子运动状态作相位转换, 使得它们与我们的约定一致(对超胞周期性重复)，但这个转换 phonopy 已经做了
         // 这里还要需要做归一化处理 (指将数据简单地作为向量处理的归一化)
         qpoint_data[i].ModeData[j].AtomMovement = eigenvectors / eigenvectors.norm();
       }
     }
     return qpoint_data;
-  };
-
-  // 将 SuperCellTransformation 矩阵分解为 SuperCellDeformation 和 SuperCellMultiplier
-  auto decompose_transformation = [](Eigen::Matrix3i transformation)
-    -> std::pair<Eigen::Matrix3d, Eigen::Vector3i>
-  {
-    // 三种整数基础矩阵
-    struct Multiply { unsigned at; int multiply; };
-    struct Add { unsigned from, to; int multiply; };
-    struct Exchange { unsigned from, to; };
-
-    // 将 SuperCellTransformation 分解为一系列基础矩阵的乘积，并将这些基础矩阵从左到右输出
-    auto decompose = [](Eigen::Matrix3i matrix)
-      -> concurrencpp::generator<std::variant<Add, Exchange, Multiply>>
-    {
-      // 首先将第一列转变为只有一个元素不为零
-      while (true)
-      {
-        // 统计第一列零的个数，以及非零值中，绝对值最大和最小的行
-        std::multimap<unsigned, unsigned> values;
-        for (unsigned i = 0; i < 3; i++) if (matrix(i, 0) != 0)
-          values.insert({std::abs(matrix(i, 0)), i});
-        // 如果都是零，报错
-        if (values.size() == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
-        // 如果只有一个非零值，那么将它移到第一行
-        if (values.size() == 1)
-        {
-          if (auto i = values.begin()->second; i != 0)
-          {
-            auto transform = Eigen::Matrix3i::Identity().eval();
-            transform(0, 0) = 0;
-            transform(0, i) = 1;
-            transform(i, i) = 0;
-            transform(i, 0) = 1;
-            matrix = transform * matrix;
-            co_yield Exchange{0, i};
-          }
-          break;
-        }
-        // 否则，将最小值乘以整数倍，加到最大值上
-        else
-        {
-          auto i_max = values.rbegin()->second;
-          auto i_min = values.begin()->second;
-          auto multiply = -matrix(i_max, 0) / matrix(i_min, 0);
-          auto transform = Eigen::Matrix3i::Identity().eval();
-          transform(i_max, i_min) = multiply;
-          matrix = transform * matrix;
-          // 分解出来的矩阵需要是操作的逆
-          co_yield Add{i_min, i_max, -multiply};
-        }
-      }
-      // 然后将第二列后两行转变为只有一个元素不为零
-      while (true)
-      {
-        // 如果都是零，报错
-        if (matrix(1, 1) == 0 && matrix(2, 1) == 0) [[unlikely]]
-          throw std::runtime_error("Transformation matrix is singular.");
-        // 如果只有一个不是零，将它移到第二行
-        else if (matrix(2, 1) == 0) break;
-        else if (matrix(1, 1) == 0)
-        {
-          Eigen::Matrix3i transform{{1, 0, 0}, {0, 0, 1}, {0, 1, 0}};
-          matrix = transform * matrix;
-          co_yield Exchange{1, 2};
-          break;
-        }
-        // 否则，将最小值乘以整数倍，加到最大值上
-        else
-        {
-          unsigned i_max, i_min;
-          if (std::abs(matrix(1, 1)) > std::abs(matrix(2, 1))) { i_max = 1; i_min = 2; }
-          else { i_max = 2; i_min = 1; }
-          auto multiply = -matrix(i_max, 1) / matrix(i_min, 1);
-          auto transform = Eigen::Matrix3i::Identity().eval();
-          transform(i_max, i_min) = multiply;
-          matrix = transform * matrix;
-          co_yield Add{i_min, i_max, -multiply};
-        }
-      }
-      // 然后将第三行第三列元素化为 1
-      if (matrix(2, 2) == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
-      else if (matrix(2, 2) != 1)
-      {
-        co_yield Multiply{2, matrix(2, 2)};
-        matrix(2, 2) = 1;
-      }
-      // 将第三列的其它元素化为 0
-      if (matrix(0, 2) != 0)
-        { co_yield Add{2, 0, matrix(0, 2)}; matrix(0, 2) = 0; }
-      if (matrix(1, 2) != 0)
-        { co_yield Add{2, 1, matrix(1, 2)}; matrix(1, 2) = 0; }
-      // 将第二行第二列元素化为 1
-      if (matrix(1, 1) == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
-      else if (matrix(1, 1) != 1)
-        { co_yield Multiply{1, matrix(1, 1)}; matrix(1, 1) = 1; }
-      // 将第一行第二列元素化为 0
-      if (matrix(0, 1) != 0)
-        { co_yield Add{1, 0, matrix(0, 1)}; matrix(0, 1) = 0; }
-      // 将第一行第一列元素化为 1
-      if (matrix(0, 0) == 0) [[unlikely]] throw std::runtime_error("Transformation matrix is singular.");
-      else if (matrix(0, 0) != 1)
-        { co_yield Multiply{0, matrix(0, 0)}; matrix(0, 0) = 1; }
-    };
-
-    auto deformatin = Eigen::Matrix3d::Identity().eval();
-    auto multiplier = Eigen::Vector3i::Ones().eval();
-    for (auto i : decompose(transformation))
-    {
-      if (std::holds_alternative<Multiply>(i))
-      {
-        auto [at, multiply] = std::get<Multiply>(i);
-        multiplier(at) *= multiply;
-      }
-      else if (std::holds_alternative<Add>(i))
-      {
-        auto [from, to, multiply] = std::get<Add>(i);
-        auto transform = Eigen::Matrix3d::Identity().eval();
-        transform(to, from) = static_cast<double>(multiply) / multiplier(from) * multiplier(to);
-        deformatin = deformatin * transform;
-      }
-      else if (std::holds_alternative<Exchange>(i))
-      {
-        auto [from, to] = std::get<Exchange>(i);
-        deformatin.col(from).swap(deformatin.col(to));
-        std::swap(multiplier(from), multiplier(to));
-      }
-    }
-    return {deformatin, multiplier};
   };
 
   // 构建基
@@ -245,9 +118,10 @@ void ufo::unfold(std::string config_file)
   auto construct_basis = []
   (
     Eigen::Matrix3d primative_cell, Eigen::Vector3i super_cell_multiplier,
-    Eigen::Vector<unsigned, 3> primative_cell_basis_number, Eigen::MatrixX3d atom_position
+    Eigen::Vector<std::size_t, 3> primative_cell_basis_number, Eigen::MatrixX3d atom_position
   )
   {
+    biu::Logger::Guard log;
     std::vector<std::vector<Eigen::VectorXcd>> basis(super_cell_multiplier.prod());
     // diff_of_sub_qpoint 表示 sub qpoint 与 qpoint 的相对位置，单位为超胞的倒格矢
     for (auto [diff_of_sub_qpoint_by_reciprocal_modified_super_cell, i_of_sub_qpoint]
@@ -261,14 +135,6 @@ void ufo::unfold(std::string config_file)
         auto diff_of_sub_qpoint_by_reciprocal_primative_cell = xyz_of_basis.cast<double>()
           + super_cell_multiplier.cast<double>().cwiseInverse().asDiagonal()
           * diff_of_sub_qpoint_by_reciprocal_modified_super_cell.cast<double>();
-        // DiffOfSubQpoint
-        //  = (DiffOfSubQpointByReciprocalPrimativeCell.transpose() * ReciprocalPrimativeCell).transpose()
-        // ReciprocalPrimativeCell = PrimativeCell.transpose().inverse()
-        // SuperCell = SuperCellTransformation * PrimativeCell
-        // ReciprocalSuperCell = SuperCell.transpose().inverse()
-        // AtomPosition = AtomPositionBySuperCell * SuperCell.transpose()
-        // 整理得到：
-        // 
         // 将单位转换为埃^-1
         auto diff_of_sub_qpoint = (diff_of_sub_qpoint_by_reciprocal_primative_cell.transpose()
           * (primative_cell.transpose().inverse())).transpose();
@@ -287,7 +153,7 @@ void ufo::unfold(std::string config_file)
     const std::vector<std::vector<Eigen::VectorXcd>>& basis,
     // 实际上只需要其中的 AtomMovement
     const std::vector<UnfoldOutput::MetaQpointDataType>& qpoint_data,
-    std::atomic<unsigned>& number_of_finished_modes
+    std::atomic<std::size_t>& number_of_finished_modes
   )
   {
     // 将所有的模式取出，组成一个一维数组，稍后并行计算
@@ -299,21 +165,20 @@ void ufo::unfold(std::string config_file)
     // 对每个模式并行
     std::transform
     (
-      std::execution::par, mode_data.begin(), mode_data.end(),
+      std::execution::par_unseq, mode_data.begin(), mode_data.end(),
       projection_coefficient.begin(), [&](const auto& mode_data)
       {
         // 这里, mode_data 和 projection_coefficient 均指对应于一个模式的数据
         std::vector<double> projection_coefficient(basis.size());
-        for (unsigned i_of_sub_qpoint = 0; i_of_sub_qpoint < basis.size(); i_of_sub_qpoint++)
+        for (std::size_t i_of_sub_qpoint = 0; i_of_sub_qpoint < basis.size(); i_of_sub_qpoint++)
           // 对于 basis 中, 对应于单胞倒格子的部分, 以及对应于不同方向的部分, 分别求内积, 然后求模方和
-          for (unsigned i_of_basis = 0; i_of_basis < basis[i_of_sub_qpoint].size(); i_of_basis++)
+          for (std::size_t i_of_basis = 0; i_of_basis < basis[i_of_sub_qpoint].size(); i_of_basis++)
             projection_coefficient[i_of_sub_qpoint] +=
               (basis[i_of_sub_qpoint][i_of_basis].transpose().conjugate() * mode_data.get())
                 .array().abs2().sum();
         // 如果是严格地将向量分解到一组完备的基矢上, 那么不需要对计算得到的权重再做归一化处理
         // 但这里并不是这样一个严格的概念. 因此对分解到各个 sub qpoint 上的权重做归一化处理
-        auto sum = std::accumulate
-          (projection_coefficient.begin(), projection_coefficient.end(), 0.);
+        auto sum = ranges::accumulate(projection_coefficient, 0.);
         for (auto& _ : projection_coefficient) _ /= sum;
         number_of_finished_modes++;
         return projection_coefficient;
@@ -324,8 +189,9 @@ void ufo::unfold(std::string config_file)
     std::vector<std::vector<std::vector<double>>> projection_coefficient_output;
     for
     (
-      unsigned i_of_meta_qpoint = 0, num_of_mode_manipulated = 0;
-      i_of_meta_qpoint < qpoint_data.size(); i_of_meta_qpoint++
+      std::size_t i_of_meta_qpoint = 0, num_of_mode_manipulated = 0;
+      i_of_meta_qpoint < qpoint_data.size();
+      i_of_meta_qpoint++, num_of_mode_manipulated += qpoint_data[i_of_meta_qpoint].ModeData.size()
     )
       projection_coefficient_output.emplace_back
       (
@@ -339,8 +205,6 @@ void ufo::unfold(std::string config_file)
   auto construct_output = []
   (
     const Input& input,
-    const Eigen::Vector3i& super_cell_multiplier,
-    const Eigen::Matrix3d& super_cell_deformation,
     const std::vector<std::vector<std::vector<double>>>& projection_coefficient,
     const std::vector<UnfoldOutput::MetaQpointDataType>& qpoint_data,
     const std::optional<std::vector<std::size_t>>& selected_atoms
@@ -348,31 +212,30 @@ void ufo::unfold(std::string config_file)
   {
     UnfoldOutput output;
     output.PrimativeCell = input.PrimativeCell;
-    output.SuperCellTransformation = input.SuperCellTransformation;
-    output.SuperCellMultiplier = super_cell_multiplier;
-    output.SuperCellDeformation = super_cell_deformation;
+    output.SuperCellMultiplier = input.SuperCellMultiplier;
+    output.SuperCellDeformation = input.SuperCellDeformation;
     output.SelectedAtoms = selected_atoms;
     output.MetaQpointData = qpoint_data;
-    for (unsigned i_of_meta_qpoint = 0; i_of_meta_qpoint < qpoint_data.size(); i_of_meta_qpoint++)
+    for (std::size_t i_of_meta_qpoint = 0; i_of_meta_qpoint < qpoint_data.size(); i_of_meta_qpoint++)
     {
       // 如果需要投影到特定的原子上，需要先计算当前 meta qpoint 的不同模式的投影系数
       std::optional<std::vector<double>> projection_coefficient_on_atoms;
       if (selected_atoms)
       {
         projection_coefficient_on_atoms.emplace();
-        for (std::size_t i = 0; i < qpoint_data[i_of_meta_qpoint].ModeData.size(); i++)
+        for (std::size_t i_of_mode = 0; i_of_mode < qpoint_data[i_of_meta_qpoint].ModeData.size(); i_of_mode++)
         {
           projection_coefficient_on_atoms.value().emplace_back(0);
           for (auto atom : *selected_atoms)
             projection_coefficient_on_atoms.value().back()
-              += qpoint_data[i_of_meta_qpoint].ModeData[i].AtomMovement.row(atom).array().abs2().sum();
+              += qpoint_data[i_of_meta_qpoint].ModeData[i_of_mode].AtomMovement.row(atom).array().abs2().sum();
         }
       }
 
       for
       (
         auto [diff_of_sub_qpoint_by_reciprocal_modified_super_cell, i_of_sub_qpoint]
-          : biu::sequence(super_cell_multiplier)
+          : biu::sequence(input.SuperCellMultiplier)
       )
       {
         auto& _ = output.QpointData.emplace_back();
@@ -399,10 +262,10 @@ void ufo::unfold(std::string config_file)
         */
         auto sub_qpoint_by_reciprocal_primative_cell =
         (
-          super_cell_multiplier.cast<double>().cwiseInverse().asDiagonal()
+          input.SuperCellMultiplier.cast<double>().cwiseInverse().asDiagonal()
           * (
             diff_of_sub_qpoint_by_reciprocal_modified_super_cell.cast<double>()
-              + super_cell_deformation.inverse() * qpoint_data[i_of_meta_qpoint].Qpoint
+              + input.SuperCellDeformation.inverse() * qpoint_data[i_of_meta_qpoint].Qpoint
           )
         ).eval();
         _.Qpoint = sub_qpoint_by_reciprocal_primative_cell.array()
@@ -410,7 +273,7 @@ void ufo::unfold(std::string config_file)
         _.Source = qpoint_data[i_of_meta_qpoint].Qpoint;
         _.SourceIndex = i_of_meta_qpoint;
 
-        for (unsigned i_of_mode = 0; i_of_mode < qpoint_data[i_of_meta_qpoint].ModeData.size(); i_of_mode++)
+        for (std::size_t i_of_mode = 0; i_of_mode < qpoint_data[i_of_meta_qpoint].ModeData.size(); i_of_mode++)
         {
           auto& __ = _.ModeData.emplace_back();
           __.Frequency = qpoint_data[i_of_meta_qpoint].ModeData[i_of_mode].Frequency;
@@ -423,31 +286,31 @@ void ufo::unfold(std::string config_file)
     return output;
   };
 
-  std::clog << "Reading input file... " << std::flush;
+  biu::Logger::Guard log;
+  log.info("Reading input file... ");
   auto input = YAML::LoadFile(config_file).as<Input>();
-  auto qpoint_data
-    = read_qpoint_data(input.QpointDataInputFile.value_or("band.hdf5"));
-  std::clog << "Done." << std::endl;
+  auto qpoint_data = read_qpoint_data(input.QpointDataInputFile.value_or("band.hdf5"));
+  log.info("Done.");
 
   std::clog << "Constructing basis... " << std::flush;
-  auto [super_cell_deformation, super_cell_multiplier]
-    = decompose_transformation(input.SuperCellTransformation);
+
   auto basis = construct_basis
   (
-    input.PrimativeCell, super_cell_multiplier,
+    input.PrimativeCell, input.SuperCellMultiplier,
     input.PrimativeCellBasisNumber,
     input.AtomPositionBySuperCell
-      * (input.SuperCellTransformation.cast<double>() * input.PrimativeCell).transpose()
+      * (input.SuperCellDeformation * input.SuperCellMultiplier.cast<double>().asDiagonal() * input.PrimativeCell)
   );
   std::clog << "Done." << std::endl;
 
   std::clog << "Calculating projection coefficient... " << std::flush;
   // 用来在屏幕上输出进度的计数器和线程
-  std::atomic<unsigned> number_of_finished_modes(0);
+  std::atomic<std::size_t> number_of_finished_modes(0);
   auto number_of_modes = ranges::accumulate
   (
     qpoint_data
-      | ranges::views::transform([](const auto& qpoint) { return qpoint.ModeData.size(); }),
+      | ranges::views::transform([](const auto& qpoint)
+        { return qpoint.ModeData.size(); }),
     0ul
   );
   std::atomic<bool> finished;
@@ -471,10 +334,7 @@ void ufo::unfold(std::string config_file)
   for (auto& output_file : input.QpointDataOutputFile)
   {
     auto output = construct_output
-    (
-      input, super_cell_multiplier, super_cell_deformation,
-      projection_coefficient, qpoint_data, output_file.SelectedAtoms
-    );
+      (input, projection_coefficient, qpoint_data, output_file.SelectedAtoms);
     if (output_file.OutputAsYaml.value_or(false)) std::ofstream(output_file.Filename) << YAML::Node(output);
     else std::ofstream(output_file.Filename, std::ios::binary) << biu::serialize<char>(output);
   }

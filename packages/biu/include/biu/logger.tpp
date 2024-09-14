@@ -7,6 +7,16 @@
 
 namespace biu
 {
+	// This should be defined in header
+	inline Atomic<Logger::LoggerConfigType_> Logger::LoggerConfig_ = Logger::LoggerConfigType_
+	{
+		std::experimental::make_observer(&std::clog), nullptr,
+# ifdef NDEBUG
+		Logger::Level::Info
+# else
+		Logger::Level::Debug
+# endif
+	};
 	template <typename T> Logger::ObjectMonitor<T>::ObjectMonitor()
 		: CreateTime_{std::chrono::steady_clock::now()}
 	{

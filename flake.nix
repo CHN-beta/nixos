@@ -102,19 +102,6 @@
             duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
           in pkgs.pkgsStatic.localPackages.hpcstat.override
             { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
-        ufo =
-          let
-            range-v3 = pkgs.pkgsStatic.range-v3.overrideAttrs (prev:
-            {
-              cmakeFlags = prev.cmakeFlags or []
-                ++ [ "-DRANGE_V3_DOCS=OFF" "-DRANGE_V3_TESTS=OFF" "-DRANGE_V3_EXAMPLES=OFF" ];
-              doCheck = false;
-            });
-            tbb = pkgs.pkgsStatic.tbb_2021_11.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags or [] ++
-              [ "-DTBB_TEST=OFF" ]; });
-            biu = pkgs.pkgsStatic.localPackages.biu.override { inherit range-v3; };
-            matplotplusplus = pkgs.pkgsStatic.localPackages.matplotplusplus.override { libtiff = null; };
-          in pkgs.pkgsStatic.localPackages.ufo.override { inherit biu tbb matplotplusplus; };
         chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
         blog = pkgs.callPackage ./blog { inherit (inputs) hextra; };
       }

@@ -4,7 +4,8 @@ void ufo::fold(std::string config_file)
 {
   struct Input
   {
-    Eigen::Matrix<int, 3, 3> SuperCellTransformation;
+    Eigen::Matrix3d SuperCellDeformation;
+    Eigen::Vector3i SuperCellMultiplier;
     std::vector<Eigen::Vector3d> Qpoints;
     std::optional<std::string> OutputFile;
   };
@@ -15,7 +16,7 @@ void ufo::fold(std::string config_file)
   auto fold = []
   (
     Eigen::Vector3d qpoint_in_reciprocal_primitive_cell_by_reciprocal_primitive_cell,
-    Eigen::Matrix<int, 3, 3> super_cell_transformation
+    Eigen::Matrix3d super_cell_transformation
   ) -> Eigen::Vector3d
   {
     /*
@@ -35,8 +36,7 @@ void ufo::fold(std::string config_file)
     */
     auto qpoint_by_reciprocal_super_cell =
     (
-      super_cell_transformation.cast<double>()
-        * qpoint_in_reciprocal_primitive_cell_by_reciprocal_primitive_cell
+      super_cell_transformation * qpoint_in_reciprocal_primitive_cell_by_reciprocal_primitive_cell
     ).eval();
     /*
       到目前为止，我们还没有移动过 q 点的坐标。现在，我们将它移动整数个 ReciprocalSuperCell，直到它落在超胞的倒格子中。
@@ -49,7 +49,7 @@ void ufo::fold(std::string config_file)
   output.Qpoints = input.Qpoints
     | ranges::views::transform([&](auto& qpoint)
     {
-      return fold(qpoint, input.SuperCellTransformation);
+      return fold(qpoint, input.SuperCellDeformation * input.SuperCellMultiplier.cast<double>().asDiagonal());
     })
     | ranges::to_vector;
   

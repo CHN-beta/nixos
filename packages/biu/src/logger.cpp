@@ -3,15 +3,6 @@
 
 namespace biu
 {
-	Atomic<Logger::LoggerConfigType_> Logger::LoggerConfig_ = Logger::LoggerConfigType_
-	{
-		std::experimental::make_observer(&std::clog), nullptr,
-# ifdef NDEBUG
-		Logger::Level::Info
-# else
-		Logger::Level::Debug
-# endif
-	};
 	void Logger::init(std::experimental::observer_ptr<std::ostream> stream, Level level)
 		{ LoggerConfig_ = LoggerConfigType_{stream, nullptr, level}; }
 	void Logger::init(std::shared_ptr<std::ostream> stream, Level level)

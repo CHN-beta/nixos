@@ -9,6 +9,7 @@ namespace ufo
   //  也就是说, 正格子与倒格子的转置相乘, 得到单位矩阵.
 
   using namespace biu::literals;
+  using namespace biu::stream_operators;
 
   void fold(std::string config_file);
   void unfold(std::string config_file);

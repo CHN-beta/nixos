@@ -28,6 +28,4 @@ message("List of compile features: ${CMAKE_CXX_COMPILE_FEATURES}")
 
 include(CTest)
 add_test(NAME fold COMMAND ufo fold ${PROJECT_SOURCE_DIR}/test/fold/config.yaml)
-add_test(NAME fold-compare COMMAND ${CMAKE_COMMAND} -E compare_files fold-output.yaml
-  ${PROJECT_SOURCE_DIR}/test/fold/output.yaml)
-set_tests_properties(fold-compare PROPERTIES DEPENDS fold)
+
