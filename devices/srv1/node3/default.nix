@@ -11,7 +11,7 @@ inputs:
           vfat."/dev/disk/by-uuid/7A60-4232" = "/boot";
           btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
         };
-        nixpkgs.march = "cascadelake";
+        nixpkgs.march = "broadwell";
       };
       packages.vasp = null;
       services =

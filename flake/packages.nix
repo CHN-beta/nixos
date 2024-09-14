@@ -18,5 +18,4 @@
 }
 // (builtins.listToAttrs (builtins.map
   (system: { inherit (system) name; value = system.value.config.system.build.toplevel; })
-  localLib.attrsToList inputs.self.outputs.nixosConfigurations)
-)
+  (localLib.attrsToList inputs.self.outputs.nixosConfigurations)))
