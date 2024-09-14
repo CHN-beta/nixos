@@ -29,7 +29,7 @@ inputs:
         nixpkgs.march = "sandybridge";
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
         initrd.sshd.enable = true;
-        networking = { hostname = "vps6"; networkd = {}; };
+        networking.networkd = {};
         # do not use cachyos kernel, beesd + cachyos kernel + heavy io = system freeze, not sure why
       };
       services =

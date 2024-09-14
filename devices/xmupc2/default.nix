@@ -41,7 +41,6 @@ inputs:
           };
         };
         gui = { enable = true; preferred = false; autoStart = true; };
-        networking.hostname = "xmupc2";
         nix =
         {
           marches =
