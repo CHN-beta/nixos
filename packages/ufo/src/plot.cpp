@@ -11,7 +11,11 @@ void ufo::plot_band(std::string config_file)
     // 内层表示一个路径上的 q 点，外层表示不同的路径
     // 单位为倒格矢
     std::vector<std::vector<Eigen::Vector3d>> Qpoints;
+    // 插值时使用的分辨率（影响图片的精细度但不影响图片的横纵比例）
     struct { std::size_t X, Y; } Resolution;
+    // 画图区域的y轴和x轴的比例。如果不指定，则由matplot++自动调整（通常调整为正方形，即 1）
+    // 例如，如果指定为 0.5，最终的图片会是一个长方形，y轴的长度是x轴的一半
+    std::optional<double> AspectRatio;
     // 画图的频率范围
     struct { double Min, Max; } FrequencyRange;
     // 搜索 q 点时的阈值，单位为埃^-1
@@ -164,7 +168,8 @@ void ufo::plot_band(std::string config_file)
     const std::vector<std::vector<double>>& values,
     const std::string& filename,
     const std::vector<double>& x_ticks, const std::vector<double>& y_ticks,
-    const std::vector<std::string>& y_ticklabels
+    const std::vector<std::string>& y_ticklabels,
+    const std::optional<double>& aspect_ratio
   )
   {
     std::vector<std::vector<double>>
@@ -196,6 +201,11 @@ void ufo::plot_band(std::string config_file)
     ax->y_axis().tick_values(y_ticks);
     ax->y_axis().tick_length(1);
     ax->y_axis().ticklabels(y_ticklabels);
+    if (aspect_ratio)
+    {
+      ax->axes_aspect_ratio_auto(false);
+      ax->axes_aspect_ratio(*aspect_ratio);
+    }
     f->save(filename, "png");
   };
 
@@ -256,7 +266,11 @@ void ufo::plot_band(std::string config_file)
     | ranges::to_vector;
   auto y_ticklabels = input.YTicks.value_or(std::vector<std::pair<double, std::string>>{})
     | biu::toLvalue | ranges::views::values | ranges::to_vector;
-  if (input.OutputPictureFile) plot(values, input.OutputPictureFile.value(), x_ticks, y_ticks, y_ticklabels);
+  if (input.OutputPictureFile) plot
+  (
+    values, input.OutputPictureFile.value(),
+    x_ticks, y_ticks, y_ticklabels, input.AspectRatio
+  );
   if (input.OutputDataFile)
     biu::Hdf5file(input.OutputDataFile.value(), true)
       .write("Values", values)
@@ -276,6 +290,7 @@ void ufo::plot_point(std::string config_file)
     Eigen::Vector3d Qpoint;
     // x 方向为频率，y 方向没有用
     struct { std::size_t X, Y; } Resolution;
+    std::optional<double> AspectRatio;
     // 画图的频率范围
     struct { double Min, Max; } FrequencyRange;
     // 搜索 q 点时的阈值，单位为埃^-1
@@ -334,7 +349,8 @@ void ufo::plot_point(std::string config_file)
   auto plot = []
   (
     const std::vector<double>& values, const std::string& filename,
-    const std::vector<double>& x_ticks, const std::vector<std::string>& x_ticklabels, unsigned y_resolution
+    const std::vector<double>& x_ticks, const std::vector<std::string>& x_ticklabels, unsigned y_resolution,
+    const std::optional<double>& aspect_ratio
   )
   {
     biu::Logger::Guard log;
@@ -364,6 +380,11 @@ void ufo::plot_point(std::string config_file)
     ax->x_axis().tick_length(1);
     ax->x_axis().ticklabels(x_ticklabels);
     ax->y_axis().tick_values({});
+    if (aspect_ratio)
+    {
+      ax->axes_aspect_ratio_auto(false);
+      ax->axes_aspect_ratio(*aspect_ratio);
+    }
     f->save(filename, "png");
   };
 
@@ -395,8 +416,11 @@ void ufo::plot_point(std::string config_file)
     | ranges::to_vector;
   auto x_ticklabels = input.XTicks.value_or(std::vector<std::pair<double, std::string>>{})
     | biu::toLvalue | ranges::views::values | ranges::to_vector;
-  if (input.OutputPictureFile)
-    plot(values, input.OutputPictureFile.value(), x_ticks, x_ticklabels, input.Resolution.Y);
+  if (input.OutputPictureFile) plot
+  (
+    values, input.OutputPictureFile.value(),
+    x_ticks, x_ticklabels, input.Resolution.Y, input.AspectRatio
+  );
   if (input.OutputDataFile)
     biu::Hdf5file(input.OutputDataFile.value(), true)
       .write("Values", values)
