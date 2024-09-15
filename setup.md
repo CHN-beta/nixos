@@ -23,4 +23,8 @@ systemd-machine-id-setup --root=/mnt/nix/persistent
 pg_dump -h 127.0.0.1 -U synapse -Fc -f synaps.dump synapse
 pg_restore -h 127.0.0.1 -U misskey -d misskey --data-only --jobs=4 misskey.dump
 cryptsetup luksUUID --uuid=<the new UUID> /dev/sda1
+mungekey -k munge.key
+mv munge.key munge.key.orig
+sops -e --input-type binary --output-type binary munge.key.orig > munge.key
+rm munge.key.orig
 ```
