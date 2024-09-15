@@ -14,7 +14,6 @@ inputs:
     };
     home-manager.users.chn =
     {
-      imports = [ "${inputs.topInputs.impermanence}/home-manager.nix" ];
       config =
       {
         programs =
@@ -82,65 +81,39 @@ inputs:
                 ))
             )
           ];
-          persistence =
-          {
-            "/nix/persistent/home/chn" =
-            {
-              directories =
-              [
-                # common things
-                "bin" "Desktop" "Documents" "Downloads" "Music" "Pictures" "repo" "share" "Public" "Videos"
-                ".config" ".local/share"
-                # xmuvpn
-                ".ecdata"
-                # firefox
-                ".mozilla/firefox/default"
-                # ssh
-                ".ssh"
-                # steam
-                ".steam" # ".local/share/Steam"
-                # vscode
-                ".vscode" # ".config/Code" ".config/grammarly-languageserver"
-                # zotero
-                ".zotero" "Zotero"
-              ];
-              allowOther = true;
-            };
-            "/nix/rootfs/current/home/chn".allowOther = true;
-          };
         };
         pam.yubico.authorizedYubiKeys.ids = [ "cccccbgrhnub" ];
       };
     };
-    # environment.persistence =
-    #   let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
-    #   {
-    #     # TODO: make copy or soft link of files
-    #     "${impermanence.persistence}".users.chn =
-    #     {
-    #       directories = builtins.map
-    #         (dir: { directory = dir.dir or dir; user = "chn"; group = "chn"; mode = dir.mode or "0755"; })
-    #         [
-    #           # common things
-    #           "bin" "Desktop" "Documents" "Downloads" "Music" "Pictures" "repo" "share" "Public" "Videos"
-    #           ".config" ".local/share"
-    #           # # gnome
-    #           # { dir = ".config/dconf"; mode = "0700"; } ".config/gtk-2.0" ".config/gtk-3.0" ".config/gtk-4.0"
-    #           # ".config/libaccounts-glib"
-    #           # # android
-    #           # { dir = ".android"; mode = "0750";}
-    #           # xmuvpn
-    #           ".ecdata"
-    #           # firefox
-    #           { dir = ".mozilla/firefox/default"; mode = "0700"; }
-    #           # ssh
-    #           { dir = ".ssh"; mode = "0700"; }
-    #           # steam
-    #           ".steam" # ".local/share/Steam"
-    #           # vscode
-    #           ".vscode" # ".config/Code" ".config/grammarly-languageserver"
-    #           # zotero
-    #           ".zotero" "Zotero"
+    environment.persistence =
+      let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
+      {
+        # TODO: make copy or soft link of files
+        "${impermanence.persistence}".users.chn =
+        {
+          directories = builtins.map
+            (dir: { directory = dir.dir or dir; user = "chn"; group = "chn"; mode = dir.mode or "0755"; })
+            [
+              # common things
+              "bin" "Desktop" "Documents" "Downloads" "Music" "Pictures" "repo" "share" "Public" "Videos"
+              ".config" ".local/share"
+              # # gnome
+              # { dir = ".config/dconf"; mode = "0700"; } ".config/gtk-2.0" ".config/gtk-3.0" ".config/gtk-4.0"
+              # ".config/libaccounts-glib"
+              # # android
+              # { dir = ".android"; mode = "0750";}
+              # xmuvpn
+              ".ecdata"
+              # firefox
+              { dir = ".mozilla/firefox/default"; mode = "0700"; }
+              # ssh
+              { dir = ".ssh"; mode = "0700"; }
+              # steam
+              ".steam" # ".local/share/Steam"
+              # vscode
+              ".vscode" # ".config/Code" ".config/grammarly-languageserver"
+              # zotero
+              ".zotero" "Zotero"
               # 百度网盘
               # ".config/BaiduPCS-Go"
               # # bitwarden
@@ -223,7 +196,7 @@ inputs:
               # ".local/share/waydroid"
               # # zsh
               # ".local/share/zsh"
-          #   ];
+            ];
           # TODO: create file if not exist
           # files = builtins.map
           #   (file: { inherit file; parentDirectory = { user = "chn"; group = "chn"; mode = "0755"; }; })
@@ -239,5 +212,7 @@ inputs:
           #     # age TODO: use sops to storage
           #     ".config/sops/age/keys.txt"
           #   ];
+        };
+      };
   };
 }
