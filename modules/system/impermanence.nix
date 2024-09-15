@@ -57,6 +57,5 @@ inputs:
           );
       };
     };
-    programs.fuse.userAllowOther = true;
   };
 }
