@@ -31,6 +31,8 @@ inputs:
           "ahci" "ata_piix" "nvme" "sdhci_acpi" "virtio_pci" "xhci_pci"
           # networking for nas
           "igb"
+          # disk for srv1
+          "megaraid_sas"
         ]
         ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ])
         # for pi3b to show message over hdmi while boot
