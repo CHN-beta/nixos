@@ -18,6 +18,7 @@ inputs:
           wireguardIp = "192.168.83.9";
         };
       };
+      system.cluster.nodeType = "master";
     };
   };
 }
