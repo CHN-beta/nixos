@@ -4,7 +4,15 @@ inputs:
   {
     nixos =
     {
-      system.nixpkgs.march = "cascadelake";
+      system =
+      {
+        nixpkgs.march = "cascadelake";
+        networking.networkd.static =
+        {
+          eno145 = { ip = "192.168.1.10"; mask = 24; gateway = "192.168.1.1"; };
+          eno146 = { ip = "192.168.178.10"; mask = 24; };
+        };
+      };
       packages.vasp = null;
       services =
       {
