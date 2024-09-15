@@ -6,6 +6,7 @@ inputs:
     {
       system =
       {
+        nix.marches = [ "cascadelake" "broadwell" ];
         nixpkgs.march = "cascadelake";
         networking.networkd.static =
         {
