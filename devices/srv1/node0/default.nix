@@ -13,7 +13,6 @@ inputs:
           eno146 = { ip = "192.168.178.10"; mask = 24; };
         };
       };
-      packages.vasp = null;
       services =
       {
         xray.client.enable = true;
