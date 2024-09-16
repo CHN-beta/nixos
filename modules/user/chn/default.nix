@@ -86,7 +86,8 @@ inputs:
       };
     };
     environment.persistence =
-      let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
+      let inherit (inputs.config.nixos.system) impermanence;
+      in inputs.lib.mkIf (inputs.config.nixos.system.cluster.nodeType or null != "worker" && impermanence.enable)
       {
         # TODO: make copy or soft link of files
         "${impermanence.persistence}".users.chn =

@@ -67,7 +67,7 @@ inputs:
         (devices.${inputs.config.nixos.system.networking.hostname} or []));
     environment.persistence =
       let impermanence = inputs.config.nixos.system.impermanence;
-      in inputs.lib.mkIf impermanence.enable
+      in inputs.lib.mkIf (inputs.config.nixos.system.cluster.nodeType or null != "worker" && impermanence.enable)
       {
         "${impermanence.root}".users.chn.directories = [ ".config/autostart" ];
       };

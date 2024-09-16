@@ -68,7 +68,8 @@ inputs:
         (builtins.readFile "${inputs.pkgs.konsole}/share/konsole/Breeze.colorscheme");
     };
     environment.persistence =
-      let impermanence = inputs.config.nixos.system.impermanence; in inputs.lib.mkIf impermanence.enable
+      let impermanence = inputs.config.nixos.system.impermanence;
+      in inputs.lib.mkIf (inputs.config.nixos.system.cluster.nodeType or null != "worker" && impermanence.enable)
         { "${impermanence.root}".users.chn.directories = [ ".local/share/konsole" ".local/share/yakuake" ]; };
   };
 }
