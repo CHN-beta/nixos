@@ -11,6 +11,7 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &pi3b age1yjgswvexp0x0de0sw4u6hamruzeluxccmx2enxazl6pwhhsr2s9qlxdemq
   - &pcvm age1jmu4jym0e0xkq5shx2g7ef4xzre94vaxy2n4fcn0kp94dtlupdxqkzyyp7
   - &srv1-node0 age1nzetyehldf3gl6pr6mu5d2cv387p8wjqn6wfpll7a3sl8us6n38s0ds633
+  - &srv1-node1 age1wj33xt8nj7rhnsenepsf6k3lmq5vk4wn84jwr55qy9cwu05xn5cspg3h7t
 creation_rules:
   - path_regex: devices/pc/.*$
     key_groups:
@@ -67,3 +68,8 @@ creation_rules:
     - age:
       - *chn
       - *srv1-node0
+  - path_regex: devices/srv1/node1/.*$
+    key_groups:
+    - age:
+      - *chn
+      - *srv1-node1

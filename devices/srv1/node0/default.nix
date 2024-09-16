@@ -13,6 +13,7 @@ inputs:
           eno145 = { ip = "192.168.1.10"; mask = 24; gateway = "192.168.1.1"; };
           eno146 = { ip = "192.168.178.1"; mask = 24; };
         };
+        cluster.nodeType = "master";
       };
       services =
       {
@@ -32,7 +33,6 @@ inputs:
           memoryMB = 122880;
         };
       };
-      system.cluster.nodeType = "master";
     };
   };
 }
