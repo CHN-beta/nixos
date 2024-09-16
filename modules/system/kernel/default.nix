@@ -33,6 +33,8 @@ inputs:
           "igb"
           # disk for srv1
           "megaraid_sas"
+          # disks for cluster
+          "nfs"
         ]
         ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ])
         # for pi3b to show message over hdmi while boot

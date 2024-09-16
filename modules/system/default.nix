@@ -14,7 +14,7 @@ inputs:
     time.timeZone = "Asia/Shanghai";
     boot =
     {
-      supportedFilesystems = [ "ntfs" ];
+      supportedFilesystems = [ "ntfs" "nfs" ];
       # consoleLogLevel = 7;
     };
     hardware.enableAllFirmware = true;
