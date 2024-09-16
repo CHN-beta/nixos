@@ -35,5 +35,17 @@ inputs:
         '')];
       };
     };
+    specialisation =
+    {
+      no-share-home.configuration =
+      {
+        nixos =
+        {
+          services.slurm.enable = inputs.lib.mkForce false;
+          system.cluster.nodeType = inputs.lib.mkForce "master";
+        };
+        system.nixos.tags = [ "no-share-home" ];
+      };
+    };
   };
 }
