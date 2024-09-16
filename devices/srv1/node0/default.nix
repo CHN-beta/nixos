@@ -31,12 +31,25 @@ inputs:
     services.nfs.server =
     {
       enable = true;
-      exports = "/home 192.168.178.0/24(rw,fsid=0)";
+      exports = 
+      ''
+        / 192.168.178.0/24(rw,no_root_squash,fsid=0,sync,crossmnt)
+        /home 192.168.178.0/24(rw,no_root_squash,sync,crossmnt)
+      '';
     };
     networking =
     {
       firewall.allowedTCPPorts = [ 2049 ];
     };
     systemd.network.networks."10-eno146".networkConfig.IPMasquerade = "both";
+    services.rpcbind.enable = true;
+    fileSystems =
+    {
+      "/nix/share/home" =
+      {
+        device = "/home";
+        options = [ "rbind" ];
+      };
+    };
   };
 }

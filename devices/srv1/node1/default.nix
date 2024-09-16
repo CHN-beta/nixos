@@ -42,11 +42,12 @@ inputs:
     {
       "/home" =
       {
-        device = "192.168.178.1:/";
+        device = "192.168.178.1:/home";
         fsType = "nfs";
         neededForBoot = true;
       };
     };
     boot.initrd.network.enable = true; 
+    services.rpcbind.enable = true;
   };
 }
