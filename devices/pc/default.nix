@@ -131,9 +131,15 @@ inputs:
         slurm =
         {
           enable = true;
-          cpu = { cores = 16; threads = 2; mpiThreads = 2; openmpThreads = 4; };
-          memoryMB = 90112;
-          gpus."4060" = 1;
+          master = "pc";
+          node.pc =
+          {
+            name = "pc"; address = "127.0.0.1";
+            cpu = { cores = 16; threads = 2; };
+            memoryMB = 90112;
+            gpus."4060" = 1;
+          };
+          partitions.default = [ "pc" ];
         };
         ollama = {};
       };

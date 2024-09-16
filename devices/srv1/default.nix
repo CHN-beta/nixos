@@ -26,6 +26,31 @@ inputs:
         snapper.enable = true;
         sshd = {};
         smartd.enable = true;
+        slurm =
+        {
+          enable = true;
+          master = "srv1-node0";
+          node =
+          {
+            srv1-node0 =
+            {
+              name = "n0"; address = "192.168.178.1";
+              cpu = { sockets = 4; cores = 20; threads = 2; };
+              memoryMB = 122880;
+            };
+            srv1-node1 =
+            {
+              name = "n1"; address = "192.168.178.2";
+              cpu = { sockets = 4; cores = 8; threads = 2; };
+              memoryMB = 30720;
+            };
+          };
+          partitions =
+          {
+            default = [ "srv1-node0" ];
+            old = [ "srv1-node1" ];
+          };
+        };
       };
       user.users = [ "chn" ];
     };

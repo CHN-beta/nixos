@@ -73,9 +73,15 @@ inputs:
         slurm =
         {
           enable = true;
-          cpu = { sockets = 2; cores = 22; threads = 2; mpiThreads = 4; openmpThreads = 10; };
-          memoryMB = 253952;
-          gpus."4090" = 1;
+          master = "xmupc2";
+          node.xmupc2 =
+          {
+            name = "xmupc2"; address = "127.0.0.1";
+            cpu = { sockets = 2; cores = 22; threads = 2; };
+            memoryMB = 253952;
+            gpus."4090" = 1;
+          };
+          partitions.default = [ "xmupc2" ];
         };
         xrdp = { enable = true; hostname = [ "xmupc2.chn.moe" ]; };
         samba = { enable = true; hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };

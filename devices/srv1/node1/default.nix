@@ -14,16 +14,7 @@ inputs:
         };
         cluster.nodeType = "worker";
       };
-      services =
-      {
-        beesd.instances.root = { device = "/"; hashTableSizeMB = 256; threads = 4; };
-        # slurm =
-        # {
-        #   enable = true;
-        #   cpu = { sockets = 4; cores = 8; threads = 2; mpiThreads = 4; openmpThreads = 8; };
-        #   memoryMB = 30720;
-        # };
-      };
+      services.beesd.instances.root = { device = "/"; hashTableSizeMB = 256; threads = 4; };
       packages =
       {
         vasp = null;

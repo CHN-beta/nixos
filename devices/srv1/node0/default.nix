@@ -26,12 +26,6 @@ inputs:
           publicKey = "Br+ou+t9M9kMrnNnhTvaZi2oNFRygzebA1NqcHWADWM=";
           wireguardIp = "192.168.83.9";
         };
-        slurm =
-        {
-          enable = true;
-          cpu = { sockets = 4; cores = 20; threads = 2; mpiThreads = 8; openmpThreads = 10; };
-          memoryMB = 122880;
-        };
       };
     };
     services.nfs.server =
