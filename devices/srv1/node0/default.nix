@@ -33,6 +33,10 @@ inputs:
       enable = true;
       exports = "/home 192.168.178.0/24(rw)";
     };
-    networking.firewall.allowedTCPPorts = [ 2049 ];
+    networking =
+    {
+      firewall.allowedTCPPorts = [ 2049 ];
+    };
+    systemd.network.networks."10-eno146".networkConfig.IPMasquerade = "both";
   };
 }
