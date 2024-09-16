@@ -47,5 +47,14 @@ inputs:
         system.nixos.tags = [ "no-share-home" ];
       };
     };
+    fileSystems = inputs.lib.mkIf (inputs.config.nixos.system.cluster.nodeType == "worker")
+    {
+      "/home" =
+      {
+        device = "192.168.178.1:/home";
+        fsType = "nfs";
+        neededForBoot = true;
+      };
+    };
   };
 }
