@@ -29,7 +29,6 @@ inputs:
         gui.enable = true;
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
-      virtualization.docker.enable = true;
       services =
       {
         snapper.enable = true;
@@ -54,6 +53,7 @@ inputs:
         };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
         waydroid = {};
+        docker = {};
       };
       bugs = [ "xmunet" "suspend-hibernate-no-platform" ];
       packages.vasp = null;

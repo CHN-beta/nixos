@@ -54,7 +54,7 @@ inputs:
         grub.windowsEntries."8F50-83B8" = "猿神，启动！";
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "nvidia"; };
-      virtualization = { docker.enable = true; kvmHost = { enable = true; gui = true; }; };
+      virtualization.kvmHost = { enable = true; gui = true; };
       services =
       {
         snapper.enable = true;
@@ -86,6 +86,7 @@ inputs:
         xrdp = { enable = true; hostname = [ "xmupc2.chn.moe" ]; };
         samba = { enable = true; hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
         groupshare = {};
+        docker = {};
       };
       bugs = [ "xmunet" ];
       user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" ];

@@ -38,18 +38,14 @@ inputs:
           REDIS_PASSWORD=${inputs.config.sops.placeholder."redis/send"}
         '';
       };
-      nixos =
+      nixos.services =
       {
-        services =
+        nginx =
         {
-          nginx =
-          {
-            enable = true;
-            https."${send.hostname}".location."/".proxy = { upstream = "http://127.0.0.1:1443"; websocket = true; };
-          };
-          redis.instances.send = { user = "root"; port = 9184; };
+          enable = true;
+          https."${send.hostname}".location."/".proxy = { upstream = "http://127.0.0.1:1443"; websocket = true; };
         };
-        virtualization.docker.enable = true;
+        redis.instances.send = { user = "root"; port = 9184; };
       };
     };
 }

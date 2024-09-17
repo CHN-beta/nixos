@@ -2,7 +2,6 @@ inputs:
 {
   options.nixos.virtualization = let inherit (inputs.lib) mkOption types; in
   {
-    docker.enable = mkOption { default = false; type = types.bool; };
     kvmHost =
     {
       enable = mkOption { default = false; type = types.bool; };
@@ -14,27 +13,6 @@ inputs:
   };
   config = let inherit (inputs.lib) mkMerge mkIf; in mkMerge
   [
-    # docker
-    (
-      mkIf inputs.config.nixos.virtualization.docker.enable
-      {
-        virtualisation.docker =
-        {
-          # enable = true;
-          rootless =
-          {
-            enable = true;
-            setSocketVariable = true;
-            daemon.settings = { features.buildkit = true; dns = [ "1.1.1.1" ]; storage-driver = "overlay2"; };
-          };
-          enableNvidia =
-            let gpu = inputs.config.nixos.hardware.gpu.type;
-            in inputs.lib.mkIf (gpu != null && inputs.lib.strings.hasInfix "nvidia" gpu) true;
-          storageDriver = "overlay2";
-        };
-        nixos.services.firewall.trustedInterfaces = [ "docker0" ];
-      }
-    )
     # kvmHost
     (
       mkIf inputs.config.nixos.virtualization.kvmHost.enable

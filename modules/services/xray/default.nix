@@ -15,7 +15,7 @@ inputs:
         extraInterfaces = mkOption
         {
           type = types.listOf types.nonEmptyStr;
-          default = inputs.lib.optional inputs.config.nixos.virtualization.docker.enable "docker0";
+          default = inputs.lib.optional (inputs.config.nixos.services.docker != null) "docker0";
         };
         hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       };

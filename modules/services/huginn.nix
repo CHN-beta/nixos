@@ -60,7 +60,6 @@ inputs:
           };
           mariadb.instances.huginn = {};
         };
-        virtualization.docker.enable = true;
       };
     };
 }

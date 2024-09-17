@@ -1,11 +1,8 @@
 inputs:
 {
-  options.nixos.service.waydroid = let inherit (inputs.lib) mkOption types; in mkOption
-  {
-    type = types.nullOr (types.submodule {});
-    default = null;
-  };
-  config = let inherit (inputs.config.nixos.service) waydroid; in inputs.lib.mkIf waydroid != null
+  options.nixos.services.waydroid = let inherit (inputs.lib) mkOption types; in mkOption
+    { type = types.nullOr (types.submodule {}); default = null; };
+  config = let inherit (inputs.config.nixos.services) waydroid; in inputs.lib.mkIf (waydroid != null)
     { virtualisation.waydroid.enable = true; };
 }
 

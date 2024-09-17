@@ -34,15 +34,11 @@ inputs:
       '';
       secrets."chatgpt/key" = {};
     };
-    nixos =
+    nixos.services.nginx =
     {
-      services.nginx =
-      {
-        enable = true;
-        https."${chatgpt.hostname}".location."/".proxy =
-          { upstream = "http://127.0.0.1:6184"; detectAuth.users = [ "chat" ]; };
-      };
-      virtualization.docker.enable = true;
+      enable = true;
+      https."${chatgpt.hostname}".location."/".proxy =
+        { upstream = "http://127.0.0.1:6184"; detectAuth.users = [ "chat" ]; };
     };
   };
 }

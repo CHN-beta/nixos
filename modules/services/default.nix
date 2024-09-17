@@ -61,19 +61,15 @@ inputs:
               # SYMFONY__ENV__TWOFACTOR_SENDER=bot@chn.moe
             secrets."mail/bot-encoded" = {};
           };
-          nixos =
+          nixos.services =
           {
-            services =
+            nginx =
             {
-              nginx =
-              {
-                enable = true;
-                https."wallabag.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:4398";
-              };
-              postgresql.instances.wallabag = {};
-              redis.instances.wallabag = { user = "root"; port = 8790; };
+              enable = true;
+              https."wallabag.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:4398";
             };
-            virtualization.docker.enable = true;
+            postgresql.instances.wallabag = {};
+            redis.instances.wallabag = { user = "root"; port = 8790; };
           };
         }
       )

@@ -51,7 +51,7 @@ inputs:
         nix.remote.slave.enable = true;
       };
       hardware = { cpus = [ "amd" ]; gpu.type = "nvidia"; };
-      virtualization = { docker.enable = true; kvmHost = { enable = true; gui = true; }; };
+      virtualization.kvmHost = { enable = true; gui = true; };
       services =
       {
         snapper.enable = true;
@@ -93,6 +93,7 @@ inputs:
         };
         groupshare = {};
         hpcstat = {};
+        docker = {};
       };
       bugs = [ "xmunet" "amdpstate" ];
       user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" ];

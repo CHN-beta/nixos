@@ -70,8 +70,8 @@ inputs:
         chatgpt = {};
         xray.server = { serverName = "xserver.vps7.chn.moe"; userNumber = 4; };
         writefreely = {};
+        docker = {};
       };
-      virtualization.docker.enable = true;
     };
     specialisation.generic.configuration =
     {
