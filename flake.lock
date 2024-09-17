@@ -21,6 +21,22 @@
         "type": "github"
       }
     },
+    "blog": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1726563057,
+        "narHash": "sha256-0BuPxaijAnZvkYCFACLqhj3DRcb1gPJh6fXb+rfjOwc=",
+        "ref": "refs/heads/main",
+        "rev": "837cd77a8ea5217bc18d155c977c28c73e29db15",
+        "revCount": 1,
+        "type": "git",
+        "url": "https://git.chn.moe/chn/blog.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.chn.moe/chn/blog.git"
+      }
+    },
     "blurred-wallpaper": {
       "flake": false,
       "locked": {
@@ -1369,6 +1385,7 @@
     "root": {
       "inputs": {
         "aagl": "aagl",
+        "blog": "blog",
         "blurred-wallpaper": "blurred-wallpaper",
         "bscpkgs": "bscpkgs",
         "catppuccin": "catppuccin",

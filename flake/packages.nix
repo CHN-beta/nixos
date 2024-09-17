@@ -14,7 +14,7 @@
     in pkgs.pkgsStatic.localPackages.hpcstat.override
       { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
   chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
-  blog = pkgs.callPackage ../blog { inherit (inputs) hextra; };
+  blog = pkgs.callPackage inputs.blog { inherit (inputs) hextra; };
 }
 // (builtins.listToAttrs (builtins.map
   (system: { inherit (system) name; value = system.value.config.system.build.toplevel; })
