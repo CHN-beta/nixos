@@ -68,7 +68,6 @@ inputs:
       };
       virtualization =
       {
-        waydroid.enable = true;
         docker.enable = true;
         kvmHost = { enable = true; gui = true; };
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
@@ -142,6 +141,7 @@ inputs:
           partitions.default = [ "pc" ];
         };
         ollama = {};
+        waydroid = {};
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
       user.users = [ "chn" "zzn" ];

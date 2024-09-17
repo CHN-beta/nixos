@@ -54,13 +54,13 @@ inputs:
         grub.windowsEntries."8F50-83B8" = "猿神，启动！";
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "nvidia"; };
-      virtualization = { waydroid.enable = true; docker.enable = true; kvmHost = { enable = true; gui = true; }; };
+      virtualization = { docker.enable = true; kvmHost = { enable = true; gui = true; }; };
       services =
       {
         snapper.enable = true;
         sshd = { passwordAuthentication = true; groupBanner = true; };
         xray.client.enable = true;
-        firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
+        firewall.trustedInterfaces = [ "virbr0" ];
         smartd.enable = true;
         beesd.instances.root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
         wireguard =

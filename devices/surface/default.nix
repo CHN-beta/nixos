@@ -29,7 +29,7 @@ inputs:
         gui.enable = true;
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
-      virtualization = { docker.enable = true; waydroid.enable = true; };
+      virtualization.docker.enable = true;
       services =
       {
         snapper.enable = true;
@@ -53,6 +53,7 @@ inputs:
           wireguardIp = "192.168.83.5";
         };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
+        waydroid = {};
       };
       bugs = [ "xmunet" "suspend-hibernate-no-platform" ];
       packages.vasp = null;

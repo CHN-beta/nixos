@@ -2,14 +2,6 @@ inputs:
 {
   options.nixos.virtualization = let inherit (inputs.lib) mkOption types; in
   {
-    # /var/lib/waydroid/waydroid_base.prop
-    # default:
-    # ro.hardware.gralloc=gbm
-    # ro.hardware.egl=mesa
-    # nvidia:
-    # ro.hardware.gralloc=default
-    # ro.hardware.egl=swiftshader
-    waydroid.enable = mkOption { default = false; type = types.bool; };
     docker.enable = mkOption { default = false; type = types.bool; };
     kvmHost =
     {
@@ -22,8 +14,6 @@ inputs:
   };
   config = let inherit (inputs.lib) mkMerge mkIf; in mkMerge
   [
-    # waydroid
-    (mkIf inputs.config.nixos.virtualization.waydroid.enable { virtualisation = { waydroid.enable = true; }; })
     # docker
     (
       mkIf inputs.config.nixos.virtualization.docker.enable
@@ -154,5 +144,3 @@ inputs:
     }
   ];
 }
-
-# sudo waydroid shell wm set-fix-to-user-rotation enabled

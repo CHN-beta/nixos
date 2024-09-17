@@ -51,13 +51,13 @@ inputs:
         nix.remote.slave.enable = true;
       };
       hardware = { cpus = [ "amd" ]; gpu.type = "nvidia"; };
-      virtualization = { waydroid.enable = true; docker.enable = true; kvmHost = { enable = true; gui = true; }; };
+      virtualization = { docker.enable = true; kvmHost = { enable = true; gui = true; }; };
       services =
       {
         snapper.enable = true;
         sshd = { passwordAuthentication = true; groupBanner = true; };
         xray.client.enable = true;
-        firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
+        firewall.trustedInterfaces = [ "virbr0" ];
         smartd.enable = true;
         beesd.instances =
         {
