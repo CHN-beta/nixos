@@ -34,7 +34,7 @@ inputs:
           # disk for srv1
           "megaraid_sas"
           # disks for cluster
-          "nfs"
+          "nfs" "nfsv4"
           # netowrk for srv1
           "bnx2x" "tg3"
         ]

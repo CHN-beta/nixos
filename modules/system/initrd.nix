@@ -34,7 +34,8 @@ inputs:
             services.resolved.enable = false;
           };
           # ip=dhcp only attain ipv4
-          kernelParams = [ "ip=on" ];
+          # ip=on will reset systemd-networkd configs
+          # kernelParams = [ "ip=on" ];
         };
       }
     )
