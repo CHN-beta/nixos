@@ -365,7 +365,7 @@ void ufo::plot_point(std::string config_file)
     biu::Logger::Guard log;
     auto f = matplot::figure(true);
     auto ax = f->current_axes();
-    auto image = ax->plot(values);
+    auto image = ax->area(values);
     ax->y_axis().reverse(false);
     ax->x_axis().tick_values(x_ticks);
     ax->x_axis().tick_length(1);
