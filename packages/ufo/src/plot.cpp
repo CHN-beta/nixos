@@ -307,8 +307,10 @@ void ufo::plot_point(std::string config_file)
     std::optional<std::vector<std::pair<double, std::string>>> XTicks;
     // 是否输出图片
     std::optional<std::string> OutputPictureFile;
-    // 是否输出数据，可以进一步使用 matplotlib 画图
+    // 是否输出插值后数据，可以进一步使用 matplotlib 画图
     std::optional<std::string> OutputDataFile;
+    // 是否输出插值前数据，可以配合 phonopy 结果深入研究
+    std::optional<std::string> OutputRawDataFile;
   };
 
   // 根据 q 点路径, 搜索要使用的 q 点，返回的是 q 点在 QpointData 中的索引
@@ -424,4 +426,6 @@ void ufo::plot_point(std::string config_file)
       .write("XTickLabels", x_ticklabels)
       .write("InterpolationResolution", input.InterpolationResolution)
       .write("FrequencyRange", input.FrequencyRange);
+  if (input.OutputRawDataFile)
+    std::ofstream(*input.OutputRawDataFile) << YAML::Node(unfolded_data.QpointData[qpoint_index]);
 }
