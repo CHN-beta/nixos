@@ -346,8 +346,9 @@ void ufo::plot_point(std::string config_file)
     std::vector<double> result(resolution);
     for (auto& mode : qpoint.ModeData)
     {
-      std::ptrdiff_t index = (mode.Frequency - frequency_range[0]) / (frequency_range[1] - frequency_range[0])
-        * resolution;
+      double index_double = (mode.Frequency - frequency_range[0]) / (frequency_range[1] - frequency_range[0])
+        * (resolution - 1);
+      std::ptrdiff_t index = std::round(index_double);
       if (index >= 0 && index < static_cast<std::ptrdiff_t>(resolution)) result[index] += mode.Weight;
     }
     return log.rtn(result);
