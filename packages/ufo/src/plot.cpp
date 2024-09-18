@@ -357,32 +357,14 @@ void ufo::plot_point(std::string config_file)
   auto plot = []
   (
     const std::vector<double>& values, const std::string& filename,
-    const std::vector<double>& x_ticks, const std::vector<std::string>& x_ticklabels, std::size_t y_resolution,
+    const std::vector<double>& x_ticks, const std::vector<std::string>& x_ticklabels,
     const std::optional<double>& aspect_ratio, const std::optional<std::array<std::size_t, 2>>& resolution
   )
   {
     biu::Logger::Guard log;
-    std::vector<std::vector<double>>
-      r(y_resolution, std::vector<double>(values.size(), 0)),
-      g(y_resolution, std::vector<double>(values.size(), 0)),
-      b(y_resolution, std::vector<double>(values.size(), 0)),
-      a(y_resolution, std::vector<double>(values.size(), 0));
-    for (std::size_t i = 0; i < y_resolution; i++) for (std::size_t j = 0; j < values.size(); j++)
-    {
-      auto v = values[j];
-      if (v < 0.05) v = 0;
-      a[i][j] = v * 100 * 255;
-      if (a[i][j] > 255) a[i][j] = 255;
-      r[i][j] = 255 - v * 2 * 255;
-      if (r[i][j] < 0) r[i][j] = 0;
-      g[i][j] = 255 - v * 2 * 255;
-      if (g[i][j] < 0) g[i][j] = 0;
-      b[i][j] = 255;
-    }
     auto f = matplot::figure(true);
     auto ax = f->current_axes();
-    auto image = ax->image(std::tie(r, g, b));
-    image->matrix_a(a);
+    auto image = ax->plot(values);
     ax->y_axis().reverse(false);
     ax->x_axis().tick_values(x_ticks);
     ax->x_axis().tick_length(1);
@@ -432,7 +414,7 @@ void ufo::plot_point(std::string config_file)
   if (input.OutputPictureFile) plot
   (
     values, input.OutputPictureFile.value(),
-    x_ticks, x_ticklabels, 10, input.AspectRatio, input.PictureResolution
+    x_ticks, x_ticklabels, input.AspectRatio, input.PictureResolution
   );
   if (input.OutputDataFile)
     biu::Hdf5file(input.OutputDataFile.value(), true)

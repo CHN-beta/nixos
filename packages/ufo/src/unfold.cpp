@@ -225,10 +225,13 @@ void ufo::unfold(std::string config_file)
         projection_coefficient_on_atoms.emplace();
         for (std::size_t i_of_mode = 0; i_of_mode < qpoint_data[i_of_meta_qpoint].ModeData.size(); i_of_mode++)
         {
-          projection_coefficient_on_atoms.value().emplace_back(0);
+          projection_coefficient_on_atoms->emplace_back(0);
           for (auto atom : *selected_atoms)
-            projection_coefficient_on_atoms.value().back()
+            projection_coefficient_on_atoms->back()
               += qpoint_data[i_of_meta_qpoint].ModeData[i_of_mode].AtomMovement.row(atom).array().abs2().sum();
+          projection_coefficient_on_atoms->back() *=
+            static_cast<double>(qpoint_data[i_of_meta_qpoint].ModeData[i_of_mode].AtomMovement.rows())
+              / selected_atoms->size();
         }
       }
 
