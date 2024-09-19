@@ -17,7 +17,7 @@ inputs:
             ip = mkOption { type = types.nonEmptyStr; };
             mask = mkOption { type = types.ints.unsigned; };
             gateway = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-            dns = mkOption { type = types.nonEmptyStr; default = null; };
+            dns = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
           };});
           default = {};
         };
@@ -95,6 +95,7 @@ inputs:
                 routes = inputs.lib.mkIf (network.value.gateway != null)
                   [{ Gateway = network.value.gateway; Destination = "0.0.0.0/0"; }];
                 linkConfig.RequiredForOnline = "routable";
+                dns = inputs.lib.mkIf (network.value.dns != null) [ network.value.dns ];
               };
             })
             (inputs.localLib.attrsToList networking.networkd.static))
