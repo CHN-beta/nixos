@@ -41,7 +41,7 @@ inputs:
             # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
             "alderlake"
           ];
-          remote.master = { enable = true; hosts = [ "xmupc1" "xmupc2" ]; };
+          remote.master = { enable = true; hosts = [ "xmupc1" "xmupc2" "srv1-node0" "srv1-node1" ]; };
           githubToken.enable = true;
         };
         nixpkgs =

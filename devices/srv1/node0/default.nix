@@ -6,7 +6,7 @@ inputs:
     {
       system =
       {
-        nix.marches = [ "cascadelake" "broadwell" ];
+        nix = { marches = [ "cascadelake" "broadwell" ]; remote.slave.enable = true; };
         nixpkgs.march = "cascadelake";
         networking.networkd.static =
         {

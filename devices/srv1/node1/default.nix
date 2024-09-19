@@ -14,6 +14,7 @@ inputs:
         };
         cluster.nodeType = "worker";
         initrd.sshd.enable = true;
+        nix.remote.slave.enable = true;
       };
       services.beesd.instances.root = { device = "/"; hashTableSizeMB = 256; threads = 4; };
       packages.packages._packages = [(inputs.pkgs.runCommand "master-system" {}
