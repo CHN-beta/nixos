@@ -33,7 +33,6 @@ inputs:
         storageDriver = "overlay2";
         daemon.settings.dns = [ "1.1.1.1" ];
       };
-      nixos.services.firewall.trustedInterfaces = [ "docker0" ];
     }
   ];
 }

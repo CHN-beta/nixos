@@ -60,7 +60,6 @@ inputs:
         snapper.enable = true;
         sshd = { passwordAuthentication = true; groupBanner = true; };
         xray.client.enable = true;
-        firewall.trustedInterfaces = [ "virbr0" ];
         smartd.enable = true;
         beesd.instances.root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
         wireguard =

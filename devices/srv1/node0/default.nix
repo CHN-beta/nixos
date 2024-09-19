@@ -55,8 +55,5 @@ inputs:
         options = [ "rbind" ];
       };
     };
-    # without this, tproxy does not work
-    # TODO: why?
-    networking.firewall.trustedInterfaces = [ "eno146" ];
   };
 }

@@ -25,6 +25,8 @@ inputs:
         noproxyTcpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
         noproxyUdpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
       };
+      # 是否允许代理来自其它机器的流量（相关端口会被放行）
+      allowForward = mkOption { type = types.bool; default = true; };
     };
     server = mkOption
     {
@@ -329,6 +331,13 @@ inputs:
           groups.v2ray.gid = inputs.config.nixos.user.gid.v2ray;
         };
         environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
+        networking.firewall =
+        {
+          allowedTCPPorts = [ 53 ];
+          allowedUDPPorts = [ 53 ];
+          allowedTCPPortRanges = [{ from = 10880; to = 10884; }];
+          allowedUDPPortRanges = [{ from = 10880; to = 10884; }];
+        };
       }
     )
     (

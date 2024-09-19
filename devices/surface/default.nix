@@ -43,7 +43,6 @@ inputs:
               "dispatchcnglobal.yuanshen.com"
             ]);
         };
-        firewall.trustedInterfaces = [ "virbr0" ];
         wireguard =
         {
           enable = true;

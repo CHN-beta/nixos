@@ -3,7 +3,6 @@ inputs:
   imports = inputs.localLib.findModules ./.;
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
-    firewall.trustedInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     smartd.enable = mkOption { type = types.bool; default = false; };
     wallabag.enable = mkOption { type = types.bool; default = false; };
     noisetorch.enable = mkOption { type = types.bool; default = inputs.config.nixos.system.gui.preferred; };
@@ -16,7 +15,6 @@ inputs:
       inherit (builtins) map listToAttrs toString;
     in mkMerge
     [
-      { networking.firewall.trustedInterfaces = services.firewall.trustedInterfaces; }
       (mkIf services.smartd.enable { services.smartd.enable = true; })
       (
         mkIf services.wallabag.enable

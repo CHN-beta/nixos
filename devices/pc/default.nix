@@ -105,7 +105,6 @@ inputs:
             ++ [{ name = "4006024680.com"; value = "192.168.199.1"; }]
           );
         };
-        firewall.trustedInterfaces = [ "virbr0" "waydroid0" ];
         acme.cert."debug.mirism.one" = {};
         frpClient =
         {

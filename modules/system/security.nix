@@ -43,5 +43,7 @@ inputs:
       sudo.extraConfig = "Defaults pwfeedback";
     };
     systemd.user.extraConfig = "DefaultLimitNOFILE=65536:524288";
+    # needed by xray tproxy if we want to forward traffic from other machine
+    networking.firewall.checkReversePath = false;
   };
 }
