@@ -77,6 +77,11 @@ inputs:
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIJZ/+divGnDr0x+UlknA84Tfu6TPD+zBGmxWZY4Z38P6";
           hostnames = [ "[xmupc2.chn.moe]:6394" "wireguard.xmupc2.chn.moe" "192.168.83.7" ];
         };
+        srv1-node0 =
+        {
+          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIDm6M1D7dBVhjjZtXYuzMj2P1fXNWN3O9wmwNssxEeDs";
+          hostnames = [ "srv1.chn.moe" "node0.srv1.chn.moe" "wireguard.node0.srv1.chn.moe" ];
+        };
       };
       in builtins.listToAttrs (builtins.map
         (server:
@@ -112,7 +117,7 @@ inputs:
             [ "vps4" "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.nas" ])
           ++ (builtins.map
             (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; }; })
-            [ "wireguard.pc" "wireguard.surface" "wireguard.xmupc1" "wireguard.xmupc2" ])
+            [ "wireguard.pc" "wireguard.surface" "wireguard.xmupc1" "wireguard.xmupc2" "srv1" "wireguard.srv1" ])
           ++ (builtins.map
             (host:
             {
@@ -143,6 +148,8 @@ inputs:
             extraOptions.AddKeysToAgent = "yes";
           };
           "wireguard.jykang" = jykang // { host = "internal.jykang"; proxyJump = "wireguard.xmupc1"; };
+          srv1-node0 = { host = "srv1-node0"; hostname = "srv1.chn.moe"; };
+          srv1-node1 = { host = "srv1-node1"; hostname = "192.168.178.2"; proxyJump = "srv1-node0"; };
         };
       };
     })];
