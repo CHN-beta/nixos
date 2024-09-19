@@ -16,16 +16,12 @@ inputs:
         initrd.sshd.enable = true;
       };
       services.beesd.instances.root = { device = "/"; hashTableSizeMB = 256; threads = 4; };
-      packages =
-      {
-        vasp = null;
-        packages._packages = [(inputs.pkgs.runCommand "master-system" {}
-        ''
-          mkdir -p $out/share
-          ln -s ${inputs.topInputs.self.nixosConfigurations.srv1-node0.config.system.build.toplevel} \
-            $out/share/master-system
-        '')];
-      };
+      packages.packages._packages = [(inputs.pkgs.runCommand "master-system" {}
+      ''
+        mkdir -p $out/share
+        ln -s ${inputs.topInputs.self.nixosConfigurations.srv1-node0.config.system.build.toplevel} \
+          $out/share/master-system
+      '')];
     };
     specialisation =
     {
