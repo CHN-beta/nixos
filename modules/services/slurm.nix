@@ -29,6 +29,8 @@ inputs:
       cpuOpenmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
       gpus = mkOption { type = types.nullOr (types.attrsOf types.ints.unsigned); default = null; };
     };
+    # 是否打开防火墙相应端口，对于多节点部署需要打开
+    setupFirewall = mkOption { type = types.bool; default = false; };
   };
   config = let inherit (inputs.config.nixos.services) slurm; in inputs.lib.mkIf slurm.enable (inputs.lib.mkMerge
   [
@@ -139,6 +141,9 @@ inputs:
         sopsFile = "${builtins.dirOf inputs.config.sops.defaultSopsFile}/munge.key";
         owner = inputs.config.systemd.services.munged.serviceConfig.User;
       };
+      networking.firewall =
+        let config = inputs.lib.mkIf slurm.setupFirewall [ 6818 ];
+        in { allowedTCPPorts = config; allowedUDPPorts = config; };
     }
     # master 配置
     (inputs.lib.mkIf (slurm.master == inputs.config.nixos.system.networking.hostname)
@@ -182,6 +187,9 @@ inputs:
         CpuOpenmpThreads = slurm.tui.cpuOpenmpThreads;
         GpuIds = slurm.tui.gpus;
       };
+      networking.firewall =
+        let config = inputs.lib.mkIf slurm.setupFirewall [ 6817 ];
+        in { allowedTCPPorts = config; allowedUDPPorts = config; };
     })
   ]);
 }
