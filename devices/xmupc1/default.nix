@@ -81,7 +81,7 @@ inputs:
             memoryMB = 94208;
             gpus = { "p5000" = 1; "3090" = 1; "4090" = 1; };
           };
-          partitions.default = [ "xmupc1" ];
+          partitions.localhost = [ "xmupc1" ];
         };
         xrdp = { enable = true; hostname = [ "xmupc1.chn.moe" ]; };
         samba =

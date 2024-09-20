@@ -136,7 +136,7 @@ inputs:
             memoryMB = 90112;
             gpus."4060" = 1;
           };
-          partitions.default = [ "pc" ];
+          partitions.localhost = [ "pc" ];
         };
         ollama = {};
         waydroid = {};

@@ -80,7 +80,7 @@ inputs:
             memoryMB = 253952;
             gpus."4090" = 1;
           };
-          partitions.default = [ "xmupc2" ];
+          partitions.localhost = [ "xmupc2" ];
         };
         xrdp = { enable = true; hostname = [ "xmupc2.chn.moe" ]; };
         samba = { enable = true; hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };

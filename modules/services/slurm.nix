@@ -22,7 +22,7 @@ inputs:
       gpus = mkOption { type = types.nullOr (types.attrsOf types.ints.unsigned); default = null; };
     };}));};
     partitions = mkOption { type = types.attrsOf (types.listOf types.nonEmptyStr); default = {}; };
-    defaultPartition = mkOption { type = types.nonEmptyStr; default = "default"; };
+    defaultPartition = mkOption { type = types.nonEmptyStr; default = "localhost"; };
   };
   config = let inherit (inputs.config.nixos.services) slurm; in inputs.lib.mkIf slurm.enable (inputs.lib.mkMerge
   [
