@@ -41,35 +41,12 @@ OBJECTS_LIB = linpack_double.o getshmem.o
 CXX_PARS    = icpx
 LLIBS       = -lstdc++
 
-##
-## Customize as of this point! Of course you may change the preceding
-## part of this file as well if you like, but it should rarely be
-## necessary ...
-##
-
-# When compiling on the target machine itself, change this to the
-# relevant target when cross-compiling for another architecture
-VASP_TARGET_CPU ?= -x@oneapiArch@
-FFLAGS     += $(VASP_TARGET_CPU)
- 
-# Intel MKL (FFTW, BLAS, LAPACK, and scaLAPACK)
-# (Note: for Intel Parallel Studio's MKL use -mkl instead of -qmkl)
 FCL        += -qmkl
-MKLROOT    ?= /path/to/your/mkl/installation 
-LLIBS      += -L$(MKLROOT)/lib/intel64 -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
+LLIBS      += -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
 INCS        =-I$(MKLROOT)/include/fftw
 
-# HDF5-support (optional but strongly recommended)
 CPP_OPTIONS+= -DVASP_HDF5
-LLIBS      += -L$(HDF5_ROOT)/lib -lhdf5_fortran
-INCS       += -I$(HDF5_ROOT)/include
+LLIBS      += -lhdf5_fortran
 
-# For the VASP-2-Wannier90 interface (optional)
 CPP_OPTIONS    += -DVASP2WANNIER90
-LLIBS          += -L$(WANNIER90_ROOT)/lib -lwannier
-
-# For the fftlib library (hardly any benefit in combination with MKL's FFTs)
-#FCL         = mpiifort fftlib.o -qmkl
-#CXX_FFTLIB  = icpc -qopenmp -std=c++11 -DFFTLIB_USE_MKL -DFFTLIB_THREADSAFE
-#INCS_FFTLIB = -I./include -I$(MKLROOT)/include/fftw
-#LIBS       += fftlib
+LLIBS          += -lwannier

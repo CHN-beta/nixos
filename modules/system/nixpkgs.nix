@@ -46,7 +46,9 @@ inputs:
           }
           // (if nixpkgs.march == null then {} else
           {
-            oneapiArch = let match = { znver3 = "CORE-AVX2"; znver4 = "CORE-AVX512"; };
+            # TODO: change znver4 after update oneapi
+            # TODO: test znver3 do use AVX
+            oneapiArch = let match = { znver3 = "CORE-AVX2"; znver4 = "core-avx2"; };
               in match.${nixpkgs.march} or nixpkgs.march;
             nvhpcArch = nixpkgs.march;
             # contentAddressedByDefault = true;

@@ -52,9 +52,24 @@ inputs: rec
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
       { inherit lmod nvhpc vtst src; hdf5 = hdf5-nvhpc; };
     intel = inputs.pkgs.callPackage ./vasp/intel
-      { inherit lmod oneapi vtst src; hdf5 = hdf5-oneapi; };
+    {
+      inherit vtst src;
+      inherit (inputs.pkgs.intelPackages_2023) stdenv;
+      mpi = inputs.pkgs.intelPackages_2023.intel-mpi;
+      hdf5 = hdf5-oneapi;
+    };
     hdf5-nvhpc = inputs.pkgs.callPackage ./vasp/hdf5-nvhpc { inherit lmod nvhpc; inherit (inputs.pkgs.hdf5) src; };
-    hdf5-oneapi = inputs.pkgs.callPackage ./vasp/hdf5-oneapi { inherit lmod oneapi; inherit (inputs.pkgs.hdf5) src; };
+    hdf5-oneapi = inputs.pkgs.hdf5.override
+    {
+      inherit (inputs.pkgs.intelPackages_2023) stdenv;
+      cppSupport = false;
+      fortranSupport = true;
+      # mpiSupport = true;
+      enableShared = false;
+      enableStatic = true;
+      # fortran = builtins.toFile "empty" "";
+      # mpi = builtins.toFile "empty" "";
+    };
     vtst = (inputs.pkgs.callPackage ./vasp/vtst.nix {});
     vtstscripts = inputs.pkgs.callPackage ./vasp/vtstscripts.nix {};
   };

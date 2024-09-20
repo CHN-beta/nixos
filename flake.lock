@@ -60,11 +60,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1726861230,
-        "narHash": "sha256-bm3VHVFEhYaywmvjR+kntr3ZfEFQtSLGszHmFpn977A=",
+        "lastModified": 1726983918,
+        "narHash": "sha256-eRGl50mhbJRT9Mk2NbePr6yzxzZRygndx4O7kObVa3g=",
         "ref": "refs/heads/master",
-        "rev": "a66eb7e404354ae576e1f0cf636711d244f6e07e",
-        "revCount": 938,
+        "rev": "7370c1d1ef2421608e1355368361af92777a2c6c",
+        "revCount": 940,
         "type": "git",
         "url": "https://git.chn.moe/chn/bscpkgs.git"
       },
