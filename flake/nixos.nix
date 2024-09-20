@@ -47,5 +47,5 @@ builtins.listToAttrs
         ];
       };
     })
-    [ "node0" "node1" "node3" ])
+    [ "node0" "node1" "node2" "node3" ])
 )

@@ -44,11 +44,23 @@ inputs:
               cpu = { sockets = 4; cores = 8; threads = 2; };
               memoryMB = 30720;
             };
+            srv1-node2 =
+            {
+              name = "n1"; address = "192.168.178.2";
+              cpu = { sockets = 4; cores = 8; threads = 2; };
+              memoryMB = 30720;
+            };
+            srv1-node3 =
+            {
+              name = "n1"; address = "192.168.178.2";
+              cpu = { sockets = 4; cores = 8; threads = 2; };
+              memoryMB = 30720;
+            };
           };
           partitions =
           {
             default = [ "srv1-node0" ];
-            old = [ "srv1-node1" ];
+            old = [ "srv1-node1" "srv1-node2" "srv1-node3" ];
           };
         };
       };
