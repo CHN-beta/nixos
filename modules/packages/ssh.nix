@@ -82,6 +82,21 @@ inputs:
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIDm6M1D7dBVhjjZtXYuzMj2P1fXNWN3O9wmwNssxEeDs";
           hostnames = [ "srv1.chn.moe" "node0.srv1.chn.moe" "wireguard.node0.srv1.chn.moe" ];
         };
+        srv1-node1 =
+        {
+          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIIFmG/ZzLDm23NeYa3SSI0a0uEyQWRFkaNRE9nB8egl7";
+          hostnames = [ "192.168.178.2" ];
+        };
+        srv1-node2 =
+        {
+          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIDhgEApzHhVPDvdVFPRuJ/zCDiR1K+rD4sZzH77imKPE";
+          hostnames = [ "192.168.178.3" ];
+        };
+        srv1-node3 =
+        {
+          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIO/4xbQNz6KNcEdjtBMGY8wUoFK1sCgamKl/r+kVjd7O";
+          hostnames = [ "192.168.178.4" ];
+        };
       };
       in builtins.listToAttrs (builtins.map
         (server:
@@ -147,9 +162,10 @@ inputs:
             forwardAgent = true;
             extraOptions.AddKeysToAgent = "yes";
           };
-          "wireguard.jykang" = jykang // { host = "internal.jykang"; proxyJump = "wireguard.xmupc1"; };
-          srv1-node0 = { host = "srv1-node0"; hostname = "srv1.chn.moe"; };
-          srv1-node1 = { host = "srv1-node1"; hostname = "192.168.178.2"; proxyJump = "srv1-node0"; };
+          "wireguard.jykang" = jykang // { host = "wireguard.jykang"; proxyJump = "wireguard.xmupc1"; };
+          srv1-node1 = { host = "srv1-node1"; hostname = "192.168.178.2"; proxyJump = "srv1"; };
+          srv1-node2 = { host = "srv1-node2"; hostname = "192.168.178.3"; proxyJump = "srv1"; };
+          srv1-node3 = { host = "srv1-node3"; hostname = "192.168.178.4"; proxyJump = "srv1"; };
         };
       };
     })];
