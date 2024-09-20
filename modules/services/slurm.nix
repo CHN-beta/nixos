@@ -109,6 +109,7 @@ inputs:
             SchedulerParameters=enable_user_top
 
             SlurmdDebug=debug2
+            DebugFlags=NO_CONF_HASH
 
             # automatically resume node after drain
             ReturnToService=2
