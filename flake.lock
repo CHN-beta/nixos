@@ -60,17 +60,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1713974364,
-        "narHash": "sha256-ilZTVWSaNP1ibhQIIRXE+q9Lj2XOH+F9W3Co4QyY1eU=",
+        "lastModified": 1726861230,
+        "narHash": "sha256-bm3VHVFEhYaywmvjR+kntr3ZfEFQtSLGszHmFpn977A=",
         "ref": "refs/heads/master",
-        "rev": "de89197a4a7b162db7df9d41c9d07759d87c5709",
-        "revCount": 937,
+        "rev": "a66eb7e404354ae576e1f0cf636711d244f6e07e",
+        "revCount": 938,
         "type": "git",
-        "url": "https://pm.bsc.es/gitlab/rarias/bscpkgs.git"
+        "url": "https://git.chn.moe/chn/bscpkgs.git"
       },
       "original": {
         "type": "git",
-        "url": "https://pm.bsc.es/gitlab/rarias/bscpkgs.git"
+        "url": "https://git.chn.moe/chn/bscpkgs.git"
       }
     },
     "catppuccin": {

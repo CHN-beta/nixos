@@ -37,7 +37,7 @@
     };
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
     catppuccin.url = "github:catppuccin/nix";
-    bscpkgs = { url = "git+https://pm.bsc.es/gitlab/rarias/bscpkgs.git"; inputs.nixpkgs.follows = "nixpkgs"; };
+    bscpkgs = { url = "git+https://git.chn.moe/chn/bscpkgs.git"; inputs.nixpkgs.follows = "nixpkgs"; };
     poetry2nix = { url = "github:CHN-beta/poetry2nix"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
