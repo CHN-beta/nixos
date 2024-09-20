@@ -81,6 +81,7 @@ inputs:
             (inputs.localLib.attrsToList slurm.partitions);
           procTrackType = "proctrack/cgroup";
           controlMachine = slurm.master;
+          controlAddr = slurm.node.${slurm.master}.address;
           extraConfig =
           ''
             SelectType=select/cons_tres
