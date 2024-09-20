@@ -23,6 +23,12 @@ inputs:
     };}));};
     partitions = mkOption { type = types.attrsOf (types.listOf types.nonEmptyStr); default = {}; };
     defaultPartition = mkOption { type = types.nonEmptyStr; default = "localhost"; };
+    tui =
+    {
+      cpuMpiThreads = mkOption { type = types.ints.unsigned; default = 1; };
+      cpuOpenmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
+      gpus = mkOption { type = types.nullOr (types.attrsOf types.ints.unsigned); default = null; };
+    };
   };
   config = let inherit (inputs.config.nixos.services) slurm; in inputs.lib.mkIf slurm.enable (inputs.lib.mkMerge
   [
@@ -156,27 +162,25 @@ inputs:
       sops.secrets."slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; };
       nixos =
       {
-        # TODO: rewrite
-        # packages.packages._packages = [(inputs.pkgs.localPackages.sbatch-tui.override { sbatchConfig =
-        # {
-        #   cpuMpiThreads = slurm.cpu.mpiThreads;
-        #   cpuOpenmpThreads = slurm.cpu.openmpThreads;
-        #   gpuIds =
-        #     if slurm.gpus == null then ""
-        #     else builtins.concatStringsSep ", " (builtins.map (gpu: ''"${gpu}"'') (builtins.attrNames slurm.gpus));
-        # };})];
-        # user.sharedModules = [{ home.packages =
-        # [
-        #   (inputs.pkgs.writeShellScriptBin "sbatch"
-        #   ''
-        #     if [ "$#" -eq 0 ]; then
-        #       sbatch-tui
-        #     else
-        #       /run/current-system/sw/bin/sbatch "$@"
-        #     fi
-        #   '')
-        # ];}];
+        packages.packages._packages = [ inputs.pkgs.localPackages.sbatch-tui ];
+        user.sharedModules = [{ home.packages =
+        [
+          (inputs.pkgs.writeShellScriptBin "sbatch"
+          ''
+            if [ "$#" -eq 0 ]; then
+              sbatch-tui
+            else
+              /run/current-system/sw/bin/sbatch "$@"
+            fi
+          '')
+        ];}];
         services.mariadb = { enable = true; instances.slurm = {}; };
+      };
+      environment.etc."sbatch-tui.yaml".text = builtins.toJSON
+      {
+        CpuMpiThreads = slurm.tui.cpuMpiThreads;
+        CpuOpenmpThreads = slurm.tui.cpuOpenmpThreads;
+        GpuIds = slurm.tui.gpus;
       };
     })
   ]);

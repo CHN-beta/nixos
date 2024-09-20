@@ -62,6 +62,7 @@ inputs:
             localhost = [ "srv1-node0" ];
             old = [ "srv1-node1" "srv1-node2" "srv1-node3" ];
           };
+          tui = { cpuMpiThreads = 8; cpuOpenmpThreads = 10; };
         };
       };
       user.users = [ "chn" ];

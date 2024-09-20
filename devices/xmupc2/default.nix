@@ -81,6 +81,7 @@ inputs:
             gpus."4090" = 1;
           };
           partitions.localhost = [ "xmupc2" ];
+          tui = { cpuMpiThreads = 8; cpuOpenmpThreads = 10; gpus = [ "4090" ]; };
         };
         xrdp = { enable = true; hostname = [ "xmupc2.chn.moe" ]; };
         samba = { enable = true; hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };

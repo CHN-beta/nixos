@@ -12,9 +12,8 @@ endif()
 find_package(ftxui REQUIRED)
 find_package(biu REQUIRED)
 
-add_executable(sbatch-tui src/main.cpp src/device.cpp)
+add_executable(sbatch-tui src/main.cpp)
 target_compile_features(sbatch-tui PUBLIC cxx_std_23)
-target_include_directories(sbatch-tui PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(sbatch-tui PRIVATE ftxui::screen ftxui::dom ftxui::component biu::biu)
 
 install(TARGETS sbatch-tui RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

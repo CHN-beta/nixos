@@ -82,6 +82,7 @@ inputs:
             gpus = { "p5000" = 1; "3090" = 1; "4090" = 1; };
           };
           partitions.localhost = [ "xmupc1" ];
+          tui = { cpuMpiThreads = 3; cpuOpenmpThreads = 4; gpus = [ "p5000" "3090" "4090" ]; };
         };
         xrdp = { enable = true; hostname = [ "xmupc1.chn.moe" ]; };
         samba =
