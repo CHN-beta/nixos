@@ -26,7 +26,7 @@ inputs:
         # file system management
         sshfs e2fsprogs duperemove compsize exfatprogs
         # disk management
-        smartmontools hdparm megacli
+        smartmontools hdparm megacli gptfdisk
         # encryption and authentication
         apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f yubico-piv-tool
         # networking
