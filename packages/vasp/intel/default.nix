@@ -42,7 +42,7 @@ in writeShellScriptBin "vasp-intel"
   export LD_LIBRARY_PATH=${libfabric}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 
   # intel mpi need this to talk with slurm
-  ${lib.optionalString integratedWithSlurm "export I_MPI_MPI_LIBRARY=${slurm}/lib/libpmi2.so"}
+  ${lib.optionalString integratedWithSlurm "export I_MPI_PMI_LIBRARY=${slurm}/lib/libpmi2.so"}
 
   # add vasp and intel mpi in PATH
   export PATH=${vasp}/bin:${mpi}/bin''${PATH:+:$PATH}
