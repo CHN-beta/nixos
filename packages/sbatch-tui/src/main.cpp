@@ -130,20 +130,21 @@ int main()
       state.submit_command =
         "sbatch --ntasks=1\n--gpus=1\n--job-name='{}'\n--output='{}'\nvasp-nvidia-{}"_f
         (state.job_name, state.output_file, state.vasp_version_entries[state.vasp_version_selected]);
-    else if (state.device_type_entries[state.device_type_selected] == "CPU")
+    else if (state.device_type_entries[state.device_type_selected] == "manually select GPU")
       state.submit_command =
-        "sbatch --ntasks={}\n--cpus-per-task={}\n--hint=nomultithread\n--job-name='{}'\n--output='{}'"
-        "\nvasp-intel-{}"_f
+        "sbatch --ntasks=1\n--gres=gpu:{}:1\n--job-name='{}'\n--output='{}'\nvasp-nvidia-{}"_f
         (
-          state.mpi_threads, state.openmp_threads, state.job_name, state.output_file,
-          state.vasp_version_entries[state.vasp_version_selected]
+          state.gpu_entries[state.gpu_selected],
+          state.job_name, state.output_file, state.vasp_version_entries[state.vasp_version_selected]
         );
     else state.submit_command =
-      "sbatch --ntasks=1\n--gres=gpu:{}:1\n--job-name='{}'\n--output='{}'\nvasp-nvidia-{}"_f
+      "sbatch --ntasks={}\n--cpus-per-task={}\n--hint=nomultithread\n--job-name='{}'\n--output='{}'"
+      "\n--wrap=\"vasp-intel srun vasp-{}\""_f
       (
-        state.gpu_entries[state.gpu_selected],
-        state.job_name, state.output_file, state.vasp_version_entries[state.vasp_version_selected]
+        state.mpi_threads, state.openmp_threads, state.job_name, state.output_file,
+        state.vasp_version_entries[state.vasp_version_selected]
       );
+
     screen.Loop(confirm_interface);
     if (state.user_command == "quit") return EXIT_FAILURE;
     else if (state.user_command == "back") continue;
