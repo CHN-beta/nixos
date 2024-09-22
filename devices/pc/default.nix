@@ -144,7 +144,6 @@ inputs:
         docker = {};
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
-      user.users = [ "chn" "zzn" ];
     };
     boot =
     {
