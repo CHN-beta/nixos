@@ -52,6 +52,15 @@ inputs:
                 buildInputs = prev.buildInputs or [] ++ additionalInputs;
                 LDFLAGS = prev.LDFLAGS or [] ++ additionalFlags;
                 nativeBuildInputs = prev.nativeBuildInputs ++ [ inputs.pkgs.wrapGAppsHook ];
+                postInstall =
+                ''
+                  pushd contribs/pmi2
+                  make install
+                  popd
+                  pushd contribs/pmi
+                  make install
+                  popd
+                '' + prev.postInstall;
               }
             );
           client.enable = true;
