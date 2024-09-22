@@ -64,17 +64,12 @@ inputs: rec
       inherit (inputs.pkgs.intelPackages_2023) stdenv;
       cppSupport = false;
       fortranSupport = true;
-      # mpiSupport = true;
       enableShared = false;
       enableStatic = true;
-      # fortran = builtins.toFile "empty" "";
-      # mpi = builtins.toFile "empty" "";
     };
     vtst = (inputs.pkgs.callPackage ./vasp/vtst.nix {});
     vtstscripts = inputs.pkgs.callPackage ./vasp/vtstscripts.nix {};
   };
-  # TODO: use other people packaged hpc version
-  oneapi = inputs.pkgs.callPackage ./oneapi.nix {};
   mumax = inputs.pkgs.callPackage ./mumax.nix { src = inputs.topInputs.mumax; };
   kylin-virtual-keyboard = inputs.pkgs.libsForQt5.callPackage ./kylin-virtual-keyboard.nix
     { src = inputs.topInputs.kylin-virtual-keyboard; };
