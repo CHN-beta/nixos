@@ -105,6 +105,9 @@ inputs:
                 proxyRemoteFiles: true
                 signToActivityPubGet: true
                 maxFileSize: 1073741824
+                # 可能可以缓解 misskey 被卡住的问题
+                # https://github.com/misskey-dev/misskey/issues/14587
+                clusterLimit: 4
               ''
               + (if instance.value.meilisearch.enable then
               ''
