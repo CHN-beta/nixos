@@ -27,7 +27,7 @@ inputs:
     {
       cpuMpiThreads = mkOption { type = types.ints.unsigned; default = 1; };
       cpuOpenmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
-      gpus = mkOption { type = types.nullOr (types.attrsOf types.ints.unsigned); default = null; };
+      gpus = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
     };
     # 是否打开防火墙相应端口，对于多节点部署需要打开
     setupFirewall = mkOption { type = types.bool; default = false; };
