@@ -31,6 +31,8 @@ inputs:
           wireguardIp = "192.168.83.9";
         };
       };
+      packages.packages._prebuildPackages =
+        [ inputs.topInputs.self.nixosConfigurations.srv1-node1.pkgs.localPackages.vasp.intel ];
     };
     services.nfs.server =
     {
