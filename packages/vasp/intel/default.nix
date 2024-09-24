@@ -1,7 +1,6 @@
 {
   stdenv, src, writeShellScriptBin, lib,
-  rsync, which, wannier90, hdf5, vtst, mpi, mkl, libfabric,
-  integratedWithSlurm ? false, slurm
+  rsync, which, wannier90, hdf5, vtst, mpi, mkl
 }:
 let vasp = stdenv.mkDerivation
   {
@@ -35,17 +34,12 @@ let vasp = stdenv.mkDerivation
 
     # vasp directly include headers under ${mkl}/include/fftw
     MKLROOT = mkl;
+
+    # tell openmpi use ifx
+    OMPI_F90 = "ifx";
   };
 in writeShellScriptBin "vasp-intel"
 ''
-  # not sure why mpi could not find libfabric.so
-  export LD_LIBRARY_PATH=${libfabric}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
-
-  # intel mpi need this to talk with slurm
-  ${lib.optionalString integratedWithSlurm "export I_MPI_PMI_LIBRARY=${slurm}/lib/libpmi2.so"}
-
-  # add vasp and intel mpi in PATH
   export PATH=${vasp}/bin:${mpi}/bin''${PATH:+:$PATH}
-
   exec "$@"
 ''

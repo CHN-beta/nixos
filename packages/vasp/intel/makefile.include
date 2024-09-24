@@ -12,8 +12,8 @@ CPP_OPTIONS = -DHOST=\"LinuxIFC\" \
 
 CPP         = fpp -f_com=no -free -w0  $*$(FUFFIX) $*$(SUFFIX) $(CPP_OPTIONS)
 
-FC          = mpiifx -qopenmp
-FCL         = mpiifx
+FC          = mpif90 -qopenmp
+FCL         = mpif90
 
 FREE        = -free -names lowercase
 
