@@ -24,7 +24,8 @@ inputs:
           programs.firefox =
           {
             enable = true;
-            nativeMessagingHosts = with inputs.pkgs; [ plasma-browser-integration uget-integrator firefoxpwa ];
+            nativeMessagingHosts = with inputs.pkgs;
+              [ kdePackages.plasma-browser-integration uget-integrator firefoxpwa ];
             # TODO: use fixed-version of plugins
             policies.DefaultDownloadDirectory = "\${home}/Downloads";
             profiles.default =
