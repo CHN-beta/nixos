@@ -50,5 +50,7 @@ inputs:
       "mount.nfs4" = "${inputs.pkgs.nfs-utils}/bin/mount.nfs4";
     };
     services.rpcbind.enable = true;
+    # make slurm sub process to be able to communicate with the master
+    networking.firewall.trustedInterfaces = [ "eno2" ];
   };
 }
