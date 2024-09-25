@@ -31,43 +31,41 @@ inputs:
           # color management
           argyllcms xcalib
           # networking
-          remmina putty mtr-gui
+          remmina # putty mtr-gui
           # media
-          mpv nomacs spotify yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk vlc obs-studio
-          waifu2x-converter-cpp inkscape blender whalebird paraview
+          mpv nomacs yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk 
+          waifu2x-converter-cpp inkscape blender paraview vlc whalebird # spotify obs-studio
           # themes
-          catppuccin catppuccin-sddm catppuccin-cursors catppuccinifier-gui catppuccinifier-cli catppuccin-plymouth
-          (catppuccin-kde.override { flavour = [ "latte" ]; }) (catppuccin-kvantum.override { variant = "latte"; })
-          klassy
-          localPackages.slate localPackages.blurred-wallpaper tela-circle-icon-theme
+          klassy localPackages.slate localPackages.blurred-wallpaper tela-circle-icon-theme
+          # catppuccin catppuccin-sddm catppuccin-cursors catppuccinifier-gui catppuccinifier-cli catppuccin-plymouth
+          # (catppuccin-kde.override { flavour = [ "latte" ]; }) (catppuccin-kvantum.override { variant = "latte"; })
           # terminal
-          warp-terminal
+          # warp-terminal
           # development
-          adb-sync scrcpy weston cage openbox krita jetbrains.clion android-studio dbeaver-bin cling fprettify
-          aircrack-ng
+          adb-sync scrcpy dbeaver-bin cling aircrack-ng
+          # weston cage openbox krita jetbrains.clion android-studio fprettify
           # desktop sharing
-          rustdesk-flutter
+          # rustdesk-flutter
           # password and key management
-          yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden electrum
-          jabref
-          john crunch hashcat
+          yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden hashcat
+          # electrum jabref john crunch
           # download
-          qbittorrent nur-xddxdd.baidupcs-go wgetpaste onedrive onedrivegui rclone
+          qbittorrent # nur-xddxdd.baidupcs-go wgetpaste onedrive onedrivegui rclone
           # editor
-          typora appflowy notion-app-enhanced joplin-desktop standardnotes logseq
+          typora # appflowy notion-app-enhanced joplin-desktop standardnotes logseq
           # news
-          fluent-reader rssguard newsflash newsboat
+          # fluent-reader rssguard newsflash newsboat
           # nix tools
           nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github prefetch-npm-deps nix-prefetch-docker
           nix-template nil pnpm-lock-export bundix
           # instant messager
-          element-desktop telegram-desktop discord fluffychat zoom-us signal-desktop slack nur-linyinfeng.wemeet
-          nheko # qq nur-xddxdd.wechat-uos TODO: cinny-desktop
+          element-desktop telegram-desktop discord zoom-us slack nur-linyinfeng.wemeet nheko
+          # fluffychat signal-desktop qq nur-xddxdd.wechat-uos cinny-desktop
           # browser
-          google-chrome tor-browser microsoft-edge
+          google-chrome tor-browser # microsoft-edge
           # office
-          crow-translate zotero pandoc ydict libreoffice-qt texstudio poppler_utils pdftk pdfchain hdfview
-          davinci-resolve texliveFull
+          crow-translate zotero pandoc libreoffice-qt texliveFull poppler_utils pdftk pdfchain hdfview davinci-resolve
+          # ydict texstudio
           # matplot++ needs old gnuplot
           inputs.pkgs."pkgs-23.11".gnuplot
           # math, physics and chemistry
@@ -75,7 +73,7 @@ inputs:
           (mathematica.overrideAttrs (prev: { postInstall = (prev.postInstall or "") + "ln -s ${prev.src} $out/src"; }))
           (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; }) jmol mpi localPackages.ufo
           # virtualization
-          wineWowPackages.stagingFull virt-viewer bottles genymotion playonlinux
+          virt-viewer bottles # wineWowPackages.stagingFull genymotion playonlinux
           # media
           nur-xddxdd.svp
           # for kdenlive auto subtitle
