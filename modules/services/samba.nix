@@ -34,14 +34,14 @@ inputs:
           # TCP 139 445 UDP 137 138
           openFirewall = !samba.private;
           securityType = "user";
-          extraConfig =
-          ''
-            workgroup = WORKGROUP
-            server string = Samba Server
-            server role = standalone server
-            hosts allow = ${samba.hostsAllowed}
-            dns proxy = no
-          '';
+          settings =
+          {
+            workgroup = "WORKGROUP";
+            "server string" = "Samba Server";
+            "server role" = "standalone server";
+            "hosts allow" = "${samba.hostsAllowed}";
+            "dns proxy" = "no";
+          };
           #  obey pam restrictions = yes
           #  encrypt passwords = no
           shares = listToAttrs (map
