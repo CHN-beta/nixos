@@ -7,4 +7,5 @@
     sha256 = "0faahbzsr44bjmwr6508wi5hg59dfb57fzh5x6jh7zwmv4pzhqlb";
     fetchLFS = true;
   };
+  git-lfs-transfer = "sha256-AXXYo00ewbg656KiDasHrf3Krh6ZPUabmB3De090zCw=";
 }

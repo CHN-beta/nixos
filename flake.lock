@@ -1291,11 +1291,11 @@
         "treefmt-nix": "treefmt-nix_5"
       },
       "locked": {
-        "lastModified": 1725358301,
-        "narHash": "sha256-clY4INR7RjOVKya3FGNYvOhyFyUhd3dGQsnV2Za3rz0=",
+        "lastModified": 1727277425,
+        "narHash": "sha256-AkYXR8hhAcijhJFYu71+xkdkfTUKOM9ROjYwx5zIsdY=",
         "owner": "CHN-beta",
         "repo": "poetry2nix",
-        "rev": "1f803d2b2faa5b785dfd2fafe99b2411731bf08c",
+        "rev": "4d1c8dea2d0e3a81208d8598a1a776e65f71d73f",
         "type": "github"
       },
       "original": {

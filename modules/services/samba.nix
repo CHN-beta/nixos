@@ -33,18 +33,7 @@ inputs:
           enable = true;
           # TCP 139 445 UDP 137 138
           openFirewall = !samba.private;
-          securityType = "user";
-          settings =
-          {
-            workgroup = "WORKGROUP";
-            "server string" = "Samba Server";
-            "server role" = "standalone server";
-            "hosts allow" = "${samba.hostsAllowed}";
-            "dns proxy" = "no";
-          };
-          #  obey pam restrictions = yes
-          #  encrypt passwords = no
-          shares = listToAttrs (map
+          settings = listToAttrs (map
             (share:
             {
               name = share.name;
@@ -60,7 +49,8 @@ inputs:
                 "force directory mode" = "2755";
               };
             })
-            (attrsToList samba.shares));
+            (attrsToList samba.shares))
+            // { global."hosts allow" = "${samba.hostsAllowed}"; };
         };
       };
       nixos.services.xray.client.v2ray-forwarder =
