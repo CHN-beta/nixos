@@ -11,8 +11,16 @@
       openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
         (prev: { doCheck = false; patches = prev.patches ++ [ ../packages/hpcstat/openssh.patch ];});
       duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
+      # pkgsStatic.clangStdenv have a bug
+      # https://github.com/NixOS/nixpkgs/issues/177129
+      biu = pkgs.pkgsStatic.localPackages.biu.override { stdenv = pkgs.pkgsStatic.gcc14Stdenv; };
     in pkgs.pkgsStatic.localPackages.hpcstat.override
-      { inherit openssh duc; standalone = true; version = inputs.self.rev or "dirty"; };
+    {
+      inherit openssh duc biu;
+      standalone = true;
+      version = inputs.self.rev or "dirty";
+      stdenv = pkgs.pkgsStatic.gcc14Stdenv;
+    };
   chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
   blog = pkgs.callPackage inputs.blog { inherit (inputs) hextra; };
 }

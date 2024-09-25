@@ -2,6 +2,7 @@
 
 int main()
 {
+  using namespace biu::literals;
   struct student
   {
     int number;

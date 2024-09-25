@@ -53,23 +53,20 @@ int main(int argc, const char** argv)
             double percent = disk_stat->Total / 800 * 100;
             auto color = percent > 95 ? termcolor::red<char> :
               percent > 80 ? termcolor::yellow<char> : termcolor::green<char>;
-            auto bgcolor = percent > 95 ? termcolor::on_red<char> :
-              percent > 80 ? termcolor::on_yellow<char> : termcolor::on_green<char>;
-            std::cout
-              << color << "disk usage: " << termcolor::reset
-              << bgcolor << termcolor::white
-                << "{:.1f}% ({:.1f}GB / ~800GB)"_f(percent, disk_stat->Total) << termcolor::reset
-              << color << " (estimated, counted at {})\n"_f(disk_stat->Time) << termcolor::reset;
+            // 设置背景色后有时会难以辨认，因此只设置前景色
+            std::cout << color
+              << "disk usage: {:.1f}% ({:.1f}GB / ~800GB) (estimated, counted at {})\n"_f
+                (percent, disk_stat->Total, disk_stat->Time);
             if (percent > 80)
             {
-              std::cout << color << "Top 3 directories owned by teacher:\n";
+              std::cout << "Top 3 directories owned by teacher:\n";
               for (auto& [name, size] : disk_stat->Teacher | ranges::views::take(3))
                 std::cout << "  {:.1f}GB {}\n"_f(size, name);
-              std::cout << color << "Top 3 directories owned by student:\n";
+              std::cout << "Top 3 directories owned by student:\n";
               for (auto& [name, size] : disk_stat->Student | ranges::views::take(3))
                 std::cout << "  {:.1f}GB {}\n"_f(size, name);
-              std::cout << termcolor::reset;
             }
+            std::cout << termcolor::reset;
           }
         }
       }
