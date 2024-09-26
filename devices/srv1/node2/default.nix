@@ -7,12 +7,19 @@ inputs:
       system =
       {
         nixpkgs.march = "broadwell";
-        networking.networkd.static.eno2 =
-          { ip = "192.168.178.3"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
+        networking.networkd.static =
+        {
+          eno1 = { ip = "192.168.1.12"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; };
+          eno2 = { ip = "192.168.178.3"; mask = 24; };
+        };
         cluster.nodeType = "worker";
         fileSystems.mount.nfs."192.168.178.1:/home" = "/home";
       };
-      services.beesd.instances.root = { device = "/"; hashTableSizeMB = 256; threads = 4; };
+      services =
+      {
+        xray.client.enable = true;
+        beesd.instances.root = { device = "/"; hashTableSizeMB = 256; threads = 4; };
+      };
       packages.packages._prebuildPackages =
         [ inputs.topInputs.self.nixosConfigurations.srv1-node0.config.system.build.toplevel ];
     };
