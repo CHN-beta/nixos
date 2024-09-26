@@ -1,6 +1,5 @@
 inputs:
 {
-  imports = inputs.localLib.findModules ./.;
   options.nixos.system.fileSystems.mount.nfs = let inherit (inputs.lib) mkOption types; in mkOption
   {
     type = types.nullOr (types.attrsOf types.nonEmptyStr); default = null;

@@ -25,7 +25,7 @@ inputs:
           publicKey = "Br+ou+t9M9kMrnNnhTvaZi2oNFRygzebA1NqcHWADWM=";
           wireguardIp = "192.168.83.9";
         };
-        nfs = { root = "/"; exports = "/home"; accessLimit = "192.168.178.0/24"; };
+        nfs = { root = "/"; exports = [ "/home" ]; accessLimit = "192.168.178.0/24"; };
       };
       packages.packages._prebuildPackages =
         [ inputs.topInputs.self.nixosConfigurations.srv1-node1.pkgs.localPackages.vasp.intel ];
