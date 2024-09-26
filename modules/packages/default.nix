@@ -24,19 +24,9 @@ inputs:
               excludePythonPackages))
             (builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages)
               (_pythonPackages ++ extraPythonPackages)))))
-        (inputs.pkgs.callPackage ({ stdenv }: stdenv.mkDerivation
-        {
-          name = "prebuild-packages";
-          propagateBuildInputs = inputs.lib.lists.subtractLists excludePrebuildPackages
-            (_prebuildPackages ++ extraPrebuildPackages);
-          phases = [ "installPhase" ];
-          installPhase =
-          ''
-            runHook preInstall
-            mkdir -p $out
-            runHook postInstall
-          '';
-        }) {})
+        (inputs.pkgs.writeTextDir "share/prebuild-packages"
+          (builtins.concatStringsSep "\n" (builtins.map builtins.toString
+            (inputs.lib.lists.subtractLists excludePrebuildPackages (_prebuildPackages ++ extraPrebuildPackages)))))
       ];
   };
 }

@@ -24,7 +24,7 @@ inputs:
               };
             };
           };
-          decrypt.manual =
+          luks.manual =
           {
             enable = true;
             devices =

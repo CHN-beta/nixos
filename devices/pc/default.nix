@@ -13,7 +13,7 @@ inputs:
             vfat."/dev/disk/by-uuid/7A60-4232" = "/boot";
             btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
-          decrypt.auto =
+          luks.auto =
           {
             "/dev/disk/by-uuid/4c73288c-bcd8-4a7e-b683-693f9eed2d81" = { mapper = "root1"; ssd = true; };
             "/dev/disk/by-uuid/4be45329-a054-4c20-8965-8c5b7ee6b35d" =
@@ -41,7 +41,7 @@ inputs:
             # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
             "alderlake"
           ];
-          remote.master = { enable = true; hosts = [ "xmupc1" "xmupc2" "srv1-node0" "srv1-node1" ]; };
+          remote.master = { enable = true; hosts = [ "xmupc1" "xmupc2" ]; };
           githubToken.enable = true;
         };
         nixpkgs =

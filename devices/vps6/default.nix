@@ -16,7 +16,7 @@ inputs:
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
-          decrypt.manual =
+          luks.manual =
           {
             enable = true;
             devices."/dev/disk/by-uuid/4f8aca22-9ec6-4fad-b21a-fd9d8d0514e8" = { mapper = "root"; ssd = true; };
@@ -36,7 +36,7 @@ inputs:
       {
         snapper.enable = true;
         sshd = {};
-        xray.server = { serverName = "vps6.xserver.chn.moe"; userNumber = 21; };
+        xray.server = { serverName = "vps6.xserver.chn.moe"; userNumber = 22; };
         frpServer = { enable = true; serverName = "frp.chn.moe"; };
         nginx =
         {
