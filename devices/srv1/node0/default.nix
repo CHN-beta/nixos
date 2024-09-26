@@ -6,7 +6,6 @@ inputs:
     {
       system =
       {
-        nix = { marches = [ "cascadelake" "broadwell" ]; remote.slave.enable = true; };
         nixpkgs.march = "cascadelake";
         networking.networkd.static =
         {
@@ -17,11 +16,7 @@ inputs:
       };
       services =
       {
-        xray.client =
-        {
-          enable = true;
-          dnsmasq.extraInterfaces = [ "eno146" ];
-        };
+        xray.client = { enable = true; dnsmasq.extraInterfaces = [ "eno146" ]; };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; threads = 4; };
         wireguard =
         {
@@ -30,33 +25,13 @@ inputs:
           publicKey = "Br+ou+t9M9kMrnNnhTvaZi2oNFRygzebA1NqcHWADWM=";
           wireguardIp = "192.168.83.9";
         };
+        nfs = { root = "/"; exports = "/home"; accessLimit = "192.168.178.0/24"; };
       };
       packages.packages._prebuildPackages =
         [ inputs.topInputs.self.nixosConfigurations.srv1-node1.pkgs.localPackages.vasp.intel ];
     };
-    services.nfs.server =
-    {
-      enable = true;
-      exports = 
-      ''
-        / 192.168.178.0/24(rw,no_root_squash,fsid=0,sync,crossmnt)
-        /home 192.168.178.0/24(rw,no_root_squash,sync,crossmnt)
-      '';
-    };
-    networking =
-    {
-      firewall.allowedTCPPorts = [ 2049 ];
-    };
+    # allow other machine access network by this machine
     systemd.network.networks."10-eno146".networkConfig.IPMasquerade = "both";
-    services.rpcbind.enable = true;
-    fileSystems =
-    {
-      "/nix/share/home" =
-      {
-        device = "/home";
-        options = [ "rbind" ];
-      };
-    };
     # without this, tproxy does not work
     # TODO: why?
     networking.firewall.trustedInterfaces = [ "eno146" ];

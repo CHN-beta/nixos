@@ -17,17 +17,14 @@ inputs:
       packages.packages._prebuildPackages =
         [ inputs.topInputs.self.nixosConfigurations.srv1-node0.config.system.build.toplevel ];
     };
-    specialisation =
+    specialisation.no-share-home.configuration =
     {
-      no-share-home.configuration =
+      nixos =
       {
-        nixos =
-        {
-          services.slurm.enable = inputs.lib.mkForce false;
-          system.cluster.nodeType = inputs.lib.mkForce "master";
-        };
-        system.nixos.tags = [ "no-share-home" ];
+        services.slurm.enable = inputs.lib.mkForce false;
+        system.cluster.nodeType = inputs.lib.mkForce "master";
       };
+      system.nixos.tags = [ "no-share-home" ];
     };
     fileSystems = inputs.lib.mkIf (inputs.config.nixos.system.cluster.nodeType == "worker")
     {
