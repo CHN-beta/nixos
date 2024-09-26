@@ -18,7 +18,7 @@ inputs:
       nfs.server =
       {
         enable = true;
-        exports = "${nfs.root} ${nfs.accessLimit}(rw,no_root_squash,fsid=0,sync,crossmnt)"
+        exports = "${nfs.root} ${nfs.accessLimit}(rw,no_root_squash,fsid=0,sync,crossmnt)\n"
           + builtins.concatStringsSep "\n" (builtins.map
             (export: "${export} ${nfs.accessLimit}(rw,no_root_squash,sync,crossmnt)")
             nfs.exports);
