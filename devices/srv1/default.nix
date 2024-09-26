@@ -66,7 +66,7 @@ inputs:
           setupFirewall = true;
         };
       };
-      user.users = [ "chn" ];
+      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" ];
     };
   };
 }
