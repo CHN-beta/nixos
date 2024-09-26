@@ -138,10 +138,10 @@ int main()
           state.job_name, state.output_file, state.vasp_version_entries[state.vasp_version_selected]
         );
     else state.submit_command =
-      "sbatch --ntasks={}\n--cpus-per-task={}\n--hint=nomultithread\n--job-name='{}'\n--output='{}'"
-      "\n--wrap=\"vasp-intel srun vasp-{}\""_f
+      "sbatch --ntasks={}\n--cpus-per-task={}\n--export=ALL,OMP_NUM_THREADS={}\n--hint=nomultithread\n--job-name='{}'\n"
+      "--output='{}'\n--wrap=\"vasp-intel srun --mpi=pmix vasp-{}\""_f
       (
-        state.mpi_threads, state.openmp_threads, state.job_name, state.output_file,
+        state.mpi_threads, state.openmp_threads, state.openmp_threads, state.job_name, state.output_file,
         state.vasp_version_entries[state.vasp_version_selected]
       );
 
