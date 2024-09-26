@@ -13,7 +13,12 @@ inputs:
           eno2 = { ip = "192.168.178.3"; mask = 24; };
         };
         cluster.nodeType = "worker";
-        fileSystems.mount.nfs."192.168.178.1:/home" = "/home";
+        fileSystems.mount =
+        {
+          nfs."192.168.178.1:/home" = "/home";
+          btrfs."/dev/disk/by-partlabel/srv1-node2-nodatacow" =
+            { "/nix/nodatacow" = "/nix/nodatacow"; "/nix/backups" = "/nix/backups"; };
+        };
       };
       services =
       {
@@ -22,6 +27,7 @@ inputs:
       };
       packages.packages._prebuildPackages =
         [ inputs.topInputs.self.nixosConfigurations.srv1-node0.config.system.build.toplevel ];
+      virtualization.kvmHost = { enable = true; gui = true; };
     };
     specialisation.no-share-home.configuration =
     {
