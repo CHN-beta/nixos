@@ -14,7 +14,7 @@ inputs:
             vfat."/dev/disk/by-uuid/4596-D670" = "/boot";
             btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
-          decrypt.auto =
+          luks.auto =
           {
             "/dev/disk/by-uuid/eda0042b-ffd5-47d1-b828-4cf99d744c9f" = { mapper = "root1"; ssd = true; };
             "/dev/disk/by-uuid/41d83848-f3dd-4b2f-946f-de1d2ae1cbd4" = { mapper = "swap"; ssd = true; };

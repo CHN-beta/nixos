@@ -1,5 +1,6 @@
 inputs:
 {
+  imports = inputs.localLib.findModules ./.;
   options.nixos.system.fileSystems = let inherit (inputs.lib) mkOption types; in
   {
     mount =
@@ -8,41 +9,6 @@ inputs:
       vfat = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       # device.subvol = mountPoint;
       btrfs = mkOption { type = types.attrsOf (types.attrsOf types.nonEmptyStr); default = {}; };
-    };
-    decrypt =
-    {
-      auto = mkOption
-      {
-        type = types.attrsOf (types.submodule
-        {
-          options =
-          {
-            mapper = mkOption { type = types.nonEmptyStr; };
-            ssd = mkOption { type = types.bool; default = false; };
-            before = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-          };
-        });
-        default = {};
-      };
-      manual =
-      {
-        enable = mkOption { type = types.bool; default = false; };
-        devices = mkOption
-        {
-          type = types.attrsOf (types.submodule
-          {
-            options =
-            {
-              mapper = mkOption { type = types.nonEmptyStr; };
-              ssd = mkOption { type = types.bool; default = false; };
-            };
-          });
-          default = {};
-        };
-        keyFile = mkOption
-          { type = types.path; default = ./. + "/${inputs.config.nixos.system.networking.hostname}.key"; };
-        delayedMount = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-      };
     };
     # generate using: sudo mdadm --examine --scan
     mdadm = mkOption { type = types.nullOr types.lines; default = null; };
@@ -117,87 +83,6 @@ inputs:
           )
           (attrsToList fileSystems.mount.btrfs)));
       }
-      # decrypt.auto
-      (
-        mkIf (fileSystems.decrypt.auto != null)
-        {
-          boot.initrd =
-          {
-            luks.devices = (listToAttrs (map
-              (
-                device:
-                {
-                  name = device.value.mapper;
-                  value =
-                  {
-                    device = device.name;
-                    allowDiscards = device.value.ssd;
-                    bypassWorkqueues = device.value.ssd;
-                    crypttabExtraOpts = [ "fido2-device=auto" "x-initrd.attach" ];
-                  };
-                }
-              )
-              (attrsToList fileSystems.decrypt.auto)));
-            systemd.services =
-              let
-                createService = device:
-                {
-                  name = "systemd-cryptsetup@${device.value.mapper}";
-                  value =
-                  {
-                    before = map (device: "systemd-cryptsetup@${device}.service") device.value.before;
-                    overrideStrategy = "asDropin";
-                  };
-                };
-              in
-                listToAttrs (map createService
-                  (builtins.filter (device: device.value.before != null) (attrsToList fileSystems.decrypt.auto)));
-          };
-        }
-      )
-      # decrypt.manual
-      (
-        mkIf (fileSystems.decrypt.manual.enable)
-        {
-          boot.initrd =
-          {
-            luks.forceLuksSupportInInitrd = true;
-            systemd =
-            {
-              extraBin =
-              {
-                cryptsetup = "${inputs.pkgs.cryptsetup.bin}/bin/cryptsetup";
-                usbip = "${inputs.config.boot.kernelPackages.usbip}/bin/usbip";
-                sed = "${inputs.pkgs.gnused}/bin/sed";
-                awk = "${inputs.pkgs.gawk}/bin/awk";
-                decrypt = inputs.pkgs.writeShellScript "decrypt"
-                ''
-                  modprobe vhci-hcd
-                  busid=$(usbip list -r 127.0.0.1 | head -n4 | tail -n1 | awk '{print $1}' | sed 's/://')
-                  usbip attach -r 127.0.0.1 -b $busid
-                  ${concatStringsSep "\n" (map
-                    (device: ''systemd-cryptsetup attach ${device.value.mapper} ${device.name} "" fido2-device=auto''
-                      + (if device.value.ssd then ",discard" else ""))
-                    (attrsToList fileSystems.decrypt.manual.devices))}
-                '';
-              };
-              services.wait-manual-decrypt =
-              {
-                wantedBy = [ "initrd-root-fs.target" ];
-                before = [ "roll-rootfs.service" ];
-                unitConfig.DefaultDependencies = false;
-                serviceConfig.Type = "oneshot";
-                script = concatStringsSep "\n" (map
-                  (device: "while [ ! -e /dev/mapper/${device.value.mapper} ]; do sleep 1; done")
-                  (attrsToList fileSystems.decrypt.manual.devices));
-              };
-            };
-          };
-          fileSystems = listToAttrs (map
-            (mount: { name = mount; value.options = [ "x-systemd.device-timeout=48h" ]; })
-            fileSystems.decrypt.manual.delayedMount);
-        }
-      )
       # mdadm
       (
         mkIf (fileSystems.mdadm != null)

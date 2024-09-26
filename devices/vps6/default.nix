@@ -16,7 +16,7 @@ inputs:
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
-          decrypt.manual =
+          luks.manual =
           {
             enable = true;
             devices."/dev/disk/by-uuid/4f8aca22-9ec6-4fad-b21a-fd9d8d0514e8" = { mapper = "root"; ssd = true; };

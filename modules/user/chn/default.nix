@@ -56,7 +56,7 @@ inputs:
                     (system:
                     {
                       name = system.config.nixos.system.networking.hostname;
-                      value = system.config.nixos.system.fileSystems.decrypt.manual;
+                      value = system.config.nixos.system.fileSystems.luks.manual;
                     })
                     (builtins.attrValues inputs.topInputs.self.nixosConfigurations));
                 cat = "${inputs.pkgs.coreutils}/bin/cat";
@@ -68,7 +68,8 @@ inputs:
                   (builtins.map (system: builtins.concatStringsSep "\n"
                     [
                       "decrypt-${system.name}() {"
-                      "  key=$(${cat} ${system.value.keyFile} | ${gpg} --decrypt)"
+                      "  key=$(${cat} ${inputs.topInputs.self}/modules/system/fileSystems/luks/${system.name}.key \\"
+                      "    | ${gpg} --decrypt)"
                       (builtins.concatStringsSep "\n" (builtins.map
                         (device: "  echo $key | ${ssh} root@initrd.${system.name}.chn.moe cryptsetup luksOpen "
                           + (if device.value.ssd then "--allow-discards " else "")
