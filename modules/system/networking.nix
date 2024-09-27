@@ -75,10 +75,10 @@ inputs:
           (builtins.map
             (network:
             {
-              name = "10-${network.ssid}";
+              name = "10-${network}";
               value =
               {
-                matchConfig.Name = network.ssid;
+                matchConfig.Name = network;
                 networkConfig = { DHCP = "yes"; IPv6AcceptRA = true; };
                 linkConfig.RequiredForOnline = "routable";
               };

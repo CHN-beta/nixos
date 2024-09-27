@@ -9,7 +9,7 @@ inputs:
         nixpkgs.march = "broadwell";
         networking.networkd.static =
         {
-          eno1 = { ip = "192.168.1.12"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; };
+          br0 = { ip = "192.168.1.12"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; };
           eno2 = { ip = "192.168.178.3"; mask = 24; };
         };
         cluster.nodeType = "worker";
@@ -38,10 +38,7 @@ inputs:
     # make slurm sub process to be able to communicate with the master
     networking.firewall.trustedInterfaces = [ "eno2" ];
     # add a bridge for kvm
-    networking =
-    {
-      bridges.br0.interfaces = [ "eno1" ];
-      interfaces.br0.useDHCP = true;
-    };
+    # 设置桥接之后，不能再给eno1配置ip，需要转而给 br0 配置ip
+    networking.bridges.br0.interfaces = [ "eno1" ];
   };
 }
