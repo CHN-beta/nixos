@@ -37,5 +37,11 @@ inputs:
     boot.initrd.systemd.network.networks."10-eno2" = inputs.config.systemd.network.networks."10-eno2";
     # make slurm sub process to be able to communicate with the master
     networking.firewall.trustedInterfaces = [ "eno2" ];
+    # add a bridge for kvm
+    networking =
+    {
+      bridges.br0.interfaces = [ "eno1" ];
+      interfaces.br0.useDHCP = true;
+    };
   };
 }
