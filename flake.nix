@@ -72,9 +72,7 @@
     py4vasp = { url = "github:vasp-dev/py4vasp"; flake = false; };
     pocketfft = { url = "github:/mreineck/pocketfft"; flake = false; };
     blog = { url = "git+https://git.chn.moe/chn/blog.git"; flake = false; };
-
-    # does not support lfs yet
-    # nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };
+    nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib.nix inputs.nixpkgs.lib; in
