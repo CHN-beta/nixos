@@ -247,6 +247,9 @@ inputs:
               proxy_ssl_server_name on;
               proxy_ssl_session_reuse off;
               send_timeout 1d;
+              # nginx will try to redirect https://blog.chn.moe/docs to https://blog.chn.moe:3068/docs/ in default
+              # this make it redirect to /docs/ without hostname
+              absolute_redirect off;
             '';
             proxyTimeout = "1d";
             recommendedZstdSettings = true;
