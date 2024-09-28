@@ -53,7 +53,7 @@ inputs:
             (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.vps7.chn.moe"; })
             [
               "xn--s8w913fdga" "misskey" "synapse" "syncv3.synapse" "matrix" "syncv3.matrix"
-              "send" "kkmeeting" "api" "git" "grafana" "vikunja" "write" "blog"
+              "send" "kkmeeting" "api" "git" "grafana" "vikunja" "write" "blog" "peertube"
             ]));
           applications =
           {

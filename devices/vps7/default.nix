@@ -71,6 +71,7 @@ inputs:
         xray.server = { serverName = "xserver.vps7.chn.moe"; userNumber = 4; };
         writefreely = {};
         docker = {};
+        peertube = {};
       };
     };
     specialisation.generic.configuration =
