@@ -41,6 +41,7 @@ inputs:
           firewall =
           {
             allowedUDPPorts = inputs.lib.mkIf (!wireguard.behindNat) [ wireguard.listenPort ];
+            trustedInterfaces = [ "wireguard" ];
           };
           wireguard.interfaces.wireguard =
           {
