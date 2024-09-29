@@ -48,7 +48,7 @@ inputs:
             {
               name = "n2"; address = "192.168.178.3";
               cpu = { sockets = 4; cores = 8; threads = 2; };
-              memoryMB = 184320;
+              memoryMB = 61440;
             };
             srv1-node3 =
             {
