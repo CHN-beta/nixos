@@ -61,20 +61,21 @@ inputs:
       boot.initrd =
       {
         luks.forceLuksSupportInInitrd = true;
-        systemd.services.wait-manual-decrypt =
+        systemd =
         {
-          wantedBy = [ "initrd-root-fs.target" ];
-          before = [ "roll-rootfs.service" ];
-          unitConfig.DefaultDependencies = false;
-          serviceConfig.Type = "oneshot";
-          script = builtins.concatStringsSep "\n" (builtins.map
-            (device: "while [ ! -e /dev/mapper/${device.value.mapper} ]; do sleep 1; done")
-            (inputs.localLib.attrsToList luks.manual.devices));
+          services.wait-manual-decrypt =
+          {
+            wantedBy = [ "initrd-root-fs.target" ];
+            before = [ "roll-rootfs.service" ];
+            unitConfig.DefaultDependencies = false;
+            serviceConfig.Type = "oneshot";
+            script = builtins.concatStringsSep "\n" (builtins.map
+              (device: "while [ ! -e /dev/mapper/${device.value.mapper} ]; do sleep 1; done")
+              (inputs.localLib.attrsToList luks.manual.devices));
+          };
+          extraBin.cryptsetup = "${inputs.pkgs.cryptsetup}/bin/cryptsetup";
         };
       };
-      fileSystems = builtins.listToAttrs (builtins.map
-        (mount: { name = mount; value.options = [ "x-systemd.device-timeout=48h" ]; })
-        luks.manual.delayedMount);
     })
   ];
 }
