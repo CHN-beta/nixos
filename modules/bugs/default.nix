@@ -40,6 +40,9 @@ inputs:
       amdpstate.boot.kernelParams = [ "amd_pstate=active" ];
       hibernate-mt7921e.powerManagement.resumeCommands =
         let modprobe = "${inputs.pkgs.kmod}/bin/modprobe"; in "${modprobe} -r -w 3000 mt7921e && ${modprobe} mt7921e";
+      # could not use bt keyboard
+      # https://github.com/bluez/bluez/issues/745
+      bluetooth.hardware.bluetooth.settings.General.JustWorksRepairing = "always";
     };
   in
     {
