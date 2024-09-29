@@ -22,6 +22,9 @@ inputs:
         hjp = 1008;
         zzn = 1009;
         wm = 1010;
+        GROUPIII-1 = 1011;
+        GROUPIII-2 = 1012;
+        GROUPIII-3 = 1013;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
