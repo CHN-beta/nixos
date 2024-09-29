@@ -53,7 +53,7 @@ inputs:
         send.enable = true;
         huginn.enable = true;
         fz-new-order = {};
-        nginx.applications = { kkmeeting.enable = true; webdav.instances."webdav.chn.moe" = {}; blog = {}; };
+        nginx.applications = { kkmeeting.enable = true; webdav.instances."webdav.chn.moe" = {}; };
         httpapi.enable = true;
         gitea = { enable = true; ssh = {}; };
         grafana.enable = true;
