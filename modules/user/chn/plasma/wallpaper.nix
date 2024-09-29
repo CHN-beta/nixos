@@ -2,7 +2,7 @@ inputs:
 {
   config.home-manager.users.chn.config.programs.plasma.configFile =
     let
-      inherit (inputs.topInputs.self.src) nixos-wallpaper;
+      inherit (inputs.topInputs) nixos-wallpaper;
       wallpaper =
       {
         pc = "${nixos-wallpaper}/pixiv-117612023.png";

@@ -24,11 +24,11 @@
     "blog": {
       "flake": false,
       "locked": {
-        "lastModified": 1726576113,
-        "narHash": "sha256-u/I6XYepAVGtkayYDm16IlaYOPEJFSyt/XRxG2YtgBw=",
+        "lastModified": 1727598108,
+        "narHash": "sha256-8wVJBavzvY3n2sJeuyOt68FNJ9W70M+FlxoeiJhP/JQ=",
         "ref": "refs/heads/main",
-        "rev": "737eeef5116febf4c1dbc27737107dc616810d8d",
-        "revCount": 2,
+        "rev": "2b65e0deb81324be72afc51204a0a75dad7eade5",
+        "revCount": 9,
         "type": "git",
         "url": "https://git.chn.moe/chn/blog.git"
       },
@@ -951,13 +951,29 @@
         "type": "github"
       }
     },
+    "nixos-wallpaper": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1715952274,
+        "narHash": "sha256-i2L4L9mV/wOl6QV+d8pyLZUHS+QIFJN5lYuQrP+CSjk=",
+        "ref": "refs/heads/main",
+        "rev": "1ad78b20b21c9f4f7ba5f4c897f74276763317eb",
+        "revCount": 1,
+        "type": "git",
+        "url": "https://git.chn.moe/chn/nixos-wallpaper.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.chn.moe/chn/nixos-wallpaper.git"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1727355718,
-        "narHash": "sha256-AvmneY2JNPdqXWrSSSWNeNCZeCTBXVu10WDFYlD/IHM=",
+        "lastModified": 1727530699,
+        "narHash": "sha256-Gfn8d6gbG5B+IO6mUWQXrnoUDCJUmrUD/M/QJDUsfRY=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "17fe8ed6ac90b3ca5ca23e5ad9e95a2051db6c8b",
+        "rev": "9062900234c7d0157fc9612d36a1f03bc47040e9",
         "type": "github"
       },
       "original": {
@@ -1398,6 +1414,7 @@
         "nix-index-database": "nix-index-database",
         "nix-vscode-extensions": "nix-vscode-extensions",
         "nixos-hardware": "nixos-hardware",
+        "nixos-wallpaper": "nixos-wallpaper",
         "nixpkgs": "nixpkgs",
         "nixpkgs-22.05": "nixpkgs-22.05",
         "nixpkgs-22.11": "nixpkgs-22.11",

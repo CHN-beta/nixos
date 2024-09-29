@@ -100,7 +100,7 @@ inputs:
               baloofilerc."Basic Settings".Indexing-Enabled.value = false;
               plasmarc.Wallpapers.usersWallpapers.value =
                 let
-                  inherit (inputs.topInputs.self.src) nixos-wallpaper;
+                  inherit (inputs.topInputs) nixos-wallpaper;
                   isPicture = f: builtins.elem (inputs.lib.last (inputs.lib.splitString "." f))
                     [ "png" "jpg" "jpeg" "webp" ];
                 in builtins.concatStringsSep "," (builtins.map (f: "${nixos-wallpaper}/${f.name}")
