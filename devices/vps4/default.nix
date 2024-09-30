@@ -30,7 +30,6 @@ inputs:
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
         initrd.sshd.enable = true;
         networking.networkd = {};
-        kernel.variant = "xanmod-latest";
         nix-ld = null;
         binfmt = null;
       };
