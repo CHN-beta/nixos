@@ -11,7 +11,6 @@ inputs: rec
   nodesoup = inputs.pkgs.callPackage ./nodesoup.nix { src = inputs.topInputs.nodesoup; };
   matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix
   {
-    inherit glad nodesoup;
     src = inputs.topInputs.matplotplusplus;
     stdenv = inputs.pkgs.clang18Stdenv;
   };
