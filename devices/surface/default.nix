@@ -54,7 +54,7 @@ inputs:
         waydroid = {};
         docker = {};
       };
-      bugs = [ "xmunet" "suspend-hibernate-no-platform" ];
+      bugs = [ "xmunet" "suspend-hibernate-no-platform" "bluetooth" ];
       packages.vasp = null;
     };
     powerManagement.resumeCommands = ''${inputs.pkgs.systemd}/bin/systemctl restart iptsd'';
