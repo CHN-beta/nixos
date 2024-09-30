@@ -17,7 +17,6 @@ inputs:
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};
         };
-        kernel.variant = "xanmod-lts";
         gui.enable = true;
       };
       hardware.cpus = [ "intel" ];
