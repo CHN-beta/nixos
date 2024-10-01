@@ -190,7 +190,7 @@ inputs:
       };
       xanmod.configuration =
       {
-        nixos.system.kernel.variant = "xanmod-latest";
+        nixos.system.kernel.variant = inputs.lib.mkForce "xanmod-latest";
         system.nixos.tags = [ "xanmod" ];
       };
     };
