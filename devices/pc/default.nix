@@ -48,6 +48,7 @@ inputs:
           { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
         kernel =
         {
+          variant = "cachyos";
           patches = [ "hibernate-progress" ];
           modules.modprobeConfig =
             [ "options iwlwifi power_save=0" "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
