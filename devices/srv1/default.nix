@@ -24,7 +24,7 @@ inputs:
       services =
       {
         snapper.enable = true;
-        sshd = {};
+        sshd.passwordAuthentication = true;
         smartd.enable = true;
         slurm =
         {
