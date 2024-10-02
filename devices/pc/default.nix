@@ -23,7 +23,7 @@ inputs:
           resume = "/dev/mapper/swap";
           rollingRootfs = {};
         };
-        grub.windowsEntries."7AF0-D2F2" = "Windows";
+        grub.windowsEntries."645C-284C" = "Windows";
         nix =
         {
           marches =
