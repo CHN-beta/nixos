@@ -62,7 +62,7 @@ inputs:
         gpu =
         {
           type = "amd+nvidia";
-          nvidia = { prime.busId = { amd = "5:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; driver = "latest"; };
+          nvidia = { prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; driver = "latest"; };
         };
         legion = {};
       };
