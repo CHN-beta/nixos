@@ -168,6 +168,8 @@ inputs:
     };
     # 禁止鼠标等在睡眠时唤醒
     services.udev.extraRules = ''ACTION=="add", ATTR{power/wakeup}="disabled"'';
+    # 允许kvm读取物理硬盘
+    users.users.qemu-libvirtd.extraGroups = [ "disk" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
     environment.persistence."/nix/archive" =
