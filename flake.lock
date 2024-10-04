@@ -24,11 +24,11 @@
     "blog": {
       "flake": false,
       "locked": {
-        "lastModified": 1727888490,
-        "narHash": "sha256-pEZFFuisuBSHPdMgq/Bqkh+6lAKN4oRJFLTAgB6bwqg=",
+        "lastModified": 1728051659,
+        "narHash": "sha256-b/zCyVs248+fdYbXRIfQuYaIYaG7Q2eXxsiuYK4eShQ=",
         "ref": "refs/heads/main",
-        "rev": "6101a8dee8e8c2234dab8daf910ead09758441b4",
-        "revCount": 14,
+        "rev": "82351a306b52e6b23408831c300cf39598c203a5",
+        "revCount": 15,
         "type": "git",
         "url": "https://git.chn.moe/chn/blog.git"
       },
@@ -577,11 +577,11 @@
     "hextra": {
       "flake": false,
       "locked": {
-        "lastModified": 1724317530,
-        "narHash": "sha256-luENDR+fn9NbqNkn9wpLRnD41MeerFEUsrDgKRpnmg8=",
+        "lastModified": 1727602023,
+        "narHash": "sha256-fYfevapv+7x4WmYmte3vhQeOakHMchBGC7eYvOMru+0=",
         "owner": "imfing",
         "repo": "hextra",
-        "rev": "c6de4b5b6b1ec04647b0235e9c8b1158b1d58c09",
+        "rev": "94624bcac67cf587ec1006a9c2f0d72fbce9f135",
         "type": "github"
       },
       "original": {
