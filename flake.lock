@@ -520,6 +520,24 @@
         "type": "github"
       }
     },
+    "flake-utils_5": {
+      "inputs": {
+        "systems": "systems_7"
+      },
+      "locked": {
+        "lastModified": 1710146030,
+        "narHash": "sha256-SZ5L6eA7HJ/nmkzGG7/ISclqe6oZdOZTNoesiInkXPQ=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "b1d9ab70662946ef0850d488da1c9019f3a9752a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "git-lfs-transfer": {
       "flake": false,
       "locked": {
@@ -1455,6 +1473,7 @@
         "sqlite-orm": "sqlite-orm",
         "tgbot-cpp": "tgbot-cpp",
         "v-sim": "v-sim",
+        "winapps": "winapps",
         "zpp-bits": "zpp-bits",
         "zxorm": "zxorm"
       }
@@ -1668,6 +1687,21 @@
         "type": "indirect"
       }
     },
+    "systems_7": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
     "tgbot-cpp": {
       "flake": false,
       "locked": {
@@ -1803,6 +1837,28 @@
         "owner": "l_sim",
         "repo": "v_sim",
         "type": "gitlab"
+      }
+    },
+    "winapps": {
+      "inputs": {
+        "flake-utils": "flake-utils_5",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1728108519,
+        "narHash": "sha256-JnRyiNR1O79n90TPjDBNpqd/Qh6jnP4t92rCgK/s6qU=",
+        "owner": "CHN-beta",
+        "repo": "winapps",
+        "rev": "64478a87a49d6093f4d4f3a281bf0eecd2e6f977",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "ref": "feat-nix-packaging",
+        "repo": "winapps",
+        "type": "github"
       }
     },
     "yafas": {

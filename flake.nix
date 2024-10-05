@@ -39,6 +39,7 @@
     catppuccin.url = "github:catppuccin/nix";
     bscpkgs = { url = "git+https://git.chn.moe/chn/bscpkgs.git"; inputs.nixpkgs.follows = "nixpkgs"; };
     poetry2nix = { url = "github:CHN-beta/poetry2nix"; inputs.nixpkgs.follows = "nixpkgs"; };
+    winapps = { url = "github:CHN-beta/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
