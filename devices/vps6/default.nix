@@ -53,7 +53,7 @@ inputs:
             (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.vps7.chn.moe"; })
             [
               "xn--s8w913fdga" "synapse" "syncv3.synapse" "matrix" "syncv3.matrix"
-              "send" "kkmeeting" "api" "git" "grafana" "vikunja" "write" "blog" "peertube"
+              "send" "kkmeeting" "api" "git" "grafana" "vikunja" "write" "peertube"
             ]))
           // (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.nas.chn.moe"; })
@@ -67,6 +67,7 @@ inputs:
             catalog.enable = true;
             main.enable = true;
             nekomia.enable = true;
+            blog = {};
           };
         };
         coturn = {};
