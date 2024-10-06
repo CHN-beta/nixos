@@ -34,8 +34,8 @@ inputs:
           EOF
         '')
         [
-          "access-o365" "cmd" "excel-o365" "explorer" "illustrator-cc" "powerpoint-o365" "visual-studio-comm"
-          "windows" "word-o365"
+          "access-o365" "acrobat-x-pro" "cmd" "excel-o365" "explorer" "illustrator-cc" "powerpoint-o365"
+          "visual-studio-comm" "windows" "word-o365"
         ];
   };
 }
