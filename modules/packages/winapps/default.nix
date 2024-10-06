@@ -10,6 +10,12 @@ inputs:
     nixos.packages.packages._packages =
     [
       (inputs.pkgs.callPackage "${inputs.topInputs.winapps}/packages/winapps" {})
+      (inputs.pkgs.runCommand "winapps-windows" {}
+      ''
+        mkdir -p $out/share/applications
+        cp ${inputs.pkgs.substituteAll { src = ./windows.desktop; path = inputs.topInputs.winapps; }} \
+          $out/share/applications/windows.desktop
+      '')
     ]
       ++ builtins.map
         (p: inputs.pkgs.runCommand "winapps-${p}" {}
@@ -35,7 +41,7 @@ inputs:
         '')
         [
           "access-o365" "acrobat-x-pro" "cmd" "excel-o365" "explorer" "illustrator-cc" "powerpoint-o365"
-          "visual-studio-comm" "windows" "word-o365"
+          "visual-studio-comm" "word-o365"
         ];
   };
 }
