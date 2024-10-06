@@ -35,7 +35,7 @@ inputs:
         '')
         [
           "access-o365" "cmd" "excel-o365" "explorer" "illustrator-cc" "powerpoint-o365" "visual-studio-comm"
-          "word-o365"
+          "windows" "word-o365"
         ];
   };
 }
