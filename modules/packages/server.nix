@@ -63,7 +63,12 @@ inputs:
     services =
     {
       udev.packages = with inputs.pkgs; [ yubikey-personalization libfido2 ];
-      fwupd.enable = true;
+      fwupd =
+      {
+        enable = true;
+        # allow fwupd install firmware from any source (e.g. manually extracted from msi)
+        daemonSettings.OnlyTrusted = false;
+      };
     };
     home-manager = { useGlobalPkgs = true; useUserPackages = true; };
     # allow everyone run compsize

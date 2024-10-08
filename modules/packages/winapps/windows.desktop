@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Windows
+Exec=winapps windows %F
+Terminal=false
+Type=Application
+Icon=@path@/icons/windows.svg
+StartupWMClass=Micorosoft Windows
+Comment=Micorosoft Windows
+Categories=Windows

@@ -23,7 +23,7 @@ inputs:
           resume = "/dev/mapper/swap";
           rollingRootfs = {};
         };
-        grub.windowsEntries."7AF0-D2F2" = "Windows";
+        grub.windowsEntries."645C-284C" = "Windows";
         nix =
         {
           marches =
@@ -62,7 +62,7 @@ inputs:
         gpu =
         {
           type = "amd+nvidia";
-          nvidia = { prime.busId = { amd = "5:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; driver = "latest"; };
+          nvidia = { prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; dynamicBoost = true; driver = "latest"; };
         };
         legion = {};
       };
@@ -168,6 +168,8 @@ inputs:
     };
     # 禁止鼠标等在睡眠时唤醒
     services.udev.extraRules = ''ACTION=="add", ATTR{power/wakeup}="disabled"'';
+    # 允许kvm读取物理硬盘
+    users.users.qemu-libvirtd.extraGroups = [ "disk" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
     environment.persistence."/nix/archive" =

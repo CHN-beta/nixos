@@ -15,7 +15,7 @@ inputs:
     nixos.system.networking.hostname = "${cluster.clusterName}-${cluster.nodeName}";
     # 作为从机时，home-manager 需要被禁用
     systemd.services = inputs.lib.mkIf (cluster.nodeType == "worker") (builtins.listToAttrs (builtins.map
-      (user: { name = "home-manager-${user}"; value.enable = false; })
+      (user: { name = "home-manager-${inputs.utils.escapeSystemdPath user}"; value.enable = false; })
       inputs.config.nixos.user.users));
   };
 }
