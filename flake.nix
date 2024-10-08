@@ -3,7 +3,7 @@
 
   inputs =
   {
-    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:CHN-beta/nixpkgs/next";
     "nixpkgs-23.11".url = "github:CHN-beta/nixpkgs/nixos-23.11";
     "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
     "nixpkgs-22.11".url = "github:NixOS/nixpkgs/nixos-22.11";
@@ -26,7 +26,7 @@
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
     nur-linyinfeng = { url = "github:linyinfeng/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nixos-hardware.url = "github:CHN-beta/nixos-hardware";
+    nixos-hardware.url = "github:CHN-beta/nixos-hardware/next";
     envfs = { url = "github:Mic92/envfs"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-fast-build = { url = "github:/Mic92/nix-fast-build"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-flatpak.url = "github:gmodena/nix-flatpak";
@@ -38,8 +38,8 @@
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
     catppuccin.url = "github:catppuccin/nix";
     bscpkgs = { url = "git+https://git.chn.moe/chn/bscpkgs.git"; inputs.nixpkgs.follows = "nixpkgs"; };
-    poetry2nix = { url = "github:CHN-beta/poetry2nix"; inputs.nixpkgs.follows = "nixpkgs"; };
-    winapps = { url = "github:CHN-beta/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
+    poetry2nix = { url = "github:CHN-beta/poetry2nix/next"; inputs.nixpkgs.follows = "nixpkgs"; };
+    winapps = { url = "github:winapps-org/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
