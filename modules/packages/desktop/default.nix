@@ -88,7 +88,7 @@ inputs:
           phonopy scipy scikit-learn jupyterlab autograd # localPackages.pix2tex
           # TODO: broken on python 3.12 tensorflow keras
           # for phonopy
-          inputs.pkgs.localPackages.spectroscopy
+          inputs.pkgs.localPackages.spectroscopy numpy
         ])];
       };
       user.sharedModules =
