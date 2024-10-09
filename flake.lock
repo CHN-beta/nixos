@@ -1470,6 +1470,7 @@
         "slate": "slate",
         "sockpp": "sockpp",
         "sops-nix": "sops-nix",
+        "spectroscopy": "spectroscopy",
         "sqlite-orm": "sqlite-orm",
         "tgbot-cpp": "tgbot-cpp",
         "v-sim": "v-sim",
@@ -1579,6 +1580,22 @@
       "original": {
         "owner": "Mic92",
         "repo": "sops-nix",
+        "type": "github"
+      }
+    },
+    "spectroscopy": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1709899498,
+        "narHash": "sha256-xZ3AzNqrL73SPyUtVKGE+GDppou/GoatBrRCYVfiv0s=",
+        "owner": "skelton-group",
+        "repo": "Phonopy-Spectroscopy",
+        "rev": "316fbf4f45e2f8d134acf67374de905c705d7db7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "skelton-group",
+        "repo": "Phonopy-Spectroscopy",
         "type": "github"
       }
     },
