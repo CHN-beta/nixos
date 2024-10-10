@@ -42,7 +42,7 @@ CXX_PARS    = icpx
 LLIBS       = -lstdc++
 
 FCL        += -qmkl
-LLIBS      += -lmkl_scalapack_lp64 -lmkl_blacs_intelmpi_lp64
+LLIBS      += -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -lmkl_blacs_openmpi_lp64
 INCS        =-I$(MKLROOT)/include/fftw
 
 CPP_OPTIONS+= -DVASP_HDF5
