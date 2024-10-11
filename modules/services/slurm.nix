@@ -122,6 +122,9 @@ inputs:
 
             # automatically resume node after drain
             ReturnToService=2
+
+            # enable task plugins
+            TaskPlugin=task/affinity,task/cgroup
           '';
           extraConfigPaths =
             let gpus = slurm.node.${inputs.config.nixos.system.networking.hostname}.gpus or null;
