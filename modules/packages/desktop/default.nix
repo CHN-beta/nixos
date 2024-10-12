@@ -64,7 +64,9 @@ inputs:
           # browser
           google-chrome tor-browser # microsoft-edge
           # office
-          crow-translate zotero pandoc libreoffice-qt texliveFull poppler_utils pdftk pdfchain hdfview davinci-resolve
+          crow-translate zotero pandoc libreoffice-qt texliveFull poppler_utils pdftk pdfchain davinci-resolve
+          # TODO: enable in next release
+          # hdfview
           # ydict texstudio
           # matplot++ needs old gnuplot
           inputs.pkgs."pkgs-23.11".gnuplot
