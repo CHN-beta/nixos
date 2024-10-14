@@ -60,7 +60,7 @@ inputs:
     powerManagement.resumeCommands = ''${inputs.pkgs.systemd}/bin/systemctl restart iptsd'';
     services.iptsd.config =
     {
-      Touch = { DisableOnPalm = true; DisableOnStylus = true; Overshoot = 0.5; };
+      Touchscreen = { DisableOnPalm = true; DisableOnStylus = true; Overshoot = 0.5; };
       Contacts = { Neutral = "Average"; NeutralValue = 10; };
     };
   };
