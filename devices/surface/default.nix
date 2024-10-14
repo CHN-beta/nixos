@@ -25,7 +25,7 @@ inputs:
         };
         nixpkgs.march = "skylake";
         nix = { substituters = [ "https://nix-store.chn.moe?priority=100" ]; githubToken.enable = true; };
-        kernel.patches = [ "surface" "hibernate-progress" ];
+        kernel = { variant = "xanmod-latest"; patches = [ "surface" "hibernate-progress" ]; };
         gui.enable = true;
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
