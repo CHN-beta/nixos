@@ -8,7 +8,7 @@ inputs:
       package = inputs.pkgs.gitFull;
       extraConfig =
       {
-        core.editor = if inputs.config.nixos.system.gui.preferred then "code --wait" else "vim";
+        core.editor = "hx";
         http.postBuffer = 624288000;
         advice.detachedHead = false;
         merge.conflictstyle = "diff3";
