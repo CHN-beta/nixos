@@ -141,6 +141,7 @@ inputs:
         ollama = {};
         waydroid = {};
         docker = {};
+        ananicy = {};
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "plasma" ];
     };
