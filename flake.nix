@@ -3,7 +3,7 @@
 
   inputs =
   {
-    nixpkgs.url = "github:CHN-beta/nixpkgs/next";
+    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-unstable";
     "nixpkgs-23.11".url = "github:CHN-beta/nixpkgs/nixos-23.11";
     "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
     "nixpkgs-22.11".url = "github:NixOS/nixpkgs/nixos-22.11";
@@ -26,7 +26,7 @@
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
     nur-linyinfeng = { url = "github:linyinfeng/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nixos-hardware.url = "github:CHN-beta/nixos-hardware/next";
+    nixos-hardware.url = "github:CHN-beta/nixos-hardware";
     envfs = { url = "github:Mic92/envfs"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-fast-build = { url = "github:/Mic92/nix-fast-build"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-flatpak.url = "github:gmodena/nix-flatpak";

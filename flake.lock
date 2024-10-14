@@ -952,7 +952,6 @@
       },
       "original": {
         "owner": "CHN-beta",
-        "ref": "next",
         "repo": "nixos-hardware",
         "type": "github"
       }
@@ -991,16 +990,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1728876263,
-        "narHash": "sha256-qb9Pe2IyMJA22pDipl4RotAODgjCqvEDDphDky5g7y8=",
+        "lastModified": 1728893420,
+        "narHash": "sha256-SVuE5mlSUNx1BnGhVaHWD0RrRkWndBzsDvLhDOUa0Rw=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "7cd275c5592c1c4a31a5b1d52b846ff96e3ed5dc",
+        "rev": "435b278bfd37046b73b4edee9c0820cb4a53e66f",
         "type": "github"
       },
       "original": {
         "owner": "CHN-beta",
-        "ref": "next",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
