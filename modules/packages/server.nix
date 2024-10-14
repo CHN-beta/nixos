@@ -32,13 +32,13 @@ inputs:
         # networking
         ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils wireguard-tools
         # nix tools
-        nix-output-monitor nix-tree ssh-to-age (callPackage "${inputs.topInputs.nix-fast-build}" {}) nix-inspect
+        nix-output-monitor nix-tree ssh-to-age nix-inspect # (callPackage "${inputs.topInputs.nix-fast-build}" {})
         # development
         gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix rr hexo-cli gh nix-init hugo
         # stupid things
         toilet lolcat
         # office
-        todo-txt-cli pdfgrep ffmpeg-full
+        pdfgrep ffmpeg-full # todo-txt-cli 
       ]
         ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ])
         ++ (inputs.lib.optional (inputs.config.nixos.system.nixpkgs.arch == "x86_64") rar);

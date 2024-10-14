@@ -56,8 +56,6 @@ inputs:
           {
             enable = true;
             settingsFile = inputs.config.sops.templates."xray-client.json".path;
-            package = inputs.pkgs.xray.overrideAttrs
-              (prev: { patches = prev.patches or [] ++ [ ./disable-splice.patch ];});
           };
           dnsmasq =
           {
@@ -347,8 +345,6 @@ inputs:
         {
           enable = true;
           settingsFile = inputs.config.sops.templates."xray-server.json".path;
-          package = inputs.pkgs.xray.overrideAttrs
-            (prev: { patches = prev.patches or [] ++ [ ./disable-splice.patch ];});
         };
         sops =
         {
