@@ -48,7 +48,7 @@ inputs:
           { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
         kernel =
         {
-          variant = "xanmod-latest";
+          variant = "cachyos";
           patches = [ "hibernate-progress" ];
           modules.modprobeConfig =
             [ "options iwlwifi power_save=0" "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
@@ -189,6 +189,11 @@ inputs:
           services.gamemode.drmDevice = inputs.lib.mkForce 0;
         };
         system.nixos.tags = [ "nvidia" ];
+      };
+      xanmod.configuration =
+      {
+        nixos.system.kernel.variant = inputs.lib.mkForce "xanmod-latest";
+        system.nixos.tags = [ "xanmod" ];
       };
     };
   };
