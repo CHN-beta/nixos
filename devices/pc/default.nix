@@ -142,7 +142,7 @@ inputs:
         waydroid = {};
         docker = {};
       };
-      bugs = [ "xmunet" "backlight" "amdpstate" "bluetooth" "plasma" ];
+      bugs = [ "xmunet" "backlight" "amdpstate" "plasma" ];
     };
     boot =
     {

@@ -40,9 +40,6 @@ inputs:
       amdpstate.boot.kernelParams = [ "amd_pstate=active" ];
       hibernate-mt7921e.powerManagement.resumeCommands =
         let modprobe = "${inputs.pkgs.kmod}/bin/modprobe"; in "${modprobe} -r -w 3000 mt7921e && ${modprobe} mt7921e";
-      # could not use bt keyboard
-      # https://github.com/bluez/bluez/issues/745
-      bluetooth.hardware.bluetooth.settings.General.JustWorksRepairing = "always";
       # https://discuss.kde.org/t/bug-power-profiles-daemon-0-23-seems-starts-too-late-for-powerdevil/21416
       # remove in plasma 6.2
       plasma.nixpkgs.overlays = [(final: prev: { kdePackages = prev.kdePackages.overrideScope
