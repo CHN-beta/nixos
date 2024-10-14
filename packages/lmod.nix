@@ -1,14 +1,14 @@
 {
   stdenv, src,
   tcl,
-  procps, bc, lua
+  procps, bc, lua, pkg-config
 }:
 stdenv.mkDerivation
 {
   name = "lmod";
   inherit src;
   buildInputs = [ tcl ];
-  nativeBuildInputs = [ procps bc (lua.withPackages (ps: with ps; [ luaposix ])) ];
+  nativeBuildInputs = [ pkg-config procps bc (lua.withPackages (ps: with ps; [ luaposix ])) ];
   configurePhase = ''./configure --prefix=$out/share'';
   postUnpack = "patchShebangs .";
 }
