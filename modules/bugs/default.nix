@@ -42,9 +42,7 @@ inputs:
         let modprobe = "${inputs.pkgs.kmod}/bin/modprobe"; in "${modprobe} -r -w 3000 mt7921e && ${modprobe} mt7921e";
       # https://discuss.kde.org/t/bug-power-profiles-daemon-0-23-seems-starts-too-late-for-powerdevil/21416
       # remove in plasma 6.2
-      plasma.nixpkgs.overlays = [(final: prev: { kdePackages = prev.kdePackages.overrideScope
-        (final: prev: { powerdevil = prev.powerdevil.overrideAttrs
-          (prev: { patches = prev.patches or [] ++ [ ./plasma.patch ]; });});})];
+      plasma.systemd.services.display-manager.after = [ "power-profiles-daemon.service" ];
     };
   in
     {
