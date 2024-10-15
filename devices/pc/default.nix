@@ -142,6 +142,7 @@ inputs:
         waydroid = {};
         docker = {};
         ananicy = {};
+        keyd = {};
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "plasma" ];
     };
