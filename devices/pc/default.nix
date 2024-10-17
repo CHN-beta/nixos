@@ -144,7 +144,7 @@ inputs:
         ananicy = {};
         keyd = {};
       };
-      bugs = [ "xmunet" "backlight" "amdpstate" "plasma" ];
+      bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
     boot =
     {
