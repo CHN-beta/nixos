@@ -36,7 +36,11 @@ inputs:
         experimental-features = [ "nix-command" "flakes" "ca-derivations" ];
         keep-failed = true;
         max-substitution-jobs = 4;
-        trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
+        trusted-public-keys =
+        [
+          "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE="
+          "cache.ngi0.nixos.org-1:KqH5CBLNSyX184S9BKZJo1LxrxJ9ltnY2uAs5c/f1MA="
+        ];
         trusted-users = [ "@wheel" ];
         show-trace = true;
         max-jobs = 4;
@@ -88,7 +92,11 @@ inputs:
     })
     # substituters
     {
-      nix.settings.substituters = inputs.lib.mkIf (nix.substituters != null) nix.substituters;
+      nix.settings.substituters = inputs.lib.mkMerge
+      [
+        (inputs.lib.mkIf (nix.substituters != null) nix.substituters)
+        [ "https://cache.ngi0.nixos.org/" ]
+      ];
     }
     # autoOptimiseStore
     (inputs.lib.mkIf nix.autoOptimiseStore
