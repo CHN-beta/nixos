@@ -12,7 +12,7 @@ inputs:
       enable = true;
       package = inputs.pkgs.steam.override (prev:
       {
-        steam = prev.steam.overrideAttrs (prev:
+        steam-unwrapped = prev.steam-unwrapped.overrideAttrs (prev:
         {
           postInstall = prev.postInstall +
           ''
