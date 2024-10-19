@@ -1,7 +1,7 @@
-{ stdenv, cmake, pkg-config, biu }: stdenv.mkDerivation
+{ stdenv, cmake, pkg-config, biu, httplib }: stdenv.mkDerivation
 {
   name = "mirism";
   src = ./.;
-  buildInputs = [ biu ];
+  buildInputs = [ biu httplib ];
   nativeBuildInputs = [ cmake pkg-config ];
 }

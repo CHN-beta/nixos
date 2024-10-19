@@ -10,10 +10,11 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 find_package(biu REQUIRED)
+find_package(httplib REQUIRED)
 
 add_executable(mirism src/main.cpp)
 target_compile_features(mirism PUBLIC cxx_std_23)
-target_link_libraries(mirism PRIVATE biu::biu)
+target_link_libraries(mirism PRIVATE biu::biu httplib::httplib)
 
 install(TARGETS mirism RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
