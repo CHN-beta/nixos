@@ -103,6 +103,7 @@ inputs: rec
   py4vasp = inputs.pkgs.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; };
   pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.topInputs.pocketfft; };
   spectroscopy = inputs.pkgs.callPackage ./spectroscopy.nix { src = inputs.topInputs.spectroscopy; };
+  mirism = inputs.pkgs.callPackage ./mirism.nix { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

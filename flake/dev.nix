@@ -38,4 +38,10 @@
       packages = [ clang-tools_18 ];
       CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     };
+  mirism = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
+  {
+    inputsFrom = [ pkgs.localPackages.mirism ];
+    packages = [ pkgs.clang-tools_18 ];
+    CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+  };
 }
