@@ -31,7 +31,7 @@ inputs:
               {
                 User = inputs.config.users.users.mirism.name;
                 Group = inputs.config.users.users.mirism.group;
-                ExecStart = "${inputs.pkgs.localPackages.mirism}/bin/${instance}";
+                ExecStart = "${inputs.pkgs.localPackages.mirism-old}/bin/${instance}";
                 RuntimeMaxSec = "1d";
                 Restart = "always";
               };

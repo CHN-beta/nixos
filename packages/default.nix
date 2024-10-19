@@ -21,7 +21,7 @@ inputs: rec
   glad = inputs.pkgs.callPackage ./glad.nix {};
   yoga-support = inputs.pkgs.callPackage ./yoga-support.nix {};
   tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp.nix { src = inputs.topInputs.tgbot-cpp; };
-  mirism = inputs.pkgs.callPackage ./mirism.nix
+  mirism-old = inputs.pkgs.callPackage ./mirism-old.nix
   {
     inherit cppcoro nameof tgbot-cpp date;
     nghttp2 = inputs.pkgs.callPackage "${inputs.topInputs."nixpkgs-23.05"}/pkgs/development/libraries/nghttp2"
