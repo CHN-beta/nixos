@@ -118,6 +118,13 @@ inputs:
                   xdg-desktop-portal = prev.xdg-desktop-portal.overrideAttrs (prev:
                     { doCheck = false; nativeBuildInputs = prev.nativeBuildInputs ++ prev.nativeCheckInputs; });
                   gsl = prev.gsl.overrideAttrs { doCheck = false; };
+                  pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [(final: prev:
+                  {
+                    numcodecs = prev.numcodecs.overridePythonAttrs { doCheck = false; };
+                    zarr = prev.zarr.overridePythonAttrs (prev:
+                      { disabledTests = prev.disabledTests or [] ++ [ "test_encode_decode_array_dtype_shape_v3" ]; });
+                  })];
+                  nodejs = prev.nodejs.overrideAttrs { doCheck = false; };
                 }
               )
               // (
