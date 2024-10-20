@@ -124,7 +124,9 @@ inputs:
                     zarr = prev.zarr.overridePythonAttrs (prev:
                       { disabledTests = prev.disabledTests or [] ++ [ "test_encode_decode_array_dtype_shape_v3" ]; });
                   })];
-                  nodejs = prev.nodejs.overrideAttrs { doCheck = false; };
+                  nodejs_18 = prev.nodejs_18.overrideAttrs { doCheck = false; };
+                  nodejs_20 = prev.nodejs_20.overrideAttrs { doCheck = false; };
+                  nodejs-slim_20 = prev.nodejs-slim_20.overrideAttrs { doCheck = false; };
                 }
               )
               // (
