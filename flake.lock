@@ -24,17 +24,18 @@
     "blog": {
       "flake": false,
       "locked": {
-        "lastModified": 1728704748,
-        "narHash": "sha256-3EjbWR/0pCoSLYeury+gPxvM8/2NMfE1i0/+N1FAsAc=",
-        "ref": "refs/heads/main",
-        "rev": "dd49995b4e610de537a30e359797cfb8f0971fe5",
-        "revCount": 24,
+        "lastModified": 1729429341,
+        "narHash": "sha256-1q9VNkYZuwsHO8q20uTE134ymxWzScXqqEnFstADLWY=",
+        "ref": "public",
+        "rev": "8f25615484118c8154ba7e6c9af7786189aad902",
+        "revCount": 26,
         "type": "git",
-        "url": "https://git.chn.moe/chn/blog.git"
+        "url": "file:///home/chn/repo/blog"
       },
       "original": {
+        "ref": "public",
         "type": "git",
-        "url": "https://git.chn.moe/chn/blog.git"
+        "url": "file:///home/chn/repo/blog"
       }
     },
     "blurred-wallpaper": {
