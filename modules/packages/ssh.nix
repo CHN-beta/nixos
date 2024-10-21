@@ -111,6 +111,8 @@ inputs:
         (inputs.localLib.attrsToList servers));
     programs.ssh =
     {
+      # maybe better network performance
+      package = inputs.pkgs.openssh_hpn;
       startAgent = true;
       enableAskPassword = true;
       askPassword = "${inputs.pkgs.systemd}/bin/systemd-ask-password";
