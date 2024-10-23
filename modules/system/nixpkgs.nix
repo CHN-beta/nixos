@@ -77,8 +77,6 @@ inputs:
                   {
                     "pkgs-23.11" = "nixpkgs-23.11";
                     "pkgs-23.05" = "nixpkgs-23.05";
-                    "pkgs-22.11" = "nixpkgs-22.11";
-                    "pkgs-22.05" = "nixpkgs-22.05";
                   };
                   permittedInsecurePackages."pkgs-23.11" = [ "electron_19" ];
                   packages = name: import inputs.topInputs.${source.${name}}

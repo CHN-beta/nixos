@@ -6,15 +6,12 @@
     nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-unstable";
     "nixpkgs-23.11".url = "github:CHN-beta/nixpkgs/nixos-23.11";
     "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
-    "nixpkgs-22.11".url = "github:NixOS/nixpkgs/nixos-22.11";
-    "nixpkgs-22.05".url = "github:NixOS/nixpkgs/nixos-22.05";
     home-manager = { url = "github:nix-community/home-manager"; inputs.nixpkgs.follows = "nixpkgs"; };
     sops-nix =
     {
       url = "github:Mic92/sops-nix";
       inputs = { nixpkgs.follows = "nixpkgs"; nixpkgs-stable.follows = "nixpkgs"; };
     };
-    aagl = { url = "github:ezKEa/aagl-gtk-on-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
     nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-vscode-extensions = { url = "github:nix-community/nix-vscode-extensions"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -28,7 +25,6 @@
     nur-linyinfeng = { url = "github:linyinfeng/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixos-hardware.url = "github:CHN-beta/nixos-hardware";
     envfs = { url = "github:Mic92/envfs"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nix-fast-build = { url = "github:/Mic92/nix-fast-build"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-flatpak.url = "github:gmodena/nix-flatpak";
     chaotic =
     {
@@ -50,7 +46,6 @@
     eigen = { url = "gitlab:libeigen/eigen"; flake = false; };
     matplotplusplus = { url = "github:alandefreitas/matplotplusplus"; flake = false; };
     nameof = { url = "github:Neargye/nameof"; flake = false; };
-    nodesoup = { url = "github:olvb/nodesoup"; flake = false; };
     tgbot-cpp = { url = "github:reo7sp/tgbot-cpp"; flake = false; };
     v-sim = { url = "gitlab:l_sim/v_sim"; flake = false; };
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
@@ -60,9 +55,6 @@
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
     lmod = { url = "github:TACC/Lmod"; flake = false; };
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
-    kylin-virtual-keyboard = { url = "git+https://gitee.com/openkylin/kylin-virtual-keyboard.git"; flake = false; };
-    cjktty = { url = "github:CHN-beta/cjktty-patches"; flake = false; };
-    zxorm = { url = "github:CHN-beta/zxorm"; flake = false; };
     openxlsx = { url = "github:troldal/OpenXLSX?rev=f85f7f1bd632094b5d78d4d1f575955fc3801886"; flake = false; };
     sqlite-orm = { url = "github:fnc12/sqlite_orm"; flake = false; };
     sockpp = { url = "github:fpagliughi/sockpp"; flake = false; };

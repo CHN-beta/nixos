@@ -7,8 +7,6 @@ inputs: rec
   vaspkit = inputs.pkgs.callPackage ./vaspkit.nix { inherit (inputs.localLib) attrsToList; };
   v-sim = inputs.pkgs.callPackage ./v-sim.nix { src = inputs.topInputs.v-sim; };
   concurrencpp = inputs.pkgs.callPackage ./concurrencpp.nix { src = inputs.topInputs.concurrencpp; };
-  eigengdb = inputs.pkgs.python3Packages.callPackage ./eigengdb.nix {};
-  nodesoup = inputs.pkgs.callPackage ./nodesoup.nix { src = inputs.topInputs.nodesoup; };
   matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix
   {
     src = inputs.topInputs.matplotplusplus;
@@ -73,8 +71,6 @@ inputs: rec
     vtstscripts = inputs.pkgs.callPackage ./vasp/vtstscripts.nix {};
   };
   mumax = inputs.pkgs.callPackage ./mumax.nix { src = inputs.topInputs.mumax; };
-  kylin-virtual-keyboard = inputs.pkgs.libsForQt5.callPackage ./kylin-virtual-keyboard.nix
-    { src = inputs.topInputs.kylin-virtual-keyboard; };
   biu = inputs.pkgs.callPackage ./biu
   {
     inherit nameof zpp-bits tgbot-cpp concurrencpp pocketfft;
@@ -82,7 +78,6 @@ inputs: rec
     boost = inputs.pkgs.boost186;
     fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
   };
-  zxorm = inputs.pkgs.callPackage ./zxorm.nix { src = inputs.topInputs.zxorm; };
   hpcstat = inputs.pkgs.callPackage ./hpcstat
     { inherit sqlite-orm date biu openxlsx; stdenv = inputs.pkgs.clang18Stdenv; };
   openxlsx = inputs.pkgs.callPackage ./openxlsx.nix { src = inputs.topInputs.openxlsx; };

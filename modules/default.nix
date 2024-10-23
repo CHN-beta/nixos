@@ -8,7 +8,6 @@ inputs:
     [
       topInputs.home-manager.nixosModules.home-manager
       topInputs.sops-nix.nixosModules.sops
-      topInputs.aagl.nixosModules.default
       topInputs.nix-index-database.nixosModules.nix-index
       topInputs.nur-xddxdd.nixosModules.setupOverlay
       topInputs.impermanence.nixosModules.impermanence
@@ -23,7 +22,6 @@ inputs:
           nixpkgs.overlays =
           [
             topInputs.qchem.overlays.default
-            topInputs.aagl.overlays.default
             topInputs.bscpkgs.overlays.default
             topInputs.poetry2nix.overlays.default
             (final: prev:

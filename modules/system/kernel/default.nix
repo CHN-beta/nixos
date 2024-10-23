@@ -59,15 +59,6 @@ inputs:
           let
             patches =
             {
-              cjktty =
-              [{
-                name = "cjktty";
-                patch =
-                  let version = inputs.lib.versions.majorMinor inputs.config.boot.kernelPackages.kernel.version;
-                  in "${inputs.topInputs.cjktty}/v6.x/cjktty-${version}.patch";
-                extraStructuredConfig =
-                  { FONT_CJK_16x16 = inputs.lib.kernel.yes; FONT_CJK_32x32 = inputs.lib.kernel.yes; };
-              }];
               lantian =
               [{
                 name = "lantian";
