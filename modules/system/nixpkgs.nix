@@ -22,8 +22,6 @@ inputs:
     {
       nixpkgs =
         let
-          permittedInsecurePackages =
-            [ "openssl_1_1" "python2" "zotero"  "electron_27" "electron_28" "olm" "fluffychat" ];
           hostPlatform = if nixpkgs.march != null
             then { system = "${nixpkgs.arch}-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
             else "${nixpkgs.arch}-linux";
@@ -35,12 +33,14 @@ inputs:
             // (inputs.lib.optionalAttrs (nixpkgs.cuda.forwardCompat != null)
               { cudaForwardCompat = nixpkgs.cuda.forwardCompat; })
           );
+          allowInsecurePredicate = p: inputs.lib.warn
+            "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
         in
         {
           inherit hostPlatform;
           config = cudaConfig //
           {
-            permittedInsecurePackages = map (package: inputs.pkgs.${package}.name) permittedInsecurePackages;
+            inherit allowInsecurePredicate;
             allowUnfree = true;
             qchem-config = { optArch = nixpkgs.march; useCuda = nixpkgs.cuda.enable; };
           }
@@ -61,13 +61,7 @@ inputs:
               genericPackages = import inputs.topInputs.nixpkgs
               {
                 inherit system;
-                config =
-                {
-                  allowUnfree = true;
-                  permittedInsecurePackages = let pkgs = inputs.topInputs.nixpkgs.legacyPackages.${system}; in map
-                    (package: pkgs.${package}.name)
-                    (filter (package: pkgs ? ${package}) permittedInsecurePackages);
-                };
+                config = { allowUnfree = true; inherit allowInsecurePredicate; };
               };
             in
               { inherit genericPackages; }
@@ -78,7 +72,6 @@ inputs:
                     "pkgs-23.11" = "nixpkgs-23.11";
                     "pkgs-23.05" = "nixpkgs-23.05";
                   };
-                  permittedInsecurePackages."pkgs-23.11" = [ "electron_19" ];
                   packages = name: import inputs.topInputs.${source.${name}}
                   {
                     localSystem = hostPlatform;
@@ -86,11 +79,7 @@ inputs:
                     {
                       allowUnfree = true;
                       # contentAddressedByDefault = true;
-                      permittedInsecurePackages =
-                        let pkgs = inputs.topInputs.${source.${name}}.legacyPackages.${system};
-                        in map
-                          (package: pkgs.${package}.name)
-                          permittedInsecurePackages.${name} or [];
+                      inherit allowInsecurePredicate;
                     };
                   };
                 in builtins.listToAttrs (map
