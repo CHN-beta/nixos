@@ -250,6 +250,10 @@ inputs:
               # nginx will try to redirect https://blog.chn.moe/docs to https://blog.chn.moe:3068/docs/ in default
               # this make it redirect to /docs/ without hostname
               absolute_redirect off;
+              # block AmazonBot as it will grab all pages (including all commits from gitea)
+              if ($http_user_agent ~* "Amazonbot") {
+                return 403;
+              }
             '';
             proxyTimeout = "1d";
             recommendedZstdSettings = true;
