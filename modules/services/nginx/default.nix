@@ -533,12 +533,6 @@ inputs:
                       let inherit (site.value.global) charset; in
                         if (charset != null) then [ "charset ${charset};" ] else []
                     )
-                    # block some bots as it will grab all pages (including all commits from gitea)
-                    ++ [ ''
-                      if ($http_user_agent ~* "Amazonbot|ClaudeBot") {
-                        return 403;
-                      }
-                    '']
                   );
                   listen = map
                     (listen:
