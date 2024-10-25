@@ -135,7 +135,6 @@ inputs:
           tui = { cpuMpiThreads = 4; cpuOpenmpThreads = 4; gpus = [ "4060" ]; };
         };
         ollama = {};
-        waydroid = {};
         docker = {};
         ananicy = {};
         keyd = {};
