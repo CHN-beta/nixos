@@ -65,6 +65,7 @@ inputs:
         xray.server = { serverName = "xserver.vps7.chn.moe"; userNumber = 4; };
         docker = {};
         peertube = {};
+        nginx.applications.webdav.instances."webdav.chn.moe" = {};
       };
     };
     specialisation.generic.configuration =
