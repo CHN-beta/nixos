@@ -15,6 +15,7 @@ inputs:
       topInputs.chaotic.nixosModules.default
       { config.chaotic.nyx.overlay.onTopOf = "user-pkgs"; }
       topInputs.catppuccin.nixosModules.catppuccin
+      topInputs.aagl.nixosModules.default
       (inputs:
       {
         config =
@@ -24,6 +25,7 @@ inputs:
             topInputs.qchem.overlays.default
             topInputs.bscpkgs.overlays.default
             topInputs.poetry2nix.overlays.default
+            topInputs.aagl.overlays.default
             (final: prev:
             {
               nix-vscode-extensions = topInputs.nix-vscode-extensions.extensions."${prev.system}";
