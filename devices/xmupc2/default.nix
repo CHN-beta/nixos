@@ -85,7 +85,7 @@ inputs:
         groupshare = {};
       };
       bugs = [ "xmunet" ];
-      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" ];
+      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" ];
     };
   };
 }
