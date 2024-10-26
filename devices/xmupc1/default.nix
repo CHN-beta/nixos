@@ -96,7 +96,7 @@ inputs:
         docker = {};
       };
       bugs = [ "xmunet" "amdpstate" ];
-      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" ];
+      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" ];
     };
     services.hardware.bolt.enable = true;
   };
