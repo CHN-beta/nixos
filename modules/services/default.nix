@@ -4,7 +4,7 @@ inputs:
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
     smartd.enable = mkOption { type = types.bool; default = false; };
-    noisetorch.enable = mkOption { type = types.bool; default = inputs.config.nixos.system.gui.preferred; };
+    noisetorch.enable = mkOption { type = types.bool; default = inputs.config.nixos.model.type == "desktop"; };
   };
   config =
     let

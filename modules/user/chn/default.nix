@@ -36,7 +36,7 @@ inputs:
                 "wireguard.surface" "xmupc1" "wireguard.xmupc1" "xmupc2" "wireguard.xmupc2"
               ]));
             extraConfig =
-              inputs.lib.mkIf (builtins.elem inputs.config.nixos.system.networking.hostname [ "pc" "surface" ])
+              inputs.lib.mkIf (builtins.elem inputs.config.nixos.model.hostname [ "pc" "surface" ])
               ''
                 IdentityFile ~/.ssh/id_rsa
                 IdentityFile ~/.ssh/id_ed25519_sk
@@ -55,7 +55,7 @@ inputs:
                   (builtins.map
                     (system:
                     {
-                      name = system.config.nixos.system.networking.hostname;
+                      name = system.config.nixos.model.hostname;
                       value = system.config.nixos.system.fileSystems.luks.manual;
                     })
                     (builtins.attrValues inputs.topInputs.self.nixosConfigurations));
@@ -88,7 +88,7 @@ inputs:
     };
     environment.persistence =
       let inherit (inputs.config.nixos.system) impermanence;
-      in inputs.lib.mkIf (inputs.config.nixos.system.cluster.nodeType or null != "worker" && impermanence.enable)
+      in inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null != "worker" && impermanence.enable)
       {
         # TODO: make copy or soft link of files
         "${impermanence.persistence}".users.chn =

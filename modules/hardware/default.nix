@@ -4,18 +4,15 @@ inputs:
   options.nixos.hardware =
     let
       inherit (inputs.lib) mkOption types;
-      default = if inputs.config.nixos.system.gui.enable then {} else null;
+      default = if builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ] then {} else null;
     in
     {
-      bluetooth = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
       joystick = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
       printer = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
       sound = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
     };
   config = let inherit (inputs.config.nixos) hardware; in inputs.lib.mkMerge
   [
-    # bluetooth
-    (inputs.lib.mkIf (hardware.bluetooth != null) { hardware.bluetooth.enable = true; })
     # joystick
     (inputs.lib.mkIf (hardware.joystick != null) { hardware = { xone.enable = true; xpadneo.enable = true; }; })
     # printer

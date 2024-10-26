@@ -69,7 +69,7 @@ inputs:
     };
     environment.persistence =
       let impermanence = inputs.config.nixos.system.impermanence;
-      in inputs.lib.mkIf (inputs.config.nixos.system.cluster.nodeType or null != "worker" && impermanence.enable)
+      in inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null != "worker" && impermanence.enable)
         { "${impermanence.root}".users.chn.directories = [ ".local/share/konsole" ".local/share/yakuake" ]; };
   };
 }

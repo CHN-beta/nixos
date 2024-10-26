@@ -42,6 +42,6 @@ inputs:
           ];
         };
       })
-      ./hardware ./packages ./system ./virtualization ./services ./bugs ./user
+      ./hardware ./packages ./system ./virtualization ./services ./bugs ./user ./model.nix
     ];
   }

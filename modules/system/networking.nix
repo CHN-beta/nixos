@@ -2,7 +2,6 @@ inputs:
 {
   options.nixos.system.networking = let inherit (inputs.lib) mkOption types; in
   {
-    hostname = mkOption { type = types.nonEmptyStr; };
     networkManager.enable = mkOption
       { type = types.bool; default = inputs.config.nixos.system.networking.networkd == null; };
     networkd = mkOption
@@ -30,7 +29,6 @@ inputs:
   [
     # general config
     {
-      networking.hostName = networking.hostname;
       boot.kernel.sysctl =
       {
         "net.core.rmem_max" = 67108864;

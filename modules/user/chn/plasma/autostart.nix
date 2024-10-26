@@ -1,6 +1,6 @@
 inputs:
 {
-  config = inputs.lib.mkIf inputs.config.nixos.system.gui.enable
+  config = inputs.lib.mkIf (builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ])
   {
     home-manager.users.chn.config.home.file =
       let
@@ -64,10 +64,10 @@ inputs:
           name = ".config/autostart/${programs.${file}.fileName}";
           value.source = programs.${file}.path;
         })
-        (devices.${inputs.config.nixos.system.networking.hostname} or []));
+        (devices.${inputs.config.nixos.model.hostname} or []));
     environment.persistence =
       let impermanence = inputs.config.nixos.system.impermanence;
-      in inputs.lib.mkIf (inputs.config.nixos.system.cluster.nodeType or null != "worker" && impermanence.enable)
+      in inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null != "worker" && impermanence.enable)
       {
         "${impermanence.root}".users.chn.directories = [ ".config/autostart" ];
       };

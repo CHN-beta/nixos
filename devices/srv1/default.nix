@@ -4,11 +4,12 @@ inputs:
   {
     nixos =
     {
+      model.type = "server";
       system =
       {
         fileSystems =
         {
-          mount = let inherit (inputs.config.nixos.system.cluster) clusterName nodeName; in
+          mount = let inherit (inputs.config.nixos.model.cluster) clusterName nodeName; in
           {
             vfat."/dev/disk/by-partlabel/${clusterName}-${nodeName}-boot" = "/boot";
             btrfs."/dev/disk/by-partlabel/${clusterName}-${nodeName}-root" =
@@ -17,7 +18,6 @@ inputs:
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};
         };
-        gui.enable = true;
       };
       hardware.cpus = [ "intel" ];
       services =

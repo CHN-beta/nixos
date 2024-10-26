@@ -4,6 +4,7 @@ inputs:
   {
     nixos =
     {
+      model.cluster.nodeType = "worker";
       system =
       {
         nixpkgs.march = "broadwell";
@@ -12,7 +13,6 @@ inputs:
           br0 = { ip = "192.168.1.12"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; };
           eno2 = { ip = "192.168.178.3"; mask = 24; };
         };
-        cluster.nodeType = "worker";
         fileSystems.mount =
         {
           nfs."192.168.178.1:/home" = "/home";

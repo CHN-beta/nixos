@@ -493,7 +493,7 @@ inputs:
                   chat = inputs.config.sops.secrets."telegram/chat".path;
                 in
                 ''
-                  message='${inputs.config.nixos.system.networking.hostname} xray:\n'
+                  message='${inputs.config.nixos.model.hostname} xray:\n'
                   for i in {0..${toString ((builtins.length userList) - 1)}}
                   do
                     upload_bytes=$(${xray} api stats --server=127.0.0.1:6149 \

@@ -11,11 +11,11 @@ inputs:
     {
       defaultSopsFile =
         let deviceDir =
-          if (inputs.config.nixos.system.cluster == null) then
-            "${inputs.topInputs.self}/devices/${inputs.config.nixos.system.networking.hostname}"
+          if (inputs.config.nixos.model.cluster == null) then
+            "${inputs.topInputs.self}/devices/${inputs.config.nixos.model.hostname}"
           else
-            "${inputs.topInputs.self}/devices/${inputs.config.nixos.system.cluster.clusterName}"
-              + "/${inputs.config.nixos.system.cluster.nodeName}";
+            "${inputs.topInputs.self}/devices/${inputs.config.nixos.model.cluster.clusterName}"
+              + "/${inputs.config.nixos.model.cluster.nodeName}";
         in inputs.lib.mkMerge
         [
           (inputs.lib.mkIf (builtins.pathExists "${deviceDir}/secrets.yaml") "${deviceDir}/secrets.yaml")

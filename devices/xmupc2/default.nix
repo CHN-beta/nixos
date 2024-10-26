@@ -4,6 +4,7 @@ inputs:
   {
     nixos =
     {
+      model.type = "server";
       system =
       {
         fileSystems =
@@ -40,7 +41,6 @@ inputs:
             forwardCompat = false;
           };
         };
-        gui = { enable = true; preferred = false; autoStart = true; };
         nix =
         {
           marches =

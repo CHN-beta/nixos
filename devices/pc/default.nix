@@ -4,6 +4,7 @@ inputs:
   {
     nixos =
     {
+      model.type = "desktop";
       system =
       {
         fileSystems =
@@ -54,7 +55,6 @@ inputs:
             [ "options iwlwifi power_save=0" "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
         };
         sysctl.laptop-mode = 5;
-        gui.enable = true;
       };
       hardware =
       {
