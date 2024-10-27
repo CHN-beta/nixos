@@ -28,7 +28,7 @@ inputs:
         grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
         nixpkgs.march = "sandybridge";
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
-        initrd.sshd.enable = true;
+        initrd.sshd = {};
         networking = {};
         # do not use cachyos kernel, beesd + cachyos kernel + heavy io = system freeze, not sure why
       };

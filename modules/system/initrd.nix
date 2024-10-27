@@ -2,15 +2,7 @@ inputs:
 {
   options.nixos.system.initrd = let inherit (inputs.lib) mkOption types; in
   {
-    sshd =
-    {
-      enable = mkOption { type = types.bool; default = false; };
-      hostKeys = mkOption
-      {
-        type = types.listOf types.nonEmptyStr;
-        default = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ];
-      };
-    };
+    sshd = mkOption { type = types.nullOr (types.submodule {}); default = null; };
     unl0kr = mkOption { type = types.nullOr (types.submodule {}); default = null; };
   };
   config = let inherit (inputs.config.nixos.system) initrd; in inputs.lib.mkMerge
@@ -23,18 +15,21 @@ inputs:
       };
     }
     (
-      inputs.lib.mkIf (initrd.sshd.enable)
+      inputs.lib.mkIf (initrd.sshd != null)
       {
         boot =
         {
           initrd =
           {
-            network = { enable = true; ssh = { enable = true; hostKeys = initrd.sshd.hostKeys; }; };
+            network =
+            {
+              enable = true;
+              ssh = { enable = true; hostKeys = "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key"; };
+            };
             # resolved does not work in initrd, causing network.target to fail
             services.resolved.enable = false;
           };
-          # ip=dhcp only attain ipv4
-          # ip=on will reset systemd-networkd configs
+          # do not use ip=xxx, as it will override systemd-networkd configurations
           # kernelParams = [ "ip=on" ];
         };
       }
