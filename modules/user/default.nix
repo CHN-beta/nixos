@@ -88,7 +88,7 @@ inputs:
       home-manager.users = builtins.listToAttrs (builtins.map
         (name: { inherit name; value.imports = user.sharedModules; })
         user.users);
-      environment.persistence."${inputs.config.nixos.system.impermanence.persistence}".directories =
+      environment.persistence."/nix/persistent".directories =
         inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null != "worker") (builtins.map
           (user: { directory = "/home/${user}"; inherit user; group = user; mode = "0700"; })
           (builtins.filter (user: user != "chn") user.users));

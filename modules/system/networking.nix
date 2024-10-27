@@ -54,7 +54,7 @@ inputs:
           enable = true;
           settings.device.keep-configuration = "no";
         };
-        environment.persistence."${inputs.config.nixos.system.impermanence.persistence}".directories =
+        environment.persistence."/nix/persistent".directories =
           [{ directory = "/etc/NetworkManager/system-connections"; mode = "0700"; }];
       }
       {

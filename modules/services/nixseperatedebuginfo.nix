@@ -9,11 +9,12 @@ inputs:
     let inherit (inputs.config.nixos.services) nixseparatedebuginfo; in inputs.lib.mkIf (nixseparatedebuginfo != {})
     {
       services.nixseparatedebuginfod.enable = true;
-      environment.persistence =
-        let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
-        {
-          "${impermanence.nodatacow}".directories = let user = "nixseparatedebuginfod"; in
-          [{ directory = "/var/cache/nixseparatedebuginfod"; inherit user; group = user; mode = "0755"; }];
-        };
+      environment.persistence."/nix/nodatacow".directories =
+      [{
+        directory = "/var/cache/nixseparatedebuginfod";
+        user = "nixseparatedebuginfod";
+        group = "nixseparatedebuginfod";
+        mode = "0755";
+      }];
     };
 }

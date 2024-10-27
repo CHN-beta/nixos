@@ -18,7 +18,7 @@ inputs:
       environment =
       {
         sessionVariables.GTK_USE_PORTAL = "1";
-        persistence."${inputs.config.nixos.system.impermanence.root}".directories =
+        persistence."/nix/rootfs/current".directories =
           [{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }];
       };
       xdg.portal.extraPortals = builtins.map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" ];
