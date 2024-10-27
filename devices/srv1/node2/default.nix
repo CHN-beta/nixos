@@ -8,7 +8,7 @@ inputs:
       system =
       {
         nixpkgs.march = "broadwell";
-        networking.networkd.static =
+        networking.static =
         {
           br0 = { ip = "192.168.1.12"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; };
           eno2 = { ip = "192.168.178.3"; mask = 24; };

@@ -8,7 +8,7 @@ inputs:
       system =
       {
         nixpkgs.march = "broadwell";
-        networking.networkd.static.eno2 =
+        networking.static.eno2 =
           { ip = "192.168.178.4"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
         fileSystems.mount.nfs."192.168.178.1:/home" = "/home";
       };

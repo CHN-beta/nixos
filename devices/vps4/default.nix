@@ -29,7 +29,7 @@ inputs:
         nixpkgs.march = "znver2";
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
         initrd.sshd.enable = true;
-        networking.networkd = {};
+        networking = {};
         binfmt = null;
       };
       services =

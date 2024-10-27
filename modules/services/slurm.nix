@@ -4,7 +4,7 @@ inputs:
   {
     enable = mkOption { type = types.bool; default = false; };
     # 本机是否为控制节点，如果不是，填写控制节点的主机名
-    master = mkOption { type = types.nonEmptyStr; default = inputs.config.nixos.system.networking.hostname; };
+    master = mkOption { type = types.nonEmptyStr; default = inputs.config.nixos.model.hostname; };
     node = mkOption { type = types.attrsOf (types.submodule (submoduleInputs: { options =
     {
       # slurm 中使用的节点名称
