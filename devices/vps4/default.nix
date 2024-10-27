@@ -30,7 +30,6 @@ inputs:
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
         initrd.sshd.enable = true;
         networking.networkd = {};
-        nix-ld = null;
         binfmt = null;
       };
       services =
