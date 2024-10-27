@@ -95,21 +95,18 @@ inputs:
     }
     # set hashedPassword if it exist in secrets
     (
-      inputs.lib.mkIf inputs.config.nixos.system.sops.enable
-      (
-        let
-          secrets = inputs.pkgs.localPackages.fromYaml (builtins.readFile inputs.config.sops.defaultSopsFile);
-          hashedPasswordExist = userName: (secrets ? users) && ((secrets.users or {}) ? ${userName});
-        in
-        {
-          users.users = builtins.listToAttrs (builtins.map
-            (name: { inherit name; value.hashedPasswordFile = inputs.config.sops.secrets."users/${name}".path; })
-            (builtins.filter (user: hashedPasswordExist user) user.users));
-          sops.secrets = builtins.listToAttrs (builtins.map
-            (name: { name = "users/${name}"; value.neededForUsers = true; })
-            (builtins.filter (user: hashedPasswordExist user) user.users));
-        }
-      )
+      let
+        secrets = inputs.pkgs.localPackages.fromYaml (builtins.readFile inputs.config.sops.defaultSopsFile);
+        hashedPasswordExist = userName: (secrets ? users) && ((secrets.users or {}) ? ${userName});
+      in
+      {
+        users.users = builtins.listToAttrs (builtins.map
+          (name: { inherit name; value.hashedPasswordFile = inputs.config.sops.secrets."users/${name}".path; })
+          (builtins.filter (user: hashedPasswordExist user) user.users));
+        sops.secrets = builtins.listToAttrs (builtins.map
+          (name: { name = "users/${name}"; value.neededForUsers = true; })
+          (builtins.filter (user: hashedPasswordExist user) user.users));
+      }
     )
     {
       users.users.root =
@@ -127,46 +124,3 @@ inputs:
     (inputs.lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
   ];
 }
-
-# environment.persistence."/impermanence".users.chn =
-# {
-#   directories =
-#   [
-#     "Desktop"
-#     "Documents"
-#     "Downloads"
-#     "Music"
-#     "repo"
-#     "Pictures"
-#     "Videos"
-
-#     ".cache"
-#     ".config"
-#     ".gnupg"
-#     ".local"
-#     ".ssh"
-#     ".android"
-#     ".exa"
-#     ".gnome"
-#     ".Mathematica"
-#     ".mozilla"
-#     ".pki"
-#     ".steam"
-#     ".tcc"
-#     ".vim"
-#     ".vscode"
-#     ".Wolfram"
-#     ".zotero"
-
-#   ];
-#   files =
-#   [
-#     ".bash_history"
-#     ".cling_history"
-#     ".gitconfig"
-#     ".gtkrc-2.0"
-#     ".root_hist"
-#     ".viminfo"
-#     ".zsh_history"
-#   ];
-# };
