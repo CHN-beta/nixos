@@ -24,7 +24,7 @@ inputs:
             network =
             {
               enable = true;
-              ssh = { enable = true; hostKeys = "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key"; };
+              ssh = { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
             };
             # resolved does not work in initrd, causing network.target to fail
             services.resolved.enable = false;
