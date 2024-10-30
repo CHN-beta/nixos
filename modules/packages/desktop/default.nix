@@ -33,7 +33,7 @@ inputs:
           # networking
           remmina putty mtr-gui
           # media
-          mpv nomacs yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk 
+          mpv nomacs yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk qcm
           waifu2x-converter-cpp inkscape blender paraview vlc whalebird spotify obs-studio
           # themes
           klassy localPackages.slate localPackages.blurred-wallpaper tela-circle-icon-theme
