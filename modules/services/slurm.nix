@@ -4,7 +4,7 @@ inputs:
   {
     enable = mkOption { type = types.bool; default = false; };
     # 本机是否为控制节点，如果不是，填写控制节点的主机名
-    master = mkOption { type = types.nonEmptyStr; default = inputs.config.nixos.system.networking.hostname; };
+    master = mkOption { type = types.nonEmptyStr; default = inputs.config.nixos.model.hostname; };
     node = mkOption { type = types.attrsOf (types.submodule (submoduleInputs: { options =
     {
       # slurm 中使用的节点名称
@@ -127,7 +127,7 @@ inputs:
             TaskPlugin=task/affinity,task/cgroup
           '';
           extraConfigPaths =
-            let gpus = slurm.node.${inputs.config.nixos.system.networking.hostname}.gpus or null;
+            let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
             in inputs.lib.mkIf (gpus != null)
             (
               let gpuString = builtins.concatStringsSep "\n" (builtins.map
@@ -141,7 +141,7 @@ inputs:
       systemd =
       {
         services.slurmd.environment =
-          let gpus = slurm.node.${inputs.config.nixos.system.networking.hostname}.gpus or null;
+          let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
           in inputs.lib.mkIf (gpus != null)
           {
             CUDA_PATH = "${inputs.pkgs.cudatoolkit}";
@@ -159,7 +159,7 @@ inputs:
         in { allowedTCPPorts = config; allowedUDPPorts = config; };
     }
     # master 配置
-    (inputs.lib.mkIf (slurm.master == inputs.config.nixos.system.networking.hostname)
+    (inputs.lib.mkIf (slurm.master == inputs.config.nixos.model.hostname)
     {
       services.slurm =
       {

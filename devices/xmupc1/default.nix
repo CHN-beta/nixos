@@ -4,6 +4,7 @@ inputs:
   {
     nixos =
     {
+      model.type = "server";
       system =
       {
         fileSystems =
@@ -47,7 +48,6 @@ inputs:
             forwardCompat = false;
           };
         };
-        gui = { enable = true; preferred = false; autoStart = true; };
         nix.remote.slave.enable = true;
       };
       hardware = { cpus = [ "amd" ]; gpu.type = "nvidia"; };
@@ -96,7 +96,7 @@ inputs:
         docker = {};
       };
       bugs = [ "xmunet" "amdpstate" ];
-      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" ];
+      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" ];
     };
     services.hardware.bolt.enable = true;
   };

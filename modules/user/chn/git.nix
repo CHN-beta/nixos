@@ -8,7 +8,7 @@ inputs:
       package = inputs.pkgs.gitFull;
       extraConfig =
       {
-        core.editor = "hx";
+        core.editor = if inputs.config.nixos.model.type == "desktop" then "code --wait" else "hx"; 
         http.postBuffer = 624288000;
         advice.detachedHead = false;
         merge.conflictstyle = "diff3";

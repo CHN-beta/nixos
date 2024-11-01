@@ -15,7 +15,7 @@ builtins.listToAttrs
             config =
             {
               nixpkgs.overlays = [ inputs.self.overlays.default ];
-              nixos.system.networking.hostname = system;
+              nixos.model.hostname = system;
             };
           }
           ../modules
@@ -38,7 +38,7 @@ builtins.listToAttrs
             config =
             {
               nixpkgs.overlays = [ inputs.self.overlays.default ];
-              nixos.system.cluster = { clusterName = "srv1"; nodeName = node; };
+              nixos.model.cluster = { clusterName = "srv1"; nodeName = node; };
             };
           }
           ../modules

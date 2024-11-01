@@ -2,7 +2,7 @@ inputs:
 {
   options.nixos.system.grub = let inherit (inputs.lib) mkOption types; in
   {
-    timeout = mkOption { type = types.int; default = 5; };
+    timeout = mkOption { type = types.int; default = if inputs.config.nixos.model.type == "server" then 15 else 5; };
     windowsEntries = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
     # "efi" using efi, "efiRemovable" using efi with install grub removable, or dev path like "/dev/sda" using bios
     installDevice = mkOption { type = types.str; default = "efi"; };

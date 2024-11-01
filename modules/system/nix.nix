@@ -4,9 +4,7 @@ inputs:
   {
     # marches allowed to be compiled on this machine
     marches = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-    includeBuildDependencies = mkOption { type = types.bool; default = inputs.topInputs.self.config.archive; };
     substituters = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-    autoOptimiseStore = mkOption { type = types.bool; default = false; };
     remote =
     {
       slave =
@@ -86,10 +84,7 @@ inputs:
       ++ (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ "gccarch-exact-${march}" ]);
     }
     # includeBuildDependencies
-    (inputs.lib.mkIf nix.includeBuildDependencies
-    {
-      system.includeBuildDependencies = nix.includeBuildDependencies;
-    })
+    { system.includeBuildDependencies = inputs.topInputs.self.config.archive; }
     # substituters
     {
       nix.settings.substituters = inputs.lib.mkMerge
@@ -98,11 +93,6 @@ inputs:
         [ "https://cache.ngi0.nixos.org/" ]
       ];
     }
-    # autoOptimiseStore
-    (inputs.lib.mkIf nix.autoOptimiseStore
-    {
-      nix.settings.auto-optimise-store = nix.autoOptimiseStore;
-    })
     # remote.slave
     (inputs.lib.mkIf nix.remote.slave.enable
     {

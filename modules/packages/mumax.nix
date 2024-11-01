@@ -4,7 +4,7 @@ inputs:
   {
     type = types.nullOr (types.submodule {});
     default =
-      if inputs.config.nixos.system.gui.enable
+      if (builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ])
         && (let inherit (inputs.config.nixos.system.nixpkgs) cuda; in cuda.enable && cuda.capabilities != null)
       then {}
       else null;

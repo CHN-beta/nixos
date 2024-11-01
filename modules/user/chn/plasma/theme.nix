@@ -1,6 +1,6 @@
 inputs:
 {
-  config = inputs.lib.mkIf inputs.config.nixos.system.gui.enable
+  config = inputs.lib.mkIf (builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ])
   {
     home-manager.users.chn.config =
     {

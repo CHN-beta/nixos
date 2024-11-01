@@ -5,6 +5,7 @@ inputs:
   {
     nixos =
     {
+      model.type = "desktop";
       system =
       {
         fileSystems =
@@ -26,7 +27,6 @@ inputs:
         nixpkgs.march = "skylake";
         nix = { substituters = [ "https://nix-store.chn.moe?priority=100" ]; githubToken.enable = true; };
         kernel = { variant = "xanmod-latest"; patches = [ "surface" "hibernate-progress" ]; };
-        gui.enable = true;
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =

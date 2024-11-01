@@ -7,7 +7,7 @@ inputs:
       {
         pc = "${nixos-wallpaper}/pixiv-117612023.png";
         surface = "${nixos-wallpaper}/fanbox-6682738.png";
-      }.${inputs.config.nixos.system.networking.hostname} or "${nixos-wallpaper}/pixiv-96734339-x2.png";
+      }.${inputs.config.nixos.model.hostname} or "${nixos-wallpaper}/pixiv-96734339-x2.png";
     in
     {
       # "plasma-org.kde.plasma.desktop-appletsrc" =

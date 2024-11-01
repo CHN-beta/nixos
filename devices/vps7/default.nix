@@ -28,15 +28,14 @@ inputs:
         grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
         nixpkgs.march = "znver2";
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
-        initrd.sshd.enable = true;
-        networking.networkd = {};
+        initrd.sshd = {};
+        networking = {};
       };
       services =
       {
         snapper.enable = true;
         sshd = {};
         rsshub.enable = true;
-        wallabag.enable = true;
         misskey.instances.misskey.hostname = "xn--s8w913fdga.chn.moe";
         synapse.instances =
         {
@@ -51,7 +50,6 @@ inputs:
         send.enable = true;
         huginn.enable = true;
         fz-new-order = {};
-        nginx.applications = { kkmeeting.enable = true; webdav.instances."webdav.chn.moe" = {}; };
         httpapi.enable = true;
         gitea = { enable = true; ssh = {}; };
         grafana.enable = true;
@@ -64,12 +62,10 @@ inputs:
           wireguardIp = "192.168.83.2";
           listenIp = "144.126.144.62";
         };
-        vikunja.enable = true;
-        chatgpt = {};
         xray.server = { serverName = "xserver.vps7.chn.moe"; userNumber = 4; };
-        writefreely = {};
         docker = {};
         peertube = {};
+        nginx.applications.webdav.instances."webdav.chn.moe" = {};
       };
     };
     specialisation.generic.configuration =

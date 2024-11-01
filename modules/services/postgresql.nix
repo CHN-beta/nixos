@@ -86,11 +86,7 @@ inputs:
     sops.secrets = builtins.listToAttrs (builtins.map
       (db: { name = "postgresql/${db.value.user}"; value.owner = inputs.config.users.users.postgres.name; })
       (builtins.filter (db: db.value.passwordFile == null) (inputs.localLib.attrsToList postgresql.instances)));
-    environment.persistence =
-      let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
-      {
-        "${impermanence.nodatacow}".directories = let user = "postgres"; in
-          [{ directory = "/var/lib/postgresql"; inherit user; group = user; mode = "0750"; }];
-      };
+    environment.persistence."/nix/nodatacow".directories =
+      [{ directory = "/var/lib/postgresql"; user = "postgres"; group = "postgres"; mode = "0750"; }];
   };
 }

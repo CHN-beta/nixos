@@ -25,6 +25,7 @@ inputs:
         GROUPIII-1 = 1011;
         GROUPIII-2 = 1012;
         GROUPIII-3 = 1013;
+        lly = 1014;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
@@ -87,28 +88,25 @@ inputs:
       home-manager.users = builtins.listToAttrs (builtins.map
         (name: { inherit name; value.imports = user.sharedModules; })
         user.users);
-      environment.persistence."${inputs.config.nixos.system.impermanence.persistence}".directories =
-        inputs.lib.mkIf (inputs.config.nixos.system.cluster.nodeType or null != "worker") (builtins.map
+      environment.persistence."/nix/persistent".directories =
+        inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null != "worker") (builtins.map
           (user: { directory = "/home/${user}"; inherit user; group = user; mode = "0700"; })
           (builtins.filter (user: user != "chn") user.users));
     }
     # set hashedPassword if it exist in secrets
     (
-      inputs.lib.mkIf inputs.config.nixos.system.sops.enable
-      (
-        let
-          secrets = inputs.pkgs.localPackages.fromYaml (builtins.readFile inputs.config.sops.defaultSopsFile);
-          hashedPasswordExist = userName: (secrets ? users) && ((secrets.users or {}) ? ${userName});
-        in
-        {
-          users.users = builtins.listToAttrs (builtins.map
-            (name: { inherit name; value.hashedPasswordFile = inputs.config.sops.secrets."users/${name}".path; })
-            (builtins.filter (user: hashedPasswordExist user) user.users));
-          sops.secrets = builtins.listToAttrs (builtins.map
-            (name: { name = "users/${name}"; value.neededForUsers = true; })
-            (builtins.filter (user: hashedPasswordExist user) user.users));
-        }
-      )
+      let
+        secrets = inputs.pkgs.localPackages.fromYaml (builtins.readFile inputs.config.sops.defaultSopsFile);
+        hashedPasswordExist = userName: (secrets ? users) && ((secrets.users or {}) ? ${userName});
+      in
+      {
+        users.users = builtins.listToAttrs (builtins.map
+          (name: { inherit name; value.hashedPasswordFile = inputs.config.sops.secrets."users/${name}".path; })
+          (builtins.filter (user: hashedPasswordExist user) user.users));
+        sops.secrets = builtins.listToAttrs (builtins.map
+          (name: { name = "users/${name}"; value.neededForUsers = true; })
+          (builtins.filter (user: hashedPasswordExist user) user.users));
+      }
     )
     {
       users.users.root =
@@ -126,46 +124,3 @@ inputs:
     (inputs.lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
   ];
 }
-
-# environment.persistence."/impermanence".users.chn =
-# {
-#   directories =
-#   [
-#     "Desktop"
-#     "Documents"
-#     "Downloads"
-#     "Music"
-#     "repo"
-#     "Pictures"
-#     "Videos"
-
-#     ".cache"
-#     ".config"
-#     ".gnupg"
-#     ".local"
-#     ".ssh"
-#     ".android"
-#     ".exa"
-#     ".gnome"
-#     ".Mathematica"
-#     ".mozilla"
-#     ".pki"
-#     ".steam"
-#     ".tcc"
-#     ".vim"
-#     ".vscode"
-#     ".Wolfram"
-#     ".zotero"
-
-#   ];
-#   files =
-#   [
-#     ".bash_history"
-#     ".cling_history"
-#     ".gitconfig"
-#     ".gtkrc-2.0"
-#     ".root_hist"
-#     ".viminfo"
-#     ".zsh_history"
-#   ];
-# };

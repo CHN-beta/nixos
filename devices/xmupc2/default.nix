@@ -4,6 +4,7 @@ inputs:
   {
     nixos =
     {
+      model.type = "server";
       system =
       {
         fileSystems =
@@ -40,7 +41,6 @@ inputs:
             forwardCompat = false;
           };
         };
-        gui = { enable = true; preferred = false; autoStart = true; };
         nix =
         {
           marches =
@@ -89,7 +89,7 @@ inputs:
         docker = {};
       };
       bugs = [ "xmunet" ];
-      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" ];
+      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" ];
     };
   };
 }

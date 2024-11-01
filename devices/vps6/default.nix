@@ -28,8 +28,8 @@ inputs:
         grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
         nixpkgs.march = "sandybridge";
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
-        initrd.sshd.enable = true;
-        networking.networkd = {};
+        initrd.sshd = {};
+        networking = {};
         # do not use cachyos kernel, beesd + cachyos kernel + heavy io = system freeze, not sure why
       };
       services =
@@ -53,7 +53,7 @@ inputs:
             (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.vps7.chn.moe"; })
             [
               "xn--s8w913fdga" "synapse" "syncv3.synapse" "matrix" "syncv3.matrix"
-              "send" "kkmeeting" "api" "git" "grafana" "vikunja" "write" "peertube"
+              "send" "api" "git" "grafana" "peertube"
             ]))
           // (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.nas.chn.moe"; })

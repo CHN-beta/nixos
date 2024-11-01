@@ -38,10 +38,10 @@ inputs:
           swap = [ "/nix/swap/swap" ];
           rollingRootfs.waitDevices = [ "/dev/mapper/root4" ];
         };
-        initrd.sshd.enable = true;
+        initrd.sshd = {};
         nixpkgs.march = "silvermont";
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
-        networking.networkd = {};
+        networking = {};
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =

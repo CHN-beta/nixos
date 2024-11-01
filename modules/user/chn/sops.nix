@@ -3,7 +3,7 @@ inputs:
   config = inputs.lib.mkIf
   (
     (builtins.elem "chn" inputs.config.nixos.user.users)
-      && (builtins.elem inputs.config.nixos.system.networking.hostname [ "pc" "surface" ])
+      && (builtins.elem inputs.config.nixos.model.hostname [ "pc" "surface" ])
   )
   {
     home-manager.users.chn = homeInputs:

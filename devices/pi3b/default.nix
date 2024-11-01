@@ -18,7 +18,7 @@ inputs:
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};
         };
-        networking.networkd = {};
+        networking = {};
         nixpkgs.arch = "aarch64";
         kernel.variant = "nixos";
       };

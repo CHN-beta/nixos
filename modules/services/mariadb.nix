@@ -49,11 +49,7 @@ inputs:
     sops.secrets = builtins.listToAttrs (builtins.map
       (db: { name = "mariadb/${db.value.user}"; value.owner = inputs.config.users.users.mysql.name; })
       (builtins.filter (db: db.value.passwordFile == null) (inputs.localLib.attrsToList mariadb.instances)));
-    environment.persistence =
-      let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
-      {
-        "${impermanence.nodatacow}".directories = let user = "mysql"; in
-          [{ directory = "/var/lib/mysql"; inherit user; group = user; mode = "0750"; }];
-      };
+    environment.persistence."/nix/nodatacow".directories =
+      [{ directory = "/var/lib/mysql"; user = "mysql"; group = "mysql"; mode = "0750"; }];
   };
 }

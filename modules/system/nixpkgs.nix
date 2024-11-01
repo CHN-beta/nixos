@@ -22,8 +22,6 @@ inputs:
     {
       nixpkgs =
         let
-          permittedInsecurePackages =
-            [ "openssl_1_1" "python2" "zotero"  "electron_27" "electron_28" "olm" "fluffychat" ];
           hostPlatform = if nixpkgs.march != null
             then { system = "${nixpkgs.arch}-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
             else "${nixpkgs.arch}-linux";
@@ -35,12 +33,14 @@ inputs:
             // (inputs.lib.optionalAttrs (nixpkgs.cuda.forwardCompat != null)
               { cudaForwardCompat = nixpkgs.cuda.forwardCompat; })
           );
+          allowInsecurePredicate = p: inputs.lib.warn
+            "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
         in
         {
           inherit hostPlatform;
           config = cudaConfig //
           {
-            permittedInsecurePackages = map (package: inputs.pkgs.${package}.name) permittedInsecurePackages;
+            inherit allowInsecurePredicate;
             allowUnfree = true;
             qchem-config = { optArch = nixpkgs.march; useCuda = nixpkgs.cuda.enable; };
           }
@@ -51,7 +51,7 @@ inputs:
             oneapiArch = let match = { znver3 = "CORE-AVX2"; znver4 = "core-avx2"; };
               in match.${nixpkgs.march} or nixpkgs.march;
             nvhpcArch = nixpkgs.march;
-            contentAddressedByDefault = true;
+            # contentAddressedByDefault = true;
             enableCcache = true;
           });
           overlays =
@@ -61,13 +61,7 @@ inputs:
               genericPackages = import inputs.topInputs.nixpkgs
               {
                 inherit system;
-                config =
-                {
-                  allowUnfree = true;
-                  permittedInsecurePackages = let pkgs = inputs.topInputs.nixpkgs.legacyPackages.${system}; in map
-                    (package: pkgs.${package}.name)
-                    (filter (package: pkgs ? ${package}) permittedInsecurePackages);
-                };
+                config = { allowUnfree = true; inherit allowInsecurePredicate; };
               };
             in
               { inherit genericPackages; }
@@ -77,22 +71,15 @@ inputs:
                   {
                     "pkgs-23.11" = "nixpkgs-23.11";
                     "pkgs-23.05" = "nixpkgs-23.05";
-                    "pkgs-22.11" = "nixpkgs-22.11";
-                    "pkgs-22.05" = "nixpkgs-22.05";
                   };
-                  permittedInsecurePackages."pkgs-23.11" = [ "electron_19" ];
                   packages = name: import inputs.topInputs.${source.${name}}
                   {
                     localSystem = hostPlatform;
                     config = cudaConfig //
                     {
                       allowUnfree = true;
-                      contentAddressedByDefault = true;
-                      permittedInsecurePackages =
-                        let pkgs = inputs.topInputs.${source.${name}}.legacyPackages.${system};
-                        in map
-                          (package: pkgs.${package}.name)
-                          permittedInsecurePackages.${name} or [];
+                      # contentAddressedByDefault = true;
+                      inherit allowInsecurePredicate;
                     };
                   };
                 in builtins.listToAttrs (map
@@ -118,6 +105,12 @@ inputs:
                   xdg-desktop-portal = prev.xdg-desktop-portal.overrideAttrs (prev:
                     { doCheck = false; nativeBuildInputs = prev.nativeBuildInputs ++ prev.nativeCheckInputs; });
                   gsl = prev.gsl.overrideAttrs { doCheck = false; };
+                  pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [(final: prev:
+                  {
+                    numcodecs = prev.numcodecs.overridePythonAttrs { doCheck = false; };
+                    zarr = prev.zarr.overridePythonAttrs (prev:
+                      { disabledTests = prev.disabledTests or [] ++ [ "test_encode_decode_array_dtype_shape_v3" ]; });
+                  })];
                 }
               )
               // (

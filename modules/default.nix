@@ -8,7 +8,6 @@ inputs:
     [
       topInputs.home-manager.nixosModules.home-manager
       topInputs.sops-nix.nixosModules.sops
-      topInputs.aagl.nixosModules.default
       topInputs.nix-index-database.nixosModules.nix-index
       topInputs.nur-xddxdd.nixosModules.setupOverlay
       topInputs.impermanence.nixosModules.impermanence
@@ -16,6 +15,7 @@ inputs:
       topInputs.chaotic.nixosModules.default
       { config.chaotic.nyx.overlay.onTopOf = "user-pkgs"; }
       topInputs.catppuccin.nixosModules.catppuccin
+      topInputs.aagl.nixosModules.default
       (inputs:
       {
         config =
@@ -23,9 +23,9 @@ inputs:
           nixpkgs.overlays =
           [
             topInputs.qchem.overlays.default
-            topInputs.aagl.overlays.default
             topInputs.bscpkgs.overlays.default
             topInputs.poetry2nix.overlays.default
+            topInputs.aagl.overlays.default
             (final: prev:
             {
               nix-vscode-extensions = topInputs.nix-vscode-extensions.extensions."${prev.system}";
@@ -42,6 +42,6 @@ inputs:
           ];
         };
       })
-      ./hardware ./packages ./system ./virtualization ./services ./bugs ./user
+      ./hardware ./packages ./system ./virtualization ./services ./bugs ./user ./model.nix
     ];
   }

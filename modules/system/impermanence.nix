@@ -1,17 +1,10 @@
 inputs:
 {
-  options.nixos.system.impermanence = let inherit (inputs.lib) mkOption types; in
-  {
-    enable = mkOption { type = types.bool; default = true; };
-    persistence = mkOption { type = types.nonEmptyStr; default = "/nix/persistent"; };
-    root = mkOption { type = types.nonEmptyStr; default = "/nix/rootfs/current"; };
-    nodatacow = mkOption { type = types.nullOr types.nonEmptyStr; default = "/nix/nodatacow"; };
-  };
-  config = let inherit (inputs.config.nixos.system) impermanence; in inputs.lib.mkIf impermanence.enable
+  config =
   {
     environment.persistence =
     {
-      "${impermanence.persistence}" =
+      "/nix/persistent" =
       {
         hideMounts = true;
         directories =
@@ -33,7 +26,7 @@ inputs:
           "/etc/ssh/ssh_host_rsa_key"
         ];
       };
-      "${impermanence.root}" =
+      "/nix/rootfs/current" =
       {
         hideMounts = true;
         directories =
@@ -45,7 +38,7 @@ inputs:
           "/var/lib/flatpak"
         ];
       };
-      "${impermanence.nodatacow}" =
+      "/nix/nodatacow" =
       {
         hideMounts = true;
         directories =
