@@ -10,7 +10,7 @@ inputs:
   {
     nixos.packages.packages._packages = with inputs.pkgs;
     (
-      [ localPackages.vasp.intel localPackages.vasp.vtstscripts localPackages.py4vasp localPackages.vaspkit ]
+      [ localPackages.vasp.intel localPackages.vasp.vtstscripts localPackages.py4vasp localPackages.vaspkit wannier90 ]
         ++ (inputs.lib.optional
           (let inherit (inputs.config.nixos.system.nixpkgs) cuda; in cuda.enable && cuda.capabilities != null)
           localPackages.vasp.nvidia)
