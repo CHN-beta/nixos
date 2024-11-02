@@ -43,6 +43,7 @@ inputs:
             inherit allowInsecurePredicate;
             allowUnfree = true;
             qchem-config = { optArch = nixpkgs.march; useCuda = nixpkgs.cuda.enable; };
+            android_sdk.accept_license = true;
           }
           // (if nixpkgs.march == null then {} else
           {
