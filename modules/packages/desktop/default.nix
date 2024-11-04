@@ -43,7 +43,7 @@ inputs:
           warp-terminal
           # development
           adb-sync scrcpy dbeaver-bin cling aircrack-ng
-          weston cage openbox krita jetbrains.clion android-studio fprettify
+          weston cage openbox krita jetbrains.clion androidStdioPackages.stable.full fprettify
           # desktop sharing
           rustdesk-flutter
           # password and key management
