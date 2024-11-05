@@ -336,7 +336,7 @@ inputs:
           let
             ipset = "${inputs.pkgs.ipset}/bin/ipset";
             iptables = "${inputs.pkgs.iptables}/bin/iptables";
-            ip = "${inputs.pkgs.iproute}/bin/ip";
+            ip = "${inputs.pkgs.iproute2}/bin/ip";
             start = inputs.pkgs.writeShellScript "nginx-proxy.start"
             (
               ''

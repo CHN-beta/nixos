@@ -233,7 +233,7 @@ inputs:
               let
                 ipset = "${inputs.pkgs.ipset}/bin/ipset";
                 iptables = "${inputs.pkgs.iptables}/bin/iptables";
-                ip = "${inputs.pkgs.iproute}/bin/ip";
+                ip = "${inputs.pkgs.iproute2}/bin/ip";
                 autoPort = "10880";
                 xmuPort = "10881";
                 proxyPort = "10883";
