@@ -85,7 +85,7 @@ inputs:
             (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
-          phonopy scipy scikit-learn jupyterlab autograd # localPackages.pix2tex
+          phonopy scipy scikit-learn jupyterlab autograd
           # TODO: broken on python 3.12 tensorflow keras
           # for phonopy
           inputs.pkgs.localPackages.spectroscopy numpy

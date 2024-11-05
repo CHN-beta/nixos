@@ -3,7 +3,6 @@ inputs: rec
   vesta = inputs.pkgs.callPackage ./vesta.nix {};
   rsshub = inputs.pkgs.callPackage ./rsshub.nix { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; };
   misskey = inputs.pkgs.callPackage ./misskey.nix { inherit mkPnpmPackage; src = inputs.topInputs.misskey; };
-  mk-meili-mgn = inputs.pkgs.callPackage ./mk-meili-mgn.nix {};
   vaspkit = inputs.pkgs.callPackage ./vaspkit.nix { inherit (inputs.localLib) attrsToList; };
   v-sim = inputs.pkgs.callPackage ./v-sim.nix { src = inputs.topInputs.v-sim; };
   concurrencpp = inputs.pkgs.callPackage ./concurrencpp.nix { src = inputs.topInputs.concurrencpp; };
@@ -16,8 +15,6 @@ inputs: rec
   eigen = inputs.pkgs.callPackage ./eigen.nix { src = inputs.topInputs.eigen; };
   nameof = inputs.pkgs.callPackage ./nameof.nix { src = inputs.topInputs.nameof; };
   pslist = inputs.pkgs.callPackage ./pslist.nix {};
-  glad = inputs.pkgs.callPackage ./glad.nix {};
-  yoga-support = inputs.pkgs.callPackage ./yoga-support.nix {};
   tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp.nix { src = inputs.topInputs.tgbot-cpp; };
   mirism-old = inputs.pkgs.callPackage ./mirism-old.nix
   {
@@ -28,11 +25,6 @@ inputs: rec
   };
   cppcoro = inputs.pkgs.callPackage ./cppcoro { src = inputs.topInputs.cppcoro; };
   date = inputs.pkgs.callPackage ./date.nix { src = inputs.topInputs.date; };
-  esbonio = inputs.pkgs.python3Packages.callPackage ./esbonio.nix {};
-  pix2tex = inputs.pkgs.python3Packages.callPackage ./pix2tex {};
-  pyreadline3 = inputs.pkgs.python3Packages.callPackage ./pyreadline3.nix {};
-  torchdata = inputs.pkgs.python3Packages.callPackage ./torchdata.nix {};
-  torchtext = inputs.pkgs.python3Packages.callPackage ./torchtext.nix { inherit torchdata; };
   blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper.nix { src = inputs.topInputs.blurred-wallpaper; };
   slate = inputs.pkgs.callPackage ./slate.nix { src = inputs.topInputs.slate; };
   nvhpc = inputs.pkgs.callPackage ./nvhpc.nix {};
