@@ -20,8 +20,8 @@ inputs:
         inputs.pkgs.helix
         (inputs.pkgs.runCommand "vim" {}
         ''
-          mkdir $out
-          ln -s ${inputs.pkgs.helix}/hx $out/vim
+          mkdir -p $out/bin
+          ln -s ${inputs.pkgs.helix}/hx $out/bin/vim
         '')
       ];
     };
