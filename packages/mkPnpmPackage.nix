@@ -1,4 +1,4 @@
-{ lib, remarshal, fetchurl, runCommand, nodejs, stdenv, pkg-config, writeText }:
+{ lib, yq, fetchurl, runCommand, nodejs, stdenv, pkg-config, writeText }:
   {
     src,
     lockFile ? "${src}/pnpm-lock.yaml",
@@ -13,7 +13,7 @@
   }:
     let
       originalLock = builtins.fromJSON
-        (builtins.readFile (runCommand "toJSON" { } "${remarshal}/bin/yaml2json ${lockFile} $out"));
+        (builtins.readFile (runCommand "toJSON" { } "cat ${lockFile} | ${yq}/bin/yq > $out"));
       patchedLock = originalLock
       // {
         packages = lib.mapAttrs
