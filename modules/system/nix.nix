@@ -49,7 +49,8 @@ inputs:
       systemd.services.nix-daemon = { serviceConfig.CacheDirectory = "nix"; environment.TMPDIR = "/var/cache/nix"; };
     }
     # nix daemon use lower io/cpu priority
-    { nix = { daemonIOSchedClass = "idle"; daemonCPUSchedPolicy = "idle"; }; }
+    # some packages (e.g. nodejs) try to set priority at testPhase. Setting it here will make it failed.
+    # { nix = { daemonIOSchedClass = "idle"; daemonCPUSchedPolicy = "idle"; }; }
     # nix channel & nix flake registry
     {
       nix =
