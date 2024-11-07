@@ -40,7 +40,7 @@ inputs:
         synapse.instances =
         {
           synapse.matrixHostname = "synapse.chn.moe";
-          matrix = { port = 8009; redisPort = 6380; slidingSyncPort = 9001; };
+          matrix = { port = 8009; redisPort = 6380; };
         };
         vaultwarden.enable = true;
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
