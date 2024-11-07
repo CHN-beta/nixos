@@ -142,10 +142,13 @@ inputs:
     };
     nixpkgs.overlays = [(final: prev:
     {
-      telegram-desktop = prev.telegram-desktop.overrideAttrs (attrs:
+      telegram-desktop = prev.telegram-desktop.override
       {
-        patches = (if (attrs ? patches) then attrs.patches else []) ++ [ ./telegram.patch ];
-      });
+        unwrapped = prev.telegram-desktop.unwrapped.overrideAttrs (prev:
+        {
+          patches = prev.patches or [] ++ [ ./telegram.patch ];
+        });
+      };
     })];
     services.pcscd.enable = true;
   };
