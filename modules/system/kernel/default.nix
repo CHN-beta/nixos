@@ -130,10 +130,6 @@ inputs:
       };
     }
     (
-      inputs.lib.mkIf (inputs.lib.strings.hasPrefix "cachyos" kernel.variant)
-        { nixos.packages.packages._packages = [ inputs.pkgs.scx ]; }
-    )
-    (
       inputs.lib.mkIf (kernel.variant == "rpi3")
         { boot.initrd = { systemd.enableTpm2 = false; includeDefaultModules = false; }; }
     )
