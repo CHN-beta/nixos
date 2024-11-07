@@ -50,7 +50,6 @@ inputs:
     }
     # nix daemon use lower io/cpu priority
     # some packages (e.g. nodejs) try to set priority at testPhase. Setting it here will make it failed.
-    # TODO: build using flake still broken, why?
     # { nix = { daemonIOSchedClass = "idle"; daemonCPUSchedPolicy = "idle"; }; }
     # nix channel & nix flake registry
     {

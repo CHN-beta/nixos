@@ -89,12 +89,12 @@ inputs:
               // (
                 inputs.lib.optionalAttrs (nixpkgs.march != null)
                 {
-                  redis = prev.redis.overrideAttrs { doCheck = false; };
                   # embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
                   # libvorbis = prev.libvorbis.override { stdenv = final.genericPackages.stdenv; };
                   # _7zz = prev._7zz.override { stdenv = final.genericPackages.stdenv; };
                   # ispc = genericPackages.ispc;
                   # opencolorio = prev.opencolorio.overrideAttrs { doCheck = false; };
+                  # redis = prev.redis.overrideAttrs { doCheck = false; };
                   # krita = final.genericPackages.krita;
                   # geos = prev.geos.overrideAttrs { doCheck = false; };
                   # c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; };
