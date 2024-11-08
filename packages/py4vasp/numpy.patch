@@ -1,0 +1,70 @@
+From f391623a00aff45f510bf815ddfb1817ae833059 Mon Sep 17 00:00:00 2001
+From: Katie Rust <katie@ktpanda.org>
+Date: Mon, 16 Sep 2024 13:04:22 -0500
+Subject: [PATCH] BUG: Stub out `get_build_msvc_version` if
+ `distutils.msvccompiler` cannot be imported (fixes #27405)
+
+---
+ numpy/distutils/mingw32ccompiler.py | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/numpy/distutils/mingw32ccompiler.py b/numpy/distutils/mingw32ccompiler.py
+index 39905a784088..2599a9e9a807 100644
+--- a/numpy/distutils/mingw32ccompiler.py
++++ b/numpy/distutils/mingw32ccompiler.py
+@@ -24,7 +24,13 @@
+ 
+ import distutils.cygwinccompiler
+ from distutils.unixccompiler import UnixCCompiler
+-from distutils.msvccompiler import get_build_version as get_build_msvc_version
++
++try:
++    from distutils.msvccompiler import get_build_version as get_build_msvc_version
++except ImportError:
++    def get_build_msvc_version():
++        return None
++
+ from distutils.errors import UnknownFileError
+ from numpy.distutils.misc_util import (msvc_runtime_library,
+                                        msvc_runtime_version,
+diff --git a/numpy/distutils/msvccompiler.py b/numpy/distutils/msvccompiler.py
+index 2b93221baa..d1fae7b6ca 100644
+--- a/numpy/distutils/msvccompiler.py
++++ b/numpy/distutils/msvccompiler.py
+@@ -1,5 +1,4 @@
+ import os
+-from distutils.msvccompiler import MSVCCompiler as _MSVCCompiler
+ 
+ from .system_info import platform_bits
+ 
+@@ -36,27 +35,12 @@ def _merge(old, new):
+     return ';'.join([old, new])
+ 
+ 
+-class MSVCCompiler(_MSVCCompiler):
++class MSVCCompiler:
+     def __init__(self, verbose=0, dry_run=0, force=0):
+-        _MSVCCompiler.__init__(self, verbose, dry_run, force)
++        pass
+ 
+     def initialize(self):
+-        # The 'lib' and 'include' variables may be overwritten
+-        # by MSVCCompiler.initialize, so save them for later merge.
+-        environ_lib = os.getenv('lib', '')
+-        environ_include = os.getenv('include', '')
+-        _MSVCCompiler.initialize(self)
+-
+-        # Merge current and previous values of 'lib' and 'include'
+-        os.environ['lib'] = _merge(environ_lib, os.environ['lib'])
+-        os.environ['include'] = _merge(environ_include, os.environ['include'])
+-
+-        # msvc9 building for 32 bits requires SSE2 to work around a
+-        # compiler bug.
+-        if platform_bits == 32:
+-            self.compile_options += ['/arch:SSE2']
+-            self.compile_options_debug += ['/arch:SSE2']
+-
++        pass
+ 
+ def lib_opts_if_msvc(build_cmd):
+     """ Add flags if we are using MSVC compiler
