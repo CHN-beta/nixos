@@ -109,6 +109,7 @@ inputs:
           (builtins.filter (user: hashedPasswordExist user) user.users));
       }
     )
+    # setup root
     {
       users.users.root =
       {
@@ -122,6 +123,26 @@ inputs:
         config.programs.git = { userName = "chn"; userEmail = "chn@chn.moe"; };
       };
     }
+    # setup test
     (inputs.lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
+    # disable symlinks directly under home created by home-manager, use bind-mount instead
+    {
+      nixos.user.sharedModules =
+      [{
+        home.file = inputs.lib.mkMerge (builtins.map (file: { "${file}".enable = false; })
+          [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ]);
+      }];
+      systemd.mounts = builtins.concatLists (builtins.map
+        (user: builtins.map
+          (file:
+          {
+            what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
+            where = "/home/${user}/${file}";
+            options = "bind";
+            wantedBy = [ "multi-user.target" ];
+          })
+          [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ])
+        user.users);
+    }
   ];
 }
