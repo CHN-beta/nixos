@@ -15,15 +15,7 @@ inputs:
           settings.theme = "catppuccin_latte";
         };
       }];
-      packages.packages._packages =
-      [
-        inputs.pkgs.helix
-        (inputs.pkgs.runCommand "vim" {}
-        ''
-          mkdir -p $out/bin
-          ln -s ${inputs.pkgs.helix}/hx $out/bin/vim
-        '')
-      ];
+      packages.packages._packages = [ inputs.pkgs.helix ];
     };
   };
 }
