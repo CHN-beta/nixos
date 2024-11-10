@@ -89,36 +89,9 @@ inputs:
               // (
                 inputs.lib.optionalAttrs (nixpkgs.march != null)
                 {
-                  # embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
-                  # libvorbis = prev.libvorbis.override { stdenv = final.genericPackages.stdenv; };
-                  # _7zz = prev._7zz.override { stdenv = final.genericPackages.stdenv; };
-                  # ispc = genericPackages.ispc;
-                  # opencolorio = prev.opencolorio.overrideAttrs { doCheck = false; };
-                  # redis = prev.redis.overrideAttrs { doCheck = false; };
-                  # krita = final.genericPackages.krita;
-                  # geos = prev.geos.overrideAttrs { doCheck = false; };
-                  # c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; };
-                  # binaryen = prev.binaryen.overrideAttrs
-                  #   { cmakeFlags = (prev.cmakeFlags or []) ++ [ "-DCMAKE_CXX_FLAGS=-Wno-maybe-uninitialized" ]; };
-                  # fwupd = prev.fwupd.overrideAttrs { doCheck = false; };
-                  # rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
-                  # scalapack = prev.scalapack.overrideAttrs { doCheck = false; };
-                  # xdg-desktop-portal = prev.xdg-desktop-portal.overrideAttrs (prev:
-                  #   { doCheck = false; nativeBuildInputs = prev.nativeBuildInputs ++ prev.nativeCheckInputs; });
-                  # gsl = prev.gsl.overrideAttrs { doCheck = false; };
-                  # pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [(final: prev:
-                  # {
-                  #   numcodecs = prev.numcodecs.overridePythonAttrs { doCheck = false; };
-                  #   zarr = prev.zarr.overridePythonAttrs (prev:
-                  #     { disabledTests = prev.disabledTests or [] ++ [ "test_encode_decode_array_dtype_shape_v3" ]; });
-                  # })];
-                }
-              )
-              // (
-                inputs.lib.optionalAttrs nixpkgs.cuda.enable
-                {
-                  # waifu2x-converter-cpp = prev.waifu2x-converter-cpp.override
-                  #   { stdenv = final.cudaPackages.backendStdenv; };
+                  # -march=xxx cause embree build failed
+                  # https://github.com/embree/embree/issues/115
+                  embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
                 }
               )
           )];
