@@ -132,16 +132,23 @@ inputs:
         home.file = inputs.lib.mkMerge (builtins.map (file: { "${file}".enable = false; })
           [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ]);
       }];
-      systemd.mounts = builtins.concatLists (builtins.map
-        (user: builtins.map
+      fileSystems = inputs.lib.mkMerge (builtins.map
+        (user: inputs.lib.mkMerge (builtins.map
           (file:
           {
-            what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
-            where = "/home/${user}/${file}";
-            options = "bind";
-            wantedBy = [ "multi-user.target" ];
+            "/home/${user}/${file}" =
+            {
+              device = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
+              options = [ "bind" ];
+            };
           })
-          [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ])
+          [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ]))
+        user.users);
+      users.users = inputs.lib.mkMerge (builtins.map
+        (user: { ${user}.home = "/home/${user}"; })
+        user.users);
+      home-manager.users = inputs.lib.mkMerge (builtins.map
+        (user: { ${user}.home.homeDirectory = "/home/${user}"; })
         user.users);
     }
   ];
