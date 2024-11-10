@@ -66,6 +66,7 @@ inputs:
               group = userName;
               isNormalUser = true;
               shell = inputs.pkgs.zsh;
+              createHome = true;
               extraGroups = inputs.lib.intersectLists [ "users" "video" "audio" ]
                 (builtins.attrNames inputs.config.users.groups);
               # ykman fido credentials list
