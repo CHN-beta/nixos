@@ -12,8 +12,13 @@ inputs:
         DefaultLimitNOFILE=1048576:1048576
       '';
       user.extraConfig = "DefaultTimeoutStopSec=10s";
-      # do not create /var/lib/machines and /var/lib/portables as subvolumes
-      services.systemd-tmpfiles-setup.environment.SYSTEMD_TMPFILES_FORCE_SUBVOL = "0";
+      services =
+      {
+        # do not create /var/lib/machines and /var/lib/portables as subvolumes
+        systemd-tmpfiles-setup.environment.SYSTEMD_TMPFILES_FORCE_SUBVOL = "0";
+        # useless
+        systemd-machine-id-commit.enable = false;
+      };
       # do not clean /tmp
       timers.systemd-tmpfiles-clean.enable = false;
       coredump = { enable = true; extraConfig = "Storage=none"; };
