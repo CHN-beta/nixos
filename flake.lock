@@ -1625,15 +1625,16 @@
     "v-sim": {
       "flake": false,
       "locked": {
-        "lastModified": 1726128818,
-        "narHash": "sha256-DsTsqmboCzTjrykPFde4PyQpjQ2ZW0yUmyWQGkZcYmI=",
+        "lastModified": 1594997908,
+        "narHash": "sha256-+iuu2kuVQEt2CTjo4g/5jnk2ZAllspxujnFuyp7CAMw=",
         "owner": "l_sim",
         "repo": "v_sim",
-        "rev": "8e6b879bcc513d776b31150d7edb4f60049035eb",
+        "rev": "b76501454b489715495a255347d5c7f756e1207f",
         "type": "gitlab"
       },
       "original": {
         "owner": "l_sim",
+        "ref": "master",
         "repo": "v_sim",
         "type": "gitlab"
       }

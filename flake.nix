@@ -48,7 +48,7 @@
     matplotplusplus = { url = "github:alandefreitas/matplotplusplus"; flake = false; };
     nameof = { url = "github:Neargye/nameof"; flake = false; };
     tgbot-cpp = { url = "github:reo7sp/tgbot-cpp"; flake = false; };
-    v-sim = { url = "gitlab:l_sim/v_sim"; flake = false; };
+    v-sim = { url = "gitlab:l_sim/v_sim/master"; flake = false; };
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
     blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
     slate = { url = "github:TheBigWazz/Slate"; flake = false; };

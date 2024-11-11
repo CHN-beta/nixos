@@ -1,21 +1,15 @@
 {
-  stdenv, lib, src,
-  wrapGAppsHook, autoreconfHook, autoconf, libtool, intltool, gettext, automake, gtk-doc, pkg-config, gfortran, libxslt,
-  glib, gtk3, libepoxy, libyaml
+  stdenv, src, wrapGAppsHook3, autoreconfHook, gfortran, gtk3, intltool, gtk-doc, pkg-config, libepoxy, libyaml,
+  libxslt, libGLU, wayland, makeWrapper
 }:
 stdenv.mkDerivation
 {
   name = "v-sim";
   inherit src;
-  buildInputs = [ glib gtk3 libepoxy libyaml ];
-  nativeBuildInputs =
-  [
-    autoreconfHook wrapGAppsHook autoconf libtool intltool gettext automake pkg-config
-    gtk-doc gfortran libxslt.bin
-  ];
+  buildInputs = [ gtk3 libepoxy libyaml libGLU ];
+  nativeBuildInputs = [ autoreconfHook wrapGAppsHook3 gfortran intltool gtk-doc pkg-config libxslt makeWrapper ];
   enableParallelBuilding = true;
-  postPatch =
-  ''
-    ./autogen.sh
-  '';
+  postPatch = "./autogen.sh";
+  dontWrapGApps = true;
+  postFixup = ''wrapProgram $out/bin/v_sim "''${gappsWrapperArgs[@]}" --set GDK_BACKEND x11'';
 }
