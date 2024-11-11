@@ -58,7 +58,7 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu = { type = "nvidia"; nvidia = { dynamicBoost = true; driver = "latest"; }; };
+        gpu = { type = "nvidia"; nvidia = { dynamicBoost = true; driver = "beta"; }; };
         legion = {};
       };
       virtualization =
