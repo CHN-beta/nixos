@@ -47,8 +47,8 @@ inputs:
               let packages = with inputs.pkgs;
               {
                 # TODO: import from nixos-hardware instead
-                intel =
-                  [ (intel-vaapi-driver.override { enableHybridCodec = true; }) libvdpau-va-gl intel-media-driver ];
+                # enableHybridCodec is only needed for some old intel gpus (Atom, Nxxx, etc)
+                intel = [ intel-vaapi-driver libvdpau-va-gl intel-media-driver ];
                 nvidia = [ vaapiVdpau ];
                 amd = [];
               };
