@@ -127,11 +127,13 @@ inputs:
     (inputs.lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
     # disable symlinks directly under home created by home-manager, use bind-mount instead
     {
-      nixos.user.sharedModules =
-      [{
-        home.file = inputs.lib.mkMerge (builtins.map (file: { "${file}".enable = false; })
-          [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ]);
-      }];
+      home-manager.users = inputs.lib.mkMerge (builtins.map
+        (user:
+        {
+          ${user}.home.file = inputs.lib.mkMerge (builtins.map (file: { "${file}".enable = false; })
+            [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ]);
+        })
+        user.users);
       systemd.mounts = builtins.concatLists (builtins.map
         (user: builtins.map
           (file:
