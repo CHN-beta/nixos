@@ -46,6 +46,8 @@ inputs:
         keep-going = true;
         keep-outputs = true;
       };
+      # TODO: remove after https://github.com/NixOS/nix/pull/10153 get merged
+      nix.package = inputs.pkgs.nixVersions.nix_2_18;
       systemd.services.nix-daemon = { serviceConfig.CacheDirectory = "nix"; environment.TMPDIR = "/var/cache/nix"; };
     }
     # nix daemon use lower io/cpu priority
