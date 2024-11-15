@@ -140,27 +140,23 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
     };
-    boot =
+    boot.loader.grub =
     {
-      kernelParams = [ "acpi_osi=!" ''acpi_osi="Windows 2015"'' ];
-      loader.grub =
+      extraFiles =
       {
-        extraFiles =
-        {
-          "DisplayEngine.efi" = ./bios/DisplayEngine.efi;
-          "SetupBrowser.efi" = ./bios/SetupBrowser.efi;
-          "UiApp.efi" = ./bios/UiApp.efi;
-          "EFI/Boot/Bootx64.efi" = ./bios/Bootx64.efi;
-        };
-        extraEntries = 
-        ''
-          menuentry 'Advanced UEFI Firmware Settings' {
-            insmod fat
-            insmod chain
-            chainloader @bootRoot@/EFI/Boot/Bootx64.efi
-          }
-        '';
+        "DisplayEngine.efi" = ./bios/DisplayEngine.efi;
+        "SetupBrowser.efi" = ./bios/SetupBrowser.efi;
+        "UiApp.efi" = ./bios/UiApp.efi;
+        "EFI/Boot/Bootx64.efi" = ./bios/Bootx64.efi;
       };
+      extraEntries = 
+      ''
+        menuentry 'Advanced UEFI Firmware Settings' {
+          insmod fat
+          insmod chain
+          chainloader @bootRoot@/EFI/Boot/Bootx64.efi
+        }
+      '';
     };
     # 禁止鼠标等在睡眠时唤醒
     services.udev.extraRules = ''ACTION=="add", ATTR{power/wakeup}="disabled"'';
