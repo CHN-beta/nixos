@@ -84,6 +84,7 @@ inputs:
           lighthouse = true;
         };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 64; };
+        murmur = {};
       };
     };
     specialisation.generic.configuration =
