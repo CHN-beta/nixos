@@ -173,16 +173,6 @@ inputs:
     };
     specialisation =
     {
-      hybrid.configuration =
-      {
-        nixos =
-        {
-          hardware.gpu =
-            { type = inputs.lib.mkForce "amd+nvidia"; nvidia.prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; };
-          services.gamemode.drmDevice = inputs.lib.mkForce 1;
-        };
-        system.nixos.tags = [ "hybrid" ];
-      };
       xanmod.configuration =
       {
         nixos.system.kernel.variant = inputs.lib.mkForce "xanmod-latest";
