@@ -35,8 +35,13 @@ inputs:
             qemu.runAsRoot = false;
             onBoot = "ignore";
             onShutdown = "shutdown";
+            shutdownTimeout = 30;
             parallelShutdown = 4;
-            qemu.ovmf.packages = with inputs.pkgs; [ OVMF.fd pkgsCross.aarch64-multiplatform.OVMF.fd ];
+            qemu =
+            {
+              ovmf.packages = with inputs.pkgs; [ OVMF.fd pkgsCross.aarch64-multiplatform.OVMF.fd ];
+              swtpm.enable = true;
+            };
           };
           spiceUSBRedirection.enable = true;
         };
