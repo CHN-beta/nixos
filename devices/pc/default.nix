@@ -178,16 +178,6 @@ inputs:
         nixos.system.kernel.variant = inputs.lib.mkForce "xanmod-latest";
         system.nixos.tags = [ "xanmod" ];
       };
-      # try amd graphic card passthrough
-      amd-passthru.configuration =
-      {
-        system.nixos.tags = [ "amd-passthru" ];
-        boot =
-        {
-          kernelParams = [ "amd_iommu=pt" "vfio-pci.ids=1002:164e" ];
-          initrd.kernelModules = [ "vfio_pci" "vfio" "vfio_iommu_type1" ];
-        };
-      };
     };
   };
 }
