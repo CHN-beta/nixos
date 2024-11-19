@@ -66,10 +66,6 @@ inputs:
           };
         };
         boot.blacklistedKernelModules = [ "nouveau" ];
-        environment.variables =
-          if builtins.elem "nvidia" gpus then { VDPAU_DRIVER = "nvidia"; }
-          else if builtins.elem "intel" gpus then { VDPAU_DRIVER = "va_gl"; }
-          else {};
         services.xserver.videoDrivers =
           let driver = { intel = "modesetting"; amd = "amdgpu"; nvidia = "nvidia"; };
           in builtins.map (gpu: driver.${gpu}) gpus;
