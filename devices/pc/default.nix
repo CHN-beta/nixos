@@ -178,7 +178,7 @@ inputs:
           [ "BPD-paper" "kurumi-asmr" "BPD-paper-old" "SiC-20240705" ];
       };
       sessionVariables.KWIN_DRM_DEVICES =
-        "/dev/dri/by-path/pci-0000\:01\:00.0-card:/dev/dri/by-path/pci-0000\:06\:00.0-card";
+        ''/dev/dri/by-path/pci-0000\:01\:00.0-card:/dev/dri/by-path/pci-0000\:06\:00.0-card'';
     };
     specialisation =
     {
