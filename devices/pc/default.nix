@@ -168,17 +168,18 @@ inputs:
     users.users.qemu-libvirtd.extraGroups = [ "disk" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
-    environment =
+    environment.persistence."/nix/archive" =
     {
-      persistence."/nix/archive" =
-      {
-        hideMounts = true;
-        users.chn.directories = builtins.map
-          (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
-          [ "BPD-paper" "kurumi-asmr" "BPD-paper-old" "SiC-20240705" ];
-      };
-      sessionVariables.KWIN_DRM_DEVICES =
+      hideMounts = true;
+      users.chn.directories = builtins.map
+        (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
+        [ "BPD-paper" "kurumi-asmr" "BPD-paper-old" "SiC-20240705" ];
+    };
+    systemd.user.services.plasma-kwin_wayland =
+    {
+      environment.KWIN_DRM_DEVICES =
         ''/dev/dri/by-path/pci-0000\:01\:00.0-card:/dev/dri/by-path/pci-0000\:06\:00.0-card'';
+      overrideStrategy = "asDropin";
     };
     specialisation =
     {
