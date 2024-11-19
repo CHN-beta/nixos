@@ -68,6 +68,7 @@
     blog = { url = "git+https://git.chn.moe/chn/blog-public.git"; flake = false; };
     nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };
     spectroscopy = { url = "github:skelton-group/Phonopy-Spectroscopy"; flake = false; };
+    vaspberry = { url = "github:Infant83/VASPBERRY"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib.nix inputs.nixpkgs.lib; in

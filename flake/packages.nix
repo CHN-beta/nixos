@@ -23,6 +23,11 @@
     };
   chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
   blog = pkgs.callPackage inputs.blog { inherit (inputs) hextra; };
+  vaspberry = pkgs.pkgsStatic.localPackages.vaspberry.override
+  {
+    gfortran = pkgs.pkgsStatic.gfortran;
+    lapack = pkgs.pkgsStatic.openblas;
+  };
 }
 // (builtins.listToAttrs (builtins.map
   (system: { inherit (system) name; value = system.value.config.system.build.toplevel; })

@@ -1310,6 +1310,7 @@
         "sqlite-orm": "sqlite-orm",
         "tgbot-cpp": "tgbot-cpp",
         "v-sim": "v-sim",
+        "vaspberry": "vaspberry",
         "winapps": "winapps",
         "zpp-bits": "zpp-bits"
       }
@@ -1637,6 +1638,22 @@
         "ref": "master",
         "repo": "v_sim",
         "type": "gitlab"
+      }
+    },
+    "vaspberry": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1724474006,
+        "narHash": "sha256-3cmidQRusbEdEog6e6Qe0IKBRpscrX2ghU/HApaNcys=",
+        "owner": "Infant83",
+        "repo": "VASPBERRY",
+        "rev": "3b5efc9ed6b748b1149278748024ffeb140ecfdb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Infant83",
+        "repo": "VASPBERRY",
+        "type": "github"
       }
     },
     "winapps": {
