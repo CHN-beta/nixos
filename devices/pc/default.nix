@@ -175,6 +175,18 @@ inputs:
         (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
         [ "BPD-paper" "kurumi-asmr" "BPD-paper-old" "SiC-20240705" ];
     };
+    # kwin 使用 nvidia 显卡
+    systemd.user.services.plasma-kwin_wayland =
+    {
+      environment =
+      {
+        __NV_PRIME_RENDER_OFFLOAD = "1";
+        __NV_PRIME_RENDER_OFFLOAD_PROVIDER = "NVIDIA-G0";
+        __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+        __VK_LAYER_NV_optimus = "NVIDIA_only";
+      };
+      overrideStrategy = "asDropin";
+    };
     specialisation =
     {
       xanmod.configuration =
