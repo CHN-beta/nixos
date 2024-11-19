@@ -37,6 +37,9 @@ fi
 if [ -z "${BASHRC_SOURCED-}" ]; then
 	export PATH=$HPCSTAT_SSH_BINDIR:$PATH:$HOME/bin:$HOME/linwei/chn/software/scripts
 	export BASHRC_SOURCED=1
+	if [ "${HPCSTAT_SUBACCOUNT}" == "lyj" ]; then
+		export PATH=$HOME/wuyaping/lyj/bin:$PATH
+	fi
 fi
 
 [ -n "$CHN_LS_USE_COLOR" ] && alias ls="ls --color=auto"
