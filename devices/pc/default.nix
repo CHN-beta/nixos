@@ -58,11 +58,7 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu =
-        {
-          type = "amd+nvidia";
-          nvidia = { dynamicBoost = true; driver = "beta"; prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; };
-        };
+        gpu = { type = "nvidia"; nvidia = { dynamicBoost = true; driver = "beta"; }; };
         legion = {};
       };
       virtualization =
@@ -122,7 +118,7 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
-        gamemode = { enable = true; drmDevice = 1; };
+        gamemode = { enable = true; drmDevice = 0; };
         slurm =
         {
           enable = true;
@@ -174,12 +170,6 @@ inputs:
       users.chn.directories = builtins.map
         (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
         [ "BPD-paper" "kurumi-asmr" "BPD-paper-old" "SiC-20240705" ];
-    };
-    systemd.user.services.plasma-kwin_wayland =
-    {
-      environment.KWIN_DRM_DEVICES =
-        ''/dev/dri/by-path/pci-0000\:01\:00.0-card:/dev/dri/by-path/pci-0000\:06\:00.0-card'';
-      overrideStrategy = "asDropin";
     };
     specialisation =
     {
