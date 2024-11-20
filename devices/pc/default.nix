@@ -92,10 +92,7 @@ inputs:
               [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
             ++ (builtins.map
               (name: { inherit name; value = "0.0.0.0"; })
-              [
-                "log-upload.mihoyo.com" "uspider.yuanshen.com" "ys-log-upload.mihoyo.com"
-                "dispatchcnglobal.yuanshen.com"
-              ])
+              [ "log-upload.mihoyo.com" "uspider.yuanshen.com" "ys-log-upload.mihoyo.com" ])
             ++ [{ name = "4006024680.com"; value = "192.168.199.1"; }]
           );
         };
