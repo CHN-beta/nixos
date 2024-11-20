@@ -6,12 +6,8 @@
     nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-24.11";
     "nixpkgs-23.11".url = "github:CHN-beta/nixpkgs/nixos-23.11";
     "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
-    home-manager = { url = "github:nix-community/home-manager"; inputs.nixpkgs.follows = "nixpkgs"; };
-    sops-nix =
-    {
-      url = "github:Mic92/sops-nix";
-      inputs = { nixpkgs.follows = "nixpkgs"; nixpkgs-stable.follows = "nixpkgs"; };
-    };
+    home-manager = { url = "github:nix-community/home-manager/release-24.11"; inputs.nixpkgs.follows = "nixpkgs"; };
+    sops-nix = { url = "github:Mic92/sops-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
     nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-vscode-extensions = { url = "github:nix-community/nix-vscode-extensions"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -36,7 +32,7 @@
     bscpkgs = { url = "git+https://git.chn.moe/chn/bscpkgs.git"; inputs.nixpkgs.follows = "nixpkgs"; };
     poetry2nix = { url = "github:nix-community/poetry2nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     winapps = { url = "github:winapps-org/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
-    aagl = { url = "github:ezKEa/aagl-gtk-on-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
+    aagl = { url = "github:ezKEa/aagl-gtk-on-nix/release-24.11"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
