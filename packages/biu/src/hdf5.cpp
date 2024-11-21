@@ -1,3 +1,4 @@
+# define BIU_INTERNAL
 # include <biu.hpp>
 
 namespace biu::hdf5

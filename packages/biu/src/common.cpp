@@ -1,6 +1,7 @@
 # include <future>
 # include <utility>
 # include <cstdio>
+# define BIU_INTERNAL
 # include <biu.hpp>
 # include <boost/process.hpp>
 # include <boost/preprocessor.hpp>

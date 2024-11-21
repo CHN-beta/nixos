@@ -28,7 +28,7 @@ find_package(concurrencpp REQUIRED)
 find_path(POCKETFFT_INCLUDE_DIR pocketfft.h REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
-add_library(biu src/common.cpp src/hdf5.cpp src/logger.cpp src/string.cpp)
+add_library(biu src/common.cpp src/hdf5.cpp src/string.cpp)
 target_include_directories(biu PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> ${NAMEOF_INCLUDE_DIR} ${ZPP_BITS_INCLUDE_DIR}
   ${LIBBACKTRACE_INCLUDE_DIR} ${POCKETFFT_INCLUDE_DIR})

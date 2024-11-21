@@ -1,6 +1,7 @@
 # pragma once
 # define BOOST_STACKTRACE_USE_BACKTRACE
 # include <fmt/chrono.h>
+# include <tgbot/tgbot.h>
 # include <biu/logger.hpp>
 # include <biu/common.hpp>
 # include <biu/format.hpp>
@@ -17,6 +18,27 @@ namespace biu
 		Logger::Level::Debug
 # endif
 	};
+	inline void Logger::init(std::experimental::observer_ptr<std::ostream> stream, Level level)
+		{ LoggerConfig_ = LoggerConfigType_{stream, nullptr, level}; }
+	inline void Logger::init(std::shared_ptr<std::ostream> stream, Level level)
+	{
+		LoggerConfig_ = LoggerConfigType_
+			{std::experimental::make_observer(stream.get()), stream, level};
+	}
+	inline Atomic<std::optional<std::pair<std::string, std::string>>> Logger::TelegramConfig_;
+	inline void Logger::telegram_init(const std::string& token, const std::string& chat_id)
+		{ TelegramConfig_ = std::make_pair(token, chat_id); }
+	inline void Logger::telegram_notify(const std::string& message, bool async)
+	{
+		auto notify = [](const std::string& message)
+		{
+			auto&& lock = TelegramConfig_.lock();
+			TgBot::Bot bot(lock.value()->first);
+			bot.getApi().sendMessage(lock.value()->first, message);
+		};
+		if (async) std::thread(notify, message).detach();
+		else notify(message);
+	}
 	template <typename T> Logger::ObjectMonitor<T>::ObjectMonitor()
 		: CreateTime_{std::chrono::steady_clock::now()}
 	{
@@ -39,6 +61,7 @@ namespace biu
 			{ lock->erase(it); return; }
 		guard.error("{} {} not found in Logger::Objects."_f(fmt::ptr(this), nameof::nameof_full_type<T>()));
 	}
+	inline Atomic<std::multimap<const void*, std::string_view>> Logger::Objects_;
 
 	template <typename FinalException> Logger::Exception<FinalException>::Exception(const std::string& message)
 	{
@@ -46,6 +69,14 @@ namespace biu
 		log.print_exception(nameof::nameof_full_type<FinalException>(), message, Stacktrace_, {});
 	}
 
+	inline thread_local unsigned Logger::Guard::Indent_ = 0;
+	inline std::size_t Logger::Guard::get_time_ms() const
+	{
+		return std::chrono::duration_cast<std::chrono::milliseconds>
+			(std::chrono::steady_clock::now() - StartTime_).count();
+	}
+	inline std::size_t Logger::Guard::get_thread_id() const
+		{ return std::hash<std::thread::id>{}(std::this_thread::get_id()); }
 	template <typename... Param> Logger::Guard::Guard(Param&&... param)
 		: StartTime_{std::chrono::steady_clock::now()}
 	{
@@ -119,4 +150,6 @@ namespace biu
 			*lock->Stream << std::flush;
 		}
 	}
+
+	inline Atomic<std::map<std::size_t, std::size_t>> Logger::Threads_;
 }
