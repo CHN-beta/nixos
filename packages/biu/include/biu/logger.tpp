@@ -118,7 +118,7 @@ namespace biu
 # 	else
 			auto source_file = stack[0].source_file();
 # 	endif
-			*lock->Stream << "[ {:%T} {:02x} {:02} {}:{} {} ] {}\n"_f
+			*lock->Stream << "[ {:%T} {:02x} {:02} ] {} (at {}:{} {} )\n"_f
 			(
 				time,
 				get_thread_id() % std::numeric_limits<std::uint16_t>::max(),
