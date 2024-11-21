@@ -5,24 +5,28 @@
     inputsFrom = [ pkgs.localPackages.biu ];
     packages = [ pkgs.clang-tools_18 ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+    hardeningDisable = [ "all" ];
   };
   hpcstat = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
   {
     inputsFrom = [ (pkgs.localPackages.hpcstat.override { version = null; }) ];
     packages = [ pkgs.clang-tools_18 ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+    hardeningDisable = [ "all" ];
   };
   sbatch-tui = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
   {
     inputsFrom = [ pkgs.localPackages.sbatch-tui ];
     packages = [ pkgs.clang-tools_18 ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+    hardeningDisable = [ "all" ];
   };
   ufo = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
   {
     inputsFrom = [ pkgs.localPackages.ufo ];
     packages = [ pkgs.clang-tools_18 ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+    hardeningDisable = [ "all" ];
   };
   chn-bsub = pkgs.mkShell
   {
