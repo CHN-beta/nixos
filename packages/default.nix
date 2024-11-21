@@ -76,7 +76,7 @@ inputs: rec
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm.nix { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
   sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
-  ufo = inputs.pkgs.callPackage ./ufo
+  ufo = inputs.pkgs.callPackage inputs.topInputs.ufo
   {
     inherit biu matplotplusplus;
     tbb = inputs.pkgs.tbb_2021_11;

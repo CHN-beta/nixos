@@ -1309,6 +1309,7 @@
         "spectroscopy": "spectroscopy",
         "sqlite-orm": "sqlite-orm",
         "tgbot-cpp": "tgbot-cpp",
+        "ufo": "ufo",
         "v-sim": "v-sim",
         "vaspberry": "vaspberry",
         "winapps": "winapps",
@@ -1621,6 +1622,22 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "type": "github"
+      }
+    },
+    "ufo": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1732177086,
+        "narHash": "sha256-zmrzTQGXkR54igJUhYp0pFqS2RdV69Wi/wgyFME/K+E=",
+        "ref": "refs/heads/main",
+        "rev": "28e4d29f2c70d1f3b80a092b75b81a4793455980",
+        "revCount": 65,
+        "type": "git",
+        "url": "https://git.chn.moe/chn/ufo.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.chn.moe/chn/ufo.git"
       }
     },
     "v-sim": {
