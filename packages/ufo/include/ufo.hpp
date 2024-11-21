@@ -15,8 +15,10 @@ namespace ufo
   void unfold(std::string config_file);
   void plot_band(std::string config_file);
   void plot_point(std::string config_file);
+  void raman_create_displacement(std::string config_file);
+  void raman_apply_contribution(std::string config_file);
 
-  // unfold 和 plot 都需要用到这个，所以写出来
+  // 许多函数都需要用到这个，所以写到头文件中
   struct UnfoldOutput
   {
     Eigen::Matrix3d PrimativeCell;

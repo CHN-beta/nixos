@@ -14,7 +14,7 @@ find_package(Matplot++ REQUIRED)
 find_package(biu REQUIRED)
 find_package(Threads REQUIRED)
 
-add_executable(ufo src/fold.cpp src/unfold.cpp src/plot.cpp src/main.cpp)
+add_executable(ufo src/fold.cpp src/unfold.cpp src/plot.cpp src/raman-create-displacement.cpp src/main.cpp)
 target_include_directories(ufo PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(ufo PRIVATE TBB::tbb Matplot++::matplot biu::biu)
 target_compile_features(ufo PRIVATE cxx_std_23)
