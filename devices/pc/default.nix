@@ -58,7 +58,11 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu = { type = "nvidia"; nvidia = { dynamicBoost = true; driver = "beta"; }; };
+        gpu =
+        {
+          type = "amd+nvidia";
+          nvidia = { dynamicBoost = true; driver = "beta"; prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; };
+        };
         legion = {};
       };
       virtualization =
@@ -115,7 +119,7 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
-        gamemode = { enable = true; drmDevice = 0; };
+        gamemode = { enable = true; drmDevice = 1; };
         slurm =
         {
           enable = true;
