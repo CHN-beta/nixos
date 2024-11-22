@@ -58,7 +58,15 @@ inputs: rec
         enableStatic = true;
       };
     };
-    hdf5-nvhpc = inputs.pkgs.callPackage ./vasp/hdf5-nvhpc { inherit lmod nvhpc; inherit (inputs.pkgs.hdf5) src; };
+    hdf5-nvhpc = (inputs.pkgs.hdf5.override
+    {
+      stdenv = nvhpcStdenv;
+      cppSupport = false;
+      fortranSupport = true;
+      enableShared = false;
+      enableStatic = true;
+    # }).overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs or [] ++ [ inputs.pkgs.cudaPackages.cudatoolkit ]; });
+    }).overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs or [] ++ []; });
     vtst = (inputs.pkgs.callPackage ./vasp/vtst.nix {});
     vtstscripts = inputs.pkgs.callPackage ./vasp/vtstscripts.nix {};
   };
@@ -92,6 +100,19 @@ inputs: rec
   spectroscopy = inputs.pkgs.callPackage ./spectroscopy.nix { src = inputs.topInputs.spectroscopy; };
   mirism = inputs.pkgs.callPackage ./mirism { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   vaspberry = inputs.pkgs.callPackage ./vaspberry.nix { src = inputs.topInputs.vaspberry; };
+  nvhpcStdenv = inputs.pkgs.callPackage ./nvhpcStdenv.nix { src = inputs.topInputs.self.src.nvhpc; };
+  fmt-nvhpc = inputs.pkgs.fmt.override { stdenv = nvhpcStdenv; };
+  gccFull = inputs.pkgs.symlinkJoin
+  {
+    name = "gcc";
+    paths = with inputs.pkgs;
+    [
+      # wrapped binaries
+      gcc gfortran glibc glibc.dev binutils iconv
+      # not wrapped binaries
+      gcc.cc gcc.cc.lib gfortran.cc binutils.bintools
+    ];
+  };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
