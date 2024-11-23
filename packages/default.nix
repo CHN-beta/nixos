@@ -100,7 +100,13 @@ inputs: rec
   spectroscopy = inputs.pkgs.callPackage ./spectroscopy.nix { src = inputs.topInputs.spectroscopy; };
   mirism = inputs.pkgs.callPackage ./mirism { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   vaspberry = inputs.pkgs.callPackage ./vaspberry.nix { src = inputs.topInputs.vaspberry; };
-  nvhpcStdenv = inputs.pkgs.callPackage ./nvhpcStdenv.nix { src = inputs.topInputs.self.src.nvhpc; };
+  nvhpcStdenv = inputs.pkgs.callPackage ./nvhpcStdenv.nix
+  {
+    src = inputs.topInputs.self.src.nvhpc;
+    # stdenv = inputs.pkgs.cudaPackages.backendStdenv;
+    # gcc = inputs.pkgs.cudaPackages.backendStdenv.cc;
+    # gfortran = inputs.pkgs.cudaPackages.backendStdenv.cc.version
+  };
   fmt-nvhpc = inputs.pkgs.fmt.override { stdenv = nvhpcStdenv; };
   gccFull = inputs.pkgs.symlinkJoin
   {
