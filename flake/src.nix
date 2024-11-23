@@ -5,8 +5,8 @@
   {
     src = pkgs.fetchurl
     {
-      url = "https://developer.download.nvidia.com/hpc-sdk/24.11/nvhpc_2024_2411_Linux_x86_64_cuda_12.6.tar.gz";
-      sha256 = "080rb89p2z98b75wqssvp3s8x6b5n0556d0zskh3cfapcb08lh1r";
+      url = "https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64/nvhpc-24-11_24.11-0_amd64.deb";
+      sha256 = "0xzfgdz7s8kzxmcm3k6n9nqd0isfzj23nxfq0y3ca9f046gp4zp3";
     };
     version = "24.11";
   };
