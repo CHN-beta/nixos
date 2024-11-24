@@ -46,4 +46,31 @@ namespace biu::common
     return sequence(from, to);
   }
   template <typename T> T& detail_::operator|(T&& obj, const ToLvalueHelper&) { return static_cast<T&>(obj); }
+
+  template <typename Function, typename T, typename... Ts> void for_each(Function&& function, T&& arg, Ts&&... args)
+  {
+    if constexpr (sizeof...(Ts) == 0)
+    {
+      [&]<std::size_t... Is>(std::index_sequence<Is...>)
+        { (std::forward<Function>(function)(std::get<Is>(std::forward<T>(arg))) , ...); }
+        (std::make_index_sequence<sizeof...(Ts)>{});
+    }
+    else
+    {
+      [&]<typename Tuple, std::size_t... Is>(std::index_sequence<Is...>, Tuple&& tuple)
+      {
+        ([&]<std::size_t I, std::size_t... Js>(std::index_sequence<Js...>) -> decltype(auto)
+        {
+          std::apply
+          (
+            std::forward<Function>(function),
+            std::forward_as_tuple(std::get<I>(std::get<Js>(std::forward<Tuple>(tuple)))...));
+        }.template operator()<Is>(std::make_index_sequence<std::tuple_size_v<Tuple>>{}), ...);
+      }
+      (
+        std::make_index_sequence<std::tuple_size_v<T>>{},
+        std::forward_as_tuple(std::forward<T>(arg), std::forward<Ts>(args)...)
+      );
+    }
+  }
 }
