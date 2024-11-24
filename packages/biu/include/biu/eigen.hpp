@@ -81,8 +81,8 @@ namespace biu
     namespace detail_
     {
       template <typename Matrix> class EigenMatrix : public std::false_type {};
-      template <typename Scalar, int Rows, int Cols, int Options>
-        class EigenMatrix<Eigen::Matrix<Scalar, Rows, Cols, Options>> : public std::true_type {};
+      template <typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
+        class EigenMatrix<Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols>> : public std::true_type {};
     }
     template <typename Matrix> concept EigenMatrix = detail_::EigenMatrix<Matrix>::value;
   }

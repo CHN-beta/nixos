@@ -2,6 +2,7 @@
 # include <utility>
 # include <biu/eigen.hpp>
 # include <biu/common.hpp>
+# include <biu/format.hpp>
 # include <range/v3/view.hpp>
 # include <zpp_bits.h>
 
@@ -304,3 +305,15 @@ template <typename Matrix> constexpr auto Eigen::serialize(auto & archive, Matri
     return result;
   }
 }
+template <typename Matrix, typename Char> requires
+(
+  biu::EigenMatrix<std::remove_cvref_t<Matrix>>
+    // should not be vector, vector is handled by fmt ranges
+    && []
+    {
+      constexpr auto nrows = Matrix::CompileTimeTraits::RowsAtCompileTime,
+        ncols = Matrix::CompileTimeTraits::ColsAtCompileTime;
+      return (nrows == Eigen::Dynamic || nrows > 1) && (ncols == Eigen::Dynamic || ncols > 1);
+    }()
+)
+  struct fmt::formatter<Matrix, Char> : fmt::basic_ostream_formatter<Char> {};
