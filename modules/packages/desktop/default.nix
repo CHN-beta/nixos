@@ -65,9 +65,13 @@ inputs:
           google-chrome tor-browser microsoft-edge
           # office
           crow-translate zotero pandoc libreoffice-qt texliveFull poppler_utils pdftk pdfchain davinci-resolve
-          # TODO: enable in next release
-          # hdfview
           ydict texstudio
+          # TODO: remove override in next update
+          (panoply.overrideAttrs { src = inputs.pkgs.fetchurl
+          {
+            url = "https://www.giss.nasa.gov/tools/panoply/download/PanoplyJ-5.5.5.tgz";
+            hash = "sha256-rvJ3pyAbHI2/g3v+eKQF0Q9mx6+lLozaB8CLAAzOXRs=";
+          };})
           # matplot++ needs old gnuplot
           inputs.pkgs."pkgs-23.11".gnuplot
           # math, physics and chemistry
