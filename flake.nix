@@ -70,6 +70,7 @@
     spectroscopy = { url = "github:skelton-group/Phonopy-Spectroscopy"; flake = false; };
     vaspberry = { url = "github:Infant83/VASPBERRY"; flake = false; };
     ufo = { url = "git+https://git.chn.moe/chn/ufo.git"; flake = false; };
+    highfive = { url = "git+https://github.com/CHN-beta/HighFive?submodules=1"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib.nix inputs.nixpkgs.lib; in
