@@ -8,20 +8,14 @@ inputs:
       default = "xanmod-lts";
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-    modules =
-    {
-      install = mkOption { type = types.listOf types.str; default = []; };
-      load = mkOption { type = types.listOf types.str; default = []; };
-      initrd = mkOption { type = types.listOf types.str; default = []; };
-      modprobeConfig = mkOption { type = types.listOf types.str; default = []; };
-    };
+    modules.modprobeConfig = mkOption { type = types.listOf types.str; default = []; };
   };
   config = let inherit (inputs.config.nixos.system) kernel; in inputs.lib.mkMerge
   [
     {
       boot =
       {
-        kernelModules = [ "br_netfilter" ] ++ kernel.modules.load;
+        kernelModules = [ "br_netfilter" ];
         # modprobe --show-depends
         initrd.availableKernelModules =
         [
@@ -41,7 +35,7 @@ inputs:
         ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ])
         # for pi3b to show message over hdmi while boot
         ++ (inputs.lib.optionals (kernel.variant == "nixos") [ "vc4" "bcm2835_dma" "i2c_bcm2835" ]);
-        extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;
+        extraModulePackages = with inputs.config.boot.kernelPackages; [ v4l2loopback zenpower ];
         extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
         kernelParams = [ "delayacct" ];
         kernelPackages =
