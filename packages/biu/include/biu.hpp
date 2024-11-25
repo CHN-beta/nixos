@@ -7,7 +7,10 @@
 # include <biu/format.tpp>
 # include <biu/eigen.tpp>
 # include <biu/hdf5.tpp>
-# include <biu/logger.tpp>
+# ifndef BIU_INTERNAL
+// while building the library, the logger should not be included, to ensure inline members are not compiled
+#   include <biu/logger.tpp>
+# endif
 # include <biu/smartref.tpp>
 # include <biu/fft.tpp>
 # include <biu/yaml.tpp>

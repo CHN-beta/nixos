@@ -16,7 +16,7 @@ inputs:
           # system management
           # TODO: module should add yubikey-touch-detector into path
           gparted wayland-utils clinfo glxinfo vulkan-tools dracut yubikey-touch-detector btrfs-assistant snapper-gui
-          kdePackages.qtstyleplugin-kvantum ventoy-full cpu-x wl-mirror geekbench
+          kdePackages.qtstyleplugin-kvantum ventoy-full cpu-x wl-mirror geekbench xpra
           (
             writeShellScriptBin "xclip"
             ''
@@ -65,9 +65,13 @@ inputs:
           google-chrome tor-browser microsoft-edge
           # office
           crow-translate zotero pandoc libreoffice-qt texliveFull poppler_utils pdftk pdfchain davinci-resolve
-          # TODO: enable in next release
-          # hdfview
           ydict texstudio
+          # TODO: remove override in next update
+          (panoply.overrideAttrs { src = inputs.pkgs.fetchurl
+          {
+            url = "https://www.giss.nasa.gov/tools/panoply/download/PanoplyJ-5.5.5.tgz";
+            hash = "sha256-rvJ3pyAbHI2/g3v+eKQF0Q9mx6+lLozaB8CLAAzOXRs=";
+          };})
           # matplot++ needs old gnuplot
           inputs.pkgs."pkgs-23.11".gnuplot
           # math, physics and chemistry

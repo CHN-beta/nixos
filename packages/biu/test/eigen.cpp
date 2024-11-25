@@ -26,4 +26,7 @@ int main()
   auto e = biu::deserialize<decltype(c)>(biu::serialize(c));
   static_assert(std::same_as<decltype(e), decltype(c)>);
   assert(c == e);
+
+  auto i = "{}"_f(a);
+  auto j = "{}"_f(c);
 }

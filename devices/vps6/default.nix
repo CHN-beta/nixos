@@ -68,6 +68,7 @@ inputs:
             main.enable = true;
             nekomia.enable = true;
             blog = {};
+            sticker = {};
           };
         };
         coturn = {};

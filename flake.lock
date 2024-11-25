@@ -549,6 +549,24 @@
         "type": "github"
       }
     },
+    "highfive": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1732469115,
+        "narHash": "sha256-C9gcLlhDd1iJlkW0DtMOi/4leUfo4Phhi9U+xiH/cQw=",
+        "ref": "refs/heads/master",
+        "rev": "7f3c91e9a3eff5856f93e61ff1b61060fcfcc636",
+        "revCount": 722,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/CHN-beta/HighFive"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/CHN-beta/HighFive"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -674,11 +692,11 @@
     "misskey": {
       "flake": false,
       "locked": {
-        "lastModified": 1729490489,
-        "narHash": "sha256-pYL5gN79GC3GZwjsWG5ufkYGVIg2SHe1ZckJqmUD3MI=",
+        "lastModified": 1732375939,
+        "narHash": "sha256-ZlyBBJniDJ8yS3ALMQ9gfsVUDTzp/U4Pr3SOtE5FttY=",
         "ref": "refs/heads/chn-mod",
-        "rev": "7aa5ed4066b0f48c808defaa0772dd6d703c80fa",
-        "revCount": 26236,
+        "rev": "bb3ae0b9c84126dada9ce7e13a42962a8889eba8",
+        "revCount": 26357,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/CHN-beta/misskey"
@@ -1276,6 +1294,7 @@
         "git-lfs-transfer": "git-lfs-transfer",
         "gricad": "gricad",
         "hextra": "hextra",
+        "highfive": "highfive",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lepton": "lepton",
@@ -1310,7 +1329,9 @@
         "sops-nix": "sops-nix",
         "spectroscopy": "spectroscopy",
         "sqlite-orm": "sqlite-orm",
+        "stickerpicker": "stickerpicker",
         "tgbot-cpp": "tgbot-cpp",
+        "ufo": "ufo",
         "v-sim": "v-sim",
         "vaspberry": "vaspberry",
         "winapps": "winapps",
@@ -1430,6 +1451,22 @@
       "original": {
         "owner": "fnc12",
         "repo": "sqlite_orm",
+        "type": "github"
+      }
+    },
+    "stickerpicker": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1718796561,
+        "narHash": "sha256-RKAAHve17lrJokgAPkM2k/E+f9djencwwg3Xcd70Yfw=",
+        "owner": "maunium",
+        "repo": "stickerpicker",
+        "rev": "333567f481e60443360aa7199d481e1a45b3a523",
+        "type": "github"
+      },
+      "original": {
+        "owner": "maunium",
+        "repo": "stickerpicker",
         "type": "github"
       }
     },
@@ -1620,6 +1657,22 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "type": "github"
+      }
+    },
+    "ufo": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1732177086,
+        "narHash": "sha256-zmrzTQGXkR54igJUhYp0pFqS2RdV69Wi/wgyFME/K+E=",
+        "ref": "refs/heads/main",
+        "rev": "28e4d29f2c70d1f3b80a092b75b81a4793455980",
+        "revCount": 65,
+        "type": "git",
+        "url": "https://git.chn.moe/chn/ufo.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.chn.moe/chn/ufo.git"
       }
     },
     "v-sim": {

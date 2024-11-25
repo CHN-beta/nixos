@@ -58,7 +58,11 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu = { type = "nvidia"; nvidia = { dynamicBoost = true; driver = "beta"; }; };
+        gpu =
+        {
+          type = "amd+nvidia";
+          nvidia = { dynamicBoost = true; driver = "beta"; prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; };
+        };
         legion = {};
       };
       virtualization =
@@ -92,7 +96,10 @@ inputs:
               [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
             ++ (builtins.map
               (name: { inherit name; value = "0.0.0.0"; })
-              [ "log-upload.mihoyo.com" "uspider.yuanshen.com" "ys-log-upload.mihoyo.com" ])
+              [
+                "log-upload.mihoyo.com" "uspider.yuanshen.com" "ys-log-upload.mihoyo.com"
+                "dispatchcnglobal.yuanshen.com"
+              ])
             ++ [{ name = "4006024680.com"; value = "192.168.199.1"; }]
           );
         };
@@ -115,7 +122,7 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
-        gamemode = { enable = true; drmDevice = 0; };
+        gamemode = { enable = true; drmDevice = 1; };
         slurm =
         {
           enable = true;

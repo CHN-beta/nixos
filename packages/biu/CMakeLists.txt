@@ -28,7 +28,7 @@ find_package(concurrencpp REQUIRED)
 find_path(POCKETFFT_INCLUDE_DIR pocketfft.h REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
-add_library(biu src/common.cpp src/hdf5.cpp src/logger.cpp src/string.cpp)
+add_library(biu src/common.cpp src/hdf5.cpp src/string.cpp)
 target_include_directories(biu PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> ${NAMEOF_INCLUDE_DIR} ${ZPP_BITS_INCLUDE_DIR}
   ${LIBBACKTRACE_INCLUDE_DIR} ${POCKETFFT_INCLUDE_DIR})
@@ -81,3 +81,8 @@ add_executable(test-yaml test/yaml.cpp)
 target_link_libraries(test-yaml PRIVATE biu)
 set_property(TARGET test-yaml PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON)
 add_test(NAME test-yaml COMMAND test-yaml)
+add_executable(test-logger test/logger.cpp)
+target_link_libraries(test-logger PRIVATE biu)
+target_compile_definitions(test-logger PRIVATE BIU_LOGGING_DEBUG BIU_LOGGING_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}")
+set_property(TARGET test-logger PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON)
+add_test(NAME test-logger COMMAND test-logger)
