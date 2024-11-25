@@ -1327,6 +1327,7 @@
         "sops-nix": "sops-nix",
         "spectroscopy": "spectroscopy",
         "sqlite-orm": "sqlite-orm",
+        "stickerpicker": "stickerpicker",
         "tgbot-cpp": "tgbot-cpp",
         "ufo": "ufo",
         "v-sim": "v-sim",
@@ -1451,6 +1452,22 @@
       "original": {
         "owner": "fnc12",
         "repo": "sqlite_orm",
+        "type": "github"
+      }
+    },
+    "stickerpicker": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1718796561,
+        "narHash": "sha256-RKAAHve17lrJokgAPkM2k/E+f9djencwwg3Xcd70Yfw=",
+        "owner": "maunium",
+        "repo": "stickerpicker",
+        "rev": "333567f481e60443360aa7199d481e1a45b3a523",
+        "type": "github"
+      },
+      "original": {
+        "owner": "maunium",
+        "repo": "stickerpicker",
         "type": "github"
       }
     },
