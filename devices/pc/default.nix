@@ -48,7 +48,8 @@ inputs:
           { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
         kernel =
         {
-          variant = "cachyos";
+          # TODO: switch to cachyos-lts
+          variant = "xanmod-latest";
           patches = [ "hibernate-progress" ];
           modules.modprobeConfig =
             [ "options iwlwifi power_save=0" "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
@@ -174,14 +175,6 @@ inputs:
       users.chn.directories = builtins.map
         (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
         [ "BPD-paper" "kurumi-asmr" "BPD-paper-old" "SiC-20240705" ];
-    };
-    specialisation =
-    {
-      xanmod.configuration =
-      {
-        nixos.system.kernel.variant = inputs.lib.mkForce "xanmod-latest";
-        system.nixos.tags = [ "xanmod" ];
-      };
     };
   };
 }
