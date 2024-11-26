@@ -69,9 +69,10 @@ inputs:
           # matplot++ needs old gnuplot
           inputs.pkgs."pkgs-23.11".gnuplot
           # math, physics and chemistry
-          octaveFull root ovito localPackages.vesta localPackages.v-sim
+          octaveFull root ovito localPackages.vesta localPackages.v-sim jmol mpi localPackages.ufo
           (mathematica.overrideAttrs (prev: { postInstall = (prev.postInstall or "") + "ln -s ${prev.src} $out/src"; }))
-          (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; }) jmol mpi localPackages.ufo
+          (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14;
+            wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; }; }) 
           # virtualization
           virt-viewer bottles wineWowPackages.stagingFull genymotion playonlinux
           # media
