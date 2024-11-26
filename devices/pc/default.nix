@@ -144,6 +144,7 @@ inputs:
         keyd = {};
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
+      packages.android-studio = {};
     };
     boot.loader.grub =
     {
