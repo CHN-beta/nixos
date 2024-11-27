@@ -35,4 +35,7 @@ c: [ 1, 2 ]
   assert(a3.a == a);
   assert(a3.b == b);
   assert(a3.c == c);
+  auto e = node["c"].as<std::set<int>>();
+  assert((e == std::set<int>{1, 2}));
+  node["c"] = e;
 }

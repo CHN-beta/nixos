@@ -50,6 +50,15 @@ namespace YAML
     }
     return true;
   }
+  template <biu::Set Set> Node convert<Set>::encode(const Set& set)
+    { return convert<std::vector<typename Set::value_type>>::encode(set | ranges::to_vector); }
+  template <biu::Set Set> bool convert<Set>::decode(const Node& node, Set& set)
+  {
+    std::vector<typename Set::value_type> vec;
+    if (!convert<std::vector<typename Set::value_type>>::decode(node, vec)) return false;
+    set = vec | ranges::to<Set>;
+    return true;
+  }
   template <typename T> Node convert<T>::encode(const T& t)
   {
     YAML::Node node;

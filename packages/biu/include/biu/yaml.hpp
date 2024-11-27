@@ -24,6 +24,11 @@ namespace YAML
     static Node encode(const Optional&);
     static bool decode(const Node& node, Optional&);
   };
+  template <biu::Set Set> struct convert<Set>
+  {
+    static Node encode(const Set&);
+    static bool decode(const Node& node, Set&);
+  };
   template <typename T> struct convert
   {
     static Node encode(const T&);
