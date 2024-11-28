@@ -68,6 +68,7 @@
     ufo = { url = "git+https://git.chn.moe/chn/ufo.git"; flake = false; };
     highfive = { url = "git+https://github.com/CHN-beta/HighFive?submodules=1"; flake = false; };
     stickerpicker = { url = "github:maunium/stickerpicker"; flake = false; };
+    pentapy = { url = "github:GeoStat-Framework/pentapy"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib.nix inputs.nixpkgs.lib; in
@@ -75,7 +76,11 @@
     packages.x86_64-linux = import ./flake/packages.nix { inherit inputs localLib; };
     nixosConfigurations = import ./flake/nixos.nix { inherit inputs localLib; };
     overlays.default = final: prev:
-      { localPackages = (import ./packages { inherit localLib; pkgs = final; topInputs = inputs; }); };
+    {
+      localPackages = (import ./packages { inherit localLib; pkgs = final; topInputs = inputs; });
+      pythonPackagesExtensions = prev.pythonPackagesExtensions ++
+        (final: prev: import ./packages/python { inherit localLib; pkgs = final; topInputs = inputs; });
+    };
     config = { archive = false; branch = "production"; };
     devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
     src = import ./flake/src.nix { inherit inputs; };

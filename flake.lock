@@ -1154,6 +1154,22 @@
         "type": "github"
       }
     },
+    "pentapy": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1712784869,
+        "narHash": "sha256-HRXl8GfNH7CatEDtbkLA985IaDYvb4sH0h/cejlnLQ4=",
+        "owner": "GeoStat-Framework",
+        "repo": "pentapy",
+        "rev": "e78f674dc0d3e1af652616b5d922c88166f76e11",
+        "type": "github"
+      },
+      "original": {
+        "owner": "GeoStat-Framework",
+        "repo": "pentapy",
+        "type": "github"
+      }
+    },
     "plasma-manager": {
       "inputs": {
         "home-manager": [
@@ -1317,6 +1333,7 @@
         "nur-linyinfeng": "nur-linyinfeng",
         "nur-xddxdd": "nur-xddxdd",
         "openxlsx": "openxlsx",
+        "pentapy": "pentapy",
         "plasma-manager": "plasma-manager",
         "pocketfft": "pocketfft",
         "poetry2nix": "poetry2nix",
