@@ -51,7 +51,10 @@ inputs:
                 ms-python.python
                 # theme
                 pkief.material-icon-theme
-              ];
+              ]
+              # jupyter
+              ++ (with ms-toolsai;
+                [ jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow ]);
         }
       )];
     };
