@@ -173,7 +173,7 @@
       checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks inputs.self.deploy) inputs.deploy-rs.lib;
       overlays.default = final: prev:
         { localPackages = (import ./local/pkgs { inherit (inputs) lib; pkgs = final; topInputs = inputs; }); };
-      config = { archive = false; branch = "production"; };
+      config = { archive = true; branch = "production"; };
       devShells.x86_64-linux =
         let pkgs = (import inputs.nixpkgs
         {
