@@ -86,7 +86,7 @@ inputs:
                       patch = "${inputs.topInputs.linux-surface}/patches/${version}/${file.name}";
                     })
                     (builtins.filter
-                      (file: file.value == "regular")
+                      (file: file.value == "regular" && file.name != "0006-surface-sam.patch" )
                       (inputs.localLib.attrsToList (builtins.readDir
                         "${inputs.topInputs.linux-surface}/patches/${version}")));
                   kernelConfig = builtins.removeAttrs
