@@ -56,11 +56,5 @@ inputs:
       };
       bugs = [ "xmunet" "suspend-hibernate-no-platform" ];
     };
-    powerManagement.resumeCommands = ''${inputs.pkgs.systemd}/bin/systemctl restart iptsd'';
-    services.iptsd.config =
-    {
-      Touchscreen = { DisableOnPalm = true; DisableOnStylus = true; Overshoot = 0.5; };
-      Contacts = { Neutral = "Average"; NeutralValue = 10; };
-    };
   };
 }
