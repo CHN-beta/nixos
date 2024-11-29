@@ -26,7 +26,7 @@ inputs:
         };
         nixpkgs.march = "skylake";
         nix = { substituters = [ "https://nix-store.chn.moe?priority=100" ]; githubToken.enable = true; };
-        kernel.patches = [ "surface" "hibernate-progress" ];
+        kernel = { variant = null; patches = [ "hibernate-progress" ]; };
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =

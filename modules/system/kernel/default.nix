@@ -4,7 +4,8 @@ inputs:
   {
     variant = mkOption
     {
-      type = types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "cachyos-server" "zen" ];
+      type = types.nullOr (types.enum
+        [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "cachyos-server" "zen" ]);
       default = "xanmod-lts";
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
@@ -38,7 +39,7 @@ inputs:
         extraModulePackages = with inputs.config.boot.kernelPackages; [ v4l2loopback zenpower ];
         extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
         kernelParams = [ "delayacct" ];
-        kernelPackages =
+        kernelPackages = inputs.lib.mkIf (kernel.variant != null)
         {
           nixos = inputs.pkgs.linuxPackages;
           xanmod-lts = inputs.pkgs.linuxPackages_xanmod;
