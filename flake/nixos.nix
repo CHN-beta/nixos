@@ -23,7 +23,7 @@ builtins.listToAttrs
         ];
       };
     })
-    [ "nas" "pc" "pi3b" "surface" "vps4" "vps6" "vps7" "xmupc1" "xmupc2" ])
+    [ "nas" "pc" "pi3b" "vps4" "vps6" "vps7" "xmupc1" "xmupc2" ])
   ++ (builtins.map
     (node:
     {

@@ -641,22 +641,6 @@
         "type": "github"
       }
     },
-    "linux-surface": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1732863321,
-        "narHash": "sha256-/zWdZ7xjDqWptWCSimln5O6uuzqk7AO/rX6gW/ZbaBY=",
-        "owner": "CHN-beta",
-        "repo": "linux-surface",
-        "rev": "baa6aa29d786fe0ba3d0e165635dc7d6b8b9bb47",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "repo": "linux-surface",
-        "type": "github"
-      }
-    },
     "lmod": {
       "flake": false,
       "locked": {
@@ -874,21 +858,6 @@
       "original": {
         "owner": "nix-community",
         "repo": "nix-vscode-extensions",
-        "type": "github"
-      }
-    },
-    "nixos-hardware": {
-      "locked": {
-        "lastModified": 1732536142,
-        "narHash": "sha256-DlwQrOBZET55+tOy2eO3DdAmH9B5xSQzj0TcuWClyF8=",
-        "owner": "CHN-beta",
-        "repo": "nixos-hardware",
-        "rev": "20d99c009ced76a49be02d7ba709b2ce5378c806",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "repo": "nixos-hardware",
         "type": "github"
       }
     },
@@ -1298,7 +1267,6 @@
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lepton": "lepton",
-        "linux-surface": "linux-surface",
         "lmod": "lmod",
         "matplotplusplus": "matplotplusplus",
         "misskey": "misskey",
@@ -1308,7 +1276,6 @@
         "nix-flatpak": "nix-flatpak",
         "nix-index-database": "nix-index-database",
         "nix-vscode-extensions": "nix-vscode-extensions",
-        "nixos-hardware": "nixos-hardware",
         "nixos-wallpaper": "nixos-wallpaper",
         "nixpkgs": "nixpkgs",
         "nixpkgs-23.05": "nixpkgs-23.05",
