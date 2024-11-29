@@ -644,15 +644,15 @@
     "linux-surface": {
       "flake": false,
       "locked": {
-        "lastModified": 1729447945,
-        "narHash": "sha256-DmYbfi7scxWDHlqZA7ZidCnpMexC34+T4DA7yTs5GAI=",
-        "owner": "linux-surface",
+        "lastModified": 1732863321,
+        "narHash": "sha256-/zWdZ7xjDqWptWCSimln5O6uuzqk7AO/rX6gW/ZbaBY=",
+        "owner": "CHN-beta",
         "repo": "linux-surface",
-        "rev": "260b202ade51ae01f4bf5f4a5516559bd5f04973",
+        "rev": "baa6aa29d786fe0ba3d0e165635dc7d6b8b9bb47",
         "type": "github"
       },
       "original": {
-        "owner": "linux-surface",
+        "owner": "CHN-beta",
         "repo": "linux-surface",
         "type": "github"
       }
