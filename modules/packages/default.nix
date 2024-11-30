@@ -12,18 +12,22 @@ inputs:
     _packages = mkOption { type = types.listOf types.unspecified; default = []; };
     _pythonPackages = mkOption { type = types.listOf types.unspecified; default = []; };
     _prebuildPackages = mkOption { type = types.listOf types.unspecified; default = []; };
+    _pythonEnvFlags = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+    _vscodeEnvFlags = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
   };
   config =
   {
     environment.systemPackages = with inputs.config.nixos.packages.packages;
       (inputs.lib.lists.subtractLists excludePackages (_packages ++ extraPackages))
       ++ [
-        (inputs.pkgs.python3.withPackages (pythonPackages:
-          inputs.lib.lists.subtractLists
-            (builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages)
-              excludePythonPackages))
-            (builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages)
-              (_pythonPackages ++ extraPythonPackages)))))
+        (
+          (inputs.pkgs.python3.withPackages (pythonPackages:
+            inputs.lib.lists.subtractLists
+              (builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages)
+                excludePythonPackages))
+              (builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages)
+                (_pythonPackages ++ extraPythonPackages)))))
+          .override (prev: { makeWrapperArgs = prev.makeWrapperArgs or [] ++ _pythonEnvFlags; }))
         (inputs.pkgs.writeTextDir "share/prebuild-packages"
           (builtins.concatStringsSep "\n" (builtins.map builtins.toString
             (inputs.lib.lists.subtractLists excludePrebuildPackages (_prebuildPackages ++ extraPrebuildPackages)))))

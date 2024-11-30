@@ -55,6 +55,7 @@ inputs:
               # jupyter
               ++ (with ms-toolsai;
                 [ jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow ]);
+          extraFlags = builtins.concatStringsSep " " inputs.config.nixos.packages.packages._vscodeEnvFlags;
         }
       )];
     };
