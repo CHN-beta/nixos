@@ -154,6 +154,7 @@ inputs:
         "SetupBrowser.efi" = ./bios/SetupBrowser.efi;
         "UiApp.efi" = ./bios/UiApp.efi;
         "EFI/Boot/Bootx64.efi" = ./bios/Bootx64.efi;
+        "nixos.iso" = inputs.topInputs.self.src.iso;
       };
       extraEntries = 
       ''
@@ -161,6 +162,15 @@ inputs:
           insmod fat
           insmod chain
           chainloader @bootRoot@/EFI/Boot/Bootx64.efi
+        }
+        menuentry 'Live ISO' {
+          set iso_path=@bootRoot@/nixos.iso
+          export iso_path
+          search --set=root --file "$iso_path"
+          loopback loop "$iso_path"
+          root=(loop)
+          configfile /boot/grub/loopback.cfg
+          loopback --delete loop
         }
       '';
     };
