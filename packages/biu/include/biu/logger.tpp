@@ -123,10 +123,10 @@ namespace biu
 				time,
 				get_thread_id() % std::numeric_limits<std::uint16_t>::max(),
 				Indent_,
+				message,
 				source_file.empty() ? "??"s : source_file,
 				stack[0].source_line() == 0 ? "??"s : "{}"_f(stack[0].source_line()),
-				stack[0].name(),
-				message
+				stack[0].name()
 			) << std::flush;
 # else
 			*lock->Stream << "[ {:%T} {:02x} {:02} ] {}\n"_f
