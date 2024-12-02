@@ -50,6 +50,23 @@ namespace YAML
     }
     return true;
   }
+  template <biu::SpecializationOf<std::unique_ptr> Ptr> Node convert<Ptr>::encode(const Ptr& ptr)
+  {
+    if (ptr) return convert<typename Ptr::element_type>::encode(*ptr);
+    else return YAML::Node{};
+  }
+  template <biu::SpecializationOf<std::unique_ptr> Ptr> bool convert<Ptr>::decode
+    (const Node& node, Ptr& ptr)
+  {
+    if (!node.IsDefined() || node.IsNull()) ptr = nullptr;
+    else
+    {
+      auto* value = new typename Ptr::element_type;
+      if (!convert<typename Ptr::element_type>::decode(node, *value)) return false;
+      ptr.reset(value);
+    }
+    return true;
+  }
   template <biu::Set Set> Node convert<Set>::encode(const Set& set)
     { return convert<std::vector<typename Set::value_type>>::encode(set | ranges::to_vector); }
   template <biu::Set Set> bool convert<Set>::decode(const Node& node, Set& set)

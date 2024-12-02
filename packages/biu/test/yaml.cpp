@@ -8,6 +8,7 @@ int main()
 a: [ 1, 2, 3 ]
 b: [ [ 1, 2, 3 ], [ 4, 5, 6 ], [ 7, 8, 9 ] ]
 c: [ 1, 2 ]
+d: null
 )";
   auto node = YAML::Load(data);
   auto a = node["a"].as<Eigen::Vector3i>();
@@ -30,11 +31,13 @@ c: [ 1, 2 ]
     Eigen::Vector3i a;
     Eigen::Matrix3i b;
     std::complex<double> c;
+    std::unique_ptr<Eigen::Matrix3d> d;
   };
   auto a3 = node.as<A>();
   assert(a3.a == a);
   assert(a3.b == b);
   assert(a3.c == c);
+  assert(a3.d == nullptr);
   auto e = node["c"].as<std::set<int>>();
   assert((e == std::set<int>{1, 2}));
   node["c"] = e;
