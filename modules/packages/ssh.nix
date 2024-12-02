@@ -7,16 +7,6 @@ inputs:
     services.openssh.knownHosts =
       let servers =
       {
-        vps4 =
-        {
-          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIF7Y0tjt1XLPjqJ8HEB26W9jVfJafRQ3pv5AbPaxEc/Z";
-          hostnames = [ "vps4.chn.moe" "104.234.37.61" ];
-        };
-        "initrd.vps4" =
-        {
-          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIJkOPTFvX9f+Fn/KHOIvUgoRiJfq02T42lVGQhpMUGJq";
-          hostnames = [ "initrd.vps4.chn.moe" "104.234.37.61" ];
-        };
         vps6 =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIO5ZcvyRyOnUCuRtqrM/Qf+AdUe3a5bhbnfyhw2FSLDZ";
@@ -126,7 +116,7 @@ inputs:
         (
           (builtins.map
             (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
-            [ "vps4" "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.nas" ])
+            [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.nas" ])
           ++ (builtins.map
             (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; }; })
             [ "wireguard.pc" "wireguard.xmupc1" "wireguard.xmupc2" "srv1" "wireguard.srv1" ])
