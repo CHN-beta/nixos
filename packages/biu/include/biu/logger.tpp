@@ -84,8 +84,13 @@ namespace biu
 		auto&& lock = Threads_.lock();
 		if (auto thread_id = get_thread_id(); lock->contains(thread_id)) lock.value()[thread_id]++;
 		else lock->emplace(thread_id, 1);
+		auto try_format = []<typename T>(T&& value) -> std::string
+		{
+			if constexpr (fmt::is_formattable<T, char>::value) return "{}"_f(std::forward<T>(value));
+			else return "({})"_f(nameof::nameof_full_type<T>());
+		};
 		if constexpr (sizeof...(Param) > 0)
-			debug("begin function with {{{}}}."_f(fmt::join({"{}"_f(std::forward<Param>(param))...}, ", ")));
+			debug("begin function with {{{}}}."_f(fmt::join({try_format(std::forward<Param>(param))...}, ", ")));
 		else debug("begin function.");
 	}
 
