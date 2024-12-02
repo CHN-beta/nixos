@@ -250,6 +250,9 @@ inputs:
               # nginx will try to redirect https://blog.chn.moe/docs to https://blog.chn.moe:3068/docs/ in default
               # this make it redirect to /docs/ without hostname
               absolute_redirect off;
+              # allow realip module to set ip
+              set_real_ip_from 0.0.0.0/0;
+              real_ip_header proxy_protocol;
             '';
             proxyTimeout = "1d";
             recommendedZstdSettings = true;
