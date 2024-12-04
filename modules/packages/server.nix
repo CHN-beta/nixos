@@ -36,7 +36,7 @@ inputs:
         # development
         gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix rr hexo-cli gh nix-init hugo
         # stupid things
-        toilet lolcat localPackages.stickerpicker
+        toilet lolcat localPackages.stickerpicker graph-easy
         # office
         pdfgrep ffmpeg-full # todo-txt-cli 
       ]
