@@ -41,4 +41,9 @@ d: null
   auto e = node["c"].as<std::set<int>>();
   assert((e == std::set<int>{1, 2}));
   node["c"] = e;
+  std::string data2 = R"(
+a: AAA
+)";
+  enum class E { AAA, BBB, CCC };
+  auto f = YAML::Load(data2)["a"].as<E>();
 }

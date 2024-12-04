@@ -5,6 +5,8 @@
 # include <biu/eigen.hpp>
 # include <boost/pfr.hpp>
 # include <boost/pfr/core_name.hpp>
+# include <nameof.hpp>
+# include <magic_enum.hpp>
 
 namespace YAML
 {
@@ -75,6 +77,16 @@ namespace YAML
     if (!convert<std::vector<typename Set::value_type>>::decode(node, vec)) return false;
     set = vec | ranges::to<Set>;
     return true;
+  }
+  template <biu::Enumerable Enum> Node convert<Enum>::encode(const Enum& e)
+    { return convert<std::string_view>::encode(nameof::nameof_enum(e)); }
+  template <biu::Enumerable Enum> bool convert<Enum>::decode(const Node& node, Enum& e)
+  {
+    std::string name;
+    if (!convert<std::string>::decode(node, name)) return false;
+    auto optional_value = magic_enum::enum_cast<Enum>(name);
+    if (!optional_value) return false;
+    else { e = *optional_value; return true; }
   }
   template <typename T> Node convert<T>::encode(const T& t)
   {
