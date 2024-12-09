@@ -4,65 +4,39 @@ inputs:
   {
     nixos =
     {
-      model.type = "desktop";
+      model = { type = "desktop"; private = true; };
       system =
       {
         fileSystems =
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/627D-1FAA" = "/boot";
-            btrfs =
-            {
-              "/dev/mapper/nix"."/nix" = "/nix";
-              "/dev/mapper/root3" =
-              {
-                "/nix/rootfs" = "/nix/rootfs";
-                "/nix/persistent" = "/nix/persistent";
-                "/nix/nodatacow" = "/nix/nodatacow";
-                "/nix/rootfs/current" = "/";
-                "/nix/backup" = "/nix/backup";
-              };
-            };
+            vfat."/dev/disk/by-partlabel/one-boot" = "/boot";
+            btrfs."/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
-          luks.manual =
-          {
-            enable = true;
-            devices =
-            {
-              "/dev/disk/by-uuid/a47f06e1-dc90-40a4-89ea-7c74226a5449".mapper = "root3";
-              "/dev/disk/by-uuid/b3408fb5-68de-405b-9587-5e6fbd459ea2".mapper = "root4";
-              "/dev/disk/by-uuid/a779198f-cce9-4c3d-a64a-9ec45f6f5495" = { mapper = "nix"; ssd = true; };
-            };
-            delayedMount = [ "/" "/nix" ];
-          };
+          luks.auto."/dev/disk/by-partlabel/one-root" = { mapper = "root"; ssd = true; };
           swap = [ "/nix/swap/swap" ];
-          rollingRootfs.waitDevices = [ "/dev/mapper/root4" ];
+          resume = { device = "/dev/mapper/root"; offset = 728784; };
+          rollingRootfs = {};
         };
-        initrd.sshd = {};
         nixpkgs.march = "tigerlake";
-        nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
-        networking = {};
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
       {
         snapper.enable = true;
-        xray.client = { enable = true; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
+        xray.client.enable = true;
         smartd.enable = true;
-        beesd.instances =
-        {
-          root = { device = "/"; hashTableSizeMB = 4096; threads = 4; };
-          nix = { device = "/nix"; hashTableSizeMB = 128; };
-        };
+        beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
         wireguard =
         {
           enable = true;
           peers = [ "vps6" ];
-          publicKey = "xCYRbZEaGloMk7Awr00UR3JcDJy4AzVp4QvGNoyEgFY=";
-          wireguardIp = "192.168.83.4";
+          publicKey = "Hey9V9lleafneEJwTLPaTV11wbzCQF34Cnhr0w2ihDQ=";
+          wireguardIp = "192.168.83.5";
         };
       };
+      bugs = [ "xmunet" ];
     };
   };
 }

@@ -4,7 +4,7 @@ inputs:
   {
     nixos =
     {
-      model.type = "desktop";
+      model = { type = "desktop"; private = true; };
       system =
       {
         fileSystems =
@@ -44,7 +44,6 @@ inputs:
             # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
             "alderlake"
           ];
-          githubToken.enable = true;
         };
         nixpkgs =
           { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
