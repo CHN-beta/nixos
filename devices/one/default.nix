@@ -35,6 +35,7 @@ inputs:
           publicKey = "Hey9V9lleafneEJwTLPaTV11wbzCQF34Cnhr0w2ihDQ=";
           wireguardIp = "192.168.83.5";
         };
+        sshd = {};
       };
       bugs = [ "xmunet" ];
     };
