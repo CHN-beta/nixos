@@ -39,5 +39,12 @@ inputs:
       };
       bugs = [ "xmunet" ];
     };
+    boot.kernelParams = [ "acpi_osi=!" ''acpi_osi="Windows 2015"'' ];
+    security =
+    {
+      pam.services.kde.rules.auth.pass =
+        { modulePath = "pam_succeed_if.so"; args = [ "user" "=" "chn" ]; control = "sufficient"; order = 0; };
+      sudo.wheelNeedsPassword = false;
+    };
   };
 }
