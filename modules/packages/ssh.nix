@@ -45,7 +45,7 @@ inputs:
         pc =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIMSfREi19OSwQnhdsE8wiNwGSFFJwNGN0M5gN+sdrrLJ";
-          hostnames = [ "wireguard.pc.chn.moe" "[office.chn.moe]:3673" "192.168.1.105" "192.168.83.3" ];
+          hostnames = [ "wireguard.pc.chn.moe" "[office.chn.moe]:3673" "192.168.1.3" "192.168.83.3" ];
         };
         hpc =
         {
