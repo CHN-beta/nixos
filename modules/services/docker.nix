@@ -7,19 +7,21 @@ inputs:
     (
       inputs.lib.mkIf (docker != null)
       {
-        # system-wide docker is not needed
-        # virtualisation.docker.enable = true;
-        virtualisation.docker.rootless =
+        virtualisation.docker =
         {
           enable = true;
-          setSocketVariable = true;
-          daemon.settings =
+          rootless =
           {
-            features.buildkit = true;
-            # dns 127.0.0.1 make docker not work
-            dns = [ "1.1.1.1" ];
-            # prevent create btrfs subvol
-            storage-driver = "overlay2";
+            enable = true;
+            setSocketVariable = true;
+            daemon.settings =
+            {
+              features.buildkit = true;
+              # dns 127.0.0.1 make docker not work
+              dns = [ "1.1.1.1" ];
+              # prevent create btrfs subvol
+              storage-driver = "overlay2";
+            };
           };
         };
       }
