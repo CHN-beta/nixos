@@ -28,7 +28,7 @@ inputs:
             IdentityFile ~/.ssh/id_ed25519_sk
           '';
         };
-        xdg.configFile = inputs.lib.mkIf inputs.config.nixos.model.private
+        home.file = inputs.lib.mkIf inputs.config.nixos.model.private
         {
           ".ssh/id_rsa".source =
             homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/rsa".path;
