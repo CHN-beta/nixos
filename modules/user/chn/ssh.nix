@@ -38,6 +38,14 @@ inputs:
             + "A1UofVIWTOPdoOnx6k7DpQtIVMWiIXLg0jIkOZiTMr3jKfzLMBAqQ1xbCV2tVwbEY02yxxyxIznbpSPReyn1RDLWyqqLR"
             + "d/oqGPzzhEXNGNAZWnSoItkYq9Bxh2AvMBihiTir3FEVPDgDLtS5LUpM93PV1yTr6JyCPAod9UAxpfBYzHKse0KCQFoZH"
             + " chn@chn-PC";
+          ".ssh/id_rsa.ppk".source =
+            homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/rsa.ppk".path;
+          ".ssh/id_ed25519".source =
+            homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/ed25519".path;
+          ".ssh/id_ed25519.pub".text =
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOH3AvxMlB3omzH6SFQt0Z5+f05x9nMJpFfSLH4OIYV+ chn@pc";
+          ".ssh/id_ed25519_sk".source = inputs.config.sops.secrets."chn/ed25519_sk".path;
+          ".ssh/id_ed25519_sk.pub".source = ./id_ed25519_sk.pub;
           ".ssh/xmuhk_id_rsa".source =
             homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/xmuhk".path;
         };
