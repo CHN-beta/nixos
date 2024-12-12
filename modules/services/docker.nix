@@ -24,13 +24,13 @@ inputs:
             };
           };
         };
+        hardware.nvidia-container-toolkit.enable = inputs.lib.mkIf inputs.config.nixos.system.nixpkgs.cuda.enable true;
       }
     )
     # some docker settings should be set unconditionally, as some services depend on them
     {
       virtualisation.docker =
       {
-        enableNvidia = inputs.lib.mkIf inputs.config.nixos.system.nixpkgs.cuda.enable true;
         # prevent create btrfs subvol
         storageDriver = "overlay2";
         daemon.settings.dns = [ "1.1.1.1" ];
