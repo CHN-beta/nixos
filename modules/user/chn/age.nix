@@ -5,8 +5,8 @@ inputs:
     home-manager.users.chn = homeInputs:
     {
       config.xdg.configFile."sops/age/keys.txt".source =
-        homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets.age.path;
+        homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/age".path;
     };
-    sops.secrets.age.owner = "chn";
+    sops.secrets."chn/age".owner = "chn";
   };
 }
