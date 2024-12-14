@@ -31,7 +31,7 @@ inputs:
             in with extensions;
               (with github; [ copilot github-vscode-theme ])
               ++ (with intellsmi; [ comment-translate ])
-              ++ (with ms-vscode; [ cmake-tools cpptools cpptools-extension-pack hexeditor remote-explorer ])
+              ++ (with ms-vscode; [ cmake-tools cpptools-extension-pack hexeditor remote-explorer ])
               ++ (with ms-vscode-remote; [ remote-ssh ])
               ++ [
                 donjayamanne.githistory fabiospampinato.vscode-diff
