@@ -4,7 +4,7 @@ inputs:
   {
     nixos =
     {
-      model.type = "desktop";
+      model = { type = "desktop"; private = true; };
       system =
       {
         fileSystems =
@@ -38,11 +38,12 @@ inputs:
             "broadwell"
             # FXSR HLE LZCNT PREFETCHW RDRND SAHF SGX XSAVE
             "skylake" "cascadelake"
+            # SAHF FXSR XSAVE RDRND LZCNT HLE PREFETCHW SGX MOVDIRI MOVDIR64B AVX512VP2INTERSECT KEYLOCKER
+            "tigerlake"
             # AVX-VNNI CLDEMOTE GFNI-SSE HRESET KL LZCNT MOVDIR64B MOVDIRI PCONFIG PREFETCHW PTWRITE RDRND
             # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
             "alderlake"
           ];
-          githubToken.enable = true;
         };
         nixpkgs =
           { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
@@ -59,11 +60,7 @@ inputs:
       hardware =
       {
         cpus = [ "amd" ];
-        gpu =
-        {
-          type = "amd+nvidia";
-          nvidia = { dynamicBoost = true; driver = "beta"; prime.busId = { amd = "6:0:0"; nvidia = "1:0:0"; }; };
-        };
+        gpu = { type = "nvidia"; nvidia = { dynamicBoost = true; driver = "beta"; }; };
         legion = {};
       };
       virtualization =
@@ -107,7 +104,11 @@ inputs:
           enable = true;
           serverName = "frp.chn.moe";
           user = "pc";
-          stcpVisitor."yy.vnc".localPort = 6187;
+          stcpVisitor =
+          {
+            "yy.vnc".localPort = 6187;
+            "temp.ssh".localPort = 6188;
+          };
         };
         nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
         smartd.enable = true;
@@ -120,7 +121,7 @@ inputs:
           publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
           wireguardIp = "192.168.83.3";
         };
-        gamemode = { enable = true; drmDevice = 1; };
+        gamemode = { enable = true; drmDevice = 0; };
         slurm =
         {
           enable = true;

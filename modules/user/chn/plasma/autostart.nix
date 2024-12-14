@@ -49,13 +49,14 @@ inputs:
           };
           crow-translate = rec
           {
-            fileName = "io.crow_translate.CrowTranslate.desktop";
+            fileName = "org.kde.CrowTranslate.desktop";
             path = "${inputs.pkgs.crow-translate}/share/applications/${fileName}";
           };
         };
         devices =
         {
           pc = [ "nheko" "kclockd" "yakuake" "telegram" "element" "kmail" "discord" "crow-translate" ];
+          one = [ "kclockd" "yakuake" "telegram" "element" "kmail" "crow-translate" ];
         };
       in builtins.listToAttrs (builtins.map
         (file:
