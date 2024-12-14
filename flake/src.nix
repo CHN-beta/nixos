@@ -1,6 +1,6 @@
 { inputs }: let inherit (inputs.self.packages.x86_64-linux) pkgs; in
 {
-  git-lfs-transfer = "sha256-V2cnWCyzxwxlOXXTB8Kz4X4VHvu0H/SqHBzPFwlp73o=";
+  git-lfs-transfer = "sha256-qHQeBI2b8EmUinowixqEuR6iGwNYQy3pSc8iPVfJemE=";
   iso = pkgs.fetchurl
   {
     url = "https://releases.nixos.org/nixos/24.11/nixos-24.11beta709057.0c582677378f"
