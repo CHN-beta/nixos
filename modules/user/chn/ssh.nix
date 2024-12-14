@@ -44,7 +44,8 @@ inputs:
             homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/ed25519".path;
           ".ssh/id_ed25519.pub".text =
             "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOH3AvxMlB3omzH6SFQt0Z5+f05x9nMJpFfSLH4OIYV+ chn@pc";
-          ".ssh/id_ed25519_sk".source = inputs.config.sops.secrets."chn/ed25519_sk".path;
+          ".ssh/id_ed25519_sk".source =
+            homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/ed25519_sk".path;
           ".ssh/id_ed25519_sk.pub".source = ./id_ed25519_sk.pub;
           ".ssh/xmuhk_id_rsa".source =
             homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/xmuhk".path;
@@ -52,6 +53,12 @@ inputs:
       };
     };
     sops.secrets = inputs.lib.mkIf inputs.config.nixos.model.private
-      { "chn/rsa".owner = "chn"; "chn/xmuhk".owner = "chn"; };
+    {
+      "chn/rsa".owner = "chn";
+      "chn/rsa.ppk".owner = "chn";
+      "chn/ed25519".owner = "chn";
+      "chn/ed25519_sk".owner = "chn";
+      "chn/xmuhk".owner = "chn";
+    };
   };
 }
