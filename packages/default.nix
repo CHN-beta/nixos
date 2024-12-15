@@ -92,13 +92,14 @@ inputs: rec
   sockpp = inputs.pkgs.callPackage ./sockpp.nix { src = inputs.topInputs.sockpp; };
   git-lfs-transfer = inputs.pkgs.callPackage ./git-lfs-transfer.nix
     { src = inputs.topInputs.git-lfs-transfer; hash = inputs.topInputs.self.src.git-lfs-transfer; };
-  py4vasp = inputs.pkgs.callPackage ./py4vasp { src = inputs.topInputs.py4vasp; };
+  py4vasp = inputs.pkgs.python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; inherit nglview; };
   pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.topInputs.pocketfft; };
   spectroscopy = inputs.pkgs.callPackage ./spectroscopy.nix { src = inputs.topInputs.spectroscopy; };
   mirism = inputs.pkgs.callPackage ./mirism { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   vaspberry = inputs.pkgs.callPackage ./vaspberry.nix { src = inputs.topInputs.vaspberry; };
   highfive = inputs.pkgs.callPackage ./highfive.nix { src = inputs.topInputs.highfive; };
   stickerpicker = inputs.pkgs.python3Packages.callPackage ./stickerpicker.nix { src = inputs.topInputs.stickerpicker; };
+  nglview = inputs.pkgs.python3Packages.callPackage ./nglview.nix { src = inputs.topInputs.self.src.nglview; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

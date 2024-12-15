@@ -24,7 +24,6 @@ inputs:
           [
             topInputs.qchem.overlays.default
             topInputs.bscpkgs.overlays.default
-            topInputs.poetry2nix.overlays.default
             topInputs.aagl.overlays.default
             (final: prev:
             {

@@ -29,7 +29,6 @@
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
     catppuccin.url = "github:catppuccin/nix";
     bscpkgs = { url = "git+https://git.chn.moe/chn/bscpkgs.git"; inputs.nixpkgs.follows = "nixpkgs"; };
-    poetry2nix = { url = "github:nix-community/poetry2nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     winapps = { url = "github:winapps-org/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
     aagl = { url = "github:ezKEa/aagl-gtk-on-nix/release-24.11"; inputs.nixpkgs.follows = "nixpkgs"; };
 
