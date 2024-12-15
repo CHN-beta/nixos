@@ -1,0 +1,151 @@
+From 1d2acc921853825af02059183b683c35f5075302 Mon Sep 17 00:00:00 2001
+From: chn <chn@chn.moe>
+Date: Wed, 11 Dec 2024 22:33:40 +0800
+Subject: [PATCH] add C++23 support
+
+---
+ graf3d/eve7/inc/ROOT/REveCaloData.hxx             |  4 ++--
+ graf3d/eve7/src/REveCaloData.cxx                  |  3 +++
+ interpreter/cling/lib/Interpreter/CIFactory.cpp   | 15 +++++++++++----
+ .../Interpreter/IncrementalCUDADeviceCompiler.cpp |  2 ++
+ .../cling/tools/Jupyter/kernel/clingkernel.py     |  4 ++--
+ .../inc/RooStats/HistFactory/HistRef.h            |  3 +--
+ .../inc/RooFit/Detail/NormalizationHelpers.h      |  3 +--
+ 7 files changed, 22 insertions(+), 12 deletions(-)
+
+diff --git a/graf3d/eve7/inc/ROOT/REveCaloData.hxx b/graf3d/eve7/inc/ROOT/REveCaloData.hxx
+index 79d2e7069504c..33152334730f4 100644
+--- a/graf3d/eve7/inc/ROOT/REveCaloData.hxx
++++ b/graf3d/eve7/inc/ROOT/REveCaloData.hxx
+@@ -174,7 +174,7 @@ protected:
+ 
+ public:
+    REveCaloData(const char* n="REveCaloData", const char* t="");
+-   ~REveCaloData() override {}
++   ~REveCaloData() override;
+ 
+    void    FillImpliedSelectedSet(Set_t& impSelSet, const std::set<int>& sec_idcs) override;
+ 
+@@ -220,7 +220,7 @@ public:
+    Bool_t   GetWrapTwoPi() const { return fWrapTwoPi; }
+    void     SetWrapTwoPi(Bool_t w) { fWrapTwoPi=w; }
+ 
+-   void     SetSelector(REveCaloDataSelector* iSelector) { fSelector.reset(iSelector); }
++   void     SetSelector(REveCaloDataSelector* iSelector);
+    REveCaloDataSelector* GetSelector() { return fSelector.get(); }
+ 
+    Int_t WriteCoreJson(nlohmann::json &j, Int_t rnr_offset) override;
+diff --git a/graf3d/eve7/src/REveCaloData.cxx b/graf3d/eve7/src/REveCaloData.cxx
+index a5248f3c51d39..dc19d7d1be4a4 100644
+--- a/graf3d/eve7/src/REveCaloData.cxx
++++ b/graf3d/eve7/src/REveCaloData.cxx
+@@ -129,6 +129,9 @@ REveCaloData::REveCaloData(const char* n, const char* t):
+    // Constructor.
+ }
+ 
++REveCaloData::~REveCaloData() {}
++void REveCaloData::SetSelector(REveCaloDataSelector* iSelector) { fSelector.reset(iSelector); }
++
+ ////////////////////////////////////////////////////////////////////////////////
+ /// Process newly selected cells with given select-record.
+ 
+diff --git a/interpreter/cling/lib/Interpreter/CIFactory.cpp b/interpreter/cling/lib/Interpreter/CIFactory.cpp
+index 385c03682575d..d33ce3a0039c5 100644
+--- a/interpreter/cling/lib/Interpreter/CIFactory.cpp
++++ b/interpreter/cling/lib/Interpreter/CIFactory.cpp
+@@ -61,14 +61,18 @@ using namespace cling;
+ 
+ namespace {
+   static constexpr unsigned CxxStdCompiledWith() {
++    // The value of __cplusplus in GCC < 14 is 202100L when -std=c++2b or
++    // -std=c++23 is specified, thus we relax the check to 202100L.
++#if __cplusplus >= 202100L
++    return 23;
++#elif __cplusplus >  201703L
++    return 20;
++#elif __cplusplus > 201402L
++    return 17;
+     // The value of __cplusplus in GCC < 5.0 (e.g. 4.9.3) when
+     // either -std=c++1y or -std=c++14 is specified is 201300L, which fails
+     // the test for C++14 or more (201402L) as previously specified.
+     // I would claim that the check should be relaxed to:
+-#if __cplusplus >  201703L
+-    return 20;
+-#elif __cplusplus > 201402L
+-    return 17;
+ #elif __cplusplus > 201103L || (defined(_WIN32) && _MSC_VER >= 1900)
+     return 14;
+ #elif __cplusplus >= 201103L
+@@ -941,6 +945,8 @@ namespace {
+     // Sanity check that clang delivered the language standard requested
+     if (CompilerOpts.DefaultLanguage(&LangOpts)) {
+       switch (CxxStdCompiledWith()) {
++        case 23: assert(LangOpts.CPlusPlus23 && "Language version mismatch");
++          LLVM_FALLTHROUGH;
+         case 20: assert(LangOpts.CPlusPlus20 && "Language version mismatch");
+           LLVM_FALLTHROUGH;
+         case 17: assert(LangOpts.CPlusPlus17 && "Language version mismatch");
+@@ -1343,6 +1349,7 @@ namespace {
+       // and by enforcing the std version now cling is telling clang what to
+       // do, rather than after clang has dedcuded a default.
+       switch (CxxStdCompiledWith()) {
++        case 23: argvCompile.emplace_back("-std=c++23"); break;
+         case 20: argvCompile.emplace_back("-std=c++20"); break;
+         case 17: argvCompile.emplace_back("-std=c++17"); break;
+         case 14: argvCompile.emplace_back("-std=c++14"); break;
+diff --git a/interpreter/cling/lib/Interpreter/IncrementalCUDADeviceCompiler.cpp b/interpreter/cling/lib/Interpreter/IncrementalCUDADeviceCompiler.cpp
+index ac6bd0e89444e..a492add8a01fc 100644
+--- a/interpreter/cling/lib/Interpreter/IncrementalCUDADeviceCompiler.cpp
++++ b/interpreter/cling/lib/Interpreter/IncrementalCUDADeviceCompiler.cpp
+@@ -117,6 +117,8 @@ namespace cling {
+       cppStdVersion = "-std=c++1z";
+     if (langOpts.CPlusPlus20)
+       cppStdVersion = "-std=c++20";
++    if (langOpts.CPlusPlus23)
++      cppStdVersion = "-std=c++23";
+ 
+     if (cppStdVersion.empty())
+       llvm::errs()
+diff --git a/interpreter/cling/tools/Jupyter/kernel/clingkernel.py b/interpreter/cling/tools/Jupyter/kernel/clingkernel.py
+index 17fcbd116ecc6..17b4d24f23d86 100644
+--- a/interpreter/cling/tools/Jupyter/kernel/clingkernel.py
++++ b/interpreter/cling/tools/Jupyter/kernel/clingkernel.py
+@@ -90,8 +90,8 @@ def _banner_default(self):
+     flush_interval = Float(0.25, config=True)
+ 
+     std = CaselessStrEnum(default_value='c++11',
+-            values = ['c++11', 'c++14', 'c++1z', 'c++17', 'c++20', 'c++2b'],
+-            help="C++ standard to use, either c++2b, c++20, c++17, c++1z, c++14 or c++11").tag(config=True);
++            values = ['c++11', 'c++14', 'c++1z', 'c++17', 'c++20', 'c++2b', 'c++23' ],
++            help="C++ standard to use, either c++23, c++2b, c++20, c++17, c++1z, c++14 or c++11").tag(config=True);
+ 
+     def __init__(self, **kwargs):
+         super(ClingKernel, self).__init__(**kwargs)
+diff --git a/roofit/histfactory/inc/RooStats/HistFactory/HistRef.h b/roofit/histfactory/inc/RooStats/HistFactory/HistRef.h
+index 7db9765004e0d..5b37542e6bdea 100644
+--- a/roofit/histfactory/inc/RooStats/HistFactory/HistRef.h
++++ b/roofit/histfactory/inc/RooStats/HistFactory/HistRef.h
+@@ -12,8 +12,7 @@
+ #define HISTFACTORY_HISTREF_H
+ 
+ #include <memory>
+-
+-class TH1;
++#include <TH1.h>
+ 
+ namespace RooStats{
+ namespace HistFactory {
+diff --git a/roofit/roofitcore/inc/RooFit/Detail/NormalizationHelpers.h b/roofit/roofitcore/inc/RooFit/Detail/NormalizationHelpers.h
+index c66954d0f0549..a849d7c2c8b4b 100644
+--- a/roofit/roofitcore/inc/RooFit/Detail/NormalizationHelpers.h
++++ b/roofit/roofitcore/inc/RooFit/Detail/NormalizationHelpers.h
+@@ -70,8 +70,7 @@ template <class T>
+ std::unique_ptr<T> compileForNormSet(T const &arg, RooArgSet const &normSet)
+ {
+    RooFit::Detail::CompileContext ctx{normSet};
+-   std::unique_ptr<RooAbsArg> head = arg.compileForNormSet(normSet, ctx);
+-   return std::unique_ptr<T>{static_cast<T *>(head.release())};
++   return std::unique_ptr<T>{static_cast<T *>(arg.compileForNormSet(normSet, ctx).release())};
+ }
+ 
+ } // namespace Detail
