@@ -40,8 +40,8 @@ inputs: rec
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
     {
-      inherit lmod nvhpc vtst src;
-      hdf5 = hdf5-nvhpc;
+      inherit (nvhpcPackages) stdenv hdf5 mpi qd;
+      inherit vtst src;
       wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
     intel = inputs.pkgs.callPackage ./vasp/intel
@@ -113,6 +113,7 @@ inputs: rec
     hdf5 = inputs.pkgs.hdf5.override
       { inherit (final) stdenv; cppSupport = false; fortranSupport = true; enableShared = false; enableStatic = true; };
     qd = final.callPackage ./qd.nix { src = inputs.topInputs.qd; };
+    mpi = inputs.pkgs.openmpi.override { inherit (final) stdenv; enableSubstitute = false; };
   });
   gccFull = inputs.pkgs.symlinkJoin
   {
