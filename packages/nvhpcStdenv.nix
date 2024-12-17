@@ -1,32 +1,18 @@
-{ src, stdenv, gcc, glibc_multi, autoPatchelfHook, libz, wrapCCWith, config, gfortran, overrideCC, zstd, libxml2, symlinkJoin, flock, glibc, binutils, writeText, addAttrsToDerivation, iconv, rdma-core, numactl, ncurses, dpkg }:
+{
+  src, stdenv, autoPatchelfHook, wrapCCWith, writeText, addAttrsToDerivation, config, overrideCC,
+  gcc, glibc_multi, libz, zstd, libxml2, flock, numactl, ncurses, dpkg
+}:
 let
-  gcc-combined = symlinkJoin
-  {
-    name = "gcc-combined";
-    paths =
-    [
-      gcc gfortran glibc_multi gcc.cc.lib
-      # wrapped binaries
-      # stdenv.cc gfortran glibc glibc.dev binutils iconv
-      # not wrapped binaries
-      # gcc.cc gfortran.cc gfortran.cc.lib
-    ];
-  };
   nvhpc = stdenv.mkDerivation
   {
     pname = "nvhpc";
     inherit (src) src version;
-    buildInputs = [ glibc_multi gcc.cc.lib libz libxml2 zstd numactl ncurses ];
+    buildInputs = [ libz libxml2 zstd numactl ncurses ];
     nativeBuildInputs = [ autoPatchelfHook dpkg flock ];
     langFortran = true;
     dontConfigure = true;
     dontBuild = true;
-    dontStrip = true;
-    dontShrink = true;
-    unpackPhase =
-    ''
-      dpkg-deb -x $src .
-    '';
+    unpackPhase = ''dpkg-deb -x $src .'';
     installPhase =
     ''
       # install component
@@ -38,7 +24,8 @@ let
     postFixup =
     ''
       sed -i '/makelocalrc executed by/d' $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/compilers/bin/makelocalrc
-      $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/compilers/bin/makelocalrc $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/compilers/bin -x -no-cuda
+      $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/compilers/bin/makelocalrc \
+        $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/compilers/bin -x -no-cuda
       ln -s $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/compilers/bin $out
     '';
   };
@@ -55,30 +42,26 @@ let
     cc = nvhpc;
     extraBuildCommands =
     ''
-      # echo "-isystem ${nvhpc}/include" >> $out/nix-support/cc-cflags
-      # echo "-L${stdenv.cc.cc}/lib/gcc/${stdenv.targetPlatform.config}/${stdenv.cc.version}" >> 
-      # $out/nix-support/cc-ldflags
-      echo "-L${gcc.cc.lib}/lib" >> $out/nix-support/cc-ldflags
-      # echo "-L${nvhpc}/lib -L${gcc-combined}/lib --verbose" >> $out/nix-support/cc-ldflags
+      echo "-L${gcc}/lib" >> $out/nix-support/cc-ldflags
 
       echo "-tp=${config.nvhpcArch}" >> $out/nix-support/cc-cflags-before
       echo "-gpu=${cudaCapability}" >> $out/nix-support/cc-cflags-before
 
-      # Need the gcc in the path
-      # echo 'export "PATH=${gcc-combined}/bin:$PATH"' >> $out/nix-support/cc-wrapper-hook
-      echo "-# -noswitcherror" >> $out/nix-support/cc-cflags
+      echo "-noswitcherror" >> $out/nix-support/cc-cflags
 
-      # Disable hardening by default
-      echo "" > $out/nix-support/add-hardening.sh
+      # echo "" > $out/nix-support/add-hardening.sh
+
+      # substitute -idirafter in libc-cflags
+      sed -i 's/-idirafter/-isystem/g' $out/nix-support/libc-cflags
 
       for i in nvc nvc++ nvcc nvfortran; do
         wrap $i $wrapper $ccPath/$i
       done
     '';
-  }).overrideAttrs (prev: { installPhase = prev.installPhase + ''
-          export named_cc=nvc
-      export named_cxx=nvc++
-      export named_fc=nvfortran''; });
+  }).overrideAttrs (prev: { installPhase = prev.installPhase +
+  ''
+    export named_cc=nvc
+    export named_cxx=nvc++
+    export named_fc=nvfortran
+  '';});
 in addAttrsToDerivation { NVLOCALRC = customLocalrc; } (overrideCC stdenv wrapper)
-#  NIX_DEBUG = "7";
-# in nvhpc

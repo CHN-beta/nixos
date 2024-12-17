@@ -105,14 +105,14 @@ inputs: rec
   spectroscopy = inputs.pkgs.callPackage ./spectroscopy.nix { src = inputs.topInputs.spectroscopy; };
   mirism = inputs.pkgs.callPackage ./mirism { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   vaspberry = inputs.pkgs.callPackage ./vaspberry.nix { src = inputs.topInputs.vaspberry; };
-  nvhpcStdenv = inputs.pkgs.callPackage ./nvhpcStdenv.nix
+  nvhpcStdenv = inputs.pkgs.callPackage ./nvhpcStdenv.nix { src = inputs.topInputs.self.src.nvhpc; gcc = gccFull; };
+  nvhpcPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
   {
-    src = inputs.topInputs.self.src.nvhpc;
-    # stdenv = inputs.pkgs.cudaPackages.backendStdenv;
-    # gcc = inputs.pkgs.cudaPackages.backendStdenv.cc;
-    # gfortran = inputs.pkgs.cudaPackages.backendStdenv.cc.version
-  };
-  fmt-nvhpc = inputs.pkgs.fmt.override { stdenv = nvhpcStdenv; };
+    stdenv = nvhpcStdenv;
+    fmt = (inputs.pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; };
+    hdf5= inputs.pkgs.hdf5.override
+      { inherit (final) stdenv; cppSupport = false; fortranSupport = true; enableShared = false; enableStatic = true; };
+  });
   gccFull = inputs.pkgs.symlinkJoin
   {
     name = "gcc";
