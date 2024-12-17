@@ -46,14 +46,14 @@ let
 
       echo "-tp=${config.nvhpcArch}" >> $out/nix-support/cc-cflags-before
       echo "-gpu=${cudaCapability}" >> $out/nix-support/cc-cflags-before
-      echo "-I ${gcc}/include" >> $out/nix-support/cc-cflags-before
 
-      echo "-noswitcherror -isystem ${gcc}/include -#" >> $out/nix-support/cc-cflags
+      echo "-noswitcherror -#" >> $out/nix-support/cc-cflags
 
       # echo "" > $out/nix-support/add-hardening.sh
 
       # substitute -idirafter in libc-cflags
-      sed -i 's/-idirafter/-isystem/g' $out/nix-support/libc-cflags
+      # somehow -isystem does not work
+      sed -i 's/-idirafter/-I/g' $out/nix-support/libc-cflags
 
       for i in nvc nvc++ nvcc nvfortran; do
         wrap $i $wrapper $ccPath/$i
