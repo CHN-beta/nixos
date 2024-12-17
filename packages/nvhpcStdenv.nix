@@ -46,8 +46,9 @@ let
 
       echo "-tp=${config.nvhpcArch}" >> $out/nix-support/cc-cflags-before
       echo "-gpu=${cudaCapability}" >> $out/nix-support/cc-cflags-before
+      echo "-I ${gcc}/include" >> $out/nix-support/cc-cflags-before
 
-      echo "-noswitcherror" >> $out/nix-support/cc-cflags
+      echo "-noswitcherror -isystem ${gcc}/include -#" >> $out/nix-support/cc-cflags
 
       # echo "" > $out/nix-support/add-hardening.sh
 

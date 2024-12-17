@@ -1185,6 +1185,22 @@
         "type": "github"
       }
     },
+    "qd": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1452446912,
+        "narHash": "sha256-ftU28BMGUCq0or0nVkf9fryaLfqGnMonmHu7UuyjMTQ=",
+        "owner": "scibuilder",
+        "repo": "QD",
+        "rev": "a5dbb6136ac1739e7e6955bf7b0c0fa05f3b2cbd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "scibuilder",
+        "repo": "QD",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "aagl": "aagl",
@@ -1226,6 +1242,7 @@
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
         "qchem": "qchem",
+        "qd": "qd",
         "rsshub": "rsshub",
         "rycee": "rycee",
         "slate": "slate",

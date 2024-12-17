@@ -110,8 +110,9 @@ inputs: rec
   {
     stdenv = nvhpcStdenv;
     fmt = (inputs.pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; };
-    hdf5= inputs.pkgs.hdf5.override
+    hdf5 = inputs.pkgs.hdf5.override
       { inherit (final) stdenv; cppSupport = false; fortranSupport = true; enableShared = false; enableStatic = true; };
+    qd = final.callPackage ./qd.nix { src = inputs.topInputs.qd; };
   });
   gccFull = inputs.pkgs.symlinkJoin
   {
