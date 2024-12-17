@@ -16,7 +16,7 @@ inputs:
           # system management
           # TODO: module should add yubikey-touch-detector into path
           gparted wayland-utils clinfo glxinfo vulkan-tools dracut yubikey-touch-detector btrfs-assistant snapper-gui
-          kdePackages.qtstyleplugin-kvantum ventoy-full cpu-x wl-mirror geekbench
+          kdePackages.qtstyleplugin-kvantum ventoy-full cpu-x wl-mirror geekbench xpra
           (
             writeShellScriptBin "xclip"
             ''
@@ -43,7 +43,7 @@ inputs:
           warp-terminal
           # development
           adb-sync scrcpy dbeaver-bin cling aircrack-ng
-          weston cage openbox krita jetbrains.clion androidStudioPackages.stable.full fprettify
+          weston cage openbox krita jetbrains.clion fprettify
           # desktop sharing
           rustdesk-flutter
           # password and key management
@@ -52,7 +52,7 @@ inputs:
           # download
           qbittorrent nur-xddxdd.baidupcs-go wgetpaste onedrive onedrivegui rclone
           # editor
-          typora # appflowy notion-app-enhanced joplin-desktop standardnotes logseq
+          typora appflowy notion-app-enhanced joplin-desktop standardnotes logseq
           # news
           fluent-reader rssguard newsflash newsboat
           # nix tools
@@ -65,15 +65,14 @@ inputs:
           google-chrome tor-browser microsoft-edge
           # office
           crow-translate zotero pandoc libreoffice-qt texliveFull poppler_utils pdftk pdfchain davinci-resolve
-          # TODO: enable in next release
-          # hdfview
-          ydict texstudio
+          ydict texstudio panoply pspp
           # matplot++ needs old gnuplot
           inputs.pkgs."pkgs-23.11".gnuplot
           # math, physics and chemistry
-          octaveFull root ovito localPackages.vesta localPackages.v-sim
-          (mathematica.overrideAttrs (prev: { postInstall = (prev.postInstall or "") + "ln -s ${prev.src} $out/src"; }))
-          (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; }) jmol mpi localPackages.ufo
+          octaveFull ovito localPackages.vesta localPackages.v-sim jmol mpi geogebra6 localPackages.ufo
+          (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14;
+            wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; }; })
+          inputs.pkgs."pkgs-23.11".hdfview
           # virtualization
           virt-viewer bottles wineWowPackages.stagingFull genymotion playonlinux
           # media

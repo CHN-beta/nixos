@@ -3,6 +3,9 @@
 # include <tuple>
 # include <type_traits>
 # include <complex>
+# include <set>
+# include <unordered_set>
+# include <boost/container/flat_set.hpp>
 
 namespace biu
 {
@@ -48,9 +51,13 @@ namespace biu
     template <typename T> concept Arithmetic = std::is_arithmetic<T>::value || SpecializationOf<T, std::complex>;
 
     template <typename T> concept Nullptr = std::is_null_pointer_v<std::remove_cvref_t<T>>;
+
+    template <typename T> concept Set = SpecializationOf<T, std::set> || SpecializationOf<T, std::unordered_set>
+      || SpecializationOf<T, std::multiset> || SpecializationOf<T, std::unordered_multiset>
+      || SpecializationOf<T, boost::container::flat_set>;
   }
   using concepts::DecayedType, concepts::SpecializationOf, concepts::CompletedType, concepts::ImplicitlyConvertibleTo,
     concepts::ImplicitlyConvertibleFrom, concepts::ExplicitlyConvertibleTo, concepts::ExplicitlyConvertibleFrom,
     concepts::ConvertibleTo, concepts::ConvertibleFrom, concepts::ConstevalInvokable, concepts::Enumerable,
-    concepts::InvocableWithResult, concepts::Arithmetic, concepts::Nullptr;
+    concepts::InvocableWithResult, concepts::Arithmetic, concepts::Nullptr, concepts::Set;
 }

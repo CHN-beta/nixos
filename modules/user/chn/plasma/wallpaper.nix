@@ -6,7 +6,6 @@ inputs:
       wallpaper =
       {
         pc = "${nixos-wallpaper}/pixiv-117612023.png";
-        surface = "${nixos-wallpaper}/fanbox-6682738.png";
       }.${inputs.config.nixos.model.hostname} or "${nixos-wallpaper}/pixiv-96734339-x2.png";
     in
     {

@@ -18,17 +18,20 @@ inputs:
               (set:
               {
                 name = set;
-                value = nix-vscode-extensions.vscode-marketplace.${set} // vscode-extensions.${set} or {};
+                value = vscode-extensions.${set} or {}
+                  // nix-vscode-extensions.vscode-marketplace.${set}
+                  // nix-vscode-extensions.vscode-marketplace-release.${set} or {};
               })
               (inputs.lib.unique
               (
-                (builtins.attrNames nix-vscode-extensions.vscode-marketplace)
-                ++ (builtins.attrNames vscode-extensions)
+                (builtins.attrNames vscode-extensions)
+                  ++ (builtins.attrNames nix-vscode-extensions.vscode-marketplace)
+                  ++ (builtins.attrNames nix-vscode-extensions.vscode-marketplace-release)
               )));
             in with extensions;
               (with github; [ copilot github-vscode-theme ])
               ++ (with intellsmi; [ comment-translate ])
-              ++ (with ms-vscode; [ cmake-tools cpptools cpptools-extension-pack hexeditor remote-explorer ])
+              ++ (with ms-vscode; [ cmake-tools cpptools-extension-pack hexeditor remote-explorer ])
               ++ (with ms-vscode-remote; [ remote-ssh ])
               ++ [
                 donjayamanne.githistory fabiospampinato.vscode-diff
@@ -51,7 +54,12 @@ inputs:
                 ms-python.python
                 # theme
                 pkief.material-icon-theme
-              ];
+              ]
+              # jupyter
+              # TODO: use last release
+              ++ (with vscode-extensions.ms-toolsai;
+                [ jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow ]);
+          extraFlags = builtins.concatStringsSep " " inputs.config.nixos.packages.packages._vscodeEnvFlags;
         }
       )];
     };

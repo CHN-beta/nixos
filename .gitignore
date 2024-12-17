@@ -6,3 +6,4 @@ build
 .vscode
 .cache
 .ccls-cache
+archive

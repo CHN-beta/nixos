@@ -10,7 +10,11 @@
     sops-nix = { url = "github:Mic92/sops-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
     nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nix-vscode-extensions = { url = "github:nix-community/nix-vscode-extensions"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nix-vscode-extensions =
+    {
+      url = "github:nix-community/nix-vscode-extensions?rev=7aa26ebccf778efe880fda1290db9c1da56ffa4f";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     impermanence.url = "github:nix-community/impermanence";
     qchem = { url = "github:Nix-QChem/NixOS-QChem/master"; inputs.nixpkgs.follows = "nixpkgs"; };
     plasma-manager =
@@ -19,7 +23,6 @@
       inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
     };
     nur-linyinfeng = { url = "github:linyinfeng/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nixos-hardware.url = "github:CHN-beta/nixos-hardware";
     envfs = { url = "github:Mic92/envfs"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-flatpak.url = "github:gmodena/nix-flatpak";
     chaotic =
@@ -30,7 +33,6 @@
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
     catppuccin.url = "github:catppuccin/nix";
     bscpkgs = { url = "git+https://git.chn.moe/chn/bscpkgs.git"; inputs.nixpkgs.follows = "nixpkgs"; };
-    poetry2nix = { url = "github:nix-community/poetry2nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     winapps = { url = "github:winapps-org/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
     aagl = { url = "github:ezKEa/aagl-gtk-on-nix/release-24.11"; inputs.nixpkgs.follows = "nixpkgs"; };
 
@@ -48,7 +50,6 @@
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
     blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
     slate = { url = "github:TheBigWazz/Slate"; flake = false; };
-    linux-surface = { url = "github:linux-surface/linux-surface"; flake = false; };
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
     lmod = { url = "github:TACC/Lmod"; flake = false; };
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
@@ -65,6 +66,9 @@
     nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };
     spectroscopy = { url = "github:skelton-group/Phonopy-Spectroscopy"; flake = false; };
     vaspberry = { url = "github:Infant83/VASPBERRY"; flake = false; };
+    ufo = { url = "git+https://git.chn.moe/chn/ufo.git"; flake = false; };
+    highfive = { url = "git+https://github.com/CHN-beta/HighFive?submodules=1"; flake = false; };
+    stickerpicker = { url = "github:maunium/stickerpicker"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib.nix inputs.nixpkgs.lib; in

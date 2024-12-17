@@ -4,8 +4,7 @@ inputs:
   {
     hostname = mkOption { type = types.nonEmptyStr; };
     type = mkOption { type = types.enum [ "minimal" "desktop" "server" ]; default = "minimal"; };
-    # not implemented yet
-    # private = mkOption { type = types.bool; };
+    private = mkOption { type = types.bool; default = false; };
     cluster = mkOption
     {
       type = types.nullOr (types.submodule { options =

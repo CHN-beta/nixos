@@ -68,6 +68,7 @@ inputs:
             main.enable = true;
             nekomia.enable = true;
             blog = {};
+            sticker = {};
           };
         };
         coturn = {};
@@ -77,7 +78,7 @@ inputs:
         wireguard =
         {
           enable = true;
-          peers = [ "pc" "nas" "vps7" "surface" "xmupc1" "xmupc2" "pi3b" "srv1-node0" ];
+          peers = [ "pc" "nas" "one" "vps7" "xmupc1" "xmupc2" "pi3b" "srv1-node0" ];
           publicKey = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4=";
           wireguardIp = "192.168.83.1";
           listenIp = "74.211.99.69";

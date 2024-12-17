@@ -27,14 +27,15 @@ find_package(HDF5 REQUIRED)
 find_package(concurrencpp REQUIRED)
 find_path(POCKETFFT_INCLUDE_DIR pocketfft.h REQUIRED)
 find_package(yaml-cpp REQUIRED)
+find_package(glaze REQUIRED)
 
-add_library(biu src/common.cpp src/hdf5.cpp src/logger.cpp src/string.cpp)
+add_library(biu src/common.cpp src/hdf5.cpp src/string.cpp)
 target_include_directories(biu PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}> ${NAMEOF_INCLUDE_DIR} ${ZPP_BITS_INCLUDE_DIR}
   ${LIBBACKTRACE_INCLUDE_DIR} ${POCKETFFT_INCLUDE_DIR})
 target_link_libraries(biu PUBLIC magic_enum::magic_enum fmt::fmt Boost::headers Boost::iostreams Boost::filesystem
   range-v3::range-v3 Eigen3::Eigen HighFive TgBot::TgBot ${LIBBACKTRACE_LIBRARY} hdf5::hdf5 concurrencpp::concurrencpp
-  yaml-cpp::yaml-cpp)
+  yaml-cpp::yaml-cpp glaze::glaze)
 target_compile_features(biu PUBLIC cxx_std_23)
 target_compile_options(biu PUBLIC -Wno-gnu-string-literal-operator-template)
 install(TARGETS biu EXPORT biuTargets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -81,3 +82,12 @@ add_executable(test-yaml test/yaml.cpp)
 target_link_libraries(test-yaml PRIVATE biu)
 set_property(TARGET test-yaml PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON)
 add_test(NAME test-yaml COMMAND test-yaml)
+add_executable(test-logger test/logger.cpp)
+target_link_libraries(test-logger PRIVATE biu)
+target_compile_definitions(test-logger PRIVATE BIU_LOGGER_DEBUG BIU_LOGGER_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}")
+set_property(TARGET test-logger PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON)
+add_test(NAME test-logger COMMAND test-logger)
+add_executable(test-glaze test/glaze.cpp)
+target_link_libraries(test-glaze PRIVATE biu)
+set_property(TARGET test-glaze PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON)
+add_test(NAME test-glaze COMMAND test-glaze)

@@ -1,3 +1,4 @@
+# define BIU_INTERNAL
 # include <biu.hpp>
 
 namespace biu
@@ -5,18 +6,13 @@ namespace biu
   concurrencpp::generator<std::pair<std::string_view, std::sregex_iterator>> string::find
     (SmartRef<const std::string> data, SmartRef<const std::regex> regex)
   {
-    Logger::Guard log;
     std::string::const_iterator unmatched_prefix_begin = data->cbegin(), unmatched_prefix_end;
     std::sregex_iterator regit;
     while (true)
     {
       if (regit == std::sregex_iterator{}) regit = std::sregex_iterator{data->begin(), data->end(), *regex};
       else regit++;
-      if (regit == std::sregex_iterator{})
-      {
-        unmatched_prefix_end = data->cend();
-        log.debug("distance: {}"_f(std::distance(unmatched_prefix_begin, unmatched_prefix_end)));
-      }
+      if (regit == std::sregex_iterator{}) unmatched_prefix_end = data->cend();
       else unmatched_prefix_end = (*regit)[0].first;
       co_yield
       {
@@ -35,7 +31,6 @@ namespace biu
   std::string string::replace
     (const std::string& data, const std::regex& regex, std::function<std::string(const std::smatch&)> function)
   {
-    Logger::Guard log;
     std::string result;
     for (auto matched : find(data, regex))
     {

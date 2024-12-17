@@ -1,14 +1,13 @@
 keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &chn age19ax6vm3pv8rph5tq3mmehd9sy9jk823tw8svsd790r0lkslycquqvlwz9m
   - &pc age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
-  - &vps4 age1yvrl4y0r6yzcxzzkgfwshlrtsjt8uuya6rfwks09pnft7esfcyvqmrtm5q
   - &vps6 age164tyqklwhdm57tfm5u863mdt2xrzrrzac4py8a0j9y6kzqcjy9zsp073t6
   - &vps7 age137x7csalutwvfygvvzpemlsywvdxj3j4z93a50z2sjx03w6zau8q3r5902
-  - &surface age1ck5vzs0xqx0jplmuksrkh45xwmkm2t05m2wyq5k2w2mnkmn79fxs6tvl3l
   - &nas age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
   - &xmupc1 age1hnarptkze0ujpp05dqr8uma04cxg9zqcx68qgpks5uf5l6rpk5gqhh8wxg
   - &xmupc2 age1l4stuz0vr7gs7pqwjrmezam44702jp2vmqaqyxw0l0r42kf9updq4dfhrw
   - &pi3b age1yjgswvexp0x0de0sw4u6hamruzeluxccmx2enxazl6pwhhsr2s9qlxdemq
+  - &one age1m7nrxfw22wvp7pj8y9pdl745w95x89uu8dzl9ppsaazweqf2lqms5yshsp
   - &srv1-node0 age1nzetyehldf3gl6pr6mu5d2cv387p8wjqn6wfpll7a3sl8us6n38s0ds633
   - &srv1-node1 age1wj33xt8nj7rhnsenepsf6k3lmq5vk4wn84jwr55qy9cwu05xn5cspg3h7t
   - &srv1-node2 age16e7ykphshal6qhwfvat698hl48s8yr0jvzh27ecdyfh5uk7t9u6s753jgy
@@ -19,11 +18,6 @@ creation_rules:
     - age:
       - *chn
       - *pc
-  - path_regex: devices/vps4/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *vps4
   - path_regex: devices/vps6/.*$
     key_groups:
     - age:
@@ -39,11 +33,6 @@ creation_rules:
     - age:
       - *chn
       - *nas
-  - path_regex: devices/surface/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *surface
   - path_regex: devices/xmupc1/.*$
     key_groups:
     - age:
@@ -59,6 +48,11 @@ creation_rules:
     - age:
       - *chn
       - *pi3b
+  - path_regex: devices/one/.*$
+    key_groups:
+    - age:
+      - *chn
+      - *one
   - path_regex: devices/srv1/node0/.*$
     key_groups:
     - age:

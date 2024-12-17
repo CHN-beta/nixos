@@ -4,24 +4,19 @@ inputs:
   {
     variant = mkOption
     {
-      type = types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "cachyos-server" "zen" ];
+      type = types.nullOr (types.enum
+        [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "cachyos-server" "zen" ]);
       default = "xanmod-lts";
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-    modules =
-    {
-      install = mkOption { type = types.listOf types.str; default = []; };
-      load = mkOption { type = types.listOf types.str; default = []; };
-      initrd = mkOption { type = types.listOf types.str; default = []; };
-      modprobeConfig = mkOption { type = types.listOf types.str; default = []; };
-    };
+    modules.modprobeConfig = mkOption { type = types.listOf types.str; default = []; };
   };
   config = let inherit (inputs.config.nixos.system) kernel; in inputs.lib.mkMerge
   [
     {
       boot =
       {
-        kernelModules = [ "br_netfilter" ] ++ kernel.modules.load;
+        kernelModules = [ "br_netfilter" ];
         # modprobe --show-depends
         initrd.availableKernelModules =
         [
@@ -41,10 +36,10 @@ inputs:
         ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ])
         # for pi3b to show message over hdmi while boot
         ++ (inputs.lib.optionals (kernel.variant == "nixos") [ "vc4" "bcm2835_dma" "i2c_bcm2835" ]);
-        extraModulePackages = (with inputs.config.boot.kernelPackages; [ v4l2loopback ]) ++ kernel.modules.install;
+        extraModulePackages = with inputs.config.boot.kernelPackages; [ v4l2loopback zenpower ];
         extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
         kernelParams = [ "delayacct" ];
-        kernelPackages =
+        kernelPackages = inputs.lib.mkIf (kernel.variant != null)
         {
           nixos = inputs.pkgs.linuxPackages;
           xanmod-lts = inputs.pkgs.linuxPackages_xanmod;
@@ -79,45 +74,6 @@ inputs:
                   HZ = inputs.lib.mkForce (freeform "1000");
                 };
               }];
-              surface =
-                let
-                  version =
-                    let versionArray = builtins.splitVersion inputs.config.boot.kernelPackages.kernel.version;
-                    in "${builtins.elemAt versionArray 0}.${builtins.elemAt versionArray 1}";
-                  kernelPatches = builtins.map
-                    (file:
-                    {
-                      name = "surface-${file.name}";
-                      patch = "${inputs.topInputs.linux-surface}/patches/${version}/${file.name}";
-                    })
-                    (builtins.filter
-                      (file: file.value == "regular")
-                      (inputs.localLib.attrsToList (builtins.readDir
-                        "${inputs.topInputs.linux-surface}/patches/${version}")));
-                  kernelConfig = builtins.removeAttrs
-                    (builtins.listToAttrs (builtins.concatLists (builtins.map
-                      (configString:
-                        if builtins.match "CONFIG_.*=." configString == [] then
-                        (
-                          let match = builtins.match "CONFIG_(.*)=(.)" configString; in with inputs.lib.kernel;
-                          [{
-                            name = builtins.elemAt match 0;
-                            value = { m = module; y = yes; }.${builtins.elemAt match 1};
-                          }]
-                        )
-                        else if builtins.match "# CONFIG_.* is not set" configString == [] then
-                        [{
-                          name = builtins.elemAt (builtins.match "# CONFIG_(.*) is not set" configString) 0;
-                          value = inputs.lib.kernel.unset;
-                        }]
-                        else if builtins.match "#.*" configString == [] then []
-                        else if configString == "" then []
-                        else throw "could not parse: ${configString}"
-                      )
-                      (inputs.lib.strings.splitString "\n"
-                        (builtins.readFile "${inputs.topInputs.linux-surface}/configs/surface-${version}.config")))))
-                    [ "VIDEO_IPU3_IMGU" ];
-                in kernelPatches ++ [{ name = "surface-config"; patch = null; extraStructuredConfig = kernelConfig; }];
               hibernate-progress =
               [{
                 name = "hibernate-progress";

@@ -39,7 +39,11 @@ inputs: rec
       hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; cppSupport = false; };
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
-      { inherit lmod nvhpc vtst src; hdf5 = hdf5-nvhpc; };
+    {
+      inherit lmod nvhpc vtst src;
+      hdf5 = hdf5-nvhpc;
+      wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
+    };
     intel = inputs.pkgs.callPackage ./vasp/intel
     {
       inherit vtst src;
@@ -57,6 +61,7 @@ inputs: rec
         enableShared = false;
         enableStatic = true;
       };
+      wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
     hdf5-nvhpc = (inputs.pkgs.hdf5.override
     {
@@ -84,7 +89,7 @@ inputs: rec
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm.nix { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
   sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
-  ufo = inputs.pkgs.callPackage ./ufo
+  ufo = inputs.pkgs.callPackage inputs.topInputs.ufo
   {
     inherit biu matplotplusplus;
     tbb = inputs.pkgs.tbb_2021_11;
@@ -95,7 +100,7 @@ inputs: rec
   sockpp = inputs.pkgs.callPackage ./sockpp.nix { src = inputs.topInputs.sockpp; };
   git-lfs-transfer = inputs.pkgs.callPackage ./git-lfs-transfer.nix
     { src = inputs.topInputs.git-lfs-transfer; hash = inputs.topInputs.self.src.git-lfs-transfer; };
-  py4vasp = inputs.pkgs.callPackage ./py4vasp { src = inputs.topInputs.py4vasp; };
+  py4vasp = inputs.pkgs.python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; inherit nglview; };
   pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.topInputs.pocketfft; };
   spectroscopy = inputs.pkgs.callPackage ./spectroscopy.nix { src = inputs.topInputs.spectroscopy; };
   mirism = inputs.pkgs.callPackage ./mirism { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
@@ -119,6 +124,9 @@ inputs: rec
       gcc.cc gcc.cc.lib gfortran.cc binutils.bintools
     ];
   };
+  highfive = inputs.pkgs.callPackage ./highfive.nix { src = inputs.topInputs.highfive; };
+  stickerpicker = inputs.pkgs.python3Packages.callPackage ./stickerpicker.nix { src = inputs.topInputs.stickerpicker; };
+  nglview = inputs.pkgs.python3Packages.callPackage ./nglview.nix { src = inputs.topInputs.self.src.nglview; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

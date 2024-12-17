@@ -23,7 +23,6 @@ inputs:
           {
             matchBlocks = rec
             {
-              # identityFile = "~/.ssh/xmuhk_id_rsa";
               xmuhk = { host = "xmuhk"; hostname = "10.26.14.56"; user = "xmuhk"; };
               xmuhk2 = { host = "xmuhk2"; hostname = "183.233.219.132"; user = "xmuhk"; port = 62022; };
               jykang.setEnv.TERM = "chn_unset_ls_colors:chn_cd:linwei/chn:chn_debug:xterm-256color";
@@ -32,15 +31,15 @@ inputs:
             // (builtins.listToAttrs (builtins.map
               (system: { name = system; value = { forwardAgent = true; extraOptions.AddKeysToAgent = "yes"; }; })
               [
-                "vps4" "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas" "pc"
-                "wireguard.surface" "xmupc1" "wireguard.xmupc1" "xmupc2" "wireguard.xmupc2"
+                "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas" "pc"
+                "xmupc1" "wireguard.xmupc1" "xmupc2" "wireguard.xmupc2" "one" "wireguard.one"
               ]));
-            extraConfig =
-              inputs.lib.mkIf (builtins.elem inputs.config.nixos.model.hostname [ "pc" "surface" ])
-              ''
-                IdentityFile ~/.ssh/id_rsa
-                IdentityFile ~/.ssh/id_ed25519_sk
-              '';
+            extraConfig = inputs.lib.mkIf inputs.config.nixos.model.private
+            ''
+              IdentityFile ~/.ssh/id_rsa
+              IdentityFile ~/.ssh/xmuhk_id_rsa
+              IdentityFile ~/.ssh/id_ed25519_sk
+            '';
           };
         };
         home =

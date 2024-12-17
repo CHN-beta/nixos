@@ -5,6 +5,8 @@
 # include <biu/eigen.hpp>
 # include <boost/pfr.hpp>
 # include <boost/pfr/core_name.hpp>
+# include <nameof.hpp>
+# include <magic_enum.hpp>
 
 namespace YAML
 {
@@ -49,6 +51,42 @@ namespace YAML
       optional = value;
     }
     return true;
+  }
+  template <biu::SpecializationOf<std::unique_ptr> Ptr> Node convert<Ptr>::encode(const Ptr& ptr)
+  {
+    if (ptr) return convert<typename Ptr::element_type>::encode(*ptr);
+    else return YAML::Node{};
+  }
+  template <biu::SpecializationOf<std::unique_ptr> Ptr> bool convert<Ptr>::decode
+    (const Node& node, Ptr& ptr)
+  {
+    if (!node.IsDefined() || node.IsNull()) ptr = nullptr;
+    else
+    {
+      auto* value = new typename Ptr::element_type;
+      if (!convert<typename Ptr::element_type>::decode(node, *value)) return false;
+      ptr.reset(value);
+    }
+    return true;
+  }
+  template <biu::Set Set> Node convert<Set>::encode(const Set& set)
+    { return convert<std::vector<typename Set::value_type>>::encode(set | ranges::to_vector); }
+  template <biu::Set Set> bool convert<Set>::decode(const Node& node, Set& set)
+  {
+    std::vector<typename Set::value_type> vec;
+    if (!convert<std::vector<typename Set::value_type>>::decode(node, vec)) return false;
+    set = vec | ranges::to<Set>;
+    return true;
+  }
+  template <biu::Enumerable Enum> Node convert<Enum>::encode(const Enum& e)
+    { return convert<std::string_view>::encode(nameof::nameof_enum(e)); }
+  template <biu::Enumerable Enum> bool convert<Enum>::decode(const Node& node, Enum& e)
+  {
+    std::string name;
+    if (!convert<std::string>::decode(node, name)) return false;
+    auto optional_value = magic_enum::enum_cast<Enum>(name);
+    if (!optional_value) return false;
+    else { e = *optional_value; return true; }
   }
   template <typename T> Node convert<T>::encode(const T& t)
   {

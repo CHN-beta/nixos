@@ -1,7 +1,7 @@
 {
   stdenv, cmake, lib,
   magic-enum, fmt, boost, eigen, range-v3, nameof, zpp-bits, highfive, tgbot-cpp, libbacktrace, hdf5, concurrencpp,
-  pocketfft, yaml-cpp
+  pocketfft, yaml-cpp, glaze
 }: stdenv.mkDerivation rec
 {
   name = "biu";
@@ -9,7 +9,7 @@
   buildInputs =
   [
     magic-enum fmt boost range-v3 nameof zpp-bits eigen highfive tgbot-cpp libbacktrace hdf5
-    concurrencpp pocketfft yaml-cpp
+    concurrencpp pocketfft yaml-cpp glaze
   ];
   propagatedBuildInputs = buildInputs;
   nativeBuildInputs = [ cmake ];

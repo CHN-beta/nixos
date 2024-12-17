@@ -1,4 +1,5 @@
 # include <biu.hpp>
+# include <glaze/glaze.hpp>
 
 int main()
 {
@@ -10,4 +11,22 @@ int main()
     | biu::toLvalue
     | ranges::views::transform([](int i){ return i + 1; })
     | ranges::to_vector;
+  
+  struct test_struct
+  {
+    int a = 1;
+    double b = 2;
+    std::string c = "3";
+  } c;
+  biu::for_each([&](auto&& i){ std::cout << c.*i << '\n'; },
+    std::tuple(&test_struct::a, &test_struct::b, &test_struct::c));
+  struct test_struct2
+  {
+    int a = 4;
+    double b = 5;
+    std::string c = "6";
+  } d;
+  biu::for_each([&](auto&& i, auto&& j){ c.*i = d.*j; },
+    std::tuple(&test_struct::a, &test_struct::b, &test_struct::c),
+    std::tuple(&test_struct2::a, &test_struct2::b, &test_struct2::c));
 }

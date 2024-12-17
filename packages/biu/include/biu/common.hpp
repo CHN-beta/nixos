@@ -117,9 +117,11 @@ namespace biu
       template <typename T> T& operator|(T&& obj, const ToLvalueHelper&);
     }
     constexpr detail_::ToLvalueHelper toLvalue;
+
+    template <typename Function, typename T, typename... Ts> void for_each(Function&& function, T&& arg, Ts&&... args);
   }
   using common::hash, common::unused, common::block_forever, common::is_interactive, common::env, common::int128_t,
     common::uint128_t, common::Empty, common::CaseInsensitiveStringLessComparator, common::RemoveMemberPointer,
     common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec, common::sequence, common::read,
-    common::toLvalue;
+    common::toLvalue, common::for_each;
 }

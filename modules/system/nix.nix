@@ -22,7 +22,7 @@ inputs:
         hosts = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
       };
     };
-    githubToken.enable = mkOption { type = types.bool; default = false; };
+    githubToken.enable = mkOption { type = types.bool; default = inputs.config.nixos.model.private; };
   };
   config = let inherit (inputs.config.nixos.system) nix; in inputs.lib.mkMerge
   [

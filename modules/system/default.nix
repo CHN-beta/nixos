@@ -17,7 +17,7 @@ inputs:
       supportedFilesystems = [ "ntfs" "nfs" "nfsv4" ];
       # consoleLogLevel = 7;
     };
-    hardware = { enableAllFirmware = true; bluetooth.enable = true; };
+    hardware = { enableAllFirmware = true; bluetooth.enable = true; sensor.iio.enable = true; };
     environment =
     {
       sessionVariables = rec

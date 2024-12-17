@@ -4,7 +4,7 @@ inputs:
   {
     nixos =
     {
-      model.type = "desktop";
+      model = { type = "desktop"; private = true; };
       system =
       {
         fileSystems =
@@ -38,17 +38,19 @@ inputs:
             "broadwell"
             # FXSR HLE LZCNT PREFETCHW RDRND SAHF SGX XSAVE
             "skylake" "cascadelake"
+            # SAHF FXSR XSAVE RDRND LZCNT HLE PREFETCHW SGX MOVDIRI MOVDIR64B AVX512VP2INTERSECT KEYLOCKER
+            "tigerlake"
             # AVX-VNNI CLDEMOTE GFNI-SSE HRESET KL LZCNT MOVDIR64B MOVDIRI PCONFIG PREFETCHW PTWRITE RDRND
             # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
             "alderlake"
           ];
-          githubToken.enable = true;
         };
         nixpkgs =
           { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
         kernel =
         {
-          variant = "cachyos";
+          # TODO: switch to cachyos-lts
+          variant = "xanmod-latest";
           patches = [ "hibernate-progress" ];
           modules.modprobeConfig =
             [ "options iwlwifi power_save=0" "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
@@ -102,7 +104,11 @@ inputs:
           enable = true;
           serverName = "frp.chn.moe";
           user = "pc";
-          stcpVisitor."yy.vnc".localPort = 6187;
+          stcpVisitor =
+          {
+            "yy.vnc".localPort = 6187;
+            "temp.ssh".localPort = 6188;
+          };
         };
         nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
         smartd.enable = true;
@@ -136,6 +142,7 @@ inputs:
         keyd = {};
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
+      packages = { android-studio = {}; mathematica = {}; };
     };
     boot.loader.grub =
     {
@@ -145,6 +152,7 @@ inputs:
         "SetupBrowser.efi" = ./bios/SetupBrowser.efi;
         "UiApp.efi" = ./bios/UiApp.efi;
         "EFI/Boot/Bootx64.efi" = ./bios/Bootx64.efi;
+        "nixos.iso" = inputs.topInputs.self.src.iso;
       };
       extraEntries = 
       ''
@@ -152,6 +160,15 @@ inputs:
           insmod fat
           insmod chain
           chainloader @bootRoot@/EFI/Boot/Bootx64.efi
+        }
+        menuentry 'Live ISO' {
+          set iso_path=@bootRoot@/nixos.iso
+          export iso_path
+          search --set=root --file "$iso_path"
+          loopback loop "$iso_path"
+          root=(loop)
+          configfile /boot/grub/loopback.cfg
+          loopback --delete loop
         }
       '';
     };
@@ -161,20 +178,5 @@ inputs:
     users.users.qemu-libvirtd.extraGroups = [ "disk" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
-    environment.persistence."/nix/archive" =
-    {
-      hideMounts = true;
-      users.chn.directories = builtins.map
-        (dir: { directory = "repo/${dir}"; user = "chn"; group = "chn"; mode = "0755"; })
-        [ "BPD-paper" "kurumi-asmr" "BPD-paper-old" "SiC-20240705" ];
-    };
-    specialisation =
-    {
-      xanmod.configuration =
-      {
-        nixos.system.kernel.variant = inputs.lib.mkForce "xanmod-latest";
-        system.nixos.tags = [ "xanmod" ];
-      };
-    };
   };
 }

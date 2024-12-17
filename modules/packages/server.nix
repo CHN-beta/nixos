@@ -9,7 +9,7 @@ inputs:
       _packages = with inputs.pkgs;
       [
         # basic tools
-        beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq zellij ipfetch localPackages.pslist
+        beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq yq zellij ipfetch localPackages.pslist
         fastfetch reptyr duc ncdu progress libva-utils ksh neofetch
         # lsxx
         pciutils usbutils lshw util-linux lsof dmidecode lm_sensors hwloc acpica-tools
@@ -36,7 +36,7 @@ inputs:
         # development
         gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix rr hexo-cli gh nix-init hugo
         # stupid things
-        toilet lolcat
+        toilet lolcat localPackages.stickerpicker graph-easy
         # office
         pdfgrep ffmpeg-full # todo-txt-cli 
       ]

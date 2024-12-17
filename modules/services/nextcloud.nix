@@ -16,7 +16,7 @@ inputs:
       hostName = nextcloud.hostname;
       appstoreEnable = false;
       https = true;
-      package = inputs.pkgs.nextcloud29;
+      package = inputs.pkgs.nextcloud30;
       maxUploadSize = "10G";
       config =
       {
