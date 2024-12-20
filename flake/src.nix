@@ -9,7 +9,6 @@
       sha256 = "0xzfgdz7s8kzxmcm3k6n9nqd0isfzj23nxfq0y3ca9f046gp4zp3";
     };
     version = "24.11";
-    cudaVersion = "12.6";
   };
   iso = pkgs.fetchurl
   {
