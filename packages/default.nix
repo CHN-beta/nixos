@@ -63,15 +63,7 @@ inputs: rec
       };
       wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
-    hdf5-nvhpc = (inputs.pkgs.hdf5.override
-    {
-      stdenv = nvhpcStdenv;
-      cppSupport = false;
-      fortranSupport = true;
-      enableShared = false;
-      enableStatic = true;
-    # }).overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs or [] ++ [ inputs.pkgs.cudaPackages.cudatoolkit ]; });
-    }).overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs or [] ++ []; });
+    hdf5-nvhpc = inputs.pkgs.callPackage ./vasp/hdf5-nvhpc { inherit lmod nvhpc; inherit (inputs.pkgs.hdf5) src; };
     vtst = (inputs.pkgs.callPackage ./vasp/vtst.nix {});
     vtstscripts = inputs.pkgs.callPackage ./vasp/vtstscripts.nix {};
   };
