@@ -123,7 +123,7 @@ inputs: rec
       # wrapped binaries
       gcc gfortran glibc glibc.dev binutils iconv
       # not wrapped binaries
-      gcc.cc gcc.cc.lib gfortran.cc binutils.bintools
+      gcc.cc gcc.cc.lib gfortran.cc gfortran.cc.lib binutils.bintools
     ];
   };
   highfive = inputs.pkgs.callPackage ./highfive.nix { src = inputs.topInputs.highfive; };
