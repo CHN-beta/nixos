@@ -39,7 +39,6 @@ inputs:
       };
       bugs = [ "xmunet" ];
     };
-    boot.kernelParams = [ "acpi_osi=!" ''acpi_osi="Windows 2015"'' ];
     security =
     {
       pam.services.kde.rules.auth.pass =
