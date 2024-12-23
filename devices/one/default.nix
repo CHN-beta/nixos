@@ -39,11 +39,5 @@ inputs:
       };
       bugs = [ "xmunet" ];
     };
-    security =
-    {
-      pam.services.kde.rules.auth.pass =
-        { modulePath = "pam_succeed_if.so"; args = [ "user" "=" "chn" ]; control = "sufficient"; order = 0; };
-      sudo.wheelNeedsPassword = false;
-    };
   };
 }
