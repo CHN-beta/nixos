@@ -13,7 +13,7 @@ inputs:
             xmuhk = { host = "xmuhk"; hostname = "10.26.14.56"; user = "xmuhk"; };
             xmuhk2 = { host = "xmuhk2"; hostname = "183.233.219.132"; user = "xmuhk"; port = 62022; };
             jykang.setEnv.TERM = "chn_unset_ls_colors:chn_cd:linwei/chn:chn_debug:xterm-256color";
-            "internal.jykang" = jykang;
+            "wireguard.jykang" = jykang;
           }
           // (builtins.listToAttrs (builtins.map
             (system: { name = system; value = { forwardAgent = true; extraOptions.AddKeysToAgent = "yes"; }; })
