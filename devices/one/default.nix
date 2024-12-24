@@ -16,7 +16,7 @@ inputs:
           };
           luks.auto."/dev/disk/by-partlabel/one-root" = { mapper = "root"; ssd = true; };
           swap = [ "/nix/swap/swap" ];
-          resume = { device = "/dev/mapper/root"; offset = 728784; };
+          resume = { device = "/dev/mapper/root"; offset = 4728064; };
           rollingRootfs = {};
         };
         nixpkgs.march = "tigerlake";
