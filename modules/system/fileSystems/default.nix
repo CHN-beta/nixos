@@ -85,12 +85,11 @@ inputs:
     # resume
     (inputs.lib.mkIf (fileSystems.resume != null) { boot =
     (
-      if builtins.typeOf fileSystems.resume == "string" then
-        { resumeDevice = fileSystems.resume; }
+      if builtins.typeOf fileSystems.resume == "string" then { resumeDevice = fileSystems.resume; }
       else
       {
         resumeDevice = fileSystems.resume.device;
-        kernelModules = [ "resume_offset=${builtins.toString fileSystems.resume.offset}" ];
+        kernelParams = [ "resume_offset=${builtins.toString fileSystems.resume.offset}" ];
       }
     );})
     # rollingRootfs
