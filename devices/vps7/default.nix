@@ -47,7 +47,7 @@ inputs:
         photoprism.enable = true;
         nextcloud = {};
         freshrss.enable = true;
-        send.enable = true;
+        send = {};
         huginn.enable = true;
         fz-new-order = {};
         httpapi.enable = true;
