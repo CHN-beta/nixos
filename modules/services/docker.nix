@@ -34,8 +34,6 @@ inputs:
         # prevent create btrfs subvol
         storageDriver = "overlay2";
         daemon.settings.dns = [ "1.1.1.1" ];
-        # workaround bug: https://github.com/docker/buildx/issues/1832
-        package = inputs.pkgs.docker_26;
       };
     }
   ];
