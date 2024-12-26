@@ -11,9 +11,11 @@
       openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
         (prev: { doCheck = false; patches = prev.patches ++ [ ../packages/hpcstat/openssh.patch ];});
       duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
+      glaze = pkgs.pkgsStatic.glaze.overrideAttrs
+        (prev: { cmakeFlags = prev.cmakeFlags ++ [ "-Dglaze_ENABLE_FUZZING=OFF" ]; });
       # pkgsStatic.clangStdenv have a bug
       # https://github.com/NixOS/nixpkgs/issues/177129
-      biu = pkgs.pkgsStatic.localPackages.biu.override { stdenv = pkgs.pkgsStatic.gcc14Stdenv; };
+      biu = pkgs.pkgsStatic.localPackages.biu.override { stdenv = pkgs.pkgsStatic.gcc14Stdenv; inherit glaze; };
     in pkgs.pkgsStatic.localPackages.hpcstat.override
     {
       inherit openssh duc biu;
