@@ -138,6 +138,7 @@ inputs:
         };
         ollama = {};
         docker = {};
+        ananicy = {};
         keyd = {};
       };
       bugs = [ "xmunet" "backlight" "amdpstate" ];
