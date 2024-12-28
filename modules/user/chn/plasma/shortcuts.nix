@@ -63,10 +63,10 @@ inputs:
         {
           kwin =
           {
-            "Switch One Desktop to the Left" = [ "Ctrl+PgUp" "Ctrl+Num+PgUp" ];
-            "Switch One Desktop to the Right" = [ "Ctrl+PgDown" "Ctrl+Num+PgDown" ];
-            "Window One Desktop to the Left" = [ "Meta+Ctrl+PgUp" "Meta+Ctrl+Num+PgUp" ];
-            "Window One Desktop to the Right" = [ "Meta+Ctrl+PgDown" "Meta+Ctrl+Num+PgDown" ];
+            "Switch to Previous Desktop" = [ "Ctrl+PgUp" "Ctrl+Num+PgUp" ];
+            "Switch to Next Desktop" = [ "Ctrl+PgDown" "Ctrl+Num+PgDown" ];
+            "Window to Previous Desktop" = [ "Meta+Ctrl+PgUp" "Meta+Ctrl+Num+PgUp" ];
+            "Window to Next Desktop" = [ "Meta+Ctrl+PgDown" "Meta+Ctrl+Num+PgDown" ];
           };
         }
         # media
