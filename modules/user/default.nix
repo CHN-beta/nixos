@@ -27,6 +27,7 @@ inputs:
         GROUPIII-3 = 1013;
         lly = 1014;
         yxf = 1015;
+        hss = 1016;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
