@@ -15,6 +15,7 @@ namespace hpcstat
     { "0tIFcYlfj/onVGVJsg9Th4mPtSZ5R+5srl4gxwZgM3k", { "wm", "Man Wang" } },
     { "Ciam/qGL/ZrXIQearsg9NvFh/soPZUG4Z8JhOFSTk48", { "lly", "Liyi Luo" } },
     { "4C2HKaBqgAzhPLjH/BuQZOjGx85NEeUA+UkkWkRzl8k", { "yxf", "Xiaofang Ye" } },
+    { "8jCEhKYtIVn4H69+fotWDFUYWHyiRN1+JCGeiDHaf5E", { "hss", "Shanshan He" } },
     { "7bmG24muNsaAZkCy7mQ9Nf2HuNafmvUO+Hf1bId9zts", { "00", "Yaping Wu" } },
     { "dtx0QxdgFrXn2SYxtIRz43jIAH6rLgJidSdTvuTuews", { "01", "Jing Li" } },
     { "8crUO9u4JiVqw3COyjXfzZe87s6XZFhvi0LaY0Mv6bg", { "02", "Huahan Zhan" } },

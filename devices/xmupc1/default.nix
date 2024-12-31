@@ -91,7 +91,7 @@ inputs:
         hpcstat = {};
       };
       bugs = [ "xmunet" "amdpstate" ];
-      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" "yxf" ];
+      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" "yxf" "hss" ];
     };
     services.hardware.bolt.enable = true;
   };
