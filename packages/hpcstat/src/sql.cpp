@@ -1,3 +1,4 @@
+# include <chrono>
 # include <hpcstat/sql.hpp>
 # include <hpcstat/env.hpp>
 # include <hpcstat/keys.hpp>
@@ -184,7 +185,7 @@ namespace hpcstat::sql
     long submit_date = [&]
     {
       std::chrono::system_clock::time_point submit_date_with_local;
-      std::stringstream(submit_time) >> date::parse("%b %d %H:%M:%S %Y", submit_date_with_local);
+      std::stringstream(submit_time) >> std::chrono::parse("%b %d %H:%M:%S %Y"s, submit_date_with_local);
       date::zoned_time submit_date_with_zone
       (
         date::current_zone(),

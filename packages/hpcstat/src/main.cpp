@@ -59,12 +59,29 @@ int main(int argc, const char** argv)
                 (percent, disk_stat->Total, disk_stat->Time);
             if (percent > 80)
             {
-              std::cout << "Top 3 directories owned by teacher:\n";
-              for (auto& [name, size] : disk_stat->Teacher | ranges::views::take(3))
-                std::cout << "  {:.1f}GB {}\n"_f(size, name);
-              std::cout << "Top 3 directories owned by student:\n";
-              for (auto& [name, size] : disk_stat->Student | ranges::views::take(3))
-                std::cout << "  {:.1f}GB {}\n"_f(size, name);
+              std::cout << "Directories owned by teacher:\n"
+                << (
+                  disk_stat->Teacher
+                    | ranges::views::transform([](auto&& it) { return "{: <30}"_f("  {:.1f}GB {}"_f
+                      (it.second, it.first)); })
+                    | ranges::views::chunk(2)
+                    | ranges::views::transform([](auto&& it) { return it | ranges::views::join(""); })
+                    | ranges::views::join('\n')
+                    | ranges::to<std::string>()
+                )
+                << "\n"
+                << "Top 10 directories owned by student:\n"
+                << (
+                  disk_stat->Student
+                    | ranges::views::take(10)
+                    | ranges::views::transform([](auto&& it) { return "{: <30}"_f("  {:.1f}GB {}"_f
+                      (it.second, it.first)); })
+                    | ranges::views::chunk(2)
+                    | ranges::views::transform([](auto&& it) { return it | ranges::views::join(""); })
+                    | ranges::views::join('\n')
+                    | ranges::to<std::string>()
+                )
+                << "\n";
             }
             std::cout << termcolor::reset;
           }

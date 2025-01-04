@@ -54,6 +54,8 @@ inputs:
                 ms-python.python
                 # theme
                 pkief.material-icon-theme
+                # direnv
+                mkhl.direnv
               ]
               # jupyter
               # TODO: use last release

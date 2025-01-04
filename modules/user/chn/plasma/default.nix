@@ -15,7 +15,7 @@ inputs:
             right = [ "help" "keep-below-windows" "keep-above-windows" "minimize" "maximize" "close" ];
             left = [ "more-window-actions" ];
           };
-          virtualDesktops = { rows = 1; number = 6; };
+          virtualDesktops = inputs.lib.mkIf (inputs.config.nixos.model.hostname == "pc") { rows = 2; number = 6; };
           effects = { shakeCursor.enable = true; desktopSwitching.animation = "slide"; };
         };
         windows.allowWindowsToRememberPositions = false;

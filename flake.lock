@@ -857,11 +857,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1734171940,
-        "narHash": "sha256-G68bXKBSAyUyK/Y0x4YK1xeqL1Ce7tb67fQNLCcSKOw=",
+        "lastModified": 1734506497,
+        "narHash": "sha256-QUO9YrOn10xSfc4Ov84GqbQclQPZwi4SPZC644HdNDc=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "918f037d1df911c076897bccd445a18b85fbd7e1",
+        "rev": "94a86525c9e4fe0221191f6d6aa01d6186e0628b",
         "type": "github"
       },
       "original": {
@@ -889,11 +889,11 @@
     },
     "nixpkgs-23.11": {
       "locked": {
-        "lastModified": 1733710340,
-        "narHash": "sha256-+USCPTSnxB1Mx5Klyh6RNhWhce3YsPY+CjNLs6mOD5A=",
+        "lastModified": 1735377590,
+        "narHash": "sha256-U9W9H/HYoaKa5wzSL2IBmnFDhxlesuKAcKi/hl5xPvE=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "291b26c472d9f4b2840fd625eec6c49c3023deac",
+        "rev": "0c3e74a65634ae3f43be7d0f6c3b5156ac54747b",
         "type": "github"
       },
       "original": {
@@ -1533,11 +1533,11 @@
     "ufo": {
       "flake": false,
       "locked": {
-        "lastModified": 1733296869,
-        "narHash": "sha256-CBXaEPfXe2ENpZdm97Scr5ZOLpI1czoa8L8N3K8ITVU=",
+        "lastModified": 1735033622,
+        "narHash": "sha256-9/stVpqNKMUXEQHQWuU1mKVe8ODVpOjL5BYIdfY0P8A=",
         "ref": "refs/heads/main",
-        "rev": "d584951fd71867f37aca6ba50e276591ce7d3451",
-        "revCount": 74,
+        "rev": "d4578c7991e48140b6f885b2acb110776b56040c",
+        "revCount": 76,
         "type": "git",
         "url": "https://git.chn.moe/chn/ufo.git"
       },

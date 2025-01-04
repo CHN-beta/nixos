@@ -9,7 +9,11 @@ inputs:
       enable = true;
       package = inputs.pkgs.ananicy-cpp;
       rulesProvider = inputs.pkgs.ananicy-rules-cachyos;
-      extraRules = [{ name = "YuanShen.exe"; type = "Game"; }];
+      extraRules =
+      [
+        { name = "YuanShen.exe"; type = "Game"; }
+        { name = "Typora"; type = "Doc-View"; }
+      ];
     };
   };
 }
