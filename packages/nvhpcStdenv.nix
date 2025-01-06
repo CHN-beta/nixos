@@ -1,53 +1,90 @@
 {
-  src, stdenv, autoPatchelfHook, wrapCCWith, writeText, addAttrsToDerivation, config, overrideCC,
-  gcc, glibc_multi, libz, zstd, libxml2, flock, numactl, ncurses, dpkg
+  src, stdenv, autoPatchelfHook, wrapCCWith, writeText, addAttrsToDerivation, config, overrideCC, symlinkJoin,
+  gcc, glibc, libz, zstd, libxml2, flock, numactl, ncurses, dpkg, cudaPackages, openssl, gmp,
+  libxcrypt-legacy, libfabric, rdma-core, gfortran, xorg, makeSetupHook, writeScript, bash, overrideInStdenv
 }:
 let
   nvhpc = stdenv.mkDerivation
   {
     pname = "nvhpc";
     inherit (src) src version;
-    buildInputs = [ libz libxml2 zstd numactl ncurses ];
+    buildInputs =
+      [ libz libxml2 zstd numactl ncurses openssl gmp libxcrypt-legacy libfabric rdma-core xorg.libpciaccess ];
     nativeBuildInputs = [ autoPatchelfHook dpkg flock ];
     langFortran = true;
     dontConfigure = true;
     dontBuild = true;
-    unpackPhase = ''dpkg-deb -x $src .'';
     installPhase =
     ''
-      # install component
-      # NVHPC use very complex mechanism to identify the location of compilers, headers, etc.
-      # we should keep the original structure
-      mkdir -p $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/
-      cp -r opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/compilers $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}
+      mkdir -p $out
+
+      sed -i 's|/bin/chmod|chmod|g' install_components/install
+      sed -i 's|/sbin/ldconfig|ldconfig|g' install_components/install
+      patchShebangs install_components/Linux_x86_64/${src.version}/compilers/bin/makelocalrc
+      sed -i '/makelocalrc executed by/d' install_components/Linux_x86_64/${src.version}/compilers/bin/makelocalrc
+
+      NVHPC_SILENT=true NVHPC_INSTALL_DIR=$out NVHPC_INSTALL_TYPE=single ./install_components/install
+
+      addAutoPatchelfSearchPath $out/Linux_x86_64/${src.version}/cuda/${src.cudaVersion}/targets/x86_64-linux/lib/stubs
+      addAutoPatchelfSearchPath $out/Linux_x86_64/${src.version}/compilers/lib
+
+      rm -rf $out/Linux_x86_64/${src.version}/cuda/${src.cudaVersion}/bin/cuda-gdb-python*-tui
+      rm -rf $out/Linux_x86_64/${src.version}/profilers
+      rm -rf $out/Linux_x86_64/${src.version}/comm_libs/${src.cudaVersion}/hpcx/hpcx-*/ompi/tests
+
+      # fix /usr/lib/crt1.o impure path used in link
+      cat >> $out/Linux_x86_64/${src.version}/compilers/bin/localrc << EOF
+
+      set DEFLIBDIR=${glibc}/lib;
+      set DEFSTDOBJDIR=${glibc}/lib;
+      EOF
     '';
-    postFixup =
-    ''
-      sed -i '/makelocalrc executed by/d' $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/compilers/bin/makelocalrc
-      $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/compilers/bin/makelocalrc \
-        $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/compilers/bin -x -no-cuda
-      ln -s $out/opt/nvidia/hpc_sdk/Linux_x86_64/${src.version}/compilers/bin $out
-    '';
+    autoPatchelfIgnoreMissingDeps = [ "libcrypto.so.1.1" "libgdrapi.so.2" "libxpmem.so.0" "libnvidia-ml.so.1" ];
+    passthru = { inherit src cudaCapability buildEnv runEnv; };
   };
-  # fix /usr/lib/crt1.o impure path used in link
-  customLocalrc = writeText "localrc"
-  ''
-    set DEFLIBDIR=${glibc_multi}/lib;
-    set DEFSTDOBJDIR=${glibc_multi}/lib;
-  '';
+  compilerDir = "${nvhpc}/Linux_x86_64/${src.version}/compilers";
+  mpiDir = "${nvhpc}/Linux_x86_64/${src.version}/comm_libs/mpi";
   cudaCapability = builtins.concatStringsSep ","
-    (builtins.map (cap: "cc${builtins.replaceStrings ["."] [""] cap}") config.cudaCapabilities);
+  (
+    (builtins.map (cap: "cc${builtins.replaceStrings ["."] [""] cap}") config.cudaCapabilities)
+      ++ [ "cuda${src.cudaVersion}" ]
+  );
+  buildEnv = makeSetupHook { name = "nvhpcBuildEnv"; } (writeScript "nvhpcBuildEnv"
+  ''
+    addNvhpcEnv() {
+      addToSearchPath PATH ${compilerDir}/bin
+      addToSearchPath PATH ${mpiDir}/bin
+      addToSearchPath PATH ${gcc.cc}/bin
+    }
+    addEnvHooks "$hostOffset" addNvhpcEnv
+  '');
+  runEnv = writeScript "nvhpcRunEnv"
+  ''
+    #!${bash}/bin/bash
+    # make mpirun and nvaccelinfo accessible
+    export PATH=${compilerDir}/bin:${mpiDir}/bin''${PATH:+:$PATH}
+    # NVPL need this to load libgomp.so (actually libnvomp.so) from nvhpc instead of from gcc
+    # https://docs.nvidia.com/nvpl/
+    export LD_LIBRARY_PATH=${compilerDir}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    # allow access to libcuda.so
+    export LD_LIBRARY_PATH=/run/opengl-driver/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    exec "$@"
+  '';
   wrapper = (wrapCCWith
   {
     cc = nvhpc;
     extraBuildCommands =
     ''
-      echo "-L${gcc}/lib" >> $out/nix-support/cc-ldflags
+      # provide libgcc_s.so but not libgomp.so
+      echo "-L${gcc.cc.libgcc}/lib" >> $out/nix-support/cc-ldflags
 
       echo "-tp=${config.nvhpcArch}" >> $out/nix-support/cc-cflags-before
       echo "-gpu=${cudaCapability}" >> $out/nix-support/cc-cflags-before
 
-      echo "-noswitcherror -#" >> $out/nix-support/cc-cflags
+      echo "-noswitcherror" >> $out/nix-support/cc-cflags
+
+      # print verbose output for debugging
+      # echo "-v" >> $out/nix-support/cc-cflags
 
       # echo "" > $out/nix-support/add-hardening.sh
 
@@ -56,7 +93,7 @@ let
       sed -i 's/-idirafter/-I/g' $out/nix-support/libc-cflags
 
       for i in nvc nvc++ nvcc nvfortran; do
-        wrap $i $wrapper $ccPath/$i
+        wrap $i $wrapper ${nvhpc}/Linux_x86_64/${nvhpc.version}/compilers/bin/$i
       done
     '';
   }).overrideAttrs (prev: { installPhase = prev.installPhase +
@@ -65,4 +102,4 @@ let
     export named_cxx=nvc++
     export named_fc=nvfortran
   '';});
-in addAttrsToDerivation { NVLOCALRC = customLocalrc; } (overrideCC stdenv wrapper)
+in overrideInStdenv (overrideCC stdenv wrapper) [ buildEnv ]

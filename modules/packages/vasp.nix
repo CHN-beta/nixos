@@ -12,7 +12,7 @@ inputs:
     {
       _packages =
       (
-        [ localPackages.vasp.intel localPackages.vasp.vtstscripts localPackages.vaspkit wannier90 ]
+        [ localPackages.vasp.intel localPackages.vasp.vtst localPackages.vaspkit wannier90 ]
           ++ (inputs.lib.optional
             (let inherit (inputs.config.nixos.system.nixpkgs) cuda; in cuda.enable && cuda.capabilities != null)
             localPackages.vasp.nvidia)

@@ -27,7 +27,6 @@ inputs: rec
   date = inputs.pkgs.callPackage ./date.nix { src = inputs.topInputs.date; };
   blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper.nix { src = inputs.topInputs.blurred-wallpaper; };
   slate = inputs.pkgs.callPackage ./slate.nix { src = inputs.topInputs.slate; };
-  nvhpc = inputs.pkgs.callPackage ./nvhpc.nix {};
   lmod = inputs.pkgs.callPackage ./lmod.nix { src = inputs.topInputs.lmod; };
   vasp = rec
   {
@@ -40,13 +39,15 @@ inputs: rec
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
     {
-      inherit lmod nvhpc vtst src;
-      hdf5 = hdf5-nvhpc;
+      inherit (nvhpcPackages) stdenv hdf5;
+      inherit src;
+      vtst = inputs.topInputs.self.src.vtst.patch;
       wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
     intel = inputs.pkgs.callPackage ./vasp/intel
     {
-      inherit vtst src;
+      inherit src;
+      vtst = inputs.topInputs.self.src.vtst.patch;
       inherit (inputs.pkgs.intelPackages_2023) stdenv;
       mpi = inputs.pkgs.openmpi.override
       {
@@ -63,17 +64,7 @@ inputs: rec
       };
       wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
-    hdf5-nvhpc = (inputs.pkgs.hdf5.override
-    {
-      stdenv = nvhpcStdenv;
-      cppSupport = false;
-      fortranSupport = true;
-      enableShared = false;
-      enableStatic = true;
-    # }).overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs or [] ++ [ inputs.pkgs.cudaPackages.cudatoolkit ]; });
-    }).overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs or [] ++ []; });
-    vtst = (inputs.pkgs.callPackage ./vasp/vtst.nix {});
-    vtstscripts = inputs.pkgs.callPackage ./vasp/vtstscripts.nix {};
+    vtst = inputs.pkgs.callPackage ./vasp/vtst.nix { src = inputs.topInputs.self.src.vtst.script; };
   };
   mumax = inputs.pkgs.callPackage ./mumax.nix { src = inputs.topInputs.mumax; };
   biu = inputs.pkgs.callPackage ./biu
@@ -105,14 +96,13 @@ inputs: rec
   spectroscopy = inputs.pkgs.callPackage ./spectroscopy.nix { src = inputs.topInputs.spectroscopy; };
   mirism = inputs.pkgs.callPackage ./mirism { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   vaspberry = inputs.pkgs.callPackage ./vaspberry.nix { src = inputs.topInputs.vaspberry; };
-  nvhpcStdenv = inputs.pkgs.callPackage ./nvhpcStdenv.nix { src = inputs.topInputs.self.src.nvhpc; gcc = gccFull; };
+  nvhpcStdenv = inputs.pkgs.callPackage ./nvhpcStdenv.nix { src = inputs.topInputs.self.src.nvhpc; };
   nvhpcPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
   {
     stdenv = nvhpcStdenv;
     fmt = (inputs.pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; };
     hdf5 = inputs.pkgs.hdf5.override
       { inherit (final) stdenv; cppSupport = false; fortranSupport = true; enableShared = false; enableStatic = true; };
-    qd = final.callPackage ./qd.nix { src = inputs.topInputs.qd; };
   });
   gccFull = inputs.pkgs.symlinkJoin
   {
@@ -122,7 +112,7 @@ inputs: rec
       # wrapped binaries
       gcc gfortran glibc glibc.dev binutils iconv
       # not wrapped binaries
-      gcc.cc gcc.cc.lib gfortran.cc binutils.bintools
+      gcc.cc gcc.cc.lib gfortran.cc gfortran.cc.lib binutils.bintools
     ];
   };
   highfive = inputs.pkgs.callPackage ./highfive.nix { src = inputs.topInputs.highfive; };

@@ -5,10 +5,11 @@
   {
     src = pkgs.fetchurl
     {
-      url = "https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64/nvhpc-24-11_24.11-0_amd64.deb";
-      sha256 = "0xzfgdz7s8kzxmcm3k6n9nqd0isfzj23nxfq0y3ca9f046gp4zp3";
+      url = "https://developer.download.nvidia.com/hpc-sdk/24.11/nvhpc_2024_2411_Linux_x86_64_cuda_12.6.tar.gz";
+      sha256 = "080rb89p2z98b75wqssvp3s8x6b5n0556d0zskh3cfapcb08lh1r";
     };
     version = "24.11";
+    cudaVersion = "12.6";
   };
   iso = pkgs.fetchurl
   {
@@ -21,5 +22,18 @@
     pname = "nglview";
     version = "3.1.2";
     hash = "sha256-f2cu+itsoNs03paOW1dmsUsbPa3iEtL4oIPGAKETRc4=";
+  };
+  vtst =
+  {
+    patch = pkgs.fetchzip
+    {
+      url = "http://theory.cm.utexas.edu/code/vtstcode-204.tgz";
+      sha256 = "00qpqiabl568fwqjnmwqwr0jwg7s56xd9lv9lw8q4qxqy19cpg62";
+    };
+    script = pkgs.fetchzip
+    {
+      url = "http://theory.cm.utexas.edu/code/vtstscripts.tgz";
+      sha256 = "18gsw2850ig1mg4spp39i0ygfcwx0lqnamysn5whiax22m8d5z67";
+    };
   };
 }
