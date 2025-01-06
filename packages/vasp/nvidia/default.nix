@@ -39,5 +39,11 @@ let vasp = stdenv.mkDerivation
 in writeShellScriptBin "vasp-nvidia"
 ''
   export PATH=${vasp}/bin''${PATH:+:$PATH}
+
+  # set OMP_NUM_THREADS if SLURM_CPUS_PER_TASK is set
+  if [ -z "$OMP_NUM_THREADS" ] && [ -n "$SLURM_CPUS_PER_TASK" ]; then
+    export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+  fi
+
   exec ${stdenv.cc.cc.runEnv} "$@"
 ''

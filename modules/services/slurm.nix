@@ -125,6 +125,9 @@ inputs:
 
             # enable task plugins
             TaskPlugin=task/affinity,task/cgroup
+
+            # omit --mpi=pmix
+            MpiDefault=pmix
           '';
           extraConfigPaths =
             let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
@@ -157,6 +160,7 @@ inputs:
       networking.firewall =
         let config = inputs.lib.mkIf slurm.setupFirewall [ 6818 ];
         in { allowedTCPPorts = config; allowedUDPPorts = config; };
+      environment.sessionVariables.SLURM_HINT = "nomultithread";
     }
     # master 配置
     (inputs.lib.mkIf (slurm.master == inputs.config.nixos.model.hostname)

@@ -128,19 +128,17 @@ int main()
     if (state.user_command == "quit") return EXIT_FAILURE;
     else if (state.device_type_entries[state.device_type_selected] == "any single GPU")
       state.submit_command =
-        "sbatch --ntasks=1\n--gpus=1\n--job-name='{}'\n--output='{}'\nvasp-nvidia-{}"_f
+        "sbatch --ntasks=1\n--gpus=1\n--job-name='{}'\n--output='{}'\n--wrap=\"vasp-nvidia mpirun vasp-{}\""_f
         (state.job_name, state.output_file, state.vasp_version_entries[state.vasp_version_selected]);
     else if (state.device_type_entries[state.device_type_selected] == "manually select GPU")
       state.submit_command =
-        "sbatch --ntasks=1\n--gres=gpu:{}:1\n--job-name='{}'\n--output='{}'\nvasp-nvidia-{}"_f
+        "sbatch --ntasks=1\n--gres=gpu:{}:1\n--job-name='{}'\n--output='{}'\n--wrap=\"vasp-nvidia mpirun vasp-{}\""_f
         (
           state.gpu_entries[state.gpu_selected],
           state.job_name, state.output_file, state.vasp_version_entries[state.vasp_version_selected]
         );
     else state.submit_command =
-      "sbatch --ntasks={}\n--cpus-per-task={}\n"
-      "--export=ALL,OMP_NUM_THREADS={},OMP_STACKSIZE=512m\n--hint=nomultithread\n--job-name='{}'\n"
-      "--output='{}'\n--wrap=\"vasp-intel srun --mpi=pmix vasp-{}\""_f
+      "sbatch --ntasks={}\n--cpus-per-task={}\n--job-name='{}'\n--output='{}'\n--wrap=\"vasp-intel srun vasp-{}\""_f
       (
         state.mpi_threads, state.openmp_threads, state.openmp_threads, state.job_name, state.output_file,
         state.vasp_version_entries[state.vasp_version_selected]

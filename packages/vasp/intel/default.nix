@@ -41,5 +41,19 @@ let vasp = stdenv.mkDerivation
 in writeShellScriptBin "vasp-intel"
 ''
   export PATH=${vasp}/bin:${mpi}/bin''${PATH:+:$PATH}
+
+  # set OMP_NUM_THREADS if SLURM_CPUS_PER_TASK is set
+  if [ -z "$OMP_NUM_THREADS" ] && [ -n "$SLURM_CPUS_PER_TASK" ]; then
+    export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+  fi
+  # set OMP_NUM_THREADS to 1 if not set
+  if [ -z "$OMP_NUM_THREADS" ]; then
+    export OMP_NUM_THREADS=1
+  fi
+  # set OMP_STACKSIZE to 512M if not set
+  if [ -z "$OMP_STACKSIZE" ]; then
+    export OMP_STACKSIZE=512m
+  fi
+
   exec "$@"
 ''
