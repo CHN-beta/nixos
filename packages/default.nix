@@ -40,7 +40,7 @@ inputs: rec
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
     {
-      inherit (nvhpcPackages) stdenv hdf5 mpi qd;
+      inherit (nvhpcPackages) stdenv hdf5;
       inherit vtst src;
       wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
@@ -97,15 +97,13 @@ inputs: rec
   spectroscopy = inputs.pkgs.callPackage ./spectroscopy.nix { src = inputs.topInputs.spectroscopy; };
   mirism = inputs.pkgs.callPackage ./mirism { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   vaspberry = inputs.pkgs.callPackage ./vaspberry.nix { src = inputs.topInputs.vaspberry; };
-  nvhpcStdenv = inputs.pkgs.callPackage ./nvhpcStdenv.nix { src = inputs.topInputs.self.src.nvhpc; gcc = gccFull; };
+  nvhpcStdenv = inputs.pkgs.callPackage ./nvhpcStdenv.nix { src = inputs.topInputs.self.src.nvhpc; };
   nvhpcPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
   {
     stdenv = nvhpcStdenv;
     fmt = (inputs.pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; };
     hdf5 = inputs.pkgs.hdf5.override
       { inherit (final) stdenv; cppSupport = false; fortranSupport = true; enableShared = false; enableStatic = true; };
-    qd = final.callPackage ./qd.nix { src = inputs.topInputs.qd; };
-    mpi = inputs.pkgs.openmpi.override { inherit (final) stdenv; enableSubstitute = false; };
   });
   gccFull = inputs.pkgs.symlinkJoin
   {

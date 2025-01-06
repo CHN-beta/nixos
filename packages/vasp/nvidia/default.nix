@@ -1,6 +1,6 @@
 {
   stdenv, src, writeShellScriptBin,
-  rsync, which, wannier90, hdf5, vtst, mpi, mkl, qd
+  rsync, which, wannier90, hdf5, vtst, mkl
 }:
 let vasp = stdenv.mkDerivation
 {
@@ -16,7 +16,7 @@ let vasp = stdenv.mkDerivation
     chmod -R +w src
   '';
   buildInputs = [ hdf5 wannier90 mkl ];
-  nativeBuildInputs = [ rsync which mpi ];
+  nativeBuildInputs = [ rsync which ];
   installPhase =
   ''
     mkdir -p $out/bin
@@ -28,17 +28,17 @@ let vasp = stdenv.mkDerivation
 
   # enable parallel build
   enableParallelBuilding = true;
-  DEPS = "1";
-
-  # vasp directly include headers under ${mkl}/include/fftw
-  MKLROOT = mkl;
-  QD = qd;
-
-  # tell openmpi use ifx
-  # OMPI_F90 = "ifx";
+  env =
+  {
+    DEPS = "1";
+    # vasp directly include headers under ${mkl}/include/fftw
+    MKLROOT = mkl;
+    QD = "${stdenv.cc.cc}/Linux_x86_64/${stdenv.cc.cc.version}/compilers/extras/qd";
+  };
 };
-in writeShellScriptBin "vasp-nvidia"
-''
-  export PATH=${vasp}/bin:${mpi}/bin''${PATH:+:$PATH}
-  exec "$@"
-''
+in vasp
+# in writeShellScriptBin "vasp-nvidia"
+# ''
+#   export PATH=${vasp}/bin:''${PATH:+:$PATH}
+#   exec "$@"
+# ''
