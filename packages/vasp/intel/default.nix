@@ -6,13 +6,13 @@ let vasp = stdenv.mkDerivation
   {
     name = "vasp-intel";
     inherit src;
-    # patches = [ ../vtst.patch ];
+    patches = [ ../vtst.patch ];
     configurePhase =
     ''
       cp ${./makefile.include} makefile.include
       chmod +w makefile.include
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
-      # cp -r ${vtst}/* src
+      cp -r ${vtst}/vtstcode6.4/* src
       chmod -R +w src
     '';
     buildInputs = [ hdf5 wannier90 mkl ];

@@ -6,13 +6,13 @@ let vasp = stdenv.mkDerivation
 {
   name = "vasp-nvidia";
   inherit src;
-  # patches = [ ../vtst.patch ];
+  patches = [ ../vtst.patch ];
   configurePhase =
   ''
     cp ${./makefile.include} makefile.include
     chmod +w makefile.include
     cp ${../constr_cell_relax.F} src/constr_cell_relax.F
-    # cp -r ${vtst}/* src
+    cp -r ${vtst}/vtstcode6.4/* src
     chmod -R +w src
   '';
   buildInputs = [ hdf5 wannier90 mkl ];
@@ -38,6 +38,6 @@ let vasp = stdenv.mkDerivation
 };
 in writeShellScriptBin "vasp-nvidia"
 ''
-  export PATH=${vasp}/bin:''${PATH:+:$PATH}
+  export PATH=${vasp}/bin''${PATH:+:$PATH}
   exec ${stdenv.cc.cc.runEnv} "$@"
 ''

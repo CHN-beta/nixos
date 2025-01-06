@@ -40,12 +40,14 @@ inputs: rec
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
     {
       inherit (nvhpcPackages) stdenv hdf5;
-      inherit vtst src;
+      inherit src;
+      vtst = inputs.topInputs.self.src.vtst.patch;
       wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
     intel = inputs.pkgs.callPackage ./vasp/intel
     {
-      inherit vtst src;
+      inherit src;
+      vtst = inputs.topInputs.self.src.vtst.patch;
       inherit (inputs.pkgs.intelPackages_2023) stdenv;
       mpi = inputs.pkgs.openmpi.override
       {
@@ -62,8 +64,7 @@ inputs: rec
       };
       wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
-    vtst = (inputs.pkgs.callPackage ./vasp/vtst.nix {});
-    vtstscripts = inputs.pkgs.callPackage ./vasp/vtstscripts.nix {};
+    vtst = inputs.pkgs.callPackage ./vasp/vtst.nix { src = inputs.topInputs.self.src.vtst.script; };
   };
   mumax = inputs.pkgs.callPackage ./mumax.nix { src = inputs.topInputs.mumax; };
   biu = inputs.pkgs.callPackage ./biu

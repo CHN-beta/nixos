@@ -23,4 +23,17 @@
     version = "3.1.2";
     hash = "sha256-f2cu+itsoNs03paOW1dmsUsbPa3iEtL4oIPGAKETRc4=";
   };
+  vtst =
+  {
+    patch = pkgs.fetchzip
+    {
+      url = "http://theory.cm.utexas.edu/code/vtstcode-204.tgz";
+      sha256 = "00qpqiabl568fwqjnmwqwr0jwg7s56xd9lv9lw8q4qxqy19cpg62";
+    };
+    script = pkgs.fetchzip
+    {
+      url = "http://theory.cm.utexas.edu/code/vtstscripts.tgz";
+      sha256 = "18gsw2850ig1mg4spp39i0ygfcwx0lqnamysn5whiax22m8d5z67";
+    };
+  };
 }

@@ -65,9 +65,9 @@ let
     export PATH=${compilerDir}/bin:${mpiDir}/bin''${PATH:+:$PATH}
     # NVPL need this to load libgomp.so (actually libnvomp.so) from nvhpc instead of from gcc
     # https://docs.nvidia.com/nvpl/
-    export LD_LIBRARY_PATH=${compilerDir}/lib:''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH=${compilerDir}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
     # allow access to libcuda.so
-    export LD_LIBRARY_PATH=/run/opengl-driver/lib:''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH=/run/opengl-driver/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
     exec "$@"
   '';
   wrapper = (wrapCCWith
