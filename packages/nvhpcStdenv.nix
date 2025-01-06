@@ -42,6 +42,8 @@ let
     autoPatchelfIgnoreMissingDeps = [ "libcrypto.so.1.1" "libgdrapi.so.2" "libxpmem.so.0" "libnvidia-ml.so.1" ];
     passthru = { inherit src cudaCapability buildEnv runEnv; };
   };
+  compilerDir = "${nvhpc}/Linux_x86_64/${src.version}/compilers";
+  mpiDir = "${nvhpc}/Linux_x86_64/${src.version}/comm_libs/mpi";
   cudaCapability = builtins.concatStringsSep ","
   (
     (builtins.map (cap: "cc${builtins.replaceStrings ["."] [""] cap}") config.cudaCapabilities)
@@ -50,8 +52,8 @@ let
   buildEnv = makeSetupHook { name = "nvhpcBuildEnv"; } (writeScript "nvhpcBuildEnv"
   ''
     addNvhpcEnv() {
-      addToSearchPath PATH ${nvhpc}/Linux_x86_64/${src.version}/compilers/bin
-      addToSearchPath PATH ${nvhpc}/Linux_x86_64/${src.version}/comm_libs/mpi/bin
+      addToSearchPath PATH ${compilerDir}/bin
+      addToSearchPath PATH ${mpiDir}/bin
       addToSearchPath PATH ${gcc.cc}/bin
     }
     addEnvHooks "$hostOffset" addNvhpcEnv
@@ -59,11 +61,13 @@ let
   runEnv = writeScript "nvhpcRunEnv"
   ''
     #!${bash}/bin/bash
-    # make mpirun accessable
-    export PATH=${nvhpc}/Linux_x86_64/${src.version}/comm_libs/mpi/bin:''${PATH:+:$PATH}
+    # make mpirun and nvaccelinfo accessible
+    export PATH=${compilerDir}/bin:${mpiDir}/bin''${PATH:+:$PATH}
     # NVPL need this to load libgomp.so (actually libnvomp.so) from nvhpc instead of from gcc
     # https://docs.nvidia.com/nvpl/
-    export LD_LIBRARY_PATH=${nvhpc}/Linux_x86_64/${src.version}/compilers/lib:''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH=${compilerDir}/lib:''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    # allow access to libcuda.so
+    export LD_LIBRARY_PATH=/run/opengl-driver/lib:''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
     exec "$@"
   '';
   wrapper = (wrapCCWith
