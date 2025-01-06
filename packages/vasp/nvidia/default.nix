@@ -12,7 +12,7 @@ let vasp = stdenv.mkDerivation
     cp ${./makefile.include} makefile.include
     chmod +w makefile.include
     cp ${../constr_cell_relax.F} src/constr_cell_relax.F
-    cp -r ${vtst}/vtstcode6.4/* src
+    cp -r ${vtst}/vtstcode6.4.3/* src
     chmod -R +w src
   '';
   buildInputs = [ hdf5 wannier90 mkl ];
