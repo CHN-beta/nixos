@@ -27,7 +27,6 @@ inputs: rec
   date = inputs.pkgs.callPackage ./date.nix { src = inputs.topInputs.date; };
   blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper.nix { src = inputs.topInputs.blurred-wallpaper; };
   slate = inputs.pkgs.callPackage ./slate.nix { src = inputs.topInputs.slate; };
-  nvhpc = inputs.pkgs.callPackage ./nvhpc.nix {};
   lmod = inputs.pkgs.callPackage ./lmod.nix { src = inputs.topInputs.lmod; };
   vasp = rec
   {
@@ -63,7 +62,6 @@ inputs: rec
       };
       wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
-    hdf5-nvhpc = inputs.pkgs.callPackage ./vasp/hdf5-nvhpc { inherit lmod nvhpc; inherit (inputs.pkgs.hdf5) src; };
     vtst = (inputs.pkgs.callPackage ./vasp/vtst.nix {});
     vtstscripts = inputs.pkgs.callPackage ./vasp/vtstscripts.nix {};
   };

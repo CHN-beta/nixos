@@ -36,9 +36,8 @@ let vasp = stdenv.mkDerivation
     QD = "${stdenv.cc.cc}/Linux_x86_64/${stdenv.cc.cc.version}/compilers/extras/qd";
   };
 };
-in vasp
-# in writeShellScriptBin "vasp-nvidia"
-# ''
-#   export PATH=${vasp}/bin:''${PATH:+:$PATH}
-#   exec "$@"
-# ''
+in writeShellScriptBin "vasp-nvidia"
+''
+  export PATH=${vasp}/bin:''${PATH:+:$PATH}
+  exec ${stdenv.cc.cc.runEnv} "$@"
+''
