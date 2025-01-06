@@ -63,7 +63,11 @@ inputs:
             fdtd = [ "srv1-node2" ];
             all = [ "srv1-node0" "srv1-node1" "srv1-node2" "srv1-node3" ];
           };
-          tui = { cpuMpiThreads = 8; cpuOpenmpThreads = 10; };
+          tui.cpuQueues =
+          [
+            { mpiThreads = 8; openmpThreads = 10; }
+            { name = "old"; mpiThreads = 8; openmpThreads = 4; }
+          ];
           setupFirewall = true;
         };
       };

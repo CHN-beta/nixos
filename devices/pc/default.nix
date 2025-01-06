@@ -134,7 +134,7 @@ inputs:
             gpus."4060" = 1;
           };
           partitions.localhost = [ "pc" ];
-          tui = { cpuMpiThreads = 4; cpuOpenmpThreads = 4; gpus = [ "4060" ]; };
+          tui = { cpuQueues = [{ mpiThreads = 4; openmpThreads = 4; }]; gpuIds = [ "4060" ]; };
         };
         ollama = {};
         docker = {};

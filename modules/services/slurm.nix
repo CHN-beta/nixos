@@ -15,8 +15,6 @@ inputs:
         sockets = mkOption { type = types.ints.unsigned; default = 1; };
         cores = mkOption { type = types.ints.unsigned; default = 1; };
         threads = mkOption { type = types.ints.unsigned; default = 1; };
-        mpiThreads = mkOption { type = types.ints.unsigned; default = 1; };
-        openmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
       };
       memoryMB = mkOption { type = types.ints.unsigned; default = 1024; };
       gpus = mkOption { type = types.nullOr (types.attrsOf types.ints.unsigned); default = null; };
@@ -25,9 +23,17 @@ inputs:
     defaultPartition = mkOption { type = types.nonEmptyStr; default = "localhost"; };
     tui =
     {
-      cpuMpiThreads = mkOption { type = types.ints.unsigned; default = 1; };
-      cpuOpenmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
-      gpus = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+      cpuQueues = mkOption
+      {
+        type = types.nonEmptyListOf (types.submodule (submoduleInputs: { options =
+        {
+          name = mkOption { type = types.nonEmptyStr; default = "localhost"; };
+          mpiThreads = mkOption { type = types.ints.unsigned; default = 1; };
+          openmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
+        };}));
+      };
+      gpuIds = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+      gpuPartition = mkOption { type = types.nonEmptyStr; default = "localhost"; };
     };
     # 是否打开防火墙相应端口，对于多节点部署需要打开
     setupFirewall = mkOption { type = types.bool; default = false; };
@@ -200,9 +206,11 @@ inputs:
       };
       environment.etc."sbatch-tui.yaml".text = builtins.toJSON
       {
-        CpuMpiThreads = slurm.tui.cpuMpiThreads;
-        CpuOpenmpThreads = slurm.tui.cpuOpenmpThreads;
-        GpuIds = slurm.tui.gpus;
+        GpuIds = slurm.tui.gpuIds;
+        GpuPartition = slurm.tui.gpuPartition;
+        CpuQueues = builtins.map
+          (queue: [ queue.name [ queue.mpiThreads queue.openmpThreads ]])
+          slurm.tui.cpuQueues;
       };
       networking.firewall =
         let config = inputs.lib.mkIf slurm.setupFirewall [ 6817 ];
