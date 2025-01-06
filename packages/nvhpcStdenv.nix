@@ -1,7 +1,7 @@
 {
-  src, stdenv, autoPatchelfHook, wrapCCWith, writeText, addAttrsToDerivation, config, overrideCC, symlinkJoin,
-  gcc, glibc, libz, zstd, libxml2, flock, numactl, ncurses, dpkg, cudaPackages, openssl, gmp,
-  libxcrypt-legacy, libfabric, rdma-core, gfortran, xorg, makeSetupHook, writeScript, bash, overrideInStdenv
+  src, stdenv, autoPatchelfHook, wrapCCWith, config, overrideCC, makeSetupHook, writeScript, overrideInStdenv,
+  gcc, glibc, libz, zstd, libxml2, flock, numactl, ncurses, openssl, gmp,
+  libxcrypt-legacy, libfabric, rdma-core, xorg, bash
 }:
 let
   nvhpc = stdenv.mkDerivation
@@ -10,7 +10,7 @@ let
     inherit (src) src version;
     buildInputs =
       [ libz libxml2 zstd numactl ncurses openssl gmp libxcrypt-legacy libfabric rdma-core xorg.libpciaccess ];
-    nativeBuildInputs = [ autoPatchelfHook dpkg flock ];
+    nativeBuildInputs = [ autoPatchelfHook flock ];
     langFortran = true;
     dontConfigure = true;
     dontBuild = true;
