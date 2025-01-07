@@ -134,6 +134,10 @@ inputs:
 
             # omit --mpi=pmix
             MpiDefault=pmix
+
+            # record more info
+            JobAcctGatherType=jobacct_gather/cgroup
+            AccountingStorageTRES=gres/gpu
           '';
           extraConfigPaths =
             let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
@@ -144,6 +148,14 @@ inputs:
                 (inputs.localLib.attrsToList gpus));
               in [(inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml\n${gpuString}")]
             );
+          extraCgroupConfig =
+          ''
+            ConstrainCores=yes
+            ConstrainDevices=yes
+            ConstrainRAMSpace=yes
+            ConstrainSwapSpace=yes
+            AllowedSwapSpace=20
+          '';
         };
         munge = { enable = true; password = inputs.config.sops.secrets."munge.key".path; };
       };
