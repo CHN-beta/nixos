@@ -20,6 +20,7 @@ inputs:
           rollingRootfs = {};
         };
         nixpkgs.march = "tigerlake";
+        kernel.variant = "cachyos";
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
