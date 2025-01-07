@@ -9,25 +9,35 @@ inputs:
     };});
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services) sshd; in inputs.lib.mkIf (sshd != null)
-  {
-    services.openssh =
+  config = let inherit (inputs.config.nixos.services) sshd; in inputs.lib.mkIf (sshd != null) (inputs.lib.mkMerge
+  [
     {
-      enable = true;
-      settings =
+      services.openssh =
       {
-        X11Forwarding = true;
-        ChallengeResponseAuthentication = false;
-        PasswordAuthentication = sshd.passwordAuthentication;
-        KbdInteractiveAuthentication = false;
-        UsePAM = true;
+        enable = true;
+        settings =
+        {
+          X11Forwarding = true;
+          ChallengeResponseAuthentication = false;
+          PasswordAuthentication = sshd.passwordAuthentication;
+          KbdInteractiveAuthentication = false;
+          UsePAM = true;
+        };
       };
-    };
-    nixos.services.xray.client.v2ray-forwarder.noproxyTcpPorts = [ 22 ];
-    # generate from https://patorjk.com/software/taag with font "BlurVision ASCII"
-    # generate using `toilet -f wideterm -F border "InAlGaN / SiC"`
-    # somehow lolcat could not run with these characters, use rendered directly
-    # TODO: move this settings to user
-    users.motdFile = inputs.lib.mkIf sshd.groupBanner ./banner-rendered.txt;
-  };
+      nixos.services.xray.client.v2ray-forwarder.noproxyTcpPorts = [ 22 ];
+    }
+    # 如果是服务器，那么启用 motd
+    (inputs.lib.mkIf (inputs.config.nixos.model.type == "server")
+    {
+      nixos =
+      {
+        packages.packages._packages =
+          [ (inputs.pkgs.fancy-motd.overrideAttrs { src = inputs.topInputs.fancy-motd; }) ];
+        user.sharedModules = [(home-inputs: { config.programs.zsh.loginExtra = "motd"; })];
+      };
+      # generate from https://patorjk.com/software/taag with font "BlurVision ASCII"
+      # generate using `toilet -f wideterm -F border "InAlGaN / SiC"`
+      environment.etc = inputs.lib.mkIf sshd.groupBanner { "fancy-motd/banner".source = ./banner.txt; };
+    })
+  ]);
 }
