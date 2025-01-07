@@ -221,6 +221,22 @@
         "type": "github"
       }
     },
+    "fancy-motd": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1736229765,
+        "narHash": "sha256-EJGrEfuno6p7aDNcfo5SNGK0ytMZV7mA3zxrOHsK+Sw=",
+        "owner": "CHN-beta",
+        "repo": "fancy-motd",
+        "rev": "75e6dc700589ac43c7de5a8f92c6909bd6ca4eb7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "fancy-motd",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -1185,22 +1201,6 @@
         "type": "github"
       }
     },
-    "qd": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1452446912,
-        "narHash": "sha256-ftU28BMGUCq0or0nVkf9fryaLfqGnMonmHu7UuyjMTQ=",
-        "owner": "scibuilder",
-        "repo": "QD",
-        "rev": "a5dbb6136ac1739e7e6955bf7b0c0fa05f3b2cbd",
-        "type": "github"
-      },
-      "original": {
-        "owner": "scibuilder",
-        "repo": "QD",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "aagl": "aagl",
@@ -1214,6 +1214,7 @@
         "date": "date",
         "eigen": "eigen",
         "envfs": "envfs",
+        "fancy-motd": "fancy-motd",
         "git-lfs-transfer": "git-lfs-transfer",
         "gricad": "gricad",
         "hextra": "hextra",
@@ -1242,7 +1243,6 @@
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
         "qchem": "qchem",
-        "qd": "qd",
         "rsshub": "rsshub",
         "rycee": "rycee",
         "slate": "slate",
