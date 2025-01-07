@@ -1,5 +1,8 @@
 { inputs, localLib }:
-builtins.listToAttrs
+let
+  machine = [ "nas" "pc" "pi3b" "vps6" "vps7" "one" ];
+  cluster = { srv1 = 4; srv2 = 2; };
+in builtins.listToAttrs
 (
   (builtins.map
     (system:
@@ -11,41 +14,39 @@ builtins.listToAttrs
         specialArgs = { topInputs = inputs; inherit localLib; };
         modules = localLib.mkModules
         [
-          {
-            config =
-            {
-              nixpkgs.overlays = [ inputs.self.overlays.default ];
-              nixos.model.hostname = system;
-            };
-          }
+          { config = { nixpkgs.overlays = [ inputs.self.overlays.default ]; nixos.model.hostname = system; }; }
           ../modules
           ../devices/${system}
         ];
       };
     })
-    [ "nas" "pc" "pi3b" "vps6" "vps7" "xmupc1" "xmupc2" "one" ])
-  ++ (builtins.map
-    (node:
-    {
-      name = "srv1-${node}";
-      value = inputs.nixpkgs.lib.nixosSystem
-      {
-        system = "x86_64-linux";
-        specialArgs = { topInputs = inputs; inherit localLib; };
-        modules = localLib.mkModules
-        [
+    machine)
+  ++ (builtins.concatLists (builtins.map
+    (cluster:
+      let nodes = builtins.genList (n: "node${builtins.toString n}") cluster.value;
+      in builtins.map
+        (node:
+        {
+          name = "${cluster.name}-${node}";
+          value = inputs.nixpkgs.lib.nixosSystem
           {
-            config =
-            {
-              nixpkgs.overlays = [ inputs.self.overlays.default ];
-              nixos.model.cluster = { clusterName = "srv1"; nodeName = node; };
-            };
-          }
-          ../modules
-          ../devices/srv1
-          ../devices/srv1/${node}
-        ];
-      };
-    })
-    [ "node0" "node1" "node2" "node3" ])
+            system = "x86_64-linux";
+            specialArgs = { topInputs = inputs; inherit localLib; };
+            modules = localLib.mkModules
+            [
+              {
+                config =
+                {
+                  nixpkgs.overlays = [ inputs.self.overlays.default ];
+                  nixos.model.cluster = { clusterName = cluster.name; nodeName = node; };
+                };
+              }
+              ../modules
+              ../devices/${cluster.name}
+              ../devices/${cluster.name}/${node}
+            ];
+          };
+        })
+        nodes)
+    (localLib.attrsToList cluster)))
 )

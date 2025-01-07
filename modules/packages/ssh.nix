@@ -57,20 +57,20 @@ inputs:
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl";
           hostnames = [ "github.com" ];
         };
-        xmupc1 =
-        {
-          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAINTvfywkKRwMrVp73HfHTfjhac2Tn9qX/lRjLr09ycHp";
-          hostnames = [ "[office.chn.moe]:6007" "[xmupc1.chn.moe]:6007" "wireguard.xmupc1.chn.moe" "192.168.83.6" ];
-        };
-        xmupc2 =
+        srv2-node0 =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIJZ/+divGnDr0x+UlknA84Tfu6TPD+zBGmxWZY4Z38P6";
-          hostnames = [ "[xmupc2.chn.moe]:6394" "wireguard.xmupc2.chn.moe" "192.168.83.7" ];
+          hostnames = [ "srv2.chn.moe" "wireguard.srv2.chn.moe" ];
+        };
+        srv2-node1 =
+        {
+          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAINTvfywkKRwMrVp73HfHTfjhac2Tn9qX/lRjLr09ycHp";
+          hostnames = [ "192.168.178.2" ];
         };
         srv1-node0 =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIDm6M1D7dBVhjjZtXYuzMj2P1fXNWN3O9wmwNssxEeDs";
-          hostnames = [ "srv1.chn.moe" "node0.srv1.chn.moe" "wireguard.node0.srv1.chn.moe" ];
+          hostnames = [ "srv1.chn.moe" "wireguard.srv1.chn.moe" ];
         };
         srv1-node1 =
         {
@@ -124,7 +124,7 @@ inputs:
             [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.nas" "wireguard.one" ])
           ++ (builtins.map
             (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; }; })
-            [ "wireguard.pc" "wireguard.xmupc1" "wireguard.xmupc2" "srv1" "wireguard.srv1" ])
+            [ "wireguard.pc" "srv1" "wireguard.srv1" "srv2" "wireguard.srv2" ])
           ++ (builtins.map
             (host:
             {
@@ -140,8 +140,6 @@ inputs:
             [ "wlin" "hwang" ])
         )
         // rec {
-          xmupc1 = { host = "xmupc1"; hostname = "xmupc1.chn.moe"; port = 6007; forwardX11 = true; };
-          xmupc2 = { host = "xmupc2"; hostname = "xmupc2.chn.moe"; port = 6394; forwardX11 = true; };
           nas = { host = "nas"; hostname = "192.168.1.2"; forwardX11 = true; };
           pc = { host = "pc"; hostname = "192.168.1.3"; forwardX11 = true; };
           one = { host = "one"; hostname = "192.168.1.4"; forwardX11 = true; };
@@ -154,10 +152,11 @@ inputs:
             forwardAgent = true;
             extraOptions.AddKeysToAgent = "yes";
           };
-          "wireguard.jykang" = jykang // { host = "wireguard.jykang"; proxyJump = "wireguard.xmupc1"; };
+          "wireguard.jykang" = jykang // { host = "wireguard.jykang"; proxyJump = "wireguard.srv2"; };
           srv1-node1 = { host = "srv1-node1"; hostname = "192.168.178.2"; proxyJump = "srv1"; };
           srv1-node2 = { host = "srv1-node2"; hostname = "192.168.178.3"; proxyJump = "srv1"; };
           srv1-node3 = { host = "srv1-node3"; hostname = "192.168.178.4"; proxyJump = "srv1"; };
+          srv2-node1 = { host = "srv2-node1"; hostname = "192.168.178.2"; proxyJump = "srv2"; };
         };
       };
     })];
