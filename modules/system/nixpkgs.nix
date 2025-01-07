@@ -49,7 +49,7 @@ inputs:
           {
             # TODO: change znver4 after update oneapi
             # TODO: test znver3 do use AVX
-            oneapiArch = let match = { znver3 = "CORE-AVX2"; znver4 = "core-avx2"; };
+            oneapiArch = let match = {};
               in match.${nixpkgs.march} or nixpkgs.march;
             nvhpcArch = nixpkgs.march;
             # contentAddressedByDefault = true;
