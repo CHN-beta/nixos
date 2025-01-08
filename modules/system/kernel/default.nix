@@ -90,9 +90,9 @@ inputs:
         { boot.initrd = { systemd.enableTpm2 = false; includeDefaultModules = false; }; }
     )
     # enable scx when using cachyos
-    (
-      inputs.lib.mkIf (builtins.elem kernel.variant [ "cachyos" "cachyos-lto" "cachyos-server" ])
-        { services.scx = { enable = true; scheduler = "scx_lavd"; extraArgs = [ "--autopower" ]; }; }
-    )
+    # (
+    #   inputs.lib.mkIf (builtins.elem kernel.variant [ "cachyos" "cachyos-lto" "cachyos-server" ])
+    #     { services.scx = { enable = true; scheduler = "scx_lavd"; extraArgs = [ "--autopower" ]; }; }
+    # )
   ];
 }
