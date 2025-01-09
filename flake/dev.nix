@@ -7,7 +7,7 @@
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
-  hpcstat = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
+  hpcstat = pkgs.mkShell.override { stdenv = pkgs.gcc14Stdenv; }
   {
     inputsFrom = [ (pkgs.localPackages.hpcstat.override { version = null; }) ];
     packages = [ pkgs.clang-tools_18 ];
