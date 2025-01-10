@@ -10,7 +10,14 @@ inputs:
       (device:
       {
         name = device.value;
-        value = { device = device.name; fsType = "nfs"; neededForBoot = true; };
+        value =
+        {
+          device = device.name;
+          fsType = "nfs";
+          neededForBoot = true;
+          # retry 15 minutes before giving up
+          options = [ "retry=15" ];
+        };
       })
       (inputs.localLib.attrsToList nfs));
     boot.initrd =
