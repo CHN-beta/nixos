@@ -1,6 +1,6 @@
 {
   stdenv, src, writeShellScriptBin, lib,
-  rsync, which, wannier90, hdf5, vtst, mpi, mkl
+  rsync, which, wannier90, hdf5, vtst, mpi, mkl, libfabric
 }:
 let vasp = stdenv.mkDerivation
   {
@@ -34,9 +34,6 @@ let vasp = stdenv.mkDerivation
 
     # vasp directly include headers under ${mkl}/include/fftw
     MKLROOT = mkl;
-
-    # tell openmpi use ifx
-    OMPI_F90 = "ifx";
   };
 in writeShellScriptBin "vasp-intel"
 ''
@@ -54,6 +51,13 @@ in writeShellScriptBin "vasp-intel"
   if [ -z "$OMP_STACKSIZE" ]; then
     export OMP_STACKSIZE=512m
   fi
+  # set some environment variable if slurm is used
+  if [ -n "$SLURM_JOBID" ]; then
+    export I_MPI_PIN_RESPECT_CPUSET=off
+    export I_MPI_HYDRA_BOOTSTRAP_EXEC_EXTRA_ARGS="--mpi=pmi2"
+  fi
+  # somehow intel mpi needs this
+  export LD_LIBRARY_PATH=${libfabric}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
 
   exec "$@"
 ''

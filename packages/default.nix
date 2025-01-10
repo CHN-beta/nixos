@@ -49,11 +49,7 @@ inputs: rec
       inherit src;
       vtst = inputs.topInputs.self.src.vtst.patch;
       inherit (inputs.pkgs.intelPackages_2023) stdenv;
-      mpi = inputs.pkgs.openmpi.override
-      {
-        inherit (inputs.pkgs.intelPackages_2023) stdenv;
-        enableSubstitute = false;
-      };
+      mpi = inputs.pkgs.intelPackages_2023.intel-mpi;
       hdf5 = inputs.pkgs.hdf5.override
       {
         inherit (inputs.pkgs.intelPackages_2023) stdenv;
