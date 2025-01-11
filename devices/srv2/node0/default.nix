@@ -18,7 +18,7 @@ inputs:
       services =
       {
         xray.client = { enable = true; dnsmasq.extraInterfaces = [ "eno2" ]; };
-        beesd.instances.root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
+        beesd.instances.root = { device = "/"; hashTableSizeMB = 16384; loadAverage = 8;  };
         wireguard =
         {
           enable = true;
