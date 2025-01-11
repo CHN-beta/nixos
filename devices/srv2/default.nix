@@ -73,7 +73,7 @@ inputs:
           {
             cpuQueues =
             [
-              { name = "n0"; mpiThreads = 8; openmpThreads = 10; }
+              { name = "n0"; mpiThreads = 8; openmpThreads = 5; }
               { name = "n1"; mpiThreads = 3; openmpThreads = 4; }
             ];
             gpuIds = [ "4090" "3090" "p5000" ];
