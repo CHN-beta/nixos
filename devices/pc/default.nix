@@ -130,7 +130,7 @@ inputs:
           {
             name = "pc"; address = "127.0.0.1";
             cpu = { cores = 16; threads = 2; };
-            memoryMB = 90112;
+            memoryMB = 80 * 1024;
             gpus."4060" = 1;
           };
           partitions.localhost = [ "pc" ];

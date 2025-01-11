@@ -51,14 +51,14 @@ inputs:
             {
               name = "n0"; address = "192.168.178.1";
               cpu = { sockets = 2; cores = 22; threads = 2; };
-              memoryMB = 122880;
+              memoryMB = 240 * 1024;
               gpus."4090" = 1;
             };
             srv2-node1 =
             {
               name = "n1"; address = "192.168.178.2";
               cpu = { cores = 16; threads = 2; };
-              memoryMB = 94208;
+              memoryMB = 80 * 1024;
               gpus = { "p5000" = 1; "3090" = 1; "4090" = 1; };
             };
           };
