@@ -133,20 +133,46 @@ inputs:
         (user:
         {
           ${user}.home.file = inputs.lib.mkMerge (builtins.map (file: { "${file}".enable = false; })
-            [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ]);
+            [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]);
         })
         user.users);
-      systemd.mounts = builtins.concatLists (builtins.map
-        (user: builtins.map
-          (file:
+      systemd.mounts =
+        (builtins.concatLists (builtins.map
+          (user: builtins.map
+            (file:
+            {
+              what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
+              where = "/home/${user}/${file}";
+              options = "bind";
+              wantedBy = [ "multi-user.target" ];
+            })
+            [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ])
+          user.users))
+        ++ (builtins.map
+          (user:
           {
-            what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
-            where = "/home/${user}/${file}";
+            what = builtins.toString
+              (inputs.pkgs.writeText ".zlogin" inputs.config.home-manager.users.${user}.home.file.".zlogin".text);
+            where = "/home/${user}/.zlogin";
             options = "bind";
             wantedBy = [ "multi-user.target" ];
           })
-          [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ])
-        user.users);
+          user.users);
     }
+    # if cluster worker, mount .config .local .cache .ssh
+    (inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null == "worker")
+    {
+      systemd.mounts = builtins.concatLists (builtins.map
+        (user: builtins.map
+          (dir:
+          {
+            what = "/nix/persistent/home/${user}/${dir}";
+            where = "/home/${user}/${dir}";
+            options = "bind";
+            wantedBy = [ "multi-user.target" ];
+          })
+          [ ".config" ".local" ".ssh" ".mozilla" ".zsh" ])
+        user.users);
+    })
   ];
 }
