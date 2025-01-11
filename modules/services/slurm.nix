@@ -151,10 +151,11 @@ inputs:
           extraCgroupConfig =
           ''
             ConstrainCores=yes
-            ConstrainDevices=yes
             ConstrainRAMSpace=yes
             ConstrainSwapSpace=yes
             AllowedSwapSpace=20
+            # this make job hang, not sure why
+            # ConstrainDevices=yes
           '';
         };
         munge = { enable = true; password = inputs.config.sops.secrets."munge.key".path; };
