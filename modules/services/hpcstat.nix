@@ -76,7 +76,7 @@ inputs:
         calenders =
         {
           finishjob = "*-*-* *:*:00";
-          backupdb = "*-*-* *:00/10:00";
+          backupdb = "*-*-* 00/8:00:00";
           diskstat = "*-*-* 03/12:00:00";
         };
       in
