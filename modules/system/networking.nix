@@ -17,7 +17,7 @@ inputs:
         };});
         default = {};
       };
-      wireless = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+      wireless = mkOption { type = types.nullOr (types.attrsOf types.nonEmptyStr); default = null; };
     };});
     default = null;
   };
@@ -95,30 +95,29 @@ inputs:
         networking =
         {
           useNetworkd = true;
-          wireless = inputs.lib.mkIf (networking.wireless or [] != [])
+          wireless = inputs.lib.mkIf (networking.wireless != null)
           {
             enable = true;
             networks = builtins.listToAttrs (builtins.map
               (network:
               {
-                name = network;
-                value.psk = "@${builtins.hashString "md5" network}_PSK@";
+                name = network.value;
+                value.psk = "@${network.name}@";
               })
-              networking.wireless);
+              (inputs.localLib.attrsToList networking.wireless));
             environmentFile = inputs.config.sops.templates."wireless.env".path;
           };
         };
         # dnsable dns fallback, use provided dns servers or no dns
         services.resolved.fallbackDns = [];
-        sops = inputs.lib.mkIf (networking.wireless or [] != [])
+        sops = inputs.lib.mkIf (networking.wireless != null)
         {
           templates."wireless.env".content = builtins.concatStringsSep "\n" (builtins.map
-            (network:
-              "${builtins.hashString "md5" network}_PSK=${inputs.config.sops.placeholder."wireless/${network}"}")
-            networking.wireless);
+            (network: "${network.name}=${inputs.config.sops.placeholder."wireless/${network.name}"}")
+            (inputs.localLib.attrsToList networking.wireless));
           secrets = builtins.listToAttrs (builtins.map
-            (network: { name = "wireless/${network}"; value = {}; })
-            networking.wireless);
+            (network: { name = "wireless/${network.name}"; value = {}; })
+            (inputs.localLib.attrsToList networking.wireless));
         };
     })
   ];

@@ -9,16 +9,15 @@ inputs:
       system =
       {
         nixpkgs.march = "skylake";
-        # TODO: configure network
-        # networking.static =
-        # {
-        #   eno145 = { ip = "192.168.1.10"; mask = 24; gateway = "192.168.1.1"; };
-        #   eno146 = { ip = "192.168.178.1"; mask = 24; };
-        # };
+        networking =
+        {
+          static.eno2 = { ip = "192.168.178.1"; mask = 24; };
+          wireless."457" = "457的5G";
+        };
       };
       services =
       {
-        xray.client = { enable = true; dnsmasq.extraInterfaces = [ "eno146" ]; };  # TODO: listen on shared port
+        xray.client = { enable = true; dnsmasq.extraInterfaces = [ "eno2" ]; };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 16384; threads = 4; };
         wireguard =
         {
@@ -34,11 +33,9 @@ inputs:
         hpcstat = {};
       };
     };
-    # TODO: these netowrk settings should be changed
     # allow other machine access network by this machine
-    systemd.network.networks."10-eno146".networkConfig.IPMasquerade = "both";
+    systemd.network.networks."10-eno2".networkConfig.IPMasquerade = "both";
     # without this, tproxy does not work
-    # TODO: why?
-    networking.firewall.trustedInterfaces = [ "eno146" ];
+    networking.firewall.trustedInterfaces = [ "eno2" ];
   };
 }

@@ -32,6 +32,8 @@ inputs:
           "nfs" "nfsv4"
           # netowrk for srv1
           "bnx2x" "tg3"
+          # network for srv2
+          "e1000e" "igb" "atlantic" "igc"
         ]
         ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ])
         # for pi3b to show message over hdmi while boot
