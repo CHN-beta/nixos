@@ -17,7 +17,7 @@ inputs:
         };});
         default = {};
       };
-      wireless = mkOption { type = types.nullOr (types.attrsOf types.nonEmptyStr); default = null; };
+      wireless = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
     };});
     default = null;
   };
@@ -99,13 +99,9 @@ inputs:
           {
             enable = true;
             networks = builtins.listToAttrs (builtins.map
-              (network:
-              {
-                name = network.value;
-                value.psk = "@${network.name}@";
-              })
-              (inputs.localLib.attrsToList networking.wireless));
-            environmentFile = inputs.config.sops.templates."wireless.env".path;
+              (network: { name = network; value.pskRaw = "ext:${network}"; })
+              networking.wireless);
+            secretsFile = inputs.config.sops.templates."wireless.env".path;
           };
         };
         # dnsable dns fallback, use provided dns servers or no dns
@@ -113,11 +109,11 @@ inputs:
         sops = inputs.lib.mkIf (networking.wireless != null)
         {
           templates."wireless.env".content = builtins.concatStringsSep "\n" (builtins.map
-            (network: "${network.name}=${inputs.config.sops.placeholder."wireless/${network.name}"}")
-            (inputs.localLib.attrsToList networking.wireless));
+            (network: "${network}=${inputs.config.sops.placeholder."wireless/${network}"}")
+            networking.wireless);
           secrets = builtins.listToAttrs (builtins.map
-            (network: { name = "wireless/${network.name}"; value = {}; })
-            (inputs.localLib.attrsToList networking.wireless));
+            (network: { name = "wireless/${network}"; value = {}; })
+            networking.wireless);
         };
     })
   ];
