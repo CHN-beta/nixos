@@ -224,11 +224,11 @@
     "fancy-motd": {
       "flake": false,
       "locked": {
-        "lastModified": 1736229765,
-        "narHash": "sha256-EJGrEfuno6p7aDNcfo5SNGK0ytMZV7mA3zxrOHsK+Sw=",
+        "lastModified": 1736569911,
+        "narHash": "sha256-pyEeEkXdQMECfKwTxycCUjfTyJaQ6V0hNylbLYzbFXM=",
         "owner": "CHN-beta",
         "repo": "fancy-motd",
-        "rev": "75e6dc700589ac43c7de5a8f92c6909bd6ca4eb7",
+        "rev": "e29c2ece59e6c8b6531d8e1fcf097d30afcb412b",
         "type": "github"
       },
       "original": {
