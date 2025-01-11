@@ -235,7 +235,7 @@ int main()
             );
       else state.submit_command =
         "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={}\n--job-name='{}' --output='{}'\n"
-          "--wrap=\"vasp-intel mpirun vasp-{}\""_f
+          "--wrap=\"vasp-intel srun vasp-{}\""_f
         (
           state.queue_entries[state.queue_selected],
           state.mpi_threads, state.openmp_threads, state.job_name, state.output_file,
