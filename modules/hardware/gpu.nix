@@ -22,6 +22,7 @@ inputs:
         busId = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       };
       driver = mkOption { type = types.enum [ "production" "latest" "beta" ]; default = "production"; };
+      open = mkOption { type = types.bool; default = true; };
     };
   };
   config = let inherit (inputs.config.nixos.hardware) gpu; in inputs.lib.mkIf (gpu.type != null) (inputs.lib.mkMerge
@@ -61,7 +62,7 @@ inputs:
             dynamicBoost.enable = inputs.lib.mkIf gpu.nvidia.dynamicBoost true;
             nvidiaSettings = true;
             package = inputs.config.boot.kernelPackages.nvidiaPackages.${gpu.nvidia.driver};
-            open = true; # TODO: remove when 560 is stable
+            inherit (gpu.nvidia) open;
             prime.allowExternalGpu = true;
           };
         };

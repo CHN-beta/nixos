@@ -35,7 +35,7 @@ inputs:
           forwardCompat = false;
         };
       };
-      hardware.gpu.type = "nvidia";
+      hardware.gpu = { type = "nvidia"; nvidia.open = false; };
       services =
       {
         snapper.enable = true;
