@@ -33,7 +33,11 @@ inputs:
       {
         packages.packages._packages =
           [ (inputs.pkgs.fancy-motd.overrideAttrs { src = inputs.topInputs.fancy-motd; }) ];
-        user.sharedModules = [(home-inputs: { config.programs.zsh.loginExtra = "motd"; })];
+        user.sharedModules = [(home-inputs: { config.programs.zsh.loginExtra =
+        ''
+          [ -f /etc/fancy-motd/banner ] && lolcat -f /etc/fancy-motd/banner
+          motd
+        '';})];
       };
       # generate from https://patorjk.com/software/taag with font "BlurVision ASCII"
       # generate using `toilet -f wideterm -F border "InAlGaN / SiC"`
