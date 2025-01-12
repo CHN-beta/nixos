@@ -182,7 +182,7 @@ inputs:
       networking.firewall =
         let config = inputs.lib.mkIf slurm.setupFirewall [ 6818 ];
         in { allowedTCPPorts = config; allowedUDPPorts = config; };
-      environment.sessionVariables.SLURM_HINT = "nomultithread";
+      environment.sessionVariables = { SLURM_HINT = "nomultithread"; SLURM_UNBUFFEREDIO = "1"; };
     }
     # master 配置
     (inputs.lib.mkIf (slurm.master == inputs.config.nixos.model.hostname)
