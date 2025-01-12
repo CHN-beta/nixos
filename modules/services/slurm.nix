@@ -138,6 +138,9 @@ inputs:
             # record more info
             JobAcctGatherType=jobacct_gather/cgroup
             AccountingStorageTRES=gres/gpu
+
+            # append to output file
+            JobFileAppend=1
           '';
           extraConfigPaths =
             let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
