@@ -25,8 +25,6 @@ inputs:
     {
       type = types.nullOr (types.submodule { options =
       {
-        device = mkOption { type = types.nonEmptyStr; default = inputs.config.fileSystems."/".device; };
-        path = mkOption { type = types.nonEmptyStr; default = "/nix/rootfs"; };
         waitDevices = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
       };});
       default = null;
@@ -113,24 +111,25 @@ inputs:
           serviceConfig.Type = "oneshot";
           script =
             let
-              inherit (fileSystems.rollingRootfs) device path waitDevices;
+              device = inputs.config.fileSystems."/".device;
               waitDevice = builtins.concatStringsSep "\n" (builtins.map
-                (device: "while ! [ -e ${device} ]; do sleep 1; done") (waitDevices ++ [ device ]));
+                (device: "while ! [ -e ${device} ]; do sleep 1; done")
+                (fileSystems.rollingRootfs.waitDevices ++ [ device ]));
             in
             ''
               while ! lsmod | grep -q btrfs; do sleep 1; done
               ${waitDevice}
               mount ${device} /mnt -m
-              if [ -f /mnt${path}/current/.timestamp ]
+              if [ -f /mnt/nix/rootfs/current/.timestamp ]
               then
-                timestamp=$(cat /mnt${path}/current/.timestamp)
-                subvolid=$(btrfs subvolume show /mnt${path}/current | grep 'Subvolume ID:' | awk '{print $NF}')
-                mv /mnt${path}/current /mnt${path}/$timestamp-$subvolid
-                btrfs property set -ts /mnt${path}/$timestamp-$subvolid ro true
+                timestamp=$(cat /mnt/nix/rootfs/current/.timestamp)
+                subvolid=$(btrfs subvolume show /mnt/nix/rootfs/current | grep 'Subvolume ID:' | awk '{print $NF}')
+                mv /mnt/nix/rootfs/current /mnt/nix/rootfs/$timestamp-$subvolid
+                btrfs property set -ts /mnt/nix/rootfs/$timestamp-$subvolid ro true
               fi
-              btrfs subvolume create /mnt${path}/current
-              chattr +C /mnt${path}/current
-              echo $(date '+%Y%m%d%H%M%S') > /mnt${path}/current/.timestamp
+              [ -d /mnt/nix/rootfs/current ] || btrfs subvolume create /mnt/nix/rootfs/current
+              chattr +C /mnt/nix/rootfs/current
+              echo $(date '+%Y%m%d%H%M%S') > /mnt/nix/rootfs/current/.timestamp
               umount /mnt
             '';
         };
