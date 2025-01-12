@@ -91,10 +91,6 @@ inputs:
       home-manager.users = builtins.listToAttrs (builtins.map
         (name: { inherit name; value.imports = user.sharedModules; })
         user.users);
-      environment.persistence."/nix/persistent".directories =
-        inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null != "worker") (builtins.map
-          (user: { directory = "/home/${user}"; inherit user; group = user; mode = "0700"; })
-          (builtins.filter (user: user != "chn") user.users));
     }
     # set hashedPassword if it exist in secrets
     (
@@ -149,32 +145,14 @@ inputs:
             [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ])
           user.users))
         ++ (builtins.map
-          (user:
+          (user: let inherit (inputs.config.home-manager.users.${user}.home.file.".zlogin") text; in
           {
-            what = builtins.toString
-              (inputs.pkgs.writeText ".zlogin" inputs.config.home-manager.users.${user}.home.file.".zlogin".text);
+            what = builtins.toString (inputs.pkgs.writeText ".zlogin" (if text == null then "" else text));
             where = "/home/${user}/.zlogin";
             options = "bind";
             wantedBy = [ "multi-user.target" ];
           })
           user.users);
     }
-    # if cluster worker, mount .config .local .cache .ssh
-    (inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null == "worker")
-    {
-      systemd.mounts = builtins.concatLists (builtins.map
-        (user: builtins.map
-          (dir:
-          {
-            what = "/nix/persistent/home/${user}/${dir}";
-            where = "/home/${user}/${dir}";
-            options = "bind";
-            wantedBy = [ "multi-user.target" ];
-          })
-          [ ".config" ".local" ".ssh" ".mozilla" ".zsh" ])
-        user.users);
-    })
-    # TODO: 都使用 impermanence 挂载。impermanence 似乎会在 switch root 之后、其它服务启动之前挂载，这是最好的时机。
-    # 同时 impermanence 会正确设置权限。
   ];
 }

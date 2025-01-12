@@ -21,12 +21,5 @@ inputs:
     { networking.hostName = model.hostname; }
     (inputs.lib.mkIf (model.cluster != null)
       { nixos.model.hostname = "${model.cluster.clusterName}-${model.cluster.nodeName}"; })
-    # TODO: remove it
-    {
-      systemd.services = inputs.lib.mkIf (model.cluster.nodeType or null == "worker") (builtins.listToAttrs
-        (builtins.map
-          (user: { name = "home-manager-${inputs.utils.escapeSystemdPath user}"; value.enable = false; })
-          inputs.config.nixos.user.users));
-    }
   ];
 }
