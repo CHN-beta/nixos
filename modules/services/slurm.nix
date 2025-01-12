@@ -150,7 +150,8 @@ inputs:
             );
           extraCgroupConfig =
           ''
-            ConstrainCores=yes
+            # cause job random crash
+            # ConstrainCores=yes
             ConstrainRAMSpace=yes
             ConstrainSwapSpace=yes
             AllowedSwapSpace=20
