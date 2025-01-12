@@ -4,7 +4,6 @@ inputs:
   {
     nixos =
     {
-      model.cluster.nodeType = "worker";
       system =
       {
         nixpkgs.march = "broadwell";
