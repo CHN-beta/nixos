@@ -223,12 +223,12 @@ int main()
         if (state.gpu_scheme_entries[state.gpu_scheme_selected] == "any single GPU")
           state.submit_command =
             "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus=1\n--job-name='{}' --output='{}'\n"
-              "--wrap=\"vasp-nvidia mpirun vasp-{}\""_f
+              "--wrap=\"vasp-nvidia mpirun --bind-to none vasp-{}\""_f
             (device.GpuPartition, state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]);
         else
           state.submit_command =
             "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus={}:1\n--job-name='{}' --output='{}'\n"
-              "--wrap=\"vasp-nvidia mpirun vasp-{}\""_f
+              "--wrap=\"vasp-nvidia mpirun --bind-to none vasp-{}\""_f
             (
               device.GpuPartition, state.gpu_entries[state.gpu_selected],
               state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
