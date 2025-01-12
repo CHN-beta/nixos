@@ -1,6 +1,6 @@
 {
   stdenv, src, writeShellScriptBin,
-  rsync, which, wannier90, hdf5, vtst, mkl
+  rsync, which, wannier90, hdf5, vtst, mkl, mpi
 }:
 let vasp = stdenv.mkDerivation
 {
@@ -16,7 +16,7 @@ let vasp = stdenv.mkDerivation
     chmod -R +w src
   '';
   buildInputs = [ hdf5 wannier90 mkl ];
-  nativeBuildInputs = [ rsync which ];
+  nativeBuildInputs = [ rsync which mpi ];
   installPhase =
   ''
     mkdir -p $out/bin
@@ -38,7 +38,7 @@ let vasp = stdenv.mkDerivation
 };
 in writeShellScriptBin "vasp-nvidia"
 ''
-  export PATH=${vasp}/bin''${PATH:+:$PATH}
+  export PATH=${vasp}/bin:${mpi}/bin''${PATH:+:$PATH}
 
   # set OMP_NUM_THREADS if SLURM_CPUS_PER_TASK is set
   if [ -z "$OMP_NUM_THREADS" ] && [ -n "$SLURM_CPUS_PER_TASK" ]; then

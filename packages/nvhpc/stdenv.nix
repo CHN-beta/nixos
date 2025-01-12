@@ -43,7 +43,6 @@ let
     passthru = { inherit src cudaCapability buildEnv runEnv; };
   };
   compilerDir = "${nvhpc}/Linux_x86_64/${src.version}/compilers";
-  mpiDir = "${nvhpc}/Linux_x86_64/${src.version}/comm_libs/mpi";
   cudaCapability = builtins.concatStringsSep ","
   (
     (builtins.map (cap: "cc${builtins.replaceStrings ["."] [""] cap}") config.cudaCapabilities)
@@ -53,7 +52,6 @@ let
   ''
     addNvhpcEnv() {
       addToSearchPath PATH ${compilerDir}/bin
-      addToSearchPath PATH ${mpiDir}/bin
       addToSearchPath PATH ${gcc.cc}/bin
     }
     addEnvHooks "$hostOffset" addNvhpcEnv
@@ -62,7 +60,7 @@ let
   ''
     #!${bash}/bin/bash
     # make mpirun and nvaccelinfo accessible
-    export PATH=${compilerDir}/bin:${mpiDir}/bin''${PATH:+:$PATH}
+    export PATH=${compilerDir}/bin''${PATH:+:$PATH}
     # NVPL need this to load libgomp.so (actually libnvomp.so) from nvhpc instead of from gcc
     # https://docs.nvidia.com/nvpl/
     export LD_LIBRARY_PATH=${compilerDir}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
