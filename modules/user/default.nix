@@ -174,5 +174,7 @@ inputs:
           [ ".config" ".local" ".ssh" ".mozilla" ".zsh" ])
         user.users);
     })
+    # TODO: 都使用 impermanence 挂载。impermanence 似乎会在 switch root 之后、其它服务启动之前挂载，这是最好的时机。
+    # 同时 impermanence 会正确设置权限。
   ];
 }
