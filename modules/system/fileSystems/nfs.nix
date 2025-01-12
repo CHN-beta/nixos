@@ -16,7 +16,7 @@ inputs:
           fsType = "nfs";
           neededForBoot = true;
           # retry 15 minutes before giving up
-          options = [ "retry=15" ];
+          options = [ "retry=15,x-systemd.device-timeout=15min" ];
         };
       })
       (inputs.localLib.attrsToList nfs));
