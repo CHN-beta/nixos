@@ -15,8 +15,13 @@ inputs:
           device = device.name;
           fsType = "nfs";
           neededForBoot = true;
-          # retry 15 minutes before giving up
-          options = [ "retry=15,x-systemd.device-timeout=15min" ];
+          options =
+          [
+            # when try to mount at startup, wait 15 minutes before giving up
+            "retry=15" "x-systemd.device-timeout=15min"
+            # sync every seconds
+            "actimeo=1"
+          ];
         };
       })
       (inputs.localLib.attrsToList nfs));
