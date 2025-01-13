@@ -79,7 +79,7 @@ inputs:
           (builtins.concatLists (builtins.map
             (user: builtins.map
               (dir: { directory = "/home/${user}/${dir}"; inherit user; group = user; mode = "0700"; })
-              [ ".config" ".local" ".ssh" ".mozilla" ".zsh" ])
+              [ ".config" ".local" ".ssh" ".mozilla" ".zsh" ".yubico" ])
             inputs.config.nixos.user.users));
       };
     }
