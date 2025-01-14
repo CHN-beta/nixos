@@ -62,6 +62,7 @@ inputs:
       ];
     })
     # 对于集群的工作节点，挂载一些本来由 home-manager 生成的文件，以及一些用来存放 home-manager 生成文件的目录
+    # impermanence 挂载来自 nix store 的文件会导致家目录的权限错误，在 cluster.nix 中直接使用 systemd.mounts 来挂载
     (inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null == "worker")
     {
       "/nix/persistent".users = builtins.listToAttrs (builtins.map
@@ -70,28 +71,6 @@ inputs:
       "/nix/rootfs/current".users = builtins.listToAttrs (builtins.map
         (user: { name = user; value.directories = [ ".zsh" ".yubico" ]; })
         inputs.config.nixos.user.users);
-      "/" =
-      {
-        hideMounts = true;
-        users =
-          let userFiles = inputs.pkgs.runCommand "user-files" {}
-            (builtins.concatStringsSep "\n" (builtins.concatLists (builtins.map
-              (user: [ "mkdir -p $out/home/${user}" ] ++ (builtins.map
-                (file:
-                  let f = inputs.config.home-manager.users.${user}.config.home.file.${file}.source or null;
-                  in if f != null then "ln -s ${f} $out/home/${user}/${file}" else "touch $out/home/${user}/${file}")
-                [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]))
-              inputs.config.nixos.user.users)));
-          in builtins.listToAttrs (builtins.map
-            (user:
-            {
-              name = user;
-              value.files = builtins.map
-                (file: { inherit file; persistentStoragePath = "${userFiles}"; })
-                [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ];
-            })
-            inputs.config.nixos.user.users);
-      };
     })
   ];
 }
