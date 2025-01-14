@@ -1,0 +1,97 @@
+inputs:
+{
+  config.environment.persistence = inputs.lib.mkMerge
+  [
+    # generic settings
+    {
+      "/nix/persistent" =
+      {
+        hideMounts = true;
+        directories =
+        [
+          "/var/db" "/var/lib" "/var/log" "/var/spool" "/var/backup" "/srv"
+          { directory = "/var/lib/docker/volumes"; mode = "0710"; }
+        ];
+        files = [ "/etc/machine-id" ]
+          ++ (builtins.concatLists (builtins.map
+            (suf: builtins.map (f: "/etc/ssh/ssh_host_${f}_key${suf}") [ "ed25519" "rsa" ])
+            [ "" ".pub" ]));
+      };
+      "/nix/rootfs/current" =
+      {
+        hideMounts = true;
+        directories = [ { directory = "/var/lib/docker"; mode = "0710"; } "/var/lib/flatpak" ]
+          ++ builtins.map (f: "/var/lib/systemd/${f}") [ "linger" "coredump" "backlight" ];
+      };
+      "/nix/nodatacow" =
+      {
+        hideMounts = true;
+        directories =
+          [{ directory = "/var/log/journal"; user = "root"; group = "systemd-journal"; mode = "u=rwx,g=rx+s,o=rx"; }]
+          ++ inputs.lib.optional inputs.config.nixos.virtualization.kvmHost.enable
+            { directory = "/var/lib/libvirt/images"; mode = "0711"; };
+      };
+    }
+    # 挂载 /home/user
+    # 对于集群的工作节点，不做任何事情，这些目录已经挂载好
+    # 对于桌面用途的 chn，不需要挂载
+    # 对于其它情况，则挂载 /nix/persistent/home/user 到 /home/user
+    {
+      "/nix/persistent".directories = builtins.map
+        (user: { directory = "/home/${user}"; inherit user; group = user; mode = "0700"; })
+        (builtins.filter
+          (user: !(user == "chn" && inputs.config.nixos.model.type == "desktop"
+            || inputs.config.nixos.model.cluster.nodeType or null == "worker"))
+          inputs.config.nixos.user.users);
+    }
+    # 挂载更详细的目录
+    # 对于任何情况，`.cache` 都应该在重启后丢失
+    {
+      "/nix/rootfs/current".users = builtins.listToAttrs (builtins.map
+        (user: { name = user; value.directories = [ ".cache" ]; })
+        inputs.config.nixos.user.users);
+    }
+    # 对于桌面用途的 chn，有一些需要 persist 的目录
+    (inputs.lib.mkIf (inputs.config.nixos.model.type == "desktop" && builtins.elem "chn" inputs.config.nixos.user.users)
+    {
+      "/nix/persistent".users.chn.directories =
+      [
+        "bin" "Desktop" "Documents" "Downloads" "Music" "Pictures" "repo" "share" "Public" "Videos" ".config"
+        ".local/share" ".ecdata" { directory = ".mozilla/firefox/default"; mode = "0700"; } ".steam" ".vscode" ".zotero"
+        "Zotero"
+      ];
+    })
+    # 对于集群的工作节点，挂载一些本来由 home-manager 生成的文件，以及一些用来存放 home-manager 生成文件的目录
+    (inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null == "worker")
+    {
+      "/nix/persistent".users = builtins.listToAttrs (builtins.map
+        (user: { name = user; value.directories = [ ".config" ".local" ".ssh" ".mozilla" ]; })
+        inputs.config.nixos.user.users);
+      "/nix/rootfs/current".users = builtins.listToAttrs (builtins.map
+        (user: { name = user; value.directories = [ ".zsh" ".yubico" ]; })
+        inputs.config.nixos.user.users);
+      "/" =
+      {
+        hideMounts = true;
+        users =
+          let userFiles = inputs.pkgs.runCommand "user-files" {}
+            (builtins.concatStringsSep "\n" (builtins.concatLists (builtins.map
+              (user: [ "mkdir -p $out/home/${user}" ] ++ (builtins.map
+                (file:
+                  let f = inputs.config.home-manager.users.${user}.config.home.file.${file}.source or null;
+                  in if f != null then "ln -s ${f} $out/home/${user}/${file}" else "touch $out/home/${user}/${file}")
+                [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]))
+              inputs.config.nixos.user.users)));
+          in builtins.listToAttrs (builtins.map
+            (user:
+            {
+              name = user;
+              value.files = builtins.map
+                (file: { inherit file; persistentStoragePath = "${userFiles}"; })
+                [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ];
+            })
+            inputs.config.nixos.user.users);
+      };
+    })
+  ];
+}

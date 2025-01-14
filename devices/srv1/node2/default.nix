@@ -12,12 +12,8 @@ inputs:
           br0 = { ip = "192.168.1.12"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; };
           eno2 = { ip = "192.168.178.3"; mask = 24; };
         };
-        fileSystems.mount =
-        {
-          nfs."192.168.178.1:/home" = "/home";
-          btrfs."/dev/disk/by-partlabel/srv1-node2-nodatacow" =
-            { "/nix/nodatacow" = "/nix/nodatacow"; "/nix/backups" = "/nix/backups"; };
-        };
+        fileSystems.mount.btrfs."/dev/disk/by-partlabel/srv1-node2-nodatacow" =
+          { "/nix/nodatacow" = "/nix/nodatacow"; "/nix/backups" = "/nix/backups"; };
       };
       services =
       {

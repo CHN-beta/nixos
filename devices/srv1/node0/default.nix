@@ -25,7 +25,6 @@ inputs:
           publicKey = "Br+ou+t9M9kMrnNnhTvaZi2oNFRygzebA1NqcHWADWM=";
           wireguardIp = "192.168.83.9";
         };
-        nfs = { root = "/"; exports = [ "/home" ]; accessLimit = "192.168.178.0/24"; };
         xrdp = { enable = true; hostname = [ "srv1.chn.moe" ]; };
         samba =
         {

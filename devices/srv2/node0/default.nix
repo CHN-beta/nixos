@@ -28,7 +28,6 @@ inputs:
         };
         xrdp = { enable = true; hostname = [ "srv2.chn.moe" ]; };
         samba = { enable = true; hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
-        nfs = { root = "/"; exports = [ "/home" ]; accessLimit = "192.168.178.0/24"; };
         groupshare = {};
         hpcstat = {};
       };

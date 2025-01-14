@@ -123,36 +123,5 @@ inputs:
     }
     # setup test
     (inputs.lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
-    # disable symlinks directly under home created by home-manager, use bind-mount instead
-    {
-      home-manager.users = inputs.lib.mkMerge (builtins.map
-        (user:
-        {
-          ${user}.home.file = inputs.lib.mkMerge (builtins.map (file: { "${file}".enable = false; })
-            [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]);
-        })
-        user.users);
-      systemd.mounts =
-        (builtins.concatLists (builtins.map
-          (user: builtins.map
-            (file:
-            {
-              what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
-              where = "/home/${user}/${file}";
-              options = "bind";
-              wantedBy = [ "multi-user.target" ];
-            })
-            [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ])
-          user.users))
-        ++ (builtins.map
-          (user: let inherit (inputs.config.home-manager.users.${user}.home.file.".zlogin") text; in
-          {
-            what = builtins.toString (inputs.pkgs.writeText ".zlogin" (if text == null then "" else text));
-            where = "/home/${user}/.zlogin";
-            options = "bind";
-            wantedBy = [ "multi-user.target" ];
-          })
-          user.users);
-    }
   ];
 }
