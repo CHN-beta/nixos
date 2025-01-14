@@ -13,7 +13,7 @@ inputs:
         value =
         {
           device = device.name;
-          fsType = "nfs";
+          fsType = "nfs4";
           neededForBoot = true;
           options =
           [
