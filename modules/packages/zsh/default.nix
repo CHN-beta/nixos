@@ -27,6 +27,8 @@ inputs:
             plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
             theme = inputs.lib.mkDefault "clean";
           };
+          # ensure ~/.zlogin exists
+          loginExtra = " ";
         };
         # set bash history file path, avoid overwriting zsh history
         bash = { enable = true; historyFile =  "${home-inputs.config.xdg.dataHome}/bash/bash_history"; };

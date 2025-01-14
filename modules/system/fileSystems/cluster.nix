@@ -23,21 +23,18 @@ inputs:
             [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]);
         })
         inputs.config.nixos.user.users);
-      systemd.mounts = builtins.filter (mount: mount != null) (builtins.concatLists (builtins.map
+      systemd.mounts = builtins.concatLists (builtins.map
         (user: builtins.map
           (file:
-            let f = inputs.config.home-manager.users.${user}.config.home.file.${file}.source or null;
-            in if f == null then null else
-            {
-              what = "${f}";
-              where = "/home/${user}/${file}";
-              options = [ "bind" ];
-              wantedBy = [ "local-fs.target" ];
-            }
-          )
+          {
+            what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
+            where = "/home/${user}/${file}";
+            options = "bind";
+            wantedBy = [ "local-fs.target" ];
+          })
           [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]
         )
-        inputs.config.nixos.user.users));
+        inputs.config.nixos.user.users);
     }
   ];
 }
