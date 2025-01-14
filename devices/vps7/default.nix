@@ -33,7 +33,6 @@ inputs:
       };
       services =
       {
-        snapper.enable = true;
         sshd = {};
         rsshub.enable = true;
         misskey.instances.misskey.hostname = "xn--s8w913fdga.chn.moe";

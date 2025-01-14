@@ -1,11 +1,11 @@
 inputs:
 {
-  options.nixos.services.snapper = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.snapper = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    enable = mkOption { type = types.bool; default = false; };
-    configs = mkOption { type = types.attrsOf types.nonEmptyStr; default.persistent = "/nix/persistent"; };
+    type = types.nullOr (types.attrsOf types.nonEmptyStr);
+    default.persistent = "/nix/persistent";
   };
-  config = let inherit (inputs.config.nixos.services) snapper; in inputs.lib.mkIf snapper.enable
+  config = let inherit (inputs.config.nixos.services) snapper; in inputs.lib.mkIf (snapper != null)
   {
     services.snapper.configs = builtins.listToAttrs (builtins.map
       (config:
@@ -24,6 +24,6 @@ inputs:
           TIMELINE_LIMIT_YEARLY = 0;
         };
       })
-      (inputs.localLib.attrsToList snapper.configs));
+      (inputs.localLib.attrsToList snapper));
   };
 }

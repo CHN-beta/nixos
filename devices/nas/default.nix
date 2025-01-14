@@ -46,7 +46,6 @@ inputs:
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
       {
-        snapper.enable = true;
         sshd = {};
         xray.client = { enable = true; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
         smartd.enable = true;

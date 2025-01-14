@@ -70,7 +70,6 @@ inputs:
       };
       services =
       {
-        snapper.enable = true;
         samba =
         {
           enable = true;

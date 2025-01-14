@@ -22,7 +22,6 @@ inputs:
       hardware.cpus = [ "intel" ];
       services =
       {
-        snapper.enable = true;
         sshd.passwordAuthentication = true;
         smartd.enable = true;
         slurm =

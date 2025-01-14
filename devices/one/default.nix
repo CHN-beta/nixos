@@ -25,7 +25,6 @@ inputs:
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
       {
-        snapper.enable = true;
         xray.client.enable = true;
         smartd.enable = true;
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };

@@ -38,7 +38,6 @@ inputs:
       hardware.gpu = { type = "nvidia"; nvidia.open = false; };
       services =
       {
-        snapper.enable = true;
         sshd = { passwordAuthentication = true; groupBanner = true; };
         smartd.enable = true;
         slurm =

@@ -24,7 +24,7 @@ inputs:
       };
       services =
       {
-        # snapper.enable = true;
+        snapper = null;
         sshd = {};
         xray.client.enable = true;
         fail2ban = {};
