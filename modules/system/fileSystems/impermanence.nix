@@ -20,7 +20,12 @@ inputs:
       "/nix/rootfs/current" =
       {
         hideMounts = true;
-        directories = [ { directory = "/var/lib/docker"; mode = "0710"; } "/var/lib/flatpak" ]
+        directories =
+        [
+          # dummy option to make /nix/rootfs/current/home with correct permission
+          "/home"
+          { directory = "/var/lib/docker"; mode = "0710"; } "/var/lib/flatpak"
+        ]
           ++ builtins.map (f: "/var/lib/systemd/${f}") [ "linger" "coredump" "backlight" ];
       };
       "/nix/nodatacow" =
