@@ -15,7 +15,7 @@
       url = "github:nix-community/nix-vscode-extensions?rev=7aa26ebccf778efe880fda1290db9c1da56ffa4f";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    impermanence.url = "github:nix-community/impermanence";
+    impermanence.url = "github:CHN-beta/impermanence";
     qchem = { url = "github:Nix-QChem/NixOS-QChem/master"; inputs.nixpkgs.follows = "nixpkgs"; };
     plasma-manager =
     {
