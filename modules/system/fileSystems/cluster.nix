@@ -23,18 +23,26 @@ inputs:
             [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]);
         })
         inputs.config.nixos.user.users);
-      systemd.mounts = builtins.concatLists (builtins.map
-        (user: builtins.map
-          (file:
-          {
-            what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
-            where = "/home/${user}/${file}";
-            options = "bind";
-            wantedBy = [ "multi-user.target" ];
-          })
-          [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]
-        )
-        inputs.config.nixos.user.users);
+      system.activationScripts.mount-home-files =
+      {
+        deps = [ "persist-files" ];
+        supportsDryActivation = false;
+        text = builtins.toString (inputs.pkgs.writeScript "mount-home-files" (builtins.concatStringsSep "\n"
+        (
+          [ "#!${inputs.pkgs.bash}/bin/bash" ]
+          ++ builtins.concatLists (builtins.map
+            (user: (builtins.map
+              (file:
+              ''
+                [[ -e /home/${user}/${file} ]] || touch /home/${user}/${file}
+                mount -o bind ${inputs.config.home-manager.users.${user}.home.file.${file}.source} \
+                  /home/${user}/${file}
+              '')
+              [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ])
+            )
+            inputs.config.nixos.user.users)
+        )));
+      };
     }
   ];
 }
