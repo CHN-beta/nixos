@@ -33,16 +33,19 @@ inputs:
       };
     }
     # 挂载 /home/user
-    # 对于集群的工作节点，不做任何事情，这些目录已经挂载好
+    # 对于集群的工作节点，挂载 /remote/user 到 /home/user
     # 对于桌面用途的 chn，不需要挂载
     # 对于其它情况，则挂载 /nix/persistent/home/user 到 /home/user
     {
-      "/nix/persistent".directories = builtins.map
-        (user: { directory = "/home/${user}"; inherit user; group = user; mode = "0700"; })
-        (builtins.filter
-          (user: !(user == "chn" && inputs.config.nixos.model.type == "desktop"
-            || inputs.config.nixos.model.cluster.nodeType or null == "worker"))
-          inputs.config.nixos.user.users);
+      "${if inputs.config.nixos.model.cluster.nodeType or null == "worker" then "/remote" else "/nix/persistent"}" =
+      {
+        hideMounts = true;
+        directories = builtins.map
+          (user: { directory = "/home/${user}"; inherit user; group = user; mode = "0700"; })
+          (builtins.filter
+            (user: !(user == "chn" && inputs.config.nixos.model.type == "desktop"))
+            inputs.config.nixos.user.users);
+      };
     }
     # 挂载更详细的目录
     # 对于任何情况，`.cache` 都应该在重启后丢失

@@ -7,11 +7,7 @@ inputs:
       { nixos.services.nfs = { root = "/"; exports = [ "/nix/persistent/home" ]; accessLimit = "192.168.178.0/24"; }; })
     # for cluster worker, mount nfs, disable some home manager files
     (inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null == "worker")
-    {
-      nixos.system.fileSystems.mount.nfs = builtins.listToAttrs (builtins.map
-        (user: { name = "192.168.178.1:/nix/persistent/home/${user}"; value = "/home/${user}"; })
-        inputs.config.nixos.user.users);
-    })
+      { nixos.system.fileSystems.mount.nfs."192.168.178.1:/nix/persistent/home" = "/remote/home"; })
     # 将一部分由 home-manager 生成软链接的文件改为直接挂载，以兼容集群的设置
     {
       home-manager.users = builtins.listToAttrs (builtins.map
@@ -30,7 +26,7 @@ inputs:
             what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
             where = "/home/${user}/${file}";
             options = "bind";
-            wantedBy = [ "multi-user.target" ];
+            wantedBy = [ "local-fs.target" ];
           })
           [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]
         )
