@@ -30,7 +30,7 @@ inputs:
             what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
             where = "/home/${user}/${file}";
             options = "bind";
-            wantedBy = [ "home-manager-${inputs.utils.escapeSystemdPath user}.service" ];
+            wantedBy = [ "multi-user.target" ];
             after = [ "home-manager-${inputs.utils.escapeSystemdPath user}.service" ];
           })
           [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]
