@@ -11,8 +11,6 @@ inputs:
           { ip = "192.168.178.4"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
       };
       services.beesd.instances.root = { device = "/"; hashTableSizeMB = 256; threads = 4; };
-      packages.packages._prebuildPackages =
-        [ inputs.topInputs.self.nixosConfigurations.srv1-node0.config.system.build.toplevel ];
     };
     specialisation.no-share-home.configuration =
     {
