@@ -50,15 +50,7 @@ inputs:
             [ "nix-store" "xn--qbtm095lrg0bfka60z" ]))
           // (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.vps7.chn.moe"; })
-            [
-              "xn--s8w913fdga" "synapse" "syncv3.synapse" "matrix" "syncv3.matrix"
-              "send" "api" "git" "grafana" "peertube"
-            ]))
-          // (builtins.listToAttrs (builtins.map
-            (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.nas.chn.moe"; })
-            [
-              "misskey"
-            ]));
+            [ "xn--s8w913fdga" "misskey" "synapse" "matrix" "send" "api" "git" "grafana" "peertube" ]));
           applications =
           {
             element.instances."element.chn.moe" = {};

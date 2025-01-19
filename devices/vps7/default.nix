@@ -35,7 +35,8 @@ inputs:
       {
         sshd = {};
         rsshub.enable = true;
-        misskey.instances.misskey.hostname = "xn--s8w913fdga.chn.moe";
+        misskey.instances =
+          { misskey.hostname = "xn--s8w913fdga.chn.moe"; misskey-old = { port = 9727; redis.port = 3546; }; };
         synapse.instances =
         {
           synapse.matrixHostname = "synapse.chn.moe";
