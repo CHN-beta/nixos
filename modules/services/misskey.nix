@@ -97,6 +97,8 @@ inputs:
                 proxyRemoteFiles: true
                 signToActivityPubGet: true
                 maxFileSize: 1073741824
+                fulltextSearch:
+                  provider: sqlPgroonga
               '';
             owner = inputs.config.users.users."misskey-${instance.name}".name;
           };
