@@ -1,17 +1,18 @@
 inputs:
 {
-  options.nixos.services.grafana = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.grafana = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    enable = mkOption { type = types.bool; default = false; };
-    hostname = mkOption { type = types.str; default = "grafana.chn.moe"; };
-  };
-  config =
-    let
-      inherit (inputs.config.nixos.services) grafana;
-      inherit (inputs.lib) mkIf;
-    in mkIf grafana.enable
+    type = types.nullOr (types.submodule { options =
     {
-      services.grafana =
+      hostname = mkOption { type = types.str; default = "grafana.chn.moe"; };
+    };});
+    default = null;
+  };
+  config = let inherit (inputs.config.nixos.services) grafana; in inputs.lib.mkIf (grafana != null)
+  {
+    services =
+    {
+      grafana =
       {
         enable = true;
         declarativePlugins = with inputs.pkgs.grafanaPlugins; [];
@@ -44,24 +45,55 @@ inputs:
             password = "$__file{${inputs.config.sops.secrets."grafana/db".path}}";
           };
         };
-      };
-      nixos.services =
-      {
-        nginx =
+        provision =
         {
           enable = true;
-          https."${grafana.hostname}".location."/".proxy =
-            { upstream = "http://127.0.0.1:3001"; websocket = true; };
+          datasources.settings =
+          {
+            # prune = true;
+            datasources =
+            [{
+              name = "Prometheus";
+              type = "prometheus";
+              access = "proxy";
+              url = "http://localhost:9090";
+              editable = false;
+            }];
+          };
         };
-        postgresql.instances.grafana = {};
       };
-      sops.secrets = let owner = inputs.config.systemd.services.grafana.serviceConfig.User; in
+      prometheus =
       {
-        "grafana/mail" = { owner = owner; key = "mail/bot"; };
-        "grafana/secret".owner = owner;
-        "grafana/chn".owner = owner;
-        "grafana/db" = { owner = owner; key = "postgresql/grafana"; };
-        "mail/bot" = {};
+        enable = true;
+        exporters =
+        {
+          node = { enable = true; enabledCollectors = [ "systemd" ]; };
+        };
+        scrapeConfigs =
+        [{
+          job_name = "lapetus";
+          static_configs =
+            [{ targets = [ "127.0.0.1:${toString inputs.config.services.prometheus.exporters.node.port}" ]; }];
+        }];
       };
     };
+    nixos.services =
+    {
+      nginx =
+      {
+        enable = true;
+        https."${grafana.hostname}".location."/".proxy =
+          { upstream = "http://127.0.0.1:3001"; websocket = true; };
+      };
+      postgresql.instances.grafana = {};
+    };
+    sops.secrets = let owner = inputs.config.systemd.services.grafana.serviceConfig.User; in
+    {
+      "grafana/mail" = { owner = owner; key = "mail/bot"; };
+      "grafana/secret".owner = owner;
+      "grafana/chn".owner = owner;
+      "grafana/db" = { owner = owner; key = "postgresql/grafana"; };
+      "mail/bot" = {};
+    };
+  };
 }

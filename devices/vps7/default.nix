@@ -52,7 +52,7 @@ inputs:
         fz-new-order = {};
         httpapi.enable = true;
         gitea = { enable = true; ssh = {}; };
-        grafana.enable = true;
+        grafana = {};
         fail2ban = {};
         wireguard =
         {
