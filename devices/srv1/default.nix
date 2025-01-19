@@ -34,25 +34,25 @@ inputs:
             {
               name = "n0"; address = "192.168.178.1";
               cpu = { sockets = 4; cores = 20; threads = 2; };
-              memoryMB = 122880;
+              memoryMB = 112 * 1024;
             };
             srv1-node1 =
             {
               name = "n1"; address = "192.168.178.2";
               cpu = { sockets = 4; cores = 8; threads = 2; };
-              memoryMB = 30720;
+              memoryMB = 56 * 1024;
             };
             srv1-node2 =
             {
               name = "n2"; address = "192.168.178.3";
               cpu = { sockets = 4; cores = 8; threads = 2; };
-              memoryMB = 61440;
+              memoryMB = 56 * 1024;
             };
             srv1-node3 =
             {
               name = "n3"; address = "192.168.178.4";
               cpu = { sockets = 4; cores = 8; threads = 2; };
-              memoryMB = 38912;
+              memoryMB = 32 * 1024;
             };
           };
           partitions =
