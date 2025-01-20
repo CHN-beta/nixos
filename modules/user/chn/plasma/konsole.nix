@@ -68,7 +68,6 @@ inputs:
         (builtins.readFile "${inputs.pkgs.konsole}/share/konsole/Breeze.colorscheme");
     };
     environment.persistence."/nix/rootfs/current".users.chn.directories =
-      inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null != "worker")
-        [ ".local/share/konsole" ".local/share/yakuake" ];
+      [ ".local/share/konsole" ".local/share/yakuake" ];
   };
 }

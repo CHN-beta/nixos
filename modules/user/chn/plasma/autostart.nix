@@ -65,7 +65,6 @@ inputs:
           value.source = programs.${file}.path;
         })
         (devices.${inputs.config.nixos.model.hostname} or []));
-    environment.persistence."/nix/rootfs/current".users.chn.directories =
-      inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null != "worker") [ ".config/autostart" ];
+    environment.persistence."/nix/rootfs/current".users.chn.directories = [ ".config/autostart" ];
   };
 }
