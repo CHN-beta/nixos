@@ -195,6 +195,8 @@ inputs:
                 ];
                 max_image_pixels = "32M";
                 dynamic_thumbnails = false;
+                # this is required for displaying thumbnails in sticker widgets
+                enable_authenticated_media = false;
               });
           };
           secrets = (listToAttrs (map
