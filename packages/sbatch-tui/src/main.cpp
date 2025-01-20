@@ -215,6 +215,8 @@ int main()
   // 进入事件循环
   while (true)
   {
+    // 开始之前需要先刷新状态
+    refresh_state();
     screen.Loop(request_interface);
     if (state.user_command == "quit") return 0;
     else if (state.user_command == "continue")
