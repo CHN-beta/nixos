@@ -118,6 +118,8 @@ inputs: rec
   highfive = inputs.pkgs.callPackage ./highfive.nix { src = inputs.topInputs.highfive; };
   stickerpicker = inputs.pkgs.python3Packages.callPackage ./stickerpicker.nix { src = inputs.topInputs.stickerpicker; };
   nglview = inputs.pkgs.python3Packages.callPackage ./nglview.nix { src = inputs.topInputs.self.src.nglview; };
+  octodns-cloudflare = inputs.pkgs.python3Packages.callPackage ./octodns-cloudflare.nix
+    { src = inputs.topInputs.octodns-cloudflare; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

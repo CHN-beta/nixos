@@ -70,6 +70,7 @@
     highfive = { url = "git+https://github.com/CHN-beta/HighFive?submodules=1"; flake = false; };
     stickerpicker = { url = "github:maunium/stickerpicker"; flake = false; };
     fancy-motd = { url = "github:CHN-beta/fancy-motd"; flake = false; };
+    octodns-cloudflare = { url = "github:octodns/octodns-cloudflare"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib.nix inputs.nixpkgs.lib; in
