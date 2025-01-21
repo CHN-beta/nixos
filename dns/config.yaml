@@ -1,0 +1,14 @@
+providers:
+  config:
+    class: octodns.provider.yaml.YamlProvider
+    directory: ./config
+  cloudflare:
+    class: octodns_cloudflare.CloudflareProvider
+    token: env/CLOUDFLARE_TOKEN
+    pagerules: false
+zones:
+  '*':
+    sources:
+      - cloudflare
+    targets:
+      - config
