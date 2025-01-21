@@ -95,5 +95,7 @@ inputs:
       "grafana/db" = { owner = owner; key = "postgresql/grafana"; };
       "mail/bot" = {};
     };
+    environment.persistence."/nix/nodatacow".directories =
+      [{ directory = "/var/lib/prometheus2"; user = "prometheus"; group = "prometheus"; mode = "0700"; }];
   };
 }
