@@ -177,5 +177,13 @@ inputs:
     users.users.qemu-libvirtd.extraGroups = [ "disk" ];
     networking.extraHosts = "74.211.99.69 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
+    containers.jykang =
+    {
+      autoStart = true;
+      privateNetwork = true;
+      hostAddress = "192.168.100.10";
+      localAddress = "192.168.100.11";
+      config = builtins.elemAt (inputs.localLib.mkModules [ ./container/jykang.nix ]) 0;
+    };
   };
 }
