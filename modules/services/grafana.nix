@@ -75,6 +75,7 @@ inputs:
           static_configs =
             [{ targets = [ "127.0.0.1:${toString inputs.config.services.prometheus.exporters.node.port}" ]; }];
         }];
+        extraFlags = [ "--storage.tsdb.max-block-chunk-segment-size=16M" ];
       };
     };
     nixos.services =
