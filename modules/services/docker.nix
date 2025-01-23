@@ -25,6 +25,7 @@ inputs:
           };
         };
         hardware.nvidia-container-toolkit.enable = inputs.lib.mkIf inputs.config.nixos.system.nixpkgs.cuda.enable true;
+        networking.firewall.trustedInterfaces = [ "docker0" ];
       }
     )
     # some docker settings should be set unconditionally, as some services depend on them
