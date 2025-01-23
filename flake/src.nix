@@ -36,7 +36,7 @@
       sha256 = "18gsw2850ig1mg4spp39i0ygfcwx0lqnamysn5whiax22m8d5z67";
     };
   };
-  huginn = inputs.pkgs.dockerTools.pullImage
+  huginn = pkgs.dockerTools.pullImage
   {
     imageName = "ghcr.io/huginn/huginn";
     imageDigest = "sha256:fdaa76b95534f3c3a799d527821681dd61b8b6fc24de0a7e109fc665b627f115";

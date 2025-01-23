@@ -34,7 +34,7 @@ inputs:
       services =
       {
         sshd = {};
-        rsshub.enable = true;
+        rsshub = {};
         misskey.instances =
           { misskey.hostname = "xn--s8w913fdga.chn.moe"; misskey-old = { port = 9727; redis.port = 3546; }; };
         synapse.instances =
@@ -48,7 +48,7 @@ inputs:
         nextcloud = {};
         freshrss.enable = true;
         send = {};
-        huginn.enable = true;
+        huginn = {};
         fz-new-order = {};
         httpapi.enable = true;
         gitea = { enable = true; ssh = {}; };

@@ -1279,11 +1279,11 @@
     "rsshub": {
       "flake": false,
       "locked": {
-        "lastModified": 1734135595,
-        "narHash": "sha256-D0mAiHuAFLMBZvBzspbqAlqXXdhYG45fhrYVkCdmA48=",
+        "lastModified": 1737621586,
+        "narHash": "sha256-3rlojj//tAVCdPz9NkkgsSQqxe9478ExOL1LyH4spPM=",
         "owner": "DIYgod",
         "repo": "RSSHub",
-        "rev": "3a8d34ee3f8cc38907296e74e923754297e249d4",
+        "rev": "62a61e5e7945d539bf89175c96bac2b4ab148bba",
         "type": "github"
       },
       "original": {
