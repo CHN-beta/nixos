@@ -44,5 +44,6 @@ inputs:
       '';
       secrets."wechat2tg/token" = {};
     };
+    nixos.services.docker = {};
   };
 }
