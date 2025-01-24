@@ -58,7 +58,7 @@ inputs:
               name = "n1"; address = "192.168.178.2";
               cpu = { cores = 16; threads = 2; };
               memoryMB = 80 * 1024;
-              gpus = { "p5000" = 1; "3090" = 1; "4090" = 1; };
+              gpus = { "3090" = 1; "4090" = 1; };
             };
           };
           partitions =
@@ -75,7 +75,7 @@ inputs:
               { name = "n0"; mpiThreads = 8; openmpThreads = 5; }
               { name = "n1"; mpiThreads = 3; openmpThreads = 4; }
             ];
-            gpuIds = [ "4090" "3090" "p5000" ];
+            gpuIds = [ "4090" "3090" ];
             gpuPartition = "all";
           };
         };
