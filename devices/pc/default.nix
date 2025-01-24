@@ -52,8 +52,6 @@ inputs:
           # TODO: switch to cachyos-lts
           variant = "cachyos";
           patches = [ "hibernate-progress" ];
-          modules.modprobeConfig =
-            [ "options iwlwifi power_save=0" "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
         };
         sysctl.laptop-mode = 5;
       };
@@ -140,7 +138,7 @@ inputs:
         ananicy = {};
         keyd = {};
       };
-      bugs = [ "xmunet" "backlight" "amdpstate" ];
+      bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
       packages = { android-studio = {}; mathematica = {}; };
     };
     boot.loader.grub =
