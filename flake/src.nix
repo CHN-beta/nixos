@@ -44,4 +44,9 @@
     finalImageName = "huginn/huginn";
     finalImageTag = "latest";
   };
+  misskey =
+  {
+    "https://github.com/aiscript-dev/aiscript-languageserver/releases/download/0.1.6/aiscript-dev-aiscript-languageserver-0.1.6.tgz" = "0092d5r67bhf4xkvrdn4a2rm1drjzy7b5sw8mi7hp4pqvpc20ylr";
+    "https://github.com/misskey-dev/tabler-icons/archive/refs/tags/3.29.0-mi.1913+5921534bc.tar.gz" = "1snwwcgxwlp9jwlq6pj4q0mypzp0c7b28m49mcwvr6dzq9vlpy2s";
+  };
 }

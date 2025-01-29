@@ -2,7 +2,12 @@ inputs: rec
 {
   vesta = inputs.pkgs.callPackage ./vesta.nix {};
   rsshub = inputs.pkgs.callPackage ./rsshub.nix { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; };
-  misskey = inputs.pkgs.callPackage ./misskey.nix { inherit mkPnpmPackage; src = inputs.topInputs.misskey; };
+  misskey = inputs.pkgs.callPackage ./misskey.nix
+  {
+    inherit mkPnpmPackage;
+    src = inputs.topInputs.misskey;
+    extraIntegritySha256 = inputs.topInputs.self.src.misskey;
+  };
   vaspkit = inputs.pkgs.callPackage ./vaspkit.nix { inherit (inputs.localLib) attrsToList; };
   v-sim = inputs.pkgs.callPackage ./v-sim.nix { src = inputs.topInputs.v-sim; };
   concurrencpp = inputs.pkgs.callPackage ./concurrencpp.nix { src = inputs.topInputs.concurrencpp; };
