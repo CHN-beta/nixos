@@ -8,16 +8,13 @@ namespace hpcstat::disk
   {
     { "caiduanjun", true },
     { "Gaona", true },
-    { "huangkai", true },
-    { "huangshengli", false },
     { "kangjunyong", true },
     { "lijing", true },
     { "linwei", true },
     { "Lixu", true },
-    { "wanghao", false },
     { "wuyaping", true },
     { "wuzhiming", true },
-    { "zhanhuahan", false }
+    { "zhanhuahan", true }
   };
 
   bool stat()
