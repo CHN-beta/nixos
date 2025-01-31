@@ -48,4 +48,11 @@
     packages = [ pkgs.clang-tools_18 ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
   };
+  info = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
+  {
+    inputsFrom = [ pkgs.localPackages.info ];
+    packages = [ pkgs.clang-tools_18 ];
+    CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+    hardeningDisable = [ "all" ];
+  };
 }

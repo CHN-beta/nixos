@@ -125,6 +125,7 @@ inputs: rec
   nglview = inputs.pkgs.python3Packages.callPackage ./nglview.nix { src = inputs.topInputs.self.src.nglview; };
   octodns-cloudflare = inputs.pkgs.python3Packages.callPackage ./octodns-cloudflare.nix
     { src = inputs.topInputs.octodns-cloudflare; };
+  info = inputs.pkgs.callPackage ./info.nix { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
