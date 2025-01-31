@@ -66,6 +66,10 @@ let
     export LD_LIBRARY_PATH=${compilerDir}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
     # allow access to libcuda.so
     export LD_LIBRARY_PATH=/run/opengl-driver/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    # set NCCL_SOCKET_IFNAME to lo if not set
+    if [ -z "$NCCL_SOCKET_IFNAME" ]; then
+      export NCCL_SOCKET_IFNAME==lo
+    fi
     exec "$@"
   '';
   wrapper = (wrapCCWith
