@@ -160,6 +160,11 @@ inputs:
             # this make job hang, not sure why
             # ConstrainDevices=yes
           '';
+          extraPlugstackConfig =
+            let info = inputs.pkgs.localPackages.info.override { slurm = inputs.config.services.slurm.package; }; in
+            ''
+              required ${info}/lib/libinfo.so
+            '';
         };
         munge = { enable = true; password = inputs.config.sops.secrets."munge.key".path; };
       };
