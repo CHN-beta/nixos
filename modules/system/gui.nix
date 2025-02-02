@@ -29,7 +29,23 @@ inputs:
         fcitx5.addons = builtins.map (p: inputs.pkgs."fcitx5-${p}")
           [ "rime" "chinese-addons" "mozc" "nord" "material-color" ];
       };
-      programs.dconf.enable = true;
+      programs =
+      {
+        dconf.enable = true;
+        hyprland = { enable = true; withUWSM = true; };
+        iio-hyprland.enable = true;
+        hyprlock.enable = true;
+        uwsm =
+        {
+          enable = true;
+          waylandCompositors.hyprland =
+          {
+            prettyName = "Hyprland";
+            comment = "Hyprland compositor managed by UWSM";
+            binPath = "/run/current-system/sw/bin/Hyprland";
+          };
+        };
+      };
     })
     # prefer gui or not
     (inputs.localLib.mkConditional (builtins.elem inputs.config.nixos.model.type [ "desktop" ])
