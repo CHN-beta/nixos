@@ -11,10 +11,11 @@ endif()
 
 find_package(biu REQUIRED)
 find_path(SLURM_INCLUDE_PATH slurm/spank.h REQUIRED)
+find_package(Boost REQUIRED COMPONENTS process)
 
 add_library(info SHARED src/main.cpp)
 target_include_directories(info PRIVATE ${SLURM_INCLUDE_PATH})
-target_link_libraries(info PRIVATE biu::biu)
+target_link_libraries(info PUBLIC biu::biu Boost::process)
 target_compile_features(info PUBLIC cxx_std_23)
 set_target_properties(info PROPERTIES CXX_VISIBILITY_PRESET hidden)
 install(TARGETS info LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

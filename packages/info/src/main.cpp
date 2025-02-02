@@ -1,4 +1,6 @@
 # include <biu.hpp>
+# include <boost/process.hpp>
+# include <boost/process/v2.hpp>
 
 extern "C"
 {
@@ -45,29 +47,19 @@ int slurm_spank_exit(spank_t spank, int ac, char** argv)
         info["TREs Allocated"] = null_to_empty(job_info->job_array->tres_alloc_str);
         info["GREs Allocated"] = null_to_empty(job_info->job_array->gres_total);
         info["Status"] = job_info->job_array->job_state;
-        job_step_info_response_msg_t* step_info;
-        auto result = slurm_get_job_steps
-          (0, jid, NO_VAL, &step_info, 0);
-        if (result != SLURM_SUCCESS) ss << "error getting job steps: {}\n"_f(slurm_strerror(result));
-        else
-        {
-          std::vector<YAML::Node> steps;
-          for (std::uint32_t i = 0; i < step_info->job_step_count; i++)
-          {
-            YAML::Node step;
-            step["Step Id"] = step_info->job_steps[i].step_id.step_id;
-            step["Step Name"] = null_to_empty(step_info->job_steps[i].name);
-            step["Start Time"] = timepoint(step_info->job_steps[i].start_time);
-            step["Run Time"] = timespan(step_info->job_steps[i].run_time);
-            step["Command Line"] = null_to_empty(step_info->job_steps[i].submit_line);
-            step["Status"] = step_info->job_steps[i].state;
-            steps.push_back(step);
-          }
-          info["Steps"] = steps;
-        }
         ss << "------------------------------------------------------------\n" << info;
       }
       slurm_free_job_info_msg(job_info);
+
+      boost::asio::io_context context;
+      boost::system::error_code ec;
+      boost::asio::readable_pipe rp{context};
+      boost::process::v2::process proc(context, boost::process::search_path("whoami"), {}, boost::process::v2::process_stdio{nullptr, rp, nullptr});
+      std::string output;
+      boost::asio::read(rp, boost::asio::dynamic_buffer(output), ec);
+      if (ec != boost::asio::error::eof) ss << "error reading whoami: {}\n"_f(ec.message());
+      ss << "\nusername: {}"_f(output);
+      proc.wait();
     }
     slurm_spank_log("%s", ss.str().c_str());
   }
