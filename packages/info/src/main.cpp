@@ -10,6 +10,18 @@ extern "C"
 [[gnu::visibility("default")]] int slurm_spank_exit(spank_t spank, int ac, char** argv);
 }
 
+struct switch_user
+{
+  boost::system::error_code on_exec_setup(auto&&...)
+  {
+    // first set gid then set uid, otherwise failed
+    if (setegid(1000) != 0 || seteuid(1000) != 0)
+      return boost::system::error_code{errno, boost::system::system_category()};
+    else return {};
+    return {};
+  }
+};
+
 int slurm_spank_exit(spank_t spank, int ac, char** argv)
 {
   using namespace biu::literals;
@@ -24,6 +36,7 @@ int slurm_spank_exit(spank_t spank, int ac, char** argv)
     {
       ss << "info for job {}:\n"_f(jid);
       job_info_msg_t* job_info;
+      // slurm_init(nullptr);
       auto result = slurm_load_job(&job_info, jid, 0);
       if (result != SLURM_SUCCESS) ss << "error loading job info: {}\n"_f(slurm_strerror(result));
       else if (job_info->record_count != 1) ss << "record_count {} != 1\n"_f(job_info->record_count);
@@ -54,7 +67,8 @@ int slurm_spank_exit(spank_t spank, int ac, char** argv)
       boost::asio::io_context context;
       boost::system::error_code ec;
       boost::asio::readable_pipe rp{context};
-      boost::process::v2::process proc(context, boost::process::search_path("whoami"), {}, boost::process::v2::process_stdio{nullptr, rp, nullptr});
+      boost::process::v2::process proc(context, "/run/current-system/sw/bin/capsh", { "--print" }, boost::process::v2::process_stdio{nullptr, rp, nullptr}, switch_user{});
+
       std::string output;
       boost::asio::read(rp, boost::asio::dynamic_buffer(output), ec);
       if (ec != boost::asio::error::eof) ss << "error reading whoami: {}\n"_f(ec.message());
