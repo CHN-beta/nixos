@@ -92,6 +92,7 @@ inputs:
                   # -march=xxx cause embree build failed
                   # https://github.com/embree/embree/issues/115
                   embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
+                  simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
                 }
               )
           )];
