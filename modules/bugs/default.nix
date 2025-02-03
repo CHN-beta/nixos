@@ -12,10 +12,17 @@ let bugs =
     (attrs: { patches = attrs.patches ++ [ ./xmunet.patch ];}); };
   backlight.boot.kernelParams = [ "nvidia.NVreg_RegistryDwords=EnableBrightnessControl=1" ];
   amdpstate.boot.kernelParams = [ "amd_pstate=active" ];
-  iwlwifi.powerManagement = let modprobe = "${inputs.pkgs.kmod}/bin/modprobe"; in
+  iwlwifi =
   {
-    powerUpCommands = "${modprobe} iwlwifi iwlmvm";
-    powerDownCommands = "${modprobe} -r iwlmvm iwlwifi";
+    nixos.system.kernel.modules.modprobeConfig =
+      [ "options iwlwifi power_save=0" "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
+    systemd.services = let modprobe = "${inputs.pkgs.kmod}/bin/modprobe"; in
+    {
+      load-iwlwifi = rec
+        { wantedBy = [ "hibernate.target" ]; before = wantedBy; script = "${modprobe} iwlwifi iwlmvm"; };
+      unload-iwlwifi = rec
+        { wantedBy = [ "hibernate.target" ]; after = wantedBy; script = "${modprobe} -r iwlwifi iwlmvm"; };
+    };
   };
 };
 in
