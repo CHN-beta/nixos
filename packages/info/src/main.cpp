@@ -66,7 +66,11 @@ int slurm_spank_job_epilog(spank_t spank, int ac, char** argv)
         info["Nodes"] = null_to_empty(job_info->job_array->nodes);
         info["TREs Allocated"] = null_to_empty(job_info->job_array->tres_alloc_str);
         info["GREs Allocated"] = null_to_empty(job_info->job_array->gres_total);
+        info["Exit Code"] = job_info->job_array->exit_code;
         info["Status"] = get_status(job_info->job_array->job_state);
+        info["Status"].SetStyle(YAML::EmitterStyle::Flow);
+        info["Context"] = "{}"_f(spank_context());
+        info["Remote"] = spank_remote(spank);
         if (job_info->job_array->std_out != nullptr) outfile = job_info->job_array->std_out;
         uid = job_info->job_array->user_id;
         gid = job_info->job_array->group_id;
