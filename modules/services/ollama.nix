@@ -7,9 +7,7 @@ inputs:
     services =
     {
       ollama.enable = true;
-      open-webui =
-        { enable = true; package = inputs.pkgs.genericPackages.open-webui; environment.WEBUI_AUTH = "False"; };
-      nextjs-ollama-llm-ui.enable = true;
+      open-webui = { enable = true; environment.WEBUI_AUTH = "False"; };
     };
     nixos.packages.packages._packages = [ inputs.pkgs.oterm ];
   };
