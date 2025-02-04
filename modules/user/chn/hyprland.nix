@@ -16,7 +16,10 @@ inputs:
       wayland.windowManager.hyprland =
       {
         enable = true;
-        # settings =
+        settings =
+        {
+        };
+        extraConfig = builtins.readFile ./hyprland.conf;
         systemd.enable = false;
         xwayland.enable = true;
       };

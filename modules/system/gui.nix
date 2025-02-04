@@ -33,6 +33,8 @@ inputs:
       {
         dconf.enable = true;
         hyprland = { enable = true; withUWSM = true; };
+        # waybar should not be pull in by graphical-session.target
+        waybar.enable = false;
         iio-hyprland.enable = true;
         hyprlock.enable = true;
         uwsm =
