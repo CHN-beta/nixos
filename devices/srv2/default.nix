@@ -39,7 +39,6 @@ inputs:
       services =
       {
         sshd = { passwordAuthentication = true; groupBanner = true; };
-        smartd.enable = true;
         slurm =
         {
           enable = true;

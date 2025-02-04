@@ -26,7 +26,6 @@ inputs:
       services =
       {
         xray.client.enable = true;
-        smartd.enable = true;
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
         wireguard =
         {

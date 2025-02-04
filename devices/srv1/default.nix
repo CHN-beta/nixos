@@ -23,7 +23,6 @@ inputs:
       services =
       {
         sshd.passwordAuthentication = true;
-        smartd.enable = true;
         slurm =
         {
           enable = true;

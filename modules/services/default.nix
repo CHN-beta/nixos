@@ -3,18 +3,16 @@ inputs:
   imports = inputs.localLib.findModules ./.;
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
-    smartd.enable = mkOption { type = types.bool; default = false; };
-    noisetorch.enable = mkOption { type = types.bool; default = inputs.config.nixos.model.type == "desktop"; };
+    smartd = mkOption { type = types.nullOr (types.submodule {}); default = {}; };
+    noisetorch = mkOption
+    {
+      type = types.nullOr (types.submodule {});
+      default = if inputs.config.nixos.model.type == "desktop" then {} else null;
+    };
   };
-  config =
-    let
-      inherit (inputs.lib) mkMerge mkIf;
-      inherit (inputs.localLib) stripeTabs attrsToList;
-      inherit (inputs.config.nixos) services;
-      inherit (builtins) map listToAttrs toString;
-    in mkMerge
-    [
-      (mkIf services.smartd.enable { services.smartd.enable = true; })
-      (mkIf services.noisetorch.enable { programs.noisetorch.enable = true; })
-    ];
+  config = let inherit (inputs.config.nixos.services) smartd noisetorch; in inputs.lib.mkMerge
+  [
+    (inputs.lib.mkIf (smartd != null) { services.smartd.enable = true; })
+    (inputs.lib.mkIf (noisetorch != null) { programs.noisetorch.enable = true; })
+  ];
 }

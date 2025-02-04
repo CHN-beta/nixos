@@ -48,7 +48,6 @@ inputs:
       {
         sshd = {};
         xray.client = { enable = true; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
-        smartd.enable = true;
         beesd.instances =
         {
           root = { device = "/"; hashTableSizeMB = 4096; threads = 4; };
