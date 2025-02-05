@@ -28,7 +28,7 @@ inputs:
         # disk management
         smartmontools hdparm megacli gptfdisk
         # encryption and authentication
-        apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f yubico-piv-tool
+        apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f yubico-piv-tool libfido2
         # networking
         ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils wireguard-tools
         # nix tools
