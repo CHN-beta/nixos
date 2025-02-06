@@ -79,7 +79,7 @@ inputs:
           };
         };
       };
-      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" "yxf" "hss" ];
+      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" "yxf" "hss" "zzn" ];
     };
   };
 }
