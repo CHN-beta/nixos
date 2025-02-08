@@ -27,13 +27,6 @@ inputs:
       {
         xray.client.enable = true;
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
-        wireguard =
-        {
-          enable = true;
-          peers = [ "vps6" ];
-          publicKey = "Hey9V9lleafneEJwTLPaTV11wbzCQF34Cnhr0w2ihDQ=";
-          wireguardIp = "192.168.83.5";
-        };
         sshd = {};
       };
       bugs = [ "xmunet" ];

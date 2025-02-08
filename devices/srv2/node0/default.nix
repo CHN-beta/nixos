@@ -19,13 +19,6 @@ inputs:
       {
         xray.client = { enable = true; dnsmasq.extraInterfaces = [ "eno2" ]; };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 16384; loadAverage = 8;  };
-        wireguard =
-        {
-          enable = true;
-          peers = [ "vps6" ];
-          publicKey = "lNTwQqaR0w/loeG3Fh5qzQevuAVXhKXgiPt6fZoBGFE=";
-          wireguardIp = "192.168.83.7";
-        };
         xrdp = { enable = true; hostname = [ "srv2.chn.moe" ]; };
         samba = { enable = true; hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
         groupshare = {};

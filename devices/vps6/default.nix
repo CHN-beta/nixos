@@ -66,15 +66,6 @@ inputs:
         httpua = {};
         mirism.enable = true;
         fail2ban = {};
-        wireguard =
-        {
-          enable = true;
-          peers = [ "pc" "nas" "one" "vps7" "srv2-node0" "pi3b" "srv1-node0" ];
-          publicKey = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4=";
-          wireguardIp = "192.168.83.1";
-          listenIp = "74.211.99.69";
-          lighthouse = true;
-        };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 64; };
       };
     };

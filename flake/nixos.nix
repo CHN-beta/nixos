@@ -17,6 +17,7 @@ in builtins.listToAttrs
           { config = { nixpkgs.overlays = [ inputs.self.overlays.default ]; nixos.model.hostname = system; }; }
           ../modules
           ../devices/${system}
+          ../devices/cross
         ];
       };
     })
@@ -44,6 +45,7 @@ in builtins.listToAttrs
               ../modules
               ../devices/${cluster.name}
               ../devices/${cluster.name}/${node}
+              ../devices/cross
             ];
           };
         })
