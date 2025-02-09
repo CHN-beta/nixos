@@ -25,28 +25,24 @@ inputs:
           rollingRootfs = {};
         };
         grub.windowsEntries."08D3-10DE" = "Windows";
-        nix =
-        {
-          marches =
-          [
-            "znver2" "znver3" "znver4"
-            # FXSR SAHF XSAVE
-            "sandybridge"
-            # FXSR PREFETCHW RDRND SAHF
-            "silvermont"
-            # FXSR HLE LZCNT PREFETCHW RDRND SAHF XSAVE
-            "broadwell"
-            # FXSR HLE LZCNT PREFETCHW RDRND SAHF SGX XSAVE
-            "skylake" "cascadelake"
-            # SAHF FXSR XSAVE RDRND LZCNT HLE PREFETCHW SGX MOVDIRI MOVDIR64B AVX512VP2INTERSECT KEYLOCKER
-            "tigerlake"
-            # AVX-VNNI CLDEMOTE GFNI-SSE HRESET KL LZCNT MOVDIR64B MOVDIRI PCONFIG PREFETCHW PTWRITE RDRND
-            # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
-            "alderlake"
-          ];
-        };
-        nixpkgs =
-          { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
+        nix.marches =
+        [
+          "znver2" "znver3" "znver4"
+          # FXSR SAHF XSAVE
+          "sandybridge"
+          # FXSR PREFETCHW RDRND SAHF
+          "silvermont"
+          # FXSR HLE LZCNT PREFETCHW RDRND SAHF XSAVE
+          "broadwell"
+          # FXSR HLE LZCNT PREFETCHW RDRND SAHF SGX XSAVE
+          "skylake" "cascadelake"
+          # SAHF FXSR XSAVE RDRND LZCNT HLE PREFETCHW SGX MOVDIRI MOVDIR64B AVX512VP2INTERSECT KEYLOCKER
+          "tigerlake"
+          # AVX-VNNI CLDEMOTE GFNI-SSE HRESET KL LZCNT MOVDIR64B MOVDIRI PCONFIG PREFETCHW PTWRITE RDRND
+          # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
+          "alderlake"
+        ];
+        nixpkgs = { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
         kernel =
         {
           # TODO: switch to cachyos-lts
