@@ -12,19 +12,14 @@ inputs:
       };});
       default = {};
     };
-    manual =
+    manual = mkOption
     {
-      enable = mkOption { type = types.bool; default = false; };
-      devices = mkOption
+      type = types.nullOr (types.attrsOf (types.submodule { options =
       {
-        type = types.attrsOf (types.submodule { options =
-        {
-          mapper = mkOption { type = types.nonEmptyStr; };
-          ssd = mkOption { type = types.bool; default = false; };
-        };});
-        default = {};
-      };
-      delayedMount = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+        mapper = mkOption { type = types.nonEmptyStr; };
+        ssd = mkOption { type = types.bool; default = false; };
+      };}));
+      default = null;
     };
   };
   config = let inherit (inputs.config.nixos.system.fileSystems) luks; in inputs.lib.mkMerge
@@ -56,7 +51,7 @@ inputs:
         })
         (builtins.filter (device: device.value.before != null) (inputs.localLib.attrsToList luks.auto)));
     };})
-    (inputs.lib.mkIf luks.manual.enable
+    (inputs.lib.mkIf (luks.manual != null)
     {
       boot.initrd =
       {
@@ -71,7 +66,7 @@ inputs:
             serviceConfig.Type = "oneshot";
             script = builtins.concatStringsSep "\n" (builtins.map
               (device: "while [ ! -e /dev/mapper/${device.value.mapper} ]; do sleep 1; done")
-              (inputs.localLib.attrsToList luks.manual.devices));
+              (inputs.localLib.attrsToList luks.manual));
           };
           extraBin.cryptsetup = "${inputs.pkgs.cryptsetup}/bin/cryptsetup";
         };

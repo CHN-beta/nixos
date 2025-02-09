@@ -27,7 +27,7 @@ inputs:
             topInputs.aagl.overlays.default
             (final: prev:
             {
-              nix-vscode-extensions = topInputs.nix-vscode-extensions.extensions."${prev.system}";
+              nix-vscode-extensions = topInputs.nix-vscode-extensions.extensions.${prev.system};
               nur-xddxdd = topInputs.nur-xddxdd.overlays.default final prev;
               nur-linyinfeng = (topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
               firefox-addons = (import "${topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;

@@ -539,8 +539,8 @@ inputs:
           nginx =
           {
             enable = true;
-            transparentProxy.map."${xray.server.serverName}" = 4726;
-            https."${xray.server.serverName}" =
+            transparentProxy.map.${xray.server.serverName} = 4726;
+            https.${xray.server.serverName} =
             {
               listen.main = { proxyProtocol = false; addToTransparentProxy = false; };
               location."/".return.return = "400";

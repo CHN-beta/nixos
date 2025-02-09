@@ -83,7 +83,7 @@ inputs:
       nginx =
       {
         enable = true;
-        https."${grafana.hostname}".location."/".proxy =
+        https.${grafana.hostname}.location."/".proxy =
           { upstream = "http://127.0.0.1:3001"; websocket = true; };
       };
       postgresql.instances.grafana = {};

@@ -16,12 +16,6 @@ inputs:
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
-          luks.manual =
-          {
-            enable = true;
-            devices."/dev/disk/by-uuid/db48c8de-bcf7-43ae-a977-60c4f390d5c4" = { mapper = "root"; ssd = true; };
-            delayedMount = [ "/" ];
-          };
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};
         };

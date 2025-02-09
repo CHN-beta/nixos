@@ -12,8 +12,16 @@ inputs:
       subGidRanges = [{ startGid = 100000; count = 65536; } ];
       hashedPassword = "$y$j9T$xJwVBoGENJEDSesJ0LfkU1$VEExaw7UZtFyB4VY1yirJvl7qS7oiF49KbEBrV0.hhC";
     };
-    home-manager.users.chn =
+    home-manager.users.chn = hmInputs:
     {
+      options.nixos.decrypt = inputs.lib.mkOption
+      {
+        type = inputs.lib.types.attrsOf (inputs.lib.types.attrsOf (inputs.lib.types.submodule { options =
+        {
+          mapper = inputs.lib.mkOption { type = inputs.lib.types.nonEmptyStr; };
+          ssd = inputs.lib.mkOption { type = inputs.lib.types.bool; default = false; };
+        };}));
+      };
       config =
       {
         programs.git = { userName = "chn"; userEmail = "chn@chn.moe"; };
@@ -24,15 +32,7 @@ inputs:
           [
             (
               let
-                servers = builtins.filter
-                  (system: system.value.enable)
-                  (builtins.map
-                    (system:
-                    {
-                      name = system.config.nixos.model.hostname;
-                      value = system.config.nixos.system.fileSystems.luks.manual;
-                    })
-                    (builtins.attrValues inputs.topInputs.self.nixosConfigurations));
+                servers = inputs.localLib.attrsToList hmInputs.config.nixos.decrypt;
                 cat = "${inputs.pkgs.coreutils}/bin/cat";
                 gpg = "${inputs.pkgs.gnupg}/bin/gpg";
                 ssh = "${inputs.pkgs.openssh}/bin/ssh";
@@ -48,7 +48,7 @@ inputs:
                         (device: "  echo $key | ${ssh} root@initrd.${system.name}.chn.moe cryptsetup luksOpen "
                           + (if device.value.ssd then "--allow-discards " else "")
                           + "${device.name} ${device.value.mapper} -")
-                        (inputs.localLib.attrsToList system.value.devices)))
+                        (inputs.localLib.attrsToList system.value)))
                       "}"
                     ])
                     servers)
