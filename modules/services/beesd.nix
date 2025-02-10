@@ -55,5 +55,6 @@ inputs:
       IOWeight = 1;
       Nice = 19;
     };
+    nixos.packages.packages._packages = [ inputs.pkgs.bees ];
   };
 }
