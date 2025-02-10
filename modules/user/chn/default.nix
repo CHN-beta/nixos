@@ -42,7 +42,7 @@ inputs:
                   (builtins.map (system: builtins.concatStringsSep "\n"
                     [
                       "decrypt-${system.name}() {"
-                      "  key=$(${cat} ${inputs.topInputs.self}/modules/system/fileSystems/luks/${system.name}.key \\"
+                      "  key=$(${cat} ${inputs.topInputs.self}/devices/cross/luks-manual/${system.name}.key \\"
                       "    | ${gpg} --decrypt)"
                       (builtins.concatStringsSep "\n" (builtins.map
                         (device: "  echo $key | ${ssh} root@initrd.${system.name}.chn.moe cryptsetup luksOpen "
