@@ -86,7 +86,7 @@ inputs:
       };
     programs.ccache = { enable = true; cacheDir = "/var/lib/ccache"; };
     nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
-    boot.kernelPatches = inputs.lib.mkIf (nixpkgs.march != null && inputs.config.nixos.system.kernel.variant != "steamos")
+    boot.kernelPatches = inputs.lib.mkIf (nixpkgs.march != null)
     [{
       name = "native kernel";
       patch = null;
