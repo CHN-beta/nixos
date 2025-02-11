@@ -35,9 +35,7 @@ inputs:
           # network for srv2
           "e1000e" "igb" "atlantic" "igc"
         ]
-        ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ])
-        # for pi3b to show message over hdmi while boot
-        ++ (inputs.lib.optionals (kernel.variant == "nixos") [ "vc4" "bcm2835_dma" "i2c_bcm2835" ]);
+          ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ]);
         extraModulePackages = with inputs.config.boot.kernelPackages; [ v4l2loopback zenpower ];
         extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
         kernelParams = [ "delayacct" ];
@@ -49,7 +47,6 @@ inputs:
           cachyos = inputs.pkgs.linuxPackages_cachyos;
           cachyos-lto = inputs.pkgs.linuxPackages_cachyos-lto;
           cachyos-server = inputs.pkgs.linuxPackages_cachyos-server;
-          rpi3 = inputs.pkgs.linuxPackages_rpi3;
           zen = inputs.pkgs.linuxPackages_zen;
         }.${kernel.variant};
         kernelPatches =
@@ -87,10 +84,6 @@ inputs:
           in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
       };
     }
-    (
-      inputs.lib.mkIf (kernel.variant == "rpi3")
-        { boot.initrd = { systemd.enableTpm2 = false; includeDefaultModules = false; }; }
-    )
     # enable scx when using cachyos
     (
       inputs.lib.mkIf (builtins.elem kernel.variant [ "cachyos" "cachyos-lto" "cachyos-server" ])

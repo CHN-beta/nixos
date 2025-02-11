@@ -22,11 +22,11 @@ inputs:
         # file manager
         tree eza trash-cli lsd broot file xdg-ninja mlocate
         # compress
-        pigz upx unzip zip lzip p7zip
+        pigz upx unzip zip lzip p7zip rar
         # file system management
         sshfs e2fsprogs duperemove compsize exfatprogs
         # disk management
-        smartmontools hdparm megacli gptfdisk
+        smartmontools hdparm gptfdisk megacli
         # encryption and authentication
         apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f yubico-piv-tool libfido2
         # networking
@@ -41,8 +41,7 @@ inputs:
         # office
         pdfgrep ffmpeg-full # todo-txt-cli 
       ]
-        ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ])
-        ++ (inputs.lib.optional (inputs.config.nixos.system.nixpkgs.arch == "x86_64") rar);
+        ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
       _pythonPackages = [(pythonPackages: with pythonPackages;
       [
         openai python-telegram-bot fastapi-cli pypdf2 pandas matplotlib plotly gunicorn redis jinja2

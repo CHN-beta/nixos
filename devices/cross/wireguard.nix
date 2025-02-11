@@ -3,7 +3,7 @@ let devices =
 {
   vps6 =
   {
-    peers = [ "pc" "nas" "one" "vps7" "srv2-node0" "pi3b" "srv1-node0" ];
+    peers = [ "pc" "nas" "one" "vps7" "srv2-node0" "srv1-node0" ];
     publicKey = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4=";
     wireguardIp = "192.168.83.1";
     listenIp = "74.211.99.69";
@@ -43,13 +43,6 @@ let devices =
     behindNat = true;
     publicKey = "lNTwQqaR0w/loeG3Fh5qzQevuAVXhKXgiPt6fZoBGFE=";
     wireguardIp = "192.168.83.7";
-  };
-  pi3b =
-  {
-    peers = [ "vps6" ];
-    behindNat = true;
-    publicKey = "X5SwWQk3JDT8BDxd04PYXTJi5E20mZKP6PplQ+GDnhI=";
-    wireguardIp = "192.168.83.8";
   };
   srv1-node0 =
   {

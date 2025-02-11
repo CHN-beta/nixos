@@ -1,6 +1,6 @@
 { inputs, localLib }:
 let
-  machine = [ "nas" "pc" "pi3b" "vps6" "vps7" "one" ];
+  machine = [ "nas" "pc" "vps6" "vps7" "one" ];
   cluster = { srv1 = 4; srv2 = 2; };
 in builtins.listToAttrs
 (
@@ -10,7 +10,7 @@ in builtins.listToAttrs
       name = system;
       value = inputs.nixpkgs.lib.nixosSystem
       {
-        system = let arch.pi3b = "aarch64-linux"; in arch.${system} or "x86_64-linux";
+        system = "x86_64-linux";
         specialArgs = { topInputs = inputs; inherit localLib; };
         modules = localLib.mkModules
         [

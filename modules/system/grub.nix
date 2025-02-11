@@ -30,7 +30,7 @@ inputs:
     {
       boot.loader.grub =
       {
-        memtest86.enable = inputs.lib.mkIf (inputs.config.nixos.system.nixpkgs.arch == "x86_64") true;
+        memtest86.enable = true;
         extraFiles = inputs.lib.mkIf (builtins.elem grub.installDevice [ "efi" "efiRemovable" ])
           { "shell.efi" = "${inputs.pkgs.genericPackages.edk2-uefi-shell}/shell.efi"; };
         extraEntries = inputs.lib.mkMerge (builtins.concatLists

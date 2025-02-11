@@ -2,7 +2,6 @@ inputs:
 {
   options.nixos.system.nixpkgs = let inherit (inputs.lib) mkOption types; in
   {
-    arch = mkOption { type = types.enum [ "x86_64" "aarch64" ]; default = "x86_64"; };
     march = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
     cuda =
     {
@@ -23,8 +22,8 @@ inputs:
       nixpkgs =
         let
           hostPlatform = if nixpkgs.march != null
-            then { system = "${nixpkgs.arch}-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
-            else "${nixpkgs.arch}-linux";
+            then { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
+            else "x86_64-linux";
           cudaConfig = inputs.lib.optionalAttrs nixpkgs.cuda.enable
           (
             { cudaSupport = true; }
