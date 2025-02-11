@@ -4,7 +4,6 @@ inputs:
   {
     nixos =
     {
-      model = { type = "desktop"; private = true; };
       system =
       {
         fileSystems =
