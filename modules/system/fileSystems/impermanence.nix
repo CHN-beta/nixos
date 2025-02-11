@@ -55,7 +55,7 @@ inputs:
         inputs.config.nixos.user.users);
     }
     # 对于桌面用途的 chn，有一些需要 persist 的目录
-    (inputs.lib.mkIf (inputs.config.nixos.model.type == "desktop" && builtins.elem "chn" inputs.config.nixos.user.users)
+    (inputs.lib.mkIf (inputs.config.nixos.model.type == "desktop")
     {
       "/nix/persistent".users.chn.directories =
       [
