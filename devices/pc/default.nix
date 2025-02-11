@@ -42,7 +42,7 @@ inputs:
           # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
           "alderlake"
         ];
-        nixpkgs = { march = "znver4"; cuda = { enable = true; capabilities = [ "8.9" ]; forwardCompat = false; }; };
+        nixpkgs = { march = "znver4"; cuda.capabilities = [ "8.9" ]; };
         kernel =
         {
           # TODO: switch to cachyos-lts

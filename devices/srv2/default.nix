@@ -18,22 +18,17 @@ inputs:
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};
         };
-        nixpkgs.cuda =
-        {
-          enable = true;
-          capabilities =
-          [
-            # p5000 p400
-            "6.1"
-            # 2080 Ti
-            "7.5"
-            # 3090
-            "8.6"
-            # 4090
-            "8.9"
-          ];
-          forwardCompat = false;
-        };
+        nixpkgs.cuda.capabilities =
+        [
+          # p5000 p400
+          "6.1"
+          # 2080 Ti
+          "7.5"
+          # 3090
+          "8.6"
+          # 4090
+          "8.9"
+        ];
       };
       hardware.gpu = { type = "nvidia"; nvidia.open = false; };
       services =

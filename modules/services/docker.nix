@@ -24,7 +24,7 @@ inputs:
         };
       };
     };
-    hardware.nvidia-container-toolkit.enable = inputs.lib.mkIf inputs.config.nixos.system.nixpkgs.cuda.enable true;
+    hardware.nvidia-container-toolkit.enable = inputs.lib.mkIf (inputs.config.nixos.system.nixpkgs.cuda != null) true;
     networking.firewall.trustedInterfaces = [ "docker0" ];
   };
 }

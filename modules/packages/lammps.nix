@@ -8,7 +8,7 @@ inputs:
   config = let inherit (inputs.config.nixos.packages) lammps; in inputs.lib.mkIf (lammps != null)
   {
     nixos.packages.packages._packages =
-      let cuda = let inherit (inputs.config.nixos.system.nixpkgs) cuda; in cuda.enable && cuda.capabilities != null;
+      let cuda = let inherit (inputs.config.nixos.system.nixpkgs) cuda; in cuda.capabilities or null != null;
       in
         if cuda then [((inputs.pkgs.lammps.override { stdenv = inputs.pkgs.cudaPackages.backendStdenv; })
           .overrideAttrs (prev:

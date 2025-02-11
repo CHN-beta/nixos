@@ -51,8 +51,8 @@ inputs:
               let
                 inherit (inputs.config.nixos.system.nixpkgs) cuda;
                 inherit (inputs.pkgs.cudaPackages) cuda_nvml_dev;
-                additionalInputs = inputs.lib.optionals cuda.enable [ cuda_nvml_dev cuda_nvml_dev.lib ];
-                additionalFlags = inputs.lib.optional cuda.enable "-L${cuda_nvml_dev.lib}/lib/stubs";
+                additionalInputs = inputs.lib.optionals (cuda != null) [ cuda_nvml_dev cuda_nvml_dev.lib ];
+                additionalFlags = inputs.lib.optional (cuda != null) "-L${cuda_nvml_dev.lib}/lib/stubs";
               in
               {
                 buildInputs = prev.buildInputs or [] ++ additionalInputs;
