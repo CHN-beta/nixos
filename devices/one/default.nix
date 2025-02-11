@@ -19,8 +19,9 @@ inputs:
           resume = { device = "/dev/mapper/root"; offset = 4728064; };
           rollingRootfs = {};
         };
-        nixpkgs.march = "tigerlake";
-        kernel.variant = "cachyos";
+        nixpkgs.march = "tigerlake";\
+        # somehow cachyos make touchscreen not work
+        kernel.variant = "xanmod-latest";
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
