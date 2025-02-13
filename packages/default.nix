@@ -126,6 +126,7 @@ inputs: rec
   octodns-cloudflare = inputs.pkgs.python3Packages.callPackage ./octodns-cloudflare.nix
     { src = inputs.topInputs.octodns-cloudflare; };
   info = inputs.pkgs.callPackage ./info { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
+  blog = inputs.pkgs.callPackage inputs.topInputs.blog { inherit (inputs.topInputs) hextra; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

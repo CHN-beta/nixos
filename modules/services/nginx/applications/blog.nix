@@ -8,6 +8,6 @@ inputs:
   config = let inherit (inputs.config.nixos.services.nginx.applications) blog; in inputs.lib.mkIf (blog != null)
     {
       nixos.services.nginx.https."blog.chn.moe".location."/".static =
-        { root = builtins.toString inputs.topInputs.self.packages.x86_64-linux.blog; index = [ "index.html" ]; };
+        { root = "${inputs.pkgs.localPackages.blog}"; index = [ "index.html" ]; };
     };
 }

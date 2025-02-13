@@ -24,7 +24,7 @@
       stdenv = pkgs.pkgsStatic.gcc14Stdenv;
     };
   chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
-  blog = pkgs.callPackage inputs.blog { inherit (inputs) hextra; };
+  blog = pkgs.localPackages.blog;
   vaspberry = pkgs.pkgsStatic.localPackages.vaspberry.override
   {
     gfortran = pkgs.pkgsStatic.gfortran;
