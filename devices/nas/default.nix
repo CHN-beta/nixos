@@ -42,6 +42,7 @@ inputs:
           root = { device = "/"; hashTableSizeMB = 4096; threads = 4; };
           nix = { device = "/nix"; hashTableSizeMB = 128; };
         };
+        smartd = {};
       };
     };
   };

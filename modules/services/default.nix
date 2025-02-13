@@ -3,7 +3,11 @@ inputs:
   imports = inputs.localLib.findModules ./.;
   options.nixos.services = let inherit (inputs.lib) mkOption types; in
   {
-    smartd = mkOption { type = types.nullOr (types.submodule {}); default = {}; };
+    smartd = mkOption
+    {
+      type = types.nullOr (types.submodule {});
+      default = if builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ] then {} else null;
+    };
     noisetorch = mkOption
     {
       type = types.nullOr (types.submodule {});
