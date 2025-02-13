@@ -20,6 +20,7 @@ inputs:
         sessionVariables.GTK_USE_PORTAL = "1";
         persistence."/nix/rootfs/current".directories =
           [{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }];
+        systemPackages = with inputs.pkgs; [ waybar ];
       };
       xdg.portal.extraPortals = builtins.map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" ];
       i18n.inputMethod =
@@ -37,17 +38,9 @@ inputs:
         waybar.enable = false;
         iio-hyprland.enable = true;
         hyprlock.enable = true;
-        uwsm =
-        {
-          enable = true;
-          waylandCompositors.hyprland =
-          {
-            prettyName = "Hyprland";
-            comment = "Hyprland compositor managed by UWSM";
-            binPath = "/run/current-system/sw/bin/Hyprland";
-          };
-        };
+        uwsm.enable = true;
       };
+      
     })
     # prefer gui or not
     (inputs.localLib.mkConditional (builtins.elem inputs.config.nixos.model.type [ "desktop" ])
