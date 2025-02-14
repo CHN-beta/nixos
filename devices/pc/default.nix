@@ -46,7 +46,7 @@ inputs:
         kernel =
         {
           # TODO: switch to cachyos-lts
-          variant = "cachyos";
+          variant = "xanmod-latest";
           patches = [ "hibernate-progress" ];
         };
         sysctl.laptop-mode = 5;
