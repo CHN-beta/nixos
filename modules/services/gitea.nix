@@ -43,7 +43,7 @@ inputs:
           SMTP_PORT = 465;
           USER = "bot@chn.moe";
         };
-        service.REGISTER_MANUAL_CONFIRM = true;
+        service.DISABLE_REGISTRATION = true;
       };
     };
     nixos.services =
