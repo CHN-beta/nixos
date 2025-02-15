@@ -44,6 +44,7 @@ inputs:
           USER = "bot@chn.moe";
         };
         service.DISABLE_REGISTRATION = true;
+        security.LOGIN_REMEMBER_DAYS = 365;
       };
     };
     nixos.services =
