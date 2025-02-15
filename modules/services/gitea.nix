@@ -56,18 +56,12 @@ inputs:
         {
           "/".proxy.upstream = "http://127.0.0.1:3002";
           "/robots.txt".static.root =
-            let
-              robotsFile = inputs.pkgs.fetchurl
-              {
-                url = "https://gitea.com/robots.txt";
-                sha256 = "144c5s3la4a85c9lygcnxhbxs3w5y23bkhhqx69fbp9yiqyxdkk2";
-              };
-              robotsDir = inputs.pkgs.runCommand "robots.txt" {}
-              ''
-                mkdir -p $out
-                cp ${robotsFile} $out/robots.txt
-              '';
-            in "${robotsDir}";
+            let robotsFile = inputs.pkgs.fetchurl
+            {
+              url = "https://gitea.com/robots.txt";
+              sha256 = "144c5s3la4a85c9lygcnxhbxs3w5y23bkhhqx69fbp9yiqyxdkk2";
+            };
+            in "${inputs.pkgs.runCommand "robots.txt" {} "mkdir -p $out; cp ${robotsFile} $out/robots.txt"}";
         };
       };
       postgresql.instances.gitea = {};
