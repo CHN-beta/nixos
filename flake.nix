@@ -71,6 +71,7 @@
     stickerpicker = { url = "github:maunium/stickerpicker"; flake = false; };
     fancy-motd = { url = "github:CHN-beta/fancy-motd"; flake = false; };
     octodns-cloudflare = { url = "github:octodns/octodns-cloudflare"; flake = false; };
+    mac-style = { url = "github:SergioRibera/s4rchiso-plymouth-theme"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib.nix inputs.nixpkgs.lib; in

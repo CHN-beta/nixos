@@ -16,6 +16,12 @@ inputs:
     {
       supportedFilesystems = [ "ntfs" "nfs" "nfsv4" ];
       # consoleLogLevel = 7;
+      plymouth =
+      {
+        enable = true;
+        theme = "mac-style";
+        themePackages = [(inputs.pkgs.callPackage inputs.topInputs.mac-style {})];
+      };
     };
     hardware = { enableAllFirmware = true; bluetooth.enable = true; sensor.iio.enable = true; };
     environment =

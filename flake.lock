@@ -655,6 +655,22 @@
         "type": "github"
       }
     },
+    "mac-style": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1717900224,
+        "narHash": "sha256-tYB4fJ87UnYczaW8/w32cBzbwCw1+IDHp8BnHSyqNNg=",
+        "owner": "SergioRibera",
+        "repo": "s4rchiso-plymouth-theme",
+        "rev": "856bf3b7d239f995e4e9dde8458b9823cf0e96e4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "SergioRibera",
+        "repo": "s4rchiso-plymouth-theme",
+        "type": "github"
+      }
+    },
     "matplotplusplus": {
       "flake": false,
       "locked": {
@@ -1239,6 +1255,7 @@
         "impermanence": "impermanence",
         "lepton": "lepton",
         "lmod": "lmod",
+        "mac-style": "mac-style",
         "matplotplusplus": "matplotplusplus",
         "misskey": "misskey",
         "mumax": "mumax",
