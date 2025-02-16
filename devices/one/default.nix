@@ -30,6 +30,7 @@ inputs:
         beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
         sshd = {};
       };
+      virtualization.kvmHost = { enable = true; gui = true; };
       bugs = [ "xmunet" ];
     };
   };
