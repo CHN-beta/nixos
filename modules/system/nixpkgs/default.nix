@@ -76,6 +76,9 @@ inputs:
                             { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
                         })];
                         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
+                        ctranslate2 = (prev.ctranslate2.override { withCUDA = false; withCuDNN = false; })
+                          .overrideAttrs (prev:
+                            { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
                       }
                       // inputs.lib.optionalAttrs (nixpkgs.cuda != null)
                       {

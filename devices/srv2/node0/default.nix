@@ -23,6 +23,7 @@ inputs:
         samba = { enable = true; hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
         groupshare = {};
         hpcstat = {};
+        ollama = {};
       };
     };
     # allow other machine access network by this machine
