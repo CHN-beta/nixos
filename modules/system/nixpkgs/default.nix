@@ -59,8 +59,32 @@ inputs:
             { inherit genericPackages; }
             // (
               let
-                source = { "pkgs-23.11" = "nixpkgs-23.11"; "pkgs-23.05" = "nixpkgs-23.05"; };
-                packages = name: import inputs.topInputs.${source.${name}}
+                source =
+                {
+                  "pkgs-23.11" = "nixpkgs-23.11";
+                  "pkgs-23.05" = "nixpkgs-23.05";
+                  pkgs-unstable =
+                  {
+                    source = "nixpkgs-unstable";
+                    overlay = final: prev:
+                      {}
+                      // inputs.lib.optionalAttrs (nixpkgs.march != null)
+                      {
+                        pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
+                        {
+                          scipy = prev.scipy.overridePythonAttrs (prev:
+                            { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
+                        })];
+                        rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
+                      }
+                      // inputs.lib.optionalAttrs (nixpkgs.cuda != null)
+                      {
+                        ollama = prev.ollama.overrideAttrs (prev:
+                          { patches = prev.patches or [] ++ [ ./ollama.patch ]; });
+                      };
+                  };
+                };
+                packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}
                 {
                   localSystem = hostPlatform;
                   config = cudaConfig //
@@ -69,6 +93,7 @@ inputs:
                     # contentAddressedByDefault = true;
                     inherit allowInsecurePredicate;
                   };
+                  overlays = [(source.${name}.overlay or (_: _: {}))];
                 };
               in builtins.listToAttrs (builtins.map
                 (name: { inherit name; value = packages name; }) (builtins.attrNames source))

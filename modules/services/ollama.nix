@@ -6,8 +6,8 @@ inputs:
   {
     services =
     {
-      ollama.enable = true;
-      open-webui = { enable = true; environment.WEBUI_AUTH = "False"; };
+      ollama = { enable = true; package = inputs.pkgs.pkgs-unstable.ollama; };
+      open-webui = { enable = true; environment.WEBUI_AUTH = "False"; package = inputs.pkgs.pkgs-unstable.open-webui; };
     };
     nixos.packages.packages._packages = [ inputs.pkgs.oterm ];
   };

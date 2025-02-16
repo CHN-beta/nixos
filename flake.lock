@@ -979,6 +979,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-unstable": {
+      "locked": {
+        "lastModified": 1739698908,
+        "narHash": "sha256-7LBhwsoOLw6WPsjIQ86n9BXuQTnXlW7PjoIM5n9JwbU=",
+        "owner": "CHN-beta",
+        "repo": "nixpkgs",
+        "rev": "12fbbac87857a29aac1f5f0a97f86d5bca1b43ef",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nu-scripts": {
       "flake": false,
       "locked": {
@@ -1268,6 +1284,7 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-23.05": "nixpkgs-23.05",
         "nixpkgs-23.11": "nixpkgs-23.11",
+        "nixpkgs-unstable": "nixpkgs-unstable",
         "nu-scripts": "nu-scripts",
         "nur-linyinfeng": "nur-linyinfeng",
         "nur-xddxdd": "nur-xddxdd",
