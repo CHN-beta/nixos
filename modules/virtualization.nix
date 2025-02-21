@@ -46,71 +46,83 @@ inputs:
       };
       environment.systemPackages = with inputs.pkgs; [ qemu_full win-spice ] ++
         (if (inputs.config.nixos.virtualization.kvmHost.gui) then [ virt-manager ] else []);
-      systemd.services =
-        let
-          virsh = "${inputs.pkgs.libvirt}/bin/virsh";
-          hibernate = inputs.pkgs.writeShellScript "libvirt-hibernate"
-          ''
-            if [ "$(LANG=C ${virsh} domstate $1)" = 'running' ]
-            then
-              if ${virsh} dompmsuspend "$1" disk
+      systemd =
+      {
+        services =
+          let
+            virsh = "${inputs.pkgs.libvirt}/bin/virsh";
+            hibernate = inputs.pkgs.writeShellScript "libvirt-hibernate"
+            ''
+              if [ "$(LANG=C ${virsh} domstate $1)" = 'running' ]
               then
-                echo "Waiting for $1 to suspend"
-                while ! [ "$(LANG=C ${virsh} domstate $1)" = 'shut off' ]
-                do
-                  sleep 1
-                done
-                echo "$1 suspended"
-                touch "/tmp/libvirt.$1.suspended"
-              else
-                echo "Failed to suspend $1"
+                if ${virsh} dompmsuspend "$1" disk
+                then
+                  echo "Waiting for $1 to suspend"
+                  while ! [ "$(LANG=C ${virsh} domstate $1)" = 'shut off' ]
+                  do
+                    sleep 1
+                  done
+                  echo "$1 suspended"
+                  touch "/tmp/libvirt.$1.suspended"
+                else
+                  echo "Failed to suspend $1"
+                fi
               fi
-            fi
-          '';
-          resume = inputs.pkgs.writeShellScript "libvirt-resume"
-          ''
-            if [ "$(LANG=C ${virsh} domstate $1)" = 'shut off' ] && [ -f "/tmp/libvirt.$1.suspended" ]
-            then
-              if ${virsh} start "$1"
+            '';
+            resume = inputs.pkgs.writeShellScript "libvirt-resume"
+            ''
+              if [ "$(LANG=C ${virsh} domstate $1)" = 'shut off' ] && [ -f "/tmp/libvirt.$1.suspended" ]
               then
-                echo "Waiting for $1 to resume"
-                while ! [ "$(LANG=C ${virsh} domstate $1)" = 'running' ]
-                do
-                  sleep 1
-                done
-                echo "$1 resumed"
-                rm "/tmp/libvirt.$1.suspended"
-              else
-                echo "Failed to resume $1"
+                if ${virsh} start "$1"
+                then
+                  echo "Waiting for $1 to resume"
+                  while ! [ "$(LANG=C ${virsh} domstate $1)" = 'running' ]
+                  do
+                    sleep 1
+                  done
+                  echo "$1 resumed"
+                  rm "/tmp/libvirt.$1.suspended"
+                else
+                  echo "Failed to resume $1"
+                fi
               fi
-            fi
-          '';
-          makeHibernate = machine:
-          {
-            name = "libvirt-hibernate-${machine}";
-            value =
+            '';
+            makeHibernate = machine:
             {
-              description = "libvirt hibernate ${machine}";
-              wantedBy = [ "systemd-hibernate.service" "systemd-suspend.service" ];
-              before = [ "systemd-hibernate.service" "systemd-suspend.service" ];
-              serviceConfig = { Type = "oneshot"; ExecStart = "${hibernate} ${machine}"; };
+              name = "libvirt-hibernate-${machine}";
+              value =
+              {
+                description = "libvirt hibernate ${machine}";
+                wantedBy = [ "systemd-hibernate.service" "systemd-suspend.service" ];
+                before = [ "systemd-hibernate.service" "systemd-suspend.service" ];
+                serviceConfig = { Type = "oneshot"; ExecStart = "${hibernate} ${machine}"; };
+              };
             };
-          };
-          makeResume = machine:
-          {
-            name = "libvirt-resume-${machine}";
-            value =
+            makeResume = machine:
             {
-              description = "libvirt resume ${machine}";
-              wantedBy = [ "systemd-hibernate.service" "systemd-suspend.service" ];
-              after = [ "systemd-hibernate.service" "systemd-suspend.service" ];
-              serviceConfig = { Type = "oneshot"; ExecStart = "${resume} ${machine}"; };
+              name = "libvirt-resume-${machine}";
+              value =
+              {
+                description = "libvirt resume ${machine}";
+                wantedBy = [ "systemd-hibernate.service" "systemd-suspend.service" ];
+                after = [ "systemd-hibernate.service" "systemd-suspend.service" ];
+                serviceConfig = { Type = "oneshot"; ExecStart = "${resume} ${machine}"; };
+              };
             };
-          };
-          makeServices = serviceFunction: builtins.map serviceFunction
-            inputs.config.nixos.virtualization.kvmHost.autoSuspend;
-        in
-          builtins.listToAttrs (makeServices makeHibernate ++ makeServices makeResume);
+            makeServices = serviceFunction: builtins.map serviceFunction
+              inputs.config.nixos.virtualization.kvmHost.autoSuspend;
+          in builtins.listToAttrs (makeServices makeHibernate ++ makeServices makeResume);
+        mounts =
+          let iso = inputs.pkgs.runCommand "virtio-win.iso" {}
+            ''${inputs.pkgs.cdrtools}/bin/mkisofs -o $out ${inputs.pkgs.virtio-win}'';
+          in
+          [{
+              what = "${iso}";
+              where = "/var/lib/libvirt/images/virtio-win.iso";
+              options = "bind";
+              wantedBy = [ "local-fs.target" ];
+          }];
+      };
     })
     # kvmGuest
     (inputs.lib.mkIf inputs.config.nixos.virtualization.kvmGuest.enable
