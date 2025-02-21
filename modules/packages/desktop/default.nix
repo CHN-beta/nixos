@@ -60,7 +60,7 @@ inputs:
           nix-template nil pnpm-lock-export bundix
           # instant messager
           element-desktop telegram-desktop discord zoom-us slack nur-linyinfeng.wemeet nheko
-          fluffychat signal-desktop qq nur-xddxdd.wechat-uos cinny-desktop
+          fluffychat signal-desktop qq nur-xddxdd.wechat-uos-sandboxed cinny-desktop
           # browser
           google-chrome tor-browser microsoft-edge
           # office

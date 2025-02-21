@@ -5,7 +5,6 @@ inputs: let inherit (inputs) topInputs; in
     topInputs.home-manager.nixosModules.home-manager
     topInputs.sops-nix.nixosModules.sops
     topInputs.nix-index-database.nixosModules.nix-index
-    topInputs.nur-xddxdd.nixosModules.setupOverlay
     topInputs.impermanence.nixosModules.impermanence
     topInputs.nix-flatpak.nixosModules.nix-flatpak
     topInputs.chaotic.nixosModules.default
@@ -21,10 +20,10 @@ inputs: let inherit (inputs) topInputs; in
           topInputs.qchem.overlays.default
           topInputs.bscpkgs.overlays.default
           topInputs.aagl.overlays.default
+          topInputs.nur-xddxdd.overlays.inSubTree
           (final: prev:
           {
             nix-vscode-extensions = topInputs.nix-vscode-extensions.extensions.${prev.system};
-            nur-xddxdd = topInputs.nur-xddxdd.overlays.default final prev;
             nur-linyinfeng = (topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
             firefox-addons = (import "${topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
             inherit (import topInputs.gricad { pkgs = final; }) intel-oneapi intel-oneapi-2022;
