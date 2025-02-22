@@ -20,8 +20,8 @@ inputs:
           rollingRootfs = {};
         };
         nixpkgs.march = "tigerlake";
-        # somehow cachyos make touchscreen not work
-        kernel.variant = "xanmod-latest";
+        # recent kernel make touchscreen not work
+        kernel.variant = "xanmod-lts";
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
