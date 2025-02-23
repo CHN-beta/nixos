@@ -22,6 +22,9 @@ inputs:
         theme = "mac-style";
         themePackages = [(inputs.pkgs.callPackage inputs.topInputs.mac-style {})];
       };
+      kernelParams = inputs.lib.mkIf
+        (builtins.elem inputs.config.nixos.system.grub.installDevice [ "efi" "efiRemovable" ])
+        [ "plymouth.use-simpledrm" ];
     };
     hardware = { enableAllFirmware = true; bluetooth.enable = true; sensor.iio.enable = true; };
     environment =
