@@ -54,7 +54,7 @@ inputs:
           # editor
           typora appflowy notion-app-enhanced joplin-desktop standardnotes logseq obsidian
           # news
-          fluent-reader rssguard newsflash newsboat
+          fluent-reader rssguard newsflash newsboat follow
           # nix tools
           nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github prefetch-npm-deps nix-prefetch-docker
           nix-template nil pnpm-lock-export bundix
