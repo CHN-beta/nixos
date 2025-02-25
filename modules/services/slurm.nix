@@ -202,18 +202,16 @@ inputs:
           '';
         };
         extraConfig =
-          let info = inputs.pkgs.localPackages.info.override
-          {
-            slurm = inputs.config.services.slurm.package;
-            configFile = inputs.config.sops.templates."info.yaml".path;
-          };
-          in
           ''
-            PrologSlurmctld=${info}/bin/info
-            EpilogSlurmctld=${info}/bin/info
+            PrologSlurmctld=${inputs.config.security.wrapperDir}/slurm-info
+            EpilogSlurmctld=${inputs.config.security.wrapperDir}/slurm-info
           '';
       };
-      systemd.tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
+      systemd =
+      {
+        services.slurmctld.after = [ "suid-sgid-wrappers.service" ];
+        tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
+      };
       sops =
       {
         secrets = { "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; }; }
@@ -231,19 +229,28 @@ inputs:
           };
         };
       };
+      security.wrappers.info =
+      {
+        source =
+          let info = inputs.pkgs.localPackages.info.override
+          {
+            slurm = inputs.config.services.slurm.package;
+            configFile = inputs.config.sops.templates."info.yaml".path;
+          };
+          in "${info}/bin/info";
+        program = "slurm-info";
+        owner = "slurm";
+        group = "slurm";
+        permissions = "544";
+        capabilities = "cap_setuid,cap_setgid+ep";
+      };
       nixos =
       {
         packages.packages._packages = [ inputs.pkgs.localPackages.sbatch-tui ];
         user.sharedModules = [{ home.packages =
         [
           (inputs.pkgs.writeShellScriptBin "sbatch"
-          ''
-            if [ "$#" -eq 0 ]; then
-              sbatch-tui
-            else
-              /run/current-system/sw/bin/sbatch "$@"
-            fi
-          '')
+            ''if [ "$#" -eq 0 ]; then sbatch-tui; else /run/current-system/sw/bin/sbatch "$@"; fi'')
         ];}];
         services.mariadb = { enable = true; instances.slurm = {}; };
       };
