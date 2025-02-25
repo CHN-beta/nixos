@@ -308,10 +308,11 @@ namespace hpcstat::sql
           key ? "{}::SHA256:{}"_f(Keys[*key].PubkeyFilename, *key) : "(unknown)"
         );
       for (auto& [key_subaccount, stat] : stat_subaccount)
-        std::cout << "| {}::{} | {:.2f} | {} | {} | {} | {} | `{}::{}` |\n"_f
+        std::cout << "| {}::{} | {:.2f} | {}/{}/{} | {}/{}/{} | `{}::{}` |\n"_f
         (
           Keys[key_subaccount.first].Username, key_subaccount.second, stat.CpuTime,
-          stat.LoginInteractive, stat.LoginNonInteractive, stat.FinishJobSuccess, stat.FinishJobFailed,
+          stat.LoginInteractive + stat.LoginNonInteractive, stat.LoginInteractive, stat.LoginNonInteractive,
+          stat.FinishJobSuccess + stat.FinishJobFailed, stat.FinishJobSuccess, stat.FinishJobFailed,
           Keys[key_subaccount.first].PubkeyFilename, key_subaccount.first
         );
       // export to excel
