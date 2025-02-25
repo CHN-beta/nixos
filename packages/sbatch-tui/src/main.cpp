@@ -225,19 +225,19 @@ int main()
         if (state.gpu_scheme_entries[state.gpu_scheme_selected] == "any single GPU")
           state.submit_command =
             "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus=1\n--job-name='{}' --output='{}'\n"
-              "vasp-nvidia srun vasp-{}"_f
+              "--wrap=\"vasp-nvidia srun vasp-{}\""_f
             (device.GpuPartition, state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]);
         else
           state.submit_command =
             "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus={}:1\n--job-name='{}' --output='{}'\n"
-              "vasp-nvidia srun vasp-{}"_f
+              "--wrap=\"vasp-nvidia srun vasp-{}\""_f
             (
               device.GpuPartition, state.gpu_entries[state.gpu_selected],
               state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
             );
       else state.submit_command =
         "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={}\n--job-name='{}' --output='{}'\n"
-          "vasp-intel srun vasp-{}"_f
+          "--wrap=\"vasp-intel srun vasp-{}\""_f
         (
           state.queue_entries[state.queue_selected],
           state.mpi_threads, state.openmp_threads, state.job_name, state.output_file,
