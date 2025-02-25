@@ -5,6 +5,7 @@
 # include <biu/logger.hpp>
 # include <biu/common.hpp>
 # include <biu/format.hpp>
+# include <boost/exception/diagnostic_information.hpp>
 
 namespace biu
 {
@@ -66,7 +67,14 @@ namespace biu
 	template <typename FinalException> Logger::Exception<FinalException>::Exception(const std::string& message)
 	{
 		Logger::Guard log(message);
-		log.print_exception(nameof::nameof_full_type<FinalException>(), message, Stacktrace_, {});
+		log.print_exception<FinalException>(nameof::nameof_full_type<FinalException>(), message, Stacktrace_, {});
+	}
+
+	template <typename Function> inline void Logger::try_exec(Function&& function)
+	{
+		Logger::Guard log;
+		try { function(); }
+		catch (...) { log.error(boost::current_exception_diagnostic_information()); }
 	}
 
 	inline thread_local unsigned Logger::Guard::Indent_ = 0;

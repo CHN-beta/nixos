@@ -61,6 +61,8 @@ namespace biu
 			public: const char* what() const noexcept final {return Message_.c_str();}
 		};
 
+		public: template <typename Function> static void try_exec(Function&& function);
+
 		// Monitor the start and end of a function, as well as corresponding thread.
 		// This object should be construct at the beginning of the function, and should never be passed to another
 		// function or thread.

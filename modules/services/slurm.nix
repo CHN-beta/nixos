@@ -160,11 +160,6 @@ inputs:
             # this make job hang, not sure why
             # ConstrainDevices=yes
           '';
-          extraPlugstackConfig =
-            let info = inputs.pkgs.localPackages.info.override { slurm = inputs.config.services.slurm.package; }; in
-            ''
-              required ${info}/lib/libinfo.so
-            '';
         };
         munge = { enable = true; password = inputs.config.sops.secrets."munge.key".path; };
       };
@@ -206,9 +201,38 @@ inputs:
             StorageLoc=slurm
           '';
         };
+        extraConfig =
+          let info = inputs.pkgs.localPackages.info.override
+          {
+            slurm = inputs.config.services.slurm.package;
+            configFile = inputs.config.sops.templates."info.yaml".path;
+          };
+          in
+          ''
+            PrologSlurmctld=${info}/bin/info
+            EpilogSlurmctld=${info}/bin/info
+          '';
       };
       systemd.tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
-      sops.secrets."slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; };
+      sops =
+      {
+        secrets =
+        {
+          "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; };
+          "telegram/token" = {};
+          "telegram/chn" = {};
+        };
+        templates."info.yaml" =
+        {
+          owner = "slurm";
+          content = let inherit (inputs.config.sops) placeholder; in builtins.toJSON
+          {
+            token = placeholder."telegram/token";
+            user.chn = placeholder."telegram/chn";
+            slurmConf = "${inputs.config.services.slurm.etcSlurm}/slurm.conf";
+          };
+        };
+      };
       nixos =
       {
         packages.packages._packages = [ inputs.pkgs.localPackages.sbatch-tui ];

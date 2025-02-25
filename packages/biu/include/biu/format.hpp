@@ -6,6 +6,7 @@
 # include <biu/concepts.hpp>
 # include <fmt/format.h>
 # include <fmt/ostream.h>
+# include <yaml-cpp/yaml.h>
 
 namespace biu
 {
@@ -74,4 +75,6 @@ namespace fmt
 
   template <typename Char, typename... Ts> struct formatter<std::variant<Ts...>, Char>
     : basic_ostream_formatter<Char> {};
+
+  template <typename Char> struct formatter<YAML::Node, Char> : basic_ostream_formatter<Char> {};
 }
