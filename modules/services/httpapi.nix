@@ -36,10 +36,10 @@ inputs:
             let
               placeholder = inputs.config.sops.placeholder;
               request = "https://api.telegram.org/bot${placeholder."telegram/token"}"
-                + "/sendMessage?chat_id=${placeholder."telegram/chat"}&text=";
+                + "/sendMessage?chat_id=${placeholder."telegram/user/chn"}&text=";
             in ''<?php print file_get_contents("${request}".urlencode($_GET["message"])); ?>'';
         };
-        secrets = { "telegram/token" = {}; "telegram/chat" = {}; };
+        secrets = { "telegram/token" = {}; "telegram/user/chn" = {}; };
       };
       systemd.tmpfiles.rules = [ "d /srv/api 0700 nginx nginx" "Z /srv/api - nginx nginx" ];
     };

@@ -16,7 +16,7 @@ inputs:
             curl = "${inputs.pkgs.curl}/bin/curl";
             cat = "${inputs.pkgs.coreutils}/bin/cat";
             token = inputs.config.sops.secrets."telegram/token".path;
-            chat = inputs.config.sops.secrets."telegram/chat".path;
+            chat = inputs.config.sops.secrets."telegram/user/chn".path;
             date = "${inputs.pkgs.coreutils}/bin/date";
             hpcstat = "${inputs.pkgs.localPackages.hpcstat}/bin/hpcstat";
             ssh = "${inputs.pkgs.openssh}/bin/ssh -i ${key} -o StrictHostKeyChecking=no"
@@ -108,7 +108,7 @@ inputs:
     sops.secrets =
     {
       "telegram/token" = { group = "telegram"; mode = "0440"; };
-      "telegram/chat" = { group = "telegram"; mode = "0440"; };
+      "telegram/user/chn" = { group = "telegram"; mode = "0440"; };
       "hpcstat/key" = { owner = "hpcstat"; group = "hpcstat"; };
     };
     users =

@@ -220,7 +220,7 @@ inputs:
         {
           "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; };
           "telegram/token" = {};
-          "telegram/chn" = {};
+          "telegram/user/chn" = {};
         };
         templates."info.yaml" =
         {
@@ -228,7 +228,7 @@ inputs:
           content = let inherit (inputs.config.sops) placeholder; in builtins.toJSON
           {
             token = placeholder."telegram/token";
-            user.chn = placeholder."telegram/chn";
+            user.chn = placeholder."telegram/user/chn";
             slurmConf = "${inputs.config.services.slurm.etcSlurm}/slurm.conf";
           };
         };

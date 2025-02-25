@@ -458,7 +458,7 @@ inputs:
             (map (n: { name = "xray-server/clients/user${toString n}"; value = {}; }) userList)
             // (builtins.listToAttrs (map
               (name: { name = "telegram/${name}"; value = { group = "telegram"; mode = "0440"; }; })
-              [ "token" "chat" ]))
+              [ "token" "user/chn" ]))
             // { "xray-server/private-key" = {}; };
         };
         systemd =
@@ -490,7 +490,7 @@ inputs:
                   sed = "${inputs.pkgs.gnused}/bin/sed";
                   cat = "${inputs.pkgs.coreutils}/bin/cat";
                   token = inputs.config.sops.secrets."telegram/token".path;
-                  chat = inputs.config.sops.secrets."telegram/chat".path;
+                  chat = inputs.config.sops.secrets."telegram/user/chn".path;
                 in
                 ''
                   message='${inputs.config.nixos.model.hostname} xray:\n'
