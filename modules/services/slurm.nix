@@ -216,19 +216,17 @@ inputs:
       systemd.tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
       sops =
       {
-        secrets =
-        {
-          "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; };
-          "telegram/token" = {};
-          "telegram/user/chn" = {};
-        };
+        secrets = { "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; }; }
+          // builtins.listToAttrs (builtins.map (n: { name = "telegram/${n}"; value = {}; })
+            [ "token" "user/chn" "user/hjp" ]);
         templates."info.yaml" =
         {
           owner = "slurm";
           content = let inherit (inputs.config.sops) placeholder; in builtins.toJSON
           {
             token = placeholder."telegram/token";
-            user.chn = placeholder."telegram/user/chn";
+            user =  builtins.listToAttrs (builtins.map (n: { name = n; value = placeholder."telegram/user/${n}"; })
+              [ "chn" "hjp" ]);
             slurmConf = "${inputs.config.services.slurm.etcSlurm}/slurm.conf";
           };
         };
