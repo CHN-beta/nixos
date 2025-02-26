@@ -19,7 +19,8 @@ FREE        = -free -names lowercase
 
 FFLAGS      = -assume byterecl -w
 
-OFLAG       = -O2
+# OFLAG       = -O2
+OFLAG       = -g
 OFLAG_IN    = $(OFLAG)
 DEBUG       = -O0
 

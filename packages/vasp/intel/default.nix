@@ -37,6 +37,9 @@ let vasp = stdenv.mkDerivation
 
     # tell openmpi use ifx
     OMPI_F90 = "ifx";
+
+    dontStrip = true;
+    dontPatchELF = true;
   };
 in writeShellScriptBin "vasp-intel"
 ''

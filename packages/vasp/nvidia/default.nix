@@ -35,6 +35,8 @@ let vasp = stdenv.mkDerivation
     MKLROOT = mkl;
     QD = "${stdenv.cc.cc}/Linux_x86_64/${stdenv.cc.cc.version}/compilers/extras/qd";
   };
+  dontStrip = true;
+  dontPatchELF = true;
 };
 in writeShellScriptBin "vasp-nvidia"
 ''

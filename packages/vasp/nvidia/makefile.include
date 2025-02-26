@@ -24,7 +24,8 @@ FREE        = -Mfree
 
 FFLAGS      = -Mbackslash -Mlarge_arrays
 
-OFLAG       = -fast
+# OFLAG       = -fast
+OFLAG       = -g
 
 DEBUG       = -Mfree -O0 -traceback
 
