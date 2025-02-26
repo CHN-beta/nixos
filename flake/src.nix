@@ -13,9 +13,9 @@
   };
   iso = pkgs.fetchurl
   {
-    url = "https://releases.nixos.org/nixos/24.11/nixos-24.11beta709057.0c582677378f"
-      + "/nixos-plasma6-24.11beta709057.0c582677378f-x86_64-linux.iso";
-    sha256 = "000wmfn6k5awqwsx9qldhdgahv4k09w4yzmvf0djs51qjdpha082";
+    url = "https://releases.nixos.org/nixos/24.11/nixos-24.11.714826.04ef94c4c158/"
+      + "nixos-minimal-24.11.714826.04ef94c4c158-x86_64-linux.iso";
+    sha256 = "12zkmlmvvp6g3syb347q4ffhdavfs3hz2qxvvlgrim6k0kzz436k";
   };
   nglview = pkgs.fetchPypi
   {
