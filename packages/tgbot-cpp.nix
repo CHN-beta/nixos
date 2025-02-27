@@ -3,6 +3,6 @@
   name = "tgbot-cpp";
   inherit src;
   nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ boost openssl zlib curl.dev ];
+  buildInputs = [ boost openssl zlib curl ];
   propagatedBuildInputs = buildInputs;
 }
