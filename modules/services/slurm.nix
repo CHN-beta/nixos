@@ -51,7 +51,8 @@ inputs:
               let
                 inherit (inputs.config.nixos.system.nixpkgs) cuda;
                 inherit (inputs.pkgs.cudaPackages) cuda_nvml_dev;
-                additionalInputs = inputs.lib.optionals (cuda != null) [ cuda_nvml_dev cuda_nvml_dev.lib ];
+                additionalInputs = [ inputs.pkgs.hdf5_1_10 ]
+                  ++ inputs.lib.optionals (cuda != null) [ cuda_nvml_dev cuda_nvml_dev.lib ];
                 additionalFlags = inputs.lib.optional (cuda != null) "-L${cuda_nvml_dev.lib}/lib/stubs";
               in
               {
@@ -138,27 +139,39 @@ inputs:
             # record more info
             JobAcctGatherType=jobacct_gather/cgroup
             AccountingStorageTRES=gres/gpu
+            AcctGatherProfileType=acct_gather_profile/hdf5
 
             # append to output file
             JobFileAppend=1
           '';
           extraConfigPaths =
+          [(inputs.pkgs.writeTextDir "acct_gather.conf"
+          ''
+            ProfileHDF5Dir=/var/spool/slurm-hdf5
+            ProfileHDF5Default=Task
+          '')]
+          ++ (
             let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
-            in inputs.lib.mkIf (gpus != null)
+            in inputs.lib.optional (gpus != null)
             (
               let gpuString = builtins.concatStringsSep "\n" (builtins.map
                 (gpu: "Name=gpu Type=${gpu.name} Count=${builtins.toString gpu.value}")
                 (inputs.localLib.attrsToList gpus));
-              in [(inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml\n${gpuString}")]
-            );
+              in inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml\n${gpuString}"
+            )
+          );
           extraCgroupConfig =
           ''
             ConstrainCores=yes
             ConstrainRAMSpace=yes
             ConstrainSwapSpace=yes
             AllowedSwapSpace=20
+
             # this make job hang, not sure why
             # ConstrainDevices=yes
+
+            # force use cgroup v2
+            CgroupPlugin=cgroup/v2
           '';
         };
         munge = { enable = true; password = inputs.config.sops.secrets."munge.key".path; };
@@ -210,7 +223,11 @@ inputs:
       systemd =
       {
         services.slurmctld.after = [ "suid-sgid-wrappers.service" ];
-        tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
+        tmpfiles.rules =
+        [
+          "d /var/log/slurmctld 700 slurm slurm"
+          "d /var/spool/slurm-hdf5 700 slurm slurm"
+        ];
       };
       sops =
       {
