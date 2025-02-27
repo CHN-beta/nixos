@@ -50,7 +50,7 @@ inputs:
             srv2-node1 =
             {
               name = "n1"; address = "192.168.178.2";
-              cpu = { cores = 16; threads = 2; };
+              cpu = { sockets = 2; cores = 8; threads = 2; };
               memoryMB = 80 * 1024;
               gpus = { "3090" = 1; "4090" = 1; };
             };
