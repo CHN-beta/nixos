@@ -35,8 +35,8 @@ int main()
     // 第二行，如果是CPU，要选择的队列，和队列的参数
     int queue_selected = 0;
     std::vector<std::string> queue_entries; // 稍后初始化
-    std::string mpi_threads;
-    std::string openmp_threads;
+    std::string mpi_threads = "1";
+    std::string openmp_threads = "1";
 
     // 第二行，如果是GPU，要选择的方案和设备
     int gpu_scheme_selected = 0;
@@ -87,19 +87,6 @@ int main()
   }
   catch (...) {}
 
-  // 刷新状态
-  auto refresh_state = [&]
-  {
-    // 如果选择了 CPU 程序，那么按照选定的队列刷新 MPI 和 OpenMP 线程数
-    if (state.program_entries[state.program_selected] == "VASP(CPU)")
-    {
-      auto it = ranges::find_if(device.CpuQueues,
-        [&](auto &x){ return x.first == state.queue_entries[state.queue_selected]; });
-      state.mpi_threads = std::to_string(it->second.CpuMpiThreads);
-      state.openmp_threads = std::to_string(it->second.CpuOpenmpThreads);
-    }
-  };
-
   // 为组件增加标题栏和分割线
   auto with_title = [](std::string title, ftxui::Color bgcolor = ftxui::Color::Blue)
   {
@@ -129,7 +116,7 @@ int main()
     ftxui::Container::Horizontal
     ({
       // 左侧：选择程序
-      ftxui::Menu(&state.program_entries, &state.program_selected, ftxui::MenuOption{.on_change = refresh_state}),
+      ftxui::Menu(&state.program_entries, &state.program_selected),
       // 右侧：选择 VASP 版本
       ftxui::Menu(&state.vasp_entries, &state.vasp_selected) | with_separator
     }) | with_title("Program:"),
@@ -140,7 +127,7 @@ int main()
       ftxui::Container::Horizontal
       ({
         // 左侧：选择队列
-        ftxui::Menu(&state.queue_entries, &state.queue_selected, ftxui::MenuOption{.on_change = refresh_state}),
+        ftxui::Menu(&state.queue_entries, &state.queue_selected),
         // 右侧：输入 MPI 和 OpenMP 线程数，以及内存
         ftxui::Container::Vertical
         ({
@@ -154,8 +141,7 @@ int main()
       ftxui::Container::Horizontal
       ({
         // 左侧：选择方案
-        ftxui::Menu(&state.gpu_scheme_entries, &state.gpu_scheme_selected,
-          ftxui::MenuOption{.on_change = refresh_state}),
+        ftxui::Menu(&state.gpu_scheme_entries, &state.gpu_scheme_selected),
         // 右侧：选择 GPU
         ftxui::Menu(&state.gpu_entries, &state.gpu_selected) | with_separator
           | ftxui::Maybe
@@ -217,8 +203,6 @@ int main()
   // 进入事件循环
   while (true)
   {
-    // 开始之前需要先刷新状态
-    refresh_state();
     screen.Loop(request_interface);
     if (state.user_command == "quit") return 0;
     else if (state.user_command == "continue")
