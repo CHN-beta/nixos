@@ -249,25 +249,27 @@ inputs:
       };
       nixos =
       {
-        packages.packages._packages = [ inputs.pkgs.localPackages.sbatch-tui ];
+        packages.packages._packages = [(inputs.pkgs.localPackages.sbatch-tui.override
+        {
+          sbatchConfig = inputs.pkgs.writeText "sbatch.yaml" (builtins.toJSON
+          {
+            GpuIds = slurm.tui.gpuIds;
+            GpuPartition = slurm.tui.gpuPartition;
+            CpuQueues = builtins.map
+              (queue:
+              [
+                queue.name
+                { CpuMpiThreads = queue.mpiThreads; CpuOpenmpThreads = queue.openmpThreads; MemoryGB = queue.memoryGB; }
+              ])
+              slurm.tui.cpuQueues;
+          });
+        })];
         user.sharedModules = [{ home.packages =
         [
           (inputs.pkgs.writeShellScriptBin "sbatch"
             ''if [ "$#" -eq 0 ]; then sbatch-tui; else /run/current-system/sw/bin/sbatch "$@"; fi'')
         ];}];
         services.mariadb = { enable = true; instances.slurm = {}; };
-      };
-      environment.etc."sbatch-tui.yaml".text = builtins.toJSON
-      {
-        GpuIds = slurm.tui.gpuIds;
-        GpuPartition = slurm.tui.gpuPartition;
-        CpuQueues = builtins.map
-          (queue:
-          [
-            queue.name
-            { CpuMpiThreads = queue.mpiThreads; CpuOpenmpThreads = queue.openmpThreads; MemoryGB = queue.memoryGB; }
-          ])
-          slurm.tui.cpuQueues;
       };
       networking.firewall =
         let config = inputs.lib.mkIf slurm.setupFirewall [ 6817 ];

@@ -15,6 +15,9 @@ find_package(biu REQUIRED)
 add_executable(sbatch-tui src/main.cpp)
 target_compile_features(sbatch-tui PUBLIC cxx_std_23)
 target_link_libraries(sbatch-tui PRIVATE ftxui::screen ftxui::dom ftxui::component biu::biu)
+if(SBATCH_CONFIG)
+  target_compile_definitions(sbatch-tui PRIVATE SBATCH_CONFIG="${SBATCH_CONFIG}")
+endif()
 
 install(TARGETS sbatch-tui RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

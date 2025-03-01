@@ -5,6 +5,10 @@
 # include <boost/algorithm/string.hpp>
 # include <biu.hpp>
 
+# ifndef SBATCH_CONFIG
+#   define SBATCH_CONFIG "./sbatch-tui.yaml"
+# endif
+
 int main()
 {
   using namespace biu::literals;
@@ -17,7 +21,7 @@ int main()
     std::optional<std::vector<std::string>> GpuIds;
     std::string GpuPartition;
   };
-  auto device = YAML::LoadFile("/etc/sbatch-tui.yaml").as<Device>();
+  auto device = YAML::LoadFile(SBATCH_CONFIG).as<Device>();
 
   // 需要绑定到界面上的变量
   struct
