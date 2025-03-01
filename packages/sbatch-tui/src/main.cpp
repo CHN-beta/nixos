@@ -11,8 +11,9 @@ int main()
 
   struct Device
   {
-    // Queue : { CpuMpiThreads, CpuOpenmpThreads }
-    std::vector<std::pair<std::string, std::pair<int, int>>> CpuQueues;
+    // Queue : { CpuMpiThreads, CpuOpenmpThreads, MemoryMB }
+    struct CpuQueueType { int CpuMpiThreads, CpuOpenmpThreads, MemoryMB; };
+    std::vector<std::pair<std::string, CpuQueueType>> CpuQueues;
     std::optional<std::vector<std::string>> GpuIds;
     std::string GpuPartition;
   };
@@ -72,15 +73,13 @@ int main()
     if (saved_state.vasp_selected < state.vasp_entries.size())
       state.vasp_selected = saved_state.vasp_selected;
     if (saved_state.queue_selected < state.queue_entries.size())
-    {
       state.queue_selected = saved_state.queue_selected;
-      state.mpi_threads = saved_state.mpi_threads;
-      state.openmp_threads = saved_state.openmp_threads;
-    }
     if (saved_state.gpu_scheme_selected < state.gpu_scheme_entries.size())
       state.gpu_scheme_selected = saved_state.gpu_scheme_selected;
     if (saved_state.gpu_selected < state.gpu_entries.size())
       state.gpu_selected = saved_state.gpu_selected;
+    state.mpi_threads = saved_state.mpi_threads;
+    state.openmp_threads = saved_state.openmp_threads;
   }
   catch (...) {}
 
@@ -92,9 +91,8 @@ int main()
     {
       auto it = ranges::find_if(device.CpuQueues,
         [&](auto &x){ return x.first == state.queue_entries[state.queue_selected]; });
-      auto [mpi_threads, openmp_threads] = it->second;
-      state.mpi_threads = std::to_string(mpi_threads);
-      state.openmp_threads = std::to_string(openmp_threads);
+      state.mpi_threads = std::to_string(it->second.CpuMpiThreads);
+      state.openmp_threads = std::to_string(it->second.CpuOpenmpThreads);
     }
   };
 
@@ -140,7 +138,7 @@ int main()
       ({
         // 左侧：选择队列
         ftxui::Menu(&state.queue_entries, &state.queue_selected, ftxui::MenuOption{.on_change = refresh_state}),
-        // 右侧：输入 MPI 和 OpenMP 线程数
+        // 右侧：输入 MPI 和 OpenMP 线程数，以及内存
         ftxui::Container::Vertical
         ({
           ftxui::Input(&state.mpi_threads) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
@@ -157,7 +155,8 @@ int main()
           ftxui::MenuOption{.on_change = refresh_state}),
         // 右侧：选择 GPU
         ftxui::Menu(&state.gpu_entries, &state.gpu_selected) | with_separator
-          | ftxui::Maybe([&]{ return state.gpu_scheme_entries[state.gpu_scheme_selected] == "manually select a GPU"; }),
+          | ftxui::Maybe
+            ([&]{ return state.gpu_scheme_entries[state.gpu_scheme_selected] == "manually select a GPU"; })
       }) | ftxui::Maybe([&]{ return state.program_entries[state.program_selected] == "VASP(GPU)"; }),
     }) | with_title("Resource allocation parameters:"),
     // 第三行：任务名
@@ -224,23 +223,25 @@ int main()
       if (state.program_entries[state.program_selected] == "VASP(GPU)")
         if (state.gpu_scheme_entries[state.gpu_scheme_selected] == "any single GPU")
           state.submit_command =
-            "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus=1\n--job-name='{}' --output='{}'\n"
+            "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus=1 --mem=16G\n--job-name='{}' --output='{}'\n"
               "--wrap=\"vasp-nvidia srun vasp-{}\""_f
             (device.GpuPartition, state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]);
         else
           state.submit_command =
-            "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus={}:1\n--job-name='{}' --output='{}'\n"
+            "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus={}:1 --mem=16G\n--job-name='{}' --output='{}'\n"
               "--wrap=\"vasp-nvidia srun vasp-{}\""_f
             (
               device.GpuPartition, state.gpu_entries[state.gpu_selected],
               state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
             );
       else state.submit_command =
-        "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={}\n--job-name='{}' --output='{}'\n"
+        "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={} --mem={}M\n--job-name='{}' --output='{}'\n"
           "--wrap=\"vasp-intel srun vasp-{}\""_f
         (
           state.queue_entries[state.queue_selected],
           state.mpi_threads, state.openmp_threads, state.job_name, state.output_file,
+          ranges::find_if(device.CpuQueues,
+            [&](auto &x){ return x.first == state.queue_entries[state.queue_selected]; })->second.MemoryMB,
           state.vasp_entries[state.vasp_selected]
         );
       state.user_command.clear();

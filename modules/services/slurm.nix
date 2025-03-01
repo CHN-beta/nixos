@@ -30,6 +30,7 @@ inputs:
           name = mkOption { type = types.nonEmptyStr; default = "localhost"; };
           mpiThreads = mkOption { type = types.ints.unsigned; default = 1; };
           openmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
+          memoryMB = mkOption { type = types.ints.unsigned; default = 0; };
         };}));
       };
       gpuIds = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
@@ -108,7 +109,7 @@ inputs:
           extraConfig =
           ''
             SelectType=select/cons_tres
-            SelectTypeParameters=CR_Core
+            SelectTypeParameters=CR_Core_Memory
             GresTypes=gpu
             DefCpuPerGPU=1
 
@@ -139,6 +140,7 @@ inputs:
             # record more info
             JobAcctGatherType=jobacct_gather/cgroup
             AccountingStorageTRES=gres/gpu
+            PrologFlags=contain
 
             # append to output file
             JobFileAppend=1
@@ -260,7 +262,11 @@ inputs:
         GpuIds = slurm.tui.gpuIds;
         GpuPartition = slurm.tui.gpuPartition;
         CpuQueues = builtins.map
-          (queue: [ queue.name [ queue.mpiThreads queue.openmpThreads ]])
+          (queue:
+          [
+            queue.name
+            { CpuMpiThreads = queue.mpiThreads; CpuOpenmpThreads = queue.openmpThreads; MemoryMB = queue.memoryMB; }
+          ])
           slurm.tui.cpuQueues;
       };
       networking.firewall =
