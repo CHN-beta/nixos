@@ -101,12 +101,11 @@ int main()
   };
 
   // 为组件增加标题栏和分割线
-  auto with_title = [](std::string title)
+  auto with_title = [](std::string title, ftxui::Color bgcolor = ftxui::Color::Blue)
   {
-    return [title](ftxui::Element element)
+    return [=](ftxui::Element element)
     {
-      return ftxui::vbox
-        (ftxui::text(title) | ftxui::bgcolor(ftxui::Color::Blue), element, ftxui::separatorLight());
+      return ftxui::vbox(ftxui::text(title) | ftxui::bgcolor(bgcolor), element, ftxui::separatorLight());
     };
   };
   // 为组件增加空白以填充界面

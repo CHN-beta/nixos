@@ -1,0 +1,8 @@
+GpuIds: [ "4060" ]
+GpuPartition: localhost
+CpuQueues:
+  -
+    - localhost
+    - CpuMpiThreads: 4
+      CpuOpenmpThreads: 4
+      MemoryGB: 64
