@@ -233,12 +233,12 @@ int main()
         if (state.gpu_scheme_entries[state.gpu_scheme_selected] == "any single GPU")
           state.submit_command =
             "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus=1 --mem=16G\n--job-name='{}' --output='{}'\n"
-              "--wrap=\"vasp-nvidia srun vasp-{}\""_f
+              "--wrap=\"srun vasp-nvidia vasp-{}\""_f
             (device.GpuPartition, state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]);
         else
           state.submit_command =
             "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus={}:1 --mem=16G\n--job-name='{}' --output='{}'\n"
-              "--wrap=\"vasp-nvidia srun vasp-{}\""_f
+              "--wrap=\"srun vasp-nvidia vasp-{}\""_f
             (
               device.GpuPartition, state.gpu_entries[state.gpu_selected],
               state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
@@ -250,7 +250,7 @@ int main()
             [&](auto &x){ return x.first == state.queue_entries[state.queue_selected]; });
           state.submit_command =
             "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={}{}\n"
-              "--job-name='{}' --output='{}'\n--wrap=\"vasp-intel srun vasp-{}\""_f
+              "--job-name='{}' --output='{}'\n--wrap=\"srun vasp-intel vasp-{}\""_f
             (
               queue_data->first,
               queue_data->second.CpuMpiThreads, queue_data->second.CpuOpenmpThreads,
@@ -261,7 +261,7 @@ int main()
         else if (state.cpu_scheme_entries[state.cpu_scheme_selected] == "Manual")
           state.submit_command =
             "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={} --mem={}G\n"
-              "--job-name='{}' --output='{}'\n--wrap=\"vasp-intel srun vasp-{}\""_f
+              "--job-name='{}' --output='{}'\n--wrap=\"srun vasp-intel vasp-{}\""_f
             (
               state.queue_entries[state.queue_selected],
               state.mpi_threads, state.openmp_threads, state.cpu_memory,
