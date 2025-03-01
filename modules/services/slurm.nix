@@ -31,6 +31,7 @@ inputs:
           mpiThreads = mkOption { type = types.ints.unsigned; default = 1; };
           openmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
           memoryGB = mkOption { type = types.nullOr types.ints.unsigned; default = null; };
+          allocateCpus = mkOption { type = types.nullOr types.ints.unsigned; default = null; };
         };}));
       };
       gpuIds = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
@@ -259,7 +260,12 @@ inputs:
               (queue:
               [
                 queue.name
-                { CpuMpiThreads = queue.mpiThreads; CpuOpenmpThreads = queue.openmpThreads; MemoryGB = queue.memoryGB; }
+                {
+                  CpuMpiThreads = queue.mpiThreads;
+                  CpuOpenmpThreads = queue.openmpThreads;
+                  MemoryGB = queue.memoryGB;
+                  AllocateCpus = queue.allocateCpus;
+                }
               ])
               slurm.tui.cpuQueues;
           });

@@ -66,8 +66,8 @@ inputs:
           {
             cpuQueues =
             [
-              { name = "n0"; mpiThreads = 8; openmpThreads = 5; memoryGB = 224; }
-              { name = "n1"; mpiThreads = 3; openmpThreads = 4; memoryGB = 48; }
+              { name = "n0"; mpiThreads = 8; openmpThreads = 5; memoryGB = 224; allocateCpus = 12; }
+              { name = "n1"; mpiThreads = 4; openmpThreads = 3; memoryGB = 48; allocateCpus = 43; }
             ];
             gpuIds = [ "4090" "3090" ];
             gpuPartition = "all";

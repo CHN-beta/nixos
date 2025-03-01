@@ -16,7 +16,11 @@ int main()
   struct Device
   {
     // Queue : { CpuMpiThreads, CpuOpenmpThreads, MemoryGB }
-    struct CpuQueueType { int CpuMpiThreads, CpuOpenmpThreads; std::optional<int> MemoryGB; };
+    struct CpuQueueType
+    {
+      int CpuMpiThreads, CpuOpenmpThreads;
+      std::optional<int> MemoryGB, AllocateCpus;
+    };
     std::vector<std::pair<std::string, CpuQueueType>> CpuQueues;
     std::optional<std::vector<std::string>> GpuIds;
     std::string GpuPartition;
@@ -248,26 +252,35 @@ int main()
         {
           auto queue_data = ranges::find_if(device.CpuQueues,
             [&](auto &x){ return x.first == state.queue_entries[state.queue_selected]; });
-          state.submit_command =
+          auto mem_string
+            = queue_data->second.MemoryGB ? " --mem={}G"_f(*queue_data->second.MemoryGB) : "";
+          if (queue_data->second.AllocateCpus) state.submit_command =
+            "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task=1{}\n"
+              "--job-name='{}' --output='{}'\n--wrap=\"srun --ntasks={} --cpus-per-task={} vasp-intel vasp-{}\""_f
+            (
+              queue_data->first, *queue_data->second.AllocateCpus, mem_string,
+              state.job_name, state.output_file,
+              queue_data->second.CpuMpiThreads, queue_data->second.CpuOpenmpThreads,
+              state.vasp_entries[state.vasp_selected]
+            );
+          else state.submit_command =
             "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={}{}\n"
               "--job-name='{}' --output='{}'\n--wrap=\"srun vasp-intel vasp-{}\""_f
             (
               queue_data->first,
-              queue_data->second.CpuMpiThreads, queue_data->second.CpuOpenmpThreads,
-              queue_data->second.MemoryGB ? " --mem={}G"_f(*queue_data->second.MemoryGB) : "",
+              queue_data->second.CpuMpiThreads, queue_data->second.CpuOpenmpThreads, mem_string,
               state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
             );
         }
-        else if (state.cpu_scheme_entries[state.cpu_scheme_selected] == "Manual")
-          state.submit_command =
-            "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={} --mem={}G\n"
-              "--job-name='{}' --output='{}'\n--wrap=\"srun vasp-intel vasp-{}\""_f
-            (
-              state.queue_entries[state.queue_selected],
-              state.mpi_threads, state.openmp_threads, state.cpu_memory,
-              state.job_name, state.output_file,
-              state.vasp_entries[state.vasp_selected]
-            );
+        else if (state.cpu_scheme_entries[state.cpu_scheme_selected] == "Manual") state.submit_command =
+          "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={} --mem={}G\n"
+            "--job-name='{}' --output='{}'\n--wrap=\"srun vasp-intel vasp-{}\""_f
+          (
+            state.queue_entries[state.queue_selected],
+            state.mpi_threads, state.openmp_threads, state.cpu_memory,
+            state.job_name, state.output_file,
+            state.vasp_entries[state.vasp_selected]
+          );
         else std::unreachable();
       else std::unreachable();
       state.user_command.clear();
