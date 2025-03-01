@@ -35,8 +35,11 @@ int main()
     // 第二行，如果是CPU，要选择的队列，和队列的参数
     int queue_selected = 0;
     std::vector<std::string> queue_entries; // 稍后初始化
+    int cpu_scheme_selected = 0;
+    std::vector<std::string> cpu_scheme_entries = { "Optimized default", "Manual" };
     std::string mpi_threads = "1";
     std::string openmp_threads = "1";
+    std::string cpu_memory = "1";
 
     // 第二行，如果是GPU，要选择的方案和设备
     int gpu_scheme_selected = 0;
@@ -44,7 +47,7 @@ int main()
     int gpu_selected = 0;
     std::vector<std::string> gpu_entries; // 稍后初始化
 
-    // 第三行和第四行，任务名和输出文件
+    // 第三行，任务名和输出文件
     std::string job_name = std::filesystem::current_path().filename().string();
     std::string output_file = "output.txt";
 
@@ -78,23 +81,27 @@ int main()
       state.vasp_selected = saved_state.vasp_selected;
     if (saved_state.queue_selected < state.queue_entries.size())
       state.queue_selected = saved_state.queue_selected;
+    if (saved_state.cpu_scheme_selected < state.cpu_scheme_entries.size())
+      state.cpu_scheme_selected = saved_state.cpu_scheme_selected;
     if (saved_state.gpu_scheme_selected < state.gpu_scheme_entries.size())
       state.gpu_scheme_selected = saved_state.gpu_scheme_selected;
     if (saved_state.gpu_selected < state.gpu_entries.size())
       state.gpu_selected = saved_state.gpu_selected;
     state.mpi_threads = saved_state.mpi_threads;
     state.openmp_threads = saved_state.openmp_threads;
+    state.cpu_memory = saved_state.cpu_memory;
   }
   catch (...) {}
 
-  // 为组件增加标题栏和分割线
+  // 为组件增加标题栏
   auto with_title = [](std::string title, ftxui::Color bgcolor = ftxui::Color::Blue)
   {
     return [=](ftxui::Element element)
-    {
-      return ftxui::vbox(ftxui::text(title) | ftxui::bgcolor(bgcolor), element, ftxui::separatorLight());
-    };
+      { return ftxui::vbox(ftxui::text(title) | ftxui::bgcolor(bgcolor), element); };
   };
+  // 为组件增加下边框
+  auto with_bottom = [](ftxui::Element element) -> ftxui::Element
+    { return ftxui::vbox(element, ftxui::separatorLight()); };
   // 为组件增加空白以填充界面
   auto with_padding = [](ftxui::Element element) -> ftxui::Element
   {
@@ -119,7 +126,7 @@ int main()
       ftxui::Menu(&state.program_entries, &state.program_selected),
       // 右侧：选择 VASP 版本
       ftxui::Menu(&state.vasp_entries, &state.vasp_selected) | with_separator
-    }) | with_title("Program:"),
+    }) | with_title("Program:") | with_bottom,
     // 第二行
     ftxui::Container::Horizontal
     ({
@@ -127,15 +134,24 @@ int main()
       ftxui::Container::Horizontal
       ({
         // 左侧：选择队列
-        ftxui::Menu(&state.queue_entries, &state.queue_selected),
-        // 右侧：输入 MPI 和 OpenMP 线程数，以及内存
-        ftxui::Container::Vertical
+        ftxui::Menu(&state.queue_entries, &state.queue_selected)
+          | with_title("Queue:", ftxui::Color::GrayDark),
+        // 右侧：默认还是手动设置，如果手动的话，输入 MPI 和 OpenMP 线程数
+        ftxui::Container::Horizontal
         ({
-          ftxui::Input(&state.mpi_threads) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
-            | with_subtitle("MPI threads: "),
-          ftxui::Input(&state.openmp_threads) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
-            | with_subtitle("OpenMP threads: ")
-        }) | with_separator
+          ftxui::Menu(&state.cpu_scheme_entries, &state.cpu_scheme_selected),
+          ftxui::Container::Vertical
+          ({
+            ftxui::Input(&state.mpi_threads) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
+              | with_subtitle("MPI threads: "),
+            ftxui::Input(&state.openmp_threads) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
+              | with_subtitle("OpenMP threads: "),
+            ftxui::Input(&state.cpu_memory) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
+              | with_subtitle("Memory (GB): ")
+          })
+            | with_separator
+            | ftxui::Maybe([&]{ return state.cpu_scheme_entries[state.cpu_scheme_selected] == "Manual"; })
+        }) | with_title("CPU and memory:", ftxui::Color::GrayDark) | with_separator
       }) | ftxui::Maybe([&]{ return state.program_entries[state.program_selected] == "VASP(CPU)"; }),
       // 如果是选择 GPU 程序
       ftxui::Container::Horizontal
@@ -147,11 +163,13 @@ int main()
           | ftxui::Maybe
             ([&]{ return state.gpu_scheme_entries[state.gpu_scheme_selected] == "manually select a GPU"; })
       }) | ftxui::Maybe([&]{ return state.program_entries[state.program_selected] == "VASP(GPU)"; }),
-    }) | with_title("Resource allocation parameters:"),
-    // 第三行：任务名
-    ftxui::Input(&state.job_name) | with_title("Job name:"),
-    // 第四行：输出文件
-    ftxui::Input(&state.output_file) | with_title("Output file:"),
+    }) | with_title("Resource allocation:") | with_bottom,
+    // 第三行：任务名和输出文件
+    ftxui::Container::Vertical
+    ({
+      ftxui::Input(&state.job_name) | with_subtitle("Job name: "),
+      ftxui::Input(&state.output_file) | with_subtitle("Output file: "),
+    }) | with_title("Misc:") | with_bottom,
     // 操作按钮
     ftxui::Container::Horizontal
     ({
@@ -168,15 +186,15 @@ int main()
   auto confirm_interface = ftxui::Container::Vertical
   ({
     ftxui::Input(&state.submit_command, "", ftxui::InputOption{.multiline = true})
-      | with_title("Double check & modify submit command:"),
+      | with_title("Double check & modify submit command:") | with_bottom,
     ftxui::Container::Horizontal
     ({
       ftxui::Button("Submit (Enter)",
         [&]{state.user_command = "submit"; screen.ExitLoopClosure()();}),
-      ftxui::Button("Quit",
-        [&]{state.user_command = "quit"; screen.ExitLoopClosure()();}),
       ftxui::Button("Back",
-        [&]{state.user_command = "back"; screen.ExitLoopClosure()();})
+        [&]{state.user_command = "back"; screen.ExitLoopClosure()();}),
+      ftxui::Button("Quit",
+        [&]{state.user_command = "quit"; screen.ExitLoopClosure()();})
     })
   }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent([&](ftxui::Event event)
   {
@@ -221,16 +239,32 @@ int main()
               device.GpuPartition, state.gpu_entries[state.gpu_selected],
               state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
             );
-      else state.submit_command =
-        "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={} --mem={}G\n--job-name='{}' --output='{}'\n"
-          "--wrap=\"vasp-intel srun vasp-{}\""_f
-        (
-          state.queue_entries[state.queue_selected],
-          state.mpi_threads, state.openmp_threads, state.job_name, state.output_file,
-          ranges::find_if(device.CpuQueues,
-            [&](auto &x){ return x.first == state.queue_entries[state.queue_selected]; })->second.MemoryGB,
-          state.vasp_entries[state.vasp_selected]
-        );
+      else if (state.program_entries[state.program_selected] == "VASP(CPU)")
+        if (state.cpu_scheme_entries[state.cpu_scheme_selected] == "Optimized default")
+        {
+          auto queue_data = ranges::find_if(device.CpuQueues,
+            [&](auto &x){ return x.first == state.queue_entries[state.queue_selected]; });
+          state.submit_command =
+            "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={} --mem={}G\n"
+              "--job-name='{}' --output='{}'\n--wrap=\"vasp-intel srun vasp-{}\""_f
+            (
+              queue_data->first,
+              queue_data->second.CpuMpiThreads, queue_data->second.CpuOpenmpThreads, queue_data->second.MemoryGB,
+              state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
+            );
+        }
+        else if (state.cpu_scheme_entries[state.cpu_scheme_selected] == "Manual")
+          state.submit_command =
+            "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={} --mem={}G\n"
+              "--job-name='{}' --output='{}'\n--wrap=\"vasp-intel srun vasp-{}\""_f
+            (
+              state.queue_entries[state.queue_selected],
+              state.mpi_threads, state.openmp_threads, state.cpu_memory,
+              state.job_name, state.output_file,
+              state.vasp_entries[state.vasp_selected]
+            );
+        else std::unreachable();
+      else std::unreachable();
       state.user_command.clear();
     }
     else return EXIT_FAILURE;
