@@ -115,11 +115,11 @@ inputs:
           {
             name = "pc"; address = "127.0.0.1";
             cpu = { sockets = 2; cores = 8; threads = 2; };
-            memoryMB = 80 * 1024;
+            memoryGB = 80;
             gpus."4060" = 1;
           };
           partitions.localhost = [ "pc" ];
-          tui = { cpuQueues = [{ mpiThreads = 4; openmpThreads = 4; memoryMB = 64 * 1024; }]; gpuIds = [ "4060" ]; };
+          tui = { cpuQueues = [{ mpiThreads = 4; openmpThreads = 4; memoryGB = 64; }]; gpuIds = [ "4060" ]; };
         };
         ollama = {};
         docker = {};

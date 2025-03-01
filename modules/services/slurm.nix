@@ -16,7 +16,7 @@ inputs:
         cores = mkOption { type = types.ints.unsigned; default = 1; };
         threads = mkOption { type = types.ints.unsigned; default = 1; };
       };
-      memoryMB = mkOption { type = types.ints.unsigned; default = 1024; };
+      memoryGB = mkOption { type = types.ints.unsigned; default = 1024; };
       gpus = mkOption { type = types.nullOr (types.attrsOf types.ints.unsigned); default = null; };
     };}));};
     partitions = mkOption { type = types.attrsOf (types.listOf types.nonEmptyStr); default = {}; };
@@ -30,7 +30,7 @@ inputs:
           name = mkOption { type = types.nonEmptyStr; default = "localhost"; };
           mpiThreads = mkOption { type = types.ints.unsigned; default = 1; };
           openmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
-          memoryMB = mkOption { type = types.ints.unsigned; default = 0; };
+          memoryGB = mkOption { type = types.ints.unsigned; default = 0; };
         };}));
       };
       gpuIds = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
@@ -83,7 +83,7 @@ inputs:
                 node.value.name
                 "NodeHostname=${node.name}"
                 "NodeAddr=${node.value.address}"
-                "RealMemory=${builtins.toString node.value.memoryMB}"
+                "RealMemory=${builtins.toString (node.value.memoryGB * 1024)}"
                 "Sockets=${builtins.toString node.value.cpu.sockets}"
                 "CoresPerSocket=${builtins.toString node.value.cpu.cores}"
                 "ThreadsPerCore=${builtins.toString node.value.cpu.threads}"
@@ -265,7 +265,7 @@ inputs:
           (queue:
           [
             queue.name
-            { CpuMpiThreads = queue.mpiThreads; CpuOpenmpThreads = queue.openmpThreads; MemoryMB = queue.memoryMB; }
+            { CpuMpiThreads = queue.mpiThreads; CpuOpenmpThreads = queue.openmpThreads; MemoryGB = queue.memoryGB; }
           ])
           slurm.tui.cpuQueues;
       };

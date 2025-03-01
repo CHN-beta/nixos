@@ -11,8 +11,8 @@ int main()
 
   struct Device
   {
-    // Queue : { CpuMpiThreads, CpuOpenmpThreads, MemoryMB }
-    struct CpuQueueType { int CpuMpiThreads, CpuOpenmpThreads, MemoryMB; };
+    // Queue : { CpuMpiThreads, CpuOpenmpThreads, MemoryGB }
+    struct CpuQueueType { int CpuMpiThreads, CpuOpenmpThreads, MemoryGB; };
     std::vector<std::pair<std::string, CpuQueueType>> CpuQueues;
     std::optional<std::vector<std::string>> GpuIds;
     std::string GpuPartition;
@@ -235,13 +235,13 @@ int main()
               state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
             );
       else state.submit_command =
-        "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={} --mem={}M\n--job-name='{}' --output='{}'\n"
+        "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={} --mem={}G\n--job-name='{}' --output='{}'\n"
           "--wrap=\"vasp-intel srun vasp-{}\""_f
         (
           state.queue_entries[state.queue_selected],
           state.mpi_threads, state.openmp_threads, state.job_name, state.output_file,
           ranges::find_if(device.CpuQueues,
-            [&](auto &x){ return x.first == state.queue_entries[state.queue_selected]; })->second.MemoryMB,
+            [&](auto &x){ return x.first == state.queue_entries[state.queue_selected]; })->second.MemoryGB,
           state.vasp_entries[state.vasp_selected]
         );
       state.user_command.clear();

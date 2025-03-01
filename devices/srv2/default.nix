@@ -44,14 +44,14 @@ inputs:
             {
               name = "n0"; address = "192.168.178.1";
               cpu = { sockets = 2; cores = 22; threads = 2; };
-              memoryMB = 240 * 1024;
+              memoryGB = 240;
               gpus."4090" = 1;
             };
             srv2-node1 =
             {
               name = "n1"; address = "192.168.178.2";
               cpu = { sockets = 2; cores = 8; threads = 2; };
-              memoryMB = 80 * 1024;
+              memoryGB = 80;
               gpus = { "3090" = 1; "4090" = 1; };
             };
           };
@@ -66,8 +66,8 @@ inputs:
           {
             cpuQueues =
             [
-              { name = "n0"; mpiThreads = 8; openmpThreads = 5; memoryMB = 224 * 1024; }
-              { name = "n1"; mpiThreads = 3; openmpThreads = 4; memoryMB = 48 * 1024; }
+              { name = "n0"; mpiThreads = 8; openmpThreads = 5; memoryGB = 224; }
+              { name = "n1"; mpiThreads = 3; openmpThreads = 4; memoryGB = 48; }
             ];
             gpuIds = [ "4090" "3090" ];
             gpuPartition = "all";
