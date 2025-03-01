@@ -114,9 +114,24 @@ int main()
   // 在组件左边增加小标题
   auto with_subtitle = [](std::string title)
     { return [title](ftxui::Element element) { return ftxui::hbox(ftxui::text(title), element); }; };
+  // 带标题的文本输入框
+  auto input = [&](std::string* content, std::string title)
+  {
+    return ftxui::Input(content) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
+      | ftxui::underlined | with_subtitle(title);
+  };
 
   // 构建界面
   auto screen = ftxui::ScreenInteractive::Fullscreen();
+  // 捕获按键事件
+  auto key_event_handler = [&](ftxui::Event event)
+  {
+    if (event == ftxui::Event::Return) state.user_command = "submit";
+    else if (event == ftxui::Event::Escape) state.user_command = "quit";
+    else return false;
+    screen.ExitLoopClosure()();
+    return true;
+  };
   auto request_interface = ftxui::Container::Vertical
   ({
     // 第一行：选择程序
@@ -142,12 +157,9 @@ int main()
           ftxui::Menu(&state.cpu_scheme_entries, &state.cpu_scheme_selected),
           ftxui::Container::Vertical
           ({
-            ftxui::Input(&state.mpi_threads) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
-              | with_subtitle("MPI threads: "),
-            ftxui::Input(&state.openmp_threads) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
-              | with_subtitle("OpenMP threads: "),
-            ftxui::Input(&state.cpu_memory) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
-              | with_subtitle("Memory (GB): ")
+            input(&state.mpi_threads, "MPI threads: "),
+            input(&state.openmp_threads, "OpenMP threads: "),
+            input(&state.cpu_memory, "Memory (GB): ")
           })
             | with_separator
             | ftxui::Maybe([&]{ return state.cpu_scheme_entries[state.cpu_scheme_selected] == "Manual"; })
@@ -167,22 +179,18 @@ int main()
     // 第三行：任务名和输出文件
     ftxui::Container::Vertical
     ({
-      ftxui::Input(&state.job_name) | with_subtitle("Job name: "),
-      ftxui::Input(&state.output_file) | with_subtitle("Output file: "),
+      input(&state.job_name, "Job name: "),
+      input(&state.output_file, "Output file: "),
     }) | with_title("Misc:") | with_bottom,
     // 操作按钮
     ftxui::Container::Horizontal
     ({
       ftxui::Button("Continue (Enter)",
         [&]{ state.user_command = "continue"; screen.ExitLoopClosure()(); }),
-      ftxui::Button("Quit",
+      ftxui::Button("Quit (ESC)",
         [&]{ state.user_command = "quit"; screen.ExitLoopClosure()(); })
     })
-  }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent([&](ftxui::Event event)
-  {
-    if (event == ftxui::Event::Return) { state.user_command = "continue"; screen.ExitLoopClosure()(); }
-    return event == ftxui::Event::Return;
-  });
+  }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent(key_event_handler);
   auto confirm_interface = ftxui::Container::Vertical
   ({
     ftxui::Input(&state.submit_command, "", ftxui::InputOption{.multiline = true})
@@ -193,14 +201,10 @@ int main()
         [&]{state.user_command = "submit"; screen.ExitLoopClosure()();}),
       ftxui::Button("Back",
         [&]{state.user_command = "back"; screen.ExitLoopClosure()();}),
-      ftxui::Button("Quit",
+      ftxui::Button("Quit (ESC)",
         [&]{state.user_command = "quit"; screen.ExitLoopClosure()();})
     })
-  }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent([&](ftxui::Event event)
-  {
-    if (event == ftxui::Event::Return) { state.user_command = "submit"; screen.ExitLoopClosure()(); }
-    return event == ftxui::Event::Return;
-  });
+  }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent(key_event_handler);
 
   // 实际投递任务
   auto submit = [&](std::string submit_command)
