@@ -30,7 +30,7 @@ inputs:
           name = mkOption { type = types.nonEmptyStr; default = "localhost"; };
           mpiThreads = mkOption { type = types.ints.unsigned; default = 1; };
           openmpThreads = mkOption { type = types.ints.unsigned; default = 1; };
-          memoryGB = mkOption { type = types.ints.unsigned; default = 0; };
+          memoryGB = mkOption { type = types.nullOr types.ints.unsigned; default = null; };
         };}));
       };
       gpuIds = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };

@@ -16,7 +16,7 @@ int main()
   struct Device
   {
     // Queue : { CpuMpiThreads, CpuOpenmpThreads, MemoryGB }
-    struct CpuQueueType { int CpuMpiThreads, CpuOpenmpThreads, MemoryGB; };
+    struct CpuQueueType { int CpuMpiThreads, CpuOpenmpThreads; std::optional<int> MemoryGB; };
     std::vector<std::pair<std::string, CpuQueueType>> CpuQueues;
     std::optional<std::vector<std::string>> GpuIds;
     std::string GpuPartition;
@@ -126,7 +126,7 @@ int main()
   // 捕获按键事件
   auto key_event_handler = [&](ftxui::Event event)
   {
-    if (event == ftxui::Event::Return) state.user_command = "submit";
+    if (event == ftxui::Event::Return) state.user_command = "continue";
     else if (event == ftxui::Event::Escape) state.user_command = "quit";
     else return false;
     screen.ExitLoopClosure()();
@@ -198,7 +198,7 @@ int main()
     ftxui::Container::Horizontal
     ({
       ftxui::Button("Submit (Enter)",
-        [&]{state.user_command = "submit"; screen.ExitLoopClosure()();}),
+        [&]{state.user_command = "continue"; screen.ExitLoopClosure()();}),
       ftxui::Button("Back",
         [&]{state.user_command = "back"; screen.ExitLoopClosure()();}),
       ftxui::Button("Quit (ESC)",
@@ -249,11 +249,12 @@ int main()
           auto queue_data = ranges::find_if(device.CpuQueues,
             [&](auto &x){ return x.first == state.queue_entries[state.queue_selected]; });
           state.submit_command =
-            "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={} --mem={}G\n"
+            "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={}{}\n"
               "--job-name='{}' --output='{}'\n--wrap=\"vasp-intel srun vasp-{}\""_f
             (
               queue_data->first,
-              queue_data->second.CpuMpiThreads, queue_data->second.CpuOpenmpThreads, queue_data->second.MemoryGB,
+              queue_data->second.CpuMpiThreads, queue_data->second.CpuOpenmpThreads,
+              queue_data->second.MemoryGB ? " --mem={}G"_f(*queue_data->second.MemoryGB) : "",
               state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
             );
         }
@@ -271,11 +272,11 @@ int main()
       else std::unreachable();
       state.user_command.clear();
     }
-    else return EXIT_FAILURE;
+    else std::unreachable();
     screen.Loop(confirm_interface);
     if (state.user_command == "quit") return 0;
     else if (state.user_command == "back") { state.user_command.clear(); continue; }
-    else if (state.user_command == "submit") { submit(state.submit_command); break; }
+    else if (state.user_command == "continue") { submit(state.submit_command); break; }
     else return EXIT_FAILURE;
   }
 }
