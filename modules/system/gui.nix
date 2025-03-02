@@ -40,7 +40,7 @@ inputs:
         hyprlock.enable = true;
         uwsm.enable = true;
       };
-      
+      systemd.services.display-manager.after = [ "plymouth-quit.service" ];
     })
     # prefer gui or not
     (inputs.localLib.mkConditional (builtins.elem inputs.config.nixos.model.type [ "desktop" ])
