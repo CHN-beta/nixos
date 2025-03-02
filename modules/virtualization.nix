@@ -44,7 +44,7 @@ inputs:
         };
         spiceUSBRedirection.enable = true;
       };
-      environment.systemPackages = with inputs.pkgs; [ qemu_full win-spice ] ++
+      environment.systemPackages = with inputs.pkgs; [ qemu_full win-spice guestfs-tools ] ++
         (if (inputs.config.nixos.virtualization.kvmHost.gui) then [ virt-manager ] else []);
       systemd =
       {
