@@ -37,17 +37,19 @@ int main()
     std::vector<std::string> vasp_entries = { "std", "gam", "ncl" };
 
     // 第二行，如果是CPU，要选择的队列，和队列的参数
-    int queue_selected = 0;
-    std::vector<std::string> queue_entries; // 稍后初始化
-    int cpu_scheme_selected = 0;
-    std::vector<std::string> cpu_scheme_entries = { "Optimized default", "Manual" };
-    std::string mpi_threads = "1";
-    std::string openmp_threads = "1";
+    int cpu_queue_selected = 0;
+    std::vector<std::string> cpu_queue_entries; // 稍后初始化
+    int cpu_cpu_scheme_selected = 0;
+    std::vector<std::string> cpu_cpu_scheme_entries = { "Default", "Custom" };
+    int cpu_memory_scheme_selected = 0;
+    std::vector<std::string> cpu_memory_scheme_entries = { "Default", "All", "Custom" };
+    std::string cpu_mpi_threads = "1";
+    std::string cpu_openmp_threads = "1";
     std::string cpu_memory = "1";
 
     // 第二行，如果是GPU，要选择的方案和设备
     int gpu_scheme_selected = 0;
-    std::vector<std::string> gpu_scheme_entries = { "manually select a GPU", "any single GPU" };
+    std::vector<std::string> gpu_scheme_entries = { "Custom", "Any" };
     int gpu_selected = 0;
     std::vector<std::string> gpu_entries; // 稍后初始化
 
@@ -69,7 +71,7 @@ int main()
       entries.push_back("VASP(CPU)");
       return entries;
     }(),
-    .queue_entries = device.CpuQueues | ranges::views::keys | ranges::to_vector,
+    .cpu_queue_entries = device.CpuQueues | ranges::views::keys | ranges::to_vector,
     .gpu_entries = device.GpuIds.value_or(std::vector<std::string>{})
   };
 
@@ -83,16 +85,18 @@ int main()
       state.program_selected = saved_state.program_selected;
     if (saved_state.vasp_selected < state.vasp_entries.size())
       state.vasp_selected = saved_state.vasp_selected;
-    if (saved_state.queue_selected < state.queue_entries.size())
-      state.queue_selected = saved_state.queue_selected;
-    if (saved_state.cpu_scheme_selected < state.cpu_scheme_entries.size())
-      state.cpu_scheme_selected = saved_state.cpu_scheme_selected;
+    if (saved_state.cpu_queue_selected < state.cpu_queue_entries.size())
+      state.cpu_queue_selected = saved_state.cpu_queue_selected;
+    if (saved_state.cpu_cpu_scheme_selected < state.cpu_cpu_scheme_entries.size())
+      state.cpu_cpu_scheme_selected = saved_state.cpu_cpu_scheme_selected;
+    if (saved_state.cpu_memory_scheme_selected < state.cpu_memory_scheme_entries.size())
+      state.cpu_memory_scheme_selected = saved_state.cpu_memory_scheme_selected;
     if (saved_state.gpu_scheme_selected < state.gpu_scheme_entries.size())
       state.gpu_scheme_selected = saved_state.gpu_scheme_selected;
     if (saved_state.gpu_selected < state.gpu_entries.size())
       state.gpu_selected = saved_state.gpu_selected;
-    state.mpi_threads = saved_state.mpi_threads;
-    state.openmp_threads = saved_state.openmp_threads;
+    state.cpu_mpi_threads = saved_state.cpu_mpi_threads;
+    state.cpu_openmp_threads = saved_state.cpu_openmp_threads;
     state.cpu_memory = saved_state.cpu_memory;
   }
   catch (...) {}
@@ -106,12 +110,18 @@ int main()
   // 为组件增加下边框
   auto with_bottom = [](ftxui::Element element) -> ftxui::Element
     { return ftxui::vbox(element, ftxui::separatorLight()); };
+  // 为组件增加比较粗的下边框
+  auto with_bottom_heavy = [](ftxui::Element element) -> ftxui::Element
+    { return ftxui::vbox(element, ftxui::separatorHeavy()); };
   // 为组件增加空白以填充界面
   auto with_padding = [](ftxui::Element element) -> ftxui::Element
   {
     auto empty = ftxui::emptyElement() | ftxui::flex_grow;
     return ftxui::vbox(empty, ftxui::hbox(empty, element | ftxui::center, empty), empty);
   };
+  // 为纵向列表自动增加空行，有 input 时使用，避免 input 被拉伸成多行
+  auto with_list_padding = [](ftxui::Element element) -> ftxui::Element
+    { return ftxui::vbox(element, ftxui::emptyElement() | ftxui::flex_grow); };
   // 在组件左边增加分割线
   auto with_separator = [](ftxui::Element element)
     { return ftxui::hbox(ftxui::separatorLight(), element); };
@@ -121,8 +131,10 @@ int main()
   // 带标题的文本输入框
   auto input = [&](std::string* content, std::string title)
   {
-    return ftxui::Input(content) | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
-      | ftxui::underlined | with_subtitle(title);
+    return ftxui::Input(content) | ftxui::underlined
+      | ftxui::size(ftxui::WIDTH, ftxui::GREATER_THAN, 3)
+      | ftxui::size(ftxui::HEIGHT, ftxui::EQUAL, 1)
+      | with_subtitle(title);
   };
 
   // 构建界面
@@ -153,21 +165,27 @@ int main()
       ftxui::Container::Horizontal
       ({
         // 左侧：选择队列
-        ftxui::Menu(&state.queue_entries, &state.queue_selected)
+        ftxui::Menu(&state.cpu_queue_entries, &state.cpu_queue_selected)
           | with_title("Queue:", ftxui::Color::GrayDark),
-        // 右侧：默认还是手动设置，如果手动的话，输入 MPI 和 OpenMP 线程数
+        // 中间：CPU 设置，默认还是手动设置，如果手动的话，输入 MPI 和 OpenMP 线程数
         ftxui::Container::Horizontal
         ({
-          ftxui::Menu(&state.cpu_scheme_entries, &state.cpu_scheme_selected),
+          ftxui::Menu(&state.cpu_cpu_scheme_entries, &state.cpu_cpu_scheme_selected),
           ftxui::Container::Vertical
           ({
-            input(&state.mpi_threads, "MPI threads: "),
-            input(&state.openmp_threads, "OpenMP threads: "),
-            input(&state.cpu_memory, "Memory (GB): ")
+            input(&state.cpu_mpi_threads, "MPI: "),
+            input(&state.cpu_openmp_threads, "OpenMP: "),
           })
-            | with_separator
-            | ftxui::Maybe([&]{ return state.cpu_scheme_entries[state.cpu_scheme_selected] == "Manual"; })
-        }) | with_title("CPU and memory:", ftxui::Color::GrayDark) | with_separator
+            | with_list_padding | with_separator
+            | ftxui::Maybe([&]{ return state.cpu_cpu_scheme_selected == 1; })
+        }) | with_title("CPU:", ftxui::Color::GrayDark) | with_separator,
+        ftxui::Container::Horizontal
+        ({
+          ftxui::Menu(&state.cpu_memory_scheme_entries, &state.cpu_memory_scheme_selected),
+          input(&state.cpu_memory, "Memory (GB): ")
+            | with_list_padding | with_separator
+            | ftxui::Maybe([&]{ return state.cpu_memory_scheme_selected == 2; })
+        }) | with_title("Memory:", ftxui::Color::GrayDark) | with_separator
       }) | ftxui::Maybe([&]{ return state.program_entries[state.program_selected] == "VASP(CPU)"; }),
       // 如果是选择 GPU 程序
       ftxui::Container::Horizontal
@@ -176,8 +194,7 @@ int main()
         ftxui::Menu(&state.gpu_scheme_entries, &state.gpu_scheme_selected),
         // 右侧：选择 GPU
         ftxui::Menu(&state.gpu_entries, &state.gpu_selected) | with_separator
-          | ftxui::Maybe
-            ([&]{ return state.gpu_scheme_entries[state.gpu_scheme_selected] == "manually select a GPU"; })
+          | ftxui::Maybe([&]{ return state.gpu_scheme_selected == 0; })
       }) | ftxui::Maybe([&]{ return state.program_entries[state.program_selected] == "VASP(GPU)"; }),
     }) | with_title("Resource allocation:") | with_bottom,
     // 第三行：任务名和输出文件
@@ -185,7 +202,7 @@ int main()
     ({
       input(&state.job_name, "Job name: "),
       input(&state.output_file, "Output file: "),
-    }) | with_title("Misc:") | with_bottom,
+    }) | with_title("Misc:") | with_bottom_heavy,
     // 操作按钮
     ftxui::Container::Horizontal
     ({
@@ -198,7 +215,7 @@ int main()
   auto confirm_interface = ftxui::Container::Vertical
   ({
     ftxui::Input(&state.submit_command, "", ftxui::InputOption{.multiline = true})
-      | with_title("Double check & modify submit command:") | with_bottom,
+      | with_title("Double check & modify submit command:") | with_bottom_heavy,
     ftxui::Container::Horizontal
     ({
       ftxui::Button("Submit (Enter)",
@@ -234,26 +251,36 @@ int main()
     else if (state.user_command == "continue")
     {
       if (state.program_entries[state.program_selected] == "VASP(GPU)")
-        if (state.gpu_scheme_entries[state.gpu_scheme_selected] == "any single GPU")
-          state.submit_command =
-            "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus=1 --mem=16G\n--job-name='{}' --output='{}'\n"
-              "--wrap=\"srun vasp-nvidia vasp-{}\""_f
-            (device.GpuPartition, state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]);
-        else
-          state.submit_command =
-            "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus={}:1 --mem=16G\n--job-name='{}' --output='{}'\n"
-              "--wrap=\"srun vasp-nvidia vasp-{}\""_f
-            (
-              device.GpuPartition, state.gpu_entries[state.gpu_selected],
-              state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
-            );
+        if (state.gpu_scheme_selected == 1) state.submit_command =
+          "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus=1 --mem=16G\n--job-name='{}' --output='{}'\n"
+            "--wrap=\"srun vasp-nvidia vasp-{}\""_f
+          (device.GpuPartition, state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]);
+        else if(state.gpu_scheme_selected == 0) state.submit_command =
+          "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus={}:1 --mem=16G\n--job-name='{}' --output='{}'\n"
+            "--wrap=\"srun vasp-nvidia vasp-{}\""_f
+          (
+            device.GpuPartition, state.gpu_entries[state.gpu_selected],
+            state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
+          );
+        else std::unreachable();
       else if (state.program_entries[state.program_selected] == "VASP(CPU)")
-        if (state.cpu_scheme_entries[state.cpu_scheme_selected] == "Optimized default")
+      {
+        auto queue_data = ranges::find_if(device.CpuQueues,
+          [&](auto &x){ return x.first == state.cpu_queue_entries[state.cpu_queue_selected]; });
+        auto mem_string = [&]
         {
-          auto queue_data = ranges::find_if(device.CpuQueues,
-            [&](auto &x){ return x.first == state.queue_entries[state.queue_selected]; });
-          auto mem_string
-            = queue_data->second.MemoryGB ? " --mem={}G"_f(*queue_data->second.MemoryGB) : "";
+          // default
+          if (state.cpu_memory_scheme_selected == 0)
+            return queue_data->second.MemoryGB ? " --mem={}G"_f(*queue_data->second.MemoryGB) : "";
+          // all
+          else if (state.cpu_memory_scheme_selected == 1) return ""s;
+          // manual
+          else if (state.cpu_memory_scheme_selected == 2) return " --mem={}G"_f(state.cpu_memory);
+          else std::unreachable();
+        }();
+        // default
+        if (state.cpu_cpu_scheme_selected == 0)
+        {
           if (queue_data->second.AllocateCpus) state.submit_command =
             "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task=1{}\n"
               "--job-name='{}' --output='{}'\n--wrap=\"srun --ntasks={} --cpus-per-task={} vasp-intel vasp-{}\""_f
@@ -272,16 +299,18 @@ int main()
               state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
             );
         }
-        else if (state.cpu_scheme_entries[state.cpu_scheme_selected] == "Manual") state.submit_command =
-          "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={} --mem={}G\n"
+        // manual
+        else if (state.cpu_cpu_scheme_selected == 1) state.submit_command =
+          "sbatch --partition={} --nodes=1-1\n--ntasks={} --cpus-per-task={}{}\n"
             "--job-name='{}' --output='{}'\n--wrap=\"srun vasp-intel vasp-{}\""_f
           (
-            state.queue_entries[state.queue_selected],
-            state.mpi_threads, state.openmp_threads, state.cpu_memory,
+            state.cpu_queue_entries[state.cpu_queue_selected],
+            state.cpu_mpi_threads, state.cpu_openmp_threads, mem_string,
             state.job_name, state.output_file,
             state.vasp_entries[state.vasp_selected]
           );
         else std::unreachable();
+      }
       else std::unreachable();
       state.user_command.clear();
     }
