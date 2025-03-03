@@ -34,8 +34,15 @@ inputs:
           allocateCpus = mkOption { type = types.nullOr types.ints.unsigned; default = null; };
         };}));
       };
-      gpuIds = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-      gpuPartition = mkOption { type = types.nonEmptyStr; default = "localhost"; };
+      gpuQueues = mkOption
+      {
+        type = types.nullOr (types.nonEmptyListOf (types.submodule (submoduleInputs: { options =
+        {
+          name = mkOption { type = types.nonEmptyStr; default = "localhost"; };
+          gpuIds = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+        };})));
+        default = null;
+      };
     };
     # 是否打开防火墙相应端口，对于多节点部署需要打开
     setupFirewall = mkOption { type = types.bool; default = false; };
@@ -254,8 +261,6 @@ inputs:
         {
           sbatchConfig = inputs.pkgs.writeText "sbatch.yaml" (builtins.toJSON
           {
-            GpuIds = slurm.tui.gpuIds;
-            GpuPartition = slurm.tui.gpuPartition;
             CpuQueues = builtins.map
               (queue:
               [
@@ -268,6 +273,9 @@ inputs:
                 }
               ])
               slurm.tui.cpuQueues;
+            GpuQueues = if slurm.tui.gpuQueues == null then null else builtins.map
+              (queue: [ queue.name { GpuIds = queue.gpuIds; } ])
+              slurm.tui.gpuQueues;
           });
         })];
         user.sharedModules = [{ home.packages =
