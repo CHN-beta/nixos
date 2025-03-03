@@ -328,8 +328,8 @@ int main()
       std::string optcell_string = [&]
       {
         if (state.optcell_enable)
-          if (state.optcell_selected == 0) return "echo '000\\n000\\n001' > OPTCELL\n&& "s;
-          else if (state.optcell_selected == 1) return "echo '110\\n110\\n000' > OPTCELL\n&& "s;
+          if (state.optcell_selected == 0) return "echo -e '000\\n000\\n001' > OPTCELL\n&& "s;
+          else if (state.optcell_selected == 1) return "echo -e '110\\n110\\n000' > OPTCELL\n&& "s;
           else std::unreachable();
         else return ""s;
       }();
