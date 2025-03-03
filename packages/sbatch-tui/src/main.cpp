@@ -36,10 +36,10 @@ int main()
     std::vector<std::string> cpu_queue_entries; // 稍后初始化
     int cpu_cpu_scheme_selected = 0;
     std::vector<std::string> cpu_cpu_scheme_entries = { "Default", "Custom" };
-    int cpu_memory_scheme_selected = 0;
-    std::vector<std::string> cpu_memory_scheme_entries = { "Default", "All", "Custom" };
     std::string cpu_mpi_threads = "1";
     std::string cpu_openmp_threads = "1";
+    int cpu_memory_scheme_selected = 0;
+    std::vector<std::string> cpu_memory_scheme_entries = { "Default", "All", "Custom" };
     std::string cpu_memory = "1";
 
     // 第二行，如果是GPU，要选择的队列
@@ -49,6 +49,12 @@ int main()
     std::vector<std::string> gpu_gpu_scheme_entries = { "Custom", "Any" };
     std::vector<int> gpu_gpu_selected; // 稍后初始化
     std::vector<std::vector<std::string>> gpu_gpu_entries; // 稍后初始化
+    int gpu_cpu_scheme_selected = 0;
+    std::vector<std::string> gpu_cpu_scheme_entries = { "Default", "Custom" };
+    std::string gpu_openmp_threads = "1";
+    int gpu_memory_scheme_selected = 0;
+    std::vector<std::string> gpu_memory_scheme_entries = { "Default", "All", "Custom" };
+    std::string gpu_memory = "1";
 
     // 第三行，任务名和输出文件
     std::string job_name = std::filesystem::current_path().filename().string();
@@ -210,6 +216,22 @@ int main()
           ) | with_list_padding | with_separator
             | ftxui::Maybe([&]{ return state.gpu_gpu_scheme_selected == 0; })
         }) | with_title("GPU:", ftxui::Color::GrayDark) | with_separator,
+        // CPU 设置
+        ftxui::Container::Horizontal
+        ({
+          ftxui::Menu(&state.gpu_cpu_scheme_entries, &state.gpu_cpu_scheme_selected),
+          ftxui::Container::Vertical({input(&state.gpu_openmp_threads, "OpenMP: ")})
+            | with_list_padding | with_separator
+            | ftxui::Maybe([&]{ return state.gpu_cpu_scheme_selected == 1; })
+        }) | with_title("CPU:", ftxui::Color::GrayDark) | with_separator,
+        // 内存
+        ftxui::Container::Horizontal
+        ({
+          ftxui::Menu(&state.gpu_memory_scheme_entries, &state.gpu_memory_scheme_selected),
+          input(&state.gpu_memory, "Memory (GB): ")
+            | with_list_padding | with_separator
+            | ftxui::Maybe([&]{ return state.gpu_memory_scheme_selected == 2; })
+        }) | with_title("Memory:", ftxui::Color::GrayDark) | with_separator
       }) | ftxui::Maybe([&]{ return state.program_entries[state.program_selected] == "VASP(GPU)"; }),
     }) | with_title("Resource allocation:") | with_bottom,
     // 第三行：任务名和输出文件
@@ -266,22 +288,37 @@ int main()
     else if (state.user_command == "continue")
     {
       if (state.program_entries[state.program_selected] == "VASP(GPU)")
+      {
+        auto openmp_string = [&]
+        {
+          if (state.gpu_cpu_scheme_selected == 0) return "1"s;
+          else if (state.gpu_cpu_scheme_selected == 1) return state.gpu_openmp_threads;
+          else std::unreachable();
+        }();
+        auto mem_string = [&]
+        {
+          if (state.gpu_memory_scheme_selected == 0) return " --mem=24G"s;
+          else if (state.gpu_memory_scheme_selected == 1) return ""s;
+          else if (state.gpu_memory_scheme_selected == 2) return " --mem={}G"_f(state.gpu_memory);
+          else std::unreachable();
+        }();
         if (state.gpu_gpu_scheme_selected == 1) state.submit_command =
-          "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus=1 --mem=16G\n--job-name='{}' --output='{}'\n"
+          "sbatch --partition={}\n--ntasks=1 --cpus-per-task={}{} --gpus=1\n--job-name='{}' --output='{}'\n"
             "--wrap=\"srun vasp-nvidia vasp-{}\""_f
           (
-            state.gpu_queue_entries[state.gpu_queue_selected],
+            state.gpu_queue_entries[state.gpu_queue_selected], openmp_string, mem_string,
             state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
           );
         else if(state.gpu_gpu_scheme_selected == 0) state.submit_command =
-          "sbatch --partition={}\n--ntasks=1 --cpus-per-gpu=1 --gpus={}:1 --mem=16G\n--job-name='{}' --output='{}'\n"
+          "sbatch --partition={}\n--ntasks=1 --cpus-per-task={}{} --gpus={}:1\n--job-name='{}' --output='{}'\n"
             "--wrap=\"srun vasp-nvidia vasp-{}\""_f
           (
-            state.gpu_queue_entries[state.gpu_queue_selected],
+            state.gpu_queue_entries[state.gpu_queue_selected], openmp_string, mem_string,
             state.gpu_gpu_entries[state.gpu_queue_selected][state.gpu_gpu_selected[state.gpu_queue_selected]],
             state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
           );
         else std::unreachable();
+      }
       else if (state.program_entries[state.program_selected] == "VASP(CPU)")
       {
         auto queue_data = ranges::find_if(device.CpuQueues,
