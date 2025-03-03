@@ -47,7 +47,7 @@ int main()
     int gpu_queue_selected = 0;
     std::vector<std::string> gpu_queue_entries; // 稍后初始化
     int gpu_gpu_scheme_selected = 0;
-    std::vector<std::string> gpu_gpu_scheme_entries = { "Custom", "Any" };
+    std::vector<std::string> gpu_gpu_scheme_entries = { "Any", "Custom" };
     std::vector<int> gpu_gpu_selected; // 稍后初始化
     std::vector<std::vector<std::string>> gpu_gpu_entries; // 稍后初始化
     int gpu_cpu_scheme_selected = 0;
@@ -61,6 +61,9 @@ int main()
     // 第三行，任务名和输出文件
     std::string job_name = std::filesystem::current_path().filename().string();
     std::string output_file = "output.txt";
+    bool optcell_enable = false;
+    int optcell_selected = 0;
+    std::vector<std::string> optcell_entries = { "fix ab", "fix c" };
 
     // 用户选定的操作
     std::string user_command;
@@ -108,6 +111,13 @@ int main()
     state.cpu_mpi_threads = saved_state.cpu_mpi_threads;
     state.cpu_openmp_threads = saved_state.cpu_openmp_threads;
     state.cpu_memory = saved_state.cpu_memory;
+    state.cpu_cpu_nomultithread = saved_state.cpu_cpu_nomultithread;
+    state.gpu_openmp_threads = saved_state.gpu_openmp_threads;
+    state.gpu_memory = saved_state.gpu_memory;
+    state.gpu_cpu_nomultithread = saved_state.gpu_cpu_nomultithread;
+    state.optcell_enable = saved_state.optcell_enable;
+    if (saved_state.optcell_selected < state.optcell_entries.size())
+      state.optcell_selected = saved_state.optcell_selected;
   }
   catch (...) {}
 
@@ -231,7 +241,7 @@ int main()
               | ranges::to_vector,
             &state.gpu_queue_selected
           ) | with_list_padding | with_separator
-            | ftxui::Maybe([&]{ return state.gpu_gpu_scheme_selected == 0; })
+            | ftxui::Maybe([&]{ return state.gpu_gpu_scheme_selected == 1; })
         }) | with_title("GPU:", ftxui::Color::GrayDark) | with_separator,
         // CPU 设置
         ftxui::Container::Horizontal
@@ -260,6 +270,13 @@ int main()
     ({
       input(&state.job_name, "Job name: "),
       input(&state.output_file, "Output file: "),
+      ftxui::Container::Horizontal
+      ({
+        checkbox("Generate OPTCELL", &state.optcell_enable),
+        ftxui::Menu(&state.optcell_entries, &state.optcell_selected)
+          | with_separator
+          | ftxui::Maybe([&]{ return state.optcell_enable; })
+      })
     }) | with_title("Misc:") | with_bottom_heavy,
     // 操作按钮
     ftxui::Container::Horizontal
@@ -308,20 +325,28 @@ int main()
     if (state.user_command == "quit") return 0;
     else if (state.user_command == "continue")
     {
+      std::string optcell_string = [&]
+      {
+        if (state.optcell_enable)
+          if (state.optcell_selected == 0) return "echo '000\\n000\\n001' > OPTCELL\n&& "s;
+          else if (state.optcell_selected == 1) return "echo '110\\n110\\n000' > OPTCELL\n&& "s;
+          else std::unreachable();
+        else return ""s;
+      }();
       if (state.program_entries[state.program_selected] == "VASP(GPU)")
       {
         auto cpu_string = [&]
         {
-          if (state.gpu_cpu_scheme_selected == 0) return " --ntasks=1 --cpus-per-task=1 --hint=nomultithread"s;
-          else if (state.gpu_cpu_scheme_selected == 1) return " --ntasks=1 --cpus-per-task={}{}"_f
+          if (state.gpu_cpu_scheme_selected == 0) return "--ntasks=1 --cpus-per-task=1 --hint=nomultithread"s;
+          else if (state.gpu_cpu_scheme_selected == 1) return "--ntasks=1 --cpus-per-task={}{}"_f
             (state.gpu_openmp_threads, state.gpu_cpu_nomultithread ? " --hint=nomultithread" : "");
           else std::unreachable();
         }();
         auto gpu_string = [&]
         {
-          if (state.gpu_gpu_scheme_selected == 0) return " --gpus={}:1"_f
+          if (state.gpu_gpu_scheme_selected == 0) return "--gpus=1"s;
+          else if (state.gpu_gpu_scheme_selected == 1) return "--gpus={}:1"_f
             (state.gpu_gpu_entries[state.gpu_queue_selected][state.gpu_gpu_selected[state.gpu_queue_selected]]);
-          else if (state.gpu_gpu_scheme_selected == 1) return " --gpus=1"s;
           else std::unreachable();
         }();
         auto mem_string = [&]
@@ -332,9 +357,9 @@ int main()
           else std::unreachable();
         }();
         state.submit_command =
-          "sbatch --partition={}\n{}{}{}\n--job-name='{}' --output='{}'\n--wrap=\"srun vasp-nvidia vasp-{}\""_f
+          "{}sbatch --partition={}\n{} {}{}\n--job-name='{}' --output='{}'\n--wrap=\"srun vasp-nvidia vasp-{}\""_f
           (
-            state.gpu_queue_entries[state.gpu_queue_selected], cpu_string, mem_string, gpu_string,
+            optcell_string, state.gpu_queue_entries[state.gpu_queue_selected], gpu_string, cpu_string, mem_string,
             state.job_name, state.output_file, state.vasp_entries[state.vasp_selected]
           );
       }
@@ -346,16 +371,14 @@ int main()
         {
           if (state.cpu_cpu_scheme_selected == 0)
             if (queue_data->second.AllocateCpus)
-              return " --ntasks={} --cpus-per-task=1 --hint=nomultithread"_f(*queue_data->second.AllocateCpus);
-            else
-              return " --ntasks={} --cpus-per-task={} --hint=nomultithread"_f
-                (queue_data->second.CpuMpiThreads, queue_data->second.CpuOpenmpThreads);
-          else if (state.cpu_cpu_scheme_selected == 1)
-            return " --ntasks={} --cpus-per-task={}{}"_f
-              (
-                state.cpu_mpi_threads, state.cpu_openmp_threads,
-                state.cpu_cpu_nomultithread ? " --hint=nomultithread" : ""
-              );
+              return "--ntasks={} --cpus-per-task=1 --hint=nomultithread"_f(*queue_data->second.AllocateCpus);
+            else return "--ntasks={} --cpus-per-task={} --hint=nomultithread"_f
+              (queue_data->second.CpuMpiThreads, queue_data->second.CpuOpenmpThreads);
+          else if (state.cpu_cpu_scheme_selected == 1) return "--ntasks={} --cpus-per-task={}{}"_f
+            (
+              state.cpu_mpi_threads, state.cpu_openmp_threads,
+              state.cpu_cpu_nomultithread ? " --hint=nomultithread" : ""
+            );
           else std::unreachable();
         }();
         auto mem_string = [&]
@@ -374,10 +397,10 @@ int main()
           else return ""s;
         }();
         state.submit_command =
-          "sbatch --partition={} --nodes=1-1\n{}{}\n--job-name='{}' --output='{}'\n"
+          "{}sbatch --partition={} --nodes=1-1\n{}{}\n--job-name='{}' --output='{}'\n"
             "--wrap=\"srun{} vasp-intel vasp-{}\""_f
           (
-            state.cpu_queue_entries[state.cpu_queue_selected], cpu_string, mem_string,
+            optcell_string, state.cpu_queue_entries[state.cpu_queue_selected], cpu_string, mem_string,
             state.job_name, state.output_file, srun_string, state.vasp_entries[state.vasp_selected]
           );
       }
