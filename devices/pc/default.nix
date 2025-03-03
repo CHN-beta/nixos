@@ -121,7 +121,7 @@ inputs:
           partitions.localhost = [ "pc" ];
           tui =
           {
-            cpuQueues = [{ mpiThreads = 4; openmpThreads = 4; memoryGB = 64; }];
+            cpuQueues = [{ mpiThreads = 4; openmpThreads = 4; memoryGB = 56; }];
             gpuQueues = [{ name = "localhost"; gpuIds = [ "4060" ]; }];
           };
         };
