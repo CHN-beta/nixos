@@ -106,6 +106,7 @@ namespace biu
     }
     template <typename Byte> detail_::ReadReturnType<Byte>::Type read(const std::filesystem::path& path);
     template <typename Byte> detail_::ReadReturnType<Byte>::Type read(std::istream& input);
+    template <typename Byte> detail_::ReadReturnType<Byte>::Type read(std::istream&& input);
     template<> std::vector<std::byte> read<std::byte>(const std::filesystem::path& path);
     template<> std::string read<char>(const std::filesystem::path& path);
     template<> std::vector<std::byte> read<std::byte>(std::istream& input);

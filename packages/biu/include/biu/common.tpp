@@ -45,6 +45,8 @@ namespace biu::common
     for (std::size_t i = 0; i < from.size(); i++) from[i] = 0;
     return sequence(from, to);
   }
+  template <typename Byte> detail_::ReadReturnType<Byte>::Type read(std::istream&& input)
+    { return read<Byte>(input); }
   template <typename T> T& detail_::operator|(T&& obj, const ToLvalueHelper&) { return static_cast<T&>(obj); }
 
   template <typename Function, typename T, typename... Ts> void for_each(Function&& function, T&& arg, Ts&&... args)
