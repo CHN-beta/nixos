@@ -82,11 +82,6 @@ inputs:
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIDhgEApzHhVPDvdVFPRuJ/zCDiR1K+rD4sZzH77imKPE";
           hostnames = [ "192.168.178.3" ];
         };
-        srv1-node3 =
-        {
-          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIO/4xbQNz6KNcEdjtBMGY8wUoFK1sCgamKl/r+kVjd7O";
-          hostnames = [ "192.168.178.4" ];
-        };
       };
       in builtins.listToAttrs (builtins.map
         (server:
@@ -156,7 +151,6 @@ inputs:
           srv1-node0 = { host = "srv1-node0"; hostname = "srv1.chn.moe"; };
           srv1-node1 = { host = "srv1-node1"; hostname = "192.168.178.2"; proxyJump = "srv1"; };
           srv1-node2 = { host = "srv1-node2"; hostname = "192.168.178.3"; proxyJump = "srv1"; };
-          srv1-node3 = { host = "srv1-node3"; hostname = "192.168.178.4"; proxyJump = "srv1"; };
           srv2-node0 = { host = "srv2-node0"; hostname = "srv2.chn.moe"; };
           srv2-node1 = { host = "srv2-node1"; hostname = "192.168.178.2"; proxyJump = "srv2"; };
         };

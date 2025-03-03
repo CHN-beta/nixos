@@ -39,7 +39,7 @@ inputs:
             {
               name = "n1"; address = "192.168.178.2";
               cpu = { sockets = 4; cores = 8; threads = 2; };
-              memoryGB = 56;
+              memoryGB = 112;
             };
             srv1-node2 =
             {
@@ -47,24 +47,18 @@ inputs:
               cpu = { sockets = 4; cores = 8; threads = 2; };
               memoryGB = 56;
             };
-            srv1-node3 =
-            {
-              name = "n3"; address = "192.168.178.4";
-              cpu = { sockets = 4; cores = 8; threads = 2; };
-              memoryGB = 32;
-            };
           };
           partitions =
           {
-            localhost = [ "srv1-node0" ];
-            old = [ "srv1-node1" "srv1-node3" ];
-            fdtd = [ "srv1-node2" ];
-            all = [ "srv1-node0" "srv1-node1" "srv1-node2" "srv1-node3" ];
+            n0 = [ "srv1-node0" ];
+            n1 = [ "srv1-node1" ];
+            n2 = [ "srv1-node2" ];
+            all = [ "srv1-node0" "srv1-node1" "srv1-node2" ];
           };
           tui.cpuQueues =
           [
-            { mpiThreads = 8; openmpThreads = 10; }
-            { name = "old"; mpiThreads = 8; openmpThreads = 4; }
+            { name = "n0"; mpiThreads = 8; openmpThreads = 10; }
+            { name = "n1"; mpiThreads = 8; openmpThreads = 4; }
           ];
           setupFirewall = true;
         };

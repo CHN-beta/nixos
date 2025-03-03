@@ -1,7 +1,7 @@
 { inputs, localLib }:
 let
   machine = [ "nas" "pc" "vps6" "vps7" "one" ];
-  cluster = { srv1 = 4; srv2 = 2; };
+  cluster = { srv1 = 3; srv2 = 2; };
 in builtins.listToAttrs
 (
   (builtins.map
