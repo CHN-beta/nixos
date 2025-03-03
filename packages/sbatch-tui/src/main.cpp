@@ -164,7 +164,7 @@ int main()
     {
       auto prefix = ftxui::text(s.state ? "[X] " : "[ ] ");
       auto t = ftxui::text(s.label);
-      if (s.active) t |= ftxui::bold;
+      if (s.state) t |= ftxui::bold;
       if (s.focused) t |= ftxui::inverted;
       return ftxui::hbox({prefix, t});
     };
