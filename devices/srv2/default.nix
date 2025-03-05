@@ -69,7 +69,12 @@ inputs:
               { name = "n0"; mpiThreads = 8; openmpThreads = 5; memoryGB = 216; allocateCpus = 43; }
               { name = "n1"; mpiThreads = 4; openmpThreads = 3; memoryGB = 32; allocateCpus = 12; }
             ];
-            gpuQueues = [{ name = "all"; gpuIds = [ "4090" "3090" ]; }];
+            gpuQueues =
+            [
+              { name = "all"; gpuIds = [ "4090" "3090" ]; }
+              { name = "n0"; gpuIds = [ "4090" ]; }
+              { name = "n1"; gpuIds = [ "3090" "4090" ]; }
+            ];
           };
         };
       };
