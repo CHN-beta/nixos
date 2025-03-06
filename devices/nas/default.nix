@@ -43,6 +43,7 @@ inputs:
           nix = { device = "/nix"; hashTableSizeMB = 128; };
         };
         smartd = {};
+        xmuvpn = {};
       };
     };
   };
