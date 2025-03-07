@@ -39,7 +39,8 @@ inputs:
                 + "/sendMessage?chat_id=${placeholder."telegram/user/chn"}&text=";
             in ''<?php print file_get_contents("${request}".urlencode($_GET["message"])); ?>'';
         };
-        secrets = { "telegram/token" = {}; "telegram/user/chn" = {}; };
+        secrets = let sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml"; in
+          { "telegram/token" = { inherit sopsFile; }; "telegram/user/chn" = { inherit sopsFile; }; };
       };
       systemd.tmpfiles.rules = [ "d /srv/api 0700 nginx nginx" "Z /srv/api - nginx nginx" ];
     };

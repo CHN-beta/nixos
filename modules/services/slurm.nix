@@ -226,7 +226,12 @@ inputs:
       sops =
       {
         secrets = { "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; }; }
-          // builtins.listToAttrs (builtins.map (n: { name = "telegram/${n}"; value = {}; })
+          // builtins.listToAttrs (builtins.map
+            (n:
+            {
+              name = "telegram/${n}";
+              value.sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml";
+            })
             [ "token" "user/chn" "user/hjp" ]);
         templates."info.yaml" =
         {

@@ -455,9 +455,18 @@ inputs:
             };
           };
           secrets = builtins.listToAttrs
-            (map (n: { name = "xray-server/clients/user${toString n}"; value = {}; }) userList)
-            // (builtins.listToAttrs (map
-              (name: { name = "telegram/${name}"; value = { group = "telegram"; mode = "0440"; }; })
+            (builtins.map (n: { name = "xray-server/clients/user${toString n}"; value = {}; }) userList)
+            // (builtins.listToAttrs (builtins.map
+              (name:
+              {
+                name = "telegram/${name}";
+                value =
+                {
+                  group = "telegram";
+                  mode = "0440";
+                  sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml";
+                };
+              })
               [ "token" "user/chn" ]))
             // { "xray-server/private-key" = {}; };
         };

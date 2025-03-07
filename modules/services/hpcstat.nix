@@ -105,10 +105,10 @@ inputs:
           (inputs.localLib.attrsToList calenders));
         tmpfiles.rules = [ "d /var/lib/hpcstat 0700 hpcstat hpcstat" ];
       };
-    sops.secrets =
+    sops.secrets = let sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml"; in
     {
-      "telegram/token" = { group = "telegram"; mode = "0440"; };
-      "telegram/user/chn" = { group = "telegram"; mode = "0440"; };
+      "telegram/token" = { group = "telegram"; mode = "0440"; inherit sopsFile; };
+      "telegram/user/chn" = { group = "telegram"; mode = "0440"; inherit sopsFile; };
       "hpcstat/key" = { owner = "hpcstat"; group = "hpcstat"; };
     };
     users =

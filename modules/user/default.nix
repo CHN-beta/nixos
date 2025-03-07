@@ -95,7 +95,7 @@ inputs:
     # set hashedPassword if it exist in secrets
     (
       let
-        sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/user.yaml";
+        sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml";
         secrets = inputs.pkgs.localPackages.fromYaml (builtins.readFile sopsFile);
         hashedPasswordExist = userName: (secrets ? users) && ((secrets.users or {}) ? ${userName});
       in
