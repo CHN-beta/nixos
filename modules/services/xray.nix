@@ -56,6 +56,7 @@ inputs:
           {
             enable = true;
             settingsFile = inputs.config.sops.templates."xray-client.json".path;
+            package = inputs.pkgs.pkgs-unstable.xray;
           };
           dnsmasq =
           {
@@ -162,7 +163,7 @@ inputs:
                     }];
                     streamSettings =
                     {
-                      network = "tcp";
+                      network = "raw";
                       security = "reality";
                       realitySettings =
                       {
@@ -345,6 +346,7 @@ inputs:
         {
           enable = true;
           settingsFile = inputs.config.sops.templates."xray-server.json".path;
+          package = inputs.pkgs.pkgs-unstable.xray;
         };
         sops =
         {
@@ -358,9 +360,8 @@ inputs:
               inbounds =
               [
                 (
-                  let
-                    fallbackPort = toString
-                      (with inputs.config.nixos.services.nginx.global; httpsPort + httpsPortShift.http2);
+                  let fallbackPort = builtins.toString
+                    (with inputs.config.nixos.services.nginx.global; httpsPort + httpsPortShift.http2);
                   in
                   {
                     port = 4726;
@@ -381,7 +382,7 @@ inputs:
                     };
                     streamSettings =
                     {
-                      network = "tcp";
+                      network = "raw";
                       security = "reality";
                       realitySettings =
                       {
@@ -393,7 +394,7 @@ inputs:
                       };
                     };
                     sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
-                    tag = "in";
+                    tag = "in-legacy";
                   }
                 )
                 {
@@ -401,7 +402,7 @@ inputs:
                   listen = "127.0.0.1";
                   protocol = "vless";
                   settings = { clients = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; }]; decryption = "none"; };
-                  streamSettings.network = "tcp";
+                  streamSettings.network = "raw";
                   sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; };
                   tag = "in-localdns";
                 }
@@ -424,7 +425,7 @@ inputs:
                     port = 4638;
                     users = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; encryption = "none"; }];
                   }];
-                  streamSettings.network = "tcp";
+                  streamSettings.network = "raw";
                   tag = "loopback-localdns";
                 }
               ];
@@ -433,8 +434,8 @@ inputs:
                 domainStrategy = "AsIs";
                 rules = builtins.map (rule: rule // { type = "field"; })
                 [
-                  { inboundTag = [ "in" ]; domain = [ "domain:openai.com" ]; outboundTag = "loopback-localdns"; }
-                  { inboundTag = [ "in" ]; outboundTag = "freedom"; }
+                  { inboundTag = [ "in-legacy" ]; domain = [ "domain:openai.com" ]; outboundTag = "loopback-localdns"; }
+                  { inboundTag = [ "in-legacy" ]; outboundTag = "freedom"; }
                   { inboundTag = [ "in-localdns" ]; outboundTag = "freedom"; }
                   { inboundTag = [ "api" ]; outboundTag = "api"; }
                 ];
