@@ -29,36 +29,41 @@ inputs:
           '';
         };
         home.file = inputs.lib.mkIf inputs.config.nixos.model.private
-        {
-          ".ssh/id_rsa".source =
-            homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/rsa".path;
-          ".ssh/id_rsa.pub".text = "ssh-rsa "
-            + "AAAAB3NzaC1yc2EAAAADAQABAAABAQDXlhoouWG+arWJz02vBP/lxpG2tUjx8jhGBnDeNyMu0OtGcnHMAWcb3YDP0A2XJ"
-            + "IVFBCCZMM2REwnSNbHRSCl1mTdRbelfjA+7Jqn1wnrDXkAOG3S8WYXryPGpvavu6lgW7p+dIhGiTLWwRbFH+epFTn1hZ3"
-            + "A1UofVIWTOPdoOnx6k7DpQtIVMWiIXLg0jIkOZiTMr3jKfzLMBAqQ1xbCV2tVwbEY02yxxyxIznbpSPReyn1RDLWyqqLR"
-            + "d/oqGPzzhEXNGNAZWnSoItkYq9Bxh2AvMBihiTir3FEVPDgDLtS5LUpM93PV1yTr6JyCPAod9UAxpfBYzHKse0KCQFoZH"
-            + " chn@chn-PC";
-          ".ssh/id_rsa.ppk".source =
-            homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/rsa.ppk".path;
-          ".ssh/id_ed25519".source =
-            homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/ed25519".path;
-          ".ssh/id_ed25519.pub".text =
-            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOH3AvxMlB3omzH6SFQt0Z5+f05x9nMJpFfSLH4OIYV+ chn@pc";
-          ".ssh/id_ed25519_sk".source =
-            homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/ed25519_sk".path;
-          ".ssh/id_ed25519_sk.pub".source = ./id_ed25519_sk.pub;
-          ".ssh/xmuhk_id_rsa".source =
-            homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/xmuhk".path;
-        };
+        (
+          {
+            ".ssh/id_rsa.pub".text = "ssh-rsa "
+              + "AAAAB3NzaC1yc2EAAAADAQABAAABAQDXlhoouWG+arWJz02vBP/lxpG2tUjx8jhGBnDeNyMu0OtGcnHMAWcb3YDP0A2XJ"
+              + "IVFBCCZMM2REwnSNbHRSCl1mTdRbelfjA+7Jqn1wnrDXkAOG3S8WYXryPGpvavu6lgW7p+dIhGiTLWwRbFH+epFTn1hZ3"
+              + "A1UofVIWTOPdoOnx6k7DpQtIVMWiIXLg0jIkOZiTMr3jKfzLMBAqQ1xbCV2tVwbEY02yxxyxIznbpSPReyn1RDLWyqqLR"
+              + "d/oqGPzzhEXNGNAZWnSoItkYq9Bxh2AvMBihiTir3FEVPDgDLtS5LUpM93PV1yTr6JyCPAod9UAxpfBYzHKse0KCQFoZH"
+              + " chn@chn-PC";
+            ".ssh/id_ed25519.pub".text =
+              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOH3AvxMlB3omzH6SFQt0Z5+f05x9nMJpFfSLH4OIYV+ chn@pc";
+            ".ssh/id_ed25519_sk.pub".source = ./id_ed25519_sk.pub;
+          }
+          // (builtins.listToAttrs (builtins.map
+            (type:
+            {
+              name = ".ssh/id_${type}";
+              value.source = homeInputs.config.lib.file.mkOutOfStoreSymlink
+                inputs.config.sops.secrets."chn/${type}".path;
+            })
+            [ "rsa" "rsa.ppk" "ed25519" "ed25519_sk" ]
+          ))
+          // {
+            ".ssh/xmuhk_id_rsa".source =
+              homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/xmuhk".path;
+          }
+        );
       };
     };
-    sops.secrets = inputs.lib.mkIf inputs.config.nixos.model.private
-    {
-      "chn/rsa".owner = "chn";
-      "chn/rsa.ppk".owner = "chn";
-      "chn/ed25519".owner = "chn";
-      "chn/ed25519_sk".owner = "chn";
-      "chn/xmuhk".owner = "chn";
-    };
+    sops.secrets = inputs.lib.mkIf inputs.config.nixos.model.private (builtins.listToAttrs (builtins.map
+      (name:
+      {
+        name = "chn/${name}";
+        value = { owner = "chn"; sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/chn.yaml"; };
+      })
+      [ "rsa" "rsa.ppk" "ed25519" "ed25519_sk" "xmuhk" ]
+    ));
   };
 }
