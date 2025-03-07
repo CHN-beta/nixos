@@ -149,7 +149,7 @@ inputs:
           content = "access-tokens = github.com=${inputs.config.sops.placeholder."github/token"}";
           mode = "0444";
         };
-        secrets."github/token" = {};
+        secrets."github/token".sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/chn.yaml";
       };
     })
     # c++ include path
