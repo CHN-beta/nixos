@@ -187,7 +187,9 @@ inputs:
       sops.secrets."munge.key" =
       {
         format = "binary";
-        sopsFile = "${builtins.dirOf inputs.config.sops.defaultSopsFile}/munge.key";
+        sopsFile = inputs.localLib.mkConditional (inputs.config.nixos.model.cluster == null)
+          "${builtins.dirOf inputs.config.sops.defaultSopsFile}/munge.key"
+          "${inputs.config.nixos.system.sops.clusterSopsDir}/munge.key";
         owner = inputs.config.systemd.services.munged.serviceConfig.User;
       };
       networking.firewall =

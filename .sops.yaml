@@ -36,6 +36,9 @@ creation_rules:
     - age:
       - *chn
       - *one
+  - path_regex: devices/srv1/secrets/.*$
+    key_groups:
+    - age: [ *chn, *srv1-node0, *srv1-node1, *srv1-node2 ]
   - path_regex: devices/srv1/node0/.*$
     key_groups:
     - age:
@@ -51,6 +54,9 @@ creation_rules:
     - age:
       - *chn
       - *srv1-node2
+  - path_regex: devices/srv2/secrets/.*$
+    key_groups:
+    - age: [ *chn, *srv2-node0, *srv2-node1 ]
   - path_regex: devices/srv2/node0/.*$
     key_groups:
     - age:
