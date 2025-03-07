@@ -302,7 +302,11 @@ inputs:
         };
         networking.firewall.allowedTCPPorts = [ 80 443 ];
         nixos.services.xray.client.v2ray-forwarder.noproxyTcpPorts = [ 80 443 ];
-        sops.secrets = { "nginx/maxmind-license".owner = inputs.config.users.users.nginx.name; };
+        sops.secrets."nginx/maxmind-license" =
+        {
+          owner = inputs.config.users.users.nginx.name;
+          sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml";
+        };
         systemd.services.nginx.serviceConfig =
         {
           CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
