@@ -1,5 +1,21 @@
 inputs:
 {
+  options.nixos.system.sops = let inherit (inputs.lib) mkOption types; in
+  {
+    crossSopsDir = mkOption
+    {
+      type = types.nonEmptyStr;
+      default = "${inputs.topInputs.self}/devices/cross/secrets";
+      readOnly = true;
+    };
+    clusterSopsDir = mkOption
+    {
+      type = types.nullOr types.nonEmptyStr;
+      default = if (inputs.config.nixos.model.cluster == null) then null
+        else "${inputs.topInputs.self}/devices/${inputs.config.nixos.model.cluster.clusterName}/secrets";
+      readOnly = true;
+    };
+  };
   config =
   {
     sops =

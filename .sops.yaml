@@ -61,3 +61,6 @@ creation_rules:
     - age:
       - *chn
       - *srv2-node1
+  - path_regex: devices/cross/secrets/user.yaml$
+    key_groups:
+    - age: [ *chn, *pc, *srv1-node0, *srv1-node1, *srv1-node2, *srv2-node0, *srv2-node1 ]
