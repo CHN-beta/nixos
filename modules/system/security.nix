@@ -33,7 +33,6 @@ inputs:
             ]));
           };
         };
-        yubico = { enable = true; id = "91291"; };
         # TODO: enable cue on next release
         rssh.enable = true;
         services.sudo.rssh = true;
