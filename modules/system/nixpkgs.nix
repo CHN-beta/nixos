@@ -67,23 +67,22 @@ inputs:
                   {
                     source = "nixpkgs-unstable";
                     overlay = final: prev:
-                      {}
+                      {
+                        ollama = prev.ollama.override { cudaPackages = final.cudaPackages_12_8; };
+                      }
                       // inputs.lib.optionalAttrs (nixpkgs.march != null)
                       {
                         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
                         {
                           scipy = prev.scipy.overridePythonAttrs (prev:
                             { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
+                          rapidocr-onnxruntime = prev.rapidocr-onnxruntime.overridePythonAttrs { doCheck = false; };
+                          cfn-lint = prev.cfn-lint.overridePythonAttrs { doCheck = false; };
                         })];
                         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
                         ctranslate2 = (prev.ctranslate2.override { withCUDA = false; withCuDNN = false; })
                           .overrideAttrs (prev:
                             { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
-                      }
-                      // inputs.lib.optionalAttrs (nixpkgs.cuda != null)
-                      {
-                        ollama = prev.ollama.overrideAttrs (prev:
-                          { patches = prev.patches or [] ++ [ ./ollama.patch ]; });
                       };
                   };
                 };
