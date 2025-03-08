@@ -35,7 +35,11 @@ inputs:
         };
         # TODO: enable cue on next release
         rssh.enable = true;
-        services.sudo.rssh = true;
+        services = let u2fOrder = s: inputs.config.security.pam.services.${s}.rules.auth.u2f.order; in
+        {
+          sudo = { rssh = true; rules.auth.rssh.order = u2fOrder + 10; };
+          su = { rssh = true; rules.auth.rssh.order = u2fOrder + 10; };
+        };
         loginLimits =
         [
           { domain = "@users"; item = "nofile"; value = 65536; }
