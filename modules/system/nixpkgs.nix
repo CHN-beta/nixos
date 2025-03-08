@@ -100,15 +100,15 @@ inputs:
               in builtins.listToAttrs (builtins.map
                 (name: { inherit name; value = packages name; }) (builtins.attrNames source))
             )
-            // (
-              inputs.lib.optionalAttrs (nixpkgs.march != null)
-              {
-                # -march=xxx cause embree build failed
-                # https://github.com/embree/embree/issues/115
-                embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
-                simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
-              }
-            )
+            // (inputs.lib.optionalAttrs (nixpkgs.march != null)
+            {
+              # -march=xxx cause embree build failed
+              # https://github.com/embree/embree/issues/115
+              embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
+              simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
+            })
+            // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
+              { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
         )];
       };
     programs.ccache = { enable = true; cacheDir = "/var/lib/ccache"; };
