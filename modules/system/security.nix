@@ -34,6 +34,7 @@ inputs:
           };
         };
         yubico = { enable = true; id = "91291"; };
+        sshAgentAuth.enable = true;
         loginLimits =
         [
           { domain = "@users"; item = "nofile"; value = 65536; }
