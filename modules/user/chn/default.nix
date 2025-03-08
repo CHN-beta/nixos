@@ -60,6 +60,5 @@ inputs:
         pam.yubico.authorizedYubiKeys.ids = [ "cccccbgrhnub" ];
       };
     };
-    # environment.etc."ssh/authorized_keys.d/chn".source = ./id_ed25519_sk.pub;
   };
 }
