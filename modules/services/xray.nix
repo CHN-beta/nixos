@@ -279,6 +279,7 @@ inputs:
                     "-m set --match-set lo_net dst -j RETURN"
                     "-p tcp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1"
                     "-p udp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1"
+                    "-j RETURN"
                   ])
                   ++ [
                     "${iptables} -t mangle -N v2ray_mark -w"
@@ -298,7 +299,9 @@ inputs:
                       "-m set --match-set xmu_net dst -j MARK --set-mark 1/1"
                       "-m set --match-set proxy_net dst -j MARK --set-mark 1/1"
                       "-m set --match-set lo_net dst -j RETURN"
-                      "-j MARK --set-mark 1/1"
+                      "-p tcp -j MARK --set-mark 1/1"
+                      "-p udp -j MARK --set-mark 1/1"
+                      "-j RETURN"
                     ]
                   ))
                   ++ [

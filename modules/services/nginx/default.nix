@@ -352,10 +352,12 @@ inputs:
                 ${iptables} -t mangle -A OUTPUT -j nginx_proxy_mark
                 ${iptables} -t mangle -A nginx_proxy_mark -s 127.0.0.1 -p tcp \
                   -m set --match-set nginx_proxy_port src -j MARK --set-mark 2/2
+                ${iptables} -t mangle -A nginx_proxy_mark -j RETURN
                 ${iptables} -t mangle -N nginx_proxy
                 ${iptables} -t mangle -A PREROUTING -j nginx_proxy
                 ${iptables} -t mangle -A nginx_proxy -s 127.0.0.1 -p tcp \
                   -m set --match-set nginx_proxy_port src -j MARK --set-mark 2/2
+                ${iptables} -t mangle -A nginx_proxy -j RETURN
                 ${ip} rule add fwmark 2/2 table 200
                 ${ip} route add local 0.0.0.0/0 dev lo table 200
               ''
