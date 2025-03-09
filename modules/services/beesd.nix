@@ -14,7 +14,7 @@ inputs:
             options =
             {
               device = mkOption { type = types.nonEmptyStr; };
-              hashTableSizeMB = mkOption { type = types.ints.unsigned; default = 1024; };
+              hashTableSizeMB = mkOption { type = types.ints.unsigned; default = 16; };
               threads = mkOption { type = types.ints.unsigned; default = 1; };
               loadAverage = mkOption { type = types.ints.unsigned; default = submoduleInputs.config.threads; };
             };
@@ -34,7 +34,7 @@ inputs:
         value =
         {
           spec = instance.value.device or instance.value;
-          hashTableSizeMB = instance.value.hashTableSizeMB or 1024;
+          hashTableSizeMB = instance.value.hashTableSizeMB or 16;
           extraOptions =
           [
             "--workaround-btrfs-send"

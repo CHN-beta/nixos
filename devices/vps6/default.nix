@@ -60,7 +60,7 @@ inputs:
         httpua = {};
         mirism.enable = true;
         fail2ban = {};
-        beesd.instances.root = { device = "/"; hashTableSizeMB = 64; };
+        beesd.instances.root = "/";
       };
     };
     specialisation.generic.configuration =

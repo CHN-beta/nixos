@@ -10,7 +10,7 @@ inputs:
         networking.static.eno2 =
           { ip = "192.168.178.2"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
       };
-      services.beesd.instances.root = { device = "/"; hashTableSizeMB = 256; threads = 4; };
+      services.beesd.instances.root = { device = "/"; threads = 4; };
     };
     specialisation.no-share-home.configuration =
     {

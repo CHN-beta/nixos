@@ -17,7 +17,7 @@ inputs:
       services =
       {
         xray.client = { enable = true; dnsmasq.extraInterfaces = [ "eno146" ]; };
-        beesd.instances.root = { device = "/"; hashTableSizeMB = 512; threads = 4; };
+        beesd.instances.root = { device = "/"; hashTableSizeMB = 128; threads = 4; };
         xrdp = { enable = true; hostname = [ "srv1.chn.moe" ]; };
         samba =
         {

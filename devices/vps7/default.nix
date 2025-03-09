@@ -37,7 +37,7 @@ inputs:
           matrix = { port = 8009; redisPort = 6380; };
         };
         vaultwarden.enable = true;
-        beesd.instances.root = { device = "/"; hashTableSizeMB = 512; };
+        beesd.instances.root = { device = "/"; hashTableSizeMB = 128; };
         photoprism.enable = true;
         nextcloud = {};
         freshrss.enable = true;

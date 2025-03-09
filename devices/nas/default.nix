@@ -40,8 +40,8 @@ inputs:
         xray.client = { enable = true; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
         beesd.instances =
         {
-          root = { device = "/"; hashTableSizeMB = 4096; threads = 4; };
-          nix = { device = "/nix"; hashTableSizeMB = 128; };
+          root = { device = "/"; hashTableSizeMB = 10 * 128; threads = 4; };
+          nix.device = "/nix";
         };
         smartd = {};
         xmuvpn = {};
