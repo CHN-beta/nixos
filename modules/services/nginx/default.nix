@@ -215,13 +215,11 @@ inputs:
   };
   config =
     let
-      inherit (inputs.lib) mkMerge mkIf mkDefault;
-      inherit (inputs.lib.strings) escapeURL;
       inherit (inputs.localLib) attrsToList;
       inherit (inputs.config.nixos.services) nginx;
       inherit (builtins) map listToAttrs concatStringsSep toString filter attrValues concatLists;
       concatAttrs = list: listToAttrs (concatLists (map (attrs: attrsToList attrs) list));
-    in mkIf nginx.enable (mkMerge
+    in inputs.lib.mkIf nginx.enable (inputs.lib.mkMerge
     [
       # generic config
       {
@@ -316,7 +314,7 @@ inputs:
         };
       }
       # transparentProxy
-      (mkIf nginx.transparentProxy.enable
+      (inputs.lib.mkIf nginx.transparentProxy.enable
       {
         services.nginx.streamConfig =
         ''
@@ -523,9 +521,12 @@ inputs:
                 value =
                 {
                   serverName = site.name;
-                  root = mkIf (site.value.global.root != null) site.value.global.root;
-                  basicAuthFile = mkIf (site.value.global.detectAuth != null)
-                    inputs.config.sops.templates."nginx/templates/detectAuth/${escapeURL site.name}-global".path;
+                  root = inputs.lib.mkIf (site.value.global.root != null) site.value.global.root;
+                  basicAuthFile = inputs.lib.mkIf (site.value.global.detectAuth != null)
+                  (
+                    let secret = "nginx/templates/detectAuth/${inputs.lib.strings.escapeURL site.name}-global";
+                    in inputs.config.sops.templates.${secret}.path
+                  );
                   extraConfig = concatStringsSep "\n"
                   (
                     (
@@ -552,16 +553,16 @@ inputs:
                         + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
                       ssl = true;
                       proxyProtocol = listen.proxyProtocol;
-                      extraParameters = mkIf listen.http2 [ "http2" ];
+                      extraParameters = inputs.lib.mkIf listen.http2 [ "http2" ];
                     })
                     site.value.listens;
                   # do not automatically add http2 listen
                   http2 = false;
                   onlySSL = true;
-                  useACMEHost = mkIf (site.value.global.tlsCert == null) site.name;
-                  sslCertificate = mkIf (site.value.global.tlsCert != null)
+                  useACMEHost = inputs.lib.mkIf (site.value.global.tlsCert == null) site.name;
+                  sslCertificate = inputs.lib.mkIf (site.value.global.tlsCert != null)
                     "${site.value.global.tlsCert}/fullchain.pem";
-                  sslCertificateKey = mkIf (site.value.global.tlsCert != null)
+                  sslCertificateKey = inputs.lib.mkIf (site.value.global.tlsCert != null)
                     "${site.value.global.tlsCert}/privkey.pem";
                   locations = listToAttrs (map
                   (location:
@@ -569,10 +570,14 @@ inputs:
                     inherit (location) name;
                     value =
                     {
-                      basicAuthFile = mkIf (location.value.detectAuth or null != null)
-                        inputs.config.sops.templates
-                          ."nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}".path;
-                      root = mkIf (location.value.root or null != null) location.value.root;
+                      basicAuthFile = inputs.lib.mkIf (location.value.detectAuth or null != null)
+                      (
+                        let
+                          inherit (inputs.lib.strings) escapeURL;
+                          secret = "nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}";
+                        in inputs.config.sops.templates.${secret}.path
+                      );
+                      root = inputs.lib.mkIf (location.value.root or null != null) location.value.root;
                     }
                     // {
                       proxy =
@@ -600,15 +605,15 @@ inputs:
                       };
                       static =
                       {
-                        index = mkIf (builtins.typeOf location.value.index == "list")
+                        index = inputs.lib.mkIf (builtins.typeOf location.value.index == "list")
                           (concatStringsSep " " location.value.index);
-                        tryFiles = mkIf (location.value.tryFiles != null)
+                        tryFiles = inputs.lib.mkIf (location.value.tryFiles != null)
                           (concatStringsSep " " location.value.tryFiles);
-                        extraConfig = mkMerge
+                        extraConfig = inputs.lib.mkMerge
                         [
-                          (mkIf (location.value.index == "auto") "autoindex on;")
-                          (mkIf (location.value.charset != null) "charset ${location.value.charset};")
-                          (mkIf location.value.webdav
+                          (inputs.lib.mkIf (location.value.index == "auto") "autoindex on;")
+                          (inputs.lib.mkIf (location.value.charset != null) "charset ${location.value.charset};")
+                          (inputs.lib.mkIf location.value.webdav
                           ''
                             dav_access user:rw group:rw;
                             dav_methods PUT DELETE MKCOL COPY MOVE;
@@ -638,7 +643,7 @@ inputs:
                 };
               })
               sites);
-            fcgiwrap = mkIf
+            fcgiwrap = inputs.lib.mkIf
             (
               filter (site: site != []) (map
                 (site: filter (location: location.value.type == "cgi") site.value.locations)
@@ -675,7 +680,7 @@ inputs:
                       upstream.port = with nginx.global; httpsPort + httpsPortShift.proxyProtocol
                         + (if site.value.http2 then httpsPortShift.http2 else 0);
                       proxyProtocol = true;
-                      rewriteHttps = mkDefault false;
+                      rewriteHttps = inputs.lib.mkDefault false;
                     };
                   })
                   (filter (listen: listen.value.proxyProtocol) listens));
@@ -689,6 +694,7 @@ inputs:
           };
           sops =
             let
+              inherit (inputs.lib.strings) escapeURL;
               detectAuthUsers = concatLists (map
                 (site:
                 (
