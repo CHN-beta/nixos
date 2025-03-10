@@ -27,6 +27,16 @@ inputs:
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIGZyQpdQmEZw3nLERFmk2tS1gpSvXwW0Eish9UfhrRxC";
           hostnames = [ "initrd.vps7.chn.moe" "144.126.144.62" ];
         };
+        vps8 =
+        {
+          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIPvnbWjPREXju3zKKB2sYRlfgO0wmD8W5ZPXDFN5kb95";
+          hostnames = [ "vps8.chn.moe" "wireguard.vps8.chn.moe" "144.34.225.59" "192.168.83.6" ];
+        };
+        "initrd.vps8" =
+        {
+          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIMQn3+Jgha7l0P3Li6QZx/QekICpMW+XkOxENQ5bifbX";
+          hostnames = [ "initrd.vps8.chn.moe" "144.34.225.59" ];
+        };
         nas =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIIktNbEcDMKlibXg54u7QOLt0755qB/P4vfjwca8xY6V";
@@ -116,7 +126,7 @@ inputs:
         (
           (builtins.map
             (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
-            [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.nas" "wireguard.one" ])
+            [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.nas" "wireguard.one" "vps8" "wireguard.vps8" ])
           ++ (builtins.map
             (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; }; })
             [ "wireguard.pc" "srv1" "wireguard.srv1" "srv2" "wireguard.srv2" ])
