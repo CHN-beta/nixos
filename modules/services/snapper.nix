@@ -19,8 +19,8 @@ inputs:
           TIMELINE_MIN_AGE = 1800;
           TIMELINE_LIMIT_HOURLY = 10;
           TIMELINE_LIMIT_DAILY = 7;
-          TIMELINE_LIMIT_WEEKLY = 1;
-          TIMELINE_LIMIT_MONTHLY = 0;
+          TIMELINE_LIMIT_WEEKLY = 3;
+          TIMELINE_LIMIT_MONTHLY = 1;
           TIMELINE_LIMIT_YEARLY = 0;
         };
       })
