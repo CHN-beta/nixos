@@ -17,7 +17,6 @@ start() {
   ipset add xmunet 59.77.36.223
   ipset add xmunet 210.34.0.84
   ipset add xmunet 218.193.50.157
-  ipset add xmunet 219.229.81.200
   ipset add xmunet 210.34.16.60
   ipset add xmunet 10.26.14.70
   ipset add xmunet 10.26.14.56
