@@ -30,7 +30,7 @@ inputs:
           let ipset = "${inputs.pkgs.ipset}/bin/ipset";
           in
           {
-            Type = "simple";
+            Type = "oneshot";
             RemainAfterExit = true;
             ExecStart = inputs.pkgs.writeShellScript "xmuvpn-forwarder.start"
               (builtins.concatStringsSep "\n" (builtins.map

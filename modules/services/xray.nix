@@ -240,7 +240,7 @@ inputs:
                 proxyPort = "10883";
               in
               {
-                Type = "simple";
+                Type = "oneshot";
                 RemainAfterExit = true;
                 ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start" (builtins.concatStringsSep "\n"
                 (

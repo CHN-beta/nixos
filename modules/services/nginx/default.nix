@@ -381,7 +381,7 @@ inputs:
             after = [ "network.target" ];
             serviceConfig =
             {
-              Type = "simple";
+              Type = "oneshot";
               RemainAfterExit = true;
               ExecStart = start;
               ExecStop = stop;
