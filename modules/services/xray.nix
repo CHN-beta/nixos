@@ -255,6 +255,8 @@ inputs:
                     "${ipset} create xmu_net hash:net"
                     "${ipset} create noproxy_net hash:net"
                     "${ipset} add noproxy_net 223.5.5.5"
+                    # sslvpn.xmu.edu.cn
+                    "${ipset} add noproxy_net 121.192.178.179"
                     "${ipset} create noproxy_src_net hash:net"
                     "${ipset} create noproxy_port bitmap:port range 0-65535"
                     "${ipset} create proxy_net hash:net"
@@ -272,8 +274,9 @@ inputs:
                     "-m set --match-set noproxy_src_net src -j RETURN"
                     "-m set --match-set noproxy_net dst -j RETURN"
                     "-m set --match-set noproxy_port src -j RETURN"
-                    "-m set --match-set xmu_net dst -p tcp -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1"
-                    "-m set --match-set xmu_net dst -p udp -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1"
+                    # if source from docker, do not redirect xmunet
+                    "! -s 172.16.0.0/12 -m set --match-set xmu_net dst -p tcp -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1"
+                    "! -s 172.16.0.0/12 -m set --match-set xmu_net dst -p udp -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1"
                     "-m set --match-set proxy_net dst -p tcp -j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1"
                     "-m set --match-set proxy_net dst -p udp -j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1"
                     "-m set --match-set lo_net dst -j RETURN"

@@ -51,7 +51,7 @@ inputs:
         wantedBy = [ "multi-user.target" ];
         serviceConfig =
         {
-          ExecStart = "${inputs.pkgs.tcping-go}/bin/tcping office.chn.moe 22 -c 0 -I 1s -H";
+          ExecStart = "${inputs.pkgs.tcping-go}/bin/tcping office.chn.moe 22 -c 0 -I 10s -H";
           Restart = "always";
         };
       };
