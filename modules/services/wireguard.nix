@@ -2,7 +2,7 @@ inputs:
 {
   options.nixos.services.wireguard = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    type = types.nullOr (types.attrsOf (types.submodule (submoduleInputs: { options =
+    type = types.attrsOf (types.submodule (submoduleInputs: { options =
       let generalOption =
       {
         publicKey = mkOption { type = types.nonEmptyStr; };
@@ -21,10 +21,10 @@ inputs:
           behindNatPortOffset = mkOption { type = types.int; default = 1; readOnly = true; };
           peers = mkOption { type = types.nonEmptyListOf (types.submodule { options = generalOption; }); };
         };
-    })));
-    default = null;
+    }));
+    default = {};
   };
-  config = let inherit (inputs.config.nixos.services) wireguard; in inputs.lib.mkIf (wireguard != null)
+  config = let inherit (inputs.config.nixos.services) wireguard; in inputs.lib.mkIf (wireguard != {})
   {
     assertions = builtins.map
       (wg:
