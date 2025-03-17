@@ -47,6 +47,7 @@ inputs:
                 "force create mode" = "644";
                 "directory mask" = "2755";
                 "force directory mode" = "2755";
+                "acl allow execute always" = true;
               };
             })
             (attrsToList samba.shares))
