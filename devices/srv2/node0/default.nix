@@ -20,7 +20,7 @@ inputs:
         xray.client = { enable = true; dnsmasq.extraInterfaces = [ "eno2" ]; };
         beesd.instances.root = { device = "/"; hashTableSizeMB = 16 * 128; loadAverage = 8; };
         xrdp = { enable = true; hostname = [ "srv2.chn.moe" ]; };
-        samba = { enable = true; hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
+        samba = { hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
         groupshare = {};
         hpcstat = {};
       };

@@ -1,39 +1,37 @@
 inputs:
 {
-  options.nixos.services.samba = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.samba = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    enable = mkOption { type = types.bool; default = false; };
-    wsdd = mkOption { type = types.bool; default = false; };
-    private = mkOption { type = types.bool; default = false; };
-    hostsAllowed = mkOption { type = types.str; default = "127."; };
-    shares = mkOption
+    type = types.nullOr (types.submodule { options =
     {
-      type = types.attrsOf (types.submodule { options =
+      # make shares visible for windows 10 clients
+      wsdd = mkOption { type = types.bool; default = false; };
+      private = mkOption { type = types.bool; default = false; };
+      hostsAllowed = mkOption { type = types.str; default = "127."; };
+      shares = mkOption
       {
-        comment = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        path = mkOption { type = types.nonEmptyStr; };
-      };});
-      default = {};
-    };
-  };
-  config =
-    let
-      inherit (inputs.lib) mkIf;
-      inherit (inputs.localLib) attrsToList;
-      inherit (inputs.config.nixos.services) samba;
-      inherit (builtins) map listToAttrs;
-    in mkIf samba.enable
-    {
-      services =
-      {
-        # make shares visible for windows 10 clients
-        samba-wsdd.enable = samba.wsdd;
-        samba =
+        type = types.attrsOf (types.submodule { options =
         {
-          enable = true;
-          # TCP 139 445 UDP 137 138
-          openFirewall = !samba.private;
-          settings = listToAttrs (map
+          comment = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+          path = mkOption { type = types.nonEmptyStr; };
+        };});
+        default = {};
+      };
+    };});
+    default = null;
+  };
+  config = let inherit (inputs.config.nixos.services) samba; in inputs.lib.mkIf (samba != null)
+  {
+    services =
+    {
+      samba-wsdd.enable = samba.wsdd;
+      samba =
+      {
+        enable = true;
+        # TCP 139 445 UDP 137 138
+        openFirewall = !samba.private;
+        settings = { global."hosts allow" = "${samba.hostsAllowed}"; }
+          // builtins.listToAttrs (builtins.map
             (share:
             {
               name = share.name;
@@ -50,14 +48,13 @@ inputs:
                 "acl allow execute always" = true;
               };
             })
-            (attrsToList samba.shares))
-            // { global."hosts allow" = "${samba.hostsAllowed}"; };
-        };
-      };
-      nixos.services.xray.client.v2ray-forwarder =
-      {
-        noproxyTcpPorts = [ 139 445 ];
-        noproxyUdpPorts = [ 137 138 ];
+            (inputs.localLib.attrsToList samba.shares));
       };
     };
+    nixos.services.xray.client.v2ray-forwarder =
+    {
+      noproxyTcpPorts = [ 139 445 ];
+      noproxyUdpPorts = [ 137 138 ];
+    };
+  };
 }
