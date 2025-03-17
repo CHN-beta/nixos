@@ -25,11 +25,11 @@
     "blog": {
       "flake": false,
       "locked": {
-        "lastModified": 1741083963,
-        "narHash": "sha256-chYk4bCU9UMK1V3uynX8czAcrxgcE+1B/NSEszl2TlE=",
+        "lastModified": 1742192030,
+        "narHash": "sha256-Rw0aKIL1k62R4jcHd66zeMaxgMIl/P5m9KeX1oOeM3Q=",
         "ref": "refs/heads/public",
-        "rev": "f2c624dae6a18ef9a21abf1b4b9e28cfd81449a5",
-        "revCount": 23,
+        "rev": "5b3f879c54119abe45db5f70c129c4bd38db7bb4",
+        "revCount": 25,
         "type": "git",
         "url": "https://git.chn.moe/chn/blog-public.git"
       },

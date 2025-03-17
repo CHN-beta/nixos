@@ -32,7 +32,7 @@ inputs:
         # networking
         ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils wireguard-tools
         # nix tools
-        nix-output-monitor nix-tree ssh-to-age nix-inspect
+        pkgs-unstable.nix-output-monitor nix-tree ssh-to-age nix-inspect
         # development
         gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix rr hexo-cli gh nix-init hugo
         (octodns.withProviders (_: [ localPackages.octodns-cloudflare ]))

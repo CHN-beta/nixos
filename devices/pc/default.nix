@@ -66,7 +66,6 @@ inputs:
       {
         samba =
         {
-          enable = true;
           hostsAllowed = "192.168. 127.";
           shares =
           {
