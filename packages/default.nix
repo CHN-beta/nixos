@@ -127,6 +127,7 @@ inputs: rec
     { src = inputs.topInputs.octodns-cloudflare; };
   info = inputs.pkgs.callPackage ./info { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   blog = inputs.pkgs.callPackage inputs.topInputs.blog { inherit (inputs.topInputs) hextra; };
+  jykang = inputs.pkgs.callPackage ./jykang.nix { version = inputs.topInputs.self.rev or "dirty"; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

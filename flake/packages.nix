@@ -23,8 +23,8 @@
       version = inputs.self.rev or "dirty";
       stdenv = pkgs.pkgsStatic.gcc14Stdenv;
     };
-  chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub;
-  blog = pkgs.localPackages.blog;
+  inherit (pkgs.localPackages) blog jykang;
+  inherit (pkgs.localPackages.pkgsStatic) chn-bsub;
   vaspberry = pkgs.pkgsStatic.localPackages.vaspberry.override
   {
     gfortran = pkgs.pkgsStatic.gfortran;
