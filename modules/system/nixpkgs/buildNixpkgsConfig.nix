@@ -1,4 +1,4 @@
-# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda };
+# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixRoot };
 { inputs, nixpkgs }:
 let
   hostPlatform = if nixpkgs.march != null
@@ -23,7 +23,7 @@ in
     qchem-config = { optArch = nixpkgs.march; useCuda = nixpkgs.cuda != null; };
     android_sdk.accept_license = true;
   }
-  // (if nixpkgs.march == null then {} else
+  // (inputs.lib.optionalAttrs (nixpkgs.march != null)
   {
     # TODO: change znver4 after update oneapi
     # TODO: test znver3 do use AVX
@@ -31,7 +31,9 @@ in
     nvhpcArch = nixpkgs.march;
     # contentAddressedByDefault = true;
     enableCcache = true;
-  });
+  })
+  // (inputs.lib.optionalAttrs (nixpkgs.nixRoot == null)
+    { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/var"; }; });
   overlays =
   [(final: prev:
     let

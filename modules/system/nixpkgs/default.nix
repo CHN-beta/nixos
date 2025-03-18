@@ -15,7 +15,7 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.system) nixpkgs; in
   {
-    nixpkgs = import ./buildNixpkgsConfig.nix { inherit inputs nixpkgs; };
+    nixpkgs = import ./buildNixpkgsConfig.nix { inherit inputs; nixpkgs = nixpkgs // { nixRoot = null; }; };
     programs.ccache = { enable = true; cacheDir = "/var/lib/ccache"; };
     nix.settings.extra-sandbox-paths = [ inputs.config.programs.ccache.cacheDir ];
     boot.kernelPatches = inputs.lib.mkIf (nixpkgs.march != null)
