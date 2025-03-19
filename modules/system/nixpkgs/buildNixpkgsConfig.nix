@@ -1,9 +1,9 @@
 # inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixRoot };
 { inputs, nixpkgs }:
 let
-  hostPlatform = if nixpkgs.march != null
-    then { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }
-    else "x86_64-linux";
+  platformConfig =
+    if nixpkgs.march == null then { system = "x86_64-linux"; }
+    else { hostPlatform = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }; };
   cudaConfig = inputs.lib.optionalAttrs (nixpkgs.cuda != null)
   (
     { cudaSupport = true; }
@@ -13,9 +13,8 @@ let
       { cudaForwardCompat = nixpkgs.cuda.forwardCompat; })
   );
   allowInsecurePredicate = p: inputs.lib.warn "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
-in
+in platformConfig //
 {
-  inherit hostPlatform;
   config = cudaConfig //
   {
     inherit allowInsecurePredicate;
@@ -73,7 +72,7 @@ in
           };
           packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}
           {
-            localSystem = hostPlatform;
+            localSystem = platformConfig.hostPlatform or { inherit (platformConfig) system; };
             config = cudaConfig //
             {
               allowUnfree = true;
