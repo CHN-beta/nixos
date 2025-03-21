@@ -12,7 +12,7 @@ inputs:
           {
             btrfs =
             {
-              "/dev/disk/by-uuid/24577c0e-d56b-45ba-8b36-95a848228600"."/boot" = "/boot";
+              "/dev/disk/by-uuid/0067ef91-06f7-416e-88cb-4880ce04afa4"."/boot" = "/boot";
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
@@ -20,7 +20,7 @@ inputs:
           rollingRootfs = {};
         };
         grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
-        nixpkgs.march = "sandybridge";
+        nixpkgs.march = "znver2";
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
         initrd.sshd = {};
         networking = {};
