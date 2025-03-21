@@ -67,10 +67,10 @@
     };
     licenseManager = pkgs.requireFile
     {
-      name = "licenseManager";
+      name = "lumericalLicenseManager";
       sha256 = "1h93r0bb37279dzghi3k2axf0b8g0mgacw0lcww5j3sx0sqjbg4l";
       hashMode = "recursive";
-      message = "";
+      message = "Source not found.";
     };
     lumerical = pkgs.requireFile
     {

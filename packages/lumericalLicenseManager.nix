@@ -1,5 +1,8 @@
-{ src, runCommand }: runCommand "lumericalLicenseManager" {}
+{ src, runCommand, coreutils, gawk }: runCommand "lumericalLicenseManager"
+{
+  nativeBuildInputs = [ coreutils gawk ];
+}
 ''
   mkdir -p $out
-  ./${src}/INSTALL -silent -install_dir $out
+  sh ${src}/INSTALL -silent -nochecks -install_dir $out -no-random-temp-subdir -usetempdir $out/tmp -lm
 ''
