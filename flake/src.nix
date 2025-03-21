@@ -57,4 +57,26 @@
     finalImageName = "hagb/docker-easyconnec";
     finalImageTag = "7.6.7";
   };
+  lumerical =
+  {
+    crack = pkgs.requireFile
+    {
+      name = "crack";
+      sha256 = "1a1k3nlaidi0kk2xxamb4pm46iiz6k3sxynhd65y8riylrkck3md";
+      hashMode = "recursive";
+    };
+    licenseManager = pkgs.requireFile
+    {
+      name = "licenseManager";
+      sha256 = "1h93r0bb37279dzghi3k2axf0b8g0mgacw0lcww5j3sx0sqjbg4l";
+      hashMode = "recursive";
+      message = "";
+    };
+    lumerical = pkgs.requireFile
+    {
+      name = "lumerical";
+      sha256 = "03nfacykfzal29jdmygrgkl0fqsc3yqp4ig86h1h9sirci87k94c";
+      hashMode = "recursive";
+    };
+  };
 }

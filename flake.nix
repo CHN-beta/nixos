@@ -73,6 +73,7 @@
     fancy-motd = { url = "github:CHN-beta/fancy-motd"; flake = false; };
     octodns-cloudflare = { url = "github:octodns/octodns-cloudflare"; flake = false; };
     mac-style = { url = "github:SergioRibera/s4rchiso-plymouth-theme"; flake = false; };
+    phono3py = { url = "github:phonopy/phono3py"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib.nix inputs.nixpkgs.lib; in

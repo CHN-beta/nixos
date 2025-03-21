@@ -1149,6 +1149,22 @@
         "type": "github"
       }
     },
+    "phono3py": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1742256515,
+        "narHash": "sha256-FQQvfeoCvUxJcQ5GD1TsHbORpjVgrJb0BvGxOGuLyhE=",
+        "owner": "phonopy",
+        "repo": "phono3py",
+        "rev": "3b770849311067e00d3336b4932046eebf13f9b3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "phonopy",
+        "repo": "phono3py",
+        "type": "github"
+      }
+    },
     "plasma-manager": {
       "inputs": {
         "home-manager": [
@@ -1290,6 +1306,7 @@
         "nur-xddxdd": "nur-xddxdd",
         "octodns-cloudflare": "octodns-cloudflare",
         "openxlsx": "openxlsx",
+        "phono3py": "phono3py",
         "plasma-manager": "plasma-manager",
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
