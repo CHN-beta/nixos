@@ -31,7 +31,7 @@ inputs:
           # color management
           argyllcms xcalib
           # networking
-          remmina putty mtr-gui
+          pkgs-unstable.remmina putty mtr-gui
           # media
           mpv nomacs yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk qcm
           waifu2x-converter-cpp inkscape blender paraview vlc whalebird spotify obs-studio
