@@ -7,7 +7,7 @@ inputs:
       enable = mkOption { type = types.bool; default = false; };
       xray =
       {
-        serverAddress = mkOption { type = types.nonEmptyStr; default = "74.211.99.69"; };
+        serverAddress = mkOption { type = types.nonEmptyStr; default = "144.34.225.59"; };
         serverName = mkOption { type = types.nonEmptyStr; default = "vps6.xserver.chn.moe"; };
       };
       dnsmasq =

@@ -10,12 +10,12 @@ inputs:
         vps6 =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIO5ZcvyRyOnUCuRtqrM/Qf+AdUe3a5bhbnfyhw2FSLDZ";
-          hostnames = [ "vps6.chn.moe" "wireguard.vps6.chn.moe" "74.211.99.69" "192.168.83.1" ];
+          hostnames = [ "vps6.chn.moe" "wireguard.vps6.chn.moe" "144.34.225.59" "192.168.83.1" ];
         };
         "initrd.vps6" =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIB4DKB/zzUYco5ap6k9+UxeO04LL12eGvkmQstnYxgnS";
-          hostnames = [ "initrd.vps6.chn.moe" "74.211.99.69" ];
+          hostnames = [ "initrd.vps6.chn.moe" "144.34.225.59" ];
         };
         vps7 =
         {

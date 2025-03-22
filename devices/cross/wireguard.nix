@@ -7,7 +7,7 @@ let
       peers = [ "pc" "nas" "one" "vps7" "srv2-node0" "srv1-node0" "vps8" ];
       publicKey = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4=";
       wireguardIp = 1;
-      listenIp = "74.211.99.69";
+      listenIp = "144.34.225.59";
       lighthouse = true;
     };
     vps7 =
