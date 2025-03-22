@@ -93,5 +93,7 @@ in platformConfig //
       })
       // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
         { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
+      // (inputs.lib.optionalAttrs (nixpkgs.march == "skylake")
+        { redis = prev.redis.overrideAttrs { doCheck = false; }; })
   )];
 }
