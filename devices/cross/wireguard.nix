@@ -4,7 +4,7 @@ let
   {
     vps6 =
     {
-      peers = [ "pc" "nas" "one" "vps7" "srv2-node0" "srv1-node0" "vps8" ];
+      peers = [ "pc" "nas" "one" "vps7" "srv2-node0" "srv1-node0" ];
       publicKey = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4=";
       wireguardIp = 1;
       listenIp = "144.34.225.59";
@@ -51,13 +51,6 @@ let
       behindNat = true;
       publicKey = "Br+ou+t9M9kMrnNnhTvaZi2oNFRygzebA1NqcHWADWM=";
       wireguardIp = 9;
-    };
-    vps8 =
-    {
-      peers = [ "vps8" ];
-      publicKey = "ifOlF2zBEygsqSX48ljT9CRKx/eiTFvI78HJtmLOpnU=";
-      wireguardIp = 6;
-      listenIp = "144.34.225.59";
     };
   };
   port = 51820;

@@ -1,6 +1,6 @@
 { inputs, localLib }:
 let
-  machine = [ "nas" "pc" "vps6" "vps7" "one" "vps8" ];
+  machine = [ "nas" "pc" "vps6" "vps7" "one" ];
   cluster = { srv1 = 3; srv2 = 2; };
 in builtins.listToAttrs
 (

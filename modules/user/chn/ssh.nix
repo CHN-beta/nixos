@@ -19,7 +19,7 @@ inputs:
             (system: { name = system; value = { forwardAgent = true; extraOptions.AddKeysToAgent = "yes"; }; })
             [
               "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas" "pc"
-              "srv1" "wireguard.srv1" "srv2" "wireguard.srv2" "one" "wireguard.one" "vps8" "wireguard.vps8"
+              "srv1" "wireguard.srv1" "srv2" "wireguard.srv2" "one" "wireguard.one"
             ]));
           extraConfig = inputs.lib.mkIf inputs.config.nixos.model.private
           ''
