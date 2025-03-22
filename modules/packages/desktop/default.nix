@@ -79,6 +79,9 @@ inputs:
           nur-xddxdd.svp
           # for kdenlive auto subtitle
           openai-whisper
+          # TODO: remove on next release
+          # phonopy have some bug, we use the version from nixpkgs-unstable
+          (inputs.lib.hiPrio pkgs-unstable.python3Packages.phonopy)
         ]
           ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" "kalzium" ])))
             (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
