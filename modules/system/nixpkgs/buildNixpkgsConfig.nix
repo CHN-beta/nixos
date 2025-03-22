@@ -67,7 +67,9 @@ in platformConfig //
                   ctranslate2 = (prev.ctranslate2.override { withCUDA = false; withCuDNN = false; })
                     .overrideAttrs (prev:
                       { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
-                };
+                }
+                // inputs.lib.optionalAttrs (nixpkgs.march == "skylake")
+                  { redis = prev.redis.overrideAttrs { doCheck = false; }; };
             };
           };
           packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}
@@ -93,7 +95,5 @@ in platformConfig //
       })
       // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
         { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
-      // (inputs.lib.optionalAttrs (nixpkgs.march == "skylake")
-        { redis = prev.redis.overrideAttrs { doCheck = false; }; })
   )];
 }
