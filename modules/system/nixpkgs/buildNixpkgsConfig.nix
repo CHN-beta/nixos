@@ -68,7 +68,8 @@ in platformConfig //
                     .overrideAttrs (prev:
                       { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
                 }
-                // inputs.lib.optionalAttrs (builtins.elem nixpkgs.march [ "skylake" "silvermont" "broadwell" ])
+                // inputs.lib.optionalAttrs
+                  (builtins.elem nixpkgs.march [ "skylake" "silvermont" "broadwell" "znver3" ])
                   { redis = prev.redis.overrideAttrs { doCheck = false; }; };
             };
           };
