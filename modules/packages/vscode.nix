@@ -56,6 +56,8 @@ inputs:
                 pkief.material-icon-theme
                 # direnv
                 mkhl.direnv
+                # svg viewer
+                vitaliymaz.vscode-svg-previewer
               ]
               # jupyter
               # TODO: use last release
