@@ -54,6 +54,7 @@ inputs:
             nekomia.enable = true;
             blog = {};
             sticker = {};
+            tgapi = {};
           };
         };
         coturn = {};
