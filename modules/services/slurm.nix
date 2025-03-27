@@ -152,6 +152,10 @@ inputs:
 
             # append to output file
             JobFileAppend=1
+
+            # correctly set priority
+            PriorityType=priority/multifactor
+            PriorityWeightAge=10000
           '';
           extraConfigPaths =
             let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
