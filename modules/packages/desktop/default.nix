@@ -64,8 +64,8 @@ inputs:
           # browser
           google-chrome tor-browser microsoft-edge
           # office
-          crow-translate zotero pandoc libreoffice-qt texliveFull poppler_utils pdftk pdfchain davinci-resolve
-          ydict texstudio panoply pspp paperwork
+          crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain davinci-resolve
+          ydict texstudio panoply pspp paperwork libreoffice-qt6-fresh
           # matplot++ needs old gnuplot
           inputs.pkgs."pkgs-23.11".gnuplot
           # math, physics and chemistry
