@@ -27,6 +27,8 @@ inputs: let inherit (inputs) topInputs; in
             nur-linyinfeng = (topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
             firefox-addons = (import "${topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
             inherit (import topInputs.gricad { pkgs = final; }) intel-oneapi intel-oneapi-2022;
+            linuxPackages_cachyos_lts =
+              final.linuxPackagesFor (topInputs.cachyos-lts.overlays.default final prev).linuxPackages_cachyos;
           })
         ];
         home-manager.sharedModules =

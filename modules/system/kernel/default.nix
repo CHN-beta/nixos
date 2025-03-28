@@ -4,8 +4,7 @@ inputs:
   {
     variant = mkOption
     {
-      type = types.nullOr (types.enum
-        [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lto" "cachyos-server" "zen" ]);
+      type = types.nullOr (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "cachyos" "cachyos-lts" ]);
       default = "xanmod-lts";
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
@@ -45,9 +44,7 @@ inputs:
           xanmod-lts = inputs.pkgs.linuxPackages_xanmod;
           xanmod-latest = inputs.pkgs.linuxPackages_xanmod_latest;
           cachyos = inputs.pkgs.linuxPackages_cachyos;
-          cachyos-lto = inputs.pkgs.linuxPackages_cachyos-lto;
-          cachyos-server = inputs.pkgs.linuxPackages_cachyos-server;
-          zen = inputs.pkgs.linuxPackages_zen;
+          cachyos-lts = inputs.pkgs.linuxPackages_cachyos_lts;
         }.${kernel.variant};
         kernelPatches =
           let
@@ -86,7 +83,7 @@ inputs:
     }
     # enable scx when using cachyos
     (
-      inputs.lib.mkIf (builtins.elem kernel.variant [ "cachyos" "cachyos-lto" "cachyos-server" ])
+      inputs.lib.mkIf (builtins.elem kernel.variant [ "cachyos" "cachyos-lts" ])
         { services.scx = { enable = true; scheduler = "scx_lavd"; extraArgs = [ "--autopower" ]; }; }
     )
   ];

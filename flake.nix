@@ -36,6 +36,7 @@
     bscpkgs = { url = "git+https://git.chn.moe/chn/bscpkgs.git"; inputs.nixpkgs.follows = "nixpkgs"; };
     winapps = { url = "github:winapps-org/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
     aagl = { url = "github:ezKEa/aagl-gtk-on-nix/release-24.11"; inputs.nixpkgs.follows = "nixpkgs"; };
+    cachyos-lts.url = "github:drakon64/nixos-cachyos-kernel";
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };

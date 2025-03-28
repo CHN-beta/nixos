@@ -74,6 +74,21 @@
         "url": "https://git.chn.moe/chn/bscpkgs.git"
       }
     },
+    "cachyos-lts": {
+      "locked": {
+        "lastModified": 1742394059,
+        "narHash": "sha256-knN9uM2TZX0NvH9mKnpY8ukk4zuTfhljmTYnEAmxfHI=",
+        "owner": "drakon64",
+        "repo": "nixos-cachyos-kernel",
+        "rev": "e585b7a3fca1e7af76da44c4205c87fb53637b70",
+        "type": "github"
+      },
+      "original": {
+        "owner": "drakon64",
+        "repo": "nixos-cachyos-kernel",
+        "type": "github"
+      }
+    },
     "catppuccin": {
       "locked": {
         "lastModified": 1734057772,
@@ -1271,6 +1286,7 @@
         "blog": "blog",
         "blurred-wallpaper": "blurred-wallpaper",
         "bscpkgs": "bscpkgs",
+        "cachyos-lts": "cachyos-lts",
         "catppuccin": "catppuccin",
         "chaotic": "chaotic",
         "concurrencpp": "concurrencpp",
