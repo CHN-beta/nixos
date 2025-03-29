@@ -13,10 +13,10 @@ inputs:
       cpu =
       {
         sockets = mkOption { type = types.ints.unsigned; default = 1; };
-        cores = mkOption { type = types.ints.unsigned; default = 1; };
+        cores = mkOption { type = types.ints.unsigned; };
         threads = mkOption { type = types.ints.unsigned; default = 1; };
       };
-      memoryGB = mkOption { type = types.ints.unsigned; default = 1024; };
+      memoryGB = mkOption { type = types.ints.unsigned; };
       gpus = mkOption { type = types.nullOr (types.attrsOf types.ints.unsigned); default = null; };
     };}));};
     partitions = mkOption { type = types.attrsOf (types.listOf types.nonEmptyStr); default = {}; };
@@ -271,23 +271,28 @@ inputs:
         packages.packages._packages = [(inputs.pkgs.localPackages.sbatch-tui.override
         {
           sbatchConfig = inputs.pkgs.writeText "sbatch.yaml" (builtins.toJSON
-          {
-            CpuQueues = builtins.map
-              (queue:
-              [
-                queue.name
+          ({
+            Program =
+            {
+              VaspCpu.Queue = builtins.map
+                (queue:
                 {
-                  CpuMpiThreads = queue.mpiThreads;
-                  CpuOpenmpThreads = queue.openmpThreads;
-                  MemoryGB = queue.memoryGB;
-                  AllocateCpus = queue.allocateCpus;
-                }
-              ])
-              slurm.tui.cpuQueues;
-            GpuQueues = if slurm.tui.gpuQueues == null then null else builtins.map
-              (queue: [ queue.name { GpuIds = queue.gpuIds; } ])
-              slurm.tui.gpuQueues;
-          });
+                  Name = queue.name;
+                  Recommended =
+                  {
+                    Mpi = queue.mpiThreads;
+                    Openmp = queue.openmpThreads;
+                    Memory = queue.memoryGB;
+                    Cpus = queue.allocateCpus;
+                  };
+                })
+                slurm.tui.cpuQueues;
+            }
+            // (if slurm.tui.gpuQueues == null then {} else
+            {
+              VaspGpu.Queue = builtins.map (queue: { Name = queue.name; Gpu = queue.gpuIds; }) slurm.tui.gpuQueues;
+            });
+          }));
         })];
         user.sharedModules = [{ home.packages =
         [
