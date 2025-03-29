@@ -1,11 +1,8 @@
-CpuQueues:
-  -
-    - localhost
-    - CpuMpiThreads: 4
-      CpuOpenmpThreads: 4
-      MemoryGB: 64
-GpuQueues:
-  -
-    - localhost
-    -
-      GpuIds: [ "4060" ]
+Program:
+  VaspCpu:
+    Queue:
+      - Name: localhost
+        Recommended:
+          Mpi: 4
+          Openmp: 4
+          Memory: 64
