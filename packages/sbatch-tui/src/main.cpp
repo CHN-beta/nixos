@@ -44,11 +44,8 @@ int main()
   auto Screen = ftxui::ScreenInteractive::Fullscreen();
   auto key_event_handler = [&](ftxui::Event event)
   {
-    if (event == ftxui::Event::Return) State.UserCommand = "Continue";
-    else if (event == ftxui::Event::Escape) State.UserCommand = "Quit";
+    if (event == ftxui::Event::Return) { State.UserCommand = "Continue"; Screen.ExitLoopClosure()(); return true; }
     else return false;
-    Screen.ExitLoopClosure()();
-    return true;
   };
   auto InterfaceProgram = ftxui::Container::Vertical
   ({
@@ -58,7 +55,7 @@ int main()
     ({
       ftxui::Button("Continue (Enter)",
         [&]{ State.UserCommand = "Continue"; Screen.ExitLoopClosure()(); }),
-      ftxui::Button("Quit (ESC)",
+      ftxui::Button("Quit",
         [&]{ State.UserCommand = "Quit"; Screen.ExitLoopClosure()(); })
     }),
   }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent(key_event_handler);
@@ -74,7 +71,7 @@ int main()
           [&]{ State.UserCommand = "Continue"; Screen.ExitLoopClosure()(); }),
         ftxui::Button("Back",
           [&]{State.UserCommand = "Back"; Screen.ExitLoopClosure()();}),
-        ftxui::Button("Quit (ESC)",
+        ftxui::Button("Quit",
           [&]{ State.UserCommand = "Quit"; Screen.ExitLoopClosure()(); })
       }),
     }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent(key_event_handler);
@@ -89,7 +86,7 @@ int main()
         [&]{State.UserCommand = "Continue"; Screen.ExitLoopClosure()();}),
       ftxui::Button("Back",
         [&]{State.UserCommand = "Back"; Screen.ExitLoopClosure()();}),
-      ftxui::Button("Quit (ESC)",
+      ftxui::Button("Quit",
         [&]{State.UserCommand = "Quit"; Screen.ExitLoopClosure()();})
     })
   }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent(key_event_handler);
@@ -99,6 +96,7 @@ int main()
   {
     if (State.CurrentInterface == "Program")
     {
+      State.UserCommand = "Quit";
       Screen.Loop(InterfaceProgram);
       if (State.UserCommand == "Quit") return 0;
       else if (State.UserCommand == "Continue") State.CurrentInterface = "Request";
@@ -106,6 +104,7 @@ int main()
     }
     else if (State.CurrentInterface == "Request")
     {
+      State.UserCommand = "Quit";
       Screen.Loop(get_interface_request(Programs[State.ProgramSelected]->get_interface()));
       if (State.UserCommand == "Quit") return 0;
       else if (State.UserCommand == "Back") { State.CurrentInterface = "Program"; }
@@ -118,6 +117,7 @@ int main()
     }
     else if (State.CurrentInterface == "Confirm")
     {
+      State.UserCommand = "Quit";
       Screen.Loop(InterfaceConfirm);
       if (State.UserCommand == "Quit") return 0;
       else if (State.UserCommand == "Back") { State.CurrentInterface = "Request"; }
