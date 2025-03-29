@@ -23,8 +23,8 @@ namespace sbatch
     // 用于注册程序
     private: static inline std::map<std::string, std::function<std::unique_ptr<Program>()>> Factories_;
     public: static std::unique_ptr<Program> create(std::string name) { return Factories_[name](); }
-    protected: template<std::derived_from<Program> T> inline int register_child_()
-      { Factories_[nameof::nameof_short_type<T>()] = []{ return std::make_unique<T>(); }; return 0; }
+    protected: template<typename T> static inline int register_child_()
+      { Factories_[nameof::nameof_short_type<T>().str()] = []{ return std::make_unique<T>(); }; return 0; }
   };
 
   // 为组件增加标题栏

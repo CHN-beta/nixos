@@ -22,7 +22,12 @@ int main()
   auto ConfigFile = YAML::LoadFile(SBATCH_CONFIG);
   for (auto &[name, node]
     : ConfigFile["Program"].as<std::map<std::string, YAML::Node>>())
-    { Programs.push_back(Program::create(name)); Programs.back()->load_config(node); }
+  {
+    auto p = Program::create(name);
+    p->load_config(node);
+    State.ProgramEntries.push_back(p->get_name());
+    Programs.push_back(std::move(p));
+  }
 
   // 读取状态
   try
@@ -48,7 +53,7 @@ int main()
   auto InterfaceProgram = ftxui::Container::Vertical
   ({
     ftxui::Menu(&State.ProgramEntries, &State.ProgramSelected)
-      | sbatch::with_title("Program:") | ftxui::borderHeavy,
+      | sbatch::with_title("Program:") | with_bottom_heavy,
     ftxui::Container::Horizontal
     ({
       ftxui::Button("Continue (Enter)",

@@ -148,6 +148,6 @@ namespace sbatch
           State_.JobName, State_.OutputFile, srun_string, State_.VaspEntries[State_.VaspSelected]
         );
     }
-    private: int dummy_ = register_child_<VaspCpu>();
+    private: [[gnu::constructor]] static void dummy_() { register_child_<VaspCpu>(); }
   };
 }

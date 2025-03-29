@@ -6,3 +6,7 @@ Program:
           Mpi: 4
           Openmp: 4
           Memory: 64
+  VaspGpu:
+    Queue:
+      - Name: localhost
+        Gpu: [ "4060" ]

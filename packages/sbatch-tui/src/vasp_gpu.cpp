@@ -31,11 +31,11 @@ namespace sbatch
     public: virtual std::string get_name() const override { return "VASP(GPU)"; }
     public: virtual void load_config(YAML::Node node) override
     {
-      for (auto queue : node["queue"])
+      for (auto queue : node["Queue"])
       {
-        State_.QueueEntries.push_back(queue["name"].as<std::string>());
+        State_.QueueEntries.push_back(queue["Name"].as<std::string>());
         State_.GpuSelected.push_back(0);
-        State_.GpuEntries.push_back(queue["gpu"].as<std::vector<std::string>>());
+        State_.GpuEntries.push_back(queue["Gpu"].as<std::vector<std::string>>());
       }
     }
     public: virtual void try_load_state(YAML::Node node) noexcept override
@@ -164,6 +164,6 @@ namespace sbatch
         State_.JobName, State_.OutputFile, State_.VaspEntries[State_.VaspSelected]
       );
     }
-    private: int dummy_ = register_child_<VaspGpu>();
+    private: [[gnu::constructor]] static void dummy_() { register_child_<VaspGpu>(); }
   };
 }
