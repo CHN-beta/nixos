@@ -129,7 +129,7 @@ inputs: rec
   blog = inputs.pkgs.callPackage inputs.topInputs.blog { inherit (inputs.topInputs) hextra; };
   phono3py = inputs.pkgs.python3Packages.callPackage ./phono3py.nix { src = inputs.topInputs.phono3py; };
   lumericalLicenseManager = inputs.pkgs.callPackage ./lumericalLicenseManager.nix
-    { src = inputs.topInputs.self.src.lumerical.licenseManager; };
+    (with inputs.topInputs.self.src.lumerical; { src = licenseManager; inherit crack; });
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
