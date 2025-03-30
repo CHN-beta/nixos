@@ -130,7 +130,7 @@ namespace sbatch
       auto mem_string = [&]
       {
         if (State_.MemorySchemeSelected == 0) return recommended.Memory ? " --mem={}G"_f(*recommended.Memory) : "";
-        else if (State_.MemorySchemeSelected == 1) return ""s;
+        else if (State_.MemorySchemeSelected == 1) return " --mem=0"s;
         else if (State_.MemorySchemeSelected == 2) return " --mem={}G"_f(State_.Memory);
         else std::unreachable();
       }();
@@ -148,6 +148,6 @@ namespace sbatch
           State_.JobName, State_.OutputFile, srun_string, State_.VaspEntries[State_.VaspSelected]
         );
     }
-    private: [[gnu::constructor]] static void dummy_() { register_child_<VaspCpu>(); }
   };
+  template void Program::register_child_<VaspCpu>();
 }
