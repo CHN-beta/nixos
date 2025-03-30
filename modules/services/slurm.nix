@@ -119,7 +119,6 @@ inputs:
             SelectType=select/cons_tres
             SelectTypeParameters=CR_Core_Memory
             GresTypes=gpu
-            DefCpuPerGPU=1
 
             TaskProlog=${inputs.pkgs.writeShellScript "set_env" "echo export CUDA_DEVICE_ORDER=PCI_BUS_ID"}
 
@@ -156,6 +155,10 @@ inputs:
             # correctly set priority
             PriorityType=priority/multifactor
             PriorityWeightAge=10000
+
+            # use low resource as default
+            DefCpuPerGPU=1
+            DefMemPerCPU=1G
           '';
           extraConfigPaths =
             let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
