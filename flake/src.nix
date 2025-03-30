@@ -59,25 +59,17 @@
   };
   lumerical =
   {
-    crack = pkgs.requireFile
-    {
-      name = "crack";
-      sha256 = "1a1k3nlaidi0kk2xxamb4pm46iiz6k3sxynhd65y8riylrkck3md";
-      hashMode = "recursive";
-      message = "Source not found.";
-    };
-    licenseManager = pkgs.requireFile
-    {
-      name = "lumericalLicenseManager";
-      sha256 = "1h93r0bb37279dzghi3k2axf0b8g0mgacw0lcww5j3sx0sqjbg4l";
-      hashMode = "recursive";
-      message = "Source not found.";
-    };
     lumerical = pkgs.requireFile
     {
       name = "lumerical";
       sha256 = "03nfacykfzal29jdmygrgkl0fqsc3yqp4ig86h1h9sirci87k94c";
       hashMode = "recursive";
+    };
+    licenseManagerImage = pkgs.requireFile
+    {
+      name = "lumericalLicenseManager.tar";
+      sha256 = "VOtYMnDRUP74O2lAqMqBDLnXtNS8AhbBhyZBj/2aVoE=";
+      message = "Source not found.";
     };
   };
 }

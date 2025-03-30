@@ -128,6 +128,7 @@ inputs:
         docker = {};
         ananicy = {};
         keyd = {};
+        lumericalLicenseManager = {};
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
       packages = { android-studio = {}; mathematica = {}; };
