@@ -158,7 +158,7 @@ inputs:
 
             # use low resource as default
             DefCpuPerGPU=1
-            DefMemPerCPU=1G
+            DefMemPerCPU=1024
           '';
           extraConfigPaths =
             let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
