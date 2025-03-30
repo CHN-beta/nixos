@@ -10,3 +10,7 @@ Program:
     Queue:
       - Name: localhost
         Gpu: [ "4060" ]
+  Mumax3:
+    Queue:
+      - Name: localhost
+        Gpu: [ "4060" ]

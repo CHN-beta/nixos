@@ -291,9 +291,10 @@ inputs:
                 })
                 slurm.tui.cpuQueues;
             }
-            // (if slurm.tui.gpuQueues == null then {} else
+            // (if slurm.tui.gpuQueues == null then {} else rec
             {
               VaspGpu.Queue = builtins.map (queue: { Name = queue.name; Gpu = queue.gpuIds; }) slurm.tui.gpuQueues;
+              Mumax3 = VaspGpu;
             });
           }));
         })];
