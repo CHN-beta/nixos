@@ -61,9 +61,10 @@
   {
     lumerical = pkgs.requireFile
     {
-      name = "lumerical";
+      name = "lumerical.zip";
       sha256 = "03nfacykfzal29jdmygrgkl0fqsc3yqp4ig86h1h9sirci87k94c";
       hashMode = "recursive";
+      message = "Source not found.";
     };
     licenseManagerImage = pkgs.requireFile
     {
