@@ -7,19 +7,27 @@ inputs:
     {
       services =
       {
-        displayManager =
-        {
-          sddm = { enable = inputs.lib.mkDefault true; wayland.enable = true; theme = "breeze"; };
-          defaultSession = "plasma";
-        };
         desktopManager.plasma6.enable = true;
         xserver.enable = true;
+        greetd =
+        {
+          enable = true;
+          settings.default_session.command =
+            let sessionData = "${inputs.config.services.displayManager.sessionData.desktops}/share";
+            in builtins.concatStringsSep " "
+            [
+              "${inputs.pkgs.greetd.tuigreet}/bin/tuigreet"
+              "--sessions ${sessionData}/wayland-sessions --xsessions ${sessionData}/xsessions"
+              "--time --asterisks --remember --remember-user-session"
+              "--cmd startplasma-wayland"
+            ];
+        };
       };
       environment =
       {
         sessionVariables.GTK_USE_PORTAL = "1";
-        persistence."/nix/rootfs/current".directories =
-          [{ directory = "/var/lib/sddm"; user = "sddm"; group = "sddm"; mode = "0700"; }];
+        persistence."/nix/persistent".directories =
+          [{ directory = "/var/cache/tuigreet"; user = "greeter"; group = "greeter"; mode = "0700"; }];
         systemPackages = with inputs.pkgs; [ waybar ];
       };
       xdg.portal.extraPortals = builtins.map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" ];
