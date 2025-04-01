@@ -46,32 +46,7 @@ inputs:
           cachyos = inputs.pkgs.linuxPackages_cachyos;
           cachyos-lts = inputs.pkgs.linuxPackages_cachyos_lts;
         }.${kernel.variant};
-        kernelPatches =
-          let
-            patches =
-            {
-              lantian =
-              [{
-                name = "lantian";
-                patch = null;
-                # pick from xddxdd/nur-packages dce93a
-                extraStructuredConfig = with inputs.lib.kernel;
-                {
-                  ACPI_PCI_SLOT = yes;
-                  ENERGY_MODEL = yes;
-                  PARAVIRT_TIME_ACCOUNTING = yes;
-                  PM_AUTOSLEEP = yes;
-                  WQ_POWER_EFFICIENT_DEFAULT = yes;
-                  PREEMPT_VOLUNTARY = inputs.lib.mkForce no;
-                  PREEMPT = inputs.lib.mkForce yes;
-                  NO_HZ_FULL = yes;
-                  HZ_1000 = inputs.lib.mkForce yes;
-                  HZ_250 = inputs.lib.mkForce no;
-                  HZ = inputs.lib.mkForce (freeform "1000");
-                };
-              }];
-            };
-          in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
+        kernelPatches = let patches = {}; in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
       };
     }
     # enable scx when using cachyos
