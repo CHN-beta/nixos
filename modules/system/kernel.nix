@@ -70,13 +70,6 @@ inputs:
                   HZ = inputs.lib.mkForce (freeform "1000");
                 };
               }];
-              hibernate-progress =
-              [{
-                name = "hibernate-progress";
-                patch =
-                  let version = inputs.lib.versions.majorMinor inputs.config.boot.kernelPackages.kernel.version;
-                  in ./hibernate-progress-${version}.patch;
-              }];
             };
           in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
       };

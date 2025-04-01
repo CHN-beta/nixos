@@ -43,12 +43,7 @@ inputs:
           "alderlake"
         ];
         nixpkgs = { march = "znver4"; cuda.capabilities = [ "8.9" ]; };
-        kernel =
-        {
-          # TODO: switch to cachyos-lts
-          variant = "cachyos-lts";
-          patches = [ "hibernate-progress" ];
-        };
+        kernel.variant = "cachyos-lts";
         sysctl.laptop-mode = 5;
       };
       hardware =
