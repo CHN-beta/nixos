@@ -40,7 +40,14 @@ in platformConfig //
       genericPackages = import inputs.topInputs.nixpkgs
         { inherit system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
     in
-      { inherit genericPackages; }
+      {
+        inherit genericPackages;
+        telegram-desktop = prev.telegram-desktop.override
+        {
+          unwrapped = prev.telegram-desktop.unwrapped.overrideAttrs (prev:
+            { patches = prev.patches or [] ++ [ ./telegram.patch ]; });
+        };
+      }
       // (
         let
           source =

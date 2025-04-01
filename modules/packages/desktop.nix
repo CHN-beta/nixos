@@ -142,16 +142,6 @@ inputs:
       honkers-railway-launcher = { enable = true; package = inputs.pkgs.honkers-railway-launcher; };
       sleepy-launcher = { enable = true; package = inputs.pkgs.sleepy-launcher; };
     };
-    nixpkgs.overlays = [(final: prev:
-    {
-      telegram-desktop = prev.telegram-desktop.override
-      {
-        unwrapped = prev.telegram-desktop.unwrapped.overrideAttrs (prev:
-        {
-          patches = prev.patches or [] ++ [ ./telegram.patch ];
-        });
-      };
-    })];
     services.pcscd.enable = true;
   };
 }
