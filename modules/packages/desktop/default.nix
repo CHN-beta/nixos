@@ -52,7 +52,7 @@ inputs:
           # download
           qbittorrent nur-xddxdd.baidupcs-go wgetpaste onedrive onedrivegui rclone
           # editor
-          typora appflowy notion-app-enhanced joplin-desktop standardnotes logseq obsidian
+          typora appflowy notion-app-enhanced joplin-desktop standardnotes logseq obsidian pkgs-unstable.code-cursor
           # news
           fluent-reader rssguard newsflash newsboat follow
           # nix tools
