@@ -1617,11 +1617,11 @@
     "ufo": {
       "flake": false,
       "locked": {
-        "lastModified": 1735033622,
-        "narHash": "sha256-9/stVpqNKMUXEQHQWuU1mKVe8ODVpOjL5BYIdfY0P8A=",
+        "lastModified": 1743502543,
+        "narHash": "sha256-8ltPlFW1IRECUE2iaS5S5lLqKSDcF/k4RNH6NuAAPig=",
         "ref": "refs/heads/main",
-        "rev": "d4578c7991e48140b6f885b2acb110776b56040c",
-        "revCount": 76,
+        "rev": "745353d0896b31bb239abf6dd909dec29bfc866a",
+        "revCount": 79,
         "type": "git",
         "url": "https://git.chn.moe/chn/ufo.git"
       },
