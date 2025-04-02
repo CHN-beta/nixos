@@ -10,8 +10,6 @@ inputs:
       # device.subvol = mountPoint;
       btrfs = mkOption { type = types.attrsOf (types.attrsOf types.nonEmptyStr); default = {}; };
     };
-    # generate using: sudo mdadm --examine --scan
-    mdadm = mkOption { type = types.nullOr types.lines; default = null; };
     swap = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     # device or { device, offset }
     resume = mkOption
@@ -74,10 +72,6 @@ inputs:
         )
         (inputs.localLib.attrsToList fileSystems.mount.btrfs)));
     }
-    # mdadm
-    (inputs.lib.mkIf (fileSystems.mdadm != null)
-      { boot.initrd.services.swraid = { enable = true; mdadmConf = fileSystems.mdadm; }; }
-    )
     # swap
     { swapDevices = builtins.map (device: { device = device; }) fileSystems.swap; }
     # resume
