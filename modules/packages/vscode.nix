@@ -58,6 +58,8 @@ inputs:
                 mkhl.direnv
                 # svg viewer
                 vitaliymaz.vscode-svg-previewer
+                # draw
+                pomdtr.excalidraw-editor
               ]
               # jupyter
               # TODO: use last release
