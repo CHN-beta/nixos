@@ -17,6 +17,7 @@ inputs:
         };});
         default = {};
       };
+      # wpa_passphrase SSID(wifi name) PSK(password)
       wireless = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
     };});
     default = null;

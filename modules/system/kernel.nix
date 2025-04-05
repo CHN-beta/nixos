@@ -33,6 +33,8 @@ inputs:
           "bnx2x" "tg3"
           # network for srv2
           "e1000e" "igb" "atlantic" "igc"
+          # temp wireless for nas
+          "r8712u"
         ]
           ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ]);
         extraModulePackages = with inputs.config.boot.kernelPackages; [ v4l2loopback zenpower ];

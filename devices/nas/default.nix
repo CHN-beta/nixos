@@ -31,7 +31,7 @@ inputs:
         initrd.sshd = {};
         nixpkgs.march = "silvermont";
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
-        networking = {};
+        networking = { wireless = [ "457" ]; dhcp = [ "wlp0s20u1" ]; };
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
@@ -43,8 +43,6 @@ inputs:
           root = { device = "/"; hashTableSizeMB = 10 * 128; threads = 4; };
           nix.device = "/nix";
         };
-        smartd = {};
-        xmuvpn = {};
       };
     };
   };
