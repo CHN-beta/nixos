@@ -162,12 +162,5 @@ inputs:
     users.users.qemu-libvirtd.extraGroups = [ "disk" ];
     networking.extraHosts = "144.34.225.59 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
-    # 暂时让 nas 通过 pc 来上网
-    services.dnsmasq.settings =
-    {
-      interface = [ "enp5s0f3u2u4" ];
-      dhcp-range = "enp5s0f3u2u4,192.168.2.100,192.168.2.200,255.255.255.0";
-    };
-    networking.firewall.trustedInterfaces = [ "enp5s0f3u2u4" ];
   };
 }
