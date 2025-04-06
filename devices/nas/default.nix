@@ -31,7 +31,7 @@ inputs:
         initrd.sshd = {};
         nixpkgs.march = "silvermont";
         nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
-        networking = { wireless = [ "457" ]; dhcp = [ "wlp0s20u1" ]; };
+        networking = {};
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =

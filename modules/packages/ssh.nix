@@ -30,12 +30,12 @@ inputs:
         nas =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIIktNbEcDMKlibXg54u7QOLt0755qB/P4vfjwca8xY6V";
-          hostnames = [ "wireguard.nas.chn.moe" "192.168.1.149" "192.168.83.4" ];
+          hostnames = [ "wireguard.nas.chn.moe" "192.168.1.2" "192.168.83.4" ];
         };
         "initrd.nas" =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIAoMu0HEaFQsnlJL0L6isnkNZdRq0OiDXyaX3+fl3NjT";
-          hostnames = [ "initrd.nas.chn.moe" "192.168.1.149" ];
+          hostnames = [ "initrd.nas.chn.moe" "192.168.1.2" ];
         };
         one =
         {
@@ -135,7 +135,7 @@ inputs:
             [ "wlin" "hwang" ])
         )
         // rec {
-          nas = { host = "nas"; hostname = "192.168.1.149"; forwardX11 = true; };
+          nas = { host = "nas"; hostname = "192.168.1.2"; forwardX11 = true; };
           pc = { host = "pc"; hostname = "192.168.1.3"; forwardX11 = true; };
           one = { host = "one"; hostname = "192.168.1.4"; forwardX11 = true; };
           gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
