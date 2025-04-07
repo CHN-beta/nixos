@@ -77,7 +77,18 @@ in platformConfig //
                 }
                 // inputs.lib.optionalAttrs
                   (builtins.elem nixpkgs.march [ "skylake" "silvermont" "broadwell" "znver3" ])
-                  { redis = prev.redis.overrideAttrs { doCheck = false; }; };
+                  { redis = prev.redis.overrideAttrs { doCheck = false; }; }
+                // inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx2Support)
+                {
+                  haskellPackages = prev.haskellPackages.override
+                  {
+                    overrides = final: prev:
+                    {
+                      crypton = prev.crypton.overrideAttrs
+                        (prev: { configureFlags = prev.configureFlags or [] ++ [ "--ghc-option=-optc-mno-avx2" ]; });
+                    };
+                  };
+                };
             };
           };
           packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}
