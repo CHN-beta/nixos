@@ -34,7 +34,8 @@ inputs:
           pkgs-unstable.remmina putty mtr-gui
           # media
           mpv nomacs yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk qcm
-          waifu2x-converter-cpp inkscape blender paraview vlc whalebird spotify obs-studio
+          waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio
+          (inkscape-with-extensions.override { inkscapeExtensions = null; })
           # themes
           klassy localPackages.slate localPackages.blurred-wallpaper tela-circle-icon-theme
           catppuccin catppuccin-sddm catppuccin-cursors catppuccinifier-gui catppuccinifier-cli catppuccin-plymouth
