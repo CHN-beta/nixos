@@ -46,8 +46,6 @@ inputs:
         keep-going = true;
         keep-outputs = true;
       };
-      # TODO: remove after https://github.com/NixOS/nix/pull/10153 get merged
-      nix.package = inputs.pkgs.nixVersions.nix_2_18;
       systemd.services.nix-daemon = { serviceConfig.CacheDirectory = "nix"; environment.TMPDIR = "/var/cache/nix"; };
     }
     # nix daemon use lower io/cpu priority
@@ -152,6 +150,8 @@ inputs:
         secrets."github/token".sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/chn.yaml";
       };
     })
+    # TODO: remove after 2.27 become default
+    { nix.package = inputs.pkgs.pkgs-unstable.nixVersions.nix_2_27; }
     # c++ include path
     # environment.pathsToLink = [ "/include" ];
     # environment.variables.CPATH = "/run/current-system/sw/include";
