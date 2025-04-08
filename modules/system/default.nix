@@ -16,12 +16,6 @@ inputs:
     {
       supportedFilesystems = [ "ntfs" "nfs" "nfsv4" ];
       # consoleLogLevel = 7;
-      plymouth =
-      {
-        enable = true;
-        theme = "mac-style";
-        themePackages = [(inputs.pkgs.callPackage inputs.topInputs.mac-style {})];
-      };
       kernelParams = inputs.lib.mkIf
         (builtins.elem inputs.config.nixos.system.grub.installDevice [ "efi" "efiRemovable" ])
         [ "plymouth.use-simpledrm" ];
