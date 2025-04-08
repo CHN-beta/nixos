@@ -49,6 +49,15 @@ inputs:
         uwsm.enable = true;
       };
       systemd.services.display-manager.after = [ "plymouth-quit.service" ];
+      # 在 chromium 中输入汉字有可能会漏字，需要这个配置
+      nixos.user.sharedModules = [{ gtk =
+      {
+        enable = true;
+        iconTheme.name = "klassy";
+        gtk2.extraConfig = ''gtk-im-module="fcitx"'';
+        gtk3.extraConfig.gtk-im-module = "fcitx";
+        gtk4.extraConfig.gtk-im-module = "fcitx";
+      };}];
     })
     # prefer gui or not
     (inputs.localLib.mkConditional (builtins.elem inputs.config.nixos.model.type [ "desktop" ])
