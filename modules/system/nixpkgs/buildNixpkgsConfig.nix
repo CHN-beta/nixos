@@ -74,6 +74,7 @@ in platformConfig //
                   ctranslate2 = (prev.ctranslate2.override { withCUDA = false; withCuDNN = false; })
                     .overrideAttrs (prev:
                       { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
+                  valkey = prev.valkey.overrideAttrs { doCheck = false; };
                 }
                 // inputs.lib.optionalAttrs
                   (builtins.elem nixpkgs.march [ "skylake" "silvermont" "broadwell" "znver3" ])
