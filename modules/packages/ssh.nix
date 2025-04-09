@@ -52,6 +52,11 @@ inputs:
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIDVpsQW3kZt5alHC6mZhay3ZEe2fRGziG4YJWCv2nn/O";
           hostnames = [ "hpc.xmu.edu.cn" ];
         };
+        hpc2 =
+        {
+          ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIMv22sVyZ0RgFrdrHKbqOvdhq7TKZKImKwbbTbtO5jqy";
+          hostnames = [ "hpc.xmu.edu.cn" ];
+        };
         github =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl";

@@ -82,8 +82,11 @@ inputs:
             ++ (builtins.map
               (name: { inherit name; value = "0.0.0.0"; })
               [ "log-upload.mihoyo.com" "uspider.yuanshen.com" "ys-log-upload.mihoyo.com" ])
-            ++ [{ name = "4006024680.com"; value = "192.168.199.1"; }]
-          );
+          )
+          // {
+            "4006024680.com" = "192.168.199.1";
+            "hpc.xmu.edu.cn" = "121.192.191.11";
+          };
         };
         acme.cert."debug.mirism.one" = {};
         frpClient =
