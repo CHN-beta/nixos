@@ -48,9 +48,7 @@ inputs:
           cachyos = inputs.pkgs.linuxPackages_cachyos;
           cachyos-lts = inputs.pkgs.linuxPackages_cachyos_lts;
         }.${kernel.variant};
-        kernelPatches =
-          let patches.wireguard = [{ name = "wireguard"; patch = ./wireguard.patch; }];
-          in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
+        kernelPatches = let patches = {}; in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
       };
     }
     # enable scx when using cachyos
