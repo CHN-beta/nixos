@@ -2,78 +2,85 @@ inputs:
 let
   devices =
   {
-    vps6 =
-    {
-      peers = [ "pc" "nas" "one" "vps7" "srv2-node0" "srv1-node0" ];
-      publicKey = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4=";
-      wireguardIp = 1;
-      listenIp = "144.34.225.59";
-      lighthouse = true;
-    };
-    vps7 =
-    {
-      peers = [ "vps6" ];
-      publicKey = "n056ppNxC9oECcW7wEbALnw8GeW7nrMImtexKWYVUBk=";
-      wireguardIp = 2;
-      listenIp = "144.126.144.62";
-    };
-    pc =
-    {
-      peers = [ "vps6" ];
-      behindNat = true;
-      publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
-      wireguardIp = 3;
-    };
-    nas =
-    {
-      peers = [ "vps6" ];
-      behindNat = true;
-      publicKey = "xCYRbZEaGloMk7Awr00UR3JcDJy4AzVp4QvGNoyEgFY=";
-      wireguardIp = 4;
-    };
-    one =
-    {
-      peers = [ "vps6" ];
-      behindNat = true;
-      publicKey = "Hey9V9lleafneEJwTLPaTV11wbzCQF34Cnhr0w2ihDQ=";
-      wireguardIp = 5;
-    };
-    srv2-node0 =
-    {
-      peers = [ "vps6" ];
-      behindNat = true;
-      publicKey = "lNTwQqaR0w/loeG3Fh5qzQevuAVXhKXgiPt6fZoBGFE=";
-      wireguardIp = 7;
-    };
-    srv1-node0 =
-    {
-      peers = [ "vps6" ];
-      behindNat = true;
-      publicKey = "Br+ou+t9M9kMrnNnhTvaZi2oNFRygzebA1NqcHWADWM=";
-      wireguardIp = 9;
-    };
+    vps6 = { publicKey = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4="; wireguardIp = 1; };
+    vps7 = { publicKey = "n056ppNxC9oECcW7wEbALnw8GeW7nrMImtexKWYVUBk="; wireguardIp = 2; };
+    pc = { publicKey = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw="; wireguardIp = 3; };
+    nas = { publicKey = "xCYRbZEaGloMk7Awr00UR3JcDJy4AzVp4QvGNoyEgFY="; wireguardIp = 4; };
+    one = { publicKey = "Hey9V9lleafneEJwTLPaTV11wbzCQF34Cnhr0w2ihDQ="; wireguardIp = 5; };
+    srv2-node0 = { publicKey = "lNTwQqaR0w/loeG3Fh5qzQevuAVXhKXgiPt6fZoBGFE="; wireguardIp = 7; };
+    srv1-node0 = { publicKey = "Br+ou+t9M9kMrnNnhTvaZi2oNFRygzebA1NqcHWADWM="; wireguardIp = 9; };
   };
-  port = 51820;
+  networks = # 对于每个网络，只需要设置 net，每个设备的 listenPort，以及每个设备的每个 peer 的 publicKey endpoint allowedIPs
+  {
+    # 星形网络，所有流量通过 vps6 中转
+    wg0 = let net = 83; vps6ListenIp = "144.34.225.59"; in
+    {
+      inherit net;
+      devices =
+      {
+        vps6 =
+        {
+          listenPort = 51820;
+          peers = builtins.map
+            (peerName:
+            {
+              inherit (devices.${peerName}) publicKey;
+              allowedIPs = [ "192.168.${builtins.toString net}.${builtins.toString devices.${peerName}.wireguardIp}" ];
+            })
+            (inputs.lib.remove "vps6" (builtins.attrNames devices));
+        };
+      }
+      // (builtins.listToAttrs (builtins.map
+        (deviceName:
+        {
+          name = deviceName;
+          value.peers =
+          [{
+            inherit (devices.${deviceName}) publicKey;
+            endpoint = "${vps6ListenIp}:51820";
+            allowedIPs = [ "192.168.${builtins.toString net}.0/24" ];
+          }];
+        })
+        (inputs.lib.remove "vps6" (builtins.attrNames devices))));
+    };
+    # 两两互连
+    wg1 =
+      let
+        net = 84;
+        listenIps = let office = "210.34.16.60";
+          in { "srv1-node0" = "59.77.36.250"; "srv2-node0" = office; pc = office; nas = office; };
+      in
+      {
+        inherit net;
+        devices = builtins.listToAttrs (builtins.map
+          (deviceName:
+          {
+            name = deviceName;
+            value =
+            {
+              listenPort = 51820 + devices.${deviceName}.wireguardIp;
+              peers = builtins.map
+                (peerName: let inherit (devices.${peerName}) wireguardIp; in
+                {
+                  inherit (devices.${peerName}) publicKey;
+                  endpoint = "${listenIps.${peerName}}:${builtins.toString (51820 + wireguardIp)}";
+                  allowedIPs = [ "192.168.${builtins.toString net}.${builtins.toString wireguardIp}" ];
+                })
+                (inputs.lib.remove deviceName (builtins.attrNames listenIps));
+            };
+          })
+          (builtins.attrNames listenIps));
+      };
+  };
 in
 {
-  config.nixos.services.wireguard = inputs.lib.mkIf (devices ? ${inputs.config.nixos.model.hostname})
-  (
-    let
-      buildConfig = cfg:
-      {
-        inherit (cfg) publicKey wireguardIp;
-        lighthouse = inputs.lib.mkIf (cfg ? lighthouse) cfg.lighthouse;
-        listenIp = inputs.lib.mkIf (cfg ? listenIp) cfg.listenIp;
-      };
-      this = devices.${inputs.config.nixos.model.hostname};
-    in
-    {
-      wireguard = (buildConfig this)
+  config.nixos.services.wireguard = inputs.lib.mkMerge (builtins.map
+    (network:
+      let inherit (inputs.config.nixos.model) hostname;
+      in inputs.lib.optionalAttrs (network.value.devices ? ${hostname}) { ${network.name} =
+        network.value.devices.${hostname}
         // {
-          listenPort = port;
-          net = 83;
-          peers = builtins.map (peer: buildConfig (devices.${peer})) this.peers;
-        };
-    }
-  );
+          ip = "192.168.${builtins.toString network.value.net}.${builtins.toString devices.${hostname}.wireguardIp}";
+        };})
+    (inputs.localLib.attrsToList networks));
 }
