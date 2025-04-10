@@ -1,0 +1,14 @@
+diff --git a/drivers/net/wireguard/socket.c b/drivers/net/wireguard/socket.c
+index 0414d7a6c..01a8d0092 100644
+--- a/drivers/net/wireguard/socket.c
++++ b/drivers/net/wireguard/socket.c
+@@ -343,6 +343,9 @@ static void set_sock_opts(struct socket *sock)
+ {
+ 	sock->sk->sk_allocation = GFP_ATOMIC;
+ 	sock->sk->sk_sndbuf = INT_MAX;
++	int one = 1;
++	int ret = sock_setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, KERNEL_SOCKPTR(&one), sizeof(one));
++	if (unlikely(ret < 0)) pr_err("Wireguard could not set SO_REUSEPORT on socket\n");
+ 	sk_set_memalloc(sock->sk);
+ }
+ 
