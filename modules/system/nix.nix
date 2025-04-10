@@ -84,7 +84,7 @@ inputs:
       ++ (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ "gccarch-exact-${march}" ]);
     }
     # includeBuildDependencies
-    { system.includeBuildDependencies = inputs.topInputs.self.config.archive; }
+    { system.includeBuildDependencies = inputs.topInputs.self.config.branch == "archive"; }
     # substituters
     {
       nix.settings.substituters = inputs.lib.mkMerge

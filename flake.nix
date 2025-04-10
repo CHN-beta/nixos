@@ -83,7 +83,7 @@
     nixosConfigurations = import ./flake/nixos.nix { inherit inputs localLib; };
     overlays.default = final: prev:
       { localPackages = (import ./packages { inherit localLib; pkgs = final; topInputs = inputs; }); };
-    config = { archive = false; branch = "production"; };
+    config.branch = import ./flake/branch.nix;
     devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
     src = import ./flake/src.nix { inherit inputs; };
   };
