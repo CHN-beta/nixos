@@ -1134,11 +1134,11 @@
     "octodns-cloudflare": {
       "flake": false,
       "locked": {
-        "lastModified": 1736639669,
-        "narHash": "sha256-5k6w5e5U1sr7qBJ2tXbmAJi/BMe6qT2W6x53vDEO4xs=",
+        "lastModified": 1743461547,
+        "narHash": "sha256-XYZRiUZC7HtUrSo7fnJyL6gGPi/Npi8C+8msm7sVifE=",
         "owner": "octodns",
         "repo": "octodns-cloudflare",
-        "rev": "51c34b65b3405adeca395c0bba8b1b97af672f9d",
+        "rev": "a306f9a83c1b1a89c7a7fca545618644ed50f869",
         "type": "github"
       },
       "original": {

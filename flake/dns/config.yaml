@@ -1,7 +1,7 @@
 providers:
   config:
     class: octodns.provider.yaml.YamlProvider
-    directory: ./config
+    directory: env/OCTODNS_CONFIG
   cloudflare:
     class: octodns_cloudflare.CloudflareProvider
     token: env/CLOUDFLARE_TOKEN
@@ -9,6 +9,6 @@ providers:
 zones:
   '*':
     sources:
-      - cloudflare
-    targets:
       - config
+    targets:
+      - cloudflare
