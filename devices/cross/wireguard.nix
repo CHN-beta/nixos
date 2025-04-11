@@ -21,25 +21,30 @@ let
         vps6 =
         {
           listenPort = 51820;
-          peers = builtins.map
+          peer = builtins.listToAttrs (builtins.map
             (peerName:
             {
-              inherit (devices.${peerName}) publicKey;
-              allowedIPs = [ "192.168.${builtins.toString net}.${builtins.toString devices.${peerName}.wireguardIp}" ];
+              name = peerName;
+              value =
+              {
+                inherit (devices.${peerName}) publicKey;
+                allowedIPs =
+                  [ "192.168.${builtins.toString net}.${builtins.toString devices.${peerName}.wireguardIp}" ];
+              };
             })
-            (inputs.lib.remove "vps6" (builtins.attrNames devices));
+            (inputs.lib.remove "vps6" (builtins.attrNames devices)));
         };
       }
       // (builtins.listToAttrs (builtins.map
         (deviceName:
         {
           name = deviceName;
-          value.peers =
-          [{
-            inherit (devices.${deviceName}) publicKey;
+          value.peer.vps6 =
+          {
+            inherit (devices.vps6) publicKey;
             endpoint = "${vps6ListenIp}:51820";
             allowedIPs = [ "192.168.${builtins.toString net}.0/24" ];
-          }];
+          };
         })
         (inputs.lib.remove "vps6" (builtins.attrNames devices))));
     };
@@ -59,14 +64,18 @@ let
             value =
             {
               listenPort = 51820 + devices.${deviceName}.wireguardIp;
-              peers = builtins.map
-                (peerName: let inherit (devices.${peerName}) wireguardIp; in
+              peer = builtins.listToAttrs (builtins.map
+                (peerName:
                 {
-                  inherit (devices.${peerName}) publicKey;
-                  endpoint = "${listenIps.${peerName}}:${builtins.toString (51820 + wireguardIp)}";
-                  allowedIPs = [ "192.168.${builtins.toString net}.${builtins.toString wireguardIp}" ];
+                  name = peerName;
+                  value = let inherit (devices.${peerName}) wireguardIp; in
+                  {
+                    inherit (devices.${peerName}) publicKey;
+                    endpoint = "${listenIps.${peerName}}:${builtins.toString (51820 + wireguardIp)}";
+                    allowedIPs = [ "192.168.${builtins.toString net}.${builtins.toString wireguardIp}" ];
+                  };
                 })
-                (inputs.lib.remove deviceName (builtins.attrNames listenIps));
+                (inputs.lib.remove deviceName (builtins.attrNames listenIps)));
             };
           })
           (builtins.attrNames listenIps));

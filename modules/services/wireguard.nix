@@ -10,7 +10,7 @@ inputs:
       netmask = mkOption { type = types.int; default = 24; };
       # 设置 wireguard 监听的端口，如果不设置则随机，同时不开放防火墙
       listenPort = mkOption { type = types.nullOr types.int; default = null; };
-      peers = mkOption { type = types.nonEmptyListOf (types.submodule { options =
+      peer = mkOption { type = types.attrsOf (types.submodule { options =
       {
         publicKey = mkOption { type = types.nonEmptyStr; };
         endpoint = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
@@ -35,8 +35,13 @@ inputs:
           ips = [ "${wg.value.ip}/${builtins.toString wg.value.netmask}" ];
           privateKeyFile = inputs.config.sops.secrets.wireguard.path;
           peers = builtins.map
-            (peer: { inherit (peer) publicKey allowedIPs endpoint; persistentKeepalive = 10; })
-            wg.value.peers;
+            (peer:
+            {
+              inherit (peer) name;
+              inherit (peer.value) publicKey allowedIPs endpoint;
+              persistentKeepalive = if peer.value.endpoint != null then 10 else null;
+            })
+            (inputs.localLib.attrsToList wg.value.peer);
         };
       })
       (inputs.localLib.attrsToList wireguard));
