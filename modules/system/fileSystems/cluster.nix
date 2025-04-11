@@ -9,7 +9,7 @@ inputs:
     (inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null == "worker")
       { nixos.system.fileSystems.mount.nfs."192.168.178.1:/nix/persistent/home" = "/remote/home"; })
     # 将一部分由 home-manager 生成软链接的文件改为直接挂载，以兼容集群的设置
-    (let files = [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ".gtkrc-2.0" ]; in
+    (let files = [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]; in
     {
       home-manager.users = builtins.listToAttrs (builtins.map
         (user:
