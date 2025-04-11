@@ -40,10 +40,10 @@ inputs:
             "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; proxyProtocol = false; };
           }
           // (builtins.listToAttrs (builtins.map
-            (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.pc.chn.moe"; })
+            (site: { name = "${site}.chn.moe"; value.upstream.address = "wg0.pc.chn.moe"; })
             [ "nix-store" "xn--qbtm095lrg0bfka60z" ]))
           // (builtins.listToAttrs (builtins.map
-            (site: { name = "${site}.chn.moe"; value.upstream.address = "wireguard.vps7.chn.moe"; })
+            (site: { name = "${site}.chn.moe"; value.upstream.address = "wg0.vps7.chn.moe"; })
             [ "xn--s8w913fdga" "misskey" "synapse" "matrix" "send" "api" "git" "grafana" "peertube" ]));
           applications =
           {

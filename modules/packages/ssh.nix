@@ -10,7 +10,7 @@ inputs:
         vps6 =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIO5ZcvyRyOnUCuRtqrM/Qf+AdUe3a5bhbnfyhw2FSLDZ";
-          hostnames = [ "vps6.chn.moe" "wireguard.vps6.chn.moe" "144.34.225.59" "192.168.83.1" ];
+          hostnames = [ "vps6.chn.moe" "wg0.vps6.chn.moe" "144.34.225.59" "192.168.83.1" ];
         };
         "initrd.vps6" =
         {
@@ -20,7 +20,7 @@ inputs:
         vps7 =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIF5XkdilejDAlg5hZZD0oq69k8fQpe9hIJylTo/aLRgY";
-          hostnames = [ "vps7.chn.moe" "wireguard.vps7.chn.moe" "ssh.git.chn.moe" "144.126.144.62" "192.168.83.2" ];
+          hostnames = [ "vps7.chn.moe" "wg0.vps7.chn.moe" "ssh.git.chn.moe" "144.126.144.62" "192.168.83.2" ];
         };
         "initrd.vps7" =
         {
@@ -30,7 +30,7 @@ inputs:
         nas =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIIktNbEcDMKlibXg54u7QOLt0755qB/P4vfjwca8xY6V";
-          hostnames = [ "wireguard.nas.chn.moe" "192.168.1.2" "192.168.83.4" ];
+          hostnames = [ "wg0.nas.chn.moe" "192.168.1.2" "192.168.83.4" ];
         };
         "initrd.nas" =
         {
@@ -40,12 +40,12 @@ inputs:
         one =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIC5i2Z/vK0D5DBRg3WBzS2ejM0U+w3ZPDJRJySdPcJ5d";
-          hostnames = [ "wireguard.one.chn.moe" "192.168.1.4" "192.168.83.5" ];
+          hostnames = [ "wg0.one.chn.moe" "192.168.1.4" "192.168.83.5" ];
         };
         pc =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIMSfREi19OSwQnhdsE8wiNwGSFFJwNGN0M5gN+sdrrLJ";
-          hostnames = [ "wireguard.pc.chn.moe" "[office.chn.moe]:3673" "192.168.1.3" "192.168.83.3" ];
+          hostnames = [ "wg0.pc.chn.moe" "[office.chn.moe]:3673" "192.168.1.3" "192.168.83.3" ];
         };
         hpc =
         {
@@ -65,7 +65,7 @@ inputs:
         srv2-node0 =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIJZ/+divGnDr0x+UlknA84Tfu6TPD+zBGmxWZY4Z38P6";
-          hostnames = [ "srv2.chn.moe" "wireguard.srv2.chn.moe" ];
+          hostnames = [ "srv2.chn.moe" "wg0.srv2.chn.moe" ];
         };
         srv2-node1 =
         {
@@ -75,7 +75,7 @@ inputs:
         srv1-node0 =
         {
           ed25519 = "AAAAC3NzaC1lZDI1NTE5AAAAIDm6M1D7dBVhjjZtXYuzMj2P1fXNWN3O9wmwNssxEeDs";
-          hostnames = [ "srv1.chn.moe" "wireguard.srv1.chn.moe" ];
+          hostnames = [ "srv1.chn.moe" "wg0.srv1.chn.moe" ];
         };
         srv1-node1 =
         {
@@ -121,10 +121,10 @@ inputs:
         (
           (builtins.map
             (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
-            [ "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.nas" "wireguard.one" ])
+            [ "vps6" "wg0.vps6" "vps7" "wg0.vps7" "wg0.nas" "wg0.one" ])
           ++ (builtins.map
             (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; }; })
-            [ "wireguard.pc" "srv1" "wireguard.srv1" "srv2" "wireguard.srv2" ])
+            [ "wg0.pc" "srv1" "wg0.srv1" "srv2" "wg0.srv2" ])
           ++ (builtins.map
             (host:
             {
@@ -152,7 +152,7 @@ inputs:
             forwardAgent = true;
             extraOptions.AddKeysToAgent = "yes";
           };
-          "wireguard.jykang" = jykang // { host = "wireguard.jykang"; proxyJump = "wireguard.srv2"; };
+          "wg0.jykang" = jykang // { host = "wg0.jykang"; proxyJump = "wg0.srv2"; };
           srv1-node0 = { host = "srv1-node0"; hostname = "srv1.chn.moe"; };
           srv1-node1 = { host = "srv1-node1"; hostname = "192.168.178.2"; proxyJump = "srv1"; };
           srv1-node2 = { host = "srv1-node2"; hostname = "192.168.178.3"; proxyJump = "srv1"; };

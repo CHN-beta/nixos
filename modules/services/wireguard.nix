@@ -33,13 +33,13 @@ inputs:
         {
           inherit (wg.value) listenPort;
           ips = [ "${wg.value.ip}/${builtins.toString wg.value.netmask}" ];
-          privateKeyFile = inputs.config.sops.secrets."wireguard".path;
+          privateKeyFile = inputs.config.sops.secrets.wireguard.path;
           peers = builtins.map
             (peer: { inherit (peer) publicKey allowedIPs endpoint; persistentKeepalive = 10; })
             wg.value.peers;
         };
       })
       (inputs.localLib.attrsToList wireguard));
-    sops.secrets."wireguard" = {};
+    sops.secrets.wireguard = {};
   };
 }

@@ -13,13 +13,13 @@ inputs:
             xmuhk = { host = "xmuhk"; hostname = "10.26.14.56"; user = "xmuhk"; };
             xmuhk2 = { host = "xmuhk2"; hostname = "183.233.219.132"; user = "xmuhk"; port = 62022; };
             jykang.setEnv.TERM = "chn_unset_ls_colors:chn_cd:linwei/chn:xterm-256color";
-            "wireguard.jykang" = jykang;
+            "wg0.jykang" = jykang;
           }
           // (builtins.listToAttrs (builtins.map
             (system: { name = system; value = { forwardAgent = true; extraOptions.AddKeysToAgent = "yes"; }; })
             [
-              "vps6" "wireguard.vps6" "vps7" "wireguard.vps7" "wireguard.pc" "nas" "wireguard.nas" "pc"
-              "srv1" "wireguard.srv1" "srv2" "wireguard.srv2" "one" "wireguard.one"
+              "vps6" "wg0.vps6" "vps7" "wg0.vps7" "wg0.pc" "nas" "wg0.nas" "pc"
+              "srv1" "wg0.srv1" "srv2" "wg0.srv2" "one" "wg0.one"
             ]));
           extraConfig = inputs.lib.mkIf inputs.config.nixos.model.private
           ''
