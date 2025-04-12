@@ -31,17 +31,27 @@
     version = "3.1.2";
     hash = "sha256-f2cu+itsoNs03paOW1dmsUsbPa3iEtL4oIPGAKETRc4=";
   };
-  vtst =
+  vasp =
   {
-    patch = pkgs.fetchzip
+    vasp = pkgs.requireFile
     {
-      url = "http://theory.cm.utexas.edu/code/vtstcode-204.tgz";
-      sha256 = "00qpqiabl568fwqjnmwqwr0jwg7s56xd9lv9lw8q4qxqy19cpg62";
+      name = "vasp.6.4.3.tgz";
+      # nix-prefetch-url file://$(pwd)/vasp.6.4.3.tgz
+      sha256 = "1x14dixils77rr4c6yqmxkvyzgfz6906badsw2shksd3y9ryfc7y";
+      message = "Source file not found.";
     };
-    script = pkgs.fetchzip
+    vtst =
     {
-      url = "http://theory.cm.utexas.edu/code/vtstscripts.tgz";
-      sha256 = "18gsw2850ig1mg4spp39i0ygfcwx0lqnamysn5whiax22m8d5z67";
+      patch = pkgs.fetchzip
+      {
+        url = "http://theory.cm.utexas.edu/code/vtstcode-204.tgz";
+        sha256 = "00qpqiabl568fwqjnmwqwr0jwg7s56xd9lv9lw8q4qxqy19cpg62";
+      };
+      script = pkgs.fetchzip
+      {
+        url = "http://theory.cm.utexas.edu/code/vtstscripts.tgz";
+        sha256 = "18gsw2850ig1mg4spp39i0ygfcwx0lqnamysn5whiax22m8d5z67";
+      };
     };
   };
   huginn = pkgs.dockerTools.pullImage
@@ -95,4 +105,38 @@
       sha256 = "Tq4AzQgde2KIWKA1k6JlxvdphGG9JluHMZjVw0fBUeQ=";
     };
   };
+  # nix-store --query --hash $(nix store add-path . --name 'mirism')
+  mirism-old = pkgs.requireFile
+  {
+    name = "mirism";
+    sha256 = "0f50pvdafhlmrlbf341mkp9q50v4ld5pbx92d2w1633f18zghbzf";
+    hashMode = "recursive";
+    message = "Source file not found.";
+  };
+  pslist =
+  {
+    version = "1.4.0";
+    src = pkgs.fetchzip
+    {
+      url = "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/pslist/1.4.0-4/pslist_1.4.0.orig.tar.xz";
+      sha256 = "1sp1h7ccniz658ms331npffpa9iz8llig43d9mlysll420nb3xqv";
+    };
+  };
+  vaspkit = rec
+  {
+    version = "1.5.1";
+    potcar = pkgs.requireFile
+    {
+      name = "POTCAR";
+      sha256 = "01adpp9amf27dd39m8svip3n6ax822vsyhdi6jn5agj13lis0ln3";
+      hashMode = "recursive";
+      message = "POTCAR not found.";
+    };
+    vaspkit = pkgs.fetchurl
+    {
+      url = "mirror://sourceforge/vaspkit/Binaries/vaspkit.${version}.linux.x64.tar.gz";
+      sha256 = "1cbj1mv7vx18icwlk9d2vfavsfd653943xg2ywzd8b7pb43xrfs1";
+    };
+  };
+  mathematica = pkgs.mathematica.src;
 }

@@ -1,43 +1,28 @@
-{
-  stdenv, src, writeShellScriptBin, lib,
-  rsync, which, wannier90, hdf5, vtst, mpi, mkl
-}:
+{ stdenv, src, writeShellScriptBin, lib, rsync, which, wannier90, hdf5, mpi, mkl }:
 let vasp = stdenv.mkDerivation
-  {
-    name = "vasp-intel";
-    inherit src;
-    patches = [ ../vtst.patch ];
-    configurePhase =
-    ''
-      cp ${./makefile.include} makefile.include
-      chmod +w makefile.include
-      cp ${../constr_cell_relax.F} src/constr_cell_relax.F
-      cp -r ${vtst}/vtstcode6.4.3/* src
-      chmod -R +w src
-    '';
-    buildInputs = [ hdf5 wannier90 mkl ];
-    nativeBuildInputs = [ rsync which mpi ];
-    installPhase =
-    ''
-      mkdir -p $out/bin
-      for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
-      mkdir $out/src
-      ln -s ${src} $out/src/vasp
-      ln -s ${vtst} $out/src/vtst
-    '';
-
-    # NIX_DEBUG = "7";
-
-    # enable parallel build
-    enableParallelBuilding = true;
-    DEPS = "1";
-
-    # vasp directly include headers under ${mkl}/include/fftw
-    MKLROOT = mkl;
-
-    # tell openmpi use ifx
-    OMPI_F90 = "ifx";
-  };
+{
+  name = "vasp-intel";
+  src = src.vasp;
+  patches = [ ../vtst.patch ];
+  configurePhase =
+  ''
+    cp ${./makefile.include} makefile.include
+    chmod +w makefile.include
+    cp ${../constr_cell_relax.F} src/constr_cell_relax.F
+    cp -r ${src.vtst.patch}/vtstcode6.4.3/* src
+    chmod -R +w src
+  '';
+  buildInputs = [ hdf5 wannier90 mkl ];
+  nativeBuildInputs = [ rsync which mpi ];
+  installPhase =
+  ''
+    mkdir -p $out/bin
+    for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
+  '';
+  # NIX_DEBUG = "7";
+  enableParallelBuilding = true;
+  env = { DEPS = "1"; MKLROOT = mkl; OMPI_F90 = "ifx"; };
+};
 in writeShellScriptBin "vasp-intel"
 ''
   export PATH=${vasp}/bin:${mpi}/bin''${PATH:+:$PATH}

@@ -1,9 +1,7 @@
 {
   lib, stdenv, fetchurl, autoPatchelfHook, wrapGAppsHook, makeWrapper, src,
   glib, gtk2, xorg, libGLU, gtk3, writeShellScript, gsettings-desktop-schemas, xdg-utils, webkitgtk, jdk
-}:
-
-stdenv.mkDerivation
+}: stdenv.mkDerivation
 {
   pname = "vesta";
   inherit (src) src version;

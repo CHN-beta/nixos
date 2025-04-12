@@ -8,7 +8,11 @@ inputs: rec
     src = inputs.topInputs.misskey;
     extraIntegritySha256 = inputs.topInputs.self.src.misskey;
   };
-  vaspkit = inputs.pkgs.callPackage ./vaspkit.nix { inherit (inputs.localLib) attrsToList; };
+  vaspkit = inputs.pkgs.callPackage ./vaspkit.nix
+  {
+    inherit (inputs.localLib) attrsToList;
+    src = inputs.topInputs.self.src.vaspkit;
+  };
   v-sim = inputs.pkgs.callPackage ./v-sim.nix { src = inputs.topInputs.v-sim; };
   concurrencpp = inputs.pkgs.callPackage ./concurrencpp.nix { src = inputs.topInputs.concurrencpp; };
   matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix
@@ -18,11 +22,12 @@ inputs: rec
   };
   zpp-bits = inputs.pkgs.callPackage ./zpp-bits.nix { src = inputs.topInputs.zpp-bits; };
   nameof = inputs.pkgs.callPackage ./nameof.nix { src = inputs.topInputs.nameof; };
-  pslist = inputs.pkgs.callPackage ./pslist.nix {};
+  pslist = inputs.pkgs.callPackage ./pslist.nix { src = inputs.topInputs.self.src.pslist; };
   tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp.nix { src = inputs.topInputs.tgbot-cpp; };
   mirism-old = inputs.pkgs.callPackage ./mirism-old.nix
   {
     inherit cppcoro nameof tgbot-cpp date;
+    src = inputs.topInputs.self.src.mirism-old;
     nghttp2 = inputs.pkgs.callPackage "${inputs.topInputs."nixpkgs-23.05"}/pkgs/development/libraries/nghttp2"
       { enableAsioLib = true; stdenv = inputs.pkgs.gcc12Stdenv; };
     stdenv = inputs.pkgs.gcc12Stdenv;
@@ -31,26 +36,23 @@ inputs: rec
   date = inputs.pkgs.callPackage ./date.nix { src = inputs.topInputs.date; };
   blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper.nix { src = inputs.topInputs.blurred-wallpaper; };
   slate = inputs.pkgs.callPackage ./slate.nix { src = inputs.topInputs.slate; };
-  vasp = rec
+  vasp =
   {
-    src = inputs.pkgs.callPackage ./vasp/source.nix {};
     gnu = inputs.pkgs.callPackage ./vasp/gnu
     {
       inherit (inputs.pkgs.llvmPackages) openmp;
-      inherit src;
+      src = inputs.topInputs.self.src.vasp.vasp;
       hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; cppSupport = false; };
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
     {
       inherit (nvhpcPackages) stdenv hdf5 mpi;
-      inherit src;
-      vtst = inputs.topInputs.self.src.vtst.patch;
+      src = inputs.topInputs.self.src.vasp;
       wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
     intel = inputs.pkgs.callPackage ./vasp/intel
     {
-      inherit src;
-      vtst = inputs.topInputs.self.src.vtst.patch;
+      src = inputs.topInputs.self.src.vasp;
       inherit (inputs.pkgs.intelPackages_2023) stdenv;
       mpi = inputs.pkgs.openmpi.override
       {
@@ -67,7 +69,7 @@ inputs: rec
       };
       wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
-    vtst = inputs.pkgs.callPackage ./vasp/vtst.nix { src = inputs.topInputs.self.src.vtst.script; };
+    vtst = inputs.pkgs.callPackage ./vasp/vtst.nix { src = inputs.topInputs.self.src.vasp.vtst.script; };
   };
   mumax = inputs.pkgs.callPackage ./mumax.nix { src = inputs.topInputs.mumax; };
   biu = inputs.pkgs.callPackage ./biu

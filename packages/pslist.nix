@@ -1,14 +1,9 @@
 # http://launchpadlibrarian.net/632309499/pslist_1.4.0-4_all.deb
 # https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/pslist/1.4.0-4/pslist_1.4.0.orig.tar.xz
-{ lib, stdenv, fetchzip, perl, procps }: stdenv.mkDerivation
+{ stdenv, src, perl, procps }: stdenv.mkDerivation
 {
   pname = "pslist";
-  version = "1.4.0";
-  src = fetchzip
-  {
-    url = "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/pslist/1.4.0-4/pslist_1.4.0.orig.tar.xz";
-    sha256 = "1sp1h7ccniz658ms331npffpa9iz8llig43d9mlysll420nb3xqv";
-  };
+  inherit (src) version src;
   buildInstall = [ perl procps ];
   installPhase =
   ''
