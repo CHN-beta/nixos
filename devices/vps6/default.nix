@@ -61,7 +61,7 @@ inputs:
         httpua = {};
         mirism.enable = true;
         fail2ban = {};
-        beesd.instances.root = "/";
+        beesd."/" = {};
       };
     };
     specialisation.generic.configuration =

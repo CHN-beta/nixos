@@ -19,7 +19,7 @@ inputs:
       {
         xray.client =
           { enable = true; dnsmasq = { extraInterfaces = [ "eno2" ]; hosts."hpc.xmu.edu.cn" = "121.192.191.11"; }; };
-        beesd.instances.root = { device = "/"; hashTableSizeMB = 16 * 128; loadAverage = 8; };
+        beesd."/" = { hashTableSizeMB = 16 * 128; loadAverage = 8; };
         xrdp = { enable = true; hostname = [ "srv2.chn.moe" ]; };
         samba = { hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
         groupshare = {};

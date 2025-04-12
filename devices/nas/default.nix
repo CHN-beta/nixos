@@ -38,11 +38,7 @@ inputs:
       {
         sshd = {};
         xray.client = { enable = true; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
-        beesd.instances =
-        {
-          root = { device = "/"; hashTableSizeMB = 10 * 128; threads = 4; };
-          nix.device = "/nix";
-        };
+        beesd = { "/" = { hashTableSizeMB = 10 * 128; threads = 4; }; "/nix" = {}; };
       };
     };
   };

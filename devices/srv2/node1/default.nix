@@ -11,7 +11,7 @@ inputs:
         networking.static.enp58s0 =
           { ip = "192.168.178.2"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
       };
-      services.beesd.instances.root = { device = "/"; hashTableSizeMB = 64; };
+      services.beesd."/".hashTableSizeMB = 64;
     };
     services.hardware.bolt.enable = true;
     specialisation.no-share-home.configuration =

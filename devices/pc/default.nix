@@ -102,7 +102,7 @@ inputs:
         };
         nix-serve = { enable = true; hostname = "nix-store.chn.moe"; };
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
-        beesd.instances.root = { device = "/"; hashTableSizeMB = 4 * 128; threads = 4; };
+        beesd."/" = { hashTableSizeMB = 4 * 128; threads = 4; };
         gamemode = { enable = true; drmDevice = 0; };
         slurm =
         {

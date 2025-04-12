@@ -18,7 +18,7 @@ inputs:
       services =
       {
         xray.client.enable = true;
-        beesd.instances.root = { device = "/"; threads = 4; };
+        beesd."/".threads = 4;
       };
       virtualization.kvmHost = { enable = true; gui = true; };
     };

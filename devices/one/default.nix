@@ -26,7 +26,7 @@ inputs:
       services =
       {
         xray.client.enable = true;
-        beesd.instances.root = { device = "/"; hashTableSizeMB = 64; };
+        beesd."/".hashTableSizeMB = 64;
         sshd = {};
       };
       virtualization.kvmHost = { enable = true; gui = true; };
