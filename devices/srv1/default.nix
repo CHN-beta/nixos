@@ -60,7 +60,6 @@ inputs:
             { name = "n0"; mpiThreads = 8; openmpThreads = 10; }
             { name = "n1"; mpiThreads = 8; openmpThreads = 4; }
           ];
-          setupFirewall = true;
         };
       };
       user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "GROUPIII-1" "GROUPIII-2" "GROUPIII-3" ];

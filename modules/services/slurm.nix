@@ -44,8 +44,6 @@ inputs:
         default = null;
       };
     };
-    # 是否打开防火墙相应端口，对于多节点部署需要打开
-    setupFirewall = mkOption { type = types.bool; default = false; };
   };
   config = let inherit (inputs.config.nixos.services) slurm; in inputs.lib.mkIf slurm.enable (inputs.lib.mkMerge
   [
@@ -196,9 +194,6 @@ inputs:
           "${inputs.config.nixos.system.sops.clusterSopsDir}/munge.key";
         owner = inputs.config.systemd.services.munged.serviceConfig.User;
       };
-      networking.firewall =
-        let config = inputs.lib.mkIf slurm.setupFirewall [ 6818 ];
-        in { allowedTCPPorts = config; allowedUDPPorts = config; };
       environment.sessionVariables = { SLURM_UNBUFFEREDIO = "1"; SLURM_CPU_BIND = "v"; };
     }
     # master 配置
@@ -302,9 +297,6 @@ inputs:
         ];}];
         services.mariadb = { enable = true; instances.slurm = {}; };
       };
-      networking.firewall =
-        let config = inputs.lib.mkIf slurm.setupFirewall [ 6817 ];
-        in { allowedTCPPorts = config; allowedUDPPorts = config; };
     })
   ]);
 }
