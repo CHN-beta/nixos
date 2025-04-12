@@ -17,7 +17,6 @@ inputs: rec
     stdenv = inputs.pkgs.clang18Stdenv;
   };
   zpp-bits = inputs.pkgs.callPackage ./zpp-bits.nix { src = inputs.topInputs.zpp-bits; };
-  eigen = inputs.pkgs.callPackage ./eigen.nix { src = inputs.topInputs.eigen; };
   nameof = inputs.pkgs.callPackage ./nameof.nix { src = inputs.topInputs.nameof; };
   pslist = inputs.pkgs.callPackage ./pslist.nix {};
   tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp.nix { src = inputs.topInputs.tgbot-cpp; };
@@ -32,7 +31,6 @@ inputs: rec
   date = inputs.pkgs.callPackage ./date.nix { src = inputs.topInputs.date; };
   blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper.nix { src = inputs.topInputs.blurred-wallpaper; };
   slate = inputs.pkgs.callPackage ./slate.nix { src = inputs.topInputs.slate; };
-  lmod = inputs.pkgs.callPackage ./lmod.nix { src = inputs.topInputs.lmod; };
   vasp = rec
   {
     src = inputs.pkgs.callPackage ./vasp/source.nix {};
