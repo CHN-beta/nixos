@@ -1,6 +1,6 @@
 inputs: rec
 {
-  vesta = inputs.pkgs.callPackage ./vesta.nix {};
+  vesta = inputs.pkgs.callPackage ./vesta.nix { src = inputs.topInputs.self.src.vesta; };
   rsshub = inputs.pkgs.callPackage ./rsshub.nix { inherit mkPnpmPackage; src = inputs.topInputs.rsshub; };
   misskey = inputs.pkgs.callPackage ./misskey.nix
   {

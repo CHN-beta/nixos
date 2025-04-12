@@ -81,4 +81,18 @@
       message = "Source not found.";
     };
   };
+  vesta =
+  {
+    version = "3.90.0a";
+    src = pkgs.fetchurl
+    {
+      url = "https://jp-minerals.org/vesta/archives/testing/VESTA-gtk3-x86_64.tar.bz2";
+      sha256 = "0bsvfr3409g2v1wgnfixpkjz1yzl2j1nlrk5a5rkdfs94rrvxzaa";
+    };
+    desktopFile = pkgs.fetchurl
+    {
+      url = "https://aur.archlinux.org/cgit/aur.git/plain/VESTA.desktop?h=vesta&id=4fae08afc37ee0fd88d14328cf0d6b308fea04d1";
+      sha256 = "Tq4AzQgde2KIWKA1k6JlxvdphGG9JluHMZjVw0fBUeQ=";
+    };
+  };
 }
