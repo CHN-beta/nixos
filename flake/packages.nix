@@ -31,6 +31,13 @@
     lapack = pkgs.pkgsStatic.openblas;
   };
   jykang = import ../devices/jykang.xmuhpc inputs;
+  src =
+    let getDrv = x:
+      if pkgs.lib.isDerivation x then [ x ]
+      else if builtins.isAttrs x then builtins.concatMap getDrv (builtins.attrValues x)
+      else if builtins.isList x then builtins.concatMap getDrv x
+      else [];
+    in pkgs.writeClosure (getDrv (inputs.self.outputs.src));
 }
 // (builtins.listToAttrs (builtins.map
   (system: { inherit (system) name; value = system.value.config.system.build.toplevel; })
