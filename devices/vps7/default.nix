@@ -52,6 +52,7 @@ inputs:
         docker = {};
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
+        open-webui = { ollamaHost = "192.168.83.3"; };
       };
     };
     specialisation.generic.configuration =
