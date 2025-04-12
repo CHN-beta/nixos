@@ -2,7 +2,7 @@
 {
   requireFile, stdenv, lib, src,
   perl, libnl, rdma-core, zlib, numactl, libevent, hwloc, libpsm2, libfabric, pmix, ucx, ucc, prrte
-}: stdenv.mkDerivation rec
+}: stdenv.mkDerivation
 {
   name = "openmpi";
   inherit src;
@@ -57,5 +57,4 @@
 
   enableParallelBuilding = true;
   doCheck = true;
-  postInstall = "ln -s ${src} $out/src";
 }
