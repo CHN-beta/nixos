@@ -13,12 +13,7 @@ in builtins.listToAttrs
         system = "x86_64-linux";
         specialArgs = { topInputs = inputs; inherit localLib; };
         modules = localLib.mkModules
-        [
-          { config = { nixpkgs.overlays = [ inputs.self.overlays.default ]; nixos.model.hostname = system; }; }
-          ../modules
-          ../devices/${system}
-          ../devices/cross
-        ];
+          [ { config.nixos.model.hostname = system; } ../modules ../devices/${system} ../devices/cross ];
       };
     })
     machine)
@@ -35,13 +30,7 @@ in builtins.listToAttrs
             specialArgs = { topInputs = inputs; inherit localLib; };
             modules = localLib.mkModules
             [
-              {
-                config =
-                {
-                  nixpkgs.overlays = [ inputs.self.overlays.default ];
-                  nixos.model.cluster = { clusterName = cluster.name; nodeName = node; };
-                };
-              }
+              { config.nixos.model.cluster = { clusterName = cluster.name; nodeName = node; }; }
               ../modules
               ../devices/${cluster.name}
               ../devices/${cluster.name}/${node}

@@ -34,12 +34,27 @@ in platformConfig //
   // (inputs.lib.optionalAttrs (nixpkgs.nixRoot != null)
     { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/var"; }; });
   overlays =
-  [(final: prev:
-    let
-      inherit (final) system;
-      genericPackages = import inputs.topInputs.nixpkgs
-        { inherit system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
-    in
+  [
+    inputs.topInputs.qchem.overlays.default
+    inputs.topInputs.bscpkgs.overlays.default
+    inputs.topInputs.aagl.overlays.default
+    inputs.topInputs.nur-xddxdd.overlays.inSubTree
+    (final: prev:
+    {
+      nix-vscode-extensions = inputs.topInputs.nix-vscode-extensions.extensions.${prev.system};
+      nur-linyinfeng = (inputs.topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
+      firefox-addons = (import "${inputs.topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
+      inherit (import inputs.topInputs.gricad { pkgs = final; }) intel-oneapi intel-oneapi-2022;
+      linuxPackages_cachyos_lts =
+        final.linuxPackagesFor (inputs.topInputs.cachyos-lts.overlays.default final prev).linuxPackages_cachyos;
+    })
+    inputs.topInputs.self.overlays.default
+    (final: prev:
+      let
+        inherit (final) system;
+        genericPackages = import inputs.topInputs.nixpkgs
+          { inherit system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
+      in
       {
         inherit genericPackages;
         telegram-desktop = prev.telegram-desktop.override
