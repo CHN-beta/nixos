@@ -181,16 +181,13 @@ inputs:
         };
         munge = { enable = true; password = inputs.config.sops.secrets."munge.key".path; };
       };
-      systemd =
-      {
-        services.slurmd.environment =
-          let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
-          in inputs.lib.mkIf (gpus != null)
-          {
-            CUDA_PATH = "${inputs.pkgs.cudatoolkit}";
-            LD_LIBRARY_PATH = "${inputs.config.hardware.nvidia.package}/lib";
-          };
-      };
+      systemd.services.slurmd.environment =
+        let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
+        in inputs.lib.mkIf (gpus != null)
+        {
+          CUDA_PATH = "${inputs.pkgs.cudatoolkit}";
+          LD_LIBRARY_PATH = "${inputs.config.hardware.nvidia.package}/lib";
+        };
       sops.secrets."munge.key" =
       {
         format = "binary";
@@ -229,7 +226,7 @@ inputs:
       };
       systemd =
       {
-        services.slurmctld.after = [ "suid-sgid-wrappers.service" ];
+        services.slurmctld = { after = [ "suid-sgid-wrappers.service" ]; serviceConfig.MemorySwapMax = "0"; };
         tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
       };
       sops =
