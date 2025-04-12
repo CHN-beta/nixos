@@ -8,6 +8,14 @@
       url = "https://developer.download.nvidia.com/hpc-sdk/24.11/nvhpc_2024_2411_Linux_x86_64_cuda_12.6.tar.gz";
       sha256 = "080rb89p2z98b75wqssvp3s8x6b5n0556d0zskh3cfapcb08lh1r";
     };
+    mpi = pkgs.requireFile
+    {
+      name = "openmpi-gitclone.tar.gz";
+      # download from https://developer.nvidia.com/networking/hpc-x/eula?mrequest=downloads&mtype=hpc&mver=hpc-x&mname=v2.22/hpcx-v2.22-gcc-doca_ofed-ubuntu24.04-cuda12-x86_64.tbz
+      # nix-prefetch-url file://$(pwd)/openmpi-gitclone.tar.gz
+      sha256 = "05r5x6mgw2f2kcq9vhdkfj42panchzlbpns8qy57y4jsbmabwabi";
+      message = "Source file not found.";
+    };
     version = "24.11";
     cudaVersion = "12.6";
   };

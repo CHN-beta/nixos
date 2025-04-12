@@ -1,18 +1,11 @@
 # pick from nixpkgs 24e16d8b21f698cbe372be67b645a1919bfd0d20
 {
-  requireFile, stdenv, lib,
+  requireFile, stdenv, lib, src,
   perl, libnl, rdma-core, zlib, numactl, libevent, hwloc, libpsm2, libfabric, pmix, ucx, ucc, prrte
 }: stdenv.mkDerivation rec
 {
   name = "openmpi";
-  src = requireFile
-  {
-    name = "openmpi-gitclone.tar.gz";
-    # download from https://developer.nvidia.com/networking/hpc-x/eula?mrequest=downloads&mtype=hpc&mver=hpc-x&mname=v2.22/hpcx-v2.22-gcc-doca_ofed-ubuntu24.04-cuda12-x86_64.tbz
-    # nix-prefetch-url file://$(pwd)/openmpi-gitclone.tar.gz
-    sha256 = "05r5x6mgw2f2kcq9vhdkfj42panchzlbpns8qy57y4jsbmabwabi";
-    message = "Source file not found.";
-  };
+  inherit src;
   postPatch = ''
     patchShebangs ./
     ${lib.pipe {

@@ -107,7 +107,8 @@ inputs: rec
     fmt = (inputs.pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; };
     hdf5 = inputs.pkgs.hdf5.override
       { inherit (final) stdenv; cppSupport = false; fortranSupport = true; enableShared = false; enableStatic = true; };
-    mpi = inputs.pkgs.callPackage ./nvhpc/mpi.nix { inherit (final) stdenv; };
+    mpi = inputs.pkgs.callPackage ./nvhpc/mpi.nix
+      { inherit (final) stdenv; src = inputs.topInputs.self.src.nvhpc.mpi; };
   });
   gccFull = inputs.pkgs.symlinkJoin
   {
