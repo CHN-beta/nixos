@@ -1,7 +1,6 @@
 inputs:
 {
-  imports = inputs.localLib.findModules ./.;
-  config = inputs.lib.mkIf (inputs.config.nixos.model.cluster.clusterName or null == "srv1")
+  config =
   {
     nixos =
     {

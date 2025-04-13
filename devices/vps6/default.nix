@@ -1,6 +1,6 @@
 inputs:
 {
-  config = inputs.lib.mkIf (inputs.config.nixos.model.hostname == "vps6")
+  config =
   {
     nixos =
     {
