@@ -18,7 +18,6 @@ inputs:
       environment =
       {
         ENABLE_PERSISTENT_CONFIG = "False";
-        ENABLE_SIGNUP = "False";
         WEBUI_URL = "https://${open-webui.hostname}";
         ADMIN_EMAIL = "chn@chn.moe";
         OLLAMA_API_BASE_URL = "http://${open-webui.ollamaHost}:11434";
