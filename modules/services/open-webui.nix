@@ -18,12 +18,16 @@ inputs:
       environment =
       {
         ENABLE_PERSISTENT_CONFIG = "False";
+        ENABLE_SIGNUP = "True";
         WEBUI_URL = "https://${open-webui.hostname}";
         ADMIN_EMAIL = "chn@chn.moe";
         OLLAMA_API_BASE_URL = "http://${open-webui.ollamaHost}:11434";
-        OPENAI_API_BASE_URL = "https://oa.api2d.net";
-        # TASK_MODEL
-        # TASK_MODEL_EXTERNAL
+        OPENAI_API_BASE_URL = "https://oa.api2d.net/v1";
+        CORS_ALLOW_ORIGIN = "https://${open-webui.hostname}";
+        TASK_MODEL = "deepseek-r1:7b";
+        TASK_MODEL_EXTERNAL = "deepseek-r1:7b";
+        ENABLE_IMAGE_GENERATION = "True";
+        IMAGES_OPENAI_API_BASE_URL = "https://oa.api2d.net/v1";
       };
       environmentFile = inputs.config.sops.templates."open-webui.env".path;
     };
@@ -33,6 +37,7 @@ inputs:
       ''
         OPENAI_API_KEY=${placeholder."open-webui/openai"}
         WEBUI_SECRET_KEY=${placeholder."open-webui/webui"}
+        IMAGES_OPENAI_API_KEY=${placeholder."open-webui/openai"}
       '';
       secrets = { "open-webui/openai" = {}; "open-webui/webui" = {}; };
     };
