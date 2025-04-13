@@ -25,15 +25,17 @@
     "blog": {
       "flake": false,
       "locked": {
-        "lastModified": 1742624998,
-        "narHash": "sha256-doz+SqzsfyO7XPm3H/ssLf4DxQvppDlvYMIflClqZh0=",
+        "lastModified": 1742891194,
+        "lfs": true,
+        "narHash": "sha256-MTP/2zAh8VUft3mlgLOWYRuYslDKDu+YRM6BM8r9L9w=",
         "ref": "refs/heads/public",
-        "rev": "52a6ddc2fd5e4b358a1db973c553eea3ab7df766",
-        "revCount": 26,
+        "rev": "99ec653eac9f8452500ee3a2d553728dd60a1a11",
+        "revCount": 27,
         "type": "git",
         "url": "https://git.chn.moe/chn/blog-public.git"
       },
       "original": {
+        "lfs": true,
         "type": "git",
         "url": "https://git.chn.moe/chn/blog-public.git"
       }
@@ -196,22 +198,6 @@
         "owner": "numtide",
         "repo": "devshell",
         "type": "github"
-      }
-    },
-    "eigen": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1733870909,
-        "narHash": "sha256-hUVxiyRX4ctyYPS+yDsuQ8D/Uby9ocZV2u0fRQZc2Y4=",
-        "owner": "libeigen",
-        "repo": "eigen",
-        "rev": "af59ada0accc722ebd930ec65340156dbe62ffa1",
-        "type": "gitlab"
-      },
-      "original": {
-        "owner": "libeigen",
-        "repo": "eigen",
-        "type": "gitlab"
       }
     },
     "envfs": {
@@ -654,22 +640,6 @@
         "type": "github"
       }
     },
-    "lmod": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1734125811,
-        "narHash": "sha256-eytDTLzRIbQ2M0wn4IVJkmOetoljX/SsdSnDU00i1GE=",
-        "owner": "TACC",
-        "repo": "Lmod",
-        "rev": "1dce13ccf52af75d952e3eb3268716af6e2d7882",
-        "type": "github"
-      },
-      "original": {
-        "owner": "TACC",
-        "repo": "Lmod",
-        "type": "github"
-      }
-    },
     "mac-style": {
       "flake": false,
       "locked": {
@@ -890,7 +860,8 @@
       "flake": false,
       "locked": {
         "lastModified": 1744538666,
-        "narHash": "sha256-tbBLhOPfSG4MAiz+jgL1GWtHi4QGI0y2koPIuTSpyjw=",
+        "lfs": true,
+        "narHash": "sha256-zCwEdAOMllhrdUwpSfy8rqWzBjNjeNfCnqxDDYUEvZ4=",
         "ref": "refs/heads/main",
         "rev": "7d2443415102cced84dfec8df7011d452fe3af7b",
         "revCount": 5,
@@ -898,6 +869,7 @@
         "url": "https://git.chn.moe/chn/nixos-wallpaper.git"
       },
       "original": {
+        "lfs": true,
         "type": "git",
         "url": "https://git.chn.moe/chn/nixos-wallpaper.git"
       }
@@ -1292,7 +1264,6 @@
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",
         "date": "date",
-        "eigen": "eigen",
         "envfs": "envfs",
         "fancy-motd": "fancy-motd",
         "git-lfs-transfer": "git-lfs-transfer",
@@ -1302,7 +1273,6 @@
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lepton": "lepton",
-        "lmod": "lmod",
         "mac-style": "mac-style",
         "matplotplusplus": "matplotplusplus",
         "misskey": "misskey",
@@ -1618,6 +1588,7 @@
       "flake": false,
       "locked": {
         "lastModified": 1743502543,
+        "lfs": true,
         "narHash": "sha256-8ltPlFW1IRECUE2iaS5S5lLqKSDcF/k4RNH6NuAAPig=",
         "ref": "refs/heads/main",
         "rev": "745353d0896b31bb239abf6dd909dec29bfc866a",
@@ -1626,6 +1597,7 @@
         "url": "https://git.chn.moe/chn/ufo.git"
       },
       "original": {
+        "lfs": true,
         "type": "git",
         "url": "https://git.chn.moe/chn/ufo.git"
       }

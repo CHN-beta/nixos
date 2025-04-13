@@ -3,6 +3,7 @@
 
   inputs =
   {
+    self.lfs = true;
     nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-24.11";
     "nixpkgs-23.11".url = "github:CHN-beta/nixpkgs/nixos-23.11";
     "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
@@ -44,7 +45,6 @@
     concurrencpp = { url = "github:David-Haim/concurrencpp"; flake = false; };
     cppcoro = { url = "github:Garcia6l20/cppcoro"; flake = false; };
     date = { url = "github:HowardHinnant/date"; flake = false; };
-    eigen = { url = "gitlab:libeigen/eigen"; flake = false; };
     matplotplusplus = { url = "github:alandefreitas/matplotplusplus"; flake = false; };
     nameof = { url = "github:Neargye/nameof"; flake = false; };
     tgbot-cpp = { url = "github:reo7sp/tgbot-cpp"; flake = false; };
@@ -53,7 +53,6 @@
     blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
     slate = { url = "github:TheBigWazz/Slate"; flake = false; };
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
-    lmod = { url = "github:TACC/Lmod"; flake = false; };
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
     openxlsx = { url = "github:troldal/OpenXLSX?rev=f85f7f1bd632094b5d78d4d1f575955fc3801886"; flake = false; };
     sqlite-orm = { url = "github:fnc12/sqlite_orm"; flake = false; };
@@ -64,16 +63,16 @@
     nu-scripts = { url = "github:nushell/nu_scripts"; flake = false; };
     py4vasp = { url = "github:vasp-dev/py4vasp"; flake = false; };
     pocketfft = { url = "github:mreineck/pocketfft"; flake = false; };
-    blog = { url = "git+https://git.chn.moe/chn/blog-public.git"; flake = false; };
-    nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git"; flake = false; };
+    blog = { url = "git+https://git.chn.moe/chn/blog-public.git?lfs=1"; flake = false; };
+    nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git?lfs=1"; flake = false; };
     spectroscopy = { url = "github:skelton-group/Phonopy-Spectroscopy"; flake = false; };
     vaspberry = { url = "github:Infant83/VASPBERRY"; flake = false; };
-    ufo = { url = "git+https://git.chn.moe/chn/ufo.git"; flake = false; };
+    ufo = { url = "git+https://git.chn.moe/chn/ufo.git?lfs=1"; flake = false; };
     highfive = { url = "git+https://github.com/CHN-beta/HighFive?submodules=1"; flake = false; };
     stickerpicker = { url = "github:maunium/stickerpicker"; flake = false; };
     fancy-motd = { url = "github:CHN-beta/fancy-motd"; flake = false; };
     octodns-cloudflare = { url = "github:octodns/octodns-cloudflare"; flake = false; };
-    mac-style = { url = "github:SergioRibera/s4rchiso-plymouth-theme"; flake = false; };
+    mac-style = { url = "github:SergioRibera/s4rchiso-plymouth-theme?lfs=1"; flake = false; };
     phono3py = { url = "github:phonopy/phono3py"; flake = false; };
   };
 
