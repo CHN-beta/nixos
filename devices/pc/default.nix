@@ -127,6 +127,7 @@ inputs:
         ananicy = {};
         keyd = {};
         lumericalLicenseManager = {};
+        searx = {};
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
       packages = { android-studio = {}; mathematica = {}; };
