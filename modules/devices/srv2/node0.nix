@@ -1,6 +1,6 @@
 inputs:
 {
-  config =
+  config = inputs.lib.mkIf (inputs.config.nixos.model.hostname == "srv2-node0")
   {
     nixos =
     {
