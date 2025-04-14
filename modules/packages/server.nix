@@ -39,7 +39,7 @@ inputs:
         # stupid things
         toilet lolcat localPackages.stickerpicker graph-easy
         # office
-        pdfgrep ffmpeg-full # todo-txt-cli 
+        pdfgrep ffmpeg-full hdf5 # todo-txt-cli 
       ]
         ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
       _pythonPackages = [(pythonPackages: with pythonPackages;
