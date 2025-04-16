@@ -4,6 +4,7 @@
 }: stdenv.mkDerivation
 {
   name = "mirism";
+  inherit src;
   buildInputs = [ boost nghttp2.dev brotli nameof cppcoro tgbot-cpp libbacktrace fmt date ];
   buildPhase =
   ''
