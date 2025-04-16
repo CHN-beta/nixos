@@ -30,26 +30,7 @@ let
     vps7 = "144.126.144.62";
     search = "127.0.0.1";
   };
-  wireguard =
-  {
-    wg0 =
-    {
-      net = 83;
-      peers =
-      {
-        vps6 = 1;
-        vps7 = 2;
-        pc = 3;
-        nas = 4;
-        one = 5;
-        srv1-node0 = 9;
-        srv1-node1 = 6;
-        srv1-node2 = 8;
-        srv2-node0 = 7;
-        srv2-node1 = 10;
-      };
-    };
-  };
+  wireguard = import ./wireguard.nix;
 in
 {
   "" =
@@ -92,7 +73,7 @@ in
     (peer:
     {
       name = "${net.name}.${peer.name}";
-      value = { type = "A"; value = "192.168.${builtins.toString net.value.net}.${builtins.toString peer.value}"; };
+      value = { type = "A"; value = "192.168.${builtins.toString net.value}.${builtins.toString peer.value}"; };
     })
-    (localLib.attrsToList net.value.peers))
-  (localLib.attrsToList wireguard)))
+    (localLib.attrsToList wireguard.peer))
+  (localLib.attrsToList wireguard.net)))

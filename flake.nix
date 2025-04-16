@@ -85,7 +85,11 @@
     config =
     {
       branch = import ./flake/branch.nix;
-      dns = import ./flake/dns/config/chn.moe.nix localLib;
+      dns =
+      {
+        "chn.moe" = import ./flake/dns/config/chn.moe.nix localLib;
+        wireguard = import ./flake/dns/config/wireguard.nix;
+      };
     };
     devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
     src = import ./flake/src.nix { inherit inputs; };
