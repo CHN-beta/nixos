@@ -32,6 +32,8 @@ inputs:
           "sandybridge"
           # FXSR PREFETCHW RDRND SAHF
           "silvermont"
+          # SAHF FXSR XSAVE RDRND LZCNT HLE
+          "haswell"
           # FXSR HLE LZCNT PREFETCHW RDRND SAHF XSAVE
           "broadwell"
           # FXSR HLE LZCNT PREFETCHW RDRND SAHF SGX XSAVE
