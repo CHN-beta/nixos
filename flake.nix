@@ -85,23 +85,10 @@
     config =
     {
       branch = import ./flake/branch.nix;
-      dns =
-      {
-        "chn.moe" = import ./flake/dns/config/chn.moe.nix localLib;
-        wireguard = import ./flake/dns/config/wireguard.nix;
-      };
+      dns = inputs.self.packages.x86_64-linux.dns-push.meta.config;
     };
     devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
     src = import ./flake/src.nix { inherit inputs; };
-    apps.x86_64-linux.dns-push =
-    {
-      type = "app";
-      program = let inherit (inputs.self.packages.x86_64-linux) pkgs; in builtins.toString (pkgs.callPackage ./flake/dns
-      {
-        inherit localLib;
-        tokenPath = inputs.self.nixosConfigurations.pc.config.sops.secrets."acme/token".path;
-        octodns = pkgs.octodns.withProviders (_: [ pkgs.localPackages.octodns-cloudflare ]);
-      });
-    };
+    apps.x86_64-linux.dns-push = { type = "app"; program = inputs.self.packages.x86_64-linux.dns-push; };
   };
 }

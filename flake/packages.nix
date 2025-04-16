@@ -38,6 +38,12 @@
       else if builtins.isList x then builtins.concatMap getDrv x
       else [];
     in pkgs.writeClosure (getDrv (inputs.self.outputs.src));
+  dns-push = pkgs.callPackage ./dns
+  {
+    inherit localLib;
+    tokenPath = inputs.self.nixosConfigurations.pc.config.sops.secrets."acme/token".path;
+    octodns = pkgs.octodns.withProviders (_: [ pkgs.localPackages.octodns-cloudflare ]);
+  };
 }
 // (builtins.listToAttrs (builtins.map
   (system: { inherit (system) name; value = system.value.config.system.build.toplevel; })
