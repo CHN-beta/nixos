@@ -33,7 +33,6 @@ inputs:
       type = types.nullOr (types.submodule { options =
       {
         serverName = mkOption { type = types.nonEmptyStr; };
-        userNumber = mkOption { type = types.ints.unsigned; };
       };});
       default = null;
     };
@@ -346,224 +345,232 @@ inputs:
       }
     )
     (
-      inputs.lib.mkIf (xray.server != null) (let userList = builtins.genList (n: n) xray.server.userNumber; in
-      {
-        services.xray =
+      inputs.lib.mkIf (xray.server != null)
+      (
+        let userList = builtins.attrValues
+          (inputs.pkgs.localPackages.fromYaml inputs.config.sops.defaultSopsFile).xray-server.clients;
+        in
         {
-          enable = true;
-          settingsFile = inputs.config.sops.templates."xray-server.json".path;
-          package = inputs.pkgs.pkgs-unstable.xray;
-        };
-        sops =
-        {
-          templates."xray-server.json" =
-          {
-            owner = inputs.config.users.users.v2ray.name;
-            group = inputs.config.users.users.v2ray.group;
-            content = builtins.toJSON
-            {
-              log.loglevel = "warning";
-              inbounds =
-              [
-                (
-                  let fallbackPort = builtins.toString
-                    (with inputs.config.nixos.services.nginx.global; httpsPort + httpsPortShift.http2);
-                  in
-                  {
-                    port = 4726;
-                    listen = "127.0.0.1";
-                    protocol = "vless";
-                    settings =
-                    {
-                      clients = map
-                        (n:
-                        {
-                          id = inputs.config.sops.placeholder."xray-server/clients/user${toString n}";
-                          flow = "xtls-rprx-vision";
-                          email = "${toString n}@xray.chn.moe";
-                        })
-                        userList;
-                      decryption = "none";
-                      fallbacks = [{ dest = "127.0.0.1:${fallbackPort}"; }];
-                    };
-                    streamSettings =
-                    {
-                      network = "raw";
-                      security = "reality";
-                      realitySettings =
-                      {
-                        dest = "127.0.0.1:${fallbackPort}";
-                        serverNames = [ xray.server.serverName ];
-                        privateKey = inputs.config.sops.placeholder."xray-server/private-key";
-                        minClientVer = "1.8.0";
-                        shortIds = [ "" ];
-                      };
-                    };
-                    sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
-                    tag = "in-legacy";
-                  }
-                )
-                {
-                  port = 4638;
-                  listen = "127.0.0.1";
-                  protocol = "vless";
-                  settings = { clients = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; }]; decryption = "none"; };
-                  streamSettings.network = "raw";
-                  sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; };
-                  tag = "in-localdns";
-                }
-                {
-                  listen = "127.0.0.1";
-                  port = 6149;
-                  protocol = "dokodemo-door";
-                  settings.address = "127.0.0.1";
-                  tag = "api";
-                }
-              ];
-              outbounds =
-              [
-                { protocol = "freedom"; tag = "freedom"; }
-                {
-                  protocol = "vless";
-                  settings.vnext =
-                  [{
-                    address = "127.0.0.1";
-                    port = 4638;
-                    users = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; encryption = "none"; }];
-                  }];
-                  streamSettings.network = "raw";
-                  tag = "loopback-localdns";
-                }
-              ];
-              routing =
-              {
-                domainStrategy = "AsIs";
-                rules = builtins.map (rule: rule // { type = "field"; })
-                [
-                  { inboundTag = [ "in-legacy" ]; domain = [ "domain:openai.com" ]; outboundTag = "loopback-localdns"; }
-                  { inboundTag = [ "in-legacy" ]; outboundTag = "freedom"; }
-                  { inboundTag = [ "in-localdns" ]; outboundTag = "freedom"; }
-                  { inboundTag = [ "api" ]; outboundTag = "api"; }
-                ];
-              };
-              stats = {};
-              api = { tag = "api"; services = [ "StatsService" ]; };
-              policy =
-              {
-                levels."0" = { statsUserUplink = true; statsUserDownlink = true; };
-                system =
-                {
-                  statsInboundUplink = true;
-                  statsInboundDownlink = true;
-                  statsOutboundUplink = true;
-                  statsOutboundDownlink = true;
-                };
-              };
-            };
-          };
-          secrets = builtins.listToAttrs
-            (builtins.map (n: { name = "xray-server/clients/user${toString n}"; value = {}; }) userList)
-            // (builtins.listToAttrs (builtins.map
-              (name:
-              {
-                name = "telegram/${name}";
-                value =
-                {
-                  group = "telegram";
-                  mode = "0440";
-                  sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml";
-                };
-              })
-              [ "token" "user/chn" ]))
-            // { "xray-server/private-key" = {}; };
-        };
-        systemd =
-        {
-          services =
-          {
-            xray =
-            {
-              serviceConfig =
-              {
-                DynamicUser = inputs.lib.mkForce false;
-                User = "v2ray";
-                Group = "v2ray";
-                CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-                AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-                LimitNPROC = 65536;
-                LimitNOFILE = 524288;
-              };
-              restartTriggers = [ inputs.config.sops.templates."xray-server.json".file ];
-            };
-            xray-stat =
-            {
-              script =
-                let
-                  xray = "${inputs.pkgs.xray}/bin/xray";
-                  awk = "${inputs.pkgs.gawk}/bin/awk";
-                  curl = "${inputs.pkgs.curl}/bin/curl";
-                  jq = "${inputs.pkgs.jq}/bin/jq";
-                  sed = "${inputs.pkgs.gnused}/bin/sed";
-                  cat = "${inputs.pkgs.coreutils}/bin/cat";
-                  token = inputs.config.sops.secrets."telegram/token".path;
-                  chat = inputs.config.sops.secrets."telegram/user/chn".path;
-                in
-                ''
-                  message='${inputs.config.nixos.model.hostname} xray:\n'
-                  for i in {0..${toString ((builtins.length userList) - 1)}}
-                  do
-                    upload_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
-                      -name "user>>>''${i}@xray.chn.moe>>>traffic>>>uplink" | ${jq} '.stat.value' | ${sed} 's/"//g')
-                    [ -z "$upload_bytes" ] && upload_bytes=0
-                    download_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
-                      -name "user>>>''${i}@xray.chn.moe>>>traffic>>>downlink" | ${jq} '.stat.value' | ${sed} 's/"//g')
-                    [ -z "$download_bytes" ] && download_bytes=0
-                    traffic_gb=$(echo | ${awk} "{printf \"%.3f\",(''${upload_bytes}+''${download_bytes})/1073741824}")
-                    message="$message$i"'\t'"''${traffic_gb}"'G\n'
-                  done
-                  ${curl} -X POST -H 'Content-Type: application/json' \
-                    -d "{\"chat_id\": \"$(${cat} ${chat})\", \"text\": \"$message\"}" \
-                    https://api.telegram.org/bot$(${cat} ${token})/sendMessage
-                '';
-              serviceConfig = { Type = "oneshot"; User = "v2ray"; Group = "v2ray"; };
-            };
-          };
-          timers.xray-stat =
-          {
-            wantedBy = [ "timers.target" ];
-            timerConfig = { OnCalendar = "*-*-* 0:00:00"; Unit = "xray-stat.service"; };
-          };
-        };
-        users =
-        {
-          users.v2ray =
-          {
-            uid = inputs.config.nixos.user.uid.v2ray;
-            group = "v2ray";
-            extraGroups = [ "telegram" ];
-            isSystemUser = true;
-          };
-          groups =
-          {
-            v2ray.gid = inputs.config.nixos.user.gid.v2ray;
-            telegram.gid = inputs.config.nixos.user.gid.telegram;
-          };
-        };
-        nixos.services =
-        {
-          acme.cert.${xray.server.serverName}.group = inputs.config.users.users.nginx.group;
-          nginx =
+          services.xray =
           {
             enable = true;
-            transparentProxy.map.${xray.server.serverName} = 4726;
-            https.${xray.server.serverName} =
+            settingsFile = inputs.config.sops.templates."xray-server.json".path;
+            package = inputs.pkgs.pkgs-unstable.xray;
+          };
+          sops =
+          {
+            templates."xray-server.json" =
             {
-              listen.main = { proxyProtocol = false; addToTransparentProxy = false; };
-              location."/".return.return = "400";
+              owner = inputs.config.users.users.v2ray.name;
+              group = inputs.config.users.users.v2ray.group;
+              content = builtins.toJSON
+              {
+                log.loglevel = "warning";
+                inbounds =
+                [
+                  (
+                    let fallbackPort = builtins.toString
+                      (with inputs.config.nixos.services.nginx.global; httpsPort + httpsPortShift.http2);
+                    in
+                    {
+                      port = 4726;
+                      listen = "127.0.0.1";
+                      protocol = "vless";
+                      settings =
+                      {
+                        clients = map
+                          (n:
+                          {
+                            id = inputs.config.sops.placeholder."xray-server/clients/${n}";
+                            flow = "xtls-rprx-vision";
+                            email = "${n}@xray.chn.moe";
+                          })
+                          userList;
+                        decryption = "none";
+                        fallbacks = [{ dest = "127.0.0.1:${fallbackPort}"; }];
+                      };
+                      streamSettings =
+                      {
+                        network = "raw";
+                        security = "reality";
+                        realitySettings =
+                        {
+                          dest = "127.0.0.1:${fallbackPort}";
+                          serverNames = [ xray.server.serverName ];
+                          privateKey = inputs.config.sops.placeholder."xray-server/private-key";
+                          minClientVer = "1.8.0";
+                          shortIds = [ "" ];
+                        };
+                      };
+                      sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
+                      tag = "in-legacy";
+                    }
+                  )
+                  {
+                    port = 4638;
+                    listen = "127.0.0.1";
+                    protocol = "vless";
+                    settings = { clients = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; }]; decryption = "none"; };
+                    streamSettings.network = "raw";
+                    sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; };
+                    tag = "in-localdns";
+                  }
+                  {
+                    listen = "127.0.0.1";
+                    port = 6149;
+                    protocol = "dokodemo-door";
+                    settings.address = "127.0.0.1";
+                    tag = "api";
+                  }
+                ];
+                outbounds =
+                [
+                  { protocol = "freedom"; tag = "freedom"; }
+                  {
+                    protocol = "vless";
+                    settings.vnext =
+                    [{
+                      address = "127.0.0.1";
+                      port = 4638;
+                      users = [{ id = "be01f0a0-9976-42f5-b9ab-866eba6ed393"; encryption = "none"; }];
+                    }];
+                    streamSettings.network = "raw";
+                    tag = "loopback-localdns";
+                  }
+                ];
+                routing =
+                {
+                  domainStrategy = "AsIs";
+                  rules = builtins.map (rule: rule // { type = "field"; })
+                  [
+                    {
+                      inboundTag = [ "in-legacy" ];
+                      domain = [ "domain:openai.com" ];
+                      outboundTag = "loopback-localdns";
+                    }
+                    { inboundTag = [ "in-legacy" ]; outboundTag = "freedom"; }
+                    { inboundTag = [ "in-localdns" ]; outboundTag = "freedom"; }
+                    { inboundTag = [ "api" ]; outboundTag = "api"; }
+                  ];
+                };
+                stats = {};
+                api = { tag = "api"; services = [ "StatsService" ]; };
+                policy =
+                {
+                  levels."0" = { statsUserUplink = true; statsUserDownlink = true; };
+                  system =
+                  {
+                    statsInboundUplink = true;
+                    statsInboundDownlink = true;
+                    statsOutboundUplink = true;
+                    statsOutboundDownlink = true;
+                  };
+                };
+              };
+            };
+            secrets = builtins.listToAttrs
+              (builtins.map (n: { name = "xray-server/clients/${n}"; value = {}; }) userList)
+              // (builtins.listToAttrs (builtins.map
+                (name:
+                {
+                  name = "telegram/${name}";
+                  value =
+                  {
+                    group = "telegram";
+                    mode = "0440";
+                    sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml";
+                  };
+                })
+                [ "token" "user/chn" ]))
+              // { "xray-server/private-key" = {}; };
+          };
+          systemd =
+          {
+            services =
+            {
+              xray =
+              {
+                serviceConfig =
+                {
+                  DynamicUser = inputs.lib.mkForce false;
+                  User = "v2ray";
+                  Group = "v2ray";
+                  CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+                  AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+                  LimitNPROC = 65536;
+                  LimitNOFILE = 524288;
+                };
+                restartTriggers = [ inputs.config.sops.templates."xray-server.json".file ];
+              };
+              xray-stat =
+              {
+                script =
+                  let
+                    xray = "${inputs.pkgs.xray}/bin/xray";
+                    awk = "${inputs.pkgs.gawk}/bin/awk";
+                    curl = "${inputs.pkgs.curl}/bin/curl";
+                    jq = "${inputs.pkgs.jq}/bin/jq";
+                    sed = "${inputs.pkgs.gnused}/bin/sed";
+                    cat = "${inputs.pkgs.coreutils}/bin/cat";
+                    token = inputs.config.sops.secrets."telegram/token".path;
+                    chat = inputs.config.sops.secrets."telegram/user/chn".path;
+                  in
+                  ''
+                    message='${inputs.config.nixos.model.hostname} xray:\n'
+                    for i in ${builtins.concatStringsSep " " userList}
+                    do
+                      upload_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
+                        -name "user>>>''${i}@xray.chn.moe>>>traffic>>>uplink" | ${jq} '.stat.value' | ${sed} 's/"//g')
+                      [ -z "$upload_bytes" ] && upload_bytes=0
+                      download_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
+                        -name "user>>>''${i}@xray.chn.moe>>>traffic>>>downlink" | ${jq} '.stat.value' | ${sed} 's/"//g')
+                      [ -z "$download_bytes" ] && download_bytes=0
+                      traffic_gb=$(echo | ${awk} "{printf \"%.3f\",(''${upload_bytes}+''${download_bytes})/1073741824}")
+                      message="$message$i"'\t'"''${traffic_gb}"'G\n'
+                    done
+                    ${curl} -X POST -H 'Content-Type: application/json' \
+                      -d "{\"chat_id\": \"$(${cat} ${chat})\", \"text\": \"$message\"}" \
+                      https://api.telegram.org/bot$(${cat} ${token})/sendMessage
+                  '';
+                serviceConfig = { Type = "oneshot"; User = "v2ray"; Group = "v2ray"; };
+              };
+            };
+            timers.xray-stat =
+            {
+              wantedBy = [ "timers.target" ];
+              timerConfig = { OnCalendar = "*-*-* 0:00:00"; Unit = "xray-stat.service"; };
             };
           };
-        };
-      }
+          users =
+          {
+            users.v2ray =
+            {
+              uid = inputs.config.nixos.user.uid.v2ray;
+              group = "v2ray";
+              extraGroups = [ "telegram" ];
+              isSystemUser = true;
+            };
+            groups =
+            {
+              v2ray.gid = inputs.config.nixos.user.gid.v2ray;
+              telegram.gid = inputs.config.nixos.user.gid.telegram;
+            };
+          };
+          nixos.services =
+          {
+            acme.cert.${xray.server.serverName}.group = inputs.config.users.users.nginx.group;
+            nginx =
+            {
+              enable = true;
+              transparentProxy.map.${xray.server.serverName} = 4726;
+              https.${xray.server.serverName} =
+              {
+                listen.main = { proxyProtocol = false; addToTransparentProxy = false; };
+                location."/".return.return = "400";
+              };
+            };
+          };
+        }
     ))
   ];
 }

@@ -29,7 +29,7 @@ inputs:
       services =
       {
         sshd = {};
-        xray.server = { serverName = "vps6.xserver.chn.moe"; userNumber = 23; };
+        xray.server.serverName = "vps6.xserver.chn.moe";
         frpServer = { enable = true; serverName = "frp.chn.moe"; };
         nginx =
         {

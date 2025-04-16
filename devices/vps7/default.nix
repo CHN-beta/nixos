@@ -48,7 +48,7 @@ inputs:
         gitea = { enable = true; ssh = {}; };
         grafana = {};
         fail2ban = {};
-        xray.server = { serverName = "xserver.vps7.chn.moe"; userNumber = 4; };
+        xray.server.serverName = "xserver.vps7.chn.moe";
         docker = {};
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
