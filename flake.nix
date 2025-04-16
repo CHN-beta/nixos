@@ -82,7 +82,11 @@
     nixosConfigurations = import ./flake/nixos.nix { inherit inputs localLib; };
     overlays.default = final: prev:
       { localPackages = (import ./packages { inherit localLib; pkgs = final; topInputs = inputs; }); };
-    config.branch = import ./flake/branch.nix;
+    config =
+    {
+      branch = import ./flake/branch.nix;
+      dns = import ./flake/dns/config/chn.moe.nix localLib;
+    };
     devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
     src = import ./flake/src.nix { inherit inputs; };
     apps.x86_64-linux.dns-push =
