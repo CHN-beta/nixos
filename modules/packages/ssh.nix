@@ -47,7 +47,11 @@ inputs:
             (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
             [ "vps6" "wg0.vps6" "vps7" "wg0.vps7" "wg0.nas" "wg0.one" ])
           ++ (builtins.map
-            (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; }; })
+            (host:
+            {
+              name = host;
+              value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; forwardX11Trusted = true; };
+            })
             [ "wg0.pc" "srv1" "wg0.srv1" "srv2" "wg0.srv2" ])
           ++ (builtins.map
             (host:
@@ -64,9 +68,9 @@ inputs:
             [ "wlin" "hwang" ])
         )
         // rec {
-          nas = { host = "nas"; hostname = "192.168.1.2"; forwardX11 = true; };
-          pc = { host = "pc"; hostname = "192.168.1.3"; forwardX11 = true; };
-          one = { host = "one"; hostname = "192.168.1.4"; forwardX11 = true; };
+          nas = { host = "nas"; hostname = "192.168.1.2"; forwardX11 = true; forwardX11Trusted = true; };
+          pc = { host = "pc"; hostname = "192.168.1.3"; forwardX11 = true; forwardX11Trusted = true; };
+          one = { host = "one"; hostname = "192.168.1.4"; forwardX11 = true; forwardX11Trusted = true; };
           gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
           jykang =
           {
