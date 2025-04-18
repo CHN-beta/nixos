@@ -10,6 +10,6 @@ let pkgs = import inputs.nixpkgs (import ../../modules/system/nixpkgs/buildNixpk
 in pkgs.symlinkJoin
 {
   name = "jykang";
-  paths = with pkgs; [ hello iotop ];
+  paths = with pkgs; [ hello iotop gnuplot ];
   postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
 }
