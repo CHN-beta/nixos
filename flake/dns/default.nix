@@ -15,7 +15,7 @@ let
   };
 in lib.addMetaAttrs { config = config // { wireguard = import ./config/wireguard.nix; }; } (writeShellScript "dns-push"
 ''
-  export OCTODNS_CONFIG=${config}
+  export OCTODNS_CONFIG=${configDir}
   export CLOUDFLARE_TOKEN=$(cat ${tokenPath})
   ${octodns}/bin/octodns-sync --config-file ${./config.yaml} --doit --force
 '')

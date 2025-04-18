@@ -89,6 +89,6 @@
     };
     devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
     src = import ./flake/src.nix { inherit inputs; };
-    apps.x86_64-linux.dns-push = { type = "app"; program = inputs.self.packages.x86_64-linux.dns-push; };
+    apps.x86_64-linux.dns-push = { type = "app"; program = "${inputs.self.packages.x86_64-linux.dns-push}"; };
   };
 }
