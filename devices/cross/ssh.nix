@@ -14,7 +14,7 @@ let
     {
       publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIF5XkdilejDAlg5hZZD0oq69k8fQpe9hIJylTo/aLRgY";
       initrdPublicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIGZyQpdQmEZw3nLERFmk2tS1gpSvXwW0Eish9UfhrRxC";
-      extraAccess = [ "vps7" "git.nas" ];
+      extraAccess = [ "vps7" "ssh.git" ];
     };
     nas =
     {
