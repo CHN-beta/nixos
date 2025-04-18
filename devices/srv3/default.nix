@@ -18,7 +18,14 @@ inputs:
           rollingRootfs = {};
         };
         nixpkgs.march = "haswell";
-        kernel.variant = "cachyos-lts";
+        initrd.sshd = {};
+        networking.static.eno1 =
+        {
+          ip = "23.135.236.216";
+          mask = 24;
+          gateway = "23.135.236.1";
+          dns = "8.8.8.8";
+        };
       };
       hardware.cpus = [ "intel" ];
       services =
