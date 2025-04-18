@@ -7,14 +7,13 @@ let
       publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIO5ZcvyRyOnUCuRtqrM/Qf+AdUe3a5bhbnfyhw2FSLDZ";
       # 通过 initrd.xxx.chn.moe 访问
       initrdPublicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIB4DKB/zzUYco5ap6k9+UxeO04LL12eGvkmQstnYxgnS";
-      # 默认仅通过wireguard访问，这里写额外的域名
-      extraAccess = [ "vps6" ];
     };
     vps7 =
     {
       publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIF5XkdilejDAlg5hZZD0oq69k8fQpe9hIJylTo/aLRgY";
       initrdPublicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIGZyQpdQmEZw3nLERFmk2tS1gpSvXwW0Eish9UfhrRxC";
-      extraAccess = [ "vps7" "ssh.git" ];
+      # 默认仅包括wireguard访问的域名和直接访问的域名，这里写额外的域名
+      extraAccess = [ "ssh.git" ];
     };
     nas =
     {
@@ -34,7 +33,6 @@ let
     {
       publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIIg2wuwWqIOWNx1kVmreF6xTrGaW7rIaXsEPfCMe+5P9";
       initrdPublicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIPW7XPhNsIV0ZllaueVMHIRND97cHb6hE9O21oLaEdCX";
-      extraAccess = [ "srv3" ];
     };
   };
 in
@@ -49,8 +47,10 @@ in
         {
           publicKey = "ssh-ed25519 ${device.value.publicKey}";
           hostNames =
+            # 直接访问
+            [ "${device.name}.chn.moe" ]
             # 通过 wirewireguard 访问
-            (builtins.map (net: "${net}.${device.name}.chn.moe")
+            ++ (builtins.map (net: "${net}.${device.name}.chn.moe")
               (builtins.attrNames inputs.topInputs.self.config.dns.wireguard.net))
             # 额外的域名
             ++ (builtins.map (domain: "${domain}.chn.moe") device.value.extraAccess or []);
