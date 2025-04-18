@@ -28,6 +28,7 @@ inputs:
         lly = 1014;
         yxf = 1015;
         hss = 1016;
+        aleksana = 1017;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
