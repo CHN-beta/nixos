@@ -30,6 +30,12 @@ let
     srv2-node0 =
       { publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIJZ/+divGnDr0x+UlknA84Tfu6TPD+zBGmxWZY4Z38P6"; extraAccess = [ "srv2" ]; };
     srv2-node1.publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAINTvfywkKRwMrVp73HfHTfjhac2Tn9qX/lRjLr09ycHp";
+    srv3 =
+    {
+      publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIIg2wuwWqIOWNx1kVmreF6xTrGaW7rIaXsEPfCMe+5P9";
+      initrdPublicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIPW7XPhNsIV0ZllaueVMHIRND97cHb6hE9O21oLaEdCX";
+      extraAccess = [ "srv3" ];
+    };
   };
 in
 {

@@ -29,6 +29,7 @@ let
     vps6 = "144.34.225.59";
     vps7 = "144.126.144.62";
     search = "127.0.0.1";
+    srv3 = "23.135.236.216";
   };
   wireguard = import ./wireguard.nix;
 in

@@ -12,6 +12,7 @@ let
     srv1-node2 = "zWvkVyJwtQhwmxM2fHwNDnK+iwYm1O0RHrwCQ/VXdEo=";
     srv2-node0 = "lNTwQqaR0w/loeG3Fh5qzQevuAVXhKXgiPt6fZoBGFE=";
     srv2-node1 = "wc+DkY/WlGkLeI8cMcoRHcCcITNqX26P1v5JlkQwWSc=";
+    srv3 = "a1pUi12SN6fIFiHA9W0N1ycuSz1fWUSpZnjz20OPaBk=";
   };
   dns = inputs.topInputs.self.config.dns.wireguard;
   networks = # 对于每个网络，只需要设置 net，每个设备的 listenPort，以及每个设备的每个 peer 的 publicKey endpoint allowedIPs

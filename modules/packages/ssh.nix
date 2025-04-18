@@ -52,7 +52,7 @@ inputs:
               name = host;
               value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; forwardX11Trusted = true; };
             })
-            [ "wg0.pc" "srv1" "wg0.srv1" "srv2" "wg0.srv2" ])
+            [ "wg0.pc" "srv1" "wg0.srv1" "srv2" "wg0.srv2" "srv3" "wg0.srv3" ])
           ++ (builtins.map
             (host:
             {

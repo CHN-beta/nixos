@@ -10,66 +10,38 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &srv1-node2 age16e7ykphshal6qhwfvat698hl48s8yr0jvzh27ecdyfh5uk7t9u6s753jgy
   - &srv2-node0 age1l4stuz0vr7gs7pqwjrmezam44702jp2vmqaqyxw0l0r42kf9updq4dfhrw
   - &srv2-node1 age1hnarptkze0ujpp05dqr8uma04cxg9zqcx68qgpks5uf5l6rpk5gqhh8wxg
+  - &srv3 age1n4lhfwv7g0vhx54exmwx9yv2z04m3h2lunzpa5zdzgtcvjjuf5nqc36g8a
 creation_rules:
   - path_regex: devices/pc/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *pc
+    key_groups: [{ age: [ *chn, *pc ] }]
   - path_regex: devices/vps6/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *vps6
+    key_groups: [{ age: [ *chn, *vps6 ] }]
   - path_regex: devices/vps7/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *vps7
+    key_groups: [{ age: [ *chn, *vps7 ] }]
   - path_regex: devices/nas/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *nas
+    key_groups: [{ age: [ *chn, *nas ] }]
   - path_regex: devices/one/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *one
+    key_groups: [{ age: [ *chn, *one ] }]
   - path_regex: devices/srv1/secrets/.*$
-    key_groups:
-    - age: [ *chn, *srv1-node0, *srv1-node1, *srv1-node2 ]
+    key_groups: [{ age: [ *chn, *srv1-node0, *srv1-node1, *srv1-node2 ] }]
   - path_regex: devices/srv1/node0/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *srv1-node0
+    key_groups: [{ age: [ *chn, *srv1-node0 ] }]
   - path_regex: devices/srv1/node1/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *srv1-node1
+    key_groups: [{ age: [ *chn, *srv1-node1 ] }]
   - path_regex: devices/srv1/node2/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *srv1-node2
+    key_groups: [{ age: [ *chn, *srv1-node2 ] }]
   - path_regex: devices/srv2/secrets/.*$
-    key_groups:
-    - age: [ *chn, *srv2-node0, *srv2-node1 ]
+    key_groups: [{ age: [ *chn, *srv2-node0, *srv2-node1 ] }]
   - path_regex: devices/srv2/node0/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *srv2-node0
+    key_groups: [{ age: [ *chn, *srv2-node0 ] }]
   - path_regex: devices/srv2/node1/.*$
-    key_groups:
-    - age:
-      - *chn
-      - *srv2-node1
+    key_groups: [{ age: [ *chn, *srv2-node1 ] }]
+  - path_regex: devices/srv3/.*$
+    key_groups: [{ age: [ *chn, *srv3 ] }]
   - path_regex: devices/cross/secrets/default.yaml$
     key_groups:
-    - age: [ *chn, *pc, *vps6, *vps7, *nas, *one, *srv1-node0, *srv1-node1, *srv1-node2, *srv2-node0, *srv2-node1 ]
+    - age: [ *chn, *pc, *vps6, *vps7, *nas, *one, *srv1-node0, *srv1-node1, *srv1-node2, *srv2-node0, *srv2-node1,
+        *srv3 ]
   - path_regex: devices/cross/secrets/chn.yaml$
     key_groups:
     - age: [ *chn, *pc, *one, *nas ]

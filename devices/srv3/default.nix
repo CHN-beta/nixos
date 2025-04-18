@@ -34,6 +34,7 @@ inputs:
         sshd = {};
       };
       virtualization.kvmHost = { enable = true; gui = true; };
+      user.users = [ "chn" "aleksana" ];
     };
   };
 }
