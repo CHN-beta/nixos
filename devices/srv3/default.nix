@@ -33,8 +33,8 @@ inputs:
         # 大部分空间用于存储虚拟机（nodatacow），其它内容不多
         beesd."/".hashTableSizeMB = 32;
         sshd = {};
+        kvm = {};
       };
-      virtualization.kvmHost.enable = true;
       user.users = [ "chn" "aleksana" ];
     };
   };

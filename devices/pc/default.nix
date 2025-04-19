@@ -56,7 +56,6 @@ inputs:
       };
       virtualization =
       {
-        kvmHost.enable = true;
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
       };
       services =
@@ -130,6 +129,7 @@ inputs:
         keyd = {};
         lumericalLicenseManager = {};
         searx = {};
+        kvm = {};
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
       packages = { android-studio = {}; mathematica = {}; };
