@@ -8,7 +8,6 @@ inputs:
       gui = mkOption { default = false; type = types.bool; };
       autoSuspend = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     };
-    kvmGuest.enable = mkOption { default = false; type = types.bool; };
     nspawn = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
   };
   config = inputs.lib.mkMerge
@@ -124,10 +123,6 @@ inputs:
           }];
       };
     })
-    # kvmGuest
-    (inputs.lib.mkIf inputs.config.nixos.virtualization.kvmGuest.enable
-      { services = { qemuGuest.enable = true; spice-vdagentd.enable = true; xserver.videoDrivers = [ "qxl" ]; }; }
-    )
     # nspawn
     {
       systemd.nspawn = builtins.listToAttrs (builtins.map
