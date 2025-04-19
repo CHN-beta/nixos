@@ -2,14 +2,14 @@ inputs:
 {
   options.nixos.services.nixvirt = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    type = types.nullOr (types.attrsOf (types.submodule
+    type = types.nullOr (types.attrsOf (types.submodule { options =
     {
       uuid = mkOption { type = types.str; };
       storage = mkOption { type = types.nonEmptyStr; };
       memoryGB = mkOption { type = types.ints.unsigned; };
       cpus = mkOption { type = types.ints.unsigned; };
       vncPort = mkOption { type = types.ints.unsigned; };
-    }));
+    };}));
     default = null;
   };
   config = let inherit (inputs.config.nixos.services) nixvirt; in inputs.lib.mkIf (nixvirt != null)
@@ -34,7 +34,7 @@ inputs:
             });
             active = true;
           })
-          (builtins.attrValues nixvirt);
+          (inputs.localLib.attrsToList nixvirt);
         networks =
         [{
           definition = lib.network.writeXML (lib.network.templates.bridge
@@ -58,7 +58,7 @@ inputs:
           [{
             definition = lib.volume.writeXML
             {
-              name = "test";
+              name = "test.qcow2";
               capacity = { count = 20; unit = "GB"; };
             };
           }];

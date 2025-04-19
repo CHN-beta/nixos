@@ -33,7 +33,17 @@ inputs:
         # 大部分空间用于存储虚拟机（nodatacow），其它内容不多
         beesd."/".hashTableSizeMB = 32;
         sshd = {};
-        kvm = {};
+        nixvirt =
+        {
+          test =
+          {
+            uuid = "6cb275dc-19e5-4c8d-b705-5faab72aa3ee";
+            storage = "test";
+            memoryGB = 8;
+            cpus = 4;
+            vncPort = 15900;
+          };
+        };
       };
       user.users = [ "chn" "aleksana" ];
     };
