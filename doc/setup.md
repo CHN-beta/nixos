@@ -27,4 +27,5 @@ mungekey -k munge.key
 mv munge.key munge.key.orig
 sops -e --input-type binary --output-type binary munge.key.orig > munge.key
 rm munge.key.orig
+sudo nix build --store 'local?root=/mnt' --option substituters https://nix-store.chn.moe --option require-sigs false  /nix/store/khhqmly5295ns33dz1s3m3sb79icj6bi-nixos-system-srv3-production-24.11
 ```

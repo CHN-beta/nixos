@@ -30,7 +30,8 @@ inputs:
       hardware.cpus = [ "intel" ];
       services =
       {
-        beesd."/".hashTableSizeMB = 128;
+        # 大部分空间用于存储虚拟机（nodatacow），其它内容不多
+        beesd."/".hashTableSizeMB = 32;
         sshd = {};
       };
       virtualization.kvmHost = { enable = true; gui = true; };
