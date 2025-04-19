@@ -3,7 +3,7 @@ let
   cname =
   {
     autoroute = [ "api" "git" "grafana" "matrix" "peertube" "send" "synapse" "vikunja" "铜锣湾" "铜锣湾实验室" ];
-    "internal.pc" = [ "internal.nix-store" ];
+    pc = [ "internal.nix-store" ];
     nas = [ "initrd.nas" ];
     office = [ "srv2-node0" ];
     vps6 =
@@ -26,7 +26,8 @@ let
   a =
   {
     nas = "192.168.1.2";
-    "internal.pc" = "192.168.1.3";
+    pc = "192.168.1.3";
+    one = "192.168.1.4";
     office = "210.34.16.60";
     srv1-node0 = "59.77.36.250";
     vps6 = "144.34.225.59";
