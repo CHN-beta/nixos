@@ -12,7 +12,7 @@ inputs:
     }));
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services) nixvirt; in inputs.lib.mkIf (nixvirt != {})
+  config = let inherit (inputs.config.nixos.services) nixvirt; in inputs.lib.mkIf (nixvirt != null)
   {
     virtualisation.libvirt =
     {
