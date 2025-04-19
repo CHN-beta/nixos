@@ -18,8 +18,8 @@ inputs:
           // (builtins.listToAttrs (builtins.map
             (system: { name = system; value = { forwardAgent = true; extraOptions.AddKeysToAgent = "yes"; }; })
             [
-              "vps6" "wg0.vps6" "vps7" "wg0.vps7" "wg0.pc" "nas" "wg0.nas" "pc"
-              "srv1" "wg0.srv1" "srv2" "wg0.srv2" "one" "wg0.one"
+              "vps6" "wg0.vps6" "vps7" "wg0.vps7" "pc" "wg0.pc" "nas" "wg0.nas" "one" "wg0.one"
+              "srv1" "wg0.srv1" "srv2" "wg0.srv2" "srv3" "wg0.srv3"
             ]));
           extraConfig = inputs.lib.mkIf inputs.config.nixos.model.private
           ''
