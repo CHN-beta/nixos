@@ -28,8 +28,8 @@ inputs:
         xray.client.enable = true;
         beesd."/".hashTableSizeMB = 64;
         sshd = {};
+        kvm = {};
       };
-      virtualization.kvmHost.enable = true;
       bugs = [ "xmunet" ];
     };
   };
