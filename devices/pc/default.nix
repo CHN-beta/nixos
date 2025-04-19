@@ -54,10 +54,6 @@ inputs:
         gpu = { type = "nvidia"; nvidia = { dynamicBoost = true; driver = "beta"; }; };
         legion = {};
       };
-      virtualization =
-      {
-        nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
-      };
       services =
       {
         samba =
@@ -130,6 +126,7 @@ inputs:
         lumericalLicenseManager = {};
         searx = {};
         kvm = {};
+        nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
       packages = { android-studio = {}; mathematica = {}; };
