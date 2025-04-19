@@ -46,7 +46,7 @@ inputs:
         }];
         pools =
         [{
-          definition = lib.volume.writeXML
+          definition = lib.pool.writeXML
           {
             name = "default";
             uuid = "6fc75fcc-fb95-48b6-8fa4-0e59b6c1b6c7";
