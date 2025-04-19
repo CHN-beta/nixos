@@ -19,11 +19,19 @@
     version = "24.11";
     cudaVersion = "12.6";
   };
-  iso = pkgs.fetchurl
+  iso =
   {
-    url = "https://releases.nixos.org/nixos/24.11/nixos-24.11.714826.04ef94c4c158/"
-      + "nixos-minimal-24.11.714826.04ef94c4c158-x86_64-linux.iso";
-    sha256 = "12zkmlmvvp6g3syb347q4ffhdavfs3hz2qxvvlgrim6k0kzz436k";
+    nixos = pkgs.fetchurl
+    {
+      url = "https://releases.nixos.org/nixos/24.11/nixos-24.11.714826.04ef94c4c158/"
+        + "nixos-minimal-24.11.714826.04ef94c4c158-x86_64-linux.iso";
+      sha256 = "12zkmlmvvp6g3syb347q4ffhdavfs3hz2qxvvlgrim6k0kzz436k";
+    };
+    netboot = pkgs.fetchurl
+    {
+      url = "https://boot.netboot.xyz/ipxe/netboot.xyz.iso";
+      sha256 = "01hlslbi2i3jkzjwn24drhd2lriaqiwr9hb83r0nib9y1jvr3k5p";
+    };
   };
   nglview = pkgs.fetchPypi
   {

@@ -139,7 +139,7 @@ inputs:
         "SetupBrowser.efi" = ./bios/SetupBrowser.efi;
         "UiApp.efi" = ./bios/UiApp.efi;
         "EFI/Boot/Bootx64.efi" = ./bios/Bootx64.efi;
-        "nixos.iso" = inputs.topInputs.self.src.iso;
+        "nixos.iso" = inputs.topInputs.self.src.iso.nixos;
       };
       extraEntries = 
       ''
