@@ -5,7 +5,7 @@ let
     autoroute = [ "api" "git" "grafana" "matrix" "peertube" "send" "synapse" "vikunja" "铜锣湾" "铜锣湾实验室" ];
     "internal.pc" = [ "internal.nix-store" ];
     nas = [ "initrd.nas" ];
-    office = [ "srv2" ];
+    office = [ "srv2-node0" ];
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "frp" "initrd.vps6" "misskey" "nix-store" "sticker" "synapse-admin" "tgapi"
@@ -20,17 +20,22 @@ let
     "wg0.srv1-node0" = [ "wg0.srv1" ];
     "wg0.srv2-node0" = [ "wg0.srv2" ];
     srv3 = [ "initrd.srv3" ];
+    srv1-node0 = [ "srv1" ];
+    srv2-node0 = [ "srv2" ];
   };
   a =
   {
     nas = "192.168.1.2";
     "internal.pc" = "192.168.1.3";
     office = "210.34.16.60";
-    srv1 = "59.77.36.250";
+    srv1-node0 = "59.77.36.250";
     vps6 = "144.34.225.59";
     vps7 = "144.126.144.62";
     search = "127.0.0.1";
     srv3 = "23.135.236.216";
+    srv1-node1 = "192.168.178.2";
+    srv1-node2 = "192.168.178.3";
+    srv2-node1 = "192.168.178.2";
   };
   wireguard = import ./wireguard.nix;
 in

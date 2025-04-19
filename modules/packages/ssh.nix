@@ -40,36 +40,19 @@ inputs:
         controlMaster = "auto";
         controlPersist = "1m";
         compression = true;
-        matchBlocks = builtins.listToAttrs
-        (
-          # TODO: 分离到 cross
-          (builtins.map
-            (host: { name = host; value = { inherit host; hostname = "${host}.chn.moe"; }; })
-            [ "vps6" "wg0.vps6" "vps7" "wg0.vps7" "wg0.nas" "wg0.one" ])
-          ++ (builtins.map
-            (host:
+        matchBlocks = builtins.listToAttrs (builtins.map
+          (host:
+          {
+            name = host;
+            value =
             {
-              name = host;
-              value = { inherit host; hostname = "${host}.chn.moe"; forwardX11 = true; forwardX11Trusted = true; };
-            })
-            [
-              "wg0.pc" "srv1" "wg0.srv1" "srv2" "wg0.srv2" "srv3" "wg0.srv3" "nas" "wg0.nas" "pc" "wg0.pc" "one"
-              "wg0.one"
-            ])
-          ++ (builtins.map
-            (host:
-            {
-              name = host;
-              value =
-              {
-                host = host;
-                hostname = "hpc.xmu.edu.cn";
-                user = host;
-                setEnv.TERM = "chn_unset_ls_colors:xterm-256color";
-              };
-            })
-            [ "wlin" "hwang" ])
-        )
+              host = host;
+              hostname = "hpc.xmu.edu.cn";
+              user = host;
+              setEnv.TERM = "chn_unset_ls_colors:xterm-256color";
+            };
+          })
+          [ "wlin" "hwang" ])
         // rec {
           gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
           jykang =
@@ -81,11 +64,6 @@ inputs:
             extraOptions.AddKeysToAgent = "yes";
           };
           "wg0.jykang" = jykang // { host = "wg0.jykang"; proxyJump = "wg0.srv2"; };
-          srv1-node0 = { host = "srv1-node0"; hostname = "srv1.chn.moe"; };
-          srv1-node1 = { host = "srv1-node1"; hostname = "192.168.178.2"; proxyJump = "srv1"; };
-          srv1-node2 = { host = "srv1-node2"; hostname = "192.168.178.3"; proxyJump = "srv1"; };
-          srv2-node0 = { host = "srv2-node0"; hostname = "srv2.chn.moe"; };
-          srv2-node1 = { host = "srv2-node1"; hostname = "192.168.178.2"; proxyJump = "srv2"; };
         };
       };
     })];

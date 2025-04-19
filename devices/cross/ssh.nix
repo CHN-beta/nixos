@@ -24,11 +24,24 @@ let
     pc.publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIMSfREi19OSwQnhdsE8wiNwGSFFJwNGN0M5gN+sdrrLJ";
     srv1-node0 =
       { publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIDm6M1D7dBVhjjZtXYuzMj2P1fXNWN3O9wmwNssxEeDs"; extraAccess = [ "srv1" ]; };
-    srv1-node1.publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIIFmG/ZzLDm23NeYa3SSI0a0uEyQWRFkaNRE9nB8egl7";
-    srv1-node2.publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIDhgEApzHhVPDvdVFPRuJ/zCDiR1K+rD4sZzH77imKPE";
+    srv1-node1 =
+    {
+      publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIIFmG/ZzLDm23NeYa3SSI0a0uEyQWRFkaNRE9nB8egl7";
+      # 不能直接访问，需要通过哪个机器跳转
+      proxyJump = "srv1";
+    };
+    srv1-node2 =
+    {
+      publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIDhgEApzHhVPDvdVFPRuJ/zCDiR1K+rD4sZzH77imKPE";
+      proxyJump = "srv1";
+    };
     srv2-node0 =
       { publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIJZ/+divGnDr0x+UlknA84Tfu6TPD+zBGmxWZY4Z38P6"; extraAccess = [ "srv2" ]; };
-    srv2-node1.publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAINTvfywkKRwMrVp73HfHTfjhac2Tn9qX/lRjLr09ycHp";
+    srv2-node1 =
+    {
+      publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAINTvfywkKRwMrVp73HfHTfjhac2Tn9qX/lRjLr09ycHp";
+      proxyJump = "srv2";
+    };
     srv3 =
     {
       publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIIg2wuwWqIOWNx1kVmreF6xTrGaW7rIaXsEPfCMe+5P9";
@@ -66,5 +79,35 @@ in
           };
         }])
       (inputs.localLib.attrsToList devices)));
+    nixos.user.sharedModules = [{ config.programs.ssh.matchBlocks =
+      let genericConfig =
+        { forwardX11 = true; forwardX11Trusted = true; forwardAgent = true; extraOptions.AddKeysToAgent = "yes"; };
+      in builtins.listToAttrs (builtins.concatLists (builtins.concatLists
+      [
+        # 直接访问
+        (builtins.map
+          (device: builtins.map
+            (name:
+            {
+              inherit (device) name;
+              value = genericConfig //
+                { host = name; hostname = "${name}.chn.moe"; proxyJump = device.value.proxyJump or null; };
+            })
+            ((device.value.extraAccess or []) ++ [ device.name ]))
+          (inputs.localLib.attrsToList devices))
+        # 通过 wireguard 访问
+        (builtins.concatLists (builtins.map
+          (net: builtins.map
+            (device: builtins.map
+              (name:
+              {
+                name = "${net}.${name}";
+                value = genericConfig // { host = "${net}.${name}"; hostname = "${net}.${name}.chn.moe"; };
+              })
+              ((device.value.extraAccess or []) ++ [ device.name ]))
+            (inputs.localLib.attrsToList devices))
+          (builtins.attrNames inputs.topInputs.self.config.dns.wireguard.net)))
+      ]));
+    }];
   };
 }

@@ -14,13 +14,7 @@ inputs:
             xmuhk2 = { host = "xmuhk2"; hostname = "183.233.219.132"; user = "xmuhk"; port = 62022; };
             jykang.setEnv.TERM = "chn_unset_ls_colors:chn_cd:linwei/chn:xterm-256color";
             "wg0.jykang" = jykang;
-          }
-          // (builtins.listToAttrs (builtins.map
-            (system: { name = system; value = { forwardAgent = true; extraOptions.AddKeysToAgent = "yes"; }; })
-            [
-              "vps6" "wg0.vps6" "vps7" "wg0.vps7" "pc" "wg0.pc" "nas" "wg0.nas" "one" "wg0.one"
-              "srv1" "wg0.srv1" "srv2" "wg0.srv2" "srv3" "wg0.srv3"
-            ]));
+          };
           extraConfig = inputs.lib.mkIf inputs.config.nixos.model.private
           ''
             IdentityFile ~/.ssh/id_rsa
