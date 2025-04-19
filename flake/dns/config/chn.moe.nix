@@ -19,6 +19,7 @@ let
     "xlog.autoroute" = [ "xlog" ];
     "wg0.srv1-node0" = [ "wg0.srv1" ];
     "wg0.srv2-node0" = [ "wg0.srv2" ];
+    srv3 = [ "initrd.srv3" ];
   };
   a =
   {
