@@ -5,7 +5,6 @@ inputs:
     kvmHost =
     {
       enable = mkOption { default = false; type = types.bool; };
-      gui = mkOption { default = false; type = types.bool; };
       autoSuspend = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     };
     nspawn = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
@@ -43,8 +42,7 @@ inputs:
         };
         spiceUSBRedirection.enable = true;
       };
-      environment.systemPackages = with inputs.pkgs; [ qemu_full win-spice guestfs-tools ] ++
-        (if (inputs.config.nixos.virtualization.kvmHost.gui) then [ virt-manager ] else []);
+      environment.systemPackages = with inputs.pkgs; [ qemu_full win-spice guestfs-tools virt-manager ];
       systemd =
       {
         services =

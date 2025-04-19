@@ -20,7 +20,7 @@ inputs:
         xray.client.enable = true;
         beesd."/".threads = 4;
       };
-      virtualization.kvmHost = { enable = true; gui = true; };
+      virtualization.kvmHost.enable = true;
     };
     specialisation.no-share-home.configuration =
     {

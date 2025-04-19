@@ -29,7 +29,7 @@ inputs:
         beesd."/".hashTableSizeMB = 64;
         sshd = {};
       };
-      virtualization.kvmHost = { enable = true; gui = true; };
+      virtualization.kvmHost.enable = true;
       bugs = [ "xmunet" ];
     };
   };

@@ -34,7 +34,7 @@ inputs:
         beesd."/".hashTableSizeMB = 32;
         sshd = {};
       };
-      virtualization.kvmHost = { enable = true; gui = true; };
+      virtualization.kvmHost.enable = true;
       user.users = [ "chn" "aleksana" ];
     };
   };

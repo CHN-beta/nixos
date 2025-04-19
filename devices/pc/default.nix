@@ -56,7 +56,7 @@ inputs:
       };
       virtualization =
       {
-        kvmHost = { enable = true; gui = true; };
+        kvmHost.enable = true;
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
       };
       services =
