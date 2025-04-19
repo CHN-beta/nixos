@@ -4,6 +4,7 @@ inputs:
   {
     type = types.nullOr (types.attrsOf (types.submodule
     {
+      uuid = mkOption { type = types.str; };
       storage = mkOption { type = types.nonEmptyStr; };
       memoryGB = mkOption { type = types.ints.unsigned; };
       cpus = mkOption { type = types.ints.unsigned; };
@@ -13,23 +14,27 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.services) nixvirt; in inputs.lib.mkIf (nixvirt != {})
   {
-    # TODO: switch on nixos.virtualisation.kvm
     virtualisation.libvirt =
     {
       enable = true;
       verbose = true;
       connections."qemu:///system" = let inherit (inputs.topInputs.nixvirt) lib; in
       {
-        domains =
-        [{
-          definition = lib.domain.writeXML (lib.domain.templates.linux
+        domains = builtins.map
+          (vm:
           {
-            name = "Penguin";
-            uuid = "cc7439ed-36af-4696-a6f2-1f0c4474d87e";
-            memory = { count = 6; unit = "GiB"; };
-            storage_vol = { pool = "MyPool"; volume = "Penguin.qcow2"; };
-          });
-        }];
+            definition = lib.domain.writeXML (lib.domain.templates.linux
+            {
+              inherit (vm) name;
+              inherit (vm.value) uuid;
+              memory = { count = vm.value.memoryGB; unit = "GiB"; };
+              storage_vol = { pool = "default"; volume = "${vm.value.storage}.qcow2"; };
+              install_vol = "${inputs.topInputs.self.src.iso.netboot}";
+              # TODO: cpu? vnc? network?
+            });
+            active = true;
+          })
+          (builtins.attrValues nixvirt);
         networks =
         [{
           definition = lib.network.writeXML (lib.network.templates.bridge
@@ -39,9 +44,27 @@ inputs:
           });
           active = true;
         }];
-        # 不通过它来定义存储，手动控制存储
-        pools = null;
+        pools =
+        [{
+          definition = lib.volume.writeXML
+          {
+            name = "default";
+            uuid = "6fc75fcc-fb95-48b6-8fa4-0e59b6c1b6c7";
+            type = "dir";
+            target.path = "/var/lib/libvirt/images";
+          };
+          active = true;
+          volumes =
+          [{
+            definition = lib.volume.writeXML
+            {
+              name = "test";
+              capacity = { count = 20; unit = "GB"; };
+            };
+          }];
+        }];
       };
     };
+    nixos.services.kvm = {};
   };
 }
