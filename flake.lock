@@ -989,15 +989,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1741549407,
-        "narHash": "sha256-f9SXK+/rvlryDNlc++Eva/hYjbkf7OCalWwmwifRhtI=",
-        "owner": "AshleyYakeley",
+        "lastModified": 1745053722,
+        "narHash": "sha256-5glU8Dhe3bAHScmwirDb+gR9gF18295gZMZ9Pa0er4s=",
+        "owner": "CHN-beta",
         "repo": "NixVirt",
-        "rev": "9950b932dce4ae6b9bda7c83d41705c1a14e10f0",
+        "rev": "627ff18c58771248178d03af59fc7a8b737ed28f",
         "type": "github"
       },
       "original": {
-        "owner": "AshleyYakeley",
+        "owner": "CHN-beta",
         "repo": "NixVirt",
         "type": "github"
       }

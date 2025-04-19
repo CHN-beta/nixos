@@ -9,6 +9,7 @@ inputs:
       memoryGB = mkOption { type = types.ints.unsigned; };
       cpus = mkOption { type = types.ints.unsigned; };
       vncPort = mkOption { type = types.ints.unsigned; };
+      # TODO: network assign fixed ip
     };}));
     default = null;
   };
@@ -23,15 +24,33 @@ inputs:
         domains = builtins.map
           (vm:
           {
-            definition = lib.domain.writeXML (lib.domain.templates.linux
-            {
-              inherit (vm) name;
-              inherit (vm.value) uuid;
-              memory = { count = vm.value.memoryGB; unit = "GiB"; };
-              storage_vol = { pool = "default"; volume = "${vm.value.storage}.qcow2"; };
-              install_vol = "${inputs.topInputs.self.src.iso.netboot}";
-              # TODO: cpu? vnc? network?
-            });
+            definition = 
+              let base = lib.domain.templates.linux
+              {
+                inherit (vm) name;
+                inherit (vm.value) uuid;
+                memory = { count = vm.value.memoryGB; unit = "GiB"; };
+                storage_vol = { pool = "default"; volume = "${vm.value.storage}.qcow2"; };
+                install_vol = "${inputs.topInputs.self.src.iso.netboot}";
+                virtio_video = false;
+              };
+              in lib.domain.writeXML (base //
+              {
+                devices =
+                  # remove spicevmc, which needs spice
+                  (builtins.removeAttrs base.devices [ "channel" "redirdev" "sound" "audio" ])
+                  // {
+                    graphics =
+                    {
+                      type = "vnc";
+                      autoport = false;
+                      port = vm.value.vncPort;
+                      listen.type = "address";
+                    };
+                  };
+                  cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };};
+                  vcpu = { placement = "static"; count = vm.value.cpus; };
+              });
             active = true;
           })
           (inputs.localLib.attrsToList nixvirt);
