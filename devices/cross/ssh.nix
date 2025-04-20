@@ -89,7 +89,7 @@ in
           (device: builtins.map
             (name:
             {
-              inherit (device) name;
+              inherit name;
               value = genericConfig //
                 { host = name; hostname = "${name}.chn.moe"; proxyJump = device.value.proxyJump or null; };
             })
