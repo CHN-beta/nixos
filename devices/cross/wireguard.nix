@@ -15,7 +15,7 @@ let
     srv3 = "a1pUi12SN6fIFiHA9W0N1ycuSz1fWUSpZnjz20OPaBk=";
   };
   dns = inputs.topInputs.self.config.dns.wireguard;
-  networks = # 对于每个网络，只需要设置 net，每个设备的 listenPort，以及每个设备的每个 peer 的 publicKey endpoint allowedIPs
+  networks = # 对于每个网络，只需要设置每个设备的 listenPort，以及每个设备的每个 peer 的 publicKey endpoint allowedIPs
   {
     # 星形网络，所有流量通过 vps6 中转
     wg0 = let vps6ListenIp = "144.34.225.59"; in
@@ -53,7 +53,31 @@ let
     };
     # 两两互连
     wg1 =
-      let listenIps =
+      let
+        getAddress = deviceName:
+          let
+            dns = inputs.topInputs.self.config.dns."chn.moe";
+            f = domain:
+              if dns.${domain}.type == "A" then dns.${domain}.value
+              else if dns.${domain}.type == "CNAME" then f (inputs.lib.removeSuffix ".chn.moe" dns.${domain}.value)
+              else throw "Not found ${domain}";
+          in f deviceName;
+        connection =
+        # 这个表用来表示，从某一个设备出发，可以主动直连到哪个设备，并且通过这个直连的设备，应该可以抵达哪些设备
+        # 被动连接的设备不需要写
+        {
+          vps6.vps7.ip = getAddress "vps7";
+          vps7.vps6.ip = getAddress "vps6";
+          pc =
+          {
+            vps6.ip = getAddress "vps6";
+            vps7.ip = getAddress "vps7";
+            nas.ip = getAddress "nas";
+            one.ip = getAddress "one";
+            srv1-node0 = { ip = getAddress "srv1-node0"; };
+          };
+        };
+      in let listenIps =
         let office = "210.34.16.60";
         in { "srv1-node0" = "59.77.36.250"; "srv2-node0" = office; pc = office; nas = office; };
       in
