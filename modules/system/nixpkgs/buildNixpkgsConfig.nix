@@ -104,7 +104,8 @@ in platformConfig //
                         (prev: { configureFlags = prev.configureFlags or [] ++ [ "--ghc-option=-optc-mno-avx2" ]; });
                     };
                   };
-                };
+                }
+                  // (inputs.topInputs.self.overlays.default final prev);
             };
           };
           packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}

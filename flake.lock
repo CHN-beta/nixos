@@ -1159,15 +1159,16 @@
     "phono3py": {
       "flake": false,
       "locked": {
-        "lastModified": 1742256515,
-        "narHash": "sha256-FQQvfeoCvUxJcQ5GD1TsHbORpjVgrJb0BvGxOGuLyhE=",
+        "lastModified": 1740821378,
+        "narHash": "sha256-B9Q0AqINtyoiT+V00VHpBPDzXCqie6lGYeBiLl6UgRM=",
         "owner": "phonopy",
         "repo": "phono3py",
-        "rev": "3b770849311067e00d3336b4932046eebf13f9b3",
+        "rev": "7a2b54faa7993b6f24080783b85bd6d6dadb2ccc",
         "type": "github"
       },
       "original": {
         "owner": "phonopy",
+        "ref": "v3.14.1",
         "repo": "phono3py",
         "type": "github"
       }
