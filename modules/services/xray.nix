@@ -347,8 +347,9 @@ inputs:
     (
       inputs.lib.mkIf (xray.server != null)
       (
-        let userList = builtins.attrValues
-          (inputs.pkgs.localPackages.fromYaml inputs.config.sops.defaultSopsFile).xray-server.clients;
+        let userList = builtins.attrNames
+          (inputs.pkgs.localPackages.fromYaml (builtins.readFile inputs.config.sops.defaultSopsFile))
+            .xray-server.clients;
         in
         {
           services.xray =
