@@ -24,6 +24,7 @@ inputs:
         noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
         noproxyTcpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
         noproxyUdpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
+        noproxyIps = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
       };
       # 是否允许代理来自其它机器的流量（相关端口会被放行）
       allowForward = mkOption { type = types.bool; default = true; };
@@ -268,6 +269,7 @@ inputs:
                       (map (port: "tcp:${toString port}") noproxyTcpPorts)
                         ++ (map (port: "udp:${toString port}") noproxyUdpPorts))
                   )
+                  ++ (map (ip: "${ipset} add noproxy_net ${ip}") (xray.client.v2ray-forwarder.noproxyIps))
                   ++ (map (action: "${iptables} -t mangle -A v2ray ${action} -w")
                   [
                     "-m set --match-set noproxy_src_net src -j RETURN"

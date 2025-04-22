@@ -54,15 +54,7 @@ let
     # 两两互连
     wg1 =
       let
-        # 查询域名对应的 ip
-        getAddress = deviceName:
-          let
-            dns = inputs.topInputs.self.config.dns."chn.moe";
-            f = domain:
-              if dns.${domain}.type == "A" then dns.${domain}.value
-              else if dns.${domain}.type == "CNAME" then f (inputs.lib.removeSuffix ".chn.moe." dns.${domain}.value)
-              else throw "Not found ${domain}";
-          in f deviceName;
+        inherit (inputs.topInputs.self.config.dns."chn.moe") getAddress;
         # 设备之间可以直接连接的子网
         # 若一个设备可以主动接受连接，则设置它接受连接的 ip；否则设置为 null
         subnet =

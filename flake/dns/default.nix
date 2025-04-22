@@ -13,7 +13,23 @@ let
       (domain: writeTextDir "${domain.name}.yaml" (builtins.toJSON (addTtl domain.value)))
       (localLib.attrsToList config);
   };
-in lib.addMetaAttrs { config = config // { wireguard = import ./config/wireguard.nix; }; } (writeShellScript "dns-push"
+  meta.config = config //
+  {
+    wireguard = import ./config/wireguard.nix;
+    "chn.moe" = config."chn.moe"
+      // {
+        # 查询域名对应的 ip
+        getAddress = deviceName:
+          let
+            dns = meta.config."chn.moe";
+            f = domain:
+              if dns.${domain}.type == "A" then dns.${domain}.value
+              else if dns.${domain}.type == "CNAME" then f (lib.removeSuffix ".chn.moe." dns.${domain}.value)
+              else throw "Not found ${domain}";
+          in f deviceName;
+      };
+  };
+in lib.addMetaAttrs meta (writeShellScript "dns-push"
 ''
   export OCTODNS_CONFIG=${configDir}
   export CLOUDFLARE_TOKEN=$(cat ${tokenPath})
