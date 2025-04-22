@@ -21,7 +21,9 @@ inputs:
         {
           enable = true;
           dnsmasq = { extraInterfaces = [ "eno2" ]; hosts."hpc.xmu.edu.cn" = "121.192.191.11"; };
-          v2ray-forwarder.noproxyIps = [ (inputs.topInputs.self.config.dns."chn.moe".getAddress "srv2") ];
+          # TODO: remove after swith to conntrack
+          v2ray-forwarder.noproxyIps = let inherit (inputs.topInputs.self.config.dns."chn.moe") getAddress; in
+            [ (getAddress "srv2") (getAddress "office") ];
         };
         beesd."/" = { hashTableSizeMB = 16 * 128; loadAverage = 8; };
         xrdp = { enable = true; hostname = [ "srv2.chn.moe" ]; };
