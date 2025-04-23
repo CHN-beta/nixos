@@ -338,41 +338,31 @@ inputs:
         '';
         systemd.services.nginx-proxy =
           let
-            ipset = "${inputs.pkgs.ipset}/bin/ipset";
-            iptables = "${inputs.pkgs.iptables}/bin/iptables";
             ip = "${inputs.pkgs.iproute2}/bin/ip";
+            nft = "${inputs.pkgs.nftables}/bin/nft";
+            nftConfigFile = inputs.pkgs.writeText "nginx.nft"
+            ''
+              table inet nginx {
+                chain output {
+                  type route hook output priority mangle; policy accept;
+                  meta skgid ${builtins.toString inputs.config.users.groups.nginx.gid} fib saddr type != local \
+                    ct state new ct mark set 2
+                  ct mark 2 ct direction reply meta mark set 2
+                  return
+                }
+              }
+            '';
             start = inputs.pkgs.writeShellScript "nginx-proxy.start"
-            (
-              ''
-                ${ipset} create nginx_proxy_port bitmap:port range 0-65535
-                ${iptables} -t mangle -N nginx_proxy_mark
-                ${iptables} -t mangle -A OUTPUT -j nginx_proxy_mark
-                ${iptables} -t mangle -A nginx_proxy_mark -s 127.0.0.1 -p tcp \
-                  -m set --match-set nginx_proxy_port src -j MARK --set-mark 2/2
-                ${iptables} -t mangle -A nginx_proxy_mark -j RETURN
-                ${iptables} -t mangle -N nginx_proxy
-                ${iptables} -t mangle -A PREROUTING -j nginx_proxy
-                ${iptables} -t mangle -A nginx_proxy -s 127.0.0.1 -p tcp \
-                  -m set --match-set nginx_proxy_port src -j MARK --set-mark 2/2
-                ${iptables} -t mangle -A nginx_proxy -j RETURN
-                ${ip} rule add fwmark 2/2 table 200
-                ${ip} route add local 0.0.0.0/0 dev lo table 200
-              ''
-              + concatStringsSep "\n  " (map
-                (port: ''${ipset} add nginx_proxy_port ${toString port}'')
-                (inputs.lib.unique (attrValues nginx.transparentProxy.map)))
-            );
+            ''
+              ${nft} -f ${nftConfigFile}
+              ${ip} rule add fwmark 2/2 table 200
+              ${ip} route add local 0.0.0.0/0 dev lo table 200
+            '';
             stop = inputs.pkgs.writeShellScript "nginx-proxy.stop"
             ''
-              ${iptables} -t mangle -F nginx_proxy_mark
-              ${iptables} -t mangle -D OUTPUT -j nginx_proxy_mark
-              ${iptables} -t mangle -X nginx_proxy_mark
-              ${iptables} -t mangle -F nginx_proxy
-              ${iptables} -t mangle -D PREROUTING -j nginx_proxy
-              ${iptables} -t mangle -X nginx_proxy
+              ${nft} delete table inet nginx
               ${ip} rule del fwmark 2/2 table 200
               ${ip} route del local 0.0.0.0/0 dev lo table 200
-              ${ipset} destroy nginx_proxy_port
             '';
           in
           {

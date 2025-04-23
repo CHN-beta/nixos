@@ -261,8 +261,8 @@ inputs:
                           meta l4proto != { tcp, udp } counter return
 
                           # 对于目标地址为本机的新建的流，标记并永不代理
-                          fib daddr type local ct state new ct mark set 1 return
-                          ct mark 1 return
+                          fib daddr type local ct state new counter ct mark set 1 return
+                          ct mark 1 counter return
 
                           ip saddr @noproxy_src_net return
                           ip daddr @noproxy_net return
@@ -277,7 +277,7 @@ inputs:
 
                         chain output {
                           type route hook output priority mangle; policy accept;
-                          ct mark 1 return
+                          ct mark 1 counter return
                           meta skuid { ${noproxyUserStr} } return
 
                           ip saddr @noproxy_src_net return
