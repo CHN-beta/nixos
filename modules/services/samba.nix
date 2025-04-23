@@ -51,10 +51,5 @@ inputs:
             (inputs.localLib.attrsToList samba.shares));
       };
     };
-    nixos.services.xray.client.v2ray-forwarder =
-    {
-      noproxyTcpPorts = [ 139 445 ];
-      noproxyUdpPorts = [ 137 138 ];
-    };
   };
 }

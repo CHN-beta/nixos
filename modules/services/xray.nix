@@ -19,13 +19,7 @@ inputs:
         };
         hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       };
-      v2ray-forwarder =
-      {
-        noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
-        noproxyTcpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
-        noproxyUdpPorts = mkOption { type = types.listOf types.ints.unsigned; default = []; };
-        noproxyIps = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-      };
+      v2ray-forwarder.noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
       # 是否允许代理来自其它机器的流量（相关端口会被放行）
       allowForward = mkOption { type = types.bool; default = true; };
     };
@@ -247,16 +241,9 @@ inputs:
                     [
                       "0.0.0.0/8" "10.0.0.0/8" "100.64.0.0/10" "127.0.0.0/8" "169.254.0.0/16" "172.16.0.0/12"
                       "192.0.0.0/24" "192.88.99.0/24" "192.168.0.0/16" "59.77.0.143" "198.18.0.0/15"
-                      "198.51.100.0/24" "203.0.113.0/24" "224.0.0.0/4" "240.0.0.0/4" "255.255.255.255/32"
+                      "198.51.100.0/24" "203.0.113.0/24" "224.0.0.0/4" "240.0.0.0/4"
                     ];
                     loNetStr = builtins.concatStringsSep ", " loNet;
-                    noproxyPortStr = builtins.concatStringsSep ", " (with xray.client.v2ray-forwarder;
-                    (
-                      (builtins.map (p: "tcp . ${builtins.toString p}") noproxyTcpPorts)
-                        ++ (builtins.map (p: "udp . ${builtins.toString p}") noproxyUdpPorts)
-                    ));
-                    noproxyNetStr =  builtins.concatStringsSep ", "
-                      ([ "223.5.5.5" "121.192.178.179" ] ++ xray.client.v2ray-forwarder.noproxyIps);
                     noproxyUserStr = builtins.concatStringsSep ", " (builtins.map
                       (user: builtins.toString inputs.config.nixos.user.uid.${user})
                       (xray.client.v2ray-forwarder.noproxyUsers ++ [ "v2ray" ]));
@@ -265,34 +252,36 @@ inputs:
                       table inet v2ray {
                         set lo_net { type ipv4_addr; flags interval; elements = { ${loNetStr} }; }
                         set xmu_net { type ipv4_addr; flags interval; }
-                        set noproxy_net { type ipv4_addr; flags interval; elements = { ${noproxyNetStr} }; }
+                        set noproxy_net { type ipv4_addr; flags interval; elements = { 223.5.5.5 }; }
                         set noproxy_src_net { type ipv4_addr; flags interval; }
-                        set noproxy_port { type inet_proto . inet_service; elements = { ${noproxyPortStr} }; }
                         set proxy_net { type ipv4_addr; flags interval; elements = { 8.8.8.8 }; }
 
                         chain prerouting {
                           type filter hook prerouting priority mangle; policy accept;
+                          meta l4proto != { tcp, udp } counter return
+
+                          # 对于目标地址为本机的新建的流，标记并永不代理
+                          fib daddr type local ct state new ct mark set 1 return
+                          ct mark 1 return
 
                           ip saddr @noproxy_src_net return
                           ip daddr @noproxy_net return
-                          meta l4proto . th sport @noproxy_port return
                           ip saddr != 172.16.0.0/12 ip daddr @xmu_net meta l4proto { tcp, udp } \
                             tproxy ip to :${xmuPort} meta mark set 1
                           ip daddr @proxy_net meta l4proto { tcp, udp } tproxy ip to :${proxyPort} meta mark set 1
                           ip daddr @lo_net return
-                          meta l4proto { tcp, udp } tproxy to ip :${autoPort} meta mark set 1
+                          meta l4proto { tcp, udp } tproxy ip to :${autoPort} meta mark set 1
 
                           return
                         }
 
                         chain output {
                           type route hook output priority mangle; policy accept;
-
+                          ct mark 1 return
                           meta skuid { ${noproxyUserStr} } return
 
                           ip saddr @noproxy_src_net return
                           ip daddr @noproxy_net return
-                          meta l4proto . th sport @noproxy_port return
                           ip daddr @xmu_net meta mark set 1
                           ip daddr @proxy_net meta mark set 1
                           ip daddr @lo_net return

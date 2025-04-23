@@ -24,7 +24,6 @@ inputs:
           UsePAM = true;
         };
       };
-      nixos.services.xray.client.v2ray-forwarder.noproxyTcpPorts = [ 22 ];
     }
     # 如果是服务器，那么启用 motd
     (inputs.lib.mkIf (inputs.config.nixos.model.type == "server")
