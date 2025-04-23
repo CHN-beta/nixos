@@ -4,7 +4,7 @@ inputs:
   {
     # marches allowed to be compiled on this machine
     marches = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-    substituters = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+    substituters = mkOption { type = types.listOf types.nonEmptyStr; default = [ "https://nix-store.chn.moe" ]; };
     remote =
     {
       slave =
@@ -86,13 +86,7 @@ inputs:
     # includeBuildDependencies
     { system.includeBuildDependencies = inputs.topInputs.self.config.branch == "archive"; }
     # substituters
-    {
-      nix.settings.substituters = inputs.lib.mkMerge
-      [
-        (inputs.lib.mkIf (nix.substituters != null) nix.substituters)
-        [ "https://cache.ngi0.nixos.org/" ]
-      ];
-    }
+    { nix.settings.substituters = nix.substituters ++ [ "https://cache.nixos.org" ]; }
     # remote.slave
     (inputs.lib.mkIf nix.remote.slave.enable
     {
