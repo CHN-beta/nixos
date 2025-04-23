@@ -232,9 +232,8 @@ inputs:
             wantedBy = [ "multi-user.target" ];
             serviceConfig =
               let
-                ipset = "${inputs.pkgs.ipset}/bin/ipset";
-                iptables = "${inputs.pkgs.iptables}/bin/iptables";
                 ip = "${inputs.pkgs.iproute2}/bin/ip";
+                nft = "${inputs.pkgs.nftables}/bin/nft";
                 autoPort = "10880";
                 xmuPort = "10881";
                 proxyPort = "10883";
@@ -242,92 +241,79 @@ inputs:
               {
                 Type = "oneshot";
                 RemainAfterExit = true;
-                ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start" (builtins.concatStringsSep "\n"
-                (
-                  [ "${ipset} create lo_net hash:net" ]
-                  ++ (builtins.map (host: "${ipset} add lo_net ${host}")
-                  [
-                    "0.0.0.0/8" "10.0.0.0/8" "100.64.0.0/10" "127.0.0.0/8" "169.254.0.0/16" "172.16.0.0/12"
-                    "192.0.0.0/24" "192.88.99.0/24" "192.168.0.0/16" "59.77.0.143" "198.18.0.0/15"
-                    "198.51.100.0/24" "203.0.113.0/24" "224.0.0.0/4" "240.0.0.0/4" "255.255.255.255/32"
-                  ])
-                  ++ [
-                    "${ipset} create xmu_net hash:net"
-                    "${ipset} create noproxy_net hash:net"
-                    "${ipset} add noproxy_net 223.5.5.5"
-                    # sslvpn.xmu.edu.cn
-                    "${ipset} add noproxy_net 121.192.178.179"
-                    "${ipset} create noproxy_src_net hash:net"
-                    "${ipset} create noproxy_port bitmap:port range 0-65535"
-                    "${ipset} create proxy_net hash:net"
-                    "${ipset} add proxy_net 8.8.8.8"
-                    "${iptables} -t mangle -N v2ray -w"
-                    "${iptables} -t mangle -A PREROUTING -j v2ray -w"
-                  ]
-                  ++ (map (port: "${ipset} add noproxy_port ${port}")
-                    (with xray.client.v2ray-forwarder;
-                      (map (port: "tcp:${toString port}") noproxyTcpPorts)
-                        ++ (map (port: "udp:${toString port}") noproxyUdpPorts))
-                  )
-                  ++ (map (ip: "${ipset} add noproxy_net ${ip}") (xray.client.v2ray-forwarder.noproxyIps))
-                  ++ (map (action: "${iptables} -t mangle -A v2ray ${action} -w")
-                  [
-                    "-m set --match-set noproxy_src_net src -j RETURN"
-                    "-m set --match-set noproxy_net dst -j RETURN"
-                    "-m set --match-set noproxy_port src -j RETURN"
-                    # if source from docker, do not redirect xmunet
-                    "! -s 172.16.0.0/12 -m set --match-set xmu_net dst -p tcp -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1"
-                    "! -s 172.16.0.0/12 -m set --match-set xmu_net dst -p udp -j TPROXY --on-port ${xmuPort} --tproxy-mark 1/1"
-                    "-m set --match-set proxy_net dst -p tcp -j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1"
-                    "-m set --match-set proxy_net dst -p udp -j TPROXY --on-port ${proxyPort} --tproxy-mark 1/1"
-                    "-m set --match-set lo_net dst -j RETURN"
-                    "-p tcp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1"
-                    "-p udp -j TPROXY --on-port ${autoPort} --tproxy-mark 1/1"
-                    "-j RETURN"
-                  ])
-                  ++ [
-                    "${iptables} -t mangle -N v2ray_mark -w"
-                    "${iptables} -t mangle -A OUTPUT -j v2ray_mark -w"
-                  ]
-                  ++ (map (action: "${iptables} -t mangle -A v2ray_mark ${action} -w")
-                  (
-                    (map
-                      (user:
-                        let uid = inputs.config.nixos.user.uid.${user};
-                        in "-m owner --uid-owner ${toString uid} -j RETURN")
-                      (xray.client.v2ray-forwarder.noproxyUsers ++ [ "v2ray" ]))
-                    ++ [
-                      "-m set --match-set noproxy_src_net src -j RETURN"
-                      "-m set --match-set noproxy_net dst -j RETURN"
-                      "-m set --match-set noproxy_port src -j RETURN"
-                      "-m set --match-set xmu_net dst -j MARK --set-mark 1/1"
-                      "-m set --match-set proxy_net dst -j MARK --set-mark 1/1"
-                      "-m set --match-set lo_net dst -j RETURN"
-                      "-p tcp -j MARK --set-mark 1/1"
-                      "-p udp -j MARK --set-mark 1/1"
-                      "-j RETURN"
-                    ]
-                  ))
-                  ++ [
-                    "${ip} rule add fwmark 1/1 table 100"
-                    "${ip} route add local 0.0.0.0/0 dev lo table 100"
-                  ]
-                ));
-                ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop" (builtins.concatStringsSep "\n"
-                (
-                  [
-                    "${iptables} -t mangle -F v2ray -w"
-                    "${iptables} -t mangle -D PREROUTING -j v2ray -w"
-                    "${iptables} -t mangle -X v2ray -w"
-                    "${iptables} -t mangle -F v2ray_mark -w"
-                    "${iptables} -t mangle -D OUTPUT -j v2ray_mark -w"
-                    "${iptables} -t mangle -X v2ray_mark -w"
-                    "${ip} rule del fwmark 1/1 table 100"
-                    "${ip} route del local 0.0.0.0/0 dev lo table 100"
-                  ]
-                  ++ (map (set: "${ipset} destroy ${set}")
-                    [ "lo_net" "xmu_net" "noproxy_net" "noproxy_src_net" "proxy_net" "noproxy_port" ])
-                ));
+                ExecStart =
+                  let
+                    loNet =
+                    [
+                      "0.0.0.0/8" "10.0.0.0/8" "100.64.0.0/10" "127.0.0.0/8" "169.254.0.0/16" "172.16.0.0/12"
+                      "192.0.0.0/24" "192.88.99.0/24" "192.168.0.0/16" "59.77.0.143" "198.18.0.0/15"
+                      "198.51.100.0/24" "203.0.113.0/24" "224.0.0.0/4" "240.0.0.0/4" "255.255.255.255/32"
+                    ];
+                    loNetStr = builtins.concatStringsSep ", " loNet;
+                    noproxyPortStr = builtins.concatStringsSep ", " (with xray.client.v2ray-forwarder;
+                    (
+                      (builtins.map (p: "tcp . ${builtins.toString p}") noproxyTcpPorts)
+                        ++ (builtins.map (p: "udp . ${builtins.toString p}") noproxyUdpPorts)
+                    ));
+                    noproxyNetStr =  builtins.concatStringsSep ", "
+                      ([ "223.5.5.5" "121.192.178.179" ] ++ xray.client.v2ray-forwarder.noproxyIps);
+                    noproxyUserStr = builtins.concatStringsSep ", " (builtins.map
+                      (user: builtins.toString inputs.config.nixos.user.uid.${user})
+                      (xray.client.v2ray-forwarder.noproxyUsers ++ [ "v2ray" ]));
+                    nftConfigFile = inputs.pkgs.writeText "v2ray.nft"
+                    ''
+                      table inet v2ray {
+                        set lo_net { type ipv4_addr; flags interval; elements = { ${loNetStr} }; }
+                        set xmu_net { type ipv4_addr; flags interval; }
+                        set noproxy_net { type ipv4_addr; flags interval; elements = { ${noproxyNetStr} }; }
+                        set noproxy_src_net { type ipv4_addr; flags interval; }
+                        set noproxy_port { type inet_proto . inet_service; elements = { ${noproxyPortStr} }; }
+                        set proxy_net { type ipv4_addr; flags interval; elements = { 8.8.8.8 }; }
+
+                        chain prerouting {
+                          type filter hook prerouting priority mangle; policy accept;
+
+                          ip saddr @noproxy_src_net return
+                          ip daddr @noproxy_net return
+                          meta l4proto . th sport @noproxy_port return
+                          ip saddr != 172.16.0.0/12 ip daddr @xmu_net meta l4proto { tcp, udp } \
+                            tproxy ip to :${xmuPort} meta mark set 1
+                          ip daddr @proxy_net meta l4proto { tcp, udp } tproxy ip to :${proxyPort} meta mark set 1
+                          ip daddr @lo_net return
+                          meta l4proto { tcp, udp } tproxy to ip :${autoPort} meta mark set 1
+
+                          return
+                        }
+
+                        chain output {
+                          type route hook output priority mangle; policy accept;
+
+                          meta skuid { ${noproxyUserStr} } return
+
+                          ip saddr @noproxy_src_net return
+                          ip daddr @noproxy_net return
+                          meta l4proto . th sport @noproxy_port return
+                          ip daddr @xmu_net meta mark set 1
+                          ip daddr @proxy_net meta mark set 1
+                          ip daddr @lo_net return
+                          meta l4proto { tcp, udp } meta mark set 1
+
+                          return
+                        }
+                      }
+                    '';
+                  in inputs.pkgs.writeShellScript "v2ray-forwarder.start"
+                  ''
+                    ${nft} -f ${nftConfigFile}
+                    ${ip} rule add fwmark 1/1 table 100
+                    ${ip} route add local 0.0.0.0/0 dev lo table 100
+                  '';
+                ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop"
+                ''
+                  ${nft} delete table inet v2ray
+                  ${ip} rule del fwmark 1/1 table 100
+                  ${ip} route del local 0.0.0.0/0 dev lo table 100
+                '';
               };
           };
         };

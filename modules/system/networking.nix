@@ -47,6 +47,7 @@ inputs:
         "net.bridge.bridge-nf-call-ip6tables" = false;
         "net.bridge.bridge-nf-call-arptables" = false;
       };
+      networking.nftables.enable = true;
     }
     (inputs.localLib.mkConditional (networking == null)
       {
