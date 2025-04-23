@@ -65,9 +65,9 @@
   huginn = pkgs.dockerTools.pullImage
   {
     imageName = "ghcr.io/huginn/huginn";
-    imageDigest = "sha256:fdaa76b95534f3c3a799d527821681dd61b8b6fc24de0a7e109fc665b627f115";
-    sha256 = "062c18360asnzl610n11vd46621cvkj26ay21l82f16r12k4qzwy";
-    finalImageName = "huginn/huginn";
+    imageDigest = "sha256:68e2c7082cd51d417e5ce76fe123810e9d52f4ab2018569df5b74b913ed3bc64";
+    sha256 = "0jpdysdphy1lyj6zwx2b1kbgs6bfnpkkx85mf1b9ybh3is6gaz6s";
+    finalImageName = "ghcr.io/huginn/huginn";
     finalImageTag = "latest";
   };
   misskey =

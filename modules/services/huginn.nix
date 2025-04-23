@@ -12,7 +12,7 @@ inputs:
   {
     virtualisation.oci-containers.containers.huginn =
     {
-      image = "huginn/huginn:5a1509b51188e0d16868be893c983d6fcfd232a5";
+      image = "ghcr.io/huginn/huginn:latest";
       imageFile = inputs.topInputs.self.src.huginn;
       ports = [ "127.0.0.1:3000:3000/tcp" ];
       extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
