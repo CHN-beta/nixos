@@ -3,12 +3,11 @@ let
   cname =
   {
     autoroute = [ "api" "git" "grafana" "matrix" "peertube" "send" "synapse" "vikunja" "铜锣湾" "铜锣湾实验室" ];
-    pc = [ "internal.nix-store" ];
     nas = [ "initrd.nas" ];
     office = [ "srv2-node0" ];
     vps6 =
     [
-      "blog" "catalog" "coturn" "element" "frp" "initrd.vps6" "misskey" "nix-store" "sticker" "synapse-admin" "tgapi"
+      "blog" "catalog" "coturn" "element" "frp" "initrd.vps6" "misskey" "sticker" "synapse-admin" "tgapi"
       "ua" "vps6.xserver"
     ];
     vps7 =
@@ -22,6 +21,8 @@ let
     srv3 = [ "initrd.srv3" ];
     srv1-node0 = [ "srv1" ];
     srv2-node0 = [ "srv2" ];
+    "wg1.nas" = [ "nix-store" ];
+    "wg1.pc" = [ "nix-store.pc" ];
   };
   a =
   {
