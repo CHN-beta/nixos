@@ -261,31 +261,32 @@ inputs:
                           meta l4proto != { tcp, udp } counter return
 
                           # 对于目标地址为本机的新建的流，标记并永不代理
-                          fib daddr type local ct state new counter ct mark set 1 return
-                          ct mark 1 counter return
+                          fib daddr type local ct state new counter ct mark set ct mark | 1 return
+                          ct mark & 1 == 1 counter return
 
                           ip saddr @noproxy_src_net return
                           ip daddr @noproxy_net return
                           ip saddr != 172.16.0.0/12 ip daddr @xmu_net meta l4proto { tcp, udp } \
-                            tproxy ip to :${xmuPort} meta mark set 1
-                          ip daddr @proxy_net meta l4proto { tcp, udp } tproxy ip to :${proxyPort} meta mark set 1
+                            tproxy ip to :${xmuPort} meta mark set meta mark | 1
+                          ip daddr @proxy_net meta l4proto { tcp, udp } tproxy ip to :${proxyPort} \
+                            meta mark set meta mark | 1
                           ip daddr @lo_net return
-                          meta l4proto { tcp, udp } tproxy ip to :${autoPort} meta mark set 1
+                          meta l4proto { tcp, udp } tproxy ip to :${autoPort} meta mark set meta mark | 1
 
                           return
                         }
 
                         chain output {
                           type route hook output priority mangle; policy accept;
-                          ct mark 1 counter return
+                          ct mark & 1 == 1 counter return
                           meta skuid { ${noproxyUserStr} } return
 
                           ip saddr @noproxy_src_net return
                           ip daddr @noproxy_net return
-                          ip daddr @xmu_net meta mark set 1
-                          ip daddr @proxy_net meta mark set 1
+                          ip daddr @xmu_net meta mark set meta mark | 1
+                          ip daddr @proxy_net meta mark set meta mark | 1
                           ip daddr @lo_net return
-                          meta l4proto { tcp, udp } meta mark set 1
+                          meta l4proto { tcp, udp } meta mark set meta mark | 1
 
                           return
                         }

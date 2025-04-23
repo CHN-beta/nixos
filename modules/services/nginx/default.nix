@@ -346,8 +346,8 @@ inputs:
                 chain output {
                   type route hook output priority mangle; policy accept;
                   meta skgid ${builtins.toString inputs.config.users.groups.nginx.gid} fib saddr type != local \
-                    ct state new ct mark set 2
-                  ct mark 2 ct direction reply meta mark set 2
+                    ct state new counter ct mark set ct mark | 2
+                  ct mark & 2 == 2 ct direction reply counter meta mark set meta mark | 2
                   return
                 }
               }
