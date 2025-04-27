@@ -29,7 +29,7 @@ inputs:
           # networking
           pkgs-unstable.remmina putty mtr-gui
           # media
-          mpv nomacs yesplaymusic simplescreenrecorder imagemagick gimp netease-cloud-music-gtk qcm
+          mpv nomacs yesplaymusic simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk qcm
           waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio
           (inkscape-with-extensions.override { inkscapeExtensions = null; })
           # themes
