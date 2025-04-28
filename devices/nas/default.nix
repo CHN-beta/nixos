@@ -12,18 +12,7 @@ inputs:
           mount =
           {
             vfat."/dev/disk/by-uuid/627D-1FAA" = "/boot";
-            btrfs =
-            {
-              "/dev/mapper/nix"."/nix" = "/nix";
-              "/dev/mapper/root3" =
-              {
-                "/nix/rootfs" = "/nix/rootfs";
-                "/nix/persistent" = "/nix/persistent";
-                "/nix/nodatacow" = "/nix/nodatacow";
-                "/nix/rootfs/current" = "/";
-                "/nix/backup" = "/nix/backup";
-              };
-            };
+            btrfs."/dev/mapper/root3" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
           swap = [ "/nix/swap/swap" ];
           rollingRootfs.waitDevices = [ "/dev/mapper/root4" ];
