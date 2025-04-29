@@ -60,6 +60,8 @@ inputs:
                 vitaliymaz.vscode-svg-previewer
                 # draw
                 pomdtr.excalidraw-editor
+                # typst
+                myriad-dreamin.tinymist
               ]
               # jupyter
               # TODO: use last release
