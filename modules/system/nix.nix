@@ -4,7 +4,8 @@ inputs:
   {
     # marches allowed to be compiled on this machine
     marches = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-    substituters = mkOption { type = types.listOf types.nonEmptyStr; default = [ "https://nix-store.chn.moe" ]; };
+    substituters = mkOption
+      { type = types.listOf types.nonEmptyStr; default = [ "https://nix-store.chn.moe?want-mass-query=true" ]; };
     remote =
     {
       slave =
