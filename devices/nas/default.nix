@@ -19,7 +19,7 @@ inputs:
         };
         initrd.sshd = {};
         nixpkgs.march = "silvermont";
-        nix.substituters = [ "https://nix-store.pc.chn.moe" ];
+        nix.substituters = [ "https://nix-store.pc.chn.moe?want-mass-query=true" ];
         networking = {};
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
