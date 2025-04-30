@@ -18,7 +18,7 @@ inputs:
     fileSystems = builtins.listToAttrs (builtins.map
       (device:
       {
-        name = device.value.mountPoint or device.name;
+        name = device.value.mountPoint or device.value;
         value =
         {
           device = device.name;
@@ -47,5 +47,22 @@ inputs:
       };
     };
     services.rpcbind.enable = true;
+    # force umount on shutdown
+    systemd.units = builtins.listToAttrs (builtins.map
+    (mount:
+    {
+      name = "${inputs.utils.escapeSystemdPath (mount.value.mountPoint or mount.value)}.mount";
+      value =
+      {
+        text =
+        ''
+          [Mount]
+          ForceUnmount=true
+          LazyUnmount=true
+        '';
+        overrideStrategy = "asDropin";
+      };
+    })
+    (inputs.localLib.attrsToList nfs));
   };
 }
