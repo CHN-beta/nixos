@@ -32,7 +32,8 @@ inputs:
             (inputs.lib.optionals (device.value.hard or true) [ "retry=15" "x-systemd.device-timeout=15min" ])
             # do not fail, just try continuously in background
             # nfs4 use tcp, tcp itself will retransmit several times, which is enough
-            (inputs.lib.optionals (!(device.value.hard or true)) [ "bg" "soft" "retrans=1" "timeo=20" "softreval" ])
+            (inputs.lib.optionals (!(device.value.hard or true))
+              [ "bg" "soft" "retrans=1" "timeo=20" "softreval" "x-systemd.requires=network-online.target" ])
           ];
         };
       })
