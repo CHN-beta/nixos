@@ -19,7 +19,12 @@ inputs:
         };
         initrd.sshd = {};
         nixpkgs.march = "silvermont";
-        nix.substituters = [ "https://nix-store.pc.chn.moe" ];
+        nix =
+        {
+          substituters = [ "https://nix-store.pc.chn.moe" ];
+          # needed by mounted-store on pc
+          inherit (inputs.topInputs.self.nixosConfigurations.pc.config.nixos.system.nix) marches;
+        };
         networking = {};
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
