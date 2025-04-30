@@ -14,11 +14,6 @@ inputs:
       services.beesd."/".hashTableSizeMB = 64;
     };
     services.hardware.bolt.enable = true;
-    specialisation.no-share-home.configuration =
-    {
-      nixos.system.fileSystems.mount.nfs = inputs.lib.mkForce null;
-      system.nixos.tags = [ "no-share-home" ];
-    };
     boot.initrd.systemd.network.networks."10-enp58s0" = inputs.config.systemd.network.networks."10-enp58s0";
     # make slurm sub process to be able to communicate with the master
     networking.firewall.trustedInterfaces = [ "enp58s0" ];
