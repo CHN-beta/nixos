@@ -15,6 +15,7 @@ inputs:
         core.quotepath = false;
         lfs.ssh.automultiplex = false; # 避免 lfs 一直要求触摸 yubikey
         receive.denyCurrentBranch = "warn"; # 允许 push 到非 bare 的仓库
+        merge.ours.driver = true; # 允许 .gitattributes 中设置的 merge=ours 生效
       };
     };
     nixos.packages.packages._packages = [ inputs.pkgs.localPackages.git-lfs-transfer ]; # make pure ssh lfs work
