@@ -2,30 +2,39 @@ inputs:
 {
   options.nixos.system.fileSystems.mount.nfs = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    type = types.nullOr (types.attrsOf types.nonEmptyStr); default = null;
+    type = types.attrsOf (types.oneOf
+    [
+      types.nonEmptyStr
+      (types.submodule { options =
+      {
+        mountPoint = mkOption { type = types.nonEmptyStr; };
+        hard = mkOption { type = types.bool; default = true; };
+      };})
+    ]);
+    default = {};
   };
-  config = let inherit (inputs.config.nixos.system.fileSystems.mount) nfs; in inputs.lib.mkIf (nfs != null)
+  config = let inherit (inputs.config.nixos.system.fileSystems.mount) nfs; in inputs.lib.mkIf (nfs != {})
   {
     fileSystems = builtins.listToAttrs (builtins.map
       (device:
       {
-        name = device.value;
+        name = device.value.mountPoint or device.name;
         value =
         {
           device = device.name;
           fsType = "nfs4";
-          neededForBoot = true;
-          options =
+          neededForBoot = device.value.hard or true;
+          options = builtins.concatLists
           [
-            # when try to mount at startup, wait 15 minutes before giving up
-            "retry=15" "x-systemd.device-timeout=15min"
             # sync every seconds
-            "actimeo=1"
+            [ "actimeo=1" ]
+            # when try to mount at startup, wait 15 minutes before giving up
+            (inputs.lib.optionals (device.value.hard or true) [ "retry=15" "x-systemd.device-timeout=15min" ])
           ];
         };
       })
       (inputs.localLib.attrsToList nfs));
-    boot.initrd =
+    boot.initrd = inputs.lib.mkIf (builtins.any (mount: mount.hard or true) (builtins.attrValues nfs))
     {
       network.enable = true;
       systemd.extraBin =
