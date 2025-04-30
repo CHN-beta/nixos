@@ -21,8 +21,7 @@ let
     srv3 = [ "initrd.srv3" ];
     srv1-node0 = [ "srv1" ];
     srv2-node0 = [ "srv2" ];
-    "wg1.nas" = [ "nix-store" ];
-    "wg1.pc" = [ "nix-store.pc" ];
+    "wg1.pc" = [ "nix-store" ];
   };
   a =
   {

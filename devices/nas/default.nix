@@ -19,12 +19,6 @@ inputs:
         };
         initrd.sshd = {};
         nixpkgs.march = "silvermont";
-        nix =
-        {
-          substituters = [ "https://nix-store.pc.chn.moe" ];
-          # needed by mounted-store on pc
-          inherit (inputs.topInputs.self.nixosConfigurations.pc.config.nixos.system.nix) marches;
-        };
         networking = {};
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
@@ -33,7 +27,6 @@ inputs:
         sshd = {};
         xray.client = { enable = true; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
         beesd = { "/" = { hashTableSizeMB = 10 * 128; threads = 4; }; "/nix" = {}; };
-        nix-serve = {};
         nfs."/" = inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc";
       };
     };

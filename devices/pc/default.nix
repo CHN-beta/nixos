@@ -99,7 +99,7 @@ inputs:
             "temp.ssh".localPort = 6188;
           };
         };
-        nix-serve.hostname = "nix-store.pc.chn.moe";
+        nix-serve = {};
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
         beesd."/" = { hashTableSizeMB = 4 * 128; threads = 4; };
         gamemode = { enable = true; drmDevice = 0; };
