@@ -29,6 +29,7 @@ inputs:
         xray.client = { enable = true; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
         beesd = { "/" = { hashTableSizeMB = 10 * 128; threads = 4; }; "/nix" = {}; };
         nix-serve = {};
+        nfs."/nix" = "192.168.84.3";
       };
     };
   };
