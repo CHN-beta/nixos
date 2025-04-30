@@ -46,6 +46,8 @@ inputs:
         "net.bridge.bridge-nf-call-iptables" = false;
         "net.bridge.bridge-nf-call-ip6tables" = false;
         "net.bridge.bridge-nf-call-arptables" = false;
+        # lower tcp retransmission tries (5 times, about several seconds)
+        "net.ipv4.tcp_retries2" = 5;
       };
       networking.nftables.enable = true;
     }
