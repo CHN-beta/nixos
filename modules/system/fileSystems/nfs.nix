@@ -27,7 +27,7 @@ inputs:
           options = builtins.concatLists
           [
             # sync every seconds
-            [ "actimeo=1" ]
+            [ "actimeo=1" "noatime" ]
             # when try to mount at startup, wait 15 minutes before giving up
             (inputs.lib.optionals (device.value.hard or true) [ "retry=15" "x-systemd.device-timeout=15min" ])
             # do not fail, just try continuously in background
