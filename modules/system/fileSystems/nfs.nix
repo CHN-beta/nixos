@@ -31,7 +31,7 @@ inputs:
             # when try to mount at startup, wait 15 minutes before giving up
             (inputs.lib.optionals (device.value.hard or true) [ "retry=15" "x-systemd.device-timeout=15min" ])
             # do not fail, just try continuously in background
-            (inputs.lib.optionals (!(device.value.hard or true)) [ "bg" ])
+            (inputs.lib.optionals (!(device.value.hard or true)) [ "bg" "soft" "retrans=5" "timeo=20" ])
           ];
         };
       })
@@ -47,22 +47,5 @@ inputs:
       };
     };
     services.rpcbind.enable = true;
-    # force umount on shutdown
-    systemd.units = builtins.listToAttrs (builtins.map
-    (mount:
-    {
-      name = "${inputs.utils.escapeSystemdPath (mount.value.mountPoint or mount.value)}.mount";
-      value =
-      {
-        text =
-        ''
-          [Mount]
-          ForceUnmount=true
-          LazyUnmount=true
-        '';
-        overrideStrategy = "asDropin";
-      };
-    })
-    (inputs.localLib.attrsToList nfs));
   };
 }
