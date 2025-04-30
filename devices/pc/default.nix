@@ -13,6 +13,8 @@ inputs:
           {
             vfat."/dev/disk/by-uuid/7A60-4232" = "/boot";
             btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+            nfs."${inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.nas"}:/nix" =
+              { mountPoint = "/nix/nas"; hard = false; };
           };
           luks.auto =
           {
