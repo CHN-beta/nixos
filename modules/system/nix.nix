@@ -31,7 +31,7 @@ inputs:
       nix.settings =
       {
         system-features = [ "big-parallel" "nixos-test" "benchmark" ];
-        experimental-features = [ "nix-command" "flakes" "ca-derivations" ];
+        experimental-features = [ "nix-command" "flakes" "ca-derivations" "mounted-ssh-store" ];
         keep-failed = true;
         max-substitution-jobs = 4;
         trusted-public-keys =
