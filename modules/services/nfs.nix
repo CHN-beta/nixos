@@ -1,16 +1,8 @@
 inputs:
 {
   options.nixos.services.nfs = let inherit (inputs.lib) mkOption types; in mkOption
-  {
-    type = types.nullOr (types.submodule { options =
-    {
-      root = mkOption { type = types.nonEmptyStr; };
-      exports = mkOption { type = types.listOf types.nonEmptyStr; };
-      accessLimit = mkOption { type = types.nonEmptyStr; };
-    };});
-    default = null;
-  };
-  config = let inherit (inputs.config.nixos.services) nfs; in inputs.lib.mkIf (nfs != null)
+    { type = types.attrsOf types.nonEmptyStr; default = {}; }; # export = accessLimit
+  config = let inherit (inputs.config.nixos.services) nfs; in inputs.lib.mkIf (nfs != {})
   {
     services =
     {
@@ -18,10 +10,9 @@ inputs:
       nfs.server =
       {
         enable = true;
-        exports = "${nfs.root} ${nfs.accessLimit}(rw,no_root_squash,fsid=0,sync,crossmnt)\n"
-          + builtins.concatStringsSep "\n" (builtins.map
-            (export: "${export} ${nfs.accessLimit}(rw,no_root_squash,sync,crossmnt)")
-            nfs.exports);
+        exports = builtins.concatStringsSep "\n" (builtins.map
+          (export: "${export.name} ${export.value}(rw,no_root_squash,sync,crossmnt)")
+          (inputs.localLib.attrsToList nfs));
       };
     };
     networking.firewall.allowedTCPPorts = [ 2049 ];
