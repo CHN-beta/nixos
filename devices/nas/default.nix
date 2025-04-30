@@ -14,7 +14,7 @@ inputs:
             vfat."/dev/disk/by-uuid/627D-1FAA" = "/boot";
             btrfs."/dev/mapper/root3" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
-          swap = [ "/nix/swap/swap" ];
+          swap = [ "/dev/mapper/swap" ];
           rollingRootfs.waitDevices = [ "/dev/mapper/root4" ];
         };
         initrd.sshd = {};

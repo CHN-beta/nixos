@@ -5,6 +5,7 @@ let devices =
   {
     "/dev/disk/by-partlabel/nas-root3".mapper = "root3";
     "/dev/disk/by-partlabel/nas-root4".mapper = "root4";
+    "/dev/disk/by-partlabel/nas-swap" = { mapper = "swap"; ssd = true; };
   };
   vps6."/dev/disk/by-uuid/961d75f0-b4ad-4591-a225-37b385131060" = { mapper = "root"; ssd = true; };
   vps7."/dev/disk/by-uuid/db48c8de-bcf7-43ae-a977-60c4f390d5c4" = { mapper = "root"; ssd = true; };
