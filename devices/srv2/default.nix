@@ -14,8 +14,6 @@ inputs:
             vfat."/dev/disk/by-partlabel/${clusterName}-${nodeName}-boot" = "/boot";
             btrfs."/dev/disk/by-partlabel/${clusterName}-${nodeName}-root1" =
               { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-            nfs."${inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc"}:/" =
-              { mountPoint = "/nix/pc"; hard = false; };
           };
           swap = [ "/nix/swap/swap" ];
           rollingRootfs = {};

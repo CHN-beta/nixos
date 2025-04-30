@@ -24,7 +24,7 @@ inputs:
     };
     specialisation.no-share-home.configuration =
     {
-      nixos.system.fileSystems.mount.nfs = inputs.lib.mkForce null;
+      nixos.system.fileSystems.mount.nfs = inputs.lib.mkForce {};
       system.nixos.tags = [ "no-share-home" ];
     };
     boot.initrd.systemd.network.networks."10-eno2" = inputs.config.systemd.network.networks."10-eno2";
