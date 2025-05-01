@@ -48,7 +48,6 @@ inputs:
                       listen.type = "address";
                       password = "password";
                     };
-                    
                   };
                   cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };};
                   vcpu = { placement = "static"; count = vm.value.cpus; };
