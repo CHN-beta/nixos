@@ -46,7 +46,7 @@ inputs:
                       autoport = false;
                       port = vm.value.vncPort;
                       listen.type = "address";
-                      password = "password";
+                      passwd = "password";
                     };
                   };
                   cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };};
