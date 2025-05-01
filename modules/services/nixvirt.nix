@@ -46,7 +46,9 @@ inputs:
                       autoport = false;
                       port = vm.value.vncPort;
                       listen.type = "address";
+                      password = "password";
                     };
+                    
                   };
                   cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };};
                   vcpu = { placement = "static"; count = vm.value.cpus; };
@@ -73,14 +75,7 @@ inputs:
             target.path = "/var/lib/libvirt/images";
           };
           active = true;
-          volumes =
-          [{
-            definition = lib.volume.writeXML
-            {
-              name = "test.qcow2";
-              capacity = { count = 20; unit = "GB"; };
-            };
-          }];
+          # do not define image here, since it still needs to be created manually
         }];
       };
     };
