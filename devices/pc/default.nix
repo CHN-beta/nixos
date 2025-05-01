@@ -47,7 +47,7 @@ inputs:
           "alderlake"
         ];
         nixpkgs = { march = "znver4"; cuda.capabilities = [ "8.9" ]; };
-        kernel.variant = "cachyos-lts";
+        kernel.variant = "xanmod-latest";
         sysctl.laptop-mode = 5;
       };
       hardware =
