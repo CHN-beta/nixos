@@ -27,39 +27,48 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.services) nixvirt; in inputs.lib.mkIf (nixvirt != null)
   {
-    virtualisation.libvirt =
+    virtualisation =
     {
-      enable = true;
-      verbose = true;
-      connections."qemu:///system" = let inherit (inputs.topInputs.nixvirt) lib; in
+      libvirt =
       {
-        domains = builtins.map
-          (vm: { definition = inputs.config.sops.templates."${vm.name}.xml".path; active = true; })
-          (inputs.localLib.attrsToList nixvirt);
-        networks =
-        [{
-          definition =
-            let
-              base = lib.network.templates.bridge { uuid = "8f403474-f8d6-4fa7-991a-f62f40d51191"; subnet_byte = 122; };
-              host = builtins.map
-                (vm: { inherit (vm) mac; ip = "192.168.122.${builtins.toString vm.address}"; })
-                (builtins.attrValues nixvirt);
-            in lib.network.writeXML (base // { ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; }; });
-          active = true;
-        }];
-        pools =
-        [{
-          definition = lib.pool.writeXML
-          {
-            name = "default";
-            uuid = "6fc75fcc-fb95-48b6-8fa4-0e59b6c1b6c7";
-            type = "dir";
-            target.path = "/var/lib/libvirt/images";
-          };
-          active = true;
-          # do not define image here, since it still needs to be created manually
-        }];
+        enable = true;
+        verbose = true;
+        connections."qemu:///system" = let inherit (inputs.topInputs.nixvirt) lib; in
+        {
+          domains = builtins.map
+            (vm: { definition = inputs.config.sops.templates."${vm.name}.xml".path; active = true; })
+            (inputs.localLib.attrsToList nixvirt);
+          networks =
+          [{
+            definition =
+              let
+                base = lib.network.templates.bridge
+                  { uuid = "8f403474-f8d6-4fa7-991a-f62f40d51191"; subnet_byte = 122; };
+                host = builtins.map
+                  (vm: { inherit (vm) mac; ip = "192.168.122.${builtins.toString vm.address}"; })
+                  (builtins.attrValues nixvirt);
+              in lib.network.writeXML (base // { ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; }; });
+            active = true;
+          }];
+          pools =
+          [{
+            definition = lib.pool.writeXML
+            {
+              name = "default";
+              uuid = "6fc75fcc-fb95-48b6-8fa4-0e59b6c1b6c7";
+              type = "dir";
+              target.path = "/var/lib/libvirt/images";
+            };
+            active = true;
+            # do not define image here, since it still needs to be created manually
+          }];
+        };
       };
+      libvirtd.qemu.verbatimConfig =
+      ''
+        namespaces = []
+        vnc_listen = "0.0.0.0"
+      '';
     };
     nixos.services.kvm = {};
     sops =
@@ -130,5 +139,6 @@ inputs:
       group = "root";
       setuid = true;
     };
+    networking.firewall.allowedTCPPorts = builtins.map (vm: vm.vncPort) (builtins.attrValues nixvirt);
   };
 }
