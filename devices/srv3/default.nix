@@ -35,16 +35,7 @@ inputs:
         sshd = {};
         nixvirt =
         {
-          test =
-          {
-            uuid = "6cb275dc-19e5-4c8d-b705-5faab72aa3ee";
-            storage = "test";
-            memoryGB = 8;
-            cpus = 4;
-            vncPort = 15900;
-            mac = "e2:ad:f6:29:8c:11";
-            address = 2;
-          };
+          test = { memoryGB = 8; cpus = 4; address = 2; };
         };
       };
       user.users = [ "chn" "aleksana" ];

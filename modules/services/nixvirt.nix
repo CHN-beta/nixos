@@ -2,16 +2,27 @@ inputs:
 {
   options.nixos.services.nixvirt = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    type = types.nullOr (types.attrsOf (types.submodule { options =
-    {
-      uuid = mkOption { type = types.str; };
-      storage = mkOption { type = types.nonEmptyStr; };
-      memoryGB = mkOption { type = types.ints.unsigned; };
-      cpus = mkOption { type = types.ints.unsigned; };
-      vncPort = mkOption { type = types.ints.unsigned; };
-      mac = mkOption { type = types.nonEmptyStr; };
-      address = mkOption { type = types.ints.unsigned; };
-    };}));
+    type = types.nullOr (types.attrsOf (types.submodule (submoduleInputs: { options =
+      let
+        hash = builtins.hashString "sha256" submoduleInputs.config._module.args.name;
+        createString = separator: parts: builtins.concatStringsSep separator
+          (builtins.map (p: builtins.substring (builtins.head p) (builtins.elemAt p 1) hash) parts);
+      in
+      {
+        uuid = mkOption
+        {
+          type = types.nonEmptyStr;
+          default = createString "-" [ [ 0 8 ] [ 8 4 ] [ 12 4 ] [ 16 4 ] [ 20 12 ] ];
+        };
+        storage = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+        memoryGB = mkOption { type = types.ints.unsigned; };
+        cpus = mkOption { type = types.ints.unsigned; };
+        vncPort = mkOption { type = types.ints.unsigned; default = 15900 + submoduleInputs.config.address; };
+        mac = mkOption
+          { type = types.nonEmptyStr; default = "02:${createString "-" [ [ 0 2 ] [ 2 2 ] [ 4 2 ] [ 6 2 ] [ 8 2 ] ]}"; };
+        address = mkOption { type = types.ints.unsigned; };
+        owner = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+      };})));
     default = null;
   };
   config = let inherit (inputs.config.nixos.services) nixvirt; in inputs.lib.mkIf (nixvirt != null)
