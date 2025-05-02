@@ -9,7 +9,8 @@ inputs:
       memoryGB = mkOption { type = types.ints.unsigned; };
       cpus = mkOption { type = types.ints.unsigned; };
       vncPort = mkOption { type = types.ints.unsigned; };
-      # TODO: network assign fixed ip
+      mac = mkOption { type = types.nonEmptyStr; };
+      address = mkOption { type = types.ints.unsigned; };
     };}));
     default = null;
   };
@@ -22,46 +23,17 @@ inputs:
       connections."qemu:///system" = let inherit (inputs.topInputs.nixvirt) lib; in
       {
         domains = builtins.map
-          (vm:
-          {
-            definition = 
-              let base = lib.domain.templates.linux
-              {
-                inherit (vm) name;
-                inherit (vm.value) uuid;
-                memory = { count = vm.value.memoryGB; unit = "GiB"; };
-                storage_vol = { pool = "default"; volume = "${vm.value.storage}.qcow2"; };
-                install_vol = "${inputs.topInputs.self.src.iso.netboot}";
-                virtio_video = false;
-              };
-              in lib.domain.writeXML (base //
-              {
-                devices =
-                  # remove spicevmc, which needs spice
-                  (builtins.removeAttrs base.devices [ "channel" "redirdev" "sound" "audio" ])
-                  // {
-                    graphics =
-                    {
-                      type = "vnc";
-                      autoport = false;
-                      port = vm.value.vncPort;
-                      listen.type = "address";
-                      passwd = "password";
-                    };
-                  };
-                  cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };};
-                  vcpu = { placement = "static"; count = vm.value.cpus; };
-              });
-            active = true;
-          })
+          (vm: { definition = inputs.config.sops.templates."${vm.name}.xml".path; active = true; })
           (inputs.localLib.attrsToList nixvirt);
         networks =
         [{
-          definition = lib.network.writeXML (lib.network.templates.bridge
-          {
-            uuid = "8f403474-f8d6-4fa7-991a-f62f40d51191";
-            subnet_byte = 122;
-          });
+          definition =
+            let
+              base = lib.network.templates.bridge { uuid = "8f403474-f8d6-4fa7-991a-f62f40d51191"; subnet_byte = 122; };
+              host = builtins.map
+                (vm: { inherit (vm) mac; ip = "192.168.122.${builtins.toString vm.address}"; })
+                (builtins.attrValues nixvirt);
+            in lib.network.writeXML (base // { ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; }; });
           active = true;
         }];
         pools =
@@ -79,5 +51,49 @@ inputs:
       };
     };
     nixos.services.kvm = {};
+    sops =
+    {
+      templates = builtins.listToAttrs (builtins.map
+        (vm:
+        {
+          name = "${vm.name}.xml";
+          value.content =
+            let
+              inherit (inputs.topInputs.nixvirt) lib;
+              base = lib.domain.templates.linux
+              {
+                inherit (vm) name;
+                inherit (vm.value) uuid;
+                memory = { count = vm.value.memoryGB; unit = "GiB"; };
+                storage_vol = { pool = "default"; volume = "${vm.value.storage}.qcow2"; };
+                install_vol = "${inputs.topInputs.self.src.iso.netboot}";
+                virtio_video = false;
+              };
+            in lib.domain.getXML (base //
+            {
+              devices =
+                # remove spicevmc, which needs spice
+                (builtins.removeAttrs base.devices [ "channel" "redirdev" "sound" "audio" ])
+                // {
+                  graphics =
+                  {
+                    type = "vnc";
+                    autoport = false;
+                    port = vm.value.vncPort;
+                    listen.type = "address";
+                    passwd = inputs.config.sops.placeholder."nixvirt/${vm.name}";
+                  };
+                  interface = base.devices.interface // { mac.address = vm.value.mac; };
+                };
+                cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };};
+                vcpu = { placement = "static"; count = vm.value.cpus; };
+            });
+        })
+        (inputs.localLib.attrsToList nixvirt));
+      secrets = builtins.listToAttrs (builtins.map
+        (vm: { name = "nixvirt/${vm}"; value = {}; }) (builtins.attrNames nixvirt));
+      placeholder = builtins.listToAttrs (builtins.map
+        (vm: { name = "nixvirt/${vm}"; value = builtins.hashString "sha256" vm; }) (builtins.attrNames nixvirt));
+    };
   };
 }

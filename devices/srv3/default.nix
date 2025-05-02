@@ -42,6 +42,8 @@ inputs:
             memoryGB = 8;
             cpus = 4;
             vncPort = 15900;
+            mac = "e2:ad:f6:29:8c:11";
+            address = 2;
           };
         };
       };
