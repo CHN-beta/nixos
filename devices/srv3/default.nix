@@ -33,7 +33,7 @@ inputs:
         # 大部分空间用于存储虚拟机（nodatacow），其它内容不多
         beesd."/".hashTableSizeMB = 32;
         sshd = {};
-        nixvirt.instance =
+        nixvirt =
         {
           test = { memoryGB = 8; cpus = 4; address = 2; owner = "chn"; };
         };
