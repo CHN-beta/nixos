@@ -1,16 +1,3 @@
-Program:
-  VaspCpu:
-    Queue:
-      - Name: localhost
-        Recommended:
-          Mpi: 4
-          Openmp: 4
-          Memory: 64
-  VaspGpu:
-    Queue:
-      - Name: localhost
-        Gpu: [ "4060" ]
-  Mumax3:
-    Queue:
-      - Name: localhost
-        Gpu: [ "4060" ]
+virsh: /run/current-system/sw/bin/virsh
+vm:
+  1000: ["test"]

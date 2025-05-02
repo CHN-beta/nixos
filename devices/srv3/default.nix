@@ -35,7 +35,7 @@ inputs:
         sshd = {};
         nixvirt =
         {
-          test = { memoryGB = 8; cpus = 4; address = 2; };
+          test = { memoryGB = 8; cpus = 4; address = 2; owner = "chn"; };
         };
       };
       user.users = [ "chn" "aleksana" ];

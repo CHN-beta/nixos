@@ -19,7 +19,7 @@ inputs:
         cpus = mkOption { type = types.ints.unsigned; };
         vncPort = mkOption { type = types.ints.unsigned; default = 15900 + submoduleInputs.config.address; };
         mac = mkOption
-          { type = types.nonEmptyStr; default = "02:${createString "-" [ [ 0 2 ] [ 2 2 ] [ 4 2 ] [ 6 2 ] [ 8 2 ] ]}"; };
+          { type = types.nonEmptyStr; default = "02:${createString ":" [ [ 0 2 ] [ 2 2 ] [ 4 2 ] [ 6 2 ] [ 8 2 ] ]}"; };
         address = mkOption { type = types.ints.unsigned; };
         owner = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
       };})));
@@ -105,6 +105,30 @@ inputs:
         (vm: { name = "nixvirt/${vm}"; value = {}; }) (builtins.attrNames nixvirt));
       placeholder = builtins.listToAttrs (builtins.map
         (vm: { name = "nixvirt/${vm}"; value = builtins.hashString "sha256" vm; }) (builtins.attrNames nixvirt));
+    };
+    security.wrappers.vm =
+    {
+      source =
+        let vm = inputs.pkgs.localPackages.vm.override
+        {
+          vmConfig = inputs.pkgs.writeText "vm.yaml" (builtins.toJSON
+          ({
+            virsh = "${inputs.pkgs.libvirt}/bin/virsh";
+            vm =
+              let vms = builtins.groupBy (vm: vm.value.owner) (inputs.localLib.attrsToList nixvirt);
+              in builtins.listToAttrs (builtins.map (owner:
+              {
+                name = builtins.toString inputs.config.nixos.user.uid.${owner.name};
+                value = builtins.map (vm: vm.name) owner.value;
+              })
+              (inputs.localLib.attrsToList vms));
+          }));
+        };
+        in "${vm}/bin/vm";
+      program = "vm";
+      owner = "root";
+      group = "root";
+      setuid = true;
     };
   };
 }
