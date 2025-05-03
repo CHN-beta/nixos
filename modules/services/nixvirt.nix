@@ -127,7 +127,8 @@ inputs:
       secrets = builtins.listToAttrs (builtins.map
         (vm: { name = "nixvirt/${vm}"; value = {}; }) (builtins.attrNames nixvirt));
       placeholder = builtins.listToAttrs (builtins.map
-        (vm: { name = "nixvirt/${vm}"; value = builtins.hashString "sha256" vm; }) (builtins.attrNames nixvirt));
+        (vm: { name = "nixvirt/${vm}"; value = builtins.hashString "sha256" "nixvirt/${vm}"; })
+        (builtins.attrNames nixvirt));
     };
     security.wrappers.vm =
     {

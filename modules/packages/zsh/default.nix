@@ -35,7 +35,7 @@ inputs:
       }
       # config for root and chn
       {
-        zsh = inputs.lib.mkIf (builtins.elem home-inputs.config.home.username [ "chn" "root" "aleksana" ])
+        zsh = inputs.lib.mkIf (builtins.elem home-inputs.config.home.username [ "chn" "root" "aleksana" "alikia" ])
         {
           plugins =
           [

@@ -35,16 +35,10 @@ inputs:
         sshd = {};
         nixvirt =
         {
-          test =
-          {
-            memoryGB = 8;
-            cpus = 4;
-            address = 2;
-            portForward.tcp = [{ host = 5689; guest = 22; }];
-          };
+          alikia = { memoryGB = 1; cpus = 1; address = 2; portForward.tcp = [{ host = 5689; guest = 22; }]; };
         };
       };
-      user.users = [ "chn" "aleksana" ];
+      user.users = [ "chn" "aleksana" "alikia" ];
     };
     # TODO: use a generic way
     boot.initrd.systemd.network.networks."10-eno1" = inputs.config.systemd.network.networks."10-eno1";
