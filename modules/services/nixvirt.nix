@@ -17,11 +17,25 @@ inputs:
         storage = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
         memoryGB = mkOption { type = types.ints.unsigned; };
         cpus = mkOption { type = types.ints.unsigned; };
-        vncPort = mkOption { type = types.ints.unsigned; default = 15900 + submoduleInputs.config.address; };
+        vnc =
+        {
+          port = mkOption { type = types.ints.unsigned; default = 15900 + submoduleInputs.config.address; };
+          openFirewall = mkOption { type = types.bool; default = true; };
+        };
         mac = mkOption
           { type = types.nonEmptyStr; default = "02:${createString ":" [ [ 0 2 ] [ 2 2 ] [ 4 2 ] [ 6 2 ] [ 8 2 ] ]}"; };
         address = mkOption { type = types.ints.unsigned; };
         owner = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+        portForward = rec
+        {
+          tcp = mkOption
+          {
+            type = types.listOf (types.submodule { options = rec
+              { host = mkOption { type = types.ints.unsigned; }; guest = host; };});
+            default = [];
+          };
+          udp = tcp;
+        };
       };})));
     default = null;
   };
@@ -47,9 +61,7 @@ inputs:
                 host = builtins.map
                   (vm: { inherit (vm) mac; ip = "192.168.122.${builtins.toString vm.address}"; })
                   (builtins.attrValues nixvirt);
-                ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; };
-              # in lib.network.writeXML (base // { forward.type = "route"; inherit ip; });
-              in lib.network.writeXML (base // { inherit ip; });
+              in lib.network.writeXML (base // { ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; }; });
             active = true;
           }];
           pools =
@@ -101,7 +113,7 @@ inputs:
                   {
                     type = "vnc";
                     autoport = false;
-                    port = vm.value.vncPort;
+                    port = vm.value.vnc.port;
                     listen.type = "address";
                     passwd = inputs.config.sops.placeholder."nixvirt/${vm.name}";
                   };
@@ -141,16 +153,25 @@ inputs:
       group = "root";
       setuid = true;
     };
-    networking.firewall.allowedTCPPorts = builtins.map (vm: vm.vncPort) (builtins.attrValues nixvirt);
+    networking.firewall.allowedTCPPorts = builtins.map (vm: vm.vnc.port)
+      (builtins.filter (vm: vm.vnc.openFirewall) (builtins.attrValues nixvirt));
     systemd.services.nixvirt-forward =
       let
+        nftRules = builtins.concatLists (builtins.concatLists (builtins.map
+          (vm: builtins.map
+            (protocol: builtins.map
+              (port: "${protocol} dport ${builtins.toString port.host} "
+                + "counter dnat ip to 192.168.122.${builtins.toString vm.address}:${builtins.toString port.guest};")
+              vm.portForward.${protocol})
+            [ "tcp" "udp" ])
+          (builtins.attrValues nixvirt)));
         nft = "${inputs.pkgs.nftables}/bin/nft";
         nftConfigFile = inputs.pkgs.writeText "nixvirt.nft"
         ''
           table inet nixvirt {
             chain prerouting {
               type nat hook prerouting priority dstnat; policy accept;
-              tcp dport 5689 counter dnat ip to 192.168.122.2:22;
+              "${builtins.concatStringsSep "\n" nftRules}"
             }
           }
         '';
@@ -158,12 +179,29 @@ inputs:
         # packages accept in nftables but reject in iptables will finally be rejected.
         # So we need to add a rule in iptables to accept these packages.
         iptables = "${inputs.pkgs.iptables}/bin/iptables";
+        iptRules = builtins.concatLists (builtins.concatLists (builtins.map
+          (vm: builtins.map
+            (protocol: builtins.map
+              (port: "${iptables} -t filter -I NIXVIRT_FORWARD -d 192.168.122.${builtins.toString vm.address} "
+                + "-p ${protocol} --dport ${builtins.toString port.guest} -j ACCEPT")
+              vm.portForward.${protocol})
+            [ "tcp" "udp" ])
+          (builtins.attrValues nixvirt)));
         start = inputs.pkgs.writeShellScript "nixvirt.start" (builtins.concatStringsSep "\n"
+        (
+          [
+            "${nft} -f ${nftConfigFile}"
+            "${iptables} -t filter -N NIXVIRT_FORWARD -w"
+            "${iptables} -t filter -I LIBVIRT_FWI -j NIXVIRT_FORWARD -w"
+          ] ++ iptRules
+        ));
+        stop = inputs.pkgs.writeShellScript "nixvirt.stop" (builtins.concatStringsSep "\n"
         [
-          "${nft} -f ${nftConfigFile}"
-          "${iptables} -t filter -I LIBVIRT_FWI -d 192.168.122.2 -p tcp --dport 22 -j ACCEPT"
+          "${nft} delete table inet nixvirt"
+          "${iptables} -t filter -D LIBVIRT_FWI -j NIXVIRT_FORWARD -w"
+          "${iptables} -t filter -F NIXVIRT_FORWARD -w"
+          "${iptables} -t filter -X NIXVIRT_FORWARD -w"
         ]);
-        stop = inputs.pkgs.writeShellScript "nixvirt.stop" "${nft} delete table inet nixvirt";
       in
       {
         description = "nixvirt port forward";

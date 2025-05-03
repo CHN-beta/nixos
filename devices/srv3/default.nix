@@ -35,7 +35,13 @@ inputs:
         sshd = {};
         nixvirt =
         {
-          test = { memoryGB = 8; cpus = 4; address = 2; owner = "chn"; };
+          test =
+          {
+            memoryGB = 8;
+            cpus = 4;
+            address = 2;
+            portForward.tcp = [{ host = 5689; guest = 22; }];
+          };
         };
       };
       user.users = [ "chn" "aleksana" ];
