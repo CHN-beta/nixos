@@ -161,7 +161,7 @@ inputs:
           (vm: builtins.map
             (protocol: builtins.map
               (port: "${protocol} dport ${builtins.toString port.host} "
-                + "counter dnat ip to 192.168.122.${builtins.toString vm.address}:${builtins.toString port.guest};")
+                + "counter dnat ip to 192.168.122.${builtins.toString vm.address}:${builtins.toString port.guest}")
               vm.portForward.${protocol})
             [ "tcp" "udp" ])
           (builtins.attrValues nixvirt)));
@@ -171,7 +171,7 @@ inputs:
           table inet nixvirt {
             chain prerouting {
               type nat hook prerouting priority dstnat; policy accept;
-              "${builtins.concatStringsSep "\n" nftRules}"
+              ${builtins.concatStringsSep "\n" nftRules}
             }
           }
         '';
@@ -206,8 +206,7 @@ inputs:
       {
         description = "nixvirt port forward";
         after = [ "nftables.service" "nixvirt.service" ];
-        requires = [ "nftables.service" "nixvirt.service" ];
-        bindsTo= [ "nftables.service" "nixvirt.service" ];
+        bindsTo= [ "nftables.service" ];
         partOf = [ "nftables.service" "nixvirt.service" ];
         serviceConfig =
         {
@@ -216,7 +215,6 @@ inputs:
           ExecStart = start;
           ExecStop = stop;
         };
-        wants = [ "nftables.service" "nixvirt.service" ];
         wantedBy= [ "multi-user.target" ];
       };
   };
