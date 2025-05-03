@@ -63,6 +63,8 @@ inputs:
           # office
           crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain davinci-resolve
           ydict texstudio panoply pspp paperwork libreoffice-qt6-fresh ocrmypdf typst
+          # required by ltex-plus.vscode-ltex-plus
+          pkgs-unstable.ltex-ls-plus
           # matplot++ needs old gnuplot
           inputs.pkgs."pkgs-23.11".gnuplot
           # math, physics and chemistry
