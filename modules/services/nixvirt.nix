@@ -47,7 +47,9 @@ inputs:
                 host = builtins.map
                   (vm: { inherit (vm) mac; ip = "192.168.122.${builtins.toString vm.address}"; })
                   (builtins.attrValues nixvirt);
-              in lib.network.writeXML (base // { ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; }; });
+                ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; };
+              # in lib.network.writeXML (base // { forward.type = "route"; inherit ip; });
+              in lib.network.writeXML (base // { inherit ip; });
             active = true;
           }];
           pools =
@@ -140,5 +142,44 @@ inputs:
       setuid = true;
     };
     networking.firewall.allowedTCPPorts = builtins.map (vm: vm.vncPort) (builtins.attrValues nixvirt);
+    systemd.services.nixvirt-forward =
+      let
+        nft = "${inputs.pkgs.nftables}/bin/nft";
+        nftConfigFile = inputs.pkgs.writeText "nixvirt.nft"
+        ''
+          table inet nixvirt {
+            chain prerouting {
+              type nat hook prerouting priority dstnat; policy accept;
+              tcp dport 5689 counter dnat ip to 192.168.122.2:22;
+            }
+          }
+        '';
+        # libvirt use iptables to reject forward-input packages.
+        # packages accept in nftables but reject in iptables will finally be rejected.
+        # So we need to add a rule in iptables to accept these packages.
+        iptables = "${inputs.pkgs.iptables}/bin/iptables";
+        start = inputs.pkgs.writeShellScript "nixvirt.start" (builtins.concatStringsSep "\n"
+        [
+          "${nft} -f ${nftConfigFile}"
+          "${iptables} -t filter -I LIBVIRT_FWI -d 192.168.122.2 -p tcp --dport 22 -j ACCEPT"
+        ]);
+        stop = inputs.pkgs.writeShellScript "nixvirt.stop" "${nft} delete table inet nixvirt";
+      in
+      {
+        description = "nixvirt port forward";
+        after = [ "nftables.service" "nixvirt.service" ];
+        requires = [ "nftables.service" "nixvirt.service" ];
+        bindsTo= [ "nftables.service" "nixvirt.service" ];
+        partOf = [ "nftables.service" "nixvirt.service" ];
+        serviceConfig =
+        {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = start;
+          ExecStop = stop;
+        };
+        wants = [ "nftables.service" "nixvirt.service" ];
+        wantedBy= [ "multi-user.target" ];
+      };
   };
 }
