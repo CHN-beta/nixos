@@ -62,7 +62,7 @@ inputs:
           google-chrome tor-browser microsoft-edge
           # office
           crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain davinci-resolve
-          ydict texstudio panoply pspp paperwork libreoffice-qt6-fresh ocrmypdf pkgs-unstable.typst
+          ydict texstudio panoply pspp paperwork libreoffice-qt6-fresh ocrmypdf typst
           # required by ltex-plus.vscode-ltex-plus
           pkgs-unstable.ltex-ls pkgs-unstable.ltex-ls-plus
           # matplot++ needs old gnuplot

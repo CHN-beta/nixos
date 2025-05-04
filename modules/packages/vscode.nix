@@ -61,7 +61,7 @@ inputs:
                 # draw
                 pomdtr.excalidraw-editor
                 # typst
-                pkgs-unstable.vscode-extensions.myriad-dreamin.tinymist
+                myriad-dreamin.tinymist
                 # grammaly alternative
                 pkgs-unstable.vscode-extensions.ltex-plus.vscode-ltex-plus
               ]
