@@ -119,8 +119,17 @@ inputs:
                   };
                   interface = base.devices.interface // { mac.address = vm.value.mac; };
                 };
-                cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };};
-                vcpu = { placement = "static"; count = vm.value.cpus; };
+              cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };};
+              vcpu = { placement = "static"; count = vm.value.cpus; };
+              os = (builtins.removeAttrs base.os [ "boot" ]) //
+              {
+                loader = { readonly = true; type = "pflash"; path = "/run/libvirt/nix-ovmf/OVMF_CODE.fd"; };
+                nvram =
+                {
+                  template = "/run/libvirt/nix-ovmf/OVMF_VARS.fd";
+                  path = "/var/lib/libvirt/qemu/nvram/${vm.name}_VARS.fd";
+                };
+              };
             });
         })
         (inputs.localLib.attrsToList nixvirt));
