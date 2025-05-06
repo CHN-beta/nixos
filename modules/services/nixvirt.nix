@@ -99,7 +99,7 @@ inputs:
                 inherit (vm) name;
                 inherit (vm.value) uuid;
                 memory = { count = vm.value.memoryGB; unit = "GiB"; };
-                storage_vol = { pool = "default"; volume = "${vm.value.storage}.qcow2"; };
+                storage_vol = { pool = "default"; volume = "${vm.value.storage}.img"; };
                 install_vol = "${inputs.topInputs.self.src.iso.netboot}";
                 virtio_video = false;
               };
@@ -118,6 +118,9 @@ inputs:
                     passwd = inputs.config.sops.placeholder."nixvirt/${vm.name}";
                   };
                   interface = base.devices.interface // { mac.address = vm.value.mac; };
+                  disk = builtins.map 
+                    (disk: disk // { driver = disk.driver // { type = "raw"; }; })
+                    base.devices.disk;
                 };
               cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };};
               vcpu = { placement = "static"; count = vm.value.cpus; };
