@@ -14,6 +14,7 @@ inputs:
       };}));
       default = {};
     };
+    nodatacow = mkOption { type = types.bool; default = false; };
   };
   config = let inherit (inputs.config.nixos.services) postgresql; in inputs.lib.mkIf postgresql.enable
   {
@@ -51,7 +52,7 @@ inputs:
       };
       postgresqlBackup =
       {
-        enable = true;
+        enable = !postgresql.nodatacow;
         pgdumpOptions = "-Fc";
         compression = "none";
         databases = builtins.map (db: db.value.database) (inputs.localLib.attrsToList postgresql.instances);
@@ -87,7 +88,7 @@ inputs:
     sops.secrets = builtins.listToAttrs (builtins.map
       (db: { name = "postgresql/${db.value.user}"; value.owner = inputs.config.users.users.postgres.name; })
       (builtins.filter (db: db.value.passwordFile == null) (inputs.localLib.attrsToList postgresql.instances)));
-    environment.persistence."/nix/nodatacow".directories =
+    environment.persistence."/nix/nodatacow".directories = inputs.lib.mkIf postgresql.nodatacow
       [{ directory = "/var/lib/postgresql"; user = "postgres"; group = "postgres"; mode = "0750"; }];
   };
 }
