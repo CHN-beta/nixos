@@ -4,6 +4,7 @@ inputs:
   {
     type = types.nullOr (types.submodule { options =
     {
+      nodatacow = mkOption { type = types.bool; default = false; };
       autoSuspend = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     };});
     default = null;
@@ -38,7 +39,12 @@ inputs:
       };
       spiceUSBRedirection.enable = true;
     };
-    environment.systemPackages = with inputs.pkgs; [ qemu_full win-spice guestfs-tools virt-manager ];
+    environment =
+    {
+      persistence."/nix/nodatacow".directories = inputs.lib.mkIf kvm.nodatacow
+        { directory = "/var/lib/libvirt/images"; mode = "0711"; };
+      systemPackages = with inputs.pkgs; [ qemu_full win-spice guestfs-tools virt-manager ];
+    };
     systemd =
     {
       services =
@@ -117,4 +123,8 @@ inputs:
     networking.firewall.interfaces."virbr*".allowedUDPPorts = [ 53 67 ];
     hardware.ksm.enable = true;
   };
+
+
+            ++ inputs.lib.optional (inputs.config.nixos.services.kvm != null)
+            { directory = "/var/lib/libvirt/images"; mode = "0711"; };
 }

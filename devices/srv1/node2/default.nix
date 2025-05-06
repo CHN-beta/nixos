@@ -19,7 +19,7 @@ inputs:
       {
         xray.client.enable = true;
         beesd."/".threads = 4;
-        kvm = {};
+        kvm.nodatacow = true;
       };
     };
     boot.initrd.systemd.network.networks."10-eno2" = inputs.config.systemd.network.networks."10-eno2";
