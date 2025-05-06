@@ -35,6 +35,7 @@ inputs:
         nixvirt =
         {
           alikia = { memoryGB = 1; cpus = 1; address = 2; portForward.tcp = [{ host = 5689; guest = 22; }]; };
+          pen = { memoryGB = 1; cpus = 1; address = 3; portForward.tcp = [{ host = 5690; guest = 22; }]; };
         };
         rsshub = {};
         misskey.instances =
@@ -61,7 +62,7 @@ inputs:
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
         open-webui.ollamaHost = "192.168.83.3";
       };
-      user.users = [ "chn" "aleksana" "alikia" ];
+      user.users = [ "chn" "aleksana" "alikia" "pen" ];
     };
     # TODO: use a generic way
     boot.initrd.systemd.network.networks."10-eno1" = inputs.config.systemd.network.networks."10-eno1";
