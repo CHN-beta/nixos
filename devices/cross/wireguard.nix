@@ -3,7 +3,6 @@ let
   publicKey =
   {
     vps6 = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4=";
-    vps7 = "n056ppNxC9oECcW7wEbALnw8GeW7nrMImtexKWYVUBk=";
     pc = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
     nas = "xCYRbZEaGloMk7Awr00UR3JcDJy4AzVp4QvGNoyEgFY=";
     one = "Hey9V9lleafneEJwTLPaTV11wbzCQF34Cnhr0w2ihDQ=";
@@ -62,7 +61,7 @@ let
           # 所有设备都可以连接到公网，但只有有公网 ip 的设备可以接受连接
           (builtins.listToAttrs
           (
-            (builtins.map (n: { name = n; value = getAddress n; }) [ "vps6" "vps7" "srv3" ])
+            (builtins.map (n: { name = n; value = getAddress n; }) [ "vps6" "srv3" ])
               ++ (builtins.map (n: { name = n; value = null; }) [ "pc" "nas" "one" "srv1-node0" "srv2-node0" ])
           ))
           # 校内网络

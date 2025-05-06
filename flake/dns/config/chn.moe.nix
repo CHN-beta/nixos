@@ -10,15 +10,14 @@ let
       "blog" "catalog" "coturn" "element" "frp" "initrd.vps6" "misskey" "sticker" "synapse-admin" "tgapi"
       "ua" "vps6.xserver"
     ];
-    vps7 =
-    [
-      "chat" "freshrss" "huginn" "initrd.vps7" "nextcloud" "photoprism" "rsshub" "ssh.git" "vaultwarden" "webdav"
-      "xsession.vps7"
-    ];
     "xlog.autoroute" = [ "xlog" ];
     "wg0.srv1-node0" = [ "wg0.srv1" ];
     "wg0.srv2-node0" = [ "wg0.srv2" ];
-    srv3 = [ "initrd.srv3" ];
+    srv3 =
+    [
+      "chat" "freshrss" "huginn" "initrd.srv3" "nextcloud" "photoprism" "rsshub" "ssh.git" "vaultwarden" "webdav"
+      "xsession.srv3"
+    ];
     srv1-node0 = [ "srv1" ];
     srv2-node0 = [ "srv2" ];
     "wg1.pc" = [ "nix-store" ];
@@ -31,7 +30,6 @@ let
     office = "210.34.16.60";
     srv1-node0 = "59.77.36.250";
     vps6 = "144.34.225.59";
-    vps7 = "144.126.144.62";
     search = "127.0.0.1";
     srv3 = "23.135.236.216";
     srv1-node1 = "192.168.178.2";

@@ -30,13 +30,36 @@ inputs:
       hardware.cpus = [ "intel" ];
       services =
       {
-        # 大部分空间用于存储虚拟机（nodatacow），其它内容不多
-        beesd."/".hashTableSizeMB = 32;
+        beesd."/".hashTableSizeMB = 128;
         sshd = {};
         nixvirt =
         {
           alikia = { memoryGB = 1; cpus = 1; address = 2; portForward.tcp = [{ host = 5689; guest = 22; }]; };
         };
+        rsshub = {};
+        misskey.instances =
+          { misskey.hostname = "xn--s8w913fdga.chn.moe"; misskey-old = { port = 9727; redis.port = 3546; }; };
+        synapse.instances =
+        {
+          synapse.matrixHostname = "synapse.chn.moe";
+          matrix = { port = 8009; redisPort = 6380; };
+        };
+        vaultwarden.enable = true;
+        photoprism.enable = true;
+        nextcloud = {};
+        freshrss.enable = true;
+        send = {};
+        huginn = {};
+        fz-new-order = {};
+        httpapi.enable = true;
+        gitea = { enable = true; ssh = {}; };
+        grafana = {};
+        fail2ban = {};
+        xray.server.serverName = "xserver.srv3.chn.moe";
+        docker = {};
+        peertube = {};
+        nginx.applications.webdav.instances."webdav.chn.moe" = {};
+        open-webui.ollamaHost = "192.168.83.3";
       };
       user.users = [ "chn" "aleksana" "alikia" ];
     };

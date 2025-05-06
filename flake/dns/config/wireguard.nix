@@ -3,7 +3,6 @@
   peer =
   {
     vps6 = 1;
-    vps7 = 2;
     pc = 3;
     nas = 4;
     one = 5;
