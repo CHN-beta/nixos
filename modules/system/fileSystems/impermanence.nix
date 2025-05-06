@@ -27,7 +27,9 @@ inputs:
       {
         hideMounts = true;
         directories =
-          [{ directory = "/var/log/journal"; user = "root"; group = "systemd-journal"; mode = "u=rwx,g=rx+s,o=rx"; }];
+          [{ directory = "/var/log/journal"; user = "root"; group = "systemd-journal"; mode = "u=rwx,g=rx+s,o=rx"; }]
+          ++ inputs.lib.optional (inputs.config.nixos.services.kvm != null)
+            { directory = "/var/lib/libvirt/images"; mode = "0711"; };
       };
     }
     # 挂载 /home/user
