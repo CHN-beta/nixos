@@ -51,7 +51,7 @@ inputs:
         connections."qemu:///system" = let inherit (inputs.topInputs.nixvirt) lib; in
         {
           domains = builtins.map
-            (vm: { definition = inputs.config.sops.templates."${vm.name}.xml".path; active = true; })
+            (vm: { definition = inputs.config.sops.templates."${vm.name}.xml".path; active = true; restart = false; })
             (inputs.localLib.attrsToList nixvirt);
           networks =
           [{
