@@ -31,8 +31,7 @@ inputs:
               (host:
               {
                 name = "ssh://wg1.${host}.chn.moe/nix";
-                value.subvolume.persistent= {};
-                target = "/nix/btrbk/${host}";
+                value = { subvolume.persistent= {}; target = "/nix/btrbk/${host}"; };
               })
               btrbk);
           };
