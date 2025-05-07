@@ -34,10 +34,10 @@ inputs:
         sshd = {};
         nixvirt =
         {
-          alikia = { memoryGB = 1; cpus = 1; address = 2; portForward.tcp = [{ host = 5689; guest = 22; }]; };
+          alikia = { memoryMB = 1024; cpus = 1; address = 2; portForward.tcp = [{ host = 5689; guest = 22; }]; };
           pen =
           {
-            memoryGB = 1;
+            memoryMB = 512;
             cpus = 1;
             address = 3;
             portForward =

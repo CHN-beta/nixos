@@ -15,7 +15,7 @@ inputs:
           default = createString "-" [ [ 0 8 ] [ 8 4 ] [ 12 4 ] [ 16 4 ] [ 20 12 ] ];
         };
         storage = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-        memoryGB = mkOption { type = types.ints.unsigned; };
+        memoryMB = mkOption { type = types.ints.unsigned; };
         cpus = mkOption { type = types.ints.unsigned; };
         vnc =
         {
@@ -124,7 +124,7 @@ inputs:
               {
                 inherit (vm) name;
                 inherit (vm.value) uuid;
-                memory = { count = vm.value.memoryGB; unit = "GiB"; };
+                memory = { count = vm.value.memoryMB; unit = "MiB"; };
                 storage_vol = { pool = "default"; volume = "${vm.value.storage}.img"; };
                 install_vol = "${inputs.topInputs.self.src.iso.netboot}";
                 virtio_video = false;
