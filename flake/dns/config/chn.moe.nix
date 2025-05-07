@@ -2,13 +2,13 @@ localLib:
 let
   cname =
   {
-    autoroute = [ "api" "git" "grafana" "matrix" "peertube" "send" "synapse" "vikunja" "铜锣湾" "铜锣湾实验室" ];
+    autoroute = [ "api" "git" "grafana" "matrix" "peertube" "send" "synapse" "vikunja" "铜锣湾" ];
     nas = [ "initrd.nas" ];
     office = [ "srv2-node0" ];
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "frp" "initrd.vps6" "misskey" "sticker" "synapse-admin" "tgapi"
-      "ua" "vps6.xserver"
+      "ua" "vps6.xserver" "铜锣湾实验室"
     ];
     "xlog.autoroute" = [ "xlog" ];
     "wg0.srv1-node0" = [ "wg0.srv1" ];
