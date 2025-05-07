@@ -30,7 +30,7 @@ inputs:
             volume = builtins.listToAttrs (builtins.map
               (host:
               {
-                name = "ssh://wg1.${host}/nix";
+                name = "ssh://wg1.${host}.chn.moe/nix";
                 value.subvolume.persistent= {};
                 target = "/nix/btrbk/${host}";
               })
