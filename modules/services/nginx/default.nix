@@ -28,7 +28,17 @@ inputs:
       enable = mkOption { type = types.bool; default = true; };
       externalIp = mkOption { type = types.listOf types.nonEmptyStr; default = [ "0.0.0.0" ]; };
       # proxy to 127.0.0.1:${specified port}
-      map = mkOption { type = types.attrsOf types.ints.unsigned; default = {}; };
+      map = mkOption
+      {
+        type = types.attrsOf (types.oneOf
+        [
+          # proxy to 127.0.0.1:${specified port}
+          types.ints.unsigned
+          # proxy to specified ip:port
+          types.nonEmptyStr
+        ]);
+        default = {};
+      };
     };
     streamProxy =
     {
@@ -209,6 +219,20 @@ inputs:
             { root = mkOption { type = types.nonEmptyStr; }; fastcgiPass = mkOption { type = types.nonEmptyStr; };};});
           default = null;
         };
+        proxy = mkOption
+        {
+          type = types.nullOr (types.submodule { options =
+          {
+            upstream = mkOption { type = types.nonEmptyStr; };
+            websocket = mkOption { type = types.bool; default = false; };
+            setHeaders = mkOption
+            {
+              type = types.attrsOf types.str;
+              default.Host = submoduleInputs.config._module.args.name;
+            };
+          };});
+          default = null;
+        };
       };}));
       default = {};
     };
@@ -320,8 +344,10 @@ inputs:
           log_format transparent_proxy '[$time_local] $remote_addr-$geoip2_data_country_code '
             '"$ssl_preread_server_name"->$transparent_proxy_backend $bytes_sent $bytes_received';
           map $ssl_preread_server_name $transparent_proxy_backend {
-            ${concatStringsSep "\n    " (map
-              (x: ''"${x.name}" 127.0.0.1:${toString x.value};'')
+            ${concatStringsSep "\n    " (builtins.map
+              (x:
+                let upstrem = if builtins.isInt x.value then "127.0.0.1:${builtins.toString x.value}" else x.value;
+                in ''"${x.name}" ${upstrem};'')
               (attrsToList nginx.transparentProxy.map))}
             default 127.0.0.1:${toString (with nginx.global; (httpsPort + httpsPortShift.http2))};
           }
@@ -780,6 +806,20 @@ inputs:
                   fastcgi_param PATH_INFO $fastcgi_path_info;
                   include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
                 '';
+              }
+              else {})
+            // (if site.value.proxy != null then
+              {
+                locations."/" =
+                {
+                  proxyPass = site.value.proxy.upstream;
+                  proxyWebsockets = site.value.proxy.websocket;
+                  recommendedProxySettings = false;
+                  recommendedProxySettingsNoHost = true;
+                  extraConfig = builtins.concatStringsSep "\n" (builtins.map
+                    (header: ''proxy_set_header ${header.name} "${header.value}";'')
+                    (inputs.localLib.attrsToList site.value.proxy.setHeaders));
+                };
               }
               else {});
           })

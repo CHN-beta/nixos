@@ -67,6 +67,11 @@ inputs:
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
         open-webui.ollamaHost = "192.168.83.3";
+        nginx =
+        {
+          transparentProxy.map."natsume.nohost.me" = "192.168.122.3:443";
+          http."natsume.nohost.me".proxy.upstream = "http://192.168.122.3:80";
+        };
       };
       user.users = [ "chn" "aleksana" "alikia" "pen" ];
     };
