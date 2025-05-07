@@ -52,7 +52,7 @@ inputs:
       };
       postgresqlBackup =
       {
-        enable = !postgresql.nodatacow;
+        enable = postgresql.nodatacow;
         pgdumpOptions = "-Fc";
         compression = "none";
         databases = builtins.map (db: db.value.database) (inputs.localLib.attrsToList postgresql.instances);
