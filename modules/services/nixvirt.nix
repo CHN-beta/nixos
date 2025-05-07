@@ -35,6 +35,7 @@ inputs:
             default = [];
           };
           udp = tcp;
+          web = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
         };
       };})));
     default = null;
@@ -84,7 +85,32 @@ inputs:
         vnc_listen = "0.0.0.0"
       '';
     };
-    nixos.services.kvm = {};
+    nixos.services =
+    {
+      nginx =
+        let hosts = builtins.concatLists (builtins.map
+          (vm: builtins.map (domain: { inherit domain; ip = vm.address; }) vm.portForward.web)
+          (builtins.attrValues nixvirt));
+        in
+        {
+          enable = inputs.lib.mkIf (hosts != []) true;
+          transparentProxy.map = builtins.listToAttrs (builtins.map
+            (host:
+            {
+              name = host.domain;
+              value = "192.168.122.${builtins.toString host.ip}:443";
+            })
+            hosts);
+          http = builtins.listToAttrs (builtins.map
+            (host:
+            {
+              name = host.domain;
+              value.proxy.upstream = "http://192.168.122.${builtins.toString host.ip}:443";
+            })
+            hosts);
+        };
+      kvm = {};
+    };
     sops =
     {
       templates = builtins.listToAttrs (builtins.map
@@ -192,29 +218,16 @@ inputs:
         # packages accept in nftables but reject in iptables will finally be rejected.
         # So we need to add a rule in iptables to accept these packages.
         iptables = "${inputs.pkgs.iptables}/bin/iptables";
-        iptRules = builtins.concatLists (builtins.concatLists (builtins.map
-          (vm: builtins.map
-            (protocol: builtins.map
-              (port: "${iptables} -t filter -I NIXVIRT_FORWARD -d 192.168.122.${builtins.toString vm.address} "
-                + "-p ${protocol} --dport ${builtins.toString port.guest} -j ACCEPT")
-              vm.portForward.${protocol})
-            [ "tcp" "udp" ])
-          (builtins.attrValues nixvirt)));
-        start = inputs.pkgs.writeShellScript "nixvirt.start" (builtins.concatStringsSep "\n"
-        (
-          [
-            "${nft} -f ${nftConfigFile}"
-            "${iptables} -t filter -N NIXVIRT_FORWARD -w"
-            "${iptables} -t filter -I LIBVIRT_FWI -j NIXVIRT_FORWARD -w"
-          ] ++ iptRules
-        ));
-        stop = inputs.pkgs.writeShellScript "nixvirt.stop" (builtins.concatStringsSep "\n"
-        [
-          "${nft} delete table inet nixvirt"
-          "${iptables} -t filter -D LIBVIRT_FWI -j NIXVIRT_FORWARD -w"
-          "${iptables} -t filter -F NIXVIRT_FORWARD -w"
-          "${iptables} -t filter -X NIXVIRT_FORWARD -w"
-        ]);
+        start = inputs.pkgs.writeShellScript "nixvirt.start"
+        ''
+          ${nft} -f ${nftConfigFile}
+          ${iptables} -t filter -I LIBVIRT_FWI -d 192.168.122.0/24 -j ACCEPT -w
+        '';
+        stop = inputs.pkgs.writeShellScript "nixvirt.stop"
+        ''
+          ${nft} delete table inet nixvirt
+          ${iptables} -t filter -D LIBVIRT_FWI -d 192.168.122.0/24 -j ACCEPT -w
+        '';
       in
       {
         description = "nixvirt port forward";

@@ -40,7 +40,16 @@ inputs:
             memoryGB = 1;
             cpus = 1;
             address = 3;
-            portForward.tcp = [ { host = 5690; guest = 22; } { host = 5691; guest = 80; }{ host = 5692; guest = 443; }];
+            portForward =
+            {
+              tcp =
+              [
+                { host = 5690; guest = 22; }
+                { host = 5691; guest = 80; }
+                { host = 5692; guest = 443; }
+              ];
+              web = [ "natsume.nohost.me" ];
+            };
           };
         };
         rsshub = {};
@@ -67,11 +76,6 @@ inputs:
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
         open-webui.ollamaHost = "192.168.83.3";
-        nginx =
-        {
-          transparentProxy.map."natsume.nohost.me" = "192.168.122.3:443";
-          http."natsume.nohost.me".proxy.upstream = "http://192.168.122.3:80";
-        };
       };
       user.users = [ "chn" "aleksana" "alikia" "pen" ];
     };
