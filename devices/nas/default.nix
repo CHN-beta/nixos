@@ -28,6 +28,7 @@ inputs:
         xray.client = { enable = true; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
         beesd = { "/" = { hashTableSizeMB = 10 * 128; threads = 4; }; "/nix" = {}; };
         nfs."/" = inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc";
+        btrbk = [ "pc" ];
       };
     };
   };
