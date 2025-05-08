@@ -15,21 +15,25 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.services) beesd; in inputs.lib.mkIf (beesd != null)
   {
-    services.beesd.filesystems = builtins.mapAttrs
-      (n: v:
+    services.beesd.filesystems = builtins.listToAttrs (builtins.map
+      (fs:
       {
-        spec = n;
-        inherit (v) hashTableSizeMB;
-        extraOptions =
-        [
-          "--workaround-btrfs-send"
-          "--thread-count" "${builtins.toString v.threads}"
-          "--loadavg-target" "${builtins.toString v.loadAverage}"
-          "--scan-mode" "3"
-          "--verbose" "4"
-        ];
+        name = inputs.utils.escapeSystemdPath fs.name;
+        value =
+        {
+          spec = fs.name;
+          inherit (fs.value) hashTableSizeMB;
+          extraOptions =
+          [
+            "--workaround-btrfs-send"
+            "--thread-count" "${builtins.toString fs.value.threads}"
+            "--loadavg-target" "${builtins.toString fs.value.loadAverage}"
+            "--scan-mode" "3"
+            "--verbose" "4"
+          ];
+        };
       })
-      beesd;
+      (inputs.localLib.attrsToList beesd));
     nixos.packages.packages._packages = [ inputs.pkgs.bees ];
   };
 }
