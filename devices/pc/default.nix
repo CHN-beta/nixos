@@ -12,7 +12,12 @@ inputs:
           mount =
           {
             vfat."/dev/disk/by-uuid/7A60-4232" = "/boot";
-            btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+            btrfs."/dev/mapper/root1" =
+            {
+              "/nix" = "/nix";
+              "/nix/rootfs/current" = "/";
+              "/nix/remote/jykang.xmuhpc" = "/data/gpfs01/jykang/.nix";
+            };
             nfs."${inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.nas"}:/" =
               { mountPoint = "/nix/nas"; hard = false; };
           };
