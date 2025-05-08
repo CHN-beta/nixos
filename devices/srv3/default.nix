@@ -30,7 +30,7 @@ inputs:
       hardware.cpus = [ "intel" ];
       services =
       {
-        beesd."/".hashTableSizeMB = 128;
+        beesd."/" = { hashTableSizeMB = 128; threads = 4;};
         sshd = {};
         nixvirt =
         {
