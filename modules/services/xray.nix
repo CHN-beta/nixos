@@ -216,6 +216,7 @@ inputs:
               AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
               LimitNPROC = 65536;
               LimitNOFILE = 524288;
+              CPUSchedulingPolicy = "rr";
             };
             restartTriggers = [ inputs.config.sops.templates."xray-client.json".file ];
           };

@@ -7,35 +7,38 @@ inputs:
         hash = builtins.hashString "sha256" submoduleInputs.config._module.args.name;
         createString = separator: parts: builtins.concatStringsSep separator
           (builtins.map (p: builtins.substring (builtins.head p) (builtins.elemAt p 1) hash) parts);
+        defaultUuid = createString "-" [ [ 0 8 ] [ 8 4 ] [ 12 4 ] [ 16 4 ] [ 20 12 ] ];
+        defaultMac = "02:${createString ":" [ [ 0 2 ] [ 2 2 ] [ 4 2 ] [ 6 2 ] [ 8 2 ] ]}";
       in
       {
-        uuid = mkOption
-        {
-          type = types.nonEmptyStr;
-          default = createString "-" [ [ 0 8 ] [ 8 4 ] [ 12 4 ] [ 16 4 ] [ 20 12 ] ];
-        };
-        storage = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-        memoryMB = mkOption { type = types.ints.unsigned; };
-        cpus = mkOption { type = types.ints.unsigned; };
-        vnc =
-        {
-          port = mkOption { type = types.ints.unsigned; default = 15900 + submoduleInputs.config.address; };
-          openFirewall = mkOption { type = types.bool; default = true; };
-        };
-        mac = mkOption
-          { type = types.nonEmptyStr; default = "02:${createString ":" [ [ 0 2 ] [ 2 2 ] [ 4 2 ] [ 6 2 ] [ 8 2 ] ]}"; };
-        address = mkOption { type = types.ints.unsigned; };
+        uuid = mkOption { type = types.nonEmptyStr; default = defaultUuid; };
         owner = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-        portForward = rec
+        hardware =
         {
-          tcp = mkOption
+          storage = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+          memoryMB = mkOption { type = types.ints.unsigned; };
+          cpus = mkOption { type = types.ints.unsigned; };
+          mac = mkOption { type = types.nonEmptyStr; default = defaultMac; };
+        };
+        network =
+        {
+          address = mkOption { type = types.ints.unsigned; };
+          vnc =
           {
-            type = types.listOf (types.submodule { options = rec
-              { host = mkOption { type = types.ints.unsigned; }; guest = host; };});
-            default = [];
+            port = mkOption { type = types.ints.unsigned; default = 15900 + submoduleInputs.config.network.address; };
+            openFirewall = mkOption { type = types.bool; default = true; };
           };
-          udp = tcp;
-          web = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+          portForward = rec
+          {
+            tcp = mkOption
+            {
+              type = types.listOf (types.submodule { options = rec
+                { host = mkOption { type = types.ints.unsigned; }; guest = host; };});
+              default = [];
+            };
+            udp = tcp;
+            web = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+          };
         };
       };})));
     default = null;
@@ -60,7 +63,7 @@ inputs:
                 base = lib.network.templates.bridge
                   { uuid = "8f403474-f8d6-4fa7-991a-f62f40d51191"; subnet_byte = 122; };
                 host = builtins.map
-                  (vm: { inherit (vm) mac; ip = "192.168.122.${builtins.toString vm.address}"; })
+                  (vm: { inherit (vm.hardware) mac; ip = "192.168.122.${builtins.toString vm.network.address}"; })
                   (builtins.attrValues nixvirt);
               in lib.network.writeXML (base // { ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; }; });
             active = true;
@@ -89,25 +92,17 @@ inputs:
     {
       nginx =
         let hosts = builtins.concatLists (builtins.map
-          (vm: builtins.map (domain: { inherit domain; ip = vm.address; }) vm.portForward.web)
+          (vm: builtins.map
+            (domain: { inherit domain; ip = "192.168.122.${builtins.toString vm.network.address}"; })
+            vm.network.portForward.web)
           (builtins.attrValues nixvirt));
         in
         {
           enable = inputs.lib.mkIf (hosts != []) true;
           transparentProxy.map = builtins.listToAttrs (builtins.map
-            (host:
-            {
-              name = host.domain;
-              value = "192.168.122.${builtins.toString host.ip}:443";
-            })
-            hosts);
+            (host: { name = host.domain; value = "${host.ip}" + ":443"; }) hosts);
           http = builtins.listToAttrs (builtins.map
-            (host:
-            {
-              name = host.domain;
-              value.proxy.upstream = "http://192.168.122.${builtins.toString host.ip}:443";
-            })
-            hosts);
+            (host: { name = host.domain; value.proxy.upstream = "http://${host.ip}" + ":80"; }) hosts);
         };
       kvm = {};
     };
@@ -124,8 +119,8 @@ inputs:
               {
                 inherit (vm) name;
                 inherit (vm.value) uuid;
-                memory = { count = vm.value.memoryMB; unit = "MiB"; };
-                storage_vol = { pool = "default"; volume = "${vm.value.storage}.img"; };
+                memory = { count = vm.value.hardware.memoryMB; unit = "MiB"; };
+                storage_vol = { pool = "default"; volume = "${vm.value.hardware.storage}.img"; };
                 install_vol = "${inputs.topInputs.self.src.iso.netboot}";
                 virtio_video = false;
               };
@@ -139,17 +134,15 @@ inputs:
                   {
                     type = "vnc";
                     autoport = false;
-                    port = vm.value.vnc.port;
+                    port = vm.value.network.vnc.port;
                     listen.type = "address";
                     passwd = inputs.config.sops.placeholder."nixvirt/${vm.name}";
                   };
-                  interface = base.devices.interface // { mac.address = vm.value.mac; };
-                  disk = builtins.map 
-                    (disk: disk // { driver = disk.driver // { type = "raw"; }; })
-                    base.devices.disk;
+                  interface = base.devices.interface // { mac.address = vm.value.hardware.mac; };
+                  disk = builtins.map (disk: disk // { driver = disk.driver // { type = "raw"; }; }) base.devices.disk;
                 };
-              cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };};
-              vcpu = { placement = "static"; count = vm.value.cpus; };
+              cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.hardware.cpus; threads = 1; };};
+              vcpu = { placement = "static"; count = vm.value.hardware.cpus; };
               os = (builtins.removeAttrs base.os [ "boot" ]) //
               {
                 loader = { readonly = true; type = "pflash"; path = "/run/libvirt/nix-ovmf/OVMF_CODE.fd"; };
@@ -192,16 +185,17 @@ inputs:
       group = "root";
       setuid = true;
     };
-    networking.firewall.allowedTCPPorts = builtins.map (vm: vm.vnc.port)
-      (builtins.filter (vm: vm.vnc.openFirewall) (builtins.attrValues nixvirt));
+    networking.firewall.allowedTCPPorts = builtins.map (vm: vm.network.vnc.port)
+      (builtins.filter (vm: vm.network.vnc.openFirewall) (builtins.attrValues nixvirt));
     systemd.services.nixvirt-forward =
       let
         nftRules = builtins.concatLists (builtins.concatLists (builtins.map
           (vm: builtins.map
             (protocol: builtins.map
               (port: "${protocol} dport ${builtins.toString port.host} "
-                + "counter dnat ip to 192.168.122.${builtins.toString vm.address}:${builtins.toString port.guest}")
-              vm.portForward.${protocol})
+                + "counter dnat ip to 192.168.122.${builtins.toString vm.network.address}"
+                + ":${builtins.toString port.guest}")
+              vm.network.portForward.${protocol})
             [ "tcp" "udp" ])
           (builtins.attrValues nixvirt)));
         nft = "${inputs.pkgs.nftables}/bin/nft";
@@ -232,8 +226,6 @@ inputs:
       {
         description = "nixvirt port forward";
         after = [ "nftables.service" "nixvirt.service" ];
-        bindsTo= [ "nftables.service" ];
-        partOf = [ "nftables.service" "nixvirt.service" ];
         serviceConfig =
         {
           Type = "oneshot";

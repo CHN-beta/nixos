@@ -34,22 +34,36 @@ inputs:
         sshd = {};
         nixvirt =
         {
-          alikia = { memoryMB = 1024; cpus = 1; address = 2; portForward.tcp = [{ host = 5689; guest = 22; }]; };
+          alikia =
+          {
+            hardware = { memoryMB = 1024; cpus = 1; };
+            network = { address = 2; portForward.tcp = [{ host = 5689; guest = 22; }]; };
+          };
           pen =
           {
-            memoryMB = 512;
-            cpus = 1;
-            address = 3;
-            portForward =
+            hardware = { memoryMB = 512; cpus = 1; };
+            network =
             {
-              tcp =
-              [
-                { host = 5690; guest = 22; }
-                { host = 5691; guest = 80; }
-                { host = 5692; guest = 443; }
-              ];
-              web = [ "natsume.nohost.me" ];
+              address = 3;
+              portForward =
+              {
+                tcp =
+                [
+                  { host = 5690; guest = 22; }
+                  { host = 5691; guest = 80; }
+                  { host = 5692; guest = 443; }
+                  { host = 22000; guest = 22000; }
+                ];
+                udp = [{ host = 22000; guest = 22000; }];
+                web = [ "natsume.nohost.me" ];
+              };
             };
+          };
+          test =
+          {
+            owner = "chn";
+            hardware = { memoryMB = 512; cpus = 1; };
+            network = { address = 4; vnc.openFirewall = false; portForward.web = [ "example.chn.moe" ]; };
           };
         };
         rsshub = {};

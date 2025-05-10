@@ -15,7 +15,7 @@ add_executable(vm src/main.cpp)
 target_compile_features(vm PUBLIC cxx_std_23)
 target_link_libraries(vm PRIVATE biu::biu)
 if(VM_CONFIG)
-  target_compile_definitions(vm PRIVATE VM_CONFIG="${VMCONFIG}")
+  target_compile_definitions(vm PRIVATE VM_CONFIG="${VM_CONFIG}")
 endif()
 
 install(TARGETS vm RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
