@@ -22,6 +22,7 @@ inputs:
       services =
       {
         sshd = {};
+        nginx = { enable = true; applications.example = {}; };
       };
     };
   };
