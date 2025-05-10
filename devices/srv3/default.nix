@@ -52,7 +52,9 @@ inputs:
                   { host = 5690; guest = 22; }
                   { host = 5691; guest = 80; }
                   { host = 5692; guest = 443; }
+                  { host = 22000; guest = 22000; }
                 ];
+                udp = [{ host = 22000; guest = 22000; }];
                 web = [ "natsume.nohost.me" ];
               };
             };
