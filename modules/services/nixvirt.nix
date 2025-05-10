@@ -232,8 +232,6 @@ inputs:
       {
         description = "nixvirt port forward";
         after = [ "nftables.service" "nixvirt.service" ];
-        bindsTo= [ "nftables.service" ];
-        partOf = [ "nftables.service" "nixvirt.service" ];
         serviceConfig =
         {
           Type = "oneshot";
