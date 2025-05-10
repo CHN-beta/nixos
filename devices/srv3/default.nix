@@ -51,6 +51,7 @@ inputs:
               web = [ "natsume.nohost.me" ];
             };
           };
+          test = { memoryMB = 4 * 1024; cpus = 1; address = 4; owner = "chn"; vnc.openFirewall = false; };
         };
         rsshub = {};
         misskey.instances =
