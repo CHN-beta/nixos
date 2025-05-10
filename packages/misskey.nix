@@ -1,3 +1,4 @@
+# TODO: update to use pnpm.setupHook
 {
   lib, mkPnpmPackage, nodejs, writeShellScript, src, extraIntegritySha256,
   bash, cypress, vips, python3
