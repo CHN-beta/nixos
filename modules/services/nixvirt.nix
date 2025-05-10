@@ -105,7 +105,7 @@ inputs:
             (host:
             {
               name = host.domain;
-              value.proxy.upstream = "http://192.168.122.${builtins.toString host.ip}:443";
+              value.proxy.upstream = "http://192.168.122.${builtins.toString host.ip}:80";
             })
             hosts);
         };
