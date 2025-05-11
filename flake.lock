@@ -1122,22 +1122,6 @@
         "type": "github"
       }
     },
-    "octodns-cloudflare": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1746396326,
-        "narHash": "sha256-zWqlpd/lklStisqpDCCU9IST6TR7i5ce4LI4fjz0K50=",
-        "owner": "octodns",
-        "repo": "octodns-cloudflare",
-        "rev": "e958c7812eebc2984efe787fd79fafa69c8c4ee8",
-        "type": "github"
-      },
-      "original": {
-        "owner": "octodns",
-        "repo": "octodns-cloudflare",
-        "type": "github"
-      }
-    },
     "openxlsx": {
       "flake": false,
       "locked": {
@@ -1306,7 +1290,6 @@
         "nu-scripts": "nu-scripts",
         "nur-linyinfeng": "nur-linyinfeng",
         "nur-xddxdd": "nur-xddxdd",
-        "octodns-cloudflare": "octodns-cloudflare",
         "openxlsx": "openxlsx",
         "phono3py": "phono3py",
         "plasma-manager": "plasma-manager",

@@ -42,7 +42,7 @@
   {
     inherit localLib;
     tokenPath = inputs.self.nixosConfigurations.pc.config.sops.secrets."acme/token".path;
-    octodns = pkgs.octodns.withProviders (_: [ pkgs.localPackages.octodns-cloudflare ]);
+    octodns = pkgs.octodns.withProviders (_: with _; [ cloudflare ]);
   };
 }
 // (builtins.listToAttrs (builtins.map

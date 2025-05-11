@@ -120,8 +120,6 @@ inputs: rec
     ];
   };
   stickerpicker = inputs.pkgs.python3Packages.callPackage ./stickerpicker.nix { src = inputs.topInputs.stickerpicker; };
-  octodns-cloudflare = inputs.pkgs.python3Packages.callPackage ./octodns-cloudflare.nix
-    { src = inputs.topInputs.octodns-cloudflare; };
   info = inputs.pkgs.callPackage ./info { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   blog = inputs.pkgs.callPackage inputs.topInputs.blog { inherit (inputs.topInputs) hextra; };
   phono3py = inputs.pkgs.python3Packages.callPackage ./phono3py.nix { src = inputs.topInputs.phono3py; };

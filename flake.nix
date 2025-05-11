@@ -66,7 +66,6 @@
     ufo = { url = "git+https://git.chn.moe/chn/ufo.git?lfs=1"; flake = false; };
     stickerpicker = { url = "github:maunium/stickerpicker"; flake = false; };
     fancy-motd = { url = "github:CHN-beta/fancy-motd"; flake = false; };
-    octodns-cloudflare = { url = "github:octodns/octodns-cloudflare"; flake = false; };
     mac-style = { url = "github:SergioRibera/s4rchiso-plymouth-theme?lfs=1"; flake = false; };
     phono3py = { url = "github:phonopy/phono3py"; flake = false; };
   };
