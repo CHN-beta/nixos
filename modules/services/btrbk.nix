@@ -11,6 +11,7 @@ inputs:
         roles = [ "source" "info" ];
       }];
     }
+    (inputs.lib.mkIf (btrbk != [])
     {
       services.btrbk =
       {
@@ -39,6 +40,6 @@ inputs:
       sops.secrets.btrbk.owner = "btrbk";
       systemd.timers = builtins.listToAttrs (builtins.map
         (host: { name = "btrbk-${host}"; value.timerConfig.RandomizedDelaySec = 7200; }) btrbk);
-    }
+    })
   ];
 }
