@@ -563,24 +563,6 @@
         "type": "github"
       }
     },
-    "highfive": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1746921856,
-        "narHash": "sha256-lvJLkYy0hezNA0qXGzkN2wc/TF760YvSRrH7DU6wdq0=",
-        "ref": "refs/heads/master",
-        "rev": "c37fcc1c7deaf21a9fdc09aab80e698003579bad",
-        "revCount": 734,
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/CHN-beta/HighFive"
-      },
-      "original": {
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/CHN-beta/HighFive"
-      }
-    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -1303,7 +1285,6 @@
         "fancy-motd": "fancy-motd",
         "gricad": "gricad",
         "hextra": "hextra",
-        "highfive": "highfive",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lepton": "lepton",

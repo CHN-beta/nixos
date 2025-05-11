@@ -119,7 +119,6 @@ inputs: rec
       gcc.cc gcc.cc.lib gfortran.cc gfortran.cc.lib binutils.bintools
     ];
   };
-  highfive = inputs.pkgs.callPackage ./highfive.nix { src = inputs.topInputs.highfive; };
   stickerpicker = inputs.pkgs.python3Packages.callPackage ./stickerpicker.nix { src = inputs.topInputs.stickerpicker; };
   octodns-cloudflare = inputs.pkgs.python3Packages.callPackage ./octodns-cloudflare.nix
     { src = inputs.topInputs.octodns-cloudflare; };
