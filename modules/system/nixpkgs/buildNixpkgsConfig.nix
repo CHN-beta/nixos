@@ -29,7 +29,6 @@ in platformConfig //
     oneapiArch = let match = {}; in match.${nixpkgs.march} or nixpkgs.march;
     nvhpcArch = nixpkgs.march;
     # contentAddressedByDefault = true;
-    enableCcache = true;
   })
   // (inputs.lib.optionalAttrs (nixpkgs.nixRoot != null)
     { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/var"; }; });
