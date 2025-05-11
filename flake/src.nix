@@ -5,7 +5,7 @@
     src = pkgs.fetchurl
     {
       url = "https://developer.download.nvidia.com/hpc-sdk/25.3/nvhpc_2025_253_Linux_x86_64_cuda_12.8.tar.gz";
-      sha256 = "080rb89p2z98b75wqssvp3s8x6b5n0556d0zskh3cfapcb08lh1r";
+      sha256 = "11gxb099yxrsxg9i6vydi7znxqiwqqkhgmg90s74qwpjyriqpbsp";
     };
     mpi = pkgs.requireFile
     {
