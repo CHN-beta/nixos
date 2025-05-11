@@ -8,7 +8,7 @@ inputs:
     {
       enable = true;
       package = inputs.pkgs.gitFull;
-      lfs.enable = true;
+      lfs = { enable = true; enablePureSSHTransfer = true; };
       config =
       {
         init.defaultBranch = "main";
@@ -18,6 +18,5 @@ inputs:
         merge.ours.driver = true; # 允许 .gitattributes 中设置的 merge=ours 生效
       };
     };
-    nixos.packages.packages._packages = [ inputs.pkgs.localPackages.git-lfs-transfer ]; # make pure ssh lfs work
   };
 }

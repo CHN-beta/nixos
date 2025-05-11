@@ -94,8 +94,6 @@ inputs: rec
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
   winjob = inputs.pkgs.callPackage ./winjob { stdenv = inputs.pkgs.gcc14Stdenv; };
   sockpp = inputs.pkgs.callPackage ./sockpp.nix { src = inputs.topInputs.sockpp; };
-  git-lfs-transfer = inputs.pkgs.callPackage ./git-lfs-transfer.nix
-    { src = inputs.topInputs.git-lfs-transfer; hash = inputs.topInputs.self.src.git-lfs-transfer; };
   py4vasp = inputs.pkgs.python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; inherit nglview; };
   pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.topInputs.pocketfft; };
   spectroscopy = inputs.pkgs.callPackage ./spectroscopy.nix { src = inputs.topInputs.spectroscopy; };

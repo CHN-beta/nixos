@@ -1,6 +1,5 @@
 { inputs }: let inherit (inputs.self.packages.x86_64-linux) pkgs; in
 {
-  git-lfs-transfer = "sha256-qHQeBI2b8EmUinowixqEuR6iGwNYQy3pSc8iPVfJemE=";
   nvhpc =
   {
     src = pkgs.fetchurl

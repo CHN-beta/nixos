@@ -509,22 +509,6 @@
         "type": "github"
       }
     },
-    "git-lfs-transfer": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1746438362,
-        "narHash": "sha256-cufY0CdkTIVHFH3LesAxMDV4KNIqjxFO2m3dLoBNM9U=",
-        "owner": "charmbracelet",
-        "repo": "git-lfs-transfer",
-        "rev": "0d51139d5979491e819ba4751235e2ab4b763c6e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "charmbracelet",
-        "repo": "git-lfs-transfer",
-        "type": "github"
-      }
-    },
     "gitignore": {
       "inputs": {
         "nixpkgs": [
@@ -1000,11 +984,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1746926443,
-        "narHash": "sha256-82Iu+T9xlnbsVcKbu17rVazetM6JzYTaVg/JYuPPpo0=",
+        "lastModified": 1746928690,
+        "narHash": "sha256-KJX4JZ8IxVhHIzf7guat/2pCjLP44V59OJ+UtjsQdgI=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "fa20c1d562a01a115ebc06b95405bea1d7291ef9",
+        "rev": "7e7ed9e72c4c455d6bde8c8beb96e1b4b0b6187a",
         "type": "github"
       },
       "original": {
@@ -1317,7 +1301,6 @@
         "date": "date",
         "envfs": "envfs",
         "fancy-motd": "fancy-motd",
-        "git-lfs-transfer": "git-lfs-transfer",
         "gricad": "gricad",
         "hextra": "hextra",
         "highfive": "highfive",
