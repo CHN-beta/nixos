@@ -9,7 +9,7 @@ inputs: let inherit (inputs) topInputs; in
     topInputs.nix-flatpak.nixosModules.nix-flatpak
     topInputs.chaotic.nixosModules.default
     { config.chaotic.nyx.overlay.onTopOf = "user-pkgs"; }
-    topInputs.catppuccin.homeModules.catppuccin
+    topInputs.catppuccin.nixosModules.catppuccin
     topInputs.aagl.nixosModules.default
     topInputs.nixvirt.nixosModules.default
     (inputs:
@@ -19,7 +19,7 @@ inputs: let inherit (inputs) topInputs; in
         home-manager.sharedModules =
         [
           topInputs.plasma-manager.homeManagerModules.plasma-manager
-          topInputs.catppuccin.homeManagerModules.catppuccin
+          topInputs.catppuccin.homeModules.catppuccin
         ];
       };
     })

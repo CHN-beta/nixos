@@ -35,11 +35,8 @@ inputs:
           WorkingDirectory = "/var/lib/fz-new-order";
           ExecStart =
             let
-              src = inputs.pkgs.substituteAll
-              {
-                src = ./main.cpp;
-                config_file = inputs.config.sops.templates."fz-new-order/config.json".path;
-              };
+              src = inputs.pkgs.replaceVars ./main.cpp
+                { config_file = inputs.config.sops.templates."fz-new-order/config.json".path; };
               binary = inputs.pkgs.stdenv.mkDerivation
               {
                 name = "fz-new-order";

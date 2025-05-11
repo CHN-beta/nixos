@@ -19,7 +19,7 @@ inputs:
           yakuake = rec
           {
             fileName = "org.kde.yakuake.desktop";
-            path = "${inputs.pkgs.yakuake}/share/applications/${fileName}";
+            path = "${inputs.pkgs.kdePackages.yakuake}/share/applications/${fileName}";
           };
           telegram = rec
           {
@@ -38,7 +38,7 @@ inputs:
           kmail = rec
           {
             fileName = "org.kde.kmail2.desktop";
-            path = "${inputs.pkgs.kmail}/share/applications/${fileName}";
+            path = "${inputs.pkgs.kdePackages.kmail}/share/applications/${fileName}";
           };
           discord = rec
           {

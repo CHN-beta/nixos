@@ -1,8 +1,4 @@
-{
-  stdenv, lib, sbatchConfig ? null, substituteAll, runCommand,
-  cmake, pkg-config, ftxui, biu
-}:
-stdenv.mkDerivation
+{ stdenv, lib, sbatchConfig ? null, runCommand, cmake, pkg-config, ftxui, biu }: stdenv.mkDerivation
 {
   name = "chn-bsub";
   src = ./.;

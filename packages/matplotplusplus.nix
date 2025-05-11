@@ -1,6 +1,4 @@
-{
-  stdenv, src, cmake, pkg-config, substituteAll
-}: stdenv.mkDerivation
+{ stdenv, src, cmake, pkg-config }: stdenv.mkDerivation
 {
   name = "matplotplusplus";
   inherit src;

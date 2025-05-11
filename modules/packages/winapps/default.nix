@@ -13,7 +13,7 @@ inputs:
       (inputs.pkgs.runCommand "winapps-windows" {}
       ''
         mkdir -p $out/share/applications
-        cp ${inputs.pkgs.substituteAll { src = ./windows.desktop; path = inputs.topInputs.winapps; }} \
+        cp ${inputs.pkgs.replaceVars ./windows.desktop { path = inputs.topInputs.winapps; }} \
           $out/share/applications/windows.desktop
       '')
     ]

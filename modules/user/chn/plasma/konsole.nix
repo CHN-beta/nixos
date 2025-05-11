@@ -65,7 +65,7 @@ inputs:
       };
       home.file.".local/share/konsole/Breeze.colorscheme".text = builtins.replaceStrings
         [ "Opacity=1" ] [ "Opacity=0.9\nBlur=true" ]
-        (builtins.readFile "${inputs.pkgs.konsole}/share/konsole/Breeze.colorscheme");
+        (builtins.readFile "${inputs.pkgs.kdePackages.konsole}/share/konsole/Breeze.colorscheme");
     };
     environment.persistence."/nix/rootfs/current".users.chn.directories =
       [ ".local/share/konsole" ".local/share/yakuake" ];
