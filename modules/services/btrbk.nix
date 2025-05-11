@@ -11,33 +11,34 @@ inputs:
         roles = [ "source" "info" ];
       }];
     }
-    (inputs.lib.mkIf (btrbk != [])
     {
       services.btrbk =
       {
         ioSchedulingClass = "idle";
-        instances.btrbk =
-        {
-          onCalendar = "*-*-* 4:00:00";
-          settings =
+        instances = builtins.listToAttrs (builtins.map
+          (host:
           {
-            timestamp_format = "short";
-            snapshot_dir = "/nix/btrbk/snapshot";
-            snapshot_preserve_min = "1w";
-            target_preserve_min = "1m";
-            ssh_user = "btrbk";
-            ssh_identity = inputs.config.sops.secrets.btrbk.path;
-            volume = builtins.listToAttrs (builtins.map
-              (host:
+            name = host;
+            value =
+            {
+              onCalendar = "*-*-* 4:00:00";
+              settings =
               {
-                name = "ssh://wg1.${host}.chn.moe/nix";
-                value = { subvolume.persistent= {}; target = "/nix/btrbk/${host}"; };
-              })
-              btrbk);
-          };
-        };
+                timestamp_format = "short";
+                snapshot_dir = "/nix/btrbk/snapshot";
+                snapshot_preserve_min = "1w";
+                target_preserve_min = "1m";
+                ssh_user = "btrbk";
+                ssh_identity = inputs.config.sops.secrets.btrbk.path;
+                volume."ssh://wg1.${host}.chn.moe/nix" = { subvolume.persistent= {}; target = "/nix/btrbk/${host}"; };
+              };
+            };
+          })
+          btrbk);
       };
       sops.secrets.btrbk.owner = "btrbk";
-    })
+      systemd.timers = builtins.listToAttrs (builtins.map
+        (host: { name = "btrbk-${host}"; value.timerConfig.RandomizedDelaySec = 7200; }) btrbk);
+    }
   ];
 }
