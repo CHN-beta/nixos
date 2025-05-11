@@ -4,19 +4,19 @@
   {
     src = pkgs.fetchurl
     {
-      url = "https://developer.download.nvidia.com/hpc-sdk/24.11/nvhpc_2024_2411_Linux_x86_64_cuda_12.6.tar.gz";
+      url = "https://developer.download.nvidia.com/hpc-sdk/25.3/nvhpc_2025_253_Linux_x86_64_cuda_12.8.tar.gz";
       sha256 = "080rb89p2z98b75wqssvp3s8x6b5n0556d0zskh3cfapcb08lh1r";
     };
     mpi = pkgs.requireFile
     {
       name = "openmpi-gitclone.tar.gz";
-      # download from https://developer.nvidia.com/networking/hpc-x/eula?mrequest=downloads&mtype=hpc&mver=hpc-x&mname=v2.22/hpcx-v2.22-gcc-doca_ofed-ubuntu24.04-cuda12-x86_64.tbz
+      # download from https://content.mellanox.com/hpc/hpc-x/v2.23/hpcx-v2.23-gcc-doca_ofed-ubuntu24.04-cuda12-x86_64.tbz
       # nix-prefetch-url file://$(pwd)/openmpi-gitclone.tar.gz
-      sha256 = "05r5x6mgw2f2kcq9vhdkfj42panchzlbpns8qy57y4jsbmabwabi";
+      sha256 = "1lx5gld4ay9p327hdlqsi72911cfm6s5v3yabjlmwr7sb27y8151";
       message = "Source file not found.";
     };
-    version = "24.11";
-    cudaVersion = "12.6";
+    version = "25.3";
+    cudaVersion = "12.8";
   };
   iso =
   {
@@ -32,12 +32,6 @@
       sha256 = "01hlslbi2i3jkzjwn24drhd2lriaqiwr9hb83r0nib9y1jvr3k5p";
     };
   };
-  nglview = pkgs.fetchPypi
-  {
-    pname = "nglview";
-    version = "3.1.2";
-    hash = "sha256-f2cu+itsoNs03paOW1dmsUsbPa3iEtL4oIPGAKETRc4=";
-  };
   vasp =
   {
     vasp = pkgs.requireFile
@@ -51,13 +45,13 @@
     {
       patch = pkgs.fetchzip
       {
-        url = "http://theory.cm.utexas.edu/code/vtstcode-204.tgz";
-        sha256 = "00qpqiabl568fwqjnmwqwr0jwg7s56xd9lv9lw8q4qxqy19cpg62";
+        url = "http://theory.cm.utexas.edu/code/vtstcode-205.tgz";
+        sha256 = "008c3q67v5f0ld1f8wdrz2z2kmlzicnxh2bm0akk7i8mnsph0lal";
       };
       script = pkgs.fetchzip
       {
         url = "http://theory.cm.utexas.edu/code/vtstscripts.tgz";
-        sha256 = "18gsw2850ig1mg4spp39i0ygfcwx0lqnamysn5whiax22m8d5z67";
+        sha256 = "0ixzaqwca5l9yvdq03czgqknszb769pxgc9zq1bgxsp921nvk8mq";
       };
     };
   };
@@ -100,11 +94,11 @@
   };
   vesta =
   {
-    version = "3.90.0a";
+    version = "3.90.5a";
     src = pkgs.fetchurl
     {
       url = "https://jp-minerals.org/vesta/archives/testing/VESTA-gtk3-x86_64.tar.bz2";
-      sha256 = "0bsvfr3409g2v1wgnfixpkjz1yzl2j1nlrk5a5rkdfs94rrvxzaa";
+      sha256 = "0y277m2xvjyzx8hncc3ka73lir8x6x2xckjac9fdzg03z0jnpqzf";
     };
     desktopFile = pkgs.fetchurl
     {
@@ -125,8 +119,8 @@
     version = "1.4.0";
     src = pkgs.fetchzip
     {
-      url = "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/pslist/1.4.0-4/pslist_1.4.0.orig.tar.xz";
-      sha256 = "1sp1h7ccniz658ms331npffpa9iz8llig43d9mlysll420nb3xqv";
+      url = "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/pslist/1.4.0-6/pslist_1.4.0.orig.tar.xz";
+      sha256 = "1yw48jvvf69x6i73p196j4rd3r5qpdjk9y80nikh328rd6bkr211";
     };
   };
   vaspkit = rec
