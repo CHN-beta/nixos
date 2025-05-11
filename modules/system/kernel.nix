@@ -56,7 +56,7 @@ inputs:
     # enable scx when using cachyos
     (
       inputs.lib.mkIf (builtins.elem kernel.variant [ "cachyos" "cachyos-lts" ])
-        { services.scx = { enable = true; scheduler = "scx_bpfland"; }; }
+        { services.scx = { enable = true; scheduler = "scx_rustland"; }; }
     )
   ];
 }
