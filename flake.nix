@@ -4,7 +4,7 @@
   inputs =
   {
     self.lfs = true;
-    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-25.05";
     "nixpkgs-23.11".url = "github:CHN-beta/nixpkgs/nixos-23.11";
     "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
     nixpkgs-unstable.url = "github:CHN-beta/nixpkgs/nixos-unstable";
@@ -12,11 +12,7 @@
     sops-nix = { url = "github:Mic92/sops-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
     nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nix-vscode-extensions =
-    {
-      url = "github:nix-community/nix-vscode-extensions?rev=7aa26ebccf778efe880fda1290db9c1da56ffa4f";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nix-vscode-extensions = { url = "github:nix-community/nix-vscode-extensions"; inputs.nixpkgs.follows = "nixpkgs"; };
     impermanence.url = "github:CHN-beta/impermanence";
     qchem = { url = "github:Nix-QChem/NixOS-QChem/master"; inputs.nixpkgs.follows = "nixpkgs"; };
     plasma-manager =
@@ -34,7 +30,7 @@
     };
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
     catppuccin.url = "github:catppuccin/nix";
-    bscpkgs = { url = "git+https://git.chn.moe/chn/bscpkgs.git"; inputs.nixpkgs.follows = "nixpkgs"; };
+    bscpkgs = { url = "github:CHN-beta/bscpkgs"; inputs.nixpkgs.follows = "nixpkgs"; };
     winapps = { url = "github:winapps-org/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
     aagl = { url = "github:ezKEa/aagl-gtk-on-nix/release-24.11"; inputs.nixpkgs.follows = "nixpkgs"; };
     cachyos-lts.url = "github:drakon64/nixos-cachyos-kernel";
@@ -55,7 +51,7 @@
     slate = { url = "github:TheBigWazz/Slate"; flake = false; };
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
-    openxlsx = { url = "github:troldal/OpenXLSX?rev=f85f7f1bd632094b5d78d4d1f575955fc3801886"; flake = false; };
+    openxlsx = { url = "github:troldal/OpenXLSX"; flake = false; };
     sqlite-orm = { url = "github:fnc12/sqlite_orm"; flake = false; };
     sockpp = { url = "github:fpagliughi/sockpp"; flake = false; };
     git-lfs-transfer = { url = "github:charmbracelet/git-lfs-transfer"; flake = false; };
@@ -74,7 +70,7 @@
     fancy-motd = { url = "github:CHN-beta/fancy-motd"; flake = false; };
     octodns-cloudflare = { url = "github:octodns/octodns-cloudflare"; flake = false; };
     mac-style = { url = "github:SergioRibera/s4rchiso-plymouth-theme?lfs=1"; flake = false; };
-    phono3py = { url = "github:phonopy/phono3py/v3.14.1"; flake = false; };
+    phono3py = { url = "github:phonopy/phono3py"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib.nix inputs.nixpkgs.lib; in
