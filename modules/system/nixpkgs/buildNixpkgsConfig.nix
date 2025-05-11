@@ -73,39 +73,40 @@ in platformConfig //
             {
               source = "nixpkgs-unstable";
               overlay = final: prev:
-                {
-                  ollama = prev.ollama.override { cudaPackages = final.cudaPackages_12_8; };
-                }
-                // inputs.lib.optionalAttrs (nixpkgs.march != null)
-                {
-                  pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-                  {
-                    scipy = prev.scipy.overridePythonAttrs (prev:
-                      { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
-                    rapidocr-onnxruntime = prev.rapidocr-onnxruntime.overridePythonAttrs { doCheck = false; };
-                    cfn-lint = prev.cfn-lint.overridePythonAttrs { doCheck = false; };
-                  })];
-                  rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
-                  ctranslate2 = (prev.ctranslate2.override { withCUDA = false; withCuDNN = false; })
-                    .overrideAttrs (prev:
-                      { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
-                  valkey = prev.valkey.overrideAttrs { doCheck = false; };
-                }
-                // inputs.lib.optionalAttrs
-                  (builtins.elem nixpkgs.march [ "skylake" "silvermont" "broadwell" "znver3" ])
-                  { redis = prev.redis.overrideAttrs { doCheck = false; }; }
-                // inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx2Support)
-                {
-                  haskellPackages = prev.haskellPackages.override
-                  {
-                    overrides = final: prev:
-                    {
-                      crypton = prev.crypton.overrideAttrs
-                        (prev: { configureFlags = prev.configureFlags or [] ++ [ "--ghc-option=-optc-mno-avx2" ]; });
-                    };
-                  };
-                }
-                  // (inputs.topInputs.self.overlays.default final prev);
+                (inputs.topInputs.self.overlays.default final prev);
+                # {
+                #   ollama = prev.ollama.override { cudaPackages = final.cudaPackages_12_8; };
+                # }
+                # // inputs.lib.optionalAttrs (nixpkgs.march != null)
+                # {
+                #   pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
+                #   {
+                #     scipy = prev.scipy.overridePythonAttrs (prev:
+                #       { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
+                #     rapidocr-onnxruntime = prev.rapidocr-onnxruntime.overridePythonAttrs { doCheck = false; };
+                #     cfn-lint = prev.cfn-lint.overridePythonAttrs { doCheck = false; };
+                #   })];
+                #   rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
+                #   ctranslate2 = (prev.ctranslate2.override { withCUDA = false; withCuDNN = false; })
+                #     .overrideAttrs (prev:
+                #       { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
+                #   valkey = prev.valkey.overrideAttrs { doCheck = false; };
+                # }
+                # // inputs.lib.optionalAttrs
+                #   (builtins.elem nixpkgs.march [ "skylake" "silvermont" "broadwell" "znver3" ])
+                #   { redis = prev.redis.overrideAttrs { doCheck = false; }; }
+                # // inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx2Support)
+                # {
+                #   haskellPackages = prev.haskellPackages.override
+                #   {
+                #     overrides = final: prev:
+                #     {
+                #       crypton = prev.crypton.overrideAttrs
+                #         (prev: { configureFlags = prev.configureFlags or [] ++ [ "--ghc-option=-optc-mno-avx2" ]; });
+                #     };
+                #   };
+                # }
+                #   // (inputs.topInputs.self.overlays.default final prev);
             };
           };
           packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}
@@ -122,14 +123,14 @@ in platformConfig //
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
       )
-      // (inputs.lib.optionalAttrs (nixpkgs.march != null)
-      {
-        # -march=xxx cause embree build failed
-        # https://github.com/embree/embree/issues/115
-        embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
-        simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
-      })
-      // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
-        { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
+      # // (inputs.lib.optionalAttrs (nixpkgs.march != null)
+      # {
+      #   # -march=xxx cause embree build failed
+      #   # https://github.com/embree/embree/issues/115
+      #   embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
+      #   simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
+      # })
+      # // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
+      #   { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
   )];
 }
