@@ -50,7 +50,19 @@ inputs:
           cachyos = inputs.pkgs.linuxPackages_cachyos;
           cachyos-lts = inputs.pkgs.linuxPackages_cachyos_lts;
         }.${kernel.variant};
-        kernelPatches = let patches = {}; in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
+        kernelPatches =
+          let
+            patches =
+            {
+              hibernate-progress =
+              [{
+                name = "hibernate-progress";
+                patch =
+                  let version = inputs.lib.versions.majorMinor inputs.config.boot.kernelPackages.kernel.version;
+                  in ./hibernate-progress-${version}.patch;
+              }];
+            };
+          in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
       };
     }
     # enable scx when using cachyos
