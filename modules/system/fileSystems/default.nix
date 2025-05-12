@@ -75,15 +75,16 @@ inputs:
     # swap
     { swapDevices = builtins.map (device: { device = device; }) fileSystems.swap; }
     # resume
-    (inputs.lib.mkIf (fileSystems.resume != null) { boot =
-    (
-      if builtins.typeOf fileSystems.resume == "string" then { resumeDevice = fileSystems.resume; }
-      else
-      {
-        resumeDevice = fileSystems.resume.device;
-        kernelParams = [ "resume_offset=${builtins.toString fileSystems.resume.offset}" ];
-      }
-    );})
+    (inputs.lib.mkIf (fileSystems.resume != null)
+    {
+      boot = inputs.localLib.mkConditional (builtins.typeOf fileSystems.resume == "string")
+        { resumeDevice = fileSystems.resume; }
+        {
+          resumeDevice = fileSystems.resume.device;
+          kernelParams = [ "resume_offset=${builtins.toString fileSystems.resume.offset}" ];
+        };
+      nixos.system.kernel.patches = [ "hibernate-progress" ];
+    })
     # rollingRootfs
     (inputs.lib.mkIf (fileSystems.rollingRootfs != null)
     {
