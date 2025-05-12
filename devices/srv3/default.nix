@@ -63,7 +63,12 @@ inputs:
           {
             owner = "chn";
             hardware = { memoryMB = 512; cpus = 1; };
-            network = { address = 4; vnc.openFirewall = false; portForward.web = [ "example.chn.moe" ]; };
+            network =
+            {
+              address = 4;
+              vnc.openFirewall = false;
+              portForward = { tcp = [{ host = 5693; guest = 22; }]; web = [ "example.chn.moe" ]; };
+            };
           };
         };
         rsshub = {};
