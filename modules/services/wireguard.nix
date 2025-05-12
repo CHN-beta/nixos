@@ -39,7 +39,7 @@ inputs:
             {
               inherit (peer) name;
               inherit (peer.value) publicKey allowedIPs endpoint;
-              persistentKeepalive = if peer.value.endpoint != null then 10 else null;
+              persistentKeepalive = 10;
             })
             (inputs.localLib.attrsToList wg.value.peer);
         };
