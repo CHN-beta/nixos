@@ -208,20 +208,8 @@ inputs:
             }
           }
         '';
-        # libvirt use iptables to reject forward-input packages.
-        # packages accept in nftables but reject in iptables will finally be rejected.
-        # So we need to add a rule in iptables to accept these packages.
-        iptables = "${inputs.pkgs.iptables}/bin/iptables";
-        start = inputs.pkgs.writeShellScript "nixvirt.start"
-        ''
-          ${nft} -f ${nftConfigFile}
-          ${iptables} -t filter -I LIBVIRT_FWI -d 192.168.122.0/24 -j ACCEPT -w
-        '';
-        stop = inputs.pkgs.writeShellScript "nixvirt.stop"
-        ''
-          ${nft} delete table inet nixvirt
-          ${iptables} -t filter -D LIBVIRT_FWI -d 192.168.122.0/24 -j ACCEPT -w
-        '';
+        start = inputs.pkgs.writeShellScript "nixvirt.start" "${nft} -f ${nftConfigFile}";
+        stop = inputs.pkgs.writeShellScript "nixvirt.stop" "${nft} delete table inet nixvirt";
       in
       {
         description = "nixvirt port forward";

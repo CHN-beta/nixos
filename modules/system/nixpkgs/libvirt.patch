@@ -1,0 +1,283 @@
+diff --git a/src/network/network_iptables.c b/src/network/network_iptables.c
+index e8da15426e..7b5080ae5f 100644
+--- a/src/network/network_iptables.c
++++ b/src/network/network_iptables.c
+@@ -744,13 +744,6 @@ iptablesForwardRejectIn(virFirewall *fw,
+                         const char *iface,
+                         iptablesAction action)
+ {
+-    virFirewallAddCmd(fw, layer,
+-                      "--table", "filter",
+-                      iptablesActionTypeToString(action),
+-                      VIR_IPTABLES_FWD_IN_CHAIN,
+-                      "--out-interface", iface,
+-                      "--jump", "REJECT",
+-                      NULL);
+ }
+ 
+ /**
+diff --git a/tests/networkxml2firewalldata/forward-dev-linux.iptables b/tests/networkxml2firewalldata/forward-dev-linux.iptables
+index bc483c4512..98be4b76ad 100644
+--- a/tests/networkxml2firewalldata/forward-dev-linux.iptables
++++ b/tests/networkxml2firewalldata/forward-dev-linux.iptables
+@@ -71,12 +71,6 @@ iptables \
+ iptables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-iptables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/isolated-linux.iptables b/tests/networkxml2firewalldata/isolated-linux.iptables
+index 135189ce41..d2d29933aa 100644
+--- a/tests/networkxml2firewalldata/isolated-linux.iptables
++++ b/tests/networkxml2firewalldata/isolated-linux.iptables
+@@ -71,12 +71,6 @@ iptables \
+ iptables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-iptables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+@@ -90,12 +84,6 @@ ip6tables \
+ ip6tables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-ip6tables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-default-linux.iptables b/tests/networkxml2firewalldata/nat-default-linux.iptables
+index 3cfa61333c..5f401194ed 100644
+--- a/tests/networkxml2firewalldata/nat-default-linux.iptables
++++ b/tests/networkxml2firewalldata/nat-default-linux.iptables
+@@ -71,12 +71,6 @@ iptables \
+ iptables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-iptables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-ipv6-linux.iptables b/tests/networkxml2firewalldata/nat-ipv6-linux.iptables
+index ce295cbc6d..127ed35826 100644
+--- a/tests/networkxml2firewalldata/nat-ipv6-linux.iptables
++++ b/tests/networkxml2firewalldata/nat-ipv6-linux.iptables
+@@ -71,12 +71,6 @@ iptables \
+ iptables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-iptables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+@@ -90,12 +84,6 @@ ip6tables \
+ ip6tables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-ip6tables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-ipv6-masquerade-linux.iptables b/tests/networkxml2firewalldata/nat-ipv6-masquerade-linux.iptables
+index d78537dc5c..a87fe47480 100644
+--- a/tests/networkxml2firewalldata/nat-ipv6-masquerade-linux.iptables
++++ b/tests/networkxml2firewalldata/nat-ipv6-masquerade-linux.iptables
+@@ -71,12 +71,6 @@ iptables \
+ iptables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-iptables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+@@ -90,12 +84,6 @@ ip6tables \
+ ip6tables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-ip6tables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-many-ips-linux.iptables b/tests/networkxml2firewalldata/nat-many-ips-linux.iptables
+index ba7f234b82..9244705322 100644
+--- a/tests/networkxml2firewalldata/nat-many-ips-linux.iptables
++++ b/tests/networkxml2firewalldata/nat-many-ips-linux.iptables
+@@ -71,12 +71,6 @@ iptables \
+ iptables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-iptables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-no-dhcp-linux.iptables b/tests/networkxml2firewalldata/nat-no-dhcp-linux.iptables
+index 1e5aa05231..b4f86a256f 100644
+--- a/tests/networkxml2firewalldata/nat-no-dhcp-linux.iptables
++++ b/tests/networkxml2firewalldata/nat-no-dhcp-linux.iptables
+@@ -71,12 +71,6 @@ iptables \
+ iptables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-iptables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+@@ -90,12 +84,6 @@ ip6tables \
+ ip6tables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-ip6tables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-port-range-ipv6-linux.iptables b/tests/networkxml2firewalldata/nat-port-range-ipv6-linux.iptables
+index c2e845cc4f..139110d068 100644
+--- a/tests/networkxml2firewalldata/nat-port-range-ipv6-linux.iptables
++++ b/tests/networkxml2firewalldata/nat-port-range-ipv6-linux.iptables
+@@ -71,12 +71,6 @@ iptables \
+ iptables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-iptables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+@@ -90,12 +84,6 @@ ip6tables \
+ ip6tables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-ip6tables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-port-range-linux.iptables b/tests/networkxml2firewalldata/nat-port-range-linux.iptables
+index 8e5c2c8193..0e7686359d 100644
+--- a/tests/networkxml2firewalldata/nat-port-range-linux.iptables
++++ b/tests/networkxml2firewalldata/nat-port-range-linux.iptables
+@@ -71,12 +71,6 @@ iptables \
+ iptables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-iptables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+@@ -90,12 +84,6 @@ ip6tables \
+ ip6tables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-ip6tables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-tftp-linux.iptables b/tests/networkxml2firewalldata/nat-tftp-linux.iptables
+index 565fff737c..3f2d1ccf5a 100644
+--- a/tests/networkxml2firewalldata/nat-tftp-linux.iptables
++++ b/tests/networkxml2firewalldata/nat-tftp-linux.iptables
+@@ -87,12 +87,6 @@ iptables \
+ iptables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-iptables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/route-default-linux.iptables b/tests/networkxml2firewalldata/route-default-linux.iptables
+index a7b969c077..866d65014e 100644
+--- a/tests/networkxml2firewalldata/route-default-linux.iptables
++++ b/tests/networkxml2firewalldata/route-default-linux.iptables
+@@ -71,12 +71,6 @@ iptables \
+ iptables \
+ -w \
+ --table filter \
+---insert LIBVIRT_FWI \
+---out-interface virbr0 \
+---jump REJECT
+-iptables \
+--w \
+---table filter \
+ --insert LIBVIRT_FWX \
+ --in-interface virbr0 \
+ --out-interface virbr0 \

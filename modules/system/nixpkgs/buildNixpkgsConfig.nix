@@ -59,9 +59,10 @@ in platformConfig //
         inherit genericPackages;
         telegram-desktop = prev.telegram-desktop.override
         {
-          unwrapped = prev.telegram-desktop.unwrapped.overrideAttrs (prev:
-            { patches = prev.patches or [] ++ [ ./telegram.patch ]; });
+          unwrapped = prev.telegram-desktop.unwrapped.overrideAttrs
+            (prev: { patches = prev.patches or [] ++ [ ./telegram.patch ]; });
         };
+        libvirt = prev.libvirt.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./libvirt.patch ]; });
       }
       // (
         let
