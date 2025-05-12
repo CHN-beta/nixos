@@ -30,13 +30,13 @@ inputs:
             policies.DefaultDownloadDirectory = "\${home}/Downloads";
             profiles.default =
             {
-              extensions = with inputs.pkgs.firefox-addons;
+              extensions.packages = with inputs.pkgs.firefox-addons;
               [
                 tampermonkey bitwarden cookies-txt dualsub firefox-color i-dont-care-about-cookies
                 metamask pakkujs switchyomega rsshub-radar rsspreview tabliss tree-style-tab ublock-origin wallabagger
                 wappalyzer grammarly plasma-integration zotero-connector pwas-for-firefox smartproxy kiss-translator
               ];
-              search = { default = "Google"; force = true; };
+              search = { default = "google"; force = true; };
               userChrome = builtins.readFile "${inputs.topInputs.lepton}/userChrome.css";
               userContent = builtins.readFile "${inputs.topInputs.lepton}/userContent.css";
               extraConfig = builtins.readFile "${inputs.topInputs.lepton}/user.js";

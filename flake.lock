@@ -8,16 +8,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1744237139,
-        "narHash": "sha256-f395cE+MIvKcRfRZubYXc7TJfJJ7edwpt7tYIFDgYQo=",
+        "lastModified": 1746065248,
+        "narHash": "sha256-pf0CHOIJTQllsH++29xzQzGaWUIy/976v2wAEADfDaI=",
         "owner": "ezKEa",
         "repo": "aagl-gtk-on-nix",
-        "rev": "a1a00f83d74988e98af8757e9b86ddf04d2ecdfc",
+        "rev": "d44515cc7473e1463a8e619f7a4ac1c1b58580bd",
         "type": "github"
       },
       "original": {
         "owner": "ezKEa",
-        "ref": "release-24.11",
         "repo": "aagl-gtk-on-nix",
         "type": "github"
       }
@@ -93,7 +92,9 @@
     },
     "catppuccin": {
       "inputs": {
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": [
+          "nixpkgs"
+        ]
       },
       "locked": {
         "lastModified": 1746896926,
@@ -570,16 +571,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1744526849,
-        "narHash": "sha256-dSV9W6he2Qs3Oq3XwKTUvXRLLra7JkOjAA8Gf4oXxBk=",
+        "lastModified": 1747030531,
+        "narHash": "sha256-XAIUZTNZ/UaKZkaZP0BwK81hWjtUsQsn7qPqIzhuhI8=",
         "owner": "CHN-beta",
         "repo": "home-manager",
-        "rev": "f23a198156137477251f35db8282d74299dba15c",
+        "rev": "4f66885a6adbece89d73945299b4d5bb99daa804",
         "type": "github"
       },
       "original": {
         "owner": "CHN-beta",
-        "ref": "release-24.11",
+        "ref": "release-25.05",
         "repo": "home-manager",
         "type": "github"
       }
@@ -871,16 +872,16 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1744463964,
-        "narHash": "sha256-LWqduOgLHCFxiTNYi3Uj5Lgz0SR+Xhw3kr/3Xd0GPTM=",
-        "owner": "NixOS",
+        "lastModified": 1747032327,
+        "narHash": "sha256-i921o6g0Kl1R2Ml+C2hOgZcWhMYd+ELNjVphByz8wW4=",
+        "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "2631b0b7abcea6e640ce31cd78ea58910d31e650",
+        "rev": "e25343b102309e2e3ff34a48993821ecf78fbbca",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
-        "ref": "nixos-unstable",
+        "owner": "CHN-beta",
+        "ref": "nixos-25.05",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -960,22 +961,6 @@
       "original": {
         "owner": "CHN-beta",
         "ref": "nixos-unstable",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_2": {
-      "locked": {
-        "lastModified": 1746948977,
-        "narHash": "sha256-dQ8Wrn0Rc/JTYRnOO/Xbo1MMNzV7ac+fV9/PT6gfHxA=",
-        "owner": "CHN-beta",
-        "repo": "nixpkgs",
-        "rev": "39c74d635607203639ef302caec6223689d2f6bb",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "ref": "nixos-25.05",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -1282,7 +1267,7 @@
         "nix-index-database": "nix-index-database",
         "nix-vscode-extensions": "nix-vscode-extensions",
         "nixos-wallpaper": "nixos-wallpaper",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": "nixpkgs",
         "nixpkgs-23.05": "nixpkgs-23.05",
         "nixpkgs-23.11": "nixpkgs-23.11",
         "nixpkgs-unstable": "nixpkgs-unstable",
@@ -1298,6 +1283,7 @@
         "qchem": "qchem",
         "rsshub": "rsshub",
         "rycee": "rycee",
+        "shadowrz": "shadowrz",
         "slate": "slate",
         "sockpp": "sockpp",
         "sops-nix": "sops-nix",
@@ -1359,6 +1345,26 @@
         "owner": "rycee",
         "repo": "nur-expressions",
         "type": "gitlab"
+      }
+    },
+    "shadowrz": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1745637907,
+        "narHash": "sha256-9Q7mKzRfSZGvKmbkbtZ3GKqcL0VxyxkyR76Yc2Ypuqs=",
+        "owner": "ShadowRZ",
+        "repo": "nur-packages",
+        "rev": "b87f9a470a5856219fdcbfaab6c0931acc7f3b7a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ShadowRZ",
+        "repo": "nur-packages",
+        "type": "github"
       }
     },
     "slate": {

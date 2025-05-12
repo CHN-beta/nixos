@@ -29,11 +29,11 @@ inputs:
           # networking
           pkgs-unstable.remmina putty mtr-gui
           # media
-          mpv nomacs yesplaymusic simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk qcm
+          mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk qcm
           waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio
           (inkscape-with-extensions.override { inkscapeExtensions = null; })
           # themes
-          klassy localPackages.slate localPackages.blurred-wallpaper tela-circle-icon-theme
+          klassy-qt6 localPackages.slate localPackages.blurred-wallpaper tela-circle-icon-theme
           catppuccin catppuccin-sddm catppuccin-cursors catppuccinifier-gui catppuccinifier-cli catppuccin-plymouth
           (catppuccin-kde.override { flavour = [ "latte" ]; }) (catppuccin-kvantum.override { variant = "latte"; })
           # terminal
@@ -54,7 +54,7 @@ inputs:
           fluent-reader rssguard newsflash newsboat follow
           # nix tools
           nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github prefetch-npm-deps nix-prefetch-docker
-          nix-template nil pnpm-lock-export bundix
+          nix-template nil bundix
           # instant messager
           element-desktop telegram-desktop discord zoom-us slack nur-linyinfeng.wemeet nheko
           fluffychat signal-desktop qq nur-xddxdd.wechat-uos-sandboxed cinny-desktop
@@ -127,7 +127,7 @@ inputs:
           obs-studio =
           {
             enable = true;
-            plugins = with inputs.pkgs.obs-studio-plugins; [ wlrobs obs-vaapi obs-nvfbc droidcam-obs obs-vkcapture ];
+            plugins = with inputs.pkgs.obs-studio-plugins; [ wlrobs obs-vaapi droidcam-obs obs-vkcapture ];
           };
         };
       }];

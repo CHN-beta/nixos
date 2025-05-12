@@ -56,7 +56,7 @@ inputs:
               };
             }
           ];
-          initExtraBeforeCompInit =
+          initContent = inputs.lib.mkOrder 550
           ''
             # p10k instant prompt
             P10K_INSTANT_PROMPT="$XDG_CACHE_HOME/p10k-instant-prompt-''${(%):-%n}.zsh"

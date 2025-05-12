@@ -36,7 +36,7 @@ inputs:
     (
       inputs.lib.mkIf (hardware.sound != null)
       {
-        hardware.pulseaudio.enable = false;
+        services.pulseaudio.enable = false;
         services.pipewire = { enable = true; alsa = { enable = true; support32Bit = true; }; pulse.enable = true; };
         security.rtkit.enable = true;
       }

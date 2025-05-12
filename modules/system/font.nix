@@ -7,9 +7,9 @@ inputs:
       fontDir.enable = true;
       packages = with inputs.pkgs;
       [
-        noto-fonts source-han-sans source-han-serif source-code-pro hack-font jetbrains-mono nerdfonts hack-font inter
+        noto-fonts source-han-sans source-han-serif source-code-pro hack-font jetbrains-mono hack-font inter
         noto-fonts-color-emoji roboto sarasa-gothic source-han-mono wqy_microhei wqy_zenhei noto-fonts-cjk-sans
-        noto-fonts-emoji corefonts vistafonts vistafonts-chs dejavu_fonts
+        noto-fonts-emoji corefonts vistafonts vistafonts-chs dejavu_fonts nerd-fonts.fira-code
       ];
       fontconfig.defaultFonts =
       {

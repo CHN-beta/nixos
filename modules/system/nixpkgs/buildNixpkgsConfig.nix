@@ -38,9 +38,11 @@ in platformConfig //
     inputs.topInputs.bscpkgs.overlays.default
     inputs.topInputs.aagl.overlays.default
     inputs.topInputs.nur-xddxdd.overlays.inSubTree
+    inputs.topInputs.shadowrz.overlays.default
+    inputs.topInputs.nix-vscode-extensions.overlays.default
     (final: prev:
     {
-      nix-vscode-extensions = inputs.topInputs.nix-vscode-extensions.extensions.${prev.system};
+      inherit (inputs.topInputs.nix-vscode-extensions.overlays.default final prev) nix-vscode-extensions;
       nur-linyinfeng = (inputs.topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
       firefox-addons = (import "${inputs.topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
       inherit (import inputs.topInputs.gricad { pkgs = final; }) intel-oneapi intel-oneapi-2022;
