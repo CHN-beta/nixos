@@ -192,7 +192,7 @@ inputs:
         nftRules = builtins.concatLists (builtins.concatLists (builtins.map
           (vm: builtins.map
             (protocol: builtins.map
-              (port: "${protocol} dport ${builtins.toString port.host} "
+              (port: "${protocol} dport ${builtins.toString port.host} fib daddr type local "
                 + "counter dnat ip to 192.168.122.${builtins.toString vm.network.address}"
                 + ":${builtins.toString port.guest}")
               vm.network.portForward.${protocol})
