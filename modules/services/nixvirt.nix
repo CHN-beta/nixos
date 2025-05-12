@@ -194,7 +194,7 @@ inputs:
             (protocol: builtins.map
               (port: "${protocol} dport ${builtins.toString port.host} "
                 + "counter dnat ip to 192.168.122.${builtins.toString vm.network.address}"
-                + ":${builtins.toString port.guest}")
+                + ":${builtins.toString port.guest} accept")
               vm.network.portForward.${protocol})
             [ "tcp" "udp" ])
           (builtins.attrValues nixvirt)));
