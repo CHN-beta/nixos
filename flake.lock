@@ -987,11 +987,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1746422433,
-        "narHash": "sha256-nW0RYiwihHIqVOQZvBbeNmg68w95c4GBHPeZwAjCJeU=",
+        "lastModified": 1747022898,
+        "narHash": "sha256-nFs4IlGuCBwaoocTMS0JnNP9PxD+M6NE+vU0Ta2RKT4=",
         "owner": "CHN-beta",
         "repo": "NixVirt",
-        "rev": "648bd88b426289728f54c0c3c19a861596c725bd",
+        "rev": "a9f046e284d68e579b97ec9653693c1a12d9ffb5",
         "type": "github"
       },
       "original": {
