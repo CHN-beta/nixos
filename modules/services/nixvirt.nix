@@ -206,6 +206,10 @@ inputs:
               type nat hook prerouting priority dstnat; policy accept;
               ${builtins.concatStringsSep "\n" nftRules}
             }
+            chain output {
+              type nat hook output priority dstnat; policy accept;
+              ${builtins.concatStringsSep "\n" nftRules}
+            }
           }
         '';
         start = inputs.pkgs.writeShellScript "nixvirt.start" "${nft} -f ${nftConfigFile}";
