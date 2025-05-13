@@ -140,4 +140,10 @@
     };
   };
   mathematica = pkgs.mathematica.src;
+  oneapi = pkgs.fetchurl
+  {
+    url = "https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2cf9c083-82b5-4a8f-a515-c599b09dcefc/"
+      + "intel-oneapi-hpc-toolkit-2025.1.1.40_offline.sh";
+    sha256 = "1qjy9dsnskwqsk66fm99b3cch1wp3rl9dx7y884p3x5kwiqdma2x";
+  };
 }
