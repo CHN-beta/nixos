@@ -1,23 +1,33 @@
 {
   src, stdenv, autoPatchelfHook, wrapCCWith, config, overrideCC, makeSetupHook, writeScript, overrideInStdenv,
-  gcc, glibc, libz, zstd, libxml2, flock, numactl, ncurses, openssl, gmp,
+  runCommand,
+  gcc, glibc, libz, zstd, libxml2, flock, numactl, ncurses, openssl, gmp, kdePackages,
   libxcrypt-legacy, libfabric, rdma-core, xorg, bash
 }:
 let
   oneapi = stdenv.mkDerivation
   {
     pname = "oneapi";
-    inherit src;
+    inherit (src) src version;
     buildInputs = [];
-    nativeBuildInputs = [ autoPatchelfHook ];
+    nativeBuildInputs = [ ncurses stdenv.cc.cc autoPatchelfHook ];
     langFortran = true;
-    dontUnpack = true;
     dontConfigure = true;
     dontBuild = true;
+    unpackPhase =
+    ''
+      mkdir installer
+      sh ${src.src} --extract-only --extract-folder installer
+      addAutoPatchelfSearchPath installer/intel*/lib
+      autoPatchelf installer/intel*/bootstrapper
+    '';
     installPhase =
     ''
-      sh $src -a --silent --eula accept --install-dir $out/install
-      mv $out/install/compiler/2025.1/{bin,include,lib,share,opt/compiler/include} $out
+      mkdir -p $out/install
+      export HOME=$out
+      echo "will install to $out/install"
+      sh installer/intel*/install.sh --silent --eula accept --install-dir $out/install
+      mv $out/install/compiler/${src.version}/{bin,include,lib,share,opt/compiler/include} $out
       mv $out/bin/compiler/* $out/bin
       rm -rf $out/install
       # addAutoPatchelfSearchPath
