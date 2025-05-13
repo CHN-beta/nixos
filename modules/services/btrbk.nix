@@ -31,7 +31,7 @@ inputs:
                 target_preserve_min = "1m";
                 ssh_user = "btrbk";
                 ssh_identity = inputs.config.sops.secrets.btrbk.path;
-                volume."ssh://wg1.${host}.chn.moe/nix" = { subvolume.persistent= {}; target = "/nix/btrbk/${host}"; };
+                volume."ssh://${host}.chn.moe/nix" = { subvolume.persistent= {}; target = "/nix/btrbk/${host}"; };
               };
             };
           })
