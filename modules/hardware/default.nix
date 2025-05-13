@@ -21,13 +21,7 @@ inputs:
       {
         services =
         {
-          printing =
-          {
-            enable = true;
-            drivers = [ inputs.pkgs.cnijfilter2 ];
-            # TODO: remove in next update
-            browsed.enable = false;
-          };
+          printing = { enable = true; drivers = [ inputs.pkgs.cnijfilter2 ]; };
           avahi = { enable = true; nssmdns4 = true; openFirewall = true; };
         };
       }

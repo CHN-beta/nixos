@@ -24,7 +24,6 @@ in platformConfig //
   }
   // (inputs.lib.optionalAttrs (nixpkgs.march != null)
   {
-    # TODO: change znver4 after update oneapi
     # TODO: test znver3 do use AVX
     oneapiArch = let match = {}; in match.${nixpkgs.march} or nixpkgs.march;
     nvhpcArch = nixpkgs.march;
@@ -125,6 +124,8 @@ in platformConfig //
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
       )
+      // (inputs.lib.optionalAttrs (final.stdenv.hostPlatform.avx512Support)
+        { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
       # // (inputs.lib.optionalAttrs (nixpkgs.march != null)
       # {
       #   # -march=xxx cause embree build failed

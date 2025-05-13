@@ -32,14 +32,14 @@ inputs:
         # networking
         ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils wireguard-tools
         # nix tools
-        pkgs-unstable.nix-output-monitor nix-tree ssh-to-age nix-inspect
+        nix-output-monitor nix-tree ssh-to-age nix-inspect
         # development
         gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix rr hexo-cli gh nix-init hugo
         (octodns.withProviders (_: with _; [ cloudflare ]))
         # stupid things
         toilet lolcat localPackages.stickerpicker graph-easy
         # office
-        pdfgrep ffmpeg-full hdf5 # todo-txt-cli 
+        pdfgrep ffmpeg-full hdf5 # todo-txt-cli
       ]
         ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
       _pythonPackages = [(pythonPackages: with pythonPackages;

@@ -33,8 +33,7 @@ inputs:
             ]));
           };
         };
-        # TODO: enable cue on next release
-        rssh.enable = true;
+        rssh = { enable = true; settings.cue = true; };
         services = let u2fOrder = s: inputs.config.security.pam.services.${s}.rules.auth.u2f.order; in
         {
           sudo = { rssh = true; rules.auth.rssh.order = (u2fOrder "sudo") + 10; };

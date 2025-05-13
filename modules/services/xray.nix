@@ -46,12 +46,7 @@ inputs:
       {
         services =
         {
-          xray =
-          {
-            enable = true;
-            settingsFile = inputs.config.sops.templates."xray-client.json".path;
-            package = inputs.pkgs.pkgs-unstable.xray;
-          };
+          xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-client.json".path; };
           dnsmasq =
           {
             enable = true;
@@ -335,7 +330,6 @@ inputs:
           {
             enable = true;
             settingsFile = inputs.config.sops.templates."xray-server.json".path;
-            package = inputs.pkgs.pkgs-unstable.xray;
           };
           sops =
           {

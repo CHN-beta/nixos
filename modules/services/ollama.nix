@@ -4,7 +4,7 @@ inputs:
     { type = types.nullOr (types.submodule {}); default = null; };
   config = let inherit (inputs.config.nixos.services) ollama; in inputs.lib.mkIf (ollama != null)
   {
-    services.ollama = { enable = true; package = inputs.pkgs.pkgs-unstable.ollama; host = "0.0.0.0"; };
+    services.ollama = { enable = true; host = "0.0.0.0"; };
     nixos.packages.packages._packages = [ inputs.pkgs.oterm ];
   };
 }

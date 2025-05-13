@@ -14,7 +14,6 @@ inputs:
     services.open-webui =
     {
       enable = true;
-      package = inputs.pkgs.pkgs-unstable.open-webui;
       environment =
       {
         ENABLE_PERSISTENT_CONFIG = "False";

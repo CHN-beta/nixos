@@ -144,8 +144,6 @@ inputs:
         secrets."github/token".sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/chn.yaml";
       };
     })
-    # TODO: remove after 2.27 become default
-    { nix.package = inputs.pkgs.pkgs-unstable.nixVersions.nix_2_28; }
     # c++ include path
     # environment.pathsToLink = [ "/include" ];
     # environment.variables.CPATH = "/run/current-system/sw/include";

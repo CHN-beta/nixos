@@ -27,7 +27,7 @@ inputs:
           # color management
           argyllcms xcalib
           # networking
-          pkgs-unstable.remmina putty mtr-gui
+          remmina putty mtr-gui
           # media
           mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk qcm
           waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio
@@ -40,7 +40,7 @@ inputs:
           warp-terminal
           # development
           adb-sync scrcpy dbeaver-bin cling aircrack-ng
-          weston cage openbox krita jetbrains.clion fprettify
+          weston cage openbox krita fprettify # jetbrains.clion 
           # desktop sharing
           rustdesk-flutter
           # password and key management
@@ -49,7 +49,7 @@ inputs:
           # download
           qbittorrent nur-xddxdd.baidupcs-go wgetpaste onedrive onedrivegui rclone
           # editor
-          typora appflowy notion-app-enhanced joplin-desktop standardnotes logseq obsidian pkgs-unstable.code-cursor
+          typora appflowy notion-app-enhanced joplin-desktop standardnotes logseq obsidian code-cursor
           # news
           fluent-reader rssguard newsflash newsboat follow
           # nix tools
@@ -64,7 +64,7 @@ inputs:
           crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain davinci-resolve
           ydict texstudio panoply pspp paperwork libreoffice-qt6-fresh ocrmypdf typst
           # required by ltex-plus.vscode-ltex-plus
-          pkgs-unstable.ltex-ls pkgs-unstable.ltex-ls-plus
+          ltex-ls ltex-ls-plus
           # matplot++ needs old gnuplot
           inputs.pkgs."pkgs-23.11".gnuplot
           # math, physics and chemistry
@@ -78,19 +78,15 @@ inputs:
           nur-xddxdd.svp
           # for kdenlive auto subtitle
           openai-whisper
-          # TODO: remove on next release
-          # phonopy have some bug, we use the version from nixpkgs-unstable
-          (inputs.lib.hiPrio pkgs-unstable.python3Packages.phonopy)
-          (inputs.lib.hiPrio pkgs-unstable.localPackages.phono3py)
         ]
           ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" "kalzium" ])))
             (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
-          phonopy scipy scikit-learn jupyterlab autograd
-          # TODO: broken on python 3.12 tensorflow keras
+          phonopy scipy scikit-learn jupyterlab autograd inputs.pkgs.localPackages.phono3py
+          tensorflow keras
           # for phonopy
-          inputs.pkgs.localPackages.spectroscopy numpy
+          inputs.pkgs.localPackages.spectroscopy numpy 
         ])];
       };
       user.sharedModules =
