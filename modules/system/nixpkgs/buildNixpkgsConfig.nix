@@ -124,7 +124,7 @@ in platformConfig //
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
       )
-      // (inputs.lib.optionalAttrs (final.stdenv.hostPlatform.avx512Support)
+      // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
         { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
       # // (inputs.lib.optionalAttrs (nixpkgs.march != null)
       # {
