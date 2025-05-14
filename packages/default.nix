@@ -28,7 +28,7 @@ inputs: rec
   {
     inherit cppcoro nameof tgbot-cpp date;
     src = inputs.topInputs.self.src.mirism-old;
-    nghttp2 = inputs.pkgs.callPackage "${inputs.topInputs."nixpkgs-23.05"}/pkgs/development/libraries/nghttp2"
+    nghttp2 = inputs.pkgs.callPackage "${inputs.topInputs.nixpkgs-2305}/pkgs/development/libraries/nghttp2"
       { enableAsioLib = true; stdenv = inputs.pkgs.gcc12Stdenv; };
     stdenv = inputs.pkgs.gcc12Stdenv;
   };
@@ -75,6 +75,8 @@ inputs: rec
   biu = inputs.pkgs.callPackage ./biu
   {
     inherit nameof zpp-bits tgbot-cpp concurrencpp pocketfft;
+    # TODO: report glaze bug to upstream
+    inherit (inputs.pkgs.pkgs-2411) glaze;
     stdenv = inputs.pkgs.clang18Stdenv;
     boost = inputs.pkgs.boost186;
     fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });

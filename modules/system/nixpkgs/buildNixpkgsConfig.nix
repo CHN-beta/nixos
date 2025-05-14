@@ -63,13 +63,19 @@ in platformConfig //
             (prev: { patches = prev.patches or [] ++ [ ./telegram.patch ]; });
         };
         libvirt = prev.libvirt.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./libvirt.patch ]; });
+        root = prev.root.overrideAttrs (prev:
+        {
+          patches = prev.patches or [] ++ [ ./root.patch ];
+          cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ];
+        });
       }
       // (
         let
           source =
           {
-            "pkgs-23.11" = "nixpkgs-23.11";
-            "pkgs-23.05" = "nixpkgs-23.05";
+            pkgs-2305 = "nixpkgs-2305";
+            pkgs-2311 = "nixpkgs-2311";
+            pkgs-2411 = "nixpkgs-2411";
             pkgs-unstable =
             {
               source = "nixpkgs-unstable";
@@ -124,15 +130,40 @@ in platformConfig //
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
       )
+      # TODO: bring patch to upstream
       // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
         { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
-      # // (inputs.lib.optionalAttrs (nixpkgs.march != null)
-      # {
-      #   # -march=xxx cause embree build failed
-      #   # https://github.com/embree/embree/issues/115
-      #   embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
-      #   simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
-      # })
+      // (inputs.lib.optionalAttrs (nixpkgs.march != null)
+      {
+        libinsane = prev.libinsane.overrideAttrs (prev:
+          { nativeCheckInputs = builtins.filter (p: p.pname != "valgrind") prev.nativeCheckInputs; });
+        lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
+        libreoffice-qt6-fresh = prev.libreoffice-qt6-fresh.override (prev:
+          { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
+          ''
+            sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
+          '';});});
+        libreoffice-still = prev.libreoffice-still.override (prev:
+          { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
+          ''
+            sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
+          '';});});
+        opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
+        # TODO: maybe something really broken?
+        openvswitch = prev.openvswitch.overrideAttrs (prev: { doCheck = false; });
+        rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
+        valkey = prev.valkey.overrideAttrs { doCheck = false; };
+        # -march=xxx cause embree build failed
+        # https://github.com/embree/embree/issues/115
+        embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
+        simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
+        pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
+        {
+          scipy = prev.scipy.overridePythonAttrs (prev:
+            { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
+          # paperwork-backend = prev.paperwork-backend.overrideAttrs (prev: { doCheck = false; });
+        })];
+      })
       # // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
       #   { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
   )];

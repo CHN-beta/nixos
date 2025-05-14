@@ -2,9 +2,11 @@
 * update src
 * fix all build errors
 * update modules
-* submit pr: sivermont
+* update postgresql nextcloud mariadb
 * update stateVersion
-* test peertube ffmpeg working or not
-* test jaxlib build
-* add haskell patch
-* update phonopy
+* switch
+* fix disabled packages
+* upstream patches
+* merge upstream again
+* switch
+* build all

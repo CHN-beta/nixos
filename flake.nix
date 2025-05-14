@@ -5,8 +5,9 @@
   {
     self.lfs = true;
     nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-25.05";
-    "nixpkgs-23.11".url = "github:CHN-beta/nixpkgs/nixos-23.11";
-    "nixpkgs-23.05".url = "github:CHN-beta/nixpkgs/nixos-23.05";
+    nixpkgs-2411.url = "github:CHN-beta/nixpkgs/nixos-24.11";
+    nixpkgs-2311.url = "github:CHN-beta/nixpkgs/nixos-23.11";
+    nixpkgs-2305.url = "github:CHN-beta/nixpkgs/nixos-23.05";
     nixpkgs-unstable.url = "github:CHN-beta/nixpkgs/nixos-unstable";
     home-manager = { url = "github:CHN-beta/home-manager/release-25.05"; inputs.nixpkgs.follows = "nixpkgs"; };
     sops-nix = { url = "github:Mic92/sops-nix"; inputs.nixpkgs.follows = "nixpkgs"; };

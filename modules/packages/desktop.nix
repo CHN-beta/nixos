@@ -62,16 +62,16 @@ inputs:
           google-chrome tor-browser microsoft-edge
           # office
           crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain davinci-resolve
-          ydict texstudio panoply pspp paperwork libreoffice-qt6-fresh ocrmypdf typst
+          ydict texstudio panoply pspp libreoffice-qt6-fresh ocrmypdf typst # paperwork
           # required by ltex-plus.vscode-ltex-plus
           ltex-ls ltex-ls-plus
           # matplot++ needs old gnuplot
-          inputs.pkgs."pkgs-23.11".gnuplot
+          inputs.pkgs.pkgs-2311.gnuplot
           # math, physics and chemistry
           octaveFull ovito localPackages.vesta localPackages.v-sim jmol mpi geogebra6 localPackages.ufo
           (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14;
             wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; }; })
-          inputs.pkgs."pkgs-23.11".hdfview numbat qalculate-qt
+          inputs.pkgs.pkgs-2311.hdfview numbat qalculate-qt
           # virtualization
           virt-viewer bottles wineWowPackages.stagingFull genymotion playonlinux
           # media

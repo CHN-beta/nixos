@@ -48,6 +48,7 @@ inputs:
           xanmod-lts = inputs.pkgs.linuxPackages_xanmod;
           xanmod-latest = inputs.pkgs.linuxPackages_xanmod_latest;
           cachyos = inputs.pkgs.linuxPackages_cachyos;
+          # TODO: package cachyos-lts
           cachyos-lts = inputs.pkgs.linuxPackages_cachyos_lts;
         }.${kernel.variant};
         kernelPatches =

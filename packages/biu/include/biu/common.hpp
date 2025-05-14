@@ -5,7 +5,7 @@
 # include <concurrencpp/concurrencpp.h>
 # include <type_traits>
 # include <fmt/format.h>
-# include <magic_enum_all.hpp>
+# include <magic_enum/magic_enum_all.hpp>
 
 namespace biu
 {

@@ -1,4 +1,5 @@
 # port from nixpkgs#70dc536a
+# TODO: update
 inputs:
 {
   options.nixos.services.synapse.instances = let inherit (inputs.lib) mkOption types; in mkOption

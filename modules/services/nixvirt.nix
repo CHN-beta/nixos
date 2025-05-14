@@ -1,3 +1,4 @@
+# TODO: fix libvirtd network
 inputs:
 {
   options.nixos.services.nixvirt = let inherit (inputs.lib) mkOption types; in mkOption

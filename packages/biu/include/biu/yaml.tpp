@@ -6,7 +6,7 @@
 # include <boost/pfr.hpp>
 # include <boost/pfr/core_name.hpp>
 # include <nameof.hpp>
-# include <magic_enum.hpp>
+# include <magic_enum/magic_enum.hpp>
 
 namespace YAML
 {

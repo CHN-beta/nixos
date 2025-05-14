@@ -1,3 +1,4 @@
+# TODO: use upstream packaging tools
 inputs:
 {
   options.nixos.services.misskey.instances = let inherit (inputs.lib) mkOption types; in mkOption

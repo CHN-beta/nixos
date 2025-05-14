@@ -120,7 +120,7 @@
     src = pkgs.fetchzip
     {
       url = "https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/pslist/1.4.0-6/pslist_1.4.0.orig.tar.xz";
-      sha256 = "1yw48jvvf69x6i73p196j4rd3r5qpdjk9y80nikh328rd6bkr211";
+      sha256 = "1sp1h7ccniz658ms331npffpa9iz8llig43d9mlysll420nb3xqv";
     };
   };
   vaspkit = rec

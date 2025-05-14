@@ -6,11 +6,7 @@ inputs:
   {
     nixos.packages.packages =
       let
-        root = inputs.pkgs.root.overrideAttrs (prev:
-        {
-          patches = prev.patches or [] ++ [ ./17253.patch ./17273.patch ];
-          cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ];
-        });
+        inherit (inputs.pkgs) root;
         jupyterPath = inputs.pkgs.jupyter-kernel.create { definitions.root = rec
         {
           displayName = "ROOT";
