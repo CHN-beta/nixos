@@ -11,6 +11,7 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &srv2-node1 age1hnarptkze0ujpp05dqr8uma04cxg9zqcx68qgpks5uf5l6rpk5gqhh8wxg
   - &srv3 age1n4lhfwv7g0vhx54exmwx9yv2z04m3h2lunzpa5zdzgtcvjjuf5nqc36g8a
   - &test age1vgqvdqqe3mn0gvh0hydvu9c5f9yn5vek08cagyvwjhyta6utpvuq00g9c2
+  - &test-pc age17a8y4yr2ckuek67rt786ujuf7705gvj3vv6ezktxxmgayea9zcyqet7hgc
 creation_rules:
   - path_regex: devices/pc/.*$
     key_groups: [{ age: [ *chn, *pc ] }]
@@ -38,10 +39,12 @@ creation_rules:
     key_groups: [{ age: [ *chn, *srv3 ] }]
   - path_regex: devices/test/.*$
     key_groups: [{ age: [ *chn, *test ] }]
+  - path_regex: devices/test-pc/.*$
+    key_groups: [{ age: [ *chn, *test-pc ] }]
   - path_regex: devices/cross/secrets/default.yaml$
     key_groups:
     - age: [ *chn, *pc, *vps6, *nas, *one, *srv1-node0, *srv1-node1, *srv1-node2, *srv2-node0, *srv2-node1,
-      *srv3, *test ]
+      *srv3, *test, *test-pc ]
   - path_regex: devices/cross/secrets/chn.yaml$
     key_groups:
     - age: [ *chn, *pc, *one, *nas ]
