@@ -41,12 +41,12 @@ inputs:
       programs =
       {
         dconf.enable = true;
-        hyprland = { enable = true; withUWSM = true; };
+        # hyprland = { enable = true; withUWSM = true; };
         # waybar should not be pull in by graphical-session.target
-        waybar.enable = false;
-        iio-hyprland.enable = true;
-        hyprlock.enable = true;
-        uwsm.enable = true;
+        # waybar.enable = false;
+        # iio-hyprland.enable = true;
+        # hyprlock.enable = true;
+        # uwsm.enable = true;
       };
       systemd.services.display-manager.after = [ "plymouth-quit.service" ];
       # 在 chromium 中输入汉字有可能会漏字，需要这个配置

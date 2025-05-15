@@ -1,6 +1,7 @@
 inputs:
 {
-  config = inputs.lib.mkIf (inputs.config.nixos.packages.desktop != null)
+  # config = inputs.lib.mkIf (inputs.config.nixos.packages.desktop != null)
+  config = inputs.lib.mkIf (false)
   {
     home-manager.users.chn.config =
     {
