@@ -70,6 +70,11 @@ inputs:
               portForward = { tcp = [{ host = 5693; guest = 22; }]; web = [ "example.chn.moe" ]; };
             };
           };
+          reonokiy =
+          {
+            hardware = { memoryMB = 4 * 1024; cpus = 4; };
+            network = { address = 5; portForward.tcp = [{ host = 5694; guest = 22; }]; };
+          };
         };
         rsshub = {};
         misskey.instances =
@@ -96,7 +101,7 @@ inputs:
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
         open-webui.ollamaHost = "192.168.83.3";
       };
-      user.users = [ "chn" "aleksana" "alikia" "pen" ];
+      user.users = [ "chn" "aleksana" "alikia" "pen" "reonokiy" ];
     };
     # TODO: use a generic way
     boot.initrd.systemd.network.networks."10-eno1" = inputs.config.systemd.network.networks."10-eno1";
