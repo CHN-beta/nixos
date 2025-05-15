@@ -120,10 +120,18 @@ inputs:
         openssh.authorizedKeys.keys = [(builtins.readFile ./chn/id_ed25519_sk.pub)];
         hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
       };
-      home-manager.users.root =
+      home-manager.users.root = homeInputs:
       {
         imports = user.sharedModules;
-        config.programs.git = { userName = "chn"; userEmail = "chn@chn.moe"; };
+        config =
+        {
+          programs.git = { userName = "chn"; userEmail = "chn@chn.moe"; };
+          home.file = inputs.lib.mkIf inputs.config.nixos.model.private
+          {
+            ".ssh/id_ed25519_sk".source = homeInputs.config.lib.file.mkOutOfStoreSymlink
+              inputs.config.sops.secrets."root/ed25519_sk".path;
+          };
+        };
       };
     }
     # setup test

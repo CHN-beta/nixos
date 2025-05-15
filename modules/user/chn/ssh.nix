@@ -51,13 +51,19 @@ inputs:
         );
       };
     };
-    sops.secrets = inputs.lib.mkIf inputs.config.nixos.model.private (builtins.listToAttrs (builtins.map
-      (name:
+    sops.secrets = inputs.lib.mkIf inputs.config.nixos.model.private (inputs.lib.mkMerge
+    [
+      (builtins.listToAttrs (builtins.map
+        (name:
+        {
+          name = "chn/${name}";
+          value = { owner = "chn"; sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/chn.yaml"; };
+        })
+        [ "rsa" "rsa.ppk" "ed25519" "ed25519_sk" "xmuhk" ]))
       {
-        name = "chn/${name}";
-        value = { owner = "chn"; sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/chn.yaml"; };
-      })
-      [ "rsa" "rsa.ppk" "ed25519" "ed25519_sk" "xmuhk" ]
-    ));
+        "root/ed25519_sk" =
+          { key = "chn/ed25519_sk"; sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/chn.yaml"; };
+      }
+    ]);
   };
 }
