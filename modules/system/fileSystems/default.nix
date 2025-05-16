@@ -123,7 +123,7 @@ inputs:
                 btrfs property set -ts /mnt/nix/rootfs/$timestamp-$subvolid ro true
               fi
               [ -d /mnt/nix/rootfs/current ] || btrfs subvolume create /mnt/nix/rootfs/current
-              mkdir /mnt/nix/rootfs/current/usr
+              mkdir -p /mnt/nix/rootfs/current/usr
               touch /mnt/nix/rootfs/current/usr/make-systemd-happy
               chattr +C /mnt/nix/rootfs/current
               echo $(date '+%Y%m%d%H%M%S') > /mnt/nix/rootfs/current/.timestamp
