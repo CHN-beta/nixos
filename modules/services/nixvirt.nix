@@ -167,6 +167,8 @@ inputs:
                 {
                   template = "/run/libvirt/nix-ovmf/OVMF_VARS.fd";
                   path = "/var/lib/libvirt/qemu/nvram/${vm.name}_VARS.fd";
+                  templateFormat = "raw";
+                  format = "raw";
                 };
               };
             });
