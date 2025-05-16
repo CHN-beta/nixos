@@ -2,8 +2,7 @@ inputs:
 {
   config.boot.plymouth =
   {
-    # TODO: race condition, try enable it at next release
-    enable = false;
+    enable = true;
     theme = "mac-style";
     themePackages = [((inputs.pkgs.callPackage inputs.topInputs.mac-style {}).overrideAttrs (prev:
     {
