@@ -17,7 +17,7 @@ let
     srv3 =
     [
       "chat" "freshrss" "huginn" "initrd.srv3" "nextcloud" "photoprism" "rsshub" "ssh.git" "vaultwarden" "webdav"
-      "xsession.srv3" "example"
+      "xserver.srv3" "example"
     ];
     srv1-node0 = [ "srv1" ];
     srv2-node0 = [ "srv2" ];
