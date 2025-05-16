@@ -24,7 +24,16 @@ inputs:
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =
       {
-        xray.client.enable = true;
+        xray.client =
+        {
+          enable = true;
+          # TODO: remove on next month
+          xray =
+          {
+            serverAddress = inputs.topInputs.self.config.dns."chn.moe".getAddress "xserver.srv3";
+            serverName = "xserver.srv3.chn.moe";
+          };
+        };
         beesd."/".hashTableSizeMB = 64;
         sshd = {};
         kvm = {};
