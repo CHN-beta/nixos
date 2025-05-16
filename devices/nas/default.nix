@@ -25,7 +25,17 @@ inputs:
       services =
       {
         sshd = {};
-        xray.client = { enable = true; dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; };
+        xray.client =
+        {
+          enable = true;
+          # TODO: remove on next month
+          xray =
+          {
+            serverAddress = inputs.topInputs.self.config.dns."chn.moe".getAddress "xserver.srv3";
+            serverName = "xserver.srv3.chn.moe";
+          };
+          dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1";
+        };
         beesd."/".hashTableSizeMB = 10 * 128;
         nfs."/" = inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc";
         btrbk = [ "pc" "vps6" "srv3" ];

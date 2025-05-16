@@ -78,6 +78,12 @@ inputs:
         xray.client =
         {
           enable = true;
+          # TODO: remove on next month
+          xray =
+          {
+            serverAddress = inputs.topInputs.self.config.dns."chn.moe".getAddress "xserver.srv3";
+            serverName = "xserver.srv3.chn.moe";
+          };
           dnsmasq.hosts = builtins.listToAttrs
           (
             (builtins.map
