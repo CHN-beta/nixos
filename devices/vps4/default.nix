@@ -21,13 +21,11 @@ inputs:
         };
         grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
         nixpkgs.march = "znver2";
-        nix.substituters = [ "https://nix-store.chn.moe?priority=100" ];
         initrd.sshd = {};
         networking = {};
       };
       services =
       {
-        snapper.enable = true;
         sshd = {};
         fail2ban = {};
         beesd."/".hashTableSizeMB = 64;
