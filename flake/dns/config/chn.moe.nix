@@ -5,6 +5,7 @@ let
     autoroute = [ "api" "git" "grafana" "matrix" "peertube" "send" "synapse" "vikunja" "铜锣湾" ];
     nas = [ "initrd.nas" ];
     office = [ "srv2-node0" ];
+    vps4 = [ "initrd.vps4" "xserver.vps4" ];
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "frp" "initrd.vps6" "misskey" "sticker" "synapse-admin" "tgapi"
@@ -29,6 +30,7 @@ let
     one = "192.168.1.4";
     office = "210.34.16.60";
     srv1-node0 = "59.77.36.250";
+    vps4 = "104.234.37.61";
     vps6 = "144.34.225.59";
     search = "127.0.0.1";
     srv3 = "23.135.236.216";

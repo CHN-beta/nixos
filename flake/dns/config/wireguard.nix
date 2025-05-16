@@ -2,6 +2,7 @@
   net = { wg0 = 83; wg1 = 84; };
   peer =
   {
+    vps4 = 2;
     vps6 = 1;
     pc = 3;
     nas = 4;

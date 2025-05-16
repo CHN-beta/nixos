@@ -2,6 +2,11 @@ inputs:
 let
   devices =
   {
+    vps4 =
+    {
+      publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIF7Y0tjt1XLPjqJ8HEB26W9jVfJafRQ3pv5AbPaxEc/Z";
+      initrdPublicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIJkOPTFvX9f+Fn/KHOIvUgoRiJfq02T42lVGQhpMUGJq";
+    };
     vps6 =
     {
       publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIO5ZcvyRyOnUCuRtqrM/Qf+AdUe3a5bhbnfyhw2FSLDZ";
