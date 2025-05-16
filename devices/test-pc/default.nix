@@ -22,6 +22,18 @@ inputs:
       services =
       {
         sshd = {};
+        nixvirt =
+        {
+          chn =
+          {
+            hardware = { memoryMB = 2048; cpus = 4; };
+            network =
+            {
+              address = 2;
+              portForward = { tcp = [{ host = 5693; guest = 22; }]; web = [ "example.chn.moe" ]; };
+            };
+          };
+        };
       };
     };
   };
