@@ -32,7 +32,7 @@ inputs:
       {
         beesd."/" = { hashTableSizeMB = 128; threads = 4;};
         sshd = {};
-        nixvirt =
+        nixvirt.instance =
         {
           alikia =
           {

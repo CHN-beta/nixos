@@ -24,7 +24,8 @@ inputs:
         sshd = {};
         nixvirt =
         {
-          chn =
+          subnet = 123;
+          instance.chn =
           {
             hardware = { memoryMB = 2048; cpus = 4; };
             network =

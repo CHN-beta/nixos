@@ -3,45 +3,53 @@ inputs:
 {
   options.nixos.services.nixvirt = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    type = types.nullOr (types.attrsOf (types.submodule (submoduleInputs: { options =
-      let
-        hash = builtins.hashString "sha256" submoduleInputs.config._module.args.name;
-        createString = separator: parts: builtins.concatStringsSep separator
-          (builtins.map (p: builtins.substring (builtins.head p) (builtins.elemAt p 1) hash) parts);
-        defaultUuid = createString "-" [ [ 0 8 ] [ 8 4 ] [ 12 4 ] [ 16 4 ] [ 20 12 ] ];
-        defaultMac = "02:${createString ":" [ [ 0 2 ] [ 2 2 ] [ 4 2 ] [ 6 2 ] [ 8 2 ] ]}";
-      in
+    type = types.nullOr (types.submodule { options =
+    {
+      subnet = mkOption { type = types.ints.unsigned; default = 122; };
+      instance = mkOption
       {
-        uuid = mkOption { type = types.nonEmptyStr; default = defaultUuid; };
-        owner = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-        hardware =
-        {
-          storage = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-          memoryMB = mkOption { type = types.ints.unsigned; };
-          cpus = mkOption { type = types.ints.unsigned; };
-          mac = mkOption { type = types.nonEmptyStr; default = defaultMac; };
-        };
-        network =
-        {
-          address = mkOption { type = types.ints.unsigned; };
-          vnc =
+        type = types.attrsOf (types.submodule (submoduleInputs: { options =
+          let
+            hash = builtins.hashString "sha256" submoduleInputs.config._module.args.name;
+            createString = separator: parts: builtins.concatStringsSep separator
+              (builtins.map (p: builtins.substring (builtins.head p) (builtins.elemAt p 1) hash) parts);
+            defaultUuid = createString "-" [ [ 0 8 ] [ 8 4 ] [ 12 4 ] [ 16 4 ] [ 20 12 ] ];
+            defaultMac = "02:${createString ":" [ [ 0 2 ] [ 2 2 ] [ 4 2 ] [ 6 2 ] [ 8 2 ] ]}";
+          in
           {
-            port = mkOption { type = types.ints.unsigned; default = 15900 + submoduleInputs.config.network.address; };
-            openFirewall = mkOption { type = types.bool; default = true; };
-          };
-          portForward = rec
-          {
-            tcp = mkOption
+            uuid = mkOption { type = types.nonEmptyStr; default = defaultUuid; };
+            owner = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+            hardware =
             {
-              type = types.listOf (types.submodule { options = rec
-                { host = mkOption { type = types.ints.unsigned; }; guest = host; };});
-              default = [];
+              storage = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+              memoryMB = mkOption { type = types.ints.unsigned; };
+              cpus = mkOption { type = types.ints.unsigned; };
+              mac = mkOption { type = types.nonEmptyStr; default = defaultMac; };
             };
-            udp = tcp;
-            web = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-          };
-        };
-      };})));
+            network =
+            {
+              address = mkOption { type = types.ints.unsigned; };
+              vnc =
+              {
+                port = mkOption { type = types.ints.unsigned; default = 15900 + submoduleInputs.config.network.address; };
+                openFirewall = mkOption { type = types.bool; default = true; };
+              };
+              portForward = rec
+              {
+                tcp = mkOption
+                {
+                  type = types.listOf (types.submodule { options = rec
+                    { host = mkOption { type = types.ints.unsigned; }; guest = host; };});
+                  default = [];
+                };
+                udp = tcp;
+                web = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+              };
+            };
+          };}));
+        default = {};
+      };
+    };});
     default = null;
   };
   config = let inherit (inputs.config.nixos.services) nixvirt; in inputs.lib.mkIf (nixvirt != null)
@@ -56,16 +64,20 @@ inputs:
         {
           domains = builtins.map
             (vm: { definition = inputs.config.sops.templates."${vm.name}.xml".path; active = true; restart = false; })
-            (inputs.localLib.attrsToList nixvirt);
+            (inputs.localLib.attrsToList nixvirt.instance);
           networks =
           [{
             definition =
               let
                 base = lib.network.templates.bridge
-                  { uuid = "8f403474-f8d6-4fa7-991a-f62f40d51191"; subnet_byte = 122; };
+                  { uuid = "8f403474-f8d6-4fa7-991a-f62f40d51191"; subnet_byte = nixvirt.subnet; };
                 host = builtins.map
-                  (vm: { inherit (vm.hardware) mac; ip = "192.168.122.${builtins.toString vm.network.address}"; })
-                  (builtins.attrValues nixvirt);
+                  (vm:
+                  {
+                    inherit (vm.hardware) mac;
+                    ip = "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}";
+                  })
+                  (builtins.attrValues nixvirt.instance);
               in lib.network.writeXML (base // { ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; }; });
             active = true;
           }];
@@ -94,9 +106,13 @@ inputs:
       nginx =
         let hosts = builtins.concatLists (builtins.map
           (vm: builtins.map
-            (domain: { inherit domain; ip = "192.168.122.${builtins.toString vm.network.address}"; })
+            (domain:
+            {
+              inherit domain;
+              ip = "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}";
+            })
             vm.network.portForward.web)
-          (builtins.attrValues nixvirt));
+          (builtins.attrValues nixvirt.instance));
         in
         {
           enable = inputs.lib.mkIf (hosts != []) true;
@@ -155,12 +171,12 @@ inputs:
               };
             });
         })
-        (inputs.localLib.attrsToList nixvirt));
+        (inputs.localLib.attrsToList nixvirt.instance));
       secrets = builtins.listToAttrs (builtins.map
-        (vm: { name = "nixvirt/${vm}"; value = {}; }) (builtins.attrNames nixvirt));
+        (vm: { name = "nixvirt/${vm}"; value = {}; }) (builtins.attrNames nixvirt.instance));
       placeholder = builtins.listToAttrs (builtins.map
         (vm: { name = "nixvirt/${vm}"; value = builtins.hashString "sha256" "nixvirt/${vm}"; })
-        (builtins.attrNames nixvirt));
+        (builtins.attrNames nixvirt.instance));
     };
     security.wrappers.vm =
     {
@@ -171,7 +187,7 @@ inputs:
           ({
             virsh = "${inputs.pkgs.libvirt}/bin/virsh";
             vm =
-              let vms = builtins.groupBy (vm: vm.value.owner) (inputs.localLib.attrsToList nixvirt);
+              let vms = builtins.groupBy (vm: vm.value.owner) (inputs.localLib.attrsToList nixvirt.instance);
               in builtins.listToAttrs (builtins.map (owner:
               {
                 name = builtins.toString inputs.config.nixos.user.uid.${owner.name};
@@ -187,18 +203,18 @@ inputs:
       setuid = true;
     };
     networking.firewall.allowedTCPPorts = builtins.map (vm: vm.network.vnc.port)
-      (builtins.filter (vm: vm.network.vnc.openFirewall) (builtins.attrValues nixvirt));
+      (builtins.filter (vm: vm.network.vnc.openFirewall) (builtins.attrValues nixvirt.instance));
     systemd.services.nixvirt-forward =
       let
         nftRules = builtins.concatLists (builtins.concatLists (builtins.map
           (vm: builtins.map
             (protocol: builtins.map
-              (port: "${protocol} dport ${builtins.toString port.host} fib daddr type local "
-                + "counter dnat ip to 192.168.122.${builtins.toString vm.network.address}"
+              (port: "${protocol} dport ${builtins.toString port.host} fib daddr type local counter dnat ip to "
+                + "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}"
                 + ":${builtins.toString port.guest}")
               vm.network.portForward.${protocol})
             [ "tcp" "udp" ])
-          (builtins.attrValues nixvirt)));
+          (builtins.attrValues nixvirt.instance)));
         nft = "${inputs.pkgs.nftables}/bin/nft";
         nftConfigFile = inputs.pkgs.writeText "nixvirt.nft"
         ''
