@@ -46,10 +46,10 @@ inputs:
       };
     }
     # 挂载更详细的目录
-    # 对于任何情况，`.cache` 都应该在重启后丢失
+    # 对于任何情况，`.cache` `.config/systemd` 都应该在重启后丢失
     {
       "/nix/rootfs/current".users = builtins.listToAttrs (builtins.map
-        (user: { name = user; value.directories = [ ".cache" ]; })
+        (user: { name = user; value.directories = [ ".cache" ".config/systemd" ]; })
         inputs.config.nixos.user.users);
     }
     # 对于桌面用途的 chn，有一些需要 persist 的目录
