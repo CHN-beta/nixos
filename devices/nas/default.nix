@@ -38,7 +38,7 @@ inputs:
         };
         beesd."/".hashTableSizeMB = 10 * 128;
         nfs."/" = inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc";
-        btrbk = [ "pc" "vps6" "srv3" ];
+        # btrbk = [ "pc" "vps6" "srv3" ];
       };
     };
   };
