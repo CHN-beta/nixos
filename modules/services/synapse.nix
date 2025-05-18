@@ -1,5 +1,4 @@
-# port from nixpkgs#70dc536a
-# TODO: update
+# port from nixpkgs#a87068b8
 inputs:
 {
   options.nixos.services.synapse.instances = let inherit (inputs.lib) mkOption types; in mkOption
@@ -50,9 +49,11 @@ inputs:
           {
             description = "synapse-${instance.name}";
             enable = instance.value.autoStart;
+            wants = [ "network-online.target" ];
             after = [ "network-online.target" "postgresql.service" ];
             requires = [ "network-online.target" "postgresql.service" ];
             wantedBy = [ "multi-user.target" ];
+            environment = { LD_PRELOAD = "${inputs.pkgs.jemalloc}/lib/libjemalloc.so"; PYTHONMALLOC = "malloc"; };
             serviceConfig =
             {
               ExecStart = "${homeserver} --config-path ${config} --keys-directory ${workdir}";
