@@ -21,6 +21,7 @@ inputs:
           dns = [ "1.1.1.1" ];
           # prevent create btrfs subvol
           storage-driver = "overlay2";
+          live-restore = true;
         };
       };
     };

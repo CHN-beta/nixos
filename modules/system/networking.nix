@@ -49,7 +49,7 @@ inputs:
         # lower tcp retransmission tries (5 times, about several seconds)
         "net.ipv4.tcp_retries2" = 5;
       };
-      networking.nftables = { enable = true; flushRuleset = false; };
+      networking.nftables.enable = true;
     }
     (inputs.localLib.mkConditional (networking == null)
       {

@@ -50,10 +50,10 @@ inputs:
     i18n = { defaultLocale = "C.UTF-8"; supportedLocales = [ "all" ]; };
     users.mutableUsers = false;
     virtualisation.oci-containers.backend = "docker";
-    home-manager.sharedModules = [{ home.stateVersion = "22.11"; }];
+    home-manager.sharedModules = [{ home.stateVersion = "25.05"; }];
     system =
     {
-      stateVersion = "22.11";
+      stateVersion = "25.05";
       configurationRevision = inputs.topInputs.self.rev or "dirty";
       nixos = { versionSuffix = inputs.lib.mkForce ""; tags = [ inputs.topInputs.self.config.branch ]; };
     };
