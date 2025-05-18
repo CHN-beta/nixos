@@ -62,7 +62,8 @@ in platformConfig //
           unwrapped = prev.telegram-desktop.unwrapped.overrideAttrs
             (prev: { patches = prev.patches or [] ++ [ ./telegram.patch ]; });
         };
-        libvirt = prev.libvirt.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./libvirt.patch ]; });
+        libvirt = (prev.libvirt.override { iptables = final.nftables; }).overrideAttrs
+          (prev: { patches = prev.patches or [] ++ [ ./libvirt.patch ]; });
       }
       // (
         let
