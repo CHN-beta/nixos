@@ -41,7 +41,7 @@ inputs:
       {
         services."synapse-${instance.name}" =
           let
-            package = inputs.pkgs.pkgs-unstable.matrix-synapse.override
+            package = inputs.pkgs.matrix-synapse.override
               { extras = [ "url-preview" "postgres" "redis" ]; plugins = []; };
             config = inputs.config.sops.templates."synapse/${instance.name}/config.yaml".path;
             homeserver = "${package}/bin/synapse_homeserver";
