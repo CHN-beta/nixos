@@ -2,7 +2,7 @@
 * update src
 * fix all build errors
 * update modules (synapse)
-* update postgresql nextcloud mariadb
+* update postgresql nextcloud
 * update stateVersion
 * switch
 * fix disabled packages
