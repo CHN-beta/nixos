@@ -28,7 +28,6 @@ inputs:
         sessionVariables.GTK_USE_PORTAL = "1";
         persistence."/nix/persistent".directories =
           [{ directory = "/var/cache/tuigreet"; user = "greeter"; group = "greeter"; mode = "0700"; }];
-        systemPackages = with inputs.pkgs; [ waybar ];
       };
       xdg.portal.extraPortals = builtins.map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" ];
       i18n.inputMethod =
@@ -38,16 +37,7 @@ inputs:
         fcitx5.addons = builtins.map (p: inputs.pkgs."fcitx5-${p}")
           [ "rime" "chinese-addons" "mozc" "nord" "material-color" ];
       };
-      programs =
-      {
-        dconf.enable = true;
-        # hyprland = { enable = true; withUWSM = true; };
-        # waybar should not be pull in by graphical-session.target
-        # waybar.enable = false;
-        # iio-hyprland.enable = true;
-        # hyprlock.enable = true;
-        # uwsm.enable = true;
-      };
+      programs.dconf.enable = true;
       systemd.services.display-manager.after = [ "plymouth-quit.service" ];
       # 在 chromium 中输入汉字有可能会漏字，需要这个配置
       nixos.user.sharedModules = [(hmInputs: { gtk =
