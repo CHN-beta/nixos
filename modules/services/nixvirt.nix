@@ -80,6 +80,7 @@ inputs:
                   (builtins.attrValues nixvirt.instance);
               in lib.network.writeXML (base // { ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; }; });
             active = true;
+            restart = false;
           }];
           pools =
           [{
@@ -91,6 +92,7 @@ inputs:
               target.path = "/var/lib/libvirt/images";
             };
             active = true;
+            restart = false;
             # do not define image here, since it still needs to be created manually
           }];
         };
