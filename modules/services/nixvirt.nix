@@ -67,19 +67,12 @@ inputs:
                   (builtins.attrValues nixvirt);
               in lib.network.writeXML (base // { ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; }; });
             active = true;
+            # never restart the network
+            # when adding a new VM, add dhcp resolve manually, by:
+            # virsh net-update default add ip-dhcp-host "<host mac='52:54:00:00:00:01' ip='192.168.122.45' />" --live
+            restart = false;
           }];
-          pools =
-          [{
-            definition = lib.pool.writeXML
-            {
-              name = "default";
-              uuid = "6fc75fcc-fb95-48b6-8fa4-0e59b6c1b6c7";
-              type = "dir";
-              target.path = "/var/lib/libvirt/images";
-            };
-            active = true;
-            # do not define image here, since it still needs to be created manually
-          }];
+          pools = [];
         };
       };
       libvirtd.qemu.verbatimConfig =
@@ -120,7 +113,7 @@ inputs:
                 inherit (vm) name;
                 inherit (vm.value) uuid;
                 memory = { count = vm.value.hardware.memoryMB; unit = "MiB"; };
-                storage_vol = { pool = "default"; volume = "${vm.value.hardware.storage}.img"; };
+                storage_vol = "/var/lib/libvirt/images/${vm.value.hardware.storage}.img";
                 install_vol = "${inputs.topInputs.self.src.iso.netboot}";
                 virtio_video = false;
               };
