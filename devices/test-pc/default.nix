@@ -25,13 +25,22 @@ inputs:
         nixvirt =
         {
           subnet = 123;
-          instance.chn =
+          instance =
           {
-            hardware = { memoryMB = 2048; cpus = 4; };
-            network =
+            chn =
             {
-              address = 2;
-              portForward = { tcp = [{ host = 5693; guest = 22; }]; web = [ "example.chn.moe" ]; };
+              hardware = { memoryMB = 2048; cpus = 4; };
+              network =
+              {
+                address = 2;
+                portForward = { tcp = [{ host = 5693; guest = 22; }]; web = [ "example.chn.moe" ]; };
+              };
+            };
+            chn2 =
+            {
+              owner = "chn";
+              hardware = { memoryMB = 2048; cpus = 4; };
+              network = { address = 3; portForward.tcp = [{ host = 5694; guest = 22; }]; };
             };
           };
         };
