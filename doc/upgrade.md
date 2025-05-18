@@ -1,7 +1,7 @@
 * merge upstream, update flake
 * update src
 * fix all build errors
-* update modules
+* update modules (synapse)
 * update postgresql nextcloud mariadb
 * update stateVersion
 * switch
