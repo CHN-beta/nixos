@@ -69,9 +69,14 @@ inputs:
             active = true;
             # never restart the network
             # when adding a new VM, add dhcp resolve manually, by:
-            # virsh net-update default add ip-dhcp-host "<host mac='52:54:00:00:00:01' ip='192.168.122.45' />" --live
+            # sudo virsh net-update default add ip-dhcp-host "<host mac='' ip='192.168.122.' />" --live
             restart = false;
           }];
+          # do not use it to define disk, since it is not declartive
+          # create disk manually, by:
+          # sudo qemu-img create -f raw /var/lib/libvirt/images/test.img 20G
+          # sudo chown qemu-libvirt:qemu-libvirt /var/lib/libvirt/images/test.img
+          # sudo chmod 600 /var/lib/libvirt/images/test.img
           pools = [];
         };
       };
