@@ -16,6 +16,24 @@ index e8da15426e..7b5080ae5f 100644
  }
  
  /**
+diff --git a/src/network/network_nftables.c b/src/network/network_nftables.c
+index f8b5ab665d..54ed0c6f29 100644
+--- a/src/network/network_nftables.c
++++ b/src/network/network_nftables.c
+@@ -504,13 +504,6 @@ nftablesAddForwardRejectIn(virFirewall *fw,
+                            virFirewallLayer layer,
+                            const char *iface)
+ {
+-    virFirewallAddCmd(fw, layer, "insert", "rule",
+-                      nftablesLayerTypeToString(layer),
+-                      VIR_NFTABLES_PRIVATE_TABLE,
+-                      VIR_NFTABLES_FWD_IN_CHAIN,
+-                      "oif", iface,
+-                      "counter", "reject",
+-                      NULL);
+ }
+ 
+ 
 diff --git a/tests/networkxml2firewalldata/forward-dev-linux.iptables b/tests/networkxml2firewalldata/forward-dev-linux.iptables
 index bc483c4512..98be4b76ad 100644
 --- a/tests/networkxml2firewalldata/forward-dev-linux.iptables
@@ -33,6 +51,27 @@ index bc483c4512..98be4b76ad 100644
  --insert LIBVIRT_FWX \
  --in-interface virbr0 \
  --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/forward-dev-linux.nftables b/tests/networkxml2firewalldata/forward-dev-linux.nftables
+index 8badb74beb..78c0110a32 100644
+--- a/tests/networkxml2firewalldata/forward-dev-linux.nftables
++++ b/tests/networkxml2firewalldata/forward-dev-linux.nftables
+@@ -13,16 +13,6 @@ nft \
+ rule \
+ ip \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
 diff --git a/tests/networkxml2firewalldata/isolated-linux.iptables b/tests/networkxml2firewalldata/isolated-linux.iptables
 index 135189ce41..d2d29933aa 100644
 --- a/tests/networkxml2firewalldata/isolated-linux.iptables
@@ -63,6 +102,44 @@ index 135189ce41..d2d29933aa 100644
  --insert LIBVIRT_FWX \
  --in-interface virbr0 \
  --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/isolated-linux.nftables b/tests/networkxml2firewalldata/isolated-linux.nftables
+index d1b4dac178..3d72c1fb09 100644
+--- a/tests/networkxml2firewalldata/isolated-linux.nftables
++++ b/tests/networkxml2firewalldata/isolated-linux.nftables
+@@ -13,16 +13,6 @@ nft \
+ rule \
+ ip \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
+@@ -45,16 +35,6 @@ nft \
+ rule \
+ ip6 \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip6 \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
 diff --git a/tests/networkxml2firewalldata/nat-default-linux.iptables b/tests/networkxml2firewalldata/nat-default-linux.iptables
 index 3cfa61333c..5f401194ed 100644
 --- a/tests/networkxml2firewalldata/nat-default-linux.iptables
@@ -80,6 +157,27 @@ index 3cfa61333c..5f401194ed 100644
  --insert LIBVIRT_FWX \
  --in-interface virbr0 \
  --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-default-linux.nftables b/tests/networkxml2firewalldata/nat-default-linux.nftables
+index 28508292f9..ef7b2b1bc8 100644
+--- a/tests/networkxml2firewalldata/nat-default-linux.nftables
++++ b/tests/networkxml2firewalldata/nat-default-linux.nftables
+@@ -13,16 +13,6 @@ nft \
+ rule \
+ ip \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
 diff --git a/tests/networkxml2firewalldata/nat-ipv6-linux.iptables b/tests/networkxml2firewalldata/nat-ipv6-linux.iptables
 index ce295cbc6d..127ed35826 100644
 --- a/tests/networkxml2firewalldata/nat-ipv6-linux.iptables
@@ -110,6 +208,44 @@ index ce295cbc6d..127ed35826 100644
  --insert LIBVIRT_FWX \
  --in-interface virbr0 \
  --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-ipv6-linux.nftables b/tests/networkxml2firewalldata/nat-ipv6-linux.nftables
+index d8a9ba706d..20e51e203c 100644
+--- a/tests/networkxml2firewalldata/nat-ipv6-linux.nftables
++++ b/tests/networkxml2firewalldata/nat-ipv6-linux.nftables
+@@ -13,16 +13,6 @@ nft \
+ rule \
+ ip \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
+@@ -45,16 +35,6 @@ nft \
+ rule \
+ ip6 \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip6 \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
 diff --git a/tests/networkxml2firewalldata/nat-ipv6-masquerade-linux.iptables b/tests/networkxml2firewalldata/nat-ipv6-masquerade-linux.iptables
 index d78537dc5c..a87fe47480 100644
 --- a/tests/networkxml2firewalldata/nat-ipv6-masquerade-linux.iptables
@@ -140,6 +276,44 @@ index d78537dc5c..a87fe47480 100644
  --insert LIBVIRT_FWX \
  --in-interface virbr0 \
  --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-ipv6-masquerade-linux.nftables b/tests/networkxml2firewalldata/nat-ipv6-masquerade-linux.nftables
+index a7f09cda59..816a4a8cac 100644
+--- a/tests/networkxml2firewalldata/nat-ipv6-masquerade-linux.nftables
++++ b/tests/networkxml2firewalldata/nat-ipv6-masquerade-linux.nftables
+@@ -13,16 +13,6 @@ nft \
+ rule \
+ ip \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
+@@ -45,16 +35,6 @@ nft \
+ rule \
+ ip6 \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip6 \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
 diff --git a/tests/networkxml2firewalldata/nat-many-ips-linux.iptables b/tests/networkxml2firewalldata/nat-many-ips-linux.iptables
 index ba7f234b82..9244705322 100644
 --- a/tests/networkxml2firewalldata/nat-many-ips-linux.iptables
@@ -157,6 +331,27 @@ index ba7f234b82..9244705322 100644
  --insert LIBVIRT_FWX \
  --in-interface virbr0 \
  --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-many-ips-linux.nftables b/tests/networkxml2firewalldata/nat-many-ips-linux.nftables
+index b826fe6134..904f515f3d 100644
+--- a/tests/networkxml2firewalldata/nat-many-ips-linux.nftables
++++ b/tests/networkxml2firewalldata/nat-many-ips-linux.nftables
+@@ -13,16 +13,6 @@ nft \
+ rule \
+ ip \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
 diff --git a/tests/networkxml2firewalldata/nat-no-dhcp-linux.iptables b/tests/networkxml2firewalldata/nat-no-dhcp-linux.iptables
 index 1e5aa05231..b4f86a256f 100644
 --- a/tests/networkxml2firewalldata/nat-no-dhcp-linux.iptables
@@ -187,6 +382,44 @@ index 1e5aa05231..b4f86a256f 100644
  --insert LIBVIRT_FWX \
  --in-interface virbr0 \
  --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-no-dhcp-linux.nftables b/tests/networkxml2firewalldata/nat-no-dhcp-linux.nftables
+index d8a9ba706d..20e51e203c 100644
+--- a/tests/networkxml2firewalldata/nat-no-dhcp-linux.nftables
++++ b/tests/networkxml2firewalldata/nat-no-dhcp-linux.nftables
+@@ -13,16 +13,6 @@ nft \
+ rule \
+ ip \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
+@@ -45,16 +35,6 @@ nft \
+ rule \
+ ip6 \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip6 \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
 diff --git a/tests/networkxml2firewalldata/nat-port-range-ipv6-linux.iptables b/tests/networkxml2firewalldata/nat-port-range-ipv6-linux.iptables
 index c2e845cc4f..139110d068 100644
 --- a/tests/networkxml2firewalldata/nat-port-range-ipv6-linux.iptables
@@ -217,6 +450,44 @@ index c2e845cc4f..139110d068 100644
  --insert LIBVIRT_FWX \
  --in-interface virbr0 \
  --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-port-range-ipv6-linux.nftables b/tests/networkxml2firewalldata/nat-port-range-ipv6-linux.nftables
+index ceaed6fa40..6db8eddf6c 100644
+--- a/tests/networkxml2firewalldata/nat-port-range-ipv6-linux.nftables
++++ b/tests/networkxml2firewalldata/nat-port-range-ipv6-linux.nftables
+@@ -13,16 +13,6 @@ nft \
+ rule \
+ ip \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
+@@ -45,16 +35,6 @@ nft \
+ rule \
+ ip6 \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip6 \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
 diff --git a/tests/networkxml2firewalldata/nat-port-range-linux.iptables b/tests/networkxml2firewalldata/nat-port-range-linux.iptables
 index 8e5c2c8193..0e7686359d 100644
 --- a/tests/networkxml2firewalldata/nat-port-range-linux.iptables
@@ -247,6 +518,44 @@ index 8e5c2c8193..0e7686359d 100644
  --insert LIBVIRT_FWX \
  --in-interface virbr0 \
  --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-port-range-linux.nftables b/tests/networkxml2firewalldata/nat-port-range-linux.nftables
+index 1dc37a26ec..1d65869876 100644
+--- a/tests/networkxml2firewalldata/nat-port-range-linux.nftables
++++ b/tests/networkxml2firewalldata/nat-port-range-linux.nftables
+@@ -13,16 +13,6 @@ nft \
+ rule \
+ ip \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
+@@ -45,16 +35,6 @@ nft \
+ rule \
+ ip6 \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip6 \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
 diff --git a/tests/networkxml2firewalldata/nat-tftp-linux.iptables b/tests/networkxml2firewalldata/nat-tftp-linux.iptables
 index 565fff737c..3f2d1ccf5a 100644
 --- a/tests/networkxml2firewalldata/nat-tftp-linux.iptables
@@ -264,6 +573,27 @@ index 565fff737c..3f2d1ccf5a 100644
  --insert LIBVIRT_FWX \
  --in-interface virbr0 \
  --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/nat-tftp-linux.nftables b/tests/networkxml2firewalldata/nat-tftp-linux.nftables
+index 28508292f9..ef7b2b1bc8 100644
+--- a/tests/networkxml2firewalldata/nat-tftp-linux.nftables
++++ b/tests/networkxml2firewalldata/nat-tftp-linux.nftables
+@@ -13,16 +13,6 @@ nft \
+ rule \
+ ip \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
 diff --git a/tests/networkxml2firewalldata/route-default-linux.iptables b/tests/networkxml2firewalldata/route-default-linux.iptables
 index a7b969c077..866d65014e 100644
 --- a/tests/networkxml2firewalldata/route-default-linux.iptables
@@ -281,3 +611,24 @@ index a7b969c077..866d65014e 100644
  --insert LIBVIRT_FWX \
  --in-interface virbr0 \
  --out-interface virbr0 \
+diff --git a/tests/networkxml2firewalldata/route-default-linux.nftables b/tests/networkxml2firewalldata/route-default-linux.nftables
+index 282c9542a5..fc742c9fea 100644
+--- a/tests/networkxml2firewalldata/route-default-linux.nftables
++++ b/tests/networkxml2firewalldata/route-default-linux.nftables
+@@ -13,16 +13,6 @@ nft \
+ rule \
+ ip \
+ libvirt_network \
+-guest_input \
+-oif \
+-virbr0 \
+-counter \
+-reject
+-nft \
+--ae insert \
+-rule \
+-ip \
+-libvirt_network \
+ guest_cross \
+ iif \
+ virbr0 \
