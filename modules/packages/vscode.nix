@@ -29,7 +29,7 @@ inputs:
                   ++ (builtins.attrNames nix-vscode-extensions.vscode-marketplace-release)
               )));
             in with extensions;
-              (with github; [ copilot github-vscode-theme ])
+              (with github; [ copilot copilot-chat github-vscode-theme ])
               ++ (with intellsmi; [ comment-translate ])
               ++ (with ms-vscode; [ cmake-tools cpptools-extension-pack hexeditor remote-explorer ])
               ++ (with ms-vscode-remote; [ remote-ssh ])
