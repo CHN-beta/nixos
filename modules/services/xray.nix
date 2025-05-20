@@ -215,6 +215,7 @@ inputs:
             };
             restartTriggers = [ inputs.config.sops.templates."xray-client.json".file ];
           };
+          # TODO: use existing options
           v2ray-forwarder =
           {
             description = "v2ray-forwarder Daemon";

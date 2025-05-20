@@ -362,6 +362,7 @@ inputs:
             access_log syslog:server=unix:/dev/log transparent_proxy;
           }
         '';
+        # TODO: use existing options
         systemd.services.nginx-proxy =
           let
             ip = "${inputs.pkgs.iproute2}/bin/ip";

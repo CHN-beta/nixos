@@ -2,6 +2,7 @@ inputs:
 {
   config = inputs.lib.mkMerge
   [
+    # TODO: mount everything in /nix/remote
     # for cluster master, export NFS
     (inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null == "master")
       { nixos.services.nfs."/nix/persistent/home" = "192.168.178.0/24"; })

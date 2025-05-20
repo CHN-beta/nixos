@@ -204,6 +204,7 @@ inputs:
     };
     networking.firewall.allowedTCPPorts = builtins.map (vm: vm.network.vnc.port)
       (builtins.filter (vm: vm.network.vnc.openFirewall) (builtins.attrValues nixvirt.instance));
+    # TODO: use existing options
     systemd.services.nixvirt-forward =
       let
         nftRules = builtins.concatLists (builtins.concatLists (builtins.map
