@@ -18,9 +18,15 @@ inputs:
               (set:
               {
                 name = set;
-                value = vscode-extensions.${set} or {}
-                  // nix-vscode-extensions.vscode-marketplace.${set}
-                  // nix-vscode-extensions.vscode-marketplace-release.${set} or {};
+                value =
+                  # provided by nixpkgs
+                  vscode-extensions.${set} or {}
+                  # provided by nix-vscode-extensions, including pre-release versions, but prefer stable version
+                  // nix-vscode-extensions.vscode-marketplace.${set} or {}
+                  // nix-vscode-extensions.vscode-marketplace-release.${set} or {}
+                  # some versions are too high for the current vscode, use old version from here to override it
+                  // (nix-vscode-extensions.forVSCodeVersion inputs.pkgs.vscode.version)
+                    .vscode-marketplace-release.${set} or {};
               })
               (inputs.lib.unique
               (
@@ -29,7 +35,7 @@ inputs:
                   ++ (builtins.attrNames nix-vscode-extensions.vscode-marketplace-release)
               )));
             in with extensions;
-              (with github; [ copilot github-vscode-theme ])
+              (with github; [ copilot copilot-chat github-vscode-theme ])
               ++ (with intellsmi; [ comment-translate ])
               ++ (with ms-vscode; [ cmake-tools cpptools-extension-pack hexeditor remote-explorer ])
               ++ (with ms-vscode-remote; [ remote-ssh ])
