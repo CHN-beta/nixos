@@ -2,13 +2,12 @@ inputs:
 {
   config = inputs.lib.mkMerge
   [
-    # TODO: mount everything in /nix/remote
     # for cluster master, export NFS
     (inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null == "master")
-      { nixos.services.nfs."/nix/persistent/home" = "192.168.178.0/24"; })
+      { nixos.services.nfs."/" = "192.168.178.0/24"; })
     # for cluster worker, mount nfs, disable some home manager files
-    (inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null == "worker")
-      { nixos.system.fileSystems.mount.nfs."192.168.178.1:/nix/persistent/home" = "/remote/home"; })
+    (let inherit (inputs.config.nixos.model) cluster; in inputs.lib.mkIf (cluster.nodeType or null == "worker")
+      { nixos.system.fileSystems.mount.nfs."192.168.178.1:/" = "/nix/remote/${cluster.clusterName}"; })
     # 将一部分由 home-manager 生成软链接的文件改为直接挂载，以兼容集群的设置
     (let files = [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]; in
     {

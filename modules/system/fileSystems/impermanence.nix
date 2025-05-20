@@ -1,5 +1,18 @@
 inputs:
 {
+  options.nixos.system.fileSystems.impermanence = let inherit (inputs.lib) mkOption types; in
+  {
+    clusterPersistentDirectory = mkOption
+    {
+      type = types.str;
+      default =
+        let
+          inherit (inputs.config.nixos.model) cluster;
+          prefix = if cluster.nodeType or null == "worker" then "/nix/remote/${cluster.clusterName}" else "";
+        in "${prefix}/nix/persistent";
+      readOnly = true;
+    };
+  };
   config.environment.persistence = inputs.lib.mkMerge
   [
     # generic settings
@@ -35,7 +48,7 @@ inputs:
     # 对于桌面用途的 chn，不需要挂载
     # 对于其它情况，则挂载 /nix/persistent/home/user 到 /home/user
     {
-      "${if inputs.config.nixos.model.cluster.nodeType or null == "worker" then "/remote" else "/nix/persistent"}" =
+      ${inputs.config.nixos.system.fileSystems.impermanence.clusterPersistentDirectory} =
       {
         hideMounts = true;
         directories = builtins.map

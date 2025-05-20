@@ -19,7 +19,7 @@ inputs:
               "/nix/remote/jykang.xmuhpc" = "/data/gpfs01/jykang/.nix";
             };
             nfs."${inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.nas"}:/" =
-              { mountPoint = "/nix/nas"; hard = false; };
+              { mountPoint = "/nix/remote/nas"; hard = false; };
           };
           luks.auto =
           {
