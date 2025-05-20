@@ -1312,6 +1312,7 @@
         "ufo": "ufo",
         "v-sim": "v-sim",
         "vaspberry": "vaspberry",
+        "wannier-tools": "wannier-tools",
         "winapps": "winapps",
         "zpp-bits": "zpp-bits"
       }
@@ -1672,6 +1673,22 @@
       "original": {
         "owner": "Infant83",
         "repo": "VASPBERRY",
+        "type": "github"
+      }
+    },
+    "wannier-tools": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1747722126,
+        "narHash": "sha256-cat1Mjlp7euxt4zaNOsBOVVbMmb+e+4iHdDUeU7PdSw=",
+        "owner": "CHN-beta",
+        "repo": "wannier_tools",
+        "rev": "303cab6a49baf0783e77a6d78647123d43dd12e3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "wannier_tools",
         "type": "github"
       }
     },

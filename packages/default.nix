@@ -131,6 +131,7 @@ inputs: rec
   {
     stdenv = inputs.pkgs.callPackage ./oneapi/stdenv.nix { src = inputs.topInputs.self.src.oneapi; };
   };
+  wannier-tools = inputs.pkgs.callPackage ./wannier-tools.nix { src = inputs.topInputs.wannier-tools; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
