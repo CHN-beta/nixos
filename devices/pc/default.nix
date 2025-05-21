@@ -99,17 +99,6 @@ inputs:
           };
         };
         acme.cert."debug.mirism.one" = {};
-        frpClient =
-        {
-          enable = true;
-          serverName = "frp.chn.moe";
-          user = "pc";
-          stcpVisitor =
-          {
-            "yy.vnc".localPort = 6187;
-            "temp.ssh".localPort = 6188;
-          };
-        };
         nix-serve = {};
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
         beesd."/" = { hashTableSizeMB = 4 * 128; threads = 4; };
