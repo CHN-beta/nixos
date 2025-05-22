@@ -78,8 +78,7 @@ let
     cc = nvhpc;
     extraBuildCommands =
     ''
-      # provide libgcc_s.so but not libgomp.so
-      echo "-L${gcc.cc.libgcc}/lib" >> $out/nix-support/cc-ldflags
+      echo "-L${gcc.cc.libgcc.lib}/lib" >> $out/nix-support/cc-ldflags
 
       echo "-tp=${config.nvhpcArch}" >> $out/nix-support/cc-cflags-before
       echo "-gpu=${cudaCapability}" >> $out/nix-support/cc-cflags-before
