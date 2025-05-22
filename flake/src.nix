@@ -63,11 +63,7 @@
     finalImageName = "ghcr.io/huginn/huginn";
     finalImageTag = "latest";
   };
-  misskey =
-  {
-    "https://github.com/aiscript-dev/aiscript-languageserver/releases/download/0.1.6/aiscript-dev-aiscript-languageserver-0.1.6.tgz" = "0092d5r67bhf4xkvrdn4a2rm1drjzy7b5sw8mi7hp4pqvpc20ylr";
-    "https://github.com/misskey-dev/tabler-icons/archive/refs/tags/3.30.0-mi.1932+ab127beee.tar.gz" = "09aa34a02rdpcvrhl6xddzy173pg7pi9i551s692ggc3pq7fmdhw";
-  };
+  misskey = {};
   xmuvpn = pkgs.dockerTools.pullImage
   {
     imageName = "hagb/docker-easyconnect";
