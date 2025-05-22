@@ -45,8 +45,8 @@
     {
       patch = pkgs.fetchzip
       {
-        url = "http://theory.cm.utexas.edu/code/vtstcode-205.tgz";
-        sha256 = "1cdlflc68jvl3wq01m4jh9chkls73nfl8684ffgkgkhlnajwbp8v";
+        url = "http://theory.cm.utexas.edu/code/vtstcode-204.tgz";
+        sha256 = "00qpqiabl568fwqjnmwqwr0jwg7s56xd9lv9lw8q4qxqy19cpg62";
       };
       script = pkgs.fetchzip
       {
