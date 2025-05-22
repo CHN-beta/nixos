@@ -34,8 +34,7 @@ inputs:
       {
         enable = true;
         type = "fcitx5";
-        fcitx5.addons = builtins.map (p: inputs.pkgs."fcitx5-${p}")
-          [ "rime" "chinese-addons" "mozc" "nord" "material-color" ];
+        fcitx5.addons = builtins.map (p: inputs.pkgs."fcitx5-${p}") [ "chinese-addons" "mozc" "material-color" "gtk" ];
       };
       programs.dconf.enable = true;
       systemd.services.display-manager.after = [ "plymouth-quit.service" ];
