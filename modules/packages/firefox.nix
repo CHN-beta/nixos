@@ -33,7 +33,7 @@ inputs:
               extensions.packages = with inputs.pkgs.firefox-addons;
               [
                 tampermonkey bitwarden cookies-txt dualsub firefox-color i-dont-care-about-cookies
-                metamask pakkujs switchyomega rsshub-radar rsspreview tabliss tree-style-tab ublock-origin wallabagger
+                metamask pakkujs rsshub-radar rsspreview tabliss tree-style-tab ublock-origin wallabagger
                 wappalyzer grammarly plasma-integration zotero-connector pwas-for-firefox smartproxy kiss-translator
               ];
               search = { default = "google"; force = true; };
