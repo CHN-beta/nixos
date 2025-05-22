@@ -46,12 +46,12 @@
       patch = pkgs.fetchzip
       {
         url = "http://theory.cm.utexas.edu/code/vtstcode-205.tgz";
-        sha256 = "008c3q67v5f0ld1f8wdrz2z2kmlzicnxh2bm0akk7i8mnsph0lal";
+        sha256 = "1cdlflc68jvl3wq01m4jh9chkls73nfl8684ffgkgkhlnajwbp8v";
       };
       script = pkgs.fetchzip
       {
         url = "http://theory.cm.utexas.edu/code/vtstscripts.tgz";
-        sha256 = "0ixzaqwca5l9yvdq03czgqknszb769pxgc9zq1bgxsp921nvk8mq";
+        sha256 = "0wz9sw72w5gydvavm6sbcfssvvdiw8gh8hs0d0p0b23839dw4w6j";
       };
     };
   };
