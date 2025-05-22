@@ -105,8 +105,11 @@ inputs: rec
   {
     stdenv = inputs.pkgs.callPackage ./nvhpc/stdenv.nix { src = inputs.topInputs.self.src.nvhpc; };
     fmt = (inputs.pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; };
-    hdf5 = inputs.pkgs.hdf5.override
-      { inherit (final) stdenv; cppSupport = false; fortranSupport = true; enableShared = false; enableStatic = true; };
+    hdf5 = (inputs.pkgs.hdf5-fortran.override { inherit (final) stdenv; cppSupport = false; }).overrideAttrs (prev:
+    {
+      patches = prev.patches or [] ++ [ ./nvhpc/hdf5.patch ];
+      cmakeFlags = prev.cmakeFlags ++ [ "-DHDF5_ENABLE_NONSTANDARD_FEATURE_FLOAT16=OFF" ];
+    });
     mpi = inputs.pkgs.callPackage ./nvhpc/mpi.nix
       { inherit (final) stdenv; src = inputs.topInputs.self.src.nvhpc.mpi; };
   });
