@@ -31,6 +31,7 @@ let
       rm -rf $out/Linux_x86_64/${src.version}/cuda/${src.cudaVersion}/bin/cuda-gdb-python*-tui
       rm -rf $out/Linux_x86_64/${src.version}/profilers
       rm -rf $out/Linux_x86_64/${src.version}/comm_libs/${src.cudaVersion}/hpcx/hpcx-*/ompi/tests
+      rm $out/Linux_x86_64/${src.version}/compilers/bin/{ncu,nsys}-ui
 
       # fix /usr/lib/crt1.o impure path used in link
       cat >> $out/Linux_x86_64/${src.version}/compilers/bin/localrc << EOF
