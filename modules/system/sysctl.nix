@@ -12,7 +12,8 @@ inputs:
         "vm.oom_kill_allocating_task" = true;
         "vm.oom_dump_tasks" = false;
         "vm.overcommit_memory" = inputs.lib.mkDefault 1;
-        "kernel.sysrq" = 438;
+        # enable all sysrq
+        "kernel.sysrq" = 1;
         # set to larger value, otherwise the system will be very slow on low memory machines
         "vm.vfs_cache_pressure" = 100;
       };
