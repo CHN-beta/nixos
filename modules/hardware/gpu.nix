@@ -100,7 +100,7 @@ inputs:
       inputs.lib.mkIf (inputs.lib.strings.hasPrefix "amd" gpu.type) { hardware.amdgpu =
       {
         opencl.enable = true;
-        initrd.enable = true; # needed for waydroid
+        initrd.enable = true;
         legacySupport.enable = true;
         amdvlk = { enable = true; support32Bit.enable = true; supportExperimental.enable = true; };
       };}
