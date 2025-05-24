@@ -8,7 +8,6 @@ inputs:
       services =
       {
         desktopManager.plasma6.enable = true;
-        xserver.enable = true;
         greetd =
         {
           enable = true;
@@ -37,7 +36,6 @@ inputs:
         fcitx5.addons = builtins.map (p: inputs.pkgs."fcitx5-${p}") [ "chinese-addons" "mozc" "material-color" "gtk" ];
       };
       programs.dconf.enable = true;
-      systemd.services.display-manager.after = [ "plymouth-quit.service" ];
       nixos.user.sharedModules = [(hmInputs:
       {
         config =
@@ -45,7 +43,6 @@ inputs:
           gtk =
           {
             enable = true;
-            iconTheme.name = "klassy";
             gtk2 =
             {
               extraConfig = ''gtk-im-module="fcitx"'';
@@ -55,6 +52,7 @@ inputs:
             gtk4.extraConfig.gtk-im-module = "fcitx";
           };
           # somehow kde needs this
+          # TODO: debug
           home.file.".cache/thumbnails/.keep".text = "";
         };
       })];

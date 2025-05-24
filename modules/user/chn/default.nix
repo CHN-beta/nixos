@@ -57,6 +57,7 @@ inputs:
             )
           ];
         };
+        gtk.iconTheme.name = "klassy";
       };
     };
   };
