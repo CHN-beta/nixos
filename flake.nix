@@ -30,7 +30,6 @@
     gricad = { url = "github:Gricad/nur-packages"; flake = false; };
     catppuccin = { url = "github:catppuccin/nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     bscpkgs = { url = "github:CHN-beta/bscpkgs"; inputs.nixpkgs.follows = "nixpkgs"; };
-    winapps = { url = "github:winapps-org/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
     cachyos-lts.url = "github:drakon64/nixos-cachyos-kernel";
     nixvirt = { url = "github:CHN-beta/NixVirt"; inputs.nixpkgs.follows = "nixpkgs"; };
     shadowrz = { url = "github:ShadowRZ/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
