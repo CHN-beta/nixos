@@ -57,7 +57,6 @@ inputs:
             )
           ];
         };
-        pam.yubico.authorizedYubiKeys.ids = [ "cccccbgrhnub" ];
       };
     };
   };
