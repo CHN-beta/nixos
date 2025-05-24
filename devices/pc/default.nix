@@ -102,7 +102,6 @@ inputs:
         nix-serve = {};
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
         beesd."/" = { hashTableSizeMB = 4 * 128; threads = 4; };
-        gamemode = { enable = true; drmDevice = 0; };
         slurm =
         {
           enable = true;
