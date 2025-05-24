@@ -19,7 +19,6 @@ in platformConfig //
   {
     inherit allowInsecurePredicate;
     allowUnfree = true;
-    qchem-config = { optArch = nixpkgs.march; useCuda = nixpkgs.cuda != null; };
     android_sdk.accept_license = true;
   }
   // (inputs.lib.optionalAttrs (nixpkgs.march != null)
@@ -33,7 +32,6 @@ in platformConfig //
     { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/var"; }; });
   overlays =
   [
-    inputs.topInputs.qchem.overlays.default
     inputs.topInputs.nur-xddxdd.overlays.inSubTree
     inputs.topInputs.shadowrz.overlays.default
     inputs.topInputs.nix-vscode-extensions.overlays.default

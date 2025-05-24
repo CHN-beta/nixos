@@ -816,27 +816,6 @@
         "type": "github"
       }
     },
-    "qchem": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1747047619,
-        "narHash": "sha256-p0Keb6nAZf5zCG1lG/vQ0SYxycx2D7rMnKTEys71qAY=",
-        "owner": "Nix-QChem",
-        "repo": "NixOS-QChem",
-        "rev": "0fe242c917d6521887f7c99fef3f6f0cf910cd7a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Nix-QChem",
-        "ref": "master",
-        "repo": "NixOS-QChem",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "blog": "blog",
@@ -873,7 +852,6 @@
         "plasma-manager": "plasma-manager",
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
-        "qchem": "qchem",
         "rsshub": "rsshub",
         "rycee": "rycee",
         "shadowrz": "shadowrz",

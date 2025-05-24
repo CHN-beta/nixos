@@ -19,7 +19,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     impermanence.url = "github:CHN-beta/impermanence";
-    qchem = { url = "github:Nix-QChem/NixOS-QChem/master"; inputs.nixpkgs.follows = "nixpkgs"; };
     plasma-manager =
     {
       url = "github:pjones/plasma-manager";
