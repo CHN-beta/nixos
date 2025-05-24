@@ -41,7 +41,6 @@ in platformConfig //
     (final: prev:
     {
       inherit (inputs.topInputs.nix-vscode-extensions.overlays.default final prev) nix-vscode-extensions;
-      nur-linyinfeng = (inputs.topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
       firefox-addons = (import "${inputs.topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
       inherit (import inputs.topInputs.gricad { pkgs = final; }) intel-oneapi intel-oneapi-2022;
       linuxPackages_cachyos_lts =
