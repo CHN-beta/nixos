@@ -10,7 +10,6 @@ inputs: let inherit (inputs) topInputs; in
     topInputs.chaotic.nixosModules.default
     { config.chaotic.nyx.overlay.onTopOf = "user-pkgs"; }
     topInputs.catppuccin.nixosModules.catppuccin
-    topInputs.aagl.nixosModules.default
     topInputs.nixvirt.nixosModules.default
     (inputs:
     {

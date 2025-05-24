@@ -37,8 +37,6 @@
     catppuccin = { url = "github:catppuccin/nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     bscpkgs = { url = "github:CHN-beta/bscpkgs"; inputs.nixpkgs.follows = "nixpkgs"; };
     winapps = { url = "github:winapps-org/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
-    # TODO: switch to stable branch
-    aagl = { url = "github:ezKEa/aagl-gtk-on-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     cachyos-lts.url = "github:drakon64/nixos-cachyos-kernel";
     nixvirt = { url = "github:CHN-beta/NixVirt"; inputs.nixpkgs.follows = "nixpkgs"; };
     shadowrz = { url = "github:ShadowRZ/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
