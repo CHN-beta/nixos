@@ -33,8 +33,8 @@ inputs:
               extensions.packages = with inputs.pkgs.firefox-addons;
               [
                 tampermonkey bitwarden cookies-txt dualsub firefox-color i-dont-care-about-cookies
-                metamask pakkujs rsshub-radar rsspreview tabliss tree-style-tab ublock-origin wallabagger
-                wappalyzer grammarly plasma-integration zotero-connector pwas-for-firefox smartproxy kiss-translator
+                metamask pakkujs rsshub-radar rsspreview tabliss tree-style-tab ublock-origin
+                wappalyzer grammarly plasma-integration zotero-connector smartproxy kiss-translator
               ];
               search = { default = "google"; force = true; };
               userChrome = builtins.readFile "${inputs.topInputs.lepton}/userChrome.css";
