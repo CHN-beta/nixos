@@ -94,7 +94,6 @@ inputs: rec
     stdenv = inputs.pkgs.clang18Stdenv;
   };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
-  winjob = inputs.pkgs.callPackage ./winjob { stdenv = inputs.pkgs.gcc14Stdenv; };
   sockpp = inputs.pkgs.callPackage ./sockpp.nix { src = inputs.topInputs.sockpp; };
   py4vasp = inputs.pkgs.python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; };
   pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.topInputs.pocketfft; };
