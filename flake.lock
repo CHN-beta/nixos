@@ -1265,7 +1265,6 @@
         "rycee": "rycee",
         "shadowrz": "shadowrz",
         "slate": "slate",
-        "sockpp": "sockpp",
         "sops-nix": "sops-nix",
         "spectroscopy": "spectroscopy",
         "sqlite-orm": "sqlite-orm",
@@ -1360,22 +1359,6 @@
       "original": {
         "owner": "TheBigWazz",
         "repo": "Slate",
-        "type": "github"
-      }
-    },
-    "sockpp": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1743368430,
-        "narHash": "sha256-Og6rlIEFDaJNQ7QbDBym8VTSTDEmAMhvZeshrFiP12Y=",
-        "owner": "fpagliughi",
-        "repo": "sockpp",
-        "rev": "afdeacba9448c7a77194eed6ab8e1c0b1653c79a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "fpagliughi",
-        "repo": "sockpp",
         "type": "github"
       }
     },

@@ -58,7 +58,6 @@
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
     openxlsx = { url = "github:troldal/OpenXLSX"; flake = false; };
     sqlite-orm = { url = "github:fnc12/sqlite_orm"; flake = false; };
-    sockpp = { url = "github:fpagliughi/sockpp"; flake = false; };
     nc4nix = { url = "github:helsinki-systems/nc4nix"; flake = false; };
     hextra = { url = "github:imfing/hextra"; flake = false; };
     nu-scripts = { url = "github:nushell/nu_scripts"; flake = false; };
