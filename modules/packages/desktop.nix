@@ -43,6 +43,8 @@ inputs:
           fluent-reader newsflash follow
           # nix tools
           nixpkgs-fmt nixd nix-serve nix-prefetch-github prefetch-npm-deps nix-prefetch-docker
+          # required by vscode nix tools
+          nil
           # instant messager
           element-desktop telegram-desktop discord zoom-us slack nheko
           # browser
