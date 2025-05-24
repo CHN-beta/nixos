@@ -3,7 +3,6 @@ inputs:
   options.nixos.system.initrd = let inherit (inputs.lib) mkOption types; in
   {
     sshd = mkOption { type = types.nullOr (types.submodule {}); default = null; };
-    unl0kr = mkOption { type = types.nullOr (types.submodule {}); default = null; };
   };
   config = let inherit (inputs.config.nixos.system) initrd; in inputs.lib.mkMerge
   [
@@ -34,6 +33,5 @@ inputs:
         };
       }
     )
-    (inputs.lib.mkIf (initrd.unl0kr != null) { boot.initrd.unl0kr.enable = true; })
   ];
 }
