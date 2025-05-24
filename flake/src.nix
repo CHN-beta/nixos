@@ -64,14 +64,6 @@
     finalImageTag = "latest";
   };
   misskey = {};
-  xmuvpn = pkgs.dockerTools.pullImage
-  {
-    imageName = "hagb/docker-easyconnect";
-    imageDigest = "sha256:1c3a86e41c1d2425a4fd555d279deaec6ff1e3c2287853eb16d23c9cb6dc3409";
-    sha256 = "1jpk2y46lnk0mi6ir7hdx0p6378p0v6qjbh6jm9a4cv5abw0mb2k";
-    finalImageName = "hagb/docker-easyconnec";
-    finalImageTag = "7.6.7";
-  };
   vesta =
   {
     version = "3.90.5a";
