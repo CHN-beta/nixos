@@ -24,7 +24,7 @@ inputs:
         # compress
         pigz upx unzip zip lzip p7zip rar
         # file system management
-        sshfs e2fsprogs duperemove compsize exfatprogs
+        sshfs e2fsprogs compsize exfatprogs
         # disk management
         smartmontools hdparm gptfdisk megacli
         # encryption and authentication
@@ -39,7 +39,7 @@ inputs:
         # stupid things
         toilet lolcat localPackages.stickerpicker graph-easy
         # office
-        pdfgrep ffmpeg-full hdf5 # todo-txt-cli
+        pdfgrep ffmpeg-full hdf5
       ]
         ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
       _pythonPackages = [(pythonPackages: with pythonPackages;
