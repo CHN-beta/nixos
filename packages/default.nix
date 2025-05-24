@@ -96,7 +96,6 @@ inputs: rec
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
   py4vasp = inputs.pkgs.python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; };
   pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.topInputs.pocketfft; };
-  mirism = inputs.pkgs.callPackage ./mirism { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   vaspberry = inputs.pkgs.callPackage ./vaspberry.nix { src = inputs.topInputs.vaspberry; };
   nvhpcPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
   {
