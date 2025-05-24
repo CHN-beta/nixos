@@ -124,7 +124,6 @@ inputs:
         docker = {};
         ananicy = {};
         keyd = {};
-        lumericalLicenseManager = {};
         searx = {};
         kvm = {};
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
