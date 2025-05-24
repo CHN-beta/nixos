@@ -282,22 +282,6 @@
         "type": "github"
       }
     },
-    "gricad": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1720179285,
-        "narHash": "sha256-nJ+FKTCJz0FIWcE9S2covKGfj4SgZOjgfxcAGBZ8Kqs=",
-        "owner": "Gricad",
-        "repo": "nur-packages",
-        "rev": "1605d8b20651a0a42152347e9e04096e567cd359",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Gricad",
-        "repo": "nur-packages",
-        "type": "github"
-      }
-    },
     "hextra": {
       "flake": false,
       "locked": {
@@ -884,7 +868,6 @@
         "cppcoro": "cppcoro",
         "date": "date",
         "fancy-motd": "fancy-motd",
-        "gricad": "gricad",
         "hextra": "hextra",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
