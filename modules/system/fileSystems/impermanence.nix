@@ -33,7 +33,7 @@ inputs:
       "/nix/rootfs/current" =
       {
         hideMounts = true;
-        directories = [ { directory = "/var/lib/docker"; mode = "0710"; } "/var/lib/flatpak" ]
+        directories = [ { directory = "/var/lib/docker"; mode = "0710"; } ]
           ++ builtins.map (f: "/var/lib/systemd/${f}") [ "linger" "coredump" "backlight" ];
       };
       "/nix/nodatacow" =
