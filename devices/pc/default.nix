@@ -131,6 +131,7 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
       packages = { android-studio = {}; mathematica = {}; };
+      user.users = [ "chn" "test" ];
     };
     boot.loader.grub =
     {
