@@ -63,8 +63,6 @@ in platformConfig //
           patches = prev.patches or [] ++ [ ./root.patch ];
           cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ];
         });
-        kdePackages = prev.kdePackages.overrideScope (final: prev:
-          { kwin = prev.kwin.overrideAttrs (prev: { src = "${inputs.topInputs.kwin}"; }); });
       }
       // (
         let

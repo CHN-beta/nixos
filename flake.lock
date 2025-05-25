@@ -314,23 +314,6 @@
         "type": "github"
       }
     },
-    "kwin": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1748021731,
-        "narHash": "sha256-RPcmUDRVEPg2zNTHmATMsfY4V+E3HTUmBhESBRbqEJ8=",
-        "ref": "Plasma/6.3",
-        "rev": "cc5d125619bebfa93eb956f2020a014103caab3a",
-        "revCount": 28375,
-        "type": "git",
-        "url": "https://invent.kde.org/plasma/kwin.git"
-      },
-      "original": {
-        "ref": "Plasma/6.3",
-        "type": "git",
-        "url": "https://invent.kde.org/plasma/kwin.git"
-      }
-    },
     "lepton": {
       "flake": false,
       "locked": {
@@ -846,7 +829,6 @@
         "hextra": "hextra",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
-        "kwin": "kwin",
         "lepton": "lepton",
         "mac-style": "mac-style",
         "matplotplusplus": "matplotplusplus",
