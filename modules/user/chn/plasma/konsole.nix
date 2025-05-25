@@ -64,7 +64,7 @@ inputs:
         };
       };
       home.file.".local/share/konsole/Breeze.colorscheme".text = builtins.replaceStrings
-        [ "Opacity=1" ] [ "Opacity=0.9\nBlur=true" ]
+        [ "Opacity=1" ] [ "Opacity=0.8\nBlur=true" ]
         (builtins.readFile "${inputs.pkgs.libsForQt5.konsole}/share/konsole/Breeze.colorscheme");
     };
     environment.persistence."/nix/rootfs/current".users.chn.directories =
