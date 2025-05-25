@@ -60,7 +60,7 @@ inputs:
           octaveFull ovito localPackages.vesta localPackages.v-sim mpi geogebra6 localPackages.ufo
           inputs.pkgs.pkgs-2311.hdfview qalculate-qt
           # virtualization
-          virt-viewer bottles wineWowPackages.stagingFull
+          bottles wineWowPackages.stagingFull
           # media
           nur-xddxdd.svp
           # for kdenlive auto subtitle
