@@ -1,38 +1,41 @@
 {
   src, stdenv, autoPatchelfHook, wrapCCWith, config, overrideCC, makeSetupHook, writeScript, overrideInStdenv,
   runCommand,
-  gcc, glibc, libz, zstd, libxml2, flock, numactl, ncurses, openssl, gmp, kdePackages,
-  libxcrypt-legacy, libfabric, rdma-core, xorg, bash
+  gcc, glibc, zlib, zstd, libxml2, flock, numactl, ncurses, openssl, gmp, kdePackages,
+  libxcrypt-legacy, libfabric, rdma-core, xorg, bash, p7zip, hwloc
 }:
 let
   oneapi = stdenv.mkDerivation
   {
     pname = "oneapi";
     inherit (src) src version;
-    buildInputs = [];
-    nativeBuildInputs = [ ncurses stdenv.cc.cc autoPatchelfHook ];
+    buildInputs = [ zlib stdenv.cc.cc hwloc ];
+    nativeBuildInputs = [ autoPatchelfHook p7zip ];
     langFortran = true;
+    dontUnpack = true;
     dontConfigure = true;
     dontBuild = true;
-    unpackPhase =
-    ''
-      mkdir installer
-      sh ${src.src} --extract-only --extract-folder installer
-      addAutoPatchelfSearchPath installer/intel*/lib
-      autoPatchelf installer/intel*/bootstrapper
-    '';
     installPhase =
+      let installComponents = builtins.concatStringsSep "\n" (builtins.map
+        (component:
+        ''
+          pushd ${component}
+            7za x cupPayload.cup
+            cp -r _installdir/* ../../../../install
+          popd
+        '')
+        src.components);
+      in
     ''
-      mkdir -p $out/install
-      export HOME=$out
-      echo "will install to $out/install"
-      sh installer/intel*/install.sh --silent --eula accept --install-dir $out/install
-      mv $out/install/compiler/${src.version}/{bin,include,lib,share,opt/compiler/include} $out
-      mv $out/bin/compiler/* $out/bin
-      rm -rf $out/install
-      # addAutoPatchelfSearchPath
+      mkdir -p installer install $out
+      sh ${src.src} --extract-only --extract-folder installer
+      pushd installer/intel-oneapi-hpc-toolkit-${src.fullVersion}_offline/packages
+        ${installComponents}
+      popd
+      cp -r install/compiler/${src.version}/{bin,include,lib,share} $out
+      cp -r install/{mpi,tbb,umf}/*/lib $out
     '';
-    autoPatchelfIgnoreMissingDeps = [];
+    autoPatchelfIgnoreMissingDeps = [ "libze_loader.so.1" "libcuda.so.1" "libhwloc.so.5" ];
     passthru = { inherit src; };
   };
   wrapper = (wrapCCWith

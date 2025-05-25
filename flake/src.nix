@@ -114,12 +114,23 @@
   mathematica = pkgs.mathematica.src;
   oneapi =
   {
-      src = pkgs.fetchurl
+    src = pkgs.fetchurl
     {
       url = "https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2cf9c083-82b5-4a8f-a515-c599b09dcefc/"
         + "intel-oneapi-hpc-toolkit-2025.1.1.40_offline.sh";
       sha256 = "1qjy9dsnskwqsk66fm99b3cch1wp3rl9dx7y884p3x5kwiqdma2x";
     };
     version = "2025.1";
+    fullVersion = "2025.1.1.40";
+    components =
+    [
+      "intel.oneapi.lin.dpcpp-cpp-common,v=2025.1.1+10"
+      "intel.oneapi.lin.dpcpp-cpp-common.runtime,v=2025.1.1+10"
+      "intel.oneapi.lin.ifort-compiler,v=2025.1.1+10"
+      "intel.oneapi.lin.compilers-common.runtime,v=2025.1.1+10"
+      "intel.oneapi.lin.mpi.runtime,v=2021.15.0+493"
+      "intel.oneapi.lin.umf,v=0.10.0+355"
+      "intel.oneapi.lin.tbb.runtime,v=2022.1.0+425"
+    ];
   };
 }
