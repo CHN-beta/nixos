@@ -131,6 +131,7 @@
       "intel.oneapi.lin.mpi.runtime,v=2021.15.0+493"
       "intel.oneapi.lin.umf,v=0.10.0+355"
       "intel.oneapi.lin.tbb.runtime,v=2022.1.0+425"
+      "intel.oneapi.lin.compilers-common,v=2025.1.1+10"
     ];
   };
 }

@@ -1,6 +1,6 @@
 {
   src, stdenv, autoPatchelfHook, wrapCCWith, config, overrideCC, makeSetupHook, writeScript, overrideInStdenv,
-  runCommand,
+  runCommand, lib, gccFull,
   gcc, glibc, zlib, zstd, libxml2, flock, numactl, ncurses, openssl, gmp, kdePackages,
   libxcrypt-legacy, libfabric, rdma-core, xorg, bash, p7zip, hwloc
 }:
@@ -34,6 +34,14 @@ let
       popd
       cp -r install/compiler/${src.version}/{bin,include,lib,share} $out
       cp -r install/{mpi,tbb,umf}/*/lib $out
+
+      # mv $out/bin/compiler/* $out/bin
+      # rm -r $out/bin/compiler
+      # mv $out/bin/clang%2B%2B $out/bin/clang++
+      mv $out/bin/compiler/clang%2B%2B $out/bin/compiler/clang++
+
+      # mv $out/lib/crt/* $out/lib
+      # rm -r $out/lib/crt
     '';
     autoPatchelfIgnoreMissingDeps = [ "libze_loader.so.1" "libcuda.so.1" "libhwloc.so.5" ];
     passthru = { inherit src; };
@@ -42,32 +50,38 @@ let
   {
     cc = oneapi;
     extraBuildCommands =
-    ''
-      # provide libgcc_s.so but not libgomp.so
-      echo "-L${gcc.cc.libgcc}/lib" >> $out/nix-support/cc-ldflags
+      let
+        gcc = stdenv.cc.cc;
+        gccVersion = builtins.concatStringsSep "." (lib.take 3 (builtins.splitVersion gcc.version));
+      in
+      ''
+        echo "-isystem ${oneapi}/include" >> $out/nix-support/cc-cflags
+        echo "-isystem ${oneapi}/include/intel64" >> $out/nix-support/cc-cflags
+        echo "-isystem ${oneapi}/include/icx" >> $out/nix-support/cc-cflags
+        echo "-isystem ${gcc}/include/c++/${gcc.version}/${stdenv.targetPlatform.config}" >> $out/nix-support/cc-cflags
+        echo "-isystem ${gcc}/include/c++/${gcc.version}" >> $out/nix-support/cc-cflags
+        echo "--gcc-toolchain=${stdenv.cc}/lib/gcc/x86_64-unknown-linux-gnu/14.2.1" >> $out/nix-support/cc-cflags
+        echo "-march=${config.oneapiArch}" >> $out/nix-support/cc-cflags-before
 
-      echo "-tp=${config.nvhpcArch}" >> $out/nix-support/cc-cflags-before
+        echo "-L${gcc.lib}/lib" >> $out/nix-support/cc-ldflags
+        echo "-L${gcc}/lib/gcc/${stdenv.targetPlatform.config}/${gccVersion}" >> $out/nix-support/cc-ldflags
+        echo "-L${oneapi}/lib" >> $out/nix-support/cc-ldflags
+        echo "-Lsome_path_does_not_exist" >> $out/nix-support/cc-ldflags
 
-      echo "-noswitcherror" >> $out/nix-support/cc-cflags
+        # echo 'export "PATH=${gcc}/bin:$PATH"' >> $out/nix-support/cc-wrapper-hook
 
-      # print verbose output for debugging
-      # echo "-v" >> $out/nix-support/cc-cflags
+        echo "" > $out/nix-support/add-hardening.sh
 
-      # echo "" > $out/nix-support/add-hardening.sh
+        echo "-v" >> $out/nix-support/cc-cflags
 
-      # substitute -idirafter in libc-cflags
-      # somehow -isystem does not work
-      sed -i 's/-idirafter/-I/g' $out/nix-support/libc-cflags
-
-      for i in nvc nvc++ nvcc nvfortran; do
-        wrap $i $wrapper ${oneapi}/bin/$i
-      done
-    '';
+        for i in icx icpx ifx; do
+          wrap $i $wrapper ${oneapi}/bin/$i
+        done
+      '';
   }).overrideAttrs (prev: { installPhase = prev.installPhase +
   ''
-    export named_cc=nvc
-    export named_cxx=nvc++
-    export named_fc=nvfortran
+    export named_cc=icx
+    export named_cxx=icpx
+    export named_fc=ifx
   '';});
-# in overrideInStdenv (overrideCC stdenv wrapper) [ ]
-in oneapi
+in overrideInStdenv (overrideCC stdenv wrapper) [ ]

@@ -125,10 +125,11 @@ inputs: rec
   blog = inputs.pkgs.callPackage inputs.topInputs.blog { inherit (inputs.topInputs) hextra; };
   phono3py = inputs.pkgs.python3Packages.callPackage ./phono3py.nix { src = inputs.topInputs.phono3py; };
   vm = inputs.pkgs.callPackage ./vm { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
-  oneapiPackages =
+  oneapiPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
   {
-    stdenv = inputs.pkgs.callPackage ./oneapi/stdenv.nix { src = inputs.topInputs.self.src.oneapi; };
-  };
+    stdenv = inputs.pkgs.callPackage ./oneapi/stdenv.nix { src = inputs.topInputs.self.src.oneapi; inherit gccFull; };
+    fmt = (inputs.pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; env.VERBOSE = "1"; };
+  });
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
