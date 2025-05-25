@@ -32,6 +32,7 @@ in platformConfig //
     { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/var"; }; });
   overlays =
   [
+    inputs.topInputs.bscpkgs.overlays.default
     inputs.topInputs.nur-xddxdd.overlays.inSubTree
     inputs.topInputs.shadowrz.overlays.default
     inputs.topInputs.nix-vscode-extensions.overlays.default

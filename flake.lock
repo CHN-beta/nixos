@@ -34,6 +34,26 @@
         "type": "github"
       }
     },
+    "bscpkgs": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1746921594,
+        "narHash": "sha256-rTmarmlP4SplEBAD+RM0kD5cB1F5g93H8ooSodxl8XE=",
+        "owner": "CHN-beta",
+        "repo": "bscpkgs",
+        "rev": "01b2b0303435eb9a7ea33c1688feb4d70b9c88f9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "bscpkgs",
+        "type": "github"
+      }
+    },
     "cachyos-lts": {
       "locked": {
         "lastModified": 1743535541,
@@ -820,6 +840,7 @@
       "inputs": {
         "blog": "blog",
         "blurred-wallpaper": "blurred-wallpaper",
+        "bscpkgs": "bscpkgs",
         "cachyos-lts": "cachyos-lts",
         "catppuccin": "catppuccin",
         "concurrencpp": "concurrencpp",
