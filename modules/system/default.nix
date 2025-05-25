@@ -5,7 +5,6 @@ inputs:
   {
     services =
     {
-      dbus.implementation = "broker";
       fstrim.enable = true;
       acpid.enable = true;
       # TODO: set ipfs as separate service
