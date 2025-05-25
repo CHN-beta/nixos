@@ -37,6 +37,7 @@ inputs:
               padding.value = 4;
               wobblywindowsEnabled.value = true;
             };
+            "org.kde.kdecoration2".theme.value = "Klassy";
           };
         };
       };
