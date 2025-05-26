@@ -90,7 +90,6 @@ inputs:
         freshrss.enable = true;
         send = {};
         huginn = {};
-        fz-new-order = {};
         httpapi.enable = true;
         gitea = { enable = true; ssh = {}; };
         grafana = {};
