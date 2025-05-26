@@ -15,9 +15,6 @@ inputs:
     {
       supportedFilesystems = [ "ntfs" "nfs" "nfsv4" ];
       # consoleLogLevel = 7;
-      kernelParams = inputs.lib.mkIf
-        (builtins.elem inputs.config.nixos.system.grub.installDevice [ "efi" "efiRemovable" ])
-        [ "plymouth.use-simpledrm" ];
     };
     hardware = { enableAllFirmware = true; bluetooth.enable = true; sensor.iio.enable = true; };
     environment =
