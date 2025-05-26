@@ -36,7 +36,6 @@ inputs:
         };
         beesd."/".hashTableSizeMB = 64;
         sshd = {};
-        kvm = {};
       };
       bugs = [ "xmunet" ];
     };
