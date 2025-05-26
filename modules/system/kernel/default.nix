@@ -37,6 +37,8 @@ inputs:
           "r8712u"
           # network for srv3
           "igb"
+          # touchscreen for one
+          "pinctrl-tigerlake"
         ]
           ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ]);
         extraModulePackages = with inputs.config.boot.kernelPackages; [ v4l2loopback zenpower ];
