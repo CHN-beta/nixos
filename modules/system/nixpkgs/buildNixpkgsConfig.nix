@@ -13,23 +13,24 @@ let
       { cudaForwardCompat = nixpkgs.cuda.forwardCompat; })
   );
   allowInsecurePredicate = p: inputs.lib.warn "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
+  config = cudaConfig
+    // {
+      inherit allowInsecurePredicate;
+      allowUnfree = true;
+      android_sdk.accept_license = true;
+    }
+    // (inputs.lib.optionalAttrs (nixpkgs.march != null)
+    {
+      # TODO: test znver3 do use AVX
+      oneapiArch = let match = {}; in match.${nixpkgs.march} or nixpkgs.march;
+      nvhpcArch = nixpkgs.march;
+      contentAddressedByDefault = true;
+    })
+    // (inputs.lib.optionalAttrs (nixpkgs.nixRoot != null)
+      { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/var"; }; });
 in platformConfig //
 {
-  config = cudaConfig //
-  {
-    inherit allowInsecurePredicate;
-    allowUnfree = true;
-    android_sdk.accept_license = true;
-  }
-  // (inputs.lib.optionalAttrs (nixpkgs.march != null)
-  {
-    # TODO: test znver3 do use AVX
-    oneapiArch = let match = {}; in match.${nixpkgs.march} or nixpkgs.march;
-    nvhpcArch = nixpkgs.march;
-    # contentAddressedByDefault = true;
-  })
-  // (inputs.lib.optionalAttrs (nixpkgs.nixRoot != null)
-    { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/var"; }; });
+  inherit config;
   overlays =
   [
     inputs.topInputs.bscpkgs.overlays.default
@@ -115,12 +116,7 @@ in platformConfig //
           packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}
           {
             localSystem = platformConfig.hostPlatform or { inherit (platformConfig) system; };
-            config = cudaConfig //
-            {
-              allowUnfree = true;
-              # contentAddressedByDefault = true;
-              inherit allowInsecurePredicate;
-            };
+            inherit config;
             overlays = [(source.${name}.overlay or (_: _: {}))];
           };
         in builtins.listToAttrs (builtins.map
