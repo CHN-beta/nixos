@@ -64,6 +64,7 @@ in platformConfig //
           patches = prev.patches or [] ++ [ ./root.patch ];
           cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ];
         });
+        inherit (final.pkgs-2411) iio-sensor-proxy;
       }
       // (
         let
@@ -126,7 +127,6 @@ in platformConfig //
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
       )
-      # TODO: bring patch to upstream
       // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
         { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
       // (inputs.lib.optionalAttrs (nixpkgs.march != null)
