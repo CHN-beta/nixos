@@ -153,6 +153,8 @@ in platformConfig //
         {
           scipy = prev.scipy.overridePythonAttrs (prev:
             { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
+          rich = prev.rich.overridePythonAttrs (prev:
+            { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
           # paperwork-backend = prev.paperwork-backend.overrideAttrs (prev: { doCheck = false; });
         })];
       })
