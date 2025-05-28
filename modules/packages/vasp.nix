@@ -1,13 +1,7 @@
 inputs:
 {
   options.nixos.packages.vasp = let inherit (inputs.lib) mkOption types; in mkOption
-  {
-    type = types.nullOr (types.submodule {});
-    # default = if builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ] then {} else null;
-    # TODO: fix vasp
-    default = null;
-  };
-  # TODO: add more options to correctly configure VASP
+    { type = types.nullOr (types.submodule {}); default = null; };
   config = let inherit (inputs.config.nixos.packages) vasp; in inputs.lib.mkIf (vasp != null)
   {
     nixos.packages.packages = with inputs.pkgs;

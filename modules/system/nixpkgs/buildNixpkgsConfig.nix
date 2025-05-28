@@ -13,26 +13,26 @@ let
       { cudaForwardCompat = nixpkgs.cuda.forwardCompat; })
   );
   allowInsecurePredicate = p: inputs.lib.warn "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
+  config = cudaConfig
+    // {
+      inherit allowInsecurePredicate;
+      allowUnfree = true;
+      android_sdk.accept_license = true;
+    }
+    // (inputs.lib.optionalAttrs (nixpkgs.march != null)
+    {
+      # TODO: test znver3 do use AVX
+      oneapiArch = let match = {}; in match.${nixpkgs.march} or nixpkgs.march;
+      nvhpcArch = nixpkgs.march;
+      contentAddressedByDefault = true;
+    })
+    // (inputs.lib.optionalAttrs (nixpkgs.nixRoot != null)
+      { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/var"; }; });
 in platformConfig //
 {
-  config = cudaConfig //
-  {
-    inherit allowInsecurePredicate;
-    allowUnfree = true;
-    android_sdk.accept_license = true;
-  }
-  // (inputs.lib.optionalAttrs (nixpkgs.march != null)
-  {
-    # TODO: test znver3 do use AVX
-    oneapiArch = let match = {}; in match.${nixpkgs.march} or nixpkgs.march;
-    nvhpcArch = nixpkgs.march;
-    # contentAddressedByDefault = true;
-  })
-  // (inputs.lib.optionalAttrs (nixpkgs.nixRoot != null)
-    { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/var"; }; });
+  inherit config;
   overlays =
   [
-    inputs.topInputs.bscpkgs.overlays.default
     inputs.topInputs.nur-xddxdd.overlays.inSubTree
     inputs.topInputs.shadowrz.overlays.default
     inputs.topInputs.nix-vscode-extensions.overlays.default
@@ -59,7 +59,7 @@ in platformConfig //
         };
         libvirt = (prev.libvirt.override { iptables = final.nftables; }).overrideAttrs
           (prev: { patches = prev.patches or [] ++ [ ./libvirt.patch ]; });
-        root = prev.root.overrideAttrs (prev:
+        root = (prev.root.override { stdenv = final.gcc13Stdenv; }).overrideAttrs (prev:
         {
           patches = prev.patches or [] ++ [ ./root.patch ];
           cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ];
@@ -72,7 +72,7 @@ in platformConfig //
           {
             pkgs-2305 = "nixpkgs-2305";
             pkgs-2311 = "nixpkgs-2311";
-            pkgs-2411 = "nixpkgs-2411";
+            pkgs-2411 = { source = "nixpkgs-2411"; overlay = inputs.topInputs.bscpkgs.overlays.default; };
             pkgs-unstable =
             {
               source = "nixpkgs-unstable";
@@ -116,12 +116,7 @@ in platformConfig //
           packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}
           {
             localSystem = platformConfig.hostPlatform or { inherit (platformConfig) system; };
-            config = cudaConfig //
-            {
-              allowUnfree = true;
-              # contentAddressedByDefault = true;
-              inherit allowInsecurePredicate;
-            };
+            inherit config;
             overlays = [(source.${name}.overlay or (_: _: {}))];
           };
         in builtins.listToAttrs (builtins.map
@@ -157,8 +152,11 @@ in platformConfig //
         {
           scipy = prev.scipy.overridePythonAttrs (prev:
             { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
+          rich = prev.rich.overridePythonAttrs (prev:
+            { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
           # paperwork-backend = prev.paperwork-backend.overrideAttrs (prev: { doCheck = false; });
         })];
+        inherit (final.pkgs-2411) intelPackages_2023;
       })
       # // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
       #   { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
