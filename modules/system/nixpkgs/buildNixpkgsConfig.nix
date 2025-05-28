@@ -33,7 +33,6 @@ in platformConfig //
   inherit config;
   overlays =
   [
-    inputs.topInputs.bscpkgs.overlays.default
     inputs.topInputs.nur-xddxdd.overlays.inSubTree
     inputs.topInputs.shadowrz.overlays.default
     inputs.topInputs.nix-vscode-extensions.overlays.default
@@ -72,7 +71,7 @@ in platformConfig //
           {
             pkgs-2305 = "nixpkgs-2305";
             pkgs-2311 = "nixpkgs-2311";
-            pkgs-2411 = "nixpkgs-2411";
+            pkgs-2411 = { source = "nixpkgs-2411"; overlay = inputs.topInputs.bscpkgs.overlays.default; };
             pkgs-unstable =
             {
               source = "nixpkgs-unstable";
@@ -157,6 +156,7 @@ in platformConfig //
             { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
           # paperwork-backend = prev.paperwork-backend.overrideAttrs (prev: { doCheck = false; });
         })];
+        inherit (final.pkgs-2411) intelPackages_2023;
       })
       # // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
       #   { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
