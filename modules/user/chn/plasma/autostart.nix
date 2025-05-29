@@ -11,16 +11,6 @@ inputs:
             fileName = "nheko.desktop";
             path = "${inputs.pkgs.nheko}/share/applications/${fileName}";
           };
-          kclockd = rec
-          {
-            fileName = "org.kde.kclockd-autostart.desktop";
-            path = "${inputs.pkgs.kdePackages.kdeGear.kclock}/etc/xdg/autostart/${fileName}";
-          };
-          yakuake = rec
-          {
-            fileName = "org.kde.yakuake.desktop";
-            path = "${inputs.pkgs.kdePackages.yakuake}/share/applications/${fileName}";
-          };
           telegram = rec
           {
             fileName = "org.telegram.desktop.desktop";
@@ -55,8 +45,8 @@ inputs:
         };
         devices =
         {
-          pc = [ "nheko" "kclockd" "yakuake" "telegram" "element" "kmail" "discord" "crow-translate" ];
-          one = [ "kclockd" "yakuake" "telegram" "element" "kmail" "crow-translate" ];
+          pc = [ "nheko" "telegram" "element" "kmail" "discord" "crow-translate" ];
+          one = [ "telegram" "element" "kmail" "crow-translate" ];
         };
       in builtins.listToAttrs (builtins.map
         (file:

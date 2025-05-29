@@ -35,7 +35,6 @@ inputs: rec
   cppcoro = inputs.pkgs.callPackage ./cppcoro { src = inputs.topInputs.cppcoro; };
   date = inputs.pkgs.callPackage ./date.nix { src = inputs.topInputs.date; };
   blurred-wallpaper = inputs.pkgs.callPackage ./blurred-wallpaper.nix { src = inputs.topInputs.blurred-wallpaper; };
-  slate = inputs.pkgs.callPackage ./slate.nix { src = inputs.topInputs.slate; };
   vasp =
   {
     gnu = inputs.pkgs.callPackage ./vasp/gnu

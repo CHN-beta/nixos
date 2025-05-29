@@ -30,7 +30,7 @@ inputs:
           mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins qcm waifu2x-converter-cpp blender paraview vlc
           obs-studio (inkscape-with-extensions.override { inkscapeExtensions = null; })
           # themes
-          klassy-qt6 localPackages.slate localPackages.blurred-wallpaper
+          klassy-qt6 localPackages.blurred-wallpaper
           # development
           adb-sync scrcpy dbeaver-bin aircrack-ng fprettify
           # password and key management

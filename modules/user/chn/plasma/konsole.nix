@@ -7,31 +7,11 @@ inputs:
       programs.plasma =
       {
         overrideConfig = true;
-        resetFiles = [ "konsolerc" "yakuakerc" ];
-        configFile =
+        resetFiles = [ "konsolerc" ];
+        configFile.konsolerc =
         {
-          yakuakerc =
-          {
-            Appearance =
-            {
-              HideSkinBorders.value = true;
-              Skin.value = "Slate";
-              Translucency.value = true;
-            };
-            "Desktop Entry".DefaultProfile.value = "plasma-manager.profile";
-            Dialogs.FirstRun.value = false;
-            Window =
-            {
-              KeepOpen.value = false;
-              KeepOpenAfterLastSessionCloses.value = true;
-              ShowSystrayIcon.value = false;
-            };
-          };
-          konsolerc =
-          {
-            "Desktop Entry".DefaultProfile.value = "plasma-manager.profile";
-            "MainWindow.Toolbar sessionToolbar".ToolButtonStyle.value = "IconOnly";
-          };
+          "Desktop Entry".DefaultProfile.value = "plasma-manager.profile";
+          "MainWindow.Toolbar sessionToolbar".ToolButtonStyle.value = "IconOnly";
         };
         dataFile."konsole/plasma-manager.profile" =
         {
@@ -67,7 +47,6 @@ inputs:
         [ "Opacity=1" ] [ "Opacity=0.8\nBlur=true" ]
         (builtins.readFile "${inputs.pkgs.libsForQt5.konsole}/share/konsole/Breeze.colorscheme");
     };
-    environment.persistence."/nix/rootfs/current".users.chn.directories =
-      [ ".local/share/konsole" ".local/share/yakuake" ];
+    environment.persistence."/nix/rootfs/current".users.chn.directories = [ ".local/share/konsole" ];
   };
 }

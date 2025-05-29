@@ -88,8 +88,6 @@ inputs:
         { "org.kde.krunner.desktop"._launch = "Alt+Space"; }
         # settings
         { "systemsettings.desktop"._launch = "Meta+I"; }
-        # yakuake
-        { yakuake.toggle-window-state = "Meta+Space"; }
         # virt-manager
         { "virt-manager.desktop"._launch = "Meta+V"; }
         # system monitor

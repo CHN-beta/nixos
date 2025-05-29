@@ -876,7 +876,6 @@
         "rsshub": "rsshub",
         "rycee": "rycee",
         "shadowrz": "shadowrz",
-        "slate": "slate",
         "sops-nix": "sops-nix",
         "sqlite-orm": "sqlite-orm",
         "stickerpicker": "stickerpicker",
@@ -936,22 +935,6 @@
       "original": {
         "owner": "ShadowRZ",
         "repo": "nur-packages",
-        "type": "github"
-      }
-    },
-    "slate": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1626631298,
-        "narHash": "sha256-3tbB16sWVUqiHAfeFc0FnFb0Cf6ZFxYWsYAyexeZVxk=",
-        "owner": "TheBigWazz",
-        "repo": "Slate",
-        "rev": "ff21b49c6e49b5a9f89497e4fea49a5a0c39bd6b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "TheBigWazz",
-        "repo": "Slate",
         "type": "github"
       }
     },

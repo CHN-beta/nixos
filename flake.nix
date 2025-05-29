@@ -42,7 +42,6 @@
     v-sim = { url = "gitlab:l_sim/v_sim/master"; flake = false; };
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
     blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
-    slate = { url = "github:TheBigWazz/Slate"; flake = false; };
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
     openxlsx = { url = "github:troldal/OpenXLSX"; flake = false; };
