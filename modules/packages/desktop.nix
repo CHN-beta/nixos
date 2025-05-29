@@ -15,8 +15,7 @@ inputs:
         [
           # system management
           # TODO: module should add yubikey-touch-detector into path
-          gparted yubikey-touch-detector btrfs-assistant
-          kdePackages.qtstyleplugin-kvantum cpu-x wl-mirror xpra
+          gparted yubikey-touch-detector btrfs-assistant kdePackages.qtstyleplugin-kvantum cpu-x wl-mirror xpra
           (
             writeShellScriptBin "xclip"
             ''
@@ -25,17 +24,18 @@ inputs:
             ''
           )
           # networking
-          remmina putty krdc
+          remmina putty kdePackages.krdc
           # media
           mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins qcm waifu2x-converter-cpp blender paraview vlc
-          obs-studio (inkscape-with-extensions.override { inkscapeExtensions = null; }) kcolorchooser kdenlive
+          obs-studio (inkscape-with-extensions.override { inkscapeExtensions = null; }) kdePackages.kcolorchooser
+          kdePackages.kdenlive
           # themes
           klassy-qt6 localPackages.blurred-wallpaper
           # development
           adb-sync scrcpy dbeaver-bin aircrack-ng fprettify
           # password and key management
           yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden hashcat
-          kleopatra
+          kdePackages.kleopatra
           # download
           qbittorrent wgetpaste rclone
           # editor
