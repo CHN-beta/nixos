@@ -16,8 +16,6 @@ namespace sbatch
       int MemorySchemeSelected = 0;
       std::vector<std::string> MemorySchemeEntries = { "Default", "All", "Custom" };
       std::string Memory = "1";
-      std::string JobName = std::filesystem::current_path().filename().string();
-      std::string OutputFile = "output.txt";
       std::string InputFile = "input.txt";
     };
     protected: StateType State_;
@@ -47,7 +45,6 @@ namespace sbatch
         if (saved_state.MemorySchemeSelected < State_.MemorySchemeEntries.size())
           State_.MemorySchemeSelected = saved_state.MemorySchemeSelected;
         State_.Memory = saved_state.Memory;
-        State_.OutputFile = saved_state.OutputFile;
         State_.InputFile = saved_state.InputFile;
       }
       catch (...) {}
@@ -90,12 +87,8 @@ namespace sbatch
           }) | with_title("Memory:", ftxui::Color::GrayDark) | with_separator
         }) | with_title("Resource allocation:") | with_bottom,
         // 第三行：任务名和输入输出文件
-        ftxui::Container::Vertical
-        ({
-          input(&State_.JobName, "Job name: "),
-          input(&State_.InputFile, "Input file: "),
-          input(&State_.OutputFile, "Output file: "),
-        }) | with_title("Misc:")
+        ftxui::Container::Vertical({input(&State_.InputFile, "Input file: ")})
+          | with_title("Misc:")
       });
     }
     public: virtual std::string get_submit_command() const override
@@ -116,11 +109,8 @@ namespace sbatch
         else if (State_.MemorySchemeSelected == 2) return "--mem={}G"_f(State_.Memory);
         else std::unreachable();
       }();
-      return "sbatch --partition={}\n{}{} {}\n--job-name='{}' --output='{}'\n--wrap=\"mumax3 {}\""_f
-      (
-        State_.QueueEntries[State_.QueueSelected], gpu_string, cpu_string, mem_string,
-        State_.JobName, State_.OutputFile, State_.InputFile
-      );
+      return "sbatch --partition={}\n{}{} {}\n--wrap=\"mumax3 {}\""_f
+        (State_.QueueEntries[State_.QueueSelected], gpu_string, cpu_string, mem_string, State_.InputFile);
     }
   };
   template void Program::register_child_<Mumax3>();

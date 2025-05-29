@@ -21,8 +21,6 @@ namespace sbatch
       int MemorySchemeSelected = 0;
       std::vector<std::string> MemorySchemeEntries = { "Default", "All", "Custom" };
       std::string Memory = "1";
-      std::string JobName = std::filesystem::current_path().filename().string();
-      std::string OutputFile = "output.txt";
       bool OptcellEnable = false;
       int OptcellSelected = 0;
       std::vector<std::string> OptcellEntries = { "fix ab", "fix c" };
@@ -116,8 +114,6 @@ namespace sbatch
         // 第三行：任务名和输出文件
         ftxui::Container::Vertical
         ({
-          input(&State_.JobName, "Job name: "),
-          input(&State_.OutputFile, "Output file: "),
           ftxui::Container::Horizontal
           ({
             checkbox("Generate OPTCELL", &State_.OptcellEnable),
@@ -158,10 +154,10 @@ namespace sbatch
         else if (State_.MemorySchemeSelected == 2) return " --mem={}G"_f(State_.Memory);
         else std::unreachable();
       }();
-      return "{}sbatch --partition={}\n{} {}{}\n--job-name='{}' --output='{}'\n--wrap=\"srun vasp-nvidia vasp-{}\""_f
+      return "{}sbatch --partition={}\n{} {}{}\n--wrap=\"srun vasp-nvidia vasp-{}\""_f
       (
         optcell_string, State_.QueueEntries[State_.QueueSelected], gpu_string, cpu_string, mem_string,
-        State_.JobName, State_.OutputFile, State_.VaspEntries[State_.VaspSelected]
+        State_.VaspEntries[State_.VaspSelected]
       );
     }
   };

@@ -18,8 +18,6 @@ namespace sbatch
       int MemorySchemeSelected = 0;
       std::vector<std::string> MemorySchemeEntries = { "Default", "All", "Custom" };
       std::string Memory = "1";
-      std::string JobName = std::filesystem::current_path().filename().string();
-      std::string OutputFile = "output.txt";
       bool OptcellEnable = false;
       int OptcellSelected = 0;
       std::vector<std::string> OptcellEntries = { "fix ab", "fix c" };
@@ -96,8 +94,7 @@ namespace sbatch
         // 第三行：任务名和输出文件
         ftxui::Container::Vertical
         ({
-          input(&State_.JobName, "Job name: "),
-          input(&State_.OutputFile, "Output file: "),
+
           ftxui::Container::Horizontal
           ({
             checkbox("Generate OPTCELL", &State_.OptcellEnable),
@@ -141,11 +138,11 @@ namespace sbatch
         else return ""s;
       }();
       return
-        "{}sbatch --partition={} --nodes=1-1\n{}{}\n--job-name='{}' --output='{}'\n"
+        "{}sbatch --partition={} --nodes=1-1\n{}{}\n"
           "--wrap=\"srun{} vasp-intel vasp-{}\""_f
         (
           optcell_string, State_.QueueEntries[State_.QueueSelected], cpu_string, mem_string,
-          State_.JobName, State_.OutputFile, srun_string, State_.VaspEntries[State_.VaspSelected]
+          srun_string, State_.VaspEntries[State_.VaspSelected]
         );
     }
   };

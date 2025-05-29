@@ -17,6 +17,8 @@ int main()
     std::string UserCommand;
     std::string SubmitCommand;
     std::string CurrentInterface = "Program";
+    std::string JobName = std::filesystem::current_path().filename().string();
+    std::string OutputFile = "output.txt";
   } State;
   std::vector<std::unique_ptr<Program>> Programs;
   auto ConfigFile = YAML::LoadFile(SBATCH_CONFIG);
@@ -64,6 +66,8 @@ int main()
     return ftxui::Container::Vertical
     ({
       Programs[State.ProgramSelected]->get_interface() | with_bottom_heavy,
+      input(&State.JobName, "Job name: "),
+      input(&State.OutputFile, "Output file: "),
       // 操作按钮
       ftxui::Container::Horizontal
       ({
@@ -111,7 +115,8 @@ int main()
       else if (State.UserCommand == "Continue")
       {
         State.CurrentInterface = "Confirm";
-        State.SubmitCommand = Programs[State.ProgramSelected]->get_submit_command();
+        State.SubmitCommand = Programs[State.ProgramSelected]->get_submit_command()
+          + "\n--job-name='{}' --output='{}'"_f(State.JobName, State.OutputFile);
       }
       else std::unreachable();
     }
