@@ -18,7 +18,6 @@ inputs:
       {
         xray.client = { enable = true; dnsmasq.extraInterfaces = [ "eno146" ]; };
         beesd."/" = { hashTableSizeMB = 128; threads = 4; };
-        xrdp = { enable = true; hostname = [ "srv1.chn.moe" ]; };
         samba = { hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
       };
       packages.packages._prebuildPackages =
