@@ -18,22 +18,6 @@
         "url": "https://git.chn.moe/chn/blog-public.git"
       }
     },
-    "blurred-wallpaper": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1746480265,
-        "narHash": "sha256-A1xKQy6ufGrW4yVGkYb8zBqRuQFFxtowCbao2GOP150=",
-        "owner": "bouteillerAlan",
-        "repo": "blurredwallpaper",
-        "rev": "6fa32cc6062c4852b9abb83f590314a2cab9b5ad",
-        "type": "github"
-      },
-      "original": {
-        "owner": "bouteillerAlan",
-        "repo": "blurredwallpaper",
-        "type": "github"
-      }
-    },
     "bscpkgs": {
       "inputs": {
         "nixpkgs": [
@@ -839,7 +823,6 @@
     "root": {
       "inputs": {
         "blog": "blog",
-        "blurred-wallpaper": "blurred-wallpaper",
         "bscpkgs": "bscpkgs",
         "cachyos-lts": "cachyos-lts",
         "catppuccin": "catppuccin",
@@ -875,7 +858,6 @@
         "py4vasp": "py4vasp",
         "rsshub": "rsshub",
         "rycee": "rycee",
-        "shadowrz": "shadowrz",
         "sops-nix": "sops-nix",
         "sqlite-orm": "sqlite-orm",
         "stickerpicker": "stickerpicker",
@@ -916,26 +898,6 @@
         "owner": "rycee",
         "repo": "nur-expressions",
         "type": "gitlab"
-      }
-    },
-    "shadowrz": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1748056260,
-        "narHash": "sha256-bcUxYhdC/wCw20DeU3tHgdc80JLOAIsKUULH37fdU/M=",
-        "owner": "ShadowRZ",
-        "repo": "nur-packages",
-        "rev": "0c35cdecdf6ecec27c69810ca9f0346fca7c2ee8",
-        "type": "github"
-      },
-      "original": {
-        "owner": "ShadowRZ",
-        "repo": "nur-packages",
-        "type": "github"
       }
     },
     "sops-nix": {

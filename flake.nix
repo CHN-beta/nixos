@@ -28,7 +28,6 @@
     bscpkgs = { url = "github:CHN-beta/bscpkgs"; inputs.nixpkgs.follows = "nixpkgs"; };
     cachyos-lts.url = "github:drakon64/nixos-cachyos-kernel";
     nixvirt = { url = "github:CHN-beta/NixVirt"; inputs.nixpkgs.follows = "nixpkgs"; };
-    shadowrz = { url = "github:ShadowRZ/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
@@ -41,7 +40,6 @@
     tgbot-cpp = { url = "github:reo7sp/tgbot-cpp"; flake = false; };
     v-sim = { url = "gitlab:l_sim/v_sim/master"; flake = false; };
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
-    blurred-wallpaper = { url = "github:bouteillerAlan/blurredwallpaper"; flake = false; };
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
     openxlsx = { url = "github:troldal/OpenXLSX"; flake = false; };

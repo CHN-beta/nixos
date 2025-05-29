@@ -34,7 +34,6 @@ in platformConfig //
   overlays =
   [
     inputs.topInputs.nur-xddxdd.overlays.inSubTree
-    inputs.topInputs.shadowrz.overlays.default
     inputs.topInputs.nix-vscode-extensions.overlays.default
     (final: prev:
     {
