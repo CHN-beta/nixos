@@ -19,6 +19,7 @@ int main()
     std::string CurrentInterface = "Program";
     std::string JobName = std::filesystem::current_path().filename().string();
     std::string OutputFile = "output.txt";
+    bool LowPriority = false;
   } State;
   std::vector<std::unique_ptr<Program>> Programs;
   auto ConfigFile = YAML::LoadFile(SBATCH_CONFIG);
@@ -68,6 +69,7 @@ int main()
       Programs[State.ProgramSelected]->get_interface() | with_bottom_heavy,
       input(&State.JobName, "Job name: "),
       input(&State.OutputFile, "Output file: "),
+      checkbox("Low priority", &State.LowPriority),
       // 操作按钮
       ftxui::Container::Horizontal
       ({
@@ -116,7 +118,8 @@ int main()
       {
         State.CurrentInterface = "Confirm";
         State.SubmitCommand = Programs[State.ProgramSelected]->get_submit_command()
-          + "\n--job-name='{}' --output='{}'"_f(State.JobName, State.OutputFile);
+          + "\n--job-name='{}' --output='{}'{}"_f
+            (State.JobName, State.OutputFile, State.LowPriority ? " --nice=10000" : "");
       }
       else std::unreachable();
     }
