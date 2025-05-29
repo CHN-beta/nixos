@@ -12,11 +12,10 @@ inputs:
     {
       enable = true;
       languagePacks = [ "zh-CN" "en-US" ];
-      nativeMessagingHosts.packages = with inputs.pkgs; [ uget-integrator firefoxpwa ];
+      nativeMessagingHosts.packages = with inputs.pkgs; [ uget-integrator ];
     };
     nixos =
     {
-      packages.packages._packages = [ inputs.pkgs.firefoxpwa ];
       user.sharedModules =
       [{
         config =
@@ -25,7 +24,7 @@ inputs:
           {
             enable = true;
             nativeMessagingHosts = with inputs.pkgs;
-              [ kdePackages.plasma-browser-integration uget-integrator firefoxpwa ];
+              [ kdePackages.plasma-browser-integration uget-integrator ];
             # TODO: use fixed-version of plugins
             policies.DefaultDownloadDirectory = "\${home}/Downloads";
             profiles.default =
