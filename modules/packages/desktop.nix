@@ -25,16 +25,17 @@ inputs:
             ''
           )
           # networking
-          remmina putty
+          remmina putty krdc
           # media
           mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins qcm waifu2x-converter-cpp blender paraview vlc
-          obs-studio (inkscape-with-extensions.override { inkscapeExtensions = null; })
+          obs-studio (inkscape-with-extensions.override { inkscapeExtensions = null; }) kcolorchooser kdenlive
           # themes
           klassy-qt6 localPackages.blurred-wallpaper
           # development
           adb-sync scrcpy dbeaver-bin aircrack-ng fprettify
           # password and key management
           yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden hashcat
+          kleopatra
           # download
           qbittorrent wgetpaste rclone
           # editor
@@ -65,9 +66,7 @@ inputs:
           nur-xddxdd.svp
           # for kdenlive auto subtitle
           openai-whisper
-        ]
-          ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" "kalzium" ])))
-            (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
+        ];
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
           phonopy scipy scikit-learn jupyterlab autograd inputs.pkgs.localPackages.phono3py numpy 
@@ -118,6 +117,7 @@ inputs:
       wireshark = { enable = true; package = inputs.pkgs.wireshark; };
       yubikey-touch-detector.enable = true;
       kdeconnect.enable = true;
+      kde-pim = { enable = true; kmail = true; };
     };
     services.pcscd.enable = true;
   };
