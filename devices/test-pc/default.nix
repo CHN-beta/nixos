@@ -16,7 +16,7 @@ inputs:
           rollingRootfs = {};
         };
         nixpkgs.march = "znver4";
-        networking = { dhcp = [ "enp1s0" ]; bridge.nixvirt.devs = [ "enp1s0" ]; };
+        networking.bridge.nixvirt.devs = [ "enp1s0" ];
       };
       hardware.cpus = [ "amd" ];
       services =

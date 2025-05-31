@@ -110,8 +110,7 @@ inputs:
                 {
                   matchConfig.Name = network.name;
                   bridgeConfig = {};
-                  networkConfig.LinkLocalAddressing = "no";
-                  linkConfig.RequiredForOnline = "carrier";
+                  linkConfig.RequiredForOnline = "routable";
                 };
               })
               (inputs.localLib.attrsToList networking.bridge)))
