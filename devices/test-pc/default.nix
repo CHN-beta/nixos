@@ -30,7 +30,7 @@ inputs:
             chn =
             {
               memory = { sizeMB = 2048; dedicated = true; };
-              cpu = { count = 4; set = "1-4"; };
+              cpu = { count = 4; set = builtins.genList builtins.toString 4; };
               network =
               {
                 bridge = true;

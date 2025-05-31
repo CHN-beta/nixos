@@ -32,7 +32,7 @@ inputs:
             {
               count = mkOption { type = types.ints.unsigned; };
               hyprthread = mkOption { type = types.bool; default = false; };
-              set = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+              set = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
             };
             network =
             {
@@ -65,6 +65,13 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.services) nixvirt; in inputs.lib.mkIf (nixvirt != null)
   {
+    assertions = builtins.map
+      (vm:
+      {
+        assertion = vm.value.cpu.set != null -> builtins.length vm.value.cpu.set == vm.value.cpu.count;
+        message = "nixvirt.instance.${vm.name}.cpu.set must have the same length as cpu.count";
+      })
+      (inputs.localLib.attrsToList nixvirt.instance);
     virtualisation =
     {
       libvirt =
@@ -149,7 +156,13 @@ inputs:
             inherit (vm) name;
             inherit (vm.value) uuid;
             type = "kvm";
-            vcpu = { placement = "static"; count = vm.value.cpu.count; cpuset = vm.value.cpu.set; };
+            vcpu = { placement = "static"; count = vm.value.cpu.count; };
+            cputune = inputs.lib.mkIf (vm.value.cpu.set != null)
+            {
+              vcpupin = builtins.genList
+                (cpu: { vcpu = cpu; cpuset = builtins.elemAt vm.value.cpu.set cpu; })
+                vm.value.cpu.count;
+            };
             memory =
             {
               count = vm.value.memory.sizeMB;
@@ -319,8 +332,9 @@ inputs:
         wantedBy= [ "multi-user.target" ];
       };
     boot.kernelParams =
-      let cpusets = builtins.filter builtins.isString
-        (builtins.map (vm: vm.cpu.set) (builtins.attrValues nixvirt.instance));
+      let cpusets = builtins.concatLists (builtins.map
+        (vm: vm.cpu.set)
+        (builtins.filter (vm: vm.cpu.set != null) (builtins.attrValues nixvirt.instance)));
       in inputs.lib.mkIf (cpusets != []) [ "isolcpus=${builtins.concatStringsSep "," cpusets}" ];
   };
 }
