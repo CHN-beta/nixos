@@ -37,7 +37,8 @@ inputs:
             network =
             {
               mac = mkOption { type = types.nonEmptyStr; default = defaultMac; };
-              address = mkOption { type = types.ints.unsigned; };
+              address = mkOption { type = types.nullOr types.ints.unsigned; default = null; };
+              bridge = mkOption { type = types.bool; default = false; };
               vnc =
               {
                 port = mkOption
@@ -92,7 +93,7 @@ inputs:
                     inherit (vm.network) mac;
                     ip = "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}";
                   })
-                  (builtins.attrValues nixvirt.instance);
+                  (builtins.filter (vm: vm.network.address != null) (builtins.attrValues nixvirt.instance));
               in lib.network.writeXML (base // { ip = base.ip // { dhcp = base.ip.dhcp // { inherit host; }; }; });
             active = true;
             # never restart the network
@@ -222,7 +223,7 @@ inputs:
                 type = "bridge";
                 model.type = "virtio";
                 mac.address = vm.value.network.mac;
-                source.bridge = "virbr0";
+                source.bridge = if vm.value.network.bridge then "nixvirt" else "virbr0";
               };
               input =
               [
