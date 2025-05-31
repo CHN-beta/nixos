@@ -29,8 +29,8 @@ inputs:
           {
             chn =
             {
-              memory.sizeMB = 2048;
-              cpu.count = 4;
+              memory = { sizeMB = 2048; dedicated = true; };
+              cpu = { count = 4; cpuset = "1-4"; };
               network =
               {
                 bridge = true;
