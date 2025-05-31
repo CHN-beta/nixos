@@ -30,7 +30,8 @@ inputs:
               address = mkOption { type = types.ints.unsigned; };
               vnc =
               {
-                port = mkOption { type = types.ints.unsigned; default = 15900 + submoduleInputs.config.network.address; };
+                port = mkOption
+                  { type = types.ints.unsigned; default = 15900 + submoduleInputs.config.network.address; };
                 openFirewall = mkOption { type = types.bool; default = true; };
               };
               portForward = rec
