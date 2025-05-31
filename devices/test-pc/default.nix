@@ -30,7 +30,7 @@ inputs:
             chn =
             {
               memory.sizeMB = 2048;
-              cpus = 4;
+              cpu.count = 4;
               network =
               {
                 address = 2;
@@ -41,7 +41,7 @@ inputs:
             {
               owner = "chn";
               memory.sizeMB = 2048;
-              cpus = 4;
+              cpu.count = 4;
               network = { address = 3; portForward.tcp = [{ host = 5694; guest = 22; }]; };
             };
           };

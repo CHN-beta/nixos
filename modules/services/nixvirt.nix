@@ -28,7 +28,12 @@ inputs:
               sizeMB = mkOption { type = types.ints.unsigned; };
               dedicate = mkOption { type = types.bool; default = false; };
             };
-            cpus = mkOption { type = types.ints.unsigned; };
+            cpu =
+            {
+              count = mkOption { type = types.ints.unsigned; };
+              hyprthread = mkOption { type = types.bool; default = false; };
+              cpuset = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+            };
             network =
             {
               mac = mkOption { type = types.nonEmptyStr; default = defaultMac; };
@@ -143,7 +148,7 @@ inputs:
             inherit (vm) name;
             inherit (vm.value) uuid;
             type = "kvm";
-            vcpu = { placement = "static"; count = vm.value.cpus; };
+            vcpu = { placement = "static"; count = vm.value.cpu.count; inherit (vm.value.cpu) cpuset; };
             memory =
             {
               count = vm.value.memory.sizeMB;
@@ -170,7 +175,13 @@ inputs:
             cpu =
             {
               mode = "host-passthrough";
-              topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };
+              topology =
+              {
+                sockets = 1;
+                dies = 1;
+                cores = if vm.value.cpu.hyprthread then vm.value.cpu.count / 2 else vm.value.cpu.count;
+                threads = if vm.value.cpu.hyprthread then 2 else 1;
+              };
             };
             clock =
             {
@@ -306,5 +317,9 @@ inputs:
         };
         wantedBy= [ "multi-user.target" ];
       };
+    boot.kernelParams =
+      let cpusets = builtins.filter builtins.isString
+        (builtins.map (vm: vm.cpu.cpuset) (builtins.attrValues nixvirt.instance));
+      in inputs.lib.mkIf (cpusets != []) [ "isolcpus=${builtins.concatStringsSep "," cpusets}" ];
   };
 }
