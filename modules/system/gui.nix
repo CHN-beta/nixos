@@ -3,7 +3,7 @@ inputs:
   config = inputs.lib.mkMerge
   [
     # enable gui
-    (inputs.lib.mkIf (builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ])
+    (inputs.lib.mkIf (inputs.config.nixos.model.type == "desktop")
     {
       services =
       {
