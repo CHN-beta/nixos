@@ -116,7 +116,16 @@ inputs:
               (inputs.localLib.attrsToList networking.bridge)))
             (builtins.listToAttrs (builtins.concatLists (builtins.map
               (bridge: builtins.map
-                (network: { name = "10-${network}"; value.networkConfig.Bridge = bridge.name; }) bridge.value.devs)
+                (network:
+                {
+                  name = "10-${network}";
+                  value =
+                  {
+                    matchConfig.Name = network;
+                    networkConfig.Bridge = bridge.name;
+                    linkConfig.RequiredForOnline = "enslaved";
+                  };
+                }) bridge.value.devs)
               (inputs.localLib.attrsToList networking.bridge))))
           ];
           netdevs = builtins.listToAttrs (builtins.map
