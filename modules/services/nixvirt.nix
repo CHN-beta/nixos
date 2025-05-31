@@ -26,13 +26,13 @@ inputs:
             memory =
             {
               sizeMB = mkOption { type = types.ints.unsigned; };
-              dedicate = mkOption { type = types.bool; default = false; };
+              dedicated = mkOption { type = types.bool; default = false; };
             };
             cpu =
             {
               count = mkOption { type = types.ints.unsigned; };
               hyprthread = mkOption { type = types.bool; default = false; };
-              cpuset = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+              set = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
             };
             network =
             {
@@ -154,8 +154,8 @@ inputs:
             {
               count = vm.value.memory.sizeMB;
               unit = "MiB";
-              nosharepages = vm.value.memory.dedicate;
-              locked = vm.value.memory.dedicate;
+              nosharepages = vm.value.memory.dedicated;
+              locked = vm.value.memory.dedicated;
             };
             os =
             {
