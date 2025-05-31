@@ -17,6 +17,14 @@ inputs:
         };});
         default = {};
       };
+      bridge = mkOption
+      {
+        type = types.attrsOf (types.submodule { options =
+        {
+          devs = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+        };});
+        default = {};
+      };
       # wpa_passphrase SSID(wifi name) PSK(password)
       wireless = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
     };});
@@ -65,9 +73,9 @@ inputs:
         systemd.network =
         {
           enable = true;
-          networks = builtins.listToAttrs
-          (
-            (builtins.map
+          networks = inputs.lib.mkMerge
+          [
+            (builtins.listToAttrs (builtins.map
               (network:
               {
                 name = "10-${network}";
@@ -78,8 +86,8 @@ inputs:
                   linkConfig.RequiredForOnline = "routable";
                 };
               })
-              networking.dhcp)
-            ++ (builtins.map
+              networking.dhcp))
+            (builtins.listToAttrs (builtins.map
               (network:
               {
                 name = "10-${network.name}";
@@ -93,8 +101,28 @@ inputs:
                   dns = inputs.lib.mkIf (network.value.dns != null) [ network.value.dns ];
                 };
               })
-              (inputs.localLib.attrsToList networking.static))
-          );
+              (inputs.localLib.attrsToList networking.static)))
+            (builtins.listToAttrs (builtins.map
+              (network:
+              {
+                name = "10-${network.name}";
+                value =
+                {
+                  matchConfig.Name = network.name;
+                  bridgeConfig = {};
+                  networkConfig.LinkLocalAddressing = "no";
+                  linkConfig.RequiredForOnline = "carrier";
+                };
+              })
+              (inputs.localLib.attrsToList networking.bridge)))
+            (builtins.listToAttrs (builtins.concatLists (builtins.map
+              (bridge: builtins.map
+                (network: { name = "10-${network}"; value.networkConfig.Bridge = bridge.name; }) bridge.value.devs)
+              (inputs.localLib.attrsToList networking.bridge))))
+          ];
+          netdevs = builtins.listToAttrs (builtins.map
+            (network: { name = "10-${network}"; value.netdevConfig = { Name = network; Kind = "Bridge"; }; })
+            (builtins.attrNames networking.bridge));
         };
         networking =
         {
