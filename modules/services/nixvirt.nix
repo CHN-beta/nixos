@@ -63,7 +63,12 @@ inputs:
         connections."qemu:///system" = let inherit (inputs.topInputs.nixvirt) lib; in
         {
           domains = builtins.map
-            (vm: { definition = inputs.config.sops.templates."${vm.name}.xml".path; active = true; restart = false; })
+            (vm:
+            {
+              definition = inputs.config.sops.templates."nixvirt/${vm.name}.xml".path;
+              active = true;
+              restart = false;
+            })
             (inputs.localLib.attrsToList nixvirt.instance);
           networks =
           [{
@@ -126,7 +131,7 @@ inputs:
       templates = builtins.listToAttrs (builtins.map
         (vm:
         {
-          name = "${vm.name}.xml";
+          name = "nixvirt/${vm.name}.xml";
           value.content =
             let
               inherit (inputs.topInputs.nixvirt) lib;
