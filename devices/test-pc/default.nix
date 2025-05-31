@@ -16,7 +16,7 @@ inputs:
           rollingRootfs = {};
         };
         nixpkgs.march = "znver4";
-        networking = {};
+        networking = { dhcp = [ "enp1s0" ]; bridge.nixvirt.devs = [ "enp1s0" ]; };
       };
       hardware.cpus = [ "amd" ];
       services =
@@ -33,8 +33,7 @@ inputs:
               cpu.count = 4;
               network =
               {
-                address = 2;
-                portForward = { tcp = [{ host = 5693; guest = 22; }]; web = [ "example.chn.moe" ]; };
+                bridge = true;
               };
             };
             chn2 =
