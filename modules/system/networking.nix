@@ -110,6 +110,7 @@ inputs:
                 {
                   matchConfig.Name = network.name;
                   bridgeConfig = {};
+                  networkConfig = { DHCP = "yes"; IPv6AcceptRA = true; };
                   linkConfig.RequiredForOnline = "routable";
                 };
               })
