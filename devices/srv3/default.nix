@@ -36,12 +36,14 @@ inputs:
         {
           alikia =
           {
-            hardware = { memoryMB = 1024; cpus = 1; };
+            memoryMB = 1024;
+            cpus = 1;
             network = { address = 2; portForward.tcp = [{ host = 5689; guest = 22; }]; };
           };
           pen =
           {
-            hardware = { memoryMB = 512; cpus = 1; };
+            memoryMB = 512;
+            cpus = 1;
             network =
             {
               address = 3;
@@ -62,7 +64,8 @@ inputs:
           test =
           {
             owner = "chn";
-            hardware = { memoryMB = 512; cpus = 1; };
+            memoryMB = 512;
+            cpus = 1;
             network =
             {
               address = 4;
@@ -72,7 +75,8 @@ inputs:
           };
           reonokiy =
           {
-            hardware = { memoryMB = 4 * 1024; cpus = 4; };
+            memoryMB = 4 * 1024;
+            cpus = 4;
             network = { address = 5; portForward.tcp = [{ host = 5694; guest = 22; }]; };
           };
         };

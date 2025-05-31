@@ -18,15 +18,12 @@ inputs:
           {
             uuid = mkOption { type = types.nonEmptyStr; default = defaultUuid; };
             owner = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-            hardware =
-            {
-              storage = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-              memoryMB = mkOption { type = types.ints.unsigned; };
-              cpus = mkOption { type = types.ints.unsigned; };
-              mac = mkOption { type = types.nonEmptyStr; default = defaultMac; };
-            };
+            storage = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+            memoryMB = mkOption { type = types.ints.unsigned; };
+            cpus = mkOption { type = types.ints.unsigned; };
             network =
             {
+              mac = mkOption { type = types.nonEmptyStr; default = defaultMac; };
               address = mkOption { type = types.ints.unsigned; };
               vnc =
               {
@@ -79,7 +76,7 @@ inputs:
                 host = builtins.map
                   (vm:
                   {
-                    inherit (vm.hardware) mac;
+                    inherit (vm.network) mac;
                     ip = "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}";
                   })
                   (builtins.attrValues nixvirt.instance);
@@ -138,8 +135,8 @@ inputs:
             inherit (vm) name;
             inherit (vm.value) uuid;
             type = "kvm";
-            vcpu = { placement = "static"; count = vm.value.hardware.cpus; };
-            memory = { count = vm.value.hardware.memoryMB; unit = "MiB"; };
+            vcpu = { placement = "static"; count = vm.value.cpus; };
+            memory = { count = vm.value.memoryMB; unit = "MiB"; };
             os =
             {
               type = "hvm";
@@ -159,7 +156,7 @@ inputs:
             cpu =
             {
               mode = "host-passthrough";
-              topology = { sockets = 1; dies = 1; cores = vm.value.hardware.cpus; threads = 1; };
+              topology = { sockets = 1; dies = 1; cores = vm.value.cpus; threads = 1; };
             };
             clock =
             {
@@ -180,7 +177,7 @@ inputs:
                   type = "file";
                   device = "disk";
                   driver = { name = "qemu"; type = "raw"; cache = "none"; discard = "unmap"; };
-                  source.file = "/var/lib/libvirt/images/${vm.value.hardware.storage}.img";
+                  source.file = "/var/lib/libvirt/images/${vm.value.storage}.img";
                   target = { dev = "vda"; bus = "virtio"; };
                   boot.order = 1;
                 }
@@ -198,7 +195,7 @@ inputs:
               {
                 type = "bridge";
                 model.type = "virtio";
-                mac.address = vm.value.hardware.mac;
+                mac.address = vm.value.network.mac;
                 source.bridge = "virbr0";
               };
               input =

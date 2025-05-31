@@ -29,7 +29,8 @@ inputs:
           {
             chn =
             {
-              hardware = { memoryMB = 2048; cpus = 4; };
+              memoryMB = 2048;
+              cpus = 4;
               network =
               {
                 address = 2;
@@ -39,7 +40,7 @@ inputs:
             chn2 =
             {
               owner = "chn";
-              hardware = { memoryMB = 2048; cpus = 4; };
+              memoryMB = 2048; cpus = 4;
               network = { address = 3; portForward.tcp = [{ host = 5694; guest = 22; }]; };
             };
           };
