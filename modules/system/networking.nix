@@ -121,7 +121,7 @@ inputs:
               (inputs.localLib.attrsToList networking.bridge))))
           ];
           netdevs = builtins.listToAttrs (builtins.map
-            (network: { name = "10-${network}"; value.netdevConfig = { Name = network; Kind = "Bridge"; }; })
+            (network: { name = "10-${network}"; value.netdevConfig = { Name = network; Kind = "bridge"; }; })
             (builtins.attrNames networking.bridge));
         };
         networking =
