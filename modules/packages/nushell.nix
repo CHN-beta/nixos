@@ -1,10 +1,7 @@
 inputs:
 {
   options.nixos.packages.nushell = let inherit (inputs.lib) mkOption types; in mkOption
-  {
-    type = types.nullOr (types.submodule {});
-    default = {};
-  };
+    { type = types.nullOr (types.submodule {}); default = {}; };
   config = let inherit (inputs.config.nixos.packages) nushell; in inputs.lib.mkIf (nushell != null)
   {
     nixos =
