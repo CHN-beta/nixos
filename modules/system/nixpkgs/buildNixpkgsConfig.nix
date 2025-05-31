@@ -39,8 +39,6 @@ in platformConfig //
     {
       inherit (inputs.topInputs.nix-vscode-extensions.overlays.default final prev) nix-vscode-extensions;
       firefox-addons = (import "${inputs.topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
-      linuxPackages_cachyos_lts =
-        final.linuxPackagesFor (inputs.topInputs.cachyos-lts.overlays.default final prev).linuxPackages_cachyos;
     })
     inputs.topInputs.self.overlays.default
     (final: prev:

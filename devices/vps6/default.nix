@@ -23,7 +23,6 @@ inputs:
         nixpkgs.march = "znver2";
         initrd.sshd = {};
         networking = {};
-        # do not use cachyos kernel, beesd + cachyos kernel + heavy io = system freeze, not sure why
       };
       services =
       {

@@ -38,21 +38,6 @@
         "type": "github"
       }
     },
-    "cachyos-lts": {
-      "locked": {
-        "lastModified": 1743535541,
-        "narHash": "sha256-OlBtXY26w9OcAmpqrTvxaG4/rfDdavauQF2eRxb+ySs=",
-        "owner": "drakon64",
-        "repo": "nixos-cachyos-kernel",
-        "rev": "8516d89c4e0c4a25cea1be8431db3963359ee81b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "drakon64",
-        "repo": "nixos-cachyos-kernel",
-        "type": "github"
-      }
-    },
     "catppuccin": {
       "inputs": {
         "nixpkgs": [
@@ -824,7 +809,6 @@
       "inputs": {
         "blog": "blog",
         "bscpkgs": "bscpkgs",
-        "cachyos-lts": "cachyos-lts",
         "catppuccin": "catppuccin",
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",
