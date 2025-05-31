@@ -23,7 +23,11 @@ inputs:
               name = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
               nodatacow = mkOption { type = types.bool; default = false; };
             };
-            memoryMB = mkOption { type = types.ints.unsigned; };
+            memory =
+            {
+              sizeMB = mkOption { type = types.ints.unsigned; };
+              dedicate = mkOption { type = types.bool; default = false; };
+            };
             cpus = mkOption { type = types.ints.unsigned; };
             network =
             {
@@ -140,7 +144,13 @@ inputs:
             inherit (vm.value) uuid;
             type = "kvm";
             vcpu = { placement = "static"; count = vm.value.cpus; };
-            memory = { count = vm.value.memoryMB; unit = "MiB"; };
+            memory =
+            {
+              count = vm.value.memory.sizeMB;
+              unit = "MiB";
+              nosharepages = vm.value.memory.dedicate;
+              locked = vm.value.memory.dedicate;
+            };
             os =
             {
               type = "hvm";

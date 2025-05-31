@@ -36,13 +36,13 @@ inputs:
         {
           alikia =
           {
-            memoryMB = 1024;
+            memory.sizeMB = 1024;
             cpus = 1;
             network = { address = 2; portForward.tcp = [{ host = 5689; guest = 22; }]; };
           };
           pen =
           {
-            memoryMB = 512;
+            memory.sizeMB = 512;
             cpus = 1;
             network =
             {
@@ -64,7 +64,7 @@ inputs:
           test =
           {
             owner = "chn";
-            memoryMB = 512;
+            memory.sizeMB = 512;
             cpus = 1;
             network =
             {
@@ -75,7 +75,7 @@ inputs:
           };
           reonokiy =
           {
-            memoryMB = 4 * 1024;
+            memory.sizeMB = 4 * 1024;
             cpus = 4;
             network = { address = 5; portForward.tcp = [{ host = 5694; guest = 22; }]; };
           };
