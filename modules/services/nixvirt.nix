@@ -149,7 +149,7 @@ inputs:
             inherit (vm) name;
             inherit (vm.value) uuid;
             type = "kvm";
-            vcpu = { placement = "static"; count = vm.value.cpu.count; inherit (vm.value.cpu) set; };
+            vcpu = { placement = "static"; count = vm.value.cpu.count; cpuset = vm.value.cpu.set; };
             memory =
             {
               count = vm.value.memory.sizeMB;
