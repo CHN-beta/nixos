@@ -157,7 +157,7 @@ inputs:
             inherit (vm.value) uuid;
             type = "kvm";
             vcpu = { placement = "static"; count = vm.value.cpu.count; };
-            cputune = inputs.lib.mkIf (vm.value.cpu.set != null)
+            cputune = inputs.lib.optionalAttrs (vm.value.cpu.set != null)
             {
               vcpupin = builtins.genList
                 (cpu: { vcpu = cpu; cpuset = builtins.elemAt vm.value.cpu.set cpu; })
