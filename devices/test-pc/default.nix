@@ -34,6 +34,7 @@ inputs:
               network =
               {
                 bridge = true;
+                vnc.port = 15901;
               };
             };
             chn2 =
