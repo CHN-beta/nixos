@@ -4,16 +4,20 @@ inputs:
     { type = types.nullOr (types.submodule {}); default = null; };
   config = let inherit (inputs.config.nixos.packages) vasp; in inputs.lib.mkIf (vasp != null)
   {
-    nixos.packages.packages = with inputs.pkgs;
+    nixos.packages =
     {
-      _packages =
-      (
-        [ localPackages.vasp.intel localPackages.vasp.vtst localPackages.vaspkit wannier90 ]
-          ++ (inputs.lib.optional
-            (let inherit (inputs.config.nixos.system.nixpkgs) cuda; in cuda.capabilities or null != null)
-            localPackages.vasp.nvidia)
-      );
-      _pythonPackages = [(_: [ localPackages.py4vasp ])];
+      molecule = {};
+      packages = with inputs.pkgs;
+      {
+        _packages =
+        (
+          [ localPackages.vasp.intel localPackages.vasp.vtst localPackages.vaspkit wannier90 ]
+            ++ (inputs.lib.optional
+              (let inherit (inputs.config.nixos.system.nixpkgs) cuda; in cuda.capabilities or null != null)
+              localPackages.vasp.nvidia)
+        );
+        _pythonPackages = [(_: [ localPackages.py4vasp ])];
+      };
     };
   };
 }

@@ -56,8 +56,7 @@ inputs:
           # matplot++ needs old gnuplot
           inputs.pkgs.pkgs-2311.gnuplot
           # math, physics and chemistry
-          octaveFull ovito localPackages.vesta localPackages.v-sim mpi geogebra6 localPackages.ufo
-          inputs.pkgs.pkgs-2311.hdfview qalculate-qt
+          octaveFull mpi geogebra6 qalculate-qt
           # virtualization
           bottles wineWowPackages.stagingFull
           # media
