@@ -149,7 +149,7 @@ inputs:
             inherit (vm) name;
             inherit (vm.value) uuid;
             type = "kvm";
-            vcpu = { placement = "static"; count = vm.value.cpu.count; inherit (vm.value.cpu) cpuset; };
+            vcpu = { placement = "static"; count = vm.value.cpu.count; inherit (vm.value.cpu) set; };
             memory =
             {
               count = vm.value.memory.sizeMB;
@@ -320,7 +320,7 @@ inputs:
       };
     boot.kernelParams =
       let cpusets = builtins.filter builtins.isString
-        (builtins.map (vm: vm.cpu.cpuset) (builtins.attrValues nixvirt.instance));
+        (builtins.map (vm: vm.cpu.set) (builtins.attrValues nixvirt.instance));
       in inputs.lib.mkIf (cpusets != []) [ "isolcpus=${builtins.concatStringsSep "," cpusets}" ];
   };
 }
