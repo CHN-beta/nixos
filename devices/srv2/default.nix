@@ -80,7 +80,7 @@ inputs:
           };
         };
       };
-      packages.vasp = {};
+      packages = { vasp = {}; mumax = {}; };
       user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" "yxf" "hss" "zzn" ];
     };
   };
