@@ -1,8 +1,8 @@
 inputs:
 {
-  options.nixos.packages.server = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.packages.minimal = let inherit (inputs.lib) mkOption types; in mkOption
     { type = types.nullOr (types.submodule {}); default = {}; };
-  config = let inherit (inputs.config.nixos.packages) server; in inputs.lib.mkIf (server != null)
+  config = let inherit (inputs.config.nixos.packages) minimal; in inputs.lib.mkIf (minimal != null)
   {
     nixos.packages.packages =
     {
