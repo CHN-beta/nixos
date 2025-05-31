@@ -18,7 +18,11 @@ inputs:
           {
             uuid = mkOption { type = types.nonEmptyStr; default = defaultUuid; };
             owner = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-            storage = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+            storage =
+            {
+              name = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+              nodatacow = mkOption { type = types.bool; default = false; };
+            };
             memoryMB = mkOption { type = types.ints.unsigned; };
             cpus = mkOption { type = types.ints.unsigned; };
             network =
@@ -177,7 +181,8 @@ inputs:
                   type = "file";
                   device = "disk";
                   driver = { name = "qemu"; type = "raw"; cache = "none"; discard = "unmap"; };
-                  source.file = "/var/lib/libvirt/images/${vm.value.storage}.img";
+                  source.file = "${if vm.value.storage.nodatacow then "/nix/nodatacow" else ""}/var/lib/libvirt/images/"
+                    + "${vm.value.storage.name}.img";
                   target = { dev = "vda"; bus = "virtio"; };
                   boot.order = 1;
                 }
