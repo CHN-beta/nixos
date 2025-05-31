@@ -1,4 +1,3 @@
-# TODO: fix libvirtd network
 inputs:
 {
   options.nixos.services.nixvirt = let inherit (inputs.lib) mkOption types; in mkOption
@@ -132,49 +131,93 @@ inputs:
         (vm:
         {
           name = "nixvirt/${vm.name}.xml";
-          value.content =
-            let
-              inherit (inputs.topInputs.nixvirt) lib;
-              base = lib.domain.templates.linux
-              {
-                inherit (vm) name;
-                inherit (vm.value) uuid;
-                memory = { count = vm.value.hardware.memoryMB; unit = "MiB"; };
-                storage_vol = "/var/lib/libvirt/images/${vm.value.hardware.storage}.img";
-                install_vol = "${inputs.topInputs.self.src.iso.netboot}";
-                virtio_video = false;
-              };
-            in lib.domain.getXML (base //
+          value.content = inputs.topInputs.nixvirt.lib.domain.getXML
+          # port from 8bcc23e27a62297254d0e9c87281e650ff777132
+          {
+            inherit (vm) name;
+            inherit (vm.value) uuid;
+            type = "kvm";
+            vcpu = { placement = "static"; count = vm.value.hardware.cpus; };
+            memory = { count = vm.value.hardware.memoryMB; unit = "MiB"; };
+            os =
             {
-              devices =
-                # remove spicevmc, which needs spice
-                (builtins.removeAttrs base.devices [ "channel" "redirdev" "sound" "audio" ])
-                // {
-                  graphics =
-                  {
-                    type = "vnc";
-                    autoport = false;
-                    port = vm.value.network.vnc.port;
-                    listen.type = "address";
-                    passwd = inputs.config.sops.placeholder."nixvirt/${vm.name}";
-                  };
-                  interface = base.devices.interface // { mac.address = vm.value.hardware.mac; };
-                  disk = builtins.map (disk: disk // { driver = disk.driver // { type = "raw"; }; }) base.devices.disk;
-                };
-              cpu = base.cpu // { topology = { sockets = 1; dies = 1; cores = vm.value.hardware.cpus; threads = 1; };};
-              vcpu = { placement = "static"; count = vm.value.hardware.cpus; };
-              os = (builtins.removeAttrs base.os [ "boot" ]) //
+              type = "hvm";
+              arch = "x86_64";
+              machine = "q35";
+              bootmenu = { enable = true; timeout = 15000; };
+              loader = { readonly = true; type = "pflash"; path = "/run/libvirt/nix-ovmf/OVMF_CODE.fd"; };
+              nvram =
               {
-                loader = { readonly = true; type = "pflash"; path = "/run/libvirt/nix-ovmf/OVMF_CODE.fd"; };
-                nvram =
-                {
-                  template = "/run/libvirt/nix-ovmf/OVMF_VARS.fd";
-                  path = "/var/lib/libvirt/qemu/nvram/${vm.name}_VARS.fd";
-                  templateFormat = "raw";
-                  format = "raw";
-                };
+                template = "/run/libvirt/nix-ovmf/OVMF_VARS.fd";
+                path = "/var/lib/libvirt/qemu/nvram/${vm.name}_VARS.fd";
+                templateFormat = "raw";
+                format = "raw";
               };
-            });
+            };
+            features = { acpi = {}; apic = {}; };
+            cpu =
+            {
+              mode = "host-passthrough";
+              topology = { sockets = 1; dies = 1; cores = vm.value.hardware.cpus; threads = 1; };
+            };
+            clock =
+            {
+              offset = "utc";
+              timer =
+              [
+                { name = "rtc"; tickpolicy = "catchup"; }
+                { name = "pit"; tickpolicy = "delay"; }
+                { name = "hpet"; present = false; }
+              ];
+            };
+            devices =
+            {
+              emulator = "${inputs.config.virtualisation.libvirtd.qemu.package}/bin/qemu-system-x86_64";
+              disk =
+              [
+                {
+                  type = "file";
+                  device = "disk";
+                  driver = { name = "qemu"; type = "raw"; cache = "none"; discard = "unmap"; };
+                  source.file = "/var/lib/libvirt/images/${vm.value.hardware.storage}.img";
+                  target = { dev = "vda"; bus = "virtio"; };
+                  boot.order = 1;
+                }
+                {
+                  type = "file";
+                  device = "cdrom";
+                  driver = { name = "qemu"; type = "raw"; };
+                  source.file = "${inputs.topInputs.self.src.iso.netboot}";
+                  target = { dev = "sdc"; bus = "sata"; };
+                  readonly = true;
+                  boot.order = 10;
+                }
+              ];
+              interface =
+              {
+                type = "bridge";
+                model.type = "virtio";
+                mac.address = vm.value.hardware.mac;
+                source.bridge = "virbr0";
+              };
+              input =
+              [
+                { type = "tablet"; bus = "usb"; }
+                { type = "mouse"; bus = "ps2"; }
+                { type = "keyboard"; bus = "ps2"; }
+              ];
+              graphics =
+              {
+                type = "vnc";
+                autoport = false;
+                port = vm.value.network.vnc.port;
+                listen.type = "address";
+                passwd = inputs.config.sops.placeholder."nixvirt/${vm.name}";
+              };
+              video.model = { type = "qxl"; ram = 65536; vram = 65536; vgamem = 16384; heads = 1; primary = true; };
+              rng = { model = "virtio"; backend = { model = "random"; source = /dev/urandom; }; };
+            };
+          };
         })
         (inputs.localLib.attrsToList nixvirt.instance));
       secrets = builtins.listToAttrs (builtins.map
