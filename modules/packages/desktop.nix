@@ -90,7 +90,7 @@ inputs:
                       if dir.value == "directory" then builtins.concatLists
                         (builtins.map (f: listDir f) (builtins.readDir dir.name))
                       else [ dir ];
-                    in listDir { name = dir; value = "directory"; };
+                    in dir: listDir { name = dir; value = "directory"; };
                 in builtins.concatStringsSep "," (builtins.map (f: "${nixos-wallpaper}/${f.name}")
                   (builtins.filter (f: (isPicture f.name) && (f.value == "regular"))
                     (listDirRecursive nixos-wallpaper)));
