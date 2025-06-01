@@ -88,7 +88,7 @@ inputs:
                   listDirRecursive =
                     let listDir = dir:
                       if dir.value == "directory" then builtins.concatLists
-                        (builtins.map (f: listDir f) (builtins.readDir dir.name))
+                        (builtins.map (f: listDir f) (inputs.localLib.attrsToList (builtins.readDir dir.name)))
                       else [ dir ];
                     in dir: listDir { name = dir; value = "directory"; };
                 in builtins.concatStringsSep "," (builtins.map (f: "${nixos-wallpaper}/${f.name}")
