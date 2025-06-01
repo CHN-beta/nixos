@@ -23,7 +23,6 @@
       version = inputs.self.rev or "dirty";
       stdenv = pkgs.pkgsStatic.gcc14Stdenv;
     };
-  inherit (pkgs.localPackages) blog;
   inherit (pkgs.localPackages.pkgsStatic) chn-bsub;
   vaspberry = pkgs.pkgsStatic.localPackages.vaspberry.override
   {
