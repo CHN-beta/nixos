@@ -18,6 +18,7 @@ let
       inherit allowInsecurePredicate;
       allowUnfree = true;
       android_sdk.accept_license = true;
+      allowBroken = true;
     }
     // (inputs.lib.optionalAttrs (nixpkgs.march != null)
     {
