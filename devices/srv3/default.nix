@@ -91,7 +91,7 @@ inputs:
         vaultwarden.enable = true;
         photoprism.enable = true;
         nextcloud = {};
-        freshrss.enable = true;
+        freshrss = {};
         send = {};
         huginn = {};
         httpapi.enable = true;
