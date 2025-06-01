@@ -85,9 +85,15 @@ inputs:
                   inherit (inputs.topInputs) nixos-wallpaper;
                   isPicture = f: builtins.elem (inputs.lib.last (inputs.lib.splitString "." f))
                     [ "png" "jpg" "jpeg" "webp" ];
+                  listDirRecursive =
+                    let listDir = dir:
+                      if dir.value == "directory" then builtins.concatLists
+                        (builtins.map (f: listDir f) (builtins.readDir dir.name))
+                      else [ dir ];
+                    in listDir { name = dir; value = "directory"; };
                 in builtins.concatStringsSep "," (builtins.map (f: "${nixos-wallpaper}/${f.name}")
                   (builtins.filter (f: (isPicture f.name) && (f.value == "regular"))
-                    (inputs.localLib.attrsToList (builtins.readDir nixos-wallpaper))));
+                    (listDirRecursive nixos-wallpaper)));
             };
             powerdevil =
               let config =
