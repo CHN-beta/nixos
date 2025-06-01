@@ -62,10 +62,5 @@ inputs:
         beesd."/" = {};
       };
     };
-    specialisation.generic.configuration =
-    {
-      nixos.system.nixpkgs.march = inputs.lib.mkForce null;
-      system.nixos.tags = [ "generic" ];
-    };
   };
 }
