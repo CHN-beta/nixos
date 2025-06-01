@@ -7,7 +7,14 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.packages) molecule; in inputs.lib.mkIf (molecule != null)
   {
-    nixos.packages.packages._packages = with inputs.pkgs;
-      [ ovito localPackages.vesta localPackages.v-sim localPackages.ufo inputs.pkgs.pkgs-2311.hdfview ];
+    nixos.packages.packages =
+    {
+      _packages = with inputs.pkgs;
+        [ ovito localPackages.vesta localPackages.v-sim localPackages.ufo inputs.pkgs.pkgs-2311.hdfview ];
+      _pythonPackages = [(pythonPackages: with pythonPackages;
+      [
+        phonopy inputs.pkgs.localPackages.phono3py
+      ])];
+    };
   };
 }
