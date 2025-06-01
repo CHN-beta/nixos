@@ -137,7 +137,6 @@ in platformConfig //
             sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
           '';});});
         opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
-        # TODO: maybe something really broken?
         openvswitch = prev.openvswitch.overrideAttrs (prev: { doCheck = false; });
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
         valkey = prev.valkey.overrideAttrs { doCheck = false; };
@@ -145,14 +144,22 @@ in platformConfig //
         # https://github.com/embree/embree/issues/115
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
+        libhwy = prev.libhwy.override { stdenv = final.genericPackages.stdenv; };
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-        {
-          scipy = prev.scipy.overridePythonAttrs (prev:
-            { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
-          rich = prev.rich.overridePythonAttrs (prev:
-            { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
-          # paperwork-backend = prev.paperwork-backend.overrideAttrs (prev: { doCheck = false; });
-        })];
+        (
+          {
+            scipy = prev.scipy.overridePythonAttrs (prev:
+              { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
+            rich = prev.rich.overridePythonAttrs (prev:
+              { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
+            # paperwork-backend = prev.paperwork-backend.overrideAttrs (prev: { doCheck = false; });
+          }
+          // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx2Support)
+            {
+              numcodecs = prev.numcodecs.overridePythonAttrs (prev:
+                { disabledTests = prev.disabledTests or [] ++ [ "test_encode_decode" "test_partial_decode" ]; });
+            })
+        ))];
         inherit (final.pkgs-2411) intelPackages_2023;
       })
       # // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
