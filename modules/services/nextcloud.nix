@@ -57,7 +57,7 @@ inputs:
           };
         in builtins.listToAttrs (builtins.map
           (package: { name = package; value = inputs.pkgs.fetchNextcloudApp (getInfo package); })
-          [ "maps" "phonetrack" "twofactor_webauthn" "calendar" ]);
+          [ "phonetrack" "twofactor_webauthn" "calendar" ]);
     };
     nixos.services =
     {
