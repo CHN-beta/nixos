@@ -42,13 +42,6 @@ inputs:
         pdfgrep ffmpeg-full hdf5
       ]
         ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
-      _pythonPackages = [(pythonPackages: with pythonPackages;
-      [
-        openai python-telegram-bot fastapi-cli pypdf2 pandas matplotlib plotly gunicorn redis jinja2
-        certifi charset-normalizer idna orjson psycopg2 inquirerpy requests tqdm pydbus odfpy
-        # for vasp plot-workfunc.py
-        ase
-      ])];
     };
     programs =
     {
