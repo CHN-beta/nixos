@@ -28,7 +28,6 @@ inputs:
       {
         sshd = {};
         fail2ban = {};
-        beesd."/".hashTableSizeMB = 64;
         xray.server.serverName = "xserver.vps4.chn.moe";
       };
     };
