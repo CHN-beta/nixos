@@ -123,6 +123,8 @@ in platformConfig //
       )
       // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
         { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
+      // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx512Support)
+        { libhwy = prev.libhwy.override { stdenv = final.genericPackages.stdenv; }; })
       // (inputs.lib.optionalAttrs (nixpkgs.march != null)
       {
         libinsane = prev.libinsane.overrideAttrs (prev:
@@ -146,7 +148,6 @@ in platformConfig //
         # https://github.com/embree/embree/issues/115
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
-        libhwy = prev.libhwy.override { stdenv = final.genericPackages.stdenv; };
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
         (
           {
