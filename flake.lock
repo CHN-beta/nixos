@@ -3,12 +3,12 @@
     "blog": {
       "flake": false,
       "locked": {
-        "lastModified": 1748496213,
+        "lastModified": 1748747072,
         "lfs": true,
-        "narHash": "sha256-yoJ8G3ZmYu/qdDBckj/qz5ErOtpBlqHBqxMaL3ZTKuI=",
+        "narHash": "sha256-izrCxPYD8UEqJplL5bztdOGOxG7egdCgmXU6vaDDpGM=",
         "ref": "refs/heads/public",
-        "rev": "005a0715053936815c5e4be26236915d915d81c2",
-        "revCount": 29,
+        "rev": "a1f6487f8110df62d120114b8a88e84c94cf6278",
+        "revCount": 31,
         "type": "git",
         "url": "https://git.chn.moe/chn/blog-public.git"
       },
@@ -35,6 +35,26 @@
       "original": {
         "owner": "CHN-beta",
         "repo": "bscpkgs",
+        "type": "github"
+      }
+    },
+    "buildproxy": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1709212359,
+        "narHash": "sha256-La70ax79Hrp/Vz2G3gzI4fLgRd2z3lJrYLvCf+xcTj4=",
+        "owner": "polygon",
+        "repo": "nix-buildproxy",
+        "rev": "c26d73992ddae96812501b5ae1cc45037d8b10be",
+        "type": "github"
+      },
+      "original": {
+        "owner": "polygon",
+        "repo": "nix-buildproxy",
         "type": "github"
       }
     },
@@ -809,6 +829,7 @@
       "inputs": {
         "blog": "blog",
         "bscpkgs": "bscpkgs",
+        "buildproxy": "buildproxy",
         "catppuccin": "catppuccin",
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",

@@ -35,6 +35,7 @@ in platformConfig //
   [
     inputs.topInputs.nur-xddxdd.overlays.inSubTree
     inputs.topInputs.nix-vscode-extensions.overlays.default
+    inputs.topInputs.buildproxy.overlays.default
     (final: prev:
     {
       inherit (inputs.topInputs.nix-vscode-extensions.overlays.default final prev) nix-vscode-extensions;
