@@ -4,41 +4,26 @@ inputs:
   {
     type = types.nullOr (types.submodule { options =
     {
-      hostname = mkOption { type = types.nonEmptyStr; default = "rsshub.chn.moe"; };
+      hostname = mkOption { type = types.str; default = "rsshub.chn.moe"; };
     };});
     default = null;
   };
   config = let inherit (inputs.config.nixos.services) rsshub; in inputs.lib.mkIf (rsshub != null)
   {
-    systemd =
+    virtualisation.oci-containers.containers.rsshub =
     {
-      services.rsshub =
-      {
-        description = "rsshub";
-        after = [ "network.target" "redis-rsshub.service" ];
-        requires = [ "redis-rsshub.service" ];
-        wantedBy = [ "multi-user.target" ];
-        serviceConfig =
-        {
-          User = "rsshub";
-          Group = "rsshub";
-          EnvironmentFile = inputs.config.sops.templates."rsshub/env".path;
-          WorkingDirectory = "${inputs.pkgs.localPackages.rsshub}";
-          ExecStart = "${inputs.pkgs.localPackages.rsshub}/bin/rsshub";
-          CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
-          AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
-        };
-        restartTriggers = [ inputs.config.sops.templates."rsshub/env".content ];
-      };
-      tmpfiles.rules = [ "d /var/cache/rsshub 0700 rsshub rsshub" ];
+      image = "rsshub:latest";
+      imageFile = inputs.topInputs.self.src.rsshub;
+      ports = [ "127.0.0.1:5221:5221/tcp" ];
+      extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
+      environmentFiles = [ inputs.config.sops.templates."rsshub/env".path ];
     };
     sops =
     {
       templates."rsshub/env".content = let placeholder = inputs.config.sops.placeholder; in
       ''
         PORT=5221
-        CACHE_TYPE=redis
-        REDIS_URL='redis://:${placeholder."redis/rsshub"}@127.0.0.1:7116'
+        CACHE_TYPE=memory
         PIXIV_REFRESHTOKEN='${placeholder."rsshub/pixiv-refreshtoken"}'
         YOUTUBE_KEY='${placeholder."rsshub/youtube-key"}'
         YOUTUBE_CLIENT_ID='${placeholder."rsshub/youtube-client-id"}'
@@ -59,15 +44,7 @@ inputs:
         "zhihu-cookies"
       ]));
     };
-    users =
-    {
-      users.rsshub = { uid = inputs.config.nixos.user.uid.rsshub; group = "rsshub"; isSystemUser = true; };
-      groups.rsshub.gid = inputs.config.nixos.user.gid.rsshub;
-    };
-    nixos.services =
-    {
-      redis.instances.rsshub.port = 7116;
-      nginx = { enable = true; https.${rsshub.hostname}.location."/".proxy.upstream = "http://127.0.0.1:5221"; };
-    };
+    nixos.services.nginx =
+      { enable = true; https.${rsshub.hostname}.location."/".proxy.upstream = "http://127.0.0.1:5221"; };
   };
 }
