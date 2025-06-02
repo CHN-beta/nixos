@@ -866,6 +866,7 @@
         "rycee": "rycee",
         "sops-nix": "sops-nix",
         "sqlite-orm": "sqlite-orm",
+        "sticker": "sticker",
         "stickerpicker": "stickerpicker",
         "tgbot-cpp": "tgbot-cpp",
         "ufo": "ufo",
@@ -940,6 +941,24 @@
         "owner": "fnc12",
         "repo": "sqlite_orm",
         "type": "github"
+      }
+    },
+    "sticker": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1748842256,
+        "lfs": true,
+        "narHash": "sha256-os0NWrft+N/HFy/+WRWup4fOHZLSLHANejih7qdXPxA=",
+        "ref": "refs/heads/main",
+        "rev": "2826c739c5602c5998afdcb3d041d521a214429a",
+        "revCount": 1,
+        "type": "git",
+        "url": "https://git.chn.moe/chn/sticker.git"
+      },
+      "original": {
+        "lfs": true,
+        "type": "git",
+        "url": "https://git.chn.moe/chn/sticker.git"
       }
     },
     "stickerpicker": {

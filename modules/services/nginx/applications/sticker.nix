@@ -11,7 +11,7 @@ inputs:
         mkdir -p $out
         cp -r ${inputs.topInputs.stickerpicker}/web/* $out
         chmod -R +w $out
-        cp -r ${./web}/* $out
+        cp -r ${inputs.topInputs.sticker}/web/* $out
       '');
       index = [ "index.html" ];
     };
