@@ -130,7 +130,7 @@ inputs:
                 }) bridge.value.devs)
               (inputs.localLib.attrsToList networking.bridge))))
             (builtins.listToAttrs (builtins.map
-              (network: { name = "10-${network.name}"; value.networkConfig.IPMasquerade = "both"; })
+              (network: { name = "10-${network}"; value.networkConfig.IPMasquerade = "both"; })
               networking.masquerade))
           ];
           netdevs = builtins.listToAttrs (builtins.map
