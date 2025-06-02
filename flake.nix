@@ -42,7 +42,7 @@
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
     mumax = { url = "github:CHN-beta/mumax"; flake = false; };
-    openxlsx = { url = "github:troldal/OpenXLSX"; flake = false; };
+    openxlsx = { url = "github:troldal/OpenXLSX?rev=f85f7f1bd632094b5d78d4d1f575955fc3801886"; flake = false; };
     sqlite-orm = { url = "github:fnc12/sqlite_orm"; flake = false; };
     nc4nix = { url = "github:helsinki-systems/nc4nix"; flake = false; };
     hextra = { url = "github:imfing/hextra"; flake = false; };
