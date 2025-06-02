@@ -19,7 +19,6 @@ inputs:
         };
         fileSystems.mount.btrfs."/dev/disk/by-partlabel/srv1-node2-nodatacow" =
           { "/nix/nodatacow" = "/nix/nodatacow"; "/nix/backups" = "/nix/backups"; };
-        initrd.network = {};
       };
       services =
       {

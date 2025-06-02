@@ -13,7 +13,6 @@ inputs:
             { ip = "192.168.178.2"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
           trust = [ "eno2" ];
         };
-        initrd.network = {};
       };
       services.beesd."/".threads = 4;
     };
