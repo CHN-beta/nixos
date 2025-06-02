@@ -38,6 +38,8 @@ inputs:
         "igb"
         # touchscreen for one
         "pinctrl-tigerlake"
+        # bridge networking
+        "bridge"
       ]
         ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ]);
       extraModulePackages = with inputs.config.boot.kernelPackages; [ v4l2loopback zenpower ];
