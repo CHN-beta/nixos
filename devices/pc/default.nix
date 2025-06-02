@@ -80,8 +80,8 @@ inputs:
           # TODO: remove on next month
           xray =
           {
-            serverAddress = inputs.topInputs.self.config.dns."chn.moe".getAddress "xserver.srv3";
-            serverName = "xserver.srv3.chn.moe";
+            serverAddress = inputs.topInputs.self.config.dns."chn.moe".getAddress "xserver.vps4";
+            serverName = "xserver.vps4.chn.moe";
           };
           dnsmasq.hosts = builtins.listToAttrs
           (
