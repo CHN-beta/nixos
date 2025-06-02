@@ -8,14 +8,16 @@ inputs:
       system =
       {
         nixpkgs.march = "znver3";
-        networking.static.enp58s0 =
-          { ip = "192.168.178.2"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
+        networking =
+        {
+          static.enp58s0 =
+            { ip = "192.168.178.2"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
+          trust = [ "enp58s0" ];
+        };
         initrd.network = {};
       };
       services.beesd."/".hashTableSizeMB = 64;
     };
     services.hardware.bolt.enable = true;
-    # make slurm sub process to be able to communicate with the master
-    networking.firewall.trustedInterfaces = [ "enp58s0" ];
   };
 }

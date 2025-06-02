@@ -8,10 +8,15 @@ inputs:
       system =
       {
         nixpkgs.march = "cascadelake";
-        networking.static =
+        networking =
         {
-          eno145 = { ip = "192.168.1.10"; mask = 24; gateway = "192.168.1.1"; };
-          eno146 = { ip = "192.168.178.1"; mask = 24; };
+          static =
+          {
+            eno145 = { ip = "192.168.1.10"; mask = 24; gateway = "192.168.1.1"; };
+            eno146 = { ip = "192.168.178.1"; mask = 24; };
+          };
+          masquerade = [ "eno146" ];
+          trust = [ "eno146" ];
         };
       };
       services =
@@ -23,10 +28,5 @@ inputs:
       packages.packages._prebuildPackages =
         [ inputs.topInputs.self.nixosConfigurations.srv1-node1.pkgs.localPackages.vasp.intel ];
     };
-    # allow other machine access network by this machine
-    systemd.network.networks."10-eno146".networkConfig.IPMasquerade = "both";
-    # without this, tproxy does not work
-    # TODO: why?
-    networking.firewall.trustedInterfaces = [ "eno146" ];
   };
 }

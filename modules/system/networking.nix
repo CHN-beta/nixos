@@ -27,6 +27,8 @@ inputs:
       };
       # wpa_passphrase SSID(wifi name) PSK(password)
       wireless = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+      trust = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+      masquerade = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     };});
     default = null;
   };
@@ -127,6 +129,9 @@ inputs:
                   };
                 }) bridge.value.devs)
               (inputs.localLib.attrsToList networking.bridge))))
+            (builtins.listToAttrs (builtins.map
+              (network: { name = "10-${network.name}"; value.networkConfig.IPMasquerade = "both"; })
+              networking.masquerade))
           ];
           netdevs = builtins.listToAttrs (builtins.map
             (network: { name = "10-${network}"; value.netdevConfig = { Name = network; Kind = "bridge"; }; })
@@ -143,6 +148,7 @@ inputs:
               networking.wireless);
             secretsFile = inputs.config.sops.templates."wireless.env".path;
           };
+          firewall.trustedInterfaces = networking.trust;
         };
         # dnsable dns fallback, use provided dns servers or no dns
         services.resolved.fallbackDns = [];

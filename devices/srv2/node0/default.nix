@@ -13,6 +13,8 @@ inputs:
         {
           static.eno2 = { ip = "192.168.178.1"; mask = 24; };
           wireless = [ "457的5G" ];
+          masquerade = [ "eno2" ];
+          trust = [ "eno2" ];
         };
       };
       services =
@@ -29,9 +31,5 @@ inputs:
         ollama = {};
       };
     };
-    # allow other machine access network by this machine
-    systemd.network.networks."10-eno2".networkConfig.IPMasquerade = "both";
-    # without this, tproxy does not work
-    networking.firewall.trustedInterfaces = [ "eno2" ];
   };
 }
