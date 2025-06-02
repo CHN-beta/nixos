@@ -90,9 +90,6 @@ in platformConfig //
                 #     cfn-lint = prev.cfn-lint.overridePythonAttrs { doCheck = false; };
                 #   })];
                 #   rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
-                #   ctranslate2 = (prev.ctranslate2.override { withCUDA = false; withCuDNN = false; })
-                #     .overrideAttrs (prev:
-                #       { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
                 #   valkey = prev.valkey.overrideAttrs { doCheck = false; };
                 # }
                 # // inputs.lib.optionalAttrs
@@ -148,6 +145,8 @@ in platformConfig //
         # https://github.com/embree/embree/issues/115
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
+        ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
+          { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
         (
           {
