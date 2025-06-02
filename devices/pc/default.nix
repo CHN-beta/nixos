@@ -88,14 +88,8 @@ inputs:
             (builtins.map
               (name: { inherit name; value = "144.34.225.59"; })
               [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
-            ++ (builtins.map
-              (name: { inherit name; value = "0.0.0.0"; })
-              [ "log-upload.mihoyo.com" "uspider.yuanshen.com" "ys-log-upload.mihoyo.com" ])
           )
-          // {
-            "4006024680.com" = "192.168.199.1";
-            "hpc.xmu.edu.cn" = "121.192.191.11";
-          };
+          // { "4006024680.com" = "192.168.199.1"; };
         };
         acme.cert."debug.mirism.one" = {};
         nix-serve = {};
