@@ -164,7 +164,6 @@ inputs:
     services.udev.extraRules = ''ACTION=="add", ATTR{power/wakeup}="disabled"'';
     # 允许kvm读取物理硬盘
     users.users.qemu-libvirtd.extraGroups = [ "disk" ];
-    networking.extraHosts = "144.34.225.59 mirism.one beta.mirism.one ng01.mirism.one";
     services.colord.enable = true;
   };
 }
