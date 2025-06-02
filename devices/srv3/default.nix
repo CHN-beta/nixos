@@ -19,12 +19,16 @@ inputs:
         };
         nixpkgs.march = "haswell";
         initrd.sshd = {};
-        networking.static.eno1 =
+        networking =
         {
-          ip = "23.135.236.216";
-          mask = 24;
-          gateway = "23.135.236.1";
-          dns = "8.8.8.8";
+          bridge.nixvirt.devs = [ "eno1" ];
+          static.nixvirt =
+          {
+            ip = "23.135.236.216";
+            mask = 24;
+            gateway = "23.135.236.1";
+            dns = "8.8.8.8";
+          };
         };
       };
       hardware.cpus = [ "intel" ];
