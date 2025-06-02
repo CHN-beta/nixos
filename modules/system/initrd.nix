@@ -48,7 +48,11 @@ inputs:
             systemd.network =
               let inherit (inputs.config.nixos.system.networking) dhcp static bridge; in
               let
-                networks = dhcp ++ (builtins.attrNames static) ++ (builtins.attrNames bridge);
+                networks = inputs.lib.unique
+                (
+                  dhcp ++ (builtins.attrNames static) ++ (builtins.attrNames bridge)
+                  ++ (builtins.concatLists (builtins.map (network: network.devs) (builtins.attrValues bridge)))
+                );
                 netdevs = builtins.attrNames bridge;
               in
               {
