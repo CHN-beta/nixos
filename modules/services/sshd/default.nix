@@ -37,6 +37,11 @@ inputs:
         ''
           [ -f /etc/fancy-motd/banner ] && lolcat -f /etc/fancy-motd/banner
           motd
+          echo '**维护通知**'
+          echo "我计划这周末找个没人用的时间更新一下。大约需要停机半个小时。登陆方式不需要更改。"
+          echo "主要的修改包括："
+          echo "* 移除了桌面环境。远程桌面没有了。x11 forwarding 还可以用。"
+          echo "* 会用另外一个硬盘组 RAID。这样万一某一个硬盘坏了，数据也不会丢失。"
         '';})];
       };
       # generate from https://patorjk.com/software/taag with font "BlurVision ASCII"
