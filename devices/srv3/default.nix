@@ -106,7 +106,5 @@ inputs:
       };
       user.users = [ "chn" "aleksana" "alikia" "pen" "reonokiy" ];
     };
-    # TODO: use a generic way
-    boot.initrd.systemd.network.networks."10-eno1" = inputs.config.systemd.network.networks."10-eno1";
   };
 }

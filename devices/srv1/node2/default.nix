@@ -14,6 +14,7 @@ inputs:
         };
         fileSystems.mount.btrfs."/dev/disk/by-partlabel/srv1-node2-nodatacow" =
           { "/nix/nodatacow" = "/nix/nodatacow"; "/nix/backups" = "/nix/backups"; };
+        initrd.network = {};
       };
       services =
       {
@@ -22,7 +23,6 @@ inputs:
         kvm.nodatacow = true;
       };
     };
-    boot.initrd.systemd.network.networks."10-eno2" = inputs.config.systemd.network.networks."10-eno2";
     # make slurm sub process to be able to communicate with the master
     networking.firewall.trustedInterfaces = [ "eno2" ];
     # add a bridge for kvm
