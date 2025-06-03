@@ -8,7 +8,7 @@ inputs:
       system =
       {
         nixpkgs.march = "cascadelake";
-        networking =
+        network =
         {
           static =
           {

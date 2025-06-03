@@ -19,7 +19,7 @@ inputs:
         };
         initrd.sshd = {};
         nixpkgs.march = "silvermont";
-        networking = {};
+        network = {};
       };
       hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
       services =

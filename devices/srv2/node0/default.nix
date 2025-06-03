@@ -9,7 +9,7 @@ inputs:
       system =
       {
         nixpkgs.march = "skylake";
-        networking =
+        network =
         {
           static.eno2 = { ip = "192.168.178.1"; mask = 24; };
           wireless = [ "457的5G" ];

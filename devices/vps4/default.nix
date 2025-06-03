@@ -22,7 +22,7 @@ inputs:
         grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
         nixpkgs.march = "znver2";
         initrd.sshd = {};
-        networking = {};
+        network = {};
       };
       services =
       {

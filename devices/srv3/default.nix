@@ -19,7 +19,7 @@ inputs:
         };
         nixpkgs.march = "haswell";
         initrd.sshd = {};
-        networking =
+        network =
         {
           bridge.nixvirt.interfaces = [ "eno1" ];
           static.nixvirt =

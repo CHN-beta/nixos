@@ -1,6 +1,6 @@
 inputs:
 {
-  options.nixos.system.networking = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.system.network = let inherit (inputs.lib) mkOption types; in mkOption
   {
     # null: use network-manager; otherwise use networkd
     type = types.nullOr (types.submodule { options =
@@ -32,7 +32,7 @@ inputs:
     };});
     default = null;
   };
-  config = let inherit (inputs.config.nixos.system) networking; in inputs.lib.mkMerge
+  config = let inherit (inputs.config.nixos.system) network; in inputs.lib.mkMerge
   [
     # general config
     {
@@ -61,7 +61,7 @@ inputs:
       };
       networking.nftables = { enable = true; flushRuleset = false; };
     }
-    (inputs.localLib.mkConditional (networking == null)
+    (inputs.localLib.mkConditional (network == null)
       {
         networking.networkmanager =
         {
@@ -88,7 +88,7 @@ inputs:
                   linkConfig.RequiredForOnline = "routable";
                 };
               })
-              networking.dhcp))
+              network.dhcp))
             (builtins.listToAttrs (builtins.map
               (network:
               {
@@ -103,7 +103,7 @@ inputs:
                   dns = inputs.lib.mkIf (network.value.dns != null) [ network.value.dns ];
                 };
               })
-              (inputs.localLib.attrsToList networking.static)))
+              (inputs.localLib.attrsToList network.static)))
             (builtins.listToAttrs (builtins.map
               (network:
               {
@@ -115,7 +115,7 @@ inputs:
                   linkConfig.RequiredForOnline = "routable";
                 };
               })
-              (inputs.localLib.attrsToList networking.bridge)))
+              (inputs.localLib.attrsToList network.bridge)))
             (builtins.listToAttrs (builtins.concatLists (builtins.map
               (bridge: builtins.map
                 (network:
@@ -128,38 +128,38 @@ inputs:
                     linkConfig.RequiredForOnline = "enslaved";
                   };
                 }) bridge.value.interfaces)
-              (inputs.localLib.attrsToList networking.bridge))))
+              (inputs.localLib.attrsToList network.bridge))))
             (builtins.listToAttrs (builtins.map
               (network: { name = "10-${network}"; value.networkConfig.IPMasquerade = "both"; })
-              networking.masquerade))
+              network.masquerade))
           ];
           netdevs = builtins.listToAttrs (builtins.map
             (network: { name = "10-${network}"; value.netdevConfig = { Name = network; Kind = "bridge"; }; })
-            (builtins.attrNames networking.bridge));
+            (builtins.attrNames network.bridge));
         };
         networking =
         {
           useNetworkd = true;
-          wireless = inputs.lib.mkIf (networking.wireless != null)
+          wireless = inputs.lib.mkIf (network.wireless != null)
           {
             enable = true;
             networks = builtins.listToAttrs (builtins.map
               (network: { name = network; value.pskRaw = "ext:${network}"; })
-              networking.wireless);
+              network.wireless);
             secretsFile = inputs.config.sops.templates."wireless.env".path;
           };
-          firewall.trustedInterfaces = networking.trust;
+          firewall.trustedInterfaces = network.trust;
         };
         # dnsable dns fallback, use provided dns servers or no dns
         services.resolved.fallbackDns = [];
-        sops = inputs.lib.mkIf (networking.wireless != null)
+        sops = inputs.lib.mkIf (network.wireless != null)
         {
           templates."wireless.env".content = builtins.concatStringsSep "\n" (builtins.map
             (network: "${network}=${inputs.config.sops.placeholder."wireless/${network}"}")
-            networking.wireless);
+            network.wireless);
           secrets = builtins.listToAttrs (builtins.map
             (network: { name = "wireless/${network}"; value = {}; })
-            networking.wireless);
+            network.wireless);
         };
     })
   ];

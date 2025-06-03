@@ -16,7 +16,7 @@ inputs:
           rollingRootfs = {};
         };
         nixpkgs.march = "znver4";
-        networking = {};
+        network = {};
       };
       hardware.cpus = [ "amd" ];
       services.sshd = {};

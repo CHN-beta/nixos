@@ -22,7 +22,7 @@ inputs:
         "sr_mod" "usbcore" "usbhid" "usbip-core" "usb-common" "usb_storage" "vhci-hcd" "virtio" "virtio_blk"
         "virtio_net" "virtio_ring" "virtio_scsi" "cryptd" "libaes"
         "ahci" "ata_piix" "nvme" "sdhci_acpi" "virtio_pci" "xhci_pci"
-        # networking for nas
+        # network for nas
         "igb"
         # disk for srv1
         "megaraid_sas"
@@ -38,7 +38,7 @@ inputs:
         "igb"
         # touchscreen for one
         "pinctrl-tigerlake"
-        # bridge networking
+        # bridge network
         "bridge"
       ]
         ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ]);

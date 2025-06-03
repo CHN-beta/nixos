@@ -16,7 +16,7 @@ inputs:
           rollingRootfs = {};
         };
         nixpkgs.march = "haswell";
-        networking = {};
+        network = {};
       };
       hardware.cpus = [ "intel" ];
       services =
