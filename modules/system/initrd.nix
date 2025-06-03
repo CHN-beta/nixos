@@ -51,7 +51,7 @@ inputs:
                 networks = inputs.lib.unique
                 (
                   dhcp ++ (builtins.attrNames static) ++ (builtins.attrNames bridge)
-                  ++ (builtins.concatLists (builtins.map (network: network.devs) (builtins.attrValues bridge)))
+                  ++ (builtins.concatLists (builtins.map (network: network.interfaces) (builtins.attrValues bridge)))
                 );
                 netdevs = builtins.attrNames bridge;
               in

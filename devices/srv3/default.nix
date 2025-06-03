@@ -21,7 +21,7 @@ inputs:
         initrd.sshd = {};
         networking =
         {
-          bridge.nixvirt.devs = [ "eno1" ];
+          bridge.nixvirt.interfaces = [ "eno1" ];
           static.nixvirt =
           {
             ip = "23.135.236.216";

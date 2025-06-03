@@ -21,7 +21,7 @@ inputs:
       {
         type = types.attrsOf (types.submodule { options =
         {
-          devs = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+          interfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
         };});
         default = {};
       };
@@ -127,7 +127,7 @@ inputs:
                     networkConfig.Bridge = bridge.name;
                     linkConfig.RequiredForOnline = "enslaved";
                   };
-                }) bridge.value.devs)
+                }) bridge.value.interfaces)
               (inputs.localLib.attrsToList networking.bridge))))
             (builtins.listToAttrs (builtins.map
               (network: { name = "10-${network}"; value.networkConfig.IPMasquerade = "both"; })
