@@ -45,6 +45,8 @@ inputs:
         };
         service.DISABLE_REGISTRATION = true;
         security.LOGIN_REMEMBER_DAYS = 365;
+        "git.timeout" = builtins.listToAttrs (builtins.map (n: { name = n; value = 1800; })
+          [ "DEFAULT" "MIGRATE" "MIRROR" "CLONE" "PULL" "GC" ]);
       };
     };
     nixos.services =
