@@ -34,7 +34,7 @@ inputs:
           [ (inputs.pkgs.fancy-motd.overrideAttrs { src = inputs.topInputs.fancy-motd; }) ];
         user.sharedModules = [(home-inputs: { config.programs.zsh.loginExtra =
         ''
-          [ -f /etc/fancy-motd/banner ] && lolcat -f /etc/fancy-motd/banner
+          [ -f /etc/fancy-motd/banner ] && (lolcat -f /etc/fancy-motd/banner 2> /dev/null)
           motd
         '';})];
       };
