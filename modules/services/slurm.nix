@@ -53,7 +53,7 @@ inputs:
       {
         slurm =
         {
-          package = (inputs.pkgs.slurm.override { enableGtk2 = true; }).overrideAttrs
+          package = (inputs.pkgs.slurm.override { enableX11 = false; enableNVML = false; }).overrideAttrs
             (prev:
               let
                 inherit (inputs.config.nixos.system.nixpkgs) cuda;
