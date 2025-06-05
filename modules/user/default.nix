@@ -32,6 +32,7 @@ inputs:
         alikia = 1018;
         pen = 1019;
         reonokiy = 1020;
+        zqq = 1021;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;

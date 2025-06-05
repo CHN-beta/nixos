@@ -81,7 +81,7 @@ inputs:
         };
       };
       packages = { vasp = {}; mumax = {}; lammps = {}; };
-      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" "yxf" "hss" "zzn" ];
+      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" "yxf" "hss" "zzn" "zqq" ];
     };
   };
 }
