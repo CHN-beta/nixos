@@ -2,24 +2,32 @@ inputs:
 {
   options.nixos.services.xray = let inherit (inputs.lib) mkOption types; in
   {
-    client =
+    client = mkOption
     {
-      enable = mkOption { type = types.bool; default = false; };
-      xray =
+      type = types.nullOr (types.submodule (submoduleInputs: { options =
       {
-        serverAddress = mkOption { type = types.nonEmptyStr; default = "144.34.225.59"; };
-        serverName = mkOption { type = types.nonEmptyStr; default = "vps6.xserver.chn.moe"; };
-      };
-      dnsmasq =
-      {
-        extraInterfaces = mkOption
+        xray =
         {
-          type = types.listOf types.nonEmptyStr;
-          default = inputs.lib.optional (inputs.config.nixos.services.docker != null) "docker0";
+          serverName = mkOption { type = types.nonEmptyStr; default = "xserver2.chn.moe"; };
+          serverAddress = mkOption
+          {
+            type = types.nonEmptyStr;
+            default = inputs.topInputs.self.config.dns."chn.moe".getAddress
+              (inputs.lib.removeSuffix ".chn.moe" submoduleInputs.config.xray.serverName);
+          };
         };
-        hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
-      };
-      v2ray-forwarder.noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
+        dnsmasq =
+        {
+          extraInterfaces = mkOption
+          {
+            type = types.listOf types.nonEmptyStr;
+            default = inputs.lib.optional (inputs.config.nixos.services.docker != null) "docker0";
+          };
+          hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+        };
+        v2ray-forwarder.noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
+      };}));
+      default = null;
     };
     server = mkOption
     {
@@ -35,12 +43,12 @@ inputs:
     {
       assertions =
       [{
-        assertion = !(xray.client.enable && xray.server != null);
+        assertion = !(xray.client != null && xray.server != null);
         message = "Currenty xray.client and xray.server could not be simutaniusly enabled.";
       }];
     }
     (
-      inputs.lib.mkIf xray.client.enable
+      inputs.lib.mkIf (xray.client != null)
       {
         services =
         {
@@ -55,7 +63,7 @@ inputs:
               server = [ "127.0.0.1#10853" ];
               interface = xray.client.dnsmasq.extraInterfaces ++ [ "lo" ];
               bind-dynamic = true;
-              address = map (host: "/${host.name}/${host.value}")
+              address = builtins.map (host: "/${host.name}/${host.value}")
                 (inputs.localLib.attrsToList xray.client.dnsmasq.hosts);
             };
           };
@@ -67,132 +75,127 @@ inputs:
           {
             owner = inputs.config.users.users.v2ray.name;
             group = inputs.config.users.users.v2ray.group;
-            content =
-              let
-                chinaDns = "223.5.5.5";
-                foreignDns = "8.8.8.8";
-              in
-              builtins.toJSON
+            content = let chinaDns = "223.5.5.5"; foreignDns = "8.8.8.8"; in builtins.toJSON
+            {
+              log.loglevel = "warning";
+              dns =
               {
-                log.loglevel = "warning";
-                dns =
-                {
-                  servers =
-                  # 先尝试匹配域名列表进行查询，若匹配成功则使用前两个 dns 查询。
-                  # 若匹配域名列表失败，或者匹配成功但是查询到的 IP 不在期望的 IP 列表中，则回落到使用后两个 dns 依次查询。
-                  [
-                    {
-                      address = chinaDns;
-                      domains = [ "geosite:geolocation-cn" ];
-                      expectIPs = [ "geoip:cn" ];
-                      skipFallback = true;
-                    }
-                    {
-                      address = foreignDns;
-                      domains = [ "geosite:geolocation-!cn" ];
-                      expectIPs = [ "geoip:!cn" ];
-                      skipFallback = true;
-                    }
-                    { address = chinaDns; expectIPs = [ "geoip:cn" ]; }
-                    { address = foreignDns; }
-                  ];
-                  disableCache = true;
-                  queryStrategy = "UseIPv4";
-                  tag = "dns-internal";
-                };
-                inbounds =
+                servers =
+                # 先尝试匹配域名列表进行查询，若匹配成功则使用前两个 dns 查询。
+                # 若匹配域名列表失败，或者匹配成功但是查询到的 IP 不在期望的 IP 列表中，则回落到使用后两个 dns 依次查询。
                 [
                   {
-                    port = 10853;
-                    protocol = "dokodemo-door";
-                    settings = { address = "8.8.8.8"; network = "tcp,udp"; port = 53; };
-                    tag = "dns-in";
+                    address = chinaDns;
+                    domains = [ "geosite:geolocation-cn" ];
+                    expectIPs = [ "geoip:cn" ];
+                    skipFallback = true;
                   }
                   {
-                    port = 10880;
-                    protocol = "dokodemo-door";
-                    settings = { network = "tcp,udp"; followRedirect = true; };
-                    streamSettings.sockopt.tproxy = "tproxy";
-                    sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
-                    tag = "common-in";
+                    address = foreignDns;
+                    domains = [ "geosite:geolocation-!cn" ];
+                    expectIPs = [ "geoip:!cn" ];
+                    skipFallback = true;
                   }
-                  {
-                    port = 10881;
-                    protocol = "dokodemo-door";
-                    settings = { network = "tcp,udp"; followRedirect = true; };
-                    streamSettings.sockopt.tproxy = "tproxy";
-                    tag = "xmu-in";
-                  }
-                  {
-                    port = 10883;
-                    protocol = "dokodemo-door";
-                    settings = { network = "tcp,udp"; followRedirect = true; };
-                    streamSettings.sockopt.tproxy = "tproxy";
-                    tag = "proxy-in";
-                  }
-                  { port = 10884; protocol = "socks"; settings.udp = true; tag = "proxy-socks-in"; }
-                  { port = 10882; protocol = "socks"; settings.udp = true; tag = "direct-in"; }
+                  { address = chinaDns; expectIPs = [ "geoip:cn" ]; }
+                  { address = foreignDns; }
                 ];
-                outbounds =
-                [
-                  {
-                    protocol = "vless";
-                    settings.vnext =
-                    [{
-                      address = xray.client.xray.serverAddress;
-                      port = 443;
-                      users =
-                      [{
-                        id = inputs.config.sops.placeholder."xray-client/uuid";
-                        encryption = "none";
-                        flow = "xtls-rprx-vision-udp443";
-                      }];
-                    }];
-                    streamSettings =
-                    {
-                      network = "raw";
-                      security = "reality";
-                      realitySettings =
-                      {
-                        serverName = xray.client.xray.serverName;
-                        publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
-                        fingerprint = "firefox";
-                      };
-                    };
-                    tag = "proxy-vless";
-                  }
-                  { protocol = "freedom"; tag = "direct"; }
-                  { protocol = "dns"; tag = "dns-out"; }
-                  {
-                    protocol = "socks";
-                    settings.servers = [{ address = "127.0.0.1"; port = 10069; }];
-                    tag = "xmu-out";
-                  }
-                  { protocol = "blackhole"; tag = "block"; }
-                ];
-                routing =
-                {
-                  domainStrategy = "AsIs";
-                  rules = builtins.map (rule: rule // { type = "field"; })
-                  [
-                    { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
-                    { inboundTag = [ "dns-internal" ]; ip = [ chinaDns ]; outboundTag = "direct"; }
-                    { inboundTag = [ "dns-internal" ]; ip = [ foreignDns ]; outboundTag = "proxy-vless"; }
-                    { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
-                    { inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
-                    { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
-                    { inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = "proxy-vless"; }
-                    { inboundTag = [ "common-in" ]; domain = [ "geosite:geolocation-cn" ]; outboundTag = "direct"; }
-                    {
-                      inboundTag = [ "common-in" ];
-                      domain = [ "geosite:geolocation-!cn" ];
-                      outboundTag = "proxy-vless";
-                    }
-                    { inboundTag = [ "common-in" ]; ip = [ "geoip:cn" ]; outboundTag = "direct"; }
-                    { inboundTag = [ "common-in" ]; outboundTag = "proxy-vless"; }
-                  ];
-                };
+                disableCache = true;
+                queryStrategy = "UseIPv4";
+                tag = "dns-internal";
               };
+              inbounds =
+              [
+                {
+                  port = 10853;
+                  protocol = "dokodemo-door";
+                  settings = { address = "8.8.8.8"; network = "tcp,udp"; port = 53; };
+                  tag = "dns-in";
+                }
+                {
+                  port = 10880;
+                  protocol = "dokodemo-door";
+                  settings = { network = "tcp,udp"; followRedirect = true; };
+                  streamSettings.sockopt.tproxy = "tproxy";
+                  sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
+                  tag = "common-in";
+                }
+                {
+                  port = 10881;
+                  protocol = "dokodemo-door";
+                  settings = { network = "tcp,udp"; followRedirect = true; };
+                  streamSettings.sockopt.tproxy = "tproxy";
+                  tag = "xmu-in";
+                }
+                {
+                  port = 10883;
+                  protocol = "dokodemo-door";
+                  settings = { network = "tcp,udp"; followRedirect = true; };
+                  streamSettings.sockopt.tproxy = "tproxy";
+                  tag = "proxy-in";
+                }
+                { port = 10884; protocol = "socks"; settings.udp = true; tag = "proxy-socks-in"; }
+                { port = 10882; protocol = "socks"; settings.udp = true; tag = "direct-in"; }
+              ];
+              outbounds =
+              [
+                {
+                  protocol = "vless";
+                  settings.vnext =
+                  [{
+                    address = xray.client.xray.serverAddress;
+                    port = 443;
+                    users =
+                    [{
+                      id = inputs.config.sops.placeholder."xray-client/uuid";
+                      encryption = "none";
+                      flow = "xtls-rprx-vision-udp443";
+                    }];
+                  }];
+                  streamSettings =
+                  {
+                    network = "raw";
+                    security = "reality";
+                    realitySettings =
+                    {
+                      inherit (xray.client.xray) serverName;
+                      publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
+                      fingerprint = "firefox";
+                    };
+                  };
+                  tag = "proxy-vless";
+                }
+                { protocol = "freedom"; tag = "direct"; }
+                { protocol = "dns"; tag = "dns-out"; }
+                {
+                  protocol = "socks";
+                  settings.servers = [{ address = "127.0.0.1"; port = 10069; }];
+                  tag = "xmu-out";
+                }
+                { protocol = "blackhole"; tag = "block"; }
+              ];
+              routing =
+              {
+                domainStrategy = "AsIs";
+                rules = builtins.map (rule: rule // { type = "field"; })
+                [
+                  { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
+                  { inboundTag = [ "dns-internal" ]; ip = [ chinaDns ]; outboundTag = "direct"; }
+                  { inboundTag = [ "dns-internal" ]; ip = [ foreignDns ]; outboundTag = "proxy-vless"; }
+                  { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
+                  { inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
+                  { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
+                  { inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = "proxy-vless"; }
+                  { inboundTag = [ "common-in" ]; domain = [ "geosite:geolocation-cn" ]; outboundTag = "direct"; }
+                  {
+                    inboundTag = [ "common-in" ];
+                    domain = [ "geosite:geolocation-!cn" ];
+                    outboundTag = "proxy-vless";
+                  }
+                  { inboundTag = [ "common-in" ]; ip = [ "geoip:cn" ]; outboundTag = "direct"; }
+                  { inboundTag = [ "common-in" ]; outboundTag = "proxy-vless"; }
+                ];
+              };
+            };
           };
           secrets."xray-client/uuid" = {};
         };
@@ -345,7 +348,7 @@ inputs:
                       protocol = "vless";
                       settings =
                       {
-                        clients = map
+                        clients = builtins.map
                           (n:
                           {
                             id = inputs.config.sops.placeholder."xray-server/clients/${n}";

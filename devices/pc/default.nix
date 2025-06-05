@@ -74,23 +74,13 @@ inputs:
           };
         };
         sshd = {};
-        xray.client =
-        {
-          enable = true;
-          # TODO: remove on next month
-          xray =
-          {
-            serverAddress = inputs.topInputs.self.config.dns."chn.moe".getAddress "xserver.vps4";
-            serverName = "xserver.vps4.chn.moe";
-          };
-          dnsmasq.hosts = builtins.listToAttrs
-          (
-            (builtins.map
-              (name: { inherit name; value = "144.34.225.59"; })
-              [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
-          )
-          // { "4006024680.com" = "192.168.199.1"; };
-        };
+        xray.client.dnsmasq.hosts = builtins.listToAttrs
+        (
+          (builtins.map
+            (name: { inherit name; value = "144.34.225.59"; })
+            [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
+        )
+        // { "4006024680.com" = "192.168.199.1"; };
         acme.cert."debug.mirism.one" = {};
         nix-serve = {};
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";

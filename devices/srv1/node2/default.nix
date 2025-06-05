@@ -22,7 +22,7 @@ inputs:
       };
       services =
       {
-        xray.client.enable = true;
+        xray.client = {};
         beesd."/".threads = 4;
         kvm.nodatacow = true;
       };

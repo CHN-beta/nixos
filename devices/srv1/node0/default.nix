@@ -22,7 +22,7 @@ inputs:
       services =
       {
         sshd.motd = true;
-        xray.client = { enable = true; dnsmasq.extraInterfaces = [ "eno146" ]; };
+        xray.client.dnsmasq.extraInterfaces = [ "eno146" ];
         beesd."/" = { hashTableSizeMB = 128; threads = 4; };
         samba = { hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
       };
