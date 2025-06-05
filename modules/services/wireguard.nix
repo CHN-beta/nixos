@@ -42,7 +42,6 @@ inputs:
               persistentKeepalive = if peer.value.endpoint != null then 10 else null;
             })
             (inputs.localLib.attrsToList wg.value.peer);
-          dynamicEndpointRefreshSeconds = 60;
         };
       })
       (inputs.localLib.attrsToList wireguard));
