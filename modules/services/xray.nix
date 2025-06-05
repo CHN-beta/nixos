@@ -33,7 +33,7 @@ inputs:
     {
       type = types.nullOr (types.submodule { options =
       {
-        serverName = mkOption { type = types.nonEmptyStr; };
+        serverName = mkOption { type = types.nonEmptyStr; default = "xserver2.chn.moe"; };
       };});
       default = null;
     };

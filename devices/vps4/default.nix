@@ -28,7 +28,7 @@ inputs:
       {
         sshd = {};
         fail2ban = {};
-        xray.server.serverName = "xserver.vps4.chn.moe";
+        xray.server = {};
       };
     };
   };
