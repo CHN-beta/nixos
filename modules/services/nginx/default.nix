@@ -366,38 +366,13 @@ inputs:
         systemd.services.nginx-proxy =
           let
             ip = "${inputs.pkgs.iproute2}/bin/ip";
-            nft = "${inputs.pkgs.nftables}/bin/nft";
-            nftConfigFile = inputs.pkgs.writeText "nginx.nft"
-            ''
-              table inet nginx {
-                chain output {
-                  type route hook output priority mangle; policy accept;
-                  # 由本机发出、gid 为 nginx、但源地址不是本地监听的地址，说明是透明代理的第一个包，将这个流标记
-                  # 但这个包本身不需要处理，正常路由即可。
-                  meta skgid ${builtins.toString inputs.config.users.groups.nginx.gid} fib saddr type != local \
-                    ct state new counter ct mark set ct mark | 2
-                  # 由本机发出、作为透明代理的回复，它不能按照通常的路由，它需要被打上标记并被路由到本地
-                  # 这对应于透明代理到本地的服务的情况
-                  ct mark & 2 == 2 ct direction reply counter meta mark set meta mark | 2 accept
-                  return
-                }
-                # 还需要处理透明代理到其它机器的情况，它们的回复需要在 prerouting 中标记
-                chain prerouting {
-                  type filter hook prerouting priority mangle; policy accept;
-                  ct mark & 2 == 2 ct direction reply counter meta mark set meta mark | 2 accept
-                  return
-                }
-              }
-            '';
             start = inputs.pkgs.writeShellScript "nginx-proxy.start"
             ''
-              ${nft} -f ${nftConfigFile}
               ${ip} rule add fwmark 2/2 table 200
               ${ip} route add local 0.0.0.0/0 dev lo table 200
             '';
             stop = inputs.pkgs.writeShellScript "nginx-proxy.stop"
             ''
-              ${nft} delete table inet nginx
               ${ip} rule del fwmark 2/2 table 200
               ${ip} route del local 0.0.0.0/0 dev lo table 200
             '';
@@ -415,6 +390,30 @@ inputs:
             wants = [ "network.target" ];
             wantedBy= [ "multi-user.target" ];
           };
+        networking.nftables.tables.nginx =
+        {
+          family = "inet";
+          content =
+          ''
+            chain output {
+              type route hook output priority mangle; policy accept;
+              # 由本机发出、gid 为 nginx、但源地址不是本地监听的地址，说明是透明代理的第一个包，将这个流标记
+              # 但这个包本身不需要处理，正常路由即可。
+              meta skgid ${builtins.toString inputs.config.users.groups.nginx.gid} fib saddr type != local \
+                ct state new counter ct mark set ct mark | 2
+              # 由本机发出、作为透明代理的回复，它不能按照通常的路由，它需要被打上标记并被路由到本地
+              # 这对应于透明代理到本地的服务的情况
+              ct mark & 2 == 2 ct direction reply counter meta mark set meta mark | 2 accept
+              return
+            }
+            # 还需要处理透明代理到其它机器的情况，它们的回复需要在 prerouting 中标记
+            chain prerouting {
+              type filter hook prerouting priority mangle; policy accept;
+              ct mark & 2 == 2 ct direction reply counter meta mark set meta mark | 2 accept
+              return
+            }
+          '';
+        };
       })
       # streamProxy
       {

@@ -73,7 +73,9 @@ inputs:
         }
         chain output {
           type nat hook output priority dstnat; policy accept;
-          tcp dport 7011 fib daddr type local counter meta mark set meta mark | 4 dnat ip to ${srv2}:22
+          # 需要忽略透明代理发出的流量（gid 不是 nginx）
+          meta skgid != ${builtins.toString inputs.config.users.groups.nginx.gid} tcp dport 7011 fib daddr type local \
+            counter meta mark set meta mark | 4 dnat ip to ${srv2}:22
         }
         chain postrouting {
           type nat hook postrouting priority srcnat; policy accept;
