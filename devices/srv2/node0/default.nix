@@ -29,6 +29,7 @@ inputs:
         groupshare = {};
         hpcstat = {};
         ollama = {};
+        sshd = { groupBanner = true; motd = true; };
       };
     };
   };

@@ -6,6 +6,7 @@ inputs:
     {
       passwordAuthentication = mkOption { type = types.bool; default = false; };
       groupBanner = mkOption { type = types.bool; default = false; };
+      motd = mkOption { type = types.bool; default = false; };
     };});
     default = null;
   };
@@ -25,8 +26,7 @@ inputs:
         };
       };
     }
-    # 如果是服务器，那么启用 motd
-    (inputs.lib.mkIf (inputs.config.nixos.model.type == "server")
+    (inputs.lib.mkIf sshd.motd
     {
       nixos =
       {

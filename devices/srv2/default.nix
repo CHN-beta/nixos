@@ -35,7 +35,7 @@ inputs:
       hardware.gpu.type = "nvidia";
       services =
       {
-        sshd.groupBanner = true;
+        sshd = {};
         slurm =
         {
           enable = true;
