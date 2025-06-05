@@ -199,9 +199,9 @@ inputs:
           };
           secrets."xray-client/uuid" = {};
         };
-        systemd =
+        systemd.services =
         {
-          services.xray =
+          xray =
           {
             serviceConfig =
             {
@@ -216,11 +216,26 @@ inputs:
             };
             restartTriggers = [ inputs.config.sops.templates."xray-client.json".file ];
           };
-          network.networks."10-xray" =
+          v2ray-forwarder =
           {
-            matchConfig.Name = "*";
-            routes = [{ Destination = "0.0.0.0/0"; Type = "local"; Scope = "host"; Table = 100; }];
-            routingPolicyRules = [{ FirewallMark = "1/1"; Table = 100; }];
+            description = "v2ray-forwarder Daemon";
+            after = [ "network.target" ];
+            wantedBy = [ "multi-user.target" ];
+            serviceConfig = let ip = "${inputs.pkgs.iproute2}/bin/ip"; in
+            {
+              Type = "oneshot";
+              RemainAfterExit = true;
+              ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start"
+              ''
+                ${ip} rule add fwmark 1/1 table 100
+                ${ip} route add local 0.0.0.0/0 dev lo table 100
+              '';
+              ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop"
+              ''
+                ${ip} rule del fwmark 1/1 table 100
+                ${ip} route del local 0.0.0.0/0 dev lo table 100
+              '';
+            };
           };
         };
         users =
