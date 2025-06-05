@@ -20,8 +20,6 @@ inputs:
         hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       };
       v2ray-forwarder.noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
-      # 是否允许代理来自其它机器的流量（相关端口会被放行）
-      allowForward = mkOption { type = types.bool; default = true; };
     };
     server = mkOption
     {
