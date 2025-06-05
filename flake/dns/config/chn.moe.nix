@@ -5,7 +5,7 @@ let
     autoroute = [ "api" "git" "grafana" "matrix" "peertube" "send" "synapse" "vikunja" "铜锣湾" ];
     nas = [ "initrd.nas" ];
     office = [ "srv2-node0" ];
-    vps4 = [ "initrd.vps4" "xserver.vps4" ];
+    vps4 = [ "initrd.vps4" "xserver2" ];
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "frp" "initrd.vps6" "misskey" "sticker" "synapse-admin" "tgapi"
