@@ -215,93 +215,26 @@ inputs:
             };
             restartTriggers = [ inputs.config.sops.templates."xray-client.json".file ];
           };
-          # TODO: use existing options
           v2ray-forwarder =
           {
             description = "v2ray-forwarder Daemon";
             after = [ "network.target" ];
             wantedBy = [ "multi-user.target" ];
-            serviceConfig =
-              let
-                ip = "${inputs.pkgs.iproute2}/bin/ip";
-                nft = "${inputs.pkgs.nftables}/bin/nft";
-                autoPort = "10880";
-                xmuPort = "10881";
-                proxyPort = "10883";
-              in
-              {
-                Type = "oneshot";
-                RemainAfterExit = true;
-                ExecStart =
-                  let
-                    loNet =
-                    [
-                      "0.0.0.0/8" "10.0.0.0/8" "100.64.0.0/10" "127.0.0.0/8" "169.254.0.0/16" "172.16.0.0/12"
-                      "192.0.0.0/24" "192.88.99.0/24" "192.168.0.0/16" "59.77.0.143" "198.18.0.0/15"
-                      "198.51.100.0/24" "203.0.113.0/24" "224.0.0.0/4" "240.0.0.0/4"
-                    ];
-                    loNetStr = builtins.concatStringsSep ", " loNet;
-                    noproxyUserStr = builtins.concatStringsSep ", " (builtins.map
-                      (user: builtins.toString inputs.config.nixos.user.uid.${user})
-                      (xray.client.v2ray-forwarder.noproxyUsers ++ [ "v2ray" ]));
-                    nftConfigFile = inputs.pkgs.writeText "v2ray.nft"
-                    ''
-                      table inet v2ray {
-                        set lo_net { type ipv4_addr; flags interval; elements = { ${loNetStr} }; }
-                        set xmu_net { type ipv4_addr; flags interval; }
-                        set noproxy_net { type ipv4_addr; flags interval; elements = { 223.5.5.5 }; }
-                        set noproxy_src_net { type ipv4_addr; flags interval; }
-                        set proxy_net { type ipv4_addr; flags interval; elements = { 8.8.8.8 }; }
-
-                        chain prerouting {
-                          type filter hook prerouting priority mangle; policy accept;
-                          meta l4proto != { tcp, udp } counter return
-
-                          # 对于目标地址为本机的新建的流，标记并永不代理
-                          fib daddr type local ct state new counter ct mark set ct mark | 1 return
-                          ct mark & 1 == 1 counter return
-
-                          ip saddr @noproxy_src_net return
-                          ip daddr @noproxy_net return
-                          ip saddr != 172.16.0.0/12 ip daddr @xmu_net meta l4proto { tcp, udp } \
-                            tproxy ip to :${xmuPort} meta mark set meta mark | 1
-                          ip daddr @proxy_net meta l4proto { tcp, udp } tproxy ip to :${proxyPort} \
-                            meta mark set meta mark | 1
-                          ip daddr @lo_net return
-                          meta l4proto { tcp, udp } tproxy ip to :${autoPort} meta mark set meta mark | 1
-
-                          return
-                        }
-
-                        chain output {
-                          type route hook output priority mangle; policy accept;
-                          ct mark & 1 == 1 counter return
-                          meta skuid { ${noproxyUserStr} } return
-
-                          ip saddr @noproxy_src_net return
-                          ip daddr @noproxy_net return
-                          ip daddr @xmu_net meta mark set meta mark | 1
-                          ip daddr @proxy_net meta mark set meta mark | 1
-                          ip daddr @lo_net return
-                          meta l4proto { tcp, udp } meta mark set meta mark | 1
-
-                          return
-                        }
-                      }
-                    '';
-                  in inputs.pkgs.writeShellScript "v2ray-forwarder.start"
-                  ''
-                    ${nft} -f ${nftConfigFile}
-                    ${ip} rule add fwmark 1/1 table 100
-                    ${ip} route add local 0.0.0.0/0 dev lo table 100
-                  '';
-                ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop"
-                ''
-                  ${nft} delete table inet v2ray
-                  ${ip} rule del fwmark 1/1 table 100
-                  ${ip} route del local 0.0.0.0/0 dev lo table 100
-                '';
-              };
+            serviceConfig = let ip = "${inputs.pkgs.iproute2}/bin/ip"; in
+            {
+              Type = "oneshot";
+              RemainAfterExit = true;
+              ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start"
+              ''
+                ${ip} rule add fwmark 1/1 table 100
+                ${ip} route add local 0.0.0.0/0 dev lo table 100
+              '';
+              ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop"
+              ''
+                ${ip} rule del fwmark 1/1 table 100
+                ${ip} route del local 0.0.0.0/0 dev lo table 100
+              '';
+            };
           };
         };
         users =
@@ -310,12 +243,77 @@ inputs:
           groups.v2ray.gid = inputs.config.nixos.user.gid.v2ray;
         };
         environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
-        networking.firewall =
+        networking =
         {
-          allowedTCPPorts = [ 53 ];
-          allowedUDPPorts = [ 53 ];
-          allowedTCPPortRanges = [{ from = 10880; to = 10884; }];
-          allowedUDPPortRanges = [{ from = 10880; to = 10884; }];
+          nftables.tables.v2ray =
+          {
+            family = "inet";
+            content =
+              let
+                autoPort = "10880";
+                xmuPort = "10881";
+                proxyPort = "10883";
+                loNet =
+                [
+                  "0.0.0.0/8" "10.0.0.0/8" "100.64.0.0/10" "127.0.0.0/8" "169.254.0.0/16" "172.16.0.0/12"
+                  "192.0.0.0/24" "192.88.99.0/24" "192.168.0.0/16" "59.77.0.143" "198.18.0.0/15"
+                  "198.51.100.0/24" "203.0.113.0/24" "224.0.0.0/4" "240.0.0.0/4"
+                ];
+                loNetStr = builtins.concatStringsSep ", " loNet;
+                noproxyUserStr = builtins.concatStringsSep ", " (builtins.map
+                  (user: builtins.toString inputs.config.nixos.user.uid.${user})
+                  (xray.client.v2ray-forwarder.noproxyUsers ++ [ "v2ray" ]));
+              in
+              ''
+                set lo_net { type ipv4_addr; flags interval; elements = { ${loNetStr} }; }
+                set xmu_net { type ipv4_addr; flags interval; }
+                set noproxy_net { type ipv4_addr; flags interval; elements = { 223.5.5.5 }; }
+                set noproxy_src_net { type ipv4_addr; flags interval; }
+                set proxy_net { type ipv4_addr; flags interval; elements = { 8.8.8.8 }; }
+
+                chain prerouting {
+                  type filter hook prerouting priority mangle; policy accept;
+                  meta l4proto != { tcp, udp } counter return
+
+                  # 对于目标地址为本机的新建的流，标记并永不代理
+                  fib daddr type local ct state new counter ct mark set ct mark | 1 return
+                  ct mark & 1 == 1 counter return
+
+                  ip saddr @noproxy_src_net return
+                  ip daddr @noproxy_net return
+                  ip saddr != 172.16.0.0/12 ip daddr @xmu_net meta l4proto { tcp, udp } \
+                    tproxy ip to :${xmuPort} meta mark set meta mark | 1
+                  ip daddr @proxy_net meta l4proto { tcp, udp } tproxy ip to :${proxyPort} \
+                    meta mark set meta mark | 1
+                  ip daddr @lo_net return
+                  meta l4proto { tcp, udp } tproxy ip to :${autoPort} meta mark set meta mark | 1
+
+                  return
+                }
+
+                chain output {
+                  type route hook output priority mangle; policy accept;
+                  ct mark & 1 == 1 counter return
+                  meta skuid { ${noproxyUserStr} } return
+
+                  ip saddr @noproxy_src_net return
+                  ip daddr @noproxy_net return
+                  ip daddr @xmu_net meta mark set meta mark | 1
+                  ip daddr @proxy_net meta mark set meta mark | 1
+                  ip daddr @lo_net return
+                  meta l4proto { tcp, udp } meta mark set meta mark | 1
+
+                  return
+                }
+              '';
+          };
+          firewall =
+          {
+            allowedTCPPorts = [ 53 ];
+            allowedUDPPorts = [ 53 ];
+            allowedTCPPortRanges = [{ from = 10880; to = 10884; }];
+            allowedUDPPortRanges = [{ from = 10880; to = 10884; }];
+          };
         };
       }
     )
@@ -327,11 +325,7 @@ inputs:
             .xray-server.clients;
         in
         {
-          services.xray =
-          {
-            enable = true;
-            settingsFile = inputs.config.sops.templates."xray-server.json".path;
-          };
+          services.xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
           sops =
           {
             templates."xray-server.json" =
