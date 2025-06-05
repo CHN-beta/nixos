@@ -288,24 +288,25 @@ inputs:
       group = "root";
       setuid = true;
     };
-    networking.firewall.allowedTCPPorts = builtins.map (vm: vm.network.vnc.port)
-      (builtins.filter (vm: vm.network.vnc.openFirewall) (builtins.attrValues nixvirt.instance));
-    # TODO: use existing options
-    systemd.services.nixvirt-forward =
-      let
-        nftRules = builtins.concatLists (builtins.concatLists (builtins.map
-          (vm: builtins.map
-            (protocol: builtins.map
-              (port: "${protocol} dport ${builtins.toString port.host} fib daddr type local counter dnat ip to "
-                + "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}"
-                + ":${builtins.toString port.guest}")
-              vm.network.portForward.${protocol})
-            [ "tcp" "udp" ])
-          (builtins.attrValues nixvirt.instance)));
-        nft = "${inputs.pkgs.nftables}/bin/nft";
-        nftConfigFile = inputs.pkgs.writeText "nixvirt.nft"
-        ''
-          table inet nixvirt {
+    networking =
+    {
+      firewall.allowedTCPPorts = builtins.map (vm: vm.network.vnc.port)
+        (builtins.filter (vm: vm.network.vnc.openFirewall) (builtins.attrValues nixvirt.instance));
+      nftables.tables.nixvirt =
+      {
+        family = "inet";
+        content =
+          let nftRules = builtins.concatLists (builtins.concatLists (builtins.map
+            (vm: builtins.map
+              (protocol: builtins.map
+                (port: "${protocol} dport ${builtins.toString port.host} fib daddr type local counter dnat ip to "
+                  + "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}"
+                  + ":${builtins.toString port.guest}")
+                vm.network.portForward.${protocol})
+              [ "tcp" "udp" ])
+            (builtins.attrValues nixvirt.instance)));
+          in
+          ''
             chain prerouting {
               type nat hook prerouting priority dstnat; policy accept;
               ${builtins.concatStringsSep "\n" nftRules}
@@ -314,23 +315,9 @@ inputs:
               type nat hook output priority dstnat; policy accept;
               ${builtins.concatStringsSep "\n" nftRules}
             }
-          }
-        '';
-        start = inputs.pkgs.writeShellScript "nixvirt.start" "${nft} -f ${nftConfigFile}";
-        stop = inputs.pkgs.writeShellScript "nixvirt.stop" "${nft} delete table inet nixvirt";
-      in
-      {
-        description = "nixvirt port forward";
-        after = [ "nftables.service" "nixvirt.service" ];
-        serviceConfig =
-        {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          ExecStart = start;
-          ExecStop = stop;
-        };
-        wantedBy= [ "multi-user.target" ];
+          '';
       };
+    };
     boot.kernelParams =
       let cpusets = builtins.concatLists (builtins.map
         (vm: vm.cpu.set)
