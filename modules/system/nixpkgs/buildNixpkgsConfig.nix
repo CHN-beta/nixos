@@ -13,10 +13,10 @@ let
       { cudaForwardCompat = nixpkgs.cuda.forwardCompat; })
   );
   allowInsecurePredicate = p: inputs.lib.warn "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
+  allowUnfreePredicate = p: inputs.lib.warn "Allowing unfree package ${p.name or "${p.pname}-${p.version}"}" true;
   config = cudaConfig
     // {
-      inherit allowInsecurePredicate;
-      allowUnfree = true;
+      inherit allowInsecurePredicate allowUnfreePredicate;
       android_sdk.accept_license = true;
       allowBroken = true;
     }
@@ -47,7 +47,7 @@ in platformConfig //
       let
         inherit (final) system;
         genericPackages = import inputs.topInputs.nixpkgs
-          { inherit system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
+          { inherit system; config = { inherit allowInsecurePredicate allowUnfreePredicate; }; };
       in
       {
         inherit genericPackages;
