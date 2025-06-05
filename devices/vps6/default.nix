@@ -65,7 +65,7 @@ inputs:
     networking.nftables.tables.forward =
     {
       family = "inet";
-      content = let srv2 = inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.srv2-node0"; in
+      content = let srv2 = inputs.topInputs.self.config.dns."chn.moe".getAddress "wg0.srv2-node0"; in
       ''
         chain prerouting {
           type nat hook prerouting priority dstnat; policy accept;
@@ -77,7 +77,7 @@ inputs:
         }
         chain postrouting {
           type nat hook postrouting priority srcnat; policy accept;
-          oifname wg1 meta mark & 4 == 4 counter masquerade
+          oifname wg0 meta mark & 4 == 4 counter masquerade
         }
       '';
     };
