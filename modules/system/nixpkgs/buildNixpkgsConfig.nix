@@ -22,7 +22,6 @@ let
     }
     // (inputs.lib.optionalAttrs (nixpkgs.march != null)
     {
-      # TODO: test znver3 do use AVX
       oneapiArch = let match = {}; in match.${nixpkgs.march} or nixpkgs.march;
       nvhpcArch = nixpkgs.march;
       # contentAddressedByDefault = true;
@@ -75,38 +74,7 @@ in platformConfig //
             pkgs-unstable =
             {
               source = "nixpkgs-unstable";
-              overlay = final: prev:
-                (inputs.topInputs.self.overlays.default final prev);
-                # {
-                #   ollama = prev.ollama.override { cudaPackages = final.cudaPackages_12_8; };
-                # }
-                # // inputs.lib.optionalAttrs (nixpkgs.march != null)
-                # {
-                #   pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-                #   {
-                #     scipy = prev.scipy.overridePythonAttrs (prev:
-                #       { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
-                #     rapidocr-onnxruntime = prev.rapidocr-onnxruntime.overridePythonAttrs { doCheck = false; };
-                #     cfn-lint = prev.cfn-lint.overridePythonAttrs { doCheck = false; };
-                #   })];
-                #   rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
-                #   valkey = prev.valkey.overrideAttrs { doCheck = false; };
-                # }
-                # // inputs.lib.optionalAttrs
-                #   (builtins.elem nixpkgs.march [ "skylake" "silvermont" "broadwell" "znver3" ])
-                #   { redis = prev.redis.overrideAttrs { doCheck = false; }; }
-                # // inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx2Support)
-                # {
-                #   haskellPackages = prev.haskellPackages.override
-                #   {
-                #     overrides = final: prev:
-                #     {
-                #       crypton = prev.crypton.overrideAttrs
-                #         (prev: { configureFlags = prev.configureFlags or [] ++ [ "--ghc-option=-optc-mno-avx2" ]; });
-                #     };
-                #   };
-                # }
-                #   // (inputs.topInputs.self.overlays.default final prev);
+              overlay = inputs.topInputs.self.overlays.default;
             };
           };
           packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}
@@ -154,17 +122,9 @@ in platformConfig //
               { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
             rich = prev.rich.overridePythonAttrs (prev:
               { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
-            # paperwork-backend = prev.paperwork-backend.overrideAttrs (prev: { doCheck = false; });
           }
-          # // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx2Support)
-          #   {
-          #     numcodecs = prev.numcodecs.overridePythonAttrs (prev:
-          #       { disabledTests = prev.disabledTests or [] ++ [ "test_encode_decode" "test_partial_decode" ]; });
-          #   })
         ))];
         inherit (final.pkgs-2411) intelPackages_2023;
       })
-      # // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
-      #   { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
   )];
 }
