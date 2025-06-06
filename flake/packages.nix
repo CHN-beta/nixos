@@ -43,6 +43,11 @@
     tokenPath = inputs.self.nixosConfigurations.pc.config.sops.secrets."acme/token".path;
     octodns = pkgs.octodns.withProviders (_: with pkgs.octodns-providers; [ cloudflare ]);
   };
+  archive =
+    let devices =
+      [ "nas" "one" "pc" "srv1-node0" "srv1-node1" "srv1-node2" "srv2-node0" "srv2-node1" "srv3" "vps4" "vps6" ];
+    in pkgs.concatText "archive" (builtins.map
+      (d: inputs.self.outputs.nixosConfigurations.${d}.config.system.build.toplevel) devices);
 }
 // (builtins.listToAttrs (builtins.map
   (system: { inherit (system) name; value = system.value.config.system.build.toplevel; })
