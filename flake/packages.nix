@@ -36,7 +36,7 @@
       else if builtins.isAttrs x then builtins.concatMap getDrv (builtins.attrValues x)
       else if builtins.isList x then builtins.concatMap getDrv x
       else [];
-    in pkgs.writeClosure (getDrv (inputs.self.outputs.src));
+    in pkgs.concatText "src" (getDrv (inputs.self.outputs.src));
   dns-push = pkgs.callPackage ./dns
   {
     inherit localLib;
