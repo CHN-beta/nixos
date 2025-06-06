@@ -1,6 +1,14 @@
-* 测试 vasp
 * 测试 huggin rsshub
 * 打包 intel 编译器
 * 切换到 niri，清理 plasma
 * 调整其它用户的 zsh 配置
 * 调整 motd
+* 找到 wg1 不能稳定工作的原因；确定 persistentKeepalive 发包的协议、是否会被正确 NAT。
+* 备份系统
+* 备份数据
+* 清理 mariadb，移动到 persistent
+* 清理多余文件
+* 移动日志到 persistent
+* 更新 srv1
+* 告知将代理改到 xserver2
+* 准备单独一个的 archive
