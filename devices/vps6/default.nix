@@ -27,7 +27,7 @@ inputs:
       services =
       {
         sshd = {};
-        xray.server.serverName = "vps6.xserver.chn.moe";
+        xray.server = {};
         frpServer = { enable = true; serverName = "frp.chn.moe"; };
         nginx =
         {

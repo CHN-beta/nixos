@@ -102,7 +102,7 @@ inputs:
         gitea = { enable = true; ssh = {}; };
         grafana = {};
         fail2ban = {};
-        xray.server.serverName = "xserver.srv3.chn.moe";
+        xray.server = {};
         docker = {};
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
