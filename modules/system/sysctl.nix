@@ -16,6 +16,8 @@ inputs:
         "kernel.sysrq" = 1;
         # set to larger value, otherwise the system will be very slow on low memory machines
         "vm.vfs_cache_pressure" = 100;
+        # when building archive, nix need more than 100k mounts
+        "fs.mount-max" = 1000000;
       };
     }
     (inputs.lib.mkIf (sysctl.laptop-mode != null) { boot.kernel.sysctl."vm.laptop_mode" = sysctl.laptop-mode; })
