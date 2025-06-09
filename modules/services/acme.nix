@@ -48,7 +48,7 @@ inputs:
         CLOUDFLARE_DNS_API_TOKEN=${inputs.config.sops.placeholder."acme/token"}
         CLOUDFLARE_PROPAGATION_TIMEOUT=300
       '';
-      secrets."acme/token".sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml";
+      secrets."acme/token".sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/acme.yaml";
     };
   };
 }
