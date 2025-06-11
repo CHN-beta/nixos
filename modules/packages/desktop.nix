@@ -50,7 +50,7 @@ inputs:
           google-chrome tor-browser
           # office
           crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain activitywatch
-          ydict pspp libreoffice-qt6-fresh ocrmypdf typst
+          ydict pspp libreoffice-qt6-fresh ocrmypdf typst kdePackages.kruler
           # required by ltex-plus.vscode-ltex-plus
           ltex-ls ltex-ls-plus
           # matplot++ needs old gnuplot
