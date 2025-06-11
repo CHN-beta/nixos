@@ -38,7 +38,8 @@ inputs:
               (with github; [ copilot copilot-chat github-vscode-theme ])
               ++ (with intellsmi; [ comment-translate ])
               ++ (with ms-vscode; [ cmake-tools cpptools-extension-pack hexeditor remote-explorer ])
-              ++ (with ms-vscode-remote; [ remote-ssh ])
+              # use remote-ssh from nixpkgs to make it works if remote machine is nixos
+              ++ (with vscode-extensions.ms-vscode-remote; [ remote-ssh ])
               ++ [
                 donjayamanne.githistory fabiospampinato.vscode-diff
                 llvm-vs-code-extensions.vscode-clangd ms-ceintl.vscode-language-pack-zh-hans
