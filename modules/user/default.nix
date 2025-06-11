@@ -126,7 +126,13 @@ inputs:
         imports = user.sharedModules;
         config =
         {
-          programs.git = { userName = "chn"; userEmail = "chn@chn.moe"; };
+          programs.git =
+          {
+            userName = "chn";
+            userEmail = "chn@chn.moe";
+            # allow root operate on git repositories owned by others
+            extraConfig.safe.directory = "*";
+          };
           home.file = inputs.lib.mkIf inputs.config.nixos.model.private
           {
             ".ssh/id_ed25519_sk".source = homeInputs.config.lib.file.mkOutOfStoreSymlink
