@@ -8,7 +8,7 @@ let
     vps4 = [ "initrd.vps4" "xserver2.vps4" ];
     vps6 =
     [
-      "blog" "catalog" "coturn" "element" "frp" "initrd.vps6" "misskey" "sticker" "synapse-admin" "tgapi"
+      "blog" "catalog" "coturn" "element" "initrd.vps6" "misskey" "sticker" "synapse-admin" "tgapi"
       "ua" "xserver2" "xserver2.vps6" "铜锣湾实验室"
     ];
     "xlog.autoroute" = [ "xlog" ];

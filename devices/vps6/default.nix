@@ -27,7 +27,6 @@ inputs:
       {
         sshd = {};
         xray.server = {};
-        frpServer = { enable = true; serverName = "frp.chn.moe"; };
         nginx =
         {
           streamProxy.map =
