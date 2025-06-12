@@ -4,7 +4,6 @@ inputs:
   {
     nixos =
     {
-      hardware.cpu = "amd";
       system =
       {
         nixpkgs.march = "znver3";

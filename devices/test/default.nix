@@ -17,7 +17,6 @@ inputs:
         nixpkgs.march = "haswell";
         network = {};
       };
-      hardware.cpu = "intel";
       services =
       {
         sshd = {};

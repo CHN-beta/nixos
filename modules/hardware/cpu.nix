@@ -1,7 +1,16 @@
 inputs:
 {
   options.nixos.hardware.cpu = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.enum [ "intel" "amd" ]); default = null; };
+  {
+    type = types.enum [ "intel" "amd" ];
+    default = let inherit (inputs.config.nixos.system.nixpkgs) march; in
+      if march == null then null
+      else if inputs.lib.hasPrefix "znver" march then "amd"
+      else if (inputs.lib.hasSuffix "lake" march)
+        || (builtins.elem march [ "sandybridge" "silvermont" "haswell" "broadwell" ])
+        then "intel"
+      else null;
+  };
   config = let inherit (inputs.config.nixos.hardware) cpu; in inputs.lib.mkIf (cpu != null) (inputs.lib.mkMerge
   [
     (inputs.lib.mkIf (cpu == "intel")

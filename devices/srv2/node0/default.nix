@@ -5,7 +5,6 @@ inputs:
     nixos =
     {
       model.cluster.nodeType = "master";
-      hardware.cpu = "intel";
       system =
       {
         nixpkgs.march = "skylake";
