@@ -44,7 +44,8 @@ inputs:
     {
       persistence."/nix/nodatacow".directories = inputs.lib.mkIf kvm.nodatacow
         [{ directory = "/var/lib/libvirt/images"; mode = "0711"; }];
-      systemPackages = with inputs.pkgs; [ qemu_full win-spice guestfs-tools virt-manager virt-viewer ];
+      systemPackages = with inputs.pkgs;
+        [ win-spice guestfs-tools virt-manager virt-viewer inputs.config.virtualisation.qemu.package ];
     };
     systemd.mounts =
     [{
