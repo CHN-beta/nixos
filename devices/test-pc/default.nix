@@ -17,7 +17,7 @@ inputs:
         nixpkgs.march = "znver4";
         network = { dhcp = [ "nixvirt" ]; bridge.nixvirt.interfaces = [ "enp1s0" ]; };
       };
-      hardware.cpus = [ "amd" ];
+      hardware.cpu = "amd";
       services =
       {
         sshd = {};

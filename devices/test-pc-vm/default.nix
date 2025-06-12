@@ -17,7 +17,7 @@ inputs:
         nixpkgs.march = "znver4";
         network = {};
       };
-      hardware.cpus = [ "amd" ];
+      hardware.cpu = "amd";
       services.sshd = {};
     };
   };

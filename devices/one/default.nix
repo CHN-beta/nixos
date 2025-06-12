@@ -20,7 +20,7 @@ inputs:
         };
         nixpkgs.march = "tigerlake";
       };
-      hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
+      hardware = { cpu = "intel"; gpu.type = "intel"; };
       services =
       {
         xray.client = {};

@@ -21,7 +21,7 @@ inputs:
         nixpkgs.march = "silvermont";
         network = {};
       };
-      hardware = { cpus = [ "intel" ]; gpu.type = "intel"; };
+      hardware = { cpu = "intel"; gpu.type = "intel"; };
       services =
       {
         sshd = {};

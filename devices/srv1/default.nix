@@ -18,7 +18,7 @@ inputs:
           swap = [ "/nix/swap/swap" ];
         };
       };
-      hardware.cpus = [ "intel" ];
+      hardware.cpu = "intel";
       services =
       {
         sshd.passwordAuthentication = true;

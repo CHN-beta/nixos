@@ -12,14 +12,10 @@ inputs:
   config = let inherit (inputs.config.nixos.services) kvm; in inputs.lib.mkIf (kvm != null)
   {
     nix.settings.system-features = [ "kvm" ];
-    boot =
+    boot = let inherit (inputs.config.nixos.hardware) cpu; in
     {
-      kernelModules = 
-        let modules = { intel = [ "kvm-intel" ]; amd = []; };
-        in builtins.concatLists (builtins.map (cpu: modules.${cpu}) inputs.config.nixos.hardware.cpus);
-      extraModprobeConfig =
-        let configs = { intel = "options kvm_intel nested=1"; amd = ""; };
-        in builtins.concatStringsSep "\n" (builtins.map (cpu: configs.${cpu}) inputs.config.nixos.hardware.cpus);
+      kernelModules = { intel = [ "kvm-intel" ]; amd = []; }.${cpu};
+      extraModprobeConfig = { intel = "options kvm_intel nested=1"; amd = ""; }.${cpu};
     };
     virtualisation =
     {

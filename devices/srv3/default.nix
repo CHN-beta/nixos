@@ -30,7 +30,7 @@ inputs:
           };
         };
       };
-      hardware.cpus = [ "intel" ];
+      hardware.cpu = "intel";
       services =
       {
         beesd."/" = { hashTableSizeMB = 128; threads = 4;};
