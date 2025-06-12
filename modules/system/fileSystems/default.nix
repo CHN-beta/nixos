@@ -17,7 +17,10 @@ inputs:
       type = types.nullOr (types.oneOf [ types.nonEmptyStr (types.submodule { options =
         { device = mkOption { type = types.nonEmptyStr; }; offset = mkOption { type = types.ints.unsigned; }; };
       })]);
-      default = null;
+      default = let inherit (inputs.config.nixos.system.fileSystems) swap; in
+        if builtins.length swap == 1
+          then if inputs.lib.hasPrefix "/dev/" (builtins.head swap) then builtins.head swap else null
+          else null;
     };
     rollingRootfs = mkOption
     {

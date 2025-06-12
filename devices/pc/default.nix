@@ -28,7 +28,6 @@ inputs:
               { mapper = "swap"; ssd = true; before = [ "root1" ]; };
           };
           swap = [ "/dev/mapper/swap" ];
-          resume = "/dev/mapper/swap";
         };
         grub.windowsEntries."08D3-10DE" = "Windows";
         nix.marches =
