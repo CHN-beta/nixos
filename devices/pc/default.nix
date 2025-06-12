@@ -106,7 +106,7 @@ inputs:
         ananicy = {};
         keyd = {};
         searx = {};
-        kvm = {};
+        kvm.aarch64 = true;
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
         nfs."/" = [ "192.168.84.0/24" ];
       };
