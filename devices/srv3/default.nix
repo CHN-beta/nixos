@@ -15,7 +15,6 @@ inputs:
             btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
           swap = [ "/dev/mapper/swap" ];
-          rollingRootfs = {};
         };
         nixpkgs.march = "haswell";
         initrd.sshd = {};

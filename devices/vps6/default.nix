@@ -17,7 +17,6 @@ inputs:
             };
           };
           swap = [ "/nix/swap/swap" ];
-          rollingRootfs = {};
         };
         grub.installDevice = "/dev/disk/by-path/pci-0000:00:05.0-scsi-0:0:0:0";
         nixpkgs.march = "znver2";

@@ -29,7 +29,6 @@ inputs:
           };
           swap = [ "/dev/mapper/swap" ];
           resume = "/dev/mapper/swap";
-          rollingRootfs = {};
         };
         grub.windowsEntries."08D3-10DE" = "Windows";
         nix.marches =

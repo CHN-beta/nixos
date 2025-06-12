@@ -25,7 +25,7 @@ inputs:
       {
         waitDevices = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
       };});
-      default = null;
+      default = {};
     };
   };
   config = let inherit (inputs.config.nixos.system) fileSystems; in inputs.lib.mkMerge

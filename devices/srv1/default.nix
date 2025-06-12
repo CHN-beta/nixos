@@ -16,7 +16,6 @@ inputs:
               { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
           swap = [ "/nix/swap/swap" ];
-          rollingRootfs = {};
         };
       };
       hardware.cpus = [ "intel" ];

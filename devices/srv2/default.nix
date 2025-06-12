@@ -18,7 +18,6 @@ inputs:
               { mountPoint = "/nix/remote/pc"; hard = false; };
           };
           swap = [ "/nix/swap/swap" ];
-          rollingRootfs = {};
         };
         nixpkgs.cuda.capabilities =
         [
