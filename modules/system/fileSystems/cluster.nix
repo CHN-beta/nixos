@@ -4,7 +4,7 @@ inputs:
   [
     # for cluster master, export NFS
     (inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null == "master")
-      { nixos.services.nfs."/" = "192.168.178.0/24"; })
+      { nixos.services.nfs."/" = [ "192.168.178.0/24" ]; })
     # for cluster worker, mount nfs, disable some home manager files
     (let inherit (inputs.config.nixos.model) cluster; in inputs.lib.mkIf (cluster.nodeType or null == "worker")
       { nixos.system.fileSystems.mount.nfs."192.168.178.1:/" = "/nix/remote/${cluster.clusterName}"; })

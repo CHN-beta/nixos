@@ -110,7 +110,7 @@ inputs:
         searx = {};
         kvm = {};
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
-        nfs."/" = "192.168.84.0/24";
+        nfs."/" = [ "192.168.84.0/24" ];
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
       packages = { android-studio = {}; mathematica = {}; vasp = {}; lammps = {}; };
