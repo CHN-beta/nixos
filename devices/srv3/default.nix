@@ -90,7 +90,7 @@ inputs:
           synapse.matrixHostname = "synapse.chn.moe";
           matrix = { port = 8009; redisPort = 6380; };
         };
-        vaultwarden.enable = true;
+        vaultwarden = {};
         photoprism.enable = true;
         nextcloud = {};
         freshrss = {};
