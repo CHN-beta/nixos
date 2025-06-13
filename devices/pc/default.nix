@@ -106,7 +106,7 @@ inputs:
         nfs."/" = [ "192.168.84.0/24" ];
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
-      packages = { android-studio = {}; mathematica = {}; vasp = {}; lammps = {}; };
+      packages = { mathematica = {}; vasp = {}; lammps = {}; };
     };
     boot.loader.grub =
     {
