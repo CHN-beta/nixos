@@ -97,7 +97,7 @@ inputs:
           };
         };
         ollama = {};
-        docker = {};
+        podman = {};
         ananicy = {};
         keyd = {};
         searx = {};

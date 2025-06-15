@@ -18,11 +18,7 @@ inputs:
         };
         dnsmasq =
         {
-          extraInterfaces = mkOption
-          {
-            type = types.listOf types.nonEmptyStr;
-            default = inputs.lib.optional (inputs.config.nixos.services.docker != null) "docker0";
-          };
+          extraInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
           hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
         };
         v2ray-forwarder.noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };

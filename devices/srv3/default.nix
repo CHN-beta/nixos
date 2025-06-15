@@ -101,7 +101,7 @@ inputs:
         grafana = {};
         fail2ban = {};
         xray.server = {};
-        docker = {};
+        podman = {};
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
         open-webui.ollamaHost = "192.168.83.3";

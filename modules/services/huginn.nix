@@ -51,7 +51,7 @@ inputs:
           https.${huginn.hostname}.location."/".proxy = { upstream = "http://127.0.0.1:3000"; websocket = true; };
         };
         mariadb.instances.huginn = {};
-        docker = {};
+        podman = {};
       };
     };
   };
