@@ -57,6 +57,7 @@ in platformConfig //
         };
         libvirt = (prev.libvirt.override { iptables = final.nftables; }).overrideAttrs
           (prev: { patches = prev.patches or [] ++ [ ./libvirt.patch ]; });
+        podman = prev.podman.override { iptables = final.nftables; };
         root = (prev.root.override { stdenv = final.gcc13Stdenv; }).overrideAttrs (prev:
         {
           patches = prev.patches or [] ++ [ ./root.patch ];
