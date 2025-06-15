@@ -15,14 +15,13 @@ inputs:
       image = "ghcr.io/huginn/huginn:latest";
       imageFile = inputs.topInputs.self.src.huginn;
       ports = [ "127.0.0.1:3000:3000/tcp" ];
-      extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
       environmentFiles = [ inputs.config.sops.templates."huginn/env".path ];
     };
     sops =
     {
       templates."huginn/env".content = let placeholder = inputs.config.sops.placeholder; in
       ''
-        MYSQL_PORT_3306_TCP_ADDR=host.docker.internal
+        MYSQL_PORT_3306_TCP_ADDR=host.containers.internal
         HUGINN_DATABASE_NAME=huginn
         HUGINN_DATABASE_USERNAME=huginn
         HUGINN_DATABASE_PASSWORD=${placeholder."mariadb/huginn"}

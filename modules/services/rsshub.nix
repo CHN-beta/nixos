@@ -15,7 +15,6 @@ inputs:
       image = "rsshub:latest";
       imageFile = inputs.topInputs.self.src.rsshub;
       ports = [ "127.0.0.1:5221:5221/tcp" ];
-      extraOptions = [ "--add-host=host.docker.internal:host-gateway" ];
       environmentFiles = [ inputs.config.sops.templates."rsshub/env".path ];
     };
     sops =

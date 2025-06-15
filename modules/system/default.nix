@@ -45,7 +45,7 @@ inputs:
     };
     i18n = { defaultLocale = "C.UTF-8"; supportedLocales = [ "all" ]; };
     users.mutableUsers = false;
-    virtualisation.oci-containers.backend = "docker";
+    virtualisation.oci-containers.backend = "podman";
     home-manager.sharedModules = [{ home.stateVersion = "25.05"; }];
     system =
     {

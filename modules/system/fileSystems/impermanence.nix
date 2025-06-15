@@ -20,11 +20,7 @@ inputs:
       "/nix/persistent" =
       {
         hideMounts = true;
-        directories =
-        [
-          "/var/db" "/var/lib" "/var/log" "/var/spool" "/var/backup" "/srv"
-          { directory = "/var/lib/docker/volumes"; mode = "0710"; }
-        ];
+        directories = [ "/var/db" "/var/lib" "/var/log" "/var/spool" "/var/backup" "/srv" ];
         files = [ "/etc/machine-id" ]
           ++ (builtins.concatLists (builtins.map
             (suf: builtins.map (f: "/etc/ssh/ssh_host_${f}_key${suf}") [ "ed25519" "rsa" ])
@@ -33,8 +29,7 @@ inputs:
       "/nix/rootfs/current" =
       {
         hideMounts = true;
-        directories = [ { directory = "/var/lib/docker"; mode = "0710"; } ]
-          ++ builtins.map (f: "/var/lib/systemd/${f}") [ "linger" "coredump" "backlight" ];
+        directories = builtins.map (f: "/var/lib/systemd/${f}") [ "linger" "coredump" "backlight" ];
       };
       "/nix/nodatacow" =
       {
