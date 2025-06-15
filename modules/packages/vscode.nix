@@ -72,9 +72,12 @@ inputs:
                 ltex-plus.vscode-ltex-plus
               ]
               # jupyter
-              # TODO: use last release
+              # TODO: pick all extensions from nixpkgs or nix-vscode-extensions, explicitly
               ++ (with vscode-extensions.ms-toolsai;
-                [ jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow ]);
+              [
+                jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow
+                datawrangler
+              ]);
           extraFlags = builtins.concatStringsSep " " inputs.config.nixos.packages.packages._vscodeEnvFlags;
         }
       )];
