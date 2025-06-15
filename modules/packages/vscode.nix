@@ -39,11 +39,6 @@ inputs:
               ++ (with intellsmi; [ comment-translate ])
               ++ (with ms-vscode; [ cmake-tools cpptools-extension-pack hexeditor remote-explorer ])
               ++ (with ms-vscode-remote; [ remote-ssh ])
-              ++ (with ms-toolsai;
-              [
-                jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow
-                datawrangler
-              ])
               ++ [
                 donjayamanne.githistory fabiospampinato.vscode-diff
                 llvm-vs-code-extensions.vscode-clangd ms-ceintl.vscode-language-pack-zh-hans
@@ -75,7 +70,11 @@ inputs:
                 myriad-dreamin.tinymist
                 # grammaly alternative
                 ltex-plus.vscode-ltex-plus
-              ];
+              ]
+              # jupyter
+              # TODO: use last release
+              ++ (with vscode-extensions.ms-toolsai;
+                [ jupyter jupyter-keymap jupyter-renderers vscode-jupyter-cell-tags vscode-jupyter-slideshow ]);
           extraFlags = builtins.concatStringsSep " " inputs.config.nixos.packages.packages._vscodeEnvFlags;
         }
       )];
