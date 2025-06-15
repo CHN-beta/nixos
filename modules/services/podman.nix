@@ -6,7 +6,11 @@ inputs:
   {
     virtualisation =
     {
-      containers.enable = true;
+      containers =
+      {
+        enable = true;
+        containersConf.settings.network.firewall_driver = "nftables";
+      };
       podman =
       {
         enable = true;
