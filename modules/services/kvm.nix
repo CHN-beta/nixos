@@ -50,6 +50,9 @@ inputs:
       options = "bind";
       wantedBy = [ "local-fs.target" ];
     }];
+    # workaround a libvirt bug
+    # https://github.com/NixOS/nixpkgs/issues/263359#issuecomment-1987267279
+    networking.firewall.interfaces."virbr*".allowedUDPPorts = [ 53 67 ];
     hardware.ksm.enable = true;
   };
 }
