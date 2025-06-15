@@ -17,5 +17,6 @@ inputs:
       };
     };
     hardware.nvidia-container-toolkit.enable = inputs.lib.mkIf (inputs.config.nixos.system.nixpkgs.cuda != null) true;
+    networking.firewall.trustedInterfaces = [ "podman0" ]; 
   };
 }
