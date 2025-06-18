@@ -1,20 +1,19 @@
 inputs:
 {
-  options.nixos.services.gitea = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.gitea = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    enable = mkOption { type = types.bool; default = false; };
-    hostname = mkOption { type = types.str; default = "git.chn.moe"; };
-    ssh = mkOption
+    type = types.nullOr (types.submodule { options =
     {
-      type = types.nullOr (types.submodule { options =
+      hostname = mkOption { type = types.str; default = "git.chn.moe"; };
+      ssh =
       {
         hostname = mkOption { type = types.str; default = "ssh.${inputs.config.nixos.services.gitea.hostname}"; };
         port = mkOption { type = types.nullOr types.ints.unsigned; default = null; };
-      };});
-      default = null;
-    };
+      };
+    };});
+    default = null;
   };
-  config = let inherit (inputs.config.nixos.services) gitea; in inputs.lib.mkIf gitea.enable
+  config = let inherit (inputs.config.nixos.services) gitea; in inputs.lib.mkIf (gitea != null)
   {
     services.gitea =
     {
@@ -31,8 +30,8 @@ inputs:
           ROOT_URL = "https://${gitea.hostname}";
           DOMAIN = gitea.hostname;
           HTTP_PORT = 3002;
-          SSH_DOMAIN = inputs.lib.mkIf (gitea.ssh != null) gitea.ssh.hostname;
-          SSH_PORT = inputs.lib.mkIf ((gitea.ssh.port or null) != null) gitea.ssh.port;
+          SSH_DOMAIN = gitea.ssh.hostname;
+          SSH_PORT = inputs.lib.mkIf (gitea.ssh.port != null) gitea.ssh.port;
         };
         mailer =
         {

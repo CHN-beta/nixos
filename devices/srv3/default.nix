@@ -97,7 +97,7 @@ inputs:
         send = {};
         huginn = {};
         httpapi = {};
-        gitea = { enable = true; ssh = {}; };
+        gitea = {};
         grafana = {};
         fail2ban = {};
         xray.server = {};
