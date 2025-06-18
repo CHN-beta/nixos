@@ -96,7 +96,7 @@ inputs:
         freshrss = {};
         send = {};
         huginn = {};
-        httpapi.enable = true;
+        httpapi = {};
         gitea = { enable = true; ssh = {}; };
         grafana = {};
         fail2ban = {};
