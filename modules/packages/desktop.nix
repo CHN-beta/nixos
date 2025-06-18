@@ -30,7 +30,7 @@ inputs:
           obs-studio (inkscape-with-extensions.override { inkscapeExtensions = null; }) kdePackages.kcolorchooser
           kdePackages.kdenlive
           # development
-          adb-sync scrcpy dbeaver-bin aircrack-ng fprettify
+          adb-sync scrcpy dbeaver-bin aircrack-ng fprettify waveterm
           # password and key management
           yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden hashcat
           kdePackages.kleopatra
