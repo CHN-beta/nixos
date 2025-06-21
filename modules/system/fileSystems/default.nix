@@ -115,9 +115,14 @@ inputs:
                 (fileSystems.rollingRootfs.waitDevices ++ [ device ]));
             in
             ''
+              # wait for device to be available
               while ! lsmod | grep -q btrfs; do sleep 1; done
               ${waitDevice}
+
+              # mount device
               mount ${device} /mnt -m
+
+              # move old rootfs, create new one
               if [ -f /mnt/nix/rootfs/current/.timestamp ]
               then
                 timestamp=$(cat /mnt/nix/rootfs/current/.timestamp)
@@ -126,10 +131,20 @@ inputs:
                 btrfs property set -ts /mnt/nix/rootfs/$timestamp-$subvolid ro true
               fi
               [ -d /mnt/nix/rootfs/current ] || btrfs subvolume create /mnt/nix/rootfs/current
-              mkdir -p /mnt/nix/rootfs/current/usr
-              touch /mnt/nix/rootfs/current/usr/make-systemd-happy
               chattr +C /mnt/nix/rootfs/current
               echo $(date '+%Y%m%d%H%M%S') > /mnt/nix/rootfs/current/.timestamp
+
+              # make systemd happy
+              mkdir -p /mnt/nix/rootfs/current/usr
+              touch /mnt/nix/rootfs/current/usr/make-systemd-happy
+
+              # backup persistent
+              if [ -d /mnt/nix/persistent/.bakcups ]
+              then
+                btrfs subvolume snapshot -r /mnt/nix/persistent \
+                  /mnt/nix/persistent/.bakcups/boot-$(date '+%Y%m%d%H%M%S')
+              fi
+
               umount /mnt
             '';
         };
