@@ -60,10 +60,10 @@ inputs:
               touch /mnt/nix/rootfs/current/usr/make-systemd-happy
 
               # backup persistent
-              if [ -d /mnt/nix/persistent/.bakcups ]
+              if [ -d /mnt/nix/persistent/.backups ]
               then
                 btrfs subvolume snapshot -r /mnt/nix/persistent \
-                  /mnt/nix/persistent/.bakcups/boot-$(date '+%Y%m%d%H%M%S')
+                  /mnt/nix/persistent/.backups/boot-$(date '+%Y%m%d%H%M%S')
               fi
 
               umount /mnt
