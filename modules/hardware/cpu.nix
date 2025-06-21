@@ -20,6 +20,10 @@ inputs:
         [ "intel_cstate" "aesni_intel" "intel_cstate" "intel_uncore" "intel_uncore_frequency" "intel_powerclamp" ];
     })
     (inputs.lib.mkIf (cpu == "amd")
-      { hardware.cpu.amd.updateMicrocode = true; environment.systemPackages = [ inputs.pkgs.zenmonitor ]; })
+    {
+      hardware.cpu.amd = { updateMicrocode = true; ryzen-smu.enable = true; };
+      environment.systemPackages = with inputs.pkgs; [ zenmonitor ];
+      programs.ryzen-monitor-ng.enable = true;
+    })
   ]);
 }
