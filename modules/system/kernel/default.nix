@@ -50,6 +50,7 @@ inputs:
         nixos = inputs.pkgs.linuxPackages;
         xanmod-lts = inputs.pkgs.linuxPackages_xanmod;
         xanmod-latest = inputs.pkgs.linuxPackages_xanmod_latest;
+        xanmod-unstable = inputs.pkgs.pkgs-unstable.linuxPackages_xanmod_latest;
       }.${kernel.variant};
       kernelPatches =
         let
