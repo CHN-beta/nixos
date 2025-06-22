@@ -1,6 +1,7 @@
 inputs:
 {
-  config = inputs.lib.mkIf (inputs.config.nixos.model.type == "desktop")
+  config = inputs.lib.mkIf
+    (inputs.config.nixos.model.type == "desktop" && inputs.config.nixos.system.gui.implementation == "kde")
   {
     home-manager.users.chn.config.programs.plasma =
     {

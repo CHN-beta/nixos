@@ -34,14 +34,16 @@ inputs:
         # nix tools
         nix-output-monitor nix-tree ssh-to-age nix-inspect
         # development
-        gdb try inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix rr hexo-cli gh nix-init hugo
+        gdb try rr hexo-cli gh nix-init hugo
         (octodns.withProviders (_: with octodns-providers; [ cloudflare ]))
         # stupid things
         toilet lolcat localPackages.stickerpicker graph-easy
         # office
         pdfgrep ffmpeg-full hdf5
       ]
-        ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
+        ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ])
+        ++ (inputs.lib.optionals (inputs.config.nixos.system.gui.implementation == "kde")
+          [ inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix ]);
     };
     programs =
     {

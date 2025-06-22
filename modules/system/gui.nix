@@ -1,13 +1,17 @@
 inputs:
 {
-  config = inputs.lib.mkMerge
+  options.nixos.system.gui = let inherit (inputs.lib) mkOption types; in
+  {
+    implementation = mkOption { type = types.enum [ "kde" ]; default = "kde"; };
+  };
+  config = let inherit (inputs.config.nixos.system) gui; in inputs.lib.mkMerge
   [
     # enable gui
     (inputs.lib.mkIf (inputs.config.nixos.model.type == "desktop")
     {
       services =
       {
-        desktopManager.plasma6.enable = true;
+        desktopManager.plasma6.enable = inputs.lib.mkIf (gui.implementation == "kde") true;
         greetd =
         {
           enable = true;
@@ -18,7 +22,7 @@ inputs:
               "${inputs.pkgs.greetd.tuigreet}/bin/tuigreet"
               "--sessions ${sessionData}/wayland-sessions --xsessions ${sessionData}/xsessions"
               "--time --asterisks --remember --remember-user-session"
-              "--cmd startplasma-wayland"
+              (inputs.lib.optionalString (gui.implementation == "kde") "--cmd startplasma-wayland")
             ];
         };
       };
@@ -28,7 +32,7 @@ inputs:
         persistence."/nix/persistent".directories =
           [{ directory = "/var/cache/tuigreet"; user = "greeter"; group = "greeter"; mode = "0700"; }];
       };
-      xdg.portal.extraPortals = builtins.map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" ];
+      xdg.portal.extraPortals = builtins.map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" "kde" ];
       i18n.inputMethod =
       {
         enable = true;
@@ -60,6 +64,9 @@ inputs:
     # prefer gui or not
     (inputs.localLib.mkConditional (builtins.elem inputs.config.nixos.model.type [ "desktop" ])
       { environment.sessionVariables.NIXOS_OZONE_WL = "1"; }
-      { environment.plasma6.excludePackages = [ inputs.pkgs.kdePackages.plasma-nm ]; })
+      {
+        environment.plasma6.excludePackages = inputs.lib.mkIf (gui.implementation == "kde")
+          [ inputs.pkgs.kdePackages.plasma-nm ];
+      })
   ];
 }

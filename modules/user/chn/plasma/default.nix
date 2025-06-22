@@ -1,7 +1,8 @@
 inputs:
 {
   imports = inputs.localLib.findModules ./.;
-  config = inputs.lib.mkIf (inputs.config.nixos.packages.desktop != null)
+  config = inputs.lib.mkIf
+    (inputs.config.nixos.packages.desktop != null && inputs.config.nixos.system.gui.implementation == "kde")
   {
     home-manager.users.chn.config.programs.plasma = inputs.lib.mkMerge
     [
