@@ -53,17 +53,7 @@ inputs:
         xanmod-unstable = inputs.pkgs.pkgs-unstable.linuxPackages_xanmod_latest;
       }.${kernel.variant};
       kernelPatches =
-        let
-          patches =
-          {
-            hibernate-progress =
-            [{
-              name = "hibernate-progress";
-              patch =
-                let version = inputs.lib.versions.majorMinor inputs.config.boot.kernelPackages.kernel.version;
-                in ./hibernate-progress-${version}.patch;
-            }];
-          };
+        let patches.hibernate-progress = [{ name = "hibernate-progress"; patch = ./hibernate-progress.patch; }];
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };
   };
