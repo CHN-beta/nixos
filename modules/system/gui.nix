@@ -42,22 +42,16 @@ inputs:
       programs.dconf.enable = true;
       nixos.user.sharedModules = [(hmInputs:
       {
-        config =
+        config.gtk =
         {
-          gtk =
+          enable = true;
+          gtk2 =
           {
-            enable = true;
-            gtk2 =
-            {
-              extraConfig = ''gtk-im-module="fcitx"'';
-              configLocation = "${hmInputs.config.xdg.configHome}/gtk-2.0/gtkrc";
-            };
-            gtk3.extraConfig.gtk-im-module = "fcitx";
-            gtk4.extraConfig.gtk-im-module = "fcitx";
+            extraConfig = ''gtk-im-module="fcitx"'';
+            configLocation = "${hmInputs.config.xdg.configHome}/gtk-2.0/gtkrc";
           };
-          # somehow kde needs this
-          # TODO: debug
-          home.file.".cache/thumbnails/.keep".text = "";
+          gtk3.extraConfig.gtk-im-module = "fcitx";
+          gtk4.extraConfig.gtk-im-module = "fcitx";
         };
       })];
     })
