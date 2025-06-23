@@ -32,7 +32,8 @@ inputs:
         persistence."/nix/persistent".directories =
           [{ directory = "/var/cache/tuigreet"; user = "greeter"; group = "greeter"; mode = "0700"; }];
       };
-      xdg.portal.extraPortals = builtins.map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" "kde" ];
+      xdg.portal.extraPortals = (builtins.map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" ])
+        ++ [ inputs.pkgs.kdePackages.xdg-desktop-portal-kde ];
       i18n.inputMethod =
       {
         enable = true;
