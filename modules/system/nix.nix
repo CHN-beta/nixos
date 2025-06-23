@@ -7,20 +7,9 @@ inputs:
     substituters = mkOption { type = types.listOf types.nonEmptyStr; default = [ "https://nix-store.chn.moe" ]; };
     remote =
     {
-      slave =
-      {
-        enable = mkOption { type = types.bool; default = false; };
-        mandatoryFeatures = mkOption
-        {
-          type = types.listOf types.nonEmptyStr;
-          default = [ "big-parallel" ];
-        };
-      };
-      master =
-      {
-        enable = mkOption { type = types.bool; default = false; };
-        hosts = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-      };
+      slave = mkOption { type = types.nullOr (types.submodule {}); default = null; };
+      # host.[gcc arches]
+      master.host = mkOption { type = types.attrsOf (types.listOf types.nonEmptyStr); default = {}; };
     };
     githubToken.enable = mkOption { type = types.bool; default = inputs.config.nixos.model.private; };
   };
@@ -88,7 +77,7 @@ inputs:
     # substituters
     { nix.settings.substituters = nix.substituters ++ [ "https://cache.nixos.org" ]; }
     # remote.slave
-    (inputs.lib.mkIf nix.remote.slave.enable
+    (inputs.lib.mkIf (nix.remote.slave != null)
     {
       nix =
       {
@@ -103,31 +92,24 @@ inputs:
       };
     })
     # remote.master
-    (inputs.lib.mkIf nix.remote.master.enable
+    (inputs.lib.mkIf (nix.remote.master.host != {})
     {
-      assertions = builtins.map
-        (host: 
-        {
-          assertion = inputs.topInputs.self.nixosConfigurations.${host}.config.nixos.system.nix.remote.slave.enable; 
-          message = "remote.slave.enable is not set for ${host}";
-        })
-        nix.remote.master.hosts;
       nix =
       {
         distributedBuilds = true;
-        buildMachines = builtins.map
-          (host: let hostConfig = inputs.topInputs.self.nixosConfigurations.${host}.config; in
+        buildMachines = inputs.lib.mapAttrsToList
+          (n: v:
           {
-            hostName = host;
+            hostName = n;
             protocol = "ssh-ng";
-            systems = [ "x86_64-linux" ] ++ hostConfig.nix.settings.extra-platforms or [];
+            systems = [ "x86_64-linux" ];
             sshUser = "nix-ssh";
             sshKey = inputs.config.sops.secrets."nix/remote".path;
             maxJobs = 1;
-            inherit (hostConfig.nixos.system.nix.remote.slave) mandatoryFeatures;
-            supportedFeatures = hostConfig.nix.settings.system-features;
+            mandatoryFeatures = [ "big-parallel" ];
+            supportedFeatures = builtins.map (f: "gccarch-${f}") v;
           })
-          nix.remote.master.hosts;
+          nix.remote.master.host;
       };
       sops.secrets."nix/remote" = {};
     })

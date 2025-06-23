@@ -15,6 +15,7 @@ inputs:
           masquerade = [ "eno2" ];
           trust = [ "eno2" ];
         };
+        nix.remote.slave = {};
       };
       services =
       {
