@@ -73,11 +73,15 @@
       hashMode = "recursive";
       message = "Source not found.";
     };
-    licenseManagerImage = pkgs.requireFile
+    licenseManager =
     {
-      name = "lumericalLicenseManager.tar";
-      sha256 = "VOtYMnDRUP74O2lAqMqBDLnXtNS8AhbBhyZBj/2aVoE=";
-      message = "Source not found.";
+      image = "aae2c2c839a4761d7291f84cdcfe9a7598e7a273dc76ad4587f924a8bb87ad8f";
+      imageFile = pkgs.requireFile
+      {
+        name = "lumericalLicenseManager.tar";
+        sha256 = "Fx6Q38V7RKbsLVciA6TzXeqB4UW1+ue0+nWSyDs4shQ=";
+        message = "Source not found.";
+      };
     };
   };
   vesta =

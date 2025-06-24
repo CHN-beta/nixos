@@ -7,10 +7,8 @@ inputs:
   {
     virtualisation.oci-containers.containers.lumericalLicenseManager =
     {
-      image = "lumericallicensemanager:2023r1";
-      imageFile = inputs.topInputs.self.src.lumerical.licenseManagerImage;
-      ports = [ "127.0.0.1:1084:1084/tcp" "127.0.0.1:1055:1055/tcp" "127.0.0.1:2325:2325/tcp" ];
-      extraOptions = [ "--mac-address=00:01:23:45:67:89" ];
+      inherit (inputs.topInputs.self.src.lumerical.licenseManager) image imageFile;
+      extraOptions = [ "--network=host" ];
     };
     nixos.services.podman = {};
   };
