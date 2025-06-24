@@ -75,11 +75,11 @@
     };
     licenseManager =
     {
-      image = "aae2c2c839a4761d7291f84cdcfe9a7598e7a273dc76ad4587f924a8bb87ad8f";
+      image = "7bb3a43bd1ad6103a57f700b13d11d486b6ea117838201e4a29d79b33ac72e3a";
       imageFile = pkgs.requireFile
       {
         name = "lumericalLicenseManager.tar";
-        sha256 = "Fx6Q38V7RKbsLVciA6TzXeqB4UW1+ue0+nWSyDs4shQ=";
+        sha256 = "LgfELG3z7vuMSFMfAAD5JLCNNu166l0gJUk6LKkrVcA=";
         message = "Source not found.";
       };
     };
