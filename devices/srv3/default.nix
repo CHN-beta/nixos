@@ -66,8 +66,8 @@ inputs:
           test =
           {
             owner = "chn";
-            memory.sizeMB = 512;
-            cpu.count = 1;
+            memory.sizeMB = 4096;
+            cpu.count = 4;
             network =
             {
               address = 4;
