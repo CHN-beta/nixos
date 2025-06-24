@@ -75,6 +75,20 @@
     };
     licenseManager =
     {
+      crack = pkgs.requireFile
+      {
+        name = "crack";
+        sha256 = "1a1k3nlaidi0kk2xxamb4pm46iiz6k3sxynhd65y8riylrkck3md";
+        hashMode = "recursive";
+        message = "Source file not found.";
+      };
+      src = pkgs.requireFile
+      {
+        name = "src";
+        sha256 = "1h93r0bb37279dzghi3k2axf0b8g0mgacw0lcww5j3sx0sqjbg4l";
+        hashMode = "recursive";
+        message = "Source file not found.";
+      };
       image = "7bb3a43bd1ad6103a57f700b13d11d486b6ea117838201e4a29d79b33ac72e3a";
       imageFile = pkgs.requireFile
       {

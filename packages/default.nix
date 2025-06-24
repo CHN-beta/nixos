@@ -133,6 +133,8 @@ inputs: rec
     stdenv = inputs.pkgs.callPackage ./oneapi/stdenv.nix { src = inputs.topInputs.self.src.oneapi; inherit gccFull; };
     fmt = (inputs.pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; env.VERBOSE = "1"; };
   });
+  lumericalLicenseManager = inputs.pkgs.callPackage ./lumericalLicenseManager.nix
+    { inherit (inputs.topInputs.self.src.lumerical.licenseManager) src crack; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
