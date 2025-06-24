@@ -104,6 +104,7 @@ inputs:
         podman = {};
         ananicy = {};
         keyd = {};
+        lumericalLicenseManager = {};
         searx = {};
         kvm.aarch64 = true;
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
