@@ -103,7 +103,7 @@ inputs:
         podman = {};
         ananicy = {};
         keyd = {};
-        lumericalLicenseManager = {};
+        lumericalLicenseManager.macAddress = "745d22c7d297";
         searx = {};
         kvm.aarch64 = true;
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
