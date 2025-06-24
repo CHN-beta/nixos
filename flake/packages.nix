@@ -30,6 +30,7 @@
     lapack = pkgs.pkgsStatic.openblas;
   };
   jykang = import ../devices/jykang.xmuhpc { inherit inputs localLib; };
+  xmuhk = import ../devices/xmuhk { inherit inputs localLib; };
   src =
     let getDrv = x:
       if pkgs.lib.isDerivation x then [ x ]
