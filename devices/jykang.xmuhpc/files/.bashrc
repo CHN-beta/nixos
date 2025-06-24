@@ -35,7 +35,7 @@ if [ -f /etc/bashrc ]; then
 fi
 
 if [ -z "${BASHRC_SOURCED-}" ]; then
-	export PATH=$HPCSTAT_SSH_BINDIR:$PATH:$HOME/bin:$HOME/linwei/chn/software/scripts:$HOME/.nix/state/gcroots/current/bin
+	export PATH=$HPCSTAT_SSH_BINDIR:$PATH:$HOME/bin:$HOME/linwei/chn/software/scripts
 	export BASHRC_SOURCED=1
 	if [ "${HPCSTAT_SUBACCOUNT}" == "lyj" ]; then
 		export PATH=$HOME/wuyaping/lyj/bin:$PATH
