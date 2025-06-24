@@ -126,6 +126,7 @@ inputs: rec
     buildProxy = inputs.pkgs.lib.mkBuildproxy ./blog-buildproxy.nix;
   };
   phono3py = inputs.pkgs.python3Packages.callPackage ./phono3py.nix { src = inputs.topInputs.phono3py; };
+  lumerical = inputs.pkgs.callPackage ./lumerical.nix { src = inputs.topInputs.self.src.lumerical.lumerical; };
   vm = inputs.pkgs.callPackage ./vm { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   oneapiPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
   {

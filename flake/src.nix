@@ -64,6 +64,22 @@
     finalImageTag = "latest";
   };
   misskey = {};
+  lumerical =
+  {
+    lumerical = pkgs.requireFile
+    {
+      name = "lumerical.zip";
+      sha256 = "03nfacykfzal29jdmygrgkl0fqsc3yqp4ig86h1h9sirci87k94c";
+      hashMode = "recursive";
+      message = "Source not found.";
+    };
+    licenseManagerImage = pkgs.requireFile
+    {
+      name = "lumericalLicenseManager.tar";
+      sha256 = "VOtYMnDRUP74O2lAqMqBDLnXtNS8AhbBhyZBj/2aVoE=";
+      message = "Source not found.";
+    };
+  };
   vesta =
   {
     version = "3.90.5a";
