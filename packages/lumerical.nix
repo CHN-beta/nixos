@@ -1,23 +1,29 @@
 {
-  stdenv, src, buildFHSEnv,
+  stdenv, src, buildFHSEnv, writeScript,
   libxml2, libz, freeglut, libGLU, xorg, alsa-lib, freetype, wayland, fontconfig, libxkbcommon, systemd, numactl, nss,
   at-spi2-atk, libxcrypt-legacy, glibtool, tbb, libxslt, glib, gtk3, libedit, gdbm, ncurses5, mesa, libdrm, xmlsec
 }:
-let unwrapped = stdenv.mkDerivation
-{
-  name = "lumerical-unwrapped";
-  inherit src;
-  dontConfigure = true;
-  dontBuild = true;
-  installPhase =
+let
+  unwrapped = stdenv.mkDerivation
+  {
+    name = "lumerical-unwrapped";
+    inherit src;
+    dontConfigure = true;
+    dontBuild = true;
+    installPhase =
+    ''
+      mkdir -p $out
+      cp -r $src/v231 $out/opt
+      chmod -R +w $out
+      rm $out/opt/{bin/itkdb-bridge,lib/libxmlsec*,lib/libQt5*}
+    '';
+    dontFixup = true;
+  };
+  startScript = writeScript "fdtd"
   ''
-    mkdir -p $out
-    cp -r $src/v231 $out/opt
-    chmod -R +w $out
-    rm $out/opt/{bin/itkdb-bridge,lib/libxmlsec*,lib/libQt5*}
+    export XDG_SESSION_TYPE=x11
+    /opt/bin/fdtd-solutions-app "$@"
   '';
-  dontFixup = true;
-};
 in buildFHSEnv
 {
   name = "lumerical";
@@ -30,8 +36,7 @@ in buildFHSEnv
     ++ (with xorg; [
      libX11 libXt libICE libXdamage libXfixes xcbutilwm xcbutilimage xcbutilkeysyms xcbutilrenderutil libXcursor
     libXcomposite libXtst libXft libXScrnSaver libSM libXext ]);
-  runScript = "/opt/bin/fdtd-solutions-app";
-  # runScript = "/opt/bin/launcher";
+  runScript = startScript;
 }
 
 # stdenv.mkDerivation
