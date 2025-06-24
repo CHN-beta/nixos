@@ -15,7 +15,7 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.system) nixpkgs; in
   {
-    nixpkgs = import ./buildNixpkgsConfig.nix { inherit inputs; nixpkgs = nixpkgs // { nixRoot = null; }; };
+    nixpkgs = inputs.localLib.buildNixpkgsConfig { inherit inputs; nixpkgs = nixpkgs // { nixRoot = null; }; };
     boot.kernelPatches = inputs.lib.mkIf (nixpkgs.march != null)
     [{
       name = "native kernel";

@@ -59,7 +59,7 @@
     sticker = { url = "git+https://git.chn.moe/chn/sticker.git?lfs=1"; flake = false; };
   };
 
-  outputs = inputs: let localLib = import ./flake/lib.nix inputs.nixpkgs.lib; in
+  outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in
   {
     packages.x86_64-linux = import ./flake/packages.nix { inherit inputs localLib; };
     nixosConfigurations = import ./flake/nixos.nix { inherit inputs localLib; };

@@ -86,4 +86,6 @@ lib: rec
       if (builtins.typeOf pattern) != "list" then throw "pattern should be a list"
       else if pattern == [] then origin
       else deepReplace (builtins.tail pattern) (replace ((builtins.head pattern) // { content = origin; }));
+  
+  buildNixpkgsConfig = import ./buildNixpkgsConfig;
 }
