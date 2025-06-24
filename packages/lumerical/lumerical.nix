@@ -2,7 +2,7 @@
   stdenv, src, buildFHSEnv, writeScript, autoPatchelfHook,
   libxml2, libz, freeglut, libGLU, xorg, alsa-lib, freetype, wayland, fontconfig, libxkbcommon, systemd, numactl, nss,
   at-spi2-atk, libxcrypt-legacy, glibtool, tbb, libxslt, glib, gtk3, libedit, gdbm, ncurses5, mesa, libdrm, xmlsec,
-  libsForQt5
+  libsForQt5, mpi
 }:
 let
   unwrapped = stdenv.mkDerivation
@@ -32,7 +32,7 @@ let
     buildInputs =
     [
       stdenv.cc.cc libxml2 libz freeglut libGLU alsa-lib freetype wayland fontconfig libxkbcommon systemd numactl nss
-      libxcrypt-legacy glibtool tbb libxslt glib gtk3 libedit gdbm ncurses5 mesa libdrm xmlsec
+      libxcrypt-legacy glibtool tbb libxslt glib gtk3 libedit gdbm ncurses5 mesa libdrm xmlsec mpi
     ]
     ++ (with xorg; [
       libX11 libXt libICE libXdamage libXfixes xcbutilwm xcbutilimage xcbutilkeysyms xcbutilrenderutil libXcursor
@@ -48,7 +48,7 @@ let
       chmod -R +w $out
       rm -r $out/opt/{bin/itkdb-bridge,lib/libxmlsec*}
     '';
-    autoPatchelfIgnoreMissingDeps = [ "libmpi.so.12" "libmpi.so.40" "libmex.so" "iboaDesign.so" ];
+    autoPatchelfIgnoreMissingDeps = [ "libmpi.so.12" "libmex.so" "iboaDesign.so" ];
   };
 in buildFHSEnv
 {
@@ -59,7 +59,7 @@ in buildFHSEnv
     unwrapped libxml2 xmlsec libz libGL stdenv.cc.cc.lib
     freeglut libGLU alsa-lib freetype fontconfig libxkbcommon systemd numactl nss
     libxcrypt-legacy glibtool tbb libxslt glib gtk3 libedit gdbm ncurses5 mesa libdrm xmlsec
-    libsForQt5.full libsForQt5.qt5.qtnetworkauth
+    libsForQt5.full libsForQt5.qt5.qtnetworkauth mpi
   ]
   ++ (with xorg; [
     libX11 libXt libICE libXdamage libXfixes xcbutilwm xcbutilimage xcbutilkeysyms xcbutilrenderutil libXcursor
