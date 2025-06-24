@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+nix shell /data/gpfs01/jykang/.nix-portable/nix/var/nix/gcroots/current -c "$(basename "$0")" "$@"
