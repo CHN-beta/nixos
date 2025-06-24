@@ -12,6 +12,6 @@ inputs:
       ports = [ "127.0.0.1:1084:1084/tcp" "127.0.0.1:1055:1055/tcp" "127.0.0.1:2325:2325/tcp" ];
       extraOptions = [ "--mac-address=00:01:23:45:67:89" ];
     };
-    nixos.services.docker = {};
+    nixos.services.podman = {};
   };
 }
