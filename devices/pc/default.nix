@@ -78,7 +78,6 @@ inputs:
             [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
         )
         // { "4006024680.com" = "192.168.199.1"; };
-        acme.cert."debug.mirism.one" = {};
         nix-serve = {};
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
         beesd."/" = { hashTableSizeMB = 4 * 128; threads = 4; };
