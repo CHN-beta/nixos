@@ -96,6 +96,12 @@
         sha256 = "LgfELG3z7vuMSFMfAAD5JLCNNu166l0gJUk6LKkrVcA=";
         message = "Source not found.";
       };
+      license = pkgs.requireFile
+      {
+        name = "license";
+        sha256 = "07rwin14py6pl1brka7krz7k2g9x41h7ks7dmp1lxdassan86484";
+        message = "Source file not found.";
+      };
     };
   };
   vesta =
