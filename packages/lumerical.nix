@@ -37,9 +37,8 @@ let
     ++ (with xorg; [
       libX11 libXt libICE libXdamage libXfixes xcbutilwm xcbutilimage xcbutilkeysyms xcbutilrenderutil libXcursor
       libXcomposite libXtst libXft libXScrnSaver
-    ])
-    ++ (with libsForQt5; [ full qt5.qtnetworkauth qt5.qtimageformats qt5.qtquickcontrols2 ]);
-    nativeBuildInputs = [ autoPatchelfHook libsForQt5.wrapQtAppsHook ];
+    ]);
+    nativeBuildInputs = [ autoPatchelfHook ];
     dontConfigure = true;
     dontBuild = true;
     installPhase =
@@ -47,7 +46,7 @@ let
       mkdir -p $out
       cp -r $src/v231 $out/opt
       chmod -R +w $out
-      rm -r $out/opt/{bin/itkdb-bridge,bin/plugins/imageformats,bin/QtQuick*,lib/libxmlsec*,lib/libQt5*}
+      rm -r $out/opt/{bin/itkdb-bridge,lib/libxmlsec*}
     '';
     autoPatchelfIgnoreMissingDeps = [ "libmpi.so.12" "libmpi.so.40" "libmex.so" "iboaDesign.so" ];
   };
