@@ -2,7 +2,7 @@
   stdenv, src, buildFHSEnv, writeScript, autoPatchelfHook,
   libxml2, libz, freeglut, libGLU, xorg, alsa-lib, freetype, wayland, fontconfig, libxkbcommon, systemd, numactl, nss,
   at-spi2-atk, libxcrypt-legacy, glibtool, tbb, libxslt, glib, gtk3, libedit, gdbm, ncurses5, mesa, libdrm, xmlsec,
-  libsForQt5, mpi
+  libsForQt5, mpi, libGL, xz, libgbm
 }:
 let
   unwrapped = stdenv.mkDerivation
@@ -25,35 +25,45 @@ let
     export XDG_SESSION_TYPE=x11
     /opt/bin/fdtd-solutions-app "$@"
   '';
-  raw = stdenv.mkDerivation
+  cmd = stdenv.mkDerivation
   {
     name = "lumerical";
     inherit src;
     buildInputs =
     [
-      stdenv.cc.cc libxml2 libz freeglut libGLU alsa-lib freetype wayland fontconfig libxkbcommon systemd numactl nss
-      libxcrypt-legacy glibtool tbb libxslt glib gtk3 libedit gdbm ncurses5 mesa libdrm xmlsec mpi
+      stdenv.cc.cc libz libGLU libGL mpi libxml2 xmlsec freeglut fontconfig libxkbcommon systemd tbb xz glib
+      libxcrypt-legacy at-spi2-atk gtk3 libdrm alsa-lib ncurses5 libgbm libedit gdbm
     ]
-    ++ (with xorg; [
-      libX11 libXt libICE libXdamage libXfixes xcbutilwm xcbutilimage xcbutilkeysyms xcbutilrenderutil libXcursor
-      libXcomposite libXtst libXft libXScrnSaver
-    ]);
+      ++ (with xorg;
+      [
+        libXdamage libXfixes libXt libICE libSM xcbutilwm libXft xcbutilimage xcbutilkeysyms xcbutilrenderutil
+        libXcomposite libXcursor libXtst libXScrnSaver
+      ])
+      ++ (with libsForQt5; [ wayland ]);
     nativeBuildInputs = [ autoPatchelfHook ];
     dontConfigure = true;
     dontBuild = true;
     installPhase =
     ''
-      mkdir -p $out
-      cp -r $src/v231 $out/opt
+      mkdir -p $out/opt/ansys_inc
+      cp -r $src/v231 $out/opt/ansys_inc
       chmod -R +w $out
-      rm -r $out/opt/{bin/itkdb-bridge,lib/libxmlsec*}
+
+      # old library that have missing dependencies
+      rm -r $out/opt/ansys_inc/v231/lib/libxmlsec*
+
+      # unused binary, need a lot of libraries
+      rm $out/opt/ansys_inc/v231/bin/itkdb-bridge
+      rm -r $out/opt/ansys_inc/v231/api/matlab
+
+      addAutoPatchelfSearchPath $out/ansys_inc/v231/opt/lib
     '';
-    autoPatchelfIgnoreMissingDeps = [ "libmpi.so.12" "libmex.so" "iboaDesign.so" ];
+    autoPatchelfIgnoreMissingDeps = [ "libmpi.so.12" ];
   };
 in buildFHSEnv
 {
   name = "lumerical";
-  passthru = { inherit unwrapped raw; };
+  passthru = { inherit unwrapped cmd; };
   targetPkgs = pkgs: with pkgs;
   [
     unwrapped libxml2 xmlsec libz libGL stdenv.cc.cc.lib
