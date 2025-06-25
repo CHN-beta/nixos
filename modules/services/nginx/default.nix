@@ -400,16 +400,16 @@ inputs:
               # 由本机发出、gid 为 nginx、但源地址不是本地监听的地址，说明是透明代理的第一个包，将这个流标记
               # 但这个包本身不需要处理，正常路由即可。
               meta skgid ${builtins.toString inputs.config.users.groups.nginx.gid} fib saddr type != local \
-                ct state new counter ct mark set ct mark | 2
+                ct state new counter ct mark set ct mark | 2 return
               # 由本机发出、作为透明代理的回复，它不能按照通常的路由，它需要被打上标记并被路由到本地
               # 这对应于透明代理到本地的服务的情况
-              ct mark & 2 == 2 ct direction reply counter meta mark set meta mark | 2 accept
+              ct mark & 2 == 2 ct direction reply counter meta mark set meta mark | 2 return
               return
             }
             # 还需要处理透明代理到其它机器的情况，它们的回复需要在 prerouting 中标记
             chain prerouting {
               type filter hook prerouting priority mangle; policy accept;
-              ct mark & 2 == 2 ct direction reply counter meta mark set meta mark | 2 accept
+              ct mark & 2 == 2 ct direction reply counter meta mark set meta mark | 2 return
               return
             }
           '';
