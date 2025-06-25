@@ -140,8 +140,6 @@ inputs: rec
       { inherit (inputs.topInputs.self.src.lumerical.licenseManager) src crack; };
     license = inputs.pkgs.callPackage ./lumerical/license.nix
       { src = inputs.topInputs.self.src.lumerical.licenseManager.license; };
-    createLicense = inputs.pkgs.callPackage ./lumerical/createLicense.nix
-      { src = inputs.topInputs.self.src.lumerical.licenseManager.license; };
   };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
