@@ -1,5 +1,5 @@
 # sudo nix build --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' .#xmuhk
-# sudo nix-store --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' -qR ./result | sudo xargs nix-store --store --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' --export > data.nar
+# sudo nix-store --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' -qR ./result | sudo xargs nix-store --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' --export | pv | xz -T0 > xmuhk.nar.xz
 # cat data.nar | nix-store --import
 { inputs, localLib }:
 let
@@ -65,7 +65,7 @@ let
 in pkgs.symlinkJoin
 {
   name = "xmuhk";
-  paths = (with pkgs; [ hello ]) ++ [ lumericalLicenseManager ];
+  paths = (with pkgs; [ hello btop htop iotop pv ]); # ++ [ lumericalLicenseManager ];
   postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
   passthru = { inherit pkgs singularity; };
 }
