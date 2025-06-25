@@ -60,12 +60,13 @@ let
 
       echo "Starting license manager..."
       ${sing} run --pwd /home/ansys_inc/shared_files/licensing --writable-tmpfs \
+        --bind /tmp/lumerical/license.txt:/home/ansys_inc/shared_files/licensing/license_files/ansyslmd.lic \
         ${inputs.self.src.lumerical.licenseManager.sifImageFile}
     '';
 in pkgs.symlinkJoin
 {
   name = "xmuhk";
-  paths = (with pkgs; [ hello btop htop iotop pv ]); # ++ [ lumericalLicenseManager ];
+  paths = (with pkgs; [ hello btop htop iotop pv ]) ++ [ lumericalLicenseManager ];
   postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
   passthru = { inherit pkgs singularity; };
 }
