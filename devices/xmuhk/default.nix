@@ -63,10 +63,15 @@ let
         --bind /tmp/lumerical/license.txt:/home/ansys_inc/shared_files/licensing/license_files/ansyslmd.lic \
         ${inputs.self.src.lumerical.licenseManager.sifImageFile}
     '';
+  lumericalFdtd = pkgs.writeShellScriptBin "lumericalFdtd"
+  ''
+    exec ${pkgs.mpi}/bin/mpirun \
+      ${pkgs.localPackages.lumerical.lumerical.cmd}/opt/ansys_inc/v231/bin/fdtd-engine-ompi-lcl "$@"
+  '';
 in pkgs.symlinkJoin
 {
   name = "xmuhk";
-  paths = (with pkgs; [ hello btop htop iotop pv ]) ++ [ lumericalLicenseManager ];
+  paths = (with pkgs; [ hello btop htop iotop pv ]) ++ [ lumericalLicenseManager lumericalFdtd ];
   postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
   passthru = { inherit pkgs singularity; };
 }
