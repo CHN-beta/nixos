@@ -17,6 +17,7 @@ inputs:
               "/nix" = "/nix";
               "/nix/rootfs/current" = "/";
               "/nix/remote/jykang.xmuhpc" = "/data/gpfs01/jykang/.nix";
+              "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
             };
             nfs."${inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.nas"}:/" =
               { mountPoint = "/nix/remote/nas"; hard = false; };
