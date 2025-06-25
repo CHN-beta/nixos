@@ -1,9 +1,12 @@
+# sudo nix build --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' .#xmuhk
+# sudo nix-store --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' -qR ./result | sudo xargs nix-store --store --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' --export > data.nar
+# cat data.nar | nix-store --import
 { inputs, localLib }:
 let
   pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
   {
     inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
-    nixpkgs = { march = null; cuda = null; nixRoot = null; };
+    nixpkgs = { march = null; cuda = null; nixRoot = "/public/home/xmuhk/.nix"; };
   });
   # go = pkgs.go.overrideAttrs (prev:
   # {
