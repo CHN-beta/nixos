@@ -5,10 +5,24 @@ let
     inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
     nixpkgs = { march = null; cuda = null; nixRoot = null; };
   });
+  # go = pkgs.go.overrideAttrs (prev:
+  # {
+  #   buildInputs = builtins.filter (x: x != pkgs.glibc.static) prev.buildInputs;
+  # });
+  # buildGoModule = pkgs.buildGoModule.override { inherit go; };
+  # singularity = (pkgs.singularity.override { inherit buildGoModule; }).overrideAttrs (prev:
+  # {
+  #   configureFlags = builtins.filter (x: x != "--without-libsubid") prev.configureFlags;
+  #   buildInputs = prev.buildInputs ++ [ pkgs.shadow ];
+  #   # env.CGO_ENABLED = "1";
+  #   # autoPatchelfFlags = [ "--keep-libc" ];
+  # });
   singularity = pkgs.singularity.overrideAttrs (prev:
   {
     configureFlags = builtins.filter (x: x != "--without-libsubid") prev.configureFlags;
     buildInputs = prev.buildInputs ++ [ pkgs.shadow ];
+    # env.CGO_ENABLED = "1";
+    # autoPatchelfFlags = [ "--keep-libc" ];
   });
   lumericalLicenseManager = 
     let
