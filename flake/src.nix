@@ -102,6 +102,12 @@
         sha256 = "07rwin14py6pl1brka7krz7k2g9x41h7ks7dmp1lxdassan86484";
         message = "Source file not found.";
       };
+      sifImageFile = pkgs.requireFile
+      {
+        name = "lumericalLicenseManager.sif";
+        sha256 = "11klba2qsvn99mxljr5cc4495cz3mmnz625f1cra55j6gnia9q4f";
+        message = "Source file not found.";
+      };
     };
   };
   vesta =
