@@ -285,11 +285,12 @@ inputs:
                   ip saddr @noproxy_src_net counter return
                   ip daddr @noproxy_net counter return
                   ip saddr != 172.16.0.0/12 ip daddr @xmu_net meta l4proto { tcp, udp } counter \
-                    tproxy ip to :${xmuPort} meta mark set meta mark | 1
+                    log prefix "XMU MATCH: " tproxy ip to :${xmuPort} meta mark set meta mark | 1
                   ip daddr @proxy_net meta l4proto { tcp, udp } counter tproxy ip to :${proxyPort} \
                     meta mark set meta mark | 1
                   ip daddr @lo_net counter return
-                  meta l4proto { tcp, udp } counter tproxy ip to :${autoPort} meta mark set meta mark | 1
+                  meta l4proto { tcp, udp } counter \
+                    log prefix "COMMON MATCH: " tproxy ip to :${autoPort} meta mark set meta mark | 1
 
                   return
                 }
