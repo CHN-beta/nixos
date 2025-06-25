@@ -48,7 +48,13 @@ inputs:
       {
         services =
         {
-          xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-client.json".path; };
+          xray =
+          {
+            enable = true;
+            # there is a bug in xray 25.05
+            package = inputs.pkgs.pkgs-2411.xray;
+            settingsFile = inputs.config.sops.templates."xray-client.json".path;
+          };
           dnsmasq =
           {
             enable = true;
