@@ -18,15 +18,15 @@ let
       rm -rf /tmp/lumerical
       mkdir -p /tmp/lumerical
 
-      echo 'Searching for ens* interface...'
-      iface=$(${ip} -o link show | ${awk} -F': ' '/^[0-9]+: ens/ {print $2; exit}')
+      echo 'Searching for en* interface...'
+      iface=$(${ip} -o link show | ${awk} -F': ' '/^[0-9]+: en/ {print $2; exit}')
       if [ -n "$iface" ]; then
         echo "Found interface: $iface"
         echo 'Extracting MAC address...'
         mac=$(${ip} link show "$iface" | ${awk} '/link\/ether/ {print $2}' | ${sed} 's/://g')
         echo "Extracted MAC address: $mac"
       else
-        echo "No interface starting with 'ens' found." >&2
+        echo "No interface starting with 'en' found." >&2
         exit 1
       fi
 
