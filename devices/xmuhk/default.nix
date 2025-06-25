@@ -50,4 +50,5 @@ in pkgs.symlinkJoin
   name = "xmuhk";
   paths = (with pkgs; [ hello ]) ++ [ lumericalLicenseManager ];
   postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
+  passthru = { inherit pkgs singularity; };
 }
