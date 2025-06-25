@@ -1,11 +1,12 @@
 # 大概这样做：
 # cp -r ~/repo/stuff/44/Lumerical_Suite_2023_R1_CentOS/{LicenseManager,Crack,License} .
-# sed -i s/xxxxxxxxxxxxx/745d22c7d297/ License/license.txt
-# sed -i s/2022.1231/2026.1231/ License/license.txt
 # podman build .
-# podman image save 7bb3a43bd1ad6103a57f700b13d11d486b6ea117838201e4a29d79b33ac72e3a > image.tar
+# podman image save --format oci-archive 6803f9562b941c23db81a2eae5914561f96fa748536199a010fe6f24922b2878 -o image.tar
+# singularity build image.sif oci-archive://image.tar
 # nix store add-file ./image.tar --name lumericalLicenseManager.tar
-# nix hash file /nix/store/sh4mrjsm40zf88xdr9qywhc0lv7rd4ck-lumericalLicenseManager.tar
+# nix hash file /nix/store/v626n153vdr8sib52623gx1ych8zfsa6-lumericalLicenseManager.tar
+# nix store add-file ./image.sif --name lumericalLicenseManager.sif
+# nix hash file /nix/store/wr4i09smarzwyn1g2jhxlpkxghcwa01l-lumericalLicenseManager.sif
 
 FROM centos:7
 

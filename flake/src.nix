@@ -93,7 +93,7 @@
       imageFile = pkgs.requireFile
       {
         name = "lumericalLicenseManager.tar";
-        sha256 = "LgfELG3z7vuMSFMfAAD5JLCNNu166l0gJUk6LKkrVcA=";
+        sha256 = "ftEZADv8Mgo5coNKs+gxPZPl/YTV3FMMgrF3wUIBEiQ=";
         message = "Source not found.";
       };
       license = pkgs.requireFile
@@ -105,7 +105,7 @@
       sifImageFile = pkgs.requireFile
       {
         name = "lumericalLicenseManager.sif";
-        sha256 = "11klba2qsvn99mxljr5cc4495cz3mmnz625f1cra55j6gnia9q4f";
+        sha256 = "i0HGLiRWoKuQYYx44GBkDBbyUvFLbfFShi/hx7KBSuU=";
         message = "Source file not found.";
       };
     };
