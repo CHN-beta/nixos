@@ -5,18 +5,13 @@ let
     inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
     nixpkgs = { march = null; cuda = null; nixRoot = null; };
   });
-  singularity = pkgs.singularity.overrideAttrs (prev:
-  {
-    configureFlags = builtins.filter (x: x != "--without-libsubid") prev.configureFlags;
-    buildInputs = prev.buildInputs ++ [ pkgs.shadow ];
-  });
   lumericalLicenseManager = 
     let
       ip = "${pkgs.iproute2}/bin/ip";
       awk = "${pkgs.gawk}/bin/awk";
       sed = "${pkgs.gnused}/bin/sed";
       chmod = "${pkgs.coreutils}/bin/chmod";
-      sing = "${singularity}/bin/singularity";
+      sing = "/public/software/singularity/singularity-3.8.3/bin/singularity";
     in pkgs.writeShellScriptBin "lumericalLicenseManager"
     ''
       echo "Cleaning up..."
