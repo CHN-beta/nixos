@@ -8,32 +8,13 @@ let
     inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
     nixpkgs = { march = null; cuda = null; nixRoot = "/public/home/xmuhk/.nix"; };
   });
-  # go = pkgs.go.overrideAttrs (prev:
-  # {
-  #   buildInputs = builtins.filter (x: x != pkgs.glibc.static) prev.buildInputs;
-  # });
-  # buildGoModule = pkgs.buildGoModule.override { inherit go; };
-  # singularity = (pkgs.singularity.override { inherit buildGoModule; }).overrideAttrs (prev:
-  # {
-  #   configureFlags = builtins.filter (x: x != "--without-libsubid") prev.configureFlags;
-  #   buildInputs = prev.buildInputs ++ [ pkgs.shadow ];
-  #   # env.CGO_ENABLED = "1";
-  #   # autoPatchelfFlags = [ "--keep-libc" ];
-  # });
-  singularity = pkgs.singularity.overrideAttrs (prev:
-  {
-    configureFlags = builtins.filter (x: x != "--without-libsubid") prev.configureFlags;
-    buildInputs = prev.buildInputs ++ [ pkgs.shadow ];
-    # env.CGO_ENABLED = "1";
-    # autoPatchelfFlags = [ "--keep-libc" ];
-  });
   lumericalLicenseManager = 
     let
       ip = "${pkgs.iproute2}/bin/ip";
       awk = "${pkgs.gawk}/bin/awk";
       sed = "${pkgs.gnused}/bin/sed";
       chmod = "${pkgs.coreutils}/bin/chmod";
-      sing = "${singularity}/bin/singularity";
+      sing = "/public/software/singularity/singularity-3.8.3/bin/singularity";
     in pkgs.writeShellScriptBin "lumericalLicenseManager"
     ''
       echo "Cleaning up..."
@@ -73,5 +54,5 @@ in pkgs.symlinkJoin
   name = "xmuhk";
   paths = (with pkgs; [ hello btop htop iotop pv ]) ++ [ lumericalLicenseManager lumericalFdtd ];
   postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
-  passthru = { inherit pkgs singularity; };
+  passthru = { inherit pkgs; };
 }
