@@ -10,7 +10,7 @@ let pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
 in pkgs.symlinkJoin
 {
   name = "jykang";
-  paths = with pkgs; [ hello iotop gnuplot localPackages.vaspkit ];
+  paths = with pkgs; [ hello iotop gnuplot localPackages.vaspkit pv btop ];
   postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
   passthru = { inherit pkgs; };
 }
