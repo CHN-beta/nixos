@@ -27,7 +27,7 @@ let
       # contentAddressedByDefault = true;
     })
     // (inputs.lib.optionalAttrs (nixpkgs.nixRoot != null)
-      { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/var"; }; });
+      { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/state"; }; });
 in platformConfig //
 {
   inherit config;
