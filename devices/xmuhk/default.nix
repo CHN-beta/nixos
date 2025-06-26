@@ -1,5 +1,5 @@
 # sudo nix build --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' .#xmuhk
-# sudo nix-store --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' -qR ./result | sudo xargs nix-store --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' --export | pv | xz -T0 > xmuhk.nar.xz
+# sudo nix-store --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' -qR ./result | grep -Fxv -f <(ssh xmuhk find .nix/store -maxdepth 1 -exec realpath '{}' '\;') | sudo xargs nix-store --store 'local?store=/public/home/xmuhk/.nix/store&state=/public/home/xmuhk/.nix/state&log=/public/home/xmuhk/.nix/log' --export | xz -T0 | pv > xmuhk.nar.xz
 # cat data.nar | nix-store --import
 { inputs, localLib }:
 let
