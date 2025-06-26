@@ -1,5 +1,5 @@
 {
-  stdenv, src, buildFHSEnv, writeScript, autoPatchelfHook,
+  stdenv, src, buildFHSEnv, writeScript, autoPatchelfHook, writeShellScriptBin,
   libxml2, libz, freeglut, libGLU, xorg, alsa-lib, freetype, wayland, fontconfig, libxkbcommon, systemd, numactl, nss,
   at-spi2-atk, libxcrypt-legacy, glibtool, tbb, libxslt, glib, gtk3, libedit, gdbm, ncurses5, mesa, libdrm, xmlsec,
   libsForQt5, mpi, libGL, xz, libgbm
@@ -25,7 +25,7 @@ let
     export XDG_SESSION_TYPE=x11
     /opt/bin/fdtd-solutions-app "$@"
   '';
-  cmd = stdenv.mkDerivation
+  cmd-unwrapped = stdenv.mkDerivation
   {
     name = "lumerical";
     inherit src;
@@ -60,10 +60,15 @@ let
     '';
     autoPatchelfIgnoreMissingDeps = [ "libmpi.so.12" ];
   };
+  cmd = writeShellScriptBin "lumerical"
+  ''
+    export PATH="${mpi}/bin:${cmd-unwrapped}/opt/ansys_inc/v231/bin:$PATH"
+    exec "$@"
+  '';
 in buildFHSEnv
 {
   name = "lumerical";
-  passthru = { inherit unwrapped cmd; };
+  passthru = { inherit unwrapped cmd-unwrapped cmd; };
   targetPkgs = pkgs: with pkgs;
   [
     unwrapped libxml2 xmlsec libz libGL stdenv.cc.cc.lib
