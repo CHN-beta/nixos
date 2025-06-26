@@ -21,6 +21,10 @@ let
       ${sing} instance stop lumericalLicenseManager || true
       [ -d /tmp/lumerical ] && chmod -R u+w /tmp/lumerical && rm -rf /tmp/lumerical || true
       mkdir -p /tmp/lumerical
+      while true; do
+        if ! ss -tan | grep -q ".*TIME-WAIT .*:1084 "; then break; fi
+        sleep 10
+      done
 
       echo "Extracting image..."
       ${sing} build --sandbox /tmp/lumerical/lumericalLicenseManager \
@@ -55,7 +59,7 @@ let
         ${sing} instance stop lumericalLicenseManager
         chmod -R u+w /tmp/lumerical && rm -rf /tmp/lumerical
       }
-      trap cleanup EXIT
+      trap cleanup SIGINT SIGTERM SIGHUP EXIT
       tail -f /dev/null
     '';
   lumericalFdtd = pkgs.writeShellScriptBin "lumericalFdtd"
