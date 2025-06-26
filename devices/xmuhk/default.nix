@@ -62,15 +62,15 @@ let
       trap cleanup SIGINT SIGTERM SIGHUP EXIT
       tail -f /dev/null
     '';
-  lumericalFdtd = pkgs.writeShellScriptBin "lumericalFdtd"
+  lumerical = pkgs.writeShellScriptBin "lumerical"
   ''
-    exec ${pkgs.mpi}/bin/mpirun \
-      ${pkgs.localPackages.lumerical.lumerical.cmd}/opt/ansys_inc/v231/bin/fdtd-engine-ompi-lcl "$@"
+    export PATH="${pkgs.mpi}/bin:${pkgs.localPackages.lumerical.lumerical.cmd}/opt/ansys_inc/v231/bin:$PATH"
+    exec "$@"
   '';
 in pkgs.symlinkJoin
 {
   name = "xmuhk";
-  paths = (with pkgs; [ hello btop htop iotop pv ]) ++ [ lumericalLicenseManager lumericalFdtd ];
+  paths = (with pkgs; [ hello btop htop iotop pv ]) ++ [ lumericalLicenseManager lumerical ];
   postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
   passthru = { inherit pkgs; };
 }
