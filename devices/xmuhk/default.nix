@@ -18,8 +18,14 @@ let
     in pkgs.writeShellScriptBin "lumericalLicenseManager"
     ''
       echo "Cleaning up..."
-      rm -rf /tmp/lumerical
+      ${sing} instance stop lumericalLicenseManager || true
+      [ -d /tmp/lumerical ] && chmod -R u+w /tmp/lumerical && rm -rf /tmp/lumerical || true
       mkdir -p /tmp/lumerical
+
+      echo "Extracting image..."
+      ${sing} build --sandbox /tmp/lumerical/lumericalLicenseManager \
+        ${inputs.self.src.lumerical.licenseManager.sifImageFile}
+      mkdir /tmp/lumerical/lumericalLicenseManager/public
 
       echo 'Searching for en* interface...'
       iface=$(${ip} -o link show | ${awk} -F': ' '/^[0-9]+: en/ {print $2; exit}')
@@ -34,15 +40,23 @@ let
       fi
 
       echo 'Creating license file...'
-      cp ${inputs.self.src.lumerical.licenseManager.sifImageFile} /tmp/lumerical/license.txt
-      ${chmod} +w /tmp/lumerical/license.txt
-      ${sed} -i "s|xxxxxxxxxxxxx|$mac|" /tmp/lumerical/license.txt
-      ${sed} -i 's|2022.1231|2035.1231|g' /tmp/lumerical/license.txt
+      ${sed} -i "s|xxxxxxxxxxxxx|$mac|" \
+        /tmp/lumerical/lumericalLicenseManager/home/ansys_inc/shared_files/licensing/license_files/ansyslmd.lic
+      ${sed} -i 's|2022.1231|2035.1231|g' \
+        /tmp/lumerical/lumericalLicenseManager/home/ansys_inc/shared_files/licensing/license_files/ansyslmd.lic
 
       echo "Starting license manager..."
-      ${sing} run --pwd /home/ansys_inc/shared_files/licensing --writable-tmpfs \
-        --bind /tmp/lumerical/license.txt:/home/ansys_inc/shared_files/licensing/license_files/ansyslmd.lic \
-        ${inputs.self.src.lumerical.licenseManager.sifImageFile}
+      ${sing} instance start --writable /tmp/lumerical/lumericalLicenseManager lumericalLicenseManager
+      ${sing} exec instance://lumericalLicenseManager /bin/sh -c \
+        "pushd /home/ansys_inc/shared_files/licensing; (./start_ansysli &); (./start_lmcenter &); tail -f /dev/null"
+
+      cleanup() {
+        echo "Stopping license manager..."
+        ${sing} instance stop lumericalLicenseManager
+        chmod -R u+w /tmp/lumerical && rm -rf /tmp/lumerical
+      }
+      trap cleanup EXIT
+      tail -f /dev/null
     '';
   lumericalFdtd = pkgs.writeShellScriptBin "lumericalFdtd"
   ''
