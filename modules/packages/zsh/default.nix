@@ -63,6 +63,7 @@ inputs:
                 [[ ! -r "$P10K_INSTANT_PROMPT" ]] || source "$P10K_INSTANT_PROMPT"
                 HYPHEN_INSENSITIVE="true"
                 export PATH=~/bin:$PATH
+                zstyle ':vcs_info:*' disable-patterns "/nix/remote/*"
               '';
               oh-my-zsh.theme = "";
             };
