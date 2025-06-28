@@ -122,7 +122,9 @@ inputs:
       kdeconnect.enable = inputs.lib.mkIf (inputs.config.nixos.system.gui.implementation == "kde") true;
       kde-pim = inputs.lib.mkIf (inputs.config.nixos.system.gui.implementation == "kde")
         { enable = true; kmail = true; };
+      coolercontrol =
+        { enable = true; nvidiaSupport = inputs.lib.hasSuffix "nvidia" inputs.config.nixos.hardware.gpu.type; };
     };
-    services.pcscd.enable = true;
+    services = { pcscd.enable = true; lact.enable = true; };
   };
 }

@@ -8,6 +8,8 @@ inputs: let inherit (inputs) topInputs; in
     topInputs.impermanence.nixosModules.impermanence
     topInputs.catppuccin.nixosModules.catppuccin
     topInputs.nixvirt.nixosModules.default
+    # TODO: Remove after next release
+    "${topInputs.nixpkgs-unstable}/nixos/modules/services/hardware/lact.nix"
     (inputs:
     {
       config =
