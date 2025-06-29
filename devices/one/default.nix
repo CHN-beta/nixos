@@ -26,6 +26,7 @@ inputs:
         xray.client = {};
         beesd."/".hashTableSizeMB = 64;
         sshd = {};
+        waydroid = {};
       };
       bugs = [ "xmunet" ];
     };
