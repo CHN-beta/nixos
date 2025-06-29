@@ -6,6 +6,7 @@ inputs: let inherit (inputs) topInputs; in
     topInputs.sops-nix.nixosModules.sops
     topInputs.nix-index-database.nixosModules.nix-index
     topInputs.impermanence.nixosModules.impermanence
+    topInputs.nix-flatpak.nixosModules.nix-flatpak
     topInputs.catppuccin.nixosModules.catppuccin
     topInputs.aagl.nixosModules.default
     topInputs.nixvirt.nixosModules.default

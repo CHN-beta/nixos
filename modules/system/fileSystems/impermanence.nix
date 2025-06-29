@@ -29,7 +29,8 @@ inputs:
       "/nix/rootfs/current" =
       {
         hideMounts = true;
-        directories = builtins.map (f: "/var/lib/systemd/${f}") [ "linger" "coredump" "backlight" ];
+        directories = [ "/var/lib/flatpak" ]
+          ++ builtins.map (f: "/var/lib/systemd/${f}") [ "linger" "coredump" "backlight" ];
       };
       "/nix/nodatacow" =
       {
