@@ -33,6 +33,7 @@ in platformConfig //
   inherit config;
   overlays =
   [
+    inputs.topInputs.aagl.overlays.default
     inputs.topInputs.nur-xddxdd.overlays.inSubTree
     inputs.topInputs.nix-vscode-extensions.overlays.default
     inputs.topInputs.buildproxy.overlays.default
