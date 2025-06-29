@@ -33,7 +33,7 @@ inputs:
           waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio
           (inkscape-with-extensions.override { inkscapeExtensions = null; })
           # terminal
-          warp-terminal gemini-cli
+          warp-terminal
           # development
           adb-sync scrcpy dbeaver-bin cling aircrack-ng
           weston cage openbox krita fprettify # jetbrains.clion 
