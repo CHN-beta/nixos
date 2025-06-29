@@ -40,6 +40,7 @@ in platformConfig //
     (final: prev:
     {
       inherit (inputs.topInputs.nix-vscode-extensions.overlays.default final prev) nix-vscode-extensions;
+      nur-linyinfeng = (inputs.topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
       firefox-addons = (import "${inputs.topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
     })
     inputs.topInputs.self.overlays.default

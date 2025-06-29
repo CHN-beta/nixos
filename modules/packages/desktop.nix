@@ -45,7 +45,7 @@ inputs:
           # required by vscode nix tools
           nil
           # instant messager
-          element-desktop telegram-desktop discord zoom-us slack nheko
+          element-desktop telegram-desktop discord zoom-us slack nheko nur-linyinfeng.wemeet
           # browser
           google-chrome tor-browser
           # office
