@@ -7,5 +7,6 @@ inputs:
       export PATH=$PATH:/home/hjp/software/intel/oneapi/compiler/latest/bin
       export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/hjp/software/intel/oneapi/compiler/latest/lib
     '';
+    users.users.hjp.extraGroups = [ "wheel" ];
   };
 }
