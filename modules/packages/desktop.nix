@@ -15,7 +15,8 @@ inputs:
         [
           # system management
           # TODO: module should add yubikey-touch-detector into path
-          gparted yubikey-touch-detector btrfs-assistant kdePackages.qtstyleplugin-kvantum cpu-x wl-mirror xpra
+          gparted wayland-utils clinfo glxinfo vulkan-tools dracut yubikey-touch-detector btrfs-assistant snapper-gui
+          kdePackages.qtstyleplugin-kvantum ventoy-full cpu-x wl-mirror geekbench xpra
           (
             writeShellScriptBin "xclip"
             ''
@@ -23,42 +24,52 @@ inputs:
               else exec ${wl-clipboard-x11}/bin/xclip "$@"; fi
             ''
           )
+          # color management
+          argyllcms xcalib
           # networking
-          remmina putty kdePackages.krdc
+          remmina putty mtr-gui
           # media
-          mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins qcm waifu2x-converter-cpp blender paraview vlc
-          obs-studio (inkscape-with-extensions.override { inkscapeExtensions = null; }) kdePackages.kcolorchooser
-          kdePackages.kdenlive
+          mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk qcm
+          waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio
+          (inkscape-with-extensions.override { inkscapeExtensions = null; })
+          # terminal
+          warp-terminal
           # development
-          adb-sync scrcpy dbeaver-bin aircrack-ng fprettify waveterm
+          adb-sync scrcpy dbeaver-bin cling aircrack-ng
+          weston cage openbox krita fprettify # jetbrains.clion 
+          # desktop sharing
+          rustdesk-flutter
           # password and key management
           yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden hashcat
-          kdePackages.kleopatra
+          electrum jabref john crunch
           # download
-          qbittorrent wgetpaste rclone
+          qbittorrent nur-xddxdd.baidupcs-go wgetpaste onedrive onedrivegui rclone
           # editor
-          typora
+          typora appflowy notion-app-enhanced joplin-desktop standardnotes logseq obsidian code-cursor
           # news
-          fluent-reader newsflash follow
+          fluent-reader rssguard newsflash newsboat follow
           # nix tools
-          nixpkgs-fmt nixd nix-serve nix-prefetch-github prefetch-npm-deps nix-prefetch-docker
-          # required by vscode nix tools
-          nil
+          nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github prefetch-npm-deps nix-prefetch-docker
+          nix-template nil bundix
           # instant messager
-          element-desktop telegram-desktop discord zoom-us slack nheko nur-linyinfeng.wemeet
+          element-desktop telegram-desktop discord zoom-us slack nheko
+          fluffychat signal-desktop qq nur-xddxdd.wechat-uos-sandboxed cinny-desktop
           # browser
-          google-chrome tor-browser
+          google-chrome tor-browser microsoft-edge
           # office
-          crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain activitywatch
-          ydict pspp libreoffice-qt6-fresh ocrmypdf typst kdePackages.kruler
+          crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain davinci-resolve
+          ydict texstudio panoply pspp libreoffice-qt6-fresh ocrmypdf typst # paperwork
           # required by ltex-plus.vscode-ltex-plus
           ltex-ls ltex-ls-plus
           # matplot++ needs old gnuplot
           inputs.pkgs.pkgs-2311.gnuplot
           # math, physics and chemistry
-          octaveFull mpi geogebra6 qalculate-qt
+          octaveFull ovito localPackages.vesta localPackages.v-sim jmol mpi geogebra6 localPackages.ufo
+          (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14;
+            wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; }; })
+          inputs.pkgs.pkgs-2311.hdfview numbat qalculate-qt
           # virtualization
-          bottles wineWowPackages.stagingFull
+          virt-viewer bottles wineWowPackages.stagingFull genymotion playonlinux
           # media
           nur-xddxdd.svp
           # for kdenlive auto subtitle
@@ -66,7 +77,8 @@ inputs:
         ];
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
-          scipy scikit-learn jupyterlab autograd numpy 
+          phonopy scipy scikit-learn jupyterlab autograd inputs.pkgs.localPackages.phono3py
+          tensorflow keras numpy 
         ])];
       };
       user.sharedModules =
