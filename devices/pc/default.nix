@@ -111,7 +111,7 @@ inputs:
         nfs."/" = [ "192.168.84.0/24" ];
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
-      packages = { mathematica = {}; vasp = {}; lammps = {}; };
+      packages = { mathematica = {}; vasp = {}; };
     };
     boot.loader.grub =
     {
