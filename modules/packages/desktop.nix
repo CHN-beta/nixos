@@ -74,7 +74,9 @@ inputs:
           nur-xddxdd.svp
           # for kdenlive auto subtitle
           openai-whisper
-        ];
+        ]
+          ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" "kalzium" ])))
+            (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
           phonopy scipy scikit-learn jupyterlab autograd inputs.pkgs.localPackages.phono3py
