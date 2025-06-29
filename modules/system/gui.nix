@@ -7,7 +7,7 @@ inputs:
   config = let inherit (inputs.config.nixos.system) gui; in inputs.lib.mkMerge
   [
     # enable gui
-    (inputs.lib.mkIf (inputs.config.nixos.model.type == "desktop")
+    (inputs.lib.mkIf (builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ])
     {
       services =
       {
