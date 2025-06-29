@@ -55,7 +55,7 @@ inputs:
           element-desktop telegram-desktop discord zoom-us slack nheko
           fluffychat signal-desktop qq nur-xddxdd.wechat-uos-sandboxed cinny-desktop
           # browser
-          google-chrome tor-browser microsoft-edge
+          google-chrome tor-browser
           # office
           crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain davinci-resolve
           ydict texstudio panoply pspp libreoffice-qt6-fresh ocrmypdf typst # paperwork
