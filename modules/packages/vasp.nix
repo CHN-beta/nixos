@@ -9,7 +9,7 @@ inputs:
       _packages =
       [
         localPackages.vasp.intel localPackages.vasp.vtst localPackages.vaspkit wannier90
-        (if inputs.config.nixos.system.nixpkgs.cuda != null then localPackages.vasp.nvidia else null)
+        (if inputs.config.nixos.system.nixpkgs.cuda != null then localPackages.vasp.nvidia else emptyDirectory)
       ];
       _pythonPackages = [(_: [ localPackages.py4vasp ])];
     };

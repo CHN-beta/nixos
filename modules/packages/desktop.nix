@@ -62,22 +62,26 @@ inputs:
           # required by ltex-plus.vscode-ltex-plus
           ltex-ls ltex-ls-plus
           # matplot++ needs old gnuplot
-          inputs.pkgs.pkgs-2311.gnuplot
+          pkgs-2311.gnuplot
           # math, physics and chemistry
           octaveFull ovito localPackages.vesta localPackages.v-sim jmol mpi geogebra6 localPackages.ufo
-          (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14;
-            wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; }; })
-          inputs.pkgs.pkgs-2311.hdfview numbat qalculate-qt
-          (if inputs.config.nixos.system.nixpkgs.cuda != null then inputs.pkgs.localPackages.mumax else null)
+          (quantum-espresso.override
+          {
+            stdenv = gcc14Stdenv;
+            gfortran = gfortran14;
+            wannier90 = wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
+          })
+          pkgs-2311.hdfview numbat qalculate-qt
+          (if inputs.config.nixos.system.nixpkgs.cuda != null then localPackages.mumax else emptyDirectory)
           (if inputs.config.nixos.system.nixpkgs.cuda != null
-            then (inputs.pkgs.lammps.override { stdenv = inputs.pkgs.cudaPackages.backendStdenv; }).overrideAttrs (prev:
+            then (lammps.override { stdenv = cudaPackages.backendStdenv; }).overrideAttrs (prev:
             {
               cmakeFlags = prev.cmakeFlags ++
                 [ "-DPKG_GPU=on" "-DGPU_API=cuda" "-DCMAKE_POLICY_DEFAULT_CMP0146=OLD" ];
-              nativeBuildInputs = prev.nativeBuildInputs ++ [ inputs.pkgs.cudaPackages.cudatoolkit ];
-              buildInputs = prev.buildInputs ++ [ inputs.pkgs.mpi ];
+              nativeBuildInputs = prev.nativeBuildInputs ++ [ cudaPackages.cudatoolkit ];
+              buildInputs = prev.buildInputs ++ [ mpi ];
             })
-            else inputs.pkgs.lammps-mpi)
+            else lammps-mpi)
           # virtualization
           virt-viewer bottles wineWowPackages.stagingFull genymotion playonlinux
           # media
