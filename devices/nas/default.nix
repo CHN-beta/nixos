@@ -25,7 +25,7 @@ inputs:
       services =
       {
         sshd = {};
-        xray.client.dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1";
+        xray = { client.dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; xmuServer = {}; };
         beesd."/".hashTableSizeMB = 10 * 128;
         nfs."/" = [(inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc")];
       };
