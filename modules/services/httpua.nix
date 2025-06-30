@@ -14,7 +14,10 @@ inputs:
     {
       phpfpm.instances.httpua = {};
       nginx.http.${httpua.hostname}.php =
-        { root = "${./.}"; fastcgiPass = inputs.config.nixos.services.phpfpm.instances.httpua.fastcgi; };
+      {
+        root = builtins.toString (inputs.pkgs.writeTextDir "index.php" "<?php echo $_SERVER['HTTP_USER_AGENT']; ?>");
+        fastcgiPass = inputs.config.nixos.services.phpfpm.instances.httpua.fastcgi;
+      };
     };
   };
 }
