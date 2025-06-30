@@ -56,7 +56,7 @@ inputs:
                     paddedHex = inputs.pkgs.localPackages.aes128CfbHex
                       { data = hostname; key = "wrdvpnisthebest!"; iv = "wrdvpnisthebest!"; };
                     prefix = builtins.concatStringsSep "" (builtins.map
-                      (c: inputs.lib.toHexString (inputs.lib.charToInt c))
+                      (c: inputs.lib.toHexString (inputs.lib.strings.charToInt c))
                       (inputs.lib.stringToCharacters "wrdvpnisthebest!"));
                   in "/https/${prefix}${paddedHex}/xsession";
                 mode = "stream-one";
