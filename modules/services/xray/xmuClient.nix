@@ -45,7 +45,20 @@ inputs:
               security = "tls";
               xhttpSettings =
               {
-                path = "/xsession";
+                path =
+                  let
+                    inherit (xmuClient) hostname;
+                    paddedLength = ((builtins.div ((builtins.stringLength hostname) - 1) 16) + 1) * 16;
+                    paddedString = builtins.concatStringsSep ""
+                      (builtins.genList
+                        (n: if n < builtins.stringLength hostname then builtins.substring n 1 hostname else "0")
+                        paddedLength);
+                    paddedHex = inputs.pkgs.localPackages.aes128CfbHex
+                      { data = hostname; key = "wrdvpnisthebest!"; iv = "wrdvpnisthebest!"; };
+                    prefix = builtins.concatStringsSep "" (builtins.map
+                      (c: inputs.lib.toHexString (inputs.lib.charToInt c))
+                      (inputs.lib.stringToCharacters "wrdvpnisthebest!"));
+                  in "/https/${prefix}${paddedHex}/xsession";
                 mode = "stream-one";
                 security = "tls";
                 extra.headers.Cookie = "show_vpn=0; heartbeat=1; show_faq=0; "
