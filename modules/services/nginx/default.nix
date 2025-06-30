@@ -143,6 +143,7 @@ inputs:
                   inherit (genericOptions) detectAuth;
                   upstream = mkOption { type = types.nonEmptyStr; };
                   websocket = mkOption { type = types.bool; default = false; };
+                  grpc = mkOption { type = types.bool; default = false; };
                   setHeaders = mkOption
                   {
                     type = types.attrsOf types.str;
@@ -607,13 +608,13 @@ inputs:
                     // {
                       proxy =
                       {
-                        proxyPass = location.value.upstream;
                         proxyWebsockets = location.value.websocket;
                         recommendedProxySettings = false;
                         recommendedProxySettingsNoHost = true;
                         extraConfig = concatStringsSep "\n"
                         (
-                          (map
+                          [ "${if location.value.grpc then "grpc" else "proxy"}_pass ${location.value.upstream};" ]
+                          ++ (map
                             (header: ''proxy_set_header ${header.name} "${header.value}";'')
                             (attrsToList location.value.setHeaders))
                           ++ (
