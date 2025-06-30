@@ -36,12 +36,14 @@ inputs:
         # network for srv3
         "igb"
         # touchscreen for one
-        "pinctrl-tigerlake"
+        "pinctrl-tigerlake" "i2c-hid-acpi"
         # bridge network
         "bridge"
       ]
         ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ]);
       extraModulePackages = with inputs.config.boot.kernelPackages; [ v4l2loopback zenpower ];
+      # force i2c-hid-acpi to load after pinctrl-tigerlake
+      extraModprobeConfig = "softdep i2c-hid-acpi pre: pinctrl-tigerlake";
       kernelParams = [ "delayacct" ];
       kernelPackages = inputs.lib.mkIf (kernel.variant != null)
       {
