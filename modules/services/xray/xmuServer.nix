@@ -4,11 +4,11 @@ inputs:
   {
     type = types.nullOr (types.submodule { options =
     {
-      serverName = mkOption { type = types.nonEmptyStr; default = "xserverxmu.chn.moe"; };
+      hostname = mkOption { type = types.nonEmptyStr; default = "xserverxmu.chn.moe"; };
     };});
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services.xray) server; in inputs.lib.mkIf (server != null)
+  config = let inherit (inputs.config.nixos.services.xray) xmuServer; in inputs.lib.mkIf (xmuServer != null)
   {
     sops =
     {
@@ -59,7 +59,7 @@ inputs:
     nixos.services.nginx =
     {
       enable = true;
-      https.${server.serverName}.location =
+      https.${xmuServer.hostname}.location =
         { "/".return.return = "400"; "/xsession".proxy = { upstream = "http://127.0.0.1:4727"; grpc = true; }; };
     };
   };
