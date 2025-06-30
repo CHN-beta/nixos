@@ -27,7 +27,6 @@ inputs:
   {
     services =
     {
-      xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-client.json".path; };
       dnsmasq =
       {
         enable = true;
@@ -176,15 +175,18 @@ inputs:
     };
     systemd.services =
     {
-      xray =
+      xray-client =
       {
+        after = [ "network.target" ];
+        wantedBy = [ "multi-user.target" ];
+        script = "exec ${inputs.pkgs.xray}/bin/xray -config ${inputs.config.sops.templates."xray-client.json".path}";
         serviceConfig =
         {
-          DynamicUser = inputs.lib.mkForce false;
           User = "v2ray";
           Group = "v2ray";
           CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
           AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+          NoNewPrivileges = true;
           LimitNPROC = 65536;
           LimitNOFILE = 524288;
           CPUSchedulingPolicy = "rr";

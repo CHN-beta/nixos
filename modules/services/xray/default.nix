@@ -1,12 +1,5 @@
+# sync with nixpkgs 5835771b10e3197408d3ac7d32558c8e2ae0ab8d
 inputs:
 {
   imports = inputs.localLib.findModules ./.;
-  config = let inherit (inputs.config.nixos.services) xray; in
-  {
-    assertions =
-    [{
-      assertion = !(xray.client != null && xray.server != null);
-      message = "Currenty xray.client and xray.server could not be simutaniusly enabled.";
-    }];
-  };
 }

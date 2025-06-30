@@ -14,7 +14,6 @@ inputs:
       (inputs.pkgs.localPackages.fromYaml (builtins.readFile inputs.config.sops.defaultSopsFile)).xray-server.clients;
     in
     {
-      services.xray = { enable = true; settingsFile = inputs.config.sops.templates."xray-server.json".path; };
       sops =
       {
         templates."xray-server.json" =
@@ -146,11 +145,14 @@ inputs:
       {
         services =
         {
-          xray =
+          xray-server =
           {
+            after = [ "network.target" ];
+            wantedBy = [ "multi-user.target" ];
+            script =
+              "exec ${inputs.pkgs.xray}/bin/xray -config ${inputs.config.sops.templates."xray-server.json".path}";
             serviceConfig =
             {
-              DynamicUser = inputs.lib.mkForce false;
               User = "v2ray";
               Group = "v2ray";
               CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
