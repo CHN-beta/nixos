@@ -59,11 +59,12 @@ inputs:
                       (c: inputs.lib.toHexString (inputs.lib.strings.charToInt c))
                       (inputs.lib.stringToCharacters "wrdvpnisthebest!"));
                   in "/https/${prefix}${paddedHex}/xsession";
-                mode = "stream-one";
+                mode = "packet-up";
                 security = "tls";
                 extra.headers.Cookie = "show_vpn=0; heartbeat=1; show_faq=0; "
                   + "wengine_vpn_ticketwebvpn_xmu_edu_cn=${inputs.config.sops.placeholder."xray-xmu-client/cookie"}";
               };
+              tlsSettings.alpn = [ "http/1.1" ];
             };
           }];
         };
