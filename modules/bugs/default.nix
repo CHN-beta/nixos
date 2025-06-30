@@ -12,7 +12,7 @@ let bugs =
     (attrs: { patches = attrs.patches ++ [ ./xmunet.patch ];}); };
   backlight.boot.kernelParams = [ "nvidia.NVreg_RegistryDwords=EnableBrightnessControl=1" ];
   amdpstate.boot.kernelParams = [ "amd_pstate=active" ];
-  iwlwifi.nixos.system.kernel.modules.modprobeConfig =
+  iwlwifi.boot.extraModprobeConfig =
     [ "options iwlwifi power_save=0" "options iwlmvm power_scheme=1" "options iwlwifi uapsd_disable=1" ];
 };
 in

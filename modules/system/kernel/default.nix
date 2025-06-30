@@ -8,7 +8,6 @@ inputs:
       default = "xanmod-lts";
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-    modules.modprobeConfig = mkOption { type = types.listOf types.str; default = []; };
   };
   config = let inherit (inputs.config.nixos.system) kernel; in
   {
@@ -43,7 +42,6 @@ inputs:
       ]
         ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ]);
       extraModulePackages = with inputs.config.boot.kernelPackages; [ v4l2loopback zenpower ];
-      extraModprobeConfig = builtins.concatStringsSep "\n" kernel.modules.modprobeConfig;
       kernelParams = [ "delayacct" ];
       kernelPackages = inputs.lib.mkIf (kernel.variant != null)
       {
