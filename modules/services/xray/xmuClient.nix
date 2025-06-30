@@ -35,7 +35,7 @@ inputs:
             protocol = "vless";
             settings.vnext =
             [{
-              address = xmuClient.hostname;
+              address = "webvpn.xmu.edu.cn";
               port = 443;
               users = [{ id = inputs.config.sops.placeholder."xray-xmu-client/uuid"; encryption = "none"; }];
             }];
