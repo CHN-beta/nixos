@@ -60,7 +60,7 @@ inputs:
     {
       enable = true;
       https.${xmuServer.hostname}.location =
-        { "/".return.return = "400"; "/xsession".proxy = { upstream = "http://127.0.0.1:4727"; grpc = true; }; };
+        { "/".return.return = "400"; "/xsession".proxy = { upstream = "127.0.0.1:4727"; grpc = true; }; };
     };
   };
 }
