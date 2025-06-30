@@ -4,7 +4,7 @@ let
   {
     autoroute = [ "api" "git" "grafana" "matrix" "peertube" "send" "synapse" "vikunja" "铜锣湾" ];
     nas = [ "initrd.nas" ];
-    office = [ "srv2-node0" ];
+    office = [ "srv2-node0" "xserverxmu" ];
     vps4 = [ "initrd.vps4" "xserver2.vps4" ];
     vps6 =
     [
