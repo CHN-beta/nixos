@@ -15,7 +15,7 @@ inputs:
           enable = true;
           port = xrdp.port;
           openFirewall = true;
-          defaultWindowManager = "${inputs.pkgs.plasma-workspace}/bin/startplasma-x11";
+          defaultWindowManager = "${inputs.pkgs.kdePackages.plasma-workspace}/bin/startplasma-x11";
         };
       }
       (
