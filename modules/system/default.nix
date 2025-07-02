@@ -26,8 +26,12 @@ inputs:
         XDG_CONFIG_HOME = "$HOME/.config";
         XDG_DATA_HOME = "$HOME/.local/share";
         XDG_STATE_HOME = "$HOME/.local/state";
+        # do not set ANDROID_HOME, since some adb tools does not respect it
         # ANDROID_HOME = "${XDG_DATA_HOME}/android";
-        HISTFILE= "${XDG_STATE_HOME}/bash/history";
+        # do not export HISTFILE
+        # when HISTFILE is export but HISTSIZE is set but not export, in sub shell,
+        #   HISTFILE will persist but HISTSIZE will not, make history file be overwritten
+        # HISTFILE= "${XDG_STATE_HOME}/bash/history";
         CUDA_CACHE_PATH = "${XDG_CACHE_HOME}/nv";
         GNUPGHOME = "${XDG_DATA_HOME}/gnupg";
         GTK2_RC_FILES = "${XDG_CONFIG_HOME}/gtk-2.0/gtkrc";
