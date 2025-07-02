@@ -44,6 +44,15 @@ inputs:
         ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ])
         ++ (inputs.lib.optionals (inputs.config.nixos.system.gui.implementation == "kde")
           [ inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix ]);
+      _pythonPackages = [(pythonPackages: with pythonPackages;
+      [
+        openai python-telegram-bot fastapi-cli pypdf2 pandas matplotlib plotly gunicorn redis jinja2 certifi 
+        charset-normalizer idna orjson psycopg2 inquirerpy requests tqdm pydbus
+        # allow pandas read odf
+        odfpy
+        # for vasp plot-workfunc.py
+        ase
+      ])];
     };
     programs =
     {

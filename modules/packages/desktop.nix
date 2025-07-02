@@ -94,7 +94,7 @@ inputs:
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
           phonopy scipy scikit-learn jupyterlab autograd inputs.pkgs.localPackages.phono3py
-          tensorflow keras numpy 
+          tensorflow keras numpy
         ])];
       };
       user.sharedModules =
