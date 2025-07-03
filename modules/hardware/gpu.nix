@@ -64,6 +64,8 @@ inputs:
             package = inputs.config.boot.kernelPackages.nvidiaPackages.${gpu.nvidia.driver};
             inherit (gpu.nvidia) open;
             prime.allowExternalGpu = true;
+            # fix sudden black screen for 1-2 seconds
+            forceFullCompositionPipeline = true;
           };
         };
         boot.blacklistedKernelModules = [ "nouveau" ];
