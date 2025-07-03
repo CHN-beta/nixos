@@ -4,13 +4,12 @@ inputs:
   {
     nixos =
     {
-      model.cluster.nodeType = "master";
       system =
       {
         nixpkgs.march = "skylake";
         network =
         {
-          static.eno2 = { ip = "192.168.178.1"; mask = 24; };
+          static.eno2 = { ip = "192.168.178.1"; mask = 24; gateway = "192.168.178.2"; dns = "192.168.178.2"; };
           wireless = [ "457的5G" ];
           masquerade = [ "eno2" ];
           trust = [ "eno2" ];
