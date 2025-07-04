@@ -33,6 +33,7 @@ inputs:
         pen = 1019;
         reonokiy = 1020;
         zqq = 1021;
+        zgq = 1022;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
@@ -118,7 +119,12 @@ inputs:
       users.users.root =
       {
         shell = inputs.pkgs.zsh;
-        openssh.authorizedKeys.keys = [(builtins.readFile ./chn/id_ed25519_sk.pub)];
+        openssh.authorizedKeys.keys = inputs.lib.mkMerge
+        [
+          [(builtins.readFile ./chn/id_ed25519_sk.pub)]
+          (inputs.lib.mkIf (inputs.config.nixos.model.cluster.clusterName or null == "srv1")
+            [(builtins.readFile ./zgq/id_ed25519.pub)])
+        ];
         hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
       };
       home-manager.users.root = homeInputs:
