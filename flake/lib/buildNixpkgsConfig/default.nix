@@ -128,13 +128,6 @@ in platformConfig //
           }
         ))];
         inherit (final.pkgs-2411) intelPackages_2023;
-        kdePackages = prev.kdePackages.overrideScope (final: prev:
-        {
-          plasma-workspace = prev.plasma-workspace.overrideAttrs (prev: { postFixup = prev.postFixup or "" +
-          ''
-            wrapProgram $out/bin/startplasma-wayland --set NIXOS_OZONE_WL 1 
-          ''; });              
-        });
       })
   )];
 }
