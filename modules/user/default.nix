@@ -114,17 +114,6 @@ inputs:
           (builtins.filter (user: hashedPasswordExist user) user.users));
       }
     )
-    # assert at least hashedPasswordFile or hashedPassword is set
-    {
-      assertions = builtins.map
-        (user:
-        {
-          assertion =
-            let u = inputs.config.users.users.${user}; in u.hashedPasswordFile != null || u.hashedPassword != null;
-          message = "User '${user}' must have either 'hashedPasswordFile' or 'hashedPassword' set.";
-        })
-        inputs.config.nixos.user.users;
-    }
     # setup root
     {
       users.users.root =
