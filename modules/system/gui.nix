@@ -57,11 +57,10 @@ inputs:
       })];
     })
     # prefer gui or not
-    (inputs.localLib.mkConditional (builtins.elem inputs.config.nixos.model.type [ "desktop" ])
-      { environment.sessionVariables.NIXOS_OZONE_WL = "1"; }
-      {
-        environment.plasma6.excludePackages = inputs.lib.mkIf (gui.implementation == "kde")
-          [ inputs.pkgs.kdePackages.plasma-nm ];
-      })
+    (inputs.lib.mkIf (inputs.config.nixos.model.type == "server")
+    {
+      environment.plasma6.excludePackages = inputs.lib.mkIf (gui.implementation == "kde")
+        [ inputs.pkgs.kdePackages.plasma-nm ];
+    })
   ];
 }
