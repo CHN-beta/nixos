@@ -16,7 +16,20 @@ inputs:
           masquerade = [ "enp58s0" ];
         };
       };
-      services.beesd."/".hashTableSizeMB = 64;
+      services =
+      {
+        xray.client.dnsmasq.extraInterfaces = [ "enp58s0" ];
+        beesd =
+        {
+          "/" = { hashTableSizeMB = 10 * 128; loadAverage = 8; };
+          "/nix".hashTableSizeMB = 64;
+        };
+        xrdp = { enable = true; hostname = [ "srv2.chn.moe" ]; };
+        samba = { hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
+        groupshare = {};
+        hpcstat = {};
+        sshd = { groupBanner = true; motd = true; };
+      };
     };
     services.hardware.bolt.enable = true;
   };
