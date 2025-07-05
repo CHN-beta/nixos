@@ -45,6 +45,7 @@ inputs:
         cores = 0;
         keep-going = true;
         keep-outputs = true;
+        connect-timeout = 5;
       };
       systemd.services.nix-daemon = { serviceConfig.CacheDirectory = "nix"; environment.TMPDIR = "/var/cache/nix"; };
     }
