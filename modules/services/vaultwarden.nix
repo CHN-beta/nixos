@@ -49,7 +49,7 @@ inputs:
       nginx =
       {
         enable = true;
-        https.${vaultwarden.hostname}.location."/".proxy = { upstream = "http://127.0.0.1:8222"; websocket = true; };
+        https.${vaultwarden.hostname}.location."/".proxy = { upstream = "http://127.0.0.1:8000"; websocket = true; };
       };
     };
   };
