@@ -13,8 +13,12 @@ inputs:
     services.nix-serve =
     {
       enable = true;
+      package = inputs.pkgs.nix-serve-ng;
       openFirewall = true;
       secretKeyFile = inputs.config.sops.secrets."store/signingKey".path;
+      # curl -L cache.nixos.org/nix-cache-info
+      # use this cache after official one
+      extraParams = "--priority 50";
     };
     sops.secrets."store/signingKey" = {};
     nixos.services.nginx =
