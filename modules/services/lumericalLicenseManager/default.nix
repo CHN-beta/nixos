@@ -29,7 +29,7 @@ inputs:
     nixos.services.podman = {};
     systemd.network = inputs.lib.mkIf lumericalLicenseManager.createFakeInterface
     {
-      netdevs.ensFakeLumerical.netdevConfig.Kind = "dummy";
+      netdevs.ensFakeLumerical.netdevConfig = { Kind = "dummy"; Name = "ensFakeLumerical"; };
       networks."10-ensFakeLumerical" =
         { matchConfig.Name = "ensFakeLumerical"; linkConfig.MACAddress = lumericalLicenseManager.macAddress; };
     };
