@@ -215,32 +215,28 @@ inputs:
       redis.instances = builtins.listToAttrs (builtins.map
         (instance: { name = "synapse-${instance.name}"; value.port = instance.value.redisPort; })
         (inputs.localLib.attrsToList synapse.instances));
-      nginx =
-      {
-        enable = inputs.lib.mkIf (synapse.instances != {}) true;
-        https = builtins.listToAttrs (builtins.map
-          (instance: with instance.value;
+      nginx.https = builtins.listToAttrs (builtins.map
+        (instance: with instance.value;
+        {
+          name = hostname;
+          value.location =
           {
-            name = hostname;
-            value.location =
+            "/".proxy = { upstream = "http://127.0.0.1:${toString port}"; websocket = true; };
+            "/.well-known/matrix/server".static =
             {
-              "/".proxy = { upstream = "http://127.0.0.1:${toString port}"; websocket = true; };
-              "/.well-known/matrix/server".static =
+              root = builtins.toString (inputs.pkgs.writeTextFile
               {
-                root = builtins.toString (inputs.pkgs.writeTextFile
+                name = "server";
+                text = builtins.toJSON
                 {
-                  name = "server";
-                  text = builtins.toJSON
-                  {
-                    "m.server" = "${hostname}:443";
-                  };
-                  destination = "/.well-known/matrix/server";
-                });
-              };
+                  "m.server" = "${hostname}:443";
+                };
+                destination = "/.well-known/matrix/server";
+              });
             };
-          })
-          (inputs.localLib.attrsToList synapse.instances));
-      };
+          };
+        })
+        (inputs.localLib.attrsToList synapse.instances));
     };
   };
 }

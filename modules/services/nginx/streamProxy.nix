@@ -33,7 +33,7 @@ inputs:
       default = {};
     };
   };
-  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf nginx.enable
+  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf (nginx.streamProxy.map != {})
   {
     services.nginx.streamConfig =
     ''

@@ -221,7 +221,6 @@ inputs:
         acme.cert.${server.serverName}.group = inputs.config.users.users.nginx.group;
         nginx =
         {
-          enable = true;
           transparentProxy.map.${server.serverName} = 4726;
           https.${server.serverName} =
           {

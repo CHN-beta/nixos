@@ -119,17 +119,13 @@ inputs:
       postgresql.instances = builtins.listToAttrs (builtins.map
         (instance: { name = "misskey_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
         (inputs.localLib.attrsToList misskey.instances));
-      nginx =
-      {
-        enable = inputs.lib.mkIf (misskey.instances != {}) true;
-        https = builtins.listToAttrs (builtins.map
-          (instance: with instance.value;
-          {
-            name = hostname;
-            value.location."/".proxy = { upstream = "http://127.0.0.1:${toString port}"; websocket = true; };
-          })
-          (inputs.localLib.attrsToList misskey.instances));
-      };
+      nginx.https = builtins.listToAttrs (builtins.map
+        (instance: with instance.value;
+        {
+          name = hostname;
+          value.location."/".proxy = { upstream = "http://127.0.0.1:${toString port}"; websocket = true; };
+        })
+        (inputs.localLib.attrsToList misskey.instances));
     };
   };
 }

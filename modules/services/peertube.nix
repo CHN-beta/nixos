@@ -56,7 +56,7 @@ inputs:
     };
     nixos.services =
     {
-      nginx = { enable = true; https.${peertube.hostname}.global.configName = peertube.hostname; };
+      nginx.https.${peertube.hostname}.global.configName = peertube.hostname;
       postgresql.instances.peertube = {};
       redis.instances.peertube.port = 7599;
     };

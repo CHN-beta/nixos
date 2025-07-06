@@ -80,12 +80,7 @@ inputs:
     };
     nixos.services =
     {
-      nginx =
-      {
-        enable = true;
-        https.${grafana.hostname}.location."/".proxy =
-          { upstream = "http://127.0.0.1:3001"; websocket = true; };
-      };
+      nginx.https.${grafana.hostname}.location."/".proxy = { upstream = "http://127.0.0.1:3001"; websocket = true; };
       postgresql.instances.grafana = {};
     };
     sops.secrets = let owner = inputs.config.systemd.services.grafana.serviceConfig.User; in

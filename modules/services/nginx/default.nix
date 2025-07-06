@@ -3,7 +3,6 @@ inputs:
   imports = inputs.localLib.findModules ./.;
   options.nixos.services.nginx = let inherit (inputs.lib) mkOption types; in
   {
-    enable = mkOption { type = types.bool; default = false; };
     # transparentProxy -> https(with proxyProtocol) or transparentProxy -> streamProxy -> https(with proxyProtocol)
     # https without proxyProtocol listen on private ip, with proxyProtocol listen on all ip
     # streamProxy listen on private ip
@@ -23,7 +22,8 @@ inputs:
       };
     };
   };
-  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf nginx.enable
+  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf
+    (nginx.http != {} || nginx.https != {} || nginx.streamProxy.map != {} || nginx.transparentProxy.map != {})
   {
     services =
     {

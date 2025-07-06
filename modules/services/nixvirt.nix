@@ -136,7 +136,6 @@ inputs:
           (builtins.attrValues nixvirt.instance));
         in
         {
-          enable = inputs.lib.mkIf (hosts != []) true;
           transparentProxy.map = builtins.listToAttrs (builtins.map
             (host: { name = host.domain; value = "${host.ip}" + ":443"; }) hosts);
           http = builtins.listToAttrs (builtins.map

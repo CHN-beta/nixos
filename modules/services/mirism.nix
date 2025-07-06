@@ -46,7 +46,6 @@ inputs:
       {
         nginx =
         {
-          enable = true;
           transparentProxy.map = { "ng01.mirism.one" = 7411; "beta.mirism.one" = 9114; };
           https = listToAttrs (map
             (instance:

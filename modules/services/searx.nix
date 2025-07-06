@@ -24,7 +24,6 @@ inputs:
       '';
       secrets."searx/secret-key" = {};
     };
-    nixos.services.nginx =
-      { enable = true; https.${searx.hostname}.location."/".proxy.upstream = "http://127.0.0.1:8081"; };
+    nixos.services.nginx.https.${searx.hostname}.location."/".proxy.upstream = "http://127.0.0.1:8081";
   };
 }

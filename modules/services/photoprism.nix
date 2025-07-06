@@ -45,12 +45,8 @@ inputs:
       nixos.services =
       {
         mariadb = { enable = true; instances.photoprism = {}; };
-        nginx =
-        {
-          enable = true;
-          https.${photoprism.hostname}.location."/".proxy =
-            { upstream = "http://127.0.0.1:${toString photoprism.port}"; websocket = true; };
-        };
+        nginx.https.${photoprism.hostname}.location."/".proxy =
+          { upstream = "http://127.0.0.1:${toString photoprism.port}"; websocket = true; };
       };
     };
 }

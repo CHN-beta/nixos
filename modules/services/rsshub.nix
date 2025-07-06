@@ -43,7 +43,6 @@ inputs:
         "zhihu-cookies"
       ]));
     };
-    nixos.services.nginx =
-      { enable = true; https.${rsshub.hostname}.location."/".proxy.upstream = "http://127.0.0.1:5221"; };
+    nixos.services.nginx.https.${rsshub.hostname}.location."/".proxy.upstream = "http://127.0.0.1:5221";
   };
 }

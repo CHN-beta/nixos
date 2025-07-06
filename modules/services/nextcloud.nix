@@ -63,7 +63,7 @@ inputs:
     {
       postgresql.instances.nextcloud = {};
       redis.instances.nextcloud.port = 3499;
-      nginx = { enable = true; https.${nextcloud.hostname}.global.configName = nextcloud.hostname; };
+      nginx.https.${nextcloud.hostname}.global.configName = nextcloud.hostname;
     };
     sops =
     {

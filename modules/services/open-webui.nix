@@ -40,10 +40,7 @@ inputs:
       '';
       secrets = { "open-webui/openai" = {}; "open-webui/webui" = {}; };
     };
-    nixos.services.nginx =
-    {
-      enable = true;
-      https."${open-webui.hostname}".location."/".proxy = { upstream = "http://127.0.0.1:8080"; websocket = true; };
-    };
+    nixos.services.nginx.https."${open-webui.hostname}".location."/".proxy =
+      { upstream = "http://127.0.0.1:8080"; websocket = true; };
   };
 }

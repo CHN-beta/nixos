@@ -116,7 +116,7 @@ inputs:
     };}));
     default = {};
   };
-  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf nginx.enable (inputs.lib.mkMerge
+  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf (nginx.https != {}) (inputs.lib.mkMerge
   [
     # https assertions
     {

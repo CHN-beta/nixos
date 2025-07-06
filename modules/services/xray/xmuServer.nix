@@ -56,11 +56,7 @@ inputs:
       users.v2ray = { uid = inputs.config.nixos.user.uid.v2ray; group = "v2ray"; isSystemUser = true; };
       groups.v2ray.gid = inputs.config.nixos.user.gid.v2ray;
     };
-    nixos.services.nginx =
-    {
-      enable = true;
-      https.${xmuServer.hostname}.location =
-        { "/".return.return = "400"; "/xsession".proxy = { upstream = "127.0.0.1:4727"; grpc = true; }; };
-    };
+    nixos.services.nginx.https.${xmuServer.hostname}.location =
+      { "/".return.return = "400"; "/xsession".proxy = { upstream = "127.0.0.1:4727"; grpc = true; }; };
   };
 }
