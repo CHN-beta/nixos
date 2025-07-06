@@ -15,7 +15,7 @@ inputs:
       default = {};
     };
   };
-  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf (nginx.transparentProxy != {})
+  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf (nginx.transparentProxy.map != {})
   {
     services.nginx.streamConfig =
     ''
