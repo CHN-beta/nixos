@@ -16,7 +16,7 @@ inputs:
       {
         httpsPort = 3065;
         httpsPortShift = { http2 = 1; proxyProtocol = 2; };
-        httpsLocationTypes = [ "proxy" "static" "php" "return" "cgi" "alias" ];
+        httpsLocationTypes = [ "proxy" "static" "php" "return" "alias" ];
         httpTypes = [ "rewriteHttps" "php" "proxy" ];
         streamPort = 5575;
         streamPortShift.proxyProtocol = 1;

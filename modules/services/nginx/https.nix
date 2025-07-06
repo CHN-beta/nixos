@@ -102,11 +102,6 @@ inputs:
               type = types.nullOr (types.submodule { options = { return = mkOption { type = types.nonEmptyStr; }; };});
               default = null;
             };
-            cgi = mkOption
-            {
-              type = types.nullOr (types.submodule { options = { inherit (genericOptions) detectAuth root; };});
-              default = null;
-            };
             alias = mkOption
             {
               type = types.nullOr (types.submodule { options =
@@ -176,144 +171,127 @@ inputs:
           nginx.https;
         in
         {
-          services =
-          {
-            nginx.virtualHosts = builtins.listToAttrs (builtins.map
-              (site:
+          services.nginx.virtualHosts = builtins.listToAttrs (builtins.map
+            (site:
+            {
+              name = site.value.global.configName;
+              value =
               {
-                name = site.value.global.configName;
-                value =
-                {
-                  serverName = site.name;
-                  root = inputs.lib.mkIf (site.value.global.root != null) site.value.global.root;
-                  basicAuthFile = inputs.lib.mkIf (site.value.global.detectAuth != null)
+                serverName = site.name;
+                root = inputs.lib.mkIf (site.value.global.root != null) site.value.global.root;
+                basicAuthFile = inputs.lib.mkIf (site.value.global.detectAuth != null)
+                (
+                  let secret = "nginx/templates/detectAuth/${inputs.lib.strings.escapeURL site.name}-global";
+                  in inputs.config.sops.templates.${secret}.path
+                );
+                extraConfig = builtins.concatStringsSep "\n"
+                (
                   (
-                    let secret = "nginx/templates/detectAuth/${inputs.lib.strings.escapeURL site.name}-global";
-                    in inputs.config.sops.templates.${secret}.path
-                  );
-                  extraConfig = builtins.concatStringsSep "\n"
-                  (
-                    (
-                      let inherit (site.value.global) index; in
-                        if (builtins.typeOf index == "list") then [ "index ${builtins.concatStringsSep " " index};" ]
-                        else if (index == "auto") then [ "autoindex on;" ]
-                        else []
-                    )
-                    ++ (
-                      let inherit (site.value.global) detectAuth;
-                      in inputs.lib.optionals (detectAuth != null) [ ''auth_basic "${detectAuth.text}"'' ]
-                    )
-                    ++ (
-                      let inherit (site.value.global) charset;
-                      in inputs.lib.optionals (charset != null) [ "charset ${charset};" ]
-                    )
-                  );
-                  listen = builtins.map
-                    (listen:
+                    let inherit (site.value.global) index; in
+                      if (builtins.typeOf index == "list") then [ "index ${builtins.concatStringsSep " " index};" ]
+                      else if (index == "auto") then [ "autoindex on;" ]
+                      else []
+                  )
+                  ++ (
+                    let inherit (site.value.global) detectAuth;
+                    in inputs.lib.optionals (detectAuth != null) [ ''auth_basic "${detectAuth.text}"'' ]
+                  )
+                  ++ (
+                    let inherit (site.value.global) charset;
+                    in inputs.lib.optionals (charset != null) [ "charset ${charset};" ]
+                  )
+                );
+                listen = builtins.map
+                  (listen:
+                  {
+                    addr = if listen.proxyProtocol then "0.0.0.0" else "127.0.0.1";
+                    port = with nginx.global; httpsPort
+                      + (if listen.http2 then httpsPortShift.http2 else 0)
+                      + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
+                    ssl = true;
+                    proxyProtocol = listen.proxyProtocol;
+                    extraParameters = inputs.lib.mkIf listen.http2 [ "http2" ];
+                  })
+                  site.value.listens;
+                # do not automatically add http2 listen
+                http2 = false;
+                onlySSL = true;
+                useACMEHost = inputs.lib.mkIf (site.value.global.tlsCert == null) site.name;
+                sslCertificate = inputs.lib.mkIf (site.value.global.tlsCert != null)
+                  "${site.value.global.tlsCert}/fullchain.pem";
+                sslCertificateKey = inputs.lib.mkIf (site.value.global.tlsCert != null)
+                  "${site.value.global.tlsCert}/privkey.pem";
+                locations = builtins.listToAttrs (builtins.map
+                  (location:
+                  {
+                    inherit (location) name;
+                    value =
                     {
-                      addr = if listen.proxyProtocol then "0.0.0.0" else "127.0.0.1";
-                      port = with nginx.global; httpsPort
-                        + (if listen.http2 then httpsPortShift.http2 else 0)
-                        + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
-                      ssl = true;
-                      proxyProtocol = listen.proxyProtocol;
-                      extraParameters = inputs.lib.mkIf listen.http2 [ "http2" ];
-                    })
-                    site.value.listens;
-                  # do not automatically add http2 listen
-                  http2 = false;
-                  onlySSL = true;
-                  useACMEHost = inputs.lib.mkIf (site.value.global.tlsCert == null) site.name;
-                  sslCertificate = inputs.lib.mkIf (site.value.global.tlsCert != null)
-                    "${site.value.global.tlsCert}/fullchain.pem";
-                  sslCertificateKey = inputs.lib.mkIf (site.value.global.tlsCert != null)
-                    "${site.value.global.tlsCert}/privkey.pem";
-                  locations = builtins.listToAttrs (builtins.map
-                    (location:
-                    {
-                      inherit (location) name;
-                      value =
+                      basicAuthFile = inputs.lib.mkIf (location.value.detectAuth or null != null)
+                      (
+                        let
+                          inherit (inputs.lib.strings) escapeURL;
+                          secret = "nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}";
+                        in inputs.config.sops.templates.${secret}.path
+                      );
+                      root = inputs.lib.mkIf (location.value.root or null != null) location.value.root;
+                    }
+                    // {
+                      proxy =
                       {
-                        basicAuthFile = inputs.lib.mkIf (location.value.detectAuth or null != null)
+                        proxyWebsockets = location.value.websocket;
+                        recommendedProxySettings = false;
+                        recommendedProxySettingsNoHost = true;
+                        extraConfig = builtins.concatStringsSep "\n"
                         (
-                          let
-                            inherit (inputs.lib.strings) escapeURL;
-                            secret = "nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}";
-                          in inputs.config.sops.templates.${secret}.path
+                          [ "${if location.value.grpc then "grpc" else "proxy"}_pass ${location.value.upstream};" ]
+                          ++ (inputs.lib.mapAttrsToList (n: v: ''proxy_set_header ${n} "${v}";'')
+                            location.value.setHeaders)
+                          ++ (inputs.lib.optionals
+                            (location.value.detectAuth != null || site.value.global.detectAuth != null)
+                            [ "proxy_hide_header Authorization;" ]
+                          )
+                          ++ (inputs.lib.optionals (location.value.addAuth != null)
+                            (
+                              let authFile = "nginx/templates/addAuth/${location.value.addAuth}";
+                              in [ "include ${inputs.config.sops.templates.${authFile}.path};" ]
+                            ))
                         );
-                        root = inputs.lib.mkIf (location.value.root or null != null) location.value.root;
-                      }
-                      // {
-                        proxy =
-                        {
-                          proxyWebsockets = location.value.websocket;
-                          recommendedProxySettings = false;
-                          recommendedProxySettingsNoHost = true;
-                          extraConfig = builtins.concatStringsSep "\n"
-                          (
-                            [ "${if location.value.grpc then "grpc" else "proxy"}_pass ${location.value.upstream};" ]
-                            ++ (inputs.lib.mapAttrsToList (n: v: ''proxy_set_header ${n} "${v}";'')
-                              location.value.setHeaders)
-                            ++ (inputs.lib.optionals
-                              (location.value.detectAuth != null || site.value.global.detectAuth != null)
-                              [ "proxy_hide_header Authorization;" ]
-                            )
-                            ++ (inputs.lib.optionals (location.value.addAuth != null)
-                              (
-                                let authFile = "nginx/templates/addAuth/${location.value.addAuth}";
-                                in [ "include ${inputs.config.sops.templates.${authFile}.path};" ]
-                              ))
-                          );
-                        };
-                        static =
-                        {
-                          index = inputs.lib.mkIf (builtins.typeOf location.value.index == "list")
-                            (builtins.concatStringsSep " " location.value.index);
-                          tryFiles = inputs.lib.mkIf (location.value.tryFiles != null)
-                            (builtins.concatStringsSep " " location.value.tryFiles);
-                          extraConfig = inputs.lib.mkMerge
-                          [
-                            (inputs.lib.mkIf (location.value.index == "auto") "autoindex on;")
-                            (inputs.lib.mkIf (location.value.charset != null) "charset ${location.value.charset};")
-                            (inputs.lib.mkIf location.value.webdav
-                            ''
-                              dav_access user:rw group:rw;
-                              dav_methods PUT DELETE MKCOL COPY MOVE;
-                              dav_ext_methods PROPFIND OPTIONS;
-                              create_full_put_path on;
-                            '')
-                          ];
-                        };
-                        php.extraConfig =
-                        ''
-                          fastcgi_pass ${location.value.fastcgiPass};
-                          fastcgi_split_path_info ^(.+\.php)(/.*)$;
-                          fastcgi_param PATH_INFO $fastcgi_path_info;
-                          include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
-                        '';
-                        return.return = location.value.return;
-                        cgi.extraConfig =
-                        ''
-                          include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
-                          fastcgi_pass unix:${inputs.config.services.fcgiwrap.socketAddress};
-                          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-                        '';
-                        alias.alias = location.value.path;
-                      }.${location.value.type};
-                    })
-                    site.value.locations);
-                };
-              })
-              sites);
-            fcgiwrap = inputs.lib.mkIf
-            (
-              builtins.filter (site: site != []) (builtins.map
-                (site: filter (location: location.value.type == "cgi") site.value.locations)
-                sites)
-              != []
-            )
-              (with inputs.config.users.users.nginx; { enable = true; user = name; inherit group; });
-          };
+                      };
+                      static =
+                      {
+                        index = inputs.lib.mkIf (builtins.typeOf location.value.index == "list")
+                          (builtins.concatStringsSep " " location.value.index);
+                        tryFiles = inputs.lib.mkIf (location.value.tryFiles != null)
+                          (builtins.concatStringsSep " " location.value.tryFiles);
+                        extraConfig = inputs.lib.mkMerge
+                        [
+                          (inputs.lib.mkIf (location.value.index == "auto") "autoindex on;")
+                          (inputs.lib.mkIf (location.value.charset != null) "charset ${location.value.charset};")
+                          (inputs.lib.mkIf location.value.webdav
+                          ''
+                            dav_access user:rw group:rw;
+                            dav_methods PUT DELETE MKCOL COPY MOVE;
+                            dav_ext_methods PROPFIND OPTIONS;
+                            create_full_put_path on;
+                          '')
+                        ];
+                      };
+                      php.extraConfig =
+                      ''
+                        fastcgi_pass ${location.value.fastcgiPass};
+                        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+                        fastcgi_param PATH_INFO $fastcgi_path_info;
+                        include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
+                      '';
+                      return.return = location.value.return;
+                      alias.alias = location.value.path;
+                    }.${location.value.type};
+                  })
+                  site.value.locations);
+              };
+            })
+            sites);
           nixos.services =
           {
             nginx =
