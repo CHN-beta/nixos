@@ -116,291 +116,286 @@ inputs:
     };}));
     default = {};
   };
-  config =
-    let
-      inherit (inputs.localLib) attrsToList;
-      inherit (inputs.config.nixos.services) nginx;
-      inherit (builtins) map listToAttrs concatStringsSep toString filter attrValues concatLists;
-    in inputs.lib.mkIf nginx.enable (inputs.lib.mkMerge
-    [
-      # https assertions
-      {
-        # only one type should be specified in each location
-        assertions =
-        (
-          (builtins.map
-            (location:
-            {
-              assertion = 1 >= (inputs.lib.count (x: x != null)
-                (builtins.map (type: location.value.${type}) nginx.global.httpsLocationTypes));
-              message = "Only one type shuold be specified in ${location.name}";
-            })
-            (builtins.concatLists (inputs.lib.mapAttrsToList
-              (sn: sv: (inputs.lib.mapAttrsToList (ln: lv: inputs.lib.nameValuePair "${sn} ${ln}" lv) sv.location))
-              nginx.https)))
-          # root should be specified either in global or in each location
-          ++ (builtins.map
-            (location:
-            {
-              assertion = (location.value.root or "") != null;
-              message = "Root should be specified in ${location.name}";
-            })
-            (builtins.concatLists (builtins.map
-              (site: (inputs.lib.mapAttrsToList
-                  (n: v: inputs.lib.nameValuePair "${site.name} ${n}" v)
-                  site.value.location))
-              (builtins.filter (site: site.value.global.root == null) (inputs.localLib.attrsToList nginx.https)))))
-        );
-      }
-      # https
+  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf nginx.enable (inputs.lib.mkMerge
+  [
+    # https assertions
+    {
+      # only one type should be specified in each location
+      assertions =
       (
-        # merge different types of locations
-        let sites = inputs.lib.mapAttrsToList
-          (sn: sv: inputs.lib.nameValuePair sn
+        (builtins.map
+          (location:
           {
-            inherit (sv) global;
-            listens = builtins.attrValues sv.listen;
-            locations = inputs.lib.mapAttrsToList
-              (ln: lv: inputs.lib.nameValuePair ln
-              (
-                let _ = builtins.head (builtins.filter (type: type.value != null) (inputs.localLib.attrsToList lv));
-                in _.value // { type = _.name; }
-              ))
-              sv.location;
+            assertion = 1 >= (inputs.lib.count (x: x != null)
+              (builtins.map (type: location.value.${type}) nginx.global.httpsLocationTypes));
+            message = "Only one type shuold be specified in ${location.name}";
           })
-          nginx.https;
-        in
-        {
-          services.nginx.virtualHosts = builtins.listToAttrs (builtins.map
-            (site:
-            {
-              name = site.value.global.configName;
-              value =
-              {
-                serverName = site.name;
-                root = inputs.lib.mkIf (site.value.global.root != null) site.value.global.root;
-                basicAuthFile = inputs.lib.mkIf (site.value.global.detectAuth != null)
-                (
-                  let secret = "nginx/templates/detectAuth/${inputs.lib.strings.escapeURL site.name}-global";
-                  in inputs.config.sops.templates.${secret}.path
-                );
-                extraConfig = builtins.concatStringsSep "\n"
-                (
-                  (
-                    let inherit (site.value.global) index; in
-                      if (builtins.typeOf index == "list") then [ "index ${builtins.concatStringsSep " " index};" ]
-                      else if (index == "auto") then [ "autoindex on;" ]
-                      else []
-                  )
-                  ++ (
-                    let inherit (site.value.global) detectAuth;
-                    in inputs.lib.optionals (detectAuth != null) [ ''auth_basic "${detectAuth.text}"'' ]
-                  )
-                  ++ (
-                    let inherit (site.value.global) charset;
-                    in inputs.lib.optionals (charset != null) [ "charset ${charset};" ]
-                  )
-                );
-                listen = builtins.map
-                  (listen:
-                  {
-                    addr = if listen.proxyProtocol then "0.0.0.0" else "127.0.0.1";
-                    port = with nginx.global; httpsPort
-                      + (if listen.http2 then httpsPortShift.http2 else 0)
-                      + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
-                    ssl = true;
-                    proxyProtocol = listen.proxyProtocol;
-                    extraParameters = inputs.lib.mkIf listen.http2 [ "http2" ];
-                  })
-                  site.value.listens;
-                # do not automatically add http2 listen
-                http2 = false;
-                onlySSL = true;
-                useACMEHost = inputs.lib.mkIf (site.value.global.tlsCert == null) site.name;
-                sslCertificate = inputs.lib.mkIf (site.value.global.tlsCert != null)
-                  "${site.value.global.tlsCert}/fullchain.pem";
-                sslCertificateKey = inputs.lib.mkIf (site.value.global.tlsCert != null)
-                  "${site.value.global.tlsCert}/privkey.pem";
-                locations = builtins.listToAttrs (builtins.map
-                  (location:
-                  {
-                    inherit (location) name;
-                    value =
-                    {
-                      basicAuthFile = inputs.lib.mkIf (location.value.detectAuth or null != null)
-                      (
-                        let
-                          inherit (inputs.lib.strings) escapeURL;
-                          secret = "nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}";
-                        in inputs.config.sops.templates.${secret}.path
-                      );
-                      root = inputs.lib.mkIf (location.value.root or null != null) location.value.root;
-                    }
-                    // {
-                      proxy =
-                      {
-                        proxyWebsockets = location.value.websocket;
-                        recommendedProxySettings = false;
-                        recommendedProxySettingsNoHost = true;
-                        extraConfig = builtins.concatStringsSep "\n"
-                        (
-                          [ "${if location.value.grpc then "grpc" else "proxy"}_pass ${location.value.upstream};" ]
-                          ++ (inputs.lib.mapAttrsToList (n: v: ''proxy_set_header ${n} "${v}";'')
-                            location.value.setHeaders)
-                          ++ (inputs.lib.optionals
-                            (location.value.detectAuth != null || site.value.global.detectAuth != null)
-                            [ "proxy_hide_header Authorization;" ]
-                          )
-                          ++ (inputs.lib.optionals (location.value.addAuth != null)
-                            (
-                              let authFile = "nginx/templates/addAuth/${location.value.addAuth}";
-                              in [ "include ${inputs.config.sops.templates.${authFile}.path};" ]
-                            ))
-                        );
-                      };
-                      static =
-                      {
-                        index = inputs.lib.mkIf (builtins.typeOf location.value.index == "list")
-                          (builtins.concatStringsSep " " location.value.index);
-                        tryFiles = inputs.lib.mkIf (location.value.tryFiles != null)
-                          (builtins.concatStringsSep " " location.value.tryFiles);
-                        extraConfig = inputs.lib.mkMerge
-                        [
-                          (inputs.lib.mkIf (location.value.index == "auto") "autoindex on;")
-                          (inputs.lib.mkIf (location.value.charset != null) "charset ${location.value.charset};")
-                          (inputs.lib.mkIf location.value.webdav
-                          ''
-                            dav_access user:rw group:rw;
-                            dav_methods PUT DELETE MKCOL COPY MOVE;
-                            dav_ext_methods PROPFIND OPTIONS;
-                            create_full_put_path on;
-                          '')
-                        ];
-                      };
-                      php.extraConfig =
-                      ''
-                        fastcgi_pass ${location.value.fastcgiPass};
-                        fastcgi_split_path_info ^(.+\.php)(/.*)$;
-                        fastcgi_param PATH_INFO $fastcgi_path_info;
-                        include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
-                      '';
-                      return.return = location.value.return;
-                      alias.alias = location.value.path;
-                    }.${location.value.type};
-                  })
-                  site.value.locations);
-              };
-            })
-            sites);
-          nixos.services =
+          (builtins.concatLists (inputs.lib.mapAttrsToList
+            (sn: sv: (inputs.lib.mapAttrsToList (ln: lv: inputs.lib.nameValuePair "${sn} ${ln}" lv) sv.location))
+            nginx.https)))
+        # root should be specified either in global or in each location
+        ++ (builtins.map
+          (location:
           {
-            nginx =
-            # { name = domain; value = listen = { http2 = xxx, proxyProtocol = xxx }; }
-              let listens = builtins.filter
-                (listen: listen.value.addToTransparentProxy)
-                (builtins.concatLists (builtins.map
-                  (site: builtins.map (listen: { inherit (site) name; value = listen; }) site.value.listens)
-                  sites));
-              in
-              {
-                transparentProxy.map = builtins.listToAttrs (builtins.map
-                  (site:
-                  {
-                    inherit (site) name;
-                    value = with nginx.global; httpsPort + (if site.value.http2 then httpsPortShift.http2 else 0);
-                  })
-                  (builtins.filter (listen: !listen.value.proxyProtocol) listens));
-                streamProxy.map = builtins.listToAttrs (builtins.map
-                  (site:
-                  {
-                    inherit (site) name;
-                    value =
-                    {
-                      upstream.port = with nginx.global; httpsPort + httpsPortShift.proxyProtocol
-                        + (if site.value.http2 then httpsPortShift.http2 else 0);
-                      proxyProtocol = true;
-                      rewriteHttps = inputs.lib.mkDefault false;
-                    };
-                  })
-                  (builtins.filter (listen: listen.value.proxyProtocol) listens));
-                http = builtins.listToAttrs (builtins.map
-                  (site: { inherit (site) name; value.rewriteHttps = {}; })
-                  (builtins.filter (site: site.value.global.rewriteHttps) sites));
-              };
-            acme.cert = builtins.listToAttrs (builtins.map
-              (site: { inherit (site) name; value.group = inputs.config.services.nginx.group; })
-              sites);
-          };
-          sops =
-            let
-              inherit (inputs.lib.strings) escapeURL;
-              detectAuthUsers = builtins.concatLists (builtins.map
-                (site:
+            assertion = (location.value.root or "") != null;
+            message = "Root should be specified in ${location.name}";
+          })
+          (builtins.concatLists (builtins.map
+            (site: (inputs.lib.mapAttrsToList
+                (n: v: inputs.lib.nameValuePair "${site.name} ${n}" v)
+                site.value.location))
+            (builtins.filter (site: site.value.global.root == null) (inputs.localLib.attrsToList nginx.https)))))
+      );
+    }
+    # https
+    (
+      # merge different types of locations
+      let sites = inputs.lib.mapAttrsToList
+        (sn: sv: inputs.lib.nameValuePair sn
+        {
+          inherit (sv) global;
+          listens = builtins.attrValues sv.listen;
+          locations = inputs.lib.mapAttrsToList
+            (ln: lv: inputs.lib.nameValuePair ln
+            (
+              let _ = builtins.head (builtins.filter (type: type.value != null) (inputs.localLib.attrsToList lv));
+              in _.value // { type = _.name; }
+            ))
+            sv.location;
+        })
+        nginx.https;
+      in
+      {
+        services.nginx.virtualHosts = builtins.listToAttrs (builtins.map
+          (site:
+          {
+            name = site.value.global.configName;
+            value =
+            {
+              serverName = site.name;
+              root = inputs.lib.mkIf (site.value.global.root != null) site.value.global.root;
+              basicAuthFile = inputs.lib.mkIf (site.value.global.detectAuth != null)
+              (
+                let secret = "nginx/templates/detectAuth/${inputs.lib.strings.escapeURL site.name}-global";
+                in inputs.config.sops.templates.${secret}.path
+              );
+              extraConfig = builtins.concatStringsSep "\n"
+              (
                 (
-                  (builtins.map
-                    (location:
+                  let inherit (site.value.global) index; in
+                    if (builtins.typeOf index == "list") then [ "index ${builtins.concatStringsSep " " index};" ]
+                    else if (index == "auto") then [ "autoindex on;" ]
+                    else []
+                )
+                ++ (
+                  let inherit (site.value.global) detectAuth;
+                  in inputs.lib.optionals (detectAuth != null) [ ''auth_basic "${detectAuth.text}"'' ]
+                )
+                ++ (
+                  let inherit (site.value.global) charset;
+                  in inputs.lib.optionals (charset != null) [ "charset ${charset};" ]
+                )
+              );
+              listen = builtins.map
+                (listen:
+                {
+                  addr = if listen.proxyProtocol then "0.0.0.0" else "127.0.0.1";
+                  port = with nginx.global; httpsPort
+                    + (if listen.http2 then httpsPortShift.http2 else 0)
+                    + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
+                  ssl = true;
+                  proxyProtocol = listen.proxyProtocol;
+                  extraParameters = inputs.lib.mkIf listen.http2 [ "http2" ];
+                })
+                site.value.listens;
+              # do not automatically add http2 listen
+              http2 = false;
+              onlySSL = true;
+              useACMEHost = inputs.lib.mkIf (site.value.global.tlsCert == null) site.name;
+              sslCertificate = inputs.lib.mkIf (site.value.global.tlsCert != null)
+                "${site.value.global.tlsCert}/fullchain.pem";
+              sslCertificateKey = inputs.lib.mkIf (site.value.global.tlsCert != null)
+                "${site.value.global.tlsCert}/privkey.pem";
+              locations = builtins.listToAttrs (builtins.map
+                (location:
+                {
+                  inherit (location) name;
+                  value =
+                  {
+                    basicAuthFile = inputs.lib.mkIf (location.value.detectAuth or null != null)
+                    (
+                      let
+                        inherit (inputs.lib.strings) escapeURL;
+                        secret = "nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}";
+                      in inputs.config.sops.templates.${secret}.path
+                    );
+                    root = inputs.lib.mkIf (location.value.root or null != null) location.value.root;
+                  }
+                  // {
+                    proxy =
                     {
-                      name = "${escapeURL site.name}/${escapeURL location.name}";
-                      value = location.value.detectAuth.users;
-                    })
-                    (builtins.filter (location: location.value.detectAuth or null != null) site.value.locations))
-                  ++ (inputs.lib.optionals (site.value.global.detectAuth != null)
-                    [ { name = "${escapeURL site.name}-global"; value = site.value.global.detectAuth.users; } ])
-                ))
-                sites);
-              addAuth = builtins.concatLists (builtins.map
-                (site: builtins.map
+                      proxyWebsockets = location.value.websocket;
+                      recommendedProxySettings = false;
+                      recommendedProxySettingsNoHost = true;
+                      extraConfig = builtins.concatStringsSep "\n"
+                      (
+                        [ "${if location.value.grpc then "grpc" else "proxy"}_pass ${location.value.upstream};" ]
+                        ++ (inputs.lib.mapAttrsToList (n: v: ''proxy_set_header ${n} "${v}";'')
+                          location.value.setHeaders)
+                        ++ (inputs.lib.optionals
+                          (location.value.detectAuth != null || site.value.global.detectAuth != null)
+                          [ "proxy_hide_header Authorization;" ]
+                        )
+                        ++ (inputs.lib.optionals (location.value.addAuth != null)
+                          (
+                            let authFile = "nginx/templates/addAuth/${location.value.addAuth}";
+                            in [ "include ${inputs.config.sops.templates.${authFile}.path};" ]
+                          ))
+                      );
+                    };
+                    static =
+                    {
+                      index = inputs.lib.mkIf (builtins.typeOf location.value.index == "list")
+                        (builtins.concatStringsSep " " location.value.index);
+                      tryFiles = inputs.lib.mkIf (location.value.tryFiles != null)
+                        (builtins.concatStringsSep " " location.value.tryFiles);
+                      extraConfig = inputs.lib.mkMerge
+                      [
+                        (inputs.lib.mkIf (location.value.index == "auto") "autoindex on;")
+                        (inputs.lib.mkIf (location.value.charset != null) "charset ${location.value.charset};")
+                        (inputs.lib.mkIf location.value.webdav
+                        ''
+                          dav_access user:rw group:rw;
+                          dav_methods PUT DELETE MKCOL COPY MOVE;
+                          dav_ext_methods PROPFIND OPTIONS;
+                          create_full_put_path on;
+                        '')
+                      ];
+                    };
+                    php.extraConfig =
+                    ''
+                      fastcgi_pass ${location.value.fastcgiPass};
+                      fastcgi_split_path_info ^(.+\.php)(/.*)$;
+                      fastcgi_param PATH_INFO $fastcgi_path_info;
+                      include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
+                    '';
+                    return.return = location.value.return;
+                    alias.alias = location.value.path;
+                  }.${location.value.type};
+                })
+                site.value.locations);
+            };
+          })
+          sites);
+        nixos.services =
+        {
+          nginx =
+          # { name = domain; value = listen = { http2 = xxx, proxyProtocol = xxx }; }
+            let listens = builtins.filter
+              (listen: listen.value.addToTransparentProxy)
+              (builtins.concatLists (builtins.map
+                (site: builtins.map (listen: { inherit (site) name; value = listen; }) site.value.listens)
+                sites));
+            in
+            {
+              transparentProxy.map = builtins.listToAttrs (builtins.map
+                (site:
+                {
+                  inherit (site) name;
+                  value = with nginx.global; httpsPort + (if site.value.http2 then httpsPortShift.http2 else 0);
+                })
+                (builtins.filter (listen: !listen.value.proxyProtocol) listens));
+              streamProxy.map = builtins.listToAttrs (builtins.map
+                (site:
+                {
+                  inherit (site) name;
+                  value =
+                  {
+                    upstream.port = with nginx.global; httpsPort + httpsPortShift.proxyProtocol
+                      + (if site.value.http2 then httpsPortShift.http2 else 0);
+                    proxyProtocol = true;
+                    rewriteHttps = inputs.lib.mkDefault false;
+                  };
+                })
+                (builtins.filter (listen: listen.value.proxyProtocol) listens));
+              http = builtins.listToAttrs (builtins.map
+                (site: { inherit (site) name; value.rewriteHttps = {}; })
+                (builtins.filter (site: site.value.global.rewriteHttps) sites));
+            };
+          acme.cert = builtins.listToAttrs (builtins.map
+            (site: { inherit (site) name; value.group = inputs.config.services.nginx.group; })
+            sites);
+        };
+        sops =
+          let
+            inherit (inputs.lib.strings) escapeURL;
+            detectAuthUsers = builtins.concatLists (builtins.map
+              (site:
+              (
+                (builtins.map
                   (location:
                   {
                     name = "${escapeURL site.name}/${escapeURL location.name}";
-                    value = location.value.addAuth;
+                    value = location.value.detectAuth.users;
                   })
-                  (builtins.filter (location: location.value.addAuth or null != null) site.value.locations)
-                )
-                sites);
-            in
-            {
-              templates = builtins.listToAttrs
-              (
-                (builtins.map
-                  (detectAuth:
+                  (builtins.filter (location: location.value.detectAuth or null != null) site.value.locations))
+                ++ (inputs.lib.optionals (site.value.global.detectAuth != null)
+                  [ { name = "${escapeURL site.name}-global"; value = site.value.global.detectAuth.users; } ])
+              ))
+              sites);
+            addAuth = builtins.concatLists (builtins.map
+              (site: builtins.map
+                (location:
+                {
+                  name = "${escapeURL site.name}/${escapeURL location.name}";
+                  value = location.value.addAuth;
+                })
+                (builtins.filter (location: location.value.addAuth or null != null) site.value.locations)
+              )
+              sites);
+          in
+          {
+            templates = builtins.listToAttrs
+            (
+              (builtins.map
+                (detectAuth:
+                {
+                  name = "nginx/templates/detectAuth/${detectAuth.name}";
+                  value =
                   {
-                    name = "nginx/templates/detectAuth/${detectAuth.name}";
-                    value =
-                    {
-                      owner = inputs.config.users.users.nginx.name;
-                      content = builtins.concatStringsSep "\n" (builtins.map
-                        (user: "${user}:{PLAIN}${inputs.config.sops.placeholder."nginx/detectAuth/${user}"}")
-                        detectAuth.value);
-                    };
-                  })
-                  detectAuthUsers)
-                ++ (builtins.map
-                  (addAuth:
+                    owner = inputs.config.users.users.nginx.name;
+                    content = builtins.concatStringsSep "\n" (builtins.map
+                      (user: "${user}:{PLAIN}${inputs.config.sops.placeholder."nginx/detectAuth/${user}"}")
+                      detectAuth.value);
+                  };
+                })
+                detectAuthUsers)
+              ++ (builtins.map
+                (addAuth:
+                {
+                  name = "nginx/templates/addAuth/${addAuth.name}";
+                  value =
                   {
-                    name = "nginx/templates/addAuth/${addAuth.name}";
-                    value =
-                    {
-                      owner = inputs.config.users.users.nginx.name;
-                      content =
-                        let placeholder = inputs.config.sops.placeholder."nginx/addAuth/${addAuth.value}";
-                        in ''proxy_set_header Authorization "Basic ${placeholder}";'';
-                    };
-                  })
-                  addAuth)
-              );
-              secrets = builtins.listToAttrs
-              (
-                (builtins.map
-                  (secret: { name = "nginx/detectAuth/${secret}"; value = {}; })
-                  (inputs.lib.unique (builtins.concatLists (builtins.map (detectAuth: detectAuth.value)
-                    detectAuthUsers))))
-                ++ (builtins.map
-                  (secret: { name = "nginx/addAuth/${secret}"; value = {}; })
-                  (inputs.lib.unique (builtins.map (addAuth: addAuth.value) addAuth)))
-              );
-            };
-        }
-      )
-    ]);
+                    owner = inputs.config.users.users.nginx.name;
+                    content =
+                      let placeholder = inputs.config.sops.placeholder."nginx/addAuth/${addAuth.value}";
+                      in ''proxy_set_header Authorization "Basic ${placeholder}";'';
+                  };
+                })
+                addAuth)
+            );
+            secrets = builtins.listToAttrs
+            (
+              (builtins.map
+                (secret: { name = "nginx/detectAuth/${secret}"; value = {}; })
+                (inputs.lib.unique (builtins.concatLists (builtins.map (detectAuth: detectAuth.value)
+                  detectAuthUsers))))
+              ++ (builtins.map
+                (secret: { name = "nginx/addAuth/${secret}"; value = {}; })
+                (inputs.lib.unique (builtins.map (addAuth: addAuth.value) addAuth)))
+            );
+          };
+      }
+    )
+  ]);
 }
