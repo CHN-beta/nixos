@@ -215,7 +215,7 @@ inputs:
                 {
                   type = "file";
                   device = "disk";
-                  driver = { name = "qemu"; type = "raw"; cache = "none"; discard = "unmap"; };
+                  driver = { name = "qemu"; type = "raw"; cache = "writeback"; discard = "unmap"; };
                   source.file = "${if vm.value.storage.nodatacow then "/nix/nodatacow" else ""}/var/lib/libvirt/images/"
                     + "${vm.value.storage.name}.img";
                   target = { dev = "vda"; bus = "virtio"; };
