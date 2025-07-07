@@ -25,7 +25,6 @@ inputs:
           inherit (fs.value) hashTableSizeMB;
           extraOptions =
           [
-            "--workaround-btrfs-send"
             "--thread-count" "${builtins.toString fs.value.threads}"
             "--loadavg-target" "${builtins.toString fs.value.loadAverage}"
             "--scan-mode" "3"
