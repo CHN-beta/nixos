@@ -4,7 +4,7 @@ inputs:
   {
     nixos =
     {
-      model.private = true;
+      model = { type = "server"; private = true; };
       system =
       {
         fileSystems =
