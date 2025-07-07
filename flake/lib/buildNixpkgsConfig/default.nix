@@ -129,5 +129,7 @@ in platformConfig //
         ))];
         inherit (final.pkgs-2411) intelPackages_2023;
       })
+      // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
+        { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
   )];
 }
