@@ -52,7 +52,7 @@ inputs:
           nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github prefetch-npm-deps nix-prefetch-docker
           nix-template nil bundix
           # instant messager
-          element-desktop telegram-desktop discord zoom-us slack nheko hexchat
+          element-desktop telegram-desktop discord zoom-us slack nheko hexchat halloy
           fluffychat signal-desktop qq nur-xddxdd.wechat-uos-sandboxed cinny-desktop
           # browser
           google-chrome tor-browser
