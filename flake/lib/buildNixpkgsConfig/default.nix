@@ -126,6 +126,11 @@ in platformConfig //
             rich = prev.rich.overridePythonAttrs (prev:
               { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
           }
+          // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx2Support)
+          {
+            numcodecs = prev.numcodecs.overridePythonAttrs (prev:
+             { disabledTests = prev.disabledTests or [] ++ [ "test_encode_decode" "test_partial_decode" ]; });
+          })
         ))];
         inherit (final.pkgs-2411) intelPackages_2023;
       })
