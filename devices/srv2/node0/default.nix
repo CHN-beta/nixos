@@ -14,7 +14,11 @@ inputs:
         };
         nix.remote.slave = {};
       };
-      services = { ollama = {}; beesd."/".loadAverage = 8; };
+      services =
+      {
+        ollama = {};
+        beesd."/" = { hashTableSizeMB = 16; loadAverage = 8; };
+      };
     };
   };
 }

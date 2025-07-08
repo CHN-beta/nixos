@@ -7,8 +7,6 @@ inputs:
       model.cluster.nodeType = "master";
       system =
       {
-        fileSystems.mount.btrfs."/dev/disk/by-partlabel/srv2-node1-data1" =
-          { "/nix/persistent" = "/nix/persistent"; "/nix/nodatacow" = "/nix/nodatacow"; };
         nixpkgs.march = "znver3";
         network =
         {
@@ -21,7 +19,11 @@ inputs:
       services =
       {
         xray.client.dnsmasq.extraInterfaces = [ "enp58s0" ];
-        beesd = { "/".loadAverage = 8; "/nix/persistent" = { hashTableSizeMB = 128 * 10; loadAverage = 8; }; };
+        beesd =
+        {
+          "/" = { hashTableSizeMB = 10 * 128; loadAverage = 8; };
+          "/nix".hashTableSizeMB = 64;
+        };
         xrdp = { enable = true; hostname = [ "srv2.chn.moe" ]; };
         samba = { hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
         groupshare = {};
