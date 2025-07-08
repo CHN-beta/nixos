@@ -18,7 +18,6 @@ inputs:
               { mountPoint = "/nix/remote/pc"; hard = false; };
           };
           swap = [ "/nix/swap/swap" ];
-          cluster.masterAddress = "2";
         };
         nixpkgs.cuda.capabilities =
         [
@@ -39,7 +38,7 @@ inputs:
         slurm =
         {
           enable = true;
-          master = "srv2-node1";
+          master = "srv2-node0";
           node =
           {
             srv2-node0 =
