@@ -55,7 +55,7 @@ inputs:
         };
         coturn = {};
         httpua = {};
-        mirism.enable = true;
+        mirism = {};
         fail2ban = {};
         beesd."/" = {};
       };
