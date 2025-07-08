@@ -46,7 +46,7 @@ inputs:
             element.instances."element.chn.moe" = {};
             synapse-admin.instances."synapse-admin.chn.moe" = {};
             catalog.enable = true;
-            main.enable = true;
+            main = {};
             nekomia.enable = true;
             blog = {};
             sticker = {};
