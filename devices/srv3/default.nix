@@ -91,7 +91,7 @@ inputs:
           matrix = { port = 8009; redisPort = 6380; };
         };
         vaultwarden = {};
-        photoprism.enable = true;
+        photoprism = {};
         nextcloud = {};
         freshrss = {};
         send = {};
