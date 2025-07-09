@@ -7,17 +7,13 @@ inputs:
       model.type = "server";
       system =
       {
-        fileSystems =
+        fileSystems.mount = let inherit (inputs.config.nixos.model.cluster) clusterName nodeName; in
         {
-          mount = let inherit (inputs.config.nixos.model.cluster) clusterName nodeName; in
-          {
-            vfat."/dev/disk/by-partlabel/${clusterName}-${nodeName}-boot" = "/boot";
-            btrfs."/dev/disk/by-partlabel/${clusterName}-${nodeName}-root1" =
-              { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-            nfs."${inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc"}:/" =
-              { mountPoint = "/nix/remote/pc"; hard = false; };
-          };
-          swap = [ "/nix/swap/swap" ];
+          vfat."/dev/disk/by-partlabel/${clusterName}-${nodeName}-boot" = "/boot";
+          btrfs."/dev/disk/by-partlabel/${clusterName}-${nodeName}-root1" =
+            { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+          nfs."${inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc"}:/" =
+            { mountPoint = "/nix/remote/pc"; hard = false; };
         };
         nixpkgs.cuda.capabilities =
         [
