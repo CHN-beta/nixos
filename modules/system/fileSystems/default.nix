@@ -53,12 +53,18 @@ inputs:
               {
                 device = device.name;
                 fsType = "btrfs";
-                # zstd:15 cause sound stuttering
-                # test on e20dae7d8b317f95718b5f4175bd4246c09735de mathematica ~15G
-                # zstd:15 5m33s 7.16G
-                # zstd:8 54s 7.32G
-                # zstd:3 17s 7.52G
-                options = [ "compress-force=zstd" "subvol=${subvol.name}" "acl" "noatime" ];
+                options =
+                [
+                  "subvol=${subvol.name}" "acl" "noatime"
+                  # zstd:15 cause sound stuttering
+                  # test on e20dae7d8b317f95718b5f4175bd4246c09735de mathematica ~15G
+                  # zstd:15 5m33s 7.16G
+                  # zstd:8 54s 7.32G
+                  # zstd:3 17s 7.52G
+                  "compress-force=zstd"
+                  # large btrfs volume need more time to mount (default 90s might not be enough)
+                  "x-systemd.mount-timeout=300s"
+                ];
                 neededForBoot = true;
               };
             }
