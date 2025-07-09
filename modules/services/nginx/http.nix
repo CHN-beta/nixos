@@ -66,8 +66,6 @@ inputs:
             {
               proxyPass = v.proxy.upstream;
               proxyWebsockets = v.proxy.websocket;
-              recommendedProxySettings = false;
-              recommendedProxySettingsNoHost = true;
               extraConfig = builtins.concatStringsSep "\n" (inputs.lib.mapAttrsToList
                 (n: v: ''proxy_set_header ${n} "${v}";'')
                 v.proxy.setHeaders);

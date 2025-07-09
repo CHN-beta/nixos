@@ -57,7 +57,9 @@ inputs:
         proxyTimeout = "1d";
         recommendedZstdSettings = true;
         recommendedTlsSettings = true;
-        recommendedProxySettings = true;
+        # do not set Host header
+        recommendedProxySettings = false;
+        recommendedProxySettingsNoHost = true;
         recommendedOptimisation = true;
         recommendedGzipSettings = true;
         recommendedBrotliSettings = true;
