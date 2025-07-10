@@ -143,9 +143,9 @@ inputs:
           wireless = inputs.lib.mkIf (network.wireless != null)
           {
             enable = true;
+            # wpa_passphrase SSID password
             networks = builtins.listToAttrs (builtins.map
-              (network: { name = network; value.pskRaw = "ext:${network}"; })
-              network.wireless);
+              (network: { name = network; value.pskRaw = "ext:${network}"; }) network.wireless);
             secretsFile = inputs.config.sops.templates."wireless.env".path;
           };
           firewall.trustedInterfaces = network.trust;
