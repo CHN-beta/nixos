@@ -1,17 +1,16 @@
 { inputs, localLib }: rec
 {
-  pkgs = (import inputs.nixpkgs
+  pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
   {
-    system = "x86_64-linux";
-    config.allowUnfree = true;
-    overlays = [ inputs.self.overlays.default ];
+    inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
+    nixpkgs = { march = null; cuda = null; nixRoot = null; };
   });
   hpcstat =
     let
       openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
         (prev: { doCheck = false; patches = prev.patches ++ [ ../packages/hpcstat/openssh.patch ];});
       duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
-      glaze = pkgs.pkgsStatic.glaze.overrideAttrs
+      glaze = pkgs.pkgs-2411.pkgsStatic.glaze.overrideAttrs
         (prev: { cmakeFlags = prev.cmakeFlags ++ [ "-Dglaze_ENABLE_FUZZING=OFF" ]; });
       # pkgsStatic.clangStdenv have a bug
       # https://github.com/NixOS/nixpkgs/issues/177129
