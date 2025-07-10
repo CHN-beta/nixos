@@ -34,6 +34,7 @@ inputs:
         reonokiy = 1020;
         zqq = 1021;
         zgq = 1022;
+        qmx = 1023;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;

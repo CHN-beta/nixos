@@ -76,7 +76,7 @@ inputs:
         };
       };
       packages.vasp = {};
-      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" "yxf" "hss" "zzn" "zqq" ];
+      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" "yxf" "hss" "zzn" "zqq" "qmx" ];
     };
   };
 }
