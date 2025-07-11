@@ -54,6 +54,3 @@ creation_rules:
   - path_regex: devices/cross/secrets/chn.yaml$
     key_groups:
     - age: [ *chn, *pc, *one, *nas ]
-  - path_regex: devices/cross/secrets/acme.yaml$
-    key_groups:
-    - age: [ *chn, *nas, *pc, *one, *srv3, *vps4, *vps6, *srv2-node0, *srv1-node0 ]
