@@ -11,7 +11,7 @@ inputs:
         network =
         {
           static.eno2 = { ip = "192.168.178.1"; mask = 24; };
-          wireless = [ "409" ];
+          wireless = [ "409的5G" ];
           masquerade = [ "eno2" ];
           trust = [ "eno2" ];
         };
