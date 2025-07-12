@@ -14,16 +14,19 @@ inputs:
     {
       enable = true;
       settings.server = { port = 8081; bind_address = "127.0.0.1"; secret_key = "@SEARX_SECRET_KEY@"; };
-      environmentFile = inputs.config.sops.templates."searx.env".path;
+      environmentFile = inputs.config.nixos.system.sops.templates."searx.env".path;
     };
-    sops =
+    nixos =
     {
-      templates."searx.env".content = let inherit (inputs.config.sops) placeholder; in
-      ''
-        SEARX_SECRET_KEY=${placeholder."searx/secret-key"}
-      '';
-      secrets."searx/secret-key" = {};
+      system.sops =
+      {
+        templates."searx.env".content = let inherit (inputs.config.nixos.system.sops) placeholder; in
+        ''
+          SEARX_SECRET_KEY=${placeholder."searx/secret-key"}
+        '';
+        secrets."searx/secret-key" = {};
+      };
+      services.nginx.https.${searx.hostname}.location."/".proxy.upstream = "http://127.0.0.1:8081";
     };
-    nixos.services.nginx.https.${searx.hostname}.location."/".proxy.upstream = "http://127.0.0.1:8081";
   };
 }

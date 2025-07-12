@@ -15,19 +15,18 @@ inputs:
       enable = true;
       baseUrl = "https://${freshrss.hostname}";
       defaultUser = "chn";
-      passwordFile = inputs.config.sops.secrets."freshrss/chn".path;
-      database = { type = "mysql"; passFile = inputs.config.sops.secrets."freshrss/db".path; };
-    };
-    sops.secrets =
-    {
-      "freshrss/chn".owner = inputs.config.users.users.freshrss.name;
-      "freshrss/db" = { owner = inputs.config.users.users.freshrss.name; key = "mariadb/freshrss"; };
+      passwordFile = inputs.config.nixos.system.sops.secrets."freshrss/chn".path;
+      database = { type = "mysql"; passFile = inputs.config.nixos.system.sops.secrets."freshrss/db".path; };
     };
     systemd.services.freshrss-config.after = [ "mysql.service" ];
-    nixos.services =
+    nixos =
     {
-      mariadb = { enable = true; instances.freshrss = {}; };
-      nginx.https.${freshrss.hostname}.global.configName = "freshrss";
+      services = { mariadb.instances.freshrss = {}; nginx.https.${freshrss.hostname}.global.configName = "freshrss"; };
+      system.sops.secrets =
+      {
+        "freshrss/chn".owner = inputs.config.users.users.freshrss.name;
+        "freshrss/db" = { owner = inputs.config.users.users.freshrss.name; key = "mariadb/freshrss"; };
+      };
     };
   };
 }

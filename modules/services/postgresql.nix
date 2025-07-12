@@ -63,7 +63,7 @@ inputs:
         let
           passwordFile =
             if db.value.passwordFile or null != null then db.value.passwordFile
-            else inputs.config.sops.secrets."postgresql/${db.value.user}".path;
+            else inputs.config.nixos.system.sops.secrets."postgresql/${db.value.user}".path;
           initializeFlag =
             if db.value.initializeFlags != {} then
               " WITH "
@@ -85,7 +85,7 @@ inputs:
           + " | grep -E '^${db.value.user}$' -q"
           + " || $PSQL -tAc \"ALTER DATABASE ${db.value.database} OWNER TO ${db.value.user}\"")
       (inputs.localLib.attrsToList postgresql.instances)));
-    sops.secrets = builtins.listToAttrs (builtins.map
+    nixos.system.sops.secrets = builtins.listToAttrs (builtins.map
       (db: { name = "postgresql/${db.value.user}"; value.owner = inputs.config.users.users.postgres.name; })
       (builtins.filter (db: db.value.passwordFile == null) (inputs.localLib.attrsToList postgresql.instances)));
     environment.persistence."/nix/nodatacow".directories = inputs.lib.mkIf postgresql.nodatacow

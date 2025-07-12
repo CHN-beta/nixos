@@ -83,7 +83,7 @@ inputs:
           domains = builtins.map
             (vm:
             {
-              definition = inputs.config.sops.templates."nixvirt/${vm.name}.xml".path;
+              definition = inputs.config.nixos.system.sops.templates."nixvirt/${vm.name}.xml".path;
               active = true;
               restart = false;
             })
@@ -122,146 +122,142 @@ inputs:
         vnc_listen = "0.0.0.0"
       '';
     };
-    nixos.services =
+    nixos =
     {
-      nginx =
-        let hosts = builtins.concatLists (builtins.map
-          (vm: builtins.map
-            (domain:
-            {
-              inherit domain;
-              ip = "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}";
-            })
-            vm.network.portForward.web)
-          (builtins.attrValues nixvirt.instance));
-        in
-        {
-          transparentProxy.map = builtins.listToAttrs (builtins.map
-            (host: { name = host.domain; value = "${host.ip}" + ":443"; }) hosts);
-          http = builtins.listToAttrs (builtins.map
-            (host: { name = host.domain; value.proxy.upstream = "http://${host.ip}" + ":80"; }) hosts);
-        };
-      kvm = {};
-    };
-    sops =
-    {
-      templates = builtins.listToAttrs (builtins.map
-        (vm:
-        {
-          name = "nixvirt/${vm.name}.xml";
-          value.content = inputs.topInputs.nixvirt.lib.domain.getXML
-          # port from 8bcc23e27a62297254d0e9c87281e650ff777132
+      system.sops =
+      {
+        templates = inputs.lib.mapAttrs'
+          (n: v: inputs.lib.nameValuePair "nixvirt/${n}.xml"
           {
-            inherit (vm) name;
-            inherit (vm.value) uuid;
-            type = "kvm";
-            vcpu = { placement = "static"; count = vm.value.cpu.count; };
-            cputune = inputs.lib.optionalAttrs (vm.value.cpu.set != null)
+            content = inputs.topInputs.nixvirt.lib.domain.getXML
+            # port from 8bcc23e27a62297254d0e9c87281e650ff777132
             {
-              vcpupin = builtins.genList
-                (cpu: { vcpu = cpu; cpuset = builtins.elemAt vm.value.cpu.set cpu; })
-                vm.value.cpu.count;
-            };
-            memory =
-            {
-              count = vm.value.memory.sizeMB;
-              unit = "MiB";
-              nosharepages = vm.value.memory.dedicated;
-              locked = vm.value.memory.dedicated;
-            };
-            os =
-            {
-              type = "hvm";
-              arch = "x86_64";
-              machine = "q35";
-              bootmenu = { enable = true; timeout = 15000; };
-              loader = { readonly = true; type = "pflash"; path = "/run/libvirt/nix-ovmf/OVMF_CODE.fd"; };
-              nvram =
+              name = n;
+              inherit (v) uuid;
+              type = "kvm";
+              vcpu = { placement = "static"; count = v.cpu.count; };
+              cputune = inputs.lib.optionalAttrs (v.cpu.set != null)
               {
-                template = "/run/libvirt/nix-ovmf/OVMF_VARS.fd";
-                path = "/var/lib/libvirt/qemu/nvram/${vm.name}_VARS.fd";
-                templateFormat = "raw";
-                format = "raw";
+                vcpupin = builtins.genList (cpu: { vcpu = cpu; cpuset = builtins.elemAt v.cpu.set cpu; }) v.cpu.count;
               };
-            };
-            features = { acpi = {}; apic = {}; };
-            cpu =
-            {
-              mode = "host-passthrough";
-              topology =
+              memory =
               {
-                sockets = 1;
-                dies = 1;
-                cores = if vm.value.cpu.hyprthread then vm.value.cpu.count / 2 else vm.value.cpu.count;
-                threads = if vm.value.cpu.hyprthread then 2 else 1;
+                count = v.memory.sizeMB;
+                unit = "MiB";
+                nosharepages = v.memory.dedicated;
+                locked = v.memory.dedicated;
               };
-            };
-            clock =
-            {
-              offset = "utc";
-              timer =
-              [
-                { name = "rtc"; tickpolicy = "catchup"; }
-                { name = "pit"; tickpolicy = "delay"; }
-                { name = "hpet"; present = false; }
-              ];
-            };
-            devices =
-            {
-              emulator = "${inputs.config.virtualisation.libvirtd.qemu.package}/bin/qemu-system-x86_64";
-              disk =
-              [
+              os =
+              {
+                type = "hvm";
+                arch = "x86_64";
+                machine = "q35";
+                bootmenu = { enable = true; timeout = 15000; };
+                loader = { readonly = true; type = "pflash"; path = "/run/libvirt/nix-ovmf/OVMF_CODE.fd"; };
+                nvram =
                 {
-                  type = "file";
-                  device = "disk";
-                  driver = { name = "qemu"; type = "raw"; cache = "writeback"; discard = "unmap"; };
-                  source.file = "${if vm.value.storage.nodatacow then "/nix/nodatacow" else ""}/var/lib/libvirt/images/"
-                    + "${vm.value.storage.name}.img";
-                  target = { dev = "vda"; bus = "virtio"; };
-                  boot.order = 1;
-                }
+                  template = "/run/libvirt/nix-ovmf/OVMF_VARS.fd";
+                  path = "/var/lib/libvirt/qemu/nvram/${n}_VARS.fd";
+                  templateFormat = "raw";
+                  format = "raw";
+                };
+              };
+              features = { acpi = {}; apic = {}; };
+              cpu =
+              {
+                mode = "host-passthrough";
+                topology =
                 {
-                  type = "file";
-                  device = "cdrom";
-                  driver = { name = "qemu"; type = "raw"; };
-                  source.file = "${inputs.topInputs.self.src.iso.netboot}";
-                  target = { dev = "sdc"; bus = "sata"; };
-                  readonly = true;
-                  boot.order = 10;
-                }
-              ];
-              interface =
-              {
-                type = "bridge";
-                model.type = "virtio";
-                mac.address = vm.value.network.mac;
-                source.bridge = if vm.value.network.bridge then "nixvirt" else "virbr0";
+                  sockets = 1;
+                  dies = 1;
+                  cores = if v.cpu.hyprthread then v.cpu.count / 2 else v.cpu.count;
+                  threads = if v.cpu.hyprthread then 2 else 1;
+                };
               };
-              input =
-              [
-                { type = "tablet"; bus = "usb"; }
-                { type = "mouse"; bus = "ps2"; }
-                { type = "keyboard"; bus = "ps2"; }
-              ];
-              graphics =
+              clock =
               {
-                type = "vnc";
-                autoport = false;
-                port = vm.value.network.vnc.port;
-                listen.type = "address";
-                passwd = inputs.config.sops.placeholder."nixvirt/${vm.name}";
+                offset = "utc";
+                timer =
+                [
+                  { name = "rtc"; tickpolicy = "catchup"; }
+                  { name = "pit"; tickpolicy = "delay"; }
+                  { name = "hpet"; present = false; }
+                ];
               };
-              video.model = { type = "qxl"; ram = 65536; vram = 65536; vgamem = 16384; heads = 1; primary = true; };
-              rng = { model = "virtio"; backend = { model = "random"; source = /dev/urandom; }; };
+              devices =
+              {
+                emulator = "${inputs.config.virtualisation.libvirtd.qemu.package}/bin/qemu-system-x86_64";
+                disk =
+                [
+                  {
+                    type = "file";
+                    device = "disk";
+                    driver = { name = "qemu"; type = "raw"; cache = "writeback"; discard = "unmap"; };
+                    source.file = "${if v.storage.nodatacow then "/nix/nodatacow" else ""}/var/lib/libvirt/images/"
+                      + "${v.storage.name}.img";
+                    target = { dev = "vda"; bus = "virtio"; };
+                    boot.order = 1;
+                  }
+                  {
+                    type = "file";
+                    device = "cdrom";
+                    driver = { name = "qemu"; type = "raw"; };
+                    source.file = "${inputs.topInputs.self.src.iso.netboot}";
+                    target = { dev = "sdc"; bus = "sata"; };
+                    readonly = true;
+                    boot.order = 10;
+                  }
+                ];
+                interface =
+                {
+                  type = "bridge";
+                  model.type = "virtio";
+                  mac.address = v.network.mac;
+                  source.bridge = if v.network.bridge then "nixvirt" else "virbr0";
+                };
+                input =
+                [
+                  { type = "tablet"; bus = "usb"; }
+                  { type = "mouse"; bus = "ps2"; }
+                  { type = "keyboard"; bus = "ps2"; }
+                ];
+                graphics =
+                {
+                  type = "vnc";
+                  autoport = false;
+                  port = v.network.vnc.port;
+                  listen.type = "address";
+                  passwd = inputs.config.sops.placeholder."nixvirt/${n}";
+                };
+                video.model = { type = "qxl"; ram = 65536; vram = 65536; vgamem = 16384; heads = 1; primary = true; };
+                rng = { model = "virtio"; backend = { model = "random"; source = /dev/urandom; }; };
+              };
             };
+          })
+          nixvirt.instance;
+        secrets = inputs.lib.mapAttrs' (n: _: inputs.lib.nameValuePair "nixvirt/${n}" {}) nixvirt.instance;
+      };
+      services =
+      {
+        nginx =
+          let hosts = builtins.concatLists (builtins.map
+            (vm: builtins.map
+              (domain:
+              {
+                inherit domain;
+                ip = "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}";
+              })
+              vm.network.portForward.web)
+            (builtins.attrValues nixvirt.instance));
+          in
+          {
+            transparentProxy.map = builtins.listToAttrs (builtins.map
+              (host: { name = host.domain; value = "${host.ip}" + ":443"; }) hosts);
+            http = builtins.listToAttrs (builtins.map
+              (host: { name = host.domain; value.proxy.upstream = "http://${host.ip}" + ":80"; }) hosts);
           };
-        })
-        (inputs.localLib.attrsToList nixvirt.instance));
-      secrets = builtins.listToAttrs (builtins.map
-        (vm: { name = "nixvirt/${vm}"; value = {}; }) (builtins.attrNames nixvirt.instance));
-      placeholder = builtins.listToAttrs (builtins.map
-        (vm: { name = "nixvirt/${vm}"; value = builtins.hashString "sha256" "nixvirt/${vm}"; })
-        (builtins.attrNames nixvirt.instance));
+        kvm = {};
+      };
     };
     security.wrappers.vm =
     {

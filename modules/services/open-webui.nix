@@ -28,19 +28,22 @@ inputs:
         ENABLE_IMAGE_GENERATION = "True";
         IMAGES_OPENAI_API_BASE_URL = "https://oa.api2d.net/v1";
       };
-      environmentFile = inputs.config.sops.templates."open-webui.env".path;
+      environmentFile = inputs.config.nixos.system.sops.templates."open-webui.env".path;
     };
-    sops =
+    nixos =
     {
-      templates."open-webui.env".content = let inherit (inputs.config.sops) placeholder; in
-      ''
-        OPENAI_API_KEY=${placeholder."open-webui/openai"}
-        WEBUI_SECRET_KEY=${placeholder."open-webui/webui"}
-        IMAGES_OPENAI_API_KEY=${placeholder."open-webui/openai"}
-      '';
-      secrets = { "open-webui/openai" = {}; "open-webui/webui" = {}; };
+      system.sops =
+      {
+        templates."open-webui.env".content = let inherit (inputs.config.nixos.system.sops) placeholder; in
+        ''
+          OPENAI_API_KEY=${placeholder."open-webui/openai"}
+          WEBUI_SECRET_KEY=${placeholder."open-webui/webui"}
+          IMAGES_OPENAI_API_KEY=${placeholder."open-webui/openai"}
+        '';
+        secrets = { "open-webui/openai" = {}; "open-webui/webui" = {}; };
+      };
+      services.nginx.https."${open-webui.hostname}".location."/".proxy =
+        { upstream = "http://127.0.0.1:8080"; websocket = true; };
     };
-    nixos.services.nginx.https."${open-webui.hostname}".location."/".proxy =
-      { upstream = "http://127.0.0.1:8080"; websocket = true; };
   };
 }

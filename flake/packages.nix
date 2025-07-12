@@ -40,7 +40,7 @@
   dns-push = pkgs.callPackage ./dns
   {
     inherit localLib;
-    tokenPath = inputs.self.nixosConfigurations.pc.config.sops.secrets."acme/token".path;
+    tokenPath = inputs.self.nixosConfigurations.pc.config.nixos.system.sops.secrets."acme/token".path;
     octodns = pkgs.octodns.withProviders (_: with pkgs.octodns-providers; [ cloudflare ]);
   };
   archive =

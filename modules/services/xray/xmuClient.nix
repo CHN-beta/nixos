@@ -10,7 +10,7 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.services.xray) xmuClient; in inputs.lib.mkIf (xmuClient != null)
   {
-    sops =
+    nixos.system.sops =
     {
       templates."xray-xmu-client.json" =
       {
@@ -37,7 +37,8 @@ inputs:
             [{
               address = "webvpn.xmu.edu.cn";
               port = 443;
-              users = [{ id = inputs.config.sops.placeholder."xray-xmu-client/uuid"; encryption = "none"; }];
+              users =
+                [{ id = inputs.config.nixos.system.sops.placeholder."xray-xmu-client/uuid"; encryption = "none"; }];
             }];
             streamSettings =
             {
@@ -61,8 +62,9 @@ inputs:
                   in "/https/${prefix}${paddedHex}/xsession";
                 mode = "packet-up";
                 security = "tls";
-                extra.headers.Cookie = "show_vpn=0; heartbeat=1; show_faq=0; "
-                  + "wengine_vpn_ticketwebvpn_xmu_edu_cn=${inputs.config.sops.placeholder."xray-xmu-client/cookie"}";
+                extra.headers.Cookie =
+                  let ticket = inputs.config.nixos.system.sops.placeholder."xray-xmu-client/cookie";
+                  in "show_vpn=0; heartbeat=1; show_faq=0; wengine_vpn_ticketwebvpn_xmu_edu_cn=${ticket}";
               };
               tlsSettings.alpn = [ "http/1.1" ];
             };
@@ -77,8 +79,8 @@ inputs:
       {
         after = [ "network.target" ];
         wantedBy = [ "multi-user.target" ];
-        script =
-          "exec ${inputs.pkgs.xray}/bin/xray -config ${inputs.config.sops.templates."xray-xmu-client.json".path}";
+        script = let config = inputs.config.nixos.system.sops.templates."xray-xmu-client.json".path; in
+          "exec ${inputs.pkgs.xray}/bin/xray -config ${config}";
         serviceConfig =
         {
           User = "v2ray";
@@ -90,7 +92,7 @@ inputs:
           LimitNOFILE = 524288;
           CPUSchedulingPolicy = "rr";
         };
-        restartTriggers = [ inputs.config.sops.templates."xray-xmu-client.json".file ];
+        restartTriggers = [ inputs.config.nixos.system.sops.templates."xray-xmu-client.json".file ];
       };
     };
     users =

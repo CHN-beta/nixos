@@ -10,12 +10,11 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.services.xray) xmuServer; in inputs.lib.mkIf (xmuServer != null)
   {
-    sops =
+    nixos.system.sops =
     {
       templates."xray-xmu-server.json" =
       {
         owner = inputs.config.users.users.v2ray.name;
-        group = inputs.config.users.users.v2ray.group;
         content = builtins.toJSON
         {
           log.loglevel = "warning";
@@ -24,7 +23,11 @@ inputs:
             port = 4727;
             listen = "127.0.0.1";
             protocol = "vless";
-            settings = { clients = [{ id = inputs.config.sops.placeholder."xray-xmu-server"; }]; decryption = "none"; };
+            settings =
+            {
+              clients = [{ id = inputs.config.nixos.system.sops.placeholder."xray-xmu-server"; }];
+              decryption = "none";
+            };
             streamSettings = { network = "xhttp"; xhttpSettings = { mode = "stream-one"; path = "/xsession"; }; };
             tag = "in";
           }];
@@ -37,8 +40,8 @@ inputs:
     {
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
-      script =
-        "exec ${inputs.pkgs.xray}/bin/xray -config ${inputs.config.sops.templates."xray-xmu-server.json".path}";
+      script = let config = inputs.config.nixos.system.sops.templates."xray-xmu-server.json".path; in
+        "exec ${inputs.pkgs.xray}/bin/xray -config ${config}";
       serviceConfig =
       {
         User = "v2ray";
@@ -49,7 +52,7 @@ inputs:
         LimitNPROC = 65536;
         LimitNOFILE = 524288;
       };
-      restartTriggers = [ inputs.config.sops.templates."xray-xmu-server.json".file ];
+      restartTriggers = [ inputs.config.nixos.system.sops.templates."xray-xmu-server.json".file ];
     };
     users =
     {

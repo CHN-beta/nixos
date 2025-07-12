@@ -21,9 +21,9 @@ inputs:
       config =
       {
         dbtype = "pgsql";
-        dbpassFile = inputs.config.sops.secrets."nextcloud/postgresql".path;
+        dbpassFile = inputs.config.nixos.system.sops.secrets."nextcloud/postgresql".path;
         adminuser = "admin";
-        adminpassFile = inputs.config.sops.secrets."nextcloud/admin".path;
+        adminpassFile = inputs.config.nixos.system.sops.secrets."nextcloud/admin".path;
       };
       configureRedis = true;
       settings =
@@ -39,7 +39,7 @@ inputs:
         overwriteprotocol = "https";
         default_phone_region = "CN";
       };
-      secretFile = inputs.config.sops.templates."nextcloud/secret".path;
+      secretFile = inputs.config.nixos.system.sops.templates."nextcloud/secret".path;
       extraApps =
         let
           version = inputs.lib.versions.major inputs.config.services.nextcloud.package.version;
@@ -59,27 +59,30 @@ inputs:
           (package: { name = package; value = inputs.pkgs.fetchNextcloudApp (getInfo package); })
           [ "phonetrack" "twofactor_webauthn" "calendar" ]);
     };
-    nixos.services =
+    nixos =
     {
-      postgresql.instances.nextcloud = {};
-      redis.instances.nextcloud.port = 3499;
-      nginx.https.${nextcloud.hostname}.global.configName = nextcloud.hostname;
-    };
-    sops =
-    {
-      templates."nextcloud/secret" =
+      system.sops =
       {
-        content = builtins.toJSON
+        templates."nextcloud/secret" =
         {
-          redis.password = inputs.config.sops.placeholder."redis/nextcloud";
-          mail_smtppassword = inputs.config.sops.placeholder."mail/bot";
+          content = builtins.toJSON
+          {
+            redis.password = inputs.config.nixos.system.sops.placeholder."redis/nextcloud";
+            mail_smtppassword = inputs.config.nixos.system.sops.placeholder."mail/bot";
+          };
+          owner = inputs.config.users.users.nextcloud.name;
         };
-        owner = inputs.config.users.users.nextcloud.name;
+        secrets =
+        {
+          "nextcloud/postgresql" = { key = "postgresql/nextcloud"; owner = inputs.config.users.users.nextcloud.name; };
+          "nextcloud/admin".owner = inputs.config.users.users.nextcloud.name;
+        };
       };
-      secrets =
+      services =
       {
-        "nextcloud/postgresql" = { key = "postgresql/nextcloud"; owner = inputs.config.users.users.nextcloud.name; };
-        "nextcloud/admin".owner = inputs.config.users.users.nextcloud.name;
+        postgresql.instances.nextcloud = {};
+        redis.instances.nextcloud.port = 3499;
+        nginx.https.${nextcloud.hostname}.global.configName = nextcloud.hostname;
       };
     };
     systemd.services.nextcloud-setup = rec { requires = [ "postgresql.service" ]; after = requires; };

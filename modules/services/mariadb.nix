@@ -40,13 +40,13 @@ inputs:
         let
           passwordFile =
             if db.value.passwordFile or null != null then db.value.passwordFile
-            else inputs.config.sops.secrets."mariadb/${db.value.user}".path;
+            else inputs.config.nixos.system.sops.secrets."mariadb/${db.value.user}".path;
           mysql = "${inputs.config.services.mysql.package}/bin/mysql";
         in
           # force user use password auth
           ''echo "ALTER USER '${db.value.user}' IDENTIFIED BY '$(cat ${passwordFile})';" | ${mysql} -N'')
       (inputs.localLib.attrsToList mariadb.instances)));
-    sops.secrets = builtins.listToAttrs (builtins.map
+    nixos.system.sops.secrets = builtins.listToAttrs (builtins.map
       (db: { name = "mariadb/${db.value.user}"; value.owner = inputs.config.users.users.mysql.name; })
       (builtins.filter (db: db.value.passwordFile == null) (inputs.localLib.attrsToList mariadb.instances)));
     environment.persistence."/nix/nodatacow".directories =

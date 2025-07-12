@@ -24,7 +24,7 @@ inputs:
             enabled = true;
             host = "mail.chn.moe";
             user = "bot@chn.moe";
-            password = "$__file{${inputs.config.sops.secrets."grafana/mail".path}}";
+            password = "$__file{${inputs.config.nixos.system.sops.secrets."grafana/mail".path}}";
             from_address = "bot@chn.moe";
             ehlo_identity = grafana.hostname;
             startTLS_policy = "MandatoryStartTLS";
@@ -32,9 +32,9 @@ inputs:
           server = { root_url = "https://${grafana.hostname}"; http_port = 3001; enable_gzip = true; };
           security =
           {
-            secret_key = "$__file{${inputs.config.sops.secrets."grafana/secret".path}}";
+            secret_key = "$__file{${inputs.config.nixos.system.sops.secrets."grafana/secret".path}}";
             admin_user = "chn";
-            admin_password = "$__file{${inputs.config.sops.secrets."grafana/chn".path}}";
+            admin_password = "$__file{${inputs.config.nixos.system.sops.secrets."grafana/chn".path}}";
             admin_email = "chn@chn.moe";
           };
           database =
@@ -42,7 +42,7 @@ inputs:
             type = "postgres";
             host = "127.0.0.1:5432";
             user = "grafana";
-            password = "$__file{${inputs.config.sops.secrets."grafana/db".path}}";
+            password = "$__file{${inputs.config.nixos.system.sops.secrets."grafana/db".path}}";
           };
         };
         provision =
@@ -78,18 +78,21 @@ inputs:
         extraFlags = [ "--storage.tsdb.max-block-chunk-segment-size=16MB" ];
       };
     };
-    nixos.services =
+    nixos =
     {
-      nginx.https.${grafana.hostname}.location."/".proxy = { upstream = "http://127.0.0.1:3001"; websocket = true; };
-      postgresql.instances.grafana = {};
-    };
-    sops.secrets = let owner = inputs.config.systemd.services.grafana.serviceConfig.User; in
-    {
-      "grafana/mail" = { owner = owner; key = "mail/bot"; };
-      "grafana/secret".owner = owner;
-      "grafana/chn".owner = owner;
-      "grafana/db" = { owner = owner; key = "postgresql/grafana"; };
-      "mail/bot" = {};
+      services =
+      {
+        nginx.https.${grafana.hostname}.location."/".proxy = { upstream = "http://127.0.0.1:3001"; websocket = true; };
+        postgresql.instances.grafana = {};
+      };
+      system.sops.secrets = let owner = inputs.config.systemd.services.grafana.serviceConfig.User; in
+      {
+        "grafana/mail" = { owner = owner; key = "mail/bot"; };
+        "grafana/secret".owner = owner;
+        "grafana/chn".owner = owner;
+        "grafana/db" = { owner = owner; key = "postgresql/grafana"; };
+        "mail/bot" = {};
+      };
     };
     environment.persistence."/nix/nodatacow".directories =
       [{ directory = "/var/lib/prometheus2"; user = "prometheus"; group = "prometheus"; mode = "0700"; }];

@@ -177,7 +177,7 @@ inputs:
             # ConstrainDevices=yes
           '';
         };
-        munge = { enable = true; password = inputs.config.sops.secrets."munge.key".path; };
+        munge = { enable = true; password = inputs.config.nixos.system.sops.secrets."munge.key".path; };
       };
       systemd.services.slurmd.environment =
         let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
@@ -186,12 +186,16 @@ inputs:
           CUDA_PATH = "${inputs.pkgs.cudatoolkit}";
           LD_LIBRARY_PATH = "${inputs.config.hardware.nvidia.package}/lib";
         };
-      sops.secrets."munge.key" =
+      nixos.system.sops.secrets."munge.key" =
       {
         format = "binary";
-        sopsFile = inputs.localLib.mkConditional (inputs.config.nixos.model.cluster == null)
-          "${builtins.dirOf inputs.config.sops.defaultSopsFile}/munge.key"
-          "${inputs.config.nixos.system.sops.clusterSopsDir}/munge.key";
+        sopsFile =
+          let
+            devicePath = "${inputs.topInputs.self}/devices";
+            inherit (inputs.config.nixos) model;
+          in inputs.localLib.mkConditional (model.cluster == null)
+            "${devicePath}/${model.hostname}/secrets/munge.key"
+            "${devicePath}/${model.cluster.clusterName}/secrets/munge.key";
         owner = inputs.config.systemd.services.munged.serviceConfig.User;
       };
       environment.sessionVariables = { SLURM_UNBUFFEREDIO = "1"; SLURM_CPU_BIND = "v"; };
@@ -206,7 +210,7 @@ inputs:
         {
           enable = true;
           dbdHost = "localhost";
-          storagePassFile = inputs.config.sops.secrets."slurm/db".path;
+          storagePassFile = inputs.config.nixos.system.sops.secrets."slurm/db".path;
           extraConfig =
           ''
             StorageHost=*
@@ -224,24 +228,20 @@ inputs:
         services.slurmctld = { after = [ "suid-sgid-wrappers.service" ]; serviceConfig.MemorySwapMax = "0"; };
         tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
       };
-      sops =
+      nixos.system.sops =
       {
         secrets = { "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; }; }
           // builtins.listToAttrs (builtins.map
-            (n:
-            {
-              name = "telegram/${n}";
-              value.sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml";
-            })
+            (n: inputs.lib.nameValuePair "telegram/${n}" {})
             [ "token" "user/chn" "user/hjp" ]);
         templates."info.yaml" =
         {
           owner = "slurm";
-          content = let inherit (inputs.config.sops) placeholder; in builtins.toJSON
+          content = let inherit (inputs.config.nixos.system.sops) placeholder; in builtins.toJSON
           {
             token = placeholder."telegram/token";
-            user =  builtins.listToAttrs (builtins.map (n: { name = n; value = placeholder."telegram/user/${n}"; })
-              [ "chn" "hjp" ]);
+            user =  builtins.listToAttrs (builtins.map
+              (n: inputs.lib.nameValuePair n placeholder."telegram/user/${n}") [ "chn" "hjp" ]);
             slurmConf = "${inputs.config.services.slurm.etcSlurm}/slurm.conf";
           };
         };
@@ -252,7 +252,7 @@ inputs:
           let info = inputs.pkgs.localPackages.info.override
           {
             slurm = inputs.config.services.slurm.package;
-            configFile = inputs.config.sops.templates."info.yaml".path;
+            configFile = inputs.config.nixos.system.sops.templates."info.yaml".path;
           };
           in "${info}/bin/info";
         program = "slurm-info";

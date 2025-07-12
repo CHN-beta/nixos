@@ -15,13 +15,13 @@ inputs:
             grep = "${inputs.pkgs.gnugrep}/bin/grep";
             curl = "${inputs.pkgs.curl}/bin/curl";
             cat = "${inputs.pkgs.coreutils}/bin/cat";
-            token = inputs.config.sops.secrets."telegram/token".path;
-            chat = inputs.config.sops.secrets."telegram/user/chn".path;
+            token = inputs.config.nixos.system.sops.secrets."telegram/token".path;
+            chat = inputs.config.nixos.system.sops.secrets."telegram/user/chn".path;
             date = "${inputs.pkgs.coreutils}/bin/date";
             hpcstat = "${inputs.pkgs.localPackages.hpcstat}/bin/hpcstat";
             ssh = "${inputs.pkgs.openssh}/bin/ssh -i ${key} -o StrictHostKeyChecking=no"
               + " -o ForwardAgent=yes -o AddKeysToAgent=yes";
-            key = inputs.config.sops.secrets."hpcstat/key".path;
+            key = inputs.config.nixos.system.sops.secrets."hpcstat/key".path;
             jykang = "${inputs.topInputs.self}/devices/jykang.xmuhpc/files";
             ssh-agent = "${inputs.pkgs.openssh}/bin/ssh-agent";
           in
@@ -105,10 +105,10 @@ inputs:
           (inputs.localLib.attrsToList calenders));
         tmpfiles.rules = [ "d /var/lib/hpcstat 0700 hpcstat hpcstat" ];
       };
-    sops.secrets = let sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml"; in
+    nixos.system.sops.secrets =
     {
-      "telegram/token" = { group = "telegram"; mode = "0440"; inherit sopsFile; };
-      "telegram/user/chn" = { group = "telegram"; mode = "0440"; inherit sopsFile; };
+      "telegram/token" = { group = "telegram"; mode = "0440"; };
+      "telegram/user/chn" = { group = "telegram"; mode = "0440"; };
       "hpcstat/key" = { owner = "hpcstat"; group = "hpcstat"; };
     };
     users =

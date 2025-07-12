@@ -33,7 +33,7 @@ inputs:
         {
           inherit (wg.value) listenPort;
           ips = [ "${wg.value.ip}/${builtins.toString wg.value.netmask}" ];
-          privateKeyFile = inputs.config.sops.secrets.wireguard.path;
+          privateKeyFile = inputs.config.nixos.system.sops.secrets.wireguard.path;
           peers = builtins.map
             (peer:
             {
@@ -45,6 +45,6 @@ inputs:
         };
       })
       (inputs.localLib.attrsToList wireguard));
-    sops.secrets.wireguard = {};
+    nixos.system.sops.secrets.wireguard = {};
   };
 }

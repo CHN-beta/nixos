@@ -43,7 +43,7 @@ inputs:
           let
             package = inputs.pkgs.matrix-synapse.override
               { extras = [ "url-preview" "postgres" "redis" ]; plugins = []; };
-            config = inputs.config.sops.templates."synapse/${instance.name}/config.yaml".path;
+            config = inputs.config.nixos.system.sops.templates."synapse/${instance.name}/config.yaml".path;
             homeserver = "${package}/bin/synapse_homeserver";
           in
           {
@@ -100,143 +100,145 @@ inputs:
         ];
       })
       (inputs.localLib.attrsToList synapse.instances));
-    sops = inputs.lib.mkMerge (builtins.map
-      (instance:
-      {
-        templates."synapse/${instance.name}/config.yaml" =
-        {
-          owner = "synapse-${instance.name}";
-          group = "synapse-${instance.name}";
-          content =
-            let
-              inherit (inputs.config.sops) placeholder;
-            in builtins.readFile ((inputs.pkgs.formats.yaml {}).generate "${instance.name}.yaml"
-            {
-              server_name = instance.value.matrixHostname;
-              public_baseurl = "https://${instance.value.hostname}/";
-              listeners =
-              [{
-                bind_addresses = [ "127.0.0.1" ];
-                inherit (instance.value) port;
-                resources = [{ names = [ "client" "federation" ]; compress = false; }];
-                tls = false;
-                type = "http";
-                x_forwarded = true;
-              }];
-              database =
-              {
-                name = "psycopg2";
-                args = let name = "synapse_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}"; in
-                {
-                  user = name;
-                  password = placeholder."postgresql/${name}";
-                  database = name;
-                  host = "127.0.0.1";
-                  port = "5432";
-                };
-                allow_unsafe_locale = true;
-              };
-              redis =
-              {
-                enabled = true;
-                port = instance.value.redisPort;
-                password = placeholder."redis/synapse-${instance.name}";
-              };
-              turn_shared_secret = placeholder."synapse/${instance.name}/coturn";
-              registration_shared_secret = placeholder."synapse/${instance.name}/registration";
-              macaroon_secret_key = placeholder."synapse/${instance.name}/macaroon";
-              form_secret = placeholder."synapse/${instance.name}/form";
-              signing_key_path = inputs.config.sops.secrets."synapse/${instance.name}/signing-key".path;
-              email =
-              {
-                smtp_host = "mail.chn.moe";
-                smtp_port = 25;
-                smtp_user = "bot@chn.moe";
-                smtp_pass = placeholder."mail/bot";
-                require_transport_security = true;
-                notif_from = "Your Friendly %(app)s homeserver <bot@chn.moe>";
-                app_name = "Haonan Chen's synapse";
-              };
-              admin_contact = "mailto:chn@chn.moe";
-              enable_registration = true;
-              registrations_require_3pid = [ "email" ];
-              registration_requires_token = true;
-              turn_uris = [ "turns:coturn.chn.moe" "turn:coturn.chn.moe" ];
-              max_upload_size = "1024M";
-              web_client_location = "https://element.chn.moe/";
-              report_stats = true;
-              trusted_key_servers =
-              [{
-                server_name = "matrix.org";
-                verify_keys."ed25519:auto" = "Noi6WqcDj0QmPxCNQqgezwTlBKrfqehY1u2FyWP9uYw";
-              }];
-              suppress_key_server_warning = true;
-              log_config = (inputs.pkgs.formats.yaml {}).generate "log.yaml"
-              {
-                version = 1;
-                formatters.precise.format =
-                  "%(asctime)s - %(name)s - %(lineno)d - %(levelname)s - %(request)s - %(message)s";
-                handlers.console = { class = "logging.StreamHandler"; formatter = "precise"; };
-                root = { level = "INFO"; handlers = [ "console" ]; };
-                disable_existing_loggers = true;
-              };
-              pid_file = "/run/synapse-${instance.name}.pid";
-              media_store_path = "/var/lib/synapse/${instance.name}/media_store";
-              presence.enabled = true;
-              url_preview_enabled = true;
-              url_preview_ip_range_blacklist =
-              [
-                "10.0.0.0/8" "100.64.0.0/10" "127.0.0.0/8" "169.254.0.0/16" "172.16.0.0/12" "192.0.0.0/24"
-                "192.0.2.0/24" "192.168.0.0/16" "192.88.99.0/24" "198.18.0.0/15" "198.51.100.0/24" "2001:db8::/32"
-                "203.0.113.0/24" "224.0.0.0/4" "::1/128" "fc00::/7" "fe80::/10" "fec0::/10" "ff00::/8"
-              ];
-              max_image_pixels = "32M";
-              dynamic_thumbnails = false;
-              # this is required for displaying thumbnails in sticker widgets
-              enable_authenticated_media = false;
-            });
-        };
-        secrets = (builtins.listToAttrs (builtins.map
-          (secret: { name = "synapse/${instance.name}/${secret}"; value = {}; })
-          [ "coturn" "registration" "macaroon" "form" ]))
-          // { "synapse/${instance.name}/signing-key".owner = "synapse-${instance.name}"; }
-          // { "mail/bot" = {}; };
-      })
-      (inputs.localLib.attrsToList synapse.instances));
-    nixos.services =
+    nixos =
     {
-      postgresql.instances = builtins.listToAttrs (builtins.map
+      system.sops = inputs.lib.mkMerge (builtins.map
         (instance:
         {
-          name = "synapse_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}";
-          value.initializeFlags = { TEMPLATE = "template0"; LC_CTYPE = "C"; LC_COLLATE = "C"; };
-        })
-        (inputs.localLib.attrsToList synapse.instances));
-      redis.instances = builtins.listToAttrs (builtins.map
-        (instance: { name = "synapse-${instance.name}"; value.port = instance.value.redisPort; })
-        (inputs.localLib.attrsToList synapse.instances));
-      nginx.https = builtins.listToAttrs (builtins.map
-        (instance: with instance.value;
-        {
-          name = hostname;
-          value.location =
+          templates."synapse/${instance.name}/config.yaml" =
           {
-            "/".proxy = { upstream = "http://127.0.0.1:${toString port}"; websocket = true; };
-            "/.well-known/matrix/server".static =
-            {
-              root = builtins.toString (inputs.pkgs.writeTextFile
+            owner = "synapse-${instance.name}";
+            content =
+              let
+                inherit (inputs.config.nixos.system.sops) placeholder;
+              in builtins.readFile ((inputs.pkgs.formats.yaml {}).generate "${instance.name}.yaml"
               {
-                name = "server";
-                text = builtins.toJSON
+                server_name = instance.value.matrixHostname;
+                public_baseurl = "https://${instance.value.hostname}/";
+                listeners =
+                [{
+                  bind_addresses = [ "127.0.0.1" ];
+                  inherit (instance.value) port;
+                  resources = [{ names = [ "client" "federation" ]; compress = false; }];
+                  tls = false;
+                  type = "http";
+                  x_forwarded = true;
+                }];
+                database =
                 {
-                  "m.server" = "${hostname}:443";
+                  name = "psycopg2";
+                  args = let name = "synapse_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}"; in
+                  {
+                    user = name;
+                    password = placeholder."postgresql/${name}";
+                    database = name;
+                    host = "127.0.0.1";
+                    port = "5432";
+                  };
+                  allow_unsafe_locale = true;
                 };
-                destination = "/.well-known/matrix/server";
+                redis =
+                {
+                  enabled = true;
+                  port = instance.value.redisPort;
+                  password = placeholder."redis/synapse-${instance.name}";
+                };
+                turn_shared_secret = placeholder."synapse/${instance.name}/coturn";
+                registration_shared_secret = placeholder."synapse/${instance.name}/registration";
+                macaroon_secret_key = placeholder."synapse/${instance.name}/macaroon";
+                form_secret = placeholder."synapse/${instance.name}/form";
+                signing_key_path = inputs.config.nixos.system.sops.secrets."synapse/${instance.name}/signing-key".path;
+                email =
+                {
+                  smtp_host = "mail.chn.moe";
+                  smtp_port = 25;
+                  smtp_user = "bot@chn.moe";
+                  smtp_pass = placeholder."mail/bot";
+                  require_transport_security = true;
+                  notif_from = "Your Friendly %(app)s homeserver <bot@chn.moe>";
+                  app_name = "Haonan Chen's synapse";
+                };
+                admin_contact = "mailto:chn@chn.moe";
+                enable_registration = true;
+                registrations_require_3pid = [ "email" ];
+                registration_requires_token = true;
+                turn_uris = [ "turns:coturn.chn.moe" "turn:coturn.chn.moe" ];
+                max_upload_size = "1024M";
+                web_client_location = "https://element.chn.moe/";
+                report_stats = true;
+                trusted_key_servers =
+                [{
+                  server_name = "matrix.org";
+                  verify_keys."ed25519:auto" = "Noi6WqcDj0QmPxCNQqgezwTlBKrfqehY1u2FyWP9uYw";
+                }];
+                suppress_key_server_warning = true;
+                log_config = (inputs.pkgs.formats.yaml {}).generate "log.yaml"
+                {
+                  version = 1;
+                  formatters.precise.format =
+                    "%(asctime)s - %(name)s - %(lineno)d - %(levelname)s - %(request)s - %(message)s";
+                  handlers.console = { class = "logging.StreamHandler"; formatter = "precise"; };
+                  root = { level = "INFO"; handlers = [ "console" ]; };
+                  disable_existing_loggers = true;
+                };
+                pid_file = "/run/synapse-${instance.name}.pid";
+                media_store_path = "/var/lib/synapse/${instance.name}/media_store";
+                presence.enabled = true;
+                url_preview_enabled = true;
+                url_preview_ip_range_blacklist =
+                [
+                  "10.0.0.0/8" "100.64.0.0/10" "127.0.0.0/8" "169.254.0.0/16" "172.16.0.0/12" "192.0.0.0/24"
+                  "192.0.2.0/24" "192.168.0.0/16" "192.88.99.0/24" "198.18.0.0/15" "198.51.100.0/24" "2001:db8::/32"
+                  "203.0.113.0/24" "224.0.0.0/4" "::1/128" "fc00::/7" "fe80::/10" "fec0::/10" "ff00::/8"
+                ];
+                max_image_pixels = "32M";
+                dynamic_thumbnails = false;
+                # this is required for displaying thumbnails in sticker widgets
+                enable_authenticated_media = false;
               });
-            };
           };
+          secrets = (builtins.listToAttrs (builtins.map
+            (secret: { name = "synapse/${instance.name}/${secret}"; value = {}; })
+            [ "coturn" "registration" "macaroon" "form" ]))
+            // { "synapse/${instance.name}/signing-key".owner = "synapse-${instance.name}"; }
+            // { "mail/bot" = {}; };
         })
         (inputs.localLib.attrsToList synapse.instances));
+      services =
+      {
+        postgresql.instances = builtins.listToAttrs (builtins.map
+          (instance:
+          {
+            name = "synapse_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}";
+            value.initializeFlags = { TEMPLATE = "template0"; LC_CTYPE = "C"; LC_COLLATE = "C"; };
+          })
+          (inputs.localLib.attrsToList synapse.instances));
+        redis.instances = builtins.listToAttrs (builtins.map
+          (instance: { name = "synapse-${instance.name}"; value.port = instance.value.redisPort; })
+          (inputs.localLib.attrsToList synapse.instances));
+        nginx.https = builtins.listToAttrs (builtins.map
+          (instance: with instance.value;
+          {
+            name = hostname;
+            value.location =
+            {
+              "/".proxy = { upstream = "http://127.0.0.1:${toString port}"; websocket = true; };
+              "/.well-known/matrix/server".static =
+              {
+                root = builtins.toString (inputs.pkgs.writeTextFile
+                {
+                  name = "server";
+                  text = builtins.toJSON
+                  {
+                    "m.server" = "${hostname}:443";
+                  };
+                  destination = "/.well-known/matrix/server";
+                });
+              };
+            };
+          })
+          (inputs.localLib.attrsToList synapse.instances));
+      };
     };
   };
 }

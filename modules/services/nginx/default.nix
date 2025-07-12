@@ -95,17 +95,13 @@ inputs:
         settings =
         {
           AccountID = 901296;
-          LicenseKey = inputs.config.sops.secrets."nginx/maxmind-license".path;
+          LicenseKey = inputs.config.nixos.system.sops.secrets."nginx/maxmind-license".path;
           EditionIDs = [ "GeoLite2-ASN" "GeoLite2-City" "GeoLite2-Country" ];
         };
       };
     };
     networking.firewall.allowedTCPPorts = [ 80 443 ];
-    sops.secrets."nginx/maxmind-license" =
-    {
-      owner = inputs.config.users.users.nginx.name;
-      sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml";
-    };
+    nixos.system.sops.secrets."nginx/maxmind-license".owner = inputs.config.users.users.nginx.name;
     systemd.services.nginx.serviceConfig =
     {
       CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];

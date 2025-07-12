@@ -101,17 +101,15 @@ inputs:
     }
     # set hashedPassword if it exist in secrets
     (
-      let
-        sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/default.yaml";
-        secrets = inputs.pkgs.localPackages.fromYaml (builtins.readFile sopsFile);
-        hashedPasswordExist = userName: (secrets ? users) && ((secrets.users or {}) ? ${userName});
+      let hashedPasswordExist = userName: inputs.lib.lists.any
+        (inputs.lib.lists.hasPrefix [ "users" userName ]) inputs.config.nixos.system.sops.availableKeys;
       in
       {
         users.users = builtins.listToAttrs (builtins.map
           (name: { inherit name; value.hashedPasswordFile = inputs.config.sops.secrets."users/${name}".path; })
           (builtins.filter (user: hashedPasswordExist user) user.users));
-        sops.secrets = builtins.listToAttrs (builtins.map
-          (name: { name = "users/${name}"; value = { neededForUsers = true; inherit sopsFile; }; })
+        nixos.system.sops.secrets = builtins.listToAttrs (builtins.map
+          (name: inputs.lib.nameValuePair "users/${name}" { neededForUsers = true; })
           (builtins.filter (user: hashedPasswordExist user) user.users));
       }
     )
@@ -143,7 +141,7 @@ inputs:
           home.file = inputs.lib.mkIf inputs.config.nixos.model.private
           {
             ".ssh/id_ed25519_sk".source = homeInputs.config.lib.file.mkOutOfStoreSymlink
-              inputs.config.sops.secrets."root/ed25519_sk".path;
+              inputs.config.nixos.system.sops.secrets."root/ed25519_sk".path;
           };
         };
       };

@@ -20,7 +20,7 @@ inputs:
         createLocally = false;
         host = "127.0.0.1";
         port = 9184;
-        passwordFile = inputs.config.sops.secrets."redis/send".path;
+        passwordFile = inputs.config.nixos.system.sops.secrets."redis/send".path;
       };
     };
     systemd.services.send.after = [ "redis-send.service" ];

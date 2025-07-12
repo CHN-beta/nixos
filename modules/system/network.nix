@@ -146,19 +146,19 @@ inputs:
             # wpa_passphrase SSID password
             networks = builtins.listToAttrs (builtins.map
               (network: { name = network; value.pskRaw = "ext:${network}"; }) network.wireless);
-            secretsFile = inputs.config.sops.templates."wireless.env".path;
+            secretsFile = inputs.config.nixos.system.sops.templates."wireless.env".path;
           };
           firewall.trustedInterfaces = network.trust;
         };
         # dnsable dns fallback, use provided dns servers or no dns
         services.resolved.fallbackDns = [];
-        sops = inputs.lib.mkIf (network.wireless != null)
+        nixos.system.sops = inputs.lib.mkIf (network.wireless != null)
         {
           templates."wireless.env".content = builtins.concatStringsSep "\n" (builtins.map
-            (network: "${network}=${inputs.config.sops.placeholder."wireless/${network}"}")
+            (network: "${network}=${inputs.config.nixos.system.sops.placeholder."wireless/${network}"}")
             network.wireless);
           secrets = builtins.listToAttrs (builtins.map
-            (network: { name = "wireless/${network}"; value = {}; })
+            (network: inputs.lib.nameValuePair "wireless/${network}" {})
             network.wireless);
         };
     })

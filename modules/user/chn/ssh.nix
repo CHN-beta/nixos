@@ -40,30 +40,23 @@ inputs:
             {
               name = ".ssh/id_${type}";
               value.source = homeInputs.config.lib.file.mkOutOfStoreSymlink
-                inputs.config.sops.secrets."chn/${type}".path;
+                inputs.config.nixos.system.sops.secrets."chn/${type}".path;
             })
             [ "rsa" "rsa.ppk" "ed25519" "ed25519_sk" ]
           ))
           // {
             ".ssh/xmuhk_id_rsa".source =
-              homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.sops.secrets."chn/xmuhk".path;
+              homeInputs.config.lib.file.mkOutOfStoreSymlink inputs.config.nixos.system.sops.secrets."chn/xmuhk".path;
           }
         );
       };
     };
-    sops.secrets = inputs.lib.mkIf inputs.config.nixos.model.private (inputs.lib.mkMerge
+    nixos.system.sops.secrets = inputs.lib.mkIf inputs.config.nixos.model.private (inputs.lib.mkMerge
     [
       (builtins.listToAttrs (builtins.map
-        (name:
-        {
-          name = "chn/${name}";
-          value = { owner = "chn"; sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/chn.yaml"; };
-        })
+        (name: inputs.lib.nameValuePair "chn/${name}" { owner = "chn"; })
         [ "rsa" "rsa.ppk" "ed25519" "ed25519_sk" "xmuhk" ]))
-      {
-        "root/ed25519_sk" =
-          { key = "chn/ed25519_sk"; sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/chn.yaml"; };
-      }
+      { "root/ed25519_sk".key = "chn/ed25519_sk"; }
     ]);
   };
 }

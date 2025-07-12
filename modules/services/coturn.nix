@@ -14,14 +14,17 @@ inputs:
     {
       enable = true;
       use-auth-secret = true;
-      static-auth-secret-file = inputs.config.sops.secrets."coturn/auth-secret".path;
+      static-auth-secret-file = inputs.config.nixos.system.sops.secrets."coturn/auth-secret".path;
       realm = coturn.hostname;
       cert = "${keydir}/full.pem";
       pkey = "${keydir}/key.pem";
       no-cli = true;
     };
-    sops.secrets."coturn/auth-secret".owner = inputs.config.systemd.services.coturn.serviceConfig.User;
-    nixos.services.acme.cert.${coturn.hostname}.group = inputs.config.systemd.services.coturn.serviceConfig.Group;
+    nixos =
+    {
+      system.sops.secrets."coturn/auth-secret".owner = inputs.config.systemd.services.coturn.serviceConfig.User;
+      services.acme.cert.${coturn.hostname}.group = inputs.config.systemd.services.coturn.serviceConfig.Group;
+    };
     networking.firewall = with inputs.config.services.coturn;
     {
       allowedUDPPorts = [ listening-port tls-listening-port ];

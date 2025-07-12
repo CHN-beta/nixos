@@ -19,9 +19,13 @@ inputs:
     {
       enable = true;
       lfs.enable = true;
-      mailerPasswordFile = inputs.config.sops.secrets."gitea/mail".path;
+      mailerPasswordFile = inputs.config.nixos.system.sops.secrets."gitea/mail".path;
       database =
-        { createDatabase = false; type = "postgres"; passwordFile = inputs.config.sops.secrets."gitea/db".path; };
+      {
+        createDatabase = false;
+        type = "postgres";
+        passwordFile = inputs.config.nixos.system.sops.secrets."gitea/db".path;
+      };
       settings =
       {
         session.COOKIE_SECURE = true;
@@ -48,26 +52,29 @@ inputs:
           [ "DEFAULT" "MIGRATE" "MIRROR" "CLONE" "PULL" "GC" ]);
       };
     };
-    nixos.services =
+    nixos =
     {
-      nginx.https.${gitea.hostname}.location =
+      system.sops.secrets =
       {
-        "/".proxy.upstream = "http://127.0.0.1:3002";
-        "/robots.txt".static.root =
-          let robotsFile = inputs.pkgs.fetchurl
-          {
-            url = "https://gitea.com/robots.txt";
-            sha256 = "144c5s3la4a85c9lygcnxhbxs3w5y23bkhhqx69fbp9yiqyxdkk2";
-          };
-          in "${inputs.pkgs.runCommand "robots.txt" {} "mkdir -p $out; cp ${robotsFile} $out/robots.txt"}";
+        "gitea/mail" = { owner = "gitea"; key = "mail/bot"; };
+        "gitea/db" = { owner = "gitea"; key = "postgresql/gitea"; };
+        "mail/bot" = {};
       };
-      postgresql.instances.gitea = {};
-    };
-    sops.secrets =
-    {
-      "gitea/mail" = { owner = "gitea"; key = "mail/bot"; };
-      "gitea/db" = { owner = "gitea"; key = "postgresql/gitea"; };
-      "mail/bot" = {};
+      services =
+      {
+        nginx.https.${gitea.hostname}.location =
+        {
+          "/".proxy.upstream = "http://127.0.0.1:3002";
+          "/robots.txt".static.root =
+            let robotsFile = inputs.pkgs.fetchurl
+            {
+              url = "https://gitea.com/robots.txt";
+              sha256 = "144c5s3la4a85c9lygcnxhbxs3w5y23bkhhqx69fbp9yiqyxdkk2";
+            };
+            in "${inputs.pkgs.runCommand "robots.txt" {} "mkdir -p $out; cp ${robotsFile} $out/robots.txt"}";
+        };
+        postgresql.instances.gitea = {};
+      };
     };
   };
 }

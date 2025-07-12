@@ -23,21 +23,24 @@ inputs:
     {
       after = [ "mariadb.service" ];
       requires = [ "mariadb.service" ];
-      serviceConfig.EnvironmentFile = inputs.config.sops.templates."photoprism/env".path; 
+      serviceConfig.EnvironmentFile = inputs.config.nixos.system.sops.templates."photoprism/env".path; 
     };
-    sops =
+    nixos =
     {
-      templates."photoprism/env".content = let placeholder = inputs.config.sops.placeholder; in
-      ''
-        PHOTOPRISM_ADMIN_PASSWORD=${placeholder."photoprism/adminPassword"}
-        PHOTOPRISM_DATABASE_PASSWORD=${placeholder."mariadb/photoprism"}
-      '';
-      secrets."photoprism/adminPassword" = {}; 
-    };
-    nixos.services =
-    {
-      mariadb.instances.photoprism = {};
-      nginx.https."photoprism.chn.moe".location."/".proxy = { upstream = "http://127.0.0.1:2342"; websocket = true; };
+      system.sops =
+      {
+        templates."photoprism/env".content = let inherit (inputs.config.nixos.system.sops) placeholder; in
+        ''
+          PHOTOPRISM_ADMIN_PASSWORD=${placeholder."photoprism/adminPassword"}
+          PHOTOPRISM_DATABASE_PASSWORD=${placeholder."mariadb/photoprism"}
+        '';
+        secrets."photoprism/adminPassword" = {}; 
+      };
+      services =
+      {
+        mariadb.instances.photoprism = {};
+        nginx.https."photoprism.chn.moe".location."/".proxy = { upstream = "http://127.0.0.1:2342"; websocket = true; };
+      };
     };
   };
 }

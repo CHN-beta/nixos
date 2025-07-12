@@ -25,29 +25,32 @@ inputs:
         SMTP_SECURITY = "force_tls";
         SMTP_USERNAME = "bot@chn.moe";
       };
-      environmentFile = inputs.config.sops.templates."vaultwarden.env".path;
+      environmentFile = inputs.config.nixos.system.sops.templates."vaultwarden.env".path;
     };
-    sops =
+    nixos =
     {
-      templates."vaultwarden.env" = let placeholder = inputs.config.sops.placeholder; in
+      system.sops =
       {
-        owner = "vaultwarden";
-        group = "vaultwarden";
-        content =
-        ''
-          DATABASE_URL=postgresql://vaultwarden:${placeholder."postgresql/vaultwarden"}@localhost/vaultwarden
-          ADMIN_TOKEN=${placeholder."vaultwarden/admin_token"}
-          SMTP_PASSWORD=${placeholder."mail/bot"}
-        '';
+        templates."vaultwarden.env" = let inherit (inputs.config.nixos.system.sops) placeholder; in
+        {
+          owner = "vaultwarden";
+          group = "vaultwarden";
+          content =
+          ''
+            DATABASE_URL=postgresql://vaultwarden:${placeholder."postgresql/vaultwarden"}@localhost/vaultwarden
+            ADMIN_TOKEN=${placeholder."vaultwarden/admin_token"}
+            SMTP_PASSWORD=${placeholder."mail/bot"}
+          '';
+        };
+        secrets = { "vaultwarden/admin_token" = {}; "mail/bot" = {}; };
       };
-      secrets = { "vaultwarden/admin_token" = {}; "mail/bot" = {}; };
+      services =
+      {
+        postgresql.instances.vaultwarden = {};
+        nginx.https.${vaultwarden.hostname}.location."/".proxy =
+          { upstream = "http://127.0.0.1:8000"; websocket = true; };
+      };
     };
     systemd.services.vaultwarden.after = [ "postgresql.service" ];
-    nixos.services =
-    {
-      postgresql.instances.vaultwarden = {};
-      nginx.https.${vaultwarden.hostname}.location."/".proxy =
-        { upstream = "http://127.0.0.1:8000"; websocket = true; };
-    };
   };
 }

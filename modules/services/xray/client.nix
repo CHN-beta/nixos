@@ -43,7 +43,7 @@ inputs:
       };
       resolved.enable = false;
     };
-    sops =
+    nixos.system.sops =
     {
       templates."xray-client.json" =
       {
@@ -120,7 +120,7 @@ inputs:
                 port = 443;
                 users =
                 [{
-                  id = inputs.config.sops.placeholder."xray-client/uuid";
+                  id = inputs.config.nixos.system.sops.placeholder."xray-client/uuid";
                   encryption = "none";
                   flow = "xtls-rprx-vision-udp443";
                 }];
@@ -179,7 +179,8 @@ inputs:
       {
         after = [ "network.target" ];
         wantedBy = [ "multi-user.target" ];
-        script = "exec ${inputs.pkgs.xray}/bin/xray -config ${inputs.config.sops.templates."xray-client.json".path}";
+        script = let config = inputs.config.nixos.system.sops.templates."xray-client.json".path; in
+          "exec ${inputs.pkgs.xray}/bin/xray -config ${config}";
         serviceConfig =
         {
           User = "v2ray";
@@ -191,7 +192,7 @@ inputs:
           LimitNOFILE = 524288;
           CPUSchedulingPolicy = "rr";
         };
-        restartTriggers = [ inputs.config.sops.templates."xray-client.json".file ];
+        restartTriggers = [ inputs.config.nixos.system.sops.templates."xray-client.json".file ];
       };
       v2ray-forwarder =
       {

@@ -105,26 +105,26 @@ inputs:
             protocol = "ssh-ng";
             systems = [ "x86_64-linux" ];
             sshUser = "nix-ssh";
-            sshKey = inputs.config.sops.secrets."nix/remote".path;
+            sshKey = inputs.config.nixos.system.sops.secrets."nix/remote".path;
             maxJobs = 1;
             mandatoryFeatures = [ "big-parallel" ];
             supportedFeatures = builtins.map (f: "gccarch-${f}") v;
           })
           nix.remote.master.host;
       };
-      sops.secrets."nix/remote" = {};
+      nixos.system.sops.secrets."nix/remote" = {};
     })
     (inputs.lib.mkIf nix.githubToken.enable
     {
-      nix.extraOptions = "!include ${inputs.config.sops.templates."nix-github.conf".path}";
-      sops =
+      nix.extraOptions = "!include ${inputs.config.nixos.system.sops.templates."nix-github.conf".path}";
+      nixos.system.sops =
       {
         templates."nix-github.conf" =
         {
-          content = "access-tokens = github.com=${inputs.config.sops.placeholder."github/token"}";
+          content = "access-tokens = github.com=${inputs.config.nixos.system.sops.placeholder."github/token"}";
           mode = "0444";
         };
-        secrets."github/token".sopsFile = "${inputs.config.nixos.system.sops.crossSopsDir}/chn.yaml";
+        secrets."github/token" = {};
       };
     })
     # c++ include path

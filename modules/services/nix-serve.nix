@@ -15,12 +15,15 @@ inputs:
       enable = true;
       package = inputs.pkgs.nix-serve-ng;
       openFirewall = true;
-      secretKeyFile = inputs.config.sops.secrets."store/signingKey".path;
+      secretKeyFile = inputs.config.nixos.system.sops.secrets."store/signingKey".path;
       # curl -L cache.nixos.org/nix-cache-info
       # use this cache after official one
       extraParams = "--priority 50";
     };
-    sops.secrets."store/signingKey" = {};
-    nixos.services.nginx.https.${nix-serve.hostname}.location."/".proxy.upstream = "http://127.0.0.1:5000";
+    nixos =
+    {
+      system.sops.secrets."store/signingKey" = {};
+      services.nginx.https.${nix-serve.hostname}.location."/".proxy.upstream = "http://127.0.0.1:5000";
+    };
   };
 }
