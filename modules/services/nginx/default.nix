@@ -25,83 +25,70 @@ inputs:
   config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf
     (nginx.http != {} || nginx.https != {} || nginx.streamProxy.map != {} || nginx.transparentProxy.map != {})
   {
-    services =
+    services.nginx =
     {
-      nginx =
-      {
-        enable = true;
-        enableReload = true;
-        eventsConfig =
-        ''
-          worker_connections 524288;
-          use epoll;
-        '';
-        commonHttpConfig =
-        ''
-          geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
-            $geoip2_data_country_code country iso_code;
-          }
-          log_format http '[$time_local] $remote_addr-$geoip2_data_country_code "$host"'
-            ' $request_length $bytes_sent $status "$request" referer: "$http_referer" ua: "$http_user_agent"';
-          access_log syslog:server=unix:/dev/log http;
-          proxy_ssl_server_name on;
-          proxy_ssl_session_reuse off;
-          send_timeout 1d;
-          # nginx will try to redirect https://blog.chn.moe/docs to https://blog.chn.moe:3068/docs/ in default
-          # this make it redirect to /docs/ without hostname
-          absolute_redirect off;
-          # allow realip module to set ip
-          set_real_ip_from 0.0.0.0/0;
-          real_ip_header proxy_protocol;
-        '';
-        proxyTimeout = "1d";
-        recommendedZstdSettings = true;
-        recommendedTlsSettings = true;
-        # do not set Host header
-        recommendedProxySettings = false;
-        recommendedProxySettingsNoHost = true;
-        recommendedOptimisation = true;
-        recommendedGzipSettings = true;
-        recommendedBrotliSettings = true;
-        clientMaxBodySize = "0";
-        package =
-          let nginx-geoip2 =
-          {
-            name = "ngx_http_geoip2_module";
-            src = inputs.pkgs.fetchFromGitHub
-            {
-              owner = "leev";
-              repo = "ngx_http_geoip2_module";
-              rev = "a607a41a8115fecfc05b5c283c81532a3d605425";
-              hash = "sha256-CkmaeEa1iEAabJEDu3FhBUR7QF38koGYlyx+pyKZV9Y=";
-            };
-            meta.license = [];
-          };
-          in (inputs.pkgs.nginxMainline.override (prev: { modules = prev.modules ++ [ nginx-geoip2 ]; }))
-              .overrideAttrs (prev: { buildInputs = prev.buildInputs ++ [ inputs.pkgs.libmaxminddb ]; });
-        streamConfig =
-        ''
-          geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
-            $geoip2_data_country_code country iso_code;
-          }
-          resolver 8.8.8.8;
-        '';
-        # anyway to use host dns?
-        resolver.addresses = [ "8.8.8.8" ];
-      };
-      geoipupdate =
-      {
-        enable = true;
-        settings =
+      enable = true;
+      enableReload = true;
+      eventsConfig =
+      ''
+        worker_connections 524288;
+        use epoll;
+      '';
+      commonHttpConfig =
+      ''
+        geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
+          $geoip2_data_country_code country iso_code;
+        }
+        log_format http '[$time_local] $remote_addr-$geoip2_data_country_code "$host"'
+          ' $request_length $bytes_sent $status "$request" referer: "$http_referer" ua: "$http_user_agent"';
+        access_log syslog:server=unix:/dev/log http;
+        proxy_ssl_server_name on;
+        proxy_ssl_session_reuse off;
+        send_timeout 1d;
+        # nginx will try to redirect https://blog.chn.moe/docs to https://blog.chn.moe:3068/docs/ in default
+        # this make it redirect to /docs/ without hostname
+        absolute_redirect off;
+        # allow realip module to set ip
+        set_real_ip_from 0.0.0.0/0;
+        real_ip_header proxy_protocol;
+      '';
+      proxyTimeout = "1d";
+      recommendedZstdSettings = true;
+      recommendedTlsSettings = true;
+      # do not set Host header
+      recommendedProxySettings = false;
+      recommendedProxySettingsNoHost = true;
+      recommendedOptimisation = true;
+      recommendedGzipSettings = true;
+      recommendedBrotliSettings = true;
+      clientMaxBodySize = "0";
+      package =
+        let nginx-geoip2 =
         {
-          AccountID = 901296;
-          LicenseKey = inputs.config.nixos.system.sops.secrets."nginx/maxmind-license".path;
-          EditionIDs = [ "GeoLite2-ASN" "GeoLite2-City" "GeoLite2-Country" ];
+          name = "ngx_http_geoip2_module";
+          src = inputs.pkgs.fetchFromGitHub
+          {
+            owner = "leev";
+            repo = "ngx_http_geoip2_module";
+            rev = "a607a41a8115fecfc05b5c283c81532a3d605425";
+            hash = "sha256-CkmaeEa1iEAabJEDu3FhBUR7QF38koGYlyx+pyKZV9Y=";
+          };
+          meta.license = [];
         };
-      };
+        in (inputs.pkgs.nginxMainline.override (prev: { modules = prev.modules ++ [ nginx-geoip2 ]; }))
+            .overrideAttrs (prev: { buildInputs = prev.buildInputs ++ [ inputs.pkgs.libmaxminddb ]; });
+      streamConfig =
+      ''
+        geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
+          $geoip2_data_country_code country iso_code;
+        }
+        resolver 8.8.8.8;
+      '';
+      # anyway to use host dns?
+      resolver.addresses = [ "8.8.8.8" ];
     };
     networking.firewall.allowedTCPPorts = [ 80 443 ];
-    nixos.system.sops.secrets."nginx/maxmind-license".owner = inputs.config.users.users.nginx.name;
+    nixos.services.geoipupdate = {};
     systemd.services.nginx.serviceConfig =
     {
       CapabilityBoundingSet = [ "CAP_NET_ADMIN" ];
