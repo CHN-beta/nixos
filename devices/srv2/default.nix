@@ -76,7 +76,18 @@ inputs:
         };
       };
       packages.vasp = {};
-      user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "lly" "yxf" "hss" "zzn" "zqq" "qmx" ];
+      user.users =
+      [
+        # 组内
+        "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "qmx"
+        # 组外
+        "yxf" # 小芳同志
+        "hss" # 还没见到本人
+        "zzn" # 张宗南
+        "zqq" # 庄芹芹
+        "zgq" # 希望能接好班
+        "lly" # 这谁？
+      ];
     };
   };
 }
