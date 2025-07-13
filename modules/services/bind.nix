@@ -8,8 +8,9 @@ inputs:
       let
         chinaZone = inputs.pkgs.writeText "autoroute.chn.moe.china.zone"
         ''
+          $ORIGIN autoroute.chn.moe.
           $TTL 3600
-          @ IN SOA vps6.chn.moe. autoroute.chn.moe. (
+          @ IN SOA vps6.chn.moe. chn.chn.moe. (
             2024071301 ; serial
             3600       ; refresh
             600        ; retry
@@ -17,12 +18,13 @@ inputs:
             300        ; minimum
           )
           @ IN NS vps6.chn.moe.
-          a   IN  CNAME   vps6.chn.moe.  ; 国际用户解析到C
+          @ IN A ${inputs.topInputs.self.config.dns."chn.moe".getAddress "vps6"}
         '';
         globalZone = inputs.pkgs.writeText "autoroute.chn.moe.zone"
         ''
+          $ORIGIN autoroute.chn.moe.
           $TTL 3600
-          @ IN SOA vps6.chn.moe. autoroute.chn.moe. (
+          @ IN SOA vps6.chn.moe. chn.chn.moe. (
             2024071301 ; serial
             3600       ; refresh
             600        ; retry
@@ -30,7 +32,7 @@ inputs:
             300        ; minimum
           )
           @ IN NS vps6.chn.moe.
-          a   IN  CNAME   srv3.chn.moe.  ; 国际用户解析到C
+          @ IN A ${inputs.topInputs.self.config.dns."chn.moe".getAddress "srv3"}
         '';
         nullZone = inputs.pkgs.writeText "null.zone" "";
       in
@@ -61,9 +63,9 @@ inputs:
               file "${nullZone}";
             };
           };
-          view "global-view" {
+          view "global" {
             match-clients { any; };
-            zone "example.com" {
+            zone "autoroute.chn.moe" {
               type master;
               file "${globalZone}";
             };
