@@ -58,6 +58,7 @@ inputs:
         mirism = {};
         fail2ban = {};
         beesd."/" = {};
+        bind = {};
       };
     };
     networking.nftables.tables.forward =
