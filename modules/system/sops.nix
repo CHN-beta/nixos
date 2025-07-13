@@ -89,10 +89,15 @@ inputs:
       readOnly = true;
       default =
         let getPath = x:
-          if builtins.typeOf x == "string" then []
-          else if builtins.typeOf x == "set" then inputs.lib.mapAttrsToList (n: v: [ n ] ++ getPath v) x
-          else builtins.abort "Invalid type for availableKeys";
-        in builtins.concatLists (builtins.map getPath inputs.config.nixos.system.sops.defaultSopsFile);
+          if builtins.typeOf x == "string" then [[]]
+          else if builtins.typeOf x == "set"
+            then builtins.concatLists (inputs.lib.mapAttrsToList (n: v: builtins.map (l: [ n ] ++ l) (getPath v)) x)
+          # simply ignore list, they are sops metadata
+          else if builtins.typeOf x == "list" then [[]]
+          else builtins.abort "Invalid type for availableKeys, get type ${builtins.typeOf x}";
+        in builtins.concatLists (builtins.map
+          (f: getPath (inputs.pkgs.localPackages.fromYaml (builtins.readFile f)))
+          inputs.config.nixos.system.sops.defaultSopsFile);
     };
   };
   config =
