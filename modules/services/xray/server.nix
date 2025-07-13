@@ -11,7 +11,7 @@ inputs:
   config = let inherit (inputs.config.nixos.services.xray) server; in inputs.lib.mkIf (server != null)
   (
     let userList = builtins.map (user: builtins.elemAt user 2) (builtins.filter
-      (user: builtins.elem user == 3 && inputs.lib.lists.hasPrefix [ "xray-server" "clients" ])
+      (user: builtins.length user == 3 && inputs.lib.lists.hasPrefix [ "xray-server" "clients" ] user)
       inputs.config.nixos.system.sops.availableKeys);
     in
     {
