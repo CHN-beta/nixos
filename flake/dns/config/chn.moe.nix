@@ -56,11 +56,7 @@ in
     { type = "TXT"; value = "v=spf1 include:mxlogin.com -all"; }
   ];
   "_xlog-challenge.xlog" = { type = "TXT"; value = "chn"; };
-  autoroute =
-  {
-    type = "NS";
-    values = builtins.map (suffix: "ns1.huaweicloud-dns.${suffix}.") [ "cn" "com" "net" "org" ];
-  };
+  autoroute = { type = "NS"; values = "vps6.chn.moe."; };
   "mail" = { type = "CNAME"; value = "tuesday.mxrouting.net."; };
   "webmail" = { type = "CNAME"; value = "tuesday.mxrouting.net."; };
   "x._domainkey" =
