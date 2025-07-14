@@ -26,7 +26,7 @@ inputs:
       {
         sshd = {};
         xray = { client.dnsmasq.hosts."git.nas.chn.moe" = "127.0.0.1"; xmuServer = {}; };
-        beesd."/".hashTableSizeMB = 10 * 128;
+        beesd."/" = { hashTableSizeMB = 10 * 128; threads = 4; };
         nfs."/" = [(inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc")];
       };
     };
