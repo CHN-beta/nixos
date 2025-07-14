@@ -10,6 +10,7 @@ inputs:
         default = if inputs.config.nixos.system.network != null then "00:01:23:45:67:89" else null;
       };
       createFakeInterface = mkOption { type = types.bool; default = inputs.config.nixos.system.network != null; };
+      autoStart = mkOption { type = types.bool; default = true; };
     };});
     default = null;
   };
@@ -27,11 +28,16 @@ inputs:
         in [ "${license}:/home/ansys_inc/shared_files/licensing/license_files/ansyslmd.lic" ];
     };
     nixos.services.podman = {};
-    systemd.network = inputs.lib.mkIf lumericalLicenseManager.createFakeInterface
+    systemd =
     {
-      netdevs.ensFakeLumerical.netdevConfig = { Kind = "dummy"; Name = "ensFakeLumerical"; };
-      networks."10-ensFakeLumerical" =
-        { matchConfig.Name = "ensFakeLumerical"; linkConfig.MACAddress = lumericalLicenseManager.macAddress; };
+      network = inputs.lib.mkIf lumericalLicenseManager.createFakeInterface
+      {
+        netdevs.ensFakeLumerical.netdevConfig = { Kind = "dummy"; Name = "ensFakeLumerical"; };
+        networks."10-ensFakeLumerical" =
+          { matchConfig.Name = "ensFakeLumerical"; linkConfig.MACAddress = lumericalLicenseManager.macAddress; };
+      };
+      services.podman-lumericalLicenseManager.wantedBy =
+        inputs.lib.mkIf (!lumericalLicenseManager.autoStart) (inputs.lib.mkForce []);
     };
   };
 }
