@@ -11,7 +11,8 @@ inputs:
         network =
         {
           static.eno2 = { ip = "192.168.178.1"; mask = 24; };
-          wireless.networks = [ "409的5G" ];
+          wireless = { networks = [ "409的5G" ]; fourAddr = true; };
+          bridge.br0.interfaces = [ "eno1" "wlp134s0" ];
           masquerade = [ "eno2" ];
           trust = [ "eno2" ];
         };
