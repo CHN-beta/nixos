@@ -12,7 +12,7 @@ inputs:
         beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq yq ipfetch localPackages.pslist
         fastfetch reptyr duc ncdu progress libva-utils ksh neofetch dateutils kitty glib
         # lsxx
-        pciutils usbutils lshw util-linux lsof dmidecode lm_sensors hwloc acpica-tools
+        pciutils usbutils lshw util-linux lsof dmidecode lm_sensors hwloc acpica-tools ethtool
         # top
         iotop iftop htop btop powertop s-tui
         # editor
