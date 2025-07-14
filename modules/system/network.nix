@@ -25,8 +25,12 @@ inputs:
         };});
         default = {};
       };
-      # wpa_passphrase SSID(wifi name) PSK(password)
-      wireless = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+      wireless =
+      {
+        # wpa_passphrase SSID(wifi name) PSK(password)
+        networks = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+        fourAddr = mkOption { type = types.bool; default = false; };
+      };
       trust = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
       masquerade = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
     };});
@@ -140,27 +144,31 @@ inputs:
         networking =
         {
           useNetworkd = true;
-          wireless = inputs.lib.mkIf (network.wireless != null)
+          wireless = inputs.lib.mkIf (network.wireless.networks != null)
           {
             enable = true;
             # wpa_passphrase SSID password
             networks = builtins.listToAttrs (builtins.map
-              (network: { name = network; value.pskRaw = "ext:${network}"; }) network.wireless);
+              (network: { name = network; value.pskRaw = "ext:${network}"; }) network.wireless.networks);
             secretsFile = inputs.config.nixos.system.sops.templates."wireless.env".path;
           };
           firewall.trustedInterfaces = network.trust;
         };
         # dnsable dns fallback, use provided dns servers or no dns
         services.resolved.fallbackDns = [];
-        nixos.system.sops = inputs.lib.mkIf (network.wireless != null)
+        nixos.system.sops = inputs.lib.mkIf (network.wireless.networks != null)
         {
           templates."wireless.env".content = builtins.concatStringsSep "\n" (builtins.map
             (network: "${network}=${inputs.config.nixos.system.sops.placeholder."wireless/${network}"}")
-            network.wireless);
+            network.wireless.networks);
           secrets = builtins.listToAttrs (builtins.map
             (network: inputs.lib.nameValuePair "wireless/${network}" {})
-            network.wireless);
+            network.wireless.networks);
         };
+        services.udev.extraRules = inputs.lib.mkIf (network.wireless.fourAddr) 
+        ''
+          ACTION=="add", SUBSYSTEM=="net", ENV{INTERFACE}=="wlp*", RUN+="${inputs.pkgs.iw}/bin/iw dev %k set 4addr on"
+        '';
     })
   ];
 }
