@@ -30,5 +30,6 @@ inputs:
       };
       bugs = [ "xmunet" ];
     };
+    specialisation.niri.configuration.nixos.system.gui.implementation = "niri";
   };
 }

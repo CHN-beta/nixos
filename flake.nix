@@ -31,6 +31,7 @@
     winapps = { url = "github:winapps-org/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixvirt = { url = "github:CHN-beta/NixVirt"; inputs.nixpkgs.follows = "nixpkgs"; };
     buildproxy = { url = "github:polygon/nix-buildproxy"; inputs.nixpkgs.follows = "nixpkgs"; };
+    niri.url = "github:sodiboo/niri-flake";
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };

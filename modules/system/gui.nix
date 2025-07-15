@@ -2,7 +2,7 @@ inputs:
 {
   options.nixos.system.gui = let inherit (inputs.lib) mkOption types; in
   {
-    implementation = mkOption { type = types.enum [ "kde" ]; default = "kde"; };
+    implementation = mkOption { type = types.enum [ "kde" "niri" ]; default = "kde"; };
   };
   config = let inherit (inputs.config.nixos.system) gui; in inputs.lib.mkMerge
   [
@@ -61,6 +61,11 @@ inputs:
     {
       environment.plasma6.excludePackages = inputs.lib.mkIf (gui.implementation == "kde")
         [ inputs.pkgs.kdePackages.plasma-nm ];
+    })
+    # niri
+    (inputs.lib.mkIf (gui.implementation == "niri")
+    {
+      programs.niri.enable = true;
     })
   ];
 }
