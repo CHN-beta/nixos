@@ -66,6 +66,7 @@ in platformConfig //
           cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ];
         });
         inherit (final.pkgs-2411) iio-sensor-proxy;
+        inherit (final.pkgs-unstable) bees;
       }
       // (
         let
