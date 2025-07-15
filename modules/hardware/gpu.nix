@@ -31,14 +31,18 @@ inputs:
     (
       let gpus = inputs.lib.strings.splitString "+" gpu.type; in
       {
-        boot.initrd.availableKernelModules =
-          let modules =
-          {
-            intel = [ "i915" ];
-            nvidia = []; # early loading breaks resume from hibernation
-            amd = [];
-          };
-          in builtins.concatLists (builtins.map (gpu: modules.${gpu}) gpus);
+        boot =
+        {
+          initrd.availableKernelModules =
+            let modules =
+            {
+              intel = [ "i915" ];
+              nvidia = []; # early loading breaks resume from hibernation
+              amd = [];
+            };
+            in builtins.concatLists (builtins.map (gpu: modules.${gpu}) gpus);
+          blacklistedKernelModules = [ "nouveau" ];
+        };
         hardware =
         {
           graphics =
@@ -66,7 +70,6 @@ inputs:
             prime.allowExternalGpu = true;
           };
         };
-        boot.blacklistedKernelModules = [ "nouveau" ];
         services.xserver.videoDrivers =
           let driver = { intel = "modesetting"; amd = "amdgpu"; nvidia = "nvidia"; };
           in builtins.map (gpu: driver.${gpu}) gpus;
@@ -78,6 +81,14 @@ inputs:
             amd = [];
           };
           in builtins.concatLists (builtins.map (gpu: packages.${gpu}) gpus);
+        environment.etc."nvidia/nvidia-application-profiles-rc.d/vram" = inputs.lib.mkIf (builtins.elem "nvidia" gpus)
+        {
+          source = inputs.pkgs.writeText "save-vram" (builtins.toJSON
+          {
+            rules = [{ pattern = { feature = "true"; matches = ""; }; profile = "save-vram"; }];
+            profiles = [{ name = "save-vram"; settings = [{ key = "GLVidHeapReuseRatio"; value = 0; }]; }];
+          });
+        };
       }
     )
     # nvidia prime offload
