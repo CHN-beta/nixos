@@ -57,7 +57,15 @@ inputs:
         nixpkgs = { march = "znver4"; cuda.capabilities = [ "8.9" ]; };
         sysctl.laptop-mode = 5;
       };
-      hardware = { gpu = { type = "nvidia"; nvidia.dynamicBoost = true; }; legion = {}; };
+      hardware =
+      {
+        gpu =
+        {
+          type = "amd+nvidia";
+          nvidia = { dynamicBoost = true; prime.busId = { amd = "5:0:0"; nvidia = "1:0:0"; }; };
+        };
+        legion = {};
+      };
       services =
       {
         samba =
