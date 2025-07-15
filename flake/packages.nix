@@ -36,19 +36,17 @@
       else if builtins.isAttrs x then builtins.concatMap getDrv (builtins.attrValues x)
       else if builtins.isList x then builtins.concatMap getDrv x
       else [];
-    in pkgs.concatText "src" (getDrv (inputs.self.outputs.src));
+    in pkgs.writeText "src" (builtins.concatStringsSep "\n" (getDrv inputs.self.outputs.src));
   dns-push = pkgs.callPackage ./dns
   {
     inherit localLib;
     tokenPath = inputs.self.nixosConfigurations.pc.config.nixos.system.sops.secrets."acme/token".path;
     octodns = pkgs.octodns.withProviders (_: with pkgs.octodns-providers; [ cloudflare ]);
   };
-  archive =
-    let devices =
-      [ "nas" "one" "pc" "srv1-node0" "srv1-node1" "srv1-node2" "srv2-node0" "srv2-node1" "srv3" "vps4" "vps6" ];
-    in pkgs.writeText "archive" (builtins.concatStringsSep "\n" (builtins.map
-      (d: "${inputs.self.outputs.nixosConfigurations.${d}.config.system.build.toplevel}") devices));
+  archive = pkgs.writeText "archive" (builtins.concatStringsSep "\n" (builtins.concatLists
+  [
+    (inputs.nixpkgs.lib.mapAttrsToList (_: v: v.config.system.build.toplevel) inputs.self.outputs.nixosConfigurations)
+    [ src ]
+  ]));
 }
-// (builtins.listToAttrs (builtins.map
-  (system: { inherit (system) name; value = system.value.config.system.build.toplevel; })
-  (localLib.attrsToList inputs.self.outputs.nixosConfigurations)))
+// (builtins.mapAttrs (_: v: v.config.system.build.toplevel) inputs.self.outputs.nixosConfigurations)
