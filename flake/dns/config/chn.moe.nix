@@ -4,7 +4,7 @@ let
   {
     autoroute = [ "api" "git" "grafana" "matrix" "peertube" "send" "synapse" "vikunja" "铜锣湾" ];
     nas = [ "initrd.nas" ];
-    office = [ "srv2-node0" "xserverxmu" "409test" ];
+    office = [ "srv2-node0" "xserverxmu" ];
     vps4 = [ "initrd.vps4" "xserver2.vps4" ];
     vps6 =
     [
@@ -38,6 +38,7 @@ let
     srv1-node1 = "192.168.178.2";
     srv1-node2 = "192.168.178.3";
     srv2-node1 = "192.168.178.2";
+    "409test" = "192.168.1.5";
   };
   wireguard = import ./wireguard.nix;
 in

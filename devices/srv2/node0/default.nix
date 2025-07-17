@@ -27,6 +27,7 @@ inputs:
         hpcstat = {};
         ollama = {};
         sshd = { groupBanner = true; motd = true; };
+        speedtest = {};
       };
     };
   };
