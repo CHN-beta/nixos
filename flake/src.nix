@@ -89,7 +89,7 @@
         hashMode = "recursive";
         message = "Source file not found.";
       };
-      image = "7bb3a43bd1ad6103a57f700b13d11d486b6ea117838201e4a29d79b33ac72e3a";
+      image = "6803f9562b941c23db81a2eae5914561f96fa748536199a010fe6f24922b2878";
       imageFile = pkgs.requireFile
       {
         name = "lumericalLicenseManager.tar";
