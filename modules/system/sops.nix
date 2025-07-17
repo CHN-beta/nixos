@@ -9,7 +9,7 @@ inputs:
         path = mkOption
         {
           type = types.path;
-          default = inputs.config.sops.secrets.${submoduleInputs.config.key}.path;
+          default = inputs.config.sops.secrets.${submoduleInputs.config._module.args.name}.path;
           readOnly = true;
         };
         key = mkOption { type = types.str; default = submoduleInputs.config._module.args.name; };
