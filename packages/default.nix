@@ -142,6 +142,7 @@ inputs: rec
       { src = inputs.topInputs.self.src.lumerical.licenseManager.license; };
   };
   speedtest = inputs.pkgs.callPackage ./speedtest.nix { src = inputs.topInputs.speedtest; };
+  atat = inputs.pkgs.callPackage ./atat.nix { src = inputs.topInputs.self.src.atat; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

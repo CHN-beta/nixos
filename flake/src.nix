@@ -180,12 +180,17 @@
       "intel.oneapi.lin.compilers-common,v=2025.1.1+10"
     ];
   };
-  rsshub =  pkgs.dockerTools.pullImage
+  rsshub = pkgs.dockerTools.pullImage
   {
     imageName = "diygod/rsshub";
     imageDigest = "sha256:1f9d97263033752bf5e20c66a75e134e6045b6d69ae843c1f6610add696f8c22";
     hash = "sha256-zN47lhQc3EX28LmGF4N3rDUPqumwmhfGn1OpvBYd2Vw=";
     finalImageName = "rsshub";
     finalImageTag = "latest";
+  };
+  atat = pkgs.fetchurl
+  {
+    url = "https://axelvandewalle.github.io/www-avdw/atat/atat3_50.tar.gz";
+    sha256 = "14sblzqsi5bxfhsjbq256bc2gfd7zrxyf5za0iaw77b592ppjg3m";
   };
 }
