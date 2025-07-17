@@ -173,46 +173,63 @@ inputs:
       };
       secrets."xray-client/uuid" = {};
     };
-    systemd.services =
+    systemd =
     {
-      xray-client =
-      {
-        after = [ "network.target" ];
-        wantedBy = [ "multi-user.target" ];
-        script = let config = inputs.config.nixos.system.sops.templates."xray-client.json".path; in
-          "exec ${inputs.pkgs.xray}/bin/xray -config ${config}";
-        serviceConfig =
+      services = inputs.lib.mkMerge
+      [
         {
-          User = "v2ray";
-          Group = "v2ray";
-          CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-          AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-          NoNewPrivileges = true;
-          LimitNPROC = 65536;
-          LimitNOFILE = 524288;
-          CPUSchedulingPolicy = "rr";
-        };
-        restartTriggers = [ inputs.config.nixos.system.sops.templates."xray-client.json".file ];
-      };
-      v2ray-forwarder =
-      {
-        description = "v2ray-forwarder Daemon";
-        after = [ "network.target" ];
-        wantedBy = [ "multi-user.target" ];
-        serviceConfig = let ip = "${inputs.pkgs.iproute2}/bin/ip"; in
+          xray-client =
+          {
+            after = [ "network.target" ];
+            wantedBy = [ "multi-user.target" ];
+            script = let config = inputs.config.nixos.system.sops.templates."xray-client.json".path; in
+              "exec ${inputs.pkgs.xray}/bin/xray -config ${config}";
+            serviceConfig =
+            {
+              User = "v2ray";
+              Group = "v2ray";
+              CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+              AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+              NoNewPrivileges = true;
+              LimitNPROC = 65536;
+              LimitNOFILE = 524288;
+              CPUSchedulingPolicy = "rr";
+            };
+            restartTriggers = [ inputs.config.nixos.system.sops.templates."xray-client.json".file ];
+          };
+        }
+        (inputs.lib.mkIf (inputs.config.nixos.system.network == null)
         {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start"
-          ''
-            ${ip} rule add fwmark 1/1 table 100
-            ${ip} route add local 0.0.0.0/0 dev lo table 100
-          '';
-          ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop"
-          ''
-            ${ip} rule del fwmark 1/1 table 100
-            ${ip} route del local 0.0.0.0/0 dev lo table 100
-          '';
+          v2ray-forwarder =
+          {
+            description = "v2ray-forwarder Daemon";
+            after = [ "network.target" ];
+            wantedBy = [ "multi-user.target" ];
+            serviceConfig = let ip = "${inputs.pkgs.iproute2}/bin/ip"; in
+            {
+              Type = "oneshot";
+              RemainAfterExit = true;
+              ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start"
+              ''
+                ${ip} rule add fwmark 1/1 table 100
+                ${ip} route add local 0.0.0.0/0 dev lo table 100
+              '';
+              ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop"
+              ''
+                ${ip} rule del fwmark 1/1 table 100
+                ${ip} route del local 0.0.0.0/0 dev lo table 100
+              '';
+            };
+          };
+        })
+      ];
+      network.networks = inputs.lib.mkIf (inputs.config.nixos.system.network != null)
+      {
+        "10-xray" =
+        {
+          matchConfig.Name = "lo";
+          routes = [{ Table = 100; Destination = "0.0.0.0/0"; Type = "local"; }];
+          routingPolicyRules = [{ FirewallMark = "1/1"; Table = 100; }];
         };
       };
     };
