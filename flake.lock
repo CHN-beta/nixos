@@ -1190,6 +1190,7 @@
         "rsshub": "rsshub",
         "rycee": "rycee",
         "sops-nix": "sops-nix",
+        "speedtest": "speedtest",
         "sqlite-orm": "sqlite-orm",
         "sticker": "sticker",
         "stickerpicker": "stickerpicker",
@@ -1250,6 +1251,22 @@
       "original": {
         "owner": "Mic92",
         "repo": "sops-nix",
+        "type": "github"
+      }
+    },
+    "speedtest": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1739473165,
+        "narHash": "sha256-QimemnDZXlL5Ip+RFD0uxO21Aaol3kCw6Mf/0E3jHQc=",
+        "owner": "librespeed",
+        "repo": "speedtest",
+        "rev": "a1c43977ad9bf73f09f81e8df3c22ea914ab9131",
+        "type": "github"
+      },
+      "original": {
+        "owner": "librespeed",
+        "repo": "speedtest",
         "type": "github"
       }
     },

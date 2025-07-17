@@ -62,6 +62,7 @@
     mac-style = { url = "github:SergioRibera/s4rchiso-plymouth-theme?lfs=1"; flake = false; };
     phono3py = { url = "github:phonopy/phono3py"; flake = false; };
     sticker = { url = "git+https://git.chn.moe/chn/sticker.git?lfs=1"; flake = false; };
+    speedtest = { url = "github:librespeed/speedtest"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in

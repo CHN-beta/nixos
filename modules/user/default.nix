@@ -47,6 +47,7 @@ inputs:
         synapse-synapse = 2009;
         synapse-matrix = 2010;
         hpcstat = 2011;
+        speedtest = 2012;
       };
     };
     gid = mkOption
