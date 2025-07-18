@@ -193,4 +193,9 @@
     url = "https://axelvandewalle.github.io/www-avdw/atat/atat3_50.tar.gz";
     sha256 = "14sblzqsi5bxfhsjbq256bc2gfd7zrxyf5za0iaw77b592ppjg3m";
   };
+  atomkit = pkgs.fetchurl
+  {
+    url = "mirror://sourceforge/atomkit/Binaries/atomkit.0.9.0.linux.x64.tar.gz";
+    sha256 = "0y9z7wva7zikh83w9q431lgn3bqkh1v5w6iz90dwc75wqwk0w5jr";
+  };
 }

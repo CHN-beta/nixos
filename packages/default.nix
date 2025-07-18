@@ -143,6 +143,7 @@ inputs: rec
   };
   speedtest = inputs.pkgs.callPackage ./speedtest.nix { src = inputs.topInputs.speedtest; };
   atat = inputs.pkgs.callPackage ./atat.nix { src = inputs.topInputs.self.src.atat; };
+  atomkit = inputs.pkgs.callPackage ./atomkit.nix { src = inputs.topInputs.self.src.atomkit; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
