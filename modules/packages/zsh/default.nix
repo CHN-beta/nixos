@@ -35,7 +35,7 @@ inputs:
         }
         {
           programs.zsh = inputs.lib.mkIf
-            (builtins.elem home-inputs.config.home.username [ "chn" "root" "aleksana" "alikia" ])
+            (builtins.elem home-inputs.config.home.username [ "chn" "root" "aleksana" "alikia" "hjp" ])
             {
               plugins =
               [
