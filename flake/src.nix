@@ -112,11 +112,11 @@
   };
   vesta =
   {
-    version = "3.90.5a";
+    version = "3.90.0a";
     src = pkgs.fetchurl
     {
       url = "https://jp-minerals.org/vesta/archives/testing/VESTA-gtk3-x86_64.tar.bz2";
-      sha256 = "0y277m2xvjyzx8hncc3ka73lir8x6x2xckjac9fdzg03z0jnpqzf";
+      sha256 = "0bsvfr3409g2v1wgnfixpkjz1yzl2j1nlrk5a5rkdfs94rrvxzaa";
     };
     desktopFile = pkgs.fetchurl
     {
