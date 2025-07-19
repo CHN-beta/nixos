@@ -17,11 +17,11 @@
     sed -i "s|Icon=.*|Icon=$out/opt/VESTA-gtk3/img/logo.png|" $out/share/applications/vesta.desktop
 
     mkdir -p $out/opt
-    cp -r VESTA-gtk3-x86_64 $out/opt/VESTA-gtk3-x86_64
+    cp -r VESTA-gtk3 $out/opt/VESTA-gtk3
 
     mkdir -p $out/bin
-    makeWrapper $out/opt/VESTA-gtk3-x86_64/VESTA $out/bin/vesta
+    makeWrapper $out/opt/VESTA-gtk3/VESTA $out/bin/vesta
 
-    patchelf --remove-needed libjawt.so $out/opt/VESTA-gtk3-x86_64/PowderPlot/libswt-awt-gtk-3346.so
+    patchelf --remove-needed libjawt.so $out/opt/VESTA-gtk3/PowderPlot/libswt-awt-gtk-3346.so
   '';
 }

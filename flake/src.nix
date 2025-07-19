@@ -110,13 +110,13 @@
       };
     };
   };
-  vesta =
+  vesta = rec
   {
-    version = "3.90.0a";
+    version = "3.5.8";
     src = pkgs.fetchurl
     {
-      url = "https://jp-minerals.org/vesta/archives/testing/VESTA-gtk3-x86_64.tar.bz2";
-      sha256 = "0bsvfr3409g2v1wgnfixpkjz1yzl2j1nlrk5a5rkdfs94rrvxzaa";
+      url = "https://jp-minerals.org/vesta/archives/${version}/VESTA-gtk3.tar.bz2";
+      sha256 = "1y4dhqhk0jy7kbkkx2c6lsrm5lirn796mq67r5j1s7xkq8jz1gkq";
     };
     desktopFile = pkgs.fetchurl
     {
