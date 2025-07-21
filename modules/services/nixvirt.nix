@@ -22,6 +22,7 @@ inputs:
             {
               name = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
               nodatacow = mkOption { type = types.bool; default = false; };
+              iso = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
             };
             memory =
             {
@@ -202,7 +203,8 @@ inputs:
                     type = "file";
                     device = "cdrom";
                     driver = { name = "qemu"; type = "raw"; };
-                    source.file = "${inputs.topInputs.self.src.iso.netboot}";
+                    source.file =
+                      if v.storage.iso == null then "${inputs.topInputs.self.src.iso.netboot}" else v.storage.iso;
                     target = { dev = "sdc"; bus = "sata"; };
                     readonly = true;
                     boot.order = 10;

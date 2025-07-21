@@ -86,6 +86,7 @@ inputs:
             memory.sizeMB = 4 * 1024;
             cpu.count = 4;
             network = { address = 6; portForward.tcp = [{ host = 5695; guest = 22; }]; };
+            storage.iso = "${inputs.topInputs.self.src.guix}";
           };
         };
         rsshub = {};
