@@ -5,7 +5,7 @@
 let pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
 {
   inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
-  nixpkgs = { march = null; cuda = null; nixRoot = "/data/gpfs01/jykang/.nix"; };
+  nixpkgs = { march = "haswell"; cuda = null; nixRoot = "/data/gpfs01/jykang/.nix"; };
 });
 in pkgs.symlinkJoin
 {
