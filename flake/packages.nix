@@ -3,7 +3,7 @@
   pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
   {
     inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
-    nixpkgs = { march = null; cuda = null; nixRoot = null; };
+    nixpkgs = { march = null; cuda = null; nixRoot = null; nixos = false; };
   });
   hpcstat =
     let

@@ -1,9 +1,13 @@
-# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixRoot };
+# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixRoot, nixos };
 { inputs, nixpkgs }:
 let
   platformConfig =
     if nixpkgs.march == null then { system = "x86_64-linux"; }
-    else { hostPlatform = { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; }; };
+    else
+    {
+      ${if nixpkgs.nixos then "hostPlatform" else "localSystem"} =
+        { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
+    };
   cudaConfig = inputs.lib.optionalAttrs (nixpkgs.cuda != null)
   (
     { cudaSupport = true; }
@@ -83,7 +87,7 @@ in platformConfig //
           };
           packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}
           {
-            localSystem = platformConfig.hostPlatform or { inherit (platformConfig) system; };
+            localSystem = platformConfig.hostPlatform or platformConfig.localSystem or platformConfig;
             inherit config;
             overlays = [(source.${name}.overlay or (_: _: {}))];
           };
