@@ -225,7 +225,7 @@ inputs:
       ];
       network.networks = inputs.lib.mkIf (inputs.config.nixos.system.network != null)
       {
-        "10-xray" =
+        "10-custom" =
         {
           matchConfig.Name = "lo";
           routes = [{ Table = 100; Destination = "0.0.0.0/0"; Type = "local"; }];

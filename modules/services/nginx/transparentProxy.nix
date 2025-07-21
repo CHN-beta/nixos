@@ -72,7 +72,7 @@ inputs:
       };
       network.networks = inputs.lib.mkIf (inputs.config.nixos.system.network != null)
       {
-        "10-nginx" =
+        "10-custom" =
         {
           matchConfig.Name = "lo";
           routes = [{ Table = 200; Destination = "0.0.0.0/0"; Type = "local"; }];
