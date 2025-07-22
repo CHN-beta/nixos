@@ -10,13 +10,15 @@ int main()
   using namespace sbatch;
 
   // 初始化
+  enum class UserCommandType { Continue, Back, Quit };
+  enum class InterfaceType { Program, Request, Confirm };
   struct
   {
     int ProgramSelected = 0;
     std::vector<std::string> ProgramEntries;
-    std::string UserCommand;
+    std::optional<UserCommandType> UserCommand;
     std::string SubmitCommand;
-    std::string CurrentInterface = "Program";
+    InterfaceType CurrentInterface = InterfaceType::Program;
     std::string JobName = std::filesystem::current_path().filename().string();
     std::string OutputFile = "output.txt";
     bool LowPriority = false;
@@ -47,7 +49,8 @@ int main()
   auto Screen = ftxui::ScreenInteractive::Fullscreen();
   auto key_event_handler = [&](ftxui::Event event)
   {
-    if (event == ftxui::Event::Return) { State.UserCommand = "Continue"; Screen.ExitLoopClosure()(); return true; }
+    if (event == ftxui::Event::Return)
+      { State.UserCommand = UserCommandType::Continue; Screen.ExitLoopClosure()(); return true; }
     else return false;
   };
   auto InterfaceProgram = ftxui::Container::Vertical
@@ -57,9 +60,9 @@ int main()
     ftxui::Container::Horizontal
     ({
       ftxui::Button("Continue (Enter)",
-        [&]{ State.UserCommand = "Continue"; Screen.ExitLoopClosure()(); }),
+        [&]{ State.UserCommand = UserCommandType::Continue; Screen.ExitLoopClosure()(); }),
       ftxui::Button("Quit",
-        [&]{ State.UserCommand = "Quit"; Screen.ExitLoopClosure()(); })
+        [&]{ State.UserCommand = UserCommandType::Quit; Screen.ExitLoopClosure()(); })
     }),
   }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent(key_event_handler);
   auto get_interface_request = [&](ftxui::Component program_interface)
@@ -74,11 +77,11 @@ int main()
       ftxui::Container::Horizontal
       ({
         ftxui::Button("Continue (Enter)",
-          [&]{ State.UserCommand = "Continue"; Screen.ExitLoopClosure()(); }),
+          [&]{ State.UserCommand = UserCommandType::Continue; Screen.ExitLoopClosure()(); }),
         ftxui::Button("Back",
-          [&]{State.UserCommand = "Back"; Screen.ExitLoopClosure()();}),
+          [&]{State.UserCommand = UserCommandType::Back; Screen.ExitLoopClosure()();}),
         ftxui::Button("Quit",
-          [&]{ State.UserCommand = "Quit"; Screen.ExitLoopClosure()(); })
+          [&]{ State.UserCommand = UserCommandType::Quit; Screen.ExitLoopClosure()(); })
       }),
     }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent(key_event_handler);
   };
@@ -89,47 +92,49 @@ int main()
     ftxui::Container::Horizontal
     ({
       ftxui::Button("Submit (Enter)",
-        [&]{State.UserCommand = "Continue"; Screen.ExitLoopClosure()();}),
+        [&]{State.UserCommand = UserCommandType::Continue; Screen.ExitLoopClosure()();}),
       ftxui::Button("Back",
-        [&]{State.UserCommand = "Back"; Screen.ExitLoopClosure()();}),
+        [&]{State.UserCommand = UserCommandType::Back; Screen.ExitLoopClosure()();}),
       ftxui::Button("Quit",
-        [&]{State.UserCommand = "Quit"; Screen.ExitLoopClosure()();})
+        [&]{State.UserCommand = UserCommandType::Quit; Screen.ExitLoopClosure()();})
     })
   }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent(key_event_handler);
 
   // 进入事件循环
   while (true)
   {
-    if (State.CurrentInterface == "Program")
+    if (State.CurrentInterface == InterfaceType::Program)
     {
-      State.UserCommand = "Quit";
+      State.UserCommand.reset();
       Screen.Loop(InterfaceProgram);
-      if (State.UserCommand == "Quit") return 0;
-      else if (State.UserCommand == "Continue") State.CurrentInterface = "Request";
+      if (State.UserCommand == UserCommandType::Quit) return 0;
+      else if (State.UserCommand == UserCommandType::Continue) State.CurrentInterface = InterfaceType::Request;
+      else if (!State.UserCommand) return EXIT_FAILURE;
       else std::unreachable();
     }
-    else if (State.CurrentInterface == "Request")
+    else if (State.CurrentInterface == InterfaceType::Request)
     {
-      State.UserCommand = "Quit";
+      State.UserCommand.reset();
       Screen.Loop(get_interface_request(Programs[State.ProgramSelected]->get_interface()));
-      if (State.UserCommand == "Quit") return 0;
-      else if (State.UserCommand == "Back") { State.CurrentInterface = "Program"; }
-      else if (State.UserCommand == "Continue")
+      if (State.UserCommand == UserCommandType::Quit) return 0;
+      else if (State.UserCommand == UserCommandType::Back) { State.CurrentInterface = InterfaceType::Program; }
+      else if (State.UserCommand == UserCommandType::Continue)
       {
-        State.CurrentInterface = "Confirm";
+        State.CurrentInterface = InterfaceType::Confirm;
         State.SubmitCommand = Programs[State.ProgramSelected]->get_submit_command()
           + "\n--job-name='{}' --output='{}'{}"_f
             (State.JobName, State.OutputFile, State.LowPriority ? " --nice=10000" : "");
       }
+      else if (!State.UserCommand) return EXIT_FAILURE;
       else std::unreachable();
     }
-    else if (State.CurrentInterface == "Confirm")
+    else if (State.CurrentInterface == InterfaceType::Confirm)
     {
-      State.UserCommand = "Quit";
+      State.UserCommand.reset();
       Screen.Loop(InterfaceConfirm);
-      if (State.UserCommand == "Quit") return 0;
-      else if (State.UserCommand == "Back") { State.CurrentInterface = "Request"; }
-      else if (State.UserCommand == "Continue")
+      if (State.UserCommand == UserCommandType::Quit) return 0;
+      else if (State.UserCommand == UserCommandType::Back) { State.CurrentInterface = InterfaceType::Request; }
+      else if (State.UserCommand == UserCommandType::Continue)
       {
         // 尝试保存状态
         try
@@ -148,6 +153,7 @@ int main()
           ({"sh", { "-c", State.SubmitCommand }});
         break;
       }
+      else if (!State.UserCommand) return EXIT_FAILURE;
       else std::unreachable();
     }
   }
