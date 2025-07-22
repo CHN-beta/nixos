@@ -91,10 +91,10 @@ namespace sbatch
           | with_title("Misc:")
       });
     }
-    public: virtual std::string get_submit_command() const override
+    public: virtual std::string get_submit_command(std::string extra_sbatch_parameter) const override
     {
       auto cpu_string = [&]
-        { return State_.Nomultithread ? " --hint=nomultithread" : ""; }();
+        { return State_.Nomultithread ? "--hint=nomultithread" : ""; }();
       auto gpu_string = [&]
       {
         if (State_.GpuSchemeSelected == 0) return "--gpus=1"s;
@@ -109,8 +109,14 @@ namespace sbatch
         else if (State_.MemorySchemeSelected == 2) return "--mem={}G"_f(State_.Memory);
         else std::unreachable();
       }();
-      return "sbatch --partition={}\n{}{} {}\n--wrap=\"mumax3 {}\""_f
-        (State_.QueueEntries[State_.QueueSelected], gpu_string, cpu_string, mem_string, State_.InputFile);
+      return std::vector<std::string>
+      {
+        "sbatch"s,
+        "--partition={}"_f(State_.QueueEntries[State_.QueueSelected]),
+        gpu_string, cpu_string, mem_string,
+        "--wrap=\"mumax3 \\\"{}\\\"\""_f(escape(escape(State_.InputFile))),
+        extra_sbatch_parameter
+      } | biu::toLvalue | ranges::views::join(" \\\n") | ranges::to<std::string>;
     }
   };
   template void Program::register_child_<Mumax3>();

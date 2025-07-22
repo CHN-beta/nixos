@@ -121,9 +121,9 @@ int main()
       else if (State.UserCommand == UserCommandType::Continue)
       {
         State.CurrentInterface = InterfaceType::Confirm;
-        State.SubmitCommand = Programs[State.ProgramSelected]->get_submit_command()
-          + "\n--job-name='{}' --output='{}'{}"_f
-            (State.JobName, State.OutputFile, State.LowPriority ? " --nice=10000" : "");
+        State.SubmitCommand = Programs[State.ProgramSelected]->get_submit_command(
+          "--job-name=\"{}\" --output=\"{}\"{}"_f
+            (escape(State.JobName), escape(State.OutputFile), State.LowPriority ? " --nice=10000" : ""));
       }
       else if (!State.UserCommand) return EXIT_FAILURE;
       else std::unreachable();
@@ -148,7 +148,6 @@ int main()
         }
         catch (...) {}
         // 提交任务
-        boost::replace_all(State.SubmitCommand, "\n", " ");
         biu::exec<{.DirectStdout = true, .DirectStderr = true, .SearchPath = true}>
           ({"sh", { "-c", State.SubmitCommand }});
         break;

@@ -104,13 +104,13 @@ namespace sbatch
         }) | with_title("Misc:")
       });
     }
-    public: virtual std::string get_submit_command() const override
+    public: virtual std::string get_submit_command(std::string extra_sbatch_parameter) const override
     {
       auto optcell_string = [&]
       {
         if (State_.OptcellEnable)
-          if (State_.OptcellSelected == 0) return "echo -e '000\\n000\\n001' > OPTCELL\n&& "s;
-          else if (State_.OptcellSelected == 1) return "echo -e '110\\n110\\n000' > OPTCELL\n&& "s;
+          if (State_.OptcellSelected == 0) return "echo -e '000\\n000\\n001' > OPTCELL &&"s;
+          else if (State_.OptcellSelected == 1) return "echo -e '110\\n110\\n000' > OPTCELL &&"s;
           else std::unreachable();
         else return ""s;
       }();
@@ -126,24 +126,26 @@ namespace sbatch
       }();
       auto mem_string = [&]
       {
-        if (State_.MemorySchemeSelected == 0) return recommended.Memory ? " --mem={}G"_f(*recommended.Memory) : "";
-        else if (State_.MemorySchemeSelected == 1) return " --mem=0"s;
-        else if (State_.MemorySchemeSelected == 2) return " --mem={}G"_f(State_.Memory);
+        if (State_.MemorySchemeSelected == 0) return recommended.Memory ? "--mem={}G"_f(*recommended.Memory) : "";
+        else if (State_.MemorySchemeSelected == 1) return "--mem=0"s;
+        else if (State_.MemorySchemeSelected == 2) return "--mem={}G"_f(State_.Memory);
         else std::unreachable();
       }();
       auto srun_string = [&]
       {
         if (State_.CpuSchemeSelected == 0 && recommended.Cpus)
-          return " --ntasks={} --cpus-per-task={}"_f(recommended.Mpi, recommended.Openmp);
+          return "--ntasks={} --cpus-per-task={}"_f(recommended.Mpi, recommended.Openmp);
         else return ""s;
       }();
-      return
-        "{}sbatch --partition={} --nodes=1-1\n{}{}\n"
-          "--wrap=\"srun{} vasp-intel vasp-{}\""_f
-        (
-          optcell_string, State_.QueueEntries[State_.QueueSelected], cpu_string, mem_string,
-          srun_string, State_.VaspEntries[State_.VaspSelected]
-        );
+      return std::vector<std::string>
+      {
+        optcell_string,
+        "sbatch"s,
+        "--partition={} --nodes=1-1"_f(State_.QueueEntries[State_.QueueSelected]),
+        cpu_string, mem_string,
+        "--wrap=\"srun {} vasp-intel vasp-{}\""_f(srun_string, State_.VaspEntries[State_.VaspSelected]),
+        extra_sbatch_parameter
+      } | biu::toLvalue | ranges::views::join(" \\\n") | ranges::to<std::string>;
     }
   };
   template void Program::register_child_<VaspCpu>();
