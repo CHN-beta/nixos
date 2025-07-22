@@ -46,6 +46,7 @@ inputs:
         config.gtk =
         {
           enable = true;
+          theme.name = "Breeze";
           gtk2 =
           {
             extraConfig = ''gtk-im-module="fcitx"'';
