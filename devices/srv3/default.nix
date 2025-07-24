@@ -113,7 +113,7 @@ inputs:
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
         open-webui.ollamaHost = "192.168.83.3";
       };
-      user.users = [ "chn" "aleksana" "alikia" "pen" "reonokiy" ];
+      user.users = [ "chn" "aleksana" "alikia" "pen" "reonokiy" "yumieko" ];
     };
   };
 }
