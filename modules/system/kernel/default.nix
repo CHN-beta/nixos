@@ -31,8 +31,6 @@ inputs:
         "bnx2x" "tg3"
         # network for srv2
         "e1000e" "igb" "atlantic" "igc"
-        # temp wireless for nas
-        "r8712u"
         # network for srv3
         "igb"
         # touchscreen for one
