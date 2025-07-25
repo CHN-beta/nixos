@@ -19,6 +19,7 @@ inputs:
           resume = { device = "/dev/mapper/root"; offset = 4728064; };
         };
         nixpkgs.march = "tigerlake";
+        kernel.variant = "xanmod-unstable";
       };
       hardware.gpu.type = "intel";
       services =

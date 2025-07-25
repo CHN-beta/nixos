@@ -4,7 +4,7 @@ inputs:
   {
     variant = mkOption
     {
-      type = types.nullOr (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" ]);
+      type = types.nullOr (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" ]);
       default = "xanmod-lts";
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
