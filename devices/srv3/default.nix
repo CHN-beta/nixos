@@ -59,7 +59,7 @@ inputs:
                   { host = 22000; guest = 22000; }
                 ];
                 udp = [{ host = 22000; guest = 22000; }];
-                web = [ "natsume.nohost.me" ];
+                web = { httpsProxy = [ "natsume.nohost.me" ]; httpProxy = [ "natsume.nohost.me" ]; };
               };
             };
           };
@@ -72,7 +72,11 @@ inputs:
             {
               address = 4;
               vnc.openFirewall = false;
-              portForward = { tcp = [{ host = 5693; guest = 22; }]; web = [ "example.chn.moe" ]; };
+              portForward =
+              {
+                tcp = [{ host = 5693; guest = 22; }];
+                web = { httpsProxy = [ "example.chn.moe" ]; httpProxy = [ "example.chn.moe" ]; };
+              };
             };
           };
           reonokiy =
@@ -85,7 +89,15 @@ inputs:
           {
             memory.sizeMB = 4 * 1024;
             cpu.count = 4;
-            network = { address = 6; portForward.tcp = [{ host = 5695; guest = 22; }]; };
+            network =
+            {
+              address = 6;
+              portForward =
+              {
+                tcp = [{ host = 5695; guest = 22; }];
+                web = { httpsProxy = [ "littlewing.yumieko.com" ]; httpRedirect = [ "littlewing.yumieko.com" ]; };
+              };
+            };
             storage.iso = "${inputs.topInputs.self.src.guix}";
           };
         };

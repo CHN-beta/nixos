@@ -55,7 +55,12 @@ inputs:
                   default = [];
                 };
                 udp = tcp;
-                web = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+                web = rec
+                {
+                  httpsProxy = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+                  httpProxy = httpsProxy;
+                  httpRedirect = httpsProxy;
+                };
               };
             };
           };}));
@@ -241,23 +246,23 @@ inputs:
       };
       services =
       {
-        nginx =
-          let hosts = builtins.concatLists (builtins.map
-            (vm: builtins.map
-              (domain:
-              {
-                inherit domain;
-                ip = "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}";
-              })
-              vm.network.portForward.web)
-            (builtins.attrValues nixvirt.instance));
-          in
+        nginx = inputs.lib.mkMerge (builtins.map
+          (vm: let ip = "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}"; in
           {
             transparentProxy.map = builtins.listToAttrs (builtins.map
-              (host: { name = host.domain; value = "${host.ip}" + ":443"; }) hosts);
-            http = builtins.listToAttrs (builtins.map
-              (host: { name = host.domain; value.proxy.upstream = "http://${host.ip}" + ":80"; }) hosts);
-          };
+              (host: inputs.lib.nameValuePair host "${ip}:443")
+              vm.network.portForward.web.httpsProxy);
+            http = inputs.lib.mkMerge
+            [
+              (builtins.listToAttrs (builtins.map
+                (host: inputs.lib.nameValuePair host { proxy.upstream = "http://${ip}" + ":80"; })
+                vm.network.portForward.web.httpProxy))
+              (builtins.listToAttrs (builtins.map
+                (host: inputs.lib.nameValuePair host { rewriteHttps = {}; })
+                vm.network.portForward.web.httpRedirect))
+            ];
+          })
+          (builtins.attrValues nixvirt.instance));
         kvm = {};
       };
     };
