@@ -1,5 +1,4 @@
 # pragma once
-# define BOOST_STACKTRACE_USE_BACKTRACE
 # include <fmt/chrono.h>
 # include <tgbot/tgbot.h>
 # include <biu/logger.hpp>
@@ -115,14 +114,10 @@ namespace biu
 	void Logger::Guard::operator()() const { debug("reached after {} ms."_f(get_time_ms())); }
 	template <Logger::Level L> void Logger::Guard::log(const std::string& message) const
 	{
-# ifndef BIU_LOGGER_DEBUG
-		if constexpr (L == Level::Debug) return;
-# endif
 		if (auto&& lock = LoggerConfig_.lock(); lock->Level >= L)
 		{
 			static_assert(std::same_as<std::size_t, std::uint64_t>);
 			auto time = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
-# ifdef BIU_LOGGER_DEBUG
 			boost::stacktrace::stacktrace stack;
 # 	ifdef BIU_LOGGER_SOURCE_ROOT
 			auto source_root = std::string_view(BIU_LOGGER_SOURCE_ROOT "/");
@@ -141,11 +136,6 @@ namespace biu
 				stack[0].source_line() == 0 ? "??"s : "{}"_f(stack[0].source_line()),
 				stack[0].name()
 			) << std::flush;
-# else
-			*lock->Stream << "[ {:%T} {:02x} {:02} ] {}\n"_f
-				(time, get_thread_id() % std::numeric_limits<std::uint16_t>::max(), Indent_, message)
-				<< std::flush;
-# endif
 		}
 	}
 	void Logger::Guard::error(const std::string& message) const { log<Level::Error>(message); }

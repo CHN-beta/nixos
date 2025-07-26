@@ -1,5 +1,6 @@
 # pragma once
 # include <map>
+# define BOOST_STACKTRACE_USE_BACKTRACE
 # include <boost/stacktrace.hpp>
 # include <biu/atomic.hpp>
 

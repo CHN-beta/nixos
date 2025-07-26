@@ -13,7 +13,8 @@ endif()
 
 find_package(magic_enum REQUIRED)
 find_package(fmt REQUIRED)
-find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem system)
+find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem system process)
+# stacktrace_backtrace
 find_package(range-v3 REQUIRED)
 find_path(NAMEOF_INCLUDE_DIR nameof.hpp REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -35,7 +36,7 @@ target_include_directories(biu PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_D
   ${LIBBACKTRACE_INCLUDE_DIR} ${POCKETFFT_INCLUDE_DIR})
 target_link_libraries(biu PUBLIC magic_enum::magic_enum fmt::fmt Boost::headers Boost::iostreams Boost::filesystem
   range-v3::range-v3 Eigen3::Eigen HighFive TgBot::TgBot ${LIBBACKTRACE_LIBRARY} hdf5::hdf5 concurrencpp::concurrencpp
-  yaml-cpp::yaml-cpp glaze::glaze)
+  yaml-cpp::yaml-cpp glaze::glaze Boost::process)
 target_compile_features(biu PUBLIC cxx_std_23)
 target_compile_options(biu PUBLIC -Wno-gnu-string-literal-operator-template)
 install(TARGETS biu EXPORT biuTargets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -56,6 +57,7 @@ set_property(TARGET test-serialize PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRE
 add_test(NAME test-serialize COMMAND test-serialize)
 add_executable(test-process test/process.cpp)
 target_link_libraries(test-process PRIVATE biu)
+target_compile_definitions(test-process PRIVATE BIU_LOGGER_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}")
 set_property(TARGET test-process PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON)
 add_test(NAME test-process COMMAND test-process)
 add_executable(test-eigen test/eigen.cpp)
@@ -84,7 +86,7 @@ set_property(TARGET test-yaml PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON)
 add_test(NAME test-yaml COMMAND test-yaml)
 add_executable(test-logger test/logger.cpp)
 target_link_libraries(test-logger PRIVATE biu)
-target_compile_definitions(test-logger PRIVATE BIU_LOGGER_DEBUG BIU_LOGGER_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}")
+target_compile_definitions(test-logger PRIVATE BIU_LOGGER_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}")
 set_property(TARGET test-logger PROPERTY CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON)
 add_test(NAME test-logger COMMAND test-logger)
 add_executable(test-glaze test/glaze.cpp)
