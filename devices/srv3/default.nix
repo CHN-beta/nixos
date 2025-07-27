@@ -95,7 +95,7 @@ inputs:
               portForward =
               {
                 tcp = [{ host = 5695; guest = 22; }];
-                web = { httpsProxy = [ "littlewing.yumieko.com" ]; httpRedirect = [ "littlewing.yumieko.com" ]; };
+                web = { httpsProxy = [ "littlewing.yumieko.com" ]; httpProxy = [ "littlewing.yumieko.com" ]; };
               };
             };
             storage.iso = "${inputs.topInputs.self.src.guix}";
