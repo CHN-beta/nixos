@@ -36,12 +36,6 @@ inputs:
         sshd = {};
         nixvirt.instance =
         {
-          alikia =
-          {
-            memory.sizeMB = 1024;
-            cpu.count = 1;
-            network = { address = 2; portForward.tcp = [{ host = 5689; guest = 22; }]; };
-          };
           pen =
           {
             memory.sizeMB = 512;
