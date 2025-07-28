@@ -81,8 +81,8 @@ inputs:
           };
           yumieko =
           {
-            memory.sizeMB = 4 * 1024;
-            cpu.count = 4;
+            memory.sizeMB = 8 * 1024;
+            cpu.count = 8;
             network =
             {
               address = 6;
