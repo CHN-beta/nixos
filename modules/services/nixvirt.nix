@@ -262,7 +262,7 @@ inputs:
                 vm.network.portForward.web.httpRedirect))
             ];
           })
-          (builtins.attrValues nixvirt.instance));
+          (builtins.attrValues nixvirt.instance or {}));
         kvm = {};
       };
     };
