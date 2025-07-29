@@ -7,6 +7,7 @@
 # include <fmt/format.h>
 # include <fmt/ostream.h>
 # include <yaml-cpp/yaml.h>
+# include <boost/stacktrace.hpp>
 
 namespace biu
 {
@@ -77,4 +78,6 @@ namespace fmt
     : basic_ostream_formatter<Char> {};
 
   template <typename Char> struct formatter<YAML::Node, Char> : basic_ostream_formatter<Char> {};
+  template <typename Char> struct formatter<boost::stacktrace::basic_stacktrace<>, Char>
+    : basic_ostream_formatter<Char> {};
 }

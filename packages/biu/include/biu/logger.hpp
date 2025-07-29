@@ -95,10 +95,10 @@ namespace biu
 			public: [[gnu::always_inline]] inline void info(const std::string& message) const;
 			public: [[gnu::always_inline]] inline void debug(const std::string& message) const;
 
-			public: template <typename FinalException> [[gnu::always_inline]] void print_exception
+			public: [[gnu::always_inline]] inline void print_exception
 			(
-				const std::string& type, const std::string& message, const boost::stacktrace::stacktrace& stacktrace,
-				CalledBy<Exception<FinalException>>
+				std::optional<std::pair<std::string, std::string>> type_and_message,
+				const boost::stacktrace::stacktrace& stacktrace
 			) const;
 		};
 		friend class Guard;

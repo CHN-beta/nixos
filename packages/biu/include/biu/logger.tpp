@@ -66,14 +66,20 @@ namespace biu
 	template <typename FinalException> Logger::Exception<FinalException>::Exception(const std::string& message)
 	{
 		Logger::Guard log(message);
-		log.print_exception<FinalException>(nameof::nameof_full_type<FinalException>(), message, Stacktrace_, {});
+		log.print_exception
+			(std::pair<std::string, std::string>(nameof::nameof_full_type<FinalException>(), message), Stacktrace_);
 	}
 
 	template <typename Function> inline void Logger::try_exec(Function&& function)
 	{
 		Logger::Guard log;
 		try { function(); }
-		catch (...) { log.error(boost::current_exception_diagnostic_information()); }
+		catch (...)
+		{
+			log.error(boost::current_exception_diagnostic_information());
+			log.print_exception
+				(std::nullopt, boost::stacktrace::stacktrace::from_current_exception());
+		}
 	}
 
 	inline thread_local unsigned Logger::Guard::Indent_ = 0;
@@ -148,13 +154,13 @@ namespace biu
 		return std::forward<T>(value);
 	}
 
-	template <typename FinalException> inline void Logger::Guard::print_exception
+	inline void Logger::Guard::print_exception
 	(
-		const std::string& type, const std::string& message, const boost::stacktrace::stacktrace& stacktrace,
-		CalledBy<Exception<FinalException>>
+		std::optional<std::pair<std::string, std::string>> type_and_message,
+		const boost::stacktrace::stacktrace& stacktrace
 	) const
 	{
-		log<Level::Error>("{}: {}"_f(type, message));
+		if (type_and_message) log<Level::Error>("{}: {}"_f(type_and_message->first, type_and_message->second));
 		if (auto&& lock = LoggerConfig_.lock(); lock->Level >= Logger::Level::Error)
 		{
 			static_assert(std::same_as<std::size_t, std::uint64_t>);
