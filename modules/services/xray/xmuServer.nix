@@ -28,7 +28,7 @@ inputs:
               clients = [{ id = inputs.config.nixos.system.sops.placeholder."xray-xmu-server"; }];
               decryption = "none";
             };
-            streamSettings = { network = "xhttp"; xhttpSettings = { mode = "stream-one"; path = "/xsession"; }; };
+            streamSettings = { network = "xhttp"; xhttpSettings = { mode = "packet-up"; path = "/xsession"; }; };
             tag = "in";
           }];
           outbounds = [{ protocol = "freedom"; tag = "freedom"; }];
