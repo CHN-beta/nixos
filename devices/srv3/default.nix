@@ -113,7 +113,7 @@ inputs:
         gitea = {};
         grafana = {};
         fail2ban = {};
-        xray.server = {};
+        xray = { server = {}; xmuPersist = {}; };
         podman = {};
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};

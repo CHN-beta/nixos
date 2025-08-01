@@ -46,20 +46,7 @@ inputs:
               security = "tls";
               xhttpSettings =
               {
-                path =
-                  let
-                    inherit (xmuClient) hostname;
-                    paddedLength = ((builtins.div ((builtins.stringLength hostname) - 1) 16) + 1) * 16;
-                    paddedString = builtins.concatStringsSep ""
-                      (builtins.genList
-                        (n: if n < builtins.stringLength hostname then builtins.substring n 1 hostname else "0")
-                        paddedLength);
-                    paddedHex = inputs.pkgs.localPackages.aes128CfbHex
-                      { data = hostname; key = "wrdvpnisthebest!"; iv = "wrdvpnisthebest!"; };
-                    prefix = builtins.concatStringsSep "" (builtins.map
-                      (c: inputs.lib.toHexString (inputs.lib.strings.charToInt c))
-                      (inputs.lib.stringToCharacters "wrdvpnisthebest!"));
-                  in "/https/${prefix}${paddedHex}/xsession";
+                path = "${inputs.pkgs.localPackages.webvpnPath xmuClient.hostname}/xsession";
                 mode = "packet-up";
                 security = "tls";
                 extra.headers.Cookie =

@@ -165,4 +165,17 @@ inputs: rec
       hexEncryptedFile = inputs.pkgs.runCommand "aes128cfb-hex-encrypted" {}
         "${xxd} -p ${encryptedFile} | ${tr} -d '\n' > $out";
     in builtins.readFile hexEncryptedFile;
+  webvpnPath = hostname:
+    let
+      paddedLength = ((builtins.div ((builtins.stringLength hostname) - 1) 16) + 1) * 16;
+      paddedString = builtins.concatStringsSep ""
+        (builtins.genList
+          (n: if n < builtins.stringLength hostname then builtins.substring n 1 hostname else "0")
+          paddedLength);
+      paddedHex = aes128CfbHex
+        { data = hostname; key = "wrdvpnisthebest!"; iv = "wrdvpnisthebest!"; };
+      prefix = builtins.concatStringsSep "" (builtins.map
+        (c: inputs.pkgs.lib.toHexString (inputs.pkgs.lib.strings.charToInt c))
+        (inputs.pkgs.lib.stringToCharacters "wrdvpnisthebest!"));
+    in "/https/${prefix}${paddedHex}";
 }
