@@ -37,7 +37,7 @@ namespace biu
 		public: ValueType get(this auto&& self);
 		public: operator ValueType(this auto&& self);
 
-		protected: template <bool Throw = false> auto lock_(this auto&& self, auto&& condition_function, auto timeout);
+		protected: template <bool Throw> auto lock_(this auto&& self, auto&& condition_function, auto timeout);
 
 		// Apply a function to stored value.
 		// Wait for some time (if provided) until condition funciton returns true (if provided)
@@ -45,6 +45,7 @@ namespace biu
 		// NoReturn: throw exception if timeout, ignore function result, and return *this, if true;
 		//		return bool or std::optional wrapped result of function, if false.
 		// 		Useful when chaining multiple apply() calls.
+		// timeout 只考虑 condition_function 的超时，不考虑锁本身的超时。
 		public: template <bool NoReturn = false> decltype(auto) apply
 			(this auto&& self, auto&& function, auto&& condition_function, auto&& timeout);
 		public: template <bool NoReturn = false> decltype(auto) apply
@@ -54,8 +55,7 @@ namespace biu
 		// Wait until condition funciton returns true or *this, with an optional timeout
 		public: template <bool NoReturn = false> decltype(auto) wait
 			(this auto&& self, auto&& condition_function, auto timeout);
-		public: template <bool NoReturn = false> decltype(auto) wait
-			(this auto&& self, auto&& condition_function);
+		public: decltype(auto) wait(this auto&& self, auto&& condition_function);
 
 		// Attain lock from outside when constructing, and release when destructing.
 		// Throw: same effect as NoReturn.

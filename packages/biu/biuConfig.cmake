@@ -1,7 +1,8 @@
 include("${CMAKE_CURRENT_LIST_DIR}/biuTargets.cmake")
 find_package(magic_enum REQUIRED)
 find_package(fmt REQUIRED)
-find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem system process stacktrace_from_exception)
+find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem system process stacktrace_from_exception
+  stacktrace_backtrace)
 find_package(range-v3 REQUIRED)
 find_path(NAMEOF_INCLUDE_DIR nameof.hpp REQUIRED)
 find_package(Eigen3 REQUIRED)

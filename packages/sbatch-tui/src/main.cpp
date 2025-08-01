@@ -149,7 +149,7 @@ int main()
         catch (...) {}
         // 提交任务
         boost::replace_all(State.SubmitCommand, "\n", " ");
-        biu::exec<{.DirectStdout = true, .DirectStderr = true, .SearchPath = true}>
+        biu::exec<{.SearchPath = true}>
           ({"sh", { "-c", State.SubmitCommand }});
         break;
       }

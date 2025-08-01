@@ -44,7 +44,7 @@ namespace hpcstat::lfs
   {
     if
     (
-      auto result = biu::exec<{.SearchPath = true}>
+      auto result = biu::exec<{.SearchPath = true, .ModifyEnv = true}>
       ({
         .Program="bjobs",
         .Args={ "-a", "-o", "jobid submit_time stat cpu_used job_name", "-json" },
