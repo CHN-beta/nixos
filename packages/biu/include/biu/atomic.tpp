@@ -41,8 +41,11 @@ namespace biu
 		(this auto&& self, auto&& condition_function, auto timeout)
 	{
 		if constexpr (Nullptr<decltype(condition_function)>)
+		{
+			static_assert(Nullptr<decltype(timeout)>);
 			return Guard<std::is_const_v<decltype(self)>>
 				(std::unique_lock{self.Mutex_}, std::experimental::make_observer(&self), {});
+		}
 		else if constexpr (Nullptr<decltype(timeout)>)
 		{
 			std::unique_lock lock(self.Mutex_);
@@ -70,28 +73,35 @@ namespace biu
 		using function_return_type = std::invoke_result_t<decltype(function), MoveQualifiers<decltype(self), ValueType>>;
 		auto&& lock = std::forward<decltype(self)>(self).template lock_<NoReturn>
 			(std::forward<decltype(condition_function)>(condition_function), timeout);
-		// 如果得到的是 optional
+		// 如果 lock 是 optional
 		if constexpr (SpecializationOf<std::remove_cvref_t<decltype(lock)>, std::optional>)
-			// 如果超时了，返回 false 或者对应的 nullopt
+			// 如果超时了，这时 NoReturn 一定是 false，返回 false 或者对应的 nullopt
 			if (!lock)
+			{
+				static_assert(!NoReturn);
 				if constexpr (std::is_void_v<function_return_type>) return false;
 				else return std::optional<function_return_type>();
+			}
 			// 否则，执行函数
 			else
+				// 如果函数本身返回 void，则返回 true 或者 *this
 			  if constexpr (std::is_void_v<function_return_type>)
 				{
 					std::forward<decltype(function)>(function)
 						(std::forward<MoveQualifiers<decltype(self), ValueType>>(self.Value_));
-					// 如果函数本身返回 void 并且不可能超时，返回 *this，否则返回 true
-					if constexpr (Nullptr<decltype(condition_function)> || Nullptr<decltype(timeout)>)
-						return std::forward<decltype(self)>(self);
+					// 如果要求不返回结果，则返回 *this
+					if constexpr (NoReturn) return std::forward<decltype(self)>(self);
+					// 否则，返回 true
 					else return true;
 				}
+				// 否则，返回函数的返回值或者 std::optional 包装的结果
 				else
 				{
 					auto&& result = std::forward<decltype(function)>(function)
 						(std::forward<MoveQualifiers<decltype(self), ValueType>>(self.Value_));
-					return std::make_optional(std::forward<decltype(result)>(result));
+					if constexpr (NoReturn)
+						return std::forward<decltype(self)>(self);
+					else return std::make_optional(std::forward<decltype(result)>(result));
 				}
 		// 否则，说明不可能超时，返回函数的返回值或者 *this
 		else
@@ -125,15 +135,15 @@ namespace biu
 	template <DecayedType ValueType> template <bool NoReturn> decltype(auto) Atomic<ValueType>::wait
 		(this auto&& self, auto&& condition_function, auto timeout)
 	{
-		auto result = std::forward<decltype(self)>(self).template lock_<NoReturn>
+		auto&& result = std::forward<decltype(self)>(self).template lock_<NoReturn>
 			(std::forward<decltype(condition_function)>(condition_function), timeout);
 		if constexpr (SpecializationOf<decltype(result), std::optional>) return result.has_value();
-		else return std::forward<decltype(result)>(result);
+		else return std::forward<decltype(self)>(self);
 	}
-	template <DecayedType ValueType> template <bool NoReturn> decltype(auto) Atomic<ValueType>::wait
+	template <DecayedType ValueType> decltype(auto) Atomic<ValueType>::wait
 		(this auto&& self, auto&& condition_function)
 	{
-		return std::forward<decltype(self)>(self).template wait<NoReturn>
+		return std::forward<decltype(self)>(self).template wait<false>
 			(std::forward<decltype(condition_function)>(condition_function), nullptr);
 	}
 

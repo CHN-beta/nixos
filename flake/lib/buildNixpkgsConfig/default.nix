@@ -69,6 +69,7 @@ in platformConfig //
           patches = prev.patches or [] ++ [ ./root.patch ];
           cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ];
         });
+        boost188 = prev.boost188.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./boost188.patch ]; });
         inherit (final.pkgs-2411) iio-sensor-proxy;
         inherit (final.pkgs-unstable) bees;
       }

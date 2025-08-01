@@ -74,27 +74,6 @@ namespace biu
     template <typename T, typename Fallback = void> using FallbackIfNoTypeDeclared
       = typename detail_::FallbackIfNoTypeDeclaredHelper<T, Fallback>::Type;
 
-    namespace detail_
-    {
-      struct ExecMode { bool DirectStdin = false, DirectStdout = false, DirectStderr = false, SearchPath = false; };
-      template <ExecMode Mode> struct ExecResult
-      {
-        int ExitCode;
-        std::conditional_t<Mode.DirectStdout, Empty, std::string> Stdout;
-        std::conditional_t<Mode.DirectStderr, Empty, std::string> Stderr;
-        operator bool() const;
-      };
-      template <ExecMode Mode> struct ExecInput
-      {
-        std::conditional_t<Mode.SearchPath, std::string, std::filesystem::path> Program;
-        std::vector<std::string> Args;
-        std::conditional_t<Mode.DirectStdin, Empty, std::string> Stdin = {};
-        std::map<std::string, std::string> ExtraEnv = {};
-        std::optional<std::chrono::milliseconds> Timeout;
-      };
-    }
-    template <detail_::ExecMode Mode = {}> detail_::ExecResult<Mode> exec(detail_::ExecInput<Mode> input);
-
     template <typename Array> concurrencpp::generator<std::pair<Array, std::size_t>> sequence(Array from, Array to);
     template <typename Array> concurrencpp::generator<std::pair<Array, std::size_t>> sequence(Array to);
 
@@ -120,9 +99,11 @@ namespace biu
     constexpr detail_::ToLvalueHelper toLvalue;
 
     template <typename Function, typename T, typename... Ts> void for_each(Function&& function, T&& arg, Ts&&... args);
+
+    template <typename T> decltype(auto) perfect_return(T&& obj);
   }
   using common::hash, common::unused, common::block_forever, common::is_interactive, common::env, common::int128_t,
     common::uint128_t, common::Empty, common::CaseInsensitiveStringLessComparator, common::RemoveMemberPointer,
-    common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::exec, common::sequence, common::read,
-    common::toLvalue, common::for_each;
+    common::MoveQualifiers, common::FallbackIfNoTypeDeclared, common::sequence, common::read,
+    common::toLvalue, common::for_each, common::perfect_return;
 }

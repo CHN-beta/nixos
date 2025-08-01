@@ -55,8 +55,7 @@ vm force-reboot <vm>
       if (!config.vm.contains(uid)) throw std::runtime_error("No VM found for current user");
       if (!config.vm[uid].contains(args[1]))
         throw std::runtime_error("VM {} is not owned by current user"_f(args[1]));
-      biu::exec<{.DirectStdout = true, .DirectStderr = true, .SearchPath = false}>
-        ({config.virsh, { vm_to_virsh[args[0]], args[1] }});
+      biu::exec({config.virsh, { vm_to_virsh[args[0]], args[1] }});
     }
     else throw std::runtime_error("unknown command: {}"_f(args[0]));
   });

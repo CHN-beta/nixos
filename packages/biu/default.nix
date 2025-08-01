@@ -8,8 +8,8 @@
   src = ./.;
   buildInputs =
   [
-    magic-enum fmt boost range-v3 nameof zpp-bits eigen highfive tgbot-cpp libbacktrace hdf5
-    concurrencpp pocketfft yaml-cpp glaze
+    magic-enum fmt boost range-v3 nameof zpp-bits eigen libbacktrace hdf5
+    concurrencpp pocketfft yaml-cpp glaze (highfive.override { inherit boost; }) (tgbot-cpp.override { inherit boost; })
   ];
   propagatedBuildInputs = buildInputs;
   nativeBuildInputs = [ cmake ];

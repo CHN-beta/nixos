@@ -75,4 +75,18 @@ namespace biu::common
       );
     }
   }
+
+  template <typename T> decltype(auto) perfect_return(T&& obj)
+  {
+    // 不允许返回右值引用
+    static_assert(!std::is_rvalue_reference_v<T>);
+    // 左值引用则返回左值引用
+    if constexpr (std::is_lvalue_reference_v<T>) return (obj);
+    // 否则，假定可以移动，并返回值
+    else
+    {
+      static_assert(std::is_move_constructible_v<std::remove_reference_t<T>>);
+      return std::move(obj);
+    }
+  }
 }

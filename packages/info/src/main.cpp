@@ -156,17 +156,8 @@ int main()
     if (context == "epilog_slurmctld" && !output_file.empty())
     {
       auto text = "\n--------------------\n{}\n--------------------\n"_f(info);
-      boost::asio::io_context context;
-      boost::system::error_code ec;
-      boost::asio::writable_pipe wp{context};
-      boost::process::v2::process proc
-      (
-        context, "/run/current-system/sw/bin/tee", { "-a", output_file.c_str() },
-        boost::process::v2::process_stdio{wp, nullptr, nullptr}, switch_user(uid, gid)
-      );
-      boost::asio::write(wp, boost::asio::buffer(text));
-      wp.close();
-      proc.wait();
+      biu::exec<{.SearchPath = true, .Stdin = biu::IoType::String}>
+        ({.Program = "tee", .Args = { "-a", output_file }, .Stdin = text}, switch_user(uid, gid));
     }
   });
 }
