@@ -2,8 +2,6 @@
 # include <tgbot/tgbot.h>
 # include <slurm/slurm.h>
 # include <slurm/slurmdb.h>
-# include <boost/process.hpp>
-# include <boost/process/v2.hpp>
 # ifndef INFO_CONFIG_FILE
 #   define INFO_CONFIG_FILE "/etc/info.yaml"
 # endif
