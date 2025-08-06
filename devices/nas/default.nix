@@ -29,6 +29,7 @@ inputs:
         {
           client.dnsmasq = { extraInterfaces = [ "enp3s0" ]; hosts."git.nas.chn.moe" = "127.0.0.1"; };
           xmuServer = {};
+          server.serverName = "xservernas.chn.moe";
         };
         beesd."/" = { hashTableSizeMB = 10 * 128; threads = 4; };
         nfs."/" = [(inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc")];

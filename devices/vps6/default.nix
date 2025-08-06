@@ -34,6 +34,7 @@ inputs:
             "anchor.fm" = { upstream = "anchor.fm:443"; proxyProtocol = false; };
             "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; proxyProtocol = false; };
             "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; proxyProtocol = false; };
+            "xservernas.chn.moe" = { upstream = "wg0.nas.chn.moe:443"; proxyProtocol = false; };
           }
           // (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "wg0.pc.chn.moe"; })

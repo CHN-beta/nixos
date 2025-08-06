@@ -9,7 +9,7 @@ let
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "initrd.vps6" "misskey" "sticker" "synapse-admin" "tgapi"
-      "ua" "xserver2" "xserver2.vps6" "铜锣湾实验室"
+      "ua" "xserver2" "xserver2.vps6" "铜锣湾实验室" "xservernas"
     ];
     "xlog.autoroute" = [ "xlog" ];
     "wg0.srv1-node0" = [ "wg0.srv1" ];
