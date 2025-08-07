@@ -4,7 +4,7 @@ inputs:
   {
     variant = mkOption
     {
-      type = types.nullOr (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" ]);
+      type = types.nullOr (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" "steamos" ]);
       default = "xanmod-lts";
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
@@ -49,6 +49,7 @@ inputs:
         xanmod-lts = inputs.pkgs.linuxPackages_xanmod;
         xanmod-latest = inputs.pkgs.linuxPackages_xanmod_latest;
         xanmod-unstable = inputs.pkgs.pkgs-unstable.linuxPackages_xanmod_latest;
+        steamos = inputs.pkgs.linuxPackages_jovian;
       }.${kernel.variant};
       kernelPatches =
         let patches.hibernate-progress = [{ name = "hibernate-progress"; patch = ./hibernate-progress.patch; }];

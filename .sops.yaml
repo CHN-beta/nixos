@@ -14,6 +14,7 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &test age1vgqvdqqe3mn0gvh0hydvu9c5f9yn5vek08cagyvwjhyta6utpvuq00g9c2
   - &test-pc age17a8y4yr2ckuek67rt786ujuf7705gvj3vv6ezktxxmgayea9zcyqet7hgc
   - &test-pc-vm age1wmcayhf9eyx9e9yp97850mqas9ns455crce8hfmvnupgcxd6sews5r0cln
+  - &steamdeck age1x7gda43xxsggveu8q2pajttlmgwsjhmksv7hzv3r270gyrpk8a5sza87gz
 creation_rules:
   - path_regex: devices/pc/.*$
     key_groups: [{ age: [ *chn, *pc ] }]
@@ -47,10 +48,12 @@ creation_rules:
     key_groups: [{ age: [ *chn, *test-pc ] }]
   - path_regex: devices/test-pc-vm/.*$
     key_groups: [{ age: [ *chn, *test-pc-vm ] }]
+  - path_regex: devices/steamdeck/.*$
+    key_groups: [{ age: [ *chn, *steamdeck ] }]
   - path_regex: devices/cross/secrets/default.yaml$
     key_groups:
     - age: [ *chn, *pc, *vps4, *vps6, *nas, *one, *srv1-node0, *srv1-node1, *srv1-node2, *srv2-node0, *srv2-node1,
-      *srv3, *test, *test-pc, *test-pc-vm]
+      *srv3, *test, *test-pc, *test-pc-vm, *steamdeck ]
   - path_regex: devices/cross/secrets/chn.yaml$
     key_groups:
     - age: [ *chn, *pc, *one, *nas ]

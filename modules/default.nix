@@ -12,6 +12,15 @@ inputs: let inherit (inputs) topInputs; in
     topInputs.nixvirt.nixosModules.default
     topInputs.niri.nixosModules.niri
     { config.niri-flake.cache.enable = false; }
+    topInputs.jovian.nixosModules.default
+    {
+      config.jovian =
+      {
+        steamos.useSteamOSConfig = inputs.lib.mkDefault false;
+        devices.steamdeck.enableKernelPatches = inputs.lib.mkDefault false;
+        overlay.enable = inputs.lib.mkDefault false;
+      };
+    }
     # TODO: Remove after next release
     "${topInputs.nixpkgs-unstable}/nixos/modules/services/hardware/lact.nix"
     (inputs:

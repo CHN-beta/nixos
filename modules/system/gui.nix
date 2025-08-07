@@ -12,7 +12,7 @@ inputs:
       services =
       {
         desktopManager.plasma6.enable = inputs.lib.mkIf (gui.implementation == "kde") true;
-        greetd =
+        greetd = inputs.lib.mkDefault
         {
           enable = true;
           settings.default_session.command =
