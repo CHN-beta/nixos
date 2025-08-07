@@ -118,6 +118,8 @@ in platformConfig //
         openvswitch = prev.openvswitch.overrideAttrs (prev: { doCheck = false; });
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
         valkey = prev.valkey.overrideAttrs { doCheck = false; };
+        binaryen = prev.binaryen.overrideAttrs
+          { cmakeFlags = (prev.cmakeFlags or []) ++ [ "-DCMAKE_CXX_FLAGS=-Wno-maybe-uninitialized" ]; };
         # -march=xxx cause embree build failed
         # https://github.com/embree/embree/issues/115
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
