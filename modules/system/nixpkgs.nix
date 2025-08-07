@@ -17,17 +17,18 @@ inputs:
   {
     nixpkgs = inputs.localLib.buildNixpkgsConfig
       { inherit inputs; nixpkgs = nixpkgs // { nixRoot = null; nixos = true; }; };
-    boot.kernelPatches = inputs.lib.mkIf (nixpkgs.march != null)
-    [{
-      name = "native kernel";
-      patch = null;
-      extraStructuredConfig =
-        let kernelConfig = { znver2 = "MZEN2"; znver3 = "MZEN3"; znver4 = "MZEN4"; };
-        in
-        {
-          GENERIC_CPU = inputs.lib.kernel.no;
-          ${kernelConfig.${nixpkgs.march} or "M${inputs.lib.toUpper nixpkgs.march}"} = inputs.lib.kernel.yes;
-        };
-    }];
+    boot.kernelPatches = inputs.lib.mkIf
+      (nixpkgs.march != null && inputs.config.nixos.system.kernel.variant != "steamos")
+      [{
+        name = "native kernel";
+        patch = null;
+        extraStructuredConfig =
+          let kernelConfig = { znver2 = "MZEN2"; znver3 = "MZEN3"; znver4 = "MZEN4"; };
+          in
+          {
+            GENERIC_CPU = inputs.lib.kernel.no;
+            ${kernelConfig.${nixpkgs.march} or "M${inputs.lib.toUpper nixpkgs.march}"} = inputs.lib.kernel.yes;
+          };
+      }];
   };
 }
