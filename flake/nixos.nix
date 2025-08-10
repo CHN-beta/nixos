@@ -2,6 +2,7 @@
 let
   singles = [ "nas" "pc" "vps4" "vps6" "one" "srv3" ];
   cluster = { srv1 = 3; srv2 = 2; };
+  arch.r2s = "aarch64";
   deviceModules = builtins.listToAttrs
   (
     (builtins.map
@@ -25,9 +26,9 @@ let
       (localLib.attrsToList cluster)))
   );
 in builtins.mapAttrs
-  (_: v: inputs.nixpkgs.lib.nixosSystem
+  (n: v: inputs.nixpkgs.lib.nixosSystem
   {
-    system = "x86_64-linux";
+    system = "${arch.${n} or "x86_64"}-linux";
     specialArgs = { topInputs = inputs; inherit localLib; };
     modules = localLib.mkModules v;
   })
