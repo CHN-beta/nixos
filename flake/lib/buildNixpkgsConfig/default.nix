@@ -1,12 +1,12 @@
-# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixRoot, nixos };
+# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixRoot, nixos, arch };
 { inputs, nixpkgs }:
 let
   platformConfig =
-    if nixpkgs.march == null then { system = "x86_64-linux"; }
+    if nixpkgs.march == null then { system = "${nixpkgs.arch or "x86_64"}-linux"; }
     else
     {
       ${if nixpkgs.nixos then "hostPlatform" else "localSystem"} =
-        { system = "x86_64-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
+        { system = "${nixpkgs.arch or "x86_64"}-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
     };
   cudaConfig = inputs.lib.optionalAttrs (nixpkgs.cuda != null)
   (

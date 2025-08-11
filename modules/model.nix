@@ -3,6 +3,7 @@ inputs:
   options.nixos.model = let inherit (inputs.lib) mkOption types; in
   {
     hostname = mkOption { type = types.nonEmptyStr; };
+    arch = mkOption { type = types.nonEmptyStr; default = "x86_64"; };
     type = mkOption { type = types.enum [ "minimal" "desktop" "server" ]; default = "minimal"; };
     private = mkOption { type = types.bool; default = false; };
     cluster = mkOption
