@@ -2,7 +2,7 @@ inputs:
 {
   options.nixos.hardware.cpu = let inherit (inputs.lib) mkOption types; in mkOption
   {
-    type = types.enum [ "intel" "amd" ];
+    type = types.nullOr (types.enum [ "intel" "amd" ]);
     default = let inherit (inputs.config.nixos.system.nixpkgs) march; in
       if march == null then null
       else if inputs.lib.hasPrefix "znver" march then "amd"
