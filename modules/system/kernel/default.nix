@@ -39,7 +39,11 @@ inputs:
         "bridge"
       ]
         ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ]);
-      extraModulePackages = with inputs.config.boot.kernelPackages; [ v4l2loopback zenpower ];
+      extraModulePackages = with inputs.config.boot.kernelPackages;
+      [
+        v4l2loopback
+        (if inputs.pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then zenpower else inputs.pkgs.emptyDirectory)
+      ];
       # force i2c-hid-acpi to load after pinctrl-tigerlake
       extraModprobeConfig = "softdep i2c-hid-acpi pre: pinctrl-tigerlake";
       kernelParams = [ "delayacct" ];

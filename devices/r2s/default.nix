@@ -13,6 +13,7 @@ inputs:
           swap = [ "/nix/swap/swap" ];
         };
         network = {};
+        grub = null;
       };
       services =
       {
