@@ -22,11 +22,13 @@ inputs:
         # file manager
         tree eza trash-cli lsd broot file xdg-ninja mlocate
         # compress
-        pigz upx unzip zip lzip p7zip rar
+        pigz upx unzip zip lzip p7zip
+        (if inputs.pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then rar else emptyDirectory)
         # file system management
         sshfs e2fsprogs compsize exfatprogs
         # disk management
-        smartmontools hdparm gptfdisk megacli
+        smartmontools hdparm gptfdisk
+        (if inputs.pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then megacli else emptyDirectory)
         # encryption and authentication
         apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f yubico-piv-tool libfido2
         # networking
