@@ -127,8 +127,6 @@ inputs:
         secrets."github/token" = {};
       };
     })
-    # build failed on aarch64
-    (inputs.lib.mkIf (inputs.config.nixos.model.arch == "aarch64") { nix.package = inputs.pkgs.nixVersions.nix_2_29; })
     # c++ include path
     # environment.pathsToLink = [ "/include" ];
     # environment.variables.CPATH = "/run/current-system/sw/include";

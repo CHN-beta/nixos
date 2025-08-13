@@ -37,7 +37,9 @@ inputs:
         # nix tools
         nix-output-monitor nix-tree ssh-to-age nix-inspect
         # development
-        gdb try rr hexo-cli gh nix-init hugo
+        gdb try rr hexo-cli gh hugo
+        # build failed on aarch64
+        (if inputs.pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then nix-init else emptyDirectory)
         (octodns.withProviders (_: with octodns-providers; [ cloudflare ]))
         # stupid things
         toilet lolcat localPackages.stickerpicker graph-easy
