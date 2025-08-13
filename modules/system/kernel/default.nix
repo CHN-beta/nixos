@@ -34,11 +34,13 @@ inputs:
         # network for srv3
         "igb"
         # touchscreen for one
-        "pinctrl-tigerlake" "i2c-hid-acpi"
+        "i2c-hid-acpi"
         # bridge network
         "bridge"
       ]
-        ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ]);
+        ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ])
+        # touchscreen for one
+        ++ (inputs.lib.optionals (inputs.config.nixos.model.arch == "x86_64") [ "pinctrl-tigerlake" ]);
       extraModulePackages = with inputs.config.boot.kernelPackages;
       [
         v4l2loopback
