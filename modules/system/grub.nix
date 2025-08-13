@@ -9,8 +9,7 @@ inputs:
       # "efi" using efi, "efiRemovable" using efi with install grub removable, or dev path like "/dev/sda" using bios
       installDevice = mkOption { type = types.str; default = "efi"; };
     };});
-    # use grub as default, if disabled, use uboot
-    default = {};
+    default = { x86_64 = {}; aarch64 = null; }.${inputs.config.nixos.model.arch};
   };
   config = let inherit (inputs.config.nixos.system) grub; in inputs.localLib.mkConditional (grub != null)
     (inputs.lib.mkMerge
@@ -83,11 +82,5 @@ inputs:
         };
       }
     ])
-    ({
-      boot.loader =
-      {
-        grub.enable = false;
-        generic-extlinux-compatible.enable = true;
-      };
-    });
+    { boot.loader.grub.enable = false; };
 }
