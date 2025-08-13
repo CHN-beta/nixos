@@ -5,7 +5,7 @@ inputs:
     variant = mkOption
     {
       type = types.nullOr (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" ]);
-      default = "xanmod-lts";
+      default = { x86_64 = "xanmod-lts"; aarch64 = "nixos"; }.${inputs.config.nixos.model.arch};
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
   };
