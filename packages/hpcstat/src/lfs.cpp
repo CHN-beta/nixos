@@ -27,7 +27,8 @@ namespace hpcstat::lfs
         }
         else break;
       }
-      if (auto result = biu::exec({*bsub, args}); !result) return std::nullopt;
+      if (auto result = biu::exec<{.Stdout = biu::IoType::String}>({*bsub, args}); !result)
+        return std::nullopt;
       else
       {
         // Job <462270> is submitted to queue <normal_1day>.
@@ -44,7 +45,7 @@ namespace hpcstat::lfs
   {
     if
     (
-      auto result = biu::exec<{.SearchPath = true, .ModifyEnv = true}>
+      auto result = biu::exec<{.SearchPath = true, .ModifyEnv = true, .Stdout = biu::IoType::String}>
       ({
         .Program="bjobs",
         .Args={ "-a", "-o", "jobid submit_time stat cpu_used job_name", "-json" },
@@ -82,7 +83,8 @@ namespace hpcstat::lfs
   {
     if
     (
-      auto result = biu::exec<{.SearchPath = true}>({"bjobs", { "-l", "{}"_f(jobid) }});
+      auto result = biu::exec<{.SearchPath = true, .Stdout = biu::IoType::String}>
+        ({"bjobs", { "-l", "{}"_f(jobid) }});
       !result
     )
       return std::nullopt;

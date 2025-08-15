@@ -12,7 +12,7 @@ namespace hpcstat::ssh
       return std::nullopt;
     else if
     (
-      auto output = biu::exec<{.Timeout = true}>
+      auto output = biu::exec<{.Timeout = true, .Stdout = biu::IoType::String}>
         ({.Program=std::filesystem::path(*sshbindir) / "ssh-add", .Args{ "-l" }, .Timeout=10s});
       !output
     )
@@ -41,7 +41,7 @@ namespace hpcstat::ssh
       return std::nullopt;
     else if
     (
-      auto output = biu::exec<.Stdin = biu::IoType::String, .Timeout = true>
+      auto output = biu::exec<{.Timeout = true, .Stdin = biu::IoType::String, .Stdout = biu::IoType::String}>
       ({
         .Program=std::filesystem::path(*sshbindir) / "ssh-keygen",
         .Args={
@@ -69,7 +69,7 @@ namespace hpcstat::ssh
       bf::create_directories(tempdir);
       auto signaturefile = tempdir / "signature";
       std::ofstream(signaturefile) << signature;
-      auto result = biu::exec<.Stdin = biu::IoType::String, .Timeout = true>
+      auto result = biu::exec<{.Timeout = true, .Stdin = biu::IoType::String}>
       ({
         .Program=std::filesystem::path(*sshbindir) / "ssh-keygen",
         .Args={

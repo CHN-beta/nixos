@@ -53,7 +53,7 @@ namespace hpcstat::disk
       {
         if
         (
-          auto result = biu::exec
+          auto result = biu::exec<{.Stdout = biu::IoType::String}>
           ({
             // duc ls -d ./duc.db -b -D /data/gpfs01/jykang/linwei/xxx
             "{}/duc"_f(*ducbindir),
@@ -86,7 +86,7 @@ namespace hpcstat::disk
         if
         (
           // duc info -d ./duc.db
-          auto result = biu::exec
+          auto result = biu::exec<{.Stdout = biu::IoType::String}>
             ({"{}/duc"_f(*ducbindir), { "info", "-d", "{}/duc.db"_f(*datadir) }});
           !result
         )

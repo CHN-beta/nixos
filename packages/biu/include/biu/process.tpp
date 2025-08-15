@@ -34,9 +34,10 @@ namespace biu::process
       if constexpr (Mode.ModifyEnv)
       {
         auto current = bp::environment::current();
-        std::unordered_map<bp::environment::key, bp::environment::value> env
-          (current.begin(), current.end());
+        std::unordered_map<bp::environment::key, bp::environment::value> env;
+        for (const auto& e : current) env[e.key()] = e.value();
         for (const auto& [key, value] : input.ExtraEnv) env[key] = value;
+        return env;
       }
       else return bp::environment::current();
     }();
