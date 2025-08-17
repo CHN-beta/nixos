@@ -12,11 +12,6 @@
     sops-nix = { url = "github:Mic92/sops-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
     nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nix-vscode-extensions =
-    {
-      url = "github:nix-community/nix-vscode-extensions?ref=4a7f92bdabb365936a8e8958948536cc2ceac7ba";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     impermanence.url = "github:CHN-beta/impermanence";
     plasma-manager =
     {
@@ -32,6 +27,7 @@
     nixvirt = { url = "github:CHN-beta/NixVirt"; inputs.nixpkgs.follows = "nixpkgs"; };
     buildproxy = { url = "github:polygon/nix-buildproxy"; inputs.nixpkgs.follows = "nixpkgs"; };
     niri.url = "github:sodiboo/niri-flake";
+    nix4vscode = { url = "github:nix-community/nix4vscode"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
