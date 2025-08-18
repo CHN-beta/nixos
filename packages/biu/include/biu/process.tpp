@@ -19,6 +19,7 @@ namespace biu::process
     using namespace biu::literals;
 
     // 进程是在创建时就开始运行的，而不是在 io_context.run() 时才开始运行
+    // 传入的 io_context 只是为了方便同步 io
 
     // seach actual program
     boost::filesystem::path actual_program = [&]
@@ -46,79 +47,40 @@ namespace biu::process
     // prepare io pipes
     std::unique_ptr<boost::asio::writable_pipe> stdin_pipe;
     std::unique_ptr<boost::asio::readable_pipe> stdout_pipe, stderr_pipe;
-    std::function<void(boost::asio::readable_pipe& p, std::string& result)> read_some =
-      [&read_some](auto& p, auto& result)
+    auto create_pipe_on_necessary = [&context]<typename T, IoType V>(auto& pipe) -> decltype(auto)
+    {
+      if constexpr (V == IoType::Close) return nullptr;
+      else if constexpr (V == IoType::Direct) return T();
+      else if constexpr (V == IoType::String)
       {
-        auto buffer = std::make_shared<std::array<char, 1024>>();
-        p.async_read_some
-        (
-          boost::asio::buffer(*buffer),
-          [&, buffer](const boost::system::error_code& ec, std::size_t len)
-          {
-            Logger::Guard log;
-            if (!ec) { result.append(buffer->data(), len); read_some(p, result); log.debug("read {}"_f(len)); }
-            else log.debug("Error reading from pipe: {} {}"_f(ec.value(), ec.message()));
-          }
-        );
-      };
-    std::function<void(boost::asio::writable_pipe& p, std::string& result)> write_some =
-      [&write_some](auto& p, auto& result)
-      {
-        if (result.empty()) { p.close(); return; }
-        auto buffer = std::make_shared<std::array<char, 1024>>();
-        std::copy(result.begin(), result.end(), buffer->begin());
-        p.async_write_some
-        (
-          boost::asio::buffer(*buffer),
-          [&, buffer](const auto& ec, std::size_t len)
-          {
-            Logger::Guard log;
-            if (!ec) { result.erase(0, len); write_some(p, result); log.debug("write {}"_f(len)); }
-            else log.debug("Error reading from pipe: {} {}"_f(ec.value(), ec.message()));
-          }
-        );
-      };
+        pipe = std::make_unique<typename std::remove_reference_t<decltype(pipe)>::element_type>(context);
+        return (*pipe);
+      }
+      else std::unreachable();
+    };
     bp::process_stdio stdio
     {
-      .in = [&] -> decltype(auto)
+      .in = create_pipe_on_necessary.template operator()
+        <decltype(bp::process_stdio::in), Mode.Stdin>(stdin_pipe),
+      .out = create_pipe_on_necessary.template operator()
+        <decltype(bp::process_stdio::out), Mode.Stdout>(stdout_pipe),
+      .err = create_pipe_on_necessary.template operator()
+        <decltype(bp::process_stdio::err), Mode.Stderr>(stderr_pipe)
+    };
+    auto stdio_write = [&]
+    {
+      if constexpr (Mode.Stdin == IoType::String)
       {
-        if constexpr (Mode.Stdin == IoType::Close) return nullptr;
-        else if constexpr (Mode.Stdin == IoType::Direct)
-          return decltype(bp::process_stdio::in)();
-        else if constexpr (Mode.Stdin == IoType::String)
-        {
-          stdin_pipe = std::make_unique<boost::asio::writable_pipe>(context);
-          write_some(*stdin_pipe, input.Stdin);
-          return (*stdin_pipe);
-        }
-        else std::unreachable();
-      }(),
-      .out = [&] -> decltype(auto)
-      {
-        if constexpr (Mode.Stdout == IoType::Close) return nullptr;
-        else if constexpr (Mode.Stdout == IoType::Direct)
-          return decltype(bp::process_stdio::out)();
-        else if constexpr (Mode.Stdout == IoType::String)
-        {
-          stdout_pipe = std::make_unique<boost::asio::readable_pipe>(context);
-          read_some(*stdout_pipe, result.Stdout);
-          return (*stdout_pipe);
-        }
-        else std::unreachable();
-      }(),
-      .err = [&] -> decltype(auto)
-      {
-        if constexpr (Mode.Stderr == IoType::Close) return nullptr;
-        else if constexpr (Mode.Stderr == IoType::Direct)
-          return decltype(bp::process_stdio::err)();
-        else if constexpr (Mode.Stderr == IoType::String)
-        {
-          stderr_pipe = std::make_unique<boost::asio::readable_pipe>(context);
-          read_some(*stderr_pipe, result.Stderr);
-          return (*stderr_pipe);
-        }
-        else std::unreachable();
-      }()
+        boost::asio::write(*stdin_pipe, boost::asio::buffer(input.Stdin));
+        stdin_pipe->close();
+      }
+    };
+    auto stdio_read = [&]
+    {
+      if constexpr (Mode.Stdout == IoType::String)
+        boost::asio::read(*stdout_pipe, boost::asio::dynamic_buffer(result.Stdout));
+      if constexpr (Mode.Stderr == IoType::String)
+        boost::asio::read(*stderr_pipe, boost::asio::dynamic_buffer(result.Stderr));
     };
     log();
 
@@ -155,25 +117,21 @@ namespace biu::process
           timeout.async_wait
             ([&](auto ec) { if (!ec) sig.emit(boost::asio::cancellation_type::terminal); });
         });
+        stdio_write();
         context.run();
         finished.wait([](auto& v) { return v; });
+        stdio_read();
       });
     }
-    else
+    else Logger::try_exec([&]
     {
-      auto thread = std::thread([&]
-      {
-        Logger::try_exec([&]
-        {
-          auto proc = bp::process
-            (context, actual_program, input.Args, std::move(stdio), std::move(env), std::forward<Ts>(args)...);
-          proc.wait();
-          result.ExitCode = proc.exit_code();
-        });
-      });
-      context.run();
-      thread.join();
-    }
+      auto proc = bp::process
+        (context, actual_program, input.Args, std::move(stdio), std::move(env), std::forward<Ts>(args)...);
+      stdio_write();
+      proc.wait();
+      stdio_read();
+      result.ExitCode = proc.exit_code();
+    });
     return result;
   }
 }
