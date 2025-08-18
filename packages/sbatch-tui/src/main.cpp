@@ -8,6 +8,7 @@ int main()
 {
   using namespace biu::literals;
   using namespace sbatch;
+  biu::Logger::Guard log;
 
   // 初始化
   enum class UserCommandType { Continue, Back, Quit };
@@ -121,9 +122,11 @@ int main()
       else if (State.UserCommand == UserCommandType::Continue)
       {
         State.CurrentInterface = InterfaceType::Confirm;
-        State.SubmitCommand = Programs[State.ProgramSelected]->get_submit_command(
-          "--job-name=\"{}\" --output=\"{}\"{}"_f
-            (escape(State.JobName), escape(State.OutputFile), State.LowPriority ? " --nice=10000" : ""));
+        State.SubmitCommand =
+          Programs[State.ProgramSelected]->get_submit_command(
+            "--job-name={} --output={}{}"_f
+              (escape(State.JobName), escape(State.OutputFile), State.LowPriority ? " --nice=10000" : ""))
+          | biu::toLvalue | ranges::views::join(" \\\n ") | ranges::to<std::string>;
       }
       else if (!State.UserCommand) return EXIT_FAILURE;
       else std::unreachable();
@@ -148,9 +151,10 @@ int main()
         }
         catch (...) {}
         // 提交任务
-        boost::replace_all(State.SubmitCommand, "\n", " ");
-        biu::exec<{.SearchPath = true}>
-          ({"sh", { "-c", State.SubmitCommand }});
+        log.debug("submit command: {}"_f(State.SubmitCommand));
+        // -c 对 \\n 的处理与通常情况下不同，我们需要用 -s 然后将命令通过标准输入传入
+        biu::exec<{.SearchPath = true, .Stdin = biu::IoType::String}>
+          ({.Program = "sh", .Args = { "-s"}, .Stdin = State.SubmitCommand});
         break;
       }
       else if (!State.UserCommand) return EXIT_FAILURE;

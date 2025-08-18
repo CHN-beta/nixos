@@ -123,7 +123,7 @@ namespace sbatch
         }) | with_title("Misc:")
       });
     }
-    public: virtual std::string get_submit_command(std::string extra_sbatch_parameter) const override
+    public: virtual std::vector<std::string> get_submit_command(std::string extra_sbatch_parameter) const override
     {
       auto optcell_string = [&]
       {
@@ -154,7 +154,7 @@ namespace sbatch
         else if (State_.MemorySchemeSelected == 2) return "--mem={}G"_f(State_.Memory);
         else std::unreachable();
       }();
-      return std::vector<std::string>
+      return
       {
         optcell_string,
         "sbatch"s,
@@ -162,7 +162,7 @@ namespace sbatch
         gpu_string, cpu_string, mem_string,
         "--wrap=\"srun vasp-nvidia vasp-{}\""_f(State_.VaspEntries[State_.VaspSelected]),
         extra_sbatch_parameter
-      } | biu::toLvalue | ranges::views::join(" \\\n") | ranges::to<std::string>;
+      };
     }
   };
   template void Program::register_child_<VaspGpu>();

@@ -104,7 +104,7 @@ namespace sbatch
         }) | with_title("Misc:")
       });
     }
-    public: virtual std::string get_submit_command(std::string extra_sbatch_parameter) const override
+    public: virtual std::vector<std::string> get_submit_command(std::string extra_sbatch_parameter) const override
     {
       auto optcell_string = [&]
       {
@@ -134,18 +134,18 @@ namespace sbatch
       auto srun_string = [&]
       {
         if (State_.CpuSchemeSelected == 0 && recommended.Cpus)
-          return "--ntasks={} --cpus-per-task={}"_f(recommended.Mpi, recommended.Openmp);
+          return " --ntasks={} --cpus-per-task={}"_f(recommended.Mpi, recommended.Openmp);
         else return ""s;
       }();
-      return std::vector<std::string>
+      return
       {
         optcell_string,
         "sbatch"s,
         "--partition={} --nodes=1-1"_f(State_.QueueEntries[State_.QueueSelected]),
         cpu_string, mem_string,
-        "--wrap=\"srun {} vasp-intel vasp-{}\""_f(srun_string, State_.VaspEntries[State_.VaspSelected]),
+        "--wrap=\"srun{} vasp-intel vasp-{}\""_f(srun_string, State_.VaspEntries[State_.VaspSelected]),
         extra_sbatch_parameter
-      } | biu::toLvalue | ranges::views::join(" \\\n") | ranges::to<std::string>;
+      };
     }
   };
   template void Program::register_child_<VaspCpu>();

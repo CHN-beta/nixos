@@ -17,7 +17,7 @@ namespace sbatch
     public: virtual void try_load_state(YAML::Node node) noexcept = 0;
     public: virtual YAML::Node save_state() const = 0;
     public: virtual ftxui::Component get_interface() = 0;
-    public: virtual std::string get_submit_command(std::string extra_sbatch_parameter) const = 0;
+    public: virtual std::vector<std::string> get_submit_command(std::string extra_sbatch_parameter) const = 0;
     public: virtual ~Program() = default;
     
     // 用于注册程序
@@ -80,8 +80,8 @@ namespace sbatch
   {
     return str | ranges::views::transform([](char c)
     {
-      // only the following characters need to be escaped: $ ` \ " newline * @
-      if (std::set{'$','`','\\','\"','\n','*','@'}.contains(c))
+      // only the following characters need to be escaped: $ ` \ " newline * @ space tab
+      if (std::set{'$', '`', '\\', '\"', '\n', '*', '@', ' ', '\t'}.contains(c))
         return '\\' + std::string(1, c);
       else return std::string(1, c);
     }) | ranges::views::join("") | ranges::to<std::string>;
