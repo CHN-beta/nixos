@@ -67,7 +67,7 @@ inputs:
       "/nix/persistent".users.chn.directories =
       [
         "bin" "Desktop" "Documents" "Downloads" "Music" "Pictures" "repo" "share" "Public" "Videos" ".config"
-        ".local/share" ".ecdata" { directory = ".mozilla/firefox/default"; mode = "0700"; } ".steam" ".vscode" ".zotero"
+        ".local/share" ".ecdata" { directory = ".mozilla/firefox/default"; mode = "0700"; } ".steam" ".zotero"
         "Zotero"
       ];
     })
