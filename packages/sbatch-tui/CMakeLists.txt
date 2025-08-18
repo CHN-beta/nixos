@@ -12,7 +12,7 @@ endif()
 find_package(ftxui REQUIRED)
 find_package(biu REQUIRED)
 
-add_executable(sbatch-tui src/main.cpp src/vasp_gpu.cpp src/vasp_cpu.cpp src/mumax3.cpp)
+add_executable(sbatch-tui src/main.cpp src/vasp_gpu.cpp src/vasp_cpu.cpp src/mumax3.cpp src/fdtd.cpp)
 target_compile_features(sbatch-tui PUBLIC cxx_std_23)
 target_link_libraries(sbatch-tui PRIVATE ftxui::screen ftxui::dom ftxui::component biu::biu)
 target_include_directories(sbatch-tui PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)

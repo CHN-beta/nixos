@@ -14,3 +14,9 @@ Program:
     Queue:
       - Name: localhost
         Gpu: [ "4060" ]
+  Fdtd:
+    Queue:
+      - Name: localhost
+        Recommended:
+          Cpus: 16
+          Memory: 64
