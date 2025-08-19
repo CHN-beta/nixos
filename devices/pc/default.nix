@@ -28,7 +28,7 @@ inputs:
           # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
           "alderlake"
         ];
-        nixpkgs.march = "znver4";
+        nixpkgs = { march = "znver5"; rocm = true; };
         sysctl.laptop-mode = 5;
       };
       hardware.gpu.type = "amd";
