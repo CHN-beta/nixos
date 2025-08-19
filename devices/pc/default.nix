@@ -46,7 +46,7 @@ inputs:
           ];
           remote.master.host.srv2-node0 = [ "skylake" ];
         };
-        nixpkgs.march = "znver5";
+        nixpkgs = { march = "znver5"; rocm = true; };
         sysctl.laptop-mode = 5;
       };
       hardware.gpu.type = "amd";
