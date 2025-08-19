@@ -108,14 +108,13 @@ inputs:
         podman = {};
         ananicy = {};
         keyd = {};
-        lumericalLicenseManager = { macAddress = "74:5d:22:c7:d2:97"; autoStart = false; };
         searx = {};
         kvm.aarch64 = true;
         nspawn = [ "arch" "ubuntu-22.04" "fedora" ];
         nfs."/" = [ "192.168.84.0/24" ];
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
-      packages = { mathematica = {}; vasp = {}; android-studio = {}; lumerical = {}; };
+      packages = { mathematica = {}; vasp = {}; };
     };
     boot.loader.grub =
     {
