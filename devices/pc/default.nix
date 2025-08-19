@@ -36,8 +36,6 @@ inputs:
           marches =
           [
             "znver2" "znver3" "znver4"
-            # FXSR SAHF XSAVE
-            "sandybridge"
             # FXSR PREFETCHW RDRND SAHF
             "silvermont"
             # SAHF FXSR XSAVE RDRND LZCNT HLE
@@ -46,11 +44,6 @@ inputs:
             "broadwell"
             # FXSR HLE LZCNT PREFETCHW RDRND SAHF SGX XSAVE
             "skylake" "cascadelake"
-            # SAHF FXSR XSAVE RDRND LZCNT HLE PREFETCHW SGX MOVDIRI MOVDIR64B AVX512VP2INTERSECT KEYLOCKER
-            "tigerlake"
-            # AVX-VNNI CLDEMOTE GFNI-SSE HRESET KL LZCNT MOVDIR64B MOVDIRI PCONFIG PREFETCHW PTWRITE RDRND
-            # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
-            "alderlake"
           ];
           remote.master.host.srv2-node0 = [ "skylake" ];
         };
