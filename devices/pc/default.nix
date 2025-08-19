@@ -101,7 +101,6 @@ inputs:
         podman = {};
         ananicy = {};
         keyd = {};
-        searx = {};
         kvm.aarch64 = true;
         nfs."/" = [ "192.168.84.0/24" ];
       };
