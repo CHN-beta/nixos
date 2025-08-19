@@ -24,9 +24,8 @@ inputs:
           };
           luks.auto =
           {
-            "/dev/disk/by-uuid/4c73288c-bcd8-4a7e-b683-693f9eed2d81" = { mapper = "root1"; ssd = true; };
-            "/dev/disk/by-uuid/4be45329-a054-4c20-8965-8c5b7ee6b35d" =
-              { mapper = "swap"; ssd = true; before = [ "root1" ]; };
+            "/dev/disk/by-uuid/pc-root1" = { mapper = "root1"; ssd = true; };
+            "/dev/disk/by-uuid/pc-swap" = { mapper = "swap"; ssd = true; before = [ "root1" ]; };
           };
           swap = [ "/dev/mapper/swap" ];
         };
@@ -35,7 +34,7 @@ inputs:
         {
           marches =
           [
-            "znver2" "znver3" "znver4"
+            "znver2" "znver3" "znver5"
             # FXSR PREFETCHW RDRND SAHF
             "silvermont"
             # SAHF FXSR XSAVE RDRND LZCNT HLE
@@ -47,10 +46,10 @@ inputs:
           ];
           remote.master.host.srv2-node0 = [ "skylake" ];
         };
-        nixpkgs = { march = "znver4"; cuda.capabilities = [ "8.9" ]; };
+        nixpkgs.march = "znver5";
         sysctl.laptop-mode = 5;
       };
-      hardware = { gpu = { type = "nvidia"; nvidia.dynamicBoost = true; }; legion = {}; };
+      hardware.gpu.type = "amd";
       services =
       {
         samba =
@@ -87,15 +86,10 @@ inputs:
           {
             name = "pc"; address = "127.0.0.1";
             cpu = { sockets = 2; cores = 8; threads = 2; };
-            memoryGB = 80;
-            gpus."4060" = 1;
+            memoryGB = 32;
           };
           partitions.localhost = [ "pc" ];
-          tui =
-          {
-            cpuQueues = [{ mpiThreads = 4; openmpThreads = 4; memoryGB = 56; }];
-            gpuQueues = [{ name = "localhost"; gpuIds = [ "4060" ]; }];
-          };
+          tui.cpuQueues = [{ mpiThreads = 4; openmpThreads = 4; memoryGB = 32; }];
         };
         ollama = {};
         podman = {};
@@ -104,26 +98,14 @@ inputs:
         kvm.aarch64 = true;
         nfs."/" = [ "192.168.84.0/24" ];
       };
-      bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
+      bugs = [ "xmunet" "amdpstate" "iwlwifi" ];
       packages = { mathematica = {}; vasp = {}; };
     };
     boot.loader.grub =
     {
-      extraFiles =
-      {
-        "DisplayEngine.efi" = ./bios/DisplayEngine.efi;
-        "SetupBrowser.efi" = ./bios/SetupBrowser.efi;
-        "UiApp.efi" = ./bios/UiApp.efi;
-        "EFI/Boot/Bootx64.efi" = ./bios/Bootx64.efi;
-        "nixos.iso" = inputs.topInputs.self.src.iso.nixos;
-      };
+      extraFiles."nixos.iso" = inputs.topInputs.self.src.iso.nixos;
       extraEntries = 
       ''
-        menuentry 'Advanced UEFI Firmware Settings' {
-          insmod fat
-          insmod chain
-          chainloader @bootRoot@/EFI/Boot/Bootx64.efi
-        }
         menuentry 'Live ISO' {
           set iso_path=@bootRoot@/nixos.iso
           export iso_path
