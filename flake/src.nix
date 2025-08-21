@@ -204,4 +204,16 @@
     name = "guix.iso";
     sha256 = "0xqabnay8wwqc1a96db8ix1a6bhvgm84s5is1q67rr432q7gqgd4";
   };
+  peerBanHelper =
+  {
+    image = "ghostchu/peerbanhelper:v8.0.12";
+    imageFile = pkgs.dockerTools.pullImage
+    {
+      imageName = "ghostchu/peerbanhelper";
+      imageDigest = "sha256:fce7047795fe1e6d730ea2583b390ccc336e79eb2d8dae8114f4f63f00208879";
+      hash = "sha256-7Z2ewDpGFXyvCze9HZ7KwFwn9o9R6Y4pjJDcr5Wmy1g=";
+      finalImageName = "ghostchu/peerbanhelper";
+      finalImageTag = "v8.0.12";
+    };
+  };
 }
