@@ -1,10 +1,7 @@
 inputs:
 {
   options.nixos.packages.winapps = let inherit (inputs.lib) mkOption types; in mkOption
-  {
-    type = types.nullOr (types.submodule {});
-    default = if builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ] then {} else null;
-  };
+    { type = types.nullOr (types.submodule {}); default = null; };
   config = let inherit (inputs.config.nixos.packages) winapps; in inputs.lib.mkIf (winapps != null)
   {
     nixos.packages.packages._packages =
