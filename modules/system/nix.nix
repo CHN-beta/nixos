@@ -33,7 +33,8 @@ inputs:
         max-jobs = 4;
         cores = 0;
         keep-going = true;
-        keep-outputs = true;
+        # do not keep unused outputs, backup it manually on nas
+        keep-outputs = false;
         connect-timeout = 5;
       };
       systemd.services.nix-daemon = { serviceConfig.CacheDirectory = "nix"; environment.TMPDIR = "/var/cache/nix"; };
