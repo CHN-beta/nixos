@@ -27,8 +27,12 @@ inputs:
         xrdp = { enable = true; hostname = [ "srv1.chn.moe" ]; };
         samba = { hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
       };
-      packages.packages._prebuildPackages =
-        [ inputs.topInputs.self.nixosConfigurations.srv1-node1.pkgs.localPackages.vasp.intel ];
+      packages =
+      {
+        desktop = {};
+        packages._prebuildPackages =
+          [ inputs.topInputs.self.nixosConfigurations.srv1-node1.pkgs.localPackages.vasp.intel ];
+      };
     };
   };
 }

@@ -29,6 +29,7 @@ inputs:
         sshd = { groupBanner = true; motd = true; };
         speedtest = {};
       };
+      packages.desktp = {};
     };
   };
 }
