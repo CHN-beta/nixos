@@ -156,9 +156,6 @@ inputs:
         nvidiaSupport = if inputs.config.nixos.hardware.gpu.type == null then false
           else inputs.lib.hasSuffix "nvidia" inputs.config.nixos.hardware.gpu.type;
       };
-      anime-game-launcher = { enable = true; package = inputs.pkgs.anime-game-launcher; };
-      honkers-railway-launcher = { enable = true; package = inputs.pkgs.honkers-railway-launcher; };
-      sleepy-launcher = { enable = true; package = inputs.pkgs.sleepy-launcher; };
       alvr = { enable = true; openFirewall = true; };
       localsend.enable = true;
     };
