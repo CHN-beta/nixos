@@ -3,8 +3,8 @@ let devices =
 {
   nas =
   {
-    "/dev/disk/by-partlabel/nas-root3".mapper = "root3";
-    "/dev/disk/by-partlabel/nas-root4".mapper = "root4";
+    "/dev/disk/by-partlabel/nas-root1".mapper = "root1";
+    "/dev/disk/by-partlabel/nas-root2".mapper = "root2";
     "/dev/disk/by-partlabel/nas-swap" = { mapper = "swap"; ssd = true; };
   };
   vps4."/dev/disk/by-uuid/bf7646f9-496c-484e-ada0-30335da57068" = { mapper = "root"; ssd = true; };

@@ -11,11 +11,11 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/627D-1FAA" = "/boot";
-            btrfs."/dev/mapper/root3" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+            vfat."/dev/disk/by-partlabel/nas-boot" = "/boot";
+            btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
           swap = [ "/dev/mapper/swap" ];
-          rollingRootfs.waitDevices = [ "/dev/mapper/root4" ];
+          rollingRootfs.waitDevices = [ "/dev/mapper/root2" ];
         };
         initrd.sshd = {};
         nixpkgs.march = "silvermont";
