@@ -64,7 +64,6 @@ inputs:
                   "compress-force=zstd"
                   # large btrfs volume need more time to mount (default 90s might not be enough)
                   "x-systemd.mount-timeout=300s"
-                  "degraded"
                 ];
                 neededForBoot = true;
               };
