@@ -41,7 +41,7 @@ inputs:
             [ "xn--qbtm095lrg0bfka60z" ]))
           // (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "wg0.srv3.chn.moe"; })
-            [ "xn--s8w913fdga" "misskey" "synapse" "matrix" "send" "api" "git" "grafana" "peertube" ]));
+            [ "xn--s8w913fdga" "matrix" "send" "git" "grafana" "peertube" ]));
           applications =
           {
             element.instances."element.chn.moe" = {};
