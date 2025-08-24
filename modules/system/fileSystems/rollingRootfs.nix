@@ -41,7 +41,7 @@ inputs:
               ${waitDevice}
 
               # mount device
-              mount ${device} /mnt -m -o noatime,compress-force=zstd
+              mount ${device} /mnt -m -o noatime,compress-force=zstd,degraded
 
               # move old rootfs, create new one
               if [ -f /mnt/nix/rootfs/current/.timestamp ]
