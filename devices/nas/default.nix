@@ -33,6 +33,7 @@ inputs:
         };
         beesd."/" = { hashTableSizeMB = 10 * 128; threads = 4; };
         nfs."/" = [(inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc")];
+        nix-serve.hostname = "nix-store.nas.chn.moe";
       };
     };
   };
