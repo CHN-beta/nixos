@@ -44,6 +44,8 @@ inputs:
             "broadwell"
             # FXSR HLE LZCNT PREFETCHW RDRND SAHF SGX XSAVE
             "skylake" "cascadelake"
+            # SAHF FXSR XSAVE RDRND LZCNT HLE PREFETCHW SGX MOVDIRI MOVDIR64B AVX512VP2INTERSECT KEYLOCKER
+            "tigerlake"
           ];
           remote.master.host.srv2-node0 = [ "skylake" ];
         };
