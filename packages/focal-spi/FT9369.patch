@@ -1,0 +1,41 @@
+diff --git a/Makefile b/Makefile
+index df4d97a..fea500b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,22 +1 @@
+-KERNEL_VERSION := $(shell uname -r)
+-KERNELDIR := /lib/modules/$(KERNEL_VERSION)/build
+-CURRENT_PATH := $(shell pwd)
+-OBJ_NAME := focal_spi
+-
+-obj-m   += $(OBJ_NAME).o
+-
+-build: kernel_modules
+-
+-kernel_modules:
+-		$(MAKE) -C $(KERNELDIR) M=$(CURRENT_PATH) modules
+-
+-install: kernel_modules
+-		install -p -D -m 0755 $(OBJ_NAME).ko  /lib/modules/$(KERNEL_VERSION)/kernel/drivers/spi/$(OBJ_NAME).ko
+-		depmod
+-		modprobe $(OBJ_NAME)
+-				
+-clean:
+-		$(MAKE) -C $(KERNELDIR) M=$(CURRENT_PATH) clean
+-
+-
+-       
++obj-m   += focal_spi.o
+diff --git a/focal_spi.c b/focal_spi.c
+index 9974f00..e635507 100644
+--- a/focal_spi.c
++++ b/focal_spi.c
+@@ -490,7 +490,7 @@ static int focal_spi_probe(struct spi_device *spi)
+ 	spi->max_speed_hz=4*1000*1000;
+ 	spi->bits_per_word = 8;
+ 	/*if spi transfer err,change here spi->mode = SPI_MODE_0*/
+-	spi->mode = SPI_MODE_0|SPI_CS_HIGH;
++	spi->mode = SPI_MODE_0;
+ 	error = spi_setup(spi);
+ 	if (error)
+ 		return error;

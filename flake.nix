@@ -59,6 +59,7 @@
     phono3py = { url = "github:phonopy/phono3py"; flake = false; };
     sticker = { url = "git+https://git.chn.moe/chn/sticker.git?lfs=1"; flake = false; };
     speedtest = { url = "github:librespeed/speedtest"; flake = false; };
+    focal-spi = { url = "github:ftfpteams/ubuntu_spi"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in

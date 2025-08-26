@@ -31,5 +31,14 @@ inputs:
       bugs = [ "xmunet" ];
     };
     specialisation.niri.configuration.nixos.system.gui.implementation = "niri";
+    services.fprintd =
+    {
+      enable = true;
+      package =
+        let pkgs = inputs.pkgs.pkgs-2411;
+        in pkgs.fprintd.override { libfprint = pkgs.libfprint-focaltech-2808-a658; };
+    };
+    boot.extraModulePackages =
+      [(inputs.config.boot.kernelPackages.callPackage inputs.pkgs.localPackages.focal-spi {})];
   };
 }

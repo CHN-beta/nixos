@@ -377,6 +377,22 @@
         "type": "github"
       }
     },
+    "focal-spi": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1739436917,
+        "narHash": "sha256-lIQJgjjJFTlLBMAKiwV2n9TjGG2Eolb3100oy/6Vf1Y=",
+        "owner": "ftfpteams",
+        "repo": "ubuntu_spi",
+        "rev": "d534b7a3759a1e338f8d1b866db222d0e1674025",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ftfpteams",
+        "repo": "ubuntu_spi",
+        "type": "github"
+      }
+    },
     "gitignore": {
       "inputs": {
         "nixpkgs": [
@@ -861,11 +877,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1754960695,
+        "lastModified": 1756199587,
         "narHash": "sha256-cv73dyWKY6SBW1ECp0E4v3c51qyYmV+N7NwE0skh/cQ=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "cc56ae5eb2e7c66d90332ddaa2c50196a66ec02b",
+        "rev": "c5c2206c035758db9a99c6f9adf694203778a3a1",
         "type": "github"
       },
       "original": {
@@ -1139,6 +1155,7 @@
         "cppcoro": "cppcoro",
         "date": "date",
         "fancy-motd": "fancy-motd",
+        "focal-spi": "focal-spi",
         "hextra": "hextra",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
