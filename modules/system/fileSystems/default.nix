@@ -61,9 +61,13 @@ inputs:
                   # zstd:15 5m33s 7.16G
                   # zstd:8 54s 7.32G
                   # zstd:3 17s 7.52G
-                  "compress-force=zstd"
+                  # use compress instead of compress-force, since compress-force force all data trunk to be < 128K
+                  # https://github.com/Zygo/bees/issues/298#issuecomment-3085228968
+                  "compress=zstd"
                   # large btrfs volume need more time to mount (default 90s might not be enough)
                   "x-systemd.mount-timeout=300s"
+                  # default noflushoncommit can cause data loss, especially working with beesd, when power lost
+                  "flushoncommit"
                 ];
                 neededForBoot = true;
               };
