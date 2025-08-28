@@ -69,13 +69,17 @@ inputs:
         sshd = {};
         xray = 
         {
-          client.dnsmasq.hosts = builtins.listToAttrs
-          (
-            (builtins.map
-              (name: { inherit name; value = "144.34.225.59"; })
-              [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
-          )
-          // { "4006024680.com" = "192.168.199.1"; };
+          client.dnsmasq =
+          {
+            hosts = builtins.listToAttrs
+            (
+              (builtins.map
+                (name: { inherit name; value = "144.34.225.59"; })
+                [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
+            )
+            // { "4006024680.com" = "192.168.199.1"; };
+            extraInterfaces = [ "wlo1" ];
+          };
           xmuClient = {};
         };
         nix-serve = {};
