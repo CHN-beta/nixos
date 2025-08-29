@@ -46,6 +46,9 @@ inputs:
             "skylake" "cascadelake"
             # SAHF FXSR XSAVE RDRND LZCNT HLE PREFETCHW SGX MOVDIRI MOVDIR64B AVX512VP2INTERSECT KEYLOCKER
             "tigerlake"
+            # AVX-VNNI CLDEMOTE GFNI-SSE HRESET KL LZCNT MOVDIR64B MOVDIRI PCONFIG PREFETCHW PTWRITE RDRND
+            # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
+            "alderlake"
           ];
           remote.master.host.srv2-node0 = [ "skylake" ];
         };
