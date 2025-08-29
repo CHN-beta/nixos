@@ -18,7 +18,7 @@ inputs:
           rollingRootfs.waitDevices = [ "/dev/mapper/root2" ];
         };
         initrd.sshd = {};
-        nixpkgs.march = "silvermont";
+        nixpkgs.march = "alderlake";
         network = {};
       };
       hardware.gpu.type = "intel";
