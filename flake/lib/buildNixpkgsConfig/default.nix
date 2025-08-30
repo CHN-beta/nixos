@@ -144,6 +144,8 @@ in platformConfig //
       })
       // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
         { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
+      // (inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
+        { x265 = prev.x265.override { inherit (final.genericPackages) stdenv; }; })
       // (inputs.lib.optionalAttrs (nixpkgs.arch or null == "aarch64") { nix = final.nixVersions.nix_2_29; })
   )];
 }
