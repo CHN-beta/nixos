@@ -37,6 +37,8 @@ inputs:
         "i2c-hid-acpi"
         # bridge network
         "bridge"
+        # disk for nas
+        "ahci" "nvme" "igc"
       ]
         ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ])
         # touchscreen for one
