@@ -90,8 +90,6 @@ in platformConfig //
                   genericPackages = import inputs.topInputs.nixpkgs-unstable
                     { inherit system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
                 })
-                (final: prev: inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
-                  { libavif = final.genericPackages.libavif; })
               ];
             };
           };
@@ -154,11 +152,6 @@ in platformConfig //
       })
       // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
         { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
-      // (inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
-      {
-        x265 = prev.x265.override { inherit (final.genericPackages) stdenv; };
-        libavif = final.genericPackages.libavif;
-      })
       // (inputs.lib.optionalAttrs (nixpkgs.arch or null == "aarch64") { nix = final.nixVersions.nix_2_29; })
   )];
 }
