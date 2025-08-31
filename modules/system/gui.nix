@@ -62,9 +62,6 @@ inputs:
     {
       environment.plasma6.excludePackages = inputs.lib.mkIf (gui.implementation == "kde")
         [ inputs.pkgs.kdePackages.plasma-nm ];
-      # disable pgo for firefox, to make it build faster
-      nixpkgs.overlays =
-        [(final: prev: { firefox-unwrapped = prev.firefox-unwrapped.override { pgoSupport = false; }; })];
     })
     # niri
     (inputs.lib.mkIf (gui.implementation == "niri")
