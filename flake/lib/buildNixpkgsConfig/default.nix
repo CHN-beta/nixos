@@ -78,18 +78,28 @@ in platformConfig //
           {
             pkgs-2305 = "nixpkgs-2305";
             pkgs-2311 = "nixpkgs-2311";
-            pkgs-2411 = { source = "nixpkgs-2411"; overlay = inputs.topInputs.bscpkgs.overlays.default; };
+            pkgs-2411 = { source = "nixpkgs-2411"; overlays = [ inputs.topInputs.bscpkgs.overlays.default ]; };
             pkgs-unstable =
             {
               source = "nixpkgs-unstable";
-              overlay = inputs.topInputs.self.overlays.default;
+              overlays =
+              [
+                inputs.topInputs.self.overlays.default
+                (_: _:
+                {
+                  genericPackages = import inputs.topInputs.nixpkgs-unstable
+                    { inherit system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
+                })
+                (final: prev: inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
+                  { libavif = final.genericPackages.libavif; })
+              ];
             };
           };
           packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}
           {
             localSystem = platformConfig.hostPlatform or platformConfig.localSystem or platformConfig;
             inherit config;
-            overlays = [(source.${name}.overlay or (_: _: {}))];
+            overlays = source.${name}.overlays or [(_: _: {})];
           };
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
@@ -145,7 +155,10 @@ in platformConfig //
       // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
         { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
       // (inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
-        { x265 = prev.x265.override { inherit (final.genericPackages) stdenv; }; })
+      {
+        x265 = prev.x265.override { inherit (final.genericPackages) stdenv; };
+        libavif = final.genericPackages.libavif;
+      })
       // (inputs.lib.optionalAttrs (nixpkgs.arch or null == "aarch64") { nix = final.nixVersions.nix_2_29; })
   )];
 }
