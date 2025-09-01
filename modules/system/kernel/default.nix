@@ -59,7 +59,20 @@ inputs:
         xanmod-unstable = inputs.pkgs.pkgs-unstable.linuxPackages_xanmod_latest;
       }.${kernel.variant};
       kernelPatches =
-        let patches.hibernate-progress = [{ name = "hibernate-progress"; patch = ./hibernate-progress.patch; }];
+        let patches =
+        {
+          hibernate-progress = [{ name = "hibernate-progress"; patch = ./hibernate-progress.patch; }];
+          btrfs =
+          [{
+            name = "btrfs";
+            patch = inputs.pkgs.fetchurl
+            {
+              url = "https://github.com/kakra/linux/pull/36.patch";
+              sha256 = "0wimihsvrxib6g23jcqdbvqlkqk6nbqjswfx9bzmpm1vlvzxj8m0";
+            };
+            structuredExtraConfig.BTRFS_EXPERIMENTAL = inputs.lib.kernel.yes;
+          }];
+        };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };
   };
