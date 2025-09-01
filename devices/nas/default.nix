@@ -4,7 +4,7 @@ inputs:
   {
     nixos =
     {
-      model = { type = "server"; private = true; };
+      model.private = true;
       system =
       {
         fileSystems =
@@ -21,6 +21,7 @@ inputs:
         nixpkgs.march = "alderlake";
         network = {};
         kernel.patches = [ "btrfs" ];
+        nix-ld = null;
       };
       hardware.gpu.type = "intel";
       services =
