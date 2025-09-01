@@ -20,6 +20,7 @@ inputs:
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
         network = {};
+        kernel.patches = [ "btrfs" ];
       };
       hardware.gpu.type = "intel";
       services =
