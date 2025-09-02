@@ -18,12 +18,11 @@ inputs:
           rollingRootfs.waitDevices = [ "/dev/mapper/root2" ];
         };
         initrd.sshd = {};
-        # nixpkgs.march = "alderlake";
+        nixpkgs.march = "alderlake";
         network = {};
         kernel.patches = [ "btrfs" ];
-        nix.marches = [ "alderlake" ];
       };
-      hardware = { gpu.type = "intel"; cpu = "intel"; };
+      hardware.gpu.type = "intel";
       services =
       {
         sshd = {};
