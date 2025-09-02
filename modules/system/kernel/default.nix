@@ -70,7 +70,7 @@ inputs:
               url = "https://github.com/kakra/linux/pull/36.patch";
               sha256 = "0wimihsvrxib6g23jcqdbvqlkqk6nbqjswfx9bzmpm1vlvzxj8m0";
             };
-            structuredExtraConfig.BTRFS_EXPERIMENTAL = inputs.lib.kernel.yes;
+            extraStructuredConfig.BTRFS_EXPERIMENTAL = inputs.lib.kernel.yes;
           }];
         };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
