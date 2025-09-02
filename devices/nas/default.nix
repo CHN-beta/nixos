@@ -15,7 +15,7 @@ inputs:
             btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
           swap = [ "/dev/mapper/swap" ];
-          rollingRootfs.waitDevices = [ "/dev/mapper/root2" ];
+          rollingRootfs.waitDevices = [ "/dev/mapper/root2" "/dev/mapper/root3" "/dev/mapper/root4" ];
         };
         initrd.sshd = {};
         # nixpkgs.march = "alderlake";
