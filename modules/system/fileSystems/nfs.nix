@@ -29,8 +29,11 @@ inputs:
               neededForBoot = device.value.hard or true;
               options = builtins.concatLists
               [
-                # sync every seconds
-                [ "actimeo=1" "noatime" ]
+                [
+                  "actimeo=1" # sync every seconds
+                  "noatime"
+                  "x-gvfs-hide" # hide in file managers (e.g. dolphin)
+                ]
                 # when try to mount at startup, wait 15 minutes before giving up
                 (inputs.lib.optionals (device.value.hard or true) [ "retry=15" "x-systemd.device-timeout=15min" ])
                 # do not fail, just try continuously in background
