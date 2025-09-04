@@ -75,7 +75,7 @@ inputs:
           };
         };
       };
-      packages.vasp = {};
+      packages = { vasp = {}; desktop = {}; };
       user.users =
       [
         # 组内
