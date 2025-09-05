@@ -50,7 +50,11 @@ inputs:
       ];
       # force i2c-hid-acpi to load after pinctrl-tigerlake
       extraModprobeConfig = "softdep i2c-hid-acpi pre: pinctrl-tigerlake";
-      kernelParams = [ "delayacct" ];
+      kernelParams = inputs.lib.mkMerge
+      [
+        [ "delayacct" ]
+        (inputs.lib.mkIf (builtins.elem "btrfs" kernel.patches) [ "btrfs.read_policy=queue" ])
+      ];
       kernelPackages = inputs.lib.mkIf (kernel.variant != null)
       {
         nixos = inputs.pkgs.linuxPackages;
