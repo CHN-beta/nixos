@@ -37,6 +37,7 @@ inputs:
         nix-serve.hostname = "nix-store.nas.chn.moe";
       };
     };
-    systemd.tmpfiles.rules = [ "w /sys/class/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw - - - - 10" ];
+    systemd.tmpfiles.rules =
+      [ "w /sys/class/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw - - - - 10000000" ];
   };
 }
