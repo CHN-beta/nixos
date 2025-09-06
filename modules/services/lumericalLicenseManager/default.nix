@@ -32,9 +32,9 @@ inputs:
     {
       network = inputs.lib.mkIf lumericalLicenseManager.createFakeInterface
       {
-        netdevs.ensFakeLumerical.netdevConfig = { Kind = "dummy"; Name = "ensFakeLumerical"; };
-        networks."10-ensFakeLumerical" =
-          { matchConfig.Name = "ensFakeLumerical"; linkConfig.MACAddress = lumericalLicenseManager.macAddress; };
+        netdevs.ensFakeLumerical.netdevConfig = { Kind = "dummy"; Name = "ens10"; };
+        networks."10-ens10" =
+          { matchConfig.Name = "ens10"; linkConfig.MACAddress = lumericalLicenseManager.macAddress; };
       };
       services.podman-lumericalLicenseManager.wantedBy =
         inputs.lib.mkIf (!lumericalLicenseManager.autoStart) (inputs.lib.mkForce []);
