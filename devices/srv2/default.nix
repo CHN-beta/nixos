@@ -76,7 +76,7 @@ inputs:
         };
         mariadb.mountFrom = "nodatacow";
       };
-      packages = { vasp = {}; desktop = {}; };
+      packages = { vasp = {}; desktop = {}; lumerical = {}; };
       user.users =
       [
         # 组内
