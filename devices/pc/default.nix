@@ -114,9 +114,10 @@ inputs:
         nfs."/" = [ "192.168.84.0/24" ];
         peerBanHelper = {};
         mariadb.mountFrom = "nodatacow";
+        lumericalLicenseManager.macAddress = "10:5f:ad:10:3e:ca";
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
-      packages = { mathematica = {}; vasp = {}; };
+      packages = { mathematica = {}; vasp = {}; lumerical = {}; };
     };
     boot.loader.grub =
     {
