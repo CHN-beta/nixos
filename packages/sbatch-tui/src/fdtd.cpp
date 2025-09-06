@@ -105,7 +105,7 @@ namespace sbatch
       {
         "sbatch"s,
         "--partition={} --nodes=1-1"_f(State_.QueueEntries[State_.QueueSelected]),
-        cpu_string, mem_string,
+        cpu_string, mem_string, "--export=ALL,ANSYSLMD_LICENSE_FILE=1055@127.0.0.1",
         "--wrap=\"lumerical srun fdtd-engine-ompi-lcl {}\""_f(escape(State_.InputFile)),
         extra_sbatch_parameter
       };
