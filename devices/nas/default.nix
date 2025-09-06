@@ -60,7 +60,6 @@ inputs:
         httpapi = {};
         gitea = {};
         grafana = {};
-        fail2ban = {};
         podman = {};
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
