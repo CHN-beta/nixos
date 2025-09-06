@@ -12,10 +12,16 @@ inputs:
           mount =
           {
             vfat."/dev/disk/by-partlabel/nas-boot" = "/boot";
-            btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+            btrfs =
+            {
+              "/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+              "/dev/mapper/ssd1"."/nix/ssd" = "/nix/ssd";
+            };
           };
           swap = [ "/dev/mapper/swap" ];
-          rollingRootfs.waitDevices = [ "/dev/mapper/root2" "/dev/mapper/root3" "/dev/mapper/root4" ];
+          # TODO: snapshot should take place just before switching root
+          rollingRootfs.waitDevices =
+            [ "/dev/mapper/root2" "/dev/mapper/root3" "/dev/mapper/root4" "/dev/mapper/ssd1" "/dev/mapper/ssd2" ];
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
