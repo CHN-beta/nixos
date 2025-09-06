@@ -25,7 +25,7 @@ inputs:
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
-        network = {};
+        network.static.enp3s0 = { ip = "192.168.1.2"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; }; 
         kernel.patches = [ "btrfs" ];
       };
       hardware.gpu.type = "intel";
