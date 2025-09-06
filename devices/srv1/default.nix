@@ -59,6 +59,7 @@ inputs:
             { name = "n1"; mpiThreads = 8; openmpThreads = 4; }
           ];
         };
+        mariadb.mountFrom = "nodatacow";
       };
       packages = { vasp = {}; lumerical = {}; };
       user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "GROUPIII-1" "GROUPIII-2" "GROUPIII-3" "zgq" ];

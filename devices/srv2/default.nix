@@ -74,6 +74,7 @@ inputs:
             ];
           };
         };
+        mariadb.mountFrom = "nodatacow";
       };
       packages = { vasp = {}; desktop = {}; };
       user.users =

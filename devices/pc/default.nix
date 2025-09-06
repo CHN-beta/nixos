@@ -113,6 +113,7 @@ inputs:
         kvm.aarch64 = true;
         nfs."/" = [ "192.168.84.0/24" ];
         peerBanHelper = {};
+        mariadb.mountFrom = "nodatacow";
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
       packages = { mathematica = {}; vasp = {}; };

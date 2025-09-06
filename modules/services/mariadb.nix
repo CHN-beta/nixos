@@ -13,6 +13,7 @@ inputs:
       };}));
       default = {};
     };
+    mountFrom = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
   };
   config = let inherit (inputs.config.nixos.services) mariadb; in inputs.lib.mkIf mariadb.enable
   {
@@ -30,7 +31,7 @@ inputs:
       };
       mysqlBackup =
       {
-        enable = true;
+        enable = mariadb.mountFrom == "nodatacow";
         singleTransaction = true;
         databases = builtins.map (db: db.value.database) (inputs.localLib.attrsToList mariadb.instances);
       };
@@ -49,7 +50,10 @@ inputs:
     nixos.system.sops.secrets = builtins.listToAttrs (builtins.map
       (db: { name = "mariadb/${db.value.user}"; value.owner = inputs.config.users.users.mysql.name; })
       (builtins.filter (db: db.value.passwordFile == null) (inputs.localLib.attrsToList mariadb.instances)));
-    environment.persistence."/nix/nodatacow".directories =
-      [{ directory = "/var/lib/mysql"; user = "mysql"; group = "mysql"; mode = "0750"; }];
+    environment.persistence = inputs.lib.mkIf (mariadb.mountFrom != null)
+    {
+      "/nix/${mariadb.mountFrom}".directories =
+        [{ directory = "/var/lib/mysql"; user = "mysql"; group = "mysql"; mode = "0750"; }];
+    };
   };
 }
