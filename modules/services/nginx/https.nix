@@ -235,6 +235,8 @@ inputs:
                     proxy =
                     {
                       proxyWebsockets = location.value.websocket;
+                      recommendedProxySettings = false;
+                      recommendedProxySettingsNoHost = true;
                       extraConfig = builtins.concatStringsSep "\n"
                       (
                         [ "${if location.value.grpc then "grpc" else "proxy"}_pass ${location.value.upstream};" ]
