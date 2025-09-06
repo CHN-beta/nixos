@@ -66,7 +66,6 @@ inputs:
                 inherit (genericOptions) detectAuth;
                 upstream = mkOption { type = types.nonEmptyStr; };
                 websocket = mkOption { type = types.bool; default = false; };
-                grpc = mkOption { type = types.bool; default = false; };
                 setHeaders = mkOption
                   { type = types.attrsOf types.str; default.Host = siteSubmoduleInputs.config._module.args.name; };
                 # echo -n "username:password" | base64
@@ -237,10 +236,10 @@ inputs:
                       proxyWebsockets = location.value.websocket;
                       recommendedProxySettings = false;
                       recommendedProxySettingsNoHost = true;
+                      proxyPass = location.value.upstream;
                       extraConfig = builtins.concatStringsSep "\n"
                       (
-                        [ "${if location.value.grpc then "grpc" else "proxy"}_pass ${location.value.upstream};" ]
-                        ++ (inputs.lib.mapAttrsToList (n: v: ''proxy_set_header ${n} "${v}";'')
+                        (inputs.lib.mapAttrsToList (n: v: ''proxy_set_header ${n} "${v}";'')
                           location.value.setHeaders)
                         ++ (inputs.lib.optionals
                           (location.value.detectAuth != null || site.value.global.detectAuth != null)
