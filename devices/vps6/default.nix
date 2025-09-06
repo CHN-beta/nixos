@@ -40,7 +40,7 @@ inputs:
             (site: { name = "${site}.chn.moe"; value.upstream.address = "wg0.pc.chn.moe"; })
             [ "xn--qbtm095lrg0bfka60z" ]))
           // (builtins.listToAttrs (builtins.map
-            (site: { name = "${site}.chn.moe"; value.upstream.address = "wg0.srv3.chn.moe"; })
+            (site: { name = "${site}.chn.moe"; value.upstream.address = "wg0.nas.chn.moe"; })
             [ "xn--s8w913fdga" "matrix" "send" "git" "grafana" "peertube" ]));
           applications =
           {
@@ -59,7 +59,7 @@ inputs:
         mirism = {};
         fail2ban = {};
         beesd."/" = {};
-        bind = {};
+        # bind = {};
       };
     };
     networking.nftables.tables.forward =

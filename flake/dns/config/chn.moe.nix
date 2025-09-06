@@ -2,27 +2,26 @@ localLib:
 let
   cname =
   {
-    autoroute = [ "git" "grafana" "matrix" "peertube" "send" "vikunja" "铜锣湾" ];
     nas = [ "initrd.nas" ];
     office = [ "srv2-node0" "xserverxmu" ];
     vps4 = [ "initrd.vps4" "xserver2.vps4" ];
     vps6 =
     [
-      "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi"
-      "ua" "xserver2" "xserver2.vps6" "铜锣湾实验室" "xservernas"
+      "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi" "ua" "xserver2"
+      "xserver2.vps6"
+      # to nas
+      "git" "grafana" "matrix" "peertube" "send" "vikunja" "铜锣湾" "xservernas" "chat" "freshrss" "huginn" "nextcloud"
+      "photoprism" "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api"
+      # to pc
+      "铜锣湾实验室"
     ];
     "xlog.autoroute" = [ "xlog" ];
     "wg0.srv1-node0" = [ "wg0.srv1" ];
     "wg0.srv2-node0" = [ "wg0.srv2" ];
-    srv3 =
-    [
-      "chat" "freshrss" "huginn" "initrd.srv3" "nextcloud" "photoprism" "rsshub" "ssh.git" "vaultwarden" "webdav"
-      "xserver2.srv3" "example" "synapse" "misskey" "api"
-    ];
     srv1-node0 = [ "srv1" ];
     srv2-node0 = [ "srv2" ];
     "wg1.pc" = [ "nix-store" ];
-    "wg1.nas" = [ "nix-store.nas" ];
+    "wg1.nas" = [ "nix-store.nas" "ssh.git" ];
   };
   a =
   {
@@ -34,7 +33,6 @@ let
     vps4 = "104.234.37.61";
     vps6 = "144.34.225.59";
     search = "127.0.0.1";
-    srv3 = "23.135.236.216";
     srv1-node1 = "192.168.178.2";
     srv1-node2 = "192.168.178.3";
     srv2-node1 = "192.168.178.2";

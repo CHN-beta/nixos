@@ -40,13 +40,6 @@ let
       publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAINTvfywkKRwMrVp73HfHTfjhac2Tn9qX/lRjLr09ycHp";
       proxyJump = "srv2";
     };
-    srv3 =
-    {
-      publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIIg2wuwWqIOWNx1kVmreF6xTrGaW7rIaXsEPfCMe+5P9";
-      initrdPublicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIPW7XPhNsIV0ZllaueVMHIRND97cHb6hE9O21oLaEdCX";
-      # 默认仅包括wireguard访问的域名和直接访问的域名，这里写额外的域名
-      extraAccess = [ "ssh.git" ];
-    };
   };
 in
 {

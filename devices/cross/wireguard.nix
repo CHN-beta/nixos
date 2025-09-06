@@ -12,7 +12,6 @@ let
     srv1-node2 = "zWvkVyJwtQhwmxM2fHwNDnK+iwYm1O0RHrwCQ/VXdEo=";
     srv2-node0 = "lNTwQqaR0w/loeG3Fh5qzQevuAVXhKXgiPt6fZoBGFE=";
     srv2-node1 = "wc+DkY/WlGkLeI8cMcoRHcCcITNqX26P1v5JlkQwWSc=";
-    srv3 = "a1pUi12SN6fIFiHA9W0N1ycuSz1fWUSpZnjz20OPaBk=";
   };
   dns = inputs.topInputs.self.config.dns.wireguard;
   networks = # 对于每个网络，只需要设置每个设备的 listenPort，以及每个设备的每个 peer 的 publicKey endpoint allowedIPs
@@ -62,7 +61,7 @@ let
           # 所有设备都可以连接到公网，但只有有公网 ip 的设备可以接受连接
           (builtins.listToAttrs
           (
-            (builtins.map (n: { name = n; value = getAddress n; }) [ "vps4" "vps6" "srv3" ])
+            (builtins.map (n: { name = n; value = getAddress n; }) [ "vps4" "vps6" ])
               ++ (builtins.map (n: { name = n; value = null; }) [ "pc" "nas" "one" "srv1-node0" "srv2-node0" ])
           ))
           # 校内网络
