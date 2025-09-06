@@ -15,7 +15,11 @@ inputs:
         };
         fileSystems.swap = [ "/nix/swap/swap" ];
       };
-      services.beesd."/".hashTableSizeMB = 64;
+      services =
+      {
+        beesd."/".hashTableSizeMB = 64;
+        lumericalLicenseManager.macAddress = "04:42:1a:26:0c:07";
+      };
     };
     services.hardware.bolt.enable = true;
   };

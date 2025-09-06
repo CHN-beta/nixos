@@ -28,6 +28,7 @@ inputs:
         ollama = {};
         sshd = { groupBanner = true; motd = true; };
         speedtest = {};
+        lumericalLicenseManager.macAddress = "70:20:84:09:a3:52";
       };
     };
   };
