@@ -56,7 +56,7 @@ inputs:
         nextcloud = {};
         freshrss = {};
         send = {};
-        huginn = {}; # somehow it does not work
+        huginn = {};
         httpapi = {};
         gitea = {};
         grafana = {};
