@@ -21,8 +21,8 @@ inputs:
     };
     systemd.services.photoprism =
     {
-      after = [ "mariadb.service" ];
-      requires = [ "mariadb.service" ];
+      after = [ "mysql.service" ];
+      requires = [ "mysql.service" ];
       serviceConfig.EnvironmentFile = inputs.config.nixos.system.sops.templates."photoprism/env".path; 
     };
     nixos =
