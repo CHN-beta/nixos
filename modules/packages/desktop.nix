@@ -72,16 +72,6 @@ inputs:
             wannier90 = wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
           })
           pkgs-2311.hdfview numbat qalculate-qt
-          (if inputs.config.nixos.system.nixpkgs.cuda != null then localPackages.mumax else emptyDirectory)
-          (if inputs.config.nixos.system.nixpkgs.cuda != null
-            then (lammps.override { stdenv = cudaPackages.backendStdenv; }).overrideAttrs (prev:
-            {
-              cmakeFlags = prev.cmakeFlags ++
-                [ "-DPKG_GPU=on" "-DGPU_API=cuda" "-DCMAKE_POLICY_DEFAULT_CMP0146=OLD" ];
-              nativeBuildInputs = prev.nativeBuildInputs ++ [ cudaPackages.cudatoolkit ];
-              buildInputs = prev.buildInputs ++ [ mpi ];
-            })
-            else lammps-mpi)
           # virtualization
           virt-viewer bottles wineWowPackages.stagingFull genymotion playonlinux
           # media

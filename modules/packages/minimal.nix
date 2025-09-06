@@ -45,6 +45,17 @@ inputs:
         toilet lolcat localPackages.stickerpicker graph-easy
         # office
         pdfgrep ffmpeg-full hdf5
+        # scientific computing
+        (if inputs.config.nixos.system.nixpkgs.cuda != null then localPackages.mumax else emptyDirectory)
+        (if inputs.config.nixos.system.nixpkgs.cuda != null
+          then (lammps.override { stdenv = cudaPackages.backendStdenv; }).overrideAttrs (prev:
+          {
+            cmakeFlags = prev.cmakeFlags ++
+              [ "-DPKG_GPU=on" "-DGPU_API=cuda" "-DCMAKE_POLICY_DEFAULT_CMP0146=OLD" ];
+            nativeBuildInputs = prev.nativeBuildInputs ++ [ cudaPackages.cudatoolkit ];
+            buildInputs = prev.buildInputs ++ [ mpi ];
+          })
+          else lammps-mpi)
       ]
         ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ])
         ++ (inputs.lib.optionals (inputs.config.nixos.system.gui.implementation == "kde")
