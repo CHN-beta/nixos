@@ -35,7 +35,7 @@ inputs:
           HUGINN_DATABASE_PASSWORD=${placeholder."mariadb/huginn"}
           DOMAIN=${huginn.hostname}
           RAILS_ENV=production
-          FORCE_SSL=false
+          FORCE_SSL=true
           INVITATION_CODE=${placeholder."huginn/invitationCode"}
           SMTP_DOMAIN=mail.chn.moe
           SMTP_USER_NAME=bot@chn.moe
