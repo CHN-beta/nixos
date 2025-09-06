@@ -41,27 +41,29 @@ inputs:
         beesd."/" = { hashTableSizeMB = 10 * 128; threads = 4; };
         nfs."/" = [(inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.pc")];
         nix-serve.hostname = "nix-store.nas.chn.moe";
-        # rsshub = {};
-        # misskey.instances =
-        #   { misskey.hostname = "xn--s8w913fdga.chn.moe"; misskey-old = { port = 9727; redis.port = 3546; }; };
-        # synapse.instances =
-        # {
-        #   synapse.matrixHostname = "synapse.chn.moe";
-        #   matrix = { port = 8009; redisPort = 6380; };
-        # };
-        # vaultwarden = {};
-        # photoprism = {};
-        # nextcloud = {};
-        # freshrss = {};
-        # send = {};
-        # huginn = {};
-        # httpapi = {};
-        # gitea = {};
-        # grafana = {};
-        # fail2ban = {};
-        # podman = {};
-        # peertube = {};
-        # nginx.applications.webdav.instances."webdav.chn.moe" = {};
+        postgresql.mountFrom = "ssd";
+        mariadb.mountFrom = "ssd";
+        rsshub = {};
+        misskey.instances =
+          { misskey.hostname = "xn--s8w913fdga.chn.moe"; misskey-old = { port = 9727; redis.port = 3546; }; };
+        synapse.instances =
+        {
+          synapse.matrixHostname = "synapse.chn.moe";
+          matrix = { port = 8009; redisPort = 6380; };
+        };
+        vaultwarden = {};
+        photoprism = {};
+        nextcloud = {};
+        freshrss = {};
+        send = {};
+        huginn = {};
+        httpapi = {};
+        gitea = {};
+        grafana = {};
+        fail2ban = {};
+        podman = {};
+        peertube = {};
+        nginx.applications.webdav.instances."webdav.chn.moe" = {};
         # open-webui.ollamaHost = "192.168.83.3";
       };
     };
