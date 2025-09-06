@@ -17,7 +17,7 @@ inputs:
       };
     }
     // (builtins.listToAttrs (builtins.map (n: inputs.lib.nameValuePair n simpleSubmodule)
-      [ "vasp" "mathematica" "lumerical" "flatpak" "android-studio" "lammps" "mumax" ]));
+      [ "vasp" "mathematica" "lumerical" "flatpak" "android-studio" ]));
   config = inputs.lib.mkMerge
   [
     {
@@ -59,22 +59,5 @@ inputs:
       { services.flatpak = { enable = true; uninstallUnmanaged = true; }; })
     (inputs.lib.mkIf (inputs.config.nixos.packages.android-studio != null)
       { nixos.packages.packages._packages = with inputs.pkgs; [ androidStudioPackages.stable.full ]; })
-    (inputs.lib.mkIf (inputs.config.nixos.packages.lammps != null)
-    {
-      nixos.packages.packages._packages = with inputs.pkgs;
-      [
-        (if inputs.config.nixos.system.nixpkgs.cuda != null
-          then (lammps.override { stdenv = cudaPackages.backendStdenv; }).overrideAttrs (prev:
-          {
-            cmakeFlags = prev.cmakeFlags ++
-              [ "-DPKG_GPU=on" "-DGPU_API=cuda" "-DCMAKE_POLICY_DEFAULT_CMP0146=OLD" ];
-            nativeBuildInputs = prev.nativeBuildInputs ++ [ cudaPackages.cudatoolkit ];
-            buildInputs = prev.buildInputs ++ [ mpi ];
-          })
-          else lammps-mpi)
-      ];
-    })
-    (inputs.lib.mkIf (inputs.config.nixos.packages.mumax != null && inputs.config.nixos.system.nixpkgs.cuda != null)
-      { nixos.packages.packages._packages = [ inputs.pkgs.localPackages.mumax ]; })
   ];
 }
