@@ -106,7 +106,7 @@ namespace sbatch
         "sbatch"s,
         "--partition={} --nodes=1-1"_f(State_.QueueEntries[State_.QueueSelected]),
         cpu_string, mem_string,
-        "--wrap=\"srun fdtd-engine-ompi-lcl {}\""_f(escape(State_.InputFile)),
+        "--wrap=\"lumerical srun fdtd-engine-ompi-lcl {}\""_f(escape(State_.InputFile)),
         extra_sbatch_parameter
       };
     }
