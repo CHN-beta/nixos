@@ -80,7 +80,7 @@ inputs:
       user.users =
       [
         # 组内
-        "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "qmx"
+        "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "qmx" "xly"
         # 组外
         "yxf" # 小芳同志
         "hss" # 还没见到本人
