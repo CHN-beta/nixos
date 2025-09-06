@@ -282,6 +282,19 @@ inputs:
                   };
                 })
                 slurm.tui.cpuQueues;
+              Fdtd.Queue = builtins.map
+                (queue:
+                {
+                  Name = queue.name;
+                  Recommended =
+                  {
+                    Cpus =
+                      if queue.allocateCpus != null then queue.allocateCpus
+                      else queue.mpiThreads * queue.openmpThreads;
+                    Memory = queue.memoryGB;
+                  };
+                })
+                slurm.tui.cpuQueues;
             }
             // (if slurm.tui.gpuQueues == null then {} else rec
             {
