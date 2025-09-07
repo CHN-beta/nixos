@@ -326,6 +326,9 @@ inputs:
               "builtins.dict" = true;
             };
             "ltex.language" = "auto";
+            # maybe this could fix typst preview freezing on large project
+            "tinymist.preview.partialRendering" = false;
+            "tinymist.preview.refresh" = "onSave";
           };
         };
       };
