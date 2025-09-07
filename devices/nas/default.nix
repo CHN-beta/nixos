@@ -68,13 +68,7 @@ inputs:
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
         # open-webui.ollamaHost = "192.168.83.3";
-        nixvirt.instance.yumieko =
-        {
-          memory.sizeMB = 8 * 1024;
-          cpu.count = 3;
-          network = { address = 6; portForward.tcp = [{ host = 5695; guest = 22; }]; };
-          storage = { iso = "${inputs.topInputs.self.src.guix}"; mountFrom = "ssd"; };
-        };
+        nixvirt = {};
       };
       user.users = [ "chn" "yumieko" ];
     };
