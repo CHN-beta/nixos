@@ -70,7 +70,6 @@ inputs:
         # open-webui.ollamaHost = "192.168.83.3";
         nixvirt = {};
       };
-      user.users = [ "chn" "yumieko" ];
     };
     systemd.tmpfiles.rules =
       [ "w /sys/class/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw - - - - 10000000" ];

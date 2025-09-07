@@ -71,15 +71,11 @@ inputs:
       content =
         let
           srv2 = inputs.topInputs.self.config.dns."chn.moe".getAddress "wg0.srv2-node0";
-          nas = inputs.topInputs.self.config.dns."chn.moe".getAddress "wg0.nas";
         in
         ''
           chain prerouting {
             type nat hook prerouting priority dstnat; policy accept;
             tcp dport 7011 fib daddr type local counter meta mark set meta mark | 4 dnat ip to ${srv2}:22
-            tcp dport 7012 fib daddr type local counter meta mark set meta mark | 4 dnat ip to ${nas}:22
-            tcp dport 5695 fib daddr type local counter meta mark set meta mark | 4 dnat ip to ${nas}:5695
-            tcp dport 15906 fib daddr type local counter meta mark set meta mark | 4 dnat ip to ${nas}:15906
           }
           chain output {
             type nat hook output priority dstnat; policy accept;
@@ -87,15 +83,6 @@ inputs:
             meta skgid != ${builtins.toString inputs.config.users.groups.nginx.gid} \
               tcp dport 7011 fib daddr type local \
               counter meta mark set meta mark | 4 dnat ip to ${srv2}:22
-            meta skgid != ${builtins.toString inputs.config.users.groups.nginx.gid} \
-              tcp dport 7012 fib daddr type local \
-              counter meta mark set meta mark | 4 dnat ip to ${nas}:22
-            meta skgid != ${builtins.toString inputs.config.users.groups.nginx.gid} \
-              tcp dport 5695 fib daddr type local \
-              counter meta mark set meta mark | 4 dnat ip to ${nas}:5695
-            meta skgid != ${builtins.toString inputs.config.users.groups.nginx.gid} \
-              tcp dport 15906 fib daddr type local \
-              counter meta mark set meta mark | 4 dnat ip to ${nas}:15906
           }
           chain postrouting {
             type nat hook postrouting priority srcnat; policy accept;
