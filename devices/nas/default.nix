@@ -25,7 +25,11 @@ inputs:
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
-        network.static.enp3s0 = { ip = "192.168.1.2"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; }; 
+        network =
+        {
+          bridge.nixvirt.interfaces = [ "enp3s0" ];
+          static.nixvirt = { ip = "192.168.1.2"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; }; 
+        };
         kernel.patches = [ "btrfs" ];
       };
       hardware.gpu.type = "intel";
@@ -64,6 +68,13 @@ inputs:
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
         # open-webui.ollamaHost = "192.168.83.3";
+        nixvirt.instance.yumieko =
+        {
+          memory.sizeMB = 8 * 1024;
+          cpu.count = 3;
+          network = { address = 6; portForward.tcp = [{ host = 5695; guest = 22; }]; };
+          storage.iso = "${inputs.topInputs.self.src.guix}";
+        };
       };
       user.users = [ "chn" "yumieko" ];
     };
