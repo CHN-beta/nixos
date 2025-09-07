@@ -21,7 +21,7 @@ inputs:
             storage =
             {
               name = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-              nodatacow = mkOption { type = types.bool; default = false; };
+              mountFrom = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
               iso = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
             };
             memory =
@@ -199,8 +199,12 @@ inputs:
                     type = "file";
                     device = "disk";
                     driver = { name = "qemu"; type = "raw"; cache = "writeback"; discard = "unmap"; };
-                    source.file = "${if v.storage.nodatacow then "/nix/nodatacow" else ""}/var/lib/libvirt/images/"
-                      + "${v.storage.name}.img";
+                    source.file = builtins.concatStringsSep ""
+                    [
+                      (if (v.storage.mountFrom != null) then "/nix/${v.storage.mountFrom}" else "")
+                      "/var/lib/libvirt/images/"
+                      "${v.storage.name}.img"
+                    ];
                     target = { dev = "vda"; bus = "virtio"; };
                     boot.order = 1;
                   }
