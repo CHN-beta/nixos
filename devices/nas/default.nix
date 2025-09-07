@@ -73,7 +73,7 @@ inputs:
           memory.sizeMB = 8 * 1024;
           cpu.count = 3;
           network = { address = 6; portForward.tcp = [{ host = 5695; guest = 22; }]; };
-          storage.iso = "${inputs.topInputs.self.src.guix}";
+          storage = { iso = "${inputs.topInputs.self.src.guix}"; mountFrom = "ssd"; };
         };
       };
       user.users = [ "chn" "yumieko" ];
