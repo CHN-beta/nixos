@@ -61,7 +61,7 @@ inputs:
         };
         mariadb.mountFrom = "nodatacow";
       };
-      packages = { vasp = {}; lumerical = {}; };
+      packages.vasp = {};
       user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "GROUPIII-1" "GROUPIII-2" "GROUPIII-3" "zgq" ];
     };
   };
