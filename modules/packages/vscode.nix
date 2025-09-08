@@ -32,7 +32,7 @@ inputs:
             "donjayamanne.githistory" "fabiospampinato.vscode-diff"
             "llvm-vs-code-extensions.vscode-clangd" "ms-ceintl.vscode-language-pack-zh-hans"
             "oderwat.indent-rainbow"
-            "twxs.cmake" "guyutongxue.cpp-reference" "thfriedrich.lammps" "leetcode.vscode-leetcode" # "znck.grammarly"
+            "guyutongxue.cpp-reference" "thfriedrich.lammps" "leetcode.vscode-leetcode" # "znck.grammarly"
             "james-yu.latex-workshop" "bbenoist.nix" "jnoortheen.nix-ide" "ccls-project.ccls"
             "brettm12345.nixfmt-vscode"
             "gruntfuggly.todo-tree"
@@ -329,6 +329,7 @@ inputs:
             # maybe this could fix typst preview freezing on large project
             "tinymist.preview.partialRendering" = false;
             "tinymist.preview.refresh" = "onSave";
+            "workbench.secondarySideBar.defaultVisibility" = "hidden";
           };
         };
       };
