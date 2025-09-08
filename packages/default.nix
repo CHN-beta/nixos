@@ -145,6 +145,8 @@ inputs: rec
   speedtest = inputs.pkgs.callPackage ./speedtest.nix { src = inputs.topInputs.speedtest; };
   atat = inputs.pkgs.callPackage ./atat.nix { src = inputs.topInputs.self.src.atat; };
   atomkit = inputs.pkgs.callPackage ./atomkit.nix { src = inputs.topInputs.self.src.atomkit; };
+  huawei-pixlab-series = inputs.pkgs.callPackage ./huawei-pixlab-series.nix
+    { src = inputs.topInputs.self.src.huawei-pixlab-series; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
