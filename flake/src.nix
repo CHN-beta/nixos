@@ -216,14 +216,4 @@
       finalImageTag = "v8.0.12";
     };
   };
-  huawei-pixlab-series =
-  {
-    version = "1.0-86";
-    src = pkgs.fetchurl
-    {
-      url = "https://consumer-tkbdownload.huawei.com/ctkbfm/servlet/download/downloadServlet/H4sIAAAAAAAAAD2Qy2rDMBRE_0XrOFzJV7LUVR3LgmyaQlK6DFIsNwLHMX40aUr_vXIxXc4whxnmm0yD7w9fnSdPhJEVqa63dpEiyjo0_sVeZnme7M2HpAv3xrokUsEPR7qGRIrjXeD6EboFeLXjOQIKUWW1ghPnNTIUTiisraMsrYRzMLe58NhWMbrfPb8DgECQs33qvR3DtT2EuZkKUJgCAo2RFRnCR2vHqZ835UWaKwaKAxqAHDmTUgsAvlHcsAJLjao0qAsORpa5ASyZ2jDIMp1mVMvY9WmbUL39nzD2k__btZyw35GfX1-X_kwlAQAA.zip";
-      sha256 = "0xh7z8ynbm37d78d6dibwf2h9x5b4fgq1xhwa4vb5ynmcs8bp674";
-      name = "driver.zip";
-    };
-  };
 }

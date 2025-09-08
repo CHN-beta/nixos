@@ -21,7 +21,7 @@ inputs:
       {
         services =
         {
-          printing = { enable = true; drivers = with inputs.pkgs; [ cnijfilter2 localPackages.huawei-pixlab-series ]; };
+          printing = { enable = true; drivers = [ inputs.pkgs.cnijfilter2 ]; };
           avahi = { enable = true; nssmdns4 = true; openFirewall = true; };
         };
       }
