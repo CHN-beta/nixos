@@ -19,8 +19,6 @@ inputs:
               "/nix/remote/jykang.xmuhpc" = "/data/gpfs01/jykang/.nix";
               "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
             };
-            nfs."${inputs.topInputs.self.config.dns."chn.moe".getAddress "wg1.nas"}:/" =
-              { mountPoint = "/nix/remote/nas"; hard = false; };
           };
           luks.auto =
           {
@@ -111,7 +109,6 @@ inputs:
         ananicy = {};
         keyd = {};
         kvm.aarch64 = true;
-        nfs."/" = [ "192.168.84.0/24" ];
         peerBanHelper = {};
         mariadb.mountFrom = "nodatacow";
         lumericalLicenseManager.macAddress = "10:5f:ad:10:3e:ca";
