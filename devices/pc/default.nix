@@ -12,13 +12,7 @@ inputs:
           mount =
           {
             vfat."/dev/disk/by-uuid/7A60-4232" = "/boot";
-            btrfs."/dev/mapper/root1" =
-            {
-              "/nix" = "/nix";
-              "/nix/rootfs/current" = "/";
-              "/nix/remote/jykang.xmuhpc" = "/data/gpfs01/jykang/.nix";
-              "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
-            };
+            btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
           luks.auto =
           {
