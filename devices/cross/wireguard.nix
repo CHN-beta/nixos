@@ -6,7 +6,6 @@ let
     vps6 = "AVOsYUKQQCvo3ctst3vNi8XSVWo1Wh15066aHh+KpF4=";
     pc = "l1gFSDCeBxyf/BipXNvoEvVvLqPgdil84nmr5q6+EEw=";
     nas = "xCYRbZEaGloMk7Awr00UR3JcDJy4AzVp4QvGNoyEgFY=";
-    one = "Hey9V9lleafneEJwTLPaTV11wbzCQF34Cnhr0w2ihDQ=";
     srv1-node0 = "Br+ou+t9M9kMrnNnhTvaZi2oNFRygzebA1NqcHWADWM=";
     srv1-node1 = "wyNONnJF2WHykaHsQIV4gNntOaCsdTfi7ysXDsR2Bww=";
     srv1-node2 = "zWvkVyJwtQhwmxM2fHwNDnK+iwYm1O0RHrwCQ/VXdEo=";
@@ -62,16 +61,16 @@ let
           (builtins.listToAttrs
           (
             (builtins.map (n: { name = n; value = getAddress n; }) [ "vps4" "vps6" ])
-              ++ (builtins.map (n: { name = n; value = null; }) [ "pc" "nas" "one" "srv1-node0" "srv2-node0" ])
+              ++ (builtins.map (n: { name = n; value = null; }) [ "pc" "nas" "srv1-node0" "srv2-node0" ])
           ))
           # 校内网络
           (builtins.listToAttrs
           (
             (builtins.map (n: { name = n; value = getAddress n; }) [ "srv1-node0" "srv2-node0" ])
-              ++ (builtins.map (n: { name = n; value = null; }) [ "pc" "nas" "one" ])
+              ++ (builtins.map (n: { name = n; value = null; }) [ "pc" "nas" ])
           ))
           # 办公室或者宿舍局域网
-          (builtins.listToAttrs (builtins.map (n: { name = n; value = getAddress n; }) [ "pc" "nas" "one" ]))
+          (builtins.listToAttrs (builtins.map (n: { name = n; value = getAddress n; }) [ "pc" "nas" ]))
           # 集群内部网络
           (builtins.listToAttrs (builtins.map
             (n: { name = "srv1-node${builtins.toString n}"; value = "192.168.178.${builtins.toString (n + 1)}"; })

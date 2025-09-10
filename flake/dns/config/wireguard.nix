@@ -6,7 +6,6 @@
     vps6 = 1;
     pc = 3;
     nas = 4;
-    one = 5;
     srv1-node0 = 9;
     srv1-node1 = 6;
     srv1-node2 = 8;
