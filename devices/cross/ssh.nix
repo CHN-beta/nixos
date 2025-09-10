@@ -17,6 +17,7 @@ let
     {
       publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIIktNbEcDMKlibXg54u7QOLt0755qB/P4vfjwca8xY6V";
       initrdPublicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIAoMu0HEaFQsnlJL0L6isnkNZdRq0OiDXyaX3+fl3NjT";
+      extraAccess = [ "ssh.git" ];
     };
     one.publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIC5i2Z/vK0D5DBRg3WBzS2ejM0U+w3ZPDJRJySdPcJ5d";
     pc.publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIMSfREi19OSwQnhdsE8wiNwGSFFJwNGN0M5gN+sdrrLJ";
