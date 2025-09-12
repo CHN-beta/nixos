@@ -38,7 +38,7 @@ inputs:
         sshd = {};
         xray =
         {
-          client.dnsmasq = { extraInterfaces = [ "enp3s0" ]; hosts."git.nas.chn.moe" = "127.0.0.1"; };
+          client.dnsmasq = { extraInterfaces = [ "enp3s0" ]; hosts."git.chn.moe" = "127.0.0.1"; };
           xmuServer = {};
           server.serverName = "xservernas.chn.moe";
         };
