@@ -79,5 +79,6 @@ inputs:
         postgresql.instances.gitea = {};
       };
     };
+    systemd.services.gitea.path = [ inputs.pkgs.git-lfs-transfer ];
   };
 }
