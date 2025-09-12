@@ -38,6 +38,7 @@ inputs:
             HTTP_PORT = 3002;
             SSH_DOMAIN = gitea.ssh.hostname;
             SSH_PORT = inputs.lib.mkIf (gitea.ssh.port != null) gitea.ssh.port;
+            LFS_ALLOW_PURE_SSH = true;
           };
           mailer =
           {
