@@ -56,6 +56,7 @@ inputs:
           "cron.git_gc_repos" = { ENABLED = true; SCHEDULE = "@every 30d"; TIMEOUT = "2h"; };
           "cron.gc_lfs" = { ENABLED = true; SCHEDULE = "@every 30d"; NUMBER_TO_CHECK_PER_REPO = 0; };
         };
+        package = inputs.pkgs.pkgs-unstable.gitea;
       };
       anubis.instances.gitea.settings =
       {
