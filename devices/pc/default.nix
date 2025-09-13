@@ -109,6 +109,7 @@ inputs:
       };
       bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
       packages = { mathematica = {}; vasp = {}; lumerical = {}; };
+      user.users = [ "chn" "xly" ];
     };
     boot.loader.grub =
     {
