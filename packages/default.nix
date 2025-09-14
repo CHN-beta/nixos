@@ -145,6 +145,8 @@ inputs: rec
   speedtest = inputs.pkgs.callPackage ./speedtest.nix { src = inputs.topInputs.speedtest; };
   atat = inputs.pkgs.callPackage ./atat.nix { src = inputs.topInputs.self.src.atat; };
   atomkit = inputs.pkgs.callPackage ./atomkit.nix { src = inputs.topInputs.self.src.atomkit; };
+  xinli = inputs.pkgs.callPackage ./xinli
+    { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; inherit (inputs.pkgs.pkgs-unstable) httplib; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

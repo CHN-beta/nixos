@@ -845,11 +845,11 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1757797135,
-        "narHash": "sha256-zwE/e7CuPJUWKdvvTCB7iunV4E/+G0lKfv4kk/5Izdg=",
+        "lastModified": 1757823305,
+        "narHash": "sha256-goy+ZVzBAe/cN/Udsiqg7RdNA19jyJqO8x6KXnZ8Mfs=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "1c9ddb7f7b4d79fd290561ffb3be03fb493c5c81",
+        "rev": "db545f2ed84e23a80610792162a7a8adc888dcae",
         "type": "github"
       },
       "original": {

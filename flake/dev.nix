@@ -48,4 +48,11 @@
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
+  xinli = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
+  {
+    inputsFrom = [ pkgs.localPackages.xinli ];
+    packages = [ pkgs.clang-tools_18 ];
+    CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+    hardeningDisable = [ "all" ];
+  };
 }
