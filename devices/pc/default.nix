@@ -11,43 +11,27 @@ inputs:
         {
           mount =
           {
-            vfat."/dev/disk/by-uuid/7A60-4232" = "/boot";
+            vfat."/dev/disk/by-partlabel/pc-boot" = "/boot";
             btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
-          luks.auto =
-          {
-            "/dev/disk/by-uuid/4c73288c-bcd8-4a7e-b683-693f9eed2d81" = { mapper = "root1"; ssd = true; };
-            "/dev/disk/by-uuid/4be45329-a054-4c20-8965-8c5b7ee6b35d" =
-              { mapper = "swap"; ssd = true; before = [ "root1" ]; };
-          };
-          swap = [ "/dev/mapper/swap" ];
+          luks.auto."/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
         };
         grub.windowsEntries."08D3-10DE" = "Windows";
-        nix =
-        {
-          marches =
-          [
-            "znver2" "znver3" "znver4"
-            # FXSR PREFETCHW RDRND SAHF
-            "silvermont"
-            # SAHF FXSR XSAVE RDRND LZCNT HLE
-            "haswell"
-            # FXSR HLE LZCNT PREFETCHW RDRND SAHF XSAVE
-            "broadwell"
-            # FXSR HLE LZCNT PREFETCHW RDRND SAHF SGX XSAVE
-            "skylake" "cascadelake"
-            # SAHF FXSR XSAVE RDRND LZCNT HLE PREFETCHW SGX MOVDIRI MOVDIR64B AVX512VP2INTERSECT KEYLOCKER
-            "tigerlake"
-            # AVX-VNNI CLDEMOTE GFNI-SSE HRESET KL LZCNT MOVDIR64B MOVDIRI PCONFIG PREFETCHW PTWRITE RDRND
-            # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
-            "alderlake"
-          ];
-          remote.master.host.srv2-node0 = [ "skylake" ];
-        };
-        nixpkgs = { march = "znver4"; cuda.capabilities = [ "8.9" ]; };
+        nix.marches =
+        [
+          "znver2" "znver3" "znver5"
+          # FXSR HLE LZCNT PREFETCHW RDRND SAHF XSAVE
+          "broadwell"
+          # FXSR HLE LZCNT PREFETCHW RDRND SAHF SGX XSAVE
+          "skylake" "cascadelake"
+          # AVX-VNNI CLDEMOTE GFNI-SSE HRESET KL LZCNT PCONFIG PREFETCHW PTWRITE RDRND
+          # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
+          "alderlake"
+        ];
+        nixpkgs.march = "znver4";
         sysctl.laptop-mode = 5;
       };
-      hardware = { gpu = { type = "nvidia"; nvidia.dynamicBoost = true; }; legion = {}; };
+      hardware.gpu.type = "amd";
       services =
       {
         samba =
@@ -62,20 +46,15 @@ inputs:
           };
         };
         sshd = {};
-        xray = 
+        xray.client.dnsmasq =
         {
-          client.dnsmasq =
-          {
-            hosts = builtins.listToAttrs
-            (
-              (builtins.map
-                (name: { inherit name; value = "144.34.225.59"; })
-                [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
-            )
-            // { "4006024680.com" = "192.168.199.1"; };
-            extraInterfaces = [ "wlo1" ];
-          };
-          xmuClient = {};
+          hosts = builtins.listToAttrs
+          (
+            (builtins.map
+              (name: { inherit name; value = "144.34.225.59"; })
+              [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
+          );
+          extraInterfaces = [ "wlo1" ];
         };
         nix-serve = {};
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
@@ -89,14 +68,9 @@ inputs:
             name = "pc"; address = "127.0.0.1";
             cpu = { sockets = 2; cores = 8; threads = 2; };
             memoryGB = 80;
-            gpus."4060" = 1;
           };
           partitions.localhost = [ "pc" ];
-          tui =
-          {
-            cpuQueues = [{ mpiThreads = 4; openmpThreads = 4; memoryGB = 56; }];
-            gpuQueues = [{ name = "localhost"; gpuIds = [ "4060" ]; }];
-          };
+          tui.cpuQueues = [{ mpiThreads = 4; openmpThreads = 4; memoryGB = 56; }];
         };
         ollama = {};
         podman = {};
@@ -107,40 +81,10 @@ inputs:
         mariadb.mountFrom = "nodatacow";
         lumericalLicenseManager.macAddress = "10:5f:ad:10:3e:ca";
       };
-      bugs = [ "xmunet" "backlight" "amdpstate" "iwlwifi" ];
+      bugs = [ "xmunet" "amdpstate" "iwlwifi" ];
       packages = { mathematica = {}; vasp = {}; lumerical = {}; };
       user.users = [ "chn" "xly" ];
     };
-    boot.loader.grub =
-    {
-      extraFiles =
-      {
-        "DisplayEngine.efi" = ./bios/DisplayEngine.efi;
-        "SetupBrowser.efi" = ./bios/SetupBrowser.efi;
-        "UiApp.efi" = ./bios/UiApp.efi;
-        "EFI/Boot/Bootx64.efi" = ./bios/Bootx64.efi;
-        "nixos.iso" = inputs.topInputs.self.src.iso.nixos;
-      };
-      extraEntries = 
-      ''
-        menuentry 'Advanced UEFI Firmware Settings' {
-          insmod fat
-          insmod chain
-          chainloader @bootRoot@/EFI/Boot/Bootx64.efi
-        }
-        menuentry 'Live ISO' {
-          set iso_path=@bootRoot@/nixos.iso
-          export iso_path
-          search --set=root --file "$iso_path"
-          loopback loop "$iso_path"
-          root=(loop)
-          configfile /boot/grub/loopback.cfg
-          loopback --delete loop
-        }
-      '';
-    };
-    # 禁止鼠标等在睡眠时唤醒
-    services.udev.extraRules = ''ACTION=="add", ATTR{power/wakeup}="disabled"'';
     # 允许kvm读取物理硬盘
     users.users.qemu-libvirtd.extraGroups = [ "disk" ];
     services.colord.enable = true;
