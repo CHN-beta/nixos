@@ -4,6 +4,7 @@ inputs:
     { type = types.nullOr (types.submodule {}); default = null; };
   config = let inherit (inputs.config.nixos.packages) extra; in inputs.lib.mkIf (extra != null)
   {
+    nixos.packages.packages._packages = with inputs.pkgs; [ davinci-resolve ];
     programs =
     {
       anime-game-launcher = { enable = true; package = inputs.pkgs.anime-game-launcher; };

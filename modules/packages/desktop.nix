@@ -57,7 +57,7 @@ inputs:
           # browser
           google-chrome tor-browser
           # office
-          crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain davinci-resolve
+          crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain
           ydict texstudio panoply pspp libreoffice-qt6-fresh ocrmypdf typst # paperwork
           # required by ltex-plus.vscode-ltex-plus
           ltex-ls ltex-ls-plus
