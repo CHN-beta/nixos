@@ -59,5 +59,6 @@ inputs:
       configurationRevision = inputs.topInputs.self.rev or "dirty";
       nixos = { versionSuffix = inputs.lib.mkForce ""; tags = [ inputs.topInputs.self.config.branch ]; };
     };
+    chaotic.nyx.cache.enable = false;
   };
 }
