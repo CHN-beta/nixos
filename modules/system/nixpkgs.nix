@@ -12,14 +12,13 @@ inputs:
       };});
       default = null;
     };
-    rocm = mkOption { type = types.bool; default = false; };
   };
   config = let inherit (inputs.config.nixos.system) nixpkgs; in
   {
     nixpkgs = inputs.localLib.buildNixpkgsConfig
     {
       inherit inputs;
-      nixpkgs = nixpkgs // { nixos = true; inherit (inputs.config.nixos.model) arch; };
+      nixpkgs = nixpkgs // { nixRoot = null; nixos = true; inherit (inputs.config.nixos.model) arch; };
     };
     boot.kernelPatches = inputs.lib.mkIf (nixpkgs.march != null)
     [{

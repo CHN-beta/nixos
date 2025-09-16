@@ -1,4 +1,4 @@
-# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixRoot, nixos, arch, rocm };
+# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixRoot, nixos, arch };
 { inputs, nixpkgs }:
 let
   platformConfig =
@@ -8,7 +8,7 @@ let
       ${if nixpkgs.nixos then "hostPlatform" else "localSystem"} =
         { system = "${nixpkgs.arch or "x86_64"}-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
     };
-  cudaConfig = inputs.lib.optionalAttrs (nixpkgs.cuda or null != null)
+  cudaConfig = inputs.lib.optionalAttrs (nixpkgs.cuda != null)
   (
     { cudaSupport = true; }
     // (inputs.lib.optionalAttrs (nixpkgs.cuda.capabilities != null)
@@ -16,9 +16,8 @@ let
     // (inputs.lib.optionalAttrs (nixpkgs.cuda.forwardCompat != null)
       { cudaForwardCompat = nixpkgs.cuda.forwardCompat; })
   );
-  rocmConfig = inputs.lib.optionalAttrs (nixpkgs.rocm or false) { rocmSupport = true; };
   allowInsecurePredicate = p: inputs.lib.warn "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
-  config = cudaConfig // rocmConfig
+  config = cudaConfig
     // {
       inherit allowInsecurePredicate;
       allowUnfree = true;
@@ -31,7 +30,7 @@ let
       nvhpcArch = nixpkgs.march;
       # contentAddressedByDefault = true;
     })
-    // (inputs.lib.optionalAttrs (nixpkgs.nixRoot or null != null)
+    // (inputs.lib.optionalAttrs (nixpkgs.nixRoot != null)
       { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/state"; }; });
 in platformConfig //
 {
