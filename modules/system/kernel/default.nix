@@ -4,7 +4,7 @@ inputs:
   {
     variant = mkOption
     {
-      type = types.nullOr (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" ]);
+      type = types.nullOr (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" "cachyos" ]);
       default = { x86_64 = "xanmod-lts"; aarch64 = "nixos"; }.${inputs.config.nixos.model.arch};
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
@@ -61,6 +61,7 @@ inputs:
         xanmod-lts = inputs.pkgs.linuxPackages_xanmod;
         xanmod-latest = inputs.pkgs.linuxPackages_xanmod_latest;
         xanmod-unstable = inputs.pkgs.pkgs-unstable.linuxPackages_xanmod_latest;
+        cachyos = inputs.pkgs.linuxPackages_cachyos;
       }.${kernel.variant};
       kernelPatches =
         let patches =
