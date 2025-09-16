@@ -23,7 +23,7 @@
     chaotic =
     {
       url = "github:chaotic-cx/nyx";
-      inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
+      inputs = { nixpkgs.follows = "nixpkgs-unstable"; home-manager.follows = "home-manager"; };
     };
     catppuccin = { url = "github:catppuccin/nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     bscpkgs = { url = "github:CHN-beta/bscpkgs"; inputs.nixpkgs.follows = "nixpkgs"; };
