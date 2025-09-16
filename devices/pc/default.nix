@@ -30,6 +30,7 @@ inputs:
         ];
         nixpkgs.march = "znver4";
         sysctl.laptop-mode = 5;
+        kernel.variant = "xanmod-unstable";
       };
       hardware.gpu.type = "amd";
       services =
