@@ -16,7 +16,7 @@ inputs:
           # system management
           # TODO: module should add yubikey-touch-detector into path
           gparted wayland-utils clinfo glxinfo vulkan-tools dracut yubikey-touch-detector btrfs-assistant snapper-gui
-          kdePackages.qtstyleplugin-kvantum ventoy-full cpu-x wl-mirror geekbench xpra
+          kdePackages.qtstyleplugin-kvantum cpu-x wl-mirror geekbench xpra
           (
             writeShellScriptBin "xclip"
             ''
@@ -45,15 +45,14 @@ inputs:
           # download
           qbittorrent nur-xddxdd.baidupcs-go wgetpaste onedrive onedrivegui rclone
           # editor
-          typora appflowy notion-app-enhanced joplin-desktop standardnotes logseq obsidian code-cursor
+          typora standardnotes
           # news
           fluent-reader rssguard newsflash newsboat follow
           # nix tools
           nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github prefetch-npm-deps nix-prefetch-docker
           nix-template nil bundix
           # instant messager
-          element-desktop telegram-desktop discord zoom-us slack nheko hexchat halloy
-          fluffychat signal-desktop qq nur-xddxdd.wechat-uos-sandboxed cinny-desktop
+          element-desktop telegram-desktop discord zoom-us slack nheko
           # browser
           google-chrome tor-browser
           # office
