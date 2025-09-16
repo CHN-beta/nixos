@@ -198,21 +198,21 @@ int main(int argc, char **argv)
             continue;
           }
         }
-        auto teachers = std::ranges::remove(id.second, *teacherId);
+        auto teachers = id.second | std::views::filter
+          ([&](const std::string &x) { return x != *teacherId; }) | std::ranges::to<std::vector>();
         auto body = [&]
         {
           nlohmann::json j;
-          j["dateTimeId"] = id.first;
+          j["dataTimeId"] = id.first;
           j["isUpdateNext"] = false;
-          j["changeDate"] = params.Date[0];
           j["dayTimeTeachers"] = teachers | std::views::transform
             ([](const std::string &id)
               {
-                  nlohmann::json j;
-                  j["user"]["teacherBaseInfo"]["userId"] = id;
-                  return j;
-                }
-              ) | std::ranges::to<std::vector>();
+                nlohmann::json j;
+                j["user"]["teacherBaseInfo"]["userId"] = id;
+                return j;
+              }
+            ) | std::ranges::to<std::vector>();
           j["isVisual"] = true;
           return log.rtn(j.dump());
         }();
