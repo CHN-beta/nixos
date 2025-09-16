@@ -74,6 +74,9 @@ in platformConfig //
       }
       // (
         let
+          marchFilter = version:
+            # old version of nixpkgs does not recognize znver5, use znver4 instead
+            inputs.lib.optionalAttrs (inputs.lib.versionOlder version "25.05") { znver5 = "znver4"; };
           source =
           {
             pkgs-2305 = "nixpkgs-2305";
@@ -93,12 +96,18 @@ in platformConfig //
               ];
             };
           };
-          packages = name: import inputs.topInputs.${source.${name}.source or source.${name}}
-          {
-            localSystem = platformConfig.hostPlatform or platformConfig.localSystem or platformConfig;
-            inherit config;
-            overlays = source.${name}.overlays or [(_: _: {})];
-          };
+          packages = name:
+            let flakeSource = inputs.topInputs.${source.${name}.source or source.${name}};
+            in import flakeSource
+            {
+              localSystem =
+                if nixpkgs.march == null then { system = "${nixpkgs.arch or "x86_64"}-linux"; }
+                else
+                  let march = (marchFilter flakeSource.lib.version).${nixpkgs.march} or nixpkgs.march;
+                  in { system = "${nixpkgs.arch or "x86_64"}-linux"; gcc = { arch = march; tune = march; }; };
+              inherit config;
+              overlays = source.${name}.overlays or [(_: _: {})];
+            };
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
       )
