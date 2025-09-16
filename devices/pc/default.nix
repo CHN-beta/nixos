@@ -15,6 +15,8 @@ inputs:
             btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           };
           luks.auto."/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
+          swap = [ "/nix/swap/swap" ];
+          resume = { device = "/nix/swap/swap"; offset = 131605760; };
         };
         grub.windowsEntries."08D3-10DE" = "Windows";
         nix.marches =
