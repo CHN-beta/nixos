@@ -24,8 +24,8 @@ inputs:
     [{
       name = "native kernel";
       patch = null;
-      extraStructuredConfig =
-        let kernelConfig = { znver2 = "MZEN2"; znver3 = "MZEN3"; znver4 = "MZEN4"; };
+      structuredExtraConfig =
+        let kernelConfig = { znver2 = "MZEN2"; znver3 = "MZEN3"; znver4 = "MZEN4"; znver5 = "MZEN5"; };
         in
         {
           GENERIC_CPU = inputs.lib.kernel.no;
