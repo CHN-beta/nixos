@@ -19,7 +19,7 @@ inputs:
         grub.windowsEntries."08D3-10DE" = "Windows";
         nix.marches =
         [
-          "znver2" "znver3" "znver5"
+          "znver2" "znver3" "znver4" "znver5"
           # FXSR HLE LZCNT PREFETCHW RDRND SAHF XSAVE
           "broadwell"
           # FXSR HLE LZCNT PREFETCHW RDRND SAHF SGX XSAVE
