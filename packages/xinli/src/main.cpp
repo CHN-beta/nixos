@@ -72,19 +72,20 @@ int main(int argc, char **argv)
   {
     std::map<int, std::vector<std::string>> result;
     for (auto day : get_days(date, dayOfWeek))
+    {
+      auto res = get
+      (
+        "/api/mentality/scheduling/page/week/users",
+        {
+          {"campus", Campus[campus].first},
+          {"type", Campus[campus].second},
+          {"dateStart", day},
+          {"dateEnd", day}
+        }
+      );
+      if (!res) { log.error("failed to fetch date: {}"_f(day)); return {}; }
       for (auto t : time)
       {
-        auto res = get
-        (
-          "/api/mentality/scheduling/page/week/users",
-          {
-            {"campus", Campus[campus].first},
-            {"type", Campus[campus].second},
-            {"dateStart", day},
-            {"dateEnd", day}
-          }
-        );
-        if (!res) { log.error("failed to fetch date: {}"_f(day)); return {}; }
         bool timeFound = false;
         for (auto time : YAML::Load(*res)["data"])
           if (time["timeQuantumStart"].as<std::string>() == t)
@@ -100,6 +101,7 @@ int main(int argc, char **argv)
           }
         if (!timeFound) { log.error("time slot not found: {}"_f(t)); return {}; }
       }
+    }
     return log.rtn(result);
   };
 
@@ -129,21 +131,18 @@ int main(int argc, char **argv)
       std::cin.get();
 
       // 提交增加排班的请求
-      for (auto id : *timeId)
+      auto body = [&]
       {
-        auto body = [&]
-        {
-          nlohmann::json j;
-          j["campus"] = Campus[params.Campus].first;
-          j["type"] = Campus[params.Campus].second;
-          j["userId"] = *teacherId;
-          j["isVisual"] = true;
-          j["dayTimeIds"] = *timeId | ranges::views::keys | ranges::to_vector;
-          return log.rtn(j.dump());
-        }();
-        auto res = post("/api/mentality/scheduling/teachers", body);
-        if (res) std::cout << *res << std::endl;
-      }
+        nlohmann::json j;
+        j["campus"] = Campus[params.Campus].first;
+        j["type"] = Campus[params.Campus].second;
+        j["userId"] = *teacherId;
+        j["isVisual"] = true;
+        j["dayTimeIds"] = *timeId | ranges::views::keys | ranges::to_vector;
+        return log.rtn(j.dump());
+      }();
+      auto res = post("/api/mentality/scheduling/teachers", body);
+      if (res) std::cout << *res << std::endl;
     }
     else if (job.Type == "DelSchedule")
     {
@@ -198,21 +197,21 @@ int main(int argc, char **argv)
             continue;
           }
         }
-        auto teachers = std::ranges::remove(id.second, *teacherId);
+        auto teachers = id.second | std::views::filter
+          ([&](const std::string &x) { return x != *teacherId; }) | std::ranges::to<std::vector>();
         auto body = [&]
         {
           nlohmann::json j;
-          j["dateTimeId"] = id.first;
+          j["dataTimeId"] = id.first;
           j["isUpdateNext"] = false;
-          j["changeDate"] = params.Date[0];
           j["dayTimeTeachers"] = teachers | std::views::transform
             ([](const std::string &id)
               {
-                  nlohmann::json j;
-                  j["user"]["teacherBaseInfo"]["userId"] = id;
-                  return j;
-                }
-              ) | std::ranges::to<std::vector>();
+                nlohmann::json j;
+                j["user"]["teacherBaseInfo"]["userId"] = id;
+                return j;
+              }
+            ) | std::ranges::to<std::vector>();
           j["isVisual"] = true;
           return log.rtn(j.dump());
         }();

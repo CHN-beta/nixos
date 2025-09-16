@@ -4,6 +4,13 @@ inputs:
     { type = types.nullOr (types.submodule {}); default = null; };
   config = let inherit (inputs.config.nixos.packages) extra; in inputs.lib.mkIf (extra != null)
   {
+    nixos.packages.packages._packages = with inputs.pkgs;
+    [
+      ventoy-full
+      davinci-resolve
+      fluffychat signal-desktop qq nur-xddxdd.wechat-uos-sandboxed cinny-desktop hexchat halloy
+      appflowy notion-app-enhanced joplin-desktop logseq obsidian code-cursor
+    ];
     programs =
     {
       anime-game-launcher = { enable = true; package = inputs.pkgs.anime-game-launcher; };

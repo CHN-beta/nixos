@@ -61,7 +61,7 @@
     stickerpicker = { url = "github:maunium/stickerpicker"; flake = false; };
     fancy-motd = { url = "github:CHN-beta/fancy-motd"; flake = false; };
     mac-style = { url = "github:SergioRibera/s4rchiso-plymouth-theme?lfs=1"; flake = false; };
-    phono3py = { url = "github:phonopy/phono3py"; flake = false; };
+    phono3py = { url = "github:phonopy/phono3py/v3.15.1"; flake = false; };
     sticker = { url = "git+https://git.chn.moe/chn/sticker.git?lfs=1"; flake = false; };
     speedtest = { url = "github:librespeed/speedtest"; flake = false; };
   };
