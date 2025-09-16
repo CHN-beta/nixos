@@ -17,7 +17,7 @@ inputs:
       # modprobe --show-depends
       initrd.availableKernelModules =
       [
-        "bfq" "failover" "net_failover" "nls_cp437" "nls_iso8859-1" "sd_mod"
+        "failover" "net_failover" "nls_cp437" "nls_iso8859-1" "sd_mod"
         "sr_mod" "usbcore" "usbhid" "usbip-core" "usb-common" "usb_storage" "vhci-hcd" "virtio" "virtio_blk"
         "virtio_net" "virtio_ring" "virtio_scsi" "cryptd" "libaes"
         "ahci" "ata_piix" "nvme" "sdhci_acpi" "virtio_pci" "xhci_pci"
