@@ -16,7 +16,7 @@ inputs:
           };
           luks.auto."/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
           swap = [ "/nix/swap/swap" ];
-          resume = { device = "/nix/swap/swap"; offset = 131605760; };
+          resume = { device = "/dev/mapper/root1"; offset = 131605760; };
         };
         grub.windowsEntries."08D3-10DE" = "Windows";
         nix.marches =
