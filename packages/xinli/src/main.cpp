@@ -36,66 +36,190 @@ int main(int argc, char **argv)
     {"漳州", {"1588748384174", "RESERVATION"}},
     {"线上", {"1588748384174", "ONLINE"}},
   };
-
-  for (const auto &job : Config.Jobs)
+  auto get_days = [](const std::array<std::string, 2> &date, unsigned dayOfWeek) -> std::vector<std::string>
   {
-    if (job.Type == "AddSchedule")
-    {
-      struct { std::string Campus, Name, Date, Time; } params;
-      params = job.Params.as<decltype(params)>();
-      if (!Campus.contains(params.Campus)) { log.error("unknown campus: {}"_f(params.Campus)); continue; }
-
-      // 搜索老师id
-      auto teacherId = [&] -> std::optional<std::string>
-      {
-        auto res = get
-          ("/api/mentality/teachers/searchResults", {{"keyword", params.Name}});
-        if (!res) return {};
-        for (auto teach : YAML::Load(*res)["data"])
-          if (teach["name"].as<std::string>() == params.Name)
-            return log.rtn(teach["userId"].as<std::string>());
-        log.error("teacher not found: {}"_f(params.Name));
-        return {};
-      }();
-      if (!teacherId) continue;
-      log.debug("found teacher id: {} -> {}"_f(params.Name, *teacherId));
-
-      // 抓取排班表，在其中找到对应的时间段id
-      auto timeId = [&] -> std::optional<int>
+    std::vector<std::string> days;
+    std::chrono::year_month_day start, end;
+    std::istringstream(date[0]) >> std::chrono::parse("%Y-%m-%d", start);
+    std::istringstream(date[1]) >> std::chrono::parse("%Y-%m-%d", end);
+    for
+    (
+      auto day = start;
+      day <= end;
+      day = std::chrono::sys_days(day) + std::chrono::days{1}
+    )
+      if (std::chrono::weekday{day} == std::chrono::weekday{dayOfWeek})
+        days.push_back(std::format("{:%Y-%m-%d}", day));
+    return days;
+  };
+  auto get_teacher_id = [&](std::string name) -> std::optional<std::string>
+  {
+    auto res = get
+      ("/api/mentality/teachers/searchResults", {{"keyword", name}});
+    if (!res) return {};
+    for (auto teach : YAML::Load(*res)["data"])
+      if (teach["name"].as<std::string>() == name)
+        return log.rtn(teach["userId"].as<std::string>());
+    log.error("teacher not found: {}"_f(name));
+    return {};
+  };
+  // 获取时间点的id，以及对应的老师排班，如果对应时间点有老师为隐藏排班则退出，要求手动处理
+  auto get_time_id = [&]
+  (
+    std::array<std::string, 2> date, unsigned dayOfWeek, std::vector<std::string> time,
+    std::string campus
+  ) -> std::optional<std::map<int, std::vector<std::string>>>
+  {
+    std::map<int, std::vector<std::string>> result;
+    for (auto day : get_days(date, dayOfWeek))
+      for (auto t : time)
       {
         auto res = get
         (
           "/api/mentality/scheduling/page/week/users",
           {
-            {"campus", Campus[params.Campus].first},
-            {"type", Campus[params.Campus].second},
-            {"dateStart", params.Date},
-            {"dateEnd", params.Date}
+            {"campus", Campus[campus].first},
+            {"type", Campus[campus].second},
+            {"dateStart", day},
+            {"dateEnd", day}
           }
         );
-        if (!res) return {};
+        if (!res) { log.error("failed to fetch date: {}"_f(day)); return {}; }
+        bool timeFound = false;
         for (auto time : YAML::Load(*res)["data"])
-          if (time["timeQuantumStart"].as<std::string>() == params.Time)
-            return log.rtn(time["id"].as<int>());
-        log.error("time slot not found: {}"_f(params.Time));
-        return {};
-      }();
+          if (time["timeQuantumStart"].as<std::string>() == t)
+          {
+            for (auto teacher : time["dayTimeTeacher"])
+              if (!teacher["isVisual"].as<bool>())
+                { log.error("hidden schedule found at {} {}"_f(day, t)); return {}; }
+            result[time["id"].as<int>()] = {};
+            for (auto teacher : time["dayTimeTeacher"])
+              result[time["id"].as<int>()].push_back(teacher["user"]["teacherBaseInfo"]["userId"].as<std::string>());
+            timeFound = true;
+            break;
+          }
+        if (!timeFound) { log.error("time slot not found: {}"_f(t)); return {}; }
+      }
+    return log.rtn(result);
+  };
+
+  for (const auto &job : Config.Jobs)
+  {
+    if (job.Type == "AddSchedule")
+    {
+      struct
+      {
+        std::string Campus, Name;
+        std::array<std::string, 2> Date;
+        std::vector<std::string> Time;
+        unsigned DayOfWeek;
+      } params;
+      params = job.Params.as<decltype(params)>();
+      if (!Campus.contains(params.Campus)) { log.error("unknown campus: {}"_f(params.Campus)); continue; }
+
+      auto teacherId = get_teacher_id(params.Name);
+      if (!teacherId) continue;
+      log.debug("found teacher id: {} -> {}"_f(params.Name, *teacherId));
+
+      auto timeId = get_time_id(params.Date, params.DayOfWeek, params.Time, params.Campus);
       if (!timeId) continue;
-      log.debug("found time id: {} -> {}"_f(params.Time, *timeId));
+      log.debug("found time id: {} {} -> {}"_f(params.Date, params.Time, *timeId));
+
+      std::cout << "Is this ok? press Enter to continue..." << std::flush;
+      std::cin.get();
 
       // 提交增加排班的请求
-      auto body = [&]
+      for (auto id : *timeId)
       {
-        nlohmann::json j;
-        j["campus"] = Campus[params.Campus].first;
-        j["type"] = Campus[params.Campus].second;
-        j["userId"] = *teacherId;
-        j["isVisual"] = true;
-        j["dayTimeIds"] = std::vector{*timeId};
-        return log.rtn(j.dump());
-      }();
-      auto res = post("/api/mentality/scheduling/teachers", body);
-      if (res) std::cout << *res << std::endl;
+        auto body = [&]
+        {
+          nlohmann::json j;
+          j["campus"] = Campus[params.Campus].first;
+          j["type"] = Campus[params.Campus].second;
+          j["userId"] = *teacherId;
+          j["isVisual"] = true;
+          j["dayTimeIds"] = *timeId | ranges::views::keys | ranges::to_vector;
+          return log.rtn(j.dump());
+        }();
+        auto res = post("/api/mentality/scheduling/teachers", body);
+        if (res) std::cout << *res << std::endl;
+      }
+    }
+    else if (job.Type == "DelSchedule")
+    {
+      struct
+      {
+        std::string Campus, Name;
+        std::array<std::string, 2> Date;
+        std::vector<std::string> Time;
+        unsigned DayOfWeek;
+      } params;
+      params = job.Params.as<decltype(params)>();
+      if (!Campus.contains(params.Campus)) { log.error("unknown campus: {}"_f(params.Campus)); continue; }
+
+      auto teacherId = get_teacher_id(params.Name);
+      if (!teacherId) continue;
+      log.debug("found teacher id: {} -> {}"_f(params.Name, *teacherId));
+
+      auto timeId = get_time_id
+        (params.Date, params.DayOfWeek, params.Time, params.Campus);
+      if (!timeId) continue;
+      log.debug("found time id: {} {} -> {}"_f(params.Date, params.Time, *timeId));
+
+      std::cout << "Is this ok? press Enter to continue..." << std::flush;
+      std::cin.get();
+
+      for (auto id : *timeId)
+      {
+        // 检查该时间点是否有该老师的排班
+        if (std::find(id.second.begin(), id.second.end(), *teacherId) == id.second.end())
+        {
+          log.info("no schedule found for teacher {} at time id {}"_f(*teacherId, id.first));
+          continue;
+        }
+        // 检查该老师的排班是否被预约
+        {
+          auto res = get
+          (
+            "/api/mentality/scheduling/judgeStudentReservation",
+            {
+              {"dayTimeId", std::to_string(id.first)},
+              {"deleteTeacherIds", *teacherId}
+            }
+          );
+          if (!res)
+          {
+            log.error("failed to check reservation for teacher {} at time id {}"_f(*teacherId, id.first));
+            continue;
+          }
+          if (YAML::Load(*res)["data"].as<bool>())
+          {
+            log.info("schedule for teacher {} at time id {} has been reserved"_f(*teacherId, id.first));
+            continue;
+          }
+        }
+        auto teachers = std::ranges::remove(id.second, *teacherId);
+        auto body = [&]
+        {
+          nlohmann::json j;
+          j["dateTimeId"] = id.first;
+          j["isUpdateNext"] = false;
+          j["changeDate"] = params.Date[0];
+          j["dayTimeTeachers"] = teachers | std::views::transform
+            ([](const std::string &id)
+              {
+                  nlohmann::json j;
+                  j["user"]["teacherBaseInfo"]["userId"] = id;
+                  return j;
+                }
+              ) | std::ranges::to<std::vector>();
+          j["isVisual"] = true;
+          return log.rtn(j.dump());
+        }();
+        auto res = post("/api/mentality/scheduling/dayTimeTeachers", body);
+        if (res) std::cout << *res << std::endl;
+        else log.error("failed to delete schedule for teacher {} at time id {}"_f(*teacherId, id.first));
+      }
     }
     else log.error("unknown job type: {}"_f(job.Type));
   }
