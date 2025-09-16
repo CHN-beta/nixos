@@ -34,7 +34,7 @@ inputs:
         sysctl.laptop-mode = 5;
         kernel.variant = "xanmod-latest";
       };
-      hardware = { gpu.type = "amd"; cpu = "amd"; };
+      hardware = { gpu.type = "amd"; cpu = "amd"; asus = {};};
       services =
       {
         samba =
