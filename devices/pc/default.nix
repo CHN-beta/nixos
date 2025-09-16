@@ -89,5 +89,7 @@ inputs:
     # 允许kvm读取物理硬盘
     users.users.qemu-libvirtd.extraGroups = [ "disk" ];
     services.colord.enable = true;
+     # 禁止鼠标等在睡眠时唤醒
+    services.udev.extraRules = ''ACTION=="add", ATTR{power/wakeup}="disabled"'';
   };
 }
