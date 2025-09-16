@@ -40,7 +40,6 @@ inputs:
         # disk for nas
         "ahci" "nvme" "igc"
       ]
-        ++ (inputs.lib.optionals (kernel.variant != "nixos") [ "crypto_simd" ])
         # touchscreen for one
         ++ (inputs.lib.optionals (inputs.config.nixos.model.arch == "x86_64") [ "pinctrl-tigerlake" ]);
       extraModulePackages = with inputs.config.boot.kernelPackages;
