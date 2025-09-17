@@ -27,7 +27,7 @@ let
     }
     // (inputs.lib.optionalAttrs (nixpkgs.march != null)
     {
-      oneapiArch = let match = {}; in match.${nixpkgs.march} or nixpkgs.march;
+      oneapiArch = let match.znver5 = "znver4"; in match.${nixpkgs.march} or nixpkgs.march;
       nvhpcArch = nixpkgs.march;
       # contentAddressedByDefault = true;
     })
