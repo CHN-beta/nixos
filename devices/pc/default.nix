@@ -93,5 +93,7 @@ inputs:
     services.colord.enable = true;
      # 禁止鼠标等在睡眠时唤醒
     services.udev.extraRules = ''ACTION=="add", ATTR{power/wakeup}="disabled"'';
+    # 解决有时蓝牙不能使用的问题
+    boot.kernelParams = [ "mt7925e.disable_aspm=1" ];
   };
 }
