@@ -28,7 +28,7 @@ inputs:
           # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
           "alderlake"
         ];
-        nixpkgs = { march = "znver5"; rocm = true; };
+        nixpkgs = { march = "znver5"; rocm = false; };
         sysctl.laptop-mode = 5;
         kernel.variant = "xanmod-latest";
       };
