@@ -32,7 +32,7 @@ inputs:
         ];
         # nixpkgs.march = "znver4";
         sysctl.laptop-mode = 5;
-        # kernel.variant = "xanmod-latest";
+        kernel.variant = "xanmod-latest";
       };
       hardware = { gpu.type = "amd"; cpu = "amd"; asus = {};};
       services =
