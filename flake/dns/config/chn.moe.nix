@@ -4,14 +4,17 @@ let
   {
     nas = [ "initrd.nas" ];
     office = [ "srv2-node0" "xserverxmu" ];
-    vps4 = [ "initrd.vps4" "xserver2.vps4" ];
+    vps4 =
+    [
+      "initrd.vps4" "xserver2.vps4"
+      # to nas
+      "git" "grafana" "matrix" "peertube" "send" "vikunja" "铜锣湾" "xservernas" "chat" "freshrss" "huginn" "nextcloud"
+      "photoprism" "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api"
+    ];
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi" "ua" "xserver2"
       "xserver2.vps6"
-      # to nas
-      "git" "grafana" "matrix" "peertube" "send" "vikunja" "铜锣湾" "xservernas" "chat" "freshrss" "huginn" "nextcloud"
-      "photoprism" "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api"
       # to pc
       "铜锣湾实验室"
     ];

@@ -38,13 +38,7 @@ inputs:
           }
           // (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "wg0.pc.chn.moe"; })
-            [ "xn--qbtm095lrg0bfka60z" ]))
-          // (builtins.listToAttrs (builtins.map
-            (site: { name = "${site}.chn.moe"; value.upstream.address = "wg0.nas.chn.moe"; })
-            [
-              "xn--s8w913fdga" "matrix" "send" "git" "grafana" "peertube" "rsshub" "misskey" "synapse" "vaultwarden"
-              "photoprism" "nextcloud" "freshrss" "huginn" "api" "webdav" "chat"
-            ]));
+            [ "xn--qbtm095lrg0bfka60z" ]));
           applications =
           {
             element.instances."element.chn.moe" = {};
