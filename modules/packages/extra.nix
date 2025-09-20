@@ -10,6 +10,10 @@ inputs:
       davinci-resolve
       fluffychat signal-desktop qq nur-xddxdd.wechat-uos-sandboxed cinny-desktop hexchat halloy
       appflowy notion-app-enhanced joplin-desktop logseq obsidian code-cursor
+      warp-terminal
+      rustdesk-flutter
+      yubikey-manager-qt yubikey-personalization-gui electrum jabref john crunch
+      nur-xddxdd.baidupcs-go wgetpaste onedrive onedrivegui rclone
     ];
     programs =
     {

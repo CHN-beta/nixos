@@ -32,18 +32,13 @@ inputs:
           mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk qcm
           waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio
           (inkscape-with-extensions.override { inkscapeExtensions = null; })
-          # terminal
-          warp-terminal
           # development
           adb-sync scrcpy dbeaver-bin cling aircrack-ng
           weston cage openbox krita fprettify # jetbrains.clion 
-          # desktop sharing
-          rustdesk-flutter
           # password and key management
-          yubikey-manager yubikey-manager-qt yubikey-personalization yubikey-personalization-gui bitwarden hashcat
-          electrum jabref john crunch
+          yubikey-manager bitwarden hashcat yubikey-personalization
           # download
-          qbittorrent nur-xddxdd.baidupcs-go wgetpaste onedrive onedrivegui rclone
+          qbittorrent
           # editor
           typora standardnotes
           # news
