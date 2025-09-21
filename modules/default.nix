@@ -22,7 +22,7 @@ inputs: let inherit (inputs) topInputs; in
       {
         home-manager.sharedModules =
         [
-          topInputs.plasma-manager.homeManagerModules.plasma-manager
+          topInputs.plasma-manager.homeModules.plasma-manager
           topInputs.catppuccin.homeModules.catppuccin
         ];
       };

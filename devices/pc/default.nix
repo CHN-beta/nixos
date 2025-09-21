@@ -30,11 +30,11 @@ inputs:
           # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
           "alderlake"
         ];
-        # nixpkgs.march = "znver4";
+        nixpkgs = { march = "znver5"; rocm = false; };
         sysctl.laptop-mode = 5;
         kernel.variant = "xanmod-latest";
       };
-      hardware = { gpu.type = "amd"; cpu = "amd"; asus = {};};
+      hardware = { gpu.type = "amd"; asus = {};};
       services =
       {
         samba =
@@ -85,7 +85,7 @@ inputs:
         lumericalLicenseManager.macAddress = "10:5f:ad:10:3e:ca";
       };
       bugs = [ "xmunet" "amdpstate" "iwlwifi" ];
-      # packages = { mathematica = {}; vasp = {}; lumerical = {}; };
+      packages = { mathematica = {}; vasp = {}; lumerical = {}; };
       user.users = [ "chn" "xly" ];
     };
     # 允许kvm读取物理硬盘

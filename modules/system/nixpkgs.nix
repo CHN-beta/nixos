@@ -12,31 +12,26 @@ inputs:
       };});
       default = null;
     };
+    rocm = mkOption { type = types.bool; default = false; };
   };
   config = let inherit (inputs.config.nixos.system) nixpkgs; in
   {
     nixpkgs = inputs.localLib.buildNixpkgsConfig
     {
       inherit inputs;
-      nixpkgs = nixpkgs // { nixRoot = null; nixos = true; inherit (inputs.config.nixos.model) arch; };
+      nixpkgs = nixpkgs // { nixos = true; inherit (inputs.config.nixos.model) arch; };
     };
     boot.kernelPatches = inputs.lib.mkIf (nixpkgs.march != null)
-    (
-      let configName =
-        if inputs.config.nixos.system.kernel.variant == "xanmod-unstable" then "structuredExtraConfig"
-        else "extraStructuredConfig";
-      in
-      [{
-        name = "native kernel";
-        patch = null;
-        ${configName} =
-          let kernelConfig = { znver2 = "MZEN2"; znver3 = "MZEN3"; znver4 = "MZEN4"; znver5 = "MZEN5"; };
-          in
-          {
-            GENERIC_CPU = inputs.lib.kernel.no;
-            ${kernelConfig.${nixpkgs.march} or "M${inputs.lib.toUpper nixpkgs.march}"} = inputs.lib.kernel.yes;
-          };
-      }]
-    );
+    [{
+      name = "native kernel";
+      patch = null;
+      structuredExtraConfig =
+        let kernelConfig = { znver2 = "MZEN2"; znver3 = "MZEN3"; znver4 = "MZEN4"; znver5 = "MZEN5"; };
+        in
+        {
+          GENERIC_CPU = inputs.lib.kernel.no;
+          ${kernelConfig.${nixpkgs.march} or "M${inputs.lib.toUpper nixpkgs.march}"} = inputs.lib.kernel.yes;
+        };
+    }];
   };
 }
