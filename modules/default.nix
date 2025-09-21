@@ -14,8 +14,6 @@ inputs: let inherit (inputs) topInputs; in
     topInputs.nixvirt.nixosModules.default
     topInputs.niri.nixosModules.niri
     { config.niri-flake.cache.enable = false; }
-    # TODO: Remove after next release
-    "${topInputs.nixpkgs-unstable}/nixos/modules/services/hardware/lact.nix"
     (inputs:
     {
       config =
