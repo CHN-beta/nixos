@@ -1218,15 +1218,16 @@
     "py4vasp": {
       "flake": false,
       "locked": {
-        "lastModified": 1757089320,
-        "narHash": "sha256-cUt43FOVwGkOgNzvONLR/QxznyUkDxboyoQyF5/15Zk=",
+        "lastModified": 1745508505,
+        "narHash": "sha256-BIqS4+eUv8lsHTU+7jUeYfV/RH9h/KGAS6IHYK0irfM=",
         "owner": "vasp-dev",
         "repo": "py4vasp",
-        "rev": "0f740e49fa51d5ad6f74d01b0606f5f007e0c70e",
+        "rev": "610982df0d17fd16a0ffe2ae985f95f1a0d9cdb6",
         "type": "github"
       },
       "original": {
         "owner": "vasp-dev",
+        "ref": "v0.10.2",
         "repo": "py4vasp",
         "type": "github"
       }

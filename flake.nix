@@ -52,7 +52,7 @@
     nc4nix = { url = "github:helsinki-systems/nc4nix"; flake = false; };
     hextra = { url = "github:imfing/hextra"; flake = false; };
     nu-scripts = { url = "github:nushell/nu_scripts"; flake = false; };
-    py4vasp = { url = "github:vasp-dev/py4vasp"; flake = false; };
+    py4vasp = { url = "github:vasp-dev/py4vasp?ref=v0.10.2"; flake = false; };
     pocketfft = { url = "github:mreineck/pocketfft"; flake = false; };
     blog = { url = "git+https://git.chn.moe/chn/blog-public.git?lfs=1"; flake = false; };
     nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git?lfs=1"; flake = false; };
