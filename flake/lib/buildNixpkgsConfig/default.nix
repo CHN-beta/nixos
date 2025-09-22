@@ -63,7 +63,6 @@ in platformConfig //
         };
         libvirt = (prev.libvirt.override { iptables = final.nftables; }).overrideAttrs
           (prev: { patches = prev.patches or [] ++ [ ./libvirt.patch ]; });
-        podman = prev.podman.override { iptables = final.nftables; };
         root = prev.root.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ]; });
         boost188 = prev.boost188.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./boost188.patch ]; });
       }

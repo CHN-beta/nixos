@@ -18,6 +18,7 @@ inputs:
         dockerCompat = true;
         # Required for containers under podman-compose to be able to talk to each other.
         defaultNetwork.settings.dns_enabled = true;
+        extraPackages = [ inputs.pkgs.nftables ];
       };
     };
     hardware.nvidia-container-toolkit.enable = inputs.lib.mkIf (inputs.config.nixos.system.nixpkgs.cuda != null) true;
