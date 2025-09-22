@@ -11,14 +11,13 @@ inputs:
   config = inputs.lib.mkMerge
   [
     # 将一部分由 home-manager 生成软链接的文件改为直接挂载，以兼容集群的设置
-    (let files = [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ]; in
+    (let files = [ ".zshrc" ".profile" ".bashrc" ".bash_profile" ]; in
     {
       home-manager.users = builtins.listToAttrs (builtins.map
-        (user:
+        (user: inputs.lib.nameValuePair user
         {
-          name = user;
-          value.config.home.file =
-            builtins.listToAttrs (builtins.map (file: { name = file; value.enable = false; }) files);
+          config.home.file = builtins.listToAttrs (builtins.map
+            (file: inputs.lib.nameValuePair "/home/${user}/${file}" { enable = false; }) files);
         })
         inputs.config.nixos.user.users);
       systemd.mounts = builtins.concatLists (builtins.map
