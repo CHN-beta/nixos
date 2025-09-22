@@ -42,6 +42,7 @@ in platformConfig //
     inputs.topInputs.nur-xddxdd.overlays.inSubTree
     inputs.topInputs.buildproxy.overlays.default
     inputs.topInputs.nix4vscode.overlays.default
+    inputs.topInputs.bscpkgs.overlays.default
     (final: prev:
     {
       nur-linyinfeng = (inputs.topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
@@ -75,7 +76,7 @@ in platformConfig //
           {
             pkgs-2305 = "nixpkgs-2305";
             pkgs-2311 = "nixpkgs-2311";
-            pkgs-2411 = { source = "nixpkgs-2411"; overlays = [ inputs.topInputs.bscpkgs.overlays.default ]; };
+            pkgs-2411 = "nixpkgs-2411";
             # pkgs-unstable =
             # {
             #   source = "nixpkgs-unstable";
