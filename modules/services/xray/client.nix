@@ -49,7 +49,7 @@ inputs:
       {
         owner = inputs.config.users.users.v2ray.name;
         group = inputs.config.users.users.v2ray.group;
-        content = let chinaDns = "223.5.5.5"; foreignDns = "8.8.8.8"; in builtins.toJSON
+        content = builtins.toJSON
         {
           log.loglevel = "warning";
           dns =
@@ -59,19 +59,19 @@ inputs:
             # 若匹配域名列表失败，或者匹配成功但是查询到的 IP 不在期望的 IP 列表中，则回落到使用后两个 dns 依次查询。
             [
               {
-                address = chinaDns;
+                address = "https://1.12.12.12/dns-query";
                 domains = [ "geosite:geolocation-cn" ];
                 expectIPs = [ "geoip:cn" ];
                 skipFallback = true;
               }
               {
-                address = foreignDns;
+                address = "8.8.8.8";
                 domains = [ "geosite:geolocation-!cn" ];
                 expectIPs = [ "geoip:!cn" ];
                 skipFallback = true;
               }
-              { address = chinaDns; expectIPs = [ "geoip:cn" ]; }
-              { address = foreignDns; }
+              { address = "https://1.12.12.12/dns-query"; expectIPs = [ "geoip:cn" ]; }
+              { address = "8.8.8.8"; }
             ];
             disableCache = true;
             queryStrategy = "UseIPv4";
@@ -153,8 +153,8 @@ inputs:
             rules = builtins.map (rule: rule // { type = "field"; })
             [
               { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
-              { inboundTag = [ "dns-internal" ]; ip = [ chinaDns ]; outboundTag = "direct"; }
-              { inboundTag = [ "dns-internal" ]; ip = [ foreignDns ]; outboundTag = "proxy-vless"; }
+              { inboundTag = [ "dns-internal" ]; ip = [ "1.12.12.12" ]; outboundTag = "direct"; }
+              { inboundTag = [ "dns-internal" ]; ip = [ "8.8.8.8" ]; outboundTag = "proxy-vless"; }
               { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
               { inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
               { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
