@@ -89,7 +89,7 @@ inputs: rec
   ufo = inputs.pkgs.callPackage inputs.topInputs.ufo
   {
     inherit biu matplotplusplus;
-    tbb = inputs.pkgs.tbb_2021_11;
+    tbb = inputs.pkgs.tbb_2022;
     stdenv = inputs.pkgs.clang18Stdenv;
   };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
