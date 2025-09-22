@@ -30,7 +30,7 @@ inputs:
           remmina putty mtr-gui
           # media
           mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk qcm
-          waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio
+          waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio subtitleeditor
           (inkscape-with-extensions.override { inkscapeExtensions = null; })
           # development
           adb-sync scrcpy dbeaver-bin cling aircrack-ng
