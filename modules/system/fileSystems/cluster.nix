@@ -11,7 +11,7 @@ inputs:
   config = inputs.lib.mkMerge
   [
     # 将一部分由 home-manager 生成软链接的文件改为直接挂载，以兼容集群的设置
-    (let files = [ ".zshrc" ".profile" ".bashrc" ".bash_profile" ]; in
+    (let files = [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]; in
     {
       home-manager.users = builtins.listToAttrs (builtins.map
         (user: inputs.lib.nameValuePair user
