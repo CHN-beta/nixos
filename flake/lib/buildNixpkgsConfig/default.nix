@@ -110,8 +110,9 @@ in platformConfig //
       #   { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
       # // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx512Support)
       #   { libhwy = prev.libhwy.override { stdenv = final.genericPackages.stdenv; }; })
-      # // (inputs.lib.optionalAttrs (nixpkgs.march != null)
-      # {
+      // (inputs.lib.optionalAttrs (nixpkgs.march != null)
+      {
+        assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
       #   libinsane = prev.libinsane.overrideAttrs (prev:
       #     { nativeCheckInputs = builtins.filter (p: p.pname != "valgrind") prev.nativeCheckInputs; });
       #   lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
@@ -153,7 +154,7 @@ in platformConfig //
       #     })
       #   ))];
       #   inherit (final.pkgs-2411) intelPackages_2023;
-      # })
+      })
       # // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
       #   { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
       # // (inputs.lib.optionalAttrs (nixpkgs.arch or null == "aarch64") { nix = final.nixVersions.nix_2_29; })
