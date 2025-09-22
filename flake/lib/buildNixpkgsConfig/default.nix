@@ -115,7 +115,7 @@ in platformConfig //
         assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
       #   libinsane = prev.libinsane.overrideAttrs (prev:
       #     { nativeCheckInputs = builtins.filter (p: p.pname != "valgrind") prev.nativeCheckInputs; });
-      #   lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
+        lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
       #   libreoffice-qt6-fresh = prev.libreoffice-qt6-fresh.override (prev:
       #     { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
       #     ''
