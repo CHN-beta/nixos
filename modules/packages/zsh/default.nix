@@ -28,8 +28,6 @@ inputs:
               plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
               theme = inputs.lib.mkDefault "clean";
             };
-            # ensure ~/.zlogin exists
-            loginExtra = " ";
           };
           home.shell.enableZshIntegration = true;
         }
