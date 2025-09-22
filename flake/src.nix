@@ -128,7 +128,7 @@
   mirism-old = pkgs.requireFile
   {
     name = "mirism";
-    sha256 = "0f50pvdafhlmrlbf341mkp9q50v4ld5pbx92d2w1633f18zghbzf";
+    sha256 = "1zhhzwi325g21kqdip7zzw1i9b354h1wpzd4zhzb1ql9kjdh87q3";
     hashMode = "recursive";
     message = "Source file not found.";
   };
