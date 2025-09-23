@@ -83,6 +83,7 @@ inputs:
         peerBanHelper = {};
         mariadb.mountFrom = "nodatacow";
         lumericalLicenseManager.macAddress = "10:5f:ad:10:3e:ca";
+        waydroid = {};
       };
       bugs = [ "xmunet" "amdpstate" "iwlwifi" ];
       packages = { mathematica = {}; vasp = {}; lumerical = {}; };
