@@ -129,7 +129,7 @@ in platformConfig //
       #     '';});});
       #   opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
       #   openvswitch = prev.openvswitch.overrideAttrs (prev: { doCheck = false; });
-      #   rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
+        rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
       #   valkey = prev.valkey.overrideAttrs { doCheck = false; };
       #   # -march=xxx cause embree build failed
       #   # https://github.com/embree/embree/issues/115
