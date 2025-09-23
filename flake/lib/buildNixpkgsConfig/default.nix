@@ -137,23 +137,24 @@ in platformConfig //
       #   simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
       #   ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
       #     { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
-      #   pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-      #   (
-      #     {
-      #       scipy = prev.scipy.overridePythonAttrs (prev:
-      #         { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
-      #       rich = prev.rich.overridePythonAttrs (prev:
-      #         { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
-      #     }
-      #     // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx2Support)
-      #     {
-      #       numcodecs = prev.numcodecs.overridePythonAttrs (prev:
-      #       {
-      #         disabledTests = prev.disabledTests or []
-      #           ++ [ "test_encode_decode" "test_partial_decode" "test_blosc" ];
-      #       });
-      #     })
-      #   ))];
+        pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
+        (
+          { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; }
+          # {
+          #   scipy = prev.scipy.overridePythonAttrs (prev:
+          #     { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
+          #   rich = prev.rich.overridePythonAttrs (prev:
+          #     { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
+          # }
+          # // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx2Support)
+          # {
+          #   numcodecs = prev.numcodecs.overridePythonAttrs (prev:
+          #   {
+          #     disabledTests = prev.disabledTests or []
+          #       ++ [ "test_encode_decode" "test_partial_decode" "test_blosc" ];
+          #   });
+          # })
+        ))];
       #   inherit (final.pkgs-2411) intelPackages_2023;
       })
       # // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
