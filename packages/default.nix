@@ -43,11 +43,7 @@ inputs: rec
       hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; cppSupport = false; };
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
-    {
-      inherit (nvhpcPackages) stdenv hdf5 mpi;
-      src = inputs.topInputs.self.src.vasp;
-      wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
-    };
+      { inherit (nvhpcPackages) stdenv hdf5 mpi; src = inputs.topInputs.self.src.vasp; };
     intel = inputs.pkgs.callPackage ./vasp/intel
     {
       src = inputs.topInputs.self.src.vasp;
@@ -65,7 +61,6 @@ inputs: rec
         enableShared = false;
         enableStatic = true;
       };
-      wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
     vtst = inputs.pkgs.callPackage ./vasp/vtst.nix { src = inputs.topInputs.self.src.vasp.vtst.script; };
   };
