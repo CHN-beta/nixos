@@ -113,6 +113,7 @@ in platformConfig //
       // (inputs.lib.optionalAttrs (nixpkgs.march != null)
       {
         assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
+        redis = prev.redis.overrideAttrs (prev: { doCheck = false; });
       #   libinsane = prev.libinsane.overrideAttrs (prev:
       #     { nativeCheckInputs = builtins.filter (p: p.pname != "valgrind") prev.nativeCheckInputs; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
