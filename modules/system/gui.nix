@@ -67,14 +67,6 @@ inputs:
     (inputs.lib.mkIf (gui.implementation == "niri")
     {
       programs.niri.enable = true;
-      nixos.user.sharedModules = [(hmInputs:
-      {
-        config.programs =
-        {
-          niri.enable = true;
-          dankMaterialShell = { enable = true; enableKeybinds = true; enableSystemd = true; };
-        };
-      })];
     })
   ];
 }

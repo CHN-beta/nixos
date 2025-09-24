@@ -24,7 +24,6 @@ inputs: let inherit (inputs) topInputs; in
         [
           topInputs.plasma-manager.homeModules.plasma-manager
           topInputs.catppuccin.homeModules.catppuccin
-          topInputs.dankmaterialshell.homeModules.dankMaterialShell
         ];
       };
     })
