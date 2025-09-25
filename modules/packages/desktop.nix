@@ -125,9 +125,8 @@ inputs:
       adb.enable = true;
       wireshark = { enable = true; package = inputs.pkgs.wireshark; };
       yubikey-touch-detector.enable = true;
-      kdeconnect.enable = inputs.lib.mkIf (inputs.config.nixos.system.gui.implementation == "kde") true;
-      kde-pim = inputs.lib.mkIf (inputs.config.nixos.system.gui.implementation == "kde")
-        { enable = true; kmail = true; };
+      kdeconnect.enable = true;
+      kde-pim = { enable = true; kmail = true; };
       coolercontrol =
       {
         enable = true;
