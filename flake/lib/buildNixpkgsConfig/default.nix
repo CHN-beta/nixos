@@ -115,6 +115,7 @@ in platformConfig //
         assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
         redis = prev.redis.overrideAttrs (prev: { doCheck = false; });
         wannier90 = prev.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
+        xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
       #   libinsane = prev.libinsane.overrideAttrs (prev:
       #     { nativeCheckInputs = builtins.filter (p: p.pname != "valgrind") prev.nativeCheckInputs; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
