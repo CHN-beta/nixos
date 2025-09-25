@@ -53,6 +53,7 @@ inputs:
             {
               extraConfig = ''gtk-im-module="fcitx"'';
               configLocation = "${hmInputs.config.xdg.configHome}/gtk-2.0/gtkrc";
+              force = true;
             };
             gtk3.extraConfig.gtk-im-module = "fcitx";
             gtk4.extraConfig.gtk-im-module = "fcitx";
