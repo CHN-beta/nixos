@@ -6,11 +6,11 @@ inputs:
     services.journald.extraConfig = "MaxRetentionSec=7d";
     systemd =
     {
-      extraConfig =
-      ''
-        DefaultTimeoutStopSec=10s
-        DefaultLimitNOFILE=1048576:1048576
-      '';
+      settings.Manager =
+      {
+        DefaultTimeoutStopSec = "10s";
+        DefaultLimitNOFILE = "1048576:1048576";
+      };
       user.extraConfig = "DefaultTimeoutStopSec=10s";
       services =
       {

@@ -11,29 +11,35 @@ inputs:
   config = inputs.lib.mkMerge
   [
     # 将一部分由 home-manager 生成软链接的文件改为直接挂载，以兼容集群的设置
-    (let files = [ ".zshrc" ".zshenv" ".profile" ".bashrc" ".bash_profile" ".zlogin" ]; in
-    {
-      home-manager.users = builtins.listToAttrs (builtins.map
-        (user:
-        {
-          name = user;
-          value.config.home.file =
-            builtins.listToAttrs (builtins.map (file: { name = file; value.enable = false; }) files);
-        })
-        inputs.config.nixos.user.users);
-      systemd.mounts = builtins.concatLists (builtins.map
-        (user: builtins.map
-          (file:
+    (
+      let files = user:
+      [
+        "/home/${user}/.zshrc" "/home/${user}/.zshenv" "/home/${user}/.zlogin"
+        ".profile" ".bashrc" ".bash_profile"
+      ];
+      in
+      {
+        home-manager.users = builtins.listToAttrs (builtins.map
+          (user: inputs.lib.nameValuePair user
           {
-            what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
-            where = "/home/${user}/${file}";
-            options = "bind";
-            wantedBy = [ "local-fs.target" ];
+            config.home.file = builtins.listToAttrs (builtins.map
+              (file: inputs.lib.nameValuePair "${file}" { enable = false; }) (files user));
           })
-          files
-        )
-        inputs.config.nixos.user.users);
-    })
+          inputs.config.nixos.user.users);
+        systemd.mounts = builtins.concatLists (builtins.map
+          (user: builtins.map
+            (file:
+            {
+              what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
+              where = "/home/${user}/${file}";
+              options = "bind";
+              wantedBy = [ "local-fs.target" ];
+            })
+            (files user)
+          )
+          inputs.config.nixos.user.users);
+      }
+    )
     (
       let
         fsCluster = inputs.config.nixos.system.fileSystems.cluster;

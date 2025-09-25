@@ -12,7 +12,7 @@ inputs:
           displayName = "ROOT";
           language = "c++";
           argv = [ "/run/current-system/sw/bin/python3" "-m" "JupyROOT.kernel.rootkernel" "-f" "{connection_file}" ];
-          logo64 = "${root}/etc/root/notebook/kernels/root/logo-64x64.png";
+          logo64 = "${root}/etc/notebook/kernels/root/logo-64x64.png";
           logo32 = inputs.pkgs.runCommand "logo-32x32.png" {}
             "${inputs.pkgs.imagemagick}/bin/convert ${logo64} -resize 32x32 $out";
         };};

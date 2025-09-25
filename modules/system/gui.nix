@@ -43,17 +43,22 @@ inputs:
       programs.dconf.enable = true;
       nixos.user.sharedModules = [(hmInputs:
       {
-        config.gtk =
+        config =
         {
-          enable = true;
-          theme.name = "Breeze";
-          gtk2 =
+          gtk =
           {
-            extraConfig = ''gtk-im-module="fcitx"'';
-            configLocation = "${hmInputs.config.xdg.configHome}/gtk-2.0/gtkrc";
+            enable = true;
+            theme.name = "Breeze";
+            gtk2 =
+            {
+              extraConfig = ''gtk-im-module="fcitx"'';
+              configLocation = "${hmInputs.config.xdg.configHome}/gtk-2.0/gtkrc";
+            };
+            gtk3.extraConfig.gtk-im-module = "fcitx";
+            gtk4.extraConfig.gtk-im-module = "fcitx";
           };
-          gtk3.extraConfig.gtk-im-module = "fcitx";
-          gtk4.extraConfig.gtk-im-module = "fcitx";
+          # TODO: infinite recursion
+          # home.file."${hmInputs.config.gtk.gtk2.configLocation}".force = true;
         };
       })];
     })

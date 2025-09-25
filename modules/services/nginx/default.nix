@@ -55,7 +55,6 @@ inputs:
         client_body_timeout 1h;
       '';
       proxyTimeout = "1d";
-      recommendedZstdSettings = true;
       recommendedTlsSettings = true;
       # do not set Host header
       recommendedProxySettings = false;

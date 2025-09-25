@@ -1,8 +1,8 @@
 {
   stdenv, src, buildFHSEnv, writeScript, autoPatchelfHook, writeShellScriptBin,
-  libxml2, libz, freeglut, libGLU, xorg, alsa-lib, freetype, wayland, fontconfig, libxkbcommon, systemd, numactl, nss,
+  libz, freeglut, libGLU, xorg, alsa-lib, freetype, wayland, fontconfig, libxkbcommon, systemd, numactl, nss,
   at-spi2-atk, libxcrypt-legacy, glibtool, tbb, libxslt, glib, gtk3, libedit, gdbm, ncurses5, mesa, libdrm, xmlsec,
-  libsForQt5, mpi, libGL, xz, libgbm
+  libsForQt5, mpi, libGL, xz, libgbm, libxml2_13
 }:
 let
   unwrapped = stdenv.mkDerivation
@@ -31,7 +31,7 @@ let
     inherit src;
     buildInputs =
     [
-      stdenv.cc.cc libz libGLU libGL mpi libxml2 xmlsec freeglut fontconfig libxkbcommon systemd tbb xz glib
+      stdenv.cc.cc libz libGLU libGL mpi libxml2_13 xmlsec freeglut fontconfig libxkbcommon systemd tbb xz glib
       libxcrypt-legacy at-spi2-atk gtk3 libdrm alsa-lib ncurses5 libgbm libedit gdbm
     ]
       ++ (with xorg;

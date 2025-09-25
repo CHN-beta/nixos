@@ -43,11 +43,7 @@ inputs: rec
       hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; cppSupport = false; };
     };
     nvidia = inputs.pkgs.callPackage ./vasp/nvidia
-    {
-      inherit (nvhpcPackages) stdenv hdf5 mpi;
-      src = inputs.topInputs.self.src.vasp;
-      wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
-    };
+      { inherit (nvhpcPackages) stdenv hdf5 mpi; src = inputs.topInputs.self.src.vasp; };
     intel = inputs.pkgs.callPackage ./vasp/intel
     {
       src = inputs.topInputs.self.src.vasp;
@@ -65,7 +61,6 @@ inputs: rec
         enableShared = false;
         enableStatic = true;
       };
-      wannier90 = inputs.pkgs.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
     };
     vtst = inputs.pkgs.callPackage ./vasp/vtst.nix { src = inputs.topInputs.self.src.vasp.vtst.script; };
   };
@@ -89,7 +84,7 @@ inputs: rec
   ufo = inputs.pkgs.callPackage inputs.topInputs.ufo
   {
     inherit biu matplotplusplus;
-    tbb = inputs.pkgs.tbb_2021_11;
+    tbb = inputs.pkgs.tbb_2022;
     stdenv = inputs.pkgs.clang18Stdenv;
   };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
@@ -145,8 +140,7 @@ inputs: rec
   speedtest = inputs.pkgs.callPackage ./speedtest.nix { src = inputs.topInputs.speedtest; };
   atat = inputs.pkgs.callPackage ./atat.nix { src = inputs.topInputs.self.src.atat; };
   atomkit = inputs.pkgs.callPackage ./atomkit.nix { src = inputs.topInputs.self.src.atomkit; };
-  xinli = inputs.pkgs.callPackage ./xinli
-    { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; inherit (inputs.pkgs.pkgs-unstable) httplib; };
+  xinli = inputs.pkgs.callPackage ./xinli { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

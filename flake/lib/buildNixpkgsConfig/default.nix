@@ -42,6 +42,7 @@ in platformConfig //
     inputs.topInputs.nur-xddxdd.overlays.inSubTree
     inputs.topInputs.buildproxy.overlays.default
     inputs.topInputs.nix4vscode.overlays.default
+    inputs.topInputs.bscpkgs.overlays.default
     (final: prev:
     {
       nur-linyinfeng = (inputs.topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
@@ -63,15 +64,8 @@ in platformConfig //
         };
         libvirt = (prev.libvirt.override { iptables = final.nftables; }).overrideAttrs
           (prev: { patches = prev.patches or [] ++ [ ./libvirt.patch ]; });
-        podman = prev.podman.override { iptables = final.nftables; };
-        root = (prev.root.override { stdenv = final.gcc13Stdenv; }).overrideAttrs (prev:
-        {
-          patches = prev.patches or [] ++ [ ./root.patch ];
-          cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ];
-        });
+        root = prev.root.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ]; });
         boost188 = prev.boost188.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./boost188.patch ]; });
-        inherit (final.pkgs-2411) iio-sensor-proxy;
-        inherit (final.pkgs-unstable) bees;
       }
       // (
         let
@@ -82,20 +76,20 @@ in platformConfig //
           {
             pkgs-2305 = "nixpkgs-2305";
             pkgs-2311 = "nixpkgs-2311";
-            pkgs-2411 = { source = "nixpkgs-2411"; overlays = [ inputs.topInputs.bscpkgs.overlays.default ]; };
-            pkgs-unstable =
-            {
-              source = "nixpkgs-unstable";
-              overlays =
-              [
-                inputs.topInputs.self.overlays.default
-                (_: _:
-                {
-                  genericPackages = import inputs.topInputs.nixpkgs-unstable
-                    { inherit system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
-                })
-              ];
-            };
+            pkgs-2411 = "nixpkgs-2411";
+            # pkgs-unstable =
+            # {
+            #   source = "nixpkgs-unstable";
+            #   overlays =
+            #   [
+            #     inputs.topInputs.self.overlays.default
+            #     (_: _:
+            #     {
+            #       genericPackages = import inputs.topInputs.nixpkgs-unstable
+            #         { inherit system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
+            #     })
+            #   ];
+            # };
           };
           packages = name:
             let flakeSource = inputs.topInputs.${source.${name}.source or source.${name}};
@@ -114,54 +108,52 @@ in platformConfig //
       )
       // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
         { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
-      // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx512Support)
-        { libhwy = prev.libhwy.override { stdenv = final.genericPackages.stdenv; }; })
+      # // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx512Support)
+      #   { libhwy = prev.libhwy.override { stdenv = final.genericPackages.stdenv; }; })
       // (inputs.lib.optionalAttrs (nixpkgs.march != null)
       {
-        libinsane = prev.libinsane.overrideAttrs (prev:
-          { nativeCheckInputs = builtins.filter (p: p.pname != "valgrind") prev.nativeCheckInputs; });
+        assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
+        redis = prev.redis.overrideAttrs (prev: { doCheck = false; });
+        wannier90 = prev.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
+        xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
+      #   libinsane = prev.libinsane.overrideAttrs (prev:
+      #     { nativeCheckInputs = builtins.filter (p: p.pname != "valgrind") prev.nativeCheckInputs; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
         libreoffice-qt6-fresh = prev.libreoffice-qt6-fresh.override (prev:
           { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
           ''
             sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
           '';});});
-        libreoffice-still = prev.libreoffice-still.override (prev:
-          { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
-          ''
-            sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
-          '';});});
         opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
-        openvswitch = prev.openvswitch.overrideAttrs (prev: { doCheck = false; });
+      #   openvswitch = prev.openvswitch.overrideAttrs (prev: { doCheck = false; });
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
-        valkey = prev.valkey.overrideAttrs { doCheck = false; };
-        # -march=xxx cause embree build failed
-        # https://github.com/embree/embree/issues/115
+      #   valkey = prev.valkey.overrideAttrs { doCheck = false; };
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
-        ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
-          { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
+      #   ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
+      #     { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
         (
-          {
-            scipy = prev.scipy.overridePythonAttrs (prev:
-              { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
-            rich = prev.rich.overridePythonAttrs (prev:
-              { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
-          }
-          // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx2Support)
-          {
-            numcodecs = prev.numcodecs.overridePythonAttrs (prev:
-            {
-              disabledTests = prev.disabledTests or []
-                ++ [ "test_encode_decode" "test_partial_decode" "test_blosc" ];
-            });
-          })
+          { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; }
+          # {
+          #   scipy = prev.scipy.overridePythonAttrs (prev:
+          #     { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
+          #   rich = prev.rich.overridePythonAttrs (prev:
+          #     { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
+          # }
+          # // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx2Support)
+          # {
+          #   numcodecs = prev.numcodecs.overridePythonAttrs (prev:
+          #   {
+          #     disabledTests = prev.disabledTests or []
+          #       ++ [ "test_encode_decode" "test_partial_decode" "test_blosc" ];
+          #   });
+          # })
         ))];
-        inherit (final.pkgs-2411) intelPackages_2023;
+      #   inherit (final.pkgs-2411) intelPackages_2023;
       })
-      // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
-        { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
-      // (inputs.lib.optionalAttrs (nixpkgs.arch or null == "aarch64") { nix = final.nixVersions.nix_2_29; })
+      # // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
+      #   { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
+      # // (inputs.lib.optionalAttrs (nixpkgs.arch or null == "aarch64") { nix = final.nixVersions.nix_2_29; })
   )];
 }
