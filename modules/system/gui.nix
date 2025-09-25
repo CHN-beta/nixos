@@ -57,8 +57,6 @@ inputs:
             gtk3.extraConfig.gtk-im-module = "fcitx";
             gtk4.extraConfig.gtk-im-module = "fcitx";
           };
-          # TODO: infinite recursion
-          # home.file."${hmInputs.config.gtk.gtk2.configLocation}".force = true;
         };
       })];
     })
