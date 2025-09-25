@@ -31,7 +31,7 @@ inputs:
             (file:
             {
               what = "${inputs.config.home-manager.users.${user}.home.file.${file}.source}";
-              where = "/home/${user}/${file}";
+              where = if inputs.lib.strings.hasPrefix "/home" file then file else "/home/${user}/${file}";
               options = "bind";
               wantedBy = [ "local-fs.target" ];
             })
