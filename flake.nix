@@ -33,6 +33,7 @@
     buildproxy = { url = "github:polygon/nix-buildproxy"; inputs.nixpkgs.follows = "nixpkgs"; };
     niri.url = "github:sodiboo/niri-flake";
     nix4vscode = { url = "github:nix-community/nix4vscode"; inputs.nixpkgs.follows = "nixpkgs"; };
+    dankmaterialshell = { url = "github:AvengeMedia/DankMaterialShell"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
