@@ -37,9 +37,7 @@ inputs:
       config.programs.ssh =
       {
         enable = true;
-        controlMaster = "auto";
-        controlPersist = "1m";
-        compression = true;
+        enableDefaultConfig = false;
         matchBlocks = builtins.listToAttrs (builtins.map
           (host:
           {
@@ -64,6 +62,7 @@ inputs:
             extraOptions.AddKeysToAgent = "yes";
           };
           "wg0.jykang" = jykang // { host = "wg0.jykang"; proxyJump = "wg0.srv2"; };
+          "*" = { controlMaster = "auto"; controlPersist = "1m"; compression = true; };
         };
       };
     })];

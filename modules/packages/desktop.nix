@@ -42,7 +42,7 @@ inputs:
           # editor
           typora standardnotes
           # news
-          fluent-reader rssguard newsflash newsboat follow
+          fluent-reader rssguard newsflash newsboat folo
           # nix tools
           nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github prefetch-npm-deps nix-prefetch-docker
           nix-template nil bundix

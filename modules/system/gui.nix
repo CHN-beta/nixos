@@ -19,7 +19,7 @@ inputs:
             let sessionData = "${inputs.config.services.displayManager.sessionData.desktops}/share";
             in builtins.concatStringsSep " "
             [
-              "${inputs.pkgs.greetd.tuigreet}/bin/tuigreet"
+              "${inputs.pkgs.tuigreet}/bin/tuigreet"
               "--sessions ${sessionData}/wayland-sessions --xsessions ${sessionData}/xsessions"
               "--time --asterisks --remember --remember-user-session"
               (inputs.lib.optionalString (gui.implementation == "kde") "--cmd startplasma-wayland")
