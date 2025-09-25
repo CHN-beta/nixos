@@ -58,7 +58,7 @@ inputs:
         databases = builtins.map (db: db.value.database) (inputs.localLib.attrsToList postgresql.instances);
       };
     };
-    systemd.services.postgresql.postStart = inputs.lib.mkAfter (builtins.concatStringsSep "\n" (builtins.map
+    systemd.services.postgresql-setup.script = inputs.lib.mkAfter (builtins.concatStringsSep "\n" (builtins.map
       (db:
         let
           passwordFile =
@@ -73,17 +73,17 @@ inputs:
             else "";
         in
         # create database if not exist
-        "$PSQL -tAc \"SELECT 1 FROM pg_database WHERE datname = '${db.value.database}'\" | grep -q 1"
-          + " || $PSQL -tAc 'CREATE DATABASE \"${db.value.database}\"${initializeFlag}'"
+        "psql -tAc \"SELECT 1 FROM pg_database WHERE datname = '${db.value.database}'\" | grep -q 1"
+          + " || psql -tAc 'CREATE DATABASE \"${db.value.database}\"${initializeFlag}'"
         # set user password
           + "\n"
-          + "$PSQL -tAc \"ALTER USER ${db.value.user} with encrypted password '$(cat ${passwordFile})'\""
+          + "psql -tAc \"ALTER USER ${db.value.user} with encrypted password '$(cat ${passwordFile})'\""
         # set db owner
           + "\n"
-          + "$PSQL -tAc \"select pg_catalog.pg_get_userbyid(d.datdba) FROM pg_catalog.pg_database d"
+          + "psql -tAc \"select pg_catalog.pg_get_userbyid(d.datdba) FROM pg_catalog.pg_database d"
           + " WHERE d.datname = '${db.value.database}' ORDER BY 1\""
           + " | grep -E '^${db.value.user}$' -q"
-          + " || $PSQL -tAc \"ALTER DATABASE ${db.value.database} OWNER TO ${db.value.user}\"")
+          + " || psql -tAc \"ALTER DATABASE ${db.value.database} OWNER TO ${db.value.user}\"")
       (inputs.localLib.attrsToList postgresql.instances)));
     nixos.system.sops.secrets = builtins.listToAttrs (builtins.map
       (db: { name = "postgresql/${db.value.user}"; value.owner = inputs.config.users.users.postgres.name; })
