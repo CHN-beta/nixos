@@ -74,12 +74,9 @@ inputs:
       programs.niri.enable = true;
       nixos.user.sharedModules = [(hmInputs:
       {
-        config.programs =
-        {
-          niri.enable = true;
-          dankMaterialShell = { enable = true; enableKeybinds = true; enableSystemd = true; };
-        };
+        config.programs.dankMaterialShell = { enable = true; enableKeybinds = true; enableSystemd = true; };
       })];
+      services.gnome.gcr-ssh-agent.enable = false;
     })
   ];
 }
