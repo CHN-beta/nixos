@@ -129,7 +129,7 @@ in platformConfig //
       #     ''
       #       sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
       #     '';});});
-      #   opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
+        opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
       #   openvswitch = prev.openvswitch.overrideAttrs (prev: { doCheck = false; });
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
       #   valkey = prev.valkey.overrideAttrs { doCheck = false; };
