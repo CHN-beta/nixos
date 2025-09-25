@@ -128,9 +128,7 @@ in platformConfig //
       #   openvswitch = prev.openvswitch.overrideAttrs (prev: { doCheck = false; });
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
       #   valkey = prev.valkey.overrideAttrs { doCheck = false; };
-      #   # -march=xxx cause embree build failed
-      #   # https://github.com/embree/embree/issues/115
-      #   embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
+        embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
       #   ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
       #     { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
