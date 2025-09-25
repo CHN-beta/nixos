@@ -119,16 +119,11 @@ in platformConfig //
       #   libinsane = prev.libinsane.overrideAttrs (prev:
       #     { nativeCheckInputs = builtins.filter (p: p.pname != "valgrind") prev.nativeCheckInputs; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
-        libreoffice-qt6-fresh-unwrapped = prev.libreoffice-qt6-fresh-unwrapped.overrideAttrs
-          (prev: { postPatch = prev.postPatch or "" +
+        libreoffice-qt6-fresh = prev.libreoffice-qt6-fresh.override (prev:
+          { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
           ''
             sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
-          '';});
-      #   libreoffice-still = prev.libreoffice-still.override (prev:
-      #     { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
-      #     ''
-      #       sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
-      #     '';});});
+          '';});});
         opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
       #   openvswitch = prev.openvswitch.overrideAttrs (prev: { doCheck = false; });
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
