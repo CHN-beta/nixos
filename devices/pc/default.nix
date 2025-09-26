@@ -32,7 +32,7 @@ inputs:
         ];
         nixpkgs = { march = "znver5"; rocm = false; };
         sysctl.laptop-mode = 5;
-        kernel.variant = "cachyos";
+        kernel.variant = "xanmod-latest";
       };
       hardware = { gpu.type = "amd"; asus = {};};
       services =
