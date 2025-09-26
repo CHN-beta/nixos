@@ -1,0 +1,24 @@
+diff --git a/cppcore/include/numeric/arrayref.hpp b/cppcore/include/numeric/arrayref.hpp
+index e1ef1ba..722ebdc 100644
+--- a/cppcore/include/numeric/arrayref.hpp
++++ b/cppcore/include/numeric/arrayref.hpp
+@@ -7,6 +7,7 @@
+ #include <numeric>
+ #include <stdexcept>
+ #include <array>
++#include <cstdint>
+ 
+ namespace cpb { namespace num {
+ 
+diff --git a/cppmodule/deps/pybind11/include/pybind11/attr.h b/cppmodule/deps/pybind11/include/pybind11/attr.h
+index 6962d6fc..f8261bc3 100644
+--- a/cppmodule/deps/pybind11/include/pybind11/attr.h
++++ b/cppmodule/deps/pybind11/include/pybind11/attr.h
+@@ -11,6 +11,7 @@
+ #pragma once
+ 
+ #include "cast.h"
++#include <cstdint>
+ 
+ NAMESPACE_BEGIN(PYBIND11_NAMESPACE)
+ 

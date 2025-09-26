@@ -1213,6 +1213,45 @@
         "type": "github"
       }
     },
+    "pybinding": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1598796477,
+        "narHash": "sha256-4DtGtQ40TEaM6qSydwsj9gD3JqpaCFpcvWJISwn69Zk=",
+        "ref": "refs/heads/master",
+        "rev": "ec1128aaa84a1b43a74fb970479ce4544bd63179",
+        "revCount": 774,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/dean0x7d/pybinding"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/dean0x7d/pybinding"
+      }
+    },
+    "quickshell": {
+      "inputs": {
+        "nixpkgs": [
+          "dankmaterialshell",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1756981260,
+        "narHash": "sha256-GhuD9QVimjynHI0OOyZsqJsnlXr2orowh9H+HYz4YMs=",
+        "ref": "refs/heads/master",
+        "rev": "6eb12551baf924f8fdecdd04113863a754259c34",
+        "revCount": 672,
+        "type": "git",
+        "url": "https://git.outfoxxed.me/quickshell/quickshell"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.outfoxxed.me/quickshell/quickshell"
+      }
+    },
     "root": {
       "inputs": {
         "aagl": "aagl",
@@ -1254,6 +1293,7 @@
         "plasma-manager": "plasma-manager",
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
+        "pybinding": "pybinding",
         "rsshub": "rsshub",
         "rycee": "rycee",
         "sops-nix": "sops-nix",
