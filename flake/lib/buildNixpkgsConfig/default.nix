@@ -66,6 +66,10 @@ in platformConfig //
           (prev: { patches = prev.patches or [] ++ [ ./libvirt.patch ]; });
         root = prev.root.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ]; });
         boost188 = prev.boost188.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./boost188.patch ]; });
+        chromium = prev.chromium.override (prev:
+          { commandLineArgs = prev.commandLineArgs or "" + " --disable-features=GlobalShortcutsPortal"; });
+        google-chrome = prev.google-chrome.override (prev:
+          { commandLineArgs = prev.commandLineArgs or "" + " --disable-features=GlobalShortcutsPortal"; });
       }
       // (
         let
