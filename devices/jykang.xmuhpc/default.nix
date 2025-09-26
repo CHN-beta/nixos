@@ -18,7 +18,7 @@ let
 in pkgs.symlinkJoin
 {
   name = "jykang";
-  paths = with pkgs; [ hello iotop gnuplot localPackages.vaspkit pv btop python-lyj ];
+  paths = with pkgs; [ gnuplot localPackages.vaspkit pv python-lyj ];
   postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
   passthru = { inherit pkgs; };
 }
