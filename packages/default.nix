@@ -141,6 +141,11 @@ inputs: rec
   atat = inputs.pkgs.callPackage ./atat.nix { src = inputs.topInputs.self.src.atat; };
   atomkit = inputs.pkgs.callPackage ./atomkit.nix { src = inputs.topInputs.self.src.atomkit; };
   xinli = inputs.pkgs.callPackage ./xinli { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
+  pybinding = inputs.pkgs.pkgs-2411.python310Packages.callPackage ./pybinding
+  {
+    src = inputs.topInputs.pybinding;
+    buildProxy = inputs.pkgs.lib.mkBuildproxy ./pybinding/proxy.nix;
+  };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

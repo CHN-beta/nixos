@@ -1282,6 +1282,24 @@
         "type": "github"
       }
     },
+    "pybinding": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1598796477,
+        "narHash": "sha256-4DtGtQ40TEaM6qSydwsj9gD3JqpaCFpcvWJISwn69Zk=",
+        "ref": "refs/heads/master",
+        "rev": "ec1128aaa84a1b43a74fb970479ce4544bd63179",
+        "revCount": 774,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/dean0x7d/pybinding"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/dean0x7d/pybinding"
+      }
+    },
     "quickshell": {
       "inputs": {
         "nixpkgs": [
@@ -1345,6 +1363,7 @@
         "plasma-manager": "plasma-manager",
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
+        "pybinding": "pybinding",
         "rsshub": "rsshub",
         "rycee": "rycee",
         "sops-nix": "sops-nix",
