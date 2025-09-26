@@ -81,7 +81,22 @@ in platformConfig //
           {
             pkgs-2305 = "nixpkgs-2305";
             pkgs-2311 = "nixpkgs-2311";
-            pkgs-2411 = { source = "nixpkgs-2411"; overlays = [ inputs.topInputs.bscpkgs.overlays.default ]; };
+            pkgs-2411 =
+            {
+              source = "nixpkgs-2411";
+              overlays =
+              [
+                inputs.topInputs.bscpkgs.overlays.default
+                (final: prev: inputs.lib.optionalAttrs (nixpkgs.march != null)
+                {
+                  pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
+                  {
+                    sphinx = prev.sphinx.overridePythonAttrs (prev:
+                      { disabledTests = prev.disabledTests or [] ++ [ "test_xml_warnings" ]; });
+                  })];
+                })
+              ];
+            };
             pkgs-unstable =
             {
               source = "nixpkgs-unstable";
