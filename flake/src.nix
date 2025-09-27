@@ -29,7 +29,7 @@
     netboot = pkgs.fetchurl
     {
       url = "https://boot.netboot.xyz/ipxe/netboot.xyz.iso";
-      sha256 = "01hlslbi2i3jkzjwn24drhd2lriaqiwr9hb83r0nib9y1jvr3k5p";
+      sha256 = "6GeOcugqElGPoPXeaWVpjcV5bCFxNLShGgN/sjsVzuI=";
     };
   };
   vasp =
