@@ -7,7 +7,8 @@ inputs:
     programs.git =
     {
       enable = true;
-      package = inputs.pkgs.gitFull;
+      # do not use gitFull, otherwise it will use its own ssh
+      # package = inputs.pkgs.gitFull;
       lfs = { enable = true; enablePureSSHTransfer = true; };
       config =
       {
