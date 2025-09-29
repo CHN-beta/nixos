@@ -2,25 +2,10 @@ inputs:
 {
   options.nixos.hardware.gpu = let inherit (inputs.lib) mkOption types; in
   {
-    type = mkOption
-    {
-      type = types.nullOr (types.enum
-      [
-        # single gpu
-        "intel" "nvidia" "amd"
-        # hibrid gpu: use nvidia prime offload mode
-        "intel+nvidia" "amd+nvidia"
-      ]);
-      default = null;
-    };
+    type = mkOption { type = types.nullOr (types.enum [ "intel" "nvidia" "amd" ]); default = null; };
     nvidia =
     {
       dynamicBoost = mkOption { type = types.bool; default = false; };
-      prime =
-      {
-        mode = mkOption { type = types.enum [ "offload" "sync" ]; default = "offload"; };
-        busId = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
-      };
       driver = mkOption { type = types.enum [ "production" "latest" "beta" ]; default = "production"; };
       open = mkOption { type = types.bool; default = true; };
     };
@@ -34,13 +19,11 @@ inputs:
         boot =
         {
           initrd.availableKernelModules =
-            let modules =
             {
               intel = [ "i915" ];
               nvidia = []; # early loading breaks resume from hibernation
               amd = [];
-            };
-            in builtins.concatLists (builtins.map (gpu: modules.${gpu}) gpus);
+            }.${gpu.type};
           blacklistedKernelModules = [ "nouveau" ];
         };
         hardware =
@@ -57,9 +40,9 @@ inputs:
                 nvidia = [ vaapiVdpau ];
                 amd = [];
               };
-              in builtins.concatLists (builtins.map (gpu: packages.${gpu}) gpus);
+              in packages.${gpu.type};
           };
-          nvidia = inputs.lib.mkIf (builtins.elem "nvidia" gpus)
+          nvidia = inputs.lib.mkIf (gpu.type == "nvidia")
           {
             modesetting.enable = true;
             powerManagement.enable = true;
@@ -72,7 +55,7 @@ inputs:
         };
         services.xserver.videoDrivers =
           let driver = { intel = "modesetting"; amd = "amdgpu"; nvidia = "nvidia"; };
-          in builtins.map (gpu: driver.${gpu}) gpus;
+          in [ driver.${gpu.type} ];
         nixos.packages.packages._packages =
           let packages = with inputs.pkgs;
           {
@@ -80,8 +63,8 @@ inputs:
             nvidia = [ nvtopPackages.full ];
             amd = [];
           };
-          in builtins.concatLists (builtins.map (gpu: packages.${gpu}) gpus);
-        environment.etc."nvidia/nvidia-application-profiles-rc.d/vram" = inputs.lib.mkIf (builtins.elem "nvidia" gpus)
+          in packages.${gpu.type};
+        environment.etc."nvidia/nvidia-application-profiles-rc.d/vram" = inputs.lib.mkIf (gpu.type == "nvidia")
         {
           source = inputs.pkgs.writeText "save-vram" (builtins.toJSON
           {
@@ -90,21 +73,6 @@ inputs:
           });
         };
       }
-    )
-    # nvidia prime offload
-    (
-      inputs.lib.mkIf (inputs.lib.strings.hasSuffix "+nvidia" gpu.type) { hardware.nvidia =
-      {
-        prime =
-        {
-          offload = inputs.lib.mkIf (gpu.nvidia.prime.mode == "offload") { enable = true; enableOffloadCmd = true; };
-          sync = inputs.lib.mkIf (gpu.nvidia.prime.mode == "sync") { enable = true; };
-        }
-        // builtins.listToAttrs (builtins.map
-          (gpu: { name = "${if gpu.name == "amd" then "amdgpu" else gpu.name}BusId"; value = "PCI:${gpu.value}"; })
-          (inputs.localLib.attrsToList gpu.nvidia.prime.busId));
-        powerManagement.finegrained = inputs.lib.mkIf (gpu.nvidia.prime.mode == "offload") true;
-      };}
     )
     # amdgpu
     (
