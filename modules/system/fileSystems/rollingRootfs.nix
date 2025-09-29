@@ -51,7 +51,6 @@ inputs:
                 btrfs property set -ts /mnt/nix/rootfs/$timestamp-$subvolid ro true
               fi
               [ -d /mnt/nix/rootfs/current ] || btrfs subvolume create /mnt/nix/rootfs/current
-              chattr +C /mnt/nix/rootfs/current
               echo $(date '+%Y%m%d%H%M%S') > /mnt/nix/rootfs/current/.timestamp
 
               # make systemd happy
