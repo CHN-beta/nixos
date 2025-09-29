@@ -37,7 +37,6 @@ inputs:
             in
             ''
               # wait for device to be available
-              while ! lsmod | grep -q btrfs; do sleep 1; done
               ${waitDevice}
 
               # mount device
