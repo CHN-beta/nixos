@@ -32,7 +32,7 @@ inputs:
           # SAHF FXSR XSAVE RDRND LZCNT HLE PREFETCHW SGX PCONFIG
           "icelake-server"
         ];
-        nixpkgs = { march = "znver5"; rocm = true; };
+        nixpkgs = { march = "znver5"; rocm = false; };
         sysctl.laptop-mode = 5;
         kernel.variant = "cachyos";
       };
