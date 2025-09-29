@@ -29,6 +29,8 @@ inputs:
           # AVX-VNNI CLDEMOTE GFNI-SSE HRESET KL LZCNT PCONFIG PREFETCHW PTWRITE RDRND
           # SERIALIZE SGX WAITPKG WIDEKL XSAVE XSAVEOPT
           "alderlake"
+          # SAHF FXSR XSAVE RDRND LZCNT HLE PREFETCHW SGX PCONFIG
+          "icelake-server"
         ];
         nixpkgs = { march = "znver5"; rocm = false; };
         sysctl.laptop-mode = 5;
