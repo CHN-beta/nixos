@@ -76,6 +76,7 @@ inputs:
             };
             structuredExtraConfig.BTRFS_EXPERIMENTAL = inputs.lib.kernel.yes;
           }];
+          btusb = [{ name = "btusb"; patch = ./btusb.patch; }];
         };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };
