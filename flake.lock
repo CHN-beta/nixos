@@ -40,6 +40,22 @@
         "url": "https://git.chn.moe/chn/blog-public.git"
       }
     },
+    "brokenaxes": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1756396241,
+        "narHash": "sha256-QqMpfuH+nuDIQrA3DAgdQKk9rUFSrMAudWjb24KTBs4=",
+        "owner": "bendichter",
+        "repo": "brokenaxes",
+        "rev": "b87550715f3c2fa84bf8854de7eb3ef5a1cf3b67",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bendichter",
+        "repo": "brokenaxes",
+        "type": "github"
+      }
+    },
     "bscpkgs": {
       "inputs": {
         "nixpkgs": [
@@ -1325,6 +1341,7 @@
       "inputs": {
         "aagl": "aagl",
         "blog": "blog",
+        "brokenaxes": "brokenaxes",
         "bscpkgs": "bscpkgs",
         "buildproxy": "buildproxy",
         "catppuccin": "catppuccin",
