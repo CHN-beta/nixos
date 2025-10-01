@@ -37,11 +37,10 @@ inputs:
             in
             ''
               # wait for device to be available
-              while ! lsmod | grep -q btrfs; do sleep 1; done
               ${waitDevice}
 
               # mount device
-              mount ${device} /mnt -m -o noatime,compress-force=zstd
+              mount ${device} /mnt -m -o noatime
 
               # move old rootfs, create new one
               if [ -f /mnt/nix/rootfs/current/.timestamp ]
@@ -52,7 +51,6 @@ inputs:
                 btrfs property set -ts /mnt/nix/rootfs/$timestamp-$subvolid ro true
               fi
               [ -d /mnt/nix/rootfs/current ] || btrfs subvolume create /mnt/nix/rootfs/current
-              chattr +C /mnt/nix/rootfs/current
               echo $(date '+%Y%m%d%H%M%S') > /mnt/nix/rootfs/current/.timestamp
 
               # make systemd happy

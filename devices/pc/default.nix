@@ -34,7 +34,7 @@ inputs:
         ];
         nixpkgs = { march = "znver5"; rocm = true; };
         sysctl.laptop-mode = 5;
-        kernel.variant = "cachyos";
+        kernel = { variant = "cachyos"; patches = [ "btusb" ]; };
       };
       hardware = { gpu.type = "amd"; asus = {};};
       services =
@@ -99,5 +99,6 @@ inputs:
     # 解决有时蓝牙不能使用的问题
     boot.kernelParams = [ "mt7925e.disable_aspm=1" ];
     specialisation.niri.configuration.nixos.system.gui.implementation = "niri";
+    nixos.services.xray.client.xray.serverName = "xserver2.vps4.chn.moe";
   };
 }
