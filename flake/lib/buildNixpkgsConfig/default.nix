@@ -16,7 +16,7 @@ let
     // (inputs.lib.optionalAttrs (nixpkgs.cuda.forwardCompat != null)
       { cudaForwardCompat = nixpkgs.cuda.forwardCompat; })
   );
-  rocmConfig = inputs.lib.optionalAttrs (nixpkgs.rocm or false) { rocmSupport = true; };
+  rocmConfig = inputs.lib.optionalAttrs (nixpkgs.rocm or null != null) { rocmSupport = true; };
   allowInsecurePredicate = p: inputs.lib.warn "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
   config = cudaConfig // rocmConfig
     // {
@@ -173,5 +173,12 @@ in platformConfig //
       # // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
       #   { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
       # // (inputs.lib.optionalAttrs (nixpkgs.arch or null == "aarch64") { nix = final.nixVersions.nix_2_29; })
+
+      # pick from https://github.com/nix-community/nur-combined/blob/e60d2cac468d38a97874108c1601de2ce0ca23b8/repos/slaier/outputs/_hosts/local/hardware-configuration.nix#L45
+      // (inputs.lib.optionalAttrs (nixpkgs.rocm or null != null)
+      {
+        rocmPackages = prev.rocmPackages.overrideScope (final: prev:
+          { clr = prev.clr.override { localGpuTargets = nixpkgs.rocm; }; });
+      })
   )];
 }

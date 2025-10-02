@@ -12,7 +12,7 @@ inputs:
       };});
       default = null;
     };
-    rocm = mkOption { type = types.bool; default = false; };
+    rocm = mkOption { type = types.nullOr (types.listOf types.str); default = null; };
   };
   config = let inherit (inputs.config.nixos.system) nixpkgs; in
   {
