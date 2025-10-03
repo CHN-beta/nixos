@@ -22,7 +22,7 @@ inputs:
     (inputs.lib.mkIf (cpu == "amd")
     {
       hardware.cpu.amd = { updateMicrocode = true; ryzen-smu.enable = true; };
-      environment.systemPackages = with inputs.pkgs; [ zenmonitor ];
+      environment.systemPackages = with inputs.pkgs; [ zenmonitor ryzenadj ];
       programs.ryzen-monitor-ng.enable = true;
     })
   ]);
