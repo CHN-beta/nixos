@@ -29,8 +29,8 @@ inputs: rec
     inherit (inputs.pkgs.pkgs-2305) boost;
     src = inputs.topInputs.self.src.mirism-old;
     nghttp2 = inputs.pkgs.pkgs-2305.nghttp2.override { enableAsioLib = true; };
-    stdenv = inputs.pkgs.gcc12Stdenv;
-    tgbot-cpp = tgbot-cpp.override { stdenv = inputs.pkgs.gcc12Stdenv; };
+    stdenv = inputs.pkgs.pkgs-2305.stdenv;
+    tgbot-cpp = tgbot-cpp.override { inherit (inputs.pkgs.pkgs-2305) stdenv; };
   };
   cppcoro = inputs.pkgs.callPackage ./cppcoro { src = inputs.topInputs.cppcoro; };
   date = inputs.pkgs.callPackage ./date.nix { src = inputs.topInputs.date; };
