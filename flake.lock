@@ -25,12 +25,12 @@
     "blog": {
       "flake": false,
       "locked": {
-        "lastModified": 1757155808,
+        "lastModified": 1759333393,
         "lfs": true,
-        "narHash": "sha256-dngkmShADPQOziASLZmwXNop0R6O4PlbHYOUAXfaoxs=",
+        "narHash": "sha256-0ruJ4kw82hQZDLp5oIBG2Kq+SBeOUoTSMJzFofOz4Sg=",
         "ref": "refs/heads/public",
-        "rev": "0b2cb19d9f9da2a8cab440c0053029ec93d263b7",
-        "revCount": 36,
+        "rev": "e6d2bc75a815a8ea73eea24091af10b4eb595b95",
+        "revCount": 37,
         "type": "git",
         "url": "https://git.chn.moe/chn/blog-public.git"
       },
@@ -1314,27 +1314,6 @@
         "submodules": true,
         "type": "git",
         "url": "https://github.com/dean0x7d/pybinding"
-      }
-    },
-    "quickshell": {
-      "inputs": {
-        "nixpkgs": [
-          "dankmaterialshell",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1756981260,
-        "narHash": "sha256-GhuD9QVimjynHI0OOyZsqJsnlXr2orowh9H+HYz4YMs=",
-        "ref": "refs/heads/master",
-        "rev": "6eb12551baf924f8fdecdd04113863a754259c34",
-        "revCount": 672,
-        "type": "git",
-        "url": "https://git.outfoxxed.me/quickshell/quickshell"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.outfoxxed.me/quickshell/quickshell"
       }
     },
     "root": {
