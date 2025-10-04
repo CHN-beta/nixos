@@ -1,11 +1,11 @@
 {
   lib, stdenv, requireFile, src,
-  boost, nghttp2, brotli, nameof, cppcoro, tgbot-cpp, libbacktrace, fmt, date
+  boost, nghttp2, brotli, nameof, cppcoro, libbacktrace, fmt, date, openssl
 }: stdenv.mkDerivation
 {
   name = "mirism";
   inherit src;
-  buildInputs = [ boost nghttp2.dev brotli nameof cppcoro tgbot-cpp libbacktrace fmt date ];
+  buildInputs = [ boost nghttp2 brotli nameof cppcoro libbacktrace fmt date openssl ];
   buildPhase =
   ''
     runHook preBuild

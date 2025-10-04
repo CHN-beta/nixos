@@ -642,6 +642,22 @@
         "type": "github"
       }
     },
+    "mirism-old": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1759545870,
+        "narHash": "sha256-gNV2P02jMyP+6FFpr8FvJpjhYiTdd2J5Yjlb2qt5Xlg=",
+        "owner": "CHN-beta",
+        "repo": "mirism-old-public",
+        "rev": "3cb635b0933930867c18b84563e97346c7ef4833",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "mirism-old-public",
+        "type": "github"
+      }
+    },
     "misskey": {
       "flake": false,
       "locked": {
@@ -1316,6 +1332,27 @@
         "url": "https://github.com/dean0x7d/pybinding"
       }
     },
+    "quickshell": {
+      "inputs": {
+        "nixpkgs": [
+          "dankmaterialshell",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1756981260,
+        "narHash": "sha256-GhuD9QVimjynHI0OOyZsqJsnlXr2orowh9H+HYz4YMs=",
+        "ref": "refs/heads/master",
+        "rev": "6eb12551baf924f8fdecdd04113863a754259c34",
+        "revCount": 672,
+        "type": "git",
+        "url": "https://git.outfoxxed.me/quickshell/quickshell"
+      },
+      "original": {
+        "type": "git",
+        "url": "https://git.outfoxxed.me/quickshell/quickshell"
+      }
+    },
     "root": {
       "inputs": {
         "aagl": "aagl",
@@ -1336,6 +1373,7 @@
         "lepton": "lepton",
         "mac-style": "mac-style",
         "matplotplusplus": "matplotplusplus",
+        "mirism-old": "mirism-old",
         "misskey": "misskey",
         "mumax": "mumax",
         "nameof": "nameof",

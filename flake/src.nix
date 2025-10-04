@@ -124,14 +124,6 @@
       sha256 = "Tq4AzQgde2KIWKA1k6JlxvdphGG9JluHMZjVw0fBUeQ=";
     };
   };
-  # nix-store --query --hash $(nix store add-path . --name 'mirism')
-  mirism-old = pkgs.requireFile
-  {
-    name = "mirism";
-    sha256 = "1zhhzwi325g21kqdip7zzw1i9b354h1wpzd4zhzb1ql9kjdh87q3";
-    hashMode = "recursive";
-    message = "Source file not found.";
-  };
   pslist =
   {
     version = "1.4.0";

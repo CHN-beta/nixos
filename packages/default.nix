@@ -23,14 +23,11 @@ inputs: rec
   nameof = inputs.pkgs.callPackage ./nameof.nix { src = inputs.topInputs.nameof; };
   pslist = inputs.pkgs.callPackage ./pslist.nix { src = inputs.topInputs.self.src.pslist; };
   tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp.nix { src = inputs.topInputs.tgbot-cpp; };
-  mirism-old = inputs.pkgs.callPackage ./mirism-old.nix
+  mirism-old = inputs.pkgs.pkgs-2305.callPackage ./mirism-old.nix
   {
     inherit cppcoro nameof date;
-    inherit (inputs.pkgs.pkgs-2305) boost;
-    src = inputs.topInputs.self.src.mirism-old;
+    src = inputs.topInputs.mirism-old;
     nghttp2 = inputs.pkgs.pkgs-2305.nghttp2.override { enableAsioLib = true; };
-    stdenv = inputs.pkgs.pkgs-2305.stdenv;
-    tgbot-cpp = tgbot-cpp.override { inherit (inputs.pkgs.pkgs-2305) stdenv; };
   };
   cppcoro = inputs.pkgs.callPackage ./cppcoro { src = inputs.topInputs.cppcoro; };
   date = inputs.pkgs.callPackage ./date.nix { src = inputs.topInputs.date; };

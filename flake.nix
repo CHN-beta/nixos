@@ -67,6 +67,7 @@
     speedtest = { url = "github:librespeed/speedtest"; flake = false; };
     pybinding = { url = "git+https://github.com/dean0x7d/pybinding?submodules=1"; flake = false; };
     brokenaxes = { url = "github:bendichter/brokenaxes"; flake = false; };
+    mirism-old = { url = "github:CHN-beta/mirism-old-public"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in
