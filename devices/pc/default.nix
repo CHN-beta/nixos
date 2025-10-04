@@ -104,5 +104,8 @@ inputs:
     # 解决有时蓝牙不能使用的问题
     boot.kernelParams = [ "mt7925e.disable_aspm=1" ];
     specialisation.niri.configuration.nixos.system.gui.implementation = "niri";
+    nixos.services.xray.client.xray.serverName = "xserver2.vps4.chn.moe";
+    specialisation.xray-vps6.configuration.nixos.services.xray.client.xray.serverName =
+      inputs.lib.mkForce "xserver2.chn.moe";
   };
 }
