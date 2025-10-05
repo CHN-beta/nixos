@@ -29,7 +29,6 @@ let
     {
       oneapiArch = let match.znver5 = "znver4"; in match.${nixpkgs.march} or nixpkgs.march;
       nvhpcArch = nixpkgs.march;
-      # contentAddressedByDefault = true;
     })
     // (inputs.lib.optionalAttrs (nixpkgs.nixRoot or null != null)
       { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/state"; }; });
@@ -126,16 +125,12 @@ in platformConfig //
       )
       // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
         { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
-      # // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx512Support)
-      #   { libhwy = prev.libhwy.override { stdenv = final.genericPackages.stdenv; }; })
       // (inputs.lib.optionalAttrs (nixpkgs.march != null)
       {
         assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
         redis = prev.redis.overrideAttrs (prev: { doCheck = false; });
         wannier90 = prev.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
         xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
-      #   libinsane = prev.libinsane.overrideAttrs (prev:
-      #     { nativeCheckInputs = builtins.filter (p: p.pname != "valgrind") prev.nativeCheckInputs; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
         libreoffice-qt6-fresh = prev.libreoffice-qt6-fresh.override (prev:
           { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
@@ -143,35 +138,11 @@ in platformConfig //
             sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
           '';});});
         opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
-      #   openvswitch = prev.openvswitch.overrideAttrs (prev: { doCheck = false; });
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
-      #   valkey = prev.valkey.overrideAttrs { doCheck = false; };
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
-      #   ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
-      #     { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-        (
-          { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; }
-          # {
-          #   scipy = prev.scipy.overridePythonAttrs (prev:
-          #     { disabledTests = prev.disabledTests or [] ++ [ "test_hyp2f1" ]; });
-          #   rich = prev.rich.overridePythonAttrs (prev:
-          #     { disabledTests = prev.disabledTests or [] ++ [ "test_brokenpipeerror" ]; });
-          # }
-          # // (inputs.lib.optionalAttrs (nixpkgs.march != null && !prev.stdenv.hostPlatform.avx2Support)
-          # {
-          #   numcodecs = prev.numcodecs.overridePythonAttrs (prev:
-          #   {
-          #     disabledTests = prev.disabledTests or []
-          #       ++ [ "test_encode_decode" "test_partial_decode" "test_blosc" ];
-          #   });
-          # })
-        ))];
-      #   inherit (final.pkgs-2411) intelPackages_2023;
+          { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; })];
       })
-      # // (inputs.lib.optionalAttrs (nixpkgs.march == "silvermont")
-      #   { c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; }; })
-      # // (inputs.lib.optionalAttrs (nixpkgs.arch or null == "aarch64") { nix = final.nixVersions.nix_2_29; })
   )];
 }
