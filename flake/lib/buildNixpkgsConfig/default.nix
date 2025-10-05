@@ -69,6 +69,7 @@ in platformConfig //
           { commandLineArgs = prev.commandLineArgs or "" + " --disable-features=GlobalShortcutsPortal"; });
         google-chrome = prev.google-chrome.override (prev:
           { commandLineArgs = prev.commandLineArgs or "" + " --disable-features=GlobalShortcutsPortal"; });
+        xray = prev.xray.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xray.patch ]; });
       }
       // (
         let

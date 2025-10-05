@@ -59,7 +59,7 @@ inputs:
             # 若匹配域名列表失败，或者匹配成功但是查询到的 IP 不在期望的 IP 列表中，则回落到使用后两个 dns 依次查询。
             [
               {
-                address = "https://1.12.12.12/dns-query";
+                address = "https://223.5.5.5/dns-query";
                 domains = [ "geosite:geolocation-cn" ];
                 expectIPs = [ "geoip:cn" ];
                 skipFallback = true;
@@ -70,7 +70,7 @@ inputs:
                 expectIPs = [ "geoip:!cn" ];
                 skipFallback = true;
               }
-              { address = "https://1.12.12.12/dns-query"; expectIPs = [ "geoip:cn" ]; }
+              { address = "https://223.5.5.5/dns-query"; expectIPs = [ "geoip:cn" ]; }
               { address = "8.8.8.8"; }
             ];
             disableCache = true;
@@ -153,7 +153,7 @@ inputs:
             rules = builtins.map (rule: rule // { type = "field"; })
             [
               { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
-              { inboundTag = [ "dns-internal" ]; ip = [ "1.12.12.12" ]; outboundTag = "direct"; }
+              { inboundTag = [ "dns-internal" ]; ip = [ "223.5.5.5" ]; outboundTag = "direct"; }
               { inboundTag = [ "dns-internal" ]; ip = [ "8.8.8.8" ]; outboundTag = "proxy-vless"; }
               { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
               { inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }

@@ -1,0 +1,30 @@
+diff --git a/app/dns/nameserver_doh.go b/app/dns/nameserver_doh.go
+index cba59423..19c6d34f 100644
+--- a/app/dns/nameserver_doh.go
++++ b/app/dns/nameserver_doh.go
+@@ -1,7 +1,7 @@
+ package dns
+ 
+ import (
+-	"bytes"
++	"encoding/base64"
+ 	"context"
+ 	"crypto/tls"
+ 	go_errors "errors"
+@@ -188,14 +188,13 @@ func (s *DoHNameServer) sendQuery(ctx context.Context, noResponseErrCh chan<- er
+ }
+ 
+ func (s *DoHNameServer) dohHTTPSContext(ctx context.Context, b []byte) ([]byte, error) {
+-	body := bytes.NewBuffer(b)
+-	req, err := http.NewRequest("POST", s.dohURL, body)
++	query := fmt.Sprintf("%s?dns=%s", s.dohURL, base64.URLEncoding.WithPadding(base64.NoPadding).EncodeToString(b))
++	req, err := http.NewRequest("GET", query, nil)
+ 	if err != nil {
+ 		return nil, err
+ 	}
+ 
+ 	req.Header.Add("Accept", "application/dns-message")
+-	req.Header.Add("Content-Type", "application/dns-message")
+ 
+ 	req.Header.Set("X-Padding", strings.Repeat("X", int(crypto.RandBetween(100, 1000))))
+ 
