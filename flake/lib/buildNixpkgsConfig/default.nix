@@ -71,6 +71,7 @@ in platformConfig //
         boost188 = prev.boost188.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./boost188.patch ]; });
         inherit (final.pkgs-2411) iio-sensor-proxy;
         inherit (final.pkgs-unstable) bees;
+        xray = prev.xray.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xray.patch ]; });
       }
       // (
         let
