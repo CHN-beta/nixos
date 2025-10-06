@@ -25,7 +25,7 @@ let
     srv2-node0 = [ "srv2" ];
     "wg1.pc" = [ "nix-store" ];
     "wg1.nas" = [ "nix-store.nas" ];
-    "wg0.nas" = [ "ssh.git" ];
+    "tinc0.nas" = [ "ssh.git" ];
   };
   a =
   {
