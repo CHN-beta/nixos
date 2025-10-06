@@ -1,4 +1,4 @@
-localLib:
+{ lib, localLib }:
 let
   cname =
   {
@@ -42,6 +42,7 @@ let
     "409test" = "192.168.1.5";
   };
   wireguard = import ./wireguard.nix;
+  tinc = import ./tinc.nix;
 in
 {
   "" =
@@ -84,3 +85,6 @@ in
     })
     (localLib.attrsToList wireguard.peer))
   (localLib.attrsToList wireguard.net)))
+// lib.mapAttrs'
+  (n: v: lib.nameValuePair "tinc0.${n}" { type = "A"; value = "192.168.85.${builtins.toString v}"; })
+  tinc

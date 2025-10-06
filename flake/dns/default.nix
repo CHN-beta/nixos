@@ -4,7 +4,7 @@ let
     let addTtl' = attrs: attrs // { octodns.cloudflare.auto-ttl = true; };
     in builtins.mapAttrs (n: v: if builtins.isList v then builtins.map addTtl' v else addTtl' v) config;
   config = builtins.listToAttrs (builtins.map
-    (domain: { name = domain; value = import ./config/${domain}.nix localLib; })
+    (domain: { name = domain; value = import ./config/${domain}.nix { inherit lib localLib; }; })
     [ "chn.moe" "nekomia.moe" "mirism.one" ]);
   configDir = symlinkJoin
   {
