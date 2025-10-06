@@ -34,7 +34,7 @@ inputs:
         ];
         nixpkgs = { march = "znver5"; rocm = true; };
         sysctl.laptop-mode = 5;
-        kernel = { variant = "cachyos"; patches = [ "btusb" ]; };
+        kernel.variant = "cachyos";
       };
       hardware = { gpu.type = "amd"; asus = {};};
       services =
