@@ -76,7 +76,7 @@ in
     nixos.system =
     {
       sops.secrets."tinc".owner = "tinc-tinc0";
-      network = inputs.lib.mkIf (configs.${inputs.config.nixos.model.hostname}.useNetworkd)
+      network.settings = inputs.lib.mkIf (configs.${inputs.config.nixos.model.hostname}.useNetworkd)
       {
         static."tinc0" = { ip = configs.${inputs.config.nixos.model.hostname}.address; mask = 24; };
       };

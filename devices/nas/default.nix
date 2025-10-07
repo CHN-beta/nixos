@@ -25,7 +25,7 @@ inputs:
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
-        network =
+        network.settings =
         {
           bridge.nixvirt.interfaces = [ "enp3s0" ];
           static.nixvirt = { ip = "192.168.1.2"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; }; 

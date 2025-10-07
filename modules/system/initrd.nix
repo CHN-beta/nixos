@@ -46,7 +46,7 @@ inputs:
             # resolved does not work in initrd, causing network.target to fail
             services.resolved.enable = false;
             systemd.network =
-              let inherit (inputs.config.nixos.system.network) dhcp static bridge; in
+              let inherit (inputs.config.nixos.system.network.settings) dhcp static bridge; in
               let
                 networks = inputs.lib.unique
                 (

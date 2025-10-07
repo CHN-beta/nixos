@@ -1,45 +1,57 @@
 inputs:
 {
-  options.nixos.system.network = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.system.network = let inherit (inputs.lib) mkOption types; in
   {
-    # null: use network-manager; otherwise use networkd
-    type = types.nullOr (types.submodule { options =
+    settings = mkOption
     {
-      dhcp = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-      static = mkOption
+      type = types.nullOr (types.submodule { options =
       {
-        type = types.attrsOf (types.submodule { options =
+        dhcp = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+        static = mkOption
         {
-          ip = mkOption { type = types.nonEmptyStr; };
-          mask = mkOption { type = types.ints.unsigned; };
-          gateway = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-          dns = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        };});
-        default = {};
-      };
-      bridge = mkOption
-      {
-        type = types.attrsOf (types.submodule { options =
+          type = types.attrsOf (types.submodule { options =
+          {
+            ip = mkOption { type = types.nonEmptyStr; };
+            mask = mkOption { type = types.ints.unsigned; };
+            gateway = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+            dns = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+          };});
+          default = {};
+        };
+        bridge = mkOption
         {
-          interfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-        };});
-        default = {};
-      };
-      wireless =
-      {
-        # wpa_passphrase SSID(wifi name) PSK(password)
-        networks = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-        fourAddr = mkOption { type = types.bool; default = false; };
-      };
-      trust = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-      masquerade = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-    };});
-    default = null;
+          type = types.attrsOf (types.submodule { options =
+          {
+            interfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+          };});
+          default = {};
+        };
+        wireless =
+        {
+          # wpa_passphrase SSID(wifi name) PSK(password)
+          networks = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+          fourAddr = mkOption { type = types.bool; default = false; };
+        };
+        trust = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+        masquerade = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+      };});
+      default = null;
+    };
+    implementation = mkOption
+    {
+      type = types.enum [ "systemd-networkd" "networkmanager" ];
+      default = if inputs.config.nixos.model.type == "desktop" then "networkmanager" else "systemd-networkd";
+    };
   };
   config = let inherit (inputs.config.nixos.system) network; in inputs.lib.mkMerge
   [
     # general config
     {
+      assertions =
+      [{
+        assertion = network.implementation == "networkmanager" -> network.settings == null;
+        message = "only systemd-networkd is supported when network settings is set";
+      }];
       boot.kernel.sysctl =
       {
         "net.core.rmem_max" = 67108864;
@@ -65,110 +77,114 @@ inputs:
       };
       networking.nftables = { enable = true; flushRuleset = false; };
     }
-    (inputs.localLib.mkConditional (network == null)
+    (inputs.lib.mkIf (network.implementation == "networkmanager")
+    {
+      networking.networkmanager =
       {
-        networking.networkmanager =
-        {
-          enable = true;
-          settings.device.keep-configuration = "no";
-        };
-        environment.persistence."/nix/persistent".directories =
-          [{ directory = "/etc/NetworkManager/system-connections"; mode = "0700"; }];
-      }
+        enable = true;
+        settings.device.keep-configuration = "no";
+      };
+      environment.persistence."/nix/persistent".directories =
+        [{ directory = "/etc/NetworkManager/system-connections"; mode = "0700"; }];
+    })
+    (inputs.lib.mkIf (network.implementation == "systemd-networkd")
+    {
+      systemd.network.enable = true;
+      networking.useNetworkd = true;
+      # dnsable dns fallback, use provided dns servers or no dns
+      services.resolved.fallbackDns = [];
+    })
+    (inputs.lib.mkIf (network.implementation == "systemd-networkd" && network.settings != null)
+    {
+      systemd.network =
       {
-        systemd.network =
-        {
-          enable = true;
-          networks = inputs.lib.mkMerge
-          [
-            (builtins.listToAttrs (builtins.map
+        networks = inputs.lib.mkMerge
+        [
+          (builtins.listToAttrs (builtins.map
+            (network:
+            {
+              name = "10-${network}";
+              value =
+              {
+                matchConfig.Name = network;
+                networkConfig = { DHCP = "yes"; IPv6AcceptRA = true; };
+                linkConfig.RequiredForOnline = "routable";
+              };
+            })
+            network.settings.dhcp))
+          (builtins.listToAttrs (builtins.map
+            (network:
+            {
+              name = "10-${network.name}";
+              value =
+              {
+                matchConfig.Name = network.name;
+                address = [ "${network.value.ip}/${builtins.toString network.value.mask}" ];
+                routes = inputs.lib.mkIf (network.value.gateway != null)
+                  [{ Gateway = network.value.gateway; Destination = "0.0.0.0/0"; }];
+                linkConfig.RequiredForOnline = "routable";
+                dns = inputs.lib.mkIf (network.value.dns != null) [ network.value.dns ];
+              };
+            })
+            (inputs.localLib.attrsToList network.settings.static)))
+          (builtins.listToAttrs (builtins.map
+            (network:
+            {
+              name = "10-${network.name}";
+              value =
+              {
+                matchConfig.Name = network.name;
+                bridgeConfig = {};
+                linkConfig.RequiredForOnline = "routable";
+              };
+            })
+            (inputs.localLib.attrsToList network.settings.bridge)))
+          (builtins.listToAttrs (builtins.concatLists (builtins.map
+            (bridge: builtins.map
               (network:
               {
                 name = "10-${network}";
                 value =
                 {
                   matchConfig.Name = network;
-                  networkConfig = { DHCP = "yes"; IPv6AcceptRA = true; };
-                  linkConfig.RequiredForOnline = "routable";
+                  networkConfig.Bridge = bridge.name;
+                  linkConfig.RequiredForOnline = "enslaved";
                 };
-              })
-              network.dhcp))
-            (builtins.listToAttrs (builtins.map
-              (network:
-              {
-                name = "10-${network.name}";
-                value =
-                {
-                  matchConfig.Name = network.name;
-                  address = [ "${network.value.ip}/${builtins.toString network.value.mask}" ];
-                  routes = inputs.lib.mkIf (network.value.gateway != null)
-                    [{ Gateway = network.value.gateway; Destination = "0.0.0.0/0"; }];
-                  linkConfig.RequiredForOnline = "routable";
-                  dns = inputs.lib.mkIf (network.value.dns != null) [ network.value.dns ];
-                };
-              })
-              (inputs.localLib.attrsToList network.static)))
-            (builtins.listToAttrs (builtins.map
-              (network:
-              {
-                name = "10-${network.name}";
-                value =
-                {
-                  matchConfig.Name = network.name;
-                  bridgeConfig = {};
-                  linkConfig.RequiredForOnline = "routable";
-                };
-              })
-              (inputs.localLib.attrsToList network.bridge)))
-            (builtins.listToAttrs (builtins.concatLists (builtins.map
-              (bridge: builtins.map
-                (network:
-                {
-                  name = "10-${network}";
-                  value =
-                  {
-                    matchConfig.Name = network;
-                    networkConfig.Bridge = bridge.name;
-                    linkConfig.RequiredForOnline = "enslaved";
-                  };
-                }) bridge.value.interfaces)
-              (inputs.localLib.attrsToList network.bridge))))
-            (builtins.listToAttrs (builtins.map
-              (network: { name = "10-${network}"; value.networkConfig.IPMasquerade = "both"; })
-              network.masquerade))
-          ];
-          netdevs = builtins.listToAttrs (builtins.map
-            (network: { name = "10-${network}"; value.netdevConfig = { Name = network; Kind = "bridge"; }; })
-            (builtins.attrNames network.bridge));
-        };
-        networking =
+              }) bridge.value.interfaces)
+            (inputs.localLib.attrsToList network.settings.bridge))))
+          (builtins.listToAttrs (builtins.map
+            (network: { name = "10-${network}"; value.networkConfig.IPMasquerade = "both"; })
+            network.settings.masquerade))
+        ];
+        netdevs = builtins.listToAttrs (builtins.map
+          (network: { name = "10-${network}"; value.netdevConfig = { Name = network; Kind = "bridge"; }; })
+          (builtins.attrNames network.settings.bridge));
+      };
+      networking =
+      {
+        wireless = inputs.lib.mkIf (network.settings.wireless.networks != null)
         {
-          useNetworkd = true;
-          wireless = inputs.lib.mkIf (network.wireless.networks != null)
-          {
-            enable = true;
-            # wpa_passphrase SSID password
-            networks = builtins.listToAttrs (builtins.map
-              (network: { name = network; value.pskRaw = "ext:${network}"; }) network.wireless.networks);
-            secretsFile = inputs.config.nixos.system.sops.templates."wireless.env".path;
-          };
-          firewall.trustedInterfaces = network.trust;
+          enable = true;
+          # wpa_passphrase SSID password
+          networks = builtins.listToAttrs (builtins.map
+            (network: { name = network; value.pskRaw = "ext:${network}"; }) network.settings.wireless.networks);
+          secretsFile = inputs.config.nixos.system.sops.templates."wireless.env".path;
         };
-        # dnsable dns fallback, use provided dns servers or no dns
-        services.resolved.fallbackDns = [];
-        nixos.system.sops = inputs.lib.mkIf (network.wireless.networks != null)
-        {
-          templates."wireless.env".content = builtins.concatStringsSep "\n" (builtins.map
-            (network: "${network}=${inputs.config.nixos.system.sops.placeholder."wireless/${network}"}")
-            network.wireless.networks);
-          secrets = builtins.listToAttrs (builtins.map
-            (network: inputs.lib.nameValuePair "wireless/${network}" {})
-            network.wireless.networks);
-        };
-        services.udev.extraRules = inputs.lib.mkIf (network.wireless.fourAddr) 
-        ''
-          ACTION=="add", SUBSYSTEM=="net", ENV{INTERFACE}=="wlp*", RUN+="${inputs.pkgs.iw}/bin/iw dev %k set 4addr on"
-        '';
+        firewall.trustedInterfaces = network.settings.trust;
+      };
+      nixos.system.sops = inputs.lib.mkIf (network.settings.wireless.networks != null)
+      {
+        templates."wireless.env".content = builtins.concatStringsSep "\n" (builtins.map
+          (network: "${network}=${inputs.config.nixos.system.sops.placeholder."wireless/${network}"}")
+          network.settings.wireless.networks);
+        secrets = builtins.listToAttrs (builtins.map
+          (network: inputs.lib.nameValuePair "wireless/${network}" {})
+          network.settings.wireless.networks);
+      };
+      services.udev.extraRules = inputs.lib.mkIf (network.settings.wireless.fourAddr) 
+      ''
+        ACTION=="add", SUBSYSTEM=="net", ENV{INTERFACE}=="wlp*", RUN+="${inputs.pkgs.iw}/bin/iw dev %k set 4addr on"
+      '';
     })
   ];
 }

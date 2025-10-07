@@ -7,7 +7,7 @@ inputs:
       system =
       {
         nixpkgs.march = "broadwell";
-        network =
+        network.settings =
         {
           static.eno2 =
             { ip = "192.168.178.2"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
