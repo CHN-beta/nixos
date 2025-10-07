@@ -58,6 +58,9 @@ in
             # 通过 wirewireguard 访问
             ++ (builtins.map (net: "${net}.${device.name}.chn.moe")
               (builtins.attrNames inputs.topInputs.self.config.dns.wireguard.net))
+            # 通过 tinc 访问
+            ++ (builtins.map (net: "tinc0.${device.name}.chn.moe")
+              (builtins.attrNames inputs.topInputs.self.config.dns.tinc))
             # 额外的域名
             ++ (builtins.map (domain: "${domain}.chn.moe") device.value.extraAccess or []);
         };
@@ -100,6 +103,16 @@ in
               ((device.value.extraAccess or []) ++ [ device.name ]))
             (inputs.localLib.attrsToList devices))
           (builtins.attrNames inputs.topInputs.self.config.dns.wireguard.net)))
+        # 通过 tinc 访问
+        (builtins.map
+          (device: builtins.map
+            (name:
+            {
+              name = "tinc0.${name}";
+              value = genericConfig // { host = "tinc0.${name}"; hostname = "tinc0.${name}.chn.moe"; };
+            })
+            (device.value.extraAccess or [] ++ [ device.name ]))
+          (inputs.localLib.attrsToList devices))
       ]));
     }];
   };

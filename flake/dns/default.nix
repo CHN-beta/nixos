@@ -16,6 +16,7 @@ let
   meta.config = config //
   {
     wireguard = import ./config/wireguard.nix;
+    tinc = import ./config/tinc.nix;
     "chn.moe" = config."chn.moe"
       // {
         # 查询域名对应的 ip

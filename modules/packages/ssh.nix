@@ -61,7 +61,7 @@ inputs:
             forwardAgent = true;
             extraOptions.AddKeysToAgent = "yes";
           };
-          "wg0.jykang" = jykang // { host = "wg0.jykang"; proxyJump = "wg0.srv2"; };
+          "tinc0.jykang" = jykang // { host = "tinc0.jykang"; proxyJump = "tinc0.nas"; };
           "*" =
           {
             controlMaster = "auto";

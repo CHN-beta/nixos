@@ -8,7 +8,7 @@ let
     [
       "initrd.vps4" "xserver2.vps4"
       # to nas
-      "git" "grafana" "matrix" "peertube" "send" "vikunja" "铜锣湾" "xservernas" "chat" "freshrss" "huginn" "nextcloud"
+      "git" "grafana" "peertube" "send" "vikunja" "xservernas" "chat" "freshrss" "huginn" "nextcloud"
       "photoprism" "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api"
     ];
     vps6 =
@@ -25,6 +25,7 @@ let
     srv2-node0 = [ "srv2" ];
     "tinc0.pc" = [ "nix-store" ];
     "tinc0.nas" = [ "nix-store.nas" "ssh.git" ];
+    autoroute = [ "铜锣湾" "matrix" ];
   };
   a =
   {
