@@ -7,7 +7,7 @@ inputs:
       system =
       {
         nixpkgs.march = "broadwell";
-        network =
+        network.settings =
         {
           static =
           {

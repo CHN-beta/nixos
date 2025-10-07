@@ -40,7 +40,7 @@ inputs:
     '';
     systemd =
     {
-      services = inputs.lib.mkIf (inputs.config.nixos.system.network == null)
+      services = inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "networkmanager")
       {
         nginx-proxy =
           let
@@ -70,7 +70,7 @@ inputs:
             wantedBy= [ "multi-user.target" ];
           };
       };
-      network.networks = inputs.lib.mkIf (inputs.config.nixos.system.network != null)
+      network.networks = inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "systemd-networkd")
       {
         "10-custom" =
         {

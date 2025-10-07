@@ -12,7 +12,6 @@ inputs:
           mount.btrfs."/dev/disk/by-partlabel/r2s-root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
           swap = [ "/nix/swap/swap" ];
         };
-        network = {};
         # uboot 起始位置 0x8000 字节，这个地方还在分区表内部；除此以外还需要预留一些空间，预留32M足够。
         uboot.buildArgs =
         {

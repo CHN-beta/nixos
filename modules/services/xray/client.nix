@@ -198,7 +198,7 @@ inputs:
             restartTriggers = [ inputs.config.nixos.system.sops.templates."xray-client.json".file ];
           };
         }
-        (inputs.lib.mkIf (inputs.config.nixos.system.network == null)
+        (inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "networkmanager")
         {
           v2ray-forwarder =
           {
@@ -223,7 +223,7 @@ inputs:
           };
         })
       ];
-      network.networks = inputs.lib.mkIf (inputs.config.nixos.system.network != null)
+      network.networks = inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "systemd-networkd")
       {
         "10-custom" =
         {

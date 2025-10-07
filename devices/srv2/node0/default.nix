@@ -8,7 +8,7 @@ inputs:
       system =
       {
         nixpkgs.march = "skylake";
-        network =
+        network.settings =
         {
           static.eno2 = { ip = "192.168.178.1"; mask = 24; };
           masquerade = [ "eno2" ];
