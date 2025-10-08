@@ -11,6 +11,7 @@ let
     srv1-node2 = "e6jW9g4QY357ocMRoW4P0s6UHAspvKJzmAGb/WT1a+H";
     srv2-node0 = "zTv+o7K2SpcPp9YLrPe8iJqCunrCiJyqz13fXcDouEH";
     srv2-node1 = "sk/w+GBrt0lzkTZ3y3vZ/eHKNrG8X95eqR9IuhCFYwB";
+    srv2-node2 = "csZoiTwZItonm6h+uqkJ5z9J6o1iFlBESQ2u97Wz2JL";
     vps4 = "N03OoCyj4ADkeN3cimJI/bJrBw8g1kz3TJ+1BTe+oyA";
     vps6 = "rYOCGG+B4isTifKJQqsEdfhQuQRnUiIsvz7uI7vZiDN";
   };
@@ -27,7 +28,7 @@ let
       forwards =
       [
         { weight = 1; address = [ "nas" "pc" "srv2-node0" ]; }
-        { weight = 2; address = [ "srv2-node1" ]; }
+        { weight = 2; address = [ "srv2-node1" "srv2-node2" ]; }
         { weight = 10; address = [ "vps6" ]; }
         { weight = 11; address = [ "vps4" ]; }
       ];
@@ -37,7 +38,7 @@ let
     # srv2 内部网络
     {
       to = "srv2-node0";
-      from.srv2-node1 = 1;
+      from = { srv2-node1 = 1; srv2-node2 = 1; };
       address = "192.168.178.1";
       forwards =
       [
@@ -48,6 +49,7 @@ let
       ];
     }
     { to = "srv2-node1"; from.srv2-node0 = 1; address = "192.168.178.2"; }
+    { to = "srv2-node2"; from.srv2-node0 = 1; address = "192.168.178.3"; }
     # 厦大内网
     {
       to = "srv1-node0";
@@ -59,7 +61,7 @@ let
       to = "srv2-node0";
       from = { nas = 1; pc = 1; srv1-node0 = 1; };
       address = getAddress "srv2-node0";
-      forwards = [{ weight = 1; address = [ "nas" "pc" "srv2-node1" ]; }];
+      forwards = [{ weight = 1; address = [ "nas" "pc" "srv2-node1" "srv2-node2" ]; }];
     }
     # 公网服务器
     {
@@ -71,7 +73,7 @@ let
         { weight = 1; address = [ "vps6" ]; }
         { weight = 10; address = [ "nas" ]; }
         { weight = 11; address = [ "pc" "srv1-node0" "srv2-node0" ]; }
-        { weight = 12; address = [ "srv1-node1" "srv1-node2" "srv2-node1" ]; }
+        { weight = 12; address = [ "srv1-node1" "srv1-node2" "srv2-node1" "srv2-node2" ]; }
       ];
     }
     {
@@ -82,7 +84,7 @@ let
       [
         { weight = 1; address = [ "vps4" ]; }
         { weight = 10; address = [ "pc" "srv1-node0" "srv2-node0" ]; }
-        { weight = 11; address = [ "nas" "srv1-node1" "srv1-node2" "srv2-node1" ]; }
+        { weight = 11; address = [ "nas" "srv1-node1" "srv1-node2" "srv2-node1" "srv2-node2" ]; }
       ];
     }
   ];
