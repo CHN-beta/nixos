@@ -76,6 +76,7 @@ inputs:
             };
             structuredExtraConfig.BTRFS_EXPERIMENTAL = inputs.lib.kernel.yes;
           }];
+          amdgpu = [{ name = "amdgpu"; patch = ./amdgpu.patch; }];
         };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };
