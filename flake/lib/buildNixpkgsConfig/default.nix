@@ -146,6 +146,7 @@ in platformConfig //
           { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; })];
         ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
           { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
+        valkey = prev.valkey.overrideAttrs { doCheck = false; };
       })
   )];
 }
