@@ -144,6 +144,8 @@ in platformConfig //
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
           { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; })];
+        ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
+          { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
       })
   )];
 }
