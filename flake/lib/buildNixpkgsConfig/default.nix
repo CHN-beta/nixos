@@ -143,10 +143,13 @@ in platformConfig //
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-          { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; })];
+        {
+          picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
+          aiocache = prev.aiocache.overridePythonAttrs { doCheck = false; };
+        })];
         ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
           { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
-        valkey = prev.valkey.overrideAttrs { doCheck = false; };
+        valkey = final.redis;
       })
   )];
 }
