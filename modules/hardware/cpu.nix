@@ -5,8 +5,8 @@ inputs:
     type = types.nullOr (types.enum [ "intel" "amd" ]);
     default = let inherit (inputs.config.nixos.system.nixpkgs) march; in
       if march == null then null
-      else if inputs.lib.hasPrefix "znver" march then "amd"
-      else if (inputs.lib.hasSuffix "lake" march)
+      else if inputs.lib.hasInfix "znver" march then "amd"
+      else if (inputs.lib.hasInfix "lake" march)
         || (builtins.elem march [ "sandybridge" "silvermont" "haswell" "broadwell" ])
         then "intel"
       else null;

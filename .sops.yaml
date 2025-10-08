@@ -7,8 +7,9 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &srv1-node0 age1nzetyehldf3gl6pr6mu5d2cv387p8wjqn6wfpll7a3sl8us6n38s0ds633
   - &srv1-node1 age1wj33xt8nj7rhnsenepsf6k3lmq5vk4wn84jwr55qy9cwu05xn5cspg3h7t
   - &srv1-node2 age16e7ykphshal6qhwfvat698hl48s8yr0jvzh27ecdyfh5uk7t9u6s753jgy
-  - &srv2-node0 age1l4stuz0vr7gs7pqwjrmezam44702jp2vmqaqyxw0l0r42kf9updq4dfhrw
-  - &srv2-node1 age1hnarptkze0ujpp05dqr8uma04cxg9zqcx68qgpks5uf5l6rpk5gqhh8wxg
+  - &srv2-node0 age1hnarptkze0ujpp05dqr8uma04cxg9zqcx68qgpks5uf5l6rpk5gqhh8wxg
+  - &srv2-node1 age1l4stuz0vr7gs7pqwjrmezam44702jp2vmqaqyxw0l0r42kf9updq4dfhrw
+  - &srv2-node2 age1k2y0vm4tmf88vg6zfed8q8zv544g4u0l5ry4kmm4hmzslvj5vdxskhat2n
   - &test age1vgqvdqqe3mn0gvh0hydvu9c5f9yn5vek08cagyvwjhyta6utpvuq00g9c2
   - &test-pc age17a8y4yr2ckuek67rt786ujuf7705gvj3vv6ezktxxmgayea9zcyqet7hgc
   - &test-pc-vm age1wmcayhf9eyx9e9yp97850mqas9ns455crce8hfmvnupgcxd6sews5r0cln
@@ -30,11 +31,13 @@ creation_rules:
   - path_regex: devices/srv1/node2/.*$
     key_groups: [{ age: [ *chn, *srv1-node2 ] }]
   - path_regex: devices/srv2/secrets/.*$
-    key_groups: [{ age: [ *chn, *srv2-node0, *srv2-node1 ] }]
+    key_groups: [{ age: [ *chn, *srv2-node0, *srv2-node1, *srv2-node2 ] }]
   - path_regex: devices/srv2/node0/.*$
     key_groups: [{ age: [ *chn, *srv2-node0 ] }]
   - path_regex: devices/srv2/node1/.*$
     key_groups: [{ age: [ *chn, *srv2-node1 ] }]
+  - path_regex: devices/srv2/node2/.*$
+    key_groups: [{ age: [ *chn, *srv2-node2 ] }]
   - path_regex: devices/test/.*$
     key_groups: [{ age: [ *chn, *test ] }]
   - path_regex: devices/test-pc/.*$
@@ -44,7 +47,7 @@ creation_rules:
   - path_regex: devices/cross/secrets/default.yaml$
     key_groups:
     - age: [ *chn, *pc, *vps4, *vps6, *nas, *srv1-node0, *srv1-node1, *srv1-node2, *srv2-node0, *srv2-node1,
-      *test, *test-pc, *test-pc-vm]
+      *srv2-node2, *test, *test-pc, *test-pc-vm ]
   - path_regex: devices/cross/secrets/chn.yaml$
     key_groups:
     - age: [ *chn, *pc, *nas ]
