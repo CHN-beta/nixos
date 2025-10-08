@@ -6,12 +6,11 @@ inputs:
     {
       system =
       {
-        nixpkgs.march = "znver3";
+        nixpkgs.march = "skylake";
         network =
         {
-          static.enp58s0 =
-            { ip = "192.168.178.2"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
-          trust = [ "enp58s0" ];
+          static.eno2 = { ip = "192.168.178.2"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
+          trust = [ "eno2" ];
         };
         fileSystems.swap = [ "/nix/swap/swap" ];
       };
@@ -21,6 +20,5 @@ inputs:
         lumericalLicenseManager.macAddress = "04:42:1a:26:0c:07";
       };
     };
-    services.hardware.bolt.enable = true;
   };
 }

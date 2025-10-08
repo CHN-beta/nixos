@@ -11,6 +11,7 @@ let
     srv1-node2 = "zWvkVyJwtQhwmxM2fHwNDnK+iwYm1O0RHrwCQ/VXdEo=";
     srv2-node0 = "lNTwQqaR0w/loeG3Fh5qzQevuAVXhKXgiPt6fZoBGFE=";
     srv2-node1 = "wc+DkY/WlGkLeI8cMcoRHcCcITNqX26P1v5JlkQwWSc=";
+    srv2-node2 = "wc+DkY/WlGkLeI8cMcoRHcCcITNqX26P1v5JlkQwWSc=";
   };
   dns = inputs.topInputs.self.config.dns.wireguard;
   inherit (inputs.topInputs.self.config.dns."chn.moe") getAddress;

@@ -11,5 +11,6 @@
     srv1-node2 = 8;
     srv2-node0 = 7;
     srv2-node1 = 10;
+    srv2-node2 = 11;
   };
 }
