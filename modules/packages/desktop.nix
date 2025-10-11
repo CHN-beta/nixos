@@ -52,7 +52,7 @@ inputs:
           google-chrome tor-browser
           # office
           crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain
-          ydict texstudio panoply pspp libreoffice-qt6-fresh ocrmypdf typst # paperwork
+          ydict texstudio panoply pspp libreoffice-qt6-still ocrmypdf typst # paperwork
           # required by ltex-plus.vscode-ltex-plus
           ltex-ls ltex-ls-plus
           # matplot++ needs old gnuplot

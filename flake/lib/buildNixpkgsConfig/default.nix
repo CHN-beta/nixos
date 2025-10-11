@@ -133,7 +133,7 @@ in platformConfig //
         wannier90 = prev.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
         xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
-        libreoffice-qt6-fresh = prev.libreoffice-qt6-fresh.override (prev:
+        libreoffice-qt6-still = prev.libreoffice-qt6-still.override (prev:
           { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
           ''
             sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
