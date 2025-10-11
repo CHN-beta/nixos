@@ -108,7 +108,7 @@ in
   {
     services.tinc.networks.tinc0 = 
     {
-      settings = { Interface = "tinc0"; Name = builtins.replaceStrings [ "-" ] [ "_" ] hostname; };
+      settings = { Interface = "tinc0"; Name = builtins.replaceStrings [ "-" ] [ "_" ] hostname; PingInterval = 10; };
       ed25519PrivateKeyFile = inputs.config.nixos.system.sops.secrets."tinc".path;
       hostSettings = inputs.lib.mkMerge
       [
