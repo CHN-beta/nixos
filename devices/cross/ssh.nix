@@ -55,9 +55,6 @@ in
           hostNames =
             # 直接访问
             [ "${device.name}.chn.moe" ]
-            # 通过 wirewireguard 访问
-            ++ (builtins.map (net: "${net}.${device.name}.chn.moe")
-              (builtins.attrNames inputs.topInputs.self.config.dns.wireguard.net))
             # 通过 tinc 访问
             ++ (builtins.map (net: "tinc0.${device.name}.chn.moe")
               (builtins.attrNames inputs.topInputs.self.config.dns.tinc))
@@ -91,18 +88,6 @@ in
             })
             ((device.value.extraAccess or []) ++ [ device.name ]))
           (inputs.localLib.attrsToList devices))
-        # 通过 wireguard 访问
-        (builtins.concatLists (builtins.map
-          (net: builtins.map
-            (device: builtins.map
-              (name:
-              {
-                name = "${net}.${name}";
-                value = genericConfig // { host = "${net}.${name}"; hostname = "${net}.${name}.chn.moe"; };
-              })
-              ((device.value.extraAccess or []) ++ [ device.name ]))
-            (inputs.localLib.attrsToList devices))
-          (builtins.attrNames inputs.topInputs.self.config.dns.wireguard.net)))
         # 通过 tinc 访问
         (builtins.map
           (device: builtins.map
