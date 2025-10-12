@@ -241,7 +241,7 @@ inputs:
           {
             token = placeholder."telegram/token";
             user =  builtins.listToAttrs (builtins.map
-              (n: inputs.lib.nameValuePair n placeholder."telegram/user/${n}") [ "chn" "hjp" ]);
+              (n: inputs.lib.nameValuePair n placeholder."telegram/user/${n}") [ "chn" "hjp" "root" ]);
             slurmConf = "${inputs.config.services.slurm.etcSlurm}/slurm.conf";
           };
         };
