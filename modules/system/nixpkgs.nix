@@ -21,17 +21,5 @@ inputs:
       inherit inputs;
       nixpkgs = nixpkgs // { nixos = true; inherit (inputs.config.nixos.model) arch; };
     };
-    boot.kernelPatches = inputs.lib.mkIf (nixpkgs.march != null)
-    [{
-      name = "native kernel";
-      patch = null;
-      structuredExtraConfig =
-        let kernelConfig = { znver2 = "MZEN2"; znver3 = "MZEN3"; znver4 = "MZEN4"; znver5 = "MZEN5"; };
-        in
-        {
-          GENERIC_CPU = inputs.lib.kernel.no;
-          ${kernelConfig.${nixpkgs.march} or "M${inputs.lib.toUpper nixpkgs.march}"} = inputs.lib.kernel.yes;
-        };
-    }];
   };
 }
