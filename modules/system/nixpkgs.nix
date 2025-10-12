@@ -20,23 +20,5 @@ inputs:
       inherit inputs;
       nixpkgs = nixpkgs // { nixRoot = null; nixos = true; inherit (inputs.config.nixos.model) arch; };
     };
-    boot.kernelPatches = inputs.lib.mkIf (nixpkgs.march != null)
-    (
-      let configName =
-        if inputs.config.nixos.system.kernel.variant == "xanmod-unstable" then "structuredExtraConfig"
-        else "extraStructuredConfig";
-      in
-      [{
-        name = "native kernel";
-        patch = null;
-        ${configName} =
-          let kernelConfig = { znver2 = "MZEN2"; znver3 = "MZEN3"; znver4 = "MZEN4"; znver5 = "MZEN5"; };
-          in
-          {
-            GENERIC_CPU = inputs.lib.kernel.no;
-            ${kernelConfig.${nixpkgs.march} or "M${inputs.lib.toUpper nixpkgs.march}"} = inputs.lib.kernel.yes;
-          };
-      }]
-    );
   };
 }
