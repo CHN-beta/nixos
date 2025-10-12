@@ -19,8 +19,8 @@ let
       "铜锣湾实验室"
     ];
     "xlog.autoroute" = [ "xlog" ];
-    "wg0.srv1-node0" = [ "wg0.srv1" ];
-    "wg0.srv2-node0" = [ "wg0.srv2" ];
+    "tinc0.srv1-node0" = [ "tinc0.srv1" ];
+    "tinc0.srv2-node0" = [ "tinc0.srv2" ];
     srv1-node0 = [ "srv1" ];
     srv2-node0 = [ "srv2" ];
     "tinc0.pc" = [ "nix-store" ];
@@ -41,7 +41,6 @@ let
     srv2-node1 = "192.168.178.2";
     "409test" = "192.168.1.5";
   };
-  wireguard = import ./wireguard.nix;
   tinc = import ./tinc.nix;
 in
 {
@@ -76,15 +75,6 @@ in
 // builtins.listToAttrs (builtins.map
   (a: {inherit (a) name; value = { inherit (a) value; type = "A"; }; })
   (localLib.attrsToList a))
-// builtins.listToAttrs (builtins.concatLists (builtins.map
-  (net: builtins.map
-    (peer:
-    {
-      name = "${net.name}.${peer.name}";
-      value = { type = "A"; value = "192.168.${builtins.toString net.value}.${builtins.toString peer.value}"; };
-    })
-    (localLib.attrsToList wireguard.peer))
-  (localLib.attrsToList wireguard.net)))
 // lib.mapAttrs'
   (n: v: lib.nameValuePair "tinc0.${n}" { type = "A"; value = "192.168.85.${builtins.toString v}"; })
   tinc

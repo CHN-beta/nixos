@@ -15,7 +15,6 @@ let
   };
   meta.config = config //
   {
-    wireguard = import ./config/wireguard.nix;
     tinc = import ./config/tinc.nix;
     "chn.moe" = config."chn.moe"
       // {
