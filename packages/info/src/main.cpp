@@ -154,8 +154,11 @@ int main()
     if (context == "epilog_slurmctld" && !output_file.empty())
     {
       auto text = "\n--------------------\n{}\n--------------------\n"_f(info);
-      biu::exec<{.SearchPath = true, .Stdin = biu::IoType::String}>
-        ({.Program = "tee", .Args = { "-a", output_file }, .Stdin = text}, switch_user(uid, gid));
+      biu::exec<{.Stdin = biu::IoType::String, .Stdout = biu::IoType::Close}>
+      (
+        {.Program = "/run/current-system/sw/bin/tee", .Args = { "-a", output_file }, .Stdin = text},
+        switch_user(uid, gid)
+      );
     }
   });
 }
