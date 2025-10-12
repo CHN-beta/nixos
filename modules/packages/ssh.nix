@@ -64,13 +64,6 @@ inputs:
             extraOptions.AddKeysToAgent = "yes";
           };
           "tinc0.jykang" = jykang // { host = "tinc0.jykang"; proxyJump = "tinc0.nas"; };
-          "*" =
-          {
-            controlMaster = "auto";
-            controlPersist = "1m";
-            compression = true;
-            controlPath = "~/.ssh/master-%r@%n:%p";
-          };
         };
       };
     })];
