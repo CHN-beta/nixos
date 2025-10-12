@@ -233,7 +233,7 @@ inputs:
         secrets = { "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; }; }
           // builtins.listToAttrs (builtins.map
             (n: inputs.lib.nameValuePair "telegram/${n}" {})
-            [ "token" "user/chn" "user/hjp" ]);
+            [ "token" "user/chn" "user/hjp" "user/root" ]);
         templates."info.yaml" =
         {
           owner = "slurm";
