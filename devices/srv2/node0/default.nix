@@ -22,6 +22,7 @@ inputs:
           {
             "/nix/remote/jykang" = "/data/gpfs01/jykang/.nix";
             "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
+            "/nix/remote/wlin" = "/data/gpfs01/wlin/.nix";
           };
         };
       };
