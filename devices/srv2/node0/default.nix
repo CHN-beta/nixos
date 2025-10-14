@@ -20,7 +20,7 @@ inputs:
           swap = [ "/dev/disk/by-partlabel/srv2-node0-swap" ];
           mount.btrfs."/dev/disk/by-partlabel/srv2-node0-root1" =
           {
-            "/nix/remote/jykang.xmuhpc" = "/data/gpfs01/jykang/.nix";
+            "/nix/remote/jykang" = "/data/gpfs01/jykang/.nix";
             "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
           };
         };

@@ -28,8 +28,8 @@
     gfortran = pkgs.pkgsStatic.gfortran;
     lapack = pkgs.pkgsStatic.openblas;
   };
-  jykang = import ../devices/jykang.xmuhpc { inherit inputs localLib; };
-  wlin = import ../devices/wlin.xmuhpc { inherit inputs localLib; };
+  jykang = import ../devices/jykang { inherit inputs localLib; };
+  wlin = import ../devices/wlin { inherit inputs localLib; };
   xmuhk = import ../devices/xmuhk { inherit inputs localLib; };
   src =
     let getDrv = x:
