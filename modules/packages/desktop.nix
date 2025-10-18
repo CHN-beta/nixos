@@ -126,7 +126,7 @@ inputs:
       wireshark = { enable = true; package = inputs.pkgs.wireshark; };
       yubikey-touch-detector.enable = true;
       kdeconnect.enable = true;
-      kde-pim = { enable = true; kmail = true; };
+      kde-pim.enable = false;
       coolercontrol =
       {
         enable = true;

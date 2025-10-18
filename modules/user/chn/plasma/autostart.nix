@@ -25,11 +25,6 @@ inputs:
                 [ "Exec=element-desktop %u" ] [ "Exec=element-desktop --hidden" ]
                 (builtins.readFile "${inputs.pkgs.element-desktop.desktopItem}/share/applications/${fileName}"));
           };
-          kmail = rec
-          {
-            fileName = "org.kde.kmail2.desktop";
-            path = "${inputs.pkgs.kdePackages.kmail}/share/applications/${fileName}";
-          };
           discord = rec
           {
             fileName = "discord.desktop";
@@ -43,11 +38,7 @@ inputs:
             path = "${inputs.pkgs.crow-translate}/share/applications/${fileName}";
           };
         };
-        devices =
-        {
-          pc = [ "nheko" "telegram" "element" "kmail" "discord" "crow-translate" ];
-          one = [ "telegram" "element" "kmail" "crow-translate" ];
-        };
+        devices.pc = [ "nheko" "telegram" "element" "discord" "crow-translate" ];
       in builtins.listToAttrs (builtins.map
         (file:
         {
