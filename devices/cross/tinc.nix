@@ -102,19 +102,20 @@ let
       ];
     };})
     nodes;
+  tincHostname = builtins.replaceStrings [ "-" ] [ "_" ];
 in
 {
   config = inputs.lib.mkIf (builtins.hasAttr hostname publicKey)
   {
     services.tinc.networks.tinc0 = 
     {
-      settings = { Interface = "tinc0"; Name = builtins.replaceStrings [ "-" ] [ "_" ] hostname; PingInterval = 10; };
+      settings = { Interface = "tinc0"; Name = tincHostname hostname; PingInterval = 10; };
       ed25519PrivateKeyFile = inputs.config.nixos.system.sops.secrets."tinc".path;
       hostSettings = inputs.lib.mkMerge
       [
         # 本机
         {
-          "${hostname}" =
+          "${tincHostname hostname}" =
           {
             settings.Ed25519PublicKey = publicKey.${hostname};
             subnets = [{ address = getAddress "tinc0.${hostname}"; weight = 0; }];
@@ -126,7 +127,7 @@ in
             if node.to == hostname then inputs.lib.mkMerge (builtins.map
               (fromNode:
               {
-                "${fromNode}" =
+                "${tincHostname fromNode}" =
                 {
                   settings.Ed25519PublicKey = publicKey.${fromNode};
                   subnets = [{ address = getAddress "tinc0.${fromNode}"; weight = node.from.${fromNode}; }];
@@ -136,7 +137,7 @@ in
             # 如果描述的是来自本机的连接，使用已经生成的设置，并加上权重的偏移
             else if builtins.hasAttr hostname node.from then
             {
-              "${node.to}" =
+              "${tincHostname node.to}" =
               {
                 inherit (node.settings) addresses settings;
                 subnets = builtins.map
