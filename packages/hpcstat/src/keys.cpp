@@ -23,6 +23,7 @@ namespace hpcstat
     { "QkmIYw7rmDEAP+LDWxm6L2/XLnAqTwRUB7B0pxYlOUs", { "03", "Na Gao" } },
     { "WfUP4s0BzEspDweDIrOIed4MbW4v9W1spbp0EN6O5dk", { "04", "Duanjun Cai" } },
     { "VmVTvYnOOXOFcw+RH2AuUcj7hioieIJhwGOCDCfm0/w", { "05", "Xu Li" } },
+    { "tEH7GFCWYWw6hlVtWj1Gbr7RoajeL8G6mIdD96HhoNo", { "06", "Jun Yin" } },
     { "6NmbGMvtcNlsmN61ZtiV1cg0aOGeM8sCa4rk2brsS4k", { "hpcstat", "hpcstat" } }
   };
 }
