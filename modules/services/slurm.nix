@@ -97,18 +97,16 @@ inputs:
                 "State=UNKNOWN"
               ])
             (inputs.localLib.attrsToList slurm.node);
-          partitionName = builtins.map
-            (partition:
-              let nodes = builtins.concatStringsSep "," partition.value;
-              in builtins.concatStringsSep " "
-              [
-                partition.name
-                "Nodes=${builtins.concatStringsSep "," (builtins.map (n: slurm.node.${n}.name) partition.value)}"
-                "Default=${if partition.name == slurm.defaultPartition then "YES" else "NO"}"
-                "MaxTime=INFINITE"
-                "State=UP"
-              ])
-            (inputs.localLib.attrsToList slurm.partitions);
+          partitionName = inputs.lib.mapAttrsToList
+            (n: v: builtins.concatStringsSep " "
+            [
+              n
+              "Nodes=${builtins.concatStringsSep "," (builtins.map (n: slurm.node.${n}.name) v)}"
+              "Default=${if n == slurm.defaultPartition then "YES" else "NO"}"
+              "MaxTime=48:00:00"
+              "State=UP"
+            ])
+            slurm.partitions;
           procTrackType = "proctrack/cgroup";
           controlMachine = slurm.master;
           controlAddr = slurm.node.${slurm.master}.address;
