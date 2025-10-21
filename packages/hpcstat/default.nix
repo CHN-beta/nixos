@@ -10,7 +10,7 @@
   nativeBuildInputs = [ cmake pkg-config makeWrapper ];
   cmakeFlags = lib.optionals (version != null) [ "-DHPCSTAT_VERSION=${version}" ];
   postInstall =
-    if standalone then "cp ${openssh}/bin/{ssh-add,ssh-keygen} ${duc}/bin/duc ${sqlite}/bin/sqlite3 $out/bin"
+    if standalone then "cp ${openssh}/bin/{ssh-add,ssh-keygen} ${duc}/bin/duc $out/bin"
     else
     ''
       wrapProgram $out/bin/hpcstat --set HPCSTAT_SHAREDIR $out/share/hpcstat \
