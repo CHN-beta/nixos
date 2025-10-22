@@ -144,6 +144,7 @@ inputs: rec
     buildProxy = inputs.pkgs.lib.mkBuildproxy ./pybinding/proxy.nix;
   };
   brokenaxes = inputs.pkgs.python3Packages.callPackage ./brokenaxes.nix { src = inputs.topInputs.brokenaxes; };
+  dida = inputs.pkgs.callPackage ./dida.nix {};
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
