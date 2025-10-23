@@ -29,4 +29,10 @@
     substituteInPlace "$out/share/applications/dida.desktop" --replace "Exec=/opt/dida/dida" "Exec=$out/bin/dida"
     runHook postInstall
   '';
+  preFixup =
+  ''
+    gappsWrapperArgs+=(
+      --add-flags "\''${NIXOS_OZONE_WL:+\''${WAYLAND_DISPLAY:+--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations --enable-wayland-ime=true}}"
+    )
+  '';
 }
