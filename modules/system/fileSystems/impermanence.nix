@@ -76,7 +76,7 @@ inputs:
     (inputs.lib.mkIf (inputs.config.nixos.model.cluster.nodeType or null == "worker")
     {
       "/nix/persistent".users = builtins.listToAttrs (builtins.map
-        (user: { name = user; value.directories = [ ".config" ".local" ".ssh" ".mozilla" ]; })
+        (user: { name = user; value.directories = [ ".config" ".local" ".ssh" ".mozilla" ".thunderbird" ]; })
         inputs.config.nixos.user.users);
       "/nix/rootfs/current".users = builtins.listToAttrs (builtins.map
         (user: { name = user; value.directories = [ ".zsh" ".yubico" ]; })
