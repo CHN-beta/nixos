@@ -68,7 +68,7 @@ inputs:
           # for kdenlive auto subtitle
           openai-whisper
           # daily management
-          activitywatch
+          activitywatch super-productivity
         ]
           ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" "kalzium" ])))
             (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
