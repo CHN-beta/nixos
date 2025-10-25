@@ -46,7 +46,7 @@ inputs:
           xmuServer = {};
           server.serverName = "xservernas.chn.moe";
         };
-        beesd."/" = { hashTableSizeMB = 10 * 128; threads = 4; };
+        beesd."/".hashTableSizeMB = 10 * 128;
         nix-serve.hostname = "nix-store.nas.chn.moe";
         postgresql.mountFrom = "ssd";
         mariadb.mountFrom = "ssd";
