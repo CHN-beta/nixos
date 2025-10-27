@@ -15,6 +15,7 @@ inputs:
           masquerade = [ "enp58s0" ];
         };
         fileSystems.swap = [ "/dev/disk/by-partlabel/srv2-node0-swap" ];
+        kernel.patches = [ "btrfs" ];
       };
       services =
       {
