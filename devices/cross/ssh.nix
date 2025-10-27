@@ -34,8 +34,13 @@ let
       proxyJump = "srv1";
     };
     srv2-node0 =
-      { publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIJZ/+divGnDr0x+UlknA84Tfu6TPD+zBGmxWZY4Z38P6"; extraAccess = [ "srv2" ]; };
+      { publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAINTvfywkKRwMrVp73HfHTfjhac2Tn9qX/lRjLr09ycHp"; extraAccess = [ "srv2" ]; };
     srv2-node1 =
+    {
+      publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIJZ/+divGnDr0x+UlknA84Tfu6TPD+zBGmxWZY4Z38P6";
+      proxyJump = "srv2";
+    };
+    srv2-node2 =
     {
       publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAINTvfywkKRwMrVp73HfHTfjhac2Tn9qX/lRjLr09ycHp";
       proxyJump = "srv2";
