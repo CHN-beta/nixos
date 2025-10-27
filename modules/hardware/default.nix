@@ -4,18 +4,16 @@ inputs:
   options.nixos.hardware =
     let
       inherit (inputs.lib) mkOption types;
-      default = if builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ] then {} else null;
+      genericOption = mkOption
+      {
+        type = types.nullOr (types.submodule {});
+        default = if builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ] then {} else null;
+      };
     in
-    {
-      joystick = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
-      printer = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
-      sound = mkOption { type = types.nullOr (types.submodule {}); inherit default; };
-    };
+    { joystick = genericOption; printer = genericOption; sound = genericOption; bolt = genericOption; };
   config = let inherit (inputs.config.nixos) hardware; in inputs.lib.mkMerge
   [
-    # joystick
     (inputs.lib.mkIf (hardware.joystick != null) { hardware = { xone.enable = true; xpadneo.enable = true; }; })
-    # printer
     (
       inputs.lib.mkIf (hardware.printer != null)
       {
@@ -26,7 +24,6 @@ inputs:
         };
       }
     )
-    # sound
     (
       inputs.lib.mkIf (hardware.sound != null)
       {
@@ -35,5 +32,6 @@ inputs:
         security.rtkit.enable = true;
       }
     )
+    (inputs.lib.mkIf (hardware.bolt != null) { services.hardware.bolt.enable = true; })
   ];
 }
