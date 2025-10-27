@@ -17,7 +17,7 @@ inputs:
       services =
       {
         beesd."/" = {};
-        lumericalLicenseManager.macAddress = "04:42:1a:26:0c:07";
+        lumericalLicenseManager.macAddress = "70:20:84:09:a3:52";
       };
     };
   };
