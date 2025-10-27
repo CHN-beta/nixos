@@ -23,7 +23,7 @@ inputs:
         beesd."/".hashTableSizeMB = 10 * 128;
         hpcstat = {};
         sshd = { groupBanner = true; motd = true; };
-        lumericalLicenseManager.macAddress = "70:20:84:09:a3:52";
+        lumericalLicenseManager.macAddress = "04:42:1a:26:0c:07";
       };
     };
     services.hardware.bolt.enable = true;
