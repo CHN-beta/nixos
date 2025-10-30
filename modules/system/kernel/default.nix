@@ -30,7 +30,7 @@ inputs:
         # netowrk for srv1
         "bnx2x" "tg3"
         # network for srv2
-        "e1000e" "igb" "atlantic" "igc"
+        "e1000e" "igb" "atlantic" "igc" "tg3"
         # network for srv3
         "igb"
         # touchscreen for one
