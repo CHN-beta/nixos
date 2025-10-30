@@ -42,7 +42,7 @@ let
     };
     srv2-node2 =
     {
-      publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAINTvfywkKRwMrVp73HfHTfjhac2Tn9qX/lRjLr09ycHp";
+      publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIK9FZUOZ51pWdm2grTXDdSGMZ3g9DkvHUBvY8bFoTZjy";
       proxyJump = "srv2";
     };
   };
