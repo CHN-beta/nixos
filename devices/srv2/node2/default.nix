@@ -9,9 +9,8 @@ inputs:
         nixpkgs.march = "icelake-server";
         network.settings =
         {
-          # TODO: set correct interface name
-          static.eno2 = { ip = "192.168.178.3"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
-          trust = [ "eno2" ];
+          static.eno8303 = { ip = "192.168.178.3"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
+          trust = [ "eno8303" ];
         };
         fileSystems =
         {
@@ -27,8 +26,7 @@ inputs:
       services =
       {
         beesd."/" = {};
-        # TODO: set correct MAC address
-        lumericalLicenseManager.macAddress = "70:20:84:09:a3:52";
+        lumericalLicenseManager.macAddress = "b4:e9:b8:fc:9a:f9";
       };
     };
   };
