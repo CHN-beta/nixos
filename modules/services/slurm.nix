@@ -106,6 +106,7 @@ inputs:
               "Default=${if n == slurm.defaultPartition then "YES" else "NO"}"
               "MaxTime=${if slurm.timeLimit != null then slurm.timeLimit else "INFINITE"}"
               "State=UP"
+              ''TRESBillingWeights="CPU=1.0,Mem=0.1G,GRES/gpu=10"''
             ])
             slurm.partitions;
           procTrackType = "proctrack/cgroup";
