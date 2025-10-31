@@ -33,7 +33,7 @@ inputs:
               + " chn@chn-PC";
             ".ssh/id_ed25519.pub".text =
               "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOH3AvxMlB3omzH6SFQt0Z5+f05x9nMJpFfSLH4OIYV+ chn@pc";
-            ".ssh/id_ed25519_sk.pub".source = ./id_ed25519_sk.pub;
+            ".ssh/id_ed25519_sk.pub".source = "${inputs.topInputs.self}/modules/user/keys/chn";
           }
           // (builtins.listToAttrs (builtins.map
             (type:
