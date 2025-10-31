@@ -149,7 +149,7 @@ namespace sbatch
       }();
       auto mem_string = [&]
       {
-        if (State_.MemorySchemeSelected == 0) return "--mem=24G"s;
+        if (State_.MemorySchemeSelected == 0) return "--mem=32G"s;
         else if (State_.MemorySchemeSelected == 1) return "--mem=0"s;
         else if (State_.MemorySchemeSelected == 2) return "--mem={}G"_f(State_.Memory);
         else std::unreachable();
