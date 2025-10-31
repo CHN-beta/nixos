@@ -44,6 +44,7 @@ inputs:
         default = null;
       };
     };
+    timeLimit = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
   };
   config = let inherit (inputs.config.nixos.services) slurm; in inputs.lib.mkIf slurm.enable (inputs.lib.mkMerge
   [
@@ -103,7 +104,7 @@ inputs:
               n
               "Nodes=${builtins.concatStringsSep "," (builtins.map (n: slurm.node.${n}.name) v)}"
               "Default=${if n == slurm.defaultPartition then "YES" else "NO"}"
-              "MaxTime=48:00:00"
+              "MaxTime=${if slurm.timeLimit != null then slurm.timeLimit else "INFINITE"}"
               "State=UP"
             ])
             slurm.partitions;

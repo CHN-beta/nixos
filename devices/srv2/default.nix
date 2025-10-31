@@ -82,6 +82,7 @@ inputs:
               { name = "n2"; gpuIds = [ "a30" ]; }
             ];
           };
+          timeLimit = "48:00:00";
         };
       };
       packages = { vasp = {}; desktop = {}; lumerical = {}; };
