@@ -151,6 +151,7 @@ inputs:
             # correctly set priority
             PriorityType=priority/multifactor
             PriorityWeightAge=10000
+            PriorityWeightFairshare=30000
 
             # use low resource as default
             DefCpuPerGPU=1
