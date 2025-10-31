@@ -87,11 +87,7 @@ inputs:
               # ssh-keygen -t ed25519-sk -O resident
               # ssh-keygen -K
               openssh.authorizedKeys.keys =
-                let
-                  keys = [ "rsa" "ed25519" "ed25519_sk" ];
-                  getKey = user: key: inputs.lib.optional (builtins.pathExists ./${user}/id_${key}.pub)
-                    (builtins.readFile ./${user}/id_${key}.pub);
-                in builtins.concatLists (builtins.map (key: getKey userName key) keys);
+                inputs.lib.optionals (builtins.pathExists ./keys/${userName}) [(builtins.readFile ./keys/${userName})];
             };
           })
           user.users);
@@ -122,12 +118,7 @@ inputs:
       users.users.root =
       {
         shell = inputs.pkgs.zsh;
-        openssh.authorizedKeys.keys = inputs.lib.mkMerge
-        [
-          [(builtins.readFile ./chn/id_ed25519_sk.pub)]
-          (inputs.lib.mkIf (inputs.config.nixos.model.cluster.clusterName or null == "srv1")
-            [(builtins.readFile ./zgq/id_ed25519.pub)])
-        ];
+        openssh.authorizedKeys.keys = [(builtins.readFile ./keys/chn)];
         hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
       };
       home-manager.users.root = homeInputs:
