@@ -38,6 +38,7 @@ inputs:
         yumieko = 1024;
         xly = 1025;
         ccy = 1026;
+        twr = 1027;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
