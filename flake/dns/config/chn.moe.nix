@@ -14,7 +14,7 @@ let
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi" "ua" "xserver2"
-      "xserver2.vps6"
+      "xserver2.vps6" "s"
       # to pc
       "铜锣湾实验室"
     ];

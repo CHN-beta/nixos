@@ -51,6 +51,7 @@ inputs:
             blog = {};
             sticker = {};
             tgapi = {};
+            short = {};
           };
         };
         coturn = {};
