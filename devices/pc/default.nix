@@ -90,7 +90,7 @@ inputs:
       };
       bugs = [ "xmunet" "amdpstate" "iwlwifi" ];
       packages = { mathematica = {}; vasp = {}; lumerical = {}; };
-      user.users = [ "chn" "xly" ];
+      user.users = [ "chn" "xly" "lilydjwg" ];
     };
     # 允许kvm读取物理硬盘
     users.users.qemu-libvirtd.extraGroups = [ "disk" ];
