@@ -3,7 +3,7 @@ let
   cname =
   {
     nas = [ "initrd.nas" ];
-    office = [ "srv2-node0" "xserverxmu" ];
+    office = [ "xserverxmu" ];
     vps4 =
     [
       "initrd.vps4" "xserver2.vps4"
@@ -36,6 +36,7 @@ let
     vps4 = "104.234.37.61";
     vps6 = "144.34.225.59";
     search = "127.0.0.1";
+    srv2-node0 = "218.193.58.154";
     srv1-node1 = "192.168.178.2";
     srv1-node2 = "192.168.178.3";
     srv2-node1 = "192.168.178.2";
