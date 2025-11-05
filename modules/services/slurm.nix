@@ -226,7 +226,11 @@ inputs:
       };
       systemd =
       {
-        services.slurmctld = { after = [ "suid-sgid-wrappers.service" ]; serviceConfig.MemorySwapMax = "0"; };
+        services.slurmctld =
+        {
+          after = [ "suid-sgid-wrappers.service" "slurmdbd.service" ];
+          serviceConfig.MemorySwapMax = "0";
+        };
         tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
       };
       nixos.system.sops =
