@@ -226,10 +226,20 @@ inputs:
       };
       systemd =
       {
-        services.slurmctld =
+        services =
         {
-          after = [ "suid-sgid-wrappers.service" "slurmdbd.service" ];
-          serviceConfig.MemorySwapMax = "0";
+          slurmctld =
+          {
+            after = [ "suid-sgid-wrappers.service" "slurmdbd.service" ];
+            serviceConfig.MemorySwapMax = "0";
+          };
+          slurmdbd.postStart = builtins.concatStringsSep "\n" (builtins.concatLists
+          [
+            [ "until sacctmgr ping; do sleep 1; done" ]
+            (builtins.map
+              (user: ''sacctmgr -i add user name="${user}" Account=root DefaultAccount=root || true'')
+              inputs.config.nixos.user.users)
+          ]);
         };
         tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
       };
