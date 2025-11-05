@@ -40,6 +40,7 @@ inputs:
         ccy = 1026;
         twr = 1027;
         lsp = 1028;
+        lilydjwg = 1029;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
