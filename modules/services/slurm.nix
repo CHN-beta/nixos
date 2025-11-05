@@ -154,6 +154,7 @@ inputs:
             PriorityType=priority/multifactor
             PriorityWeightAge=10000
             PriorityWeightFairshare=30000
+            AccountingStorageEnforce=associations
 
             # use low resource as default
             DefCpuPerGPU=1
