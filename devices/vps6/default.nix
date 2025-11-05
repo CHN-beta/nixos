@@ -65,11 +65,16 @@ inputs:
     networking.nftables.tables.forward =
     {
       family = "inet";
-      content = let srv2 = inputs.topInputs.self.config.dns."chn.moe".getAddress "tinc0.srv2-node0"; in
+      content =
+        let
+          srv2 = inputs.topInputs.self.config.dns."chn.moe".getAddress "tinc0.srv2-node0";
+          pc = inputs.topInputs.self.config.dns."chn.moe".getAddress "tinc0.pc";
+        in
       ''
         chain prerouting {
           type nat hook prerouting priority dstnat; policy accept;
           tcp dport 7011 fib daddr type local counter meta mark set meta mark | 4 dnat ip to ${srv2}:22
+          tcp dport 7012 fib daddr type local counter meta mark set meta mark | 4 dnat ip to ${pc}:22
         }
         chain output {
           type nat hook output priority dstnat; policy accept;
@@ -77,6 +82,9 @@ inputs:
           meta skgid != ${builtins.toString inputs.config.users.groups.nginx.gid} \
             tcp dport 7011 fib daddr type local \
             counter meta mark set meta mark | 4 dnat ip to ${srv2}:22
+          meta skgid != ${builtins.toString inputs.config.users.groups.nginx.gid} \
+            tcp dport 7012 fib daddr type local \
+            counter meta mark set meta mark | 4 dnat ip to ${pc}:22
         }
         chain postrouting {
           type nat hook postrouting priority srcnat; policy accept;
