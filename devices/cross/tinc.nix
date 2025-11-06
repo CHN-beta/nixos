@@ -111,13 +111,7 @@ in
   {
     services.tinc.networks.tinc0 = 
     {
-      settings =
-      {
-        Interface = "tinc0";
-        Name = tincHostname hostname;
-        PingInterval = 10;
-        Proxy = inputs.lib.mkIf (inputs.config.nixos.services.xray.client != null) "socks5 127.0.0.1 10885";
-      };
+      settings = { Interface = "tinc0"; Name = tincHostname hostname; PingInterval = 10; };
       ed25519PrivateKeyFile = inputs.config.nixos.system.sops.secrets."tinc".path;
       hostSettings = inputs.lib.mkMerge
       [
