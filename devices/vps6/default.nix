@@ -61,7 +61,6 @@ inputs:
         beesd."/" = {};
         bind = {};
         headscale = {};
-        tailscale = {};
       };
     };
     networking.nftables.tables.forward =
