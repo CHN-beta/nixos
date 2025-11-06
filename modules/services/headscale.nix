@@ -1,13 +1,7 @@
 inputs:
 {
   options.nixos.services.headscale = let inherit (inputs.lib) mkOption types; in mkOption
-  {
-    type = types.nullOr (types.submodule { options =
-    {
-      hostname = mkOption { type = types.nonEmptyStr; default = "headscale.chn.moe"; };
-    };});
-    default = null;
-  };
+    { type = types.nullOr (types.submodule {}); default = null; };
   config = let inherit (inputs.config.nixos.services) headscale; in inputs.lib.mkIf (headscale != null)
   {
     services.headscale =
@@ -16,7 +10,7 @@ inputs:
       port = 6538;
       settings =
       {
-        server_url = "https://${headscale.hostname}";
+        server_url = "https://headscale.chn.moe";
         prefixes.v4 = "100.97.101.0/24";
         database.postgres =
         {
@@ -33,7 +27,7 @@ inputs:
     {
       services =
       {
-        nginx.https.${headscale.hostname}.location."/".proxy =
+        nginx.https."headscale.chn.moe".location."/".proxy =
           { upstream = "http://127.0.0.1:6538"; websocket = true; };
         postgresql.instances.headscale = {};
       };
