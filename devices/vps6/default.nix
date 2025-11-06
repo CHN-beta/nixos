@@ -61,7 +61,6 @@ inputs:
         beesd."/" = {};
         bind = {};
         headscale = {};
-        derp = {};
         tailscale = {};
       };
     };
