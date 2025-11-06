@@ -26,6 +26,7 @@ inputs:
         };
         rewriteHttps = mkOption { type = types.bool; default = true; };
         tlsCert = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+        extraConfig = mkOption { type = types.nullOr types.str; default = null; };
       };
       listen = mkOption
       {
@@ -178,23 +179,19 @@ inputs:
                 let secret = "nginx/templates/detectAuth/${inputs.lib.strings.escapeURL site.name}-global";
                 in inputs.config.nixos.system.sops.templates.${secret}.path
               );
-              extraConfig = builtins.concatStringsSep "\n"
-              (
-                (
-                  let inherit (site.value.global) index; in
+              extraConfig =
+                let inherit (site.value.global) index detectAuth charset extraConfig;
+                in builtins.concatStringsSep "\n" (builtins.concatLists
+                [
+                  (
                     if (builtins.typeOf index == "list") then [ "index ${builtins.concatStringsSep " " index};" ]
                     else if (index == "auto") then [ "autoindex on;" ]
                     else []
-                )
-                ++ (
-                  let inherit (site.value.global) detectAuth;
-                  in inputs.lib.optionals (detectAuth != null) [ ''auth_basic "${detectAuth.text}"'' ]
-                )
-                ++ (
-                  let inherit (site.value.global) charset;
-                  in inputs.lib.optionals (charset != null) [ "charset ${charset};" ]
-                )
-              );
+                  )
+                  (inputs.lib.optionals (detectAuth != null) [ ''auth_basic "${detectAuth.text}"'' ])
+                  (inputs.lib.optionals (charset != null) [ "charset ${charset};" ])
+                  (inputs.lib.optionals (extraConfig != null) [ extraConfig ])
+                ]);
               listen = builtins.map
                 (listen:
                 {
