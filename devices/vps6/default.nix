@@ -60,6 +60,7 @@ inputs:
         fail2ban = {};
         beesd."/" = {};
         bind = {};
+        headscale = {};
       };
     };
     networking.nftables.tables.forward =
