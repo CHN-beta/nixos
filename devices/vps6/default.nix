@@ -62,6 +62,7 @@ inputs:
         bind = {};
         headscale = {};
         derp = {};
+        tailscale = {};
       };
     };
     networking.nftables.tables.forward =
