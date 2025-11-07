@@ -13,6 +13,11 @@ let
       # 通过 initrd.xxx.chn.moe 访问
       initrdPublicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIB4DKB/zzUYco5ap6k9+UxeO04LL12eGvkmQstnYxgnS";
     };
+    vps9 =
+    {
+      publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIG+D3saEp9zThXY466WroVtqIbBSYK9M/QcsiuGgxsTV";
+      initrdPublicKey = "AAAAC3NzaC1lZDI1NTE5AAAAINBXlJjt2XoJvKQ8Mb91dSF1ibJAwOYzx+TPeTW6nIlT";
+    };
     nas =
     {
       publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIIktNbEcDMKlibXg54u7QOLt0755qB/P4vfjwca8xY6V";
