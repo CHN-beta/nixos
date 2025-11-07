@@ -14,5 +14,6 @@ inputs:
       extraUpFlags = [ "--login-server=https://headscale.chn.moe" ];
     };
     nixos.system.sops.secrets."tailscale" = {};
+    networking.firewall.trustedInterfaces = [ inputs.config.services.tailscale.interfaceName ];
   };
 }
