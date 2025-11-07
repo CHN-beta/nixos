@@ -61,7 +61,7 @@ inputs:
           {
             intel = [ intel-gpu-tools ];
             nvidia = [ nvtopPackages.full ];
-            amd = [];
+            amd = [ radeontop ];
           };
           in packages.${gpu.type};
         environment.etc."nvidia/nvidia-application-profiles-rc.d/vram" = inputs.lib.mkIf (gpu.type == "nvidia")
