@@ -35,7 +35,7 @@ inputs:
       {
         assertions =
         [{
-          assertion = inputs.config.nixos.system.network != null;
+          assertion = inputs.config.nixos.system.network.implementation == "systemd-networkd";
           message = "initrd network requires systemd networkd.";
         }];
         boot =

@@ -89,15 +89,10 @@ inputs:
     })
     (inputs.lib.mkIf (network.implementation == "systemd-networkd")
     {
-      systemd.network.enable = true;
-      networking.useNetworkd = true;
-      # dnsable dns fallback, use provided dns servers or no dns
-      services.resolved.fallbackDns = [];
-    })
-    (inputs.lib.mkIf (network.implementation == "systemd-networkd" && network.settings != null)
-    {
+      nixos.system.network.settings = {};
       systemd.network =
       {
+        enable = true;
         networks = inputs.lib.mkMerge
         [
           (builtins.listToAttrs (builtins.map
@@ -162,6 +157,7 @@ inputs:
       };
       networking =
       {
+        useNetworkd = true;
         wireless = inputs.lib.mkIf (network.settings.wireless.networks != null)
         {
           enable = true;
@@ -181,10 +177,15 @@ inputs:
           (network: inputs.lib.nameValuePair "wireless/${network}" {})
           network.settings.wireless.networks);
       };
-      services.udev.extraRules = inputs.lib.mkIf (network.settings.wireless.fourAddr) 
-      ''
-        ACTION=="add", SUBSYSTEM=="net", ENV{INTERFACE}=="wlp*", RUN+="${inputs.pkgs.iw}/bin/iw dev %k set 4addr on"
-      '';
+      services =
+      {
+        # dnsable dns fallback, use provided dns servers or no dns
+        resolved.fallbackDns = [];
+        udev.extraRules = inputs.lib.mkIf (network.settings.wireless.fourAddr) 
+        ''
+          ACTION=="add", SUBSYSTEM=="net", ENV{INTERFACE}=="wlp*", RUN+="${inputs.pkgs.iw}/bin/iw dev %k set 4addr on"
+        '';
+      };
     })
   ];
 }
