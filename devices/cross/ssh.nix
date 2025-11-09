@@ -108,6 +108,16 @@ in
             })
             (device.value.extraAccess or [] ++ [ device.name ]))
           (inputs.localLib.attrsToList devices))
+        # 通过 tailscale 访问
+        (builtins.map
+          (device: builtins.map
+            (name:
+            {
+              name = "ts.${name}";
+              value = genericConfig // { host = "ts.${name}"; hostname = "${name}.ts.chn.moe"; };
+            })
+            (device.value.extraAccess or [] ++ [ device.name ]))
+          (inputs.localLib.attrsToList devices))
       ]));
     }];
   };
