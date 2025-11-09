@@ -1,7 +1,10 @@
 inputs:
 {
   options.nixos.packages.root = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = {}; };
+  {
+    type = types.nullOr (types.submodule {});
+    default = if inputs.config.nixos.model.type == "desktop" then {} else null;
+  };
   config = let inherit (inputs.config.nixos.packages) root; in inputs.lib.mkIf (root != null)
   {
     nixos.packages.packages =
