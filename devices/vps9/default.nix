@@ -18,8 +18,7 @@ inputs:
           };
           swap = [ "/nix/swap/swap" ];
         };
-        # TODO: use by-path after install
-        grub.installDevice = "/dev/vda";
+        grub.installDevice = "/dev/disk/by-path/pci-0000:06:0a.0";
         nixpkgs.march = "znver3";
         initrd.sshd = {};
       };
