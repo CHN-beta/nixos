@@ -20,7 +20,7 @@ inputs:
           name = "headscale";
           host = "127.0.0.1";
         };
-        dns = { base_domain = "hs.chn.moe"; override_local_dns = false; };
+        dns = { base_domain = "ts.chn.moe"; override_local_dns = false; };
       };
     };
     nixos =
