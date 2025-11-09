@@ -6,19 +6,19 @@ inputs:
     {
       system =
       {
-        # TODO: use uuid after udev works
         fileSystems =
         {
           mount =
           {
             btrfs =
             {
-              "/dev/vda1"."/boot" = "/boot";
+              "/dev/disk/by-partlabel/vps9-boot"."/boot" = "/boot";
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
           swap = [ "/nix/swap/swap" ];
         };
+        # TODO: use by-path after install
         grub.installDevice = "/dev/vda";
         nixpkgs.march = "znver3";
         initrd.sshd = {};
