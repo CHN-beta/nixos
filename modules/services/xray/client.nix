@@ -34,8 +34,7 @@ inputs:
         {
           no-poll = true;
           log-queries = true;
-          server = [ "127.0.0.1#10853" ]
-            ++ inputs.lib.optionals (inputs.config.nixos.services.tailscale != null) [ "/ts.chn.moe/100.100.100.100" ];
+          server = [ "127.0.0.1#10853" ];
           interface = client.dnsmasq.extraInterfaces ++ [ "lo" ];
           bind-dynamic = true;
           address = builtins.map (host: "/${host.name}/${host.value}")
