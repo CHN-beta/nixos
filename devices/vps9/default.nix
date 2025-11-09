@@ -13,7 +13,7 @@ inputs:
           {
             btrfs =
             {
-              "/dev/disk/vda1"."/boot" = "/boot";
+              "/dev/vda1"."/boot" = "/boot";
               "/dev/mapper/root" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
             };
           };
