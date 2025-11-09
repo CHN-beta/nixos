@@ -26,6 +26,7 @@ let
     "tinc0.pc" = [ "nix-store" "chat" ];
     "tinc0.nas" = [ "nix-store.nas" "ssh.git" ];
     autoroute = [ "铜锣湾" "matrix" ];
+    vps9 = [ "initrd.vps9" "xserver2.vps9" ];
   };
   a =
   {
