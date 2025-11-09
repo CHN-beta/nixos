@@ -63,8 +63,6 @@ in
   ];
   "_xlog-challenge.xlog" = { type = "TXT"; value = "chn"; };
   autoroute = { type = "NS"; values = "vps6.chn.moe."; };
-  "ts" = { type = "NS"; values = "tsdns.chn.moe."; };
-  "tsdns" = { type = "A"; value = "100.100.100.100"; };
   "mail" = { type = "CNAME"; value = "tuesday.mxrouting.net."; };
   "webmail" = { type = "CNAME"; value = "tuesday.mxrouting.net."; };
   "x._domainkey" =
