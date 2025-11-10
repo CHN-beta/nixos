@@ -131,7 +131,7 @@ inputs:
 
             SlurmdDebug=debug2
             SlurmdParameters=l3cache_as_socket
-            DebugFlags=NO_CONF_HASH
+            DebugFlags=NO_CONF_HASH,CPU_Bind,Gres
 
             # automatically resume node after drain
             ReturnToService=2
