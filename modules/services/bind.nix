@@ -32,7 +32,7 @@ inputs:
             300        ; minimum
           )
           @ IN NS vps6.chn.moe.
-          @ IN A ${inputs.topInputs.self.config.dns."chn.moe".getAddress "vps4"}
+          @ IN A ${inputs.topInputs.self.config.dns."chn.moe".getAddress "vps9"}
         '';
         nullZone = inputs.pkgs.writeText "null.zone" "";
       in
