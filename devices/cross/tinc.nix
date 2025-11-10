@@ -15,95 +15,138 @@ let
     vps4 = "N03OoCyj4ADkeN3cimJI/bJrBw8g1kz3TJ+1BTe+oyA";
     vps6 = "rYOCGG+B4isTifKJQqsEdfhQuQRnUiIsvz7uI7vZiDN";
   };
-  nodes =
+  # 描述可以直接的设备之间的连接（图上的路径）。若一个设备可以主动接受连接，则设置它接受连接的 ip；否则设置为 null
+  # 因为一条条路径描述起来比较麻烦，所以这里一次描述多条
+  subnets =
   [
-    # 工位网络
-    { to = "nas"; from = { pc = 1; srv2-node0 = 1; }; address = getAddress "nas"; }
-    { to = "pc"; from = { nas = 1; srv2-node0 = 1; }; address = getAddress "pc"; }
+    # vps
+    { device = inputs.lib.genAttrs [ "vps4" "vps6" ] getAddress; distance = 1; }
+    # 使用 vps4 代理的机器
+    { device = { vps4 = getAddress "vps4"; nas = null; }; distance = 10; }
+    # 使用 vps6 代理的机器
+    {
+      device = (inputs.lib.genAttrs [ "pc" "srv1-node0" "srv2-node0" ] (_: null)) // { vps6 = getAddress "vps6"; };
+      distance = 10;
+    }
+    # 校内网络
+    { device = (inputs.lib.genAttrs [ "srv1-node0" "srv2-node0" ] getAddress) // { nas = null; }; distance = 1; }
     # srv1 内部网络
     {
-      to = "srv1-node0";
-      from = { srv1-node1 = 1; srv1-node2 = 1; };
-      address = "192.168.178.1";
-      forwards =
-      [
-        { weight = 1; address = [ "nas" "pc" "srv2-node0" ]; }
-        { weight = 2; address = [ "srv2-node1" "srv2-node2" ]; }
-        { weight = 10; address = [ "vps6" ]; }
-        { weight = 11; address = [ "vps4" ]; }
-      ];
+      device = inputs.lib.genAttrs' (builtins.genList (n: n) 3)
+        (n: inputs.lib.nameValuePair "srv1-node${builtins.toString n}" "192.168.178.${builtins.toString (n + 1)}");
+      distance = 1;
     }
-    { to = "srv1-node1"; from = { srv1-node0 = 1; srv1-node2 = 1; }; address = "192.168.178.2"; }
-    { to = "srv1-node2"; from = { srv1-node0 = 1; srv1-node1 = 1; }; address = "192.168.178.3"; }
     # srv2 内部网络
     {
-      to = "srv2-node0";
-      from = { srv2-node1 = 1; srv2-node2 = 1; };
-      address = "192.168.178.1";
-      forwards =
-      [
-        { weight = 1; address = [ "nas" "pc" "srv1-node0" ]; }
-        { weight = 2; address = [ "srv1-node1" "srv1-node2" ]; }
-        { weight = 10; address = [ "vps6" ]; }
-        { weight = 11; address = [ "vps4" ]; }
-      ];
-    }
-    { to = "srv2-node1"; from.srv2-node0 = 1; address = "192.168.178.2"; }
-    { to = "srv2-node2"; from.srv2-node0 = 1; address = "192.168.178.3"; }
-    # 厦大内网
-    {
-      to = "srv1-node0";
-      from = { nas = 1; pc = 1; srv2-node0 = 1; };
-      address = getAddress "srv1-node0";
-      forwards = [{ weight = 1; address = [ "srv1-node1" "srv1-node2" ]; }];
-    }
-    {
-      to = "srv2-node0";
-      from = { nas = 1; pc = 1; srv1-node0 = 1; };
-      address = getAddress "srv2-node0";
-      forwards = [{ weight = 1; address = [ "nas" "pc" "srv2-node1" "srv2-node2" ]; }];
-    }
-    # 公网服务器
-    {
-      to = "vps4";
-      from = { nas = 10; vps6 = 1; };
-      address = getAddress "vps4";
-      forwards =
-      [
-        { weight = 1; address = [ "vps6" ]; }
-        { weight = 10; address = [ "nas" ]; }
-        { weight = 11; address = [ "pc" "srv1-node0" "srv2-node0" ]; }
-        { weight = 12; address = [ "srv1-node1" "srv1-node2" "srv2-node1" "srv2-node2" ]; }
-      ];
-    }
-    {
-      to = "vps6";
-      from = { pc = 10; vps4 = 1; srv1-node0 = 10; srv2-node0 = 10; };
-      address = getAddress "vps6";
-      forwards =
-      [
-        { weight = 1; address = [ "vps4" ]; }
-        { weight = 10; address = [ "pc" "srv1-node0" "srv2-node0" ]; }
-        { weight = 11; address = [ "nas" "srv1-node1" "srv1-node2" "srv2-node1" "srv2-node2" ]; }
-      ];
+      device = inputs.lib.genAttrs' (builtins.genList (n: n) 3)
+        (n: inputs.lib.nameValuePair "srv2-node${builtins.toString n}" "192.168.178.${builtins.toString (n + 1)}");
+      distance = 1;
     }
   ];
-  nodesWithSettings = builtins.map
-    (node: node // { settings =
-    {
-      addresses = [{ inherit (node) address; }];
-      settings.Ed25519PublicKey = publicKey.${node.to};
-      subnets = builtins.concatLists
-      [
-        (builtins.concatLists (builtins.map
-          (forward: builtins.map
-            (destNode: { address = getAddress "tinc0.${destNode}"; inherit (forward) weight; })
-            forward.address)
-          (node.forwards or [])))
-        [{ address = getAddress "tinc0.${node.to}"; weight = 0; }]
-      ];
-    };})
-    nodes;
+  # 给定起止点，返回最短路径的第一跳的目的地，以及总路程长度
+  # 结构是：from.to = null or { address = xxx or null; length = xx; jump = xx; }
+  # 如果两个设备不能连接，返回 null;
+  # 如果可以主动连接，返回 { address = xxx; length = xx; jump = xx; }；
+  # 如果只可以被动连接，返回 { address = null; length = xx; jump = xx; }；
+  connection =
+    let
+      # 将给定子网翻译成一列边，返回 [{ device = { dev1 = null or ip; dev2 = null or ip; }; distance = xxx; }]
+      # 边中至少有一个端点是可以接受连接的
+      netToEdges = subnet: builtins.filter (v: v != null) (builtins.concatLists
+        (inputs.lib.imap
+          (i1: v1: inputs.lib.imap
+            (i2: v2:
+              if i2 <= i1 || (subnet.device.${v1} == null && subnet.device.${v2} == null) then null
+              else { device = inputs.lib.genAttrs [ v1 v2 ] (v: subnet.device.${v}); inherit (subnet) distance; })
+            (builtins.attrNames subnet.device))
+          (builtins.attrNames subnet.device)));
+      # 在一个图中加入一个边
+      # current 的结构是：from.to = null or { address = xxx or null; length = xx; jump = xx; }
+      addEdge = current: newEdge: builtins.mapAttrs
+        (nameFrom: valueFrom: builtins.mapAttrs
+          (nameTo: valueTo:
+            # 不处理自己到自己的路
+            if nameFrom == nameTo then null
+            # 如果要加入的边包含起点
+            else if newEdge.device ? "${nameFrom}" then
+              # 如果要加入的边包含终点，那么这两个点可以直连
+              if newEdge.device ? "${nameTo}"
+                then { address = newEdge.device.${nameTo}; length = newEdge.distance; jump = nameTo; }
+              else let edgePoint2 = builtins.head (inputs.lib.remove nameFrom (builtins.attrNames newEdge.device)); in
+                # 如果边的另外一个点到终点可以连接
+                if current.${edgePoint2}.${nameTo} != null then
+                  # 如果之前不能连接，或者之前的连接比新的要长，则使用新的连接
+                  if current.${nameFrom}.${nameTo} == null || (current.${nameFrom}.${nameTo}.length or 0
+                    > newEdge.distance + current.${edgePoint2}.${nameTo}.length or 0) then
+                  {
+                    address = newEdge.device.${edgePoint2};
+                    length = newEdge.distance + current.${edgePoint2}.${nameTo}.length;
+                    jump = edgePoint2;
+                  }
+                  # 否则，不更新连接
+                  else current.${nameFrom}.${nameTo}
+                # 否则，不更新连接
+                else current.${nameFrom}.${nameTo}
+            # 如果要加入的边包不包含起点但包含终点
+            else if newEdge.device ? "${nameTo}" then
+              let edgePoint2 = builtins.head (inputs.lib.remove nameTo (builtins.attrNames newEdge.device)); in
+              # 如果起点与另外一个点可以相连
+              if current.${nameFrom}.${edgePoint2} != null then
+                # 如果之前不能连接，或者新连接更短，则使用新的连接
+                if current.${nameFrom}.${nameTo} == null || (current.${nameFrom}.${nameTo}.length or 0
+                  > current.${nameFrom}.${edgePoint2}.length or 0 + newEdge.distance) then
+                {
+                  inherit (current.${nameFrom}.${edgePoint2}) address jump;
+                  length = newEdge.distance + current.${nameFrom}.${edgePoint2}.length;
+                }
+                # 否则，不更新连接
+                else current.${nameFrom}.${nameTo}
+              # 如果起点与另外一个点不可以相连，则不改变连接
+              else current.${nameFrom}.${nameTo}
+            # 如果要加入的边不包含起点和终点
+            else
+              let
+                edgePoints = builtins.attrNames newEdge.device;
+                p1 = builtins.elemAt edgePoints 0;
+                p2 = builtins.elemAt edgePoints 1;
+              in
+                # 如果起点与边的第一个点可以连接、终点与边的第二个点可以连接
+                if current.${nameFrom}.${p1} != null && current.${p2}.${nameTo} != null then
+                  # 如果之前不能连接，则新连接必然是唯一的连接，使用新连接
+                  if current.${nameFrom}.${nameTo} == null then
+                  {
+                    inherit (current.${nameFrom}.${p1}) address jump;
+                    length = current.${nameFrom}.${p1}.length + newEdge.distance + current.${p2}.${nameTo}.length;
+                  }
+                  # 如果之前可以连接，那么反过来一定也能连接，选取三种连接中最短的
+                  else builtins.head (inputs.lib.sort (a: b: a.length < b.length)
+                    [
+                      # 原先的连接
+                      current.${nameFrom}.${nameTo}
+                      # 正着连接
+                      {
+                        inherit (current.${nameFrom}.${p1}) address jump;
+                        length = current.${nameFrom}.${p1}.length + newEdge.distance + current.${p2}.${nameTo}.length;
+                      }
+                      # 反着连接
+                      {
+                        inherit (current.${nameFrom}.${p2}) address jump;
+                        length = current.${nameFrom}.${p2}.length + newEdge.distance + current.${p1}.${nameTo}.length;
+                      }
+                    ])
+                # 如果正着不能连接、反过来可以连接，那么反过来连接一定是唯一的通路，使用反向的连接
+                else if current.${nameFrom}.${p2} != null && current.${p1}.${nameTo} != null then
+                {
+                  inherit (current.${nameFrom}.${p2}) address jump;
+                  length = current.${nameFrom}.${p2}.length + newEdge.distance + current.${p1}.${nameTo}.length;
+                }
+                # 如果正着连接、反向连接都不行，那么就不更新连接
+                else current.${nameFrom}.${nameTo})
+          valueFrom)
+        current;
+      # 初始时，所有点之间都不连接
+      init = builtins.mapAttrs (_: _: builtins.mapAttrs (_: _: null) publicKey) publicKey;
+    in builtins.foldl' addEdge init (inputs.lib.flatten (builtins.map netToEdges subnets));
   tincHostname = builtins.replaceStrings [ "-" ] [ "_" ];
 in
 {
@@ -123,32 +166,14 @@ in
             subnets = [{ address = getAddress "tinc0.${hostname}"; weight = 0; }];
           };
         }
-        (inputs.lib.mkMerge (builtins.map
-          (node:
-            # 如果描述的是到本机的连接，给 from 中的机器加上信息，只用加它们的公钥和ip即可
-            if node.to == hostname then inputs.lib.mkMerge (builtins.map
-              (fromNode:
-              {
-                "${tincHostname fromNode}" =
-                {
-                  settings.Ed25519PublicKey = publicKey.${fromNode};
-                  subnets = [{ address = getAddress "tinc0.${fromNode}"; weight = node.from.${fromNode}; }];
-                };
-              })
-              (builtins.attrNames node.from))
-            # 如果描述的是来自本机的连接，使用已经生成的设置，并加上权重的偏移
-            else if builtins.hasAttr hostname node.from then
-            {
-              "${tincHostname node.to}" =
-              {
-                inherit (node.settings) addresses settings;
-                subnets = builtins.map
-                  (subnet: { inherit (subnet) address; weight = subnet.weight + node.from.${hostname}; })
-                  node.settings.subnets;
-              };
-            }
-            else {})
-          nodesWithSettings))
+        (inputs.lib.mkMerge (inputs.lib.mapAttrsToList
+          (n: v: { "${tincHostname v.jump}" = 
+          {
+            addresses = inputs.lib.optionals (v.address != null) [{ inherit (v) address; }];
+            settings.Ed25519PublicKey = publicKey.${v.jump};
+            subnets = [{ address = getAddress "tinc0.${n}"; weight = v.length; }];
+          };})
+          (inputs.lib.filterAttrs (_: v: v != null) connection.${hostname})))
       ];
     };
     nixos.system =
