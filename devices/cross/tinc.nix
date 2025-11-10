@@ -14,13 +14,14 @@ let
     srv2-node2 = "csZoiTwZItonm6h+uqkJ5z9J6o1iFlBESQ2u97Wz2JL";
     vps4 = "N03OoCyj4ADkeN3cimJI/bJrBw8g1kz3TJ+1BTe+oyA";
     vps6 = "rYOCGG+B4isTifKJQqsEdfhQuQRnUiIsvz7uI7vZiDN";
+    vps9 = "fCAqgs9VcYpTLccwFtSkx3dwMDG6787MQX4ycekxRSJ";
   };
   # 描述可以直接的设备之间的连接（图上的路径）。若一个设备可以主动接受连接，则设置它接受连接的 ip；否则设置为 null
   # 因为一条条路径描述起来比较麻烦，所以这里一次描述多条
   subnets =
   [
     # vps
-    { device = inputs.lib.genAttrs [ "vps4" "vps6" ] getAddress; distance = 1; }
+    { device = inputs.lib.genAttrs [ "vps4" "vps6" "vps9" ] getAddress; distance = 1; }
     # 使用 vps4 代理的机器
     { device = { vps4 = getAddress "vps4"; nas = null; }; distance = 10; }
     # 使用 vps6 代理的机器
