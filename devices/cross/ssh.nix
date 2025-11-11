@@ -62,13 +62,7 @@ in
         value =
         {
           publicKey = "ssh-ed25519 ${device.value.publicKey}";
-          hostNames =
-            # 直接访问
-            [ "${device.name}.chn.moe" ]
-            # 通过 tinc 访问
-            ++ (builtins.map (net: "tinc0.${device.name}.chn.moe")
-              (builtins.attrNames inputs.topInputs.self.config.dns.tinc))
-            # 额外的域名
+          hostNames = [ "${device.name}.chn.moe" "tinc0.${device.name}.chn.moe" "${device.name}.ts.chn.moe" ]
             ++ (builtins.map (domain: "${domain}.chn.moe") device.value.extraAccess or []);
         };
       }]
