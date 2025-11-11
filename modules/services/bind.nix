@@ -41,9 +41,13 @@ inputs:
         package = inputs.pkgs.bind.overrideAttrs
           (prev: { buildInputs = prev.buildInputs ++ [ inputs.pkgs.libmaxminddb ]; });
         listenOn = [(inputs.topInputs.self.config.dns."chn.moe".getAddress "vps6")];
+        cacheNetworks = [ "any" ];
         extraOptions =
         ''
-          recursion no;
+          max-cache-ttl 0;
+          max-ncache-ttl 0;
+          allow-recursion { any; };
+          dnssec-validation no;
           geoip-directory "${inputs.config.services.geoipupdate.settings.DatabaseDirectory}";
         '';
         extraConfig =
@@ -58,6 +62,11 @@ inputs:
               type master;
               file "${chinaZone}";
             };
+            zone "ts.chn.moe" {
+                type forward;
+                forward only;
+                forwarders { 100.100.100.100; };
+            };
             zone "." {
               type hint;
               file "${nullZone}";
@@ -68,6 +77,11 @@ inputs:
             zone "autoroute.chn.moe" {
               type master;
               file "${globalZone}";
+            };
+            zone "ts.chn.moe" {
+                type forward;
+                forward only;
+                forwarders { 100.100.100.100; };
             };
             zone "." {
               type hint;
