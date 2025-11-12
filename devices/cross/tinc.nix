@@ -183,13 +183,17 @@ in
       network.settings = inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "systemd-networkd")
         { static."tinc0" = { ip = getAddress "tinc0.${hostname}"; mask = 24; }; };
     };
-    environment.etc = inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "networkmanager")
+    environment =
     {
-      "tinc/tinc0/tinc-up".source = inputs.pkgs.writeShellScript "tinc-up"
-      ''
-        ${inputs.pkgs.iproute2}/bin/ip link set $INTERFACE up
-        ${inputs.pkgs.iproute2}/bin/ip addr add ${getAddress "tinc0.${hostname}"}/24 dev $INTERFACE
-      '';
+      etc = inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "networkmanager")
+      {
+        "tinc/tinc0/tinc-up".source = inputs.pkgs.writeShellScript "tinc-up"
+        ''
+          ${inputs.pkgs.iproute2}/bin/ip link set $INTERFACE up
+          ${inputs.pkgs.iproute2}/bin/ip addr add ${getAddress "tinc0.${hostname}"}/24 dev $INTERFACE
+        '';
+      };
+      systemPackages = [ inputs.config.services.tinc.networks.tinc0.package ];
     };
     networking.firewall = { allowedTCPPorts = [ 655 ]; allowedUDPPorts = [ 655 ]; trustedInterfaces = [ "tinc0" ]; };
   };
