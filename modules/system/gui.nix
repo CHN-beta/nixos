@@ -7,7 +7,7 @@ inputs:
   config = let inherit (inputs.config.nixos.system) gui; in inputs.lib.mkMerge
   [
     # enable gui
-    (inputs.lib.mkIf (builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ])
+    (inputs.lib.mkIf (inputs.config.nixos.model.type == "desktop")
     {
       services =
       {
@@ -60,12 +60,6 @@ inputs:
           };
         };
       })];
-    })
-    # prefer gui or not
-    (inputs.lib.mkIf (inputs.config.nixos.model.type == "server")
-    {
-      environment.plasma6.excludePackages = inputs.lib.mkIf (gui.implementation == "kde")
-        [ inputs.pkgs.kdePackages.plasma-nm ];
     })
     # niri
     (inputs.lib.mkIf (gui.implementation == "niri")
