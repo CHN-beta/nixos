@@ -15,10 +15,10 @@ inputs:
         };
         nixpkgs.cuda.capabilities =
         [
-          # p5000 p400
-          "6.1"
-          # 2080 Ti
-          "7.5"
+          # remove support for p5000 p400 since it is no longer supported in recent nvhpc versions
+          # "6.1"
+          # remove support for 2080 Ti since it is not installed
+          # "7.5"
           # A30
           "8.0"
           # 3090
