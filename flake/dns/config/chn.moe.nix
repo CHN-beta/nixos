@@ -23,8 +23,8 @@ let
     "tinc0.srv2-node0" = [ "tinc0.srv2" ];
     srv1-node0 = [ "srv1" ];
     srv2-node0 = [ "srv2" ];
-    "pc.ts" = [ "nix-store" "chat" ];
-    "nas.ts" = [ "nix-store.nas" "ssh.git" ];
+    "tinc0.pc" = [ "nix-store" "chat" ];
+    "tinc0.nas" = [ "nix-store.nas" "ssh.git" ];
     autoroute = [ "铜锣湾" "matrix" ];
     vps9 = [ "initrd.vps9" "xserver2.vps9" ];
   };
