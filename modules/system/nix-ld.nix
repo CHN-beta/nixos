@@ -3,7 +3,10 @@ inputs:
   options.nixos.system.nix-ld = let inherit (inputs.lib) mkOption types; in mkOption
   {
     type = types.nullOr (types.submodule {});
-    default = if inputs.config.nixos.model.arch == "x86_64" then {} else null;
+    default =
+      if (inputs.config.nixos.model.arch == "x86_64")
+        && (builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ])
+      then {} else null;
   };
   config = let inherit (inputs.config.nixos.system) nix-ld; in inputs.lib.mkIf (nix-ld != null)
   {
