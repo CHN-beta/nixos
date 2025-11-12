@@ -59,7 +59,7 @@ inputs:
         mirism = {};
         fail2ban = {};
         beesd."/" = {};
-        bind = {};
+        coredns.interface = "ens18";
         headscale = {};
       };
     };
