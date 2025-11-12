@@ -4,19 +4,19 @@
   {
     src = pkgs.fetchurl
     {
-      url = "https://developer.download.nvidia.com/hpc-sdk/25.3/nvhpc_2025_253_Linux_x86_64_cuda_12.8.tar.gz";
-      sha256 = "11gxb099yxrsxg9i6vydi7znxqiwqqkhgmg90s74qwpjyriqpbsp";
+      url = "https://developer.download.nvidia.com/hpc-sdk/25.9/nvhpc_2025_259_Linux_x86_64_cuda_13.0.tar.gz";
+      sha256 = "0p4zghj0iz3pak21y75jg1v27qgypbdwnf5amhpa6bapgf28ribx";
     };
     mpi = pkgs.requireFile
     {
       name = "openmpi-gitclone.tar.gz";
-      # download from https://content.mellanox.com/hpc/hpc-x/v2.23/hpcx-v2.23-gcc-doca_ofed-ubuntu24.04-cuda12-x86_64.tbz
+      # download from https://developer.nvidia.com/networking/hpc-x/
       # nix-prefetch-url file://$(pwd)/openmpi-gitclone.tar.gz
-      sha256 = "1lx5gld4ay9p327hdlqsi72911cfm6s5v3yabjlmwr7sb27y8151";
+      sha256 = "0l72yyb1abab24ci29x73qbv1bjq01i2lahzdyb158575i6lwjvx";
       message = "Source file not found.";
     };
-    version = "25.3";
-    cudaVersion = "12.8";
+    version = "25.9";
+    cudaVersion = "13.0";
   };
   iso =
   {
