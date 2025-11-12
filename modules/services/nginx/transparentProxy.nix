@@ -47,12 +47,12 @@ inputs:
             ip = "${inputs.pkgs.iproute2}/bin/ip";
             start = inputs.pkgs.writeShellScript "nginx-proxy.start"
             ''
-              ${ip} rule add fwmark 2/2 table 200
+              ${ip} rule add fwmark 2/2 table 200 priority 5001
               ${ip} route add local 0.0.0.0/0 dev lo table 200
             '';
             stop = inputs.pkgs.writeShellScript "nginx-proxy.stop"
             ''
-              ${ip} rule del fwmark 2/2 table 200
+              ${ip} rule del fwmark 2/2 table 200 priority 5001
               ${ip} route del local 0.0.0.0/0 dev lo table 200
             '';
           in
@@ -76,7 +76,7 @@ inputs:
         {
           matchConfig.Name = "lo";
           routes = [{ Table = 200; Destination = "0.0.0.0/0"; Type = "local"; }];
-          routingPolicyRules = [{ FirewallMark = "2/2"; Table = 200; }];
+          routingPolicyRules = [{ FirewallMark = "2/2"; Table = 200; Priority = 5001; }];
         };
       };
     };

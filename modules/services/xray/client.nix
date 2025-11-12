@@ -226,12 +226,12 @@ inputs:
               RemainAfterExit = true;
               ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start"
               ''
-                ${ip} rule add fwmark 1/1 table 100
+                ${ip} rule add fwmark 1/1 table 100 priority 5000
                 ${ip} route add local 0.0.0.0/0 dev lo table 100
               '';
               ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop"
               ''
-                ${ip} rule del fwmark 1/1 table 100
+                ${ip} rule del fwmark 1/1 table 100 priority 5000
                 ${ip} route del local 0.0.0.0/0 dev lo table 100
               '';
             };
@@ -244,7 +244,7 @@ inputs:
         {
           matchConfig.Name = "lo";
           routes = [{ Table = 100; Destination = "0.0.0.0/0"; Type = "local"; }];
-          routingPolicyRules = [{ FirewallMark = "1/1"; Table = 100; }];
+          routingPolicyRules = [{ FirewallMark = "1/1"; Table = 100; Priority = 5000; }];
         };
       };
     };
