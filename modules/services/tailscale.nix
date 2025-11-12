@@ -11,8 +11,8 @@ inputs:
       disableTaildrop = true;
       # authKeyParameters should not be set
       authKeyFile = inputs.config.nixos.system.sops.secrets."tailscale".path;
-      extraUpFlags = [ "--login-server=https://headscale.chn.moe" "--accept-dns=false" ];
-      extraSetFlags = [ "--accept-dns=false" ];
+      extraUpFlags = [ "--login-server=https://headscale.chn.moe" "--accept-dns=false" "--netfilter-mode=off" ];
+      extraSetFlags = [ "--accept-dns=false" "--netfilter-mode=off" ];
     };
     nixos.system.sops.secrets."tailscale" = {};
     networking.firewall.trustedInterfaces = [ inputs.config.services.tailscale.interfaceName ];
