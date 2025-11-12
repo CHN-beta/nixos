@@ -1,6 +1,6 @@
 {
   src, stdenv, autoPatchelfHook, wrapCCWith, config, overrideCC, makeSetupHook, writeScript, overrideInStdenv,
-  gcc, glibc, libz, zstd, libxml2, flock, numactl, ncurses, openssl, gmp,
+  gcc, glibc, libz, zstd, libxml2, flock, numactl, ncurses, openssl, gmp, systemd,
   libxcrypt-legacy, libfabric, rdma-core, xorg, bash
 }:
 let
@@ -9,7 +9,7 @@ let
     pname = "nvhpc";
     inherit (src) src version;
     buildInputs =
-      [ libz libxml2 zstd numactl ncurses openssl gmp libxcrypt-legacy libfabric rdma-core xorg.libpciaccess ];
+      [ libz libxml2 zstd numactl ncurses openssl gmp libxcrypt-legacy libfabric rdma-core xorg.libpciaccess systemd ];
     nativeBuildInputs = [ autoPatchelfHook flock ];
     langFortran = true;
     dontConfigure = true;
