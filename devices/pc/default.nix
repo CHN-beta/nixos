@@ -81,7 +81,7 @@ inputs:
         podman = {};
         ananicy = {};
         keyd = {};
-        kvm.aarch64 = true;
+        kvm = {};
         mariadb.mountFrom = "nodatacow";
         lumericalLicenseManager.macAddress = "10:5f:ad:10:3e:ca";
         open-webui.ollamaHost = "127.0.0.1";
