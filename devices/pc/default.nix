@@ -82,10 +82,8 @@ inputs:
         ananicy = {};
         keyd = {};
         kvm.aarch64 = true;
-        peerBanHelper = {};
         mariadb.mountFrom = "nodatacow";
         lumericalLicenseManager.macAddress = "10:5f:ad:10:3e:ca";
-        waydroid = {};
         open-webui.ollamaHost = "127.0.0.1";
       };
       bugs = [ "xmunet" "amdpstate" "iwlwifi" ];
