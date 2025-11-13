@@ -10,7 +10,7 @@ inputs:
       [
         # basic tools
         beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq yq ipfetch localPackages.pslist
-        fastfetch reptyr duc ncdu progress libva-utils ksh neofetch dateutils kitty glib
+        fastfetch reptyr duc ncdu progress libva-utils ksh neofetch dateutils glib
         # lsxx
         pciutils usbutils lshw util-linux lsof dmidecode lm_sensors hwloc acpica-tools ethtool
         # top
@@ -43,32 +43,8 @@ inputs:
         (octodns.withProviders (_: with octodns-providers; [ cloudflare ]))
         # stupid things
         toilet lolcat localPackages.stickerpicker graph-easy
-        # office
-        pdfgrep ffmpeg-full hdf5
-        # scientific computing
-        (if inputs.config.nixos.system.nixpkgs.cuda != null then localPackages.mumax else emptyDirectory)
-        (if inputs.config.nixos.system.nixpkgs.cuda != null
-          then (lammps.override { stdenv = cudaPackages.backendStdenv; }).overrideAttrs (prev:
-          {
-            cmakeFlags = prev.cmakeFlags ++
-              [ "-DPKG_GPU=on" "-DGPU_API=cuda" "-DCMAKE_POLICY_DEFAULT_CMP0146=OLD" ];
-            nativeBuildInputs = prev.nativeBuildInputs ++ [ cudaPackages.cudatoolkit ];
-            buildInputs = prev.buildInputs ++ [ mpi ];
-          })
-          else lammps-mpi)
       ]
-        ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ])
-        ++ (inputs.lib.optionals (inputs.config.nixos.system.gui.implementation == "kde")
-          [ inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix ]);
-      _pythonPackages = [(pythonPackages: with pythonPackages;
-      [
-        openai python-telegram-bot fastapi-cli pypdf2 pandas matplotlib plotly gunicorn redis jinja2 certifi 
-        charset-normalizer idna orjson psycopg2 inquirerpy requests tqdm pydbus inputs.pkgs.localPackages.brokenaxes
-        # allow pandas read odf
-        odfpy
-        # for vasp plot-workfunc.py
-        ase
-      ])];
+        ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
     };
     programs =
     {

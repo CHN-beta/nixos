@@ -33,7 +33,7 @@ inputs:
           waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio subtitlecomposer
           (inkscape-with-extensions.override { inkscapeExtensions = null; })
           # development
-          adb-sync scrcpy dbeaver-bin cling aircrack-ng
+          adb-sync scrcpy dbeaver-bin cling aircrack-ng kitty
           weston cage openbox krita fprettify # jetbrains.clion 
           # password and key management
           yubikey-manager bitwarden hashcat yubikey-personalization
@@ -71,7 +71,9 @@ inputs:
           activitywatch super-productivity
         ]
           ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" "kalzium" ])))
-            (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)));
+            (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)))
+          ++ (inputs.lib.optionals (inputs.config.nixos.system.gui.implementation == "kde")
+            [ inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix ]);
         _pythonPackages = [(pythonPackages: with pythonPackages;
           [ phonopy scipy scikit-learn jupyterlab autograd inputs.pkgs.localPackages.phono3py numpy ])];
       };
