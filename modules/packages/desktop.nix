@@ -15,7 +15,7 @@ inputs:
         [
           # system management
           # TODO: module should add yubikey-touch-detector into path
-          gparted wayland-utils clinfo glxinfo vulkan-tools dracut yubikey-touch-detector btrfs-assistant snapper-gui
+          gparted wayland-utils clinfo mesa-demos vulkan-tools dracut yubikey-touch-detector btrfs-assistant snapper-gui
           kdePackages.qtstyleplugin-kvantum cpu-x wl-mirror geekbench xpra
           (
             writeShellScriptBin "xclip"
@@ -36,7 +36,7 @@ inputs:
           adb-sync scrcpy dbeaver-bin cling aircrack-ng kitty
           weston cage openbox krita fprettify # jetbrains.clion 
           # password and key management
-          yubikey-manager bitwarden hashcat yubikey-personalization
+          yubikey-manager bitwarden-desktop hashcat yubikey-personalization
           # download
           qbittorrent
           # editor
@@ -51,7 +51,7 @@ inputs:
           # browser
           google-chrome tor-browser
           # office
-          crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain
+          crow-translate zotero pandoc texliveFull poppler-utils pdftk pdfchain
           ydict texstudio panoply pspp libreoffice-qt6-still ocrmypdf typst # paperwork
           # required by ltex-plus.vscode-ltex-plus
           ltex-ls ltex-ls-plus

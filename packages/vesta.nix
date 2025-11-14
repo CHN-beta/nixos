@@ -1,12 +1,12 @@
 {
-  lib, stdenv, fetchurl, autoPatchelfHook, wrapGAppsHook, makeWrapper, src,
+  lib, stdenv, fetchurl, autoPatchelfHook, wrapGAppsHook3, makeWrapper, src,
   glib, gtk2, xorg, libGLU, gtk3, writeShellScript, gsettings-desktop-schemas, xdg-utils, jdk
 }: stdenv.mkDerivation
 {
   pname = "vesta";
   inherit (src) src version;
   nativeBuildInputs =
-    [ autoPatchelfHook wrapGAppsHook makeWrapper glib gtk2 xorg.libXxf86vm libGLU gtk3 xorg.libXtst jdk ];
+    [ autoPatchelfHook wrapGAppsHook3 makeWrapper glib gtk2 xorg.libXxf86vm libGLU gtk3 xorg.libXtst jdk ];
   unpackPhase = "tar -xf $src";
   installPhase =
   ''

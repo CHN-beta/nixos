@@ -38,7 +38,8 @@ inputs:
       {
         enable = true;
         type = "fcitx5";
-        fcitx5.addons = builtins.map (p: inputs.pkgs."fcitx5-${p}") [ "chinese-addons" "mozc" "material-color" "gtk" ];
+        fcitx5.addons = with inputs.pkgs;
+          [ qt6Packages.fcitx5-chinese-addons fcitx5-mozc fcitx5-material-color fcitx5-gtk ];
       };
       programs.dconf.enable = true;
       nixos.user.sharedModules = [(hmInputs:
@@ -67,7 +68,7 @@ inputs:
       programs.niri.enable = true;
       nixos.user.sharedModules = [(hmInputs:
       {
-        config.programs.dankMaterialShell = { enable = true; enableKeybinds = true; enableSystemd = true; };
+        config.programs.dankMaterialShell = { enable = true; niri.enableKeybinds = true; enableSystemd = true; };
       })];
       # niri module will auto enable this, disable it to avoid conflict with system ssh-agent and kwallet
       services.gnome = { gcr-ssh-agent.enable = false; gnome-keyring.enable = inputs.lib.mkForce false; };

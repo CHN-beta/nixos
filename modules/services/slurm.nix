@@ -65,7 +65,7 @@ inputs:
               {
                 buildInputs = prev.buildInputs or [] ++ additionalInputs;
                 LDFLAGS = prev.LDFLAGS or [] ++ additionalFlags;
-                nativeBuildInputs = prev.nativeBuildInputs ++ [ inputs.pkgs.wrapGAppsHook ];
+                nativeBuildInputs = prev.nativeBuildInputs ++ [ inputs.pkgs.wrapGAppsHook3 ];
                 postInstall =
                 ''
                   pushd contribs/pmi2
