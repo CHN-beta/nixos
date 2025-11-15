@@ -19,7 +19,8 @@ inputs:
         extraInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
         hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       };
-      v2ray-forwarder.noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
+      v2ray-forwarder.noproxyUsers =
+        mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" "tailscale" ]; };
     };}));
     default = null;
   };
@@ -109,6 +110,13 @@ inputs:
             }
             { port = 10884; protocol = "socks"; settings.udp = true; tag = "proxy-socks-in"; }
             { port = 10882; protocol = "socks"; settings.udp = true; tag = "direct-in"; }
+            {
+              port = 10885;
+              protocol = "socks";
+              settings.udp = true;
+              sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
+              tag = "common-socks-in";
+            }
           ];
           outbounds =
           [
@@ -159,14 +167,22 @@ inputs:
               { inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
               { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
               { inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = "proxy-vless"; }
-              { inboundTag = [ "common-in" ]; domain = [ "geosite:geolocation-cn" ]; outboundTag = "direct"; }
               {
-                inboundTag = [ "common-in" ];
+                inboundTag = [ "common-in" "common-socks-in" ];
+                domain = [ "geosite:geolocation-cn" ];
+                outboundTag = "direct";
+              }
+              {
+                inboundTag = [ "common-in" "common-socks-in" ];
                 domain = [ "geosite:geolocation-!cn" ];
                 outboundTag = "proxy-vless";
               }
-              { inboundTag = [ "common-in" ]; ip = [ "geoip:cn" ]; outboundTag = "direct"; }
-              { inboundTag = [ "common-in" ]; outboundTag = "proxy-vless"; }
+              {
+                inboundTag = [ "common-in" "common-socks-in" ];
+                ip = [ "geoip:cn" "geoip:private" ];
+                outboundTag = "direct";
+              }
+              { inboundTag = [ "common-in" "common-socks-in" ]; outboundTag = "proxy-vless"; }
             ];
           };
         };
@@ -211,12 +227,12 @@ inputs:
               RemainAfterExit = true;
               ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start"
               ''
-                ${ip} rule add fwmark 1/1 table 100
+                ${ip} rule add fwmark 1/1 table 100 priority 5000
                 ${ip} route add local 0.0.0.0/0 dev lo table 100
               '';
               ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop"
               ''
-                ${ip} rule del fwmark 1/1 table 100
+                ${ip} rule del fwmark 1/1 table 100 priority 5000
                 ${ip} route del local 0.0.0.0/0 dev lo table 100
               '';
             };
@@ -229,7 +245,7 @@ inputs:
         {
           matchConfig.Name = "lo";
           routes = [{ Table = 100; Destination = "0.0.0.0/0"; Type = "local"; }];
-          routingPolicyRules = [{ FirewallMark = "1/1"; Table = 100; }];
+          routingPolicyRules = [{ FirewallMark = "1/1"; Table = 100; Priority = 5000; }];
         };
       };
     };
