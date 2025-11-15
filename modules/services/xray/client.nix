@@ -19,7 +19,8 @@ inputs:
         extraInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
         hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       };
-      v2ray-forwarder.noproxyUsers = mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" ]; };
+      v2ray-forwarder.noproxyUsers =
+        mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" "tailscale" ]; };
     };}));
     default = null;
   };
