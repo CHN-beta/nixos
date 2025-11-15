@@ -19,8 +19,6 @@ inputs:
         extraInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
         hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       };
-      v2ray-forwarder.noproxyUsers =
-        mkOption { type = types.listOf types.nonEmptyStr; default = [ "gb" "xll" "tailscale" ]; };
     };}));
     default = null;
   };
@@ -274,7 +272,7 @@ inputs:
             loNetStr = builtins.concatStringsSep ", " loNet;
             noproxyUserStr = builtins.concatStringsSep ", " (builtins.map
               (user: builtins.toString inputs.config.nixos.user.uid.${user})
-              (client.v2ray-forwarder.noproxyUsers ++ [ "v2ray" ]));
+              [ "v2ray" "tailscale" ]);
           in
           ''
             set lo_net { type ipv4_addr; flags interval; elements = { ${loNetStr} }; }
