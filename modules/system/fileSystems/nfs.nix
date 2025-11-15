@@ -5,11 +5,12 @@ inputs:
     type = types.attrsOf (types.oneOf
     [
       types.nonEmptyStr
-      (types.submodule { options =
+      (types.submodule (submoduleInputs: { options =
       {
         mountPoint = mkOption { type = types.nonEmptyStr; };
         hard = mkOption { type = types.bool; default = true; };
-      };})
+        neededForBoot = mkOption { type = types.bool; default = submoduleInputs.config.hard; };
+      };}))
     ]);
     default = {};
   };
@@ -26,7 +27,7 @@ inputs:
             {
               device = device.name;
               fsType = "nfs4";
-              neededForBoot = device.value.hard or true;
+              neededForBoot = device.value.neededForBoot or true;
               options = builtins.concatLists
               [
                 [
