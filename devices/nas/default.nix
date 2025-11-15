@@ -67,6 +67,7 @@ inputs:
         podman = {};
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
+        nfs."/" = [ "100.97.101.0/24" ];
       };
     };
     systemd.tmpfiles.rules =
