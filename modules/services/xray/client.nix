@@ -19,6 +19,7 @@ inputs:
         extraInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
         hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       };
+      v2ray-forwarder.asRouter = mkOption { type = types.bool; default = false; };
     };}));
     default = null;
   };
@@ -288,6 +289,9 @@ inputs:
               # 对于目标地址为本机的新建的流，标记并永不代理
               fib daddr type local ct state new counter ct mark set ct mark | 1 return
               ct mark & 1 == 1 counter return
+
+              # 如果不作为路由器使用，则可以返回那些没有被标记的流量
+              ${if client.v2ray-forwarder.asRouter then "" else "meta mark & 1 == 0 counter return"}
 
               ip saddr @noproxy_src_net counter return
               ip daddr @noproxy_net counter return
