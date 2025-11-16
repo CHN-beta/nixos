@@ -8,10 +8,7 @@ inputs:
       {
         nixpkgs.march = "icelake-server";
         network.settings =
-        {
-          static.eno8303 = { ip = "192.168.178.3"; mask = 24; gateway = "192.168.178.1"; dns = "192.168.178.1"; };
-          trust = [ "eno8303" ];
-        };
+          { static.eno8303 = { ip = "192.168.178.3"; mask = 24; gateway = "192.168.178.1"; }; trust = [ "eno8303" ]; };
         fileSystems =
         {
           swap = [ "/nix/swap/swap" ];

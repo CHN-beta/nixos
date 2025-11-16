@@ -24,7 +24,6 @@ inputs:
       };
       services =
       {
-        xray.client.dnsmasq.extraInterfaces = [ "enp58s0" ];
         beesd."/".hashTableSizeMB = 10 * 128;
         hpcstat = {};
         sshd = { groupBanner = true; motd = true; };

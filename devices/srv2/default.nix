@@ -85,6 +85,7 @@ inputs:
           };
           timeLimit = "48:00:00";
         };
+        xray.client = {};
       };
       packages = { vasp = {}; desktop = {}; lumerical = {}; };
       user.users =
