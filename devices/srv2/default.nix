@@ -85,7 +85,7 @@ inputs:
           };
           timeLimit = "48:00:00";
         };
-        xray.client = {};
+        xray.client.xray.serverName = "xserver2.vps9.chn.moe";
       };
       packages = { vasp = {}; desktop = {}; lumerical = {}; };
       user.users =
