@@ -24,7 +24,7 @@ let
     { device = inputs.lib.genAttrs [ "vps4" "vps6" "vps9" ] getAddress; distance = 1; }
     # 使用 vps9 代理的机器
     {
-      device = (inputs.lib.genAttrs [ "srv1-node0" "srv2-node0" ] (_: null)) // { vps6 = getAddress "vps6"; };
+      device = (inputs.lib.genAttrs [ "nas" "srv1-node0" "srv2-node0" ] (_: null)) // { vps9 = getAddress "vps9"; };
       distance = 10;
     }
     # 使用 vps6 代理的机器
