@@ -70,8 +70,10 @@ inputs:
           # daily management
           activitywatch super-productivity
         ]
-          ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" "kalzium" ])))
-            (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)))
+          ++ (builtins.filter
+            (p: (inputs.lib.isDerivation p) && !(p.meta.broken or false)
+              && !(builtins.elem p.pname or null [ "falkon" "kalzium" "calligra" ]))
+            (builtins.attrValues kdePackages.kdeGear))
           ++ (inputs.lib.optionals (inputs.config.nixos.system.gui.implementation == "kde")
             [ inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix ]);
         _pythonPackages = [(pythonPackages: with pythonPackages;
