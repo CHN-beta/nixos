@@ -56,4 +56,4 @@ creation_rules:
     - age: [ *chn, *pc, *nas ]
   - path_regex: devices/cross/secrets/xray-server.yaml$
     key_groups:
-    - age: [ *chn, *vps4, *vps6, *vps9 ]
+    - age: [ *chn, *vps4, *vps6, *vps9, *nas ]
