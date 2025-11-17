@@ -8,7 +8,6 @@ inputs:
       type = types.listOf types.nonEmptyStr;
       default = with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ march ];
     };
-    substituters = mkOption { type = types.listOf types.nonEmptyStr; default = [ "https://nix-store.chn.moe" ]; };
     remote =
     {
       slave = mkOption { type = types.nullOr (types.submodule {}); default = null; };
@@ -40,6 +39,8 @@ inputs:
         # do not keep unused outputs, backup it manually on nas
         keep-outputs = false;
         connect-timeout = 5;
+        # https://cache.nixos.org 已经自带
+        substituters = [ "https://nix-store.chn.moe" "https://nix-store.nas.chn.moe" ];
       };
       systemd.services.nix-daemon = { serviceConfig.CacheDirectory = "nix"; environment.TMPDIR = "/var/cache/nix"; };
     }
@@ -70,8 +71,6 @@ inputs:
     { nix.settings.system-features = builtins.map (march: "gccarch-${march}") nix.marches; }
     # includeBuildDependencies
     { system.includeBuildDependencies = inputs.topInputs.self.config.branch == "archive"; }
-    # substituters
-    { nix.settings.substituters = nix.substituters ++ [ "https://cache.nixos.org" ]; }
     # remote.slave
     (inputs.lib.mkIf (nix.remote.slave != null)
     {
