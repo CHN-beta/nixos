@@ -73,5 +73,6 @@ inputs:
     };
     systemd.tmpfiles.rules =
       [ "w /sys/class/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw - - - - 10000000" ];
+    boot.nixStoreMountOpts = [ "nodev" "nosuid" ];
   };
 }
