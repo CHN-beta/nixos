@@ -25,6 +25,7 @@ inputs:
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
+        nix.marches = inputs.topInputs.self.nixosConfigurations.pc.config.nixos.system.nix.marches;
         network.settings.static.enp3s0 =
           { ip = "192.168.1.2"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; }; 
         kernel.patches = [ "btrfs" ];
@@ -67,9 +68,11 @@ inputs:
         podman = {};
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
+        nfs."/" = [ "100.97.101.0/24" ];
       };
     };
     systemd.tmpfiles.rules =
       [ "w /sys/class/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw - - - - 10000000" ];
+    boot.nixStoreMountOpts = [ "nodev" "nosuid" ];
   };
 }

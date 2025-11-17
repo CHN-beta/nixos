@@ -12,6 +12,7 @@ inputs:
           vfat."/dev/disk/by-partlabel/${clusterName}-${nodeName}-boot" = "/boot";
           btrfs."/dev/disk/by-partlabel/${clusterName}-${nodeName}-root1" =
             { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+          nfs."nas.ts.chn.moe:/" = { mountPoint = "/nix/remote/nas"; neededForBoot = false; };
         };
         nixpkgs.cuda.capabilities =
         [
@@ -84,6 +85,7 @@ inputs:
           };
           timeLimit = "48:00:00";
         };
+        xray.client.xray.serverName = "xserver2.vps9.chn.moe";
       };
       packages = { vasp = {}; desktop = {}; lumerical = {}; };
       user.users =

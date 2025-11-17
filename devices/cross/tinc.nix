@@ -23,12 +23,12 @@ let
     # vps
     { device = inputs.lib.genAttrs [ "vps4" "vps6" "vps9" ] getAddress; distance = 1; }
     # 使用 vps9 代理的机器
-    { device = { vps9 = getAddress "vps9"; nas = null; }; distance = 10; }
-    # 使用 vps6 代理的机器
     {
-      device = (inputs.lib.genAttrs [ "pc" "srv1-node0" "srv2-node0" ] (_: null)) // { vps6 = getAddress "vps6"; };
+      device = (inputs.lib.genAttrs [ "nas" "srv1-node0" "srv2-node0" ] (_: null)) // { vps9 = getAddress "vps9"; };
       distance = 10;
     }
+    # 使用 vps6 代理的机器
+    { device = { vps6 = getAddress "vps6"; pc = null; }; distance = 10; }
     # 校内网络
     { device = (inputs.lib.genAttrs [ "srv1-node0" "srv2-node0" ] getAddress) // { nas = null; }; distance = 1; }
     # srv1 内部网络
@@ -155,7 +155,16 @@ in
   {
     services.tinc.networks.tinc0 = 
     {
-      settings = { Interface = "tinc0"; Name = tincHostname hostname; PingInterval = 10; };
+      settings =
+      {
+        Interface = "tinc0";
+        Name = tincHostname hostname;
+        PingInterval = 10;
+        TCPOnly = true;
+        Proxy = inputs.lib.mkIf (inputs.config.nixos.services.xray.client != null) "socks5 127.0.0.1 10885";
+        ConnectTo = builtins.map tincHostname (builtins.attrNames
+          (inputs.lib.filterAttrs (n: v: (v.address or null != null) && (v.jump or null == n)) connection.${hostname}));
+      };
       ed25519PrivateKeyFile = inputs.config.nixos.system.sops.secrets."tinc".path;
       hostSettings = inputs.lib.mkMerge
       [
@@ -171,7 +180,7 @@ in
           (n: v: { "${tincHostname v.jump}" = 
           {
             addresses = inputs.lib.optionals (v.address != null) [{ inherit (v) address; }];
-            settings.Ed25519PublicKey = publicKey.${v.jump};
+            settings = { Ed25519PublicKey = publicKey.${v.jump}; IndirectData = true; };
             subnets = [{ address = getAddress "tinc0.${n}"; weight = v.length; }];
           };})
           (inputs.lib.filterAttrs (_: v: v != null) connection.${hostname})))

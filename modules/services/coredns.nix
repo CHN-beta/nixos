@@ -31,7 +31,7 @@ inputs:
           }
           template IN AAAA autoroute.chn.moe {
             match ^autoroute\.chn\.moe\.$
-            rcode NXDOMAIN
+            rcode NOERROR
           }
           header {
             response set aa
@@ -50,7 +50,7 @@ inputs:
           }
           template IN AAAA autoroute.chn.moe {
             match ^autoroute\.chn\.moe\.$
-            rcode NXDOMAIN
+            rcode NOERROR
           }
           header {
             response set aa

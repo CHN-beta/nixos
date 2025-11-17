@@ -128,12 +128,14 @@ inputs:
               };
             };
           };
-          secrets = builtins.listToAttrs
-            (builtins.map (n: inputs.lib.nameValuePair "xray-server/clients/${n}" {}) userList)
-            // (builtins.listToAttrs (builtins.map
-              (name: inputs.lib.nameValuePair "telegram/${name}" { group = "telegram"; mode = "0440"; })
-              [ "token" "user/chn" ]))
-            // { "xray-server/private-key" = {}; };
+          secrets = inputs.lib.mergeAttrsList
+          [
+            (inputs.lib.genAttrs' userList
+              (n: inputs.lib.nameValuePair "xray-server/clients/${n}" {}))
+            { "xray-server/private-key" = {}; }
+            (inputs.lib.genAttrs' [ "token" "user/chn" ]
+              (n: inputs.lib.nameValuePair "telegram/${n}" { group = "telegram"; mode = "0440"; }))
+          ];
         };
         services =
         {

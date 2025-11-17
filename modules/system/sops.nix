@@ -80,8 +80,8 @@ inputs:
               (defaultSopsFile "${devicePath}/${model.cluster.clusterName}/${model.cluster.nodeName}")
                 ++ (defaultSopsFile "${devicePath}/${model.cluster.clusterName}")
             ))
-          ++ (inputs.lib.optionals model.private [ "${devicePath}/cross/secrets/chn.yaml" ])
-          ++ (defaultSopsFile "${devicePath}/cross");
+          ++ (defaultSopsFile "${devicePath}/cross")
+          ++ [ "${devicePath}/cross/secrets/chn.yaml" "${devicePath}/cross/secrets/xray-server.yaml" ];
     };
     availableKeys = mkOption
     {

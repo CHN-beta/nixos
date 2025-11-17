@@ -16,5 +16,16 @@ inputs:
     };
     nixos.system.sops.secrets."tailscale" = {};
     networking.firewall.trustedInterfaces = [ inputs.config.services.tailscale.interfaceName ];
+    users =
+    {
+      users.tailscale = { uid = inputs.config.nixos.user.uid.tailscale; group = "tailscale"; isSystemUser = true; };
+      groups.tailscale.gid = inputs.config.nixos.user.gid.tailscale;
+    };
+    systemd.services.tailscaled.serviceConfig =
+    {
+      User = "tailscale";
+      Group = "tailscale";
+      AmbientCapabilities = [ "CAP_NET_RAW" "CAP_NET_ADMIN" "CAP_SYS_MODULE" ];
+    };
   };
 }
