@@ -13,7 +13,6 @@ inputs:
           {
             vfat."/dev/disk/by-partlabel/pc-boot" = "/boot";
             btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-            nfs."nas.ts.chn.moe:/" = { mountPoint = "/nix/remote/nas"; neededForBoot = false; };
           };
           luks.auto."/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
           swap = [ "/nix/swap/swap" ];
