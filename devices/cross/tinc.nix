@@ -155,7 +155,7 @@ in
   {
     services.tinc.networks.tinc0 = 
     {
-      settings = { Interface = "tinc0"; Name = tincHostname hostname; PingInterval = 10; };
+      settings = { Interface = "tinc0"; Name = tincHostname hostname; PingInterval = 10; TCPOnly = true; };
       ed25519PrivateKeyFile = inputs.config.nixos.system.sops.secrets."tinc".path;
       hostSettings = inputs.lib.mkMerge
       [
