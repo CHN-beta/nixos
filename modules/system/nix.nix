@@ -3,7 +3,11 @@ inputs:
   options.nixos.system.nix = let inherit (inputs.lib) mkOption types; in
   {
     # marches allowed to be compiled on this machine
-    marches = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+    marches = mkOption
+    {
+      type = types.listOf types.nonEmptyStr;
+      default = with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ march ];
+    };
     substituters = mkOption { type = types.listOf types.nonEmptyStr; default = [ "https://nix-store.chn.moe" ]; };
     remote =
     {
@@ -63,17 +67,7 @@ inputs:
       };
     }
     # marches
-    {
-      nix.settings.system-features =
-      (map
-        (march: "gccarch-${march}")
-        (
-          if nix.marches == null then
-            (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ march ])
-          else nix.marches
-        ))
-      ++ (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ "gccarch-exact-${march}" ]);
-    }
+    { nix.settings.system-features = builtins.map (march: "gccarch-${march}") nix.marches; }
     # includeBuildDependencies
     { system.includeBuildDependencies = inputs.topInputs.self.config.branch == "archive"; }
     # substituters
