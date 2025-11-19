@@ -51,7 +51,6 @@ int main()
       auto user_cstr = std::getenv("SLURM_JOB_USER");
       if (!user_cstr) throw std::runtime_error("SLURM_JOB_USER not found");
       user = user_cstr;
-      if (!user_map.contains(user)) return;
       auto jid_cstr = std::getenv("SLURM_JOB_ID");
       if (!jid_cstr) throw std::runtime_error("SLURM_JOB_ID not found");
       jid = std::stoul(jid_cstr);
@@ -141,6 +140,7 @@ int main()
     slurm_fini();
 
     // 发送消息
+    if (user_map.contains(user))
     {
       TgBot::Bot bot(token);
       std::stringstream ss;
