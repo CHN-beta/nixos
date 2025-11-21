@@ -29,9 +29,9 @@ inputs:
           # networking
           remmina putty mtr-gui
           # media
-          mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk qcm
+          mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk # qcm
           waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio subtitlecomposer
-          (inkscape-with-extensions.override { inkscapeExtensions = null; })
+          (inkscape-with-extensions.override { inkscapeExtensions = [ inkscape-extensions.textext ]; })
           # development
           adb-sync scrcpy dbeaver-bin cling aircrack-ng kitty
           weston cage openbox krita fprettify # jetbrains.clion 
@@ -72,7 +72,7 @@ inputs:
         ]
           ++ (builtins.filter
             (p: (inputs.lib.isDerivation p) && !(p.meta.broken or false)
-              && !(builtins.elem p.pname or null [ "falkon" "kalzium" "calligra" ]))
+              && !(builtins.elem p.pname or null [ "falkon" "kalzium" "calligra" "kamoso" ]))
             (builtins.attrValues kdePackages.kdeGear))
           ++ (inputs.lib.optionals (inputs.config.nixos.system.gui.implementation == "kde")
             [ inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix ]);

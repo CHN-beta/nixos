@@ -68,7 +68,7 @@ inputs:
       programs.niri.enable = true;
       nixos.user.sharedModules = [(hmInputs:
       {
-        config.programs.dankMaterialShell = { enable = true; niri.enableKeybinds = true; enableSystemd = true; };
+        config.programs.dankMaterialShell = { enable = true; niri.enableKeybinds = true; systemd.enable = true; };
       })];
       # niri module will auto enable this, disable it to avoid conflict with system ssh-agent and kwallet
       services.gnome = { gcr-ssh-agent.enable = false; gnome-keyring.enable = inputs.lib.mkForce false; };

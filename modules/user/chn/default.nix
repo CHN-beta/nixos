@@ -24,7 +24,7 @@ inputs:
       };
       config =
       {
-        programs.git = { userName = "chn"; userEmail = "chn@chn.moe"; };
+        programs.git.settings.user = { name = "chn"; email = "chn@chn.moe"; };
         home =
         {
           file.groupshare.enable = false;
