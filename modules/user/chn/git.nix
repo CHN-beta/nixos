@@ -2,29 +2,33 @@ inputs:
 {
   config = inputs.lib.mkIf (inputs.config.nixos.packages.git != null)
   {
-    home-manager.users.chn.config.programs.git =
+    home-manager.users.chn.config.programs =
     {
-      enable = true;
-      extraConfig =
+      git =
       {
-        core.editor = if inputs.config.nixos.model.type == "desktop" then "code --wait" else "hx"; 
-        http.postBuffer = 624288000;
-        advice.detachedHead = false;
-        merge.conflictstyle = "diff3";
-        diff.colorMoved = "default";
-        lfs =
+        enable = true;
+        settings =
         {
-          concurrenttransfers = 10;
-          activitytimeout = 3600;
-          dialtimeout = 3600;
-          keepalive = 3600;
-          tlstimeout = 3600;
-          transfer.maxretries = 1;
+          core.editor = if inputs.config.nixos.model.type == "desktop" then "code --wait" else "hx"; 
+          http.postBuffer = 624288000;
+          advice.detachedHead = false;
+          merge.conflictstyle = "diff3";
+          diff.colorMoved = "default";
+          lfs =
+          {
+            concurrenttransfers = 10;
+            activitytimeout = 3600;
+            dialtimeout = 3600;
+            keepalive = 3600;
+            tlstimeout = 3600;
+            transfer.maxretries = 1;
+          };
         };
       };
       delta =
       {
         enable = true;
+        enableGitIntegration = true;
         options =
         {
           side-by-side = true;

@@ -14,17 +14,12 @@ inputs: let inherit (inputs) topInputs; in
     topInputs.nixvirt.nixosModules.default
     topInputs.niri.nixosModules.niri
     { config.niri-flake.cache.enable = false; }
-    (inputs:
-    {
-      config =
-      {
-        home-manager.sharedModules =
-        [
-          topInputs.plasma-manager.homeModules.plasma-manager
-          topInputs.catppuccin.homeModules.catppuccin
-          topInputs.dankmaterialshell.homeModules.dankMaterialShell
-        ];
-      };
-    })
+    { config.home-manager.sharedModules =
+    [
+      topInputs.plasma-manager.homeModules.plasma-manager
+      topInputs.catppuccin.homeModules.catppuccin
+      topInputs.dankmaterialshell.homeModules.dankMaterialShell.default
+      topInputs.dankmaterialshell.homeModules.dankMaterialShell.niri
+    ];}
   ] ++ (inputs.localLib.findModules ./.);
 }

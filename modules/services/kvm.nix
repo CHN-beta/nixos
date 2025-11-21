@@ -5,7 +5,6 @@ inputs:
     type = types.nullOr (types.submodule { options =
     {
       nodatacow = mkOption { type = types.bool; default = false; };
-      aarch64 = mkOption { type = types.bool; default = false; };
     };});
     default = null;
   };
@@ -27,12 +26,7 @@ inputs:
         onShutdown = "shutdown";
         shutdownTimeout = 30;
         parallelShutdown = 4;
-        qemu =
-        {
-          ovmf.packages = with inputs.pkgs;
-            ([ OVMF.fd ] ++ inputs.lib.optionals kvm.aarch64 [ pkgsCross.aarch64-multiplatform.OVMF.fd ]);
-          swtpm.enable = true;
-        };
+        qemu.swtpm.enable = true;
       };
       spiceUSBRedirection.enable = true;
     };

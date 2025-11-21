@@ -15,7 +15,7 @@ inputs:
         [
           # system management
           # TODO: module should add yubikey-touch-detector into path
-          gparted wayland-utils clinfo glxinfo vulkan-tools dracut yubikey-touch-detector btrfs-assistant snapper-gui
+          gparted wayland-utils clinfo mesa-demos vulkan-tools dracut yubikey-touch-detector btrfs-assistant snapper-gui
           kdePackages.qtstyleplugin-kvantum cpu-x wl-mirror geekbench xpra
           (
             writeShellScriptBin "xclip"
@@ -29,14 +29,14 @@ inputs:
           # networking
           remmina putty mtr-gui
           # media
-          mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk qcm
+          mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk # qcm
           waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio subtitlecomposer
-          (inkscape-with-extensions.override { inkscapeExtensions = null; })
+          (inkscape-with-extensions.override { inkscapeExtensions = [ inkscape-extensions.textext ]; })
           # development
           adb-sync scrcpy dbeaver-bin cling aircrack-ng kitty
           weston cage openbox krita fprettify # jetbrains.clion 
           # password and key management
-          yubikey-manager bitwarden hashcat yubikey-personalization
+          yubikey-manager bitwarden-desktop hashcat yubikey-personalization
           # download
           qbittorrent
           # editor
@@ -51,7 +51,7 @@ inputs:
           # browser
           google-chrome tor-browser
           # office
-          crow-translate zotero pandoc texliveFull poppler_utils pdftk pdfchain
+          crow-translate zotero pandoc texliveFull poppler-utils pdftk pdfchain
           ydict texstudio panoply pspp libreoffice-qt6-still ocrmypdf typst # paperwork
           # required by ltex-plus.vscode-ltex-plus
           ltex-ls ltex-ls-plus
@@ -70,8 +70,10 @@ inputs:
           # daily management
           activitywatch super-productivity
         ]
-          ++ (builtins.filter (p: !((p.meta.broken or false) || (builtins.elem p.pname or null [ "falkon" "kalzium" ])))
-            (builtins.filter inputs.lib.isDerivation (builtins.attrValues kdePackages.kdeGear)))
+          ++ (builtins.filter
+            (p: (inputs.lib.isDerivation p) && !(p.meta.broken or false)
+              && !(builtins.elem p.pname or null [ "falkon" "kalzium" "calligra" "kamoso" ]))
+            (builtins.attrValues kdePackages.kdeGear))
           ++ (inputs.lib.optionals (inputs.config.nixos.system.gui.implementation == "kde")
             [ inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix ]);
         _pythonPackages = [(pythonPackages: with pythonPackages;
@@ -129,15 +131,11 @@ inputs:
       yubikey-touch-detector.enable = true;
       kdeconnect.enable = true;
       kde-pim.enable = false;
-      coolercontrol =
-      {
-        enable = true;
-        nvidiaSupport = if inputs.config.nixos.hardware.gpu.type == null then false
-          else inputs.lib.hasSuffix "nvidia" inputs.config.nixos.hardware.gpu.type;
-      };
+      coolercontrol.enable = true;
       alvr = { enable = true; openFirewall = true; };
       localsend.enable = true;
       thunderbird.enable = true;
+      nh.enable = true;
     };
     services = { pcscd.enable = true; lact.enable = true; };
   };

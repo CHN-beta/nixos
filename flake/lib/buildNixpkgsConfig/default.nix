@@ -127,6 +127,11 @@ in platformConfig //
       )
       // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
         { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
+      // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
+      {
+        frei0r = final.genericPackages.frei0r;
+        valkey = final.genericPackages.valkey;
+      })
       // (inputs.lib.optionalAttrs (nixpkgs.march != null)
       {
         assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
@@ -150,7 +155,7 @@ in platformConfig //
         })];
         ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
           { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
-        valkey = final.redis;
+        # valkey = final.redis;
       })
   )];
 }

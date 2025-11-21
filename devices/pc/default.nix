@@ -81,7 +81,7 @@ inputs:
         podman = {};
         ananicy = {};
         keyd = {};
-        kvm.aarch64 = true;
+        kvm = {};
         mariadb.mountFrom = "nodatacow";
         lumericalLicenseManager.macAddress = "10:5f:ad:10:3e:ca";
         open-webui.ollamaHost = "127.0.0.1";
@@ -98,7 +98,7 @@ inputs:
       # 禁止鼠标等在睡眠时唤醒
       ACTION=="add", ATTR{power/wakeup}="disabled"
       # CPU降压
-      SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${inputs.pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fff80"
+      SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${inputs.pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fff00"
     '';
     # 解决有时蓝牙不能使用的问题
     boot.kernelParams = [ "mt7925e.disable_aspm=1" ];

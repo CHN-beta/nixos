@@ -3,8 +3,11 @@ inputs:
   options.nixos.system.nix = let inherit (inputs.lib) mkOption types; in
   {
     # marches allowed to be compiled on this machine
-    marches = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
-    substituters = mkOption { type = types.listOf types.nonEmptyStr; default = [ "https://nix-store.chn.moe" ]; };
+    marches = mkOption
+    {
+      type = types.listOf types.nonEmptyStr;
+      default = with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ march ];
+    };
     remote =
     {
       slave = mkOption { type = types.nullOr (types.submodule {}); default = null; };
@@ -36,6 +39,8 @@ inputs:
         # do not keep unused outputs, backup it manually on nas
         keep-outputs = false;
         connect-timeout = 5;
+        # https://cache.nixos.org 已经自带
+        substituters = [ "https://nix-store.chn.moe" "https://nix-store.nas.chn.moe" ];
       };
       systemd.services.nix-daemon = { serviceConfig.CacheDirectory = "nix"; environment.TMPDIR = "/var/cache/nix"; };
     }
@@ -63,21 +68,9 @@ inputs:
       };
     }
     # marches
-    {
-      nix.settings.system-features =
-      (map
-        (march: "gccarch-${march}")
-        (
-          if nix.marches == null then
-            (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ march ])
-          else nix.marches
-        ))
-      ++ (with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ "gccarch-exact-${march}" ]);
-    }
+    { nix.settings.system-features = builtins.map (march: "gccarch-${march}") nix.marches; }
     # includeBuildDependencies
     { system.includeBuildDependencies = inputs.topInputs.self.config.branch == "archive"; }
-    # substituters
-    { nix.settings.substituters = nix.substituters ++ [ "https://cache.nixos.org" ]; }
     # remote.slave
     (inputs.lib.mkIf (nix.remote.slave != null)
     {
