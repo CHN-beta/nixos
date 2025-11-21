@@ -102,6 +102,10 @@ inputs:
     '';
     # 解决有时蓝牙不能使用的问题
     boot.kernelParams = [ "mt7925e.disable_aspm=1" ];
-    specialisation.niri.configuration.nixos.system.gui.implementation = "niri";
+    specialisation =
+    {
+      niri.configuration.nixos.system.gui.implementation = "niri";
+      xanmod.configuration.nixos.system.kernel.variant = inputs.lib.mkForce "xanmod-lts";
+    };
   };
 }
