@@ -844,12 +844,12 @@
     "nixos-wallpaper": {
       "flake": false,
       "locked": {
-        "lastModified": 1763054325,
+        "lastModified": 1763778971,
         "lfs": true,
-        "narHash": "sha256-n9Kn7g7u8pi3U1xoNqNHcxzq4K6I5P1TpuZVnme4yLY=",
+        "narHash": "sha256-adf/LAk6xlJInqCLvn7jPlgycvSXz/mni7bzWAhz+S8=",
         "ref": "refs/heads/main",
-        "rev": "8d07487c8979691f2c145f88580a0ce615d49fd7",
-        "revCount": 13,
+        "rev": "454cc19becbd3ce494b8d5df666e05a3fa9ceba3",
+        "revCount": 14,
         "type": "git",
         "url": "https://git.chn.moe/chn/nixos-wallpaper.git"
       },
