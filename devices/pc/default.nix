@@ -105,7 +105,7 @@ inputs:
     specialisation =
     {
       niri.configuration.nixos.system.gui.implementation = "niri";
-      xanmod.configuration.nixos.system.kernel.variant = inputs.lib.mkForce "xanmod-lts";
+      xanmod.configuration.nixos.system.kernel.variant = inputs.lib.mkForce "xanmod-latest";
     };
   };
 }
