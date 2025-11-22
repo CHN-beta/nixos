@@ -34,7 +34,8 @@ inputs:
         ];
         nixpkgs = { march = "znver5"; rocm = true; };
         sysctl.laptop-mode = 5;
-        kernel.variant = "cachyos";
+        # TODO: switch to xanmod lts in 2027 after 6.19
+        kernel.variant = "xanmod-latest";
       };
       hardware = { gpu.type = "amd"; asus = {};};
       services =
@@ -102,10 +103,6 @@ inputs:
     '';
     # 解决有时蓝牙不能使用的问题
     boot.kernelParams = [ "mt7925e.disable_aspm=1" ];
-    specialisation =
-    {
-      niri.configuration.nixos.system.gui.implementation = "niri";
-      xanmod.configuration.nixos.system.kernel.variant = inputs.lib.mkForce "xanmod-latest";
-    };
+    specialisation.niri.configuration.nixos.system.gui.implementation = "niri";
   };
 }
