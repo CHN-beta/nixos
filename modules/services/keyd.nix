@@ -12,7 +12,7 @@ inputs:
         ids = [ "*" ];
         settings =
         {
-          main.rightcontrol = "overload(r_ctrl, rightcontrol)";
+          main = { rightcontrol = "overload(r_ctrl, rightcontrol)"; prog4 = "sysrq"; };
           "r_ctrl:C" = { left = "home"; right = "end"; up = "pageup"; down = "pagedown"; };
         };
       };
