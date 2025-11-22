@@ -152,6 +152,10 @@ in platformConfig //
         {
           picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
           aiocache = prev.aiocache.overridePythonAttrs { doCheck = false; };
+          numpy =
+            if inputs.lib.hasInfix "bar" prev.numpy.outPath then prev.numpy.overridePythonAttrs
+              (prev:{ disabledTests = prev.disabledTests or [] ++ [ "test_nowrap_private_proceedures" ]; })
+            else prev.numpy;
         })];
         ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
           { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
