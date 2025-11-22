@@ -164,6 +164,8 @@ in
         Proxy = inputs.lib.mkIf (inputs.config.nixos.services.xray.client != null) "socks5 127.0.0.1 10885";
         ConnectTo = builtins.map tincHostname (builtins.attrNames
           (inputs.lib.filterAttrs (n: v: (v.address or null != null) && (v.jump or null == n)) connection.${hostname}));
+        AutoConnect = false;
+        TunnelServer = true;
       };
       ed25519PrivateKeyFile = inputs.config.nixos.system.sops.secrets."tinc".path;
       hostSettings = inputs.lib.mkMerge
