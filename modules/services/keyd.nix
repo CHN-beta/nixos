@@ -17,5 +17,6 @@ inputs:
         };
       };
     };
+    environment.systemPackages = [ inputs.pkgs.keyd ];
   };
 }
