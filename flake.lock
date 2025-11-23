@@ -553,6 +553,23 @@
         "type": "github"
       }
     },
+    "linux-asus": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1763490343,
+        "narHash": "sha256-aiCPWxyVBNfqB8Gw9OwrrEP3c+liUBZbEW6aTIrd+TE=",
+        "owner": "asus-linux",
+        "repo": "linux-g14",
+        "rev": "29faef816326f31b4d9d3e19c1f9a8ffe9005e8a",
+        "type": "gitlab"
+      },
+      "original": {
+        "owner": "asus-linux",
+        "ref": "6.17",
+        "repo": "linux-g14",
+        "type": "gitlab"
+      }
+    },
     "mac-style": {
       "flake": false,
       "locked": {
@@ -1252,6 +1269,7 @@
         "home-manager": "home-manager",
         "impermanence": "impermanence",
         "lepton": "lepton",
+        "linux-asus": "linux-asus",
         "mac-style": "mac-style",
         "matplotplusplus": "matplotplusplus",
         "mirism-old": "mirism-old",

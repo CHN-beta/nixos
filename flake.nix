@@ -68,6 +68,7 @@
     pybinding = { url = "git+https://github.com/dean0x7d/pybinding?submodules=1"; flake = false; };
     brokenaxes = { url = "github:bendichter/brokenaxes"; flake = false; };
     mirism-old = { url = "github:CHN-beta/mirism-old-public"; flake = false; };
+    linux-asus = { url = "gitlab:asus-linux/linux-g14/6.17"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in

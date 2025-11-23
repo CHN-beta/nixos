@@ -10,5 +10,6 @@ inputs:
       supergfxd.enable = false;
     };
     programs.rog-control-center = { enable = true; autoStart = true; };
+    nixos.system.kernel.patches = [ "asus" ];
   };
 }

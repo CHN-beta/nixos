@@ -78,6 +78,16 @@ inputs:
             };
             structuredExtraConfig.BTRFS_EXPERIMENTAL = inputs.lib.kernel.yes;
           }];
+          asus = builtins.map
+            (file:
+            {
+              name = "asus-${file.name}";
+              patch = "${inputs.topInputs.linux-asus}/${file.name}";
+            })
+            (builtins.filter
+              (file: file.value == "regular" && inputs.lib.hasSuffix ".patch" file.name
+                && !(inputs.lib.hasInfix "more-uarches" file.name))
+              (inputs.localLib.attrsToList (builtins.readDir "${inputs.topInputs.linux-asus}")));
         };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };
