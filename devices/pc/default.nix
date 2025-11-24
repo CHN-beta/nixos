@@ -103,6 +103,7 @@ inputs:
         lumericalLicenseManager.macAddress = "10:5f:ad:10:3e:ca";
         open-webui.ollamaHost = "127.0.0.1";
         howdy = {};
+        preload = {};
       };
       bugs = [ "xmunet" "amdpstate" "iwlwifi" ];
       packages = { mathematica = {}; vasp = {}; lumerical = {}; };
