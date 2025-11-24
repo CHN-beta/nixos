@@ -12,9 +12,24 @@ inputs:
           mount =
           {
             vfat."/dev/disk/by-partlabel/pc-boot" = "/boot";
-            btrfs."/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+            btrfs =
+            {
+              "/dev/mapper/root1" =
+              {
+                "/nix/nodatacow" = "/nix/nodatacow";
+                "/nix/persistent" = "/nix/persistent";
+                "/nix/rootfs" = "/nix/rootfs";
+                "/nix/swap" = "/nix/swap";
+                "/nix/rootfs/current" = "/";
+              };
+              "/dev/mapper/tf1"."/nix" = "/nix";
+            };
           };
-          luks.auto."/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
+          luks.auto =
+          {
+            "/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
+            "/dev/disk/by-partlabel/pc-tf1" = { mapper = "tf1"; ssd = true; };
+          };
           swap = [ "/nix/swap/swap" ];
           resume = { device = "/dev/mapper/root1"; offset = 131605760; };
         };
@@ -64,7 +79,8 @@ inputs:
         };
         nix-serve = {};
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
-        beesd."/" = { hashTableSizeMB = 4 * 128; threads = 4; };
+        beesd =
+          { "/" = { hashTableSizeMB = 2 * 128; threads = 4; }; "/nix" = { hashTableSizeMB = 128; threads = 4; }; };
         slurm =
         {
           enable = true;
