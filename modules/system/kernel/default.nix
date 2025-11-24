@@ -40,6 +40,8 @@ inputs:
         "bridge"
         # disk for nas
         "ahci" "nvme" "igc"
+        # tf card for pc
+        "sdhci_pci"
       ]
         # touchscreen for one
         ++ (inputs.lib.optionals (inputs.config.nixos.model.arch == "x86_64") [ "pinctrl-tigerlake" ]);
