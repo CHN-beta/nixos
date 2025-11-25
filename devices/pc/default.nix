@@ -102,7 +102,7 @@ inputs:
         howdy = {};
         preload = {};
       };
-      bugs = [ "xmunet" "amdpstate" "iwlwifi" ];
+      bugs = [ "amdpstate" ];
       packages = { mathematica = {}; vasp = {}; };
       user.users = [ "chn" "lilydjwg" ];
     };
