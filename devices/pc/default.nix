@@ -49,8 +49,7 @@ inputs:
         ];
         nixpkgs = { march = "znver5"; rocm = true; };
         sysctl.laptop-mode = 5;
-        # TODO: switch to xanmod lts in 2027 after 6.19
-        kernel.variant = "xanmod-latest";
+        kernel.patches = [ "btrfs" ];
       };
       hardware = { gpu.type = "amd"; asus = {};};
       services =
