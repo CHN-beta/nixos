@@ -131,7 +131,6 @@ inputs:
       yubikey-touch-detector.enable = true;
       kdeconnect.enable = true;
       kde-pim.enable = false;
-      coolercontrol.enable = true;
       alvr = { enable = true; openFirewall = true; };
       localsend.enable = true;
       thunderbird.enable = true;
