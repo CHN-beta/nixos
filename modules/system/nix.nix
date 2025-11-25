@@ -41,8 +41,8 @@ inputs:
         connect-timeout = 5;
         # https://cache.nixos.org 已经自带
         substituters = [ "https://nix-store.chn.moe" "https://nix-store.nas.chn.moe" ];
+        build-dir = "/var/cache/nix";
       };
-      systemd.services.nix-daemon = { serviceConfig.CacheDirectory = "nix"; environment.TMPDIR = "/var/cache/nix"; };
     }
     # nix daemon use lower io/cpu priority
     { nix = { daemonIOSchedClass = "idle"; daemonCPUSchedPolicy = "idle"; }; }
