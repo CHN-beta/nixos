@@ -98,13 +98,12 @@ inputs:
         keyd = {};
         kvm = {};
         mariadb.mountFrom = "nodatacow";
-        lumericalLicenseManager.macAddress = "10:5f:ad:10:3e:ca";
         open-webui.ollamaHost = "127.0.0.1";
         howdy = {};
         preload = {};
       };
       bugs = [ "xmunet" "amdpstate" "iwlwifi" ];
-      packages = { mathematica = {}; vasp = {}; lumerical = {}; };
+      packages = { mathematica = {}; vasp = {}; };
       user.users = [ "chn" "xly" "lilydjwg" ];
     };
     # 允许kvm读取物理硬盘
