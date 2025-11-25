@@ -77,7 +77,6 @@ inputs:
           extraInterfaces = [ "wlo1" ];
         };
         nix-serve = {};
-        misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
         beesd =
           { "/" = { hashTableSizeMB = 2 * 128; threads = 4; }; "/nix" = { hashTableSizeMB = 128; threads = 4; }; };
         slurm =
