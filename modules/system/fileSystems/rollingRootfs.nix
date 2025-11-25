@@ -25,7 +25,7 @@ inputs:
         {
           wantedBy = [ "initrd.target" ];
           after = [ "cryptsetup.target" "systemd-hibernate-resume.service" ];
-          before = [ "local-fs-pre.target" "sysroot.mount" ];
+          before = [ "local-fs-pre.target" "sysroot.mount" "create-needed-for-boot-dirs.service" ];
           unitConfig.DefaultDependencies = false;
           serviceConfig.Type = "oneshot";
           script =
