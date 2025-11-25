@@ -136,6 +136,6 @@ inputs:
       thunderbird.enable = true;
       nh.enable = true;
     };
-    services = { pcscd.enable = true; lact.enable = true; };
+    services.pcscd.enable = true;
   };
 }
