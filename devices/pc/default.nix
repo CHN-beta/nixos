@@ -50,7 +50,7 @@ inputs:
         ];
         nixpkgs = { march = "znver5"; rocm = true; };
         sysctl.laptop-mode = 5;
-        kernel.patches = [ "btrfs" ];
+        kernel.variant = "cachyos";
       };
       hardware = { gpu.type = "amd"; asus = {};};
       services =
@@ -121,5 +121,7 @@ inputs:
     '';
     # 解决有时蓝牙不能使用的问题
     boot.kernelParams = [ "mt7925e.disable_aspm=1" ];
+    specialisation.linux-lts.configuration.nixos.system.kernel =
+      { variant = inputs.lib.mkForce "xanmod-lts"; patches = [ "btrfs" ]; };   
   };
 }
