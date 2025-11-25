@@ -9,6 +9,6 @@ inputs:
       asusd = { enable = true; enableUserService = true; asusdConfig.source = ./asusd.ron; };
       supergfxd.enable = false;
     };
-    programs.rog-control-center = { enable = true; autoStart = true; };
+    programs.rog-control-center.enable = true;
   };
 }
