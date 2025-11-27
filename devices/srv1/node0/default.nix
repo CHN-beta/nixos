@@ -19,17 +19,7 @@ inputs:
           trust = [ "eno146" ];
         };
       };
-      services =
-      {
-        sshd.motd = true;
-        beesd."/" = { hashTableSizeMB = 128; threads = 4; };
-      };
-      packages =
-      {
-        desktop = {};
-        packages._prebuildPackages =
-          [ inputs.topInputs.self.nixosConfigurations.srv1-node1.pkgs.localPackages.vasp.intel ];
-      };
+      services = { sshd.motd = true; beesd."/" = { hashTableSizeMB = 128; threads = 4; }; };
     };
   };
 }
