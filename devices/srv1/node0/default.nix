@@ -23,7 +23,6 @@ inputs:
       {
         sshd.motd = true;
         beesd."/" = { hashTableSizeMB = 128; threads = 4; };
-        samba = { hostsAllowed = ""; shares = { home.path = "/home"; root.path = "/"; }; };
       };
       packages =
       {
