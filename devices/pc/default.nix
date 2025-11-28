@@ -121,5 +121,6 @@ inputs:
     '';
     # 解决有时蓝牙不能使用的问题
     boot.kernelParams = [ "mt7925e.disable_aspm=1" ];
+    specialisation.kde.configuration.nixos.system.gui.implementation = "kde";
   };
 }
