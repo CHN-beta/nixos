@@ -68,10 +68,16 @@ inputs:
       programs.niri.enable = true;
       nixos.user.sharedModules = [(hmInputs:
       {
-        config.programs.dankMaterialShell = { enable = true; niri.enableKeybinds = true; systemd.enable = true; };
+        config.programs.dankMaterialShell =
+        {
+          enable = true;
+          niri.enableKeybinds = true;
+          systemd = { enable = true; restartIfChanged = true; };
+        };
       })];
       # niri module will auto enable this, disable it to avoid conflict with system ssh-agent
       services.gnome.gcr-ssh-agent.enable = false;
+      systemd.user.services.niri-flake-polkit.enable = false;
     })
   ];
 }
