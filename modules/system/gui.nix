@@ -70,22 +70,8 @@ inputs:
       {
         config.programs.dankMaterialShell = { enable = true; niri.enableKeybinds = true; systemd.enable = true; };
       })];
-      # niri module will auto enable this, disable it to avoid conflict with system ssh-agent and kwallet
-      services.gnome = { gcr-ssh-agent.enable = false; gnome-keyring.enable = inputs.lib.mkForce false; };
-    })
-    # niri setup kwallet
-    (inputs.lib.mkIf (gui.implementation == "niri")
-    {
-      nixos.packages.packages._packages = with inputs.pkgs.kdePackages; [ kwallet kwalletmanager kwallet-pam ];
-      xdg.portal.extraPortals = [ inputs.pkgs.kdePackages.kwallet ];
-      security.pam.services.login.kwallet = { enable = true; package = inputs.pkgs.kdePackages.kwallet-pam; };
-      services.dbus.packages = inputs.lib.singleton
-        (inputs.pkgs.writeTextDir "share/dbus-1/services/org.freedesktop.secrets.service"
-        ''
-          [D-BUS Service]
-          Name=org.freedesktop.secrets
-          Exec=${inputs.pkgs.kdePackages.kwallet}/bin/kwalletd6
-        '');
+      # niri module will auto enable this, disable it to avoid conflict with system ssh-agent
+      services.gnome.gcr-ssh-agent.enable = false;
     })
   ];
 }
