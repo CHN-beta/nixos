@@ -79,8 +79,13 @@ inputs:
       services.gnome.gcr-ssh-agent.enable = false;
       # use polkit from dms
       systemd.user.services.niri-flake-polkit.enable = false;
-      # let electron use gnome keyring https://github.com/electron/electron/issues/39789#issuecomment-3433810585
-      environment.sessionVariables.GNOME_DESKTOP_SESSION_ID = "this-is-deprecated";
+      environment =
+      {
+        # let electron use gnome keyring https://github.com/electron/electron/issues/39789#issuecomment-3433810585
+        sessionVariables.GNOME_DESKTOP_SESSION_ID = "this-is-deprecated";
+        # nautilus is needed before we use implementation from nixpkgs
+        systemPackages = [ inputs.pkgs.nautilus ];
+      };
     })
   ];
 }
