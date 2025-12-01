@@ -83,8 +83,13 @@ inputs:
       {
         # let electron use gnome keyring https://github.com/electron/electron/issues/39789#issuecomment-3433810585
         sessionVariables.GNOME_DESKTOP_SESSION_ID = "this-is-deprecated";
-        # nautilus is needed before we use implementation from nixpkgs
-        systemPackages = [ inputs.pkgs.nautilus ];
+        systemPackages =
+        [
+          # nautilus is needed before we use implementation from nixpkgs
+          inputs.pkgs.nautilus
+          # needed for xwayland
+          inputs.pkgs.xwayland-satellite
+        ];
       };
     })
   ];
