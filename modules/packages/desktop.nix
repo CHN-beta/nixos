@@ -33,7 +33,7 @@ inputs:
           waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio subtitlecomposer
           (inkscape-with-extensions.override { inkscapeExtensions = [ inkscape-extensions.textext ]; })
           # development
-          adb-sync scrcpy dbeaver-bin cling aircrack-ng kitty
+          adb-sync scrcpy dbeaver-bin cling aircrack-ng kitty ghostty
           weston cage openbox krita fprettify # jetbrains.clion 
           # password and key management
           yubikey-manager bitwarden-desktop hashcat yubikey-personalization
