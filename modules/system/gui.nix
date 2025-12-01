@@ -68,11 +68,19 @@ inputs:
       programs.niri.enable = true;
       nixos.user.sharedModules = [(hmInputs:
       {
-        config.programs.dankMaterialShell =
+        config.programs =
         {
-          enable = true;
-          niri.enableKeybinds = true;
-          systemd = { enable = true; restartIfChanged = true; };
+          dankMaterialShell =
+          {
+            enable = true;
+            niri.enableKeybinds = true;
+            systemd = { enable = true; restartIfChanged = true; };
+          };
+          niri.settings.binds =
+          {
+            "Mod+WheelScrollDown" = { action.focus-column-right = {}; cooldown-ms = 150; };
+            "Mod+WheelScrollUp" = { action.focus-column-left = {}; cooldown-ms = 150; };
+          };
         };
       })];
       # niri module will auto enable this, disable it to avoid conflict with system ssh-agent
