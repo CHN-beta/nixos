@@ -9,6 +9,8 @@ inputs:
       acpid.enable = true;
       # TODO: set ipfs as separate service
       # kubo = { enable = true; autoMount = true; };
+      # fstrim is enabled by default, disable it
+      fstrim.enable = false;
     };
     time.timeZone = "Asia/Shanghai";
     boot =
