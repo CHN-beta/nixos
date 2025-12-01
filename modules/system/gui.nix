@@ -63,7 +63,7 @@ inputs:
       })];
     })
     # niri
-    (inputs.lib.mkIf (gui.implementation == "niri")
+    (inputs.lib.mkIf (inputs.config.nixos.model.type == "desktop" && gui.implementation == "niri")
     {
       programs.niri.enable = true;
       nixos.user.sharedModules = [(hmInputs:
