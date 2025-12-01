@@ -101,7 +101,6 @@ inputs:
         mariadb.mountFrom = "nodatacow";
         open-webui.ollamaHost = "127.0.0.1";
         howdy = {};
-        preload = {};
       };
       bugs = [ "amdpstate" ];
       packages = { mathematica = {}; vasp = {}; };
