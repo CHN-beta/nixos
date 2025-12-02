@@ -88,7 +88,6 @@ inputs:
           resumeDevice = fileSystems.resume.device;
           kernelParams = [ "resume_offset=${builtins.toString fileSystems.resume.offset}" ];
         };
-      nixos.system.kernel.patches = [ "hibernate-progress" ];
       systemd.sleep.extraConfig = "HibernateMode=reboot";
     })
   ];

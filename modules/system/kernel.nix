@@ -69,7 +69,6 @@ inputs:
       kernelPatches =
         let patches =
         {
-          hibernate-progress = [{ name = "hibernate-progress"; patch = ./hibernate-progress.patch; }];
           btrfs =
           [{
             name = "btrfs";
