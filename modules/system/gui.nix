@@ -82,8 +82,8 @@ inputs:
             {
               "Mod+WheelScrollDown" = { action.focus-column-right = {}; cooldown-ms = 50; };
               "Mod+WheelScrollUp" = { action.focus-column-left = {}; cooldown-ms = 50; };
-              "Mod+Left".action.focus-column-right = {};
-              "Mod+Right".action.focus-column-left = {};
+              "Mod+Left".action.focus-column-left = {};
+              "Mod+Right".action.focus-column-right = {};
               "Mod+MouseMiddle".action.close-window = {};
             };
             outputs =
