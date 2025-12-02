@@ -78,8 +78,7 @@ inputs:
           extraInterfaces = [ "wlo1" ];
         };
         nix-serve = {};
-        beesd =
-          { "/" = { hashTableSizeMB = 2 * 128; threads = 4; }; "/nix" = { hashTableSizeMB = 128; threads = 4; }; };
+        beesd = { "/".hashTableSizeMB = 2 * 128; "/nix".hashTableSizeMB = 128; };
         slurm =
         {
           enable = true;
