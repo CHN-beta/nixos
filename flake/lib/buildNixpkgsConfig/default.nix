@@ -125,41 +125,41 @@ in platformConfig //
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
       )
-      // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
-        { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
-      // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
-      {
-        frei0r = final.genericPackages.frei0r;
-        valkey = final.genericPackages.valkey;
-      })
-      // (inputs.lib.optionalAttrs (nixpkgs.march != null)
-      {
-        assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
-        redis = prev.redis.overrideAttrs (prev: { doCheck = false; });
-        wannier90 = prev.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
-        xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
-        lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
-        libreoffice-qt6-still = prev.libreoffice-qt6-still.override (prev:
-          { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
-          ''
-            sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
-          '';});});
-        opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
-        rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
-        embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
-        simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
-        pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-        {
-          picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
-          aiocache = prev.aiocache.overridePythonAttrs { doCheck = false; };
-          numpy =
-            if inputs.lib.hasInfix "bar" prev.numpy.outPath then prev.numpy.overridePythonAttrs
-              (prev:{ disabledTests = prev.disabledTests or [] ++ [ "test_nowrap_private_proceedures" ]; })
-            else prev.numpy;
-        })];
-        ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
-          { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
-        # valkey = final.redis;
-      })
+      # // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
+      #   { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
+      # // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
+      # {
+      #   frei0r = final.genericPackages.frei0r;
+      #   valkey = final.genericPackages.valkey;
+      # })
+      # // (inputs.lib.optionalAttrs (nixpkgs.march != null)
+      # {
+      #   assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
+      #   redis = prev.redis.overrideAttrs (prev: { doCheck = false; });
+      #   wannier90 = prev.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
+      #   xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
+      #   lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
+      #   libreoffice-qt6-still = prev.libreoffice-qt6-still.override (prev:
+      #     { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
+      #     ''
+      #       sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
+      #     '';});});
+      #   opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
+      #   rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
+      #   embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
+      #   simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
+      #   pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
+      #   {
+      #     picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
+      #     aiocache = prev.aiocache.overridePythonAttrs { doCheck = false; };
+      #     numpy =
+      #       if inputs.lib.hasInfix "bar" prev.numpy.outPath then prev.numpy.overridePythonAttrs
+      #         (prev:{ disabledTests = prev.disabledTests or [] ++ [ "test_nowrap_private_proceedures" ]; })
+      #       else prev.numpy;
+      #   })];
+      #   ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
+      #     { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
+      #   # valkey = final.redis;
+      # })
   )];
 }
