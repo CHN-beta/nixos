@@ -76,10 +76,21 @@ inputs:
             niri.enableKeybinds = true;
             systemd = { enable = true; restartIfChanged = true; };
           };
-          niri.settings.binds =
+          niri.settings =
           {
-            "Mod+WheelScrollDown" = { action.focus-column-right = {}; cooldown-ms = 150; };
-            "Mod+WheelScrollUp" = { action.focus-column-left = {}; cooldown-ms = 150; };
+            binds =
+            {
+              "Mod+WheelScrollDown" = { action.focus-column-right = {}; cooldown-ms = 50; };
+              "Mod+WheelScrollUp" = { action.focus-column-left = {}; cooldown-ms = 50; };
+              "Mod+Left".action.focus-column-right = {};
+              "Mod+Right".action.focus-column-left = {};
+              "Mod+MouseMiddle".action.close-window = {};
+            };
+            outputs =
+            {
+              "Tianma Microelectronics Ltd. TL134ADXP03 Unknown".scale = 1;
+              "Xiaomi Corporation Mi Monitor 0x00000001".scale = 1;
+            };
           };
         };
       })];
