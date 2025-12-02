@@ -81,46 +81,51 @@ inputs:
       };
       user.sharedModules =
       [{
-        config.programs =
+        config =
         {
-          plasma = inputs.lib.mkIf (inputs.config.nixos.system.gui.implementation == "kde")
+          programs =
           {
-            enable = true;
-            configFile =
+            plasma = inputs.lib.mkIf (inputs.config.nixos.system.gui.implementation == "kde")
             {
-              plasma-localerc = { Formats.LANG.value = "en_US.UTF-8"; Translations.LANGUAGE.value = "zh_CN"; };
-              baloofilerc."Basic Settings".Indexing-Enabled.value = false;
-              plasmarc.Wallpapers.usersWallpapers.value =
-                let
-                  inherit (inputs.topInputs) nixos-wallpaper;
-                  isPicture = f: builtins.elem (inputs.lib.last (inputs.lib.splitString "." f))
-                    [ "png" "jpg" "jpeg" "webp" ];
-                  listDirRecursive =
-                    let listDir = dir:
-                      if dir.value == "directory" then builtins.concatLists
-                        (builtins.map (f: listDir f) (inputs.localLib.attrsToList (builtins.readDir dir.name)))
-                      else [ dir ];
-                    in dir: listDir { name = dir; value = "directory"; };
-                in builtins.concatStringsSep "," (builtins.map (f: "${nixos-wallpaper}/${f.name}")
-                  (builtins.filter (f: (isPicture f.name) && (f.value == "regular"))
-                    (listDirRecursive nixos-wallpaper)));
-            };
-            powerdevil =
-              let config =
+              enable = true;
+              configFile =
               {
-                autoSuspend.action = "nothing";
-                dimDisplay.enable = false;
-                powerButtonAction = "turnOffScreen";
-                turnOffDisplay.idleTimeout = "never";
-                whenLaptopLidClosed = "turnOffScreen";
+                plasma-localerc = { Formats.LANG.value = "en_US.UTF-8"; Translations.LANGUAGE.value = "zh_CN"; };
+                baloofilerc."Basic Settings".Indexing-Enabled.value = false;
+                plasmarc.Wallpapers.usersWallpapers.value =
+                  let
+                    inherit (inputs.topInputs) nixos-wallpaper;
+                    isPicture = f: builtins.elem (inputs.lib.last (inputs.lib.splitString "." f))
+                      [ "png" "jpg" "jpeg" "webp" ];
+                    listDirRecursive =
+                      let listDir = dir:
+                        if dir.value == "directory" then builtins.concatLists
+                          (builtins.map (f: listDir f) (inputs.localLib.attrsToList (builtins.readDir dir.name)))
+                        else [ dir ];
+                      in dir: listDir { name = dir; value = "directory"; };
+                  in builtins.concatStringsSep "," (builtins.map (f: "${nixos-wallpaper}/${f.name}")
+                    (builtins.filter (f: (isPicture f.name) && (f.value == "regular"))
+                      (listDirRecursive nixos-wallpaper)));
               };
-              in { AC = config; battery = config; lowBattery = config; };
+              powerdevil =
+                let config =
+                {
+                  autoSuspend.action = "nothing";
+                  dimDisplay.enable = false;
+                  powerButtonAction = "turnOffScreen";
+                  turnOffDisplay.idleTimeout = "never";
+                  whenLaptopLidClosed = "turnOffScreen";
+                };
+                in { AC = config; battery = config; lowBattery = config; };
+            };
+            obs-studio =
+            {
+              enable = true;
+              plugins = with inputs.pkgs.obs-studio-plugins; [ wlrobs obs-vaapi droidcam-obs obs-vkcapture ];
+            };
           };
-          obs-studio =
-          {
-            enable = true;
-            plugins = with inputs.pkgs.obs-studio-plugins; [ wlrobs obs-vaapi droidcam-obs obs-vkcapture ];
-          };
+          xdg.configFile."typora-flags.conf".text =
+            "--ozone-platform-hint=auto --enable-wayland-ime --wayland-text-input-version=3";
         };
       }];
     };
