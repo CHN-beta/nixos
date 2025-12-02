@@ -1,0 +1,36 @@
+Index: FFmpeg/libavcodec/huffyuvdsp.c
+===================================================================
+--- FFmpeg.orig/libavcodec/huffyuvdsp.c
++++ FFmpeg/libavcodec/huffyuvdsp.c
+@@ -16,6 +16,13 @@
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+  */
+ 
++// GCC Vectorize with AVX will break huffyuv unit tests.
++#if defined(__GNUC__) && !defined(__clang__)
++    #if (__GNUC__ > 6)
++        #pragma GCC optimize ("no-tree-vectorize")
++    #endif
++#endif
++
+ #include <stdint.h>
+ 
+ #include "config.h"
+Index: FFmpeg/libavcodec/huffyuvenc.c
+===================================================================
+--- FFmpeg.orig/libavcodec/huffyuvenc.c
++++ FFmpeg/libavcodec/huffyuvenc.c
+@@ -28,6 +28,13 @@
+  * huffyuv encoder
+  */
+ 
++ // GCC Vectorize with AVX will break huffyuv unit tests.
++#if defined(__GNUC__) && !defined(__clang__)
++    #if (__GNUC__ > 6)
++        #pragma GCC optimize ("no-tree-vectorize")
++    #endif
++#endif
++
+ #include "config_components.h"
+ 
+ #include "avcodec.h"

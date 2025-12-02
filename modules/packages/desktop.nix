@@ -64,7 +64,7 @@ inputs:
           # virtualization
           virt-viewer bottles wineWowPackages.stagingFull genymotion playonlinux
           # media
-          nur-xddxdd.svp
+          svp
           # for kdenlive auto subtitle
           openai-whisper
           # daily management
