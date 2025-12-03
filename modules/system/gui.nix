@@ -91,6 +91,7 @@ inputs:
               "Tianma Microelectronics Ltd. TL134ADXP03 Unknown".scale = 1;
               "Xiaomi Corporation Mi Monitor 0x00000001".scale = 1;
             };
+            input.touchpad.dwt = true;
           };
         };
       })];
