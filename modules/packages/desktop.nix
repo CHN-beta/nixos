@@ -30,8 +30,10 @@ inputs:
           remmina putty mtr-gui
           # media
           mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk # qcm
-          waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio subtitlecomposer
+          waifu2x-converter-cpp blender vlc whalebird spotify obs-studio subtitlecomposer
           (inkscape-with-extensions.override { inkscapeExtensions = [ inkscape-extensions.textext ]; })
+          (paraview.overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs
+            ++ [(python3.withPackages (ps: with ps; [ numpy matplotlib ]))]; }))
           # development
           adb-sync scrcpy dbeaver-bin cling aircrack-ng
           weston cage openbox krita fprettify # jetbrains.clion 
