@@ -132,7 +132,7 @@ in platformConfig //
       // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
       {
         frei0r = final.genericPackages.frei0r;
-        # valkey = final.genericPackages.valkey;
+        valkey = final.genericPackages.valkey;
       })
       // (inputs.lib.optionalAttrs (nixpkgs.march != null)
       {
@@ -147,7 +147,7 @@ in platformConfig //
         assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
       #   redis = prev.redis.overrideAttrs (prev: { doCheck = false; });
       #   wannier90 = prev.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
-      #   xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
+        xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
       #   libreoffice-qt6-still = prev.libreoffice-qt6-still.override (prev:
       #     { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
