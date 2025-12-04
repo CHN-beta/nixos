@@ -78,8 +78,7 @@ inputs:
           extraInterfaces = [ "wlo1" ];
         };
         nix-serve = {};
-        beesd =
-          { "/" = { hashTableSizeMB = 2 * 128; threads = 4; }; "/nix" = { hashTableSizeMB = 128; threads = 4; }; };
+        beesd = { "/".hashTableSizeMB = 2 * 128; "/nix".hashTableSizeMB = 128; };
         slurm =
         {
           enable = true;
@@ -111,15 +110,10 @@ inputs:
     services.colord.enable = true;
     services.udev.extraRules =
     ''
-      # 禁止鼠标等在睡眠时唤醒
-      ACTION=="add", ATTR{power/wakeup}="disabled"
       # CPU降压
       SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${inputs.pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fff10"
-      # 将读卡器标记为不可移动设备
-      KERNEL=="mmcblk0", ENV{UDISKS_IGNORE}="1"
     '';
     # 解决有时蓝牙不能使用的问题
     boot.kernelParams = [ "mt7925e.disable_aspm=1" ];
-    specialisation.kde.configuration.nixos.system.gui.implementation = "kde";
   };
 }

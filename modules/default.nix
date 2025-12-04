@@ -16,7 +16,6 @@ inputs: let inherit (inputs) topInputs; in
     { config.niri-flake.cache.enable = false; }
     { config.home-manager.sharedModules =
     [
-      topInputs.plasma-manager.homeModules.plasma-manager
       topInputs.catppuccin.homeModules.catppuccin
       topInputs.dankmaterialshell.homeModules.dankMaterialShell.default
       topInputs.dankmaterialshell.homeModules.dankMaterialShell.niri

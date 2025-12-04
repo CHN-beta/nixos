@@ -12,7 +12,7 @@ inputs:
     {
       enable = true;
       languagePacks = [ "zh-CN" "en-US" ];
-      nativeMessagingHosts.packages = with inputs.pkgs; [ uget-integrator ];
+      nativeMessagingHosts.packages = [ inputs.pkgs.uget-integrator ];
     };
     nixos =
     {
@@ -23,12 +23,7 @@ inputs:
           programs.firefox =
           {
             enable = true;
-            nativeMessagingHosts = with inputs.pkgs;
-            (
-              [ uget-integrator ]
-              ++ (inputs.lib.optionals (inputs.config.nixos.system.gui.implementation == "kde")
-                [ kdePackages.plasma-browser-integration ])
-            );
+            nativeMessagingHosts = [ inputs.pkgs.uget-integrator ];
             # TODO: use fixed-version of plugins
             policies.DefaultDownloadDirectory = "\${home}/Downloads";
             profiles.default =
@@ -38,8 +33,7 @@ inputs:
                 tampermonkey bitwarden cookies-txt dualsub firefox-color i-dont-care-about-cookies
                 metamask pakkujs rsshub-radar rsspreview tabliss tree-style-tab ublock-origin
                 wappalyzer grammarly zotero-connector smartproxy kiss-translator
-              ] ++ (inputs.lib.optionals (inputs.config.nixos.system.gui.implementation == "kde")
-                [ plasma-integration ]);
+              ];
               search = { default = "google"; force = true; };
               userChrome = builtins.readFile "${inputs.topInputs.lepton}/userChrome.css";
               userContent = builtins.readFile "${inputs.topInputs.lepton}/userContent.css";

@@ -16,7 +16,7 @@ inputs:
           # system management
           # TODO: module should add yubikey-touch-detector into path
           gparted wayland-utils clinfo mesa-demos vulkan-tools dracut yubikey-touch-detector btrfs-assistant snapper-gui
-          kdePackages.qtstyleplugin-kvantum cpu-x wl-mirror geekbench xpra
+          cpu-x wl-mirror geekbench xpra
           (
             writeShellScriptBin "xclip"
             ''
@@ -33,7 +33,7 @@ inputs:
           waifu2x-converter-cpp blender paraview vlc whalebird spotify obs-studio subtitlecomposer
           (inkscape-with-extensions.override { inkscapeExtensions = [ inkscape-extensions.textext ]; })
           # development
-          adb-sync scrcpy dbeaver-bin cling aircrack-ng kitty
+          adb-sync scrcpy dbeaver-bin cling aircrack-ng
           weston cage openbox krita fprettify # jetbrains.clion 
           # password and key management
           yubikey-manager bitwarden-desktop hashcat yubikey-personalization
@@ -69,58 +69,21 @@ inputs:
           openai-whisper
           # daily management
           activitywatch super-productivity
-        ]
-          ++ (builtins.filter
-            (p: (inputs.lib.isDerivation p) && !(p.meta.broken or false)
-              && !(builtins.elem p.pname or null [ "falkon" "kalzium" "calligra" "kamoso" ]))
-            (builtins.attrValues kdePackages.kdeGear))
-          ++ (inputs.lib.optionals (inputs.config.nixos.system.gui.implementation == "kde")
-            [ inputs.topInputs.plasma-manager.packages.${inputs.pkgs.system}.rc2nix ]);
+        ];
         _pythonPackages = [(pythonPackages: with pythonPackages;
           [ phonopy scipy scikit-learn jupyterlab autograd inputs.pkgs.localPackages.phono3py numpy ])];
       };
       user.sharedModules =
       [{
-        config.programs =
+        config =
         {
-          plasma = inputs.lib.mkIf (inputs.config.nixos.system.gui.implementation == "kde")
-          {
-            enable = true;
-            configFile =
-            {
-              plasma-localerc = { Formats.LANG.value = "en_US.UTF-8"; Translations.LANGUAGE.value = "zh_CN"; };
-              baloofilerc."Basic Settings".Indexing-Enabled.value = false;
-              plasmarc.Wallpapers.usersWallpapers.value =
-                let
-                  inherit (inputs.topInputs) nixos-wallpaper;
-                  isPicture = f: builtins.elem (inputs.lib.last (inputs.lib.splitString "." f))
-                    [ "png" "jpg" "jpeg" "webp" ];
-                  listDirRecursive =
-                    let listDir = dir:
-                      if dir.value == "directory" then builtins.concatLists
-                        (builtins.map (f: listDir f) (inputs.localLib.attrsToList (builtins.readDir dir.name)))
-                      else [ dir ];
-                    in dir: listDir { name = dir; value = "directory"; };
-                in builtins.concatStringsSep "," (builtins.map (f: "${nixos-wallpaper}/${f.name}")
-                  (builtins.filter (f: (isPicture f.name) && (f.value == "regular"))
-                    (listDirRecursive nixos-wallpaper)));
-            };
-            powerdevil =
-              let config =
-              {
-                autoSuspend.action = "nothing";
-                dimDisplay.enable = false;
-                powerButtonAction = "turnOffScreen";
-                turnOffDisplay.idleTimeout = "never";
-                whenLaptopLidClosed = "turnOffScreen";
-              };
-              in { AC = config; battery = config; lowBattery = config; };
-          };
-          obs-studio =
+          programs.obs-studio =
           {
             enable = true;
             plugins = with inputs.pkgs.obs-studio-plugins; [ wlrobs obs-vaapi droidcam-obs obs-vkcapture ];
           };
+          xdg.configFile."typora-flags.conf".text =
+            "--ozone-platform-hint=auto --enable-wayland-ime --wayland-text-input-version=3";
         };
       }];
     };
@@ -130,7 +93,6 @@ inputs:
       wireshark = { enable = true; package = inputs.pkgs.wireshark; };
       yubikey-touch-detector.enable = true;
       kdeconnect.enable = true;
-      kde-pim.enable = false;
       alvr = { enable = true; openFirewall = true; };
       localsend.enable = true;
       thunderbird.enable = true;

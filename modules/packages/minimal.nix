@@ -43,6 +43,8 @@ inputs:
         (octodns.withProviders (_: with octodns-providers; [ cloudflare ]))
         # stupid things
         toilet lolcat localPackages.stickerpicker graph-easy
+        # shell
+        kitty ghostty
       ]
         ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
     };
@@ -54,7 +56,6 @@ inputs:
       autojump.enable = true;
       direnv = { enable = true; nix-direnv.enable = true; };
       mosh.enable = true;
-      yazi.enable = true;
     };
     services =
     {
