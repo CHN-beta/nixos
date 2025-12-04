@@ -1137,29 +1137,6 @@
         "type": "github"
       }
     },
-    "plasma-manager": {
-      "inputs": {
-        "home-manager": [
-          "home-manager"
-        ],
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1762784320,
-        "narHash": "sha256-odsk96Erywk5hs0dhArF38zb7Oe0q6LZ70gXbxAPKno=",
-        "owner": "pjones",
-        "repo": "plasma-manager",
-        "rev": "7911a0f8a44c7e8b29d031be3149ee8943144321",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pjones",
-        "repo": "plasma-manager",
-        "type": "github"
-      }
-    },
     "pocketfft": {
       "flake": false,
       "locked": {
@@ -1275,7 +1252,6 @@
         "nur-xddxdd": "nur-xddxdd",
         "openxlsx": "openxlsx",
         "phono3py": "phono3py",
-        "plasma-manager": "plasma-manager",
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
         "pybinding": "pybinding",

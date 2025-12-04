@@ -13,7 +13,6 @@ inputs:
         { id = "nngceckbapebfimnlniiiahkandclblb"; } # Bitwarden
         { id = "kbfnbcaeplbcioakkpcpgfkobkghlhen"; } # Grammarly
         { id = "ihnfpdchjnmlehnoeffgcbakfmdjcckn"; } # Pixiv Fanbox Downloader
-        { id = "cimiefiiaegbelhefglklhhakcgmhkai"; } # Plasma Integration
         { id = "dkndmhgdcmjdmkdonmbgjpijejdcilfh"; } # Powerful Pixiv Downloader
         { id = "padekgcemlokbadohgkifijomclgjgif"; } # Proxy SwitchyOmega
         { id = "kefjpfngnndepjbopdmoebkipbgkggaa"; } # RSSHub Radar

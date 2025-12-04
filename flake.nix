@@ -13,11 +13,6 @@
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
     nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     impermanence.url = "github:CHN-beta/impermanence";
-    plasma-manager =
-    {
-      url = "github:pjones/plasma-manager";
-      inputs = { nixpkgs.follows = "nixpkgs"; home-manager.follows = "home-manager"; };
-    };
     nur-linyinfeng = { url = "github:linyinfeng/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-flatpak.url = "github:gmodena/nix-flatpak";
     chaotic =
