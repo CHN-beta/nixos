@@ -25,7 +25,7 @@ inputs:
       services =
       {
         sshd = {};
-        xray = { server = {}; xmuPersist = {}; };
+        xray.server = {};
         nginx =
         {
           streamProxy.map =
