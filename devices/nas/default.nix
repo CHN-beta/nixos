@@ -52,7 +52,6 @@ inputs:
           matrix = { port = 8009; redisPort = 6380; };
         };
         vaultwarden = {};
-        photoprism = {};
         nextcloud = {};
         freshrss = {};
         send = {};

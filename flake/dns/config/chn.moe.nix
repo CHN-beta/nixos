@@ -25,7 +25,7 @@ let
       "initrd.vps9" "xserver2.vps9"
       # to nas
       "git" "grafana" "peertube" "send" "vikunja" "xservernas" "freshrss" "huginn" "nextcloud"
-      "photoprism" "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api"
+      "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api"
     ];
   };
   a =
