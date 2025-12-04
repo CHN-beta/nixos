@@ -56,7 +56,6 @@ inputs:
       autojump.enable = true;
       direnv = { enable = true; nix-direnv.enable = true; };
       mosh.enable = true;
-      yazi.enable = true;
     };
     services =
     {
