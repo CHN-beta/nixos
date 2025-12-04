@@ -149,15 +149,15 @@ in platformConfig //
       #   wannier90 = prev.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
         xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
-      #   libreoffice-qt6-still = prev.libreoffice-qt6-still.override (prev:
-      #     { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
-      #     ''
-      #       sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
-      #     '';});});
+        libreoffice-qt6-still = prev.libreoffice-qt6-still.override (prev:
+          { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
+          ''
+            sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
+          '';});});
         opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
-      #   embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
-      #   simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
+        embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
+        simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
         {
           picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
