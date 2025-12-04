@@ -88,8 +88,8 @@ inputs:
             };
             outputs =
             {
-              "Tianma Microelectronics Ltd. TL134ADXP03 Unknown".scale = 1;
-              "Xiaomi Corporation Mi Monitor 0x00000001".scale = 1;
+              "Tianma Microelectronics Ltd. TL134ADXP03 Unknown" = { scale = 1; position = { x = 0; y = 0; }; };
+              "Xiaomi Corporation Mi Monitor 0x00000001" = { scale = 1; position = { x = 0; y = -2160; }; };
             };
             input.touchpad.dwt = true;
           };
