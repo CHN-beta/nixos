@@ -85,6 +85,7 @@ inputs:
               "Mod+Left".action.focus-column-left = {};
               "Mod+Right".action.focus-column-right = {};
               "Mod+MouseMiddle".action.close-window = {};
+              "Mod+L".action.spawn = [ "dms" "ipc" "lock" "lock" ];
             };
             outputs =
             {
