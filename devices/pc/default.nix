@@ -115,5 +115,6 @@ inputs:
     '';
     # 解决有时蓝牙不能使用的问题
     boot.kernelParams = [ "mt7925e.disable_aspm=1" ];
+    services.ollama = { environmentVariables = { HCC_AMDGPU_TARGET = "gfx1151"; OLLAMA_DEBUG = "2"; }; rocmOverrideGfx = "11.5.1"; };
   };
 }
