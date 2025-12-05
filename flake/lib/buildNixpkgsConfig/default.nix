@@ -73,7 +73,6 @@ in platformConfig //
         google-chrome = prev.google-chrome.override (prev:
           { commandLineArgs = prev.commandLineArgs or "" + " --disable-features=GlobalShortcutsPortal"; });
         xray = prev.xray.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xray.patch ]; });
-        ollama = prev.ollama.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./ollama.patch ]; });
       }
       // (
         let
