@@ -79,6 +79,7 @@ inputs:
       [{
         config =
         {
+          # TODO: use nixos module, enable kernel module
           programs.obs-studio =
           {
             enable = true;

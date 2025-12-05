@@ -45,11 +45,8 @@ inputs:
       ]
         # touchscreen for one
         ++ (inputs.lib.optionals (inputs.config.nixos.model.arch == "x86_64") [ "pinctrl-tigerlake" ]);
-      extraModulePackages = with inputs.config.boot.kernelPackages;
-      [
-        v4l2loopback
-        (if inputs.pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then zenpower else inputs.pkgs.emptyDirectory)
-      ];
+      extraModulePackages = inputs.lib.optionals (inputs.pkgs.stdenv.hostPlatform.linuxArch == "x86_64")
+        [ inputs.config.boot.kernelPackages.zenpower ];
       # force i2c-hid-acpi to load after pinctrl-tigerlake
       extraModprobeConfig = "softdep i2c-hid-acpi pre: pinctrl-tigerlake";
       kernelParams = inputs.lib.mkMerge
