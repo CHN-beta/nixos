@@ -14,7 +14,7 @@ namespace sbatch
       std::vector<std::vector<std::string>> GpuEntries;
       bool Nomultithread = true;
       int MemorySchemeSelected = 0;
-      std::vector<std::string> MemorySchemeEntries = { "Default", "All", "Custom" };
+      std::vector<std::string> MemorySchemeEntries = { "Default", "Custom" };
       std::string Memory = "1";
       std::string InputFile = "input.txt";
     };
@@ -83,7 +83,7 @@ namespace sbatch
             ftxui::Menu(&State_.MemorySchemeEntries, &State_.MemorySchemeSelected),
             input(&State_.Memory, "Memory (GB): ")
               | with_list_padding | with_separator
-              | ftxui::Maybe([&]{ return State_.MemorySchemeSelected == 2; })
+              | ftxui::Maybe([&]{ return State_.MemorySchemeSelected == 1; })
           }) | with_title("Memory:", ftxui::Color::GrayDark) | with_separator
         }) | with_title("Resource allocation:") | with_bottom,
         // 第三行：任务名和输入输出文件
@@ -105,8 +105,7 @@ namespace sbatch
       auto mem_string = [&]
       {
         if (State_.MemorySchemeSelected == 0) return "--mem=32G"s;
-        else if (State_.MemorySchemeSelected == 1) return "--mem=0"s;
-        else if (State_.MemorySchemeSelected == 2) return "--mem={}G"_f(State_.Memory);
+        else if (State_.MemorySchemeSelected == 1) return "--mem={}G"_f(State_.Memory);
         else std::unreachable();
       }();
       return
