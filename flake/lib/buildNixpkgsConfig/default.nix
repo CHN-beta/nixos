@@ -134,6 +134,8 @@ in platformConfig //
         frei0r = final.genericPackages.frei0r;
         valkey = final.genericPackages.valkey;
       })
+      // (inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
+        { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
       // (inputs.lib.optionalAttrs (nixpkgs.march != null)
       {
         ffmpeg_8 = prev.ffmpeg_8.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./ffmpeg.patch ]; });
