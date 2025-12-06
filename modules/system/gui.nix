@@ -81,6 +81,7 @@ inputs:
               "Mod+Right".action.focus-column-right = {};
               "Mod+MouseMiddle".action.close-window = {};
               "Mod+L".action.spawn = [ "dms" "ipc" "lock" "lock" ];
+              "Mod+W".action.move-workspace-to-monitor-next = {};
             };
             outputs =
             {
