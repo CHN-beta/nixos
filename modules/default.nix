@@ -14,6 +14,7 @@ inputs: let inherit (inputs) topInputs; in
     topInputs.nixvirt.nixosModules.default
     topInputs.niri.nixosModules.niri
     { config.niri-flake.cache.enable = false; }
+    topInputs.harmonia.nixosModules.harmonia
     { config.home-manager.sharedModules =
     [
       topInputs.catppuccin.homeModules.catppuccin

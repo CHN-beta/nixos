@@ -69,7 +69,7 @@ inputs:
           );
           extraInterfaces = [ "wlo1" ];
         };
-        harmonia.store = "/nix/tf/nix/store";
+        harmonia.store = "/nix/tf";
         beesd = { "/".hashTableSizeMB = 2 * 128; "/nix/tf".hashTableSizeMB = 128; };
         slurm =
         {

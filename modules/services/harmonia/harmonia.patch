@@ -1,0 +1,45 @@
+From 310e2b2c6583710c52531785f1245d9621284310 Mon Sep 17 00:00:00 2001
+From: Jack O'Sullivan <jackos1998@gmail.com>
+Date: Sat, 6 Dec 2025 14:50:23 +0000
+Subject: [PATCH] Expose `daemon_store` in cache as config option
+
+---
+ harmonia-cache/src/config.rs | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
+
+diff --git a/harmonia-cache/src/config.rs b/harmonia-cache/src/config.rs
+index a683d78a..5dd9f801 100644
+--- a/harmonia-cache/src/config.rs
++++ b/harmonia-cache/src/config.rs
+@@ -68,6 +68,8 @@ pub(crate) struct Config {
+ 
+     #[serde(default = "default_daemon_socket")]
+     pub(crate) daemon_socket: PathBuf,
++    #[serde(default)]
++    pub(crate) daemon_store: Option<PathBuf>,
+ 
+     #[serde(skip, default)]
+     pub(crate) secret_keys: Vec<SecretKey>,
+@@ -152,13 +154,19 @@ pub(crate) fn load(pool_metrics: Option<Arc<PoolMetrics>>) -> Result<Config> {
+                 .as_encoded_bytes()
+                 .to_vec()
+         });
+-    // For daemon communication, use real_nix_store if set (chroot mode),
++    // For daemon communication, use daemon_store, then real_nix_store if set (chroot mode),
+     // otherwise use the virtual store path
+     let daemon_store_dir = settings
+-        .real_nix_store
++        .daemon_store
+         .as_ref()
+         .map(|p| p.as_os_str().as_encoded_bytes().to_vec())
+-        .unwrap_or_else(|| virtual_store_dir.clone());
++        .unwrap_or_else(|| {
++            settings
++                .real_nix_store
++                .as_ref()
++                .map(|p| p.as_os_str().as_encoded_bytes().to_vec())
++                .unwrap_or_else(|| virtual_store_dir.clone())
++        });
+     settings.store = Store::new(
+         virtual_store_dir,
+         daemon_store_dir,
