@@ -15,13 +15,13 @@ inputs:
             btrfs =
             {
               "/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-              # "/dev/mapper/tf1"."/" = "/nix/tf";
+              "/dev/mapper/tf1"."/" = "/nix/tf";
             };
           };
           luks.auto =
           {
             "/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
-            # "/dev/disk/by-partlabel/pc-tf1" = { mapper = "tf1"; ssd = true; };
+            "/dev/disk/by-partlabel/pc-tf1" = { mapper = "tf1"; ssd = true; };
           };
           swap = [ "/nix/swap/swap" ];
           resume = { device = "/dev/mapper/root1"; offset = 131605760; };
@@ -70,7 +70,7 @@ inputs:
           extraInterfaces = [ "wlo1" ];
         };
         # nix-serve = {};
-        # beesd = { "/".hashTableSizeMB = 2 * 128; "/nix".hashTableSizeMB = 128; };
+        beesd = { "/".hashTableSizeMB = 2 * 128; "/nix/tf".hashTableSizeMB = 128; };
         slurm =
         {
           enable = true;
