@@ -94,7 +94,7 @@ inputs:
                 mode = { width = 3840; height = 2160; refresh = 160.; };
               };
             };
-            input.touchpad.dwt = true;
+            input = { touchpad.dwt = true; keyboard.numlock = true; };
           };
         };
       };
