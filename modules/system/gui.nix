@@ -85,8 +85,14 @@ inputs:
             };
             outputs =
             {
-              "Tianma Microelectronics Ltd. TL134ADXP03 Unknown" = { scale = 1; position = { x = 0; y = 0; }; };
-              "Xiaomi Corporation Mi Monitor 0x00000001" = { scale = 1; position = { x = 0; y = -2160; }; };
+              "Tianma Microelectronics Ltd. TL134ADXP03 Unknown" =
+                { scale = 1; position = { x = 0; y = 0; }; mode = { width = 2560; height = 1600; refresh = 180.; }; };
+              "Xiaomi Corporation Mi Monitor 0x00000001" =
+              {
+                scale = 1;
+                position = { x = 0; y = -2160; };
+                mode = { width = 3840; height = 2160; refresh = 160.; };
+              };
             };
             input.touchpad.dwt = true;
           };
