@@ -40,7 +40,7 @@ inputs:
         keep-outputs = false;
         connect-timeout = 5;
         # https://cache.nixos.org 已经自带
-        substituters = [ "https://nix-store.chn.moe" "https://nix-store.nas.chn.moe" ];
+        substituters = [ "https://nix-store.chn.moe" ];
         build-dir = "/var/cache/nix";
       };
     }
