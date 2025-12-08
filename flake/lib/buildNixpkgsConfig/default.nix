@@ -24,7 +24,6 @@ let
       allowUnfree = true;
       android_sdk.accept_license = true;
       allowBroken = true;
-      allowUnsupportedSystem = true;
     }
     // (inputs.lib.optionalAttrs (nixpkgs.march != null)
     {
