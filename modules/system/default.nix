@@ -58,7 +58,16 @@ inputs:
     {
       stateVersion = "25.05";
       configurationRevision = inputs.topInputs.self.rev or "dirty";
-      nixos = { versionSuffix = inputs.lib.mkForce ""; tags = [ inputs.topInputs.self.config.branch ]; };
+      nixos =
+      {
+        versionSuffix = inputs.lib.mkForce "";
+        tags = let inherit (inputs.topInputs) self; in
+        [
+          self.config.branch
+          (builtins.substring 2 6 self.lastModifiedDate)
+          (builtins.substring 0 6 self.rev or "dirty")
+        ];
+      };
     };
     chaotic.nyx.cache.enable = false;
   };
