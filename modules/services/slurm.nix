@@ -54,29 +54,18 @@ inputs:
       {
         slurm =
         {
-          package = (inputs.pkgs.slurm.override { enableX11 = false; enableNVML = false; }).overrideAttrs
-            (prev:
-              let
-                inherit (inputs.config.nixos.system.nixpkgs) cuda;
-                inherit (inputs.pkgs.cudaPackages) cuda_nvml_dev;
-                additionalInputs = inputs.lib.optionals (cuda != null) [ cuda_nvml_dev cuda_nvml_dev.lib ];
-                additionalFlags = inputs.lib.optional (cuda != null) "-L${cuda_nvml_dev.lib}/lib/stubs";
-              in
-              {
-                buildInputs = prev.buildInputs or [] ++ additionalInputs;
-                LDFLAGS = prev.LDFLAGS or [] ++ additionalFlags;
-                nativeBuildInputs = prev.nativeBuildInputs ++ [ inputs.pkgs.wrapGAppsHook3 ];
-                postInstall =
-                ''
-                  pushd contribs/pmi2
-                  make install
-                  popd
-                  pushd contribs/pmi
-                  make install
-                  popd
-                '' + prev.postInstall;
-              }
-            );
+          package = inputs.pkgs.slurm.overrideAttrs (prev:
+          {
+            postInstall =
+            ''
+              pushd contribs/pmi2
+              make install
+              popd
+              pushd contribs/pmi
+              make install
+              popd
+            '' + prev.postInstall;
+          });
           client.enable = true;
           nodeName = builtins.map
             (node:
