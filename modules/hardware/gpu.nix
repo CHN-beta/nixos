@@ -37,7 +37,7 @@ inputs:
                 # TODO: import from nixos-hardware instead
                 # enableHybridCodec is only needed for some old intel gpus (Atom, Nxxx, etc)
                 intel = [ intel-vaapi-driver libvdpau-va-gl intel-media-driver ];
-                nvidia = [ vaapiVdpau ];
+                nvidia = [ libva-vdpau-driver ];
                 amd = [];
               };
               in packages.${gpu.type};
