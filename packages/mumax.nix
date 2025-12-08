@@ -6,16 +6,15 @@ buildGoModule
   inherit src;
   vendorHash = null;
   buildInputs = with cudaPackages; [ libcufft libcurand cuda_cudart cuda_nvcc ];
-  nativeBuildInputs = [ cudaPackages.cuda_nvcc makeWrapper ];
-  CUDA_CC = builtins.concatStringsSep " " cudaCapabilities;
+  nativeBuildInputs = [ cudaPackages.cuda_nvcc makeWrapper cudaPackages.autoAddCudaCompatRunpath ];
+  env =
+  {
+    CUDA_CC = builtins.concatStringsSep " " cudaCapabilities;
+    NIX_LDFLAGS = "-L${cudaPackages.cuda_cudart}/lib/stubs";
+  };
   doCheck = false;
   postInstall =
   ''
     rm $out/bin/{doc,test}
-    for i in $out/bin/*; do
-      if [ -f $i ]; then
-        wrapProgram $i --prefix LD_LIBRARY_PATH ":" "/run/opengl-driver/lib"
-      fi
-    done
   '';
 }
