@@ -74,15 +74,22 @@ inputs:
           niri.settings =
           {
             binds =
-            {
-              "Mod+WheelScrollDown" = { action.focus-column-right = {}; cooldown-ms = 50; };
-              "Mod+WheelScrollUp" = { action.focus-column-left = {}; cooldown-ms = 50; };
-              "Mod+Left".action.focus-column-left = {};
-              "Mod+Right".action.focus-column-right = {};
-              "Mod+MouseMiddle".action.close-window = {};
-              "Mod+L".action.spawn = [ "dms" "ipc" "lock" "lock" ];
-              "Mod+W".action.move-workspace-to-monitor-next = {};
-            };
+              let
+                xsel = "${inputs.pkgs.xsel}/bin/xsel";
+                wl-copy = "${inputs.pkgs.wl-clipboard}/bin/wl-copy";
+                wl-paste = "${inputs.pkgs.wl-clipboard}/bin/wl-paste";
+              in
+              {
+                "Mod+WheelScrollDown" = { action.focus-column-right = {}; cooldown-ms = 50; };
+                "Mod+WheelScrollUp" = { action.focus-column-left = {}; cooldown-ms = 50; };
+                "Mod+Left".action.focus-column-left = {};
+                "Mod+Right".action.focus-column-right = {};
+                "Mod+MouseMiddle".action.close-window = {};
+                "Mod+L".action.spawn = [ "dms" "ipc" "lock" "lock" ];
+                "Mod+W".action.move-workspace-to-monitor-next = {};
+                "Mod+Ctrl+C".action.spawn = [ "sh" "-c" "${xsel} -ob | ${wl-copy}" ];
+                "Mod+Ctrl+V".action.spawn = [ "sh" "-c" "${wl-paste} -n | ${xsel} -ib" ];
+              };
             outputs =
             {
               "Tianma Microelectronics Ltd. TL134ADXP03 Unknown" =
