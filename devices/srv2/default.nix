@@ -87,7 +87,7 @@ inputs:
         };
         xray.client.xray.serverName = "xserver2.vps9.chn.moe";
       };
-      packages = { vasp = {}; desktop = {}; lumerical = {}; };
+      packages = { vasp = {}; lumerical = {}; };
       user.users =
       [
         # 组内
