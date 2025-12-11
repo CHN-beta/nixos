@@ -70,7 +70,11 @@ inputs:
           extraInterfaces = [ "wlo1" ];
         };
         harmonia.store = "/nix/tf";
-        beesd = { "/".hashTableSizeMB = 2 * 128; "/nix/tf".hashTableSizeMB = 128; };
+        beesd =
+        {
+          "/" = { hashTableSizeMB = 2 * 128; loadAverage = 4; };
+          "/nix/tf" = { hashTableSizeMB = 128; loadAverage = 4; };
+        };
         slurm =
         {
           enable = true;
