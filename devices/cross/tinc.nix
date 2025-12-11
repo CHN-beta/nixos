@@ -183,7 +183,13 @@ in
           {
             addresses = inputs.lib.optionals (v.address != null) [{ inherit (v) address; }];
             settings = { Ed25519PublicKey = publicKey.${v.jump}; IndirectData = true; };
-            subnets = [{ address = getAddress "tinc0.${n}"; weight = v.length; }];
+            subnets =
+            [{
+              address = getAddress "tinc0.${n}";
+              # 最短路径已经被提前计算出来了，这里将权重统一设置为零
+              # 如果分开设置，两个节点会因为对权重的描述不统一而拒绝连接
+              weight = 0;
+            }];
           };})
           (inputs.lib.filterAttrs (_: v: v != null) connection.${hostname})))
       ];
