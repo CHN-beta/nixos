@@ -39,6 +39,7 @@ inputs:
           bind-dynamic = true;
           address = builtins.map (host: "/${host.name}/${host.value}")
             (inputs.localLib.attrsToList client.dnsmasq.hosts);
+          cname = [ "git.chn.moe,nas.ts.chn.moe" ];
         };
       };
       resolved.enable = false;
