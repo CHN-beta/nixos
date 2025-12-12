@@ -14,7 +14,7 @@ inputs:
             (inputs.lib.removeSuffix ".chn.moe" submoduleInputs.config.xray.serverName);
         };
       };
-      dnsmasq =
+      coredns =
       {
         extraInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
         hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
@@ -27,20 +27,26 @@ inputs:
   {
     services =
     {
-      dnsmasq =
+      coredns =
       {
         enable = true;
-        settings =
-        {
-          no-poll = true;
-          log-queries = true;
-          server = [ "127.0.0.1#10853" ];
-          interface = client.dnsmasq.extraInterfaces ++ [ "lo" ];
-          bind-dynamic = true;
-          address = builtins.map (host: "/${host.name}/${host.value}")
-            (inputs.localLib.attrsToList client.dnsmasq.hosts);
-          cname = [ "git.chn.moe,nas.ts.chn.moe" ];
-        };
+        config =
+          let
+            hosts = inputs.pkgs.writeText "coredns.hosts" (builtins.concatStringsSep "\n"
+              (inputs.lib.mapAttrsToList (n: v: "${v} ${n}") client.coredns.hosts));
+          in
+          ''
+            . {
+              log
+              errors
+              bind lo ${builtins.concatStringsSep " " client.coredns.extraInterfaces}
+              hosts ${hosts} {
+                fallthrough
+              }
+              rewrite name exact git.chn.moe nas.ts.chn.moe
+              forward . 127.0.0.1:10853
+            }
+          '';
       };
       resolved.enable = false;
     };

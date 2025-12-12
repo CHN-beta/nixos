@@ -59,7 +59,7 @@ inputs:
           };
         };
         sshd = {};
-        xray.client.dnsmasq =
+        xray.client.coredns =
         {
           hosts = builtins.listToAttrs
           (

@@ -37,7 +37,7 @@ inputs:
         xray.client =
         {
           xray.serverName = "xserver2.vps9.chn.moe";
-          dnsmasq = { extraInterfaces = [ "enp3s0" ]; hosts."git.chn.moe" = "127.0.0.1"; };
+          coredns = { extraInterfaces = [ "enp3s0" ]; hosts."git.chn.moe" = "127.0.0.1"; };
         };
         beesd."/".hashTableSizeMB = 10 * 128;
         postgresql.mountFrom = "ssd";
