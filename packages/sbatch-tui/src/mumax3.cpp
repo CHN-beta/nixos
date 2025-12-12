@@ -12,10 +12,6 @@ namespace sbatch
       std::vector<std::string> GpuSchemeEntries = { "Any", "Custom" };
       std::vector<int> GpuSelected;
       std::vector<std::vector<std::string>> GpuEntries;
-      bool Nomultithread = true;
-      int MemorySchemeSelected = 0;
-      std::vector<std::string> MemorySchemeEntries = { "Default", "Custom" };
-      std::string Memory = "1";
       std::string InputFile = "input.txt";
     };
     protected: StateType State_;
@@ -41,10 +37,6 @@ namespace sbatch
           for (size_t i = 0; i < State_.GpuSelected.size(); i++)
             if (saved_state.GpuSelected[i] < State_.GpuEntries[i].size())
               State_.GpuSelected[i] = saved_state.GpuSelected[i];
-        State_.Nomultithread = saved_state.Nomultithread;
-        if (saved_state.MemorySchemeSelected < State_.MemorySchemeEntries.size())
-          State_.MemorySchemeSelected = saved_state.MemorySchemeSelected;
-        State_.Memory = saved_state.Memory;
         State_.InputFile = saved_state.InputFile;
       }
       catch (...) {}
@@ -74,17 +66,6 @@ namespace sbatch
             ) | with_list_padding | with_separator
               | ftxui::Maybe([&]{ return State_.GpuSchemeSelected == 1; })
           }) | with_title("GPU:", ftxui::Color::GrayDark) | with_separator,
-          // CPU 设置
-          checkbox("Disable multithread", &State_.Nomultithread)
-            | with_title("CPU:", ftxui::Color::GrayDark) | with_separator,
-          // 内存
-          ftxui::Container::Horizontal
-          ({
-            ftxui::Menu(&State_.MemorySchemeEntries, &State_.MemorySchemeSelected),
-            input(&State_.Memory, "Memory (GB): ")
-              | with_list_padding | with_separator
-              | ftxui::Maybe([&]{ return State_.MemorySchemeSelected == 1; })
-          }) | with_title("Memory:", ftxui::Color::GrayDark) | with_separator
         }) | with_title("Resource allocation:") | with_bottom,
         // 第三行：任务名和输入输出文件
         ftxui::Container::Vertical({input(&State_.InputFile, "Input file: ")})
@@ -93,8 +74,7 @@ namespace sbatch
     }
     public: virtual std::vector<std::string> get_submit_command(std::string extra_sbatch_parameter) const override
     {
-      auto cpu_string = [&]
-        { return State_.Nomultithread ? "--hint=nomultithread" : ""; }();
+      auto cpu_string = "--hint=nomultithread";
       auto gpu_string = [&]
       {
         if (State_.GpuSchemeSelected == 0) return "--gpus=1"s;
@@ -102,12 +82,7 @@ namespace sbatch
           (State_.GpuEntries[State_.QueueSelected][State_.GpuSelected[State_.QueueSelected]]);
         else std::unreachable();
       }();
-      auto mem_string = [&]
-      {
-        if (State_.MemorySchemeSelected == 0) return "--mem=32G"s;
-        else if (State_.MemorySchemeSelected == 1) return "--mem={}G"_f(State_.Memory);
-        else std::unreachable();
-      }();
+      auto mem_string = "--mem=32G"s;
       return
       {
         "sbatch"s,
