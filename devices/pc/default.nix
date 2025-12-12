@@ -67,7 +67,7 @@ inputs:
               (name: { inherit name; value = "144.34.225.59"; })
               [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
           );
-          extraInterfaces = [ "wlo1" ];
+          extraInterfaces = [ "wlp194s0" ];
         };
         harmonia.store = "/nix/tf";
         beesd =
