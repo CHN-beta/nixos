@@ -48,6 +48,7 @@
   [
     (inputs.nixpkgs.lib.mapAttrsToList (_: v: v.config.system.build.toplevel) inputs.self.outputs.nixosConfigurations)
     [ src ]
+    (builtins.attrValues inputs)
   ]));
 }
 // (builtins.mapAttrs (_: v: v.config.system.build.toplevel) inputs.self.outputs.nixosConfigurations)
