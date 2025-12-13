@@ -132,7 +132,7 @@ inputs:
         {
           programs.git.settings =
           {
-            user = { name = "chn"; email = "chn@chn.moe"; };
+            user = { name = "Haonan Chen"; email = "chn@chn.moe"; };
             # allow root operate on git repositories owned by others
             safe.directory = "*";
           };

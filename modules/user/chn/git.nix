@@ -23,6 +23,7 @@ inputs:
             tlstimeout = 3600;
             transfer.maxretries = 1;
           };
+          user = { name = "Haonan Chen"; email = "chn@chn.moe"; };
         };
       };
       delta =
