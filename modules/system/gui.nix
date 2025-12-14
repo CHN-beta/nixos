@@ -49,61 +49,45 @@ inputs:
     programs = { dconf.enable = true; niri.enable = true; };
     nixos.user.sharedModules = [(hmInputs:
     {
-      config =
+      config.programs =
       {
-        gtk =
+        dankMaterialShell =
         {
           enable = true;
-          theme.name = "Breeze";
-          gtk2 =
-          {
-            extraConfig = ''gtk-im-module="fcitx"'';
-            configLocation = "${hmInputs.config.xdg.configHome}/gtk-2.0/gtkrc";
-            force = true;
-          };
-          gtk3.extraConfig.gtk-im-module = "fcitx";
-          gtk4.extraConfig.gtk-im-module = "fcitx";
+          niri.enableKeybinds = true;
+          systemd = { enable = true; restartIfChanged = true; };
         };
-        programs =
+        niri.settings =
         {
-          dankMaterialShell =
-          {
-            enable = true;
-            niri.enableKeybinds = true;
-            systemd = { enable = true; restartIfChanged = true; };
-          };
-          niri.settings =
-          {
-            binds =
-              let
-                xsel = "${inputs.pkgs.xsel}/bin/xsel";
-                wl-copy = "${inputs.pkgs.wl-clipboard}/bin/wl-copy";
-                wl-paste = "${inputs.pkgs.wl-clipboard}/bin/wl-paste";
-              in
-              {
-                "Mod+WheelScrollDown" = { action.focus-column-right = {}; cooldown-ms = 50; };
-                "Mod+WheelScrollUp" = { action.focus-column-left = {}; cooldown-ms = 50; };
-                "Mod+Left".action.focus-column-left = {};
-                "Mod+Right".action.focus-column-right = {};
-                "Mod+MouseMiddle".action.close-window = {};
-                "Mod+L".action.spawn = [ "dms" "ipc" "lock" "lock" ];
-                "Mod+W".action.move-workspace-to-monitor-next = {};
-                "Mod+Ctrl+C".action.spawn = [ "sh" "-c" "${xsel} -ob | ${wl-copy}" ];
-                "Mod+Ctrl+V".action.spawn = [ "sh" "-c" "${wl-paste} -n | ${xsel} -ib" ];
-              };
-            outputs =
+          binds =
+            let
+              xsel = "${inputs.pkgs.xsel}/bin/xsel";
+              wl-copy = "${inputs.pkgs.wl-clipboard}/bin/wl-copy";
+              wl-paste = "${inputs.pkgs.wl-clipboard}/bin/wl-paste";
+            in
             {
-              "Tianma Microelectronics Ltd. TL134ADXP03 Unknown" =
-                { scale = 1; position = { x = 0; y = 0; }; mode = { width = 2560; height = 1600; refresh = 180.; }; };
-              "Xiaomi Corporation Mi Monitor 0x00000001" =
-              {
-                scale = 1;
-                position = { x = 0; y = -2160; };
-                mode = { width = 3840; height = 2160; refresh = 160.; };
-              };
+              "Mod+WheelScrollDown" = { action.focus-column-right = {}; cooldown-ms = 50; };
+              "Mod+WheelScrollUp" = { action.focus-column-left = {}; cooldown-ms = 50; };
+              "Mod+Left".action.focus-column-left = {};
+              "Mod+Right".action.focus-column-right = {};
+              "Mod+MouseMiddle".action.close-window = {};
+              "Mod+L".action.spawn = [ "dms" "ipc" "lock" "lock" ];
+              "Mod+W".action.move-workspace-to-monitor-next = {};
+              "Mod+Ctrl+C".action.spawn = [ "sh" "-c" "${xsel} -ob | ${wl-copy}" ];
+              "Mod+Ctrl+V".action.spawn = [ "sh" "-c" "${wl-paste} -n | ${xsel} -ib" ];
             };
-            input = { touchpad.dwt = true; keyboard.numlock = true; };
+          outputs =
+          {
+            "Tianma Microelectronics Ltd. TL134ADXP03 Unknown" =
+              { scale = 1; position = { x = 0; y = 0; }; mode = { width = 2560; height = 1600; refresh = 180.; }; };
+            "Xiaomi Corporation Mi Monitor 0x00000001" =
+            {
+              scale = 1;
+              position = { x = 0; y = -2160; };
+              mode = { width = 3840; height = 2160; refresh = 160.; };
+            };
           };
+          input = { touchpad.dwt = true; keyboard.numlock = true; };
         };
       };
     })];
