@@ -96,7 +96,6 @@ inputs:
         mariadb.mountFrom = "nodatacow";
         open-webui.ollamaHost = "127.0.0.1";
         howdy = {};
-        waydroid = {};
       };
       bugs = [ "amdpstate" ];
       packages = { mathematica = {}; vasp = {}; };
