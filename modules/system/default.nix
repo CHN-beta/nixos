@@ -62,11 +62,7 @@ inputs:
       {
         versionSuffix = inputs.lib.mkForce "";
         tags = let inherit (inputs.topInputs) self; in
-        [
-          self.config.branch
-          (builtins.substring 2 6 self.lastModifiedDate)
-          (builtins.substring 0 6 self.rev or "dirty")
-        ];
+          [ (builtins.substring 2 6 self.lastModifiedDate) (builtins.substring 0 6 self.rev or "dirty") ];
       };
     };
   };

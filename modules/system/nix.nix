@@ -69,8 +69,6 @@ inputs:
     }
     # marches
     { nix.settings.system-features = builtins.map (march: "gccarch-${march}") nix.marches; }
-    # includeBuildDependencies
-    { system.includeBuildDependencies = inputs.topInputs.self.config.branch == "archive"; }
     # remote.slave
     (inputs.lib.mkIf (nix.remote.slave != null)
     {

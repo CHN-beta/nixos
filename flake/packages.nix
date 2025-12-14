@@ -46,7 +46,10 @@
   };
   archive = pkgs.writeText "archive" (builtins.concatStringsSep "\n" (builtins.concatLists
   [
-    (inputs.nixpkgs.lib.mapAttrsToList (_: v: v.config.system.build.toplevel) inputs.self.outputs.nixosConfigurations)
+    (inputs.nixpkgs.lib.mapAttrsToList
+      (_: v: (v.extendModules { modules = [{ config.system.includeBuildDependencies = true; }]; })
+        .config.system.build.toplevel)
+      inputs.self.outputs.nixosConfigurations)
     [ src ]
     (builtins.attrValues inputs)
   ]));
