@@ -38,6 +38,7 @@ inputs:
       ];
     };
     xdg.portal.extraPortals = (builtins.map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" "gnome" ]);
+    qt = { enable = true; platformTheme = "qt5ct"; };
     i18n.inputMethod =
     {
       enable = true;
