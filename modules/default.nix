@@ -7,8 +7,6 @@ inputs: let inherit (inputs) topInputs; in
     topInputs.nix-index-database.nixosModules.nix-index
     topInputs.impermanence.nixosModules.impermanence
     topInputs.nix-flatpak.nixosModules.nix-flatpak
-    topInputs.chaotic.nixosModules.default
-    { config.chaotic.nyx.overlay.onTopOf = "user-pkgs"; }
     topInputs.catppuccin.nixosModules.catppuccin
     topInputs.aagl.nixosModules.default
     topInputs.nixvirt.nixosModules.default

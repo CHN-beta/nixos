@@ -69,6 +69,5 @@ inputs:
         ];
       };
     };
-    chaotic.nyx.cache.enable = false;
   };
 }

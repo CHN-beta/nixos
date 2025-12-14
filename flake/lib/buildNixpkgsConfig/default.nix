@@ -46,6 +46,7 @@ in platformConfig //
     inputs.topInputs.buildproxy.overlays.default
     inputs.topInputs.nix4vscode.overlays.default
     inputs.topInputs.bscpkgs.overlays.default
+    inputs.topInputs.nix-cachyos-kernel.overlay
     (final: prev:
     {
       nur-linyinfeng = (inputs.topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
