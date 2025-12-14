@@ -1,4 +1,4 @@
-{ inputs }: let inherit (inputs.self.packages.x86_64-linux) pkgs; in
+{ inputs }: let inherit (inputs.self.packages.x86_64-linux) pkgs; inherit (inputs.nixpkgs) lib; in
 {
   nvhpc =
   {
@@ -206,6 +206,27 @@
       hash = "sha256-7Z2ewDpGFXyvCze9HZ7KwFwn9o9R6Y4pjJDcr5Wmy1g=";
       finalImageName = "ghostchu/peerbanhelper";
       finalImageTag = "v8.0.12";
+    };
+  };
+  btrfs =
+  {
+    "6.12" =
+    {
+      patch = pkgs.fetchurl
+      {
+        url = "https://github.com/kakra/linux/pull/36.patch";
+        sha256 = "0wimihsvrxib6g23jcqdbvqlkqk6nbqjswfx9bzmpm1vlvzxj8m0";
+      };
+      structuredExtraConfig.BTRFS_EXPERIMENTAL = lib.kernel.yes;
+    };
+    "6.18" =
+    {
+      patch = pkgs.fetchurl
+      {
+        url = "https://github.com/kakra/linux/pull/40.patch";
+        sha256 = "00k57gx5xmwsdr83qc24dwkiin1qcyl929262m9kix699g7fclga";
+      };
+      structuredExtraConfig = { BTRFS_ALLOCATOR_HINTS = lib.kernel.yes; BTRFS_READ_POLICIES = lib.kernel.yes; };
     };
   };
 }

@@ -62,19 +62,12 @@ inputs:
         cachyos-rc = inputs.pkgs.linuxPackages_cachyos-rc;
       }.${kernel.variant};
       kernelPatches =
-        let patches =
-        {
-          btrfs =
-          [{
-            name = "btrfs";
-            patch = inputs.pkgs.fetchurl
-            {
-              url = "https://github.com/kakra/linux/pull/36.patch";
-              sha256 = "0wimihsvrxib6g23jcqdbvqlkqk6nbqjswfx9bzmpm1vlvzxj8m0";
-            };
-            structuredExtraConfig.BTRFS_EXPERIMENTAL = inputs.lib.kernel.yes;
-          }];
-        };
+        let
+          version = inputs.lib.versions.majorMinor inputs.config.boot.kernelPackages.kernel.version;
+          patches =
+          {
+            btrfs = [(inputs.topInputs.self.src.btrfs.${version} // { name = "btrfs"; })];
+          };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };
   };
