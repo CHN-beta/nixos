@@ -38,7 +38,9 @@ in platformConfig //
   overlays =
   [
     inputs.topInputs.aagl.overlays.default
+    inputs.topInputs.nur-xddxdd.overlays.inSubTree
     # xddxdd overlay use prev instead of final, we import it manually
+    # TODO: remove after upstream fix
     (final: prev: { svp = final.callPackage "${inputs.topInputs.nur-xddxdd}/pkgs/uncategorized/svp"
       { sources =  final.callPackage "${inputs.topInputs.nur-xddxdd}/_sources/generated.nix" {}; }; })
     inputs.topInputs.buildproxy.overlays.default
