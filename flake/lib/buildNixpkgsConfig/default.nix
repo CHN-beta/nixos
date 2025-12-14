@@ -176,8 +176,6 @@ in platformConfig //
           #     (prev:{ disabledTests = prev.disabledTests or [] ++ [ "test_nowrap_private_proceedures" ]; })
           #   else prev.numpy;
         })];
-        ctranslate2 = prev.ctranslate2.overrideAttrs (prev:
-          { cmakeFlags = prev.cmakeFlags or [] ++ [ "-DENABLE_CPU_DISPATCH=OFF" ]; });
       #   # valkey = final.redis;
       })
   )];
