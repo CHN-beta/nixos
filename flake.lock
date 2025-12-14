@@ -864,15 +864,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1765647886,
-        "narHash": "sha256-+oOmiXaFmhatMwBXZtvoxk7s5FUQpyFB6ukI6cNGwKU=",
-        "owner": "xddxdd",
+        "lastModified": 1765711068,
+        "narHash": "sha256-vOWnhtW0J5/Vu/3b6sL/jkCPhgFL3R2KA4kDFfioHqU=",
+        "owner": "CHN-beta",
         "repo": "nix-cachyos-kernel",
-        "rev": "621af4b63effc390d9c37d4f93fd027bd5e964a8",
+        "rev": "f5735add19740a37f7ec62f449bb8fe1adc28269",
         "type": "github"
       },
       "original": {
-        "owner": "xddxdd",
+        "owner": "CHN-beta",
         "repo": "nix-cachyos-kernel",
         "type": "github"
       }
@@ -1250,16 +1250,16 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1765659324,
-        "narHash": "sha256-yV3MYIrIjzliaJOyiCfcw5PvvVvFbaPPvLgsQQC5LGk=",
-        "owner": "xddxdd",
-        "repo": "nur-packages",
-        "rev": "3dc4944789f23755a4fa4bfc36384f5b290b95dc",
+        "lastModified": 1765715197,
+        "narHash": "sha256-MImc+zz1TKBGNya3gX70K8Dm+gW5vhGMP+eAfAbv87c=",
+        "owner": "CHN-beta",
+        "repo": "nur-xddxdd",
+        "rev": "462c3fe2834a9b1997c920770e7dad498191b125",
         "type": "github"
       },
       "original": {
-        "owner": "xddxdd",
-        "repo": "nur-packages",
+        "owner": "CHN-beta",
+        "repo": "nur-xddxdd",
         "type": "github"
       }
     },

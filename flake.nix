@@ -11,7 +11,7 @@
     home-manager = { url = "github:nix-community/home-manager/release-25.11"; inputs.nixpkgs.follows = "nixpkgs"; };
     sops-nix = { url = "github:Mic92/sops-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nur-xddxdd = { url = "github:xddxdd/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nur-xddxdd = { url = "github:CHN-beta/nur-xddxdd"; inputs.nixpkgs.follows = "nixpkgs"; };
     impermanence.url = "github:CHN-beta/impermanence";
     nur-linyinfeng = { url = "github:linyinfeng/nur-packages"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-flatpak.url = "github:gmodena/nix-flatpak";
@@ -25,7 +25,7 @@
     nix4vscode = { url = "github:nix-community/nix4vscode"; inputs.nixpkgs.follows = "nixpkgs"; };
     dankmaterialshell = { url = "github:AvengeMedia/DankMaterialShell"; inputs.nixpkgs.follows = "nixpkgs"; };
     harmonia.url = "github:nix-community/harmonia";
-    nix-cachyos-kernel = { url = "github:xddxdd/nix-cachyos-kernel"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nix-cachyos-kernel = { url = "github:CHN-beta/nix-cachyos-kernel"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
