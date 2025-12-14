@@ -105,19 +105,6 @@ in platformConfig //
                 })
               ];
             };
-            # pkgs-unstable =
-            # {
-            #   source = "nixpkgs-unstable";
-            #   overlays =
-            #   [
-            #     inputs.topInputs.self.overlays.default
-            #     (_: _:
-            #     {
-            #       genericPackages = import inputs.topInputs.nixpkgs-unstable
-            #         { inherit system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
-            #     })
-            #   ];
-            # };
           };
           packages = name:
             let flakeSource = inputs.topInputs.${source.${name}.source or source.${name}};
@@ -154,8 +141,6 @@ in platformConfig //
         ffmpeg-headless = final.ffmpeg_8-headless;
         ffmpeg-full = final.ffmpeg_8-full;
         assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
-      #   redis = prev.redis.overrideAttrs (prev: { doCheck = false; });
-      #   wannier90 = prev.wannier90.overrideAttrs { buildFlags = [ "dynlib" ]; };
         xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
         libreoffice-qt6-still = prev.libreoffice-qt6-still.override (prev:
@@ -170,13 +155,7 @@ in platformConfig //
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
         {
           picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
-          # aiocache = prev.aiocache.overridePythonAttrs { doCheck = false; };
-          # numpy =
-          #   if inputs.lib.hasInfix "bar" prev.numpy.outPath then prev.numpy.overridePythonAttrs
-          #     (prev:{ disabledTests = prev.disabledTests or [] ++ [ "test_nowrap_private_proceedures" ]; })
-          #   else prev.numpy;
         })];
-      #   # valkey = final.redis;
       })
   )];
 }
