@@ -63,6 +63,8 @@ inputs:
             "ms-toolsai.jupyter" "ms-toolsai.jupyter-keymap" "ms-toolsai.jupyter-renderers"
             "ms-toolsai.vscode-jupyter-cell-tags" "ms-toolsai.vscode-jupyter-slideshow"
             "ms-toolsai.datawrangler"
+            # nushell
+            "TheNuProjectContributors.vscode-nushell-lang"
           ];
           keybindings =
           [
