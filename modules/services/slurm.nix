@@ -54,7 +54,7 @@ inputs:
       {
         slurm =
         {
-          package = inputs.pkgs.slurm.overrideAttrs (prev:
+          package = (inputs.pkgs.slurm.override { enableX11 = false; }).overrideAttrs (prev:
           {
             postInstall =
             ''
