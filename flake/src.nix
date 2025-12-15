@@ -190,12 +190,6 @@
     url = "mirror://sourceforge/atomkit/Binaries/atomkit.0.9.0.linux.x64.tar.gz";
     sha256 = "0y9z7wva7zikh83w9q431lgn3bqkh1v5w6iz90dwc75wqwk0w5jr";
   };
-  guix = pkgs.fetchurl
-  {
-    url = "https://ci.guix.gnu.org/download/2857";
-    name = "guix.iso";
-    sha256 = "0xqabnay8wwqc1a96db8ix1a6bhvgm84s5is1q67rr432q7gqgd4";
-  };
   peerBanHelper =
   {
     image = "ghostchu/peerbanhelper:v8.0.12";
