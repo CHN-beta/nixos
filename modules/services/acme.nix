@@ -27,6 +27,7 @@ inputs:
         email = "chn@chn.moe";
         dnsProvider = "cloudflare";
         dnsResolver = "1.1.1.1";
+        dnsPropagationCheck = false;
       };
       certs = builtins.listToAttrs (builtins.map
         (cert:
@@ -34,7 +35,7 @@ inputs:
           name = builtins.elemAt cert.value.domains 0;
           value =
           {
-            credentialsFile = inputs.config.nixos.system.sops.templates."acme/cloudflare.ini".path;
+            environmentFile = inputs.config.nixos.system.sops.templates."acme/cloudflare.ini".path;
             extraDomainNames = builtins.tail cert.value.domains;
             group = inputs.lib.mkIf (cert.value.group != null) cert.value.group;
           };
@@ -47,6 +48,7 @@ inputs:
       ''
         CLOUDFLARE_DNS_API_TOKEN=${inputs.config.nixos.system.sops.placeholder."acme/token"}
         CLOUDFLARE_PROPAGATION_TIMEOUT=300
+        LEGO_DISABLE_CNAME_SUPPORT=true
       '';
       secrets."acme/token" = {};
     };
