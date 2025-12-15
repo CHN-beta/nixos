@@ -75,6 +75,7 @@ inputs:
               "Mod+W".action.move-workspace-to-monitor-next = {};
               "Mod+Ctrl+C".action.spawn = [ "sh" "-c" "${xsel} -ob | ${wl-copy}" ];
               "Mod+Ctrl+V".action.spawn = [ "sh" "-c" "${wl-paste} -n | ${xsel} -ib" ];
+              "Mod+S".action.screenshot = {};
             };
           outputs =
           {
