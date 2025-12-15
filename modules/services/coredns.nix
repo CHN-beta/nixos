@@ -59,6 +59,10 @@ inputs:
 
         ts.chn.moe {
           bind ${coredns.interface}
+          template IN SOA ts.chn.moe {
+            match ".*"
+            answer "{{ .Name }} 60 IN SOA vps6.chn.moe. chn.chn.moe. 2023010100 7200 3600 1209600 3600"
+          }
           forward . 100.100.100.100
           header {
             response set aa
