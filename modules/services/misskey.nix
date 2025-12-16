@@ -22,8 +22,7 @@ inputs:
           after = [ "network.target" "redis-misskey-${instance.name}.service" "postgresql.service" ];
           requires = after;
           wantedBy = [ "multi-user.target" ];
-          environment.MISSKEY_CONFIG_YML =
-            inputs.config.nixos.system.sops.templates."misskey/${instance.name}.yml".path;
+          environment.MISSKEY_CONFIG_HAVE_COMPILED = "1";
           serviceConfig = rec
           {
             User = "misskey-${instance.name}";
@@ -45,6 +44,11 @@ inputs:
         "/var/lib/misskey/${instance.name}/work" =
         {
           device = "${inputs.pkgs.localPackages.misskey}";
+          options = [ "bind" "private" "x-gvfs-hide" "X-fstrim.notrim" ];
+        };
+        "/var/lib/misskey/${instance.name}/built/.config.json" =
+        {
+          device = inputs.config.nixos.system.sops.templates."misskey/${instance.name}.json".path;
           options = [ "bind" "private" "x-gvfs-hide" "X-fstrim.notrim" ];
         };
         "/var/lib/misskey/${instance.name}/work/files" =
@@ -89,43 +93,45 @@ inputs:
       system.sops.templates = builtins.listToAttrs (builtins.map
         (instance:
         {
-          name = "misskey/${instance.name}.yml";
+          name = "misskey/${instance.name}.json";
           value =
           {
             content =
               let
                 placeholder = inputs.config.nixos.system.sops.placeholder;
                 redis = inputs.config.nixos.services.redis.instances."misskey-${instance.name}";
-              in
-              ''
-                url: https://${instance.value.hostname}/
-                port: ${toString instance.value.port}
-                db:
-                  host: 127.0.0.1
-                  port: 5432
-                  db: misskey_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}
-                  user: misskey_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}
-                  pass: ${placeholder."postgresql/misskey_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}"}
-                  extra:
-                    statement_timeout: 600000
-                dbReplications: false
-                redis:
-                  host: 127.0.0.1
-                  port: ${builtins.toString redis.port}
-                  pass: ${placeholder."redis/misskey-${instance.name}"}
-                id: 'aid'
-                proxyBypassHosts:
-                  - api.deepl.com
-                  - api-free.deepl.com
-                  - www.recaptcha.net
-                  - hcaptcha.com
-                  - challenges.cloudflare.com
-                proxyRemoteFiles: true
-                signToActivityPubGet: true
-                maxFileSize: 1073741824
-                fulltextSearch:
-                  provider: sqlPgroonga
-              '';
+              in builtins.toJSON
+              {
+                url = "https://${instance.value.hostname}/";
+                port = instance.value.port;
+                db =
+                {
+                  host = "127.0.0.1";
+                  port = 5432;
+                  db = "misskey_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}";
+                  user = "misskey_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}";
+                  pass = placeholder."postgresql/misskey_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}";
+                  extra.statement_timeout = 600000;
+                };
+                dbReplications = false;
+                redis =
+                {
+                  host = "127.0.0.1";
+                  port = redis.port;
+                  pass = placeholder."redis/misskey-${instance.name}";
+                };
+                id = "aid";
+                proxyBypassHosts =
+                [
+                  "api.deepl.com" "api-free.deepl.com" "www.recaptcha.net" "hcaptcha.com"
+                  "challenges.cloudflare.com"
+                ];
+                proxyRemoteFiles = true;
+                signToActivityPubGet = true;
+                maxFileSize = 1073741824;
+                fulltextSearch.provider = "sqlPgroonga";
+                trustProxy = true;
+              };
             owner = "misskey-${instance.name}";
           };
         })
