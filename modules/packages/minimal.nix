@@ -44,7 +44,7 @@ inputs:
         # stupid things
         toilet lolcat localPackages.stickerpicker graph-easy
         # shell
-        kitty ghostty
+        kitty
       ]
         ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
     };
