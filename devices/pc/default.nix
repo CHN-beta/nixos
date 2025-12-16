@@ -22,6 +22,7 @@ inputs:
           {
             "/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
             "/dev/disk/by-partlabel/pc-tf1".mapper = "tf1";
+            "/dev/disk/by-partlabel/pc-tf2" = { mapper = "tf2"; ssd = true; };
           };
           swap = [ "/nix/swap/swap" ];
           resume = { device = "/dev/mapper/root1"; offset = 156901642; };
