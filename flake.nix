@@ -27,7 +27,7 @@
     harmonia.url = "github:nix-community/harmonia";
     nix-cachyos-kernel = { url = "github:CHN-beta/nix-cachyos-kernel"; inputs.nixpkgs.follows = "nixpkgs"; };
 
-    misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1"; flake = false; };
+    misskey = { url = "git+https://github.com/CHN-beta/misskey?submodules=1&rev=4c0425d6a229d3a75f2ff01cc30cf90434381cec"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
     zpp-bits = { url = "github:eyalz800/zpp_bits"; flake = false; };
     concurrencpp = { url = "github:David-Haim/concurrencpp"; flake = false; };
