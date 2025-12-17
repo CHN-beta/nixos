@@ -65,6 +65,7 @@ inputs:
         BIND = "127.0.0.1:3003";
         WEBMASTER_EMAIL = "chn@chn.moe";
         SERVE_ROBOTS_TXT = true;
+        METRICS_BIND = "/run/anubis/anubis-gitea/anubis-metrics.sock";
       };
     };
     nixos =
