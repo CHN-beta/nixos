@@ -23,7 +23,7 @@ inputs:
       postgresql =
       {
         enable = true;
-        package = inputs.pkgs.postgresql_17_jit;
+        package = inputs.pkgs.postgresql_17;
         extensions = ps: with ps; [ pgroonga ];
         enableTCPIP = true;
         authentication = "host all all 0.0.0.0/0 md5";
