@@ -218,7 +218,7 @@
       patch = pkgs.fetchurl
       {
         url = "https://github.com/kakra/linux/pull/40.patch";
-        sha256 = "00k57gx5xmwsdr83qc24dwkiin1qcyl929262m9kix699g7fclga";
+        sha256 = "07kb1hw3ihvaybjdkmk5cj2q2qrpiw4vj3q9d84znj5ll2f71xdr";
       };
       structuredExtraConfig = { BTRFS_ALLOCATOR_HINTS = lib.kernel.yes; BTRFS_READ_POLICIES = lib.kernel.yes; };
     };
