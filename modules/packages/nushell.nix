@@ -40,7 +40,6 @@ inputs:
                 "${inputs.pkgs.oh-my-posh}/share/oh-my-posh/themes/atomic.omp.json"));
           };
           zoxide.enable = true;
-          direnv.enable = true;
         };
       }];
     };

@@ -55,7 +55,6 @@ inputs:
       nix-index.enable = true;
       command-not-found.enable = false;
       autojump.enable = true;
-      direnv = { enable = true; nix-direnv.enable = true; };
       mosh.enable = true;
     };
     services =
