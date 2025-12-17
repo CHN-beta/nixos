@@ -44,7 +44,8 @@ inputs:
         # stupid things
         toilet lolcat localPackages.stickerpicker graph-easy
         # shell
-        kitty
+        # somehow fish does not compile on aarch64
+        (if inputs.config.nixos.model.arch == "x86_64" then kitty else emptyDirectory)
       ]
         ++ (with inputs.config.boot.kernelPackages; [ cpupower usbip ]);
     };
