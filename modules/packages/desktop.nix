@@ -73,7 +73,13 @@ inputs:
           activitywatch super-productivity
         ];
         _pythonPackages = [(pythonPackages: with pythonPackages;
-          [ phonopy scipy scikit-learn jupyterlab autograd inputs.pkgs.localPackages.phono3py numpy ])];
+        [
+          scipy scikit-learn jupyterlab autograd inputs.pkgs.localPackages.phono3py numpy
+          openai python-telegram-bot fastapi-cli pypdf2 pandas matplotlib plotly gunicorn redis jinja2 certifi 
+          charset-normalizer idna orjson psycopg2 inquirerpy requests tqdm pydbus inputs.pkgs.localPackages.brokenaxes
+          # allow pandas read odf
+          odfpy
+        ])];
       };
       user.sharedModules =
       [{
