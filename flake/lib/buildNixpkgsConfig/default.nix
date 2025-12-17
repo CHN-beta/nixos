@@ -126,6 +126,8 @@ in platformConfig //
       })
       // (inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
         { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
+      // (inputs.lib.optionalAttrs (nixpkgs.march == "cascadelake")
+        { postgresql_17 = prev.postgresql_17.override { jitSupport = false; }; })
       // (inputs.lib.optionalAttrs (nixpkgs.march != null)
       {
         ffmpeg_8 = prev.ffmpeg_8.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./ffmpeg.patch ]; });
