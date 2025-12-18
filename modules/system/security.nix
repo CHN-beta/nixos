@@ -41,13 +41,13 @@ inputs:
         };
         loginLimits =
         [
-          { domain = "@users"; item = "nofile"; value = 65536; }
+          { domain = "@users"; item = "nofile"; value = 524288; }
           { domain = "@users"; item = "stack"; value = "unlimited"; }
         ];
       };
       sudo.extraConfig = "Defaults pwfeedback";
     };
-    systemd.user.extraConfig = "DefaultLimitNOFILE=65536:524288";
+    systemd.user.extraConfig = "DefaultLimitNOFILE=524288:524288";
     # needed by xray tproxy if we want to forward traffic from other machine
     networking.firewall.checkReversePath = false;
   };
