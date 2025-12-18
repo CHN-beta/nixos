@@ -71,6 +71,8 @@ inputs:
           openai-whisper
           # daily management
           activitywatch super-productivity
+          # game
+          lutris
         ];
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
