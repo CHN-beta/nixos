@@ -190,18 +190,6 @@
     url = "mirror://sourceforge/atomkit/Binaries/atomkit.0.9.0.linux.x64.tar.gz";
     sha256 = "0y9z7wva7zikh83w9q431lgn3bqkh1v5w6iz90dwc75wqwk0w5jr";
   };
-  peerBanHelper =
-  {
-    image = "ghostchu/peerbanhelper:v8.0.12";
-    imageFile = pkgs.dockerTools.pullImage
-    {
-      imageName = "ghostchu/peerbanhelper";
-      imageDigest = "sha256:fce7047795fe1e6d730ea2583b390ccc336e79eb2d8dae8114f4f63f00208879";
-      hash = "sha256-7Z2ewDpGFXyvCze9HZ7KwFwn9o9R6Y4pjJDcr5Wmy1g=";
-      finalImageName = "ghostchu/peerbanhelper";
-      finalImageTag = "v8.0.12";
-    };
-  };
   btrfs =
   {
     "6.12" =
