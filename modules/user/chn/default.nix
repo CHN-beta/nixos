@@ -24,7 +24,6 @@ inputs:
       };
       config.home =
       {
-        file.groupshare.enable = false;
         packages =
         [
           (
