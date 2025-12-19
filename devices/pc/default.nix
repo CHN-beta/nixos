@@ -15,7 +15,13 @@ inputs:
             btrfs =
             {
               "/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-              "/dev/mapper/tf1"."/" = "/nix/tf";
+              "/dev/mapper/tf1" =
+              {
+                "/" = "/nix/tf";
+                "/nix/remote/jykang" = "/data/gpfs01/jykang/.nix";
+                "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
+                "/nix/remote/wlin" = "/data/gpfs01/wlin/.nix";
+              };
             };
           };
           luks.auto =
