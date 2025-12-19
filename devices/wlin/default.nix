@@ -7,7 +7,7 @@ let
   });
 in pkgs.symlinkJoin
 {
-  name = "jykang";
+  name = "wlin";
   paths = with pkgs; [ gnuplot localPackages.vaspkit pv ];
   postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
   passthru = { inherit pkgs; };
