@@ -48,7 +48,6 @@
     py4vasp = { url = "github:vasp-dev/py4vasp?ref=v0.10.2"; flake = false; };
     pocketfft = { url = "github:mreineck/pocketfft"; flake = false; };
     blog = { url = "git+https://git.chn.moe/chn/blog-public.git?lfs=1"; flake = false; };
-    nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git?lfs=1"; flake = false; };
     vaspberry = { url = "github:Infant83/VASPBERRY"; flake = false; };
     ufo = { url = "git+https://git.chn.moe/chn/ufo.git?lfs=1"; flake = false; };
     stickerpicker = { url = "github:maunium/stickerpicker"; flake = false; };
