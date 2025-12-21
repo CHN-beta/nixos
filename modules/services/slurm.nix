@@ -196,7 +196,7 @@ inputs:
     {
       services.slurm =
       {
-        server = { enable = true; extraFlags = [ "-i" ]; };
+        server = { enable = true; flag.i = true; };
         dbdserver =
         {
           enable = true;
