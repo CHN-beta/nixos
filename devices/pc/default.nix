@@ -113,8 +113,8 @@ inputs:
     services.colord.enable = true;
     services.udev.extraRules =
     ''
-      # adjust cpu voltage and power
-      SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${inputs.pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fff40 --stapm-limit=100000 --fast-limit=90000 --slow-limit=90000 --tctl-temp=100"
+      # CPU降压
+      SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${inputs.pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fff40"
     '';
     # 解决有时蓝牙不能使用的问题
     boot.kernelParams = [ "mt7925e.disable_aspm=1" ];
