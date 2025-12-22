@@ -22,7 +22,11 @@
     nixvirt = { url = "github:CHN-beta/NixVirt"; inputs.nixpkgs.follows = "nixpkgs"; };
     buildproxy = { url = "github:polygon/nix-buildproxy"; inputs.nixpkgs.follows = "nixpkgs"; };
     niri = { url = "github:sodiboo/niri-flake"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nix4vscode = { url = "github:nix-community/nix4vscode"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nix4vscode =
+    {
+      url = "github:nix-community/nix4vscode?rev=6c603c201b11dafda616940bac1f295144ac1c41";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     dankmaterialshell = { url = "github:AvengeMedia/DankMaterialShell"; inputs.nixpkgs.follows = "nixpkgs"; };
     harmonia.url = "github:nix-community/harmonia";
     nix-cachyos-kernel = { url = "github:CHN-beta/nix-cachyos-kernel"; inputs.nixpkgs.follows = "nixpkgs"; };
