@@ -15,10 +15,11 @@ let
       mkdir -p $out/bin
       ln -s ${python}/bin/python3 $out/bin/python-lyj
     '';
-in pkgs.symlinkJoin
-{
-  name = "jykang";
-  paths = with pkgs; [ gnuplot localPackages.vaspkit pv python-lyj sqlite ];
-  postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
-  passthru = { inherit pkgs; };
-}
+  jykang = pkgs.symlinkJoin
+  {
+    name = "jykang";
+    paths = with pkgs; [ gnuplot localPackages.vaspkit pv python-lyj sqlite ];
+    postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
+    passthru = { inherit pkgs; archive = pkgs.closureInfo { rootPaths = [ jykang.drvPath ]; }; };
+  };
+in jykang
