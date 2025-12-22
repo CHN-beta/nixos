@@ -97,7 +97,13 @@ inputs:
             default-column-width.proportion = 0.5;
             preset-column-widths = [ { proportion =  0.33333; } { proportion =  0.5; } { proportion =  0.66667; } ];
           };
-          spawn-at-startup = [{ argv = [ "Telegram" "-startintray" ]; }];
+          spawn-at-startup =
+          [
+            { argv = [ "Telegram" "-startintray" ]; }
+            { argv = [ "steam" "-silent" ]; }
+            { argv = [ "element-desktop" "--hidden" ]; }
+            { argv = [ "discord" "--start-minimized" "--no-startup-id" ]; }
+          ];
         };
       };
     })];
