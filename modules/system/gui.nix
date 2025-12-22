@@ -51,7 +51,7 @@ inputs:
     {
       config.programs =
       {
-        dankMaterialShell =
+        dank-material-shell =
         {
           enable = true;
           niri.enableKeybinds = true;

@@ -16,8 +16,8 @@ inputs: let inherit (inputs) topInputs; in
     { config.home-manager.sharedModules =
     [
       topInputs.catppuccin.homeModules.catppuccin
-      topInputs.dankmaterialshell.homeModules.dankMaterialShell.default
-      topInputs.dankmaterialshell.homeModules.dankMaterialShell.niri
+      topInputs.dankmaterialshell.homeModules.dank-material-shell
+      topInputs.dankmaterialshell.homeModules.niri
     ];}
   ] ++ (inputs.localLib.findModules ./.);
 }
