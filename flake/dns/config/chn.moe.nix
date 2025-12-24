@@ -27,6 +27,7 @@ let
       "git" "grafana" "peertube" "send" "vikunja" "xservernas" "freshrss" "huginn" "nextcloud"
       "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api"
     ];
+    "tinc0.pc" = [ "misskey-forwarder" ];
   };
   a =
   {
