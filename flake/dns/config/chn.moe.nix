@@ -24,7 +24,7 @@ let
     [
       "initrd.vps9" "xserver2.vps9"
       # to nas
-      "git" "grafana" "peertube" "send" "vikunja" "xservernas" "freshrss" "nextcloud"
+      "git" "grafana" "peertube" "send" "vikunja" "xservernas" "freshrss" "huginn" "nextcloud"
       "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api"
     ];
   };
