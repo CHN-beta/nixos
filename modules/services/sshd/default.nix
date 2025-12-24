@@ -23,6 +23,7 @@ inputs:
           PasswordAuthentication = sshd.passwordAuthentication;
           KbdInteractiveAuthentication = false;
           UsePAM = true;
+          GatewayPorts = "yes";
         };
       };
     }
