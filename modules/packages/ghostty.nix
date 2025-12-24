@@ -11,7 +11,7 @@ inputs:
         config.programs.ghostty =
         {
           enable = true;
-          settings.keybind = "ctrl+shift+r=reset";
+          settings = { scrollback-limit = 100000000; keybind = "ctrl+shift+r=reset"; };
         };
       }];
       packages.packages._packages = [ inputs.pkgs.ghostty ];
