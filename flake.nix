@@ -22,7 +22,11 @@
     nixvirt = { url = "github:CHN-beta/NixVirt"; inputs.nixpkgs.follows = "nixpkgs"; };
     buildproxy = { url = "github:polygon/nix-buildproxy"; inputs.nixpkgs.follows = "nixpkgs"; };
     niri = { url = "github:sodiboo/niri-flake"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nix4vscode = { url = "github:nix-community/nix4vscode"; inputs.nixpkgs.follows = "nixpkgs"; };
+    nix4vscode =
+    {
+      url = "github:nix-community/nix4vscode?rev=6c603c201b11dafda616940bac1f295144ac1c41";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     dankmaterialshell = { url = "github:AvengeMedia/DankMaterialShell"; inputs.nixpkgs.follows = "nixpkgs"; };
     harmonia.url = "github:nix-community/harmonia";
     nix-cachyos-kernel = { url = "github:CHN-beta/nix-cachyos-kernel"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -48,7 +52,6 @@
     py4vasp = { url = "github:vasp-dev/py4vasp?ref=v0.10.2"; flake = false; };
     pocketfft = { url = "github:mreineck/pocketfft"; flake = false; };
     blog = { url = "git+https://git.chn.moe/chn/blog-public.git?lfs=1"; flake = false; };
-    nixos-wallpaper = { url = "git+https://git.chn.moe/chn/nixos-wallpaper.git?lfs=1"; flake = false; };
     vaspberry = { url = "github:Infant83/VASPBERRY"; flake = false; };
     ufo = { url = "git+https://git.chn.moe/chn/ufo.git?lfs=1"; flake = false; };
     stickerpicker = { url = "github:maunium/stickerpicker"; flake = false; };

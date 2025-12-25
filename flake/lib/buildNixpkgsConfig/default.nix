@@ -72,10 +72,6 @@ in platformConfig //
         google-chrome = prev.google-chrome.override (prev:
           { commandLineArgs = prev.commandLineArgs or "" + " --disable-features=GlobalShortcutsPortal"; });
         xray = prev.xray.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xray.patch ]; });
-        linux-firmware = prev.linux-firmware.overrideAttrs (prev: { patchPhase = prev.patchPhase or "" +
-        ''
-          cp ${./gc_11_5_1_mes_2.bin} amdgpu/gc_11_5_1_mes_2.bin
-        ''; });
       }
       // (
         let

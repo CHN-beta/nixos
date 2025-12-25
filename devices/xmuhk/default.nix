@@ -59,11 +59,12 @@ let
       trap cleanup SIGINT SIGTERM SIGHUP EXIT
       tail -f /dev/null
     '';
-in pkgs.symlinkJoin
-{
-  name = "xmuhk";
-  paths = (with pkgs; [ hello btop htop iotop pv localPackages.lumerical.lumerical.cmd ])
-    ++ [ lumericalLicenseManager ];
-  postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
-  passthru = { inherit pkgs; };
-}
+  xmuhk = pkgs.symlinkJoin
+  {
+    name = "xmuhk";
+    paths = (with pkgs; [ hello btop htop iotop pv localPackages.lumerical.lumerical.cmd ])
+      ++ [ lumericalLicenseManager ];
+    postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
+    passthru = { inherit pkgs; archive = pkgs.closureInfo { rootPaths = [ xmuhk.drvPath ]; }; };
+  };
+in xmuhk
