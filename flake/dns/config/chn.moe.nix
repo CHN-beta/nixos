@@ -8,7 +8,7 @@ let
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi" "ua" "xserver2"
-      "xserver2.vps6" "s" "headscale"
+      "xserver2.vps6" "s" "headscale" "misskey-forwarder"
       # to pc
       "铜锣湾实验室"
     ];
@@ -27,7 +27,6 @@ let
       "git" "grafana" "peertube" "send" "vikunja" "xservernas" "freshrss" "huginn" "nextcloud"
       "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api"
     ];
-    "tinc0.pc" = [ "misskey-forwarder" ];
   };
   a =
   {
