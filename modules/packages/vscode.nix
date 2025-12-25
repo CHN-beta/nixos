@@ -79,6 +79,14 @@ inputs:
               command = "-editor.action.inlineSuggest.commit";
             }
             {
+              key = "tab";
+              command = "-editor.action.inlineSuggest.jump";
+            }
+            {
+              key = "tab";
+              command = "-editor.emmet.action.expandAbbreviation";
+            }
+            {
               key = "ctrl+enter";
               command = "-editor.action.inlineSuggest.commit";
             }
