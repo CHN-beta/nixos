@@ -118,7 +118,6 @@ in platformConfig //
       // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
       {
         frei0r = final.genericPackages.frei0r;
-        valkey = final.genericPackages.valkey;
       })
       // (inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
         { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
