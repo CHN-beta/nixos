@@ -45,7 +45,7 @@ int main()
         if (content.type != "note" || content.body.note.visibility != "public") return;
         std::string text = content.body.note.text;
         if (content.body.note.renote)
-          text += "\n🔁 Renote: https://{}/notes/{}"_f(content.server, content.body.note.renote->id);
+          text += "\n🔁 Renote: {}/notes/{}"_f(content.server, content.body.note.renote->id);
 
         TgBot::Bot bot(config.TelegramBotToken);
         bot.getApi().sendMessage(config.TelegramChatId, text);
