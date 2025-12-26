@@ -2,7 +2,7 @@
 # include <httplib.h>
 # include <tgbot/tgbot.h>
 # ifndef FORWARDER_CONFIG_FILE
-#   define FORWARDER_CONFIG_FILE "./config.yml"
+#   define FORWARDER_CONFIG_FILE "./config.yaml"
 # endif
 
 int main()
@@ -16,8 +16,7 @@ int main()
     std::string TelegramBotToken;
     std::string TelegramChatId;
     int ServerPort;
-  };
-  auto config = YAML::LoadFile(FORWARDER_CONFIG_FILE).as<Config>();
+  } config = YAML::LoadFile(FORWARDER_CONFIG_FILE).as<Config>();
 
   biu::Logger::try_exec([&]
   {
@@ -33,25 +32,38 @@ int main()
         struct Content
         {
           std::string type, server;
-          struct { struct
+          struct
           {
-            std::string text, visibility;
-            struct Renote { std::string id; };
-            std::optional<Renote> renote;
-          } note; } body;
+            struct Note
+            {
+              std::string text, visibility;
+              std::optional<std::string> replyId;
+              struct Renote { std::string id; };
+              std::optional<Renote> renote;
+            };
+            std::optional<Note> note;
+          } body;
         };
         auto content = YAML::Load(req.body).as<Content>();
 
-        if (content.type != "note" || content.body.note.visibility != "public") return;
-        std::string text = content.body.note.text;
-        if (content.body.note.renote)
-          text += "\n🔁 Renote: {}/notes/{}"_f(content.server, content.body.note.renote->id);
+        if
+        (
+          content.type != "note"    // 只转发 note 的情况
+            || !content.body.note   // 大概不会发生，但还是判断一下
+            || content.body.note->visibility != "public"  // 只转发公开的 note
+            || content.body.note->replyId // 不转发回复
+        ) return;
+        std::string text = content.body.note->text;
+        if (content.body.note->renote)
+          text += "\n🔁 Renote: {}/notes/{}"_f(content.server, content.body.note->renote->id);
 
         TgBot::Bot bot(config.TelegramBotToken);
-        bot.getApi().sendMessage(config.TelegramChatId, text);
+        // bot.getApi().sendMessage(config.TelegramChatId, text);
 
         res.status = 200;
         res.body = "OK";
+
+        log.debug(req.body);
       });
     });
     svr.listen("0.0.0.0", config.ServerPort);
