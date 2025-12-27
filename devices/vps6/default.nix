@@ -61,7 +61,7 @@ inputs:
         beesd."/" = {};
         coredns.interface = "ens18";
         headscale = {};
-        misskey-forwarder = {};
+        missgram = {};
       };
     };
     networking.nftables.tables.forward =

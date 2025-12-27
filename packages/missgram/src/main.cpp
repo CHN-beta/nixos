@@ -1,8 +1,8 @@
 # include <biu.hpp>
 # include <httplib.h>
 # include <tgbot/tgbot.h>
-# ifndef FORWARDER_CONFIG_FILE
-#   define FORWARDER_CONFIG_FILE "./config.yaml"
+# ifndef MISSGRAM_CONFIG_FILE
+#   define MISSGRAM_CONFIG_FILE "./config.yaml"
 # endif
 
 int main()
@@ -16,7 +16,7 @@ int main()
     std::string TelegramBotToken;
     std::string TelegramChatId;
     int ServerPort;
-  } config = YAML::LoadFile(FORWARDER_CONFIG_FILE).as<Config>();
+  } config = YAML::LoadFile(MISSGRAM_CONFIG_FILE).as<Config>();
 
   biu::Logger::try_exec([&]
   {

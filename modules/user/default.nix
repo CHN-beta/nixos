@@ -56,7 +56,7 @@ inputs:
         hpcstat = 2011;
         speedtest = 2012;
         tailscale = 2013;
-        misskey-forwarder = 2014;
+        missgram = 2014;
       };
     };
     gid = mkOption

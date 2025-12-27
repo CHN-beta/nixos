@@ -144,7 +144,7 @@ inputs: rec
     buildProxy = inputs.pkgs.lib.mkBuildproxy ./pybinding/proxy.nix;
   };
   brokenaxes = inputs.pkgs.python3Packages.callPackage ./brokenaxes.nix { src = inputs.topInputs.brokenaxes; };
-  misskey-forwarder = inputs.pkgs.callPackage ./misskey-forwarder { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
+  missgram = inputs.pkgs.callPackage ./missgram { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

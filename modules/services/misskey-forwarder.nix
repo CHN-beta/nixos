@@ -1,52 +1,52 @@
 inputs:
 {
-  options.nixos.services.misskey-forwarder = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.missgram = let inherit (inputs.lib) mkOption types; in mkOption
     { type = types.nullOr (types.submodule {}); default = null; };
-  config = let inherit (inputs.config.nixos.services) misskey-forwarder; in inputs.lib.mkIf (misskey-forwarder != null)
+  config = let inherit (inputs.config.nixos.services) missgram; in inputs.lib.mkIf (missgram != null)
   {
     users =
     {
-      users.misskey-forwarder =
-        { uid = inputs.config.nixos.user.uid.misskey-forwarder; group = "misskey-forwarder"; isSystemUser = true; };
-      groups.misskey-forwarder.gid = inputs.config.nixos.user.gid.misskey-forwarder;
+      users.missgram =
+        { uid = inputs.config.nixos.user.uid.missgram; group = "missgram"; isSystemUser = true; };
+      groups.missgram.gid = inputs.config.nixos.user.gid.missgram;
     };
     systemd =
     {
-      services.misskey-forwarder =
+      services.missgram =
       {
         after = [ "network.target" ];
         wantedBy = [ "multi-user.target" ];
         serviceConfig =
         {
-          User = inputs.config.users.users.misskey-forwarder.name;
-          Group = inputs.config.users.users.misskey-forwarder.group;
+          User = inputs.config.users.users.missgram.name;
+          Group = inputs.config.users.users.missgram.group;
           ExecStart =
-            let forwarder = inputs.pkgs.localPackages.misskey-forwarder.override
-              { configFile = inputs.config.nixos.system.sops.templates."misskey-forwarder/config.yml".path; };
-            in "${forwarder}/bin/misskey-forwarder";
+            let forwarder = inputs.pkgs.localPackages.missgram.override
+              { configFile = inputs.config.nixos.system.sops.templates."missgram/config.yml".path; };
+            in "${forwarder}/bin/missgram";
         };
       };
     };
     nixos =
     {
-      services.nginx.https."misskey-forwarder.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:9173";
+      services.nginx.https."missgram.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:9173";
       system.sops =
       {
-        templates."misskey-forwarder/config.yml" =
+        templates."missgram/config.yml" =
         {
-          owner = "misskey-forwarder";
+          owner = "missgram";
           content =
             let inherit (inputs.config.nixos.system.sops) placeholder;
             in builtins.toJSON
             {
-              Secret = placeholder."misskey-forwarder/secret";
-              TelegramBotToken = placeholder."misskey-forwarder/telegramBotToken";
-              TelegramChatId = placeholder."misskey-forwarder/telegramChatId";
+              Secret = placeholder."missgram/secret";
+              TelegramBotToken = placeholder."missgram/telegramBotToken";
+              TelegramChatId = placeholder."missgram/telegramChatId";
               ServerPort = 9173;
             };
         };
         secrets = inputs.lib.genAttrs' [ "secret" "telegramBotToken" "telegramChatId" ]
-          (n: inputs.lib.nameValuePair "misskey-forwarder/${n}" {});
+          (n: inputs.lib.nameValuePair "missgram/${n}" {});
       };
     };
   };

@@ -55,9 +55,9 @@
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
-  misskey-forwarder = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
+  missgram = pkgs.mkShell.override { stdenv = pkgs.clang18Stdenv; }
   {
-    inputsFrom = [ pkgs.localPackages.misskey-forwarder ];
+    inputsFrom = [ pkgs.localPackages.missgram ];
     packages = [ pkgs.llvmPackages_18.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
