@@ -11,9 +11,11 @@ endif()
 
 find_package(biu REQUIRED)
 find_package(httplib REQUIRED)
+find_package(sqlgen REQUIRED)
 
-add_executable(missgram src/main.cpp)
-target_link_libraries(missgram PRIVATE biu::biu httplib::httplib)
+add_executable(missgram src/main.cpp src/sql.cpp)
+target_include_directories(missgram PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+target_link_libraries(missgram PRIVATE biu::biu httplib::httplib sqlgen::sqlgen)
 target_compile_features(missgram PRIVATE cxx_std_23)
 if(DEFINED MISSGRAM_CONFIG_FILE)
   target_compile_definitions(missgram PRIVATE MISSGRAM_CONFIG_FILE="${MISSGRAM_CONFIG_FILE}")

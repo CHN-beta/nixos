@@ -144,7 +144,7 @@ inputs: rec
     buildProxy = inputs.pkgs.lib.mkBuildproxy ./pybinding/proxy.nix;
   };
   brokenaxes = inputs.pkgs.python3Packages.callPackage ./brokenaxes.nix { src = inputs.topInputs.brokenaxes; };
-  missgram = inputs.pkgs.callPackage ./missgram { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
+  missgram = inputs.pkgs.callPackage ./missgram { inherit biu sqlgen; stdenv = inputs.pkgs.clang18Stdenv; };
   sqlgen = inputs.pkgs.callPackage ./sqlgen.nix { src = inputs.topInputs.sqlgen; inherit reflectcpp; };
   reflectcpp = inputs.pkgs.callPackage ./reflectcpp.nix { src = inputs.topInputs.reflectcpp; };
 
