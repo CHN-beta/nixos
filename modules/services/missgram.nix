@@ -29,7 +29,11 @@ inputs:
     };
     nixos =
     {
-      services.nginx.https."missgram.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:9173";
+      services =
+      {
+        nginx.https."missgram.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:9173";
+        postgresql.instances.missgram = {};
+      };
       system.sops =
       {
         templates."missgram/config.yml" =
@@ -43,6 +47,7 @@ inputs:
               TelegramBotToken = placeholder."missgram/telegramBotToken";
               TelegramChatId = placeholder."missgram/telegramChatId";
               ServerPort = 9173;
+              dbPassword = placeholder."postgresql/missgram";
             };
         };
         secrets = inputs.lib.genAttrs' [ "secret" "telegramBotToken" "telegramChatId" ]

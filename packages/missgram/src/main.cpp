@@ -1,6 +1,6 @@
-# include <biu.hpp>
+# include <missgram.hpp>
 # include <httplib.h>
-# include <tgbot/tgbot.h>
+
 # ifndef MISSGRAM_CONFIG_FILE
 #   define MISSGRAM_CONFIG_FILE "./config.yaml"
 # endif
@@ -8,15 +8,10 @@
 int main()
 {
   using namespace biu::literals;
+  using namespace missgram;
   biu::Logger::Guard log;
 
-  struct Config
-  {
-    std::string Secret;
-    std::string TelegramBotToken;
-    std::string TelegramChatId;
-    int ServerPort;
-  } config = YAML::LoadFile(MISSGRAM_CONFIG_FILE).as<Config>();
+  config = YAML::LoadFile(MISSGRAM_CONFIG_FILE).as<Config>();
 
   biu::Logger::try_exec([&]
   {
@@ -36,7 +31,7 @@ int main()
           {
             struct Note
             {
-              std::string text, visibility;
+              std::string id, text, visibility;
               std::optional<std::string> replyId;
               struct Renote { std::string id; };
               std::optional<Renote> renote;
@@ -57,8 +52,11 @@ int main()
         if (content.body.note->renote)
           text += "\n🔁 Renote: {}/notes/{}"_f(content.server, content.body.note->renote->id);
 
-        TgBot::Bot bot(config.TelegramBotToken);
-        // bot.getApi().sendMessage(config.TelegramChatId, text);
+        std::thread([text, note_id = content.body.note->id]
+        {
+          auto message_id = tg_send(text);
+          if (message_id) db_write(note_id, *message_id);
+        }).detach();
 
         res.status = 200;
         res.body = "OK";
