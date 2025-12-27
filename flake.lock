@@ -1406,6 +1406,24 @@
         "url": "https://git.outfoxxed.me/quickshell/quickshell"
       }
     },
+    "reflectcpp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1766526407,
+        "narHash": "sha256-fUZTdojO/x5G7+MduY25nsO0WvED3LWIwf5hwsACVxA=",
+        "ref": "refs/heads/main",
+        "rev": "6fc8c9e81d24e8e9bcca0f4b01450181b1f98669",
+        "revCount": 748,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/getml/reflect-cpp"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/getml/reflect-cpp"
+      }
+    },
     "root": {
       "inputs": {
         "aagl": "aagl",
@@ -1450,10 +1468,12 @@
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
         "pybinding": "pybinding",
+        "reflectcpp": "reflectcpp",
         "rsshub": "rsshub",
         "rycee": "rycee",
         "sops-nix": "sops-nix",
         "speedtest": "speedtest",
+        "sqlgen": "sqlgen",
         "sqlite-orm": "sqlite-orm",
         "sticker": "sticker",
         "stickerpicker": "stickerpicker",
@@ -1549,6 +1569,24 @@
         "owner": "librespeed",
         "repo": "speedtest",
         "type": "github"
+      }
+    },
+    "sqlgen": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1766749883,
+        "narHash": "sha256-pcEX2tWl8tHhKPxD1c1O1yeyue/ey0DleO8rCVYg5B4=",
+        "ref": "refs/heads/main",
+        "rev": "c8f4ad8d84e1e3f7adc775fa3cb7d65f1f5736b0",
+        "revCount": 224,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/getml/sqlgen"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/getml/sqlgen"
       }
     },
     "sqlite-orm": {
