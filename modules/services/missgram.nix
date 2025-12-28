@@ -45,13 +45,12 @@ inputs:
             {
               Secret = placeholder."missgram/secret";
               TelegramBotToken = placeholder."missgram/telegramBotToken";
-              TelegramChatId = placeholder."missgram/telegramChatId";
+              TelegramChatId = -1003641252872;
               ServerPort = 9173;
               dbPassword = placeholder."postgresql/missgram";
             };
         };
-        secrets = inputs.lib.genAttrs' [ "secret" "telegramBotToken" "telegramChatId" ]
-          (n: inputs.lib.nameValuePair "missgram/${n}" {});
+        secrets = { "missgram/secret" = {}; "missgram/telegramBotToken" = {}; };
       };
     };
   };
