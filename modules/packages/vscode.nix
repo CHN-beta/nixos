@@ -181,13 +181,8 @@ inputs:
             "update.mode" = "none";
             "editor.tabSize" = 2;
             "nix.enableLanguageServer" = true;
-            "nix.serverPath" = "nil";
+            "nix.serverPath" = "nixd";
             "nix.formatterPath" = "nixpkgs-fmt";
-            "nix.serverSettings"."nil" =
-            {
-              "diagnostics"."ignored" = [ "unused_binding" "unused_with" ];
-              "formatting"."command" = [ "nixpkgs-fmt" ];
-            };
             "xmake.envBehaviour" = "erase";
             "git.openRepositoryInParentFolders" = "never";
             "todo-tree.regex.regex" = "(//|#|<!--|;|/\\*|^|%|^[ \\t]*(-|\\d+.))\\s*($TAGS)";
