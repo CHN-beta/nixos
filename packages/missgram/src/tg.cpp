@@ -1,7 +1,7 @@
 # include <missgram.hpp>
 # include <tgbot/tgbot.h>
 
-std::optional<int> missgram::tg_send(std::string text, std::optional<int> replyId)
+std::optional<std::int32_t> missgram::tg_send(std::string text, std::optional<std::int32_t> replyId)
 {
   using namespace biu::literals;
 
@@ -25,5 +25,5 @@ std::optional<int> missgram::tg_send(std::string text, std::optional<int> replyI
   }
 
   // 返回消息 ID
-  if (message) return message->messageId;
+  if (message) return message->messageId; else return {};
 }
