@@ -14,7 +14,8 @@ lib: rec
       (
         let handle = module: let type = builtins.typeOf module; in
           if type == "path" || type == "string" then (handle (import module))
-          else if type == "lambda" then ({ pkgs, utils, ... }@inputs: (module inputs))
+          else if type == "lambda" && builtins.functionArgs module == {}
+            then ({ pkgs, utils, ... }@inputs: (module inputs))
           else module;
         in handle
       )
