@@ -55,7 +55,6 @@ int main()
           content.type != "note"    // 只考虑 note 的情况，这里note包括了回复、转发、引用
             || !content.body.note   // 大概不会发生，但还是判断一下
             || content.body.note->visibility != "public" || content.body.note->localOnly // 只转发公开的、允许联合的帖子
-            || content.body.note->replyId // 不转发回复
         ) return;
 
         // 接下来准备要转发的文字内容
@@ -63,7 +62,7 @@ int main()
         std::optional<std::uint32_t> reply_id;
         // 如果是转发，则直接写链接
         if (!content.body.note->text)
-          text = "转发帖子: [点此查看]({}/notes/{})"_f(content.server, content.body.note->id);
+          text = "转发了[帖子]({}/notes/{})"_f(content.server, content.body.note->id);
         // 否则（引用或普通帖子）
         else
         {
@@ -74,8 +73,11 @@ int main()
           {
             reply_id = db_read(content.body.note->renote->id);
             if (!reply_id)
-              text = "引用帖子: [点此查看]({}/notes/{})\n"_f(content.server, content.body.note->renote->id) + text;
+              text = "引用了[帖子]({}/notes/{})\n"_f(content.server, content.body.note->renote->id) + text;
           }
+          // 检查是否是回复帖子，若是则在开头附上链接原帖链接。我一般不直接回复自己的帖子，所以这里不检查
+          if (content.body.note->replyId)
+            text = "回复了[帖子]({}/notes/{})\n"_f(content.server, *content.body.note->replyId) + text;
           // 最后附上原贴地址
           text += "\n[在联邦宇宙查看]({}/notes/{})"_f(content.server, content.body.note->id);
         }
