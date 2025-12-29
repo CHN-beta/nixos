@@ -63,21 +63,21 @@ int main()
         std::optional<std::uint32_t> reply_id;
         // 如果是转发，则直接写链接
         if (!content.body.note->text)
-          text = "转发帖子: [在铜锣湾查看]({}/notes/{})"_f(content.server, content.body.note->id);
+          text = "转发帖子: [点此查看]({}/notes/{})"_f(content.server, content.body.note->id);
         // 否则（引用或普通帖子）
         else
         {
           text = *content.body.note->text;
           // 如果有引用，则需要查找被引用的帖子是否已经被转发过，若是则直接回复被转发的消息。
-          // 如果没有被转发过，则附上链接
+          // 如果没有被转发过，则在开头附上链接
           if (content.body.note->renote)
           {
             reply_id = db_read(content.body.note->renote->id);
             if (!reply_id)
-              text += "\n引用帖子: [在铜锣湾查看]({}/notes/{})"_f(content.server, content.body.note->renote->id);
+              text = "引用帖子: [点此查看]({}/notes/{})\n"_f(content.server, content.body.note->renote->id) + text;
           }
           // 最后附上原贴地址
-          text += "\n[在铜锣湾查看回复/回应]({}/notes/{})"_f(content.server, content.body.note->id);
+          text += "\n[在联邦宇宙查看]({}/notes/{})"_f(content.server, content.body.note->id);
         }
 
         // 接下来整理要转发的文件
