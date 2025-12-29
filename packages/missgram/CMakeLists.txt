@@ -20,6 +20,7 @@ target_compile_features(missgram PRIVATE cxx_std_23)
 if(DEFINED MISSGRAM_CONFIG_FILE)
   target_compile_definitions(missgram PRIVATE MISSGRAM_CONFIG_FILE="${MISSGRAM_CONFIG_FILE}")
 endif()
+target_compile_definitions(missgram PRIVATE BIU_LOGGER_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}")
 install(TARGETS missgram RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 get_property(ImportedTargets DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
