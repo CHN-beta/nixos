@@ -1,6 +1,6 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.system.fileSystems.mount.nfs = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.system.fileSystems.mount.nfs = let inherit (lib) mkOption types; in mkOption
   {
     type = types.attrsOf (types.oneOf
     [
@@ -8,50 +8,45 @@ inputs:
       (types.submodule (submoduleInputs: { options =
       {
         mountPoint = mkOption { type = types.nonEmptyStr; };
-        neededForBoot = mkOption { type = types.bool; default = true; };
+        mountBeforeSwitch = mkOption { type = types.bool; default = true; };
+        readOnly = mkOption { type = types.bool; default = !submoduleInputs.config.mountBeforeSwitch; };
       };}))
     ]);
     default = {};
   };
-  config =
-    let inherit (inputs.config.nixos.system.fileSystems.mount) nfs;
-    in inputs.lib.mkIf (nfs != {}) (inputs.lib.mkMerge
+  config = let inherit (config.nixos.system.fileSystems.mount) nfs; in lib.mkIf (nfs != {}) (lib.mkMerge
     [
       {
-        fileSystems = builtins.listToAttrs (builtins.map
-          (device:
+        fileSystems = lib.mapAttrs'
+          (n: v: lib.nameValuePair (v.mountPoint or v)
           {
-            name = device.value.mountPoint or device.value;
-            value =
-            {
-              device = device.name;
-              fsType = "nfs4";
-              neededForBoot = device.value.neededForBoot or true;
-              options = builtins.concatLists
+            device = n;
+            fsType = "nfs4";
+            neededForBoot = v.mountBeforeSwitch or true;
+            options = builtins.concatLists
+            [
               [
-                [
-                  "actimeo=1" # sync every seconds
-                  "noatime"
-                  "x-gvfs-hide" # hide in file managers (e.g. dolphin)
-                ]
-                # when try to mount at startup, wait 15 minutes before giving up
-                (inputs.lib.optionals (device.value.neededForBoot or true)
-                  [ "retry=15" "x-systemd.device-timeout=15min" ])
-                (inputs.lib.optionals (!(device.value.neededForBoot or true))
-                  [ "bg" "x-systemd.requires=network-online.target" "x-systemd.after=network-online.target" ])
-              ];
-            };
+                "actimeo=1" # sync every seconds
+                "noatime"
+                "x-gvfs-hide" # hide in file managers (e.g. dolphin)
+              ]
+              # when try to mount at startup, wait 15 minutes before giving up
+              (lib.optionals (v.mountBeforeSwitch or true) [ "retry=15" "x-systemd.device-timeout=15min" ])
+              (lib.optionals (!(v.mountBeforeSwitch or true))
+                [ "bg" "x-systemd.requires=network-online.target" "x-systemd.after=network-online.target" ])
+              (lib.optionals (v.readOnly or false) [ "ro" ])
+            ];
           })
-          (inputs.localLib.attrsToList nfs));
+          nfs;
         services.rpcbind.enable = true;
       }
-      (inputs.lib.mkIf (builtins.any (mount: mount.neededForBoot or true) (builtins.attrValues nfs))
+      (lib.mkIf (builtins.any (mount: mount.mountBeforeSwitch or true) (builtins.attrValues nfs))
       {
         boot.initrd.systemd.extraBin =
         {
-          "ifconfig" = "${inputs.pkgs.nettools}/bin/ifconfig";
-          "mount.nfs" = "${inputs.pkgs.nfs-utils}/bin/mount.nfs";
-          "mount.nfs4" = "${inputs.pkgs.nfs-utils}/bin/mount.nfs4";
+          "ifconfig" = "${pkgs.nettools}/bin/ifconfig";
+          "mount.nfs" = "${pkgs.nfs-utils}/bin/mount.nfs";
+          "mount.nfs4" = "${pkgs.nfs-utils}/bin/mount.nfs4";
         };
         nixos.system.initrd.network = {};
       })
