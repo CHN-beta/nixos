@@ -24,3 +24,9 @@ An overlay is provided through `outputs.overlays.default`, you could use it in y
 }
 ```
 
+## TODO
+
+* Write this readme file. Something have been outdate.
+* Servers in XMU should use vps9 to run proxy.
+* Allow to specify oneapiArch and nvhpcArch per package.
+* Update document. Something is outdate.
