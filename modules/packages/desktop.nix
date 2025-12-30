@@ -54,7 +54,7 @@ inputs:
           google-chrome tor-browser
           # office
           crow-translate zotero pandoc texliveFull poppler-utils pdftk pdfchain kdePackages.kruler kdePackages.okular
-          ydict texstudio panoply pspp libreoffice-qt6-still ocrmypdf typst # paperwork
+          ydict texstudio panoply pspp libreoffice-fresh ocrmypdf typst # paperwork
           # required by ltex-plus.vscode-ltex-plus
           ltex-ls ltex-ls-plus
           # matplot++ needs old gnuplot

@@ -136,7 +136,7 @@ in platformConfig //
         assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
         xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
-        libreoffice-qt6-still = prev.libreoffice-qt6-still.override (prev:
+        libreoffice-fresh = prev.libreoffice-fresh.override (prev:
           { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
           ''
             sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
