@@ -23,6 +23,7 @@ inputs:
                 "/nix/remote/wlin" = "/data/gpfs01/wlin/.nix";
               };
             };
+            nfs."nas.ts.chn.moe:/" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
           };
           luks.auto =
           {
