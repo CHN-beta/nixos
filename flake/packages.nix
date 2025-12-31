@@ -44,14 +44,17 @@
     tokenPath = inputs.self.nixosConfigurations.pc.config.nixos.system.sops.secrets."acme/token".path;
     octodns = pkgs.octodns.withProviders (_: with pkgs.octodns-providers; [ cloudflare ]);
   };
-  archive = pkgs.writeText "archive" (builtins.concatStringsSep "\n" (builtins.concatLists
-  [
-    (inputs.nixpkgs.lib.mapAttrsToList
-      (_: v: (v.extendModules { modules = [{ config.system.includeBuildDependencies = true; }]; })
-        .config.system.build.toplevel)
-      inputs.self.outputs.nixosConfigurations)
-    [ src ]
-    (builtins.attrValues inputs)
-  ]));
+  archive =
+    let
+      systemWithBuildDeps = system:
+        (system.extendModules { modules = [{ config.system.includeBuildDependencies = true; }]; })
+          .config.system.build.toplevel;
+      systems = inputs.nixpkgs.lib.mapAttrs (_: v: systemWithBuildDeps v) inputs.self.outputs.nixosConfigurations;
+      inputListFile = pkgs.writeText "input-list"
+        (builtins.concatStringsSep "\n" (builtins.attrValues inputs));
+      archive = pkgs.writeText "archive" (builtins.concatStringsSep "\n"
+        ((builtins.attrValues systems) ++ [ src inputListFile ]));
+    in
+    archive // { passthru = archive.passthru // systems // { inherit src; inputs = inputListFile; }; };
 }
 // (builtins.mapAttrs (_: v: v.config.system.build.toplevel) inputs.self.outputs.nixosConfigurations)
