@@ -1,0 +1,76 @@
+diff --git a/src/btop_config.cpp b/src/btop_config.cpp
+index eaaa577..3074a08 100644
+--- a/src/btop_config.cpp
++++ b/src/btop_config.cpp
+@@ -234,6 +234,7 @@ namespace Config {
+ 		{"custom_gpu_name4",	"#* Custom gpu4 model name, empty string to disable."},
+ 		{"custom_gpu_name5",	"#* Custom gpu5 model name, empty string to disable."},
+ 	#endif
++		{"btrfs_group_subvolumes", "#* Show only the first subvolume of a btrfs filesystem."},
+ 	};
+ 
+ 	std::unordered_map<std::string_view, string> strings = {
+@@ -336,6 +337,7 @@ namespace Config {
+ 	#endif
+ 		{"terminal_sync", true},
+-		{"save_config_on_exit", true}
++		{"save_config_on_exit", true},
++		{"btrfs_group_subvolumes", false},
+ 	};
+ 	std::unordered_map<std::string_view, bool> boolsTmp;
+ 
+diff --git a/src/btop_menu.cpp b/src/btop_menu.cpp
+index 75ec31c..cfaec39 100644
+--- a/src/btop_menu.cpp
++++ b/src/btop_menu.cpp
+@@ -724,6 +724,15 @@ namespace Menu {
+ 				"kernel as used memory.",
+ 				"",
+ 				"True or False."},
++			{
++				"btrfs_group_subvolumes",
++				"(Linux) Show only first BTRFS subvolume.",
++				"",
++				"Set to true to only show the first BTRFS",
++				"subvolume mounted per disk.",
++				"",
++				"True or False.",
++			}
+ 		},
+ 		{
+ 			{"graph_symbol_net",
+diff --git a/src/linux/btop_collect.cpp b/src/linux/btop_collect.cpp
+index eebaa50..37d5745 100644
+--- a/src/linux/btop_collect.cpp
++++ b/src/linux/btop_collect.cpp
+@@ -2117,6 +2117,7 @@ namespace Mem {
+ 				auto use_fstab = Config::getB("use_fstab");
+ 				auto only_physical = Config::getB("only_physical");
+ 				auto zfs_hide_datasets = Config::getB("zfs_hide_datasets");
++				auto btrfs_group_subvolumes = Config::getB("btrfs_group_subvolumes");
+ 				auto& disks = mem.disks;
+ 				static std::unordered_map<string, future<pair<disk_info, int>>> disks_stats_promises;
+ 				ifstream diskread;
+@@ -2177,6 +2178,7 @@ namespace Mem {
+ 					vector<string> found;
+ 					found.reserve(last_found.size());
+ 					string dev, mountpoint, fstype;
++					std::unordered_set<string> found_btrfs_subvolumes;
+ 					while (not diskread.eof()) {
+ 						std::error_code ec;
+ 						diskread >> dev >> mountpoint >> fstype;
+@@ -2198,6 +2200,14 @@ namespace Mem {
+ 						size_t zfs_dataset_name_start = 0;
+ 						if (fstype == "zfs" && (zfs_dataset_name_start = dev.find('/')) != std::string::npos && zfs_hide_datasets) continue;
+ 
++						//? skip BtrFS subvolumes
++						if (btrfs_group_subvolumes and fstype == "btrfs") {
++							string devname = fs::canonical(dev, ec).filename();
++							if (!found_btrfs_subvolumes.insert(devname).second) {
++								continue;
++							}
++						}
++
+ 						if ((not use_fstab and not only_physical)
+ 						or (use_fstab and v_contains(fstab, mountpoint))
+ 						or (not use_fstab and only_physical and v_contains(fstypes, fstype))) {

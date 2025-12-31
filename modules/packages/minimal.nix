@@ -14,7 +14,7 @@ inputs:
         # lsxx
         pciutils usbutils lshw util-linux lsof dmidecode lm_sensors hwloc acpica-tools ethtool
         # top
-        iotop iftop htop btop powertop s-tui
+        iotop iftop htop powertop s-tui
         # editor
         nano bat
         # downloader
