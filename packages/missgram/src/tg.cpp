@@ -5,6 +5,7 @@ std::optional<std::int32_t> missgram::tg_send
   (std::string text, std::optional<std::int32_t> replyId, std::vector<File> files)
 {
   using namespace biu::literals;
+  biu::Logger::Guard log;
 
   // 整理要发送的信息
   TgBot::Bot bot(config.TelegramBotToken);

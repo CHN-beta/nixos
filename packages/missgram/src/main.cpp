@@ -61,7 +61,7 @@ int main()
         std::string text;
         std::optional<std::uint32_t> reply_id;
         // 如果是转发，则直接写链接
-        if (!content.body.note->text)
+        if (!content.body.note->text && content.body.note->renote)
           text = "转发了[帖子]({}/notes/{})"_f(content.server, content.body.note->id);
         // 否则（引用或普通帖子）
         else
