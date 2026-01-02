@@ -1,6 +1,6 @@
 { inputs, localLib }:
 let
-  singles = [ "nas" "pc" "vps4" "vps6" "vps9" "r2s" ];
+  singles = [ "nas" "pc" "vps4" "vps6" "vps9" ];
   cluster = { srv1 = 3; srv2 = 3; };
   deviceModules = builtins.listToAttrs
   (
