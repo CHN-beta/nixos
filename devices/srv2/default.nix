@@ -12,7 +12,6 @@ inputs:
           vfat."/dev/disk/by-partlabel/${clusterName}-${nodeName}-boot" = "/boot";
           btrfs."/dev/disk/by-partlabel/${clusterName}-${nodeName}-root1" =
             { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
-          nfs."nas.ts.chn.moe:/" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
         };
         nixpkgs.cuda.capabilities =
         [
