@@ -6,5 +6,5 @@ if [ -f ~/.bashrc ]; then
 fi
 
 # User specific environment and startup programs
-export PATH=$PATH:$HOME/bin
+export PATH=/data/gpfs01/wlin/.nix/state/gcroots/current/bin:$HOME/bin:$PATH
 ulimit -s unlimited
