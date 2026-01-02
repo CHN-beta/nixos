@@ -47,7 +47,6 @@ inputs:
               host = host;
               hostname = "hpc.xmu.edu.cn";
               user = host;
-              setEnv.TERM = "chn_unset_ls_colors:xterm-256color";
             };
           })
           [ "wlin" "hwang" ])
