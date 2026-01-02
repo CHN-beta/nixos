@@ -5,10 +5,11 @@ let
     inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
     nixpkgs = { march = "haswell"; nixRoot = "/data/gpfs01/wlin/.nix"; nixos = false; };
   });
+  python = pkgs.python3.withPackages (ps: with ps; [ phonopy ]);
   wlin = pkgs.symlinkJoin
   {
     name = "wlin";
-    paths = with pkgs; [ gnuplot localPackages.vaspkit pv ];
+    paths = with pkgs; [ gnuplot localPackages.vaspkit pv python localPackages.vasp.intel ];
     postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
     passthru = { inherit pkgs; archive = pkgs.closureInfo { rootPaths = [ wlin.drvPath ]; }; };
   };
