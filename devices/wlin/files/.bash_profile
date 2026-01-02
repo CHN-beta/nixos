@@ -6,7 +6,5 @@ if [ -f ~/.bashrc ]; then
 fi
 
 # User specific environment and startup programs
-
-PATH=$PATH:$HOME/bin
-
-export PATH
+export PATH=$PATH:$HOME/bin
+ulimit -s unlimited
