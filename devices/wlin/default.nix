@@ -9,7 +9,7 @@ let
     nixpkgs = { march = "haswell"; nixRoot = "/data/gpfs01/wlin/.nix"; nixos = false; };
   });
   python = pkgs.python3.withPackages (ps: with ps; [ phonopy ]);
-  chn-bsub = pkgs.localPackages.chn-bsub.overrideAttrs
+  chn-bsub = pkgs.localPackages.chn-bsub.override
     (prev: { bsubConfig = builtins.toFile "bsub.yaml" (builtins.toJSON (import ./bsub.nix)); });
   wlin = pkgs.symlinkJoin
   {
@@ -20,6 +20,6 @@ let
       lsd
     ];
     postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
-    passthru = { inherit pkgs; archive = pkgs.closureInfo { rootPaths = [ wlin.drvPath ]; }; };
+    passthru = { inherit pkgs chn-bsub; archive = pkgs.closureInfo { rootPaths = [ wlin.drvPath ]; }; };
   };
 in wlin
