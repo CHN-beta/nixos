@@ -13,6 +13,7 @@ inputs:
             xmuhk = { host = "xmuhk"; hostname = "10.26.14.64"; user = "xmuhk"; };
             xmuhk2 = { host = "xmuhk2"; hostname = "183.233.219.132"; user = "xmuhk"; port = 62022; };
             jykang.setEnv.TERM = "chn_unset_ls_colors:chn_cd:linwei/chn:xterm-256color";
+            wlin.setEnv.TERM = "xterm-256color";
             "tinc0.jykang" = jykang;
           };
           extraConfig = inputs.lib.mkIf inputs.config.nixos.model.private
