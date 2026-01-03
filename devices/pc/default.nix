@@ -115,10 +115,17 @@ inputs:
     services.colord.enable = true;
     services.udev.extraRules =
     ''
+      # 禁止鼠标等在睡眠时唤醒
+      ACTION=="add", ATTR{power/wakeup}="disabled"
       # CPU降压
       SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${inputs.pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fff40"
     '';
-    # 解决有时蓝牙不能使用的问题
-    boot.kernelParams = [ "mt7925e.disable_aspm=1" ];
+    boot.kernelParams =
+    [
+      # 解决有时蓝牙不能使用的问题
+      "mt7925e.disable_aspm=1"
+      # 插拔电源和扩展坞不要唤醒电脑
+      "acpi.ec_no_wakeup=1"
+    ];
   };
 }
