@@ -3,7 +3,11 @@ inputs:
   config =
   {
     # only preserve the last 7 days of logs
-    services.journald.extraConfig = "MaxRetentionSec=7d";
+    services =
+    {
+      journald.extraConfig = "MaxRetentionSec=7d";
+      logind.settings.Login.HandleLidSwitch = "ignore";
+    };
     systemd =
     {
       settings.Manager =
