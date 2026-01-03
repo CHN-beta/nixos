@@ -1,4 +1,2 @@
-Queues:
-  normal: [ 4, 4, 20 ]
-  normal_1day: [ 4, 7, 28 ]
-
+normal: [ 4, 4, 20 ]
+normal_1day: [ 4, 7, 28 ]

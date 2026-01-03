@@ -35,9 +35,9 @@ int main()
 		}();
     std::string OutputFile = "output.txt";
   } State;
-	struct { std::map<std::string, std::array<int, 3>> Queues; } QueueConfig =
+	std::map<std::string, std::array<int, 3>> QueueConfig =
 		YAML::LoadFile(BSUB_CONFIG).as<decltype(QueueConfig)>();
-	State.QueueEntries = QueueConfig.Queues
+	State.QueueEntries = QueueConfig
 		| ranges::views::transform([](auto const& item) { return item.first; })
 		| ranges::to_vector;
 
@@ -140,7 +140,7 @@ int main()
         State.CurrentInterface = InterfaceType::Confirm;
         State.SubmitCommand = [&]
 				{
-					auto [nproc, nthr, ncpu] = QueueConfig.Queues.at(State.QueueEntries[State.QueueSelected]);
+					auto [nproc, nthr, ncpu] = QueueConfig.at(State.QueueEntries[State.QueueSelected]);
 					auto args = std::vector<std::string>
 					{
 						"bsub",
