@@ -10,14 +10,14 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 find_package(ftxui REQUIRED)
-find_package(Boost REQUIRED COMPONENTS filesystem iostreams)
-find_package(range-v3 REQUIRED)
 find_package(biu REQUIRED)
 
 add_executable(chn-bsub src/main.cpp)
 target_compile_features(chn-bsub PUBLIC cxx_std_23)
-target_link_libraries(chn-bsub PRIVATE fmt::fmt ftxui::screen ftxui::dom ftxui::component Boost::filesystem
-  range-v3::range-v3 biu::biu)
+target_link_libraries(chn-bsub PRIVATE ftxui::screen ftxui::dom ftxui::component biu::biu)
+if(BSUB_CONFIG)
+  target_compile_definitions(chn-bsub PRIVATE BSUB_CONFIG="${BSUB_CONFIG}")
+endif()
 
 install(TARGETS chn-bsub RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

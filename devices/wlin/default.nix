@@ -9,10 +9,13 @@ let
     nixpkgs = { march = "haswell"; nixRoot = "/data/gpfs01/wlin/.nix"; nixos = false; };
   });
   python = pkgs.python3.withPackages (ps: with ps; [ phonopy ]);
+  chn-bsub = pkgs.localPackages.chn-bsub.overrideAttrs
+    (prev: { bsubConfig = builtins.toFile "bsub.yaml" (builtins.toJSON (import ./bsub.nix)); });
   wlin = pkgs.symlinkJoin
   {
     name = "wlin";
-    paths = with pkgs; [ gnuplot localPackages.vaspkit pv python localPackages.vasp.intel ];
+    paths = with pkgs;
+      [ gnuplot localPackages.vaspkit pv python localPackages.vasp.intel chn-bsub hwloc ];
     postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
     passthru = { inherit pkgs; archive = pkgs.closureInfo { rootPaths = [ wlin.drvPath ]; }; };
   };
