@@ -92,7 +92,13 @@ inputs:
               mode = { width = 3840; height = 2160; refresh = 160.; };
             };
           };
-          input = { touchpad.dwt = true; keyboard.numlock = true; };
+          input =
+          {
+            touchpad.dwt = true;
+            keyboard.numlock = true;
+            power-key-handling.enable = false;
+            focus-follows-mouse.enable = true;
+          };
           layout =
           {
             default-column-width.proportion = 0.5;
