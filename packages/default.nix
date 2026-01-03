@@ -14,7 +14,11 @@ inputs: rec
   };
   v-sim = inputs.pkgs.callPackage ./v-sim.nix { src = inputs.topInputs.v-sim; };
   concurrencpp = inputs.pkgs.callPackage ./concurrencpp.nix { src = inputs.topInputs.concurrencpp; };
-  matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix { src = inputs.topInputs.matplotplusplus; };
+  matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix
+  {
+    src = inputs.topInputs.matplotplusplus;
+    stdenv = inputs.pkgs.clang18Stdenv;
+  };
   zpp-bits = inputs.pkgs.callPackage ./zpp-bits.nix { src = inputs.topInputs.zpp-bits; };
   nameof = inputs.pkgs.callPackage ./nameof.nix { src = inputs.topInputs.nameof; };
   pslist = inputs.pkgs.callPackage ./pslist.nix { src = inputs.topInputs.self.src.pslist; };
@@ -63,6 +67,7 @@ inputs: rec
     inherit nameof zpp-bits tgbot-cpp concurrencpp pocketfft;
     # TODO: report glaze bug to upstream
     inherit (inputs.pkgs.pkgs-2411) glaze;
+    stdenv = inputs.pkgs.clang18Stdenv;
     boost = (inputs.pkgs.boost188.override { extraB2Args = [ "boost.stacktrace.backtrace=on" ]; }).overrideAttrs
       (prev: { buildInputs = prev.buildInputs ++ [(inputs.pkgs.libbacktrace.override { enableStatic = true; })]; });
     fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
@@ -72,11 +77,12 @@ inputs: rec
   openxlsx = inputs.pkgs.callPackage ./openxlsx.nix { src = inputs.topInputs.openxlsx; };
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm.nix { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
-  sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
+  sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   ufo = inputs.pkgs.callPackage inputs.topInputs.ufo
   {
     inherit biu matplotplusplus;
     tbb = inputs.pkgs.tbb_2022;
+    stdenv = inputs.pkgs.clang18Stdenv;
   };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
   py4vasp = inputs.pkgs.python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; };
@@ -106,14 +112,14 @@ inputs: rec
     ];
   };
   stickerpicker = inputs.pkgs.python3Packages.callPackage ./stickerpicker.nix { src = inputs.topInputs.stickerpicker; };
-  info = inputs.pkgs.callPackage ./info { inherit biu; };
+  info = inputs.pkgs.callPackage ./info { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   blog = inputs.pkgs.callPackage inputs.topInputs.blog
   {
     inherit (inputs.topInputs) hextra;
     buildProxy = inputs.pkgs.lib.mkBuildproxy ./blog-buildproxy.nix;
   };
   phono3py = inputs.pkgs.python3Packages.callPackage ./phono3py.nix { src = inputs.topInputs.phono3py; };
-  vm = inputs.pkgs.callPackage ./vm { inherit biu; };
+  vm = inputs.pkgs.callPackage ./vm { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   oneapiPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
   {
     stdenv = inputs.pkgs.callPackage ./oneapi/stdenv.nix { src = inputs.topInputs.self.src.oneapi; inherit gccFull; };
@@ -131,14 +137,14 @@ inputs: rec
   speedtest = inputs.pkgs.callPackage ./speedtest.nix { src = inputs.topInputs.speedtest; };
   atat = inputs.pkgs.callPackage ./atat.nix { src = inputs.topInputs.self.src.atat; };
   atomkit = inputs.pkgs.callPackage ./atomkit.nix { src = inputs.topInputs.self.src.atomkit; };
-  xinli = inputs.pkgs.callPackage ./xinli { inherit biu; };
+  xinli = inputs.pkgs.callPackage ./xinli { inherit biu; stdenv = inputs.pkgs.clang18Stdenv; };
   pybinding = inputs.pkgs.pkgs-2411.python310Packages.callPackage ./pybinding
   {
     src = inputs.topInputs.pybinding;
     buildProxy = inputs.pkgs.lib.mkBuildproxy ./pybinding/proxy.nix;
   };
   brokenaxes = inputs.pkgs.python3Packages.callPackage ./brokenaxes.nix { src = inputs.topInputs.brokenaxes; };
-  missgram = inputs.pkgs.callPackage ./missgram { inherit biu sqlgen; };
+  missgram = inputs.pkgs.callPackage ./missgram { inherit biu sqlgen; stdenv = inputs.pkgs.clang18Stdenv; };
   sqlgen = inputs.pkgs.callPackage ./sqlgen.nix { src = inputs.topInputs.sqlgen; inherit reflectcpp; };
   reflectcpp = inputs.pkgs.callPackage ./reflectcpp.nix { src = inputs.topInputs.reflectcpp; };
   lsf = inputs.pkgs.callPackage ./lsf.nix { src = inputs.topInputs.self.src.lsf; };

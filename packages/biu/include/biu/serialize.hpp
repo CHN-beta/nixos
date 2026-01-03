@@ -15,3 +15,10 @@ namespace biu
   template <typename T> T deserialize(const std::string& serialized_data);
   template <typename T> T deserialize(const std::vector<std::byte>& serialized_data);
 }
+
+namespace std
+{
+  // TODO: remove at clang19
+  template <typename Complex> constexpr auto serialize(auto & archive, Complex& complex)
+    requires biu::SpecializationOf<std::remove_cvref_t<Complex>, std::complex>;
+}
