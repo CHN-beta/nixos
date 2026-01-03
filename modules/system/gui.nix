@@ -97,7 +97,7 @@ inputs:
             touchpad.dwt = true;
             keyboard.numlock = true;
             power-key-handling.enable = false;
-            focus-follows-mouse.enable = true;
+            focus-follows-mouse = { enable = true; max-scroll-amount="10%"; };
           };
           layout =
           {
