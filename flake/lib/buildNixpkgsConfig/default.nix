@@ -73,6 +73,11 @@ in platformConfig //
           { commandLineArgs = prev.commandLineArgs or "" + " --disable-features=GlobalShortcutsPortal"; });
         xray = prev.xray.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xray.patch ]; });
         btop = prev.btop.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./btop.patch ]; });
+        prrte = prev.prrte.overrideAttrs (prev:
+        {
+          configureFlags = prev.configureFlags or [] ++ [ "--with-lsf" ];
+          buildInputs = prev.buildInputs or [] ++ [ final.localPackages.lsf final.libnsl ];
+        });
       }
       // (
         let

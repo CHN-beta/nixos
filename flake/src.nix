@@ -211,4 +211,13 @@
       structuredExtraConfig = { BTRFS_ALLOCATOR_HINTS = lib.kernel.yes; BTRFS_READ_POLICIES = lib.kernel.yes; };
     };
   };
+  # download include from /opt/ibm/lsfsuite/lsf/10.1/include into lsf/include
+  # download lib from /opt/ibm/lsfsuite/lsf/10.1/linux2.6-glibc2.3-x86_64/lib into lsf/lib and only preserve .so
+  lsf = pkgs.requireFile
+  {
+    name = "lsf";
+    sha256 = "0rij4xx705yj1vr5jd31hb8izmb35vkrdql0850qc5cn30jnkf4l";
+    hashMode = "recursive";
+    message = "lsf not found.";
+  };
 }
