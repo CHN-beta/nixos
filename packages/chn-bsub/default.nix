@@ -1,10 +1,10 @@
-{ stdenv, cmake, pkg-config, ftxui, biu, bsubConfig ? null, lib }: stdenv.mkDerivation
+{ stdenv, cmake, pkg-config, ftxui, biu, bsubConfig ? null, lib, bash }: stdenv.mkDerivation
 {
   name = "chn-bsub";
   src = ./.;
   buildInputs = [ ftxui biu ];
   nativeBuildInputs = [ cmake pkg-config ];
   postInstall = "ln -s chn-bsub $out/bin/chn_bsub";
-  cmakeFlags = lib.optional (bsubConfig != null) [ "-DBSUB_CONFIG=${bsubConfig}" ];
+  cmakeFlags = [ "-DBSUB_SH=${bash}/bin/sh" ] ++ lib.optionals (bsubConfig != null) [ "-DBSUB_CONFIG=${bsubConfig}" ];
   passthru = { inherit bsubConfig; };
 }

@@ -8,6 +8,9 @@
 # ifndef BSUB_CONFIG
 #   define BSUB_CONFIG "./bsub.yaml"
 # endif
+# ifndef BSUB_SH
+#   define BSUB_SH "/bin/sh"
+# endif
 
 using namespace biu::literals;
 
@@ -166,8 +169,8 @@ int main()
         // 提交任务
         log.debug("submit command: {}"_f(State.SubmitCommand));
         // -c 对 \\n 的处理与通常情况下不同，我们需要用 -s 然后将命令通过标准输入传入
-        biu::exec<{.SearchPath = true, .Stdin = biu::IoType::String}>
-          ({.Program = "sh", .Args = { "-s"}, .Stdin = State.SubmitCommand});
+        biu::exec<{.Stdin = biu::IoType::String}>
+          ({.Program = BSUB_SH, .Args = { "-s"}, .Stdin = State.SubmitCommand});
         break;
       }
       else if (!State.UserCommand) return EXIT_FAILURE;
