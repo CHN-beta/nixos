@@ -65,7 +65,7 @@
     mirism-old = { url = "github:CHN-beta/mirism-old-public"; flake = false; };
     sqlgen = { url = "git+https://github.com/getml/sqlgen?submodules=1"; flake = false; };
     reflectcpp = { url = "git+https://github.com/getml/reflect-cpp?submodules=1"; flake = false; };
-    linux-asus = { url = "gitlab:asus-linux/linux-g14/6.18"; flake = false; };
+    linux-asus = { url = "github:CHN-beta/linux-g14/6.18"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in

@@ -668,18 +668,18 @@
     "linux-asus": {
       "flake": false,
       "locked": {
-        "lastModified": 1766306646,
-        "narHash": "sha256-xDjM8XkKOhIMTenpjjWuQFDSM3RBA/tPWNSbOd1MDdQ=",
-        "owner": "asus-linux",
+        "lastModified": 1767457777,
+        "narHash": "sha256-DCKTOfkJ0d1IkSwcSq0r/j45BvkBDcqXVmJAVYRFHSU=",
+        "owner": "CHN-beta",
         "repo": "linux-g14",
-        "rev": "35bffaf767dd85280adc54958038dbe9d8041d68",
-        "type": "gitlab"
+        "rev": "c02087ae1c3f9d24bdcf2b4b277ce0b4c9fd767c",
+        "type": "github"
       },
       "original": {
-        "owner": "asus-linux",
+        "owner": "CHN-beta",
         "ref": "6.18",
         "repo": "linux-g14",
-        "type": "gitlab"
+        "type": "github"
       }
     },
     "mac-style": {

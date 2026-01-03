@@ -70,13 +70,38 @@ inputs:
             asus = builtins.map
               (file:
               {
-                name = "asus-${file.name}";
-                patch = "${inputs.topInputs.linux-asus}/${file.name}";
+                name = "asus-${file}";
+                patch = "${inputs.topInputs.linux-asus}/${file}";
               })
-              (builtins.filter
-                (file: file.value == "regular" && inputs.lib.hasSuffix ".patch" file.name
-                  && !(inputs.lib.hasInfix "more-uarches" file.name))
-                (inputs.localLib.attrsToList (builtins.readDir "${inputs.topInputs.linux-asus}")));
+              [
+                # copy from PKGBUILD
+                "0001-platform-x86-asus-wmi-export-symbols-used-for-read-w.patch"
+                "0002-platform-x86-asus-armoury-move-existing-tunings-to-a.patch"
+                "0003-platform-x86-asus-armoury-add-panel_hd_mode-attribut.patch"
+                "0004-platform-x86-asus-armoury-add-apu-mem-control-suppor.patch"
+                "0005-platform-x86-asus-armoury-add-screen-auto-brightness.patch"
+                "0006-platform-x86-asus-wmi-deprecate-bios-features.patch"
+                "0007-platform-x86-asus-wmi-rename-ASUS_WMI_DEVID_PPT_FPPT.patch"
+                "0008-platform-x86-asus-armoury-add-ppt_-and-nv_-tuning-kn.patch"
+                "0001-platform-x86-asus-armoury-Fix-error-code-in-mini_led.patch"
+                "0002-platform-x86-asus-armoury-fix-mini-led-mode-show.patch"
+                "0003-platform-x86-asus-armoury-add-support-for-FA507UV.patch"
+                "0001-platform-x86-asus-armoury-fix-only-DC-tunables-being.patch"
+                "PATCH-v10-00-11-HID-asus-Fix-ASUS-ROG-Laptop-s-Keyboard-backlight-handling.patch"
+                "PATCH-v10-00-11-HID-asus-Fix-ASUS-ROG-Laptop-s-Keyboard-backlight-handling-id1-id2-pr_err.patch"
+                "0001-platform-x86-asus-wmi-fix-initializing-TUFs-keyboard.patch"
+                "0002-platform-x86-asus-armoury-add-keyboard-control-firmw.patch"
+                "0001-acpi-proc-idle-skip-dummy-wait.patch"
+                "PATCH-v5-00-11-Improvements-to-S5-power-consumption.patch"
+                "PATCH-asus-wmi-fixup-screenpad-brightness.patch"
+                "asus-patch-series.patch"
+                "0070-acpi-x86-s2idle-Add-ability-to-configure-wakeup-by-A.patch"
+                "0040-workaround_hardware_decoding_amdgpu.patch"
+                "0081-amdgpu-adjust_plane_init_off_by_one.patch"
+                "0084-enable-steam-deck-hdr.patch"
+                "sys-kernel_arch-sources-g14_files-0047-asus-nb-wmi-Add-tablet_mode_sw-lid-flip.patch"
+                "sys-kernel_arch-sources-g14_files-0048-asus-nb-wmi-fix-tablet_mode_sw_int.patch"
+              ];
           };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };
