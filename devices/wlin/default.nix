@@ -15,7 +15,10 @@ let
   {
     name = "wlin";
     paths = with pkgs;
-      [ gnuplot localPackages.vaspkit pv python localPackages.vasp.intel chn-bsub hwloc ];
+    [
+      gnuplot localPackages.vaspkit pv python localPackages.vasp.intel chn-bsub hwloc
+      lsd
+    ];
     postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
     passthru = { inherit pkgs; archive = pkgs.closureInfo { rootPaths = [ wlin.drvPath ]; }; };
   };
