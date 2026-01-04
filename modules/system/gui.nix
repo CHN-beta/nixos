@@ -80,6 +80,7 @@ inputs:
               "Mod+F".action.set-column-width= "100%";
               "Mod+R".action.switch-preset-column-width = {};
               "Mod+T".action.expand-column-to-available-width = {};
+              "Mod+Escape".action.power-off-monitors = {};
             };
           outputs =
           {
