@@ -38,6 +38,15 @@
             ];
           })
           nfs;
+        systemd.mounts = builtins.map
+          (mount:
+          {
+            where = mount.value.mountPoint or mount.value;
+            what = mount.name;
+            overrideStrategy = "asDropin";
+            mountConfig.ForceUnmount = true;
+          })
+          (builtins.filter (mount: mount.value.readOnly or false) (lib.attrsToList nfs));
         services.rpcbind.enable = true;
       }
       (lib.mkIf (builtins.any (mount: mount.mountBeforeSwitch or true) (builtins.attrValues nfs))
