@@ -78,10 +78,7 @@ in platformConfig //
           configureFlags = prev.configureFlags or [] ++ [ "--with-lsf" ];
           buildInputs = prev.buildInputs or [] ++ [ final.localPackages.lsf final.libnsl ];
         });
-        pkgsStatic = prev.pkgsStatic.overrideScope (final: prev:
-        {
-          cpptrace = prev.cpptrace.overrideAttrs (prev: { doCheck = false; });
-        });
+        cpptrace = prev.cpptrace.overrideAttrs (prev: { doCheck = !final.stdenv.hostPlatform.isStatic; });
       }
       // (
         let

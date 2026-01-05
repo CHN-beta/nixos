@@ -9,7 +9,7 @@ let
     nixpkgs = { march = "haswell"; nixRoot = "/data/gpfs01/wlin/.nix"; nixos = false; };
   });
   python = pkgs.python3.withPackages (ps: with ps; [ phonopy ]);
-  chn-bsub = pkgs.localPackages.chn-bsub.override
+  chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub.override
     (prev: { bsubConfig = builtins.toFile "bsub.yaml" (builtins.toJSON (import ./bsub.nix)); });
   wlin = pkgs.symlinkJoin
   {
