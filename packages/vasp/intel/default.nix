@@ -1,4 +1,4 @@
-{ stdenv, src, writeShellScriptBin, lib, rsync, which, wannier90, hdf5, mpi, mkl }:
+{ stdenv, src, writeShellScriptBin, lib, rsync, which, wannier90, hdf5, mpi, mkl, prrte }:
 let
   vasp = stdenv.mkDerivation
   {
@@ -26,7 +26,7 @@ let
   };
   wrapper = writeShellScriptBin "vasp-intel"
   ''
-    export PATH=${vasp}/bin:${mpi}/bin''${PATH:+:$PATH}
+    export PATH=${vasp}/bin:${mpi}/bin:${mpi.dev}/bin:${prrte}/bin:${prrte.dev}/bin''${PATH:+:$PATH}
 
     # set OMP_NUM_THREADS if SLURM_CPUS_PER_TASK is set
     if [ -z "$OMP_NUM_THREADS" ] && [ -n "$SLURM_CPUS_PER_TASK" ]; then
