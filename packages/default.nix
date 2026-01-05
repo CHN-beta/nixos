@@ -68,8 +68,7 @@ inputs: rec
     # TODO: report glaze bug to upstream
     inherit (inputs.pkgs.pkgs-2411) glaze;
     stdenv = inputs.pkgs.clang18Stdenv;
-    boost = (inputs.pkgs.boost188.override { extraB2Args = [ "boost.stacktrace.backtrace=on" ]; }).overrideAttrs
-      (prev: { buildInputs = prev.buildInputs ++ [(inputs.pkgs.libbacktrace.override { enableStatic = true; })]; });
+    boost = inputs.pkgs.boost188;
     fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
   };
   hpcstat = inputs.pkgs.callPackage ./hpcstat

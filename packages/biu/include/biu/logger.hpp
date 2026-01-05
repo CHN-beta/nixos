@@ -1,7 +1,5 @@
 # pragma once
 # include <map>
-# define BOOST_STACKTRACE_USE_BACKTRACE
-# include <boost/stacktrace.hpp>
 # include <biu/atomic.hpp>
 
 namespace biu
@@ -85,12 +83,6 @@ namespace biu
 			public: [[gnu::always_inline]] inline void error(const std::string& message) const;
 			public: [[gnu::always_inline]] inline void info(const std::string& message) const;
 			public: [[gnu::always_inline]] inline void debug(const std::string& message) const;
-
-			public: [[gnu::always_inline]] inline void print_exception
-			(
-				std::optional<std::pair<std::string, std::string>> type_and_message,
-				const boost::stacktrace::stacktrace& stacktrace
-			) const;
 		};
 		friend class Guard;
 

@@ -13,8 +13,7 @@ endif()
 
 find_package(magic_enum REQUIRED)
 find_package(fmt REQUIRED)
-find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem system process stacktrace_from_exception
-  stacktrace_backtrace)
+find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem system process)
 find_package(range-v3 REQUIRED)
 find_path(NAMEOF_INCLUDE_DIR nameof.hpp REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -22,13 +21,12 @@ set(HIGHFIVE_FIND_HDF5 Off)
 find_package(HighFive REQUIRED)
 find_path(ZPP_BITS_INCLUDE_DIR zpp_bits.h REQUIRED)
 find_package(TgBot REQUIRED)
-find_path(LIBBACKTRACE_INCLUDE_DIR backtrace.h REQUIRED)
-find_library(LIBBACKTRACE_LIBRARY NAMES backtrace REQUIRED)
 find_package(HDF5 REQUIRED)
 find_package(concurrencpp REQUIRED)
 find_path(POCKETFFT_INCLUDE_DIR pocketfft.h REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(glaze REQUIRED)
+find_package(cpptrace REQUIRED)
 
 add_library(biu src/common.cpp src/hdf5.cpp src/string.cpp)
 target_include_directories(biu PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -36,7 +34,7 @@ target_include_directories(biu PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_D
   ${LIBBACKTRACE_INCLUDE_DIR} ${POCKETFFT_INCLUDE_DIR})
 target_link_libraries(biu PUBLIC magic_enum::magic_enum fmt::fmt Boost::headers Boost::iostreams Boost::filesystem
   range-v3::range-v3 Eigen3::Eigen HighFive TgBot::TgBot ${LIBBACKTRACE_LIBRARY} hdf5::hdf5 concurrencpp::concurrencpp
-  yaml-cpp::yaml-cpp glaze::glaze Boost::process Boost::stacktrace_from_exception Boost::stacktrace_backtrace)
+  yaml-cpp::yaml-cpp glaze::glaze Boost::process cpptrace::cpptrace)
 target_compile_features(biu PUBLIC cxx_std_23)
 target_compile_options(biu PUBLIC -Wno-gnu-string-literal-operator-template)
 install(TARGETS biu EXPORT biuTargets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

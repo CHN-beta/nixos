@@ -5,6 +5,8 @@
 # include <biu/common.hpp>
 # include <biu/format.hpp>
 # include <boost/exception/diagnostic_information.hpp>
+# include <cpptrace/cpptrace.hpp>
+# include <cpptrace/from_current.hpp>
 
 namespace biu
 {
@@ -70,8 +72,12 @@ namespace biu
 		catch (...)
 		{
 			log.error(boost::current_exception_diagnostic_information());
-			log.print_exception
-				(std::nullopt, boost::stacktrace::stacktrace::from_current_exception());
+			if (auto&& lock = LoggerConfig_.lock(); lock->Level >= Logger::Level::Error)
+			{
+				static_assert(std::same_as<std::size_t, std::uint64_t>);
+				cpptrace::from_current_exception().print(*lock->Stream);
+				*lock->Stream << std::flush;
+			}
 		}
 	}
 
@@ -117,13 +123,13 @@ namespace biu
 		{
 			static_assert(std::same_as<std::size_t, std::uint64_t>);
 			auto time = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
-			boost::stacktrace::stacktrace stack;
+			auto frame = cpptrace::stacktrace::current(0, 1).frames[0];
 # 	ifdef BIU_LOGGER_SOURCE_ROOT
 			auto source_root = std::string_view(BIU_LOGGER_SOURCE_ROOT "/");
-			auto source_file = stack[0].source_file().starts_with(source_root) ?
-				stack[0].source_file().substr(source_root.size()) : stack[0].source_file();
+			auto source_file = frame.filename.starts_with(source_root) ?
+				frame.filename.substr(source_root.size()) : frame.filename;
 # 	else
-			auto source_file = stack[0].source_file();
+			auto source_file = frame.filename;
 # 	endif
 			*lock->Stream << "[ {:%T} {:02x} {:02} ] {} (at {}:{} {} )\n"_f
 			(
@@ -132,8 +138,8 @@ namespace biu
 				Indent_,
 				message,
 				source_file.empty() ? "??"s : source_file,
-				stack[0].source_line() == 0 ? "??"s : "{}"_f(stack[0].source_line()),
-				stack[0].name()
+				frame.line.has_value() ? "{}"_f(frame.line.value()) : "??"s,
+				frame.symbol
 			) << std::flush;
 		}
 	}
@@ -145,27 +151,6 @@ namespace biu
 	{
 		debug("return {} after {} ms."_f(std::forward<T>(value), get_time_ms()));
 		return std::forward<T>(value);
-	}
-
-	inline void Logger::Guard::print_exception
-	(
-		std::optional<std::pair<std::string, std::string>> type_and_message,
-		const boost::stacktrace::stacktrace& stacktrace
-	) const
-	{
-		if (type_and_message) log<Level::Error>("{}: {}"_f(type_and_message->first, type_and_message->second));
-		if (auto&& lock = LoggerConfig_.lock(); lock->Level >= Logger::Level::Error)
-		{
-			static_assert(std::same_as<std::size_t, std::uint64_t>);
-			for (auto frame : stacktrace)
-				*lock->Stream << "\tfrom {}:{} {}\n"_f
-				(
-					frame.source_file().empty() ? "??"s : frame.source_file(),
-					frame.source_line() == 0 ? "??"s : "{}"_f(frame.source_line()),
-					frame.name()
-				);
-			*lock->Stream << std::flush;
-		}
 	}
 
 	inline Atomic<std::map<std::size_t, std::size_t>> Logger::Threads_;
