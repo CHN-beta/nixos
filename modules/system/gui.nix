@@ -77,9 +77,9 @@ inputs:
               "Mod+Ctrl+C".action.spawn = [ "sh" "-c" "${xsel} -ob | ${wl-copy}" ];
               "Mod+Ctrl+V".action.spawn = [ "sh" "-c" "${wl-paste} -n | ${xsel} -ib" ];
               "Mod+S".action.screenshot = {};
-              "Mod+F".action.set-column-width= "100%";
-              "Mod+R".action.switch-preset-column-width = {};
-              "Mod+T".action.expand-column-to-available-width = {};
+              "Mod+F".action.switch-preset-column-width = {};
+              "Mod+T".action.spawn = [ "ghostty" ];
+              "Mod+B".action.spawn = [ "firefox" ];
               "Mod+Escape".action.power-off-monitors = {};
             };
           outputs =
@@ -103,7 +103,7 @@ inputs:
           layout =
           {
             default-column-width.proportion = 0.5;
-            preset-column-widths = [ { proportion =  0.33333; } { proportion =  0.5; } { proportion =  0.66667; } ];
+            preset-column-widths = [ { proportion = 0.5; } { proportion = 1.; } ];
           };
           spawn-at-startup =
           [
