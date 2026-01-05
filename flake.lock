@@ -1161,19 +1161,14 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1767530756,
-        "narHash": "sha256-8Li3OLnzc406/gOe+Sgu0bHoedzibvIJ77bk3/EOMqw=",
-        "owner": "CHN-beta",
-        "repo": "nixpkgs",
-        "rev": "d7f3d87456d890459fac2f3e3723340d60de10bb",
-        "type": "github"
+        "path": "nixpkgs",
+        "type": "path"
       },
       "original": {
-        "owner": "CHN-beta",
-        "ref": "nixos-25.11",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
+        "path": "nixpkgs",
+        "type": "path"
+      },
+      "parent": []
     },
     "nixvirt": {
       "inputs": {

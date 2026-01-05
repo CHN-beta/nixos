@@ -3,7 +3,8 @@
 
   inputs =
   {
-    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-25.11";
+    self.submodules = true;
+    nixpkgs.url = ./nixpkgs;
     nixpkgs-2505.url = "github:CHN-beta/nixpkgs/nixos-25.05";
     nixpkgs-2411.url = "github:CHN-beta/nixpkgs/nixos-24.11";
     nixpkgs-2311.url = "github:CHN-beta/nixpkgs/nixos-23.11";
