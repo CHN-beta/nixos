@@ -27,6 +27,8 @@ find_path(POCKETFFT_INCLUDE_DIR pocketfft.h REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(glaze REQUIRED)
 find_package(cpptrace REQUIRED)
+# on static build, cpptrace requires zlib
+find_library(ZLIB_LIBRARY NAMES z REQUIRED)
 
 add_library(biu src/common.cpp src/hdf5.cpp src/string.cpp)
 target_include_directories(biu PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -34,7 +36,7 @@ target_include_directories(biu PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_D
   ${LIBBACKTRACE_INCLUDE_DIR} ${POCKETFFT_INCLUDE_DIR})
 target_link_libraries(biu PUBLIC magic_enum::magic_enum fmt::fmt Boost::headers Boost::iostreams Boost::filesystem
   range-v3::range-v3 Eigen3::Eigen HighFive TgBot::TgBot ${LIBBACKTRACE_LIBRARY} hdf5::hdf5 concurrencpp::concurrencpp
-  yaml-cpp::yaml-cpp glaze::glaze Boost::process cpptrace::cpptrace)
+  yaml-cpp::yaml-cpp glaze::glaze Boost::process cpptrace::cpptrace ${ZLIB_LIBRARY})
 target_compile_features(biu PUBLIC cxx_std_23)
 target_compile_options(biu PUBLIC -Wno-gnu-string-literal-operator-template)
 install(TARGETS biu EXPORT biuTargets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
