@@ -63,13 +63,6 @@ namespace biu
 	}
 	inline Atomic<std::multimap<const void*, std::string_view>> Logger::Objects_;
 
-	template <typename FinalException> Logger::Exception<FinalException>::Exception(const std::string& message)
-	{
-		Logger::Guard log(message);
-		log.print_exception
-			(std::pair<std::string, std::string>(nameof::nameof_full_type<FinalException>(), message), Stacktrace_);
-	}
-
 	template <typename Function> inline void Logger::try_exec(Function&& function)
 	{
 		Logger::Guard log;

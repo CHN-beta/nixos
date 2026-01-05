@@ -53,15 +53,6 @@ namespace biu
 		// List of objects that is being monitored by ObjectMonitor, {address, type}
 		protected: static Atomic<std::multimap<const void*, std::string_view>> Objects_;
 
-		public: template <typename FinalException> class Exception : public std::exception
-		{
-			protected: const std::string Message_;
-			protected: const boost::stacktrace::stacktrace Stacktrace_;
-
-			public: explicit Exception(const std::string& message);
-			public: const char* what() const noexcept final {return Message_.c_str();}
-		};
-
 		public: template <typename Function> static void try_exec(Function&& function);
 
 		// Monitor the start and end of a function, as well as corresponding thread.
