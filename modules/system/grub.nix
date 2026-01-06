@@ -4,7 +4,6 @@ inputs:
   {
     type = types.nullOr (types.submodule { options =
     {
-      timeout = mkOption { type = types.int; default = 15; };
       windowsEntries = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
       # "efi" using efi, "efiRemovable" using efi with install grub removable, or dev path like "/dev/sda" using bios
       installDevice = mkOption { type = types.str; default = "efi"; };
@@ -15,9 +14,13 @@ inputs:
     (inputs.lib.mkMerge
     [
       # general settings
-      { boot.loader.grub = { enable = true; useOSProber = false; }; }
-      # grub timeout
-      { boot.loader.timeout = grub.timeout; }
+      {
+        boot.loader =
+        {
+          grub = { enable = true; useOSProber = false; };
+          timeout = if inputs.config.nixos.model.type == "desktop" then null else 15;
+        };
+      }
       # grub install
       {
         boot.loader =
