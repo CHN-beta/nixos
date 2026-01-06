@@ -57,16 +57,21 @@ inputs:
           "cron.gc_lfs" = { ENABLED = true; SCHEDULE = "@monthly"; NUMBER_TO_CHECK_PER_REPO = 0; };
         };
       };
-      anubis.instances.gitea.settings =
-      {
-        OG_PASSTHROUGH = true;
-        TARGET = "http://127.0.0.1:3002";
-        BIND_NETWORK = "tcp";
-        BIND = "127.0.0.1:3003";
-        WEBMASTER_EMAIL = "chn@chn.moe";
-        SERVE_ROBOTS_TXT = true;
-        METRICS_BIND = "/run/anubis/anubis-gitea/anubis-metrics.sock";
-      };
+      # prevent AI web crawlers
+      # https://her.esy.fun/posts/0031-how-i-protect-my-forgejo-instance-from-ai-web-crawlers/index.html
+      nginx.virtualHosts."https:${gitea.hostname}".locations."/".extraConfigPre =
+      ''
+        if ($http_user_agent ~* "git/|git-lfs/") {
+              set $bypass_cookie 1;
+        }
+        if ($cookie_Yogsototh_opens_the_door = "1") {
+              set $bypass_cookie 1;
+        }
+        if ($bypass_cookie != 1) {
+          add_header Content-Type text/html always;
+          return 418 '<script>document.cookie = "Yogsototh_opens_the_door=1; Path=/;"; window.location.reload();</script>';
+        }
+      '';
     };
     nixos =
     {
@@ -78,7 +83,7 @@ inputs:
       };
       services =
       {
-        nginx.https.${gitea.hostname}.location."/".proxy.upstream = "http://127.0.0.1:3003";
+        nginx.https.${gitea.hostname}.location."/".proxy.upstream = "http://127.0.0.1:3002";
         postgresql.instances.gitea = {};
       };
     };
