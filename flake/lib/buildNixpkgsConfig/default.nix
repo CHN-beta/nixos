@@ -79,6 +79,7 @@ in platformConfig //
           buildInputs = prev.buildInputs or [] ++ [ final.localPackages.lsf final.libnsl ];
         });
         cpptrace = prev.cpptrace.overrideAttrs (prev: { doCheck = !final.stdenv.hostPlatform.isStatic; });
+        typst = final.pkgs-2505.typst;
       }
       // (
         let
@@ -104,6 +105,7 @@ in platformConfig //
                 })
               ];
             };
+            pkgs-2505 = "nixpkgs-2505";
           };
           packages = name:
             let flakeSource = inputs.topInputs.${source.${name}.source or source.${name}};
