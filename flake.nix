@@ -3,7 +3,7 @@
 
   inputs =
   {
-    self.submodules = true;
+    self = { submodules = true; lfs = true; };
     nixpkgs.url = ./nixpkgs;
     nixpkgs-2505.url = "github:CHN-beta/nixpkgs/nixos-25.05";
     nixpkgs-2411.url = "github:CHN-beta/nixpkgs/nixos-24.11";
@@ -54,7 +54,6 @@
     pocketfft = { url = "github:mreineck/pocketfft"; flake = false; };
     blog = { url = "git+https://git.chn.moe/chn/blog-public.git?lfs=1"; flake = false; };
     vaspberry = { url = "github:Infant83/VASPBERRY"; flake = false; };
-    ufo = { url = "git+https://git.chn.moe/chn/ufo.git?lfs=1"; flake = false; };
     stickerpicker = { url = "github:maunium/stickerpicker"; flake = false; };
     fancy-motd = { url = "github:CHN-beta/fancy-motd"; flake = false; };
     mac-style = { url = "github:SergioRibera/s4rchiso-plymouth-theme?lfs=1"; flake = false; };

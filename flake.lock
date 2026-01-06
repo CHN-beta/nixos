@@ -1491,7 +1491,6 @@
         "sticker": "sticker",
         "stickerpicker": "stickerpicker",
         "tgbot-cpp": "tgbot-cpp",
-        "ufo": "ufo",
         "v-sim": "v-sim",
         "vaspberry": "vaspberry",
         "winapps": "winapps",
@@ -1775,24 +1774,6 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "type": "github"
-      }
-    },
-    "ufo": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1767597695,
-        "lfs": true,
-        "narHash": "sha256-JNCSBKjslaT4kjMCWCImN1iS9ZRwfCN4GpP7dWECdas=",
-        "ref": "refs/heads/main",
-        "rev": "19736049c9e117c642f3f0a5e81af5cf2a40b392",
-        "revCount": 86,
-        "type": "git",
-        "url": "https://git.chn.moe/chn/ufo.git"
-      },
-      "original": {
-        "lfs": true,
-        "type": "git",
-        "url": "https://git.chn.moe/chn/ufo.git"
       }
     },
     "v-sim": {

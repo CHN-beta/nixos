@@ -72,7 +72,7 @@ inputs: rec
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm.nix { src = inputs.topInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
   sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
-  ufo = inputs.pkgs.callPackage inputs.topInputs.ufo { inherit biu matplotplusplus; tbb = inputs.pkgs.tbb_2022; };
+  ufo = inputs.pkgs.callPackage ./ufo { inherit biu matplotplusplus; tbb = inputs.pkgs.tbb_2022; };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
   py4vasp = inputs.pkgs.python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; };
   pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.topInputs.pocketfft; };
