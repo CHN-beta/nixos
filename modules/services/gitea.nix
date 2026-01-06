@@ -59,22 +59,22 @@ inputs:
       };
       # prevent AI web crawlers
       # https://her.esy.fun/posts/0031-how-i-protect-my-forgejo-instance-from-ai-web-crawlers/index.html
-      nginx.virtualHosts."https:${gitea.hostname}".locations."/".extraConfigPre =
-      ''
-        if ($http_user_agent ~* "git/|git-lfs/") {
-          set $bypass_cookie 1;
-        }
-        if ($cookie_Yogsototh_opens_the_door = "1") {
-          set $bypass_cookie 1;
-        }
-        if ($request_method != "GET") {
-          set $bypass_cookie 1;
-        }
-        if ($bypass_cookie != 1) {
-          add_header Content-Type text/html always;
-          return 418 '<script>document.cookie = "Yogsototh_opens_the_door=1; Path=/;"; window.location.reload();</script>';
-        }
-      '';
+      # nginx.virtualHosts."https:${gitea.hostname}".locations."/".extraConfigPre =
+      # ''
+      #   if ($http_user_agent ~* "git/|git-lfs/") {
+      #     set $bypass_cookie 1;
+      #   }
+      #   if ($cookie_Yogsototh_opens_the_door = "1") {
+      #     set $bypass_cookie 1;
+      #   }
+      #   if ($request_method != "GET") {
+      #     set $bypass_cookie 1;
+      #   }
+      #   if ($bypass_cookie != 1) {
+      #     add_header Content-Type text/html always;
+      #     return 418 '<script>document.cookie = "Yogsototh_opens_the_door=1; Path=/;"; window.location.reload();</script>';
+      #   }
+      # '';
     };
     nixos =
     {
