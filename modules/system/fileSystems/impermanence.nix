@@ -69,6 +69,8 @@ inputs:
         "bin" "Desktop" "Documents" "Downloads" "Music" "Pictures" "repo" "share" "Public" "Videos" ".config"
         ".local" ".ecdata" { directory = ".mozilla/firefox/default"; mode = "0700"; } ".steam" ".zotero"
         "Zotero" ".thunderbird"
+        # dms 将剪贴板历史数据和主题的一些设置存放在这里
+        ".cache/dms-clipboard" ".cache/DankMaterialShell"
       ];
     })
     # 对于集群的工作节点，挂载一些本来由 home-manager 生成的文件，以及一些用来存放 home-manager 生成文件的目录
