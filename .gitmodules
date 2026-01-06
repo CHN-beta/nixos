@@ -1,6 +1,0 @@
-[submodule "nixpkgs"]
-	path = nixpkgs
-	url = https://github.com/CHN-beta/nixpkgs.git
-[submodule "packages/ufo"]
-	path = packages/ufo
-	url = https://git.chn.moe/chn/ufo.git

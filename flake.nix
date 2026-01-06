@@ -3,8 +3,7 @@
 
   inputs =
   {
-    self = { submodules = true; lfs = true; };
-    nixpkgs.url = ./nixpkgs;
+    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-25.11";
     nixpkgs-2505.url = "github:CHN-beta/nixpkgs/nixos-25.05";
     nixpkgs-2411.url = "github:CHN-beta/nixpkgs/nixos-24.11";
     nixpkgs-2311.url = "github:CHN-beta/nixpkgs/nixos-23.11";
@@ -66,6 +65,7 @@
     sqlgen = { url = "git+https://github.com/getml/sqlgen?submodules=1"; flake = false; };
     reflectcpp = { url = "git+https://github.com/getml/reflect-cpp?submodules=1"; flake = false; };
     linux-asus = { url = "github:CHN-beta/linux-g14/6.18"; flake = false; };
+    ufo = { url = "git+https://git.chn.moe/chn/ufo.git?lfs=1"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in

@@ -1161,14 +1161,19 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "path": "nixpkgs",
-        "type": "path"
+        "lastModified": 1767694262,
+        "narHash": "sha256-xpFtS6JGpwaDVqXWEYDfoLb05oLEAL1VE2GF9x8smDk=",
+        "owner": "CHN-beta",
+        "repo": "nixpkgs",
+        "rev": "ae0b0157cbfee59adb0d6211ea6e47299a173cd5",
+        "type": "github"
       },
       "original": {
-        "path": "nixpkgs",
-        "type": "path"
-      },
-      "parent": []
+        "owner": "CHN-beta",
+        "ref": "nixos-25.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
     },
     "nixvirt": {
       "inputs": {
@@ -1491,6 +1496,7 @@
         "sticker": "sticker",
         "stickerpicker": "stickerpicker",
         "tgbot-cpp": "tgbot-cpp",
+        "ufo": "ufo",
         "v-sim": "v-sim",
         "vaspberry": "vaspberry",
         "winapps": "winapps",
@@ -1774,6 +1780,24 @@
         "owner": "numtide",
         "repo": "treefmt-nix",
         "type": "github"
+      }
+    },
+    "ufo": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767597695,
+        "lfs": true,
+        "narHash": "sha256-JNCSBKjslaT4kjMCWCImN1iS9ZRwfCN4GpP7dWECdas=",
+        "ref": "refs/heads/main",
+        "rev": "19736049c9e117c642f3f0a5e81af5cf2a40b392",
+        "revCount": 86,
+        "type": "git",
+        "url": "https://git.chn.moe/chn/ufo.git"
+      },
+      "original": {
+        "lfs": true,
+        "type": "git",
+        "url": "https://git.chn.moe/chn/ufo.git"
       }
     },
     "v-sim": {
