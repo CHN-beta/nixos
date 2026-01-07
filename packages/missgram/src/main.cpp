@@ -39,7 +39,6 @@ int main()
               struct Renote { std::string id; };
               std::optional<Renote> renote;
               bool localOnly;
-              struct File { bool isSensitive; std::string url; std::string type; };
               std::vector<File> files;
             };
             std::optional<Note> note;
@@ -66,7 +65,7 @@ int main()
         // 否则（引用或普通帖子）
         else
         {
-          text = *content.body.note->text;
+          text = content.body.note->text.value_or("");
           // 如果有引用，则需要查找被引用的帖子是否已经被转发过，若是则直接回复被转发的消息。
           // 如果没有被转发过，则在开头附上链接
           if (content.body.note->renote)
@@ -82,21 +81,9 @@ int main()
           text += "\n[在联邦宇宙查看]({}/notes/{})"_f(content.server, content.body.note->id);
         }
 
-        // 接下来整理要转发的文件
-        auto files = content.body.note->files | ranges::views::transform([](auto&& file) -> File
-        {
-          return File
-          {
-            .url = file.url,
-            .is_photo = file.type.starts_with("image/"),
-            .should_hidden = file.isSensitive
-          };
-        }) | ranges::to_vector;
-
-        log();
-
         // 异步发送消息
-        std::thread([text, note_id = content.body.note->id, reply_id, files]
+        std::thread([text, note_id = content.body.note->id, reply_id,
+          files = content.body.note->files]
         {
           auto message_id = tg_send(text, reply_id, files);
           if (message_id) db_write(note_id, *message_id);

@@ -10,7 +10,7 @@ namespace missgram
     std::int16_t ServerPort;
     std::string dbPassword;
   } inline config;
-  struct File { std::string url; bool is_photo; bool should_hidden; };
+  struct File { std::string name, url, type; bool isSensitive; };
 
   void db_write(std::string misskey_note, std::int32_t telegram_message_id);
   std::optional<std::int32_t> db_read(std::string misskey_note);
