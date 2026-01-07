@@ -21,7 +21,10 @@ inputs:
           swap = [ "/dev/mapper/swap" ];
           # TODO: snapshot should take place just before switching root
           rollingRootfs.waitDevices =
-            [ "/dev/mapper/root2" "/dev/mapper/root3" "/dev/mapper/root4" "/dev/mapper/ssd1" "/dev/mapper/ssd2" ];
+          [
+            "/dev/mapper/root2" "/dev/mapper/root3" "/dev/mapper/root4" "/dev/mapper/root5"
+            "/dev/mapper/ssd1" "/dev/mapper/ssd2"
+          ];
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";

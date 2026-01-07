@@ -7,6 +7,7 @@ let devices =
     "/dev/disk/by-partlabel/nas-root2".mapper = "root2";
     "/dev/disk/by-partlabel/nas-root3" = { mapper = "root3"; ssd = true; };
     "/dev/disk/by-partlabel/nas-root4" = { mapper = "root4"; ssd = true; };
+    "/dev/disk/by-partlabel/nas-root5".mapper = "root5";
     "/dev/disk/by-partlabel/nas-swap" = { mapper = "swap"; ssd = true; };
     "/dev/disk/by-partlabel/nas-ssd1" = { mapper = "ssd1"; ssd = true; };
     "/dev/disk/by-partlabel/nas-ssd2" = { mapper = "ssd2"; ssd = true; };
