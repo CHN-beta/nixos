@@ -71,6 +71,10 @@ inputs:
               "Mod+WheelScrollUp" = { action.focus-column-left = {}; cooldown-ms = 50; };
               "Mod+Left".action.focus-column-left = {};
               "Mod+Right".action.focus-column-right = {};
+              "Ctrl+Mod+Left".action.move-column-left = {};
+              "Ctrl+Mod+Right".action.move-column-right = {};
+              "Mod+Up".action.focus-workspace-up = {};
+              "Mod+Down".action.focus-workspace-down = {};
               "Mod+MouseMiddle".action.close-window = {};
               "Mod+L".action.spawn = [ "dms" "ipc" "lock" "lock" ];
               "Mod+W".action.move-workspace-to-monitor-next = {};
