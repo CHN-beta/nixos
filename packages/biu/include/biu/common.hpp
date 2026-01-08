@@ -19,7 +19,7 @@ namespace biu
   namespace common
   {
     std::size_t hash(auto&&... objs);
-    [[gnu::always_inline]] void unused(auto&&...);
+    [[gnu::always_inline]] inline void unused(auto&&...);
     [[noreturn]] void block_forever();
 
     bool is_interactive();

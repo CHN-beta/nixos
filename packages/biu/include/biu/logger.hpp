@@ -41,10 +41,10 @@ namespace biu
 			protected: const std::chrono::time_point<std::chrono::steady_clock> CreateTime_;
 
 			// call log<Debug>("create {type} at {address}.");
-			protected: [[gnu::always_inline]] ObjectMonitor();
+			protected: [[gnu::always_inline]] inline ObjectMonitor();
 
 			// call log<Debug>("destroy {type} at {address} after {duration} ms.");
-			protected: [[gnu::always_inline]] virtual ~ObjectMonitor();
+			protected: [[gnu::always_inline]] inline virtual ~ObjectMonitor();
 		};
 		template <typename T> friend class ObjectMonitor;
 
@@ -65,7 +65,7 @@ namespace biu
 
 			// if sizeof...(Param) > 0, call log<Debug>("begin function with {arguments}.");
 			// else call log<Debug>("begin function.");
-			public: template <typename... Param> [[gnu::always_inline]] explicit Guard(Param&&... param);
+			public: template <typename... Param> [[gnu::always_inline]] inline explicit Guard(Param&&... param);
 
 			// call log<Debug>("end function after {duration} ms.")
 			public: [[gnu::always_inline]] inline virtual ~Guard();
@@ -74,12 +74,12 @@ namespace biu
 			public: [[gnu::always_inline]] inline void operator()() const;
 
 			// call log<Debug>("return {return} after {duration} ms.")
-			public: template <typename T> [[gnu::always_inline]] T rtn(T&& value) const;
+			public: template <typename T> [[gnu::always_inline]] inline T rtn(T&& value) const;
 
 			// print the following message if LoggerConfig_ is set and the level is higher than the level of the
 			// LoggerConfig_
 			// [ {time} {thread} {indent} {filename}:{line} {function_name} ] {message}
-			public: template <Level L> [[gnu::always_inline]] void log(const std::string& message) const;
+			public: template <Level L> [[gnu::always_inline]] inline void log(const std::string& message) const;
 			public: [[gnu::always_inline]] inline void error(const std::string& message) const;
 			public: [[gnu::always_inline]] inline void info(const std::string& message) const;
 			public: [[gnu::always_inline]] inline void debug(const std::string& message) const;
