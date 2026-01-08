@@ -103,7 +103,6 @@ std::optional<std::int32_t> missgram::tg_send
     return j.dump();
   }()});
 
-  items.push_back({"disable_notification", "True"});
   httplib::Client cli("https://api.telegram.org");
   auto result = cli.Post("/bot{}/{}"_f(config.TelegramBotToken, method), items);
   log.debug("{} {} {}"_f(result->status, result->body, result->headers));
