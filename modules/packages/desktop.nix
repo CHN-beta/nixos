@@ -15,7 +15,7 @@ inputs:
         [
           # system management
           # TODO: module should add yubikey-touch-detector into path
-          gparted wayland-utils clinfo mesa-demos vulkan-tools dracut yubikey-touch-detector btrfs-assistant snapper-gui
+          gparted wayland-utils clinfo mesa-demos vulkan-tools dracut yubikey-touch-detector btrfs-assistant
           cpu-x wl-mirror geekbench xpra
           (
             writeShellScriptBin "xclip"
@@ -60,19 +60,15 @@ inputs:
           # matplot++ needs old gnuplot
           pkgs-2311.gnuplot
           # math, physics and chemistry
-          octaveFull ovito localPackages.vesta localPackages.v-sim jmol mpi geogebra6 localPackages.ufo
+          octaveFull ovito localPackages.vesta localPackages.v-sim mpi geogebra6 localPackages.ufo
           (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; })
-          pkgs-2311.hdfview numbat qalculate-qt
-          # virtualization
-          virt-viewer bottles wineWowPackages.stagingFull genymotion playonlinux
+          pkgs-2311.hdfview
           # media
           nur-xddxdd.svp
           # for kdenlive auto subtitle
           openai-whisper
           # daily management
-          activitywatch super-productivity
-          # game
-          lutris
+          super-productivity
         ];
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
