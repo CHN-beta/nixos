@@ -54,7 +54,7 @@ std::optional<std::int32_t> missgram::tg_send
   {
     method = "sendMessage";
     items.push_back({"text", text});
-    items.push_back({"parse_mode", "MarkdownV2"});
+    items.push_back({"parse_mode", "Markdown"});
     items.push_back({"link_preview_options",
       []{ nlohmann::json j; j["is_disabled"] = true; return j.dump(); }()});
   }
@@ -68,7 +68,7 @@ std::optional<std::int32_t> missgram::tg_send
       file_contents[0], files[0].name, files[0].type
     });
     items.push_back({"caption", text});
-    items.push_back({"parse_mode", "MarkdownV2"});
+    items.push_back({"parse_mode", "Markdown"});
     if (is_photo && files[0].isSensitive) items.push_back({"has_spoiler", "True"});
   }
   else
@@ -87,7 +87,7 @@ std::optional<std::int32_t> missgram::tg_send
       else params["type"] = "document";
       params["media"] = "attach://media-{}"_f(file.first);
       log.debug("Prepared media {}: {}"_f(file.first, params.dump()));
-      if (file.first == 0) { params["caption"] = text; params["parse_mode"] = "MarkdownV2"; }
+      if (file.first == 0) { params["caption"] = text; params["parse_mode"] = "Markdown"; }
       return params;
     }) | ranges::to_vector;
     items.push_back({"media", media_group.dump()});
