@@ -18,9 +18,10 @@ inputs:
               "/dev/mapper/tf1" =
               {
                 "/" = "/nix/tf";
-                "/nix/remote/jykang" = "/data/gpfs01/jykang/.nix";
                 "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
+                "/nix/remote/jykang" = "/data/gpfs01/jykang/.nix";
                 "/nix/remote/wlin" = "/data/gpfs01/wlin/.nix";
+                "/nix/remote/hwang" = "/data/gpfs01/hwang/.nix";
               };
             };
             nfs."nas.ts.chn.moe:/" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };

@@ -29,6 +29,7 @@
   jykang = import ../devices/jykang { inherit inputs localLib; };
   wlin = import ../devices/wlin { inherit inputs localLib; };
   xmuhk = import ../devices/xmuhk { inherit inputs localLib; };
+  hwang = import ../devices/hwang { inherit inputs localLib; };
   src =
     let getDrv = x:
       if pkgs.lib.isDerivation x then [ x ]
