@@ -26,8 +26,7 @@ inputs:
           [
             "github.copilot" "github.copilot-chat" "github.github-vscode-theme"
             "intellsmi.comment-translate"
-            "ms-vscode.cmake-tools" "ms-vscode.cpptools-extension-pack" "ms-vscode.hexeditor"
-            "ms-vscode.remote-explorer"
+            "ms-vscode.hexeditor" "ms-vscode.remote-explorer"
             "ms-vscode-remote.remote-ssh"
             "donjayamanne.githistory" "fabiospampinato.vscode-diff"
             "llvm-vs-code-extensions.vscode-clangd" "ms-ceintl.vscode-language-pack-zh-hans"
@@ -65,6 +64,9 @@ inputs:
             "ms-toolsai.datawrangler"
             # nushell
             "TheNuProjectContributors.vscode-nushell-lang"
+            # C/C++
+            "ms-vscode.cmake-tools" "ms-vscode.cpptools-extension-pack" "ms-vscode.cpptools" "coolchyni.beyond-debug"
+            "vadimcn.vscode-lldb"
           ];
           keybindings =
           [
