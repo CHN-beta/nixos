@@ -337,6 +337,8 @@ inputs:
             "tinymist.preview.partialRendering" = false;
             "tinymist.preview.refresh" = "onSave";
             "workbench.secondarySideBar.defaultVisibility" = "hidden";
+            # disable terminal suggestions
+            "terminal.integrated.suggest.enabled" = false;
           };
         };
       };
