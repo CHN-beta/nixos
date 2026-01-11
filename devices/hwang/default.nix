@@ -11,7 +11,7 @@ let
   hwang = pkgs.symlinkJoin
   {
     name = "hwang";
-    paths = with pkgs; [ pv localPackages.vasp.intel glibc ];
+    paths = with pkgs; [ pv localPackages.vasp.intel glibc localPackages.vaspkit ];
     postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
     passthru = { inherit pkgs; archive = pkgs.closureInfo { rootPaths = [ hwang.drvPath ]; }; };
   };
