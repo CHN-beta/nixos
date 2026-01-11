@@ -5,6 +5,7 @@ struct Record { std::string misskey_note; std::int32_t telegram_message_id; };
 
 void missgram::db_write(std::string misskey_note, std::int32_t telegram_message_id)
 {
+  biu::Logger::Guard log(misskey_note, telegram_message_id);
   auto&& conn = sqlgen::postgres::connect
     ({.user = "missgram", .password = config.dbPassword, .host = "127.0.0.1", .dbname = "missgram"});
   sqlgen::write(conn, Record{misskey_note, telegram_message_id});
@@ -12,6 +13,7 @@ void missgram::db_write(std::string misskey_note, std::int32_t telegram_message_
 
 std::optional<std::int32_t> missgram::db_read(std::string misskey_note)
 {
+  biu::Logger::Guard log(misskey_note);
   using namespace sqlgen::literals;
   auto&& conn = sqlgen::postgres::connect
     ({.user = "missgram", .password = config.dbPassword, .host = "127.0.0.1", .dbname = "missgram"});

@@ -56,36 +56,38 @@ int main()
             || content.body.note->visibility != "public" || content.body.note->localOnly // 只转发公开的、允许联合的帖子
         ) return;
 
-        // 接下来准备要转发的文字内容
+        // 如果是转发/回复/引用，需要检查被回复或者被引用的帖子是否已经被转发过
+        bool is_forward = !content.body.note->text && content.body.note->renote;
+        bool is_renote = content.body.note->text && content.body.note->renote;
+        bool is_reply = content.body.note->replyId.has_value();
+        std::optional<std::uint32_t> tg_reply_id;
+        bool fond_renote = false, found_reply = false;
+        if (is_reply)
+          { tg_reply_id = db_read(*content.body.note->replyId); found_reply = tg_reply_id.has_value(); }
+        else if (is_forward || is_renote)
+          { tg_reply_id = db_read(content.body.note->renote->id); fond_renote = tg_reply_id.has_value(); }
+
+        // 接下来准备要回复的文本内容
         std::string text;
-        std::optional<std::uint32_t> reply_id;
-        // 如果是转发，则直接写链接
-        if (!content.body.note->text && content.body.note->renote)
-          text = "转发了[帖子]({}/notes/{})"_f(content.server, content.body.note->id);
+        if (is_forward)  // 如果是转发帖子
+          if (fond_renote) text = "转发了自己的帖子。\n";
+          else text = "转发了[帖子]({}/notes/{})"_f(content.server, content.body.note->id);
         // 否则（引用或普通帖子）
         else
         {
           text = content.body.note->text.value_or("");
-          // 如果有引用，则需要查找被引用的帖子是否已经被转发过，若是则直接回复被转发的消息。
-          // 如果没有被转发过，则在开头附上链接
-          if (content.body.note->renote)
-          {
-            reply_id = db_read(content.body.note->renote->id);
-            if (!reply_id)
-              text = "引用了[帖子]({}/notes/{})\n"_f(content.server, content.body.note->renote->id) + text;
-          }
-          // 检查是否是回复帖子，若是则在开头附上链接原帖链接。我一般不直接回复自己的帖子，所以这里不检查
-          if (content.body.note->replyId)
+          if (is_renote && !fond_renote)
+            text = "引用了[帖子]({}/notes/{})\n"_f(content.server, content.body.note->renote->id) + text;
+          if (is_reply && !found_reply)
             text = "回复了[帖子]({}/notes/{})\n"_f(content.server, *content.body.note->replyId) + text;
-          // 最后附上原贴地址
           text += "\n[在联邦宇宙查看]({}/notes/{})"_f(content.server, content.body.note->id);
         }
 
         // 异步发送消息
-        std::thread([text, note_id = content.body.note->id, reply_id,
+        std::thread([text, note_id = content.body.note->id, tg_reply_id,
           files = content.body.note->files]
         {
-          auto message_id = tg_send(text, reply_id, files);
+          auto message_id = tg_send(text, tg_reply_id, files);
           if (message_id) db_write(note_id, *message_id);
         }).detach();
 

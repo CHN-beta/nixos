@@ -22,7 +22,7 @@ inputs:
           Group = inputs.config.users.users.missgram.group;
           ExecStart =
             let forwarder = inputs.pkgs.localPackages.missgram.override
-              { configFile = inputs.config.nixos.system.sops.templates."missgram/config.yml".path; };
+              { configFile = inputs.config.nixos.system.sops.templates."missgram/config.yaml".path; };
             in "${forwarder}/bin/missgram";
         };
       };
@@ -36,7 +36,7 @@ inputs:
       };
       system.sops =
       {
-        templates."missgram/config.yml" =
+        templates."missgram/config.yaml" =
         {
           owner = "missgram";
           content =

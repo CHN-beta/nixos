@@ -96,12 +96,7 @@ std::optional<std::int32_t> missgram::tg_send
   }
   items.push_back({"chat_id", std::to_string(config.TelegramChatId)});
   if (replyId) items.push_back({"reply_parameters", [&]
-  {
-    nlohmann::json j;
-    j["message_id"] = *replyId;
-    j["chat_id"] = config.TelegramChatId;
-    return j.dump();
-  }()});
+    { nlohmann::json j; j["message_id"] = *replyId; return j.dump(); }()});
 
   httplib::Client cli("https://api.telegram.org");
   auto result = cli.Post("/bot{}/{}"_f(config.TelegramBotToken, method), items);
