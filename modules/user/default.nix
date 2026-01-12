@@ -86,7 +86,7 @@ inputs:
               isNormalUser = true;
               shell = inputs.pkgs.zsh;
               createHome = true;
-              extraGroups = inputs.lib.intersectLists [ "users" "video" "audio" ]
+              extraGroups = inputs.lib.intersectLists [ "users" "video" "audio" "i2c" ]
                 (builtins.attrNames inputs.config.users.groups);
               # ykman fido credentials list
               # ykman fido credentials delete f2c1ca2d
