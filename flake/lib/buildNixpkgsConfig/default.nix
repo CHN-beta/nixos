@@ -1,4 +1,4 @@
-# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixRoot, nixos, arch, rocm };
+# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixRoot, nixos, arch, rocm, isKernel310 };
 { inputs, nixpkgs }:
 let
   platformConfig =
@@ -158,6 +158,27 @@ in platformConfig //
         {
           picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
         })];
+      })
+      // (inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
+      {
+        linuxHeaders = prev.linuxHeaders.overrideAttrs (prev:
+        {
+          version = "3.10.108";
+          src = final.fetchurl
+          {
+            url = "mirror://kernel/linux/kernel/v3.x/linux-3.10.108.tar.xz";
+            hash = "sha256-OEnqgRlRf2BfnVPFfdbFOa+NWEwvHZAx9PVig680CaU=";
+          };
+          buildPhase =
+          ''
+            make defconfig $makeFlags
+            make headers_install $makeFlags
+          '';
+        });
+        openssl = prev.openssl.override { enableKTLS = false; };
+        gnutls = prev.gnutls.overrideAttrs
+          (prev: { configureFlags = inputs.lib.remove "--enable-ktls" (prev.configureFlags or []); });
+        ftxui = prev.ftxui.overrideAttrs (prev: { nativeBuildInputs = [ final.cmake ]; });
       })
   )];
 }
