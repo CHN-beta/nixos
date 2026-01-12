@@ -3,7 +3,10 @@
 # include <nlohmann/json.hpp>
 
 std::optional<std::int32_t> missgram::tg_send
-  (std::string text, std::optional<std::int32_t> replyId, std::vector<File> files)
+(
+  std::string text, std::optional<std::int32_t> replyId, std::vector<File> files,
+  std::optional<std::string> preview_url
+)
 {
   using namespace biu::literals;
   biu::Logger::Guard log;
@@ -55,8 +58,12 @@ std::optional<std::int32_t> missgram::tg_send
     method = "sendMessage";
     items.push_back({"text", text});
     items.push_back({"parse_mode", "Markdown"});
-    items.push_back({"link_preview_options",
-      []{ nlohmann::json j; j["is_disabled"] = true; return j.dump(); }()});
+    items.push_back({"link_preview_options", [&]
+    {
+      nlohmann::json j;
+      if (preview_url) j["url"] = *preview_url; else j["is_disabled"] = true;
+      return j.dump();
+    }()});
   }
   else if (files.size() == 1)
   {

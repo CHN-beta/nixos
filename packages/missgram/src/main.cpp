@@ -62,10 +62,14 @@ int main()
         bool is_reply = content.body.note->replyId.has_value();
         std::optional<std::uint32_t> tg_reply_id;
         bool fond_renote = false, found_reply = false;
+        std::optional<std::string> preview_url;
         if (is_reply)
           { tg_reply_id = db_read(*content.body.note->replyId); found_reply = tg_reply_id.has_value(); }
         else if (is_forward || is_renote)
           { tg_reply_id = db_read(content.body.note->renote->id); fond_renote = tg_reply_id.has_value(); }
+        if (is_reply && !found_reply) preview_url = "{}/notes/{}"_f(content.server, *content.body.note->replyId);
+        else if ((is_forward || is_renote) && !fond_renote)
+          preview_url = "{}/notes/{}"_f(content.server, content.body.note->renote->id);
 
         // 接下来准备要回复的文本内容
         std::string text;
@@ -85,9 +89,9 @@ int main()
 
         // 异步发送消息
         std::thread([text, note_id = content.body.note->id, tg_reply_id,
-          files = content.body.note->files]
+          files = content.body.note->files, preview_url]
         {
-          auto message_id = tg_send(text, tg_reply_id, files);
+          auto message_id = tg_send(text, tg_reply_id, files, preview_url);
           if (message_id) db_write(note_id, *message_id);
         }).detach();
 

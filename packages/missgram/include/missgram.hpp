@@ -15,5 +15,9 @@ namespace missgram
   void db_write(std::string misskey_note, std::int32_t telegram_message_id);
   std::optional<std::int32_t> db_read(std::string misskey_note);
 
-  std::optional<std::int32_t> tg_send(std::string text, std::optional<std::int32_t> replyId, std::vector<File> files);
+  std::optional<std::int32_t> tg_send
+  (
+    std::string text, std::optional<std::int32_t> replyId, std::vector<File> files,
+    std::optional<std::string> preview_url
+  );
 }
