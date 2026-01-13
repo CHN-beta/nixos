@@ -47,7 +47,7 @@ namespace sbatch
           // 队列
           ftxui::Menu(&State_.QueueEntries, &State_.QueueSelected)
             | with_title("Queue:", ftxui::Color::GrayDark),
-        }) | with_title("Resource allocation:") | with_bottom
+        }) | with_title("Resource allocation:")
       });
     }
     public: virtual std::vector<std::string> get_submit_command(std::string extra_sbatch_parameter) const override

@@ -70,7 +70,7 @@ namespace sbatch
             ) | with_list_padding | with_separator
               | ftxui::Maybe([&]{ return State_.GpuSchemeSelected == 1; })
           }) | with_title("GPU:", ftxui::Color::GrayDark) | with_separator
-        }) | with_title("Resource allocation:") | with_bottom
+        }) | with_title("Resource allocation:")
       });
     }
     public: virtual std::vector<std::string> get_submit_command(std::string extra_sbatch_parameter) const override
