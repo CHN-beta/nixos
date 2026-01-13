@@ -80,6 +80,13 @@ in platformConfig //
         });
         cpptrace = prev.cpptrace.overrideAttrs (prev: { doCheck = !final.stdenv.hostPlatform.isStatic; });
         typst = final.pkgs-2505.typst;
+        pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
+        (
+          (inputs.lib.optionalAttrs (nixpkgs.march != null)
+            { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; })
+          // (inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
+            { tkinter = prev.tkinter.overridePythonAttrs { doCheck = false; }; })
+        ))];
       }
       // (
         let
@@ -154,10 +161,6 @@ in platformConfig //
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
-        pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-        {
-          picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
-        })];
       })
       // (inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
       {
@@ -176,13 +179,14 @@ in platformConfig //
           '';
         });
         # ktls not working
-        openssl = prev.openssl.override { enableKTLS = false; };
+        enableKTLS = false;
         gnutls = prev.gnutls.overrideAttrs
           (prev: { configureFlags = inputs.lib.remove "--enable-ktls" (prev.configureFlags or []); });
         # x11 mostly not working
-        ftxui = prev.ftxui.overrideAttrs (prev: { nativeBuildInputs = [ final.cmake ]; });
-        cairo = prev.cairo.override { gobjectSupport = false; x11Support = false; };
-        pango = prev.pango.override { withIntrospection = false; x11Support = false; glib = null; };
+        gobjectSupport = false;
+        withIntrospection = false;
+        x11Support = false;
+        # ftxui = prev.ftxui.overrideAttrs (prev: { nativeBuildInputs = [ final.cmake ]; });
         graphviz = null;
         # systemd does not working
         systemd = null;
@@ -190,6 +194,11 @@ in platformConfig //
         systemdLibs = null;
         udevCheckHook = null;
         bubblewrap = null;
+        enableUdev = false;
+        enableSystemd = false;
+        withLogind = false;
+        systemdSupport = false;
+        udevSupport = false;
         # per package fixes
         audit = final.pkgs-2411.audit;
         rpm = (prev.rpm.override { systemd = null; audit = null; libcap = null; }).overrideAttrs (prev:
@@ -203,7 +212,6 @@ in platformConfig //
         elfutils = prev.elfutils.overrideAttrs
           (prev: { env = prev.env or {} // { NIX_CFLAGS_COMPILE = "-Wno-error=unused-but-set-variable"; };});
         go = prev.go.overrideAttrs { CGO_ENABLED = 0; };
-        iproute2 = prev.iproute2.override { libbpf = null; };
         libfabric = (prev.libfabric.override { enablePsm2 = false; enableOpx = false; }).overrideAttrs (prev:
         {
           patches = prev.patches or [] ++ [ ./libfabric.patch ];
@@ -213,6 +221,17 @@ in platformConfig //
         # fabric built but intel libpsm2 not
         # we using ucx anyway
         openmpi = prev.openmpi.override { fabricSupport = false; };
+        libbpf = null;
+        valgrind = null;
+        valgrind-light = null;
+        v4l-utils = prev.v4l-utils.overrideAttrs (prev:
+          { mesonFlags = prev.mesonFlags or [] ++ [(inputs.lib.mesonOption "bpf" "disabled")]; });
+        # for ffmpeg
+        withV4l2 = false;
+        withVaapi = false;
+        withDrm = false;
+        # for openssh
+        withFIDO = false;
       })
   )];
 }

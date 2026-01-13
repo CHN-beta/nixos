@@ -14,7 +14,11 @@ let
   wlin = pkgs.symlinkJoin
   {
     name = "wlin";
-    paths = with pkgs; [ localPackages.vasp.intel chn-bsub ];
+    paths = with pkgs;
+    [
+      gnuplot localPackages.vaspkit pv python localPackages.vasp.intel chn-bsub hwloc
+      lsd glibc glibc.bin
+    ];
     postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
     passthru = { inherit pkgs chn-bsub; archive = pkgs.closureInfo { rootPaths = [ wlin.drvPath ]; }; };
   };
