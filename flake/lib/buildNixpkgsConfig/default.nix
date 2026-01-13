@@ -175,10 +175,43 @@ in platformConfig //
             make headers_install $makeFlags
           '';
         });
+        # ktls not working
         openssl = prev.openssl.override { enableKTLS = false; };
         gnutls = prev.gnutls.overrideAttrs
           (prev: { configureFlags = inputs.lib.remove "--enable-ktls" (prev.configureFlags or []); });
+        # x11 mostly not working
         ftxui = prev.ftxui.overrideAttrs (prev: { nativeBuildInputs = [ final.cmake ]; });
+        cairo = prev.cairo.override { gobjectSupport = false; x11Support = false; };
+        pango = prev.pango.override { withIntrospection = false; x11Support = false; glib = null; };
+        # systemd does not working
+        systemd = null;
+        systemdMinimal = null;
+        systemdLibs = null;
+        udevCheckHook = null;
+        bubblewrap = null;
+        # per package fixes
+        audit = final.pkgs-2411.audit;
+        rpm = (prev.rpm.override { systemd = null; audit = null; libcap = null; }).overrideAttrs (prev:
+        {
+          cmakeFlags = prev.cmakeFlags or [] ++
+            [ "-DENABLE_TESTSUITE=OFF" "-DWITH_CAP=OFF" "-DWITH_AUDIT=OFF" "-DWITH_ACL=OFF" ];
+        });
+        libsysprof-capture = prev.libsysprof-capture.overrideAttrs
+          (prev: { patches = prev.patches or [] ++ [ ./sysprof.patch ]; });
+        gnupg = prev.gnupg.override { enableMinimal = true; };
+        elfutils = prev.elfutils.overrideAttrs
+          (prev: { env = prev.env or {} // { NIX_CFLAGS_COMPILE = "-Wno-error=unused-but-set-variable"; };});
+        go = prev.go.overrideAttrs { CGO_ENABLED = 0; };
+        iproute2 = prev.iproute2.override { libbpf = null; };
+        libfabric = (prev.libfabric.override { enablePsm2 = false; enableOpx = false; }).overrideAttrs (prev:
+        {
+          patches = prev.patches or [] ++ [ ./libfabric.patch ];
+          # zero copy not working
+          configureFlags = (prev.configureFlags or []) ++ [ "--enable-tcp=no" ];
+        });
+        # fabric built but intel libpsm2 not
+        # we using ucx anyway
+        openmpi = prev.openmpi.override { fabricSupport = false; };
       })
   )];
 }
