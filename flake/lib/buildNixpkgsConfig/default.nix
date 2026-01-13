@@ -183,6 +183,7 @@ in platformConfig //
         ftxui = prev.ftxui.overrideAttrs (prev: { nativeBuildInputs = [ final.cmake ]; });
         cairo = prev.cairo.override { gobjectSupport = false; x11Support = false; };
         pango = prev.pango.override { withIntrospection = false; x11Support = false; glib = null; };
+        graphviz = null;
         # systemd does not working
         systemd = null;
         systemdMinimal = null;
