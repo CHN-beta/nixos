@@ -62,14 +62,25 @@ int main()
         bool is_reply = content.body.note->replyId.has_value();
         std::optional<std::uint32_t> tg_reply_id;
         bool fond_renote = false, found_reply = false;
-        std::optional<std::string> preview_url;
         if (is_reply)
           { tg_reply_id = db_read(*content.body.note->replyId); found_reply = tg_reply_id.has_value(); }
         else if (is_forward || is_renote)
           { tg_reply_id = db_read(content.body.note->renote->id); fond_renote = tg_reply_id.has_value(); }
+
+        // 一些情况下，需要生成预览链接
+        // 优先回复的帖子，然后是引用的帖子，最后是正文中的第一个链接
+        std::optional<std::string> preview_url;
         if (is_reply && !found_reply) preview_url = "{}/notes/{}"_f(content.server, *content.body.note->replyId);
         else if ((is_forward || is_renote) && !fond_renote)
           preview_url = "{}/notes/{}"_f(content.server, content.body.note->renote->id);
+        else if (content.body.note->text)
+        {
+          // 检查文本中是否有url，有的话就用第一个url作为预览链接
+          std::regex url_regex(R"((https?://[^\s\(\)\[\]\{\}]+))");
+          std::smatch match;
+          if (std::regex_search(*content.body.note->text, match, url_regex))
+            preview_url = match.str(1);
+        }
 
         // 接下来准备要回复的文本内容
         std::string text;
