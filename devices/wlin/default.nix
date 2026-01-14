@@ -6,7 +6,7 @@ let
   pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
   {
     inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
-    nixpkgs = { march = "haswell"; nixRoot = "/data/gpfs01/wlin/.nix"; nixos = false; isKernel310 = true; };
+    nixpkgs = { march = "haswell"; nixos = false; isKernel310 = true; };
   });
   python = pkgs.python3.withPackages (ps: with ps; [ phonopy ]);
   chn-bsub = pkgs.localPackages.chn-bsub.override

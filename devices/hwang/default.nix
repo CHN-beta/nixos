@@ -6,7 +6,7 @@ let
   pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
   {
     inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
-    nixpkgs = { march = "haswell"; nixRoot = "/data/gpfs01/hwang/.nix"; nixos = false; };
+    nixpkgs = { march = "haswell"; nixos = false; };
   });
   hwang = pkgs.symlinkJoin
   {

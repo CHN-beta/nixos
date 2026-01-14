@@ -6,7 +6,7 @@ let
   pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
   {
     inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
-    nixpkgs = { march = "haswell"; nixRoot = "/data/gpfs01/jykang/.nix"; nixos = false; };
+    nixpkgs = { march = "haswell"; nixos = false; };
   });
   python-lyj =
     let python = pkgs.pkgs-2411.python310.withPackages (_: [ pkgs.localPackages.pybinding ]);

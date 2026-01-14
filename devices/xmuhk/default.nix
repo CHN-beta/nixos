@@ -3,7 +3,7 @@ let
   pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
   {
     inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
-    nixpkgs = { march = null; nixRoot = "/public/home/xmuhk/.nix"; nixos = false; };
+    nixpkgs = { march = null; nixos = false; };
   });
   lumericalLicenseManager = 
     let

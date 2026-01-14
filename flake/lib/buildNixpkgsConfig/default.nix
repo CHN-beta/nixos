@@ -1,4 +1,4 @@
-# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixRoot, nixos, arch, rocm, isKernel310 };
+# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixos, arch, rocm, isKernel310 };
 { inputs, nixpkgs }:
 let
   platformConfig =
@@ -29,9 +29,7 @@ let
     {
       oneapiArch = let match.znver5 = "znver4"; in match.${nixpkgs.march} or nixpkgs.march;
       nvhpcArch = nixpkgs.march;
-    })
-    // (inputs.lib.optionalAttrs (nixpkgs.nixRoot or null != null)
-      { nix = { storeDir = "${nixpkgs.nixRoot}/store"; stateDir = "${nixpkgs.nixRoot}/state"; }; });
+    });
 in platformConfig //
 {
   inherit config;
