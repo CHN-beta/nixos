@@ -13,8 +13,7 @@ inputs:
     { joystick = genericOption; printer = genericOption; sound = genericOption; bolt = genericOption; };
   config = let inherit (inputs.config.nixos) hardware; in inputs.lib.mkMerge
   [
-    # TODO: enable after fix
-    # (inputs.lib.mkIf (hardware.joystick != null) { hardware = { xone.enable = true; xpadneo.enable = true; }; })
+    (inputs.lib.mkIf (hardware.joystick != null) { hardware = { xone.enable = true; xpadneo.enable = true; }; })
     (
       inputs.lib.mkIf (hardware.printer != null)
       {
