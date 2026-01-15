@@ -69,6 +69,8 @@ inputs:
           openai-whisper
           # daily management
           super-productivity
+          # gaming
+          bottles
         ];
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
