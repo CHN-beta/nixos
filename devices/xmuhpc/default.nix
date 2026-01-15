@@ -28,17 +28,17 @@
   wlin = mkEnv (with pkgs;
   [
     gnuplot localPackages.vaspkit pv python localPackages.vasp.intel chn-bsub hwloc
-    lsd glibc glibc.bin
+    lsd glibc glibc.bin zstd
   ]);
   jykang = mkEnv (with pkgs;
   [
-    gnuplot localPackages.vaspkit pv python-lyj sqlite
+    gnuplot localPackages.vaspkit pv python-lyj sqlite zstd
   ]);
   hwang = mkEnv (with pkgs;
   [
-    pv localPackages.vasp.intel glibc localPackages.vaspkit chn-bsub
+    pv localPackages.vasp.intel glibc localPackages.vaspkit chn-bsub zstd
   ]);
 }
 # sudo nix build --store 'local?store=/data/gpfs01/wlin/.nix/store&state=/data/gpfs01/wlin/.nix/state&log=/data/gpfs01/wlin/.nix/log' .#wlin
-# sudo nix-store --store 'local?store=/data/gpfs01/wlin/.nix/store&state=/data/gpfs01/wlin/.nix/state&log=/data/gpfs01/wlin/.nix/log' -qR ./result | grep -Fxv -f <(ssh wlin find .nix/store -maxdepth 1 -exec realpath '{}' '\;') | sudo xargs nix-store --store 'local?store=/data/gpfs01/wlin/.nix/store&state=/data/gpfs01/wlin/.nix/state&log=/data/gpfs01/wlin/.nix/log' --export | pv > wlin.nar
-# cat wlin.nar | nix-store --import
+# sudo nix-store --store 'local?store=/data/gpfs01/wlin/.nix/store&state=/data/gpfs01/wlin/.nix/state&log=/data/gpfs01/wlin/.nix/log' -qR ./result | grep -Fxv -f <(ssh wlin find .nix/store -maxdepth 1 -exec realpath '{}' '\;') | sudo xargs nix-store --store 'local?store=/data/gpfs01/wlin/.nix/store&state=/data/gpfs01/wlin/.nix/state&log=/data/gpfs01/wlin/.nix/log' --export | zstd | pv > wlin.nar.zstd
+# pv wlin.nar.zstd | zstd -d | nix-store --import
