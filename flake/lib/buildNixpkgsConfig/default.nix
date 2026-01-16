@@ -77,7 +77,6 @@ in platformConfig //
           buildInputs = prev.buildInputs or [] ++ [ final.localPackages.lsf final.libnsl ];
         });
         cpptrace = prev.cpptrace.overrideAttrs (prev: { doCheck = !final.stdenv.hostPlatform.isStatic; });
-        typst = final.pkgs-2505.typst;
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
         (
           (inputs.lib.optionalAttrs (nixpkgs.march != null)
