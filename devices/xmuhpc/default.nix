@@ -6,7 +6,7 @@
     nixpkgs = { march = "haswell"; nixos = false; isKernel310 = true; };
   });
   python = pkgs.python3.withPackages (ps: with ps; [ phonopy ]);
-  chn-bsub = pkgs.localPackages.chn-bsub.override
+  chn-bsub = pkgs.pkgsStatic.localPackages.chn-bsub.override
     (prev: { bsubConfig = builtins.toFile "bsub.yaml" (builtins.toJSON (import ./bsub.nix)); });
   mkEnv = paths:
     let result = pkgs.symlinkJoin
