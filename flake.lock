@@ -64,11 +64,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1763052488,
-        "narHash": "sha256-hg4muacBL9oX6S+mSXoi8NSN/qVYtHdvK/ptQFIifCQ=",
+        "lastModified": 1768551655,
+        "narHash": "sha256-gRGsB9TTjpqNsJTflHNki97QfFPzsjjxf7BwC3/2xsw=",
         "owner": "CHN-beta",
         "repo": "bscpkgs",
-        "rev": "07223e8ca11b7f628e07551454ba8bdb011f1455",
+        "rev": "01f5d2a13bf73ce4171b643458e267bb3e343067",
         "type": "github"
       },
       "original": {

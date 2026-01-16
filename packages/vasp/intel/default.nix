@@ -1,8 +1,11 @@
-{ stdenv, src, writeShellScriptBin, lib, rsync, which, wannier90, hdf5, mpi, mkl, prrte }:
+{
+  stdenv, src, writeShellScriptBin, lib, rsync, which, wannier90, hdf5, mpi, mkl, prrte,
+  suffix ? "intel", oneapiArch ? null
+}:
 let
   vasp = stdenv.mkDerivation
   {
-    name = "vasp-intel";
+    name = "vasp-${suffix}";
     src = src.vasp;
     patches = [ ../vtst.patch ];
     configurePhase =
@@ -22,9 +25,10 @@ let
     '';
     # NIX_DEBUG = "7";
     enableParallelBuilding = true;
-    env = { DEPS = "1"; MKLROOT = mkl; OMPI_F90 = "ifx"; };
+    env = { DEPS = "1"; MKLROOT = mkl; OMPI_F90 = "ifx"; }
+      // (lib.optionalAttrs (oneapiArch != null) { NIX_ONEAPI_ARCH = oneapiArch; });
   };
-  wrapper = writeShellScriptBin "vasp-intel"
+  wrapper = writeShellScriptBin "vasp-${suffix}"
   ''
     export PATH=${vasp}/bin:${mpi}/bin:${mpi.dev}/bin:${prrte}/bin:${prrte.dev}/bin''${PATH:+:$PATH}
 
