@@ -24,11 +24,18 @@
       mkdir -p $out/bin
       ln -s ${python}/bin/python3 $out/bin/python-lyj
     '';
+  vasp = pkgs.symlinkJoin
+  {
+    name = "vasp";
+    paths =
+      let buildVaspFor = march: pkgs.localPackages.vasp.intel.override (prev: { suffix = march; oneapiArch = march; });
+      in builtins.map buildVaspFor (pkgs.lib.unique (builtins.attrValues (import ./bsub.nix).march));
+  };
 
   wlin = mkEnv (with pkgs;
   [
-    gnuplot localPackages.vaspkit pv python localPackages.vasp.intel chn-bsub hwloc
-    lsd glibc glibc.bin zstd
+    gnuplot localPackages.vaspkit pv python vasp chn-bsub hwloc
+    lsd glibc glibc.bin zstd pkgs.localPackages.vasp.intel
   ]);
   jykang = mkEnv (with pkgs;
   [
@@ -36,7 +43,7 @@
   ]);
   hwang = mkEnv (with pkgs;
   [
-    pv localPackages.vasp.intel glibc localPackages.vaspkit chn-bsub zstd
+    pv vasp glibc localPackages.vaspkit chn-bsub zstd
   ]);
 }
 # sudo nix build --store 'local?store=/data/gpfs01/wlin/.nix/store&state=/data/gpfs01/wlin/.nix/state&log=/data/gpfs01/wlin/.nix/log' .#wlin

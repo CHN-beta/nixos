@@ -36,7 +36,7 @@ int main()
     std::string OutputFile = "output.txt";
   } State;
 	std::map<std::string, std::array<int, 3>> QueueConfig =
-		YAML::LoadFile(BSUB_CONFIG).as<decltype(QueueConfig)>();
+		YAML::LoadFile(BSUB_CONFIG)["cpus"].as<decltype(QueueConfig)>();
 	State.QueueEntries = QueueConfig
 		| ranges::views::transform([](auto const& item) { return item.first; })
 		| ranges::to_vector;
