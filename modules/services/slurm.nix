@@ -142,7 +142,7 @@ inputs:
             # correctly set priority
             PriorityType=priority/multifactor
             PriorityWeightAge=10000
-            PriorityWeightFairshare=10000
+            PriorityWeightFairshare=20000
             AccountingStorageEnforce=associations
 
             # use low resource as default
