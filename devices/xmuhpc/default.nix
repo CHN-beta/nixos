@@ -32,10 +32,15 @@
       in builtins.map buildVaspFor (pkgs.lib.unique (builtins.map (v: v.march)
         (builtins.attrValues (import ./bsub.nix))));
   };
+  banner = pkgs.runCommand "banner" {}
+  ''
+    mkdir -p $out/etc
+    cp ${inputs.self}/modules/services/sshd/banner.txt $out/etc/banner
+  '';
 
   wlin = mkEnv (with pkgs;
   [
-    pv vasp chn-bsub zstd
+    pv vasp chn-bsub zstd lolcat banner
   ]);
   jykang = mkEnv (with pkgs;
   [

@@ -7,4 +7,7 @@ if [ -z "${BASHRC_SOURCED-}" ]; then
 	ulimit -s unlimited
 	export HISTFILESIZE=1000000
 	export BASHRC_SOURCED=1
+	if [[ $- == *i* && -e "$HOME/.nix/state/gcroots/current/etc/banner" ]]; then
+		lolcat "$HOME/.nix/state/gcroots/current/etc/banner"
+	fi
 fi
