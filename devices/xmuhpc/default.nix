@@ -44,7 +44,7 @@
   ]);
   jykang = mkEnv (with pkgs;
   [
-    gnuplot localPackages.vaspkit pv python-lyj sqlite zstd
+    gnuplot localPackages.vaspkit pv python-lyj sqlite zstd vasp chn-bsub banner
   ]);
   hwang = mkEnv (with pkgs;
   [

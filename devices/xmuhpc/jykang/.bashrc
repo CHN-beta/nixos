@@ -40,6 +40,9 @@ if [ -z "${BASHRC_SOURCED-}" ]; then
 	if [ "${HPCSTAT_SUBACCOUNT}" == "lyj" ]; then
 		export PATH=$HOME/wuyaping/lyj/bin:$PATH
 	fi
+	if [[ $- == *i* && -e "$HOME/.nix/state/gcroots/current/etc/banner" ]]; then
+		lolcat "$HOME/.nix/state/gcroots/current/etc/banner"
+	fi
 fi
 
 [ -n "$CHN_LS_USE_COLOR" ] && alias ls="ls --color=auto"
