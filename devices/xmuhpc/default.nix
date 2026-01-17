@@ -34,8 +34,7 @@
 
   wlin = mkEnv (with pkgs;
   [
-    gnuplot localPackages.vaspkit pv python vasp chn-bsub hwloc
-    lsd glibc glibc.bin zstd pkgs.localPackages.vasp.intel
+    pv vasp chn-bsub zstd
   ]);
   jykang = mkEnv (with pkgs;
   [
@@ -43,7 +42,7 @@
   ]);
   hwang = mkEnv (with pkgs;
   [
-    pv vasp glibc localPackages.vaspkit chn-bsub zstd
+    pv vasp chn-bsub zstd
   ]);
 }
 # sudo nix build --store 'local?store=/data/gpfs01/wlin/.nix/store&state=/data/gpfs01/wlin/.nix/state&log=/data/gpfs01/wlin/.nix/log' .#wlin
