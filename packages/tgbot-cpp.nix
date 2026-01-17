@@ -4,6 +4,5 @@
   inherit src;
   nativeBuildInputs = [ cmake pkg-config ];
   buildInputs = [ boost openssl zlib curl ];
-  cmakeFlags = [ "-DBUILD_SHARED_LIBS=ON" ];
   propagatedBuildInputs = buildInputs;
 }
