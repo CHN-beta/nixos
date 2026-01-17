@@ -29,7 +29,8 @@
     name = "vasp";
     paths =
       let buildVaspFor = march: pkgs.localPackages.vasp.intel.override (prev: { suffix = march; oneapiArch = march; });
-      in builtins.map buildVaspFor (pkgs.lib.unique (builtins.attrValues (import ./bsub.nix).march));
+      in builtins.map buildVaspFor (pkgs.lib.unique (builtins.map (v: v.march)
+        (builtins.attrValues (import ./bsub.nix))));
   };
 
   wlin = mkEnv (with pkgs;

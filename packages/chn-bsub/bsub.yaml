@@ -1,2 +1,6 @@
-normal: [ 4, 4, 20 ]
-normal_1day: [ 4, 7, 28 ]
+normal:
+  cpus: [ 4, 4, 20 ]
+  march: xxxx
+normal_1day:
+  cpus: [ 4, 7, 28 ]
+  march: aaaa

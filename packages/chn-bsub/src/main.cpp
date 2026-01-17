@@ -13,33 +13,38 @@ using namespace biu::literals;
 
 int main()
 {
-	biu::Logger::Guard log;
-	enum class UserCommandType { Continue, Back, Quit };
+  biu::Logger::Guard log;
+  enum class UserCommandType { Continue, Back, Quit };
   enum class InterfaceType { Request, Confirm };
   struct
   {
     std::optional<UserCommandType> UserCommand;
     std::string SubmitCommand;
     InterfaceType CurrentInterface = InterfaceType::Request;
-		int VaspSelected = 0;
-		std::vector<std::string> VaspEntries = { "std", "gam", "ncl" };
-		int QueueSelected = 0;
-		std::vector<std::string> QueueEntries;
+    int VaspSelected = 0;
+    std::vector<std::string> VaspEntries = { "std", "gam", "ncl" };
+    int QueueSelected = 0;
+    std::vector<std::string> QueueEntries;
     std::string JobName = []
-		{
-			// /data/gpfs01/wlin/chn/lammps-SiC
-			std::vector<std::string> paths;
-			boost::split(paths, std::filesystem::current_path().string(), boost::is_any_of("/"));
-			if (paths.size() < 6) return "my-great-job"s;
-			else return paths[4] + "_" + paths.back();
-		}();
+    {
+      // /data/gpfs01/wlin/chn/lammps-SiC
+      std::vector<std::string> paths;
+      boost::split(paths, std::filesystem::current_path().string(), boost::is_any_of("/"));
+      if (paths.size() < 6) return "my-great-job"s;
+      else return paths[4] + "_" + paths.back();
+    }();
     std::string OutputFile = "output.txt";
   } State;
-	std::map<std::string, std::array<int, 3>> QueueConfig =
-		YAML::LoadFile(BSUB_CONFIG)["cpus"].as<decltype(QueueConfig)>();
-	State.QueueEntries = QueueConfig
-		| ranges::views::transform([](auto const& item) { return item.first; })
-		| ranges::to_vector;
+  struct QueueConfigType
+  {
+    std::array<int, 3> cpus;
+    std::string march;
+  };
+  std::map<std::string, QueueConfigType> QueueConfig =
+    YAML::LoadFile(BSUB_CONFIG).as<decltype(QueueConfig)>();
+  State.QueueEntries = QueueConfig
+    | ranges::views::transform([](auto const& item) { return item.first; })
+    | ranges::to_vector;
 
   // 为组件增加标题栏
   auto with_title = [](std::string title, ftxui::Color bgcolor = ftxui::Color::Blue)
@@ -49,7 +54,7 @@ int main()
   };
   // 为组件增加下边框
   auto with_bottom = [](ftxui::Element element)
-		{ return ftxui::vbox(element, ftxui::separatorLight()); };
+    { return ftxui::vbox(element, ftxui::separatorLight()); };
   // 为组件增加比较粗的下边框
   auto with_bottom_heavy = [](ftxui::Element element)
     { return ftxui::vbox(element, ftxui::separatorHeavy()); };
@@ -66,7 +71,7 @@ int main()
   };
   // 在组件左边增加分割线
   auto with_separator = [](ftxui::Element element)
-		{ return ftxui::hbox(ftxui::separatorLight(), element); };
+    { return ftxui::hbox(ftxui::separatorLight(), element); };
   // 为组件增加空白以填充界面
   auto with_padding = [](ftxui::Element element)
   {
@@ -85,7 +90,7 @@ int main()
     }) | ranges::views::join("") | ranges::to<std::string>;
   };
 
-	// 构建界面
+  // 构建界面
   auto Screen = ftxui::ScreenInteractive::Fullscreen();
   auto key_event_handler = [&](ftxui::Event event)
   {
@@ -94,24 +99,24 @@ int main()
     else return false;
   };
   auto InterfaceRequest = ftxui::Container::Vertical
-	({
-		ftxui::Container::Horizontal
-		({
-			ftxui::Menu(&State.VaspEntries, &State.VaspSelected) | with_title("VASP variant:"),
-			ftxui::Menu(&State.QueueEntries, &State.QueueSelected)
-				| with_title("Queue:") | with_separator
-		}) | with_bottom_heavy,
-		input(&State.JobName, "Job name: "),
-		input(&State.OutputFile, "Output file: "),
-		// 操作按钮
-		ftxui::Container::Horizontal
-		({
-			ftxui::Button("Continue (Enter)",
-				[&]{ State.UserCommand = UserCommandType::Continue; Screen.ExitLoopClosure()(); }),
-			ftxui::Button("Quit",
-				[&]{ State.UserCommand = UserCommandType::Quit; Screen.ExitLoopClosure()(); })
-		}),
-	}) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent(key_event_handler);
+  ({
+    ftxui::Container::Horizontal
+    ({
+      ftxui::Menu(&State.VaspEntries, &State.VaspSelected) | with_title("VASP variant:"),
+      ftxui::Menu(&State.QueueEntries, &State.QueueSelected)
+        | with_title("Queue:") | with_separator
+    }) | with_bottom_heavy,
+    input(&State.JobName, "Job name: "),
+    input(&State.OutputFile, "Output file: "),
+    // 操作按钮
+    ftxui::Container::Horizontal
+    ({
+      ftxui::Button("Continue (Enter)",
+        [&]{ State.UserCommand = UserCommandType::Continue; Screen.ExitLoopClosure()(); }),
+      ftxui::Button("Quit",
+        [&]{ State.UserCommand = UserCommandType::Quit; Screen.ExitLoopClosure()(); })
+    }),
+  }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent(key_event_handler);
   auto InterfaceConfirm = ftxui::Container::Vertical
   ({
     ftxui::Input(&State.SubmitCommand, "", ftxui::InputOption{.multiline = true})
@@ -139,18 +144,19 @@ int main()
       {
         State.CurrentInterface = InterfaceType::Confirm;
         State.SubmitCommand = [&]
-				{
-					auto [nproc, nthr, ncpu] = QueueConfig.at(State.QueueEntries[State.QueueSelected]);
-					auto args = std::vector<std::string>
-					{
-						"bsub",
-						"-J {} -o {}"_f(escape(State.JobName), escape(State.OutputFile)),
-						"-q {} -n {} -R 'span[hosts=1]'"_f(escape(State.QueueEntries[State.QueueSelected]), ncpu),
-						"vasp-intel mpirun -n {} -x OMP_NUM_THREADS={} vasp-{}"_f
-							(nproc, nthr, State.VaspEntries[State.VaspSelected])
-					};
-					return args | ranges::views::join(" \\\n ") | ranges::to<std::string>;
-				}();
+        {
+          auto [nproc, nthr, ncpu] = QueueConfig.at(State.QueueEntries[State.QueueSelected]).cpus;
+          auto march = QueueConfig.at(State.QueueEntries[State.QueueSelected]).march;
+          auto args = std::vector<std::string>
+          {
+            "bsub",
+            "-J {} -o {}"_f(escape(State.JobName), escape(State.OutputFile)),
+            "-q {} -n {} -R 'span[hosts=1]'"_f(escape(State.QueueEntries[State.QueueSelected]), ncpu),
+            "vasp-{} mpirun -n {} -x OMP_NUM_THREADS={} vasp-{}"_f
+              (march, nproc, nthr, State.VaspEntries[State.VaspSelected])
+          };
+          return args | ranges::views::join(" \\\n ") | ranges::to<std::string>;
+        }();
       }
       else if (!State.UserCommand) return EXIT_FAILURE;
       else std::unreachable();
