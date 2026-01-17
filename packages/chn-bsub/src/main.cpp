@@ -152,8 +152,9 @@ int main()
             "bsub",
             "-J {} -o {}"_f(escape(State.JobName), escape(State.OutputFile)),
             "-q {} -n {} -R 'span[hosts=1]'"_f(escape(State.QueueEntries[State.QueueSelected]), ncpu),
-            "vasp-{} mpirun -n {} -x OMP_NUM_THREADS={} vasp-{}"_f
-              (march, nproc, nthr, State.VaspEntries[State.VaspSelected])
+            "vasp-{} mpirun --display-map"_f(QueueConfig.at(State.QueueEntries[State.QueueSelected]).march),
+            "-n {} --map-by core:PE={} -x OMP_NUM_THREADS={} vasp-{}"_f
+              (nproc, nthr, nthr, State.VaspEntries[State.VaspSelected])
           };
           return args | ranges::views::join(" \\\n ") | ranges::to<std::string>;
         }();
