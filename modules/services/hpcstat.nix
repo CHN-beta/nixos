@@ -28,7 +28,7 @@ inputs:
           {
             finishjob =
             ''
-              eval $(${ssh-agent})
+              eval $(${ssh-agent} -a /run/hpcstat/agent.sock)
               # check if the file content differ
               if ${rsync} -e "${ssh}" -acnri ${jykang}/ jykang@hpc.xmu.edu.cn:~/ | ${grep} -E '^[<>]' -q; then
                 ${curl} -X POST -H 'Content-Type: application/json' \
@@ -42,7 +42,7 @@ inputs:
             '';
             backupdb =
             ''
-              eval $(${ssh-agent})
+              eval $(${ssh-agent} -a /run/hpcstat/agent.sock)
               # download database
               now=$(${date} '+%Y%m%d%H%M%S')
               ${rsync} -e "${ssh}" \
@@ -69,7 +69,7 @@ inputs:
             '';
             diskstat =
             ''
-              eval $(${ssh-agent})
+              eval $(${ssh-agent} -a /run/hpcstat/agent.sock)
               ${ssh} jykang@hpc.xmu.edu.cn hpcstat diskstat
             '';
           };
@@ -88,7 +88,14 @@ inputs:
             value =
             {
               script = script.value;
-              serviceConfig = { Type = "oneshot"; User = "hpcstat"; Group = "hpcstat"; };
+              serviceConfig =
+              {
+                Type = "oneshot";
+                User = "hpcstat";
+                Group = "hpcstat";
+                RuntimeDirectory = "hpcstat";
+                RuntimeDirectoryMode = "0700";
+              };
             };
           })
           (inputs.localLib.attrsToList scripts));
