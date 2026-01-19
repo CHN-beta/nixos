@@ -1,16 +1,16 @@
-inputs:
+{ lib, config, pkgs, topInputs, ... }:
 {
-  options.nixos.services.sshd = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.sshd = lib.mkOption
   {
-    type = types.nullOr (types.submodule { options =
+    type = lib.types.nullOr (lib.types.submodule { options =
     {
-      passwordAuthentication = mkOption { type = types.bool; default = false; };
-      groupBanner = mkOption { type = types.bool; default = false; };
-      motd = mkOption { type = types.bool; default = false; };
+      passwordAuthentication = lib.mkOption { type = lib.types.bool; default = false; };
+      groupBanner = lib.mkOption { type = lib.types.bool; default = false; };
+      motd = lib.mkOption { type = lib.types.bool; default = false; };
     };});
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services) sshd; in inputs.lib.mkIf (sshd != null) (inputs.lib.mkMerge
+  config = let inherit (config.nixos.services) sshd; in lib.mkIf (sshd != null) (lib.mkMerge
   [
     {
       services.openssh =
@@ -27,21 +27,21 @@ inputs:
         };
       };
     }
-    (inputs.lib.mkIf sshd.motd
+    (lib.mkIf sshd.motd
     {
       nixos =
       {
         packages.packages._packages =
-          [ (inputs.pkgs.fancy-motd.overrideAttrs { src = inputs.topInputs.fancy-motd; }) ];
+          [ (pkgs.fancy-motd.overrideAttrs { src = topInputs.fancy-motd; }) ];
         user.sharedModules = [(home-inputs: { config.programs.zsh.loginExtra =
         ''
-          [ -f /etc/fancy-motd/banner ] && (lolcat -f /etc/fancy-motd/banner 2> /dev/null)
+          [ -f /etc/fancy-motd/banner ] && (${lib.getExe pkgs.dotacat} -f /etc/fancy-motd/banner 2> /dev/null)
           motd
         '';})];
-      };
+      }; 
       # generate from https://patorjk.com/software/taag with font "BlurVision ASCII"
       # generate using `toilet -f wideterm -F border "InAlGaN / SiC"`
-      environment.etc = inputs.lib.mkIf sshd.groupBanner { "fancy-motd/banner".source = ./banner.txt; };
+      environment.etc = lib.mkIf sshd.groupBanner { "fancy-motd/banner".source = ./banner.txt; };
     })
   ]);
 }

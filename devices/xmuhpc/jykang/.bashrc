@@ -41,7 +41,7 @@ if [ -z "${BASHRC_SOURCED-}" ]; then
 		export PATH=$HOME/wuyaping/lyj/bin:$PATH
 	fi
 	if [[ $- == *i* && -e "$HOME/.nix/state/gcroots/current/etc/banner" ]]; then
-		lolcat "$HOME/.nix/state/gcroots/current/etc/banner"
+		dotacat "$HOME/.nix/state/gcroots/current/etc/banner"
 	fi
 fi
 

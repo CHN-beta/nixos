@@ -40,11 +40,12 @@
 
   wlin = mkEnv (with pkgs;
   [
-    pv vasp chn-bsub zstd lolcat banner
+    pv vasp chn-bsub zstd dotacat banner
   ]);
   jykang = mkEnv (with pkgs;
   [
     gnuplot localPackages.vaspkit pv python-lyj sqlite zstd vasp chn-bsub banner
+    dotacat
   ]);
   hwang = mkEnv (with pkgs;
   [

@@ -8,6 +8,6 @@ if [ -z "${BASHRC_SOURCED-}" ]; then
 	export HISTFILESIZE=1000000
 	export BASHRC_SOURCED=1
 	if [[ $- == *i* && -e "$HOME/.nix/state/gcroots/current/etc/banner" ]]; then
-		lolcat "$HOME/.nix/state/gcroots/current/etc/banner"
+		dotacat "$HOME/.nix/state/gcroots/current/etc/banner"
 	fi
 fi
