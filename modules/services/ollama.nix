@@ -1,15 +1,15 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.services.ollama = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = null; };
-  config = let inherit (inputs.config.nixos.services) ollama; in inputs.lib.mkIf (ollama != null)
+  options.nixos.services.ollama = lib.mkOption { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
+  config = let inherit (config.nixos.services) ollama; in lib.mkIf (ollama != null)
   {
     services.ollama =
     {
       enable = true;
       host = "0.0.0.0";
       environmentVariables = { OLLAMA_REGISTRY_MAXSTREAMS = "2"; OLLAMA_EXPERIMENT= "client2"; };
+      package = pkgs.ollama-vulkan;
     };
-    nixos.packages.packages._packages = [ inputs.pkgs.oterm ];
+    nixos.packages.packages._packages = [ pkgs.oterm ];
   };
 }
