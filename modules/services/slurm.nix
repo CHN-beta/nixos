@@ -221,7 +221,16 @@ inputs:
           slurmctld =
           {
             after = [ "suid-sgid-wrappers.service" "slurmdbd.service" ];
-            serviceConfig.MemorySwapMax = "0";
+            serviceConfig =
+            {
+              # never swap
+              MemorySwapMax = "0";
+              # highest priority
+              CPUSchedulingPolicy = "fifo";
+              CPUSchedulingPriority = "99";
+              IOSchedulingClass = "realtime";
+              IOSchedulingPriority = "0";
+            };
           };
           slurmdbd.postStart = builtins.concatStringsSep "\n" (builtins.concatLists
           [
