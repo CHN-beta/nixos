@@ -1,4 +1,4 @@
-inputs:
+{ config, ... }:
 {
   config =
   {
@@ -17,6 +17,16 @@ inputs:
         lumericalLicenseManager.macAddress = "70:20:84:09:a3:52";
       };
     };
-    systemd.tmpfiles.rules = [ "w /sys/devices/system/cpu/intel_pstate/no_turbo - - - - 1" ];
+    systemd =
+    {
+      tmpfiles.rules = [ "w /sys/devices/system/cpu/intel_pstate/no_turbo - - - - 1" ];
+      services.nvidia-power-limit =
+      {
+        wantedBy = [ "multi-user.target" ];
+        path = [ config.hardware.nvidia.package ];
+        script = "nvidia-smi -pl 300";
+        serviceConfig.Type = "oneshot";
+      };
+    };
   };
 }
