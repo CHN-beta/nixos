@@ -17,5 +17,6 @@ inputs:
         lumericalLicenseManager.macAddress = "70:20:84:09:a3:52";
       };
     };
+    systemd.tmpfiles.rules = [ "w /sys/devices/system/cpu/intel_pstate/no_turbo - - - - 1" ];
   };
 }
