@@ -6,7 +6,7 @@ inputs:
   {
     services =
     {
-      howdy = { enable = true; settings.core.detection_notice = true; };
+      howdy = { enable = true; control = "sufficient"; settings.core.detection_notice = true; };
       linux-enable-ir-emitter.enable = true;
     };
   };
