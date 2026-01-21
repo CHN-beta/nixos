@@ -35,7 +35,7 @@ inputs:
           (paraview.overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs
             ++ [(python3.withPackages (ps: with ps; [ numpy matplotlib ]))]; }))
           # development
-          adb-sync scrcpy dbeaver-bin cling aircrack-ng
+          adb-sync scrcpy dbeaver-bin cling aircrack-ng opencode
           weston cage openbox krita fprettify # jetbrains.clion 
           # password and key management
           yubikey-manager bitwarden-desktop hashcat yubikey-personalization
