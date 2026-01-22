@@ -84,6 +84,7 @@ inputs:
               "Mod+F".action.switch-preset-column-width = {};
               "Mod+T".action.spawn = [ "ghostty" ];
               "Mod+B".action.spawn = [ "firefox" ];
+              "Mod+Y".action.spawn = [ "typora" ];
               "Mod+Escape".action.power-off-monitors = {};
             };
           outputs =
