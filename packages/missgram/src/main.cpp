@@ -91,6 +91,13 @@ int main()
         else
         {
           text = content.body.note->text.value_or("");
+          if (is_reply)
+          {
+            // 移除开头的 @user 或者 @user@server
+            std::regex reply_regex(R"(^@\S+(@\S+)?\s*)");
+            std::string new_text;
+            while (new_text = std::regex_replace(text, reply_regex, ""), new_text != text) text = new_text;
+          }
           if (is_renote && !fond_renote)
             text = "引用了[帖子]({}/notes/{})\n"_f(content.server, content.body.note->renote->id) + text;
           if (is_reply && !found_reply)
