@@ -66,6 +66,7 @@
     reflectcpp = { url = "git+https://github.com/getml/reflect-cpp?submodules=1"; flake = false; };
     linux-asus = { url = "github:CHN-beta/linux-g14/6.18"; flake = false; };
     ufo = { url = "git+https://git.chn.moe/chn/ufo.git?lfs=1"; flake = false; };
+    gitea-robots-txt = { url = "https://gitea.com/robots.txt"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in

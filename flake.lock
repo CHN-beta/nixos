@@ -553,6 +553,18 @@
         "type": "github"
       }
     },
+    "gitea-robots-txt": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-aFoUdhpNayQ4ESTAzkTNGYYACu3zp+eC6eEjk7bm6zc=",
+        "type": "file",
+        "url": "https://gitea.com/robots.txt"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://gitea.com/robots.txt"
+      }
+    },
     "gitignore": {
       "inputs": {
         "nixpkgs": [
@@ -1454,6 +1466,7 @@
         "dankmaterialshell": "dankmaterialshell",
         "date": "date",
         "fancy-motd": "fancy-motd",
+        "gitea-robots-txt": "gitea-robots-txt",
         "harmonia": "harmonia",
         "hextra": "hextra",
         "home-manager": "home-manager",

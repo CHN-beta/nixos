@@ -1,19 +1,19 @@
-inputs:
+{ pkgs, lib, topInputs, config, ... }:
 {
-  options.nixos.services.gitea = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.gitea = lib.mkOption
   {
-    type = types.nullOr (types.submodule { options =
+    type = lib.types.nullOr (lib.types.submodule { options =
     {
-      hostname = mkOption { type = types.str; default = "git.chn.moe"; };
+      hostname = lib.mkOption { type = lib.types.str; default = "git.chn.moe"; };
       ssh =
       {
-        hostname = mkOption { type = types.str; default = "ssh.${inputs.config.nixos.services.gitea.hostname}"; };
-        port = mkOption { type = types.nullOr types.ints.unsigned; default = null; };
+        hostname = lib.mkOption { type = lib.types.str; default = "ssh.${config.nixos.services.gitea.hostname}"; };
+        port = lib.mkOption { type = lib.types.nullOr lib.types.ints.unsigned; default = null; };
       };
     };});
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services) gitea; in inputs.lib.mkIf (gitea != null)
+  config = let inherit (config.nixos.services) gitea; in lib.mkIf (gitea != null)
   {
     services =
     {
@@ -21,12 +21,12 @@ inputs:
       {
         enable = true;
         lfs.enable = true;
-        mailerPasswordFile = inputs.config.nixos.system.sops.secrets."gitea/mail".path;
+        mailerPasswordFile = config.nixos.system.sops.secrets."gitea/mail".path;
         database =
         {
           createDatabase = false;
           type = "postgres";
-          passwordFile = inputs.config.nixos.system.sops.secrets."gitea/db".path;
+          passwordFile = config.nixos.system.sops.secrets."gitea/db".path;
         };
         settings =
         {
@@ -37,7 +37,7 @@ inputs:
             DOMAIN = gitea.hostname;
             HTTP_PORT = 3002;
             SSH_DOMAIN = gitea.ssh.hostname;
-            SSH_PORT = inputs.lib.mkIf (gitea.ssh.port != null) gitea.ssh.port;
+            SSH_PORT = lib.mkIf (gitea.ssh.port != null) gitea.ssh.port;
             LFS_ALLOW_PURE_SSH = true;
           };
           mailer =
@@ -57,24 +57,6 @@ inputs:
           "cron.gc_lfs" = { ENABLED = true; SCHEDULE = "@monthly"; NUMBER_TO_CHECK_PER_REPO = 0; };
         };
       };
-      # prevent AI web crawlers
-      # https://her.esy.fun/posts/0031-how-i-protect-my-forgejo-instance-from-ai-web-crawlers/index.html
-      # nginx.virtualHosts."https:${gitea.hostname}".locations."/".extraConfigPre =
-      # ''
-      #   if ($http_user_agent ~* "git/|git-lfs/") {
-      #     set $bypass_cookie 1;
-      #   }
-      #   if ($cookie_Yogsototh_opens_the_door = "1") {
-      #     set $bypass_cookie 1;
-      #   }
-      #   if ($request_method != "GET") {
-      #     set $bypass_cookie 1;
-      #   }
-      #   if ($bypass_cookie != 1) {
-      #     add_header Content-Type text/html always;
-      #     return 418 '<script>document.cookie = "Yogsototh_opens_the_door=1; Path=/;"; window.location.reload();</script>';
-      #   }
-      # '';
     };
     nixos =
     {
@@ -86,10 +68,15 @@ inputs:
       };
       services =
       {
-        nginx.https.${gitea.hostname}.location."/".proxy.upstream = "http://127.0.0.1:3002";
+        nginx.https.${gitea.hostname}.location =
+        {
+          "/".proxy.upstream = "http://127.0.0.1:3002";
+          "/robots.txt".static.root = builtins.toString
+            (pkgs.runCommand "robots.txt" {} "mkdir -p $out; cp ${topInputs.gitea-robots-txt} $out/robots.txt");
+        };
         postgresql.instances.gitea = {};
       };
     };
-    systemd.services.gitea.path = [ inputs.pkgs.git-lfs-transfer ];
+    systemd.services.gitea.path = [ pkgs.git-lfs-transfer ];
   };
 }
