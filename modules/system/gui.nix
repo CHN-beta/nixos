@@ -1,6 +1,6 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  config = inputs.lib.mkIf (inputs.config.nixos.model.type == "desktop")
+  config = lib.mkIf (config.nixos.model.type == "desktop")
   {
     services =
     {
@@ -8,10 +8,10 @@ inputs:
       {
         enable = true;
         settings.default_session.command =
-          let sessionData = "${inputs.config.services.displayManager.sessionData.desktops}/share";
+          let sessionData = "${config.services.displayManager.sessionData.desktops}/share";
           in builtins.concatStringsSep " "
           [
-            "${inputs.pkgs.tuigreet}/bin/tuigreet"
+            "${pkgs.tuigreet}/bin/tuigreet"
             "--sessions ${sessionData}/wayland-sessions --xsessions ${sessionData}/xsessions"
             "--time --asterisks --remember --remember-user-session"
           ];
@@ -29,22 +29,22 @@ inputs:
       };
       persistence."/nix/persistent".directories =
         [{ directory = "/var/cache/tuigreet"; user = "greeter"; group = "greeter"; mode = "0700"; }];
-      systemPackages =
+      systemPackages = with pkgs;
       [
         # nautilus is needed before we use implementation from nixpkgs
-        inputs.pkgs.nautilus
+        nautilus
         # needed for xwayland
-        inputs.pkgs.xwayland-satellite
+        xwayland-satellite
       ];
     };
-    xdg.portal.extraPortals = (builtins.map (p: inputs.pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" "gnome" ]);
+    xdg.portal.extraPortals = (builtins.map (p: pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" "gnome" ]);
     qt = { enable = true; platformTheme = "qt5ct"; };
     gtk.iconCache.enable = true;
     i18n.inputMethod =
     {
       enable = true;
       type = "fcitx5";
-      fcitx5.addons = with inputs.pkgs;
+      fcitx5.addons = with pkgs;
         [ qt6Packages.fcitx5-chinese-addons fcitx5-mozc fcitx5-material-color fcitx5-gtk ];
     };
     programs = { dconf.enable = true; niri.enable = true; };
@@ -62,9 +62,9 @@ inputs:
         {
           binds =
             let
-              xsel = "${inputs.pkgs.xsel}/bin/xsel";
-              wl-copy = "${inputs.pkgs.wl-clipboard}/bin/wl-copy";
-              wl-paste = "${inputs.pkgs.wl-clipboard}/bin/wl-paste";
+              xsel = "${pkgs.xsel}/bin/xsel";
+              wl-copy = "${pkgs.wl-clipboard}/bin/wl-copy";
+              wl-paste = "${pkgs.wl-clipboard}/bin/wl-paste";
             in
             {
               "Mod+WheelScrollDown" = { action.focus-column-right = {}; cooldown-ms = 50; };
