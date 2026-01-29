@@ -14,6 +14,7 @@
           { on = [ "c" "a" "a" ]; run = "plugin compress"; }
         ];
         plugins = { inherit (pkgs.yaziPlugins) compress; };
+        settings.tasks.image_bound = [ 65535 65535 ];
       };
     }];
   };
