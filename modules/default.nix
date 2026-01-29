@@ -1,6 +1,6 @@
-inputs: let inherit (inputs) topInputs; in
+{ localLib, topInputs, ... }:
 {
-  imports = inputs.localLib.mkModules
+  imports = localLib.mkModules
   [
     topInputs.home-manager.nixosModules.home-manager
     topInputs.sops-nix.nixosModules.sops
@@ -19,5 +19,5 @@ inputs: let inherit (inputs) topInputs; in
       topInputs.dankmaterialshell.homeModules.dank-material-shell
       topInputs.dankmaterialshell.homeModules.niri
     ];}
-  ] ++ (inputs.localLib.findModules ./.);
+  ] ++ (localLib.findModules ./.);
 }

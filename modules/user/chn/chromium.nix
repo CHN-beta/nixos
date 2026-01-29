@@ -1,6 +1,6 @@
-inputs:
+{ lib, config, ... }:
 {
-  config = inputs.lib.mkIf (inputs.config.nixos.packages.chromium != null)
+  config = lib.mkIf (config.nixos.packages.chromium != null)
   {
     home-manager.users.chn.config.programs.chromium =
     {

@@ -1,13 +1,13 @@
-inputs:
+{ config, lib, localLib, pkgs, ... }:
 {
-  imports = inputs.localLib.findModules ./.;
-  options.nixos.user = let inherit (inputs.lib) mkOption types; in
+  imports = localLib.findModules ./.;
+  options.nixos.user =
   {
-    users = mkOption { type = types.listOf types.nonEmptyStr; default = [ "chn" ]; };
-    sharedModules = mkOption { type = types.listOf types.anything; default = []; };
-    uid = mkOption
+    users = lib.mkOption { type = lib.types.listOf lib.types.nonEmptyStr; default = [ "chn" ]; };
+    sharedModules = lib.mkOption { type = lib.types.listOf lib.types.anything; default = []; };
+    uid = lib.mkOption
     {
-      type = types.attrsOf types.ints.unsigned;
+      type = lib.types.attrsOf lib.types.ints.unsigned;
       readOnly = true;
       default =
       {
@@ -59,18 +59,18 @@ inputs:
         missgram = 2014;
       };
     };
-    gid = mkOption
+    gid = lib.mkOption
     {
-      type = types.attrsOf types.ints.unsigned;
+      type = lib.types.attrsOf lib.types.ints.unsigned;
       readOnly = true;
-      default = inputs.config.nixos.user.uid //
+      default = config.nixos.user.uid //
       {
         groupshare = 3000;
         telegram = 3001;
       };
     };
   };
-  config = let inherit (inputs.config.nixos) user; in inputs.lib.mkMerge
+  config = let inherit (config.nixos) user; in lib.mkMerge
   [
     {
       users =
@@ -84,16 +84,16 @@ inputs:
               uid = user.uid.${userName};
               group = userName;
               isNormalUser = true;
-              shell = inputs.pkgs.zsh;
+              shell = pkgs.zsh;
               createHome = true;
-              extraGroups = inputs.lib.intersectLists [ "users" "video" "audio" "i2c" ]
-                (builtins.attrNames inputs.config.users.groups);
+              extraGroups = lib.intersectLists [ "users" "video" "audio" "i2c" ]
+                (builtins.attrNames config.users.groups);
               # ykman fido credentials list
               # ykman fido credentials delete f2c1ca2d
               # ssh-keygen -t ed25519-sk -O resident
               # ssh-keygen -K
               openssh.authorizedKeys.keys =
-                inputs.lib.optionals (builtins.pathExists ./keys/${userName}) [(builtins.readFile ./keys/${userName})];
+                lib.optionals (builtins.pathExists ./keys/${userName}) [(builtins.readFile ./keys/${userName})];
             };
           })
           user.users);
@@ -107,15 +107,15 @@ inputs:
     }
     # set hashedPassword if it exist in secrets
     (
-      let hashedPasswordExist = userName: inputs.lib.lists.any
-        (inputs.lib.lists.hasPrefix [ "users" userName ]) inputs.config.nixos.system.sops.availableKeys;
+      let hashedPasswordExist = userName: lib.lists.any
+        (lib.lists.hasPrefix [ "users" userName ]) config.nixos.system.sops.availableKeys;
       in
       {
         users.users = builtins.listToAttrs (builtins.map
-          (name: { inherit name; value.hashedPasswordFile = inputs.config.sops.secrets."users/${name}".path; })
+          (name: { inherit name; value.hashedPasswordFile = config.sops.secrets."users/${name}".path; })
           (builtins.filter (user: hashedPasswordExist user) user.users));
         nixos.system.sops.secrets = builtins.listToAttrs (builtins.map
-          (name: inputs.lib.nameValuePair "users/${name}" { neededForUsers = true; })
+          (name: lib.nameValuePair "users/${name}" { neededForUsers = true; })
           (builtins.filter (user: hashedPasswordExist user) user.users));
       }
     )
@@ -123,7 +123,7 @@ inputs:
     {
       users.users.root =
       {
-        shell = inputs.pkgs.zsh;
+        shell = pkgs.zsh;
         openssh.authorizedKeys.keys = [(builtins.readFile ./keys/chn)];
         hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
       };
@@ -138,15 +138,15 @@ inputs:
             # allow root operate on git repositories owned by others
             safe.directory = "*";
           };
-          home.file = inputs.lib.mkIf inputs.config.nixos.model.private
+          home.file = lib.mkIf config.nixos.model.private
           {
             ".ssh/id_ed25519_sk".source = homeInputs.config.lib.file.mkOutOfStoreSymlink
-              inputs.config.nixos.system.sops.secrets."root/ed25519_sk".path;
+              config.nixos.system.sops.secrets."root/ed25519_sk".path;
           };
         };
       };
     }
     # setup test
-    (inputs.lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
+    (lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
   ];
 }

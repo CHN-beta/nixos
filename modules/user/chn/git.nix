@@ -1,6 +1,6 @@
-inputs:
+{ lib, config, ... }:
 {
-  config = inputs.lib.mkIf (inputs.config.nixos.packages.git != null)
+  config = lib.mkIf (config.nixos.packages.git != null)
   {
     home-manager.users.chn.config.programs =
     {
@@ -9,7 +9,7 @@ inputs:
         enable = true;
         settings =
         {
-          core.editor = if inputs.config.nixos.model.type == "desktop" then "code --wait" else "hx"; 
+          core.editor = if config.nixos.model.type == "desktop" then "code --wait" else "hx"; 
           http.postBuffer = 624288000;
           advice.detachedHead = false;
           merge.conflictstyle = "diff3";

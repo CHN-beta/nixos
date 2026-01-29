@@ -1,26 +1,26 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.model = let inherit (inputs.lib) mkOption types; in
+  options.nixos.model =
   {
-    hostname = mkOption { type = types.nonEmptyStr; };
-    arch = mkOption { type = types.nonEmptyStr; default = "x86_64"; };
-    type = mkOption { type = types.enum [ "minimal" "desktop" "server" ]; default = "minimal"; };
-    private = mkOption { type = types.bool; default = false; };
-    cluster = mkOption
+    hostname = lib.mkOption { type = lib.types.nonEmptyStr; };
+    arch = lib.mkOption { type = lib.types.nonEmptyStr; default = "x86_64"; };
+    type = lib.mkOption { type = lib.types.enum [ "minimal" "desktop" "server" ]; default = "minimal"; };
+    private = lib.mkOption { type = lib.types.bool; default = false; };
+    cluster = lib.mkOption
     {
-      type = types.nullOr (types.submodule { options =
+      type = lib.types.nullOr (lib.types.submodule { options =
       {
-        clusterName = mkOption { type = types.nonEmptyStr; };
-        nodeName = mkOption { type = types.nonEmptyStr; };
-        nodeType = mkOption { type = types.enum [ "master" "worker" ]; default = "worker"; };
+        clusterName = lib.mkOption { type = lib.types.nonEmptyStr; };
+        nodeName = lib.mkOption { type = lib.types.nonEmptyStr; };
+        nodeType = lib.mkOption { type = lib.types.enum [ "master" "worker" ]; default = "worker"; };
       };});
       default = null;
     };
   };
-  config = let inherit (inputs.config.nixos) model; in inputs.lib.mkMerge
+  config = let inherit (config.nixos) model; in lib.mkMerge
   [
     { networking.hostName = model.hostname; }
-    (inputs.lib.mkIf (model.cluster != null)
+    (lib.mkIf (model.cluster != null)
       { nixos.model.hostname = "${model.cluster.clusterName}-${model.cluster.nodeName}"; })
   ];
 }
