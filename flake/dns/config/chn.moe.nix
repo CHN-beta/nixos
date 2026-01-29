@@ -19,12 +19,12 @@ let
     srv2-node0 = [ "srv2" ];
     "pc.ts" = [ "nix-store" "chat" ];
     "nas.ts" = [ "ssh.git" ];
-    autoroute = [ "铜锣湾" "matrix" ];
+    autoroute = [ "铜锣湾" "matrix" "git" ];
     vps9 =
     [
       "initrd.vps9" "xserver2.vps9"
       # to nas
-      "git" "grafana" "peertube" "send" "vikunja" "xservernas" "freshrss" "huginn" "nextcloud"
+      "grafana" "peertube" "send" "vikunja" "xservernas" "freshrss" "huginn" "nextcloud"
       "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api"
     ];
   };

@@ -37,7 +37,7 @@ inputs:
           }
           // (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "tinc0.nas.chn.moe"; })
-            [ "xn--s8w913fdga" "matrix" ]))
+            [ "xn--s8w913fdga" "matrix" "git" ]))
           // (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "tinc0.pc.chn.moe"; })
             [ "xn--qbtm095lrg0bfka60z" ]));
