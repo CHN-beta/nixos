@@ -35,6 +35,8 @@
         nautilus
         # needed for xwayland
         xwayland-satellite
+        # needed for icons
+        adwaita-icon-theme
       ];
     };
     xdg.portal.extraPortals = (builtins.map (p: pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" "gnome" ]);
