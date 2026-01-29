@@ -53,6 +53,8 @@ inputs:
                 "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
                 # automatically enable extensions
                 "extensions.autoDisableScopes" = 0;
+                # copy as-is URLs (not escape)
+                "browser.urlbar.decodeURLsOnCopy" = true;
               };
             };
           };
