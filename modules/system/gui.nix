@@ -18,6 +18,7 @@
       };
       # niri module will auto enable this, disable it to avoid conflict with system ssh-agent
       gnome.gcr-ssh-agent.enable = false;
+      iio-niri.enable = true;
     };
     environment =
     {
