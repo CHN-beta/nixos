@@ -1,6 +1,6 @@
 { lib, localLib }:
 let
-  cname =
+  cname = rec
   {
     nas = [ "initrd.nas" ];
     office = [ "xserverxmu" "srv2-node0" ];
@@ -20,6 +20,14 @@ let
     "pc.ts" = [ "nix-store" "chat" ];
     "nas.ts" = [ "ssh.git" ];
     autoroute = [ "铜锣湾" "matrix" "git" ];
+    # workaround a "bug" in acme lego:
+    # when using DNS-01 challenge with Cloudflare, lego will try to find out the zone
+    # by stripping subdomains one by one and query SOA record.
+    # when it reaches "xxx.chn.moe" which is CNAME-ed to autoroute.chn.moe,
+    # coredns failed to respond the SOA query correctly (returns SRVFAIL),
+    # causing acme cert issuance to fail.
+    # so we create a dummy CNAME record for "_acme-challenge.xxx.chn.moe" to bypass this.
+    acme = builtins.map (n: "_acme-challenge.${n}") autoroute;
     vps9 =
     [
       "initrd.vps9" "xserver2.vps9"
@@ -43,6 +51,8 @@ let
     srv2-node1 = "192.168.178.2";
     srv2-node2 = "192.168.178.3";
     "409test" = "192.168.1.5";
+    # a dummy IP to satisfy acme lego
+    acme = "0.0.0.0";
   };
   tinc = import ./tinc.nix;
   tailscale = import ./tailscale.nix;
