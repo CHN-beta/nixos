@@ -14,6 +14,7 @@ inputs:
     {
       enable = true;
       config =
+      # TODO: 补全 SOA 和 CAA 记录
       ''
         autoroute.chn.moe {
           bind ${coredns.interface}
@@ -33,6 +34,10 @@ inputs:
             match ^autoroute\.chn\.moe\.$
             rcode NOERROR
           }
+          template IN CAA autoroute.chn.moe {
+            match ^autoroute\.chn\.moe\.$
+            rcode NOERROR
+          }
           header {
             response set aa
           }
@@ -49,6 +54,10 @@ inputs:
             answer "{{.Name}} 60 IN A ${inputs.topInputs.self.config.dns."chn.moe".getAddress "vps9"}"
           }
           template IN AAAA autoroute.chn.moe {
+            match ^autoroute\.chn\.moe\.$
+            rcode NOERROR
+          }
+          template IN CAA autoroute.chn.moe {
             match ^autoroute\.chn\.moe\.$
             rcode NOERROR
           }
