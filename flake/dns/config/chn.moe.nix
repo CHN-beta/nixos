@@ -28,6 +28,7 @@ let
     # causing acme cert issuance to fail.
     # so we create a dummy CNAME record for "_acme-challenge.xxx.chn.moe" to bypass this.
     acme = builtins.map (n: "_acme-challenge.${n}") autoroute;
+    # TODO: cname 到 ts 的也需要同样处理
     vps9 =
     [
       "initrd.vps9" "xserver2.vps9"
