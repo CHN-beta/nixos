@@ -167,8 +167,16 @@ inputs:
             rules = builtins.map (rule: rule // { type = "field"; })
             [
               { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
-              { inboundTag = [ "dns-internal" ]; ip = [ "223.5.5.5" ]; outboundTag = "direct"; }
-              { inboundTag = [ "dns-internal" ]; ip = [ "8.8.8.8" ]; outboundTag = "proxy-vless"; }
+              {
+                inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
+                ip = [ "223.5.5.5" ];
+                outboundTag = "direct";
+              }
+              {
+                inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
+                ip = [ "8.8.8.8" "1.1.1.1" ];
+                outboundTag = "proxy-vless";
+              }
               { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
               { inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
               { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
