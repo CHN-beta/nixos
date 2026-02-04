@@ -29,7 +29,7 @@ inputs:
           # networking
           remmina putty mtr-gui
           # media
-          mpv nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk # qcm
+          nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk # qcm
           waifu2x-converter-cpp blender vlc whalebird spotify obs-studio subtitlecomposer
           (inkscape-with-extensions.override { inkscapeExtensions = [ inkscape-extensions.textext ]; })
           (paraview.overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs
