@@ -89,6 +89,8 @@
               "Mod+B".action.spawn = [ "firefox" ];
               "Mod+Y".action.spawn = [ "typora" ];
               "Mod+Escape".action.power-off-monitors = {};
+              # TODO: remove after dms update
+              "XF86AudioPlay".action.spawn = [ "dms" "ipc" "call" "mpris" "playPause" ];
             };
           outputs =
           {
