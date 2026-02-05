@@ -1510,6 +1510,7 @@
         "stickerpicker": "stickerpicker",
         "tgbot-cpp": "tgbot-cpp",
         "ufo": "ufo",
+        "ugreen": "ugreen",
         "v-sim": "v-sim",
         "vaspberry": "vaspberry",
         "winapps": "winapps",
@@ -1811,6 +1812,22 @@
         "lfs": true,
         "type": "git",
         "url": "https://git.chn.moe/chn/ufo.git"
+      }
+    },
+    "ugreen": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1769611868,
+        "narHash": "sha256-W2L/GBAE6FXpujfTCYJzySW7ThP1ugMF2gPIuy5OjbM=",
+        "owner": "miskcoo",
+        "repo": "ugreen_leds_controller",
+        "rev": "20d158da863c56b15efdc925277465da91d36f6a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "miskcoo",
+        "repo": "ugreen_leds_controller",
+        "type": "github"
       }
     },
     "v-sim": {

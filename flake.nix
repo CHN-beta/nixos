@@ -67,6 +67,7 @@
     linux-asus = { url = "github:CHN-beta/linux-g14/6.18"; flake = false; };
     ufo = { url = "git+https://git.chn.moe/chn/ufo.git?lfs=1"; flake = false; };
     gitea-robots-txt = { url = "https://gitea.com/robots.txt"; flake = false; };
+    ugreen = { url = "github:miskcoo/ugreen_leds_controller"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in
