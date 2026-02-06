@@ -106,6 +106,7 @@ inputs:
       localsend.enable = true;
       thunderbird.enable = true;
       nh.enable = true;
+      evolution.enable = true;
     };
     services.pcscd.enable = true;
   };
