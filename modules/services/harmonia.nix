@@ -13,18 +13,12 @@ inputs:
   {
     services.harmonia-dev =
     {
-      package = inputs.options.services.harmonia-dev.package.default.overrideAttrs
-        (prev: { patches = prev.patches or [] ++ [ ./harmonia.patch ]; });
       cache =
       {
         enable = true;
         signKeyPaths = [ inputs.config.nixos.system.sops.secrets."store/signingKey".path ];
         settings = inputs.lib.mkIf (harmonia.store != null)
-        {
-          virtual_nix_store = "/nix/store";
-          real_nix_store = "${harmonia.store}/nix/store";
-          daemon_store = "/nix/store";
-        };
+          { virtual_nix_store = "/nix/store"; real_nix_store = "${harmonia.store}/nix/store"; };
       };
       daemon =
       {
