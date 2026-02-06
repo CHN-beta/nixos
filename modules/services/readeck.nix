@@ -36,7 +36,7 @@
         templates."readeck.env".content = let inherit (config.nixos.system.sops) placeholder; in
         ''
           READECK_SECRET_KEY=${placeholder."readeck/secret_key"}
-          READECK_DATABASE_SOURCE=postgres://readeck:${placeholder."postgresql/readeck"}@127.0.0.1:5432/readeck"
+          READECK_DATABASE_SOURCE=postgres://readeck:${placeholder."postgresql/readeck"}@127.0.0.1:5432/readeck
           READECK_MAIL_PASSWORD=${placeholder."mail/bot"}
         '';
         secrets."readeck/secret_key" = {};
