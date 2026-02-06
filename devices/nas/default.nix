@@ -67,6 +67,7 @@ inputs:
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
         nfs."/" = [ "100.97.101.0/24" ];
         immich = {};
+        readeck = {};
       };
     };
     systemd.tmpfiles.rules =
