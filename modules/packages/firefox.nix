@@ -32,7 +32,7 @@ inputs:
               [
                 tampermonkey bitwarden cookies-txt dualsub firefox-color i-dont-care-about-cookies
                 metamask pakkujs rsshub-radar rsspreview tabliss tree-style-tab ublock-origin
-                wappalyzer grammarly zotero-connector smartproxy kiss-translator
+                wappalyzer grammarly zotero-connector smartproxy kiss-translator readeck
               ];
               search = { default = "google"; force = true; };
               userChrome = builtins.readFile "${inputs.topInputs.lepton}/userChrome.css";
