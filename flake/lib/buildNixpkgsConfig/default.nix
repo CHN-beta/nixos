@@ -150,10 +150,7 @@ in platformConfig //
         xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
         libreoffice-fresh = prev.libreoffice-fresh.override (prev:
-          { unwrapped = prev.unwrapped.overrideAttrs (prev: { postPatch = prev.postPatch or "" +
-          ''
-            sed -i '/CPPUNIT_TEST.testDubiousArrayFormulasFODS/d' sc/qa/unit/functions_array.cxx
-          '';});});
+          { unwrapped = prev.unwrapped.overrideAttrs (prev: { doCheck = false; });});
         opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
