@@ -71,6 +71,8 @@ inputs:
           super-productivity
           # gaming
           bottles
+          # AI
+          alpaca
         ];
         _pythonPackages = [(pythonPackages: with pythonPackages;
         [
