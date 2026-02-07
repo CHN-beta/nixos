@@ -42,7 +42,7 @@ inputs:
           # download
           qbittorrent
           # editor
-          typora standardnotes
+          typora standardnotes obsidian
           # news
           fluent-reader rssguard newsflash newsboat folo
           # nix tools
