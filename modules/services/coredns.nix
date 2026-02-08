@@ -5,6 +5,7 @@ inputs:
     type = types.nullOr (types.submodule (submoduleInputs: { options =
     {
       interface = mkOption { type = types.str; };
+      ns = mkOption { type = types.str; };
     };}));
     default = null;
   };
@@ -14,7 +15,6 @@ inputs:
     {
       enable = true;
       config =
-      # TODO: 补全 SOA 和 CAA 记录
       ''
         autoroute.chn.moe {
           bind ${coredns.interface}
@@ -23,44 +23,19 @@ inputs:
           errors
           metadata
 
-          view china {
-            expr metadata('geoip/country/code') == 'CN'
+          template IN SOA {
+            match ^autoroute\.chn\.moe\.$
+            answer "{{ .Name }} 60 IN SOA ${coredns.ns}. chn.chn.moe. 2023010100 7200 3600 1209600 3600"
           }
-          template IN A autoroute.chn.moe {
+          template IN A {
             match ^autoroute\.chn\.moe\.$
             answer "{{.Name}} 60 IN A ${inputs.topInputs.self.config.dns."chn.moe".getAddress "vps6"}"
           }
-          template IN AAAA autoroute.chn.moe {
-            match ^autoroute\.chn\.moe\.$
+          template IN ANY {
+            match ".*"
             rcode NOERROR
           }
-          template IN CAA autoroute.chn.moe {
-            match ^autoroute\.chn\.moe\.$
-            rcode NOERROR
-          }
-          header {
-            response set aa
-          }
-        }
 
-        autoroute.chn.moe {
-          bind ${coredns.interface}
-          log
-          errors
-          metadata
-
-          template IN A autoroute.chn.moe {
-            match ^autoroute\.chn\.moe\.$
-            answer "{{.Name}} 60 IN A ${inputs.topInputs.self.config.dns."chn.moe".getAddress "vps9"}"
-          }
-          template IN AAAA autoroute.chn.moe {
-            match ^autoroute\.chn\.moe\.$
-            rcode NOERROR
-          }
-          template IN CAA autoroute.chn.moe {
-            match ^autoroute\.chn\.moe\.$
-            rcode NOERROR
-          }
           header {
             response set aa
           }
@@ -68,16 +43,30 @@ inputs:
 
         ts.chn.moe {
           bind ${coredns.interface}
-          template IN SOA ts.chn.moe {
+          log
+          errors
+
+          template IN SOA {
             match ".*"
-            answer "{{ .Name }} 60 IN SOA vps6.chn.moe. chn.chn.moe. 2023010100 7200 3600 1209600 3600"
+            answer "{{ .Name }} 60 IN SOA ${coredns.ns}. chn.chn.moe. 2023010100 7200 3600 1209600 3600"
+          }
+          template IN A {
+            match ".*"
+            fallthrough
+          }
+          template IN AAAA {
+            match ".*"
+            fallthrough
+          }
+          template IN ANY {
+            match ".*"
+            rcode NOERROR
           }
           forward . 100.100.100.100
+
           header {
             response set aa
           }
-          log
-          errors
         }
 
         . {
