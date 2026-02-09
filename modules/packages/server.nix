@@ -24,6 +24,8 @@ inputs:
             buildInputs = prev.buildInputs ++ [ mpi ];
           })
           else lammps-mpi)
+        # calculator
+        numbat
       ];
       _pythonPackages = [(pythonPackages: with pythonPackages;
       [
