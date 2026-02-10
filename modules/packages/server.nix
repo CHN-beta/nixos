@@ -12,7 +12,7 @@ inputs:
       _packages = with inputs.pkgs;
       [
         # office
-        pdfgrep ffmpeg-full hdf5
+        pdfgrep ffmpeg-full hdf5 immich-cli
         # scientific computing
         (if inputs.config.nixos.system.nixpkgs.cuda != null then localPackages.mumax else emptyDirectory)
         (if inputs.config.nixos.system.nixpkgs.cuda != null
