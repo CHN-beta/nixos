@@ -40,8 +40,8 @@
       {
         redis.instances.immich.port = 6381;
         postgresql.instances.immich = {};
-        nginx.https.${immich.hostname}.location."/".proxy.upstream =
-          "http://127.0.0.1:${builtins.toString config.services.immich.port}";
+        nginx.https.${immich.hostname}.location."/".proxy =
+        { upstream = "http://127.0.0.1:${builtins.toString config.services.immich.port}"; websocket = true; };
       };
     };
   };
