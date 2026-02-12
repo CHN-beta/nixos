@@ -9,7 +9,7 @@
         enable = true;
         settings =
         {
-          core.editor = if config.nixos.model.type == "desktop" then "code --wait" else "hx"; 
+          core.editor = "hx"; 
           http.postBuffer = 624288000;
           advice.detachedHead = false;
           merge.conflictstyle = "diff3";
