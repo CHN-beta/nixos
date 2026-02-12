@@ -1,4 +1,5 @@
 # include <missgram.hpp>
+# define CPPHTTPLIB_THREAD_POOL_COUNT 1
 # include <httplib.h>
 
 # ifndef MISSGRAM_CONFIG_FILE
