@@ -40,7 +40,7 @@
     matplotplusplus = { url = "github:alandefreitas/matplotplusplus"; flake = false; };
     nameof = { url = "github:Neargye/nameof"; flake = false; };
     tgbot-cpp = { url = "github:reo7sp/tgbot-cpp"; flake = false; };
-    v-sim = { url = "gitlab:l_sim/v_sim/master"; flake = false; };
+    v-sim = { url = "gitlab:l_sim/v_sim/b76501454b489715495a255347d5c7f756e1207f"; flake = false; };
     rycee = { url = "gitlab:rycee/nur-expressions"; flake = false; };
     lepton = { url = "github:black7375/Firefox-UI-Fix"; flake = false; };
     mumax = { url = "github:mumax/3"; flake = false; };

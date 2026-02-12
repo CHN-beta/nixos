@@ -1834,17 +1834,17 @@
     "v-sim": {
       "flake": false,
       "locked": {
-        "lastModified": 1750145242,
-        "narHash": "sha256-1DsiO5rxjDAgRK+PG09wXrLvt8s9K8lyHPJw8WUiV3E=",
+        "lastModified": 1594997908,
+        "narHash": "sha256-+iuu2kuVQEt2CTjo4g/5jnk2ZAllspxujnFuyp7CAMw=",
         "owner": "l_sim",
         "repo": "v_sim",
-        "rev": "7f2f095fb0bb53d269a3cb7834bfe05840abbc21",
+        "rev": "b76501454b489715495a255347d5c7f756e1207f",
         "type": "gitlab"
       },
       "original": {
         "owner": "l_sim",
-        "ref": "master",
         "repo": "v_sim",
+        "rev": "b76501454b489715495a255347d5c7f756e1207f",
         "type": "gitlab"
       }
     },
