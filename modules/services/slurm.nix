@@ -170,13 +170,26 @@ inputs:
         };
         munge = { enable = true; password = inputs.config.nixos.system.sops.secrets."munge.key".path; };
       };
-      systemd.services.slurmd.environment =
-        let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
-        in inputs.lib.mkIf (gpus != null)
+      systemd.services.slurmd =
+      {
+        environment =
+          let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
+          in inputs.lib.mkIf (gpus != null)
+          {
+            CUDA_PATH = "${inputs.pkgs.cudatoolkit}";
+            LD_LIBRARY_PATH = "${inputs.config.hardware.nvidia.package}/lib";
+          };
+        serviceConfig =
         {
-          CUDA_PATH = "${inputs.pkgs.cudatoolkit}";
-          LD_LIBRARY_PATH = "${inputs.config.hardware.nvidia.package}/lib";
+          # never swap
+          MemorySwapMax = "0";
+          # highest priority
+          CPUSchedulingPolicy = "fifo";
+          CPUSchedulingPriority = "99";
+          IOSchedulingClass = "realtime";
+          IOSchedulingPriority = "0";
         };
+      };
       nixos.system.sops.secrets."munge.key" =
       {
         format = "binary";
