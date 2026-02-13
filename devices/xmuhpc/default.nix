@@ -40,7 +40,7 @@
 
   wlin = mkEnv (with pkgs;
   [
-    pv vasp chn-bsub zstd dotacat banner
+    pv vasp chn-bsub zstd dotacat banner glibc.bin
   ]);
   jykang = mkEnv (with pkgs;
   [
