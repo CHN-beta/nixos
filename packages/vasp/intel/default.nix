@@ -45,6 +45,9 @@ let
       export OMP_STACKSIZE=512m
     fi
 
+    # let OpenMPI propagate these environment variables on remote hosts
+    export OMPI_MCA_mca_base_env_list="PATH;OMP_NUM_THREADS;OMP_STACKSIZE"
+
     exec "$@"
   '';
 in wrapper // { passthru = wrapper.passthru // { inherit mpi; }; }
