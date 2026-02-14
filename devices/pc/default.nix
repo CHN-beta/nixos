@@ -29,7 +29,7 @@ inputs:
           luks.auto =
           {
             "/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
-            "/dev/disk/by-partlabel/pc-tf1".mapper = "tf1";
+            "/dev/disk/by-uuid/7c3abc45-18f8-4851-a7e5-51a7e93c82e9".mapper = "tf1";
             "/dev/disk/by-partlabel/pc-tf2" = { mapper = "tf2"; ssd = true; };
           };
           swap = [ "/nix/swap/swap" ];
