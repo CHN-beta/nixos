@@ -44,6 +44,7 @@ inputs:
         "sdhci_pci"
         # to mount some fat32 disk
         "nls_ascii"
+        "bcache"
       ]
         # touchscreen for one
         ++ (inputs.lib.optionals (inputs.config.nixos.model.arch == "x86_64") [ "pinctrl-tigerlake" ]);
