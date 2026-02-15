@@ -14,10 +14,17 @@ inputs:
             vfat."/dev/disk/by-partlabel/pc-boot" = "/boot";
             btrfs =
             {
-              "/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+              "/dev/mapper/root1" =
+              {
+                "/nix/rootfs/current" = "/";
+                "/nix/persistent" = "/nix/persistent";
+                "/nix/swap" = "/nix/swap";
+                "/nix/nodatacow" = "/nix/nodatacow";
+                "/nix/rootfs" = "/nix/rootfs";
+              };
               "/dev/mapper/tf1" =
               {
-                "/" = "/nix/tf";
+                "/nix" = "/nix";
                 "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
                 "/nix/remote/jykang" = "/data/gpfs01/jykang/.nix";
                 "/nix/remote/wlin" = "/data/gpfs01/wlin/.nix";
@@ -78,11 +85,11 @@ inputs:
           );
           extraInterfaces = [ "wlp194s0" ];
         };
-        harmonia.store = "/nix/tf";
+        harmonia = {};
         beesd =
         {
           "/" = { hashTableSizeMB = 2 * 128; loadAverage = 4; };
-          "/nix/tf" = { hashTableSizeMB = 128; loadAverage = 4; };
+          "/nix" = { hashTableSizeMB = 128; loadAverage = 4; };
         };
         slurm =
         {
