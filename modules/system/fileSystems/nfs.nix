@@ -9,7 +9,7 @@
       {
         mountPoint = mkOption { type = types.nonEmptyStr; };
         mountBeforeSwitch = mkOption { type = types.bool; default = true; };
-        readOnly = mkOption { type = types.bool; default = !submoduleInputs.config.mountBeforeSwitch; };
+        # readOnly = mkOption { type = types.bool; default = !submoduleInputs.config.mountBeforeSwitch; };
       };}))
     ]);
     default = {};
@@ -31,22 +31,23 @@
                 "x-gvfs-hide" # hide in file managers (e.g. dolphin)
               ]
               # when try to mount at startup, wait 15 minutes before giving up
-              (lib.optionals (v.mountBeforeSwitch or true) [ "retry=15" "x-systemd.device-timeout=15min" ])
-              (lib.optionals (!(v.mountBeforeSwitch or true))
-                [ "bg" "x-systemd.requires=network-online.target" "x-systemd.after=network-online.target" ])
-              (lib.optionals (v.readOnly or false) [ "ro" ])
+              [ "retry=15" "x-systemd.device-timeout=15min" ]
             ];
           })
-          nfs;
+          (lib.filterAttrs (n: v: v.mountBeforeSwitch or true) nfs);
         systemd.mounts = builtins.map
           (mount:
           {
             where = mount.value.mountPoint or mount.value;
             what = mount.name;
-            overrideStrategy = "asDropin";
-            mountConfig = { ForceUnmount = true; LazyUnmount = true; };
+            type = "nfs4";
+            mountConfig = { ForceUnmount = true; LazyUnmount = true; TimeoutSec = 10; };
+            requires = [ "network-online.target" ];
+            after = [ "network-online.target" ];
+            options = "actimeo=10,retrans=1,noatime,x-gvfs-hide,bg,ro";
+            wantedBy = [ "multi-user.target" ];
           })
-          (builtins.filter (mount: mount.value.readOnly or false) (lib.attrsToList nfs));
+          (builtins.filter (mount: !(mount.value.mountBeforeSwitch or true)) (lib.attrsToList nfs));
         services.rpcbind.enable = true;
       }
       (lib.mkIf (builtins.any (mount: mount.mountBeforeSwitch or true) (builtins.attrValues nfs))

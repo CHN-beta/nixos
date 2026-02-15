@@ -65,7 +65,7 @@ inputs:
         podman = {};
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
-        nfs."/" = [ "100.97.101.0/24" ];
+        nfs = { exports."/nix/persistent" = [ "100.97.101.0/24" ]; crossmnt = false; };
         immich = {};
         readeck = {};
       };

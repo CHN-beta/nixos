@@ -31,7 +31,7 @@
                 "/nix/remote/hwang" = "/data/gpfs01/hwang/.nix";
               };
             };
-            nfs."nas.ts.chn.moe:/" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
+            nfs."nas.ts.chn.moe:/nix/persistent" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
           };
           luks.auto =
           {
@@ -140,18 +140,5 @@
       "w /sys/block/bcache*/bcache/sequential_cutoff - - - - 0"
       "w /sys/block/bcache*/bcache/writeback_percent - - - - 30"
     ];
-    systemd.services.force-unmount-nfs =
-    {
-      wantedBy = [ "multi-user.target" ];
-      after = [ "network.target" "network-online.target" "remote-fs.target" ];
-      unitConfig.DefaultDependencies = false;
-      serviceConfig =
-      {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = "${pkgs.coreutils}/bin/true";
-        ExecStop = "-${pkgs.util-linux}/bin/umount -R -f -l -t nfs4,nfs -a"; 
-      };
-    };
   };
 }

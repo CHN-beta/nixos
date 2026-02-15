@@ -48,7 +48,8 @@ inputs:
       {
         nixos =
         {
-          services.nfs = inputs.lib.mkIf (cluster.nodeType or null == "master") { "/" = [ "192.168.178.0/24" ]; };
+          services.nfs = inputs.lib.mkIf (cluster.nodeType or null == "master")
+            { exports."/" = [ "192.168.178.0/24" ]; };
           system.fileSystems.mount.nfs = inputs.lib.mkIf (cluster.nodeType or null == "worker")
           {
             "192.168.178.${fsCluster.masterAddress}:/" = "/nix/remote/${cluster.clusterName}";
