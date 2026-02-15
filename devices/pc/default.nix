@@ -135,5 +135,10 @@ inputs:
       # 插拔电源和扩展坞不要唤醒电脑
       "acpi.ec_no_wakeup=1"
     ];
+    systemd.tmpfiles.rules =
+    [
+      "w /sys/block/bcache*/bcache/sequential_cutoff - - - - 0"
+      "w /sys/block/bcache*/bcache/writeback_percent - - - - 30"
+    ];
   };
 }
