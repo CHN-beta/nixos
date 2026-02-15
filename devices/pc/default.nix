@@ -1,4 +1,4 @@
-inputs:
+{ pkgs, ...}:
 {
   config =
   {
@@ -126,7 +126,7 @@ inputs:
       # 禁止鼠标等在睡眠时唤醒
       ACTION=="add", ATTR{power/wakeup}="disabled"
       # CPU降压
-      SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${inputs.pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fff40"
+      SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fff40"
     '';
     boot.kernelParams =
     [
@@ -140,5 +140,18 @@ inputs:
       "w /sys/block/bcache*/bcache/sequential_cutoff - - - - 0"
       "w /sys/block/bcache*/bcache/writeback_percent - - - - 30"
     ];
+    systemd.services.force-unmount-nfs =
+    {
+      wantedBy = [ "multi-user.target" ];
+      after = [ "network.target" "network-online.target" "remote-fs.target" ];
+      unitConfig.DefaultDependencies = false;
+      serviceConfig =
+      {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${pkgs.coreutils}/bin/true";
+        ExecStop = "-${pkgs.util-linux}/bin/umount -R -f -l -t nfs4,nfs -a"; 
+      };
+    };
   };
 }
