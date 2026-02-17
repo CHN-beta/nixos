@@ -182,6 +182,7 @@ in platformConfig //
         x11Support = false;
         # ftxui = prev.ftxui.overrideAttrs (prev: { nativeBuildInputs = [ final.cmake ]; });
         graphviz = null;
+        vtk = null;
         # systemd does not working
         systemd = null;
         systemdMinimal = null;
@@ -226,6 +227,10 @@ in platformConfig //
         withDrm = false;
         # for openssh
         withFIDO = false;
+        # for minio
+        enableS3 = false;
+        # bluez currently depend on systemd
+        bluez = null;
       })
   )];
 }

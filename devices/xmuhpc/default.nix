@@ -5,7 +5,7 @@
     inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
     nixpkgs = { march = "haswell"; nixos = false; isKernel310 = true; };
   });
-  python = pkgs.python3.withPackages (ps: with ps; [ phonopy ]);
+  python = pkgs.python312.withPackages (ps: with ps; [ phonopy sumo ]);
   chn-bsub = pkgs.localPackages.chn-bsub.override
     (prev: { bsubConfig = builtins.toFile "bsub.yaml" (builtins.toJSON (import ./bsub.nix)); });
   mkEnv = paths:
@@ -29,13 +29,18 @@
     name = "vasp";
     paths =
       let buildVaspFor = march: pkgs.localPackages.vasp.intel.override (prev: { suffix = march; oneapiArch = march; });
-      in builtins.map buildVaspFor (pkgs.lib.unique (builtins.map (v: v.march)
-        (builtins.attrValues (import ./bsub.nix))));
+      in builtins.map buildVaspFor ([ "core-avx2" ] ++ (pkgs.lib.unique (builtins.map (v: v.march)
+        (builtins.attrValues (import ./bsub.nix)))));
   };
   banner = pkgs.runCommand "banner" {}
   ''
     mkdir -p $out/etc
     cp ${inputs.self}/modules/services/sshd/banner.txt $out/etc/banner
+  '';
+  potcar = pkgs.runCommand "potcar" {}
+  ''
+    mkdir -p $out/share
+    ln -s ${inputs.self.src.vaspkit.potcar} $out/share/potcar
   '';
 
   wlin = mkEnv (with pkgs;
@@ -44,7 +49,8 @@
   ]);
   jykang = mkEnv (with pkgs;
   [
-    gnuplot localPackages.vaspkit pv python-lyj sqlite zstd vasp chn-bsub
+    gnuplot localPackages.vaspkit pv python-lyj sqlite zstd vasp chn-bsub potcar
+    localPackages.vasp.vtst wannier90 python
   ]);
   hwang = mkEnv (with pkgs;
   [
