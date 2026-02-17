@@ -30,60 +30,26 @@ let
       oneapiArch = let match.znver5 = "znver4"; in match.${nixpkgs.march} or nixpkgs.march;
       nvhpcArch = nixpkgs.march;
     });
-in platformConfig //
-{
-  inherit config;
   overlays =
-  [
-    inputs.topInputs.aagl.overlays.default
-    inputs.topInputs.nur-xddxdd.overlays.inSubTree
-    inputs.topInputs.buildproxy.overlays.default
-    inputs.topInputs.nix4vscode.overlays.default
-    inputs.topInputs.bscpkgs.overlays.default
-    inputs.topInputs.nix-cachyos-kernel.overlays.default
-    (final: prev:
-    {
-      nur-linyinfeng = (inputs.topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
-      firefox-addons = (import "${inputs.topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
-    })
-    inputs.topInputs.self.overlays.default
-    (final: prev:
-      let
-        inherit (final) system;
-        genericPackages = import inputs.topInputs.nixpkgs
-          { inherit system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
-      in
+  {
+    addon =
+    [
+      inputs.topInputs.aagl.overlays.default
+      inputs.topInputs.nur-xddxdd.overlays.inSubTree
+      inputs.topInputs.buildproxy.overlays.default
+      inputs.topInputs.nix4vscode.overlays.default
+      inputs.topInputs.bscpkgs.overlays.default
+      inputs.topInputs.nix-cachyos-kernel.overlays.default
+      (final: prev:
       {
-        inherit genericPackages;
-        telegram-desktop = prev.telegram-desktop.override
-        {
-          unwrapped = prev.telegram-desktop.unwrapped.overrideAttrs
-            (prev: { patches = prev.patches or [] ++ [ ./telegram.patch ]; });
-        };
-        libvirt = (prev.libvirt.override { iptables = final.nftables; }).overrideAttrs
-          (prev: { patches = prev.patches or [] ++ [ ./libvirt.patch ]; });
-        tailscale = prev.tailscale.override { iptables = final.nftables; };
-        root = prev.root.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ]; });
-        boost188 = prev.boost188.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./boost188.patch ]; });
-        chromium = prev.chromium.override (prev:
-          { commandLineArgs = prev.commandLineArgs or "" + " --disable-features=GlobalShortcutsPortal"; });
-        google-chrome = prev.google-chrome.override (prev:
-          { commandLineArgs = prev.commandLineArgs or "" + " --disable-features=GlobalShortcutsPortal"; });
-        xray = prev.xray.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xray.patch ]; });
-        btop = prev.btop.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./btop.patch ]; });
-        prrte = prev.prrte.overrideAttrs (prev:
-        {
-          configureFlags = prev.configureFlags or [] ++ [ "--with-lsf" ];
-          buildInputs = prev.buildInputs or [] ++ [ final.localPackages.lsf final.libnsl ];
-        });
-        cpptrace = prev.cpptrace.overrideAttrs (prev: { doCheck = !final.stdenv.hostPlatform.isStatic; });
-        pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-        (
-          (inputs.lib.optionalAttrs (nixpkgs.march != null)
-            { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; })
-          // (inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
-            { tkinter = prev.tkinter.overridePythonAttrs { doCheck = false; }; })
-        ))];
+        nur-linyinfeng = (inputs.topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
+        firefox-addons = (import "${inputs.topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
+      })
+      inputs.topInputs.self.overlays.default
+      (final: prev:
+      {
+        genericPackages = import inputs.topInputs.nixpkgs
+          { inherit (final) system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
       }
       // (
         let
@@ -125,18 +91,44 @@ in platformConfig //
             };
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
-      )
-      // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
-        { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
-      // (inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
+      ))
+    ];
+    patch = [(final: prev:
+    {
+      telegram-desktop = prev.telegram-desktop.override
       {
-        frei0r = final.genericPackages.frei0r;
-      })
-      // (inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
+        unwrapped = prev.telegram-desktop.unwrapped.overrideAttrs
+          (prev: { patches = prev.patches or [] ++ [ ./telegram.patch ]; });
+      };
+      libvirt = (prev.libvirt.override { iptables = final.nftables; }).overrideAttrs
+        (prev: { patches = prev.patches or [] ++ [ ./libvirt.patch ]; });
+      tailscale = prev.tailscale.override { iptables = final.nftables; };
+      root = prev.root.overrideAttrs (prev: { cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ]; });
+      boost188 = prev.boost188.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./boost188.patch ]; });
+      chromium = prev.chromium.override (prev:
+        { commandLineArgs = prev.commandLineArgs or "" + " --disable-features=GlobalShortcutsPortal"; });
+      google-chrome = prev.google-chrome.override (prev:
+        { commandLineArgs = prev.commandLineArgs or "" + " --disable-features=GlobalShortcutsPortal"; });
+      xray = prev.xray.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xray.patch ]; });
+      btop = prev.btop.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./btop.patch ]; });
+      prrte = prev.prrte.overrideAttrs (prev:
+      {
+        configureFlags = prev.configureFlags or [] ++ [ "--with-lsf" ];
+        buildInputs = prev.buildInputs or [] ++ [ final.localPackages.lsf final.libnsl ];
+      });
+      cpptrace = prev.cpptrace.overrideAttrs (prev: { doCheck = !final.stdenv.hostPlatform.isStatic; });
+    })];
+    marchFix =
+    [
+      (final: prev: inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
+        { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
+      (final: prev: inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
+        { frei0r = final.genericPackages.frei0r; })
+      (final: prev: inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
         { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
-      // (inputs.lib.optionalAttrs (nixpkgs.march == "cascadelake")
+      (final: prev: inputs.lib.optionalAttrs (nixpkgs.march == "cascadelake")
         { postgresql_17 = prev.postgresql_17.override { jitSupport = false; }; })
-      // (inputs.lib.optionalAttrs (nixpkgs.march != null)
+      (final: prev: inputs.lib.optionalAttrs (nixpkgs.march != null)
       {
         ffmpeg_8 = prev.ffmpeg_8.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./ffmpeg.patch ]; });
         ffmpeg_8-headless = prev.ffmpeg_8-headless.overrideAttrs
@@ -155,82 +147,97 @@ in platformConfig //
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
+        pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++
+        [
+          (final: prev: inputs.lib.optionalAttrs (nixpkgs.march != null)
+            { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; })
+        ];
       })
-      // (inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
+    ];
+    kernel310Fix = [(final: prev: inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
+    {
+      linuxHeaders = prev.linuxHeaders.overrideAttrs (prev:
       {
-        linuxHeaders = prev.linuxHeaders.overrideAttrs (prev:
+        version = "3.10.108";
+        src = final.fetchurl
         {
-          version = "3.10.108";
-          src = final.fetchurl
-          {
-            url = "mirror://kernel/linux/kernel/v3.x/linux-3.10.108.tar.xz";
-            hash = "sha256-OEnqgRlRf2BfnVPFfdbFOa+NWEwvHZAx9PVig680CaU=";
-          };
-          buildPhase =
-          ''
-            make defconfig $makeFlags
-            make headers_install $makeFlags
-          '';
-        });
-        # ktls not working
-        enableKTLS = false;
-        gnutls = prev.gnutls.overrideAttrs
-          (prev: { configureFlags = inputs.lib.remove "--enable-ktls" (prev.configureFlags or []); });
-        # x11 mostly not working
-        gobjectSupport = false;
-        withIntrospection = false;
-        x11Support = false;
-        # ftxui = prev.ftxui.overrideAttrs (prev: { nativeBuildInputs = [ final.cmake ]; });
-        graphviz = null;
-        vtk = null;
-        # systemd does not working
-        systemd = null;
-        systemdMinimal = null;
-        systemdLibs = null;
-        udevCheckHook = null;
-        bubblewrap = null;
-        enableUdev = false;
-        enableSystemd = false;
-        withLogind = false;
-        systemdSupport = false;
-        udevSupport = false;
-        # per package fixes
-        audit = final.pkgs-2411.audit;
-        rpm = (prev.rpm.override { systemd = null; audit = null; libcap = null; }).overrideAttrs (prev:
-        {
-          cmakeFlags = prev.cmakeFlags or [] ++
-            [ "-DENABLE_TESTSUITE=OFF" "-DWITH_CAP=OFF" "-DWITH_AUDIT=OFF" "-DWITH_ACL=OFF" ];
-        });
-        libsysprof-capture = prev.libsysprof-capture.overrideAttrs
-          (prev: { patches = prev.patches or [] ++ [ ./sysprof.patch ]; });
-        gnupg = prev.gnupg.override { enableMinimal = true; };
-        elfutils = prev.elfutils.overrideAttrs
-          (prev: { env = prev.env or {} // { NIX_CFLAGS_COMPILE = "-Wno-error=unused-but-set-variable"; };});
-        go = prev.go.overrideAttrs { CGO_ENABLED = 0; };
-        libfabric = (prev.libfabric.override { enablePsm2 = false; enableOpx = false; }).overrideAttrs (prev:
-        {
-          patches = prev.patches or [] ++ [ ./libfabric.patch ];
-          # zero copy not working
-          configureFlags = (prev.configureFlags or []) ++ [ "--enable-tcp=no" ];
-        });
-        # fabric built but intel libpsm2 not
-        # we using ucx anyway
-        openmpi = prev.openmpi.override { fabricSupport = false; };
-        libbpf = null;
-        valgrind = null;
-        valgrind-light = null;
-        v4l-utils = prev.v4l-utils.overrideAttrs (prev:
-          { mesonFlags = prev.mesonFlags or [] ++ [(inputs.lib.mesonOption "bpf" "disabled")]; });
-        # for ffmpeg
-        withV4l2 = false;
-        withVaapi = false;
-        withDrm = false;
-        # for openssh
-        withFIDO = false;
-        # for minio
-        enableS3 = false;
-        # bluez currently depend on systemd
-        bluez = null;
-      })
-  )];
+          url = "mirror://kernel/linux/kernel/v3.x/linux-3.10.108.tar.xz";
+          hash = "sha256-OEnqgRlRf2BfnVPFfdbFOa+NWEwvHZAx9PVig680CaU=";
+        };
+        buildPhase =
+        ''
+          make defconfig $makeFlags
+          make headers_install $makeFlags
+        '';
+      });
+      # ktls not working
+      enableKTLS = false;
+      gnutls = prev.gnutls.overrideAttrs
+        (prev: { configureFlags = inputs.lib.remove "--enable-ktls" (prev.configureFlags or []); });
+      # x11 mostly not working
+      gobjectSupport = false;
+      withIntrospection = false;
+      x11Support = false;
+      # ftxui = prev.ftxui.overrideAttrs (prev: { nativeBuildInputs = [ final.cmake ]; });
+      graphviz = null;
+      vtk = null;
+      # systemd does not working
+      systemd = null;
+      systemdMinimal = null;
+      systemdLibs = null;
+      udevCheckHook = null;
+      bubblewrap = null;
+      enableUdev = false;
+      enableSystemd = false;
+      withLogind = false;
+      systemdSupport = false;
+      udevSupport = false;
+      # per package fixes
+      audit = final.pkgs-2411.audit;
+      rpm = (prev.rpm.override { systemd = null; audit = null; libcap = null; }).overrideAttrs (prev:
+      {
+        cmakeFlags = prev.cmakeFlags or [] ++
+          [ "-DENABLE_TESTSUITE=OFF" "-DWITH_CAP=OFF" "-DWITH_AUDIT=OFF" "-DWITH_ACL=OFF" ];
+      });
+      libsysprof-capture = prev.libsysprof-capture.overrideAttrs
+        (prev: { patches = prev.patches or [] ++ [ ./sysprof.patch ]; });
+      gnupg = prev.gnupg.override { enableMinimal = true; };
+      elfutils = prev.elfutils.overrideAttrs
+        (prev: { env = prev.env or {} // { NIX_CFLAGS_COMPILE = "-Wno-error=unused-but-set-variable"; };});
+      go = prev.go.overrideAttrs { CGO_ENABLED = 0; };
+      libfabric = (prev.libfabric.override { enablePsm2 = false; enableOpx = false; }).overrideAttrs (prev:
+      {
+        patches = prev.patches or [] ++ [ ./libfabric.patch ];
+        # zero copy not working
+        configureFlags = (prev.configureFlags or []) ++ [ "--enable-tcp=no" ];
+      });
+      # fabric built but intel libpsm2 not
+      # we using ucx anyway
+      openmpi = prev.openmpi.override { fabricSupport = false; };
+      libbpf = null;
+      valgrind = null;
+      valgrind-light = null;
+      v4l-utils = prev.v4l-utils.overrideAttrs (prev:
+        { mesonFlags = prev.mesonFlags or [] ++ [(inputs.lib.mesonOption "bpf" "disabled")]; });
+      # for ffmpeg
+      withV4l2 = false;
+      withVaapi = false;
+      withDrm = false;
+      # for openssh
+      withFIDO = false;
+      # for minio
+      enableS3 = false;
+      # bluez currently depend on systemd
+      bluez = null;
+      pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++
+      [
+        (final: prev: inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
+          { tkinter = prev.tkinter.overridePythonAttrs { doCheck = false; }; })
+      ];
+    })];
+  };
+in platformConfig //
+{
+  inherit config;
+  overlays = builtins.concatLists (builtins.attrValues overlays);
 }
