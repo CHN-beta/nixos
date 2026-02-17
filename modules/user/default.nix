@@ -57,6 +57,7 @@
         speedtest = 2012;
         tailscale = 2013;
         missgram = 2014;
+        hongbao = 2015;
       };
     };
     gid = lib.mkOption

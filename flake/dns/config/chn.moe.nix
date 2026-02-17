@@ -11,7 +11,11 @@ let
       "xserver2.vps6" "s" "headscale" "missgram"
       # to pc
       "铜锣湾实验室"
+      # temporary
+      "hongbao2026"
     ];
+    # temporary
+    "remove-me.vps6" = [ "zzzhongbao2026" ];
     "xlog.autoroute" = [ "xlog" ];
     "tinc0.srv1-node0" = [ "tinc0.srv1" ];
     "tinc0.srv2-node0" = [ "tinc0.srv2" ];
@@ -43,6 +47,8 @@ let
     srv2-node1 = "192.168.178.2";
     srv2-node2 = "192.168.178.3";
     "409test" = "192.168.1.5";
+    # temporary
+    "remove-me.vps6" = [ "127.0.0.1" ];
   };
   tinc = import ./tinc.nix;
   tailscale = import ./tailscale.nix;

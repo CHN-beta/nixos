@@ -62,6 +62,7 @@ inputs:
         coredns = { interface = "ens18"; ns = "vps6.chn.moe"; };
         headscale = {};
         missgram = {};
+        hongbao = {};
       };
     };
     networking.nftables.tables.forward =
