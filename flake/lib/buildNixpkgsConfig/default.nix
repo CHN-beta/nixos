@@ -148,10 +148,7 @@ let
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++
-        [
-          (final: prev: inputs.lib.optionalAttrs (nixpkgs.march != null)
-            { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; })
-        ];
+          [(final: prev: { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; })];
       })
     ];
     kernel310Fix = [(final: prev: inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
@@ -164,6 +161,7 @@ let
           url = "mirror://kernel/linux/kernel/v3.x/linux-3.10.108.tar.xz";
           hash = "sha256-OEnqgRlRf2BfnVPFfdbFOa+NWEwvHZAx9PVig680CaU=";
         };
+        patches = prev.patches or [] ++ [ ./linux-310.patch ];
         buildPhase =
         ''
           make defconfig $makeFlags
@@ -178,6 +176,7 @@ let
       gobjectSupport = false;
       withIntrospection = false;
       x11Support = false;
+      enableGStreamer = false;
       # ftxui = prev.ftxui.overrideAttrs (prev: { nativeBuildInputs = [ final.cmake ]; });
       graphviz = null;
       vtk = null;
@@ -192,6 +191,7 @@ let
       withLogind = false;
       systemdSupport = false;
       udevSupport = false;
+      withSystemd = false;
       # per package fixes
       audit = final.pkgs-2411.audit;
       rpm = (prev.rpm.override { systemd = null; audit = null; libcap = null; }).overrideAttrs (prev:
@@ -223,17 +223,37 @@ let
       withV4l2 = false;
       withVaapi = false;
       withDrm = false;
+      withSdl2 = false;
+      withHeadlessDeps = true;
+      withSmallDeps = false;
+      withFullDeps = false;
       # for openssh
       withFIDO = false;
       # for minio
       enableS3 = false;
       # bluez currently depend on systemd
       bluez = null;
-      pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++
-      [
-        (final: prev: inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
-          { tkinter = prev.tkinter.overridePythonAttrs { doCheck = false; }; })
-      ];
+      pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
+      {
+        tkinter = prev.tkinter.overridePythonAttrs { doCheck = false; };
+        vtk = null;
+        multidict = prev.multidict.overridePythonAttrs { doCheck = false; };
+        django = prev.django.overridePythonAttrs { doCheck = false; };
+        pillow-heif = prev.pillow-heif.overridePythonAttrs { doCheck = false; };
+        pymatgen = prev.pymatgen.overridePythonAttrs { doCheck = false; };
+      })];
+      folly = prev.folly.overrideAttrs (prev:
+      {
+        env = prev.env or {} //
+          { NIX_CFLAGS_COMPILE = prev.env.NIX_CFLAGS_COMPILE or "" + " -DFOLLY_HAVE_SO_TIMESTAMPING=0"; };
+      });
+      grpc = prev.grpc.overrideAttrs (prev: { buildInputs = prev.buildInputs or [] ++ [ final.linuxHeaders ]; });
+      fbthrift = null;
+      procps = prev.procps.overrideAttrs (prev:
+      {
+        configureFlags = prev.configureFlags or [] ++ [ "--disable-pidwait" ];
+        patches = prev.patches or [] ++ [ ./procps.patch ];
+      });
     })];
   };
 in platformConfig //
