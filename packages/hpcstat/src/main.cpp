@@ -25,6 +25,12 @@ int main(int argc, const char** argv)
     else if (args[1] == "initdb") { if (!sql::initdb()) { std::cerr << "Failed to initialize database\n"; return 1; } }
     else if (args[1] == "login")
     {
+      if (auto login_node = env::is_login_node()) { if (!*login_node) return 0; }
+      else
+      {
+        std::cerr << "Failed to get hostname.\n";
+        return 1;
+      }
       if (env::interactive()) std::cout << "Communicating with the agent..." << std::flush;
       if (env::env("CHN_DEBUG")) std::this_thread::sleep_for(1s);
       if (auto fp = ssh::fingerprint(); !fp) return 1;

@@ -8,4 +8,7 @@ namespace hpcstat::env
 
   // get the value of an environment variable
   std::optional<std::string> env(std::string name, bool required = false);
+
+  // check if the program is running on a login node
+  std::optional<bool> is_login_node();
 }

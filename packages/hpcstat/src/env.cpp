@@ -13,4 +13,12 @@ namespace hpcstat::env
     }
     else return value;
   }
+  std::optional<bool> is_login_node()
+  {
+    char hostname[256];
+    if (gethostname(hostname, sizeof(hostname)) == 0)
+      if (std::string(hostname).starts_with("login")) return true;
+      else return false;
+    else return {};
+  }
 }
