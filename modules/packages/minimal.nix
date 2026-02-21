@@ -22,7 +22,7 @@ inputs:
         # file manager
         tree eza trash-cli lsd broot file xdg-ninja mlocate
         # compress
-        pigz upx unzip zip lzip p7zip
+        pigz upx unzip zip lzip p7zip rpm
         (if inputs.pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then rar else emptyDirectory)
         # file system management
         sshfs e2fsprogs compsize exfatprogs
