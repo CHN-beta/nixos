@@ -70,7 +70,7 @@ inputs:
           # daily management
           super-productivity
           # gaming
-          (bottles.override { removeWanningPopup = true; })
+          (bottles.override { removeWarningPopup = true; }) lutris
           # AI
           alpaca
         ];
