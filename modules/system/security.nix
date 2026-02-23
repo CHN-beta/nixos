@@ -42,7 +42,8 @@ inputs:
         loginLimits =
         [
           { domain = "@users"; item = "nofile"; value = 524288; }
-          { domain = "@users"; item = "stack"; value = "unlimited"; }
+          # do not set stack to unlimited as default, some applications (e.g. wine) will fail
+          # { domain = "@users"; item = "stack"; value = "unlimited"; }
         ];
       };
       sudo.extraConfig = "Defaults pwfeedback";

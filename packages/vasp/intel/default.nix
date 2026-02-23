@@ -32,6 +32,8 @@ let
   ''
     export PATH=${vasp}/bin:${mpi}/bin:${mpi.dev}/bin:${prrte}/bin:${prrte.dev}/bin''${PATH:+:$PATH}
 
+    ulimit -s unlimited
+
     # set OMP_NUM_THREADS if SLURM_CPUS_PER_TASK is set
     if [ -z "$OMP_NUM_THREADS" ] && [ -n "$SLURM_CPUS_PER_TASK" ]; then
       export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
