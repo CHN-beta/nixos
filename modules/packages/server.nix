@@ -26,6 +26,8 @@ inputs:
           else lammps-mpi)
         # calculator
         numbat
+        # development
+        gcc go rust nodejs
       ];
       _pythonPackages = [(pythonPackages: with pythonPackages;
       [
