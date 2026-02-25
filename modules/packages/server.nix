@@ -27,7 +27,7 @@ inputs:
         # calculator
         numbat
         # development
-        gcc go rust nodejs
+        gcc go rustc nodejs
       ];
       _pythonPackages = [(pythonPackages: with pythonPackages;
       [
