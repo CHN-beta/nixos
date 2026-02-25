@@ -13,8 +13,11 @@ inputs:
     programs.nix-ld =
     {
       enable = true;
-      libraries = [(inputs.pkgs.runCommand "steamrun-lib" {}
-        "mkdir $out; ln -s ${inputs.pkgs.steam-run.fhsenv}/usr/lib64 $out/lib")];
+      libraries = with inputs.pkgs;
+      [
+        (runCommand "steamrun-lib" {} "mkdir $out; ln -s ${steam-run.fhsenv}/usr/lib64 $out/lib")
+        libice libsm
+      ];
     };
   };
 }
