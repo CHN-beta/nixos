@@ -68,6 +68,7 @@
     ufo = { url = "git+https://git.chn.moe/chn/ufo.git?lfs=1"; flake = false; };
     gitea-robots-txt = { url = "https://gitea.com/robots.txt"; flake = false; };
     ugreen = { url = "github:miskcoo/ugreen_leds_controller"; flake = false; };
+    asmroner = { url = "github:fireinrain/asmr-downloader"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in

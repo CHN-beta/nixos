@@ -28,6 +28,8 @@ inputs:
         numbat
         # development
         gcc go rustc nodejs
+        # media
+        localPackages.asmroner
       ];
       _pythonPackages = [(pythonPackages: with pythonPackages;
       [

@@ -23,6 +23,22 @@
         "type": "github"
       }
     },
+    "asmroner": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1771726018,
+        "narHash": "sha256-MW0gET2outk7STTRGii8HlO5OrtPKZvgKl8dc/67mjw=",
+        "owner": "fireinrain",
+        "repo": "asmr-downloader",
+        "rev": "2e6e290ab910f9ae6310336aba8ed7aab9ebfaa0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "fireinrain",
+        "repo": "asmr-downloader",
+        "type": "github"
+      }
+    },
     "blog": {
       "flake": false,
       "locked": {
@@ -1457,6 +1473,7 @@
     "root": {
       "inputs": {
         "aagl": "aagl",
+        "asmroner": "asmroner",
         "blog": "blog",
         "brokenaxes": "brokenaxes",
         "bscpkgs": "bscpkgs",
