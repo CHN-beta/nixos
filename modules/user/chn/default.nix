@@ -6,7 +6,7 @@
     users.users.chn =
     {
       extraGroups = lib.intersectLists
-        [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "ipfs" ]
+        [ "adbusers" "networkmanager" "wheel" "wireshark" "libvirtd" "ipfs" "dialout" ]
         (builtins.attrNames config.users.groups);
       subUidRanges = [{ startUid = 100000; count = 65536; } ];
       subGidRanges = [{ startGid = 100000; count = 65536; } ];
