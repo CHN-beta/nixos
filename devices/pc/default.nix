@@ -140,5 +140,7 @@
       "w /sys/block/bcache*/bcache/sequential_cutoff - - - - 0"
       "w /sys/block/bcache*/bcache/writeback_percent - - - - 30"
     ];
+    # 手写笔
+    hardware.opentabletdriver.enable = true;
   };
 }
