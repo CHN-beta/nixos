@@ -16,7 +16,7 @@ inputs:
           # system management
           # TODO: module should add yubikey-touch-detector into path
           gparted wayland-utils clinfo mesa-demos vulkan-tools dracut yubikey-touch-detector btrfs-assistant
-          cpu-x wl-mirror geekbench xpra
+          cpu-x wl-mirror geekbench xpra wl-clipboard
           (
             writeShellScriptBin "xclip"
             ''
@@ -34,6 +34,7 @@ inputs:
           (inkscape-with-extensions.override { inkscapeExtensions = [ inkscape-extensions.textext ]; })
           (paraview.overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs
             ++ [(python3.withPackages (ps: with ps; [ numpy matplotlib ]))]; }))
+          satty
           # development
           adb-sync scrcpy dbeaver-bin cling aircrack-ng opencode
           weston cage openbox krita fprettify # jetbrains.clion 
