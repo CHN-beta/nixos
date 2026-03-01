@@ -11,6 +11,7 @@ inputs:
       # kubo = { enable = true; autoMount = true; };
       # fstrim is enabled by default, disable it
       fstrim.enable = false;
+      upower.enable = true;
     };
     time.timeZone = "Asia/Shanghai";
     boot =
