@@ -121,11 +121,11 @@ int main(int argc, char **argv)
 
       auto teacherId = get_teacher_id(params.Name);
       if (!teacherId) continue;
-      log.debug("found teacher id: {} -> {}"_f(params.Name, *teacherId));
+      log.info("found teacher id: {} -> {}"_f(params.Name, *teacherId));
 
       auto timeId = get_time_id(params.Date, params.DayOfWeek, params.Time, params.Campus);
       if (!timeId) continue;
-      log.debug("found time id: {} {} -> {}"_f(params.Date, params.Time, *timeId));
+      log.info("found time id: {} {} -> {}"_f(params.Date, params.Time, *timeId));
 
       std::cout << "Is this ok? press Enter to continue..." << std::flush;
       std::cin.get();
@@ -158,12 +158,12 @@ int main(int argc, char **argv)
 
       auto teacherId = get_teacher_id(params.Name);
       if (!teacherId) continue;
-      log.debug("found teacher id: {} -> {}"_f(params.Name, *teacherId));
+      log.info("found teacher id: {} -> {}"_f(params.Name, *teacherId));
 
       auto timeId = get_time_id
         (params.Date, params.DayOfWeek, params.Time, params.Campus);
       if (!timeId) continue;
-      log.debug("found time id: {} {} -> {}"_f(params.Date, params.Time, *timeId));
+      log.info("found time id: {} {} -> {}"_f(params.Date, params.Time, *timeId));
 
       std::cout << "Is this ok? press Enter to continue..." << std::flush;
       std::cin.get();
