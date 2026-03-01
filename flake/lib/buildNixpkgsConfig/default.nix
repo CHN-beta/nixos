@@ -76,6 +76,18 @@ let
               ];
             };
             pkgs-2505 = "nixpkgs-2505";
+            pkgs-unstable =
+            {
+              source = "nixpkgs-unstable";
+              overlays =
+              [
+                (final: prev: inputs.lib.optionalAttrs (nixpkgs.march != null)
+                {
+                  libtpms = prev.libtpms.overrideAttrs (prev:
+                    { env.NIX_CFLAGS_COMPILE = prev.env.NIX_CFLAGS_COMPILE or "" + " -Wno-error=stringop-overflow"; });
+                })
+              ];
+            };
           };
           packages = name:
             let flakeSource = inputs.topInputs.${source.${name}.source or source.${name}};

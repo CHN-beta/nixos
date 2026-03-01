@@ -1171,6 +1171,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-unstable": {
+      "locked": {
+        "lastModified": 1772198003,
+        "narHash": "sha256-I45esRSssFtJ8p/gLHUZ1OUaaTaVLluNkABkk6arQwE=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "dd9b079222d43e1943b6ebd802f04fd959dc8e61",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1769527094,
@@ -1190,11 +1206,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1772188964,
-        "narHash": "sha256-YdR/QHPSl1zzgjHEzxUn7iBCLX6E9CYzBqalKL82+p8=",
+        "lastModified": 1772348311,
+        "narHash": "sha256-eV9RDfPE3APLtqs/if3R2aNHjuHlyy7/X8pTZAFk6Mo=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "1f7025ccdf9a2fb3484db7e1e642f9b8615f5e6b",
+        "rev": "e79456c3ea6cdbd2a865e208ce6da99d825f1e99",
         "type": "github"
       },
       "original": {
@@ -1508,6 +1524,7 @@
         "nixpkgs-2311": "nixpkgs-2311",
         "nixpkgs-2411": "nixpkgs-2411",
         "nixpkgs-2505": "nixpkgs-2505",
+        "nixpkgs-unstable": "nixpkgs-unstable",
         "nixvirt": "nixvirt",
         "nu-scripts": "nu-scripts",
         "nur-linyinfeng": "nur-linyinfeng",

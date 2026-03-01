@@ -69,7 +69,7 @@ inputs:
           # for kdenlive auto subtitle
           openai-whisper
           # daily management
-          super-productivity
+          super-productivity pkgs-unstable.vikunja-desktop
           # gaming
           (bottles.override { removeWarningPopup = true; }) lutris
           # AI
