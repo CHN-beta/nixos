@@ -1,4 +1,5 @@
 { buildGoModule, cudaPackages, src, config, cudaCapabilities ? config.cudaCapabilities, makeWrapper }:
+# TODO: use addDriverRunpath
 buildGoModule
 {
   name = "mumax";

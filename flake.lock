@@ -780,11 +780,11 @@
     "mumax": {
       "flake": false,
       "locked": {
-        "lastModified": 1772187377,
-        "narHash": "sha256-xPBct7wz+MhF6YNXMMZJHb36uRYaYLA5saFA4R/8PIs=",
+        "lastModified": 1759225134,
+        "narHash": "sha256-QTOew5Mhcgf+Tgf/V0wyNM+2VJLAttYCHxUfYNSpklg=",
         "owner": "mumax",
         "repo": "3",
-        "rev": "549d2a52f43cbe21aba9d4ed6911f8eff7cb878f",
+        "rev": "797c22bd73d6bc86a243d5c770719905f11f3274",
         "type": "github"
       },
       "original": {
