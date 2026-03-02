@@ -1,12 +1,11 @@
-{ buildGoModule, cudaPackages, src, config, cudaCapabilities ? config.cudaCapabilities, makeWrapper }:
-# TODO: use addDriverRunpath
+{ buildGoModule, cudaPackages, src, config, cudaCapabilities ? config.cudaCapabilities, autoAddDriverRunpath }:
 buildGoModule
 {
   name = "mumax";
   inherit src;
   vendorHash = null;
   buildInputs = with cudaPackages; [ libcufft libcurand cuda_cudart cuda_nvcc ];
-  nativeBuildInputs = [ cudaPackages.cuda_nvcc makeWrapper cudaPackages.autoAddCudaCompatRunpath ];
+  nativeBuildInputs = [ cudaPackages.cuda_nvcc autoAddDriverRunpath ];
   env =
   {
     CUDA_CC = builtins.concatStringsSep " " cudaCapabilities;
