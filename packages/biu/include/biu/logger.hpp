@@ -29,10 +29,12 @@ namespace biu
 		public: static void init(std::experimental::observer_ptr<std::ostream> stream, Level level);
 		public: static void init(std::shared_ptr<std::ostream> stream, Level level);
 
+# ifdef __linux__
 		// Send a telegram message if token and chat id are set, all the functions are thread-safe
 		protected: static Atomic<std::optional<std::pair<std::string, std::string>>> TelegramConfig_;
 		public: static void telegram_init(const std::string& token, const std::string& chat_id);
 		public: static void telegram_notify(const std::string& message, bool async = false);
+# endif
 
 		// Monitor the lifetime of an object
 		// usage: struct my_class : protected Logger::ObjectMonitor<my_class> { ... }

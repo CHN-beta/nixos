@@ -11,6 +11,7 @@ c: [ 1, 2 ]
 d: null
 )";
   auto node = YAML::Load(data);
+# ifdef __linux__
   auto a = node["a"].as<Eigen::Vector3i>();
   auto a2 = node["a"].as<Eigen::VectorXi>();
   auto b = node["b"].as<Eigen::Matrix3i>();
@@ -20,6 +21,7 @@ d: null
   assert(a(1) == 2);
   assert(a(2) == 3);
   assert(b == b2);
+# endif
   auto c = node["c"].as<std::complex<double>>();
   assert(c == 1. + 2i);
   auto d = node["d"].as<std::optional<int>>();
@@ -28,16 +30,20 @@ d: null
   assert(c3 == 1. + 2i);
   struct A
   {
+# ifdef __linux__
     Eigen::Vector3i a;
     Eigen::Matrix3i b;
-    std::complex<double> c;
     std::unique_ptr<Eigen::Matrix3d> d;
+# endif
+    std::complex<double> c;
   };
   auto a3 = node.as<A>();
+# ifdef __linux__
   assert(a3.a == a);
   assert(a3.b == b);
-  assert(a3.c == c);
   assert(a3.d == nullptr);
+# endif
+  assert(a3.c == c);
   auto e = node["c"].as<std::set<int>>();
   assert((e == std::set<int>{1, 2}));
   node["c"] = e;

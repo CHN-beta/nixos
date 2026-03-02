@@ -1,6 +1,8 @@
 # pragma once
 # include <yaml-cpp/yaml.h>
-# include <biu/eigen.hpp>
+# ifdef __linux__
+#   include <biu/eigen.hpp>
+# endif
 
 namespace biu
 {
@@ -9,11 +11,13 @@ namespace biu
 
 namespace YAML
 {
+# ifdef __linux__
   template <biu::EigenMatrix Matrix> struct convert<Matrix>
   {
     static Node encode(const Matrix&);
     static bool decode(const Node& node, Matrix&);
   };
+# endif
   template <biu::SpecializationOf<std::complex> Complex> struct convert<Complex>
   {
     static Node encode(const Complex&);

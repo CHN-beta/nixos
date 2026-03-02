@@ -1,0 +1,62 @@
+From 7e0a76a2f924a9e6b60edf558906270877a6fe67 Mon Sep 17 00:00:00 2001
+From: crueter <crueter@eden-emu.dev>
+Date: Sat, 25 Oct 2025 01:39:38 -0400
+Subject: [PATCH 1/2] [build] Fix MinGW missing GetAddrInfoExCancel definition
+
+MinGW does not define GetAddrInfoExCancel in its wstcpi whatever header,
+so to get around this we can just load it with GetProcAddress et al.
+
+Signed-off-by: crueter <crueter@eden-emu.dev>
+---
+ httplib.h | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/httplib.h b/httplib.h
+index db55d07e25..3aa8467623 100644
+--- a/httplib.h
++++ b/httplib.h
+@@ -3557,7 +3559,15 @@ inline int getaddrinfo_with_timeout(const char *node, const char *service,
+     auto wait_result =
+         ::WaitForSingleObject(event, static_cast<DWORD>(timeout_sec * 1000));
+     if (wait_result == WAIT_TIMEOUT) {
++#ifdef __MINGW32__
++      typedef INT (WSAAPI *PFN_GETADDRINFOEXCANCEL)(HANDLE *CancelHandle);
++      auto wsdll = LoadLibraryW((wchar_t*) "ws2_32.lib");
++      PFN_GETADDRINFOEXCANCEL GetAddrInfoExCancel = (PFN_GETADDRINFOEXCANCEL) GetProcAddress(wsdll, "GetAddrInfoExCancel");
++
++      if (cancel_handle) { GetAddrInfoExCancel(&cancel_handle); }
++#else
+       if (cancel_handle) { ::GetAddrInfoExCancel(&cancel_handle); }
++#endif
+       ::CloseHandle(event);
+       return EAI_AGAIN;
+     }
+
+From c63b43bd0c7d11c50cf0a2ee9662ebb02f3e891f Mon Sep 17 00:00:00 2001
+From: crueter <crueter@eden-emu.dev>
+Date: Sat, 25 Oct 2025 01:41:46 -0400
+Subject: [PATCH 2/2] clang-format
+
+Signed-off-by: crueter <crueter@eden-emu.dev>
+---
+ httplib.h | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/httplib.h b/httplib.h
+index 3aa8467623..9c5535d6c6 100644
+--- a/httplib.h
++++ b/httplib.h
+@@ -3560,9 +3560,10 @@ inline int getaddrinfo_with_timeout(const char *node, const char *service,
+         ::WaitForSingleObject(event, static_cast<DWORD>(timeout_sec * 1000));
+     if (wait_result == WAIT_TIMEOUT) {
+ #ifdef __MINGW32__
+-      typedef INT (WSAAPI *PFN_GETADDRINFOEXCANCEL)(HANDLE *CancelHandle);
+-      auto wsdll = LoadLibraryW((wchar_t*) "ws2_32.lib");
+-      PFN_GETADDRINFOEXCANCEL GetAddrInfoExCancel = (PFN_GETADDRINFOEXCANCEL) GetProcAddress(wsdll, "GetAddrInfoExCancel");
++      typedef INT(WSAAPI * PFN_GETADDRINFOEXCANCEL)(HANDLE * CancelHandle);
++      auto wsdll = LoadLibraryW((wchar_t *)"ws2_32.lib");
++      PFN_GETADDRINFOEXCANCEL GetAddrInfoExCancel =
++          (PFN_GETADDRINFOEXCANCEL)GetProcAddress(wsdll, "GetAddrInfoExCancel");
+ 
+       if (cancel_handle) { GetAddrInfoExCancel(&cancel_handle); }
+ #else

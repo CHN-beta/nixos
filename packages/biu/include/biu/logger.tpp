@@ -1,12 +1,14 @@
 # pragma once
 # include <fmt/chrono.h>
-# include <tgbot/tgbot.h>
 # include <biu/logger.hpp>
 # include <biu/common.hpp>
 # include <biu/format.hpp>
 # include <boost/exception/diagnostic_information.hpp>
-# include <cpptrace/cpptrace.hpp>
-# include <cpptrace/from_current.hpp>
+# ifdef __linux__
+# 	include <cpptrace/cpptrace.hpp>
+# 	include <cpptrace/from_current.hpp>
+# 	include <tgbot/tgbot.h>
+# endif
 
 namespace biu
 {
@@ -27,6 +29,7 @@ namespace biu
 		LoggerConfig_ = LoggerConfigType_
 			{std::experimental::make_observer(stream.get()), stream, level};
 	}
+# ifdef __linux__
 	inline Atomic<std::optional<std::pair<std::string, std::string>>> Logger::TelegramConfig_;
 	inline void Logger::telegram_init(const std::string& token, const std::string& chat_id)
 		{ TelegramConfig_ = std::make_pair(token, chat_id); }
@@ -41,6 +44,7 @@ namespace biu
 		if (async) std::thread(notify, message).detach();
 		else notify(message);
 	}
+# endif
 	template <typename T> Logger::ObjectMonitor<T>::ObjectMonitor()
 		: CreateTime_{std::chrono::steady_clock::now()}
 	{
@@ -75,7 +79,9 @@ namespace biu
 			if (auto&& lock = LoggerConfig_.lock(); lock->Level >= Logger::Level::Error)
 			{
 				static_assert(std::same_as<std::size_t, std::uint64_t>);
+# ifdef __linux__
 				cpptrace::from_current_exception().print(*lock->Stream);
+# endif
 				*lock->Stream << std::flush;
 			}
 		}
@@ -123,6 +129,7 @@ namespace biu
 		{
 			static_assert(std::same_as<std::size_t, std::uint64_t>);
 			auto time = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+# ifdef __linux__
 			auto frame = cpptrace::stacktrace::current(2, 1).frames[0];
 # 	ifdef BIU_LOGGER_SOURCE_ROOT
 			auto source_root = std::string_view(BIU_LOGGER_SOURCE_ROOT "/");
@@ -131,15 +138,20 @@ namespace biu
 # 	else
 			auto source_file = frame.filename;
 # 	endif
+# endif
 			*lock->Stream << "[ {:%T} {:02x} {:02} ] {} (at {}:{} {} )\n"_f
 			(
 				time,
 				get_thread_id() % std::numeric_limits<std::uint16_t>::max(),
 				Indent_,
 				message,
+# ifdef __linux__
 				source_file.empty() ? "??"s : source_file,
 				frame.line.has_value() ? "{}"_f(frame.line.value()) : "??"s,
 				frame.symbol
+# else
+				"??"s, "??"s, "??"s
+# endif
 			) << std::flush;
 		}
 	}

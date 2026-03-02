@@ -23,10 +23,10 @@ let
       inherit allowInsecurePredicate;
       allowUnfree = true;
       android_sdk.accept_license = true;
-      allowBroken = true;
+      # allowBroken = true;
       nvidia.acceptLicense = true;
       microsoftVisualStudioLicenseAccepted = true;
-      allowUnsupportedSystem = true;
+      # allowUnsupportedSystem = true;
     }
     // (inputs.lib.optionalAttrs (nixpkgs.march != null)
     {
@@ -132,6 +132,18 @@ let
         buildInputs = prev.buildInputs or [] ++ [ final.localPackages.lsf final.libnsl ];
       });
       cpptrace = prev.cpptrace.overrideAttrs (prev: { doCheck = !final.stdenv.hostPlatform.isStatic; });
+      range-v3 = prev.range-v3.overrideAttrs (prev:
+      {
+        doCheck = final.stdenv.hostPlatform.isLinux;
+        cmakeFlags = prev.cmakeFlags or [] ++ final.lib.optionals (!final.stdenv.hostPlatform.isLinux)
+          [ "-DRANGE_V3_TESTS=OFF" ];
+      });
+      magic-enum = prev.magic-enum.overrideAttrs (prev:
+      {
+        cmakeFlags = prev.cmakeFlags or [] ++ final.lib.optionals (!final.stdenv.hostPlatform.isLinux)
+          [ "-DMAGIC_ENUM_OPT_BUILD_TESTS=OFF" ];
+      });
+      httplib = prev.httplib.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./httplib.patch ]; });
     })];
     marchFix =
     [
