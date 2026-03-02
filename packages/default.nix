@@ -57,7 +57,8 @@ inputs: rec
     };
     vtst = inputs.pkgs.callPackage ./vasp/vtst.nix { src = inputs.topInputs.self.src.vasp.vtst.script; };
   };
-  mumax = inputs.pkgs.callPackage ./mumax.nix { src = inputs.topInputs.mumax; };
+  mumax = inputs.pkgs.callPackage ./mumax.nix
+    { src = inputs.topInputs.mumax; cudaPackages = inputs.pkgs.cudaPackages_12_9; };
   biu = inputs.pkgs.callPackage ./biu
   {
     inherit nameof zpp-bits tgbot-cpp concurrencpp pocketfft;
