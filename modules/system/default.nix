@@ -12,6 +12,7 @@ inputs:
       # fstrim is enabled by default, disable it
       fstrim.enable = false;
       upower.enable = true;
+      power-profiles-daemon.enable = true;
     };
     time.timeZone = "Asia/Shanghai";
     boot =
