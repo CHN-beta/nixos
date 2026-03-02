@@ -24,6 +24,7 @@ let
       allowUnfree = true;
       android_sdk.accept_license = true;
       allowBroken = true;
+      nvidia.acceptLicense = true;
     }
     // (inputs.lib.optionalAttrs (nixpkgs.march != null)
     {

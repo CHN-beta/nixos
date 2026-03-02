@@ -1,20 +1,25 @@
-inputs:
+{ config, lib, pkgs, ... }:
 {
-  options.nixos.hardware.gpu = let inherit (inputs.lib) mkOption types; in
+  options.nixos.hardware.gpu =
   {
-    type = mkOption { type = types.nullOr (types.enum [ "intel" "nvidia" "amd" ]); default = null; };
+    type = lib.mkOption { type = lib.types.nullOr (lib.types.enum [ "intel" "nvidia" "amd" ]); default = null; };
     nvidia =
     {
-      dynamicBoost = mkOption { type = types.bool; default = false; };
-      driver = mkOption { type = types.enum [ "production" "latest" "beta" ]; default = "production"; };
-      open = mkOption { type = types.bool; default = true; };
+      dynamicBoost = lib.mkOption { type = lib.types.bool; default = false; };
+      open = lib.mkOption { type = lib.types.bool; default = true; };
+      datacenter = lib.mkOption { type = lib.types.bool; default = false; };
+      driver = lib.mkOption
+      {
+        type = lib.types.enum [ "production" "latest" "beta" "dc" ];
+        default = if config.nixos.hardware.gpu.nvidia.datacenter then "dc" else "production";
+      };
     };
   };
-  config = let inherit (inputs.config.nixos.hardware) gpu; in inputs.lib.mkIf (gpu.type != null) (inputs.lib.mkMerge
+  config = let inherit (config.nixos.hardware) gpu; in lib.mkIf (gpu.type != null) (lib.mkMerge
   [
     # generic settings
     (
-      let gpus = inputs.lib.strings.splitString "+" gpu.type; in
+      let gpus = lib.strings.splitString "+" gpu.type; in
       {
         boot =
         {
@@ -32,42 +37,49 @@ inputs:
           {
             enable = true;
             extraPackages =
-              let packages = with inputs.pkgs;
+              let packages = with pkgs;
               {
                 # TODO: import from nixos-hardware instead
                 # enableHybridCodec is only needed for some old intel gpus (Atom, Nxxx, etc)
-                intel = [ intel-vaapi-driver libvdpau-va-gl intel-media-driver ];
+                intel =
+                  [ intel-vaapi-driver libvdpau-va-gl intel-media-driver ];
                 nvidia = [ libva-vdpau-driver ];
                 amd = [];
               };
               in packages.${gpu.type}
-                ++ (with inputs.pkgs; [ vulkan-loader vulkan-validation-layers vulkan-extension-layer ]);
+                ++ (with pkgs; [ vulkan-loader vulkan-validation-layers vulkan-extension-layer ]);
           };
-          nvidia = inputs.lib.mkIf (gpu.type == "nvidia")
+          nvidia = lib.mkIf (gpu.type == "nvidia")
           {
             modesetting.enable = true;
             powerManagement.enable = true;
-            dynamicBoost.enable = inputs.lib.mkIf gpu.nvidia.dynamicBoost true;
+            dynamicBoost.enable = lib.mkIf gpu.nvidia.dynamicBoost true;
             nvidiaSettings = true;
-            package = inputs.config.boot.kernelPackages.nvidiaPackages.${gpu.nvidia.driver};
+            package = config.boot.kernelPackages.nvidiaPackages.${gpu.nvidia.driver};
             inherit (gpu.nvidia) open;
             prime.allowExternalGpu = true;
+            datacenter.enable = gpu.nvidia.datacenter;
           };
         };
         services.xserver.videoDrivers =
-          let driver = { intel = "modesetting"; amd = "amdgpu"; nvidia = "nvidia"; };
-          in [ driver.${gpu.type} ];
+          let driver =
+          {
+            intel = [ "modesetting" ];
+            amd = [ "amdgpu" ];
+            nvidia = lib.optionals (!gpu.nvidia.datacenter) [ "nvidia" ];
+          };
+          in driver.${gpu.type};
         nixos.packages.packages._packages =
-          let packages = with inputs.pkgs;
+          let packages = with pkgs;
           {
             intel = [ intel-gpu-tools ];
             nvidia = [ nvtopPackages.full ];
             amd = [ radeontop ];
           };
           in packages.${gpu.type};
-        environment.etc."nvidia/nvidia-application-profiles-rc.d/vram" = inputs.lib.mkIf (gpu.type == "nvidia")
+        environment.etc."nvidia/nvidia-application-profiles-rc.d/vram" = lib.mkIf (gpu.type == "nvidia")
         {
-          source = inputs.pkgs.writeText "save-vram" (builtins.toJSON
+          source = pkgs.writeText "save-vram" (builtins.toJSON
           {
             rules = [{ pattern = { feature = "true"; matches = ""; }; profile = "save-vram"; }];
             profiles = [{ name = "save-vram"; settings = [{ key = "GLVidHeapReuseRatio"; value = 0; }]; }];
@@ -77,7 +89,7 @@ inputs:
     )
     # amdgpu
     (
-      inputs.lib.mkIf (inputs.lib.strings.hasPrefix "amd" gpu.type)
+      lib.mkIf (lib.strings.hasPrefix "amd" gpu.type)
         { hardware.amdgpu = { opencl.enable = true; initrd.enable = true; legacySupport.enable = true; };}
     )
   ]);
