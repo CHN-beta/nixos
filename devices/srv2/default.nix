@@ -27,7 +27,7 @@ inputs:
           "8.9"
         ];
       };
-      hardware.gpu = { type = "nvidia"; nvidia.datacenter = true; };
+      hardware.gpu.type = "nvidia";
       services =
       {
         sshd = {};
