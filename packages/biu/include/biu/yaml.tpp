@@ -2,14 +2,18 @@
 # include <biu/yaml.hpp>
 # include <biu/concepts.hpp>
 # include <biu/format.hpp>
-# include <biu/eigen.hpp>
+# ifdef __linux__
+#   include <biu/eigen.hpp>
+# endif
 # include <boost/pfr.hpp>
 # include <boost/pfr/core_name.hpp>
 # include <nameof.hpp>
 # include <magic_enum/magic_enum.hpp>
+# include <range/v3/all.hpp>
 
 namespace YAML
 {
+# ifdef __linux__
   template <biu::EigenMatrix Matrix> Node convert<Matrix>::encode(const Matrix& matrix)
   {
     auto std_matrix = matrix | biu::fromEigen;
@@ -23,6 +27,7 @@ namespace YAML
     matrix = value | biu::toEigen<>;
     return true;
   }
+# endif
   template <biu::SpecializationOf<std::complex> Complex> Node convert<Complex>::encode(const Complex& complex)
   {
     return convert<std::array<typename Complex::value_type, 2>>::encode({ complex.real(), complex.imag() });

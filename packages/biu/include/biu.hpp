@@ -5,8 +5,12 @@
 # include <biu/concepts.tpp>
 # include <biu/string.tpp>
 # include <biu/format.tpp>
-# include <biu/eigen.tpp>
-# include <biu/hdf5.tpp>
+# ifdef __linux__
+#   include <biu/eigen.tpp>
+#   include <biu/hdf5.tpp>
+#   include <biu/glaze.tpp>
+#   include <biu/process.tpp>
+# endif
 # ifndef BIU_INTERNAL
 // while building the library, the logger should not be included, to ensure inline members are not compiled
 #   include <biu/logger.tpp>
@@ -15,6 +19,4 @@
 # include <biu/fft.tpp>
 # include <biu/yaml.tpp>
 # include <biu/serialize.tpp>
-# include <biu/glaze.tpp>
 # include <range/v3/all.hpp>
-# include <biu/process.tpp>
