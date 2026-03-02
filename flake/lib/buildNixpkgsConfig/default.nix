@@ -25,6 +25,8 @@ let
       android_sdk.accept_license = true;
       allowBroken = true;
       nvidia.acceptLicense = true;
+      microsoftVisualStudioLicenseAccepted = true;
+      allowUnsupportedSystem = true;
     }
     // (inputs.lib.optionalAttrs (nixpkgs.march != null)
     {
