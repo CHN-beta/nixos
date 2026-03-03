@@ -53,5 +53,6 @@
         ((builtins.attrValues systems) ++ [ src inputListFile ]));
     in
     archive // { passthru = archive.passthru // systems // { inherit src; inputs = inputListFile; }; };
+  inherit (pkgs.pkgsCross.ucrt64.localPackages) xinli;
 }
 // (builtins.mapAttrs (_: v: v.config.system.build.toplevel) inputs.self.outputs.nixosConfigurations)
