@@ -94,9 +94,9 @@ int main(int argc, char **argv)
         for (auto time : YAML::Load(*res)["data"])
           if (time["timeQuantumStart"].as<std::string>() == t)
           {
-            for (auto teacher : time["dayTimeTeacher"])
-              if (!teacher["isVisual"].as<bool>())
-                { log.error("hidden schedule found at {} {}"_f(day, t)); return {}; }
+            // for (auto teacher : time["dayTimeTeacher"])
+            //   if (!teacher["isVisual"].as<bool>())
+            //     { log.error("hidden schedule found at {} {}"_f(day, t)); return {}; }
             result[time["id"].as<int>()] = {};
             for (auto teacher : time["dayTimeTeacher"])
               result[time["id"].as<int>()].push_back(teacher["user"]["teacherBaseInfo"]["userId"].as<std::string>());
