@@ -8,6 +8,10 @@ int main(int argc, char **argv)
 {
   biu::Logger::Guard log;
 
+# ifdef _WIN32
+  SetConsoleOutputCP(65001);
+# endif
+
   struct Job_t { std::string Type; YAML::Node Params; };
   struct { std::string Cookie; std::vector<Job_t> Jobs; } Config;
   Config = YAML::LoadFile(argv[1]).as<decltype(Config)>();
