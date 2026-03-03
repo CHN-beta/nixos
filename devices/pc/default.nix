@@ -115,7 +115,7 @@
         postgresql.enable = true;
       };
       bugs = [ "amdpstate" ];
-      packages = { mathematica = {}; vasp = {}; };
+      packages = { mathematica = {}; vasp = {}; extra = {}; };
       user.users = [ "chn" "lilydjwg" ];
     };
     # 允许kvm读取物理硬盘
