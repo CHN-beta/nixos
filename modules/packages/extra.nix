@@ -8,11 +8,11 @@ inputs:
     [
       ventoy-full
       davinci-resolve
-      fluffychat signal-desktop qq cinny-desktop hexchat halloy
+      fluffychat signal-desktop qq hexchat halloy
       appflowy notion-app-enhanced joplin-desktop logseq obsidian code-cursor
       warp-terminal
       rustdesk-flutter
-      yubikey-manager-qt yubikey-personalization-gui electrum jabref john crunch
+      yubioath-flutter electrum jabref john crunch
       wgetpaste onedrive onedrivegui rclone
     ];
     programs =
