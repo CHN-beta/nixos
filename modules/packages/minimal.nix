@@ -42,7 +42,7 @@ inputs:
         (if inputs.pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then nix-init else emptyDirectory)
         (octodns.withProviders (_: with octodns-providers; [ cloudflare ]))
         # stupid things
-        toilet dotacat localPackages.stickerpicker graph-easy
+        toilet dotacat localPackages.stickerpicker graph-easy tokei
         # shell
         # somehow fish does not compile on aarch64
         (if inputs.config.nixos.model.arch == "x86_64" then kitty else emptyDirectory)
