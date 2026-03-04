@@ -33,7 +33,7 @@ inputs:
       ];
       _pythonPackages = [(pythonPackages: with pythonPackages;
       [
-        phonopy
+        phonopy ruamel-yaml
         # for vasp plot-workfunc.py
         ase
       ])];
