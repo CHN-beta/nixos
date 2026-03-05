@@ -116,7 +116,7 @@ inputs:
             JobCompType=jobcomp/filetxt
             JobCompLoc=/var/log/slurmctld/jobcomp.log
 
-            SchedulerParameters=enable_user_top
+            SchedulerParameters=enable_user_top,bf_window=10
 
             SlurmdDebug=debug2
             SlurmdParameters=l3cache_as_socket
