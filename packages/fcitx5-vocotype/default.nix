@@ -20,7 +20,10 @@
     postInstall =
     ''
       mkdir -p $out/bin
-      cp ${src}/fcitx5/backend/fcitx5_server.py $out/bin/vocotype-fcitx5-backend
       cp ${src}/fcitx5/backend/audio_recorder.py $out/bin/vocotype-audio-recorder
+      mkdir -p $out/share/fcitx5/addon
+      cp ${src}/fcitx5/data/vocotype.conf $out/share/fcitx5/addon/vocotype.conf
+      mkdir -p $out/share/fcitx5/inputmethod
+      cp ${src}/fcitx5/data/vocotype.conf.in $out/share/fcitx5/inputmethod/vocotype.conf
     '';
   }

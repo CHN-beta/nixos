@@ -48,80 +48,99 @@
       enable = true;
       type = "fcitx5";
       fcitx5.addons = with pkgs;
-        [ qt6Packages.fcitx5-chinese-addons fcitx5-mozc fcitx5-material-color fcitx5-gtk ];
+      [
+        qt6Packages.fcitx5-chinese-addons fcitx5-mozc fcitx5-material-color fcitx5-gtk
+        localPackages.fcitx5-vocotype
+      ];
     };
     programs = { dconf.enable = true; niri.enable = true; };
     nixos.user.sharedModules = [(hmInputs:
     {
-      config.programs =
+      config =
       {
-        dank-material-shell =
+        programs =
         {
-          enable = true;
-          niri.enableKeybinds = true;
-          systemd = { enable = true; restartIfChanged = true; };
+          dank-material-shell =
+          {
+            enable = true;
+            niri.enableKeybinds = true;
+            systemd = { enable = true; restartIfChanged = true; };
+          };
+          niri.settings =
+          {
+            binds =
+              let
+                xsel = "${pkgs.xsel}/bin/xsel";
+                wl-copy = "${pkgs.wl-clipboard}/bin/wl-copy";
+                wl-paste = "${pkgs.wl-clipboard}/bin/wl-paste";
+              in
+              {
+                "Mod+WheelScrollDown" = { action.focus-column-right = {}; cooldown-ms = 50; };
+                "Mod+WheelScrollUp" = { action.focus-column-left = {}; cooldown-ms = 50; };
+                "Mod+Left".action.focus-column-left = {};
+                "Mod+Right".action.focus-column-right = {};
+                "Ctrl+Mod+Left".action.move-column-left = {};
+                "Ctrl+Mod+Right".action.move-column-right = {};
+                "Mod+Up".action.focus-workspace-up = {};
+                "Mod+Down".action.focus-workspace-down = {};
+                "Mod+MouseMiddle".action.close-window = {};
+                "Mod+L".action.spawn = [ "dms" "ipc" "lock" "lock" ];
+                "Mod+W".action.move-workspace-to-monitor-next = {};
+                "Mod+Ctrl+C".action.spawn = [ "sh" "-c" "${xsel} -ob | ${wl-copy}" ];
+                "Mod+Ctrl+V".action.spawn = [ "sh" "-c" "${wl-paste} -n | ${xsel} -ib" ];
+                "Mod+S".action.screenshot = {};
+                "Mod+F".action.switch-preset-column-width = {};
+                "Mod+T".action.spawn = [ "ghostty" ];
+                "Mod+B".action.spawn = [ "firefox" ];
+                "Mod+Y".action.spawn = [ "typora" ];
+                "Mod+Escape".action.power-off-monitors = {};
+                # TODO: remove after dms update
+                "XF86AudioPlay".action.spawn = [ "dms" "ipc" "call" "mpris" "playPause" ];
+              };
+            outputs =
+            {
+              "Tianma Microelectronics Ltd. TL134ADXP03 Unknown" =
+                { scale = 1; position = { x = 0; y = 0; }; mode = { width = 2560; height = 1600; refresh = 180.; }; };
+              "Xiaomi Corporation Mi Monitor 0x00000001" =
+              {
+                scale = 1;
+                position = { x = 0; y = -2160; };
+                mode = { width = 3840; height = 2160; refresh = 160.; };
+              };
+            };
+            input =
+            {
+              touchpad.dwt = true;
+              keyboard.numlock = true;
+              power-key-handling.enable = false;
+              focus-follows-mouse = { enable = true; max-scroll-amount="10%"; };
+            };
+            layout =
+            {
+              default-column-width.proportion = 0.5;
+              preset-column-widths = [ { proportion = 0.5; } { proportion = 1.; } ];
+            };
+            spawn-at-startup =
+            [
+              { argv = [ "Telegram" "-startintray" ]; }
+              { argv = [ "steam" "-silent" ]; }
+              { argv = [ "element-desktop" "--hidden" ]; }
+              { argv = [ "discord" "--start-minimized" "--no-startup-id" ]; }
+            ];
+          };
         };
-        niri.settings =
+        systemd.user.services.vocotype-fcitx5-backend =
         {
-          binds =
-            let
-              xsel = "${pkgs.xsel}/bin/xsel";
-              wl-copy = "${pkgs.wl-clipboard}/bin/wl-copy";
-              wl-paste = "${pkgs.wl-clipboard}/bin/wl-paste";
-            in
-            {
-              "Mod+WheelScrollDown" = { action.focus-column-right = {}; cooldown-ms = 50; };
-              "Mod+WheelScrollUp" = { action.focus-column-left = {}; cooldown-ms = 50; };
-              "Mod+Left".action.focus-column-left = {};
-              "Mod+Right".action.focus-column-right = {};
-              "Ctrl+Mod+Left".action.move-column-left = {};
-              "Ctrl+Mod+Right".action.move-column-right = {};
-              "Mod+Up".action.focus-workspace-up = {};
-              "Mod+Down".action.focus-workspace-down = {};
-              "Mod+MouseMiddle".action.close-window = {};
-              "Mod+L".action.spawn = [ "dms" "ipc" "lock" "lock" ];
-              "Mod+W".action.move-workspace-to-monitor-next = {};
-              "Mod+Ctrl+C".action.spawn = [ "sh" "-c" "${xsel} -ob | ${wl-copy}" ];
-              "Mod+Ctrl+V".action.spawn = [ "sh" "-c" "${wl-paste} -n | ${xsel} -ib" ];
-              "Mod+S".action.screenshot = {};
-              "Mod+F".action.switch-preset-column-width = {};
-              "Mod+T".action.spawn = [ "ghostty" ];
-              "Mod+B".action.spawn = [ "firefox" ];
-              "Mod+Y".action.spawn = [ "typora" ];
-              "Mod+Escape".action.power-off-monitors = {};
-              # TODO: remove after dms update
-              "XF86AudioPlay".action.spawn = [ "dms" "ipc" "call" "mpris" "playPause" ];
-            };
-          outputs =
+          Unit.After = [ "graphical-session.target" ];
+          Service =
           {
-            "Tianma Microelectronics Ltd. TL134ADXP03 Unknown" =
-              { scale = 1; position = { x = 0; y = 0; }; mode = { width = 2560; height = 1600; refresh = 180.; }; };
-            "Xiaomi Corporation Mi Monitor 0x00000001" =
-            {
-              scale = 1;
-              position = { x = 0; y = -2160; };
-              mode = { width = 3840; height = 2160; refresh = 160.; };
-            };
+            Type = "simple";
+            # TODO: create socket under $XDG_RUNTIME_DIR
+            ExecStart = "${pkgs.localPackages.vocotype}/bin/vocotype-fcitx5-backend";
+            Restart = "on-failure";
+            RestartSec = "5s";
           };
-          input =
-          {
-            touchpad.dwt = true;
-            keyboard.numlock = true;
-            power-key-handling.enable = false;
-            focus-follows-mouse = { enable = true; max-scroll-amount="10%"; };
-          };
-          layout =
-          {
-            default-column-width.proportion = 0.5;
-            preset-column-widths = [ { proportion = 0.5; } { proportion = 1.; } ];
-          };
-          spawn-at-startup =
-          [
-            { argv = [ "Telegram" "-startintray" ]; }
-            { argv = [ "steam" "-silent" ]; }
-            { argv = [ "element-desktop" "--hidden" ]; }
-            { argv = [ "discord" "--start-minimized" "--no-startup-id" ]; }
-          ];
+          Install.WantedBy = [ "default.target" ];
         };
       };
     })];
