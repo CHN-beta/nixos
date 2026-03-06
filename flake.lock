@@ -1654,6 +1654,7 @@
         "v-sim": "v-sim",
         "vaspberry": "vaspberry",
         "vocotype": "vocotype",
+        "vocotype-models": "vocotype-models",
         "winapps": "winapps",
         "zpp-bits": "zpp-bits"
       }
@@ -2034,6 +2035,24 @@
         "owner": "LeonardNJU",
         "repo": "VocoType-linux",
         "type": "github"
+      }
+    },
+    "vocotype-models": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1772794796,
+        "lfs": true,
+        "narHash": "sha256-1Dddt+ZyHI4lhGQBFbGPn4G5jswd12iWbsuPVf3FMHA=",
+        "ref": "refs/heads/main",
+        "rev": "03ecc92adf88e680587de71981670c387b54980e",
+        "revCount": 1,
+        "type": "git",
+        "url": "https://git.chn.moe/chn/vocotype-models.git"
+      },
+      "original": {
+        "lfs": true,
+        "type": "git",
+        "url": "https://git.chn.moe/chn/vocotype-models.git"
       }
     },
     "winapps": {

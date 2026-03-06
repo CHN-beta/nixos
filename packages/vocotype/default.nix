@@ -1,4 +1,4 @@
-{ src, python3Packages }: python3Packages.buildPythonApplication
+{ src, python3Packages, models }: python3Packages.buildPythonApplication
 {
   name = "vocotype";
   inherit src;
@@ -14,5 +14,7 @@
   postInstall =
   ''
     cp fcitx5/backend/fcitx5_server.py $out/bin/vocotype-fcitx5-backend
+    mkdir -p $out/share/vocotype/models
+    cp -r ${models}/* $out/share/vocotype/models
   '';
 }

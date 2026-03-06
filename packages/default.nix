@@ -136,7 +136,8 @@ inputs: rec
   lsf = inputs.pkgs.callPackage ./lsf.nix { src = inputs.topInputs.self.src.lsf; };
   lazytyper = inputs.pkgs.callPackage ./lazytyper.nix {};
   asmroner = inputs.pkgs.callPackage ./asmroner.nix { src = inputs.topInputs.asmroner; };
-  vocotype = inputs.pkgs.callPackage ./vocotype { src = inputs.topInputs.vocotype; };
+  vocotype = inputs.pkgs.callPackage ./vocotype
+    { src = inputs.topInputs.vocotype; models = inputs.topInputs.vocotype-models; };
   pythonOverlay = python3Packages:
   {
     py4vasp = python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; };

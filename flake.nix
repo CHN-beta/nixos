@@ -78,6 +78,7 @@
     pytorch-wpe = { url = "github:nttcslab-sp/dnn_wpe"; flake = false; };
     torch-complex = { url = "github:kamo-naoyuki/pytorch_complex"; flake = false; };
     kaldi-native-fbank = { url = "github:csukuangfj/kaldi-native-fbank"; flake = false; };
+    vocotype-models = { url = "git+https://git.chn.moe/chn/vocotype-models.git?lfs=1"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in
