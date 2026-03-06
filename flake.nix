@@ -70,16 +70,6 @@
     gitea-robots-txt = { url = "https://gitea.com/robots.txt"; flake = false; };
     ugreen = { url = "github:miskcoo/ugreen_leds_controller"; flake = false; };
     asmroner = { url = "github:fireinrain/asmr-downloader"; flake = false; };
-    vocotype = { url = "github:LeonardNJU/VocoType-linux"; flake = false; };
-    funasr = { url = "github:modelscope/FunASR"; flake = false; };
-    pytest-runner = { url = "github:pytest-dev/pytest-runner/v6.0.0"; flake = false; };
-    kaldiio = { url = "github:nttcslab-sp/kaldiio"; flake = false; };
-    modelscope = { url = "github:modelscope/modelscope/v1.34.0"; flake = false; };
-    pytorch-wpe = { url = "github:nttcslab-sp/dnn_wpe"; flake = false; };
-    torch-complex = { url = "github:kamo-naoyuki/pytorch_complex"; flake = false; };
-    kaldi-native-fbank = { url = "github:csukuangfj/kaldi-native-fbank"; flake = false; };
-    vocotype-models = { url = "git+https://git.chn.moe/chn/vocotype-models.git?lfs=1"; flake = false; };
-    pyrime = { url = "github:rimeinn/pyrime"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in

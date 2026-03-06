@@ -134,27 +134,13 @@ inputs: rec
   sqlgen = inputs.pkgs.callPackage ./sqlgen.nix { src = inputs.topInputs.sqlgen; inherit reflectcpp; };
   reflectcpp = inputs.pkgs.callPackage ./reflectcpp.nix { src = inputs.topInputs.reflectcpp; };
   lsf = inputs.pkgs.callPackage ./lsf.nix { src = inputs.topInputs.self.src.lsf; };
-  lazytyper = inputs.pkgs.callPackage ./lazytyper.nix {};
   asmroner = inputs.pkgs.callPackage ./asmroner.nix { src = inputs.topInputs.asmroner; };
-  vocotype = inputs.pkgs.callPackage ./vocotype
-    { src = inputs.topInputs.vocotype; models = inputs.topInputs.vocotype-models; };
   pythonOverlay = python3Packages:
   {
     py4vasp = python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; };
     phono3py = python3Packages.callPackage ./phono3py.nix { src = inputs.topInputs.phono3py; };
     brokenaxes = python3Packages.callPackage ./brokenaxes.nix { src = inputs.topInputs.brokenaxes; };
-    funasr = python3Packages.callPackage ./funasr.nix { src = inputs.topInputs.funasr; };
-    pytest-runner = python3Packages.callPackage ./pytest-runner.nix { src = inputs.topInputs.pytest-runner; };
-    kaldiio = python3Packages.callPackage ./kaldiio.nix { src = inputs.topInputs.kaldiio; };
-    modelscope = python3Packages.callPackage ./modelscope.nix { src = inputs.topInputs.modelscope; };
-    pytorch-wpe = python3Packages.callPackage ./pytorch-wpe.nix { src = inputs.topInputs.pytorch-wpe; };
-    torch-complex = python3Packages.callPackage ./torch-complex.nix { src = inputs.topInputs.torch-complex; };
-    funasr-onnx = python3Packages.callPackage ./funasr-onnx {};
-    kaldi-native-fbank = python3Packages.callPackage ./kaldi-native-fbank.nix
-      { src = inputs.topInputs.kaldi-native-fbank; };
-    pyrime = python3Packages.callPackage ./pyrime.nix { src = inputs.topInputs.pyrime; };
   };
-  fcitx5-vocotype = inputs.pkgs.callPackage ./fcitx5-vocotype { src = inputs.topInputs.vocotype; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

@@ -50,7 +50,6 @@
       fcitx5.addons = with pkgs;
       [
         qt6Packages.fcitx5-chinese-addons fcitx5-mozc fcitx5-material-color fcitx5-gtk
-        localPackages.fcitx5-vocotype
       ];
     };
     programs = { dconf.enable = true; niri.enable = true; };
@@ -128,19 +127,6 @@
               { argv = [ "discord" "--start-minimized" "--no-startup-id" ]; }
             ];
           };
-        };
-        systemd.user.services.vocotype-fcitx5-backend =
-        {
-          Unit.After = [ "graphical-session.target" ];
-          Service =
-          {
-            Type = "simple";
-            # TODO: create socket under $XDG_RUNTIME_DIR
-            ExecStart = "${pkgs.localPackages.vocotype}/bin/vocotype-fcitx5-backend";
-            Restart = "on-failure";
-            RestartSec = "5s";
-          };
-          Install.WantedBy = [ "default.target" ];
         };
       };
     })];
