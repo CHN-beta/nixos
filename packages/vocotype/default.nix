@@ -4,7 +4,8 @@
   inherit src;
   pyproject = true;
   build-system = with python3Packages; [ setuptools ];
-  dependencies = with python3Packages; [ sounddevice librosa soundfile funasr-onnx jieba pygobject3 modelscope torch ];
+  dependencies = with python3Packages;
+    [ sounddevice librosa soundfile funasr-onnx jieba pygobject3 modelscope torch pyrime ];
   patches = [ ./fix.patch ./vocotype-2.1.2-download-models.patch ./vocotype-2.1.2-fcitx5-system-install.patch ];
   postPatch =
   ''

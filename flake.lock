@@ -1511,6 +1511,22 @@
         "url": "https://github.com/dean0x7d/pybinding"
       }
     },
+    "pyrime": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1772512284,
+        "narHash": "sha256-EsJ6Tl4mOh1f81bB2sfRdxs/RocBLXgOWKZzIuBZghg=",
+        "owner": "rimeinn",
+        "repo": "pyrime",
+        "rev": "29ab55ae65484ee79b453aaca1bde6b67f37bd41",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rimeinn",
+        "repo": "pyrime",
+        "type": "github"
+      }
+    },
     "pytest-runner": {
       "flake": false,
       "locked": {
@@ -1636,6 +1652,7 @@
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
         "pybinding": "pybinding",
+        "pyrime": "pyrime",
         "pytest-runner": "pytest-runner",
         "pytorch-wpe": "pytorch-wpe",
         "reflectcpp": "reflectcpp",

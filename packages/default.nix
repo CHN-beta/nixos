@@ -152,6 +152,7 @@ inputs: rec
     funasr-onnx = python3Packages.callPackage ./funasr-onnx {};
     kaldi-native-fbank = python3Packages.callPackage ./kaldi-native-fbank.nix
       { src = inputs.topInputs.kaldi-native-fbank; };
+    pyrime = python3Packages.callPackage ./pyrime.nix { src = inputs.topInputs.pyrime; };
   };
   fcitx5-vocotype = inputs.pkgs.callPackage ./fcitx5-vocotype { src = inputs.topInputs.vocotype; };
 
