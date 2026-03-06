@@ -42,7 +42,7 @@ inputs:
           (if inputs.config.nixos.system.nixpkgs.cuda != null then localPackages.vasp.nvidia else emptyDirectory)
           localPackages.atomkit (inputs.lib.mkAfter localPackages.atat)
         ];
-        _pythonPackages = [(_: [ localPackages.py4vasp ])];
+        _pythonPackages = [(ps: with ps; [ py4vasp ])];
       };
     })
     (inputs.lib.mkIf (inputs.config.nixos.packages.mathematica != null)

@@ -74,7 +74,6 @@ inputs: rec
   sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
   ufo = inputs.pkgs.callPackage inputs.topInputs.ufo { inherit biu matplotplusplus; tbb = inputs.pkgs.tbb_2022; };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
-  py4vasp = inputs.pkgs.python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; };
   pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.topInputs.pocketfft; };
   vaspberry = inputs.pkgs.callPackage ./vaspberry.nix { src = inputs.topInputs.vaspberry; };
   nvhpcPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
@@ -107,7 +106,6 @@ inputs: rec
     inherit (inputs.topInputs) hextra;
     buildProxy = inputs.pkgs.lib.mkBuildproxy ./blog-buildproxy.nix;
   };
-  phono3py = inputs.pkgs.python3Packages.callPackage ./phono3py.nix { src = inputs.topInputs.phono3py; };
   vm = inputs.pkgs.callPackage ./vm { inherit biu; };
   oneapiPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
   {
@@ -132,13 +130,28 @@ inputs: rec
     src = inputs.topInputs.pybinding;
     buildProxy = inputs.pkgs.lib.mkBuildproxy ./pybinding/proxy.nix;
   };
-  brokenaxes = inputs.pkgs.python3Packages.callPackage ./brokenaxes.nix { src = inputs.topInputs.brokenaxes; };
   missgram = inputs.pkgs.callPackage ./missgram { inherit biu sqlgen; };
   sqlgen = inputs.pkgs.callPackage ./sqlgen.nix { src = inputs.topInputs.sqlgen; inherit reflectcpp; };
   reflectcpp = inputs.pkgs.callPackage ./reflectcpp.nix { src = inputs.topInputs.reflectcpp; };
   lsf = inputs.pkgs.callPackage ./lsf.nix { src = inputs.topInputs.self.src.lsf; };
   lazytyper = inputs.pkgs.callPackage ./lazytyper.nix {};
   asmroner = inputs.pkgs.callPackage ./asmroner.nix { src = inputs.topInputs.asmroner; };
+  vocotype = inputs.pkgs.callPackage ./vocotype.nix { src = inputs.topInputs.vocotype; };
+  pythonOverlay = python3Packages:
+  {
+    py4vasp = python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; };
+    phono3py = python3Packages.callPackage ./phono3py.nix { src = inputs.topInputs.phono3py; };
+    brokenaxes = python3Packages.callPackage ./brokenaxes.nix { src = inputs.topInputs.brokenaxes; };
+    funasr = python3Packages.callPackage ./funasr.nix { src = inputs.topInputs.funasr; };
+    pytest-runner = python3Packages.callPackage ./pytest-runner.nix { src = inputs.topInputs.pytest-runner; };
+    kaldiio = python3Packages.callPackage ./kaldiio.nix { src = inputs.topInputs.kaldiio; };
+    modelscope = python3Packages.callPackage ./modelscope.nix { src = inputs.topInputs.modelscope; };
+    pytorch-wpe = python3Packages.callPackage ./pytorch-wpe.nix { src = inputs.topInputs.pytorch-wpe; };
+    torch-complex = python3Packages.callPackage ./torch-complex.nix { src = inputs.topInputs.torch-complex; };
+    funasr-onnx = python3Packages.callPackage ./funasr-onnx {};
+    kaldi-native-fbank = python3Packages.callPackage ./kaldi-native-fbank.nix
+      { src = inputs.topInputs.kaldi-native-fbank; };
+  };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

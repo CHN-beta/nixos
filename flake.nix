@@ -70,6 +70,14 @@
     gitea-robots-txt = { url = "https://gitea.com/robots.txt"; flake = false; };
     ugreen = { url = "github:miskcoo/ugreen_leds_controller"; flake = false; };
     asmroner = { url = "github:fireinrain/asmr-downloader"; flake = false; };
+    vocotype = { url = "github:LeonardNJU/VocoType-linux"; flake = false; };
+    funasr = { url = "github:modelscope/FunASR"; flake = false; };
+    pytest-runner = { url = "github:pytest-dev/pytest-runner/v6.0.0"; flake = false; };
+    kaldiio = { url = "github:nttcslab-sp/kaldiio"; flake = false; };
+    modelscope = { url = "github:modelscope/modelscope/v1.34.0"; flake = false; };
+    pytorch-wpe = { url = "github:nttcslab-sp/dnn_wpe"; flake = false; };
+    torch-complex = { url = "github:kamo-naoyuki/pytorch_complex"; flake = false; };
+    kaldi-native-fbank = { url = "github:csukuangfj/kaldi-native-fbank"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in
@@ -77,7 +85,11 @@
     packages.x86_64-linux = import ./flake/packages.nix { inherit inputs localLib; };
     nixosConfigurations = import ./flake/nixos.nix { inherit inputs localLib; };
     overlays.default = final: prev:
-      { localPackages = (import ./packages { inherit localLib; pkgs = final; topInputs = inputs; }); };
+    {
+      localPackages = (import ./packages { inherit localLib; pkgs = final; topInputs = inputs; });
+      pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++
+        [(finalPython: prevPython: final.localPackages.pythonOverlay finalPython)];
+    };
     config.dns = inputs.self.packages.x86_64-linux.dns-push.meta.config;
     devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
     src = import ./flake/src.nix { inherit inputs; };

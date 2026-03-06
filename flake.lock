@@ -569,6 +569,22 @@
         "type": "github"
       }
     },
+    "funasr": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1772258042,
+        "narHash": "sha256-Vd+BPXbMVBRzsK97il/e3RfQatGT1tE45NFkFAxCbEU=",
+        "owner": "modelscope",
+        "repo": "FunASR",
+        "rev": "43e05d42d6efd133de191f51337e20504012826a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "modelscope",
+        "repo": "FunASR",
+        "type": "github"
+      }
+    },
     "gitea-robots-txt": {
       "flake": false,
       "locked": {
@@ -677,6 +693,38 @@
         "type": "github"
       }
     },
+    "kaldi-native-fbank": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1759976012,
+        "narHash": "sha256-Wu4wM52T6NoQ1t5/iAyPtkEGnZki5P0jx0eYMFZMb5o=",
+        "owner": "csukuangfj",
+        "repo": "kaldi-native-fbank",
+        "rev": "b09e686fe2084732ddd30d1ef80acfc0f13eaf01",
+        "type": "github"
+      },
+      "original": {
+        "owner": "csukuangfj",
+        "repo": "kaldi-native-fbank",
+        "type": "github"
+      }
+    },
+    "kaldiio": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1741274133,
+        "narHash": "sha256-CssVH+Oxsw+it1mHdBhGIEYxoZ3OSr09eoankSjcxR0=",
+        "owner": "nttcslab-sp",
+        "repo": "kaldiio",
+        "rev": "7533933a533281c22046b53fd92995f87ad05cad",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nttcslab-sp",
+        "repo": "kaldiio",
+        "type": "github"
+      }
+    },
     "lepton": {
       "flake": false,
       "locked": {
@@ -775,6 +823,22 @@
         "submodules": true,
         "type": "git",
         "url": "https://github.com/CHN-beta/misskey"
+      }
+    },
+    "modelscope": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1772422430,
+        "narHash": "sha256-HJpqdrRJh9JDmf0uEDd5+D6rv9TMDxzEGX0uyAU840c=",
+        "owner": "modelscope",
+        "repo": "modelscope",
+        "rev": "dbbf268e7040015122273b05db66d4125d2f0b66",
+        "type": "github"
+      },
+      "original": {
+        "owner": "modelscope",
+        "repo": "modelscope",
+        "type": "github"
       }
     },
     "mumax": {
@@ -1446,6 +1510,39 @@
         "url": "https://github.com/dean0x7d/pybinding"
       }
     },
+    "pytest-runner": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1645816332,
+        "narHash": "sha256-FK852ocxMr/VZLuiILqPfMJYpOuaNL44U18vziPivc0=",
+        "owner": "pytest-dev",
+        "repo": "pytest-runner",
+        "rev": "a3dc9f4c6afea684ed48da998958470ea41f3c00",
+        "type": "github"
+      },
+      "original": {
+        "owner": "pytest-dev",
+        "ref": "v6.0.0",
+        "repo": "pytest-runner",
+        "type": "github"
+      }
+    },
+    "pytorch-wpe": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1614938967,
+        "narHash": "sha256-DcT0NnnbcSYYyVpH7JqAnpjOANS2INBYQLV9Qx3BwZw=",
+        "owner": "nttcslab-sp",
+        "repo": "dnn_wpe",
+        "rev": "78c244eaf770e6a66e6ec3a640d846f7327c777b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nttcslab-sp",
+        "repo": "dnn_wpe",
+        "type": "github"
+      }
+    },
     "quickshell": {
       "inputs": {
         "nixpkgs": [
@@ -1500,17 +1597,21 @@
         "dankmaterialshell": "dankmaterialshell",
         "date": "date",
         "fancy-motd": "fancy-motd",
+        "funasr": "funasr",
         "gitea-robots-txt": "gitea-robots-txt",
         "harmonia": "harmonia",
         "hextra": "hextra",
         "home-manager": "home-manager",
         "impermanence": "impermanence",
+        "kaldi-native-fbank": "kaldi-native-fbank",
+        "kaldiio": "kaldiio",
         "lepton": "lepton",
         "linux-asus": "linux-asus",
         "mac-style": "mac-style",
         "matplotplusplus": "matplotplusplus",
         "mirism-old": "mirism-old",
         "misskey": "misskey",
+        "modelscope": "modelscope",
         "mumax": "mumax",
         "nameof": "nameof",
         "nc4nix": "nc4nix",
@@ -1534,6 +1635,8 @@
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
         "pybinding": "pybinding",
+        "pytest-runner": "pytest-runner",
+        "pytorch-wpe": "pytorch-wpe",
         "reflectcpp": "reflectcpp",
         "rsshub": "rsshub",
         "rycee": "rycee",
@@ -1544,10 +1647,12 @@
         "sticker": "sticker",
         "stickerpicker": "stickerpicker",
         "tgbot-cpp": "tgbot-cpp",
+        "torch-complex": "torch-complex",
         "ufo": "ufo",
         "ugreen": "ugreen",
         "v-sim": "v-sim",
         "vaspberry": "vaspberry",
+        "vocotype": "vocotype",
         "winapps": "winapps",
         "zpp-bits": "zpp-bits"
       }
@@ -1768,6 +1873,22 @@
         "type": "github"
       }
     },
+    "torch-complex": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1719557724,
+        "narHash": "sha256-aizJQpQjaCtXJZCMzSpM4ATJ04BKC2LkKWvOgihJV04=",
+        "owner": "kamo-naoyuki",
+        "repo": "pytorch_complex",
+        "rev": "8a2ad1e47f3df25a30eb426f6ad781b89103fab3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kamo-naoyuki",
+        "repo": "pytorch_complex",
+        "type": "github"
+      }
+    },
     "treefmt-nix": {
       "inputs": {
         "nixpkgs": [
@@ -1895,6 +2016,22 @@
       "original": {
         "owner": "Infant83",
         "repo": "VASPBERRY",
+        "type": "github"
+      }
+    },
+    "vocotype": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1772350658,
+        "narHash": "sha256-CRV1UjS5m+ozagFuKQFntuDylmF0bxRDda6oGWTVPDg=",
+        "owner": "LeonardNJU",
+        "repo": "VocoType-linux",
+        "rev": "54ef7efb4a89d8b7bb284d63792a691f9c492f2d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LeonardNJU",
+        "repo": "VocoType-linux",
         "type": "github"
       }
     },
