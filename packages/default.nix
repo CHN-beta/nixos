@@ -136,7 +136,7 @@ inputs: rec
   lsf = inputs.pkgs.callPackage ./lsf.nix { src = inputs.topInputs.self.src.lsf; };
   lazytyper = inputs.pkgs.callPackage ./lazytyper.nix {};
   asmroner = inputs.pkgs.callPackage ./asmroner.nix { src = inputs.topInputs.asmroner; };
-  vocotype = inputs.pkgs.callPackage ./vocotype.nix { src = inputs.topInputs.vocotype; };
+  vocotype = inputs.pkgs.callPackage ./vocotype { src = inputs.topInputs.vocotype; };
   pythonOverlay = python3Packages:
   {
     py4vasp = python3Packages.callPackage ./py4vasp.nix { src = inputs.topInputs.py4vasp; };
@@ -152,6 +152,7 @@ inputs: rec
     kaldi-native-fbank = python3Packages.callPackage ./kaldi-native-fbank.nix
       { src = inputs.topInputs.kaldi-native-fbank; };
   };
+  fcitx5-vocotype = inputs.pkgs.callPackage ./fcitx5-vocotype { src = inputs.topInputs.vocotype; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

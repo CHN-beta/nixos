@@ -1,0 +1,14 @@
+diff --color -ur vocotype/pyproject.toml vocotype-patched/pyproject.toml
+--- vocotype/pyproject.toml	2026-03-06 17:50:05.244213631 +0800
++++ vocotype-patched/pyproject.toml	2026-03-06 17:51:11.774303490 +0800
+@@ -18,8 +18,8 @@
+   "soundfile==0.13.1",
+   "funasr_onnx==0.4.1",
+   "jieba==0.42.1",
+-  "PyGObject==3.42.0",
+-  "modelscope==1.30.0",
++  "PyGObject",
++  "modelscope",
+   "torch>=2.9.1",
+ ]
+ 

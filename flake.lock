@@ -828,15 +828,16 @@
     "modelscope": {
       "flake": false,
       "locked": {
-        "lastModified": 1772422430,
-        "narHash": "sha256-HJpqdrRJh9JDmf0uEDd5+D6rv9TMDxzEGX0uyAU840c=",
+        "lastModified": 1768533112,
+        "narHash": "sha256-Uq8qmU8ZmNRegaWHn1hlDDpRjWjgfecBvJklmhW36eM=",
         "owner": "modelscope",
         "repo": "modelscope",
-        "rev": "dbbf268e7040015122273b05db66d4125d2f0b66",
+        "rev": "222075be17ead5ba10588cc22d4d3901bfef1bb7",
         "type": "github"
       },
       "original": {
         "owner": "modelscope",
+        "ref": "v1.34.0",
         "repo": "modelscope",
         "type": "github"
       }
