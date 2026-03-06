@@ -61,7 +61,7 @@
       # https://her.esy.fun/posts/0031-how-i-protect-my-forgejo-instance-from-ai-web-crawlers/index.html
       nginx.virtualHosts."https:${gitea.hostname}".locations."/".extraConfigPre =
       ''
-        if ($http_user_agent ~* "git/|git-lfs/") {
+        if ($http_user_agent ~* "git/|git-lfs/|curl/|Nix/") {
           set $bypass_cookie 1;
         }
         if ($cookie_Yogsototh_opens_the_door = "1") {
