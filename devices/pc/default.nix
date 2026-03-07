@@ -111,12 +111,13 @@
         keyd = {};
         kvm = {};
         mariadb.mountFrom = "nodatacow";
+        lumericalLicenseManager.macAddress = "a8:e2:91:52:5f:7c";
         open-webui.ollamaHost = "127.0.0.1";
         howdy = {};
         postgresql.enable = true;
       };
       bugs = [ "amdpstate" ];
-      packages = { mathematica = {}; vasp = {}; extra = {}; };
+      packages = { mathematica = {}; vasp = {}; extra = {}; lumerical = {}; };
       user.users = [ "chn" "lilydjwg" ];
     };
     # 允许kvm读取物理硬盘
