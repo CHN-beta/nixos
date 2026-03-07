@@ -8,7 +8,7 @@
       enable = true;
       host = "0.0.0.0";
       environmentVariables = { OLLAMA_REGISTRY_MAXSTREAMS = "2"; OLLAMA_EXPERIMENT= "client2"; };
-      package = pkgs.ollama-vulkan;
+      package = pkgs.pkgs-unstable.ollama;
     };
     nixos.packages.packages._packages = [ pkgs.oterm ];
   };
