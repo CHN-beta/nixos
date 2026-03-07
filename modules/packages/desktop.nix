@@ -1,21 +1,22 @@
-inputs:
+{ lib, pkgs, config, ... }:
 {
-  options.nixos.packages.desktop = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.packages.desktop = lib.mkOption
   {
-    type = types.nullOr (types.submodule {});
-    default = if inputs.config.nixos.model.type == "desktop" then {} else null;
+    type = lib.types.nullOr (lib.types.submodule {});
+    default = if config.nixos.model.type == "desktop" then {} else null;
   };
-  config = let inherit (inputs.config.nixos.packages) desktop; in inputs.lib.mkIf (desktop != null)
+  config = let inherit (config.nixos.packages) desktop; in lib.mkIf (desktop != null)
   {
     nixos =
     {
       packages.packages =
       {
-        _packages = with inputs.pkgs;
+        _packages = with pkgs;
         [
           # system management
           # TODO: module should add yubikey-touch-detector into path
-          gparted wayland-utils clinfo mesa-demos vulkan-tools dracut yubikey-touch-detector btrfs-assistant
+          gparted wayland-utils clinfo mesa-demos vulkan-tools dracut
+          yubikey-touch-detector btrfs-assistant
           cpu-x wl-mirror geekbench xpra wl-clipboard
           (
             writeShellScriptBin "xclip"
@@ -29,8 +30,10 @@ inputs:
           # networking
           remmina putty mtr-gui
           # media
-          nomacs simplescreenrecorder imagemagick gimp-with-plugins netease-cloud-music-gtk splayer go-musicfox
-          waifu2x-converter-cpp blender vlc whalebird spotify obs-studio subtitlecomposer
+          nomacs simplescreenrecorder imagemagick gimp-with-plugins
+          netease-cloud-music-gtk splayer go-musicfox
+          waifu2x-converter-cpp blender vlc whalebird spotify obs-studio
+          subtitlecomposer
           (inkscape-with-extensions.override { inkscapeExtensions = [ inkscape-extensions.textext ]; })
           (paraview.overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs
             ++ [(python3.withPackages (ps: with ps; [ numpy matplotlib ]))]; }))
@@ -47,21 +50,26 @@ inputs:
           # news
           fluent-reader rssguard newsflash newsboat folo
           # nix tools
-          nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github prefetch-npm-deps nix-prefetch-docker
+          nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github
+          prefetch-npm-deps nix-prefetch-docker
           nix-template nil bundix
           # instant messager
           element-desktop telegram-desktop discord zoom-us slack nheko
+          teamspeak3
           # browser
           google-chrome tor-browser
           # office
-          crow-translate zotero pandoc texliveFull poppler-utils pdftk pdfchain kdePackages.kruler kdePackages.okular
-          ydict texstudio panoply pspp libreoffice-fresh ocrmypdf typst rnote # paperwork
+          crow-translate zotero pandoc texliveFull poppler-utils pdftk
+          pdfchain kdePackages.kruler kdePackages.okular
+          ydict texstudio panoply pspp libreoffice-fresh ocrmypdf typst
+          rnote # paperwork
           # required by ltex-plus.vscode-ltex-plus
           ltex-ls ltex-ls-plus
           # matplot++ needs old gnuplot
           pkgs-2311.gnuplot
           # math, physics and chemistry
-          octaveFull ovito localPackages.vesta localPackages.v-sim mpi geogebra6 localPackages.ufo
+          octaveFull ovito localPackages.vesta localPackages.v-sim mpi geogebra6
+          localPackages.ufo
           (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; })
           pkgs-2311.hdfview
           # media
@@ -92,7 +100,7 @@ inputs:
           programs.obs-studio =
           {
             enable = true;
-            plugins = with inputs.pkgs.obs-studio-plugins; [ wlrobs obs-vaapi droidcam-obs obs-vkcapture ];
+            plugins = with pkgs.obs-studio-plugins; [ wlrobs obs-vaapi droidcam-obs obs-vkcapture ];
           };
           xdg.configFile."typora-flags.conf".text =
             "--ozone-platform-hint=auto --enable-wayland-ime --wayland-text-input-version=3";
@@ -102,7 +110,7 @@ inputs:
     programs =
     {
       adb.enable = true;
-      wireshark = { enable = true; package = inputs.pkgs.wireshark; };
+      wireshark = { enable = true; package = pkgs.wireshark; };
       yubikey-touch-detector.enable = true;
       kdeconnect.enable = true;
       alvr = { enable = true; openFirewall = true; };
