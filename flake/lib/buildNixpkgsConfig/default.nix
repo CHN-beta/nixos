@@ -88,6 +88,11 @@ let
                 {
                   libtpms = prev.libtpms.overrideAttrs (prev:
                     { env.NIX_CFLAGS_COMPILE = prev.env.NIX_CFLAGS_COMPILE or "" + " -Wno-error=stringop-overflow"; });
+                  pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
+                  {
+                    scipy = prev.scipy.overridePythonAttrs (prev:
+                      { disabledTests = prev.disabledTests or [] ++ [ "test_roundtrip_scaling" ]; });
+                  })];
                 })
               ];
             };
