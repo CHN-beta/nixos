@@ -46,8 +46,11 @@
                 nvidia = [ libva-vdpau-driver ];
                 amd = [];
               };
-              in packages.${gpu.type}
-                ++ (with pkgs; [ vulkan-loader vulkan-validation-layers vulkan-extension-layer ]);
+              in packages.${gpu.type} ++ (with pkgs;
+              [
+                vulkan-loader vulkan-validation-layers vulkan-extension-layer
+                vulkan-tools
+              ]);
           };
           nvidia = lib.mkIf (gpu.type == "nvidia")
           {

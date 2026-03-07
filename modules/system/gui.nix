@@ -38,6 +38,8 @@
         xwayland-satellite
         # needed for icons
         adwaita-icon-theme
+        # voice input
+        pkgs-unstable.voxtype-vulkan
       ];
     };
     xdg.portal.extraPortals = (builtins.map (p: pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" "gnome" ]);
@@ -95,6 +97,7 @@
                 "Mod+Escape".action.power-off-monitors = {};
                 # TODO: remove after dms update
                 "XF86AudioPlay".action.spawn = [ "dms" "ipc" "call" "mpris" "playPause" ];
+                "XF86Launch3".action.spawn = [ "voxtype" "record" "toggle" ];
               };
             outputs =
             {
@@ -127,6 +130,18 @@
               { argv = [ "discord" "--start-minimized" "--no-startup-id" ]; }
             ];
           };
+        };
+        systemd.user.services.voxtype =
+        {
+          Unit = { PartOf = [ "graphical-session.target" ]; After = [ "graphical-session.target" ]; };
+          Service =
+          {
+            type = "simple";
+            ExecStart = "${pkgs.pkgs-unstable.voxtype-vulkan}/bin/voxtype";
+            Restart = "on-failure";
+            RestartSec = "5s";
+          };
+          Install.WantedBy = [ "graphical-session.target" ];
         };
       };
     })];
