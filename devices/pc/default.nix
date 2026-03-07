@@ -86,6 +86,7 @@
           extraInterfaces = [ "wlp194s0" ];
         };
         harmonia = {};
+        misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
         beesd =
         {
           "/" = { hashTableSizeMB = 2 * 128; loadAverage = 4; };
