@@ -71,7 +71,7 @@ inputs:
           {
             cpuQueues =
             [
-              # { name = "n1"; mpiThreads = 8; openmpThreads = 5; memoryGB = 208; allocateCpus = 43; }
+              { name = "n1"; mpiThreads = 8; openmpThreads = 5; memoryGB = 208; allocateCpus = 43; }
               { name = "n2"; mpiThreads = 8; openmpThreads = 6; memoryGB = 432; allocateCpus = 54; }
             ];
             gpuQueues =
