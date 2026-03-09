@@ -62,7 +62,7 @@
           crow-translate zotero pandoc texliveFull poppler-utils pdftk
           pdfchain kdePackages.kruler kdePackages.okular
           ydict texstudio panoply pspp libreoffice-fresh ocrmypdf typst
-          rnote # paperwork
+          rnote localPackages.xinli # paperwork
           # required by ltex-plus.vscode-ltex-plus
           ltex-ls ltex-ls-plus
           # matplot++ needs old gnuplot
