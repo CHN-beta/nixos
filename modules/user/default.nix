@@ -42,6 +42,7 @@
         lsp = 1028;
         lilydjwg = 1029;
         stq = 1030;
+        claw = 1031;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
@@ -149,5 +150,14 @@
     }
     # setup test
     (lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
+    # setup claw
+    (lib.mkIf (builtins.elem "claw" user.users)
+    {
+      users.users.claw =
+      {
+        hashedPassword = config.users.users.chn.hashedPassword;
+        openssh.authorizedKeys.keys = [(builtins.readFile ./keys/chn)];
+      };
+    })
   ];
 }

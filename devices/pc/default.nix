@@ -115,6 +115,7 @@
         open-webui.ollamaHost = "127.0.0.1";
         howdy = {};
         postgresql.enable = true;
+        openclaw = {};
       };
       bugs = [ "amdpstate" ];
       packages = { mathematica = {}; vasp = {}; extra = {}; lumerical = {}; };
