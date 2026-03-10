@@ -1,5 +1,7 @@
 # pragma once
 # include <highfive/H5File.hpp>
+# include <highfive/boost.hpp>
+# include <highfive/eigen.hpp>
 
 namespace biu
 {
