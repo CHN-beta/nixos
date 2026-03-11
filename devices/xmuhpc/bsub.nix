@@ -1,5 +1,5 @@
 {
-  normal = { cpus = [ 4 4 20 ]; march = "sandybridge"; };
+  normal = { cpus = [ 4 4 20 ]; march = "ivybridge"; };
   normal_1day = { cpus = [ 4 7 28 ]; march = "broadwell"; };
   normal_1week = { cpus = [ 4 7 28 ]; march = "broadwell"; };
   normal_2week = { cpus = [ 6 8 48 ]; march = "icelake-server"; };

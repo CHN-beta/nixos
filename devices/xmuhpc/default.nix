@@ -29,7 +29,7 @@
     name = "vasp";
     paths =
       let buildVaspFor = march: pkgs.localPackages.vasp.intel.override (prev: { suffix = march; oneapiArch = march; });
-      in builtins.map buildVaspFor ([ "core-avx2" ] ++ (pkgs.lib.unique (builtins.map (v: v.march)
+      in builtins.map buildVaspFor ([ "core-avx2" "core-avx-i" ] ++ (pkgs.lib.unique (builtins.map (v: v.march)
         (builtins.attrValues (import ./bsub.nix)))));
   };
   banner = pkgs.runCommand "banner" {}
