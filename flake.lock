@@ -758,6 +758,22 @@
         "type": "github"
       }
     },
+    "missgram": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1773309631,
+        "narHash": "sha256-nlcSvRxIne/Tr8o7cH5HJ9O7VYkz0tJzjp7IDD/0q0I=",
+        "owner": "CHN-beta",
+        "repo": "missgram",
+        "rev": "aa3de4a2849f9ab06f2eda993232eee146e5ccb9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "missgram",
+        "type": "github"
+      }
+    },
     "misskey": {
       "flake": false,
       "locked": {
@@ -1510,6 +1526,7 @@
         "mac-style": "mac-style",
         "matplotplusplus": "matplotplusplus",
         "mirism-old": "mirism-old",
+        "missgram": "missgram",
         "misskey": "misskey",
         "mumax": "mumax",
         "nameof": "nameof",
