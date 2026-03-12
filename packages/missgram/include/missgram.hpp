@@ -2,6 +2,7 @@
 
 namespace missgram
 {
+  using namespace biu::literals;
   struct Config
   {
     std::string Secret;
@@ -20,4 +21,6 @@ namespace missgram
     std::string text, std::optional<std::int32_t> replyId, std::vector<File> files,
     std::optional<std::string> preview_url
   );
+
+  std::string parse(std::string text);
 }

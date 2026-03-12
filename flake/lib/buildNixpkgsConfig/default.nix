@@ -149,6 +149,8 @@ let
           [ "-DMAGIC_ENUM_OPT_BUILD_TESTS=OFF" ];
       });
       httplib = prev.httplib.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./httplib.patch ]; });
+      libmaddy-markdown = prev.libmaddy-markdown.overrideAttrs
+        (prev: { patches = prev.patches or [] ++ [ ./maddy.patch ]; });
     })];
     marchFix =
     [

@@ -36,7 +36,7 @@ int main()
             struct Note
             {
               std::string id, visibility;
-              std::optional<std::string> text, replyId;
+              std::optional<std::string> text, replyId, cw;
               struct Renote { std::string id; };
               std::optional<Renote> renote;
               bool localOnly;
@@ -84,14 +84,14 @@ int main()
         }
 
         // 接下来准备要回复的文本内容
-        std::string text;
+        std::string text_html;
         if (is_forward)  // 如果是转发帖子
-          if (fond_renote) text = "转发了自己的帖子。\n";
-          else text = "转发了[帖子]({}/notes/{})"_f(content.server, content.body.note->id);
+          if (fond_renote) text_html = "转发了自己的帖子。";
+          else text_html = parse("转发了[帖子]({}/notes/{})"_f(content.server, content.body.note->id));
         // 否则（引用或普通帖子）
         else
         {
-          text = content.body.note->text.value_or("");
+          std::string text = content.body.note->text.value_or("");
           if (is_reply)
           {
             // 移除开头的 @user 或者 @user@server
@@ -103,14 +103,22 @@ int main()
             text = "引用了[帖子]({}/notes/{})\n"_f(content.server, content.body.note->renote->id) + text;
           if (is_reply && !found_reply)
             text = "回复了[帖子]({}/notes/{})\n"_f(content.server, *content.body.note->replyId) + text;
-          text += "\n[在联邦宇宙查看]({}/notes/{})"_f(content.server, content.body.note->id);
+          text_html = parse(text);
+          // 可能还有content warning，如果有的话需要处理
+          if (content.body.note->cw && !content.body.note->cw->empty())
+          {
+            std::string cw_html = parse(*content.body.note->cw);
+            text_html = R"({}<span class="tg-spoiler">{}</span>)"_f(cw_html, text_html);
+          }
+          text_html += parse("\n[在联邦宇宙查看]({}/notes/{})"_f(content.server, content.body.note->id));
         }
 
         // 异步发送消息
-        std::thread([text, note_id = content.body.note->id, tg_reply_id,
+        std::thread([text_html, note_id = content.body.note->id, tg_reply_id,
           files = content.body.note->files, preview_url]
         {
-          auto message_id = tg_send(text, tg_reply_id, files, preview_url);
+          auto message_id =
+            tg_send(text_html, tg_reply_id, files, preview_url);
           if (message_id) db_write(note_id, *message_id);
         }).detach();
 

@@ -1,0 +1,88 @@
+From ddd965e9fcfc134e9caa3065240781c570d3708f Mon Sep 17 00:00:00 2001
+From: Petra Baranski <info@progsource.de>
+Date: Mon, 6 Oct 2025 01:08:02 +0200
+Subject: [PATCH] fix: one-liner quote parser does not give any output
+
+---
+ CHANGELOG.md                      |  1 +
+ include/maddy/quoteparser.h       | 17 ++++++++++++-----
+ tests/maddy/test_maddy_parser.cpp | 12 ++++++++++++
+ 3 files changed, 25 insertions(+), 5 deletions(-)
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index a16cc40..70008cc 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -14,6 +14,7 @@ maddy uses [semver versioning](https://semver.org/).
+ 
+ ## Upcoming
+ 
++* ![**FIXED**](https://img.shields.io/badge/-FIXED-%23090) One-liner quote is not producing any output.
+ * ...
+ 
+ ## version 1.6.0 2025-07-26
+diff --git a/include/maddy/quoteparser.h b/include/maddy/quoteparser.h
+index 13151ef..7abd777 100644
+--- a/include/maddy/quoteparser.h
++++ b/include/maddy/quoteparser.h
+@@ -99,6 +99,8 @@ class QuoteParser : public BlockParser
+         this->childParser = nullptr;
+       }
+ 
++      this->finishQuote(finish);
++
+       return;
+     }
+ 
+@@ -107,11 +109,7 @@ class QuoteParser : public BlockParser
+       this->parseLine(line);
+     }
+ 
+-    if (finish)
+-    {
+-      this->result << "</blockquote>";
+-      this->isFinished = true;
+-    }
++    this->finishQuote(finish);
+ 
+     this->result << line;
+   }
+@@ -145,6 +143,15 @@ class QuoteParser : public BlockParser
+ private:
+   bool isStarted;
+   bool isFinished;
++
++  void finishQuote(bool finish)
++  {
++    if (finish)
++    {
++      this->result << "</blockquote>";
++      this->isFinished = true;
++    }
++  }
+ }; // class QuoteParser
+ 
+ // -----------------------------------------------------------------------------
+diff --git a/tests/maddy/test_maddy_parser.cpp b/tests/maddy/test_maddy_parser.cpp
+index ed8530a..e1aba50 100644
+--- a/tests/maddy/test_maddy_parser.cpp
++++ b/tests/maddy/test_maddy_parser.cpp
+@@ -21,6 +21,18 @@ TEST(MADDY_PARSER, ItShouldParse)
+   ASSERT_EQ(testHtml, output);
+ }
+ 
++TEST(MADDY_PARSER, ItShouldParseOneLiner)
++{
++  auto parser = std::make_shared<maddy::Parser>();
++  std::stringstream markdown("> This is a **test**");
++
++  const std::string output = parser->Parse(markdown);
++
++  ASSERT_EQ(
++    "<blockquote><p>This is a <strong>test</strong>  </p></blockquote>", output
++  );
++}
++
+ TEST(MADDY_PARSER, ItShouldParseWithBitwiseConfig)
+ {
+   auto config = std::make_shared<maddy::ParserConfig>();
