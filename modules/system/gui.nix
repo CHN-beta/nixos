@@ -145,7 +145,12 @@
         };
       };
     })];
-    # use polkit from dms
-    systemd.user.services.niri-flake-polkit.enable = false;
+    systemd.user.services =
+    {
+      # use polkit from dms
+      niri-flake-polkit.enable = false;
+      # iio-niri retry when failed
+      iio-niri.serviceConfig = { RestartSec = 5; StartLimitIntervalSec = 0; };
+    };
   };
 }

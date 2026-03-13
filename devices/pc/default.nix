@@ -144,5 +144,13 @@
     ];
     # 手写笔
     hardware.opentabletdriver.enable = true;
+    # 从休眠/睡眠中恢复后，重载重力传感器
+    powerManagement.resumeCommands =
+    ''
+      ${pkgs.kmod}/bin/modprobe -r hid_sensor_accel_3d hid_sensor_trigger hid_sensor_iio_common hid_sensor_custom
+      ${pkgs.kmod}/bin/modprobe -r hid_sensor_hub
+      sleep 1
+      ${pkgs.kmod}/bin/modprobe hid_sensor_hub hid_sensor_accel_3d hid_sensor_trigger hid_sensor_iio_common hid_sensor_custom
+    '';
   };
 }
