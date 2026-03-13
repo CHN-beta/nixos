@@ -33,7 +33,7 @@ inputs:
         apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f yubico-piv-tool libfido2
         # networking
         ipset iptables iproute2 dig nettools traceroute tcping-go whois tcpdump nmap inetutils wireguard-tools openvpn
-        parted
+        parted xray
         # nix tools
         nix-output-monitor nix-tree ssh-to-age nix-inspect
         # development
