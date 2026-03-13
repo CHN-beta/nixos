@@ -1,4 +1,4 @@
-inputs:
+{ topInputs, lib, ...}:
 {
   config =
   {
@@ -28,7 +28,7 @@ inputs:
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
-        nix.marches = inputs.topInputs.self.nixosConfigurations.pc.config.nixos.system.nix.marches;
+        nix.marches = topInputs.self.nixosConfigurations.pc.config.nixos.system.nix.marches;
         network.settings.static.enp3s0 =
           { ip = "192.168.1.2"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; }; 
         kernel.patches = [ "btrfs" ];
@@ -72,5 +72,10 @@ inputs:
     };
     systemd.tmpfiles.rules =
       [ "w /sys/class/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw - - - - 10000000" ];
+    specialisation.desktop.configuration.nixos =
+    {
+      model.type = lib.mkForce "desktop";
+      system.network.implementation = "systemd-networkd";
+    };
   };
 }
