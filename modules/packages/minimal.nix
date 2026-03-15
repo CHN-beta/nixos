@@ -10,7 +10,7 @@ inputs:
       [
         # basic tools
         beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq yq-go ipfetch localPackages.pslist
-        fastfetch reptyr duc ncdu progress libva-utils ksh neofetch dateutils glib cryptsetup i2c-tools trash-cli
+        fastfetch reptyr duc ncdu progress libva-utils ksh neofetch dateutils glib cryptsetup i2c-tools trash-cli cpuid
         # lsxx
         pciutils usbutils lshw util-linux lsof dmidecode lm_sensors hwloc acpica-tools ethtool
         # top
