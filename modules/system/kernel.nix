@@ -103,12 +103,6 @@ inputs:
                 "sys-kernel_arch-sources-g14_files-0047-asus-nb-wmi-Add-tablet_mode_sw-lid-flip.patch"
                 "sys-kernel_arch-sources-g14_files-0048-asus-nb-wmi-fix-tablet_mode_sw_int.patch"
               ];
-            amdisp =
-            [{
-              name = "amdisp";
-              patch = ./amdisp.patch;
-              # structuredExtraConfig.VIDEO_AMD_ISP4_CAPTURE = inputs.lib.kernel.yes;
-            }];
           };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };
