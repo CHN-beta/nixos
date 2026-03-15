@@ -45,6 +45,9 @@ inputs:
               }
               rewrite name exact git.chn.moe nas.ts.chn.moe
               forward . 127.0.0.1:10853
+              cache 300 {
+                disable denial
+              }
             }
           '';
       };
