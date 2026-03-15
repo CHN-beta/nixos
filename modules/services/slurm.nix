@@ -116,7 +116,8 @@ inputs:
             JobCompType=jobcomp/filetxt
             JobCompLoc=/var/log/slurmctld/jobcomp.log
 
-            SchedulerParameters=enable_user_top,bf_window=10
+            # bf_xxx: backfill scheduler, set these to disable reservation of resources for high priority jobs
+            SchedulerParameters=enable_user_top,bf_window=10,bf_min_age_reserve=2592000,bf_min_prio_reserve=9223372036854775808
 
             SlurmdDebug=debug2
             SlurmdParameters=l3cache_as_socket
