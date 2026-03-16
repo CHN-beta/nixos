@@ -5,7 +5,7 @@ inputs:
     variant = mkOption
     {
       type = types.nullOr
-        (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" "cachyos" "cachyos-rc" ]);
+        (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" "cachyos" "cachyos-lts" ]);
       default = { x86_64 = "xanmod-lts"; aarch64 = "nixos"; }.${inputs.config.nixos.model.arch};
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
@@ -61,6 +61,7 @@ inputs:
         xanmod-lts = inputs.pkgs.linuxPackages_xanmod;
         xanmod-latest = inputs.pkgs.linuxPackages_xanmod_latest;
         cachyos = inputs.pkgs.cachyosKernels.linuxPackages-cachyos-latest;
+        cachyos-lts = inputs.pkgs.cachyosKernels.linuxPackages-cachyos-lts;
       }.${kernel.variant};
       kernelPatches =
         let
@@ -81,17 +82,25 @@ inputs:
                 "0003-platform-x86-asus-armoury-add-panel_hd_mode-attribut.patch"
                 "0004-platform-x86-asus-armoury-add-apu-mem-control-suppor.patch"
                 "0005-platform-x86-asus-armoury-add-screen-auto-brightness.patch"
-                "0006-platform-x86-asus-wmi-deprecate-bios-features.patch"
+                # "0006-platform-x86-asus-wmi-deprecate-bios-features.patch"
                 "0007-platform-x86-asus-wmi-rename-ASUS_WMI_DEVID_PPT_FPPT.patch"
                 "0008-platform-x86-asus-armoury-add-ppt_-and-nv_-tuning-kn.patch"
                 "0001-platform-x86-asus-armoury-Fix-error-code-in-mini_led.patch"
                 "0002-platform-x86-asus-armoury-fix-mini-led-mode-show.patch"
                 "0003-platform-x86-asus-armoury-add-support-for-FA507UV.patch"
+                "0003-platform-x86-asus-armoury-add-support-for-FA608UM.patch"
+                "0003-platform-x86-asus-armoury-add-support-for-G615LR.patch"
+                "0003-platform-x86-asus-armoury-add-support-for-G835LW.patch"
+                "0003-platform-x86-asus-armoury-add-support-for-GA403WR.patch"
+                "0003-platform-x86-asus-armoury-add-support-for-GU605CR.patch"
+                "0003-0-3-asus-armoury-add-support-for-GV302XV-FA401UV-FA617XT.patch"
                 "0001-platform-x86-asus-armoury-fix-only-DC-tunables-being.patch"
-                "PATCH-v10-00-11-HID-asus-Fix-ASUS-ROG-Laptop-s-Keyboard-backlight-handling.patch"
-                "PATCH-v10-00-11-HID-asus-Fix-ASUS-ROG-Laptop-s-Keyboard-backlight-handling-id1-id2-pr_err.patch"
-                "0001-platform-x86-asus-wmi-fix-initializing-TUFs-keyboard.patch"
-                "0002-platform-x86-asus-armoury-add-keyboard-control-firmw.patch"
+                "0003-0-4-platform-x86-asus-armoury-ppt-fixes-and-new-models.patch"
+                "PATCH-v11-00-11-HID-asus-Fix-ASUS-ROG-Laptop-s-Keyboard-backlight-handling.patch"
+                # "PATCH-v10-00-11-HID-asus-Fix-ASUS-ROG-Laptop-s-Keyboard-backlight-handling.patch"
+                # "PATCH-v10-00-11-HID-asus-Fix-ASUS-ROG-Laptop-s-Keyboard-backlight-handling-id1-id2-pr_err.patch"
+                # "0001-platform-x86-asus-wmi-fix-initializing-TUFs-keyboard.patch"
+                # "0002-platform-x86-asus-armoury-add-keyboard-control-firmw.patch"
                 "0001-acpi-proc-idle-skip-dummy-wait.patch"
                 "PATCH-v5-00-11-Improvements-to-S5-power-consumption.patch"
                 "PATCH-asus-wmi-fixup-screenpad-brightness.patch"
@@ -102,6 +111,8 @@ inputs:
                 "0084-enable-steam-deck-hdr.patch"
                 "sys-kernel_arch-sources-g14_files-0047-asus-nb-wmi-Add-tablet_mode_sw-lid-flip.patch"
                 "sys-kernel_arch-sources-g14_files-0048-asus-nb-wmi-fix-tablet_mode_sw_int.patch"
+                "ga403wr-fix-audio.patch"
+                "0001-bluetooth-btus-add-new-vid-pid.patch"
               ];
           };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
