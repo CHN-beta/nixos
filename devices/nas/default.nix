@@ -74,9 +74,12 @@
       [ "w /sys/class/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw - - - - 10000000" ];
     specialisation.desktop.configuration.nixos =
     {
-      # TODO: switch to generic build
       model.type = lib.mkForce "desktop";
-      system.network.implementation = "systemd-networkd";
+      system =
+      {
+        network.implementation = "systemd-networkd";
+        nixpkgs.march = lib.mkForce null;
+      };
     };
   };
 }
