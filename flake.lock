@@ -345,6 +345,26 @@
         "type": "github"
       }
     },
+    "dms-plugin-registry": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773796797,
+        "narHash": "sha256-/wlvKw9ztX3ePhwHiKEa9e3hQl85QehHtqXFa1mDOpE=",
+        "owner": "AvengeMedia",
+        "repo": "dms-plugin-registry",
+        "rev": "dcb3908dac1abde08ed2ff3fafd88a700d4b46fd",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AvengeMedia",
+        "repo": "dms-plugin-registry",
+        "type": "github"
+      }
+    },
     "fancy-motd": {
       "flake": false,
       "locked": {
@@ -1515,6 +1535,7 @@
         "cppcoro": "cppcoro",
         "dankmaterialshell": "dankmaterialshell",
         "date": "date",
+        "dms-plugin-registry": "dms-plugin-registry",
         "fancy-motd": "fancy-motd",
         "gitea-robots-txt": "gitea-robots-txt",
         "harmonia": "harmonia",

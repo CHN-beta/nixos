@@ -13,11 +13,13 @@
     topInputs.niri.nixosModules.niri
     { config.niri-flake.cache.enable = false; }
     topInputs.harmonia.nixosModules.harmonia
+    topInputs.dms-plugin-registry.modules.default
     { config.home-manager.sharedModules =
     [
       topInputs.catppuccin.homeModules.catppuccin
       topInputs.dankmaterialshell.homeModules.dank-material-shell
       topInputs.dankmaterialshell.homeModules.niri
+      topInputs.dms-plugin-registry.modules.default
     ];}
   ] ++ (localLib.findModules ./.);
 }

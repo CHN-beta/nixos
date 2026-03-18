@@ -66,6 +66,10 @@
             enable = true;
             niri.enableKeybinds = true;
             systemd = { enable = true; restartIfChanged = true; };
+            plugins =
+            {
+              dankPomodoroTimer.enable = true;
+            };
           };
           niri.settings =
           {

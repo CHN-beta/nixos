@@ -31,6 +31,7 @@
     dankmaterialshell = { url = "github:AvengeMedia/DankMaterialShell"; inputs.nixpkgs.follows = "nixpkgs"; };
     harmonia.url = "github:nix-community/harmonia";
     nix-cachyos-kernel = { url = "github:CHN-beta/nix-cachyos-kernel"; inputs.nixpkgs.follows = "nixpkgs"; };
+    dms-plugin-registry = { url = "github:AvengeMedia/dms-plugin-registry"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?ref=chn-mod&submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
