@@ -55,7 +55,7 @@ inputs:
                   chainloader /EFI/Microsoft/Boot/bootmgfw.efi
                 }
               '')
-              (inputs.localLib.attrsToList grub.windowsEntries))
+              (inputs.lib.attrsToList grub.windowsEntries))
             [
               ''
                 menuentry "System shutdown" {

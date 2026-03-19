@@ -28,7 +28,7 @@
         [
           (
             let
-              servers = localLib.attrsToList hmInputs.config.nixos.decrypt;
+              servers = lib.attrsToList hmInputs.config.nixos.decrypt;
               cat = "${pkgs.coreutils}/bin/cat";
               gpg = "${pkgs.gnupg}/bin/gpg";
               ssh = "${pkgs.openssh}/bin/ssh";
@@ -44,7 +44,7 @@
                       (device: "  echo $key | ${ssh} root@initrd.${system.name}.chn.moe cryptsetup luksOpen "
                         + (if device.value.ssd then "--allow-discards " else "")
                         + "${device.name} ${device.value.mapper} -")
-                      (localLib.attrsToList system.value)))
+                      (lib.attrsToList system.value)))
                     "}"
                   ])
                   servers)

@@ -7,11 +7,7 @@ inputs: rec
     src = inputs.topInputs.misskey;
     extraIntegritySha256 = inputs.topInputs.self.src.misskey;
   };
-  vaspkit = inputs.pkgs.callPackage ./vaspkit.nix
-  {
-    inherit (inputs.localLib) attrsToList;
-    src = inputs.topInputs.self.src.vaspkit;
-  };
+  vaspkit = inputs.pkgs.callPackage ./vaspkit.nix { src = inputs.topInputs.self.src.vaspkit; };
   v-sim = inputs.pkgs.callPackage ./v-sim.nix { src = inputs.topInputs.v-sim; };
   concurrencpp = inputs.pkgs.callPackage ./concurrencpp.nix { src = inputs.topInputs.concurrencpp; };
   matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix { src = inputs.topInputs.matplotplusplus; };

@@ -39,7 +39,7 @@ inputs:
             group = inputs.lib.mkIf (cert.value.group != null) cert.value.group;
           };
         })
-        (inputs.localLib.attrsToList acme.cert));
+        (inputs.lib.attrsToList acme.cert));
     };
     nixos.system.sops =
     {

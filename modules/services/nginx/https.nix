@@ -144,7 +144,7 @@ inputs:
             (site: (inputs.lib.mapAttrsToList
                 (n: v: inputs.lib.nameValuePair "${site.name} ${n}" v)
                 site.value.location))
-            (builtins.filter (site: site.value.global.root == null) (inputs.localLib.attrsToList nginx.https)))))
+            (builtins.filter (site: site.value.global.root == null) (inputs.lib.attrsToList nginx.https)))))
       );
     }
     # https
@@ -158,7 +158,7 @@ inputs:
           locations = inputs.lib.mapAttrsToList
             (ln: lv: inputs.lib.nameValuePair ln
             (
-              let _ = builtins.head (builtins.filter (type: type.value != null) (inputs.localLib.attrsToList lv));
+              let _ = builtins.head (builtins.filter (type: type.value != null) (inputs.lib.attrsToList lv));
               in _.value // { type = _.name; }
             ))
             sv.location;

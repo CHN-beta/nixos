@@ -37,7 +37,6 @@
     in pkgs.writeText "src" (builtins.concatStringsSep "\n" (getDrv inputs.self.outputs.src));
   dns-push = pkgs.callPackage ./dns
   {
-    inherit localLib;
     tokenPath = inputs.self.nixosConfigurations.pc.config.nixos.system.sops.secrets."acme/token".path;
     octodns = pkgs.octodns.withProviders (_: with pkgs.octodns-providers; [ cloudflare ]);
   };

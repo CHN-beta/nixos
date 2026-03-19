@@ -1,5 +1,6 @@
 { inputs, localLib }:
 let
+  inherit (inputs.nixpkgs) lib;
   singles = [ "nas" "pc" "vps4" "vps6" "vps9" ];
   cluster = { srv1 = 3; srv2 = 3; };
   deviceModules = builtins.listToAttrs
@@ -22,10 +23,10 @@ let
           ];
         })
         (builtins.genList (n: "node${builtins.toString n}") cluster.value))
-      (localLib.attrsToList cluster)))
+      (lib.attrsToList cluster)))
   );
 in builtins.mapAttrs
-  (n: v: inputs.nixpkgs.lib.nixosSystem
+  (n: v: lib.nixosSystem
   {
     system = null;
     specialArgs = { topInputs = inputs; inherit localLib; };

@@ -82,16 +82,16 @@ inputs:
           (site: { inherit (site) name; value = nginx.global.streamPort; })
           (builtins.filter
             (site: (!(site.value.proxyProtocol or false) && (site.value.addToTransparentProxy or true)))
-            (inputs.localLib.attrsToList nginx.streamProxy.map)))
+            (inputs.lib.attrsToList nginx.streamProxy.map)))
         ++ (builtins.map
           (site: { inherit (site) name; value = with nginx.global; streamPort + streamPortShift.proxyProtocol; })
           (builtins.filter
             (site: ((site.value.proxyProtocol or false) && (site.value.addToTransparentProxy or true)))
-            (inputs.localLib.attrsToList nginx.streamProxy.map)))
+            (inputs.lib.attrsToList nginx.streamProxy.map)))
       );
       http = builtins.listToAttrs (builtins.map
         (site: { inherit (site) name; value.rewriteHttps = {}; })
-        (builtins.filter (site: site.value.rewriteHttps or false) (inputs.localLib.attrsToList nginx.streamProxy.map)));
+        (builtins.filter (site: site.value.rewriteHttps or false) (inputs.lib.attrsToList nginx.streamProxy.map)));
     };
   };
 }

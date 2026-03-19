@@ -1,6 +1,5 @@
 lib: rec
 {
-  inherit (lib) attrsToList;
   mkConditional = condition: trueResult: falseResult: let inherit (lib) mkMerge mkIf; in
     mkMerge [ ( mkIf condition trueResult ) ( mkIf (!condition) falseResult ) ];
 
@@ -36,7 +35,7 @@ lib: rec
               then "${path}/${subPath.name}"
             else null
           else null)
-      (attrsToList (builtins.readDir path))));
+      (lib.attrsToList (builtins.readDir path))));
 
   # replace the value in a nested attrset. example:
   # deepReplace
@@ -63,7 +62,7 @@ lib: rec
             (v: if currentPath v then replace { path = nextPath; inherit value; content = v; } else v) content
           else if (builtins.typeOf content) == "set" then builtins.listToAttrs (builtins.map
             (v: if currentPath v then replace { path = nextPath; inherit value; content = v; } else v)
-            (attrsToList content))
+            (lib.attrsToList content))
           else throw "content should be a list or a set.";
     in
       if (builtins.typeOf pattern) != "list" then throw "pattern should be a list"

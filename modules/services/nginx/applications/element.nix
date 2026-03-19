@@ -12,7 +12,7 @@ inputs:
   config =
     let
       inherit (inputs.config.nixos.services.nginx.applications.element) instances;
-      inherit (inputs.localLib) attrsToList;
+      inherit (inputs.lib) attrsToList;
       inherit (builtins) map listToAttrs toString;
     in
     {

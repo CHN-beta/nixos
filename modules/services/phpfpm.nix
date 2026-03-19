@@ -22,7 +22,7 @@ inputs:
   config =
   let
     inherit (builtins) map listToAttrs filter;
-    inherit (inputs.localLib) attrsToList;
+    inherit (inputs.lib) attrsToList;
     inherit (inputs.config.nixos.services) phpfpm;
   in
   {

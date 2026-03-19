@@ -121,7 +121,7 @@ inputs:
                 dns = inputs.lib.mkIf (network.value.dns != null) [ network.value.dns ];
               };
             })
-            (inputs.localLib.attrsToList network.settings.static)))
+            (inputs.lib.attrsToList network.settings.static)))
           (builtins.listToAttrs (builtins.map
             (network:
             {
@@ -133,7 +133,7 @@ inputs:
                 linkConfig.RequiredForOnline = "routable";
               };
             })
-            (inputs.localLib.attrsToList network.settings.bridge)))
+            (inputs.lib.attrsToList network.settings.bridge)))
           (builtins.listToAttrs (builtins.concatLists (builtins.map
             (bridge: builtins.map
               (network:
@@ -146,7 +146,7 @@ inputs:
                   linkConfig.RequiredForOnline = "enslaved";
                 };
               }) bridge.value.interfaces)
-            (inputs.localLib.attrsToList network.settings.bridge))))
+            (inputs.lib.attrsToList network.settings.bridge))))
           (builtins.listToAttrs (builtins.map
             (network: { name = "10-${network}"; value.networkConfig.IPMasquerade = "both"; })
             network.settings.masquerade))

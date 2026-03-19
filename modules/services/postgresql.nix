@@ -48,14 +48,14 @@ inputs:
         # chattr +C /path/to/dir
         # cp -a --reflink=never /path/to/dir_old/. /path/to/dir
         # rm -rf /path/to/dir_old
-        ensureUsers = builtins.map (db: { name = db.value.user; }) (inputs.localLib.attrsToList postgresql.instances);
+        ensureUsers = builtins.map (db: { name = db.value.user; }) (inputs.lib.attrsToList postgresql.instances);
       };
       postgresqlBackup =
       {
         enable = postgresql.mountFrom == "nodatacow";
         pgdumpOptions = "-Fc";
         compression = "none";
-        databases = builtins.map (db: db.value.database) (inputs.localLib.attrsToList postgresql.instances);
+        databases = builtins.map (db: db.value.database) (inputs.lib.attrsToList postgresql.instances);
       };
     };
     systemd.services.postgresql-setup.script = inputs.lib.mkAfter (builtins.concatStringsSep "\n" (builtins.map
@@ -69,7 +69,7 @@ inputs:
               " WITH "
               + (builtins.concatStringsSep " " (map
                 (flag: ''${flag.name} = "${flag.value}"'')
-                (inputs.localLib.attrsToList db.value.initializeFlags)))
+                (inputs.lib.attrsToList db.value.initializeFlags)))
             else "";
         in
         # create database if not exist
@@ -84,10 +84,10 @@ inputs:
           + " WHERE d.datname = '${db.value.database}' ORDER BY 1\""
           + " | grep -E '^${db.value.user}$' -q"
           + " || psql -tAc \"ALTER DATABASE ${db.value.database} OWNER TO ${db.value.user}\"")
-      (inputs.localLib.attrsToList postgresql.instances)));
+      (inputs.lib.attrsToList postgresql.instances)));
     nixos.system.sops.secrets = builtins.listToAttrs (builtins.map
       (db: { name = "postgresql/${db.value.user}"; value.owner = inputs.config.users.users.postgres.name; })
-      (builtins.filter (db: db.value.passwordFile == null) (inputs.localLib.attrsToList postgresql.instances)));
+      (builtins.filter (db: db.value.passwordFile == null) (inputs.lib.attrsToList postgresql.instances)));
     environment.persistence = inputs.lib.mkIf (postgresql.mountFrom != null)
     {
       "/nix/${postgresql.mountFrom}".directories =

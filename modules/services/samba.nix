@@ -48,7 +48,7 @@ inputs:
                 "acl allow execute always" = true;
               };
             })
-            (inputs.localLib.attrsToList samba.shares));
+            (inputs.lib.attrsToList samba.shares));
       };
     };
   };

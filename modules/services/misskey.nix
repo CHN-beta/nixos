@@ -37,7 +37,7 @@ inputs:
         tmpfiles.rules = let dir = "/var/lib/misskey/${instance.name}/files"; owner = "misskey-${instance.name}"; in
           [ "d ${dir} 0700 ${owner} ${owner}" "Z ${dir} - ${owner} ${owner}" ];
       })
-      (inputs.localLib.attrsToList misskey.instances));
+      (inputs.lib.attrsToList misskey.instances));
     fileSystems = inputs.lib.mkMerge (builtins.map
       (instance:
       {
@@ -52,7 +52,7 @@ inputs:
           options = [ "bind" "private" "x-gvfs-hide" "X-fstrim.notrim" ];
         };
       })
-      (inputs.localLib.attrsToList misskey.instances));
+      (inputs.lib.attrsToList misskey.instances));
     users = inputs.lib.mkMerge (builtins.map
       (instance:
       {
@@ -66,24 +66,24 @@ inputs:
         };
         groups."misskey-${instance.name}".gid = inputs.config.nixos.user.gid."misskey-${instance.name}";
       })
-      (inputs.localLib.attrsToList misskey.instances));
+      (inputs.lib.attrsToList misskey.instances));
     nixos =
     {
       services =
       {
         redis.instances = builtins.listToAttrs (builtins.map
           (instance: { name = "misskey-${instance.name}"; value.port = instance.value.redis.port; })
-          (inputs.localLib.attrsToList misskey.instances));
+          (inputs.lib.attrsToList misskey.instances));
         postgresql.instances = builtins.listToAttrs (builtins.map
           (instance: { name = "misskey_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
-          (inputs.localLib.attrsToList misskey.instances));
+          (inputs.lib.attrsToList misskey.instances));
         nginx.https = builtins.listToAttrs (builtins.map
           (instance: with instance.value;
           {
             name = hostname;
             value.location."/".proxy = { upstream = "http://127.0.0.1:${toString port}"; websocket = true; };
           })
-          (inputs.localLib.attrsToList misskey.instances));
+          (inputs.lib.attrsToList misskey.instances));
       };
       system.sops.templates = builtins.listToAttrs (builtins.map
         (instance:
@@ -132,7 +132,7 @@ inputs:
             owner = "misskey-${instance.name}";
           };
         })
-        (inputs.localLib.attrsToList misskey.instances));
+        (inputs.lib.attrsToList misskey.instances));
     };
   };
 }

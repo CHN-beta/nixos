@@ -38,7 +38,7 @@ inputs:
             crypttabExtraOpts = [ "fido2-device=auto" "x-initrd.attach" ];
           };
         })
-        (inputs.localLib.attrsToList luks.auto)));
+        (inputs.lib.attrsToList luks.auto)));
       systemd.services = builtins.listToAttrs (builtins.map
         (device:
         {
@@ -49,7 +49,7 @@ inputs:
             overrideStrategy = "asDropin";
           };
         })
-        (builtins.filter (device: device.value.before != null) (inputs.localLib.attrsToList luks.auto)));
+        (builtins.filter (device: device.value.before != null) (inputs.lib.attrsToList luks.auto)));
     };})
     (inputs.lib.mkIf (luks.manual != null)
     {
@@ -66,7 +66,7 @@ inputs:
             serviceConfig.Type = "oneshot";
             script = builtins.concatStringsSep "\n" (builtins.map
               (device: "while [ ! -e /dev/mapper/${device.value.mapper} ]; do sleep 1; done")
-              (inputs.localLib.attrsToList luks.manual));
+              (inputs.lib.attrsToList luks.manual));
           };
           extraBin.cryptsetup = "${inputs.pkgs.cryptsetup}/bin/cryptsetup";
         };

@@ -24,16 +24,16 @@ inputs:
         enable = true;
         package = inputs.pkgs.mariadb;
         settings.mysqld.skip_name_resolve = true;
-        ensureDatabases = builtins.map (db: db.value.database) (inputs.localLib.attrsToList mariadb.instances);
+        ensureDatabases = builtins.map (db: db.value.database) (inputs.lib.attrsToList mariadb.instances);
         ensureUsers = builtins.map
           (db: { name = db.value.user; ensurePermissions."${db.value.database}.*" = "ALL PRIVILEGES"; })
-          (inputs.localLib.attrsToList mariadb.instances);
+          (inputs.lib.attrsToList mariadb.instances);
       };
       mysqlBackup =
       {
         enable = mariadb.mountFrom == "nodatacow";
         singleTransaction = true;
-        databases = builtins.map (db: db.value.database) (inputs.localLib.attrsToList mariadb.instances);
+        databases = builtins.map (db: db.value.database) (inputs.lib.attrsToList mariadb.instances);
       };
     };
     systemd.services.mysql.postStart = inputs.lib.mkAfter (builtins.concatStringsSep "\n" (builtins.map
@@ -46,10 +46,10 @@ inputs:
         in
           # force user use password auth
           ''echo "ALTER USER '${db.value.user}' IDENTIFIED BY '$(cat ${passwordFile})';" | ${mysql} -N'')
-      (inputs.localLib.attrsToList mariadb.instances)));
+      (inputs.lib.attrsToList mariadb.instances)));
     nixos.system.sops.secrets = builtins.listToAttrs (builtins.map
       (db: { name = "mariadb/${db.value.user}"; value.owner = inputs.config.users.users.mysql.name; })
-      (builtins.filter (db: db.value.passwordFile == null) (inputs.localLib.attrsToList mariadb.instances)));
+      (builtins.filter (db: db.value.passwordFile == null) (inputs.lib.attrsToList mariadb.instances)));
     environment.persistence = inputs.lib.mkIf (mariadb.mountFrom != null)
     {
       "/nix/${mariadb.mountFrom}".directories =

@@ -1,4 +1,4 @@
-{ stdenv, src, autoPatchelfHook, makeWrapper, python3, attrsToList, gnused }:
+{ stdenv, src, autoPatchelfHook, makeWrapper, python3, lib, gnused }:
 let
   unwrapped = stdenv.mkDerivation
   {
@@ -34,7 +34,7 @@ in
     nativeBuildInputs = [ gnused ];
     replaceEnv = builtins.concatStringsSep "" (map
       (variable: ''sed 's|\(${variable.name}\s*=\s*\)\(\S\+\)|\1${variable.value}|g' -i $out/.vaspkit'' + "\n")
-      (attrsToList envirmentVariables));
+      (lib.attrsToList envirmentVariables));
     installPhase =
     ''
       runHook preInstall

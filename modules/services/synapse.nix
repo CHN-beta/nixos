@@ -35,7 +35,7 @@ inputs:
         };
         groups."synapse-${instance.name}".gid = inputs.config.nixos.user.gid."synapse-${instance.name}";
       })
-      (inputs.localLib.attrsToList synapse.instances));
+      (inputs.lib.attrsToList synapse.instances));
     systemd = inputs.lib.mkMerge (builtins.map
       (instance: let workdir = "/var/lib/synapse/${instance.name}"; in
       {
@@ -99,7 +99,7 @@ inputs:
           "Z ${workdir} - synapse-${instance.name} synapse-${instance.name}"
         ];
       })
-      (inputs.localLib.attrsToList synapse.instances));
+      (inputs.lib.attrsToList synapse.instances));
     nixos =
     {
       system.sops = inputs.lib.mkMerge (builtins.map
@@ -203,7 +203,7 @@ inputs:
             // { "synapse/${instance.name}/signing-key".owner = "synapse-${instance.name}"; }
             // { "mail/bot" = {}; };
         })
-        (inputs.localLib.attrsToList synapse.instances));
+        (inputs.lib.attrsToList synapse.instances));
       services =
       {
         postgresql.instances = builtins.listToAttrs (builtins.map
@@ -212,10 +212,10 @@ inputs:
             name = "synapse_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}";
             value.initializeFlags = { TEMPLATE = "template0"; LC_CTYPE = "C"; LC_COLLATE = "C"; };
           })
-          (inputs.localLib.attrsToList synapse.instances));
+          (inputs.lib.attrsToList synapse.instances));
         redis.instances = builtins.listToAttrs (builtins.map
           (instance: { name = "synapse-${instance.name}"; value.port = instance.value.redisPort; })
-          (inputs.localLib.attrsToList synapse.instances));
+          (inputs.lib.attrsToList synapse.instances));
         nginx.https = builtins.listToAttrs (builtins.map
           (instance: with instance.value;
           {
@@ -237,7 +237,7 @@ inputs:
               };
             };
           })
-          (inputs.localLib.attrsToList synapse.instances));
+          (inputs.lib.attrsToList synapse.instances));
       };
     };
   };

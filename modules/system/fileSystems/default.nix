@@ -33,7 +33,7 @@ inputs:
           name = device.value;
           value = { device = device.name; fsType = "vfat"; neededForBoot = true; options = [ "noatime" ]; };
         })
-        (inputs.localLib.attrsToList fileSystems.mount.vfat));
+        (inputs.lib.attrsToList fileSystems.mount.vfat));
     }
     # mount.btrfs
     # Disable CoW for VM image and database: sudo chattr +C images
@@ -73,9 +73,9 @@ inputs:
               };
             }
           )
-          (inputs.localLib.attrsToList device.value)
+          (inputs.lib.attrsToList device.value)
         )
-        (inputs.localLib.attrsToList fileSystems.mount.btrfs)));
+        (inputs.lib.attrsToList fileSystems.mount.btrfs)));
     }
     # swap
     { swapDevices = builtins.map (device: { device = device; }) fileSystems.swap; }

@@ -77,7 +77,7 @@ inputs:
         assertion = vm.value.cpu.set != null -> builtins.length vm.value.cpu.set == vm.value.cpu.count;
         message = "nixvirt.instance.${vm.name}.cpu.set must have the same length as cpu.count";
       })
-      (inputs.localLib.attrsToList nixvirt.instance);
+      (inputs.lib.attrsToList nixvirt.instance);
     virtualisation =
     {
       libvirt =
@@ -93,7 +93,7 @@ inputs:
               active = true;
               restart = false;
             })
-            (inputs.localLib.attrsToList nixvirt.instance);
+            (inputs.lib.attrsToList nixvirt.instance);
           networks =
           [{
             definition =
@@ -279,13 +279,13 @@ inputs:
           ({
             virsh = "${inputs.pkgs.libvirt}/bin/virsh";
             vm =
-              let vms = builtins.groupBy (vm: vm.value.owner) (inputs.localLib.attrsToList nixvirt.instance);
+              let vms = builtins.groupBy (vm: vm.value.owner) (inputs.lib.attrsToList nixvirt.instance);
               in builtins.listToAttrs (builtins.map (owner:
               {
                 name = builtins.toString inputs.config.nixos.user.uid.${owner.name};
                 value = builtins.map (vm: vm.name) owner.value;
               })
-              (inputs.localLib.attrsToList vms));
+              (inputs.lib.attrsToList vms));
           }));
         };
         in "${vm}/bin/vm";

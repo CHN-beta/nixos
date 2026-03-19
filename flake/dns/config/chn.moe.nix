@@ -1,4 +1,4 @@
-{ lib, localLib }:
+{ lib }:
 let
   cname =
   {
@@ -82,10 +82,10 @@ in
   (cname: builtins.map
     (name: { inherit name; value = { type = "CNAME"; value = "${cname.name}.chn.moe."; }; })
     cname.value)
-  (localLib.attrsToList cname)))
+  (lib.attrsToList cname)))
 // builtins.listToAttrs (builtins.map
   (a: {inherit (a) name; value = { inherit (a) value; type = "A"; }; })
-  (localLib.attrsToList a))
+  (lib.attrsToList a))
 // lib.mapAttrs'
   (n: v: lib.nameValuePair "tinc0.${n}" { type = "A"; value = "192.168.85.${builtins.toString v}"; })
   tinc

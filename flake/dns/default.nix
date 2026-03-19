@@ -1,17 +1,17 @@
-{ writeShellScript, writeTextDir, symlinkJoin, octodns, tokenPath, localLib, lib }:
+{ writeShellScript, writeTextDir, symlinkJoin, octodns, tokenPath, lib }:
 let
   addTtl = config:
     let addTtl' = attrs: attrs // { octodns.cloudflare.auto-ttl = true; };
     in builtins.mapAttrs (n: v: if builtins.isList v then builtins.map addTtl' v else addTtl' v) config;
   config = builtins.listToAttrs (builtins.map
-    (domain: { name = domain; value = import ./config/${domain}.nix { inherit lib localLib; }; })
+    (domain: { name = domain; value = import ./config/${domain}.nix { inherit lib; }; })
     [ "chn.moe" "nekomia.moe" "mirism.one" ]);
   configDir = symlinkJoin
   {
     name = "config";
     paths = builtins.map
       (domain: writeTextDir "${domain.name}.yaml" (builtins.toJSON (addTtl domain.value)))
-      (localLib.attrsToList config);
+      (lib.attrsToList config);
   };
   meta.config = config //
   {

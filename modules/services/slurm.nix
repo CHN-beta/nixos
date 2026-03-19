@@ -86,7 +86,7 @@ inputs:
                 "${gpuString}"
                 "State=UNKNOWN"
               ])
-            (inputs.localLib.attrsToList slurm.node);
+            (inputs.lib.attrsToList slurm.node);
           partitionName = inputs.lib.mapAttrsToList
             (n: v: builtins.concatStringsSep " "
             [
@@ -156,7 +156,7 @@ inputs:
             (
               let gpuString = builtins.concatStringsSep "\n" (builtins.map
                 (gpu: "Name=gpu Type=${gpu.name} Count=${builtins.toString gpu.value}")
-                (inputs.localLib.attrsToList gpus));
+                (inputs.lib.attrsToList gpus));
               in [(inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml\n${gpuString}")]
             );
           extraCgroupConfig =

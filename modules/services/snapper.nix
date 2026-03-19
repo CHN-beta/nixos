@@ -24,6 +24,6 @@ inputs:
           TIMELINE_LIMIT_YEARLY = 0;
         };
       })
-      (inputs.localLib.attrsToList snapper));
+      (inputs.lib.attrsToList snapper));
   };
 }

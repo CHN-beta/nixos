@@ -98,7 +98,7 @@ inputs:
               };
             };
           })
-          (inputs.localLib.attrsToList scripts));
+          (inputs.lib.attrsToList scripts));
         timers = builtins.listToAttrs (builtins.map
           (calender:
           {
@@ -109,7 +109,7 @@ inputs:
               timerConfig = { OnCalendar = calender.value; Unit = "hpcstat-${calender.name}.service"; };
             };
           })
-          (inputs.localLib.attrsToList calenders));
+          (inputs.lib.attrsToList calenders));
         tmpfiles.rules = [ "d /var/lib/hpcstat 0700 hpcstat hpcstat" ];
       };
     nixos.system.sops.secrets =
