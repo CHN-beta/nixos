@@ -114,7 +114,8 @@
         lumericalLicenseManager.macAddress = "a8:e2:91:52:5f:7c";
         open-webui.ollamaHost = "127.0.0.1";
         howdy = {};
-        postgresql.enable = true;
+        # for debug and development
+        postgresql.instances.minibox = {};
       };
       bugs = [ "amdpstate" ];
       packages = { mathematica = {}; vasp = {}; extra = {}; lumerical = {}; };
