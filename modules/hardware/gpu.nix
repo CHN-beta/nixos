@@ -77,7 +77,7 @@
           {
             intel = [ intel-gpu-tools ];
             nvidia = [ nvtopPackages.full ];
-            amd = [ radeontop ];
+            amd = [ radeontop rocmPackages.rocm-smi ];
           };
           in packages.${gpu.type};
         environment.etc."nvidia/nvidia-application-profiles-rc.d/vram" = lib.mkIf (gpu.type == "nvidia")
