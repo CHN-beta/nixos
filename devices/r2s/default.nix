@@ -1,4 +1,4 @@
-inputs:
+{ pkgs, ... }:
 {
   config =
   {
@@ -17,7 +17,7 @@ inputs:
         {
           defconfig = "nanopi-r2s-rk3328_defconfig";
           filesToInstall = [ "u-boot-rockchip.bin" ];
-          env.BL31 = "${inputs.pkgs.armTrustedFirmwareRK3328}/bl31.elf";
+          env.BL31 = "${pkgs.armTrustedFirmwareRK3328}/bl31.elf";
         };
       };
       services =

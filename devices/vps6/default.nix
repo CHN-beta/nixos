@@ -1,4 +1,4 @@
-inputs:
+{ topInputs, config, ... }:
 {
   config =
   {
@@ -71,8 +71,8 @@ inputs:
       family = "inet";
       content =
         let
-          srv2 = inputs.topInputs.self.config.dns."chn.moe".getAddress "tinc0.srv2-node0";
-          pc = inputs.topInputs.self.config.dns."chn.moe".getAddress "tinc0.pc";
+          srv2 = topInputs.self.config.dns."chn.moe".getAddress "tinc0.srv2-node0";
+          pc = topInputs.self.config.dns."chn.moe".getAddress "tinc0.pc";
         in
       ''
         chain prerouting {
@@ -83,10 +83,10 @@ inputs:
         chain output {
           type nat hook output priority dstnat; policy accept;
           # 需要忽略透明代理发出的流量（gid 不是 nginx）
-          meta skgid != ${builtins.toString inputs.config.users.groups.nginx.gid} \
+          meta skgid != ${builtins.toString config.users.groups.nginx.gid} \
             tcp dport 7011 fib daddr type local \
             counter meta mark set meta mark | 4 dnat ip to ${srv2}:22
-          meta skgid != ${builtins.toString inputs.config.users.groups.nginx.gid} \
+          meta skgid != ${builtins.toString config.users.groups.nginx.gid} \
             tcp dport 7012 fib daddr type local \
             counter meta mark set meta mark | 4 dnat ip to ${pc}:22
         }

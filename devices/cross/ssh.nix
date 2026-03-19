@@ -1,4 +1,4 @@
-inputs:
+{ lib, localLib, ... }:
 let
   devices =
   {
@@ -66,7 +66,7 @@ in
             ++ (builtins.map (domain: "${domain}.chn.moe") device.value.extraAccess or []);
         };
       }]
-        ++ inputs.lib.optionals (device.value ? initrdPublicKey)
+        ++ lib.optionals (device.value ? initrdPublicKey)
         [{
           name = "initrd.${device.name}";
           value =
@@ -75,7 +75,7 @@ in
             hostNames = [ "initrd.${device.name}.chn.moe" ];
           };
         }])
-      (inputs.localLib.attrsToList devices)));
+      (localLib.attrsToList devices)));
     nixos.user.sharedModules = [{ config.programs.ssh.matchBlocks =
       let genericConfig =
         { forwardX11 = true; forwardX11Trusted = true; forwardAgent = true; extraOptions.AddKeysToAgent = "yes"; };
@@ -91,7 +91,7 @@ in
                 { host = name; hostname = "${name}.chn.moe"; proxyJump = device.value.proxyJump or null; };
             })
             ((device.value.extraAccess or []) ++ [ device.name ]))
-          (inputs.localLib.attrsToList devices))
+          (localLib.attrsToList devices))
         # 通过 tinc 访问
         (builtins.map
           (device: builtins.map
@@ -101,7 +101,7 @@ in
               value = genericConfig // { host = "tinc0.${name}"; hostname = "tinc0.${name}.chn.moe"; };
             })
             (device.value.extraAccess or [] ++ [ device.name ]))
-          (inputs.localLib.attrsToList devices))
+          (localLib.attrsToList devices))
         # 通过 tailscale 访问
         (builtins.map
           (device: builtins.map
@@ -111,7 +111,7 @@ in
               value = genericConfig // { host = "ts.${name}"; hostname = "${name}.ts.chn.moe"; };
             })
             (device.value.extraAccess or [] ++ [ device.name ]))
-          (inputs.localLib.attrsToList devices))
+          (localLib.attrsToList devices))
       ]));
     }];
   };

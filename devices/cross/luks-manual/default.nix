@@ -1,4 +1,4 @@
-inputs:
+{ config, lib, ... }:
 let devices =
 {
   nas =
@@ -20,8 +20,8 @@ in
   config =
   {
     nixos.system.fileSystems.luks.manual =
-      let inherit (inputs.config.nixos.model) hostname;
-      in if devices ? ${hostname} then devices.${hostname} else inputs.lib.mkOptionDefault null;
+      let inherit (config.nixos.model) hostname;
+      in if devices ? ${hostname} then devices.${hostname} else lib.mkOptionDefault null;
     home-manager.users.chn.config.nixos.decrypt = devices;
   };
 }

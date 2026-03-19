@@ -1,4 +1,4 @@
-inputs:
+{ config, ... }:
 {
   config =
   {
@@ -9,7 +9,7 @@ inputs:
       {
         fileSystems =
         {
-          mount = let inherit (inputs.config.nixos.model.cluster) clusterName nodeName; in
+          mount = let inherit (config.nixos.model.cluster) clusterName nodeName; in
           {
             vfat."/dev/disk/by-partlabel/${clusterName}-${nodeName}-boot" = "/boot";
             btrfs."/dev/disk/by-partlabel/${clusterName}-${nodeName}-root" =

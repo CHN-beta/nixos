@@ -1,7 +1,7 @@
-inputs:
+{ topInputs, config, lib, pkgs, ... }:
 let
-  inherit (inputs.topInputs.self.config.dns."chn.moe") getAddress;
-  inherit (inputs.config.nixos.model) hostname;
+  inherit (topInputs.self.config.dns."chn.moe") getAddress;
+  inherit (config.nixos.model) hostname;
   publicKey =
   {
     nas = "sSN3eeBgrMXF6/XYfEBe54TXmfHETOESX+SyrpGlmDK";
@@ -21,26 +21,26 @@ let
   subnets =
   [
     # vps
-    { device = inputs.lib.genAttrs [ "vps4" "vps6" "vps9" ] getAddress; distance = 1; }
+    { device = lib.genAttrs [ "vps4" "vps6" "vps9" ] getAddress; distance = 1; }
     # 使用 vps9 代理的机器
     {
-      device = (inputs.lib.genAttrs [ "nas" "srv1-node0" "srv2-node0" ] (_: null)) // { vps9 = getAddress "vps9"; };
+      device = (lib.genAttrs [ "nas" "srv1-node0" "srv2-node0" ] (_: null)) // { vps9 = getAddress "vps9"; };
       distance = 10;
     }
     # 使用 vps6 代理的机器
     { device = { vps6 = getAddress "vps6"; pc = null; }; distance = 10; }
     # 校内网络
-    { device = (inputs.lib.genAttrs [ "srv1-node0" "srv2-node0" ] getAddress) // { nas = null; }; distance = 1; }
+    { device = (lib.genAttrs [ "srv1-node0" "srv2-node0" ] getAddress) // { nas = null; }; distance = 1; }
     # srv1 内部网络
     {
-      device = inputs.lib.genAttrs' (builtins.genList (n: n) 3)
-        (n: inputs.lib.nameValuePair "srv1-node${builtins.toString n}" "192.168.178.${builtins.toString (n + 1)}");
+      device = lib.genAttrs' (builtins.genList (n: n) 3)
+        (n: lib.nameValuePair "srv1-node${builtins.toString n}" "192.168.178.${builtins.toString (n + 1)}");
       distance = 1;
     }
     # srv2 内部网络
     {
-      device = inputs.lib.genAttrs' (builtins.genList (n: n) 3)
-        (n: inputs.lib.nameValuePair "srv2-node${builtins.toString n}" "192.168.178.${builtins.toString (n + 1)}");
+      device = lib.genAttrs' (builtins.genList (n: n) 3)
+        (n: lib.nameValuePair "srv2-node${builtins.toString n}" "192.168.178.${builtins.toString (n + 1)}");
       distance = 1;
     }
   ];
@@ -54,11 +54,11 @@ let
       # 将给定子网翻译成一列边，返回 [{ device = { dev1 = null or ip; dev2 = null or ip; }; distance = xxx; }]
       # 边中至少有一个端点是可以接受连接的
       netToEdges = subnet: builtins.filter (v: v != null) (builtins.concatLists
-        (inputs.lib.imap
-          (i1: v1: inputs.lib.imap
+        (lib.imap
+          (i1: v1: lib.imap
             (i2: v2:
               if i2 <= i1 || (subnet.device.${v1} == null && subnet.device.${v2} == null) then null
-              else { device = inputs.lib.genAttrs [ v1 v2 ] (v: subnet.device.${v}); inherit (subnet) distance; })
+              else { device = lib.genAttrs [ v1 v2 ] (v: subnet.device.${v}); inherit (subnet) distance; })
             (builtins.attrNames subnet.device))
           (builtins.attrNames subnet.device)));
       # 在一个图中加入一个边
@@ -73,7 +73,7 @@ let
               # 如果要加入的边包含终点，那么这两个点可以直连
               if newEdge.device ? "${nameTo}"
                 then { address = newEdge.device.${nameTo}; length = newEdge.distance; jump = nameTo; }
-              else let edgePoint2 = builtins.head (inputs.lib.remove nameFrom (builtins.attrNames newEdge.device)); in
+              else let edgePoint2 = builtins.head (lib.remove nameFrom (builtins.attrNames newEdge.device)); in
                 # 如果边的另外一个点到终点可以连接
                 if current.${edgePoint2}.${nameTo} != null then
                   # 如果之前不能连接，或者之前的连接比新的要长，则使用新的连接
@@ -90,7 +90,7 @@ let
                 else current.${nameFrom}.${nameTo}
             # 如果要加入的边包不包含起点但包含终点
             else if newEdge.device ? "${nameTo}" then
-              let edgePoint2 = builtins.head (inputs.lib.remove nameTo (builtins.attrNames newEdge.device)); in
+              let edgePoint2 = builtins.head (lib.remove nameTo (builtins.attrNames newEdge.device)); in
               # 如果起点与另外一个点可以相连
               if current.${nameFrom}.${edgePoint2} != null then
                 # 如果之前不能连接，或者新连接更短，则使用新的连接
@@ -120,7 +120,7 @@ let
                     length = current.${nameFrom}.${p1}.length + newEdge.distance + current.${p2}.${nameTo}.length;
                   }
                   # 如果之前可以连接，那么反过来一定也能连接，选取三种连接中最短的
-                  else builtins.head (inputs.lib.sort (a: b: a.length < b.length)
+                  else builtins.head (lib.sort (a: b: a.length < b.length)
                     [
                       # 原先的连接
                       current.${nameFrom}.${nameTo}
@@ -147,11 +147,11 @@ let
         current;
       # 初始时，所有点之间都不连接
       init = builtins.mapAttrs (_: _: builtins.mapAttrs (_: _: null) publicKey) publicKey;
-    in builtins.foldl' addEdge init (inputs.lib.flatten (builtins.map netToEdges subnets));
+    in builtins.foldl' addEdge init (lib.flatten (builtins.map netToEdges subnets));
   tincHostname = builtins.replaceStrings [ "-" ] [ "_" ];
 in
 {
-  config = inputs.lib.mkIf (builtins.hasAttr hostname publicKey)
+  config = lib.mkIf (builtins.hasAttr hostname publicKey)
   {
     services.tinc.networks.tinc0 = 
     {
@@ -161,14 +161,14 @@ in
         Name = tincHostname hostname;
         PingInterval = 10;
         TCPOnly = true;
-        Proxy = inputs.lib.mkIf (inputs.config.nixos.services.xray.client != null) "socks5 127.0.0.1 10885";
+        Proxy = lib.mkIf (config.nixos.services.xray.client != null) "socks5 127.0.0.1 10885";
         ConnectTo = builtins.map tincHostname (builtins.attrNames
-          (inputs.lib.filterAttrs (n: v: (v.address or null != null) && (v.jump or null == n)) connection.${hostname}));
+          (lib.filterAttrs (n: v: (v.address or null != null) && (v.jump or null == n)) connection.${hostname}));
         AutoConnect = false;
         TunnelServer = true;
       };
-      ed25519PrivateKeyFile = inputs.config.nixos.system.sops.secrets."tinc".path;
-      hostSettings = inputs.lib.mkMerge
+      ed25519PrivateKeyFile = config.nixos.system.sops.secrets."tinc".path;
+      hostSettings = lib.mkMerge
       [
         # 本机
         {
@@ -178,10 +178,10 @@ in
             subnets = [{ address = getAddress "tinc0.${hostname}"; weight = 0; }];
           };
         }
-        (inputs.lib.mkMerge (inputs.lib.mapAttrsToList
+        (lib.mkMerge (lib.mapAttrsToList
           (n: v: { "${tincHostname v.jump}" = 
           {
-            addresses = inputs.lib.optionals (v.address != null) [{ inherit (v) address; }];
+            addresses = lib.optionals (v.address != null) [{ inherit (v) address; }];
             settings = { Ed25519PublicKey = publicKey.${v.jump}; IndirectData = true; };
             subnets =
             [{
@@ -191,26 +191,26 @@ in
               weight = 0;
             }];
           };})
-          (inputs.lib.filterAttrs (_: v: v != null) connection.${hostname})))
+          (lib.filterAttrs (_: v: v != null) connection.${hostname})))
       ];
     };
     nixos.system =
     {
       sops.secrets."tinc".owner = "tinc-tinc0";
-      network.settings = inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "systemd-networkd")
+      network.settings = lib.mkIf (config.nixos.system.network.implementation == "systemd-networkd")
         { static."tinc0" = { ip = getAddress "tinc0.${hostname}"; mask = 24; }; };
     };
     environment =
     {
-      etc = inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "networkmanager")
+      etc = lib.mkIf (config.nixos.system.network.implementation == "networkmanager")
       {
-        "tinc/tinc0/tinc-up".source = inputs.pkgs.writeShellScript "tinc-up"
+        "tinc/tinc0/tinc-up".source = pkgs.writeShellScript "tinc-up"
         ''
-          ${inputs.pkgs.iproute2}/bin/ip link set $INTERFACE up
-          ${inputs.pkgs.iproute2}/bin/ip addr add ${getAddress "tinc0.${hostname}"}/24 dev $INTERFACE
+          ${pkgs.iproute2}/bin/ip link set $INTERFACE up
+          ${pkgs.iproute2}/bin/ip addr add ${getAddress "tinc0.${hostname}"}/24 dev $INTERFACE
         '';
       };
-      systemPackages = [ inputs.config.services.tinc.networks.tinc0.package ];
+      systemPackages = [ config.services.tinc.networks.tinc0.package ];
     };
     networking.firewall = { allowedTCPPorts = [ 655 ]; allowedUDPPorts = [ 655 ]; trustedInterfaces = [ "tinc0" ]; };
   };

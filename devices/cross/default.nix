@@ -1,1 +1,1 @@
-inputs: { imports = inputs.localLib.findModules ./.; }
+{ localLib, ... }: { imports = localLib.findModules ./.; }
