@@ -64,6 +64,7 @@
         missgram = {};
         hongbao = {};
         vikunja = {};
+        minibox = {};
       };
     };
     networking.nftables.tables.forward =

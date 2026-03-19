@@ -58,6 +58,7 @@
         tailscale = 2013;
         missgram = 2014;
         hongbao = 2015;
+        minibox = 2016;
       };
     };
     gid = lib.mkOption
