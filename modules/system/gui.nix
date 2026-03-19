@@ -19,6 +19,7 @@
       # niri module will auto enable this, disable it to avoid conflict with system ssh-agent
       gnome.gcr-ssh-agent.enable = false;
       iio-niri.enable = true;
+      clight.enable = true;
     };
     environment =
     {
@@ -69,6 +70,16 @@
             plugins =
             {
               dankPomodoroTimer.enable = true;
+              amdGpuMonitor.enable = true;
+              displayManager.enable = true;
+              aiAssistant.enable = true;
+              alarmClock.enable = true;
+              displayMirror.enable = true;
+              # phoneConnect.enable = true;
+              taskwarrior.enable = true;
+              timeUntil.enable = true;
+              vscodeLauncher.enable = true;
+              voxtype.enable = true;
             };
           };
           niri.settings =
@@ -156,5 +167,6 @@
       # iio-niri retry when failed
       iio-niri.serviceConfig = { RestartSec = 5; StartLimitIntervalSec = 0; };
     };
+    location.provider = "geoclue2";
   };
 }
