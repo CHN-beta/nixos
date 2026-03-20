@@ -1,9 +1,6 @@
-{
-  mkPnpmPackage, writeShellScript, bash, cypress, python3
-}: mkPnpmPackage
+{ mkPnpmPackage, writeShellScript, nodejs, pnpm }: mkPnpmPackage
 {
   src = ./.;
-  # extraNativeBuildInputs = [ bash nodejs.pkgs.typescript nodejs.pkgs.gulp python3 ];
   extraAttrs =
   {
     NODE_ENV = "production";
@@ -11,6 +8,7 @@
       let startScript = writeShellScript "minibox"
       ''
         export NODE_ENV=production
+        export PATH="$PATH:${nodejs}/bin:${pnpm}/bin"
         pnpm start
       '';
       in

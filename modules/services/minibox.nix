@@ -19,6 +19,7 @@
       {
         User = "minibox";
         Group = "minibox";
+        WorkingDirectory = "${pkgs.localPackages.minibox}";
         ExecStart = "${pkgs.localPackages.minibox}/bin/minibox";
         CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
         AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
@@ -44,6 +45,11 @@
         nginx.https.${minibox.hostname}.location."/".proxy.upstream = "http://127.0.0.1:6240";
         postgresql.instances.minibox = {};
       };
+    };
+    users =
+    {
+      users.minibox = { uid = config.nixos.user.uid.minibox; group = "minibox"; isSystemUser = true; };
+      groups."minibox".gid = config.nixos.user.gid.minibox;
     };
   };
 }
