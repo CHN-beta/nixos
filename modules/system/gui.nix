@@ -28,7 +28,6 @@
         GTK_USE_PORTAL = "1";
         # let electron use gnome keyring https://github.com/electron/electron/issues/39789#issuecomment-3433810585
         GNOME_DESKTOP_SESSION_ID = "this-is-deprecated";
-        QT_QPA_PLATFORMTHEME = "gtk3";
       };
       persistence."/nix/persistent".directories =
         [{ directory = "/var/cache/tuigreet"; user = "greeter"; group = "greeter"; mode = "0700"; }];
@@ -45,7 +44,7 @@
       ];
     };
     xdg.portal.extraPortals = (builtins.map (p: pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" "gnome" ]);
-    qt.enable = true;
+    qt = { enable = true; platformTheme = "qt5ct"; };
     gtk.iconCache.enable = true;
     i18n.inputMethod =
     {
