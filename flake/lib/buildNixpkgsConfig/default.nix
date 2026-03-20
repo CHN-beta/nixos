@@ -153,6 +153,7 @@ let
         (prev: { patches = prev.patches or [] ++ [ ./maddy.patch ]; });
       libreoffice-fresh = prev.libreoffice-fresh.override (prev:
         { unwrapped = prev.unwrapped.overrideAttrs (prev: { doCheck = false; });});
+      inherit (final.pkgs-unstable) go_1_26;
     })];
     marchFix =
     [
