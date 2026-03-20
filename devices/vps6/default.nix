@@ -37,7 +37,7 @@
           }
           // (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "tinc0.nas.chn.moe"; })
-            [ "xn--s8w913fdga" "matrix" "git" ]))
+            [ "xn--s8w913fdga" "matrix" "git" "question" ]))
           // (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "tinc0.pc.chn.moe"; })
             [ "xn--qbtm095lrg0bfka60z" ]));
@@ -64,7 +64,6 @@
         missgram = {};
         hongbao = {};
         vikunja = {};
-        minibox = {};
       };
     };
     networking.nftables.tables.forward =

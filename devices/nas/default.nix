@@ -68,6 +68,7 @@
         nfs = { exports."/nix/persistent" = [ "100.97.101.0/24" ]; crossmnt = false; };
         immich = {};
         readeck = {};
+        minibox = {};
       };
     };
     systemd.tmpfiles.rules =
