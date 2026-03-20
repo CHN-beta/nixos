@@ -13,6 +13,7 @@ inputs:
       fstrim.enable = false;
       upower.enable = true;
       power-profiles-daemon.enable = true;
+      gvfs.enable = true;
     };
     time.timeZone = "Asia/Shanghai";
     boot =
