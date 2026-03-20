@@ -151,6 +151,8 @@ let
       httplib = prev.httplib.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./httplib.patch ]; });
       libmaddy-markdown = prev.libmaddy-markdown.overrideAttrs
         (prev: { patches = prev.patches or [] ++ [ ./maddy.patch ]; });
+      libreoffice-fresh = prev.libreoffice-fresh.override (prev:
+        { unwrapped = prev.unwrapped.overrideAttrs (prev: { doCheck = false; });});
     })];
     marchFix =
     [
@@ -175,8 +177,6 @@ let
         assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
         xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
-        libreoffice-fresh = prev.libreoffice-fresh.override (prev:
-          { unwrapped = prev.unwrapped.overrideAttrs (prev: { doCheck = false; });});
         opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
