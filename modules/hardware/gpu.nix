@@ -13,6 +13,7 @@
         type = lib.types.enum [ "production" "latest" "beta" "dc" ];
         default = if config.nixos.hardware.gpu.nvidia.datacenter then "dc" else "production";
       };
+      persistence = lib.mkOption { type = lib.types.bool; default = !config.nixos.hardware.gpu.nvidia.dynamicBoost; };
     };
   };
   config = let inherit (config.nixos.hardware) gpu; in lib.mkIf (gpu.type != null) (lib.mkMerge
@@ -56,12 +57,13 @@
           {
             modesetting.enable = true;
             powerManagement.enable = true;
-            dynamicBoost.enable = lib.mkIf gpu.nvidia.dynamicBoost true;
+            dynamicBoost.enable = gpu.nvidia.dynamicBoost;
             nvidiaSettings = true;
             package = config.boot.kernelPackages.nvidiaPackages.${gpu.nvidia.driver};
             inherit (gpu.nvidia) open;
             prime.allowExternalGpu = true;
             datacenter.enable = gpu.nvidia.datacenter;
+            nvidiaPersistenced = gpu.nvidia.persistence;
           };
         };
         services.xserver.videoDrivers =
