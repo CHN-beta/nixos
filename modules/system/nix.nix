@@ -54,6 +54,7 @@ inputs:
         {
           nixpkgs.flake = inputs.topInputs.nixpkgs;
           nixos.flake = inputs.topInputs.self;
+          nixpkgs-unstable.flake = inputs.topInputs.nixpkgs-unstable;
         };
         nixPath = [ "nixpkgs=${inputs.topInputs.nixpkgs}" ];
       };
@@ -64,7 +65,7 @@ inputs:
           "channels/nixpkgs".source = inputs.topInputs.nixpkgs.outPath;
           "nixos".source = inputs.topInputs.self.outPath;
         };
-        variables.COMMA_NIXPKGS_FLAKE = "nixpkgs";
+        variables.COMMA_NIXPKGS_FLAKE = "nixpkgs-unstable";
       };
     }
     # marches
