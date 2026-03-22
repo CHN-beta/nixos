@@ -153,6 +153,10 @@ let
         (prev: { patches = prev.patches or [] ++ [ ./maddy.patch ]; });
       libreoffice-fresh = prev.libreoffice-fresh.override (prev:
         { unwrapped = prev.unwrapped.overrideAttrs (prev: { doCheck = false; });});
+      pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
+      {
+        phonopy = prev.phonopy.overridePythonAttrs { patches = prev.patches or [] ++ [ ./phonopy.patch ]; };
+      })];
     })];
     marchFix =
     [
