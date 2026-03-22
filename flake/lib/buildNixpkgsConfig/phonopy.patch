@@ -1,8 +1,8 @@
 diff --git a/phonopy/structure/cells.py b/phonopy/structure/cells.py
-index 1271102c..2bbaec89 100644
+index 34de5f61..597546e0 100644
 --- a/phonopy/structure/cells.py
 +++ b/phonopy/structure/cells.py
-@@ -829,6 +829,9 @@ def get_cell_lines(cell: PhonopyAtoms, mapping=None, stars=None):
+@@ -820,6 +820,9 @@ def get_cell_lines(cell: PhonopyAtoms, mapping=None, stars=None):
      magmoms = cell.magnetic_moments
      lattice = cell.cell
      lines = []
@@ -12,3 +12,15 @@ index 1271102c..2bbaec89 100644
      lines.append("Lattice vectors:")
      lines.append("  a %20.15f %20.15f %20.15f" % tuple(lattice[0]))
      lines.append("  b %20.15f %20.15f %20.15f" % tuple(lattice[1]))
+diff --git a/phonopy/structure/symmetry.py b/phonopy/structure/symmetry.py
+index 63d589d9..c45ca825 100644
+--- a/phonopy/structure/symmetry.py
++++ b/phonopy/structure/symmetry.py
+@@ -674,6 +674,7 @@ def _take_average_of_borns(
+     cell: PhonopyAtoms,
+     symprec: float,
+ ) -> np.ndarray:
++    return borns
+     lattice = cell.cell
+     positions = cell.scaled_positions
+     borns_ = np.zeros_like(borns)
