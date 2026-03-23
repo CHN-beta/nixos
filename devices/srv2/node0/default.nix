@@ -29,6 +29,5 @@
         lumericalLicenseManager.macAddress = "04:42:1a:26:0c:07";
       };
     };
-    services.hardware.bolt.enable = true;
   };
 }
