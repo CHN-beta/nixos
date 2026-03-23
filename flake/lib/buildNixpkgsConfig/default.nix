@@ -155,8 +155,7 @@ let
         { unwrapped = prev.unwrapped.overrideAttrs (prev: { doCheck = false; });});
       pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
       {
-        phonopy = prev.phonopy.overridePythonAttrs
-          { patches = prev.patches or [] ++ [ ./phonopy.patch ]; doCheck = false; };
+        phonopy = prev.phonopy.overridePythonAttrs { patches = prev.patches or [] ++ [ ./phonopy.patch ]; };
       })];
     })];
     marchFix =
