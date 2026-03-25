@@ -1,10 +1,10 @@
-inputs:
+{ lib, config, pkgs, topInputs, localLib, ... }:
 {
-  options.nixos.services.slurm = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.slurm = let inherit (lib) mkOption types; in
   {
     enable = mkOption { type = types.bool; default = false; };
     # 本机是否为控制节点，如果不是，填写控制节点的主机名
-    master = mkOption { type = types.nonEmptyStr; default = inputs.config.nixos.model.hostname; };
+    master = mkOption { type = types.nonEmptyStr; default = config.nixos.model.hostname; };
     node = mkOption { type = types.attrsOf (types.submodule (submoduleInputs: { options =
     {
       # slurm 中使用的节点名称
@@ -46,14 +46,17 @@ inputs:
     };
     timeLimit = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
   };
-  config = let inherit (inputs.config.nixos.services) slurm; in inputs.lib.mkIf slurm.enable
+  config = let inherit (config.nixos.services) slurm; in lib.mkIf slurm.enable
   (
-    let info = inputs.pkgs.localPackages.info.override
-    {
-      slurm = inputs.config.services.slurm.package;
-      configFile = inputs.config.nixos.system.sops.templates."info.yaml".path;
-    };
-    in inputs.lib.mkMerge
+    let
+      isMaster = slurm.master == config.nixos.model.hostname;
+      info = pkgs.localPackages.info.override
+      {
+        slurm = config.services.slurm.package;
+        buildMain = isMaster;
+        configFile = if isMaster then config.nixos.system.sops.templates."info.yaml".path else null;
+      };
+    in lib.mkMerge
     [
       # worker 配置
       {
@@ -61,7 +64,7 @@ inputs:
         {
           slurm =
           {
-            package = (inputs.pkgs.slurm.override { enableX11 = false; }).overrideAttrs (prev:
+            package = (pkgs.slurm.override { enableX11 = false; }).overrideAttrs (prev:
             {
               postInstall =
               ''
@@ -80,7 +83,7 @@ inputs:
                   if node.value.gpus == null then ""
                   else "Gres=" + builtins.concatStringsSep "," (builtins.map
                     (gpu: "gpu:${gpu.name}:${builtins.toString gpu.value}")
-                    (inputs.lib.attrsToList node.value.gpus));
+                    (lib.attrsToList node.value.gpus));
                 in builtins.concatStringsSep " "
                 [
                   node.value.name
@@ -93,8 +96,8 @@ inputs:
                   "${gpuString}"
                   "State=UNKNOWN"
                 ])
-              (inputs.lib.attrsToList slurm.node);
-            partitionName = inputs.lib.mapAttrsToList
+              (lib.attrsToList slurm.node);
+            partitionName = lib.mapAttrsToList
               (n: v: builtins.concatStringsSep " "
               [
                 n
@@ -114,7 +117,7 @@ inputs:
               SelectTypeParameters=CR_Core_Memory
               GresTypes=gpu
 
-              TaskProlog=${inputs.pkgs.writeShellScript "set_env" "echo export CUDA_DEVICE_ORDER=PCI_BUS_ID"}
+              TaskProlog=${pkgs.writeShellScript "set_env" "echo export CUDA_DEVICE_ORDER=PCI_BUS_ID"}
 
               AccountingStorageType=accounting_storage/slurmdbd
               AccountingStorageHost=localhost
@@ -158,13 +161,13 @@ inputs:
               DefMemPerCPU=1024
             '';
             extraConfigPaths =
-              let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
-              in inputs.lib.mkIf (gpus != null)
+              let gpus = slurm.node.${config.nixos.model.hostname}.gpus or null;
+              in lib.mkIf (gpus != null)
               (
                 let gpuString = builtins.concatStringsSep "\n" (builtins.map
                   (gpu: "Name=gpu Type=${gpu.name} Count=${builtins.toString gpu.value}")
-                  (inputs.lib.attrsToList gpus));
-                in [(inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml\n${gpuString}")]
+                  (lib.attrsToList gpus));
+                in [(pkgs.writeTextDir "gres.conf" "AutoDetect=nvml\n${gpuString}")]
               );
             extraCgroupConfig =
             ''
@@ -180,31 +183,31 @@ inputs:
               required ${info}/lib/libinfo-spank.so
             '';
           };
-          munge = { enable = true; password = inputs.config.nixos.system.sops.secrets."munge.key".path; };
+          munge = { enable = true; password = config.nixos.system.sops.secrets."munge.key".path; };
         };
         systemd.services.slurmd.environment =
-          let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
-          in inputs.lib.mkIf (gpus != null)
+          let gpus = slurm.node.${config.nixos.model.hostname}.gpus or null;
+          in lib.mkIf (gpus != null)
           {
-            CUDA_PATH = "${inputs.pkgs.cudatoolkit}";
-            LD_LIBRARY_PATH = "${inputs.config.hardware.nvidia.package}/lib";
+            CUDA_PATH = "${pkgs.cudatoolkit}";
+            LD_LIBRARY_PATH = "${config.hardware.nvidia.package}/lib";
           };
         nixos.system.sops.secrets."munge.key" =
         {
           format = "binary";
           sopsFile =
             let
-              devicePath = "${inputs.topInputs.self}/devices";
-              inherit (inputs.config.nixos) model;
-            in inputs.localLib.mkConditional (model.cluster == null)
+              devicePath = "${topInputs.self}/devices";
+              inherit (config.nixos) model;
+            in localLib.mkConditional (model.cluster == null)
               "${devicePath}/${model.hostname}/secrets/munge.key"
               "${devicePath}/${model.cluster.clusterName}/secrets/munge.key";
-          owner = inputs.config.systemd.services.munged.serviceConfig.User;
+          owner = config.systemd.services.munged.serviceConfig.User;
         };
         environment.sessionVariables = { SLURM_UNBUFFEREDIO = "1"; SLURM_CPU_BIND = "v"; };
       }
       # master 配置
-      (inputs.lib.mkIf (slurm.master == inputs.config.nixos.model.hostname)
+      (lib.mkIf (slurm.master == config.nixos.model.hostname)
       {
         services.slurm =
         {
@@ -213,7 +216,7 @@ inputs:
           {
             enable = true;
             dbdHost = "localhost";
-            storagePassFile = inputs.config.nixos.system.sops.secrets."slurm/db".path;
+            storagePassFile = config.nixos.system.sops.secrets."slurm/db".path;
             extraConfig =
             ''
               StorageHost=*
@@ -222,8 +225,8 @@ inputs:
           };
           extraConfig =
           ''
-            PrologSlurmctld=${inputs.config.security.wrapperDir}/slurm-info
-            EpilogSlurmctld=${inputs.config.security.wrapperDir}/slurm-info
+            PrologSlurmctld=${config.security.wrapperDir}/slurm-info
+            EpilogSlurmctld=${config.security.wrapperDir}/slurm-info
           '';
         };
         systemd =
@@ -249,7 +252,7 @@ inputs:
               [ "until sacctmgr ping; do sleep 1; done" ]
               (builtins.map
                 (user: ''sacctmgr -i add user name="${user}" Account=root DefaultAccount=root || true'')
-                inputs.config.nixos.user.users)
+                config.nixos.user.users)
             ]);
           };
           tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
@@ -258,17 +261,17 @@ inputs:
         {
           secrets = { "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; }; }
             // builtins.listToAttrs (builtins.map
-              (n: inputs.lib.nameValuePair "telegram/${n}" {})
+              (n: lib.nameValuePair "telegram/${n}" {})
               [ "token" "user/chn" "user/hjp" "user/root" ]);
           templates."info.yaml" =
           {
             owner = "slurm";
-            content = let inherit (inputs.config.nixos.system.sops) placeholder; in builtins.toJSON
+            content = let inherit (config.nixos.system.sops) placeholder; in builtins.toJSON
             {
               token = placeholder."telegram/token";
               user =  builtins.listToAttrs (builtins.map
-                (n: inputs.lib.nameValuePair n placeholder."telegram/user/${n}") [ "chn" "hjp" "root" ]);
-              slurmConf = "${inputs.config.services.slurm.etcSlurm}/slurm.conf";
+                (n: lib.nameValuePair n placeholder."telegram/user/${n}") [ "chn" "hjp" "root" ]);
+              slurmConf = "${config.services.slurm.etcSlurm}/slurm.conf";
             };
           };
         };
@@ -283,9 +286,9 @@ inputs:
         };
         nixos =
         {
-          packages.packages._packages = [(inputs.pkgs.localPackages.sbatch-tui.override
+          packages.packages._packages = [(pkgs.localPackages.sbatch-tui.override
           {
-            sbatchConfig = inputs.pkgs.writeText "sbatch.yaml" (builtins.toJSON
+            sbatchConfig = pkgs.writeText "sbatch.yaml" (builtins.toJSON
             ({
               Program =
               {
@@ -325,7 +328,7 @@ inputs:
           })];
           user.sharedModules = [{ home.packages =
           [
-            (inputs.pkgs.writeShellScriptBin "sbatch"
+            (pkgs.writeShellScriptBin "sbatch"
               ''if [ "$#" -eq 0 ]; then sbatch-tui; else /run/current-system/sw/bin/sbatch "$@"; fi'')
           ];}];
           services.mariadb = { enable = true; instances.slurm = {}; };

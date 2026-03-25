@@ -14,12 +14,17 @@ find_path(SLURM_INCLUDE_PATH slurm/spank.h REQUIRED)
 find_library(SLURM_LIBRARY slurm REQUIRED)
 find_package(Boost REQUIRED COMPONENTS process)
 
-add_executable(info src/main.cpp)
-target_include_directories(info PRIVATE ${SLURM_INCLUDE_PATH})
-target_link_libraries(info PRIVATE biu::biu ${SLURM_LIBRARY} Boost::process)
-target_compile_features(info PRIVATE cxx_std_23)
-target_compile_definitions(info PRIVATE INFO_CONFIG_FILE="${INFO_CONFIG_FILE}")
-install(TARGETS info RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+# add an option to control build main program or not
+option(BUILD_INFO_MAIN "Build the main info executable" ON)
+
+if (BUILD_INFO_MAIN)
+  add_executable(info src/main.cpp)
+  target_include_directories(info PRIVATE ${SLURM_INCLUDE_PATH})
+  target_link_libraries(info PRIVATE biu::biu ${SLURM_LIBRARY} Boost::process)
+  target_compile_features(info PRIVATE cxx_std_23)
+  target_compile_definitions(info PRIVATE INFO_CONFIG_FILE="${INFO_CONFIG_FILE}")
+  install(TARGETS info RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+endif()
 
 add_library(info-spank SHARED src/spank.cpp)
 target_include_directories(info-spank PRIVATE ${SLURM_INCLUDE_PATH})
