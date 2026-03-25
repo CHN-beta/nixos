@@ -21,6 +21,12 @@ target_compile_features(info PRIVATE cxx_std_23)
 target_compile_definitions(info PRIVATE INFO_CONFIG_FILE="${INFO_CONFIG_FILE}")
 install(TARGETS info RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
+add_library(info-spank SHARED src/spank.cpp)
+target_include_directories(info-spank PRIVATE ${SLURM_INCLUDE_PATH})
+target_link_libraries(info-spank PRIVATE biu::biu ${SLURM_LIBRARY} Boost::process)
+target_compile_features(info-spank PRIVATE cxx_std_23)
+install(TARGETS info-spank LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
 get_property(ImportedTargets DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
 message("Imported targets: ${ImportedTargets}")
 message("List of compile features: ${CMAKE_CXX_COMPILE_FEATURES}")

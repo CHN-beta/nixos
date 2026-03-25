@@ -140,7 +140,7 @@ int main()
     slurm_fini();
 
     // 发送消息
-    if (user_map.contains(user))
+    if (auto silent = std::getenv("SPANK_INFO_SILENT"); !silent && user_map.contains(user))
     {
       TgBot::Bot bot(token);
       std::stringstream ss;

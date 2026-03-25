@@ -46,285 +46,290 @@ inputs:
     };
     timeLimit = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
   };
-  config = let inherit (inputs.config.nixos.services) slurm; in inputs.lib.mkIf slurm.enable (inputs.lib.mkMerge
-  [
-    # worker 配置
+  config = let inherit (inputs.config.nixos.services) slurm; in inputs.lib.mkIf slurm.enable
+  (
+    let info = inputs.pkgs.localPackages.info.override
     {
-      services =
+      slurm = inputs.config.services.slurm.package;
+      configFile = inputs.config.nixos.system.sops.templates."info.yaml".path;
+    };
+    in inputs.lib.mkMerge
+    [
+      # worker 配置
       {
-        slurm =
+        services =
         {
-          package = (inputs.pkgs.slurm.override { enableX11 = false; }).overrideAttrs (prev:
+          slurm =
           {
-            postInstall =
-            ''
-              pushd contribs/pmi2
-              make install
-              popd
-              pushd contribs/pmi
-              make install
-              popd
-            '' + prev.postInstall;
-          });
-          client.enable = true;
-          nodeName = builtins.map
-            (node:
-              let gpuString =
-                if node.value.gpus == null then ""
-                else "Gres=" + builtins.concatStringsSep "," (builtins.map
-                  (gpu: "gpu:${gpu.name}:${builtins.toString gpu.value}")
-                  (inputs.lib.attrsToList node.value.gpus));
-              in builtins.concatStringsSep " "
+            package = (inputs.pkgs.slurm.override { enableX11 = false; }).overrideAttrs (prev:
+            {
+              postInstall =
+              ''
+                pushd contribs/pmi2
+                make install
+                popd
+                pushd contribs/pmi
+                make install
+                popd
+              '' + prev.postInstall;
+            });
+            client.enable = true;
+            nodeName = builtins.map
+              (node:
+                let gpuString =
+                  if node.value.gpus == null then ""
+                  else "Gres=" + builtins.concatStringsSep "," (builtins.map
+                    (gpu: "gpu:${gpu.name}:${builtins.toString gpu.value}")
+                    (inputs.lib.attrsToList node.value.gpus));
+                in builtins.concatStringsSep " "
+                [
+                  node.value.name
+                  "NodeHostname=${node.name}"
+                  "NodeAddr=${node.value.address}"
+                  "RealMemory=${builtins.toString (node.value.memoryGB * 1024)}"
+                  "Sockets=${builtins.toString node.value.cpu.sockets}"
+                  "CoresPerSocket=${builtins.toString node.value.cpu.cores}"
+                  "ThreadsPerCore=${builtins.toString node.value.cpu.threads}"
+                  "${gpuString}"
+                  "State=UNKNOWN"
+                ])
+              (inputs.lib.attrsToList slurm.node);
+            partitionName = inputs.lib.mapAttrsToList
+              (n: v: builtins.concatStringsSep " "
               [
-                node.value.name
-                "NodeHostname=${node.name}"
-                "NodeAddr=${node.value.address}"
-                "RealMemory=${builtins.toString (node.value.memoryGB * 1024)}"
-                "Sockets=${builtins.toString node.value.cpu.sockets}"
-                "CoresPerSocket=${builtins.toString node.value.cpu.cores}"
-                "ThreadsPerCore=${builtins.toString node.value.cpu.threads}"
-                "${gpuString}"
-                "State=UNKNOWN"
+                n
+                "Nodes=${builtins.concatStringsSep "," (builtins.map (n: slurm.node.${n}.name) v)}"
+                "Default=${if n == slurm.defaultPartition then "YES" else "NO"}"
+                "MaxTime=${if slurm.timeLimit != null then slurm.timeLimit else "INFINITE"}"
+                "State=UP"
+                ''TRESBillingWeights="CPU=1.0,Mem=0.1G,GRES/gpu=10"''
               ])
-            (inputs.lib.attrsToList slurm.node);
-          partitionName = inputs.lib.mapAttrsToList
-            (n: v: builtins.concatStringsSep " "
-            [
-              n
-              "Nodes=${builtins.concatStringsSep "," (builtins.map (n: slurm.node.${n}.name) v)}"
-              "Default=${if n == slurm.defaultPartition then "YES" else "NO"}"
-              "MaxTime=${if slurm.timeLimit != null then slurm.timeLimit else "INFINITE"}"
-              "State=UP"
-              ''TRESBillingWeights="CPU=1.0,Mem=0.1G,GRES/gpu=10"''
-            ])
-            slurm.partitions;
-          procTrackType = "proctrack/cgroup";
-          controlMachine = slurm.master;
-          controlAddr = slurm.node.${slurm.master}.address;
-          extraConfig =
-          ''
-            SelectType=select/cons_tres
-            SelectTypeParameters=CR_Core_Memory
-            GresTypes=gpu
+              slurm.partitions;
+            procTrackType = "proctrack/cgroup";
+            controlMachine = slurm.master;
+            controlAddr = slurm.node.${slurm.master}.address;
+            extraConfig =
+            ''
+              SelectType=select/cons_tres
+              SelectTypeParameters=CR_Core_Memory
+              GresTypes=gpu
 
-            TaskProlog=${inputs.pkgs.writeShellScript "set_env" "echo export CUDA_DEVICE_ORDER=PCI_BUS_ID"}
+              TaskProlog=${inputs.pkgs.writeShellScript "set_env" "echo export CUDA_DEVICE_ORDER=PCI_BUS_ID"}
 
-            AccountingStorageType=accounting_storage/slurmdbd
-            AccountingStorageHost=localhost
-            AccountingStoreFlags=job_comment,job_env,job_extra,job_script
+              AccountingStorageType=accounting_storage/slurmdbd
+              AccountingStorageHost=localhost
+              AccountingStoreFlags=job_comment,job_env,job_extra,job_script
 
-            JobCompType=jobcomp/filetxt
-            JobCompLoc=/var/log/slurmctld/jobcomp.log
+              JobCompType=jobcomp/filetxt
+              JobCompLoc=/var/log/slurmctld/jobcomp.log
 
-            # bf_xxx: backfill scheduler, set these to disable reservation of resources for high priority jobs
-            SchedulerParameters=enable_user_top,bf_window=10,bf_min_age_reserve=2592000,bf_min_prio_reserve=9223372036854775808
+              # bf_xxx: backfill scheduler, set these to disable reservation of resources for high priority jobs
+              SchedulerParameters=enable_user_top,bf_window=10,bf_min_age_reserve=2592000,bf_min_prio_reserve=9223372036854775808
 
-            SlurmdDebug=debug2
-            SlurmdParameters=l3cache_as_socket
-            DebugFlags=NO_CONF_HASH,CPU_Bind,Gres
+              SlurmdDebug=debug2
+              SlurmdParameters=l3cache_as_socket
+              DebugFlags=NO_CONF_HASH,CPU_Bind,Gres
 
-            # automatically resume node after drain
-            ReturnToService=2
+              # automatically resume node after drain
+              ReturnToService=2
 
-            # enable task plugins
-            TaskPlugin=task/affinity,task/cgroup
+              # enable task plugins
+              TaskPlugin=task/affinity,task/cgroup
 
-            # omit --mpi=pmix
-            MpiDefault=pmix
+              # omit --mpi=pmix
+              MpiDefault=pmix
 
-            # record more info
-            JobAcctGatherType=jobacct_gather/cgroup
-            AccountingStorageTRES=gres/gpu
-            PrologFlags=contain
+              # record more info
+              JobAcctGatherType=jobacct_gather/cgroup
+              AccountingStorageTRES=gres/gpu
+              PrologFlags=contain
 
-            # append to output file
-            JobFileAppend=1
+              # append to output file
+              JobFileAppend=1
 
-            # correctly set priority
-            PriorityType=priority/multifactor
-            PriorityWeightAge=10000
-            PriorityWeightFairshare=100000
-            AccountingStorageEnforce=associations
+              # correctly set priority
+              PriorityType=priority/multifactor
+              PriorityWeightAge=10000
+              PriorityWeightFairshare=100000
+              AccountingStorageEnforce=associations
 
-            # use low resource as default
-            DefCpuPerGPU=1
-            DefMemPerCPU=1024
-          '';
-          extraConfigPaths =
-            let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
-            in inputs.lib.mkIf (gpus != null)
-            (
-              let gpuString = builtins.concatStringsSep "\n" (builtins.map
-                (gpu: "Name=gpu Type=${gpu.name} Count=${builtins.toString gpu.value}")
-                (inputs.lib.attrsToList gpus));
-              in [(inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml\n${gpuString}")]
-            );
-          extraCgroupConfig =
-          ''
-            ConstrainCores=yes
-            ConstrainRAMSpace=yes
-            ConstrainSwapSpace=yes
-            AllowedSwapSpace=20
-            # this make job hang, not sure why
-            # ConstrainDevices=yes
-          '';
+              # use low resource as default
+              DefCpuPerGPU=1
+              DefMemPerCPU=1024
+            '';
+            extraConfigPaths =
+              let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
+              in inputs.lib.mkIf (gpus != null)
+              (
+                let gpuString = builtins.concatStringsSep "\n" (builtins.map
+                  (gpu: "Name=gpu Type=${gpu.name} Count=${builtins.toString gpu.value}")
+                  (inputs.lib.attrsToList gpus));
+                in [(inputs.pkgs.writeTextDir "gres.conf" "AutoDetect=nvml\n${gpuString}")]
+              );
+            extraCgroupConfig =
+            ''
+              ConstrainCores=yes
+              ConstrainRAMSpace=yes
+              ConstrainSwapSpace=yes
+              AllowedSwapSpace=20
+              # this make job hang, not sure why
+              # ConstrainDevices=yes
+            '';
+            extraPlugstackConfig =
+            ''
+              required ${info}/lib/libinfo-spank.so
+            '';
+          };
+          munge = { enable = true; password = inputs.config.nixos.system.sops.secrets."munge.key".path; };
         };
-        munge = { enable = true; password = inputs.config.nixos.system.sops.secrets."munge.key".path; };
-      };
-      systemd.services.slurmd.environment =
-        let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
-        in inputs.lib.mkIf (gpus != null)
+        systemd.services.slurmd.environment =
+          let gpus = slurm.node.${inputs.config.nixos.model.hostname}.gpus or null;
+          in inputs.lib.mkIf (gpus != null)
+          {
+            CUDA_PATH = "${inputs.pkgs.cudatoolkit}";
+            LD_LIBRARY_PATH = "${inputs.config.hardware.nvidia.package}/lib";
+          };
+        nixos.system.sops.secrets."munge.key" =
         {
-          CUDA_PATH = "${inputs.pkgs.cudatoolkit}";
-          LD_LIBRARY_PATH = "${inputs.config.hardware.nvidia.package}/lib";
+          format = "binary";
+          sopsFile =
+            let
+              devicePath = "${inputs.topInputs.self}/devices";
+              inherit (inputs.config.nixos) model;
+            in inputs.localLib.mkConditional (model.cluster == null)
+              "${devicePath}/${model.hostname}/secrets/munge.key"
+              "${devicePath}/${model.cluster.clusterName}/secrets/munge.key";
+          owner = inputs.config.systemd.services.munged.serviceConfig.User;
         };
-      nixos.system.sops.secrets."munge.key" =
+        environment.sessionVariables = { SLURM_UNBUFFEREDIO = "1"; SLURM_CPU_BIND = "v"; };
+      }
+      # master 配置
+      (inputs.lib.mkIf (slurm.master == inputs.config.nixos.model.hostname)
       {
-        format = "binary";
-        sopsFile =
-          let
-            devicePath = "${inputs.topInputs.self}/devices";
-            inherit (inputs.config.nixos) model;
-          in inputs.localLib.mkConditional (model.cluster == null)
-            "${devicePath}/${model.hostname}/secrets/munge.key"
-            "${devicePath}/${model.cluster.clusterName}/secrets/munge.key";
-        owner = inputs.config.systemd.services.munged.serviceConfig.User;
-      };
-      environment.sessionVariables = { SLURM_UNBUFFEREDIO = "1"; SLURM_CPU_BIND = "v"; };
-    }
-    # master 配置
-    (inputs.lib.mkIf (slurm.master == inputs.config.nixos.model.hostname)
-    {
-      services.slurm =
-      {
-        server = { enable = true; flag.i = true; };
-        dbdserver =
+        services.slurm =
         {
-          enable = true;
-          dbdHost = "localhost";
-          storagePassFile = inputs.config.nixos.system.sops.secrets."slurm/db".path;
+          server = { enable = true; flag.i = true; };
+          dbdserver =
+          {
+            enable = true;
+            dbdHost = "localhost";
+            storagePassFile = inputs.config.nixos.system.sops.secrets."slurm/db".path;
+            extraConfig =
+            ''
+              StorageHost=*
+              StorageLoc=slurm
+            '';
+          };
           extraConfig =
-          ''
-            StorageHost=*
-            StorageLoc=slurm
-          '';
-        };
-        extraConfig =
           ''
             PrologSlurmctld=${inputs.config.security.wrapperDir}/slurm-info
             EpilogSlurmctld=${inputs.config.security.wrapperDir}/slurm-info
           '';
-      };
-      systemd =
-      {
-        services =
+        };
+        systemd =
         {
-          slurmctld =
+          services =
           {
-            after = [ "suid-sgid-wrappers.service" "slurmdbd.service" ];
-            serviceConfig =
+            slurmctld =
             {
-              # never swap
-              MemorySwapMax = "0";
-              # highest priority
-              CPUSchedulingPolicy = "fifo";
-              CPUSchedulingPriority = "99";
-              IOSchedulingClass = "realtime";
-              IOSchedulingPriority = "0";
+              after = [ "suid-sgid-wrappers.service" "slurmdbd.service" ];
+              serviceConfig =
+              {
+                # never swap
+                MemorySwapMax = "0";
+                # highest priority
+                CPUSchedulingPolicy = "fifo";
+                CPUSchedulingPriority = "99";
+                IOSchedulingClass = "realtime";
+                IOSchedulingPriority = "0";
+              };
+            };
+            slurmdbd.postStart = builtins.concatStringsSep "\n" (builtins.concatLists
+            [
+              [ "until sacctmgr ping; do sleep 1; done" ]
+              (builtins.map
+                (user: ''sacctmgr -i add user name="${user}" Account=root DefaultAccount=root || true'')
+                inputs.config.nixos.user.users)
+            ]);
+          };
+          tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
+        };
+        nixos.system.sops =
+        {
+          secrets = { "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; }; }
+            // builtins.listToAttrs (builtins.map
+              (n: inputs.lib.nameValuePair "telegram/${n}" {})
+              [ "token" "user/chn" "user/hjp" "user/root" ]);
+          templates."info.yaml" =
+          {
+            owner = "slurm";
+            content = let inherit (inputs.config.nixos.system.sops) placeholder; in builtins.toJSON
+            {
+              token = placeholder."telegram/token";
+              user =  builtins.listToAttrs (builtins.map
+                (n: inputs.lib.nameValuePair n placeholder."telegram/user/${n}") [ "chn" "hjp" "root" ]);
+              slurmConf = "${inputs.config.services.slurm.etcSlurm}/slurm.conf";
             };
           };
-          slurmdbd.postStart = builtins.concatStringsSep "\n" (builtins.concatLists
-          [
-            [ "until sacctmgr ping; do sleep 1; done" ]
-            (builtins.map
-              (user: ''sacctmgr -i add user name="${user}" Account=root DefaultAccount=root || true'')
-              inputs.config.nixos.user.users)
-          ]);
         };
-        tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
-      };
-      nixos.system.sops =
-      {
-        secrets = { "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; }; }
-          // builtins.listToAttrs (builtins.map
-            (n: inputs.lib.nameValuePair "telegram/${n}" {})
-            [ "token" "user/chn" "user/hjp" "user/root" ]);
-        templates."info.yaml" =
+        security.wrappers.info =
         {
+          source = "${info}/bin/info";
+          program = "slurm-info";
           owner = "slurm";
-          content = let inherit (inputs.config.nixos.system.sops) placeholder; in builtins.toJSON
-          {
-            token = placeholder."telegram/token";
-            user =  builtins.listToAttrs (builtins.map
-              (n: inputs.lib.nameValuePair n placeholder."telegram/user/${n}") [ "chn" "hjp" "root" ]);
-            slurmConf = "${inputs.config.services.slurm.etcSlurm}/slurm.conf";
-          };
+          group = "slurm";
+          permissions = "544";
+          capabilities = "cap_setuid,cap_setgid+ep";
         };
-      };
-      security.wrappers.info =
-      {
-        source =
-          let info = inputs.pkgs.localPackages.info.override
-          {
-            slurm = inputs.config.services.slurm.package;
-            configFile = inputs.config.nixos.system.sops.templates."info.yaml".path;
-          };
-          in "${info}/bin/info";
-        program = "slurm-info";
-        owner = "slurm";
-        group = "slurm";
-        permissions = "544";
-        capabilities = "cap_setuid,cap_setgid+ep";
-      };
-      nixos =
-      {
-        packages.packages._packages = [(inputs.pkgs.localPackages.sbatch-tui.override
+        nixos =
         {
-          sbatchConfig = inputs.pkgs.writeText "sbatch.yaml" (builtins.toJSON
-          ({
-            Program =
-            {
-              VaspCpu.Queue = builtins.map
-                (queue:
-                {
-                  Name = queue.name;
-                  Recommended =
+          packages.packages._packages = [(inputs.pkgs.localPackages.sbatch-tui.override
+          {
+            sbatchConfig = inputs.pkgs.writeText "sbatch.yaml" (builtins.toJSON
+            ({
+              Program =
+              {
+                VaspCpu.Queue = builtins.map
+                  (queue:
                   {
-                    Mpi = queue.mpiThreads;
-                    Openmp = queue.openmpThreads;
-                    Memory = queue.memoryGB;
-                    Cpus = queue.allocateCpus;
-                  };
-                })
-                slurm.tui.cpuQueues;
-              Fdtd.Queue = builtins.map
-                (queue:
-                {
-                  Name = queue.name;
-                  Recommended =
+                    Name = queue.name;
+                    Recommended =
+                    {
+                      Mpi = queue.mpiThreads;
+                      Openmp = queue.openmpThreads;
+                      Memory = queue.memoryGB;
+                      Cpus = queue.allocateCpus;
+                    };
+                  })
+                  slurm.tui.cpuQueues;
+                Fdtd.Queue = builtins.map
+                  (queue:
                   {
-                    Cpus =
-                      if queue.allocateCpus != null then queue.allocateCpus
-                      else queue.mpiThreads * queue.openmpThreads;
-                    Memory = queue.memoryGB;
-                  };
-                })
-                slurm.tui.cpuQueues;
-            }
-            // (if slurm.tui.gpuQueues == null then {} else rec
-            {
-              VaspGpu.Queue = builtins.map (queue: { Name = queue.name; Gpu = queue.gpuIds; }) slurm.tui.gpuQueues;
-              Mumax3 = VaspGpu;
-            });
-          }));
-        })];
-        user.sharedModules = [{ home.packages =
-        [
-          (inputs.pkgs.writeShellScriptBin "sbatch"
-            ''if [ "$#" -eq 0 ]; then sbatch-tui; else /run/current-system/sw/bin/sbatch "$@"; fi'')
-        ];}];
-        services.mariadb = { enable = true; instances.slurm = {}; };
-      };
-    })
-  ]);
+                    Name = queue.name;
+                    Recommended =
+                    {
+                      Cpus =
+                        if queue.allocateCpus != null then queue.allocateCpus
+                        else queue.mpiThreads * queue.openmpThreads;
+                      Memory = queue.memoryGB;
+                    };
+                  })
+                  slurm.tui.cpuQueues;
+              }
+              // (if slurm.tui.gpuQueues == null then {} else rec
+              {
+                VaspGpu.Queue = builtins.map (queue: { Name = queue.name; Gpu = queue.gpuIds; }) slurm.tui.gpuQueues;
+                Mumax3 = VaspGpu;
+              });
+            }));
+          })];
+          user.sharedModules = [{ home.packages =
+          [
+            (inputs.pkgs.writeShellScriptBin "sbatch"
+              ''if [ "$#" -eq 0 ]; then sbatch-tui; else /run/current-system/sw/bin/sbatch "$@"; fi'')
+          ];}];
+          services.mariadb = { enable = true; instances.slurm = {}; };
+        };
+      })
+    ]);
 }
