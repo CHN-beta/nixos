@@ -11,7 +11,7 @@ int main()
   biu::Logger::Guard log;
 
   // 初始化
-  enum class UserCommandType { Continue, Back, Quit };
+  enum class UserCommandType { Continue, Back, Quit, Print };
   enum class InterfaceType { Program, Request, Confirm };
   struct
   {
@@ -19,6 +19,7 @@ int main()
     std::vector<std::string> ProgramEntries;
     std::optional<UserCommandType> UserCommand;
     std::string SubmitCommand;
+    std::vector<std::string> SubmitCommandLines;
     InterfaceType CurrentInterface = InterfaceType::Program;
     std::string JobName = std::filesystem::current_path().filename().string();
     std::string OutputFile = "output.txt";
@@ -96,6 +97,8 @@ int main()
         [&]{State.UserCommand = UserCommandType::Continue; Screen.ExitLoopClosure()();}),
       ftxui::Button("Back",
         [&]{State.UserCommand = UserCommandType::Back; Screen.ExitLoopClosure()();}),
+      ftxui::Button("Print Command and Quit",
+        [&]{State.UserCommand = UserCommandType::Print; Screen.ExitLoopClosure()();}),
       ftxui::Button("Quit",
         [&]{State.UserCommand = UserCommandType::Quit; Screen.ExitLoopClosure()();})
     })
@@ -122,11 +125,11 @@ int main()
       else if (State.UserCommand == UserCommandType::Continue)
       {
         State.CurrentInterface = InterfaceType::Confirm;
-        State.SubmitCommand =
+        State.SubmitCommandLines =
           Programs[State.ProgramSelected]->get_submit_command(
             "--job-name={} --output={}{}"_f
-              (escape(State.JobName), escape(State.OutputFile), State.LowPriority ? " --nice=10000" : ""))
-          | biu::toLvalue | ranges::views::join(" \\\n ") | ranges::to<std::string>;
+              (escape(State.JobName), escape(State.OutputFile), State.LowPriority ? " --nice=10000" : ""));
+        State.SubmitCommand = State.SubmitCommandLines | ranges::views::join(" \\\n ") | ranges::to<std::string>;
       }
       else if (!State.UserCommand) return EXIT_FAILURE;
       else std::unreachable();
@@ -137,6 +140,11 @@ int main()
       Screen.Loop(InterfaceConfirm);
       if (State.UserCommand == UserCommandType::Quit) return 0;
       else if (State.UserCommand == UserCommandType::Back) { State.CurrentInterface = InterfaceType::Request; }
+      else if (State.UserCommand == UserCommandType::Print)
+      {
+        std::cout << (State.SubmitCommandLines | ranges::views::join(" ") | ranges::to<std::string>) << std::endl;
+        return 0;
+      }
       else if (State.UserCommand == UserCommandType::Continue)
       {
         // 尝试保存状态
