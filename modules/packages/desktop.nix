@@ -103,7 +103,12 @@
             plugins = with pkgs.obs-studio-plugins; [ wlrobs obs-vaapi droidcam-obs obs-vkcapture ];
           };
           xdg.configFile."typora-flags.conf".text =
-            "--ozone-platform-hint=auto --enable-wayland-ime --wayland-text-input-version=3";
+          ''
+            --ozone-platform-hint=auto
+            --enable-features=WaylandWindowDecorations
+            --enable-wayland-ime=true
+            --wayland-text-input-version=3
+          '';
         };
       }];
     };
