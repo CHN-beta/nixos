@@ -117,7 +117,6 @@
         # for debug and development
         postgresql.instances.minibox = {};
       };
-      bugs = [ "amdpstate" ];
       packages = { mathematica = {}; vasp = {}; extra = {}; lumerical = {}; };
       user.users = [ "chn" "lilydjwg" ];
     };
