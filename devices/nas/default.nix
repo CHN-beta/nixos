@@ -25,6 +25,16 @@
             "/dev/mapper/root2" "/dev/mapper/root3" "/dev/mapper/root4"
             "/dev/mapper/ssd1" "/dev/mapper/ssd2"
           ];
+          luks.auto =
+          {
+            "/dev/disk/by-partlabel/nas-root1".mapper = "root1";
+            "/dev/disk/by-partlabel/nas-root2".mapper = "root2";
+            "/dev/disk/by-partlabel/nas-root3" = { mapper = "root3"; ssd = true; };
+            "/dev/disk/by-partlabel/nas-root4" = { mapper = "root4"; ssd = true; };
+            "/dev/disk/by-partlabel/nas-swap" = { mapper = "swap"; ssd = true; };
+            "/dev/disk/by-partlabel/nas-ssd1" = { mapper = "ssd1"; ssd = true; };
+            "/dev/disk/by-partlabel/nas-ssd2" = { mapper = "ssd2"; ssd = true; };
+          };
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
