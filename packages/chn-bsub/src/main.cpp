@@ -14,12 +14,13 @@ using namespace biu::literals;
 int main()
 {
   biu::Logger::Guard log;
-  enum class UserCommandType { Continue, Back, Quit };
+  enum class UserCommandType { Continue, Back, Quit, Print };
   enum class InterfaceType { Request, Confirm };
   struct
   {
     std::optional<UserCommandType> UserCommand;
     std::string SubmitCommand;
+    std::vector<std::string> SubmitCommandArgs;
     InterfaceType CurrentInterface = InterfaceType::Request;
     int VaspSelected = 0;
     std::vector<std::string> VaspEntries = { "std", "gam", "ncl" };
@@ -128,7 +129,9 @@ int main()
       ftxui::Button("Back",
         [&]{State.UserCommand = UserCommandType::Back; Screen.ExitLoopClosure()();}),
       ftxui::Button("Quit",
-        [&]{State.UserCommand = UserCommandType::Quit; Screen.ExitLoopClosure()();})
+        [&]{State.UserCommand = UserCommandType::Quit; Screen.ExitLoopClosure()();}),
+      ftxui::Button("Print Command and Quit",
+        [&]{State.UserCommand = UserCommandType::Print; Screen.ExitLoopClosure()();})
     })
   }) | ftxui::borderHeavy | with_padding | ftxui::CatchEvent(key_event_handler);
 
@@ -139,25 +142,27 @@ int main()
     {
       State.UserCommand.reset();
       Screen.Loop(InterfaceRequest);
+      auto get_args = [&]
+      {
+        auto [nproc, nthr, ncpu] = QueueConfig.at(State.QueueEntries[State.QueueSelected]).cpus;
+        auto march = QueueConfig.at(State.QueueEntries[State.QueueSelected]).march;
+        auto args = std::vector<std::string>
+        {
+          "bsub",
+          "-J {} -o {}"_f(escape(State.JobName), escape(State.OutputFile)),
+          "-q {} -n {} -R 'span[hosts=1]'"_f(escape(State.QueueEntries[State.QueueSelected]), ncpu),
+          "vasp-{} mpirun --display-map"_f(QueueConfig.at(State.QueueEntries[State.QueueSelected]).march),
+          "-n {} --map-by socket:PE={} -x OMP_NUM_THREADS={} vasp-{}"_f
+            (nproc, nthr, nthr, State.VaspEntries[State.VaspSelected])
+        };
+        return args;
+      };
       if (State.UserCommand == UserCommandType::Quit) return 0;
       else if (State.UserCommand == UserCommandType::Continue)
       {
         State.CurrentInterface = InterfaceType::Confirm;
-        State.SubmitCommand = [&]
-        {
-          auto [nproc, nthr, ncpu] = QueueConfig.at(State.QueueEntries[State.QueueSelected]).cpus;
-          auto march = QueueConfig.at(State.QueueEntries[State.QueueSelected]).march;
-          auto args = std::vector<std::string>
-          {
-            "bsub",
-            "-J {} -o {}"_f(escape(State.JobName), escape(State.OutputFile)),
-            "-q {} -n {} -R 'span[hosts=1]'"_f(escape(State.QueueEntries[State.QueueSelected]), ncpu),
-            "vasp-{} mpirun --display-map"_f(QueueConfig.at(State.QueueEntries[State.QueueSelected]).march),
-            "-n {} --map-by socket:PE={} -x OMP_NUM_THREADS={} vasp-{}"_f
-              (nproc, nthr, nthr, State.VaspEntries[State.VaspSelected])
-          };
-          return args | ranges::views::join(" \\\n ") | ranges::to<std::string>;
-        }();
+        State.SubmitCommandArgs = get_args();
+        State.SubmitCommand = State.SubmitCommandArgs | ranges::views::join(" \\\n ") | ranges::to<std::string>;
       }
       else if (!State.UserCommand) return EXIT_FAILURE;
       else std::unreachable();
@@ -175,6 +180,11 @@ int main()
         // -c 对 \\n 的处理与通常情况下不同，我们需要用 -s 然后将命令通过标准输入传入
         biu::exec<{.SearchPath = true, .Stdin = biu::IoType::String}>
           ({.Program = "sh", .Args = { "-s"}, .Stdin = State.SubmitCommand});
+        break;
+      }
+      else if (State.UserCommand == UserCommandType::Print)
+      {
+        std::cout << (State.SubmitCommandArgs | ranges::views::join(" ") | ranges::to<std::string>) << std::endl;
         break;
       }
       else if (!State.UserCommand) return EXIT_FAILURE;
