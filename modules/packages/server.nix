@@ -27,7 +27,7 @@ inputs:
         # calculator
         numbat
         # development
-        gcc go rustc nodejs pnpm yarn
+        gcc go rustc nodejs pnpm yarn tio
         # media
         localPackages.asmroner
       ];
