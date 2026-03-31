@@ -7,4 +7,6 @@
   srv2-node0 = 4;
   srv2-node1 = 5;
   srv2-node2 = 8;
+  # TODO: fixme
+  pe = 11;
 }

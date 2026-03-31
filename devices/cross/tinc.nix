@@ -15,6 +15,7 @@ let
     vps4 = "N03OoCyj4ADkeN3cimJI/bJrBw8g1kz3TJ+1BTe+oyA";
     vps6 = "rYOCGG+B4isTifKJQqsEdfhQuQRnUiIsvz7uI7vZiDN";
     vps9 = "fCAqgs9VcYpTLccwFtSkx3dwMDG6787MQX4ycekxRSJ";
+    pe = "h09nsWrcO55qndZmayePfWZjgwjv2aXbKnpFE9lUsfP";
   };
   # 描述可以直接的设备之间的连接（图上的路径）。若一个设备可以主动接受连接，则设置它接受连接的 ip；否则设置为 null
   # 因为一条条路径描述起来比较麻烦，所以这里一次描述多条
@@ -28,7 +29,7 @@ let
       distance = 10;
     }
     # 使用 vps6 代理的机器
-    { device = { vps6 = getAddress "vps6"; pc = null; }; distance = 10; }
+    { device = { vps6 = getAddress "vps6"; pc = null; pe = null; }; distance = 10; }
     # 校内网络
     { device = (lib.genAttrs [ "srv1-node0" "srv2-node0" ] getAddress) // { nas = null; }; distance = 1; }
     # srv1 内部网络

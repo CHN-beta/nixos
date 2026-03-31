@@ -50,6 +50,7 @@ let
       publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIK9FZUOZ51pWdm2grTXDdSGMZ3g9DkvHUBvY8bFoTZjy";
       proxyJump = "srv2";
     };
+    pe.publicKey = "AAAAC3NzaC1lZDI1NTE5AAAAIBSWzupKRT6ZtWMM36rIBMwEP0737Ca6oMdUs5jqAUK7";
   };
 in
 {

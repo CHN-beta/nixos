@@ -1,7 +1,7 @@
 { inputs, localLib }:
 let
   inherit (inputs.nixpkgs) lib;
-  singles = [ "nas" "pc" "vps4" "vps6" "vps9" ];
+  singles = [ "nas" "pc" "vps4" "vps6" "vps9" "pe" ];
   cluster = { srv1 = 3; srv2 = 3; };
   deviceModules = builtins.listToAttrs
   (
