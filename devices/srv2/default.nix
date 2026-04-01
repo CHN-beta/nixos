@@ -82,7 +82,6 @@
               { name = "n2"; gpuIds = [ "a30" ]; }
             ];
           };
-          timeLimit = "48:00:00";
         };
         xray.client.xray.serverName = "xserver2.vps9.chn.moe";
       };

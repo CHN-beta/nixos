@@ -44,7 +44,6 @@
         default = null;
       };
     };
-    timeLimit = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
   };
   config = let inherit (config.nixos.services) slurm; in lib.mkIf slurm.enable
   (
@@ -103,7 +102,7 @@
                 n
                 "Nodes=${builtins.concatStringsSep "," (builtins.map (n: slurm.node.${n}.name) v)}"
                 "Default=${if n == slurm.defaultPartition then "YES" else "NO"}"
-                "MaxTime=${if slurm.timeLimit != null then slurm.timeLimit else "INFINITE"}"
+                "MaxTime=48:00:00"
                 "State=UP"
                 ''TRESBillingWeights="CPU=1.0,Mem=0.1G,GRES/gpu=10"''
               ])
