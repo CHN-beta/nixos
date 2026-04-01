@@ -46,21 +46,16 @@ inputs:
           log
           errors
 
+          acl {
+            allow type A
+            allow type AAAA
+            allow type SOA
+            filter type *
+          }
+
           template IN SOA {
             match ".*"
             answer "{{ .Name }} 60 IN SOA ${coredns.ns}. chn.chn.moe. 2023010100 7200 3600 1209600 3600"
-          }
-          template IN A {
-            match ".*"
-            fallthrough
-          }
-          template IN AAAA {
-            match ".*"
-            fallthrough
-          }
-          template IN ANY {
-            match ".*"
-            rcode NOERROR
           }
           forward . 100.100.100.100
 
