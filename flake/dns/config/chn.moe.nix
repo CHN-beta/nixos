@@ -51,7 +51,6 @@ let
     "remove-me.vps6" = [ "127.0.0.1" ];
   };
   tinc = import ./tinc.nix;
-  tailscale = import ./tailscale.nix;
 in
 {
   "" =
@@ -89,6 +88,3 @@ in
 // lib.mapAttrs'
   (n: v: lib.nameValuePair "tinc0.${n}" { type = "A"; value = "192.168.85.${builtins.toString v}"; })
   tinc
-// lib.mapAttrs'
-  (n: v: lib.nameValuePair "${n}.ts" { type = "A"; value = "100.97.101.${builtins.toString v}"; })
-  tailscale
