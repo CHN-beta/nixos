@@ -47,8 +47,7 @@ inputs:
       services =
       {
         postgresql.instances.vaultwarden = {};
-        nginx.https.${vaultwarden.hostname}.location."/".proxy =
-          { upstream = "http://127.0.0.1:8000"; websocket = true; };
+        nginx.https.${vaultwarden.hostname}.location."/".proxy.upstream = "http://127.0.0.1:8000";
       };
     };
     systemd.services.vaultwarden.after = [ "postgresql.service" ];

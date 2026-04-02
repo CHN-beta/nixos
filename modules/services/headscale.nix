@@ -27,8 +27,7 @@ inputs:
     {
       services =
       {
-        nginx.https."headscale.chn.moe".location."/".proxy =
-          { upstream = "http://127.0.0.1:6538"; websocket = true; };
+        nginx.https."headscale.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:6538";
         postgresql.instances.headscale = {};
       };
       system.sops.secrets."headscale/postgresql" = { key = "postgresql/headscale"; owner = "headscale"; };

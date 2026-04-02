@@ -66,7 +66,7 @@ inputs:
               {
                 inherit (genericOptions) detectAuth;
                 upstream = mkOption { type = types.nonEmptyStr; };
-                websocket = mkOption { type = types.bool; default = false; };
+                websocket = mkOption { type = types.bool; default = true; };
                 setHeaders = mkOption
                   { type = types.attrsOf types.str; default.Host = siteSubmoduleInputs.config._module.args.name; };
                 # echo -n "username:password" | base64

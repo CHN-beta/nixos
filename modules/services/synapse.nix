@@ -222,7 +222,7 @@ inputs:
             name = hostname;
             value.location =
             {
-              "/".proxy = { upstream = "http://127.0.0.1:${toString port}"; websocket = true; };
+              "/".proxy.upstream = "http://127.0.0.1:${toString port}";
               "/.well-known/matrix/server".static =
               {
                 root = builtins.toString (inputs.pkgs.writeTextFile

@@ -23,7 +23,7 @@ inputs:
         type = types.nullOr (types.submodule { options =
         {
           upstream = mkOption { type = types.nonEmptyStr; };
-          websocket = mkOption { type = types.bool; default = false; };
+          websocket = mkOption { type = types.bool; default = true; };
           setHeaders = mkOption
             { type = types.attrsOf types.str; default.Host = submoduleInputs.config._module.args.name; };
         };});

@@ -91,11 +91,8 @@
       services =
       {
         postgresql.instances.gatus = {};
-        nginx.https."status.chn.moe".location."/".proxy =
-        {
-          upstream = "http://127.0.0.1:${builtins.toString config.services.gatus.settings.web.port}";
-          websocket = true;
-        };
+        nginx.https."status.chn.moe".location."/".proxy.upstream =
+          "http://127.0.0.1:${builtins.toString config.services.gatus.settings.web.port}";
       };
     };
   };

@@ -81,7 +81,7 @@ inputs:
           (instance: with instance.value;
           {
             name = hostname;
-            value.location."/".proxy = { upstream = "http://127.0.0.1:${toString port}"; websocket = true; };
+            value.location."/".proxy.upstream = "http://127.0.0.1:${toString port}";
           })
           (inputs.lib.attrsToList misskey.instances));
       };

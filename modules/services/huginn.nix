@@ -21,7 +21,7 @@ inputs:
     {
       services =
       {
-        nginx.https.${huginn.hostname}.location."/".proxy = { upstream = "http://127.0.0.1:3000"; websocket = true; };
+        nginx.https.${huginn.hostname}.location."/".proxy.upstream = "http://127.0.0.1:3000";
         mariadb.instances.huginn = {};
         podman = {};
       };

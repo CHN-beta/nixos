@@ -82,7 +82,7 @@ inputs:
     {
       services =
       {
-        nginx.https.${grafana.hostname}.location."/".proxy = { upstream = "http://127.0.0.1:3001"; websocket = true; };
+        nginx.https.${grafana.hostname}.location."/".proxy.upstream = "http://127.0.0.1:3001";
         postgresql.instances.grafana = {};
       };
       system.sops.secrets = let owner = inputs.config.systemd.services.grafana.serviceConfig.User; in
