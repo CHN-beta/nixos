@@ -42,7 +42,10 @@
               conditions = [ "[CONNECTED] == true" ];
               alerts = [{ type = "telegram"; }];
             })
-            [ "vps4" "vps6" "vps9" ])
+            [
+              "vps4" "vps6" "vps9" "nas"
+              "srv1-node0" "srv1-node1" "srv1-node2" "srv2-node0" "srv2-node1" "srv2-node2"
+            ])
           (builtins.map
             (h:
             {
@@ -53,7 +56,21 @@
               conditions = [ "[CONNECTED] == true" ];
               alerts = [{ type = "telegram"; }];
             })
-            [ "vps4" "vps6" "vps9" ])
+            [
+              "vps4" "vps6" "vps9" "nas"
+              "srv1-node0" "srv1-node1" "srv1-node2" "srv2-node0" "srv2-node1" "srv2-node2"
+            ])
+          (builtins.map
+            (h:
+            {
+              name = "${h}.chn.moe";
+              group = "web";
+              url = "https://${h}.chn.moe";
+              interval = "1m";
+              conditions = [ "[STATUS] == 200" ];
+              alerts = [{ type = "telegram"; }];
+            })
+            [ "git" "铜锣湾" "matrix" "vaultwarden" "photo" "nextcloud" ])
         ];
       };
       environmentFile = config.nixos.system.sops.templates."gatus.env".path;
