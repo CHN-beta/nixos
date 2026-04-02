@@ -11,7 +11,8 @@
       {
         storage =
         {
-          type = "postgresql";
+          type = "postgres";
+          caching = true;
           path = "postgres://gatus:\${DB_PASSWORD}@127.0.0.1:5432/gatus?sslmode=disable";
           maximum-number-of-results = 10 * 365 * 24 * 60;
           maximum-number-of-events = 10000;
@@ -67,7 +68,7 @@
               group = "web";
               url = "https://${h}.chn.moe";
               interval = "1m";
-              conditions = [ "[STATUS] == 200" ];
+              conditions = [ "[STATUS] == any(200, 418)" ];
               alerts = [{ type = "telegram"; }];
             })
             [ "git" "铜锣湾" "matrix" "vaultwarden" "photo" "nextcloud" ])
