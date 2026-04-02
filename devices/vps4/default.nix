@@ -26,6 +26,7 @@
         sshd = {};
         fail2ban = {};
         xray.server.serverName = "xserver2.vps4.chn.moe";
+        gatus = {};
       };
     };
   };

@@ -4,7 +4,7 @@ let
   {
     nas = [ "initrd.nas" ];
     office = [ "xserverxmu" "srv2-node0" ];
-    vps4 = [ "initrd.vps4" "xserver2.vps4" ];
+    vps4 = [ "initrd.vps4" "xserver2.vps4" "status" ];
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi" "ua" "xserver2"
