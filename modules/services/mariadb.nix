@@ -31,7 +31,7 @@ inputs:
       };
       mysqlBackup =
       {
-        enable = mariadb.mountFrom == "nodatacow";
+        enable = mariadb.mountFrom != null;
         singleTransaction = true;
         databases = builtins.map (db: db.value.database) (inputs.lib.attrsToList mariadb.instances);
       };
