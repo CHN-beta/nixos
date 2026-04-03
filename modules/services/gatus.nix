@@ -24,7 +24,7 @@
           default-alert =
           {
             enable = true;
-            failure-threshold = 5;
+            failure-threshold = 10;
             success-threshold = 1;
             send-on-resolved = true;
           };
