@@ -159,7 +159,7 @@
             after = [ "network.target" ];
             wantedBy = [ "multi-user.target" ];
             script = let configFile = config.nixos.system.sops.templates."xray-server.json".path; in
-              "exec ${pkgs.pkgs-unstable.xray}/bin/xray -config ${configFile}";
+              "exec ${pkgs.xray}/bin/xray -config ${configFile}";
             serviceConfig =
             {
               User = "v2ray";
@@ -175,7 +175,7 @@
           {
             script =
               let
-                xray = "${pkgs.pkgs-unstable.xray}/bin/xray";
+                xray = "${pkgs.xray}/bin/xray";
                 awk = "${pkgs.gawk}/bin/awk";
                 curl = "${pkgs.curl}/bin/curl";
                 jq = "${pkgs.jq}/bin/jq";
