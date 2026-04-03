@@ -1,29 +1,29 @@
-inputs:
+{ lib, topInputs, config, pkgs, ... }:
 {
-  options.nixos.services.xray.client = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.xray.client = lib.mkOption
   {
-    type = types.nullOr (types.submodule (submoduleInputs: { options =
+    type = lib.types.nullOr (lib.types.submodule (submoduleInputs: { options =
     {
       xray =
       {
-        serverName = mkOption { type = types.nonEmptyStr; default = "xserver2.chn.moe"; };
-        serverAddress = mkOption
+        serverName = lib.mkOption { type = lib.types.nonEmptyStr; default = "xserver2.chn.moe"; };
+        serverAddress = lib.mkOption
         {
-          type = types.nonEmptyStr;
-          default = inputs.topInputs.self.config.dns."chn.moe".getAddress
-            (inputs.lib.removeSuffix ".chn.moe" submoduleInputs.config.xray.serverName);
+          type = lib.types.nonEmptyStr;
+          default = topInputs.self.config.dns."chn.moe".getAddress
+            (lib.removeSuffix ".chn.moe" submoduleInputs.config.xray.serverName);
         };
       };
       coredns =
       {
-        extraInterfaces = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
-        hosts = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+        extraInterfaces = lib.mkOption { type = lib.types.listOf lib.types.nonEmptyStr; default = []; };
+        hosts = lib.mkOption { type = lib.types.attrsOf lib.types.nonEmptyStr; default = {}; };
       };
-      v2ray-forwarder.asRouter = mkOption { type = types.bool; default = false; };
+      v2ray-forwarder.asRouter = lib.mkOption { type = lib.types.bool; default = false; };
     };}));
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services.xray) client; in inputs.lib.mkIf (client != null)
+  config = let inherit (config.nixos.services.xray) client; in lib.mkIf (client != null)
   {
     services =
     {
@@ -32,8 +32,8 @@ inputs:
         enable = true;
         config =
           let
-            hosts = inputs.pkgs.writeText "coredns.hosts" (builtins.concatStringsSep "\n"
-              (inputs.lib.mapAttrsToList (n: v: "${v} ${n}") client.coredns.hosts));
+            hosts = pkgs.writeText "coredns.hosts" (builtins.concatStringsSep "\n"
+              (lib.mapAttrsToList (n: v: "${v} ${n}") client.coredns.hosts));
           in
           ''
             . {
@@ -57,8 +57,8 @@ inputs:
     {
       templates."xray-client.json" =
       {
-        owner = inputs.config.users.users.v2ray.name;
-        group = inputs.config.users.users.v2ray.group;
+        owner = config.users.users.v2ray.name;
+        group = config.users.users.v2ray.group;
         content = builtins.toJSON
         {
           log.loglevel = "warning";
@@ -137,7 +137,7 @@ inputs:
                 port = 443;
                 users =
                 [{
-                  id = inputs.config.nixos.system.sops.placeholder."xray-client/uuid";
+                  id = config.nixos.system.sops.placeholder."xray-client/uuid";
                   encryption = "none";
                   flow = "xtls-rprx-vision-udp443";
                 }];
@@ -208,15 +208,15 @@ inputs:
     };
     systemd =
     {
-      services = inputs.lib.mkMerge
+      services = lib.mkMerge
       [
         {
           xray-client =
           {
             after = [ "network.target" ];
             wantedBy = [ "multi-user.target" ];
-            script = let config = inputs.config.nixos.system.sops.templates."xray-client.json".path; in
-              "exec ${inputs.pkgs.xray}/bin/xray -config ${config}";
+            script = let configFile = config.nixos.system.sops.templates."xray-client.json".path; in
+              "exec ${pkgs.pkgs-unstable.xray}/bin/xray -config ${configFile}";
             serviceConfig =
             {
               User = "v2ray";
@@ -228,26 +228,26 @@ inputs:
               LimitNOFILE = 524288;
               CPUSchedulingPolicy = "rr";
             };
-            restartTriggers = [ inputs.config.nixos.system.sops.templates."xray-client.json".file ];
+            restartTriggers = [ config.nixos.system.sops.templates."xray-client.json".file ];
           };
         }
-        (inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "networkmanager")
+        (lib.mkIf (config.nixos.system.network.implementation == "networkmanager")
         {
           v2ray-forwarder =
           {
             description = "v2ray-forwarder Daemon";
             after = [ "network.target" ];
             wantedBy = [ "multi-user.target" ];
-            serviceConfig = let ip = "${inputs.pkgs.iproute2}/bin/ip"; in
+            serviceConfig = let ip = "${pkgs.iproute2}/bin/ip"; in
             {
               Type = "oneshot";
               RemainAfterExit = true;
-              ExecStart = inputs.pkgs.writeShellScript "v2ray-forwarder.start"
+              ExecStart = pkgs.writeShellScript "v2ray-forwarder.start"
               ''
                 ${ip} rule add fwmark 1/1 table 100 priority 5000
                 ${ip} route add local 0.0.0.0/0 dev lo table 100
               '';
-              ExecStop = inputs.pkgs.writeShellScript "v2ray-forwarder.stop"
+              ExecStop = pkgs.writeShellScript "v2ray-forwarder.stop"
               ''
                 ${ip} rule del fwmark 1/1 table 100 priority 5000
                 ${ip} route del local 0.0.0.0/0 dev lo table 100
@@ -256,7 +256,7 @@ inputs:
           };
         })
       ];
-      network.networks = inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "systemd-networkd")
+      network.networks = lib.mkIf (config.nixos.system.network.implementation == "systemd-networkd")
       {
         "10-custom" =
         {
@@ -268,8 +268,8 @@ inputs:
     };
     users =
     {
-      users.v2ray = { uid = inputs.config.nixos.user.uid.v2ray; group = "v2ray"; isSystemUser = true; };
-      groups.v2ray.gid = inputs.config.nixos.user.gid.v2ray;
+      users.v2ray = { uid = config.nixos.user.uid.v2ray; group = "v2ray"; isSystemUser = true; };
+      groups.v2ray.gid = config.nixos.user.gid.v2ray;
     };
     environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
     networking =
@@ -290,7 +290,7 @@ inputs:
             ];
             loNetStr = builtins.concatStringsSep ", " loNet;
             noproxyUserStr = builtins.concatStringsSep ", " (builtins.map
-              (user: builtins.toString inputs.config.nixos.user.uid.${user})
+              (user: builtins.toString config.nixos.user.uid.${user})
               [ "v2ray" "tailscale" ]);
           in
           ''

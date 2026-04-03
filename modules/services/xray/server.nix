@@ -1,18 +1,18 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.services.xray.server = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.xray.server = lib.mkOption
   {
-    type = types.nullOr (types.submodule { options =
+    type = lib.types.nullOr (lib.types.submodule { options =
     {
-      serverName = mkOption { type = types.nonEmptyStr; default = "xserver2.chn.moe"; };
+      serverName = lib.mkOption { type = lib.types.nonEmptyStr; default = "xserver2.chn.moe"; };
     };});
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services.xray) server; in inputs.lib.mkIf (server != null)
+  config = let inherit (config.nixos.services.xray) server; in lib.mkIf (server != null)
   (
     let userList = builtins.map (user: builtins.elemAt user 2) (builtins.filter
-      (user: builtins.length user == 3 && inputs.lib.lists.hasPrefix [ "xray-server" "clients" ] user)
-      inputs.config.nixos.system.sops.availableKeys);
+      (user: builtins.length user == 3 && lib.lists.hasPrefix [ "xray-server" "clients" ] user)
+      config.nixos.system.sops.availableKeys);
     in
     {
       nixos =
@@ -21,8 +21,8 @@ inputs:
         {
           templates."xray-server.json" =
           {
-            owner = inputs.config.users.users.v2ray.name;
-            group = inputs.config.users.users.v2ray.group;
+            owner = config.users.users.v2ray.name;
+            group = config.users.users.v2ray.group;
             content = builtins.toJSON
             {
               log.loglevel = "warning";
@@ -30,7 +30,7 @@ inputs:
               [
                 (
                   let fallbackPort = builtins.toString
-                    (with inputs.config.nixos.services.nginx.global; httpsPort + httpsPortShift.http2);
+                    (with config.nixos.services.nginx.global; httpsPort + httpsPortShift.http2);
                   in
                   {
                     port = 4726;
@@ -41,7 +41,7 @@ inputs:
                       clients = builtins.map
                         (n:
                         {
-                          id = inputs.config.nixos.system.sops.placeholder."xray-server/clients/${n}";
+                          id = config.nixos.system.sops.placeholder."xray-server/clients/${n}";
                           flow = "xtls-rprx-vision";
                           email = "${n}@xray.chn.moe";
                         })
@@ -57,7 +57,7 @@ inputs:
                       {
                         dest = "127.0.0.1:${fallbackPort}";
                         serverNames = [ server.serverName ];
-                        privateKey = inputs.config.nixos.system.sops.placeholder."xray-server/private-key";
+                        privateKey = config.nixos.system.sops.placeholder."xray-server/private-key";
                         minClientVer = "1.8.0";
                         shortIds = [ "" ];
                       };
@@ -128,18 +128,17 @@ inputs:
               };
             };
           };
-          secrets = inputs.lib.mergeAttrsList
+          secrets = lib.mergeAttrsList
           [
-            (inputs.lib.genAttrs' userList
-              (n: inputs.lib.nameValuePair "xray-server/clients/${n}" {}))
+            (lib.genAttrs' userList (n: lib.nameValuePair "xray-server/clients/${n}" {}))
             { "xray-server/private-key" = {}; }
-            (inputs.lib.genAttrs' [ "token" "user/chn" ]
-              (n: inputs.lib.nameValuePair "telegram/${n}" { group = "telegram"; mode = "0440"; }))
+            (lib.genAttrs' [ "token" "user/chn" ]
+              (n: lib.nameValuePair "telegram/${n}" { group = "telegram"; mode = "0440"; }))
           ];
         };
         services =
         {
-          acme.cert.${server.serverName}.group = inputs.config.users.users.nginx.group;
+          acme.cert.${server.serverName}.group = config.users.users.nginx.group;
           nginx =
           {
             transparentProxy.map.${server.serverName} = 4726;
@@ -159,8 +158,8 @@ inputs:
           {
             after = [ "network.target" ];
             wantedBy = [ "multi-user.target" ];
-            script = let config = inputs.config.nixos.system.sops.templates."xray-server.json".path; in
-              "exec ${inputs.pkgs.xray}/bin/xray -config ${config}";
+            script = let configFile = config.nixos.system.sops.templates."xray-server.json".path; in
+              "exec ${pkgs.pkgs-unstable.xray}/bin/xray -config ${configFile}";
             serviceConfig =
             {
               User = "v2ray";
@@ -170,23 +169,23 @@ inputs:
               LimitNPROC = 65536;
               LimitNOFILE = 524288;
             };
-            restartTriggers = [ inputs.config.nixos.system.sops.templates."xray-server.json".file ];
+            restartTriggers = [ config.nixos.system.sops.templates."xray-server.json".file ];
           };
           xray-stat =
           {
             script =
               let
-                xray = "${inputs.pkgs.xray}/bin/xray";
-                awk = "${inputs.pkgs.gawk}/bin/awk";
-                curl = "${inputs.pkgs.curl}/bin/curl";
-                jq = "${inputs.pkgs.jq}/bin/jq";
-                sed = "${inputs.pkgs.gnused}/bin/sed";
-                cat = "${inputs.pkgs.coreutils}/bin/cat";
-                token = inputs.config.nixos.system.sops.secrets."telegram/token".path;
-                chat = inputs.config.nixos.system.sops.secrets."telegram/user/chn".path;
+                xray = "${pkgs.pkgs-unstable.xray}/bin/xray";
+                awk = "${pkgs.gawk}/bin/awk";
+                curl = "${pkgs.curl}/bin/curl";
+                jq = "${pkgs.jq}/bin/jq";
+                sed = "${pkgs.gnused}/bin/sed";
+                cat = "${pkgs.coreutils}/bin/cat";
+                token = config.nixos.system.sops.secrets."telegram/token".path;
+                chat = config.nixos.system.sops.secrets."telegram/user/chn".path;
               in
               ''
-                message='${inputs.config.nixos.model.hostname} xray:\n'
+                message='${config.nixos.model.hostname} xray:\n'
                 for i in ${builtins.concatStringsSep " " userList}
                 do
                   upload_bytes=$(${xray} api stats --server=127.0.0.1:6149 \
@@ -215,15 +214,15 @@ inputs:
       {
         users.v2ray =
         {
-          uid = inputs.config.nixos.user.uid.v2ray;
+          uid = config.nixos.user.uid.v2ray;
           group = "v2ray";
           extraGroups = [ "telegram" ];
           isSystemUser = true;
         };
         groups =
         {
-          v2ray.gid = inputs.config.nixos.user.gid.v2ray;
-          telegram.gid = inputs.config.nixos.user.gid.telegram;
+          v2ray.gid = config.nixos.user.gid.v2ray;
+          telegram.gid = config.nixos.user.gid.telegram;
         };
       };
     }
