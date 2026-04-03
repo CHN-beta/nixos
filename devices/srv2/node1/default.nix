@@ -15,7 +15,6 @@
       {
         beesd."/" = {};
         lumericalLicenseManager.macAddress = "70:20:84:09:a3:52";
-        healthcheck = {};
       };
     };
     systemd =
