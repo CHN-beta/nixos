@@ -56,7 +56,7 @@
         qt6Packages.fcitx5-chinese-addons fcitx5-mozc fcitx5-material-color fcitx5-gtk
       ];
     };
-    programs = { dconf.enable = true; niri.enable = true; };
+    programs = { dconf.enable = true; niri = { enable = true; package = pkgs.niri; }; };
     nixos.user.sharedModules = [(hmInputs:
     {
       config =
@@ -86,6 +86,7 @@
           niri =
           {
             package = pkgs.niri;
+            # TODO: use raw config file
             settings =
             {
               binds =
@@ -162,6 +163,12 @@
             RestartSec = "5s";
           };
           Install.WantedBy = [ "graphical-session.target" ];
+        };
+        # hack to enable custom niri config https://github.com/sodiboo/niri-flake/issues/1393#issuecomment-3897809002
+        xdg.configFile =
+        {
+          "niri/config.kdl".source = ./config.kdl;
+          niri-config.target = "niri/nix-generated-config.kdl";
         };
       };
     })];

@@ -22,7 +22,7 @@
     winapps = { url = "github:winapps-org/winapps/feat-nix-packaging"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixvirt = { url = "github:CHN-beta/NixVirt"; inputs.nixpkgs.follows = "nixpkgs"; };
     buildproxy = { url = "github:polygon/nix-buildproxy"; inputs.nixpkgs.follows = "nixpkgs"; };
-    niri = { url = "github:sodiboo/niri-flake"; inputs.nixpkgs.follows = "nixpkgs"; };
+    niri = { url = "github:CHN-beta/niri-flake"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix4vscode =
     {
       url = "github:nix-community/nix4vscode?rev=6c603c201b11dafda616940bac1f295144ac1c41";
