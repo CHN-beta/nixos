@@ -158,6 +158,7 @@ let
       {
         phonopy = prev.phonopy.overridePythonAttrs { patches = prev.patches or [] ++ [ ./phonopy.patch ]; };
       })];
+      niri = prev.niri.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./niri.patch ]; });
     })];
     marchFix =
     [
