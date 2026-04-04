@@ -47,6 +47,7 @@ let
       {
         nur-linyinfeng = (inputs.topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
         firefox-addons = (import "${inputs.topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
+        dwproton = final.callPackage inputs.topInputs.dwproton {};
       })
       inputs.topInputs.self.overlays.default
       (final: prev:

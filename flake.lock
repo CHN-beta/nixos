@@ -365,6 +365,22 @@
         "type": "github"
       }
     },
+    "dwproton": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1774147244,
+        "narHash": "sha256-t0LgngMyJu9sRCvNTrkE0oxQgS1jFDheZtuUJbrYoTI=",
+        "owner": "imaviso",
+        "repo": "dwproton-flake",
+        "rev": "c5dda756199e5f7ae4850ceb6981f1856cd1497a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "imaviso",
+        "repo": "dwproton-flake",
+        "type": "github"
+      }
+    },
     "fancy-motd": {
       "flake": false,
       "locked": {
@@ -1536,6 +1552,7 @@
         "dankmaterialshell": "dankmaterialshell",
         "date": "date",
         "dms-plugin-registry": "dms-plugin-registry",
+        "dwproton": "dwproton",
         "fancy-motd": "fancy-motd",
         "gitea-robots-txt": "gitea-robots-txt",
         "harmonia": "harmonia",

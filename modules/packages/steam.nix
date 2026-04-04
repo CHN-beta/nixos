@@ -1,16 +1,16 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.packages.steam = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.packages.steam = lib.mkOption
   {
-    type = types.nullOr (types.submodule {});
-    default = if inputs.config.nixos.model.type == "desktop" then {} else null;
+    type = lib.types.nullOr (lib.types.submodule {});
+    default = if config.nixos.model.type == "desktop" then {} else null;
   };
-  config = let inherit (inputs.config.nixos.packages) steam; in inputs.lib.mkIf (steam != null)
+  config = let inherit (config.nixos.packages) steam; in lib.mkIf (steam != null)
   {
     programs.steam =
     {
       enable = true;
-      package = inputs.pkgs.steam.override (prev:
+      package = pkgs.steam.override (prev:
       {
         steam-unwrapped = prev.steam-unwrapped.overrideAttrs (prev:
         {
@@ -20,8 +20,8 @@ inputs:
           '';
         });
       });
-      extraPackages = [ inputs.pkgs.openssl_1_1 ];
-      extraCompatPackages = [ inputs.pkgs.proton-ge-bin ];
+      extraPackages = [ pkgs.openssl_1_1 ];
+      extraCompatPackages = with pkgs; [ proton-ge-bin dwproton ];
       remotePlay.openFirewall = true;
       protontricks.enable = true;
       localNetworkGameTransfers.openFirewall = true;
