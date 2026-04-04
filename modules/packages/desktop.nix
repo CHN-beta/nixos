@@ -17,7 +17,7 @@
           # TODO: module should add yubikey-touch-detector into path
           gparted wayland-utils clinfo mesa-demos vulkan-tools dracut
           yubikey-touch-detector btrfs-assistant
-          cpu-x wl-mirror geekbench xpra wl-clipboard
+          cpu-x wl-mirror geekbench xpra wl-clipboard xsel libinput
           (
             writeShellScriptBin "xclip"
             ''
