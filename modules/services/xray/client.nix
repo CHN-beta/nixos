@@ -216,7 +216,7 @@
             after = [ "network.target" ];
             wantedBy = [ "multi-user.target" ];
             script = let configFile = config.nixos.system.sops.templates."xray-client.json".path; in
-              "exec ${pkgs.xray}/bin/xray -config ${configFile}";
+              "exec ${pkgs.pkgs-unstable.xray}/bin/xray -config ${configFile}";
             serviceConfig =
             {
               User = "v2ray";
