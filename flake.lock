@@ -197,6 +197,26 @@
         "type": "github"
       }
     },
+    "chinese-fonts": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1772414492,
+        "narHash": "sha256-9jTp6NfyrpchkOpg2DrQnhcq/cNx+ALpE3Dt+RLsRu4=",
+        "owner": "brsvh",
+        "repo": "chinese-fonts-overlay",
+        "rev": "8cad567d380d5afbd50a2ca780156bd4c4b6c0dc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "brsvh",
+        "repo": "chinese-fonts-overlay",
+        "type": "github"
+      }
+    },
     "concurrencpp": {
       "flake": false,
       "locked": {
@@ -1547,6 +1567,7 @@
         "bscpkgs": "bscpkgs",
         "buildproxy": "buildproxy",
         "catppuccin": "catppuccin",
+        "chinese-fonts": "chinese-fonts",
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",
         "dankmaterialshell": "dankmaterialshell",

@@ -8,10 +8,11 @@ inputs:
       packages = with inputs.pkgs;
       [
         noto-fonts source-han-sans source-han-serif source-code-pro hack-font jetbrains-mono hack-font inter
-        noto-fonts-color-emoji roboto sarasa-gothic source-han-mono wqy_microhei wqy_zenhei noto-fonts-cjk-sans
-        corefonts vista-fonts vista-fonts-chs dejavu_fonts nerd-fonts.fira-code
+        noto-fonts-color-emoji roboto sarasa-gothic source-han-mono wqy_microhei wqy_zenhei
+        corefonts windows-fonts dejavu_fonts nerd-fonts.fira-code
+        noto-fonts-cjk-sans-static noto-fonts-cjk-serif-static
         # needed by typst may template
-        lxgw-wenkai libertinus
+        lxgw-wenkai libertinus windows-fonts
       ];
       fontconfig.defaultFonts =
       {
