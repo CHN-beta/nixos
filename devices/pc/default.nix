@@ -118,7 +118,7 @@
         postgresql.instances.minibox = {};
       };
       packages = { mathematica = {}; vasp = {}; extra = {}; lumerical = {}; };
-      user.users = [ "chn" "lilydjwg" ];
+      user.users = [ "chn" "lilydjwg" "hjp" ];
     };
     # 允许kvm读取物理硬盘
     users.users.qemu-libvirtd.extraGroups = [ "disk" ];
