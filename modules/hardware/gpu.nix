@@ -71,7 +71,7 @@
           {
             intel = [ "modesetting" ];
             amd = [ "amdgpu" ];
-            nvidia = lib.optionals (!gpu.nvidia.datacenter) [ "nvidia" ];
+            nvidia = lib.optionals (gpu.nvidia.driver != "dc") [ "nvidia" ];
           };
           in driver.${gpu.type};
         nixos.packages.packages._packages =

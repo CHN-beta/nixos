@@ -21,7 +21,12 @@ inputs:
         extraPackages = [ inputs.pkgs.nftables ];
       };
     };
-    hardware.nvidia-container-toolkit.enable = inputs.lib.mkIf (inputs.config.nixos.system.nixpkgs.cuda != null) true;
+    hardware.nvidia-container-toolkit =
+    {
+      enable = inputs.lib.mkIf (inputs.config.nixos.system.nixpkgs.cuda != null) true;
+      # suppress warning, triggered when dc driver is used but datacenter is false (libfabric is disabled), 
+      suppressNvidiaDriverAssertion = true;
+    };
     networking.firewall.trustedInterfaces = [ "podman0" ]; 
   };
 }

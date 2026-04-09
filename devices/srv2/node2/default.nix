@@ -15,7 +15,7 @@
         beesd."/" = {};
         lumericalLicenseManager.macAddress = "b4:e9:b8:fc:9a:f9";
       };
-      hardware.gpu.nvidia.datacenter = true;
+      hardware.gpu.nvidia.driver = "dc";
     };
   };
 }
