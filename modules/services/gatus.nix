@@ -61,6 +61,22 @@
               "vps4" "vps6" "vps9" "nas"
               "srv1-node0" "srv1-node1" "srv1-node2" "srv2-node0" "srv2-node1" "srv2-node2"
             ])
+          [
+            {
+              name = "tinc pc";
+              group = "tinc";
+              url = "icmp://${topInputs.self.config.dns."chn.moe".getAddress "tinc0.pc"}";
+              interval = "1m";
+              conditions = [ "[CONNECTED] == true" ];
+            }
+            {
+              name = "tailscale pc";
+              group = "tailscale";
+              url = "icmp://pc.ts.chn.moe";
+              interval = "1m";
+              conditions = [ "[CONNECTED] == true" ];
+            }
+          ]
           (builtins.map
             (h:
             {
@@ -68,10 +84,10 @@
               group = "web";
               url = "https://${h}.chn.moe";
               interval = "1m";
-              conditions = [ "[STATUS] == any(200, 418)" ];
+              conditions = [ "[STATUS] == any(200, 418, 400)" ];
               alerts = [{ type = "telegram"; }];
             })
-            [ "git" "铜锣湾" "matrix" "vaultwarden" "photo" "nextcloud" ])
+            [ "git" "铜锣湾" "matrix" "vaultwarden" "photo" "nextcloud" "xserver2" "xserver2.vps9" ])
         ];
       };
       environmentFile = config.nixos.system.sops.templates."gatus.env".path;
