@@ -100,10 +100,10 @@
           {
             name = "pc"; address = "127.0.0.1";
             cpu = { sockets = 2; cores = 8; threads = 2; };
-            memoryGB = 80;
+            memoryGB = 96;
           };
           partitions.localhost = [ "pc" ];
-          tui.cpuQueues = [{ mpiThreads = 4; openmpThreads = 4; memoryGB = 56; }];
+          tui.cpuQueues = [{ mpiThreads = 4; openmpThreads = 4; memoryGB = 96; }];
         };
         ollama = {};
         podman = {};
