@@ -47,14 +47,11 @@
   };
   config = let inherit (config.nixos.services) slurm; in lib.mkIf slurm.enable
   (
-    let
-      isMaster = slurm.master == config.nixos.model.hostname;
-      info = pkgs.localPackages.info.override
-      {
-        slurm = config.services.slurm.package;
-        buildMain = isMaster;
-        configFile = if isMaster then config.nixos.system.sops.templates."info.yaml".path else null;
-      };
+    let info = pkgs.localPackages.info.override
+    {
+      slurm = config.services.slurm.package;
+      configFile = config.nixos.system.sops.templates."info.yaml".path;
+    };
     in lib.mkMerge
     [
       # worker 配置
@@ -158,6 +155,16 @@
               # use low resource as default
               DefCpuPerGPU=1
               DefMemPerCPU=1024
+
+              # Sometimes (especially with io intensive job), slurmd may fail to kill job, leading to node drain
+              #   with reason: kill task failed. This might mitigate the issue.
+              # wait for 5 minutes after sending SIGTERM before sending SIGKILL (default is 30 seconds)
+              KillWait = 300
+              # if task cannot be stopped after another 5 minutes (default 1 minute), notify admin
+              UnkillableStepTimeout = 600
+              UnkillableStepProgram = ${info}/bin/kill-failed
+              # allow 1 minute delay for slurmd and slurmctld to communicate (default is 10 seconds)
+              MessageTimeout = 60
             '';
             extraConfigPaths =
               let gpus = slurm.node.${config.nixos.model.hostname}.gpus or null;
@@ -191,17 +198,37 @@
             CUDA_PATH = "${pkgs.cudatoolkit}";
             LD_LIBRARY_PATH = "${config.hardware.nvidia.package}/lib";
           };
-        nixos.system.sops.secrets."munge.key" =
+        nixos.system.sops =
         {
-          format = "binary";
-          sopsFile =
-            let
-              devicePath = "${topInputs.self}/devices";
-              inherit (config.nixos) model;
-            in localLib.mkConditional (model.cluster == null)
-              "${devicePath}/${model.hostname}/secrets/munge.key"
-              "${devicePath}/${model.cluster.clusterName}/secrets/munge.key";
-          owner = config.systemd.services.munged.serviceConfig.User;
+          secrets =
+          {
+            "munge.key" =
+            {
+              format = "binary";
+              sopsFile =
+                let
+                  devicePath = "${topInputs.self}/devices";
+                  inherit (config.nixos) model;
+                in localLib.mkConditional (model.cluster == null)
+                  "${devicePath}/${model.hostname}/secrets/munge.key"
+                  "${devicePath}/${model.cluster.clusterName}/secrets/munge.key";
+              owner = config.systemd.services.munged.serviceConfig.User;
+            };
+          }
+          // builtins.listToAttrs (builtins.map
+            (n: lib.nameValuePair "telegram/${n}" {})
+            [ "token" "user/chn" "user/hjp" "user/root" ]);
+          templates."info.yaml" =
+          {
+            owner = "slurm";
+            content = let inherit (config.nixos.system.sops) placeholder; in builtins.toJSON
+            {
+              token = placeholder."telegram/token";
+              user =  builtins.listToAttrs (builtins.map
+                (n: lib.nameValuePair n placeholder."telegram/user/${n}") [ "chn" "hjp" "root" ]);
+              slurmConf = "${config.services.slurm.etcSlurm}/slurm.conf";
+            };
+          };
         };
         environment.sessionVariables = { SLURM_UNBUFFEREDIO = "1"; SLURM_CPU_BIND = "v"; };
       }
@@ -256,24 +283,7 @@
           };
           tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
         };
-        nixos.system.sops =
-        {
-          secrets = { "slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; }; }
-            // builtins.listToAttrs (builtins.map
-              (n: lib.nameValuePair "telegram/${n}" {})
-              [ "token" "user/chn" "user/hjp" "user/root" ]);
-          templates."info.yaml" =
-          {
-            owner = "slurm";
-            content = let inherit (config.nixos.system.sops) placeholder; in builtins.toJSON
-            {
-              token = placeholder."telegram/token";
-              user =  builtins.listToAttrs (builtins.map
-                (n: lib.nameValuePair n placeholder."telegram/user/${n}") [ "chn" "hjp" "root" ]);
-              slurmConf = "${config.services.slurm.etcSlurm}/slurm.conf";
-            };
-          };
-        };
+        nixos.system.sops.secrets."slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; };
         security.wrappers.info =
         {
           source = "${info}/bin/info";
