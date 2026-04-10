@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, topInputs, ... }:
 {
   config =
   {
@@ -83,7 +83,7 @@
             ];
           };
         };
-        xray.client.xray.serverName = "xserver2.vps9.chn.moe";
+        xray.client.xray.serverAddress = topInputs.self.config.dns."chn.moe".getAddress "vps9";
       };
       packages = { vasp = {}; lumerical = {}; };
       user.users =

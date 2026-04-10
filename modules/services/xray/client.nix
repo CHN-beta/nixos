@@ -6,12 +6,10 @@
     {
       xray =
       {
-        serverName = lib.mkOption { type = lib.types.nonEmptyStr; default = "xserver2.chn.moe"; };
         serverAddress = lib.mkOption
         {
           type = lib.types.nonEmptyStr;
-          default = topInputs.self.config.dns."chn.moe".getAddress
-            (lib.removeSuffix ".chn.moe" submoduleInputs.config.xray.serverName);
+          default = topInputs.self.config.dns."chn.moe".getAddress "xserver3";
         };
       };
       coredns =
@@ -139,19 +137,19 @@
                 [{
                   id = config.nixos.system.sops.placeholder."xray-client/uuid";
                   encryption = "none";
-                  flow = "xtls-rprx-vision-udp443";
                 }];
               }];
               streamSettings =
               {
-                network = "raw";
+                network = "xhttp";
                 security = "reality";
                 realitySettings =
                 {
-                  inherit (client.xray) serverName;
+                  serverName = "xserver3.chn.moe";
                   publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
                   fingerprint = "firefox";
                 };
+                xhttpSettings.path = "/kT9hRk6D4gJ5WxNT";
               };
               tag = "proxy-vless";
             }

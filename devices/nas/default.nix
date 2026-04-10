@@ -47,7 +47,7 @@
         sshd = {};
         xray.client =
         {
-          xray.serverName = "xserver2.vps9.chn.moe";
+          xray.serverAddress = topInputs.self.config.dns."chn.moe".getAddress "vps9";
           coredns = { extraInterfaces = [ "enp3s0" ]; hosts."git.chn.moe" = "127.0.0.1"; };
         };
         beesd."/".hashTableSizeMB = 10 * 128;
