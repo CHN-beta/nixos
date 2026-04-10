@@ -99,7 +99,7 @@
                 n
                 "Nodes=${builtins.concatStringsSep "," (builtins.map (n: slurm.node.${n}.name) v)}"
                 "Default=${if n == slurm.defaultPartition then "YES" else "NO"}"
-                "MaxTime=48:00:00"
+                "DefaultTime=48:00:00"
                 "State=UP"
                 ''TRESBillingWeights="CPU=1.0,Mem=0.1G,GRES/gpu=10"''
               ])
