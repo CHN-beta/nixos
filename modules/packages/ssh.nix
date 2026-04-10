@@ -1,14 +1,14 @@
-inputs:
+{ pkgs, ... }:
 {
   config =
   {
     programs.ssh =
     {
       # maybe better network performance
-      package = inputs.pkgs.openssh_hpn;
+      package = pkgs.openssh_hpn;
       startAgent = true;
       enableAskPassword = true;
-      askPassword = "${inputs.pkgs.systemd}/bin/systemd-ask-password";
+      askPassword = "${pkgs.systemd}/bin/systemd-ask-password";
       extraConfig = "AddKeysToAgent yes";
       knownHosts =
         let servers =

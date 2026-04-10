@@ -1,11 +1,11 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.packages.chromium = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.packages.chromium = lib.mkOption
   {
-    type = types.nullOr (types.submodule {});
-    default = if inputs.config.nixos.model.type == "desktop" then {} else null;
+    type = lib.types.nullOr (lib.types.submodule {});
+    default = if config.nixos.model.type == "desktop" then {} else null;
   };
-  config = let inherit (inputs.config.nixos.packages) chromium; in inputs.lib.mkIf (chromium != null)
+  config = let inherit (config.nixos.packages) chromium; in lib.mkIf (chromium != null)
   {
     programs.chromium = { enable = true; extraOpts.PasswordManagerEnabled = false; };
   };

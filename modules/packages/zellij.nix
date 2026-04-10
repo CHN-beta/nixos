@@ -1,12 +1,12 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.packages.zellij = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = {}; };
-  config = let inherit (inputs.config.nixos.packages) zellij; in inputs.lib.mkIf (zellij != null)
+  options.nixos.packages.zellij = lib.mkOption
+    { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
+  config = let inherit (config.nixos.packages) zellij; in lib.mkIf (zellij != null)
   {
     nixos =
     {
-      packages.packages._packages = [ inputs.pkgs.zellij ];
+      packages.packages._packages = [ pkgs.zellij ];
       user.sharedModules =
       [{
         config.programs.zellij =

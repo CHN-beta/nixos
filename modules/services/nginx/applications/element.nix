@@ -1,38 +1,33 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.services.nginx.applications.element.instances = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.nginx.applications.element.instances = lib.mkOption
   {
-    type = types.attrsOf (types.submodule (submoduleInputs: { options =
+    type = lib.types.attrsOf (lib.types.submodule (submoduleInputs: { options =
     {
-      hostname = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-      defaultServer = mkOption { type = types.nullOr types.nonEmptyStr; default = "matrix.chn.moe"; };
+      hostname = lib.mkOption { type = lib.types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+      defaultServer = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = "matrix.chn.moe"; };
     };}));
     default = {};
   };
-  config =
-    let
-      inherit (inputs.config.nixos.services.nginx.applications.element) instances;
-      inherit (inputs.lib) attrsToList;
-      inherit (builtins) map listToAttrs toString;
-    in
-    {
-      nixos.services.nginx.https = listToAttrs (map
-        (instance: with instance.value;
+  config = let inherit (config.nixos.services.nginx.applications.element) instances; in
+  {
+    nixos.services.nginx.https = builtins.listToAttrs (builtins.map
+      (instance: with instance.value;
+      {
+        name = hostname;
+        value.location."/".static =
         {
-          name = hostname;
-          value.location."/".static =
-          {
-            root =
-              if defaultServer == null then toString inputs.pkgs.element-web
-              else toString (inputs.pkgs.element-web.override { conf =
-              {
-                default_server_config."m.homeserver" =
-                  { base_url = "https://${defaultServer}"; server_name = defaultServer; };
-                disable_guests = false;
-              };});
-            index = [ "index.html" ];
-          };
-        })
-        (attrsToList instances));
-    };
+          root =
+            if defaultServer == null then builtins.toString pkgs.element-web
+            else builtins.toString (pkgs.element-web.override { conf =
+            {
+              default_server_config."m.homeserver" =
+                { base_url = "https://${defaultServer}"; server_name = defaultServer; };
+              disable_guests = false;
+            };});
+          index = [ "index.html" ];
+        };
+      })
+      (lib.attrsToList instances));
+  };
 }

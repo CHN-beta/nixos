@@ -1,8 +1,8 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.packages.git = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = {}; };
-  config = let inherit (inputs.config.nixos.packages) git; in inputs.lib.mkIf (git != null)
+  options.nixos.packages.git = lib.mkOption
+    { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
+  config = let inherit (config.nixos.packages) git; in lib.mkIf (git != null)
   {
     programs.git =
     {

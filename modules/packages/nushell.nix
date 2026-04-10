@@ -1,12 +1,12 @@
-inputs:
+{ lib, config, pkgs, topInputs, localLib, ... }:
 {
-  options.nixos.packages.nushell = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = {}; };
-  config = let inherit (inputs.config.nixos.packages) nushell; in inputs.lib.mkIf (nushell != null)
+  options.nixos.packages.nushell = lib.mkOption
+    { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
+  config = let inherit (config.nixos.packages) nushell; in lib.mkIf (nushell != null)
   {
     nixos =
     {
-      packages.packages._packages = [ inputs.pkgs.nushell ];
+      packages.packages._packages = [ pkgs.nushell ];
       user.sharedModules =
       [{
         config.programs =
@@ -16,7 +16,7 @@ inputs:
             enable = true;
             extraConfig =
             ''
-              source ${inputs.topInputs.nu-scripts}/aliases/git/git-aliases.nu
+              source ${topInputs.nu-scripts}/aliases/git/git-aliases.nu
               $env.PATH = ($env.PATH | split row (char esep) | append "~/bin")
             '';
           };
@@ -25,7 +25,7 @@ inputs:
           {
             enable = true;
             enableZshIntegration = false;
-            settings = inputs.localLib.deepReplace
+            settings = localLib.deepReplace
               [
                 {
                   path = [ "blocks" 0 "segments" (v: v.type or "" == "path") "properties" "style" ];
@@ -37,7 +37,7 @@ inputs:
                 }
               ]
               (builtins.fromJSON (builtins.readFile
-                "${inputs.pkgs.oh-my-posh}/share/oh-my-posh/themes/atomic.omp.json"));
+                "${pkgs.oh-my-posh}/share/oh-my-posh/themes/atomic.omp.json"));
           };
           zoxide.enable = true;
         };

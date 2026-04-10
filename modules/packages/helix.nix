@@ -1,8 +1,8 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.packages.helix = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = {}; };
-  config = let inherit (inputs.config.nixos.packages) helix; in inputs.lib.mkIf (helix != null)
+  options.nixos.packages.helix = lib.mkOption
+    { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
+  config = let inherit (config.nixos.packages) helix; in lib.mkIf (helix != null)
   {
     nixos =
     {
@@ -15,7 +15,7 @@ inputs:
           settings.theme = "catppuccin_latte";
         };
       }];
-      packages.packages._packages = [ inputs.pkgs.helix ];
+      packages.packages._packages = [ pkgs.helix ];
     };
   };
 }

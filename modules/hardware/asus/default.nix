@@ -1,8 +1,8 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.hardware.asus = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = null; };
-  config = let inherit (inputs.config.nixos.hardware) asus; in inputs.lib.mkIf (asus != null)
+  options.nixos.hardware.asus = lib.mkOption
+    { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
+  config = let inherit (config.nixos.hardware) asus; in lib.mkIf (asus != null)
   {
     services =
     {

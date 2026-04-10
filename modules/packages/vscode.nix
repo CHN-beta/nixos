@@ -1,28 +1,28 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.packages.vscode = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.packages.vscode = lib.mkOption
   {
-    type = types.nullOr (types.submodule {});
-    default = if inputs.config.nixos.model.type == "desktop" then {} else null;
+    type = lib.types.nullOr (lib.types.submodule {});
+    default = if config.nixos.model.type == "desktop" then {} else null;
   };
-  config = let inherit (inputs.config.nixos.packages) vscode; in inputs.lib.mkIf (vscode != null)
+  config = let inherit (config.nixos.packages) vscode; in lib.mkIf (vscode != null)
   {
     nixos.user.sharedModules =
     [(hmInputs: {
-      config.programs.vscode = inputs.lib.mkIf (hmInputs.config.home.username != "root")
+      config.programs.vscode = lib.mkIf (hmInputs.config.home.username != "root")
       {
         enable = true;
-        package = inputs.pkgs.vscode.overrideAttrs (prev: { preFixup = prev.preFixup +
+        package = pkgs.vscode.overrideAttrs (prev: { preFixup = prev.preFixup +
         ''
           gappsWrapperArgs+=(
-            ${builtins.concatStringsSep " " inputs.config.nixos.packages.packages._vscodeEnvFlags}
+            ${builtins.concatStringsSep " " config.nixos.packages.packages._vscodeEnvFlags}
           )
         '';});
         profiles.default =
         {
           enableExtensionUpdateCheck = false;
           enableUpdateCheck = false;
-          extensions = inputs.pkgs.nix4vscode.forVscode
+          extensions = pkgs.nix4vscode.forVscode
           [
             "github.copilot" "github.copilot-chat" "github.github-vscode-theme"
             "intellsmi.comment-translate"

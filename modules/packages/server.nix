@@ -1,21 +1,21 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.packages.server = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.packages.server = lib.mkOption
   {
-    type = types.nullOr (types.submodule {});
-    default = if builtins.elem inputs.config.nixos.model.type [ "server" "desktop" ] then {} else null;
+    type = lib.types.nullOr (lib.types.submodule {});
+    default = if builtins.elem config.nixos.model.type [ "server" "desktop" ] then {} else null;
   };
-  config = let inherit (inputs.config.nixos.packages) server; in inputs.lib.mkIf (server != null)
+  config = let inherit (config.nixos.packages) server; in lib.mkIf (server != null)
   {
     nixos.packages.packages =
     {
-      _packages = with inputs.pkgs;
+      _packages = with pkgs;
       [
         # office
         pdfgrep ffmpeg-full hdf5 immich-cli
         # scientific computing
-        (if inputs.config.nixos.system.nixpkgs.cuda != null then localPackages.mumax else emptyDirectory)
-        (if inputs.config.nixos.system.nixpkgs.cuda != null
+        (if config.nixos.system.nixpkgs.cuda != null then localPackages.mumax else emptyDirectory)
+        (if config.nixos.system.nixpkgs.cuda != null
           then (lammps.override { stdenv = cudaPackages.backendStdenv; }).overrideAttrs (prev:
           {
             cmakeFlags = prev.cmakeFlags ++

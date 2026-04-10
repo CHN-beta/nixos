@@ -1,23 +1,22 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.packages.root = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.packages.root = lib.mkOption
   {
-    type = types.nullOr (types.submodule {});
-    default = if inputs.config.nixos.model.type == "desktop" then {} else null;
+    type = lib.types.nullOr (lib.types.submodule {});
+    default = if config.nixos.model.type == "desktop" then {} else null;
   };
-  config = let inherit (inputs.config.nixos.packages) root; in inputs.lib.mkIf (root != null)
+  config = let inherit (config.nixos.packages) root; in lib.mkIf (root != null)
   {
     nixos.packages.packages =
       let
-        inherit (inputs.pkgs) root;
-        jupyterPath = inputs.pkgs.jupyter-kernel.create { definitions.root = rec
+        inherit (pkgs) root;
+        jupyterPath = pkgs.jupyter-kernel.create { definitions.root = rec
         {
           displayName = "ROOT";
           language = "c++";
           argv = [ "/run/current-system/sw/bin/python3" "-m" "JupyROOT.kernel.rootkernel" "-f" "{connection_file}" ];
           logo64 = "${root}/etc/notebook/kernels/root/logo-64x64.png";
-          logo32 = inputs.pkgs.runCommand "logo-32x32.png" {}
-            "${inputs.pkgs.imagemagick}/bin/convert ${logo64} -resize 32x32 $out";
+          logo32 = pkgs.runCommand "logo-32x32.png" {} "${pkgs.imagemagick}/bin/convert ${logo64} -resize 32x32 $out";
         };};
       in
       {

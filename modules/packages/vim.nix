@@ -1,8 +1,8 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.packages.vim = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = {}; };
-  config = let inherit (inputs.config.nixos.packages) vim; in inputs.lib.mkIf (vim != null)
+  options.nixos.packages.vim = lib.mkOption
+    { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
+  config = let inherit (config.nixos.packages) vim; in lib.mkIf (vim != null)
   {
     nixos.user.sharedModules =
     [{
@@ -10,7 +10,7 @@ inputs:
       {
         enable = true;
         defaultEditor = false;
-        packageConfigurable = inputs.config.programs.vim.package;
+        packageConfigurable = config.programs.vim.package;
         settings =
         {
           number = true;
@@ -25,6 +25,6 @@ inputs:
         '';
       };
     }];
-    programs.vim.package = inputs.pkgs.vim-full;
+    programs.vim.package = pkgs.vim-full;
   };
 }

@@ -1,12 +1,10 @@
-inputs:
+{ lib, pkgs, ... }:
 {
-  options.nixos.packages.zsh = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = {}; };
-  config = let inherit (inputs.config.nixos.packages) zsh; in inputs.lib.mkIf (zsh != null)
+  config =
   {
     nixos.user.sharedModules = [(home-inputs:
     {
-      config = inputs.lib.mkMerge
+      config = lib.mkMerge
       [
         {
           programs.zsh =
@@ -26,7 +24,7 @@ inputs:
             {
               enable = true;
               plugins = [ "git" "colored-man-pages" "extract" "history-substring-search" "autojump" ];
-              theme = inputs.lib.mkDefault "clean";
+              theme = lib.mkDefault "clean";
             };
             # ensure ~/.zlogin exists
             loginExtra = " ";
@@ -35,9 +33,8 @@ inputs:
         }
         {
           programs =
-            let optional =
-              inputs.lib.mkIf (builtins.elem home-inputs.config.home.username
-                [ "chn" "root" "aleksana" "alikia" "hjp" "lilydjwg" ]);
+            let optional = lib.mkIf (builtins.elem home-inputs.config.home.username
+              [ "chn" "root" "aleksana" "alikia" "hjp" "lilydjwg" ]);
             in
             {
               zsh = optional
@@ -47,12 +44,12 @@ inputs:
                   {
                     file = "powerlevel10k.zsh-theme";
                     name = "powerlevel10k";
-                    src = "${inputs.pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k";
+                    src = "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k";
                   }
                   { file = "p10k.zsh"; name = "powerlevel10k-config"; src = ./p10k-config; }
                   {
                     name = "zsh-lsd";
-                    src = inputs.pkgs.fetchFromGitHub
+                    src = pkgs.fetchFromGitHub
                     {
                       owner = "z-shell";
                       repo = "zsh-lsd";
@@ -61,7 +58,7 @@ inputs:
                     };
                   }
                 ];
-                initContent = inputs.lib.mkOrder 550
+                initContent = lib.mkOrder 550
                 ''
                   # p10k instant prompt
                   P10K_INSTANT_PROMPT="$XDG_CACHE_HOME/p10k-instant-prompt-''${(%):-%n}.zsh"
