@@ -1,8 +1,8 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.services.nginx.applications.main = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = null; };
-  config = let inherit (inputs.config.nixos.services.nginx.applications) main; in inputs.lib.mkIf (main != null)
+  options.nixos.services.nginx.applications.main = lib.mkOption
+    { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
+  config = let inherit (config.nixos.services.nginx.applications) main; in lib.mkIf (main != null)
   {
     nixos.services.nginx.https."chn.moe".location =
     {

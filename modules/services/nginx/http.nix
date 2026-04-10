@@ -1,54 +1,55 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.services.nginx.http = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.nginx.http = lib.mkOption
   {
-    type = types.attrsOf (types.submodule (submoduleInputs: { options =
+    type = lib.types.attrsOf (lib.types.submodule (submoduleInputs: { options =
     {
-      rewriteHttps = mkOption
+      rewriteHttps = lib.mkOption
       {
-        type = types.nullOr (types.submodule { options =
+        type = lib.types.nullOr (lib.types.submodule { options =
         {
-          hostname = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; }; 
+          hostname = lib.mkOption
+            { type = lib.types.nonEmptyStr; default = submoduleInputs.config._module.args.name; }; 
         };});
         default = null;
       };
-      php = mkOption
+      php = lib.mkOption
       {
-        type = types.nullOr (types.submodule { options =
-          { root = mkOption { type = types.nonEmptyStr; }; fastcgiPass = mkOption { type = types.nonEmptyStr; };};});
+        type = lib.types.nullOr (lib.types.submodule { options =
+          { root = lib.mkOption { type = lib.types.nonEmptyStr; }; fastcgiPass = lib.mkOption { type = lib.types.nonEmptyStr; };};});
         default = null;
       };
-      proxy = mkOption
+      proxy = lib.mkOption
       {
-        type = types.nullOr (types.submodule { options =
+        type = lib.types.nullOr (lib.types.submodule { options =
         {
-          upstream = mkOption { type = types.nonEmptyStr; };
-          websocket = mkOption { type = types.bool; default = true; };
-          setHeaders = mkOption
-            { type = types.attrsOf types.str; default.Host = submoduleInputs.config._module.args.name; };
+          upstream = lib.mkOption { type = lib.types.nonEmptyStr; };
+          websocket = lib.mkOption { type = lib.types.bool; default = true; };
+          setHeaders = lib.mkOption
+            { type = lib.types.attrsOf lib.types.str; default.Host = submoduleInputs.config._module.args.name; };
         };});
         default = null;
       };
     };}));
     default = {};
   };
-  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf (nginx.http != {})
+  config = let inherit (config.nixos.services) nginx; in lib.mkIf (nginx.http != {})
   {
-    assertions = inputs.lib.mapAttrsToList
+    assertions = lib.mapAttrsToList
       (n: v:
       {
-        assertion = (inputs.lib.count (x: x != null) (builtins.map (type: v.${type}) nginx.global.httpTypes)) <= 1;
+        assertion = (lib.count (x: x != null) (builtins.map (type: v.${type}) nginx.global.httpTypes)) <= 1;
         message = "Only one type shuold be specified in ${n}";
       })
       nginx.http;
-    services.nginx.virtualHosts = inputs.lib.mapAttrs'
+    services.nginx.virtualHosts = lib.mapAttrs'
       (n: v:
       {
         name = "http.${n}";
         value = { serverName = n; listen = [ { addr = "0.0.0.0"; port = 80; } ]; }
-        // (inputs.lib.optionalAttrs (v.rewriteHttps != null)
+        // (lib.optionalAttrs (v.rewriteHttps != null)
           { locations."/".return = "301 https://${v.rewriteHttps.hostname}$request_uri"; })
-        // (inputs.lib.optionalAttrs (v.php != null)
+        // (lib.optionalAttrs (v.php != null)
           {
             extraConfig = "index index.php;";
             root = v.php.root;
@@ -57,10 +58,10 @@ inputs:
               fastcgi_pass ${v.php.fastcgiPass};
               fastcgi_split_path_info ^(.+\.php)(/.*)$;
               fastcgi_param PATH_INFO $fastcgi_path_info;
-              include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
+              include ${config.services.nginx.package}/conf/fastcgi.conf;
             '';
           })
-        // (inputs.lib.optionalAttrs (v.proxy != null)
+        // (lib.optionalAttrs (v.proxy != null)
           {
             locations."/" =
             {
@@ -68,7 +69,7 @@ inputs:
               proxyWebsockets = v.proxy.websocket;
               recommendedProxySettings = false;
               recommendedProxySettingsNoHost = true;
-              extraConfig = builtins.concatStringsSep "\n" (inputs.lib.mapAttrsToList
+              extraConfig = builtins.concatStringsSep "\n" (lib.mapAttrsToList
                 (n: v: ''proxy_set_header ${n} "${v}";'')
                 v.proxy.setHeaders);
             };

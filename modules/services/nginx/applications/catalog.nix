@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, ... }:
 {
   options.nixos.services.nginx.applications.catalog =
     { enable = lib.mkOption { type = lib.types.bool; default = false; }; };

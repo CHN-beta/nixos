@@ -1,15 +1,15 @@
-inputs:
+{ localLib, lib, config, pkgs, ... }:
 {
-  imports = inputs.localLib.findModules ./.;
-  options.nixos.services.nginx = let inherit (inputs.lib) mkOption types; in
+  imports = localLib.findModules ./.;
+  options.nixos.services.nginx =
   {
     # transparentProxy -> https(with proxyProtocol) or transparentProxy -> streamProxy -> https(with proxyProtocol)
     # https without proxyProtocol listen on private ip, with proxyProtocol listen on all ip
     # streamProxy listen on private ip
     # transparentProxy listen on public ip
-    global = mkOption
+    global = lib.mkOption
     {
-      type = types.anything;
+      type = lib.types.anything;
       readOnly = true;
       default =
       {
@@ -22,7 +22,7 @@ inputs:
       };
     };
   };
-  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf
+  config = let inherit (config.nixos.services) nginx; in lib.mkIf
     (nginx.http != {} || nginx.https != {} || nginx.streamProxy.map != {} || nginx.transparentProxy.map != {})
   {
     services.nginx =
@@ -36,7 +36,7 @@ inputs:
       '';
       commonHttpConfig =
       ''
-        geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
+        geoip2 ${config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
           $geoip2_data_country_code country iso_code;
         }
         log_format http '[$time_local] $remote_addr-$geoip2_data_country_code "$host"'
@@ -67,7 +67,7 @@ inputs:
         let nginx-geoip2 =
         {
           name = "ngx_http_geoip2_module";
-          src = inputs.pkgs.fetchFromGitHub
+          src = pkgs.fetchFromGitHub
           {
             owner = "leev";
             repo = "ngx_http_geoip2_module";
@@ -76,11 +76,11 @@ inputs:
           };
           meta.license = [];
         };
-        in (inputs.pkgs.nginxMainline.override (prev: { modules = prev.modules ++ [ nginx-geoip2 ]; }))
-            .overrideAttrs (prev: { buildInputs = prev.buildInputs ++ [ inputs.pkgs.libmaxminddb ]; });
+        in (pkgs.nginxMainline.override (prev: { modules = prev.modules ++ [ nginx-geoip2 ]; }))
+            .overrideAttrs (prev: { buildInputs = prev.buildInputs ++ [ pkgs.libmaxminddb ]; });
       streamConfig =
       ''
-        geoip2 ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
+        geoip2 ${config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
           $geoip2_data_country_code country iso_code;
         }
         resolver 8.8.8.8;

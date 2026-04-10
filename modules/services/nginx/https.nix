@@ -1,58 +1,59 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.services.nginx.https = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.nginx.https = lib.mkOption
   {
-    type = types.attrsOf (types.submodule (siteSubmoduleInputs: { options =
+    type = lib.types.attrsOf (lib.types.submodule (siteSubmoduleInputs: { options =
     {
       global =
       {
-        configName = mkOption
-          { type = types.nonEmptyStr; default = "https:${siteSubmoduleInputs.config._module.args.name}"; };
-        root = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        index = mkOption
+        configName = lib.mkOption
+          { type = lib.types.nonEmptyStr; default = "https:${siteSubmoduleInputs.config._module.args.name}"; };
+        root = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = null; };
+        index = lib.mkOption
         {
-          type = types.nullOr (types.oneOf [ (types.enum [ "auto" ]) (types.nonEmptyListOf types.nonEmptyStr) ]);
+          type = lib.types.nullOr
+            (lib.types.oneOf [ (lib.types.enum [ "auto" ]) (lib.types.nonEmptyListOf lib.types.nonEmptyStr) ]);
           default = null;
         };
-        charset = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        detectAuth = mkOption
+        charset = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = null; };
+        detectAuth = lib.mkOption
         {
-          type = types.nullOr (types.submodule { options =
+          type = lib.types.nullOr (lib.types.submodule { options =
           {
-            text = mkOption { type = types.nonEmptyStr; default = "Restricted Content"; };
-            users = mkOption { type = types.nonEmptyListOf types.nonEmptyStr; };
+            text = lib.mkOption { type = lib.types.nonEmptyStr; default = "Restricted Content"; };
+            users = lib.mkOption { type = lib.types.nonEmptyListOf lib.types.nonEmptyStr; };
           };});
           default = null;
         };
-        rewriteHttps = mkOption { type = types.bool; default = true; };
-        tlsCert = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        extraConfig = mkOption { type = types.nullOr types.str; default = null; };
+        rewriteHttps = lib.mkOption { type = lib.types.bool; default = true; };
+        tlsCert = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = null; };
+        extraConfig = lib.mkOption { type = lib.types.nullOr lib.types.str; default = null; };
       };
-      listen = mkOption
+      listen = lib.mkOption
       {
-        type = types.attrsOf (types.submodule { options =
+        type = lib.types.attrsOf (lib.types.submodule { options =
         {
-          http2 = mkOption { type = types.bool; default = true; };
-          proxyProtocol = mkOption { type = types.bool; default = true; };
+          http2 = lib.mkOption { type = lib.types.bool; default = true; };
+          proxyProtocol = lib.mkOption { type = lib.types.bool; default = true; };
           # if proxyProtocol not enabled, add to transparentProxy only
           # if proxyProtocol enabled, add to transparentProxy and streamProxy
-          addToTransparentProxy = mkOption { type = types.bool; default = true; };
+          addToTransparentProxy = lib.mkOption { type = lib.types.bool; default = true; };
         };});
         default.main = {};
       };
-      location = mkOption
+      location = lib.mkOption
       {
-        type = types.attrsOf (types.submodule { options =
+        type = lib.types.attrsOf (lib.types.submodule { options =
           let genericOptions =
           {
             # should be set to non null value if global root is null
-            root = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-            detectAuth = mkOption
+            root = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = null; };
+            detectAuth = lib.mkOption
             {
-              type = types.nullOr (types.submodule { options =
+              type = lib.types.nullOr (lib.types.submodule { options =
               {
-                text = mkOption { type = types.nonEmptyStr; default = "Restricted Content"; };
-                users = mkOption { type = types.nonEmptyListOf types.nonEmptyStr; };
+                text = lib.mkOption { type = lib.types.nonEmptyStr; default = "Restricted Content"; };
+                users = lib.mkOption { type = lib.types.nonEmptyListOf lib.types.nonEmptyStr; };
               };});
               default = null;
             };
@@ -60,53 +61,61 @@ inputs:
           in
           {
             # only one should be specified
-            proxy = mkOption
+            proxy = lib.mkOption
             {
-              type = types.nullOr (types.submodule { options =
+              type = lib.types.nullOr (lib.types.submodule { options =
               {
                 inherit (genericOptions) detectAuth;
-                upstream = mkOption { type = types.nonEmptyStr; };
-                websocket = mkOption { type = types.bool; default = true; };
-                setHeaders = mkOption
-                  { type = types.attrsOf types.str; default.Host = siteSubmoduleInputs.config._module.args.name; };
+                upstream = lib.mkOption { type = lib.types.nonEmptyStr; };
+                websocket = lib.mkOption { type = lib.types.bool; default = true; };
+                setHeaders = lib.mkOption
+                {
+                  type = lib.types.attrsOf lib.types.str;
+                  default.Host = siteSubmoduleInputs.config._module.args.name;
+                };
                 # echo -n "username:password" | base64
-                addAuth = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+                addAuth = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = null; };
               };});
               default = null;
             };
-            static = mkOption
+            static = lib.mkOption
             {
-              type = types.nullOr (types.submodule { options =
+              type = lib.types.nullOr (lib.types.submodule { options =
               {
                 inherit (genericOptions) detectAuth root;
-                index = mkOption
+                index = lib.mkOption
                 {
-                  type = types.nullOr
-                    (types.oneOf [ (types.enum [ "auto" ]) (types.nonEmptyListOf types.nonEmptyStr) ]);
+                  type = lib.types.nullOr
+                    (lib.types.oneOf [ (lib.types.enum [ "auto" ]) (lib.types.nonEmptyListOf lib.types.nonEmptyStr) ]);
                   default = null;
                 };
-                charset = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-                tryFiles = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
-                webdav = mkOption { type = types.bool; default = false; };
+                charset = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = null; };
+                tryFiles = lib.mkOption
+                  { type = lib.types.nullOr (lib.types.nonEmptyListOf lib.types.nonEmptyStr); default = null; };
+                webdav = lib.mkOption { type = lib.types.bool; default = false; };
               };});
               default = null;
             };
-            php = mkOption
+            php = lib.mkOption
             {
-              type = types.nullOr (types.submodule { options =
-                { inherit (genericOptions) detectAuth root; fastcgiPass = mkOption { type = types.nonEmptyStr; };};});
-              default = null;
-            };
-            return = mkOption
-            {
-              type = types.nullOr (types.submodule { options = { return = mkOption { type = types.nonEmptyStr; }; };});
-              default = null;
-            };
-            alias = mkOption
-            {
-              type = types.nullOr (types.submodule { options =
+              type = lib.types.nullOr (lib.types.submodule { options =
               {
-                path = mkOption { type = types.nonEmptyStr; };
+                inherit (genericOptions) detectAuth root;
+                fastcgiPass = lib.mkOption { type = lib.types.nonEmptyStr; };
+              };});
+              default = null;
+            };
+            return = lib.mkOption
+            {
+              type = lib.types.nullOr
+                (lib.types.submodule { options = { return = lib.mkOption { type = lib.types.nonEmptyStr; }; };});
+              default = null;
+            };
+            alias = lib.mkOption
+            {
+              type = lib.types.nullOr (lib.types.submodule { options =
+              {
+                path = lib.mkOption { type = lib.types.nonEmptyStr; };
               };});
               default = null;
             };
@@ -116,7 +125,7 @@ inputs:
     };}));
     default = {};
   };
-  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf (nginx.https != {}) (inputs.lib.mkMerge
+  config = let inherit (config.nixos.services) nginx; in lib.mkIf (nginx.https != {}) (lib.mkMerge
   [
     # https assertions
     {
@@ -126,12 +135,12 @@ inputs:
         (builtins.map
           (location:
           {
-            assertion = 1 >= (inputs.lib.count (x: x != null)
+            assertion = 1 >= (lib.count (x: x != null)
               (builtins.map (type: location.value.${type}) nginx.global.httpsLocationTypes));
             message = "Only one type shuold be specified in ${location.name}";
           })
-          (builtins.concatLists (inputs.lib.mapAttrsToList
-            (sn: sv: (inputs.lib.mapAttrsToList (ln: lv: inputs.lib.nameValuePair "${sn} ${ln}" lv) sv.location))
+          (builtins.concatLists (lib.mapAttrsToList
+            (sn: sv: (lib.mapAttrsToList (ln: lv: lib.nameValuePair "${sn} ${ln}" lv) sv.location))
             nginx.https)))
         # root should be specified either in global or in each location
         ++ (builtins.map
@@ -141,24 +150,24 @@ inputs:
             message = "Root should be specified in ${location.name}";
           })
           (builtins.concatLists (builtins.map
-            (site: (inputs.lib.mapAttrsToList
-                (n: v: inputs.lib.nameValuePair "${site.name} ${n}" v)
+            (site: (lib.mapAttrsToList
+                (n: v: lib.nameValuePair "${site.name} ${n}" v)
                 site.value.location))
-            (builtins.filter (site: site.value.global.root == null) (inputs.lib.attrsToList nginx.https)))))
+            (builtins.filter (site: site.value.global.root == null) (lib.attrsToList nginx.https)))))
       );
     }
     # https
     (
       # merge different types of locations
-      let sites = inputs.lib.mapAttrsToList
-        (sn: sv: inputs.lib.nameValuePair sn
+      let sites = lib.mapAttrsToList
+        (sn: sv: lib.nameValuePair sn
         {
           inherit (sv) global;
           listens = builtins.attrValues sv.listen;
-          locations = inputs.lib.mapAttrsToList
-            (ln: lv: inputs.lib.nameValuePair ln
+          locations = lib.mapAttrsToList
+            (ln: lv: lib.nameValuePair ln
             (
-              let _ = builtins.head (builtins.filter (type: type.value != null) (inputs.lib.attrsToList lv));
+              let _ = builtins.head (builtins.filter (type: type.value != null) (lib.attrsToList lv));
               in _.value // { type = _.name; }
             ))
             sv.location;
@@ -173,11 +182,11 @@ inputs:
             value =
             {
               serverName = site.name;
-              root = inputs.lib.mkIf (site.value.global.root != null) site.value.global.root;
-              basicAuthFile = inputs.lib.mkIf (site.value.global.detectAuth != null)
+              root = lib.mkIf (site.value.global.root != null) site.value.global.root;
+              basicAuthFile = lib.mkIf (site.value.global.detectAuth != null)
               (
-                let secret = "nginx/templates/detectAuth/${inputs.lib.strings.escapeURL site.name}-global";
-                in inputs.config.nixos.system.sops.templates.${secret}.path
+                let secret = "nginx/templates/detectAuth/${lib.strings.escapeURL site.name}-global";
+                in config.nixos.system.sops.templates.${secret}.path
               );
               extraConfig =
                 let inherit (site.value.global) index detectAuth charset extraConfig;
@@ -188,9 +197,9 @@ inputs:
                     else if (index == "auto") then [ "autoindex on;" ]
                     else []
                   )
-                  (inputs.lib.optionals (detectAuth != null) [ ''auth_basic "${detectAuth.text}"'' ])
-                  (inputs.lib.optionals (charset != null) [ "charset ${charset};" ])
-                  (inputs.lib.optionals (extraConfig != null) [ extraConfig ])
+                  (lib.optionals (detectAuth != null) [ ''auth_basic "${detectAuth.text}"'' ])
+                  (lib.optionals (charset != null) [ "charset ${charset};" ])
+                  (lib.optionals (extraConfig != null) [ extraConfig ])
                 ]);
               listen = builtins.map
                 (listen:
@@ -201,16 +210,16 @@ inputs:
                     + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
                   ssl = true;
                   proxyProtocol = listen.proxyProtocol;
-                  extraParameters = inputs.lib.mkIf listen.http2 [ "http2" ];
+                  extraParameters = lib.mkIf listen.http2 [ "http2" ];
                 })
                 site.value.listens;
               # do not automatically add http2 listen
               http2 = false;
               onlySSL = true;
-              useACMEHost = inputs.lib.mkIf (site.value.global.tlsCert == null) site.name;
-              sslCertificate = inputs.lib.mkIf (site.value.global.tlsCert != null)
+              useACMEHost = lib.mkIf (site.value.global.tlsCert == null) site.name;
+              sslCertificate = lib.mkIf (site.value.global.tlsCert != null)
                 "${site.value.global.tlsCert}/fullchain.pem";
-              sslCertificateKey = inputs.lib.mkIf (site.value.global.tlsCert != null)
+              sslCertificateKey = lib.mkIf (site.value.global.tlsCert != null)
                 "${site.value.global.tlsCert}/privkey.pem";
               locations = builtins.listToAttrs (builtins.map
                 (location:
@@ -218,14 +227,14 @@ inputs:
                   inherit (location) name;
                   value =
                   {
-                    basicAuthFile = inputs.lib.mkIf (location.value.detectAuth or null != null)
+                    basicAuthFile = lib.mkIf (location.value.detectAuth or null != null)
                     (
                       let
-                        inherit (inputs.lib.strings) escapeURL;
+                        inherit (lib.strings) escapeURL;
                         secret = "nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}";
-                      in inputs.config.nixos.system.sops.templates.${secret}.path
+                      in config.nixos.system.sops.templates.${secret}.path
                     );
-                    root = inputs.lib.mkIf (location.value.root or null != null) location.value.root;
+                    root = lib.mkIf (location.value.root or null != null) location.value.root;
                   }
                   // {
                     proxy =
@@ -236,30 +245,30 @@ inputs:
                       proxyPass = location.value.upstream;
                       extraConfig = builtins.concatStringsSep "\n"
                       (
-                        (inputs.lib.mapAttrsToList (n: v: ''proxy_set_header ${n} "${v}";'')
+                        (lib.mapAttrsToList (n: v: ''proxy_set_header ${n} "${v}";'')
                           location.value.setHeaders)
-                        ++ (inputs.lib.optionals
+                        ++ (lib.optionals
                           (location.value.detectAuth != null || site.value.global.detectAuth != null)
                           [ "proxy_hide_header Authorization;" ]
                         )
-                        ++ (inputs.lib.optionals (location.value.addAuth != null)
+                        ++ (lib.optionals (location.value.addAuth != null)
                           (
                             let authFile = "nginx/templates/addAuth/${location.value.addAuth}";
-                            in [ "include ${inputs.config.nixos.system.sops.templates.${authFile}.path};" ]
+                            in [ "include ${config.nixos.system.sops.templates.${authFile}.path};" ]
                           ))
                       );
                     };
                     static =
                     {
-                      index = inputs.lib.mkIf (builtins.typeOf location.value.index == "list")
+                      index = lib.mkIf (builtins.typeOf location.value.index == "list")
                         (builtins.concatStringsSep " " location.value.index);
-                      tryFiles = inputs.lib.mkIf (location.value.tryFiles != null)
+                      tryFiles = lib.mkIf (location.value.tryFiles != null)
                         (builtins.concatStringsSep " " location.value.tryFiles);
-                      extraConfig = inputs.lib.mkMerge
+                      extraConfig = lib.mkMerge
                       [
-                        (inputs.lib.mkIf (location.value.index == "auto") "autoindex on;")
-                        (inputs.lib.mkIf (location.value.charset != null) "charset ${location.value.charset};")
-                        (inputs.lib.mkIf location.value.webdav
+                        (lib.mkIf (location.value.index == "auto") "autoindex on;")
+                        (lib.mkIf (location.value.charset != null) "charset ${location.value.charset};")
+                        (lib.mkIf location.value.webdav
                         ''
                           dav_access user:rw group:rw;
                           dav_methods PUT DELETE MKCOL COPY MOVE;
@@ -273,7 +282,7 @@ inputs:
                       fastcgi_pass ${location.value.fastcgiPass};
                       fastcgi_split_path_info ^(.+\.php)(/.*)$;
                       fastcgi_param PATH_INFO $fastcgi_path_info;
-                      include ${inputs.config.services.nginx.package}/conf/fastcgi.conf;
+                      include ${config.services.nginx.package}/conf/fastcgi.conf;
                     '';
                     return.return = location.value.return;
                     alias.alias = location.value.path;
@@ -312,7 +321,7 @@ inputs:
                       upstream.port = with nginx.global; httpsPort + httpsPortShift.proxyProtocol
                         + (if site.value.http2 then httpsPortShift.http2 else 0);
                       proxyProtocol = true;
-                      rewriteHttps = inputs.lib.mkDefault false;
+                      rewriteHttps = lib.mkDefault false;
                     };
                   })
                   (builtins.filter (listen: listen.value.proxyProtocol) listens));
@@ -321,12 +330,12 @@ inputs:
                   (builtins.filter (site: site.value.global.rewriteHttps) sites));
               };
             acme.cert = builtins.listToAttrs (builtins.map
-              (site: { inherit (site) name; value.group = inputs.config.services.nginx.group; })
+              (site: { inherit (site) name; value.group = config.services.nginx.group; })
               sites);
           };
           system.sops =
             let
-              inherit (inputs.lib.strings) escapeURL;
+              inherit (lib.strings) escapeURL;
               detectAuthUsers = builtins.concatLists (builtins.map
                 (site:
                 (
@@ -337,7 +346,7 @@ inputs:
                       value = location.value.detectAuth.users;
                     })
                     (builtins.filter (location: location.value.detectAuth or null != null) site.value.locations))
-                  ++ (inputs.lib.optionals (site.value.global.detectAuth != null)
+                  ++ (lib.optionals (site.value.global.detectAuth != null)
                     [ { name = "${escapeURL site.name}-global"; value = site.value.global.detectAuth.users; } ])
                 ))
                 sites);
@@ -353,21 +362,21 @@ inputs:
                 sites);
             in
             {
-              templates = let inherit (inputs.config.nixos.system.sops) placeholder; in builtins.listToAttrs
+              templates = let inherit (config.nixos.system.sops) placeholder; in builtins.listToAttrs
               (
                 (builtins.map
-                  (detectAuth: inputs.lib.nameValuePair "nginx/templates/detectAuth/${detectAuth.name}"
+                  (detectAuth: lib.nameValuePair "nginx/templates/detectAuth/${detectAuth.name}"
                   {
-                    owner = inputs.config.users.users.nginx.name;
+                    owner = config.users.users.nginx.name;
                     content = builtins.concatStringsSep "\n" (builtins.map
                       (user: "${user}:{PLAIN}${placeholder."nginx/detectAuth/${user}"}")
                       detectAuth.value);
                   })
                   detectAuthUsers)
                 ++ (builtins.map
-                  (addAuth: inputs.lib.nameValuePair "nginx/templates/addAuth/${addAuth.name}"
+                  (addAuth: lib.nameValuePair "nginx/templates/addAuth/${addAuth.name}"
                   {
-                    owner = inputs.config.users.users.nginx.name;
+                    owner = config.users.users.nginx.name;
                     content =
                       ''proxy_set_header Authorization "Basic ${placeholder."nginx/addAuth/${addAuth.value}"}";'';
                   })
@@ -377,11 +386,11 @@ inputs:
               (
                 (builtins.map
                   (secret: { name = "nginx/detectAuth/${secret}"; value = {}; })
-                  (inputs.lib.unique (builtins.concatLists (builtins.map (detectAuth: detectAuth.value)
+                  (lib.unique (builtins.concatLists (builtins.map (detectAuth: detectAuth.value)
                     detectAuthUsers))))
                 ++ (builtins.map
                   (secret: { name = "nginx/addAuth/${secret}"; value = {}; })
-                  (inputs.lib.unique (builtins.map (addAuth: addAuth.value) addAuth)))
+                  (lib.unique (builtins.map (addAuth: addAuth.value) addAuth)))
               );
             };
         };

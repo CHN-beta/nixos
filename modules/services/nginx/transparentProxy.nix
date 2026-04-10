@@ -1,28 +1,28 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.services.nginx.transparentProxy = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.nginx.transparentProxy =
   {
     # proxy to 127.0.0.1:${specified port}
-    map = mkOption
+    map = lib.mkOption
     {
-      type = types.attrsOf (types.oneOf
+      type = lib.types.attrsOf (lib.types.oneOf
       [
         # proxy to 127.0.0.1:${specified port}
-        types.ints.unsigned
+        lib.types.ints.unsigned
         # proxy to specified ip:port
-        types.nonEmptyStr
+        lib.types.nonEmptyStr
       ]);
       default = {};
     };
   };
-  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf (nginx.transparentProxy.map != {})
+  config = let inherit (config.nixos.services) nginx; in lib.mkIf (nginx.transparentProxy.map != {})
   {
     services.nginx.streamConfig =
     ''
       log_format transparent_proxy '[$time_local] $remote_addr-$geoip2_data_country_code '
         '"$ssl_preread_server_name"->$transparent_proxy_backend $bytes_sent $bytes_received';
       map $ssl_preread_server_name $transparent_proxy_backend {
-        ${builtins.concatStringsSep "\n    " (inputs.lib.mapAttrsToList
+        ${builtins.concatStringsSep "\n    " (lib.mapAttrsToList
           (n: v: ''"${n}" ${if builtins.isInt v then "127.0.0.1:${builtins.toString v}" else v};'')
           nginx.transparentProxy.map)}
         default 127.0.0.1:${toString (with nginx.global; (httpsPort + httpsPortShift.http2))};
@@ -40,17 +40,17 @@ inputs:
     '';
     systemd =
     {
-      services = inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "networkmanager")
+      services = lib.mkIf (config.nixos.system.network.implementation == "networkmanager")
       {
         nginx-proxy =
           let
-            ip = "${inputs.pkgs.iproute2}/bin/ip";
-            start = inputs.pkgs.writeShellScript "nginx-proxy.start"
+            ip = "${pkgs.iproute2}/bin/ip";
+            start = pkgs.writeShellScript "nginx-proxy.start"
             ''
               ${ip} rule add fwmark 2/2 table 200 priority 5001
               ${ip} route add local 0.0.0.0/0 dev lo table 200
             '';
-            stop = inputs.pkgs.writeShellScript "nginx-proxy.stop"
+            stop = pkgs.writeShellScript "nginx-proxy.stop"
             ''
               ${ip} rule del fwmark 2/2 table 200 priority 5001
               ${ip} route del local 0.0.0.0/0 dev lo table 200
@@ -70,7 +70,7 @@ inputs:
             wantedBy= [ "multi-user.target" ];
           };
       };
-      network.networks = inputs.lib.mkIf (inputs.config.nixos.system.network.implementation == "systemd-networkd")
+      network.networks = lib.mkIf (config.nixos.system.network.implementation == "systemd-networkd")
       {
         "10-custom" =
         {
@@ -89,7 +89,7 @@ inputs:
           type route hook output priority mangle; policy accept;
           # 由本机发出、gid 为 nginx、但源地址不是本地监听的地址，说明是透明代理的第一个包，将这个流标记
           # 但这个包本身不需要处理，正常路由即可。
-          meta skgid ${builtins.toString inputs.config.users.groups.nginx.gid} fib saddr type != local \
+          meta skgid ${builtins.toString config.users.groups.nginx.gid} fib saddr type != local \
             ct state new counter ct mark set ct mark | 2 return
           # 由本机发出、作为透明代理的回复，它不能按照通常的路由，它需要被打上标记并被路由到本地
           # 这对应于透明代理到本地的服务的情况

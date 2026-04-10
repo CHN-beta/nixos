@@ -1,36 +1,31 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.services.nginx.applications.webdav.instances = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.nginx.applications.webdav.instances = lib.mkOption
   {
-    type = types.attrsOf (types.submodule (submoduleInputs: { options =
+    type = lib.types.attrsOf (lib.types.submodule (submoduleInputs: { options =
     {
-      hostname = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-      path = mkOption { type = types.nonEmptyStr; default = "/srv/webdav"; };
-      users = mkOption { type = types.nonEmptyListOf types.nonEmptyStr; default = [ "chn" ]; };
+      hostname = lib.mkOption { type = lib.types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+      path = lib.mkOption { type = lib.types.nonEmptyStr; default = "/srv/webdav"; };
+      users = lib.mkOption { type = lib.types.nonEmptyListOf lib.types.nonEmptyStr; default = [ "chn" ]; };
     };}));
     default = {};
   };
-  config =
-    let
-      inherit (inputs.config.nixos.services.nginx.applications.webdav) instances;
-      inherit (builtins) map listToAttrs attrValues;
-      inherit (inputs.lib) mkMerge;
-    in
-    {
-      nixos.services.nginx.https = listToAttrs (map
-        (site:
-        {
-          name = site.hostname;
-          value.location."/".static =
-            { root = site.path; index = "auto"; charset = "utf-8"; webdav = true; detectAuth.users = site.users; };
-        })
-        (attrValues instances));
-      systemd = mkMerge (map
-        (site:
-        {
-          tmpfiles.rules = [ "d ${site.path} 0700 nginx nginx" "Z ${site.path} - nginx nginx" ];
-          services.nginx.serviceConfig.ReadWritePaths = [ site.path ];
-        })
-        (attrValues instances));
-    };
+  config = let inherit (config.nixos.services.nginx.applications.webdav) instances; in
+  {
+    nixos.services.nginx.https = builtins.listToAttrs (builtins.map
+      (site:
+      {
+        name = site.hostname;
+        value.location."/".static =
+          { root = site.path; index = "auto"; charset = "utf-8"; webdav = true; detectAuth.users = site.users; };
+      })
+      (builtins.attrValues instances));
+    systemd = lib.mkMerge (builtins.map
+      (site:
+      {
+        tmpfiles.rules = [ "d ${site.path} 0700 nginx nginx" "Z ${site.path} - nginx nginx" ];
+        services.nginx.serviceConfig.ReadWritePaths = [ site.path ];
+      })
+      (builtins.attrValues instances));
+  };
 }

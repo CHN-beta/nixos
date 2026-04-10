@@ -1,23 +1,26 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.services.acme = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.acme = lib.mkOption
   {
-    type = types.nullOr (types.submodule { options =
+    type = lib.types.nullOr (lib.types.submodule { options =
     {
-      cert = mkOption
+      cert = lib.mkOption
       {
-        type = types.attrsOf (types.submodule (submoduleInputs: { options =
+        type = lib.types.attrsOf (lib.types.submodule (submoduleInputs: { options =
         {
-          domains = mkOption
-            { type = types.nonEmptyListOf types.nonEmptyStr; default = [ submoduleInputs.config._module.args.name ]; };
-          group = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+          domains = lib.mkOption
+          {
+            type = lib.types.nonEmptyListOf lib.types.nonEmptyStr;
+            default = [ submoduleInputs.config._module.args.name ];
+          };
+          group = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = null; };
         };}));
         default = {};
       };
     };});
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services) acme; in inputs.lib.mkIf (acme != null)
+  config = let inherit (config.nixos.services) acme; in lib.mkIf (acme != null)
   {
     security.acme =
     {
@@ -34,18 +37,18 @@ inputs:
           name = builtins.elemAt cert.value.domains 0;
           value =
           {
-            credentialsFile = inputs.config.nixos.system.sops.templates."acme/cloudflare.ini".path;
+            credentialsFile = config.nixos.system.sops.templates."acme/cloudflare.ini".path;
             extraDomainNames = builtins.tail cert.value.domains;
-            group = inputs.lib.mkIf (cert.value.group != null) cert.value.group;
+            group = lib.mkIf (cert.value.group != null) cert.value.group;
           };
         })
-        (inputs.lib.attrsToList acme.cert));
+        (lib.attrsToList acme.cert));
     };
     nixos.system.sops =
     {
       templates."acme/cloudflare.ini".content =
       ''
-        CLOUDFLARE_DNS_API_TOKEN=${inputs.config.nixos.system.sops.placeholder."acme/token"}
+        CLOUDFLARE_DNS_API_TOKEN=${config.nixos.system.sops.placeholder."acme/token"}
         CLOUDFLARE_PROPAGATION_TIMEOUT=300
       '';
       secrets."acme/token" = {};

@@ -1,46 +1,46 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.services.nginx.streamProxy = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.nginx.streamProxy =
   {
-    map = mkOption
+    map = lib.mkOption
     {
-      type = types.attrsOf (types.oneOf
+      type = lib.types.attrsOf (lib.types.oneOf
       [
         # proxy to specified ip:port without proxyProtocol
-        types.nonEmptyStr
-        (types.submodule { options =
+        lib.types.nonEmptyStr
+        (lib.types.submodule { options =
         {
-          upstream = mkOption
+          upstream = lib.mkOption
           {
-            type = types.oneOf
+            type = lib.types.oneOf
             [
               # proxy to specified ip:port with or without proxyProtocol
-              types.nonEmptyStr
-              (types.submodule { options =
+              lib.types.nonEmptyStr
+              (lib.types.submodule { options =
               {
-                address = mkOption { type = types.nonEmptyStr; default = "127.0.0.1"; };
+                address = lib.mkOption { type = lib.types.nonEmptyStr; default = "127.0.0.1"; };
                 # if port not specified, guess from proxyProtocol enabled or not, assume http2 enabled
-                port = mkOption { type = types.nullOr types.ints.unsigned; default = null; };
+                port = lib.mkOption { type = lib.types.nullOr lib.types.ints.unsigned; default = null; };
               };})
             ];
             default = {};
           };
-          proxyProtocol = mkOption { type = types.bool; default = true; };
-          addToTransparentProxy = mkOption { type = types.bool; default = true; };
-          rewriteHttps = mkOption { type = types.bool; default = true; };
+          proxyProtocol = lib.mkOption { type = lib.types.bool; default = true; };
+          addToTransparentProxy = lib.mkOption { type = lib.types.bool; default = true; };
+          rewriteHttps = lib.mkOption { type = lib.types.bool; default = true; };
         };})
       ]);
       default = {};
     };
   };
-  config = let inherit (inputs.config.nixos.services) nginx; in inputs.lib.mkIf (nginx.streamProxy.map != {})
+  config = let inherit (config.nixos.services) nginx; in lib.mkIf (nginx.streamProxy.map != {})
   {
     services.nginx.streamConfig =
     ''
       log_format stream_proxy '[$time_local] $remote_addr-$geoip2_data_country_code '
         '"$ssl_preread_server_name"->$stream_proxy_backend $bytes_sent $bytes_received';
       map $ssl_preread_server_name $stream_proxy_backend {
-        ${builtins.concatStringsSep "\n    " (inputs.lib.mapAttrsToList
+        ${builtins.concatStringsSep "\n    " (lib.mapAttrsToList
           (n: v:
             let
               upstream =
@@ -82,16 +82,16 @@ inputs:
           (site: { inherit (site) name; value = nginx.global.streamPort; })
           (builtins.filter
             (site: (!(site.value.proxyProtocol or false) && (site.value.addToTransparentProxy or true)))
-            (inputs.lib.attrsToList nginx.streamProxy.map)))
+            (lib.attrsToList nginx.streamProxy.map)))
         ++ (builtins.map
           (site: { inherit (site) name; value = with nginx.global; streamPort + streamPortShift.proxyProtocol; })
           (builtins.filter
             (site: ((site.value.proxyProtocol or false) && (site.value.addToTransparentProxy or true)))
-            (inputs.lib.attrsToList nginx.streamProxy.map)))
+            (lib.attrsToList nginx.streamProxy.map)))
       );
       http = builtins.listToAttrs (builtins.map
         (site: { inherit (site) name; value.rewriteHttps = {}; })
-        (builtins.filter (site: site.value.rewriteHttps or false) (inputs.lib.attrsToList nginx.streamProxy.map)));
+        (builtins.filter (site: site.value.rewriteHttps or false) (lib.attrsToList nginx.streamProxy.map)));
     };
   };
 }

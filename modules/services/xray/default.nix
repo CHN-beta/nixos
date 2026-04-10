@@ -1,5 +1,5 @@
 # sync with nixpkgs 5835771b10e3197408d3ac7d32558c8e2ae0ab8d
-inputs:
+{ localLib, ... }:
 {
-  imports = inputs.localLib.findModules ./.;
+  imports = localLib.findModules ./.;
 }
