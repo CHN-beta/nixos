@@ -1,37 +1,35 @@
-inputs:
+{ localLib, lib, config, pkgs, ... }:
 {
-  imports = inputs.localLib.findModules ./.;
+  imports = localLib.findModules ./.;
   options.nixos.hardware =
-    let
-      inherit (inputs.lib) mkOption types;
-      genericOption = mkOption
-      {
-        type = types.nullOr (types.submodule {});
-        default = if builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ] then {} else null;
-      };
-    in
-    { joystick = genericOption; printer = genericOption; sound = genericOption; bolt = genericOption; };
-  config = let inherit (inputs.config.nixos) hardware; in inputs.lib.mkMerge
+    let genericOption = lib.mkOption
+    {
+      type = lib.types.nullOr (lib.types.submodule {});
+      default = if builtins.elem config.nixos.model.type [ "desktop" "server" ] then {} else null;
+    };
+    in { joystick = genericOption; printer = genericOption; sound = genericOption; bolt = genericOption; };
+  config = let inherit (config.nixos) hardware; in lib.mkMerge
   [
-    (inputs.lib.mkIf (hardware.joystick != null) { hardware = { xone.enable = true; xpadneo.enable = true; }; })
+    (lib.mkIf (hardware.joystick != null) { hardware = { xone.enable = true; xpadneo.enable = true; }; })
     (
-      inputs.lib.mkIf (hardware.printer != null)
+      lib.mkIf (hardware.printer != null)
       {
         services =
         {
-          printing = { enable = true; drivers = [ inputs.pkgs.cnijfilter2 ]; };
+          printing = { enable = true; drivers = [ pkgs.cnijfilter2 ]; };
           avahi = { enable = true; nssmdns4 = true; openFirewall = true; };
         };
       }
     )
     (
-      inputs.lib.mkIf (hardware.sound != null)
+      lib.mkIf (hardware.sound != null)
       {
         services.pulseaudio.enable = false;
         services.pipewire = { enable = true; alsa = { enable = true; support32Bit = true; }; pulse.enable = true; };
         security.rtkit.enable = true;
       }
     )
-    (inputs.lib.mkIf (hardware.bolt != null) { services.hardware.bolt.enable = true; })
+    (lib.mkIf (hardware.bolt != null) { services.hardware.bolt.enable = true; })
+    (lib.mkIf (config.nixos.model.arch == "x86_64") { hardware.cpu.x86.msr.enable = true; })
   ];
 }
