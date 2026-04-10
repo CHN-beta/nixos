@@ -58,8 +58,8 @@ int main()
         ) return;
 
         // 如果是转发/回复/引用，需要检查被回复或者被引用的帖子是否已经被转发过
-        bool is_forward = !content.body.note->text && content.body.note->renote;
-        bool is_renote = content.body.note->text && content.body.note->renote;
+        bool is_forward = !content.body.note->text && content.body.note->files.empty() && content.body.note->renote;
+        bool is_renote = (content.body.note->text || !content.body.note->files.empty()) && content.body.note->renote;
         bool is_reply = content.body.note->replyId.has_value();
         std::optional<std::uint32_t> tg_reply_id;
         bool fond_renote = false, found_reply = false;
