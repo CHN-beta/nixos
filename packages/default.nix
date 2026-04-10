@@ -126,7 +126,7 @@ inputs: rec
     src = inputs.topInputs.pybinding;
     buildProxy = inputs.pkgs.lib.mkBuildproxy ./pybinding/proxy.nix;
   };
-  missgram = inputs.pkgs.callPackage inputs.topInputs.missgram { inherit biu sqlgen; };
+  missgram = inputs.pkgs.callPackage ./missgram { inherit biu sqlgen; };
   sqlgen = inputs.pkgs.callPackage ./sqlgen.nix { src = inputs.topInputs.sqlgen; inherit reflectcpp; };
   reflectcpp = inputs.pkgs.callPackage ./reflectcpp.nix { src = inputs.topInputs.reflectcpp; };
   lsf = inputs.pkgs.callPackage ./lsf.nix { src = inputs.topInputs.self.src.lsf; };
