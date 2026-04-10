@@ -66,6 +66,45 @@
                     tag = "in-legacy";
                   }
                 )
+                (
+                  let fallbackPort = builtins.toString
+                    (with config.nixos.services.nginx.global; httpsPort + httpsPortShift.http2);
+                  in
+                  {
+                    port = 4727;
+                    listen = "127.0.0.1";
+                    protocol = "vless";
+                    settings =
+                    {
+                      clients = builtins.map
+                        (n:
+                        {
+                          id = config.nixos.system.sops.placeholder."xray-server/clients/${n}";
+                          # flow = "xtls-rprx-vision";
+                          email = "${n}@xray.chn.moe";
+                        })
+                        userList;
+                      decryption = "none";
+                      fallbacks = [{ dest = "127.0.0.1:${fallbackPort}"; }];
+                    };
+                    streamSettings =
+                    {
+                      network = "xhttp";
+                      security = "reality";
+                      realitySettings =
+                      {
+                        dest = "127.0.0.1:${fallbackPort}";
+                        serverNames = [ "xserver3.chn.moe" ];
+                        privateKey = config.nixos.system.sops.placeholder."xray-server/private-key";
+                        minClientVer = "1.8.0";
+                        shortIds = [ "" ];
+                      };
+                      xhttpSettings.path = "/kT9hRk6D4gJ5WxNT";
+                    };
+                    sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
+                    tag = "in";
+                  }
+                )
                 {
                   port = 4638;
                   listen = "127.0.0.1";
@@ -104,11 +143,11 @@
                 rules = builtins.map (rule: rule // { type = "field"; })
                 [
                   {
-                    inboundTag = [ "in-legacy" ];
+                    inboundTag = [ "in-legacy" "in" ];
                     domain = [ "domain:openai.com" ];
                     outboundTag = "loopback-localdns";
                   }
-                  { inboundTag = [ "in-legacy" ]; outboundTag = "freedom"; }
+                  { inboundTag = [ "in-legacy" "in" ]; outboundTag = "freedom"; }
                   { inboundTag = [ "in-localdns" ]; outboundTag = "freedom"; }
                   { inboundTag = [ "api" ]; outboundTag = "api"; }
                 ];
@@ -138,14 +177,30 @@
         };
         services =
         {
-          acme.cert.${server.serverName}.group = config.users.users.nginx.group;
+          acme.cert =
+          {
+            ${server.serverName}.group = config.users.users.nginx.group;
+            "xserver3.chn.moe".group = config.users.users.nginx.group;
+          };
           nginx =
           {
-            transparentProxy.map.${server.serverName} = 4726;
-            https.${server.serverName} =
+            transparentProxy.map =
             {
-              listen.main = { proxyProtocol = false; addToTransparentProxy = false; };
-              location."/".return.return = "400";
+              ${server.serverName} = 4726;
+              "xserver3.chn.moe" = 4727;
+            };
+            https =
+            {
+              ${server.serverName} =
+              {
+                listen.main = { proxyProtocol = false; addToTransparentProxy = false; };
+                location."/".return.return = "400";
+              };
+              "xserver3.chn.moe" =
+              {
+                listen.main = { proxyProtocol = false; addToTransparentProxy = false; };
+                location."/".return.return = "400";
+              };
             };
           };
         };
