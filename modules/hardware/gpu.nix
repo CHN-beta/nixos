@@ -14,6 +14,7 @@
         default = if config.nixos.hardware.gpu.nvidia.datacenter then "dc" else "production";
       };
       persistence = lib.mkOption { type = lib.types.bool; default = !config.nixos.hardware.gpu.nvidia.dynamicBoost; };
+      disableFabricmanager = lib.mkOption { type = lib.types.bool; default = false; };
     };
   };
   config = let inherit (config.nixos.hardware) gpu; in lib.mkIf (gpu.type != null) (lib.mkMerge
@@ -97,5 +98,7 @@
       lib.mkIf (lib.strings.hasPrefix "amd" gpu.type)
         { hardware.amdgpu = { opencl.enable = true; initrd.enable = true; legacySupport.enable = true; };}
     )
+    # sometimes dc gpu without nvlink or nvswitch
+    (lib.mkIf gpu.nvidia.disableFabricmanager { systemd.services.nvidia-fabricmanager.enable = lib.mkForce false; })
   ]);
 }
