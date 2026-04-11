@@ -29,6 +29,8 @@ inputs:
       User = "tailscale";
       Group = "tailscale";
       AmbientCapabilities = [ "CAP_NET_RAW" "CAP_NET_ADMIN" "CAP_SYS_MODULE" ];
+      # without this, tailscale may think tinc is local address and use it
+      RestrictNetworkInterfaces = "~tinc0";
     };
   };
 }
