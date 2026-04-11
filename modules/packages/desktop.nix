@@ -88,6 +88,7 @@
           scipy scikit-learn jupyterlab autograd phono3py numpy
           openai python-telegram-bot fastapi-cli pypdf2 pandas matplotlib plotly gunicorn redis jinja2 certifi 
           charset-normalizer idna orjson psycopg2 inquirerpy requests tqdm pydbus brokenaxes
+          ipynbname
           # allow pandas read odf
           odfpy
         ])];
