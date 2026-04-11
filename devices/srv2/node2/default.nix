@@ -14,6 +14,7 @@
       {
         beesd."/" = {};
         lumericalLicenseManager.macAddress = "b4:e9:b8:fc:9a:f9";
+        jupyterhub = {};
       };
       hardware.gpu.nvidia = { datacenter = true; disableFabricmanager = true; };
     };

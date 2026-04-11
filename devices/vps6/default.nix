@@ -38,9 +38,8 @@
           // (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "tinc0.nas.chn.moe"; })
             [ "xn--s8w913fdga" "matrix" "git" "question" ]))
-          // (builtins.listToAttrs (builtins.map
-            (site: { name = "${site}.chn.moe"; value.upstream.address = "tinc0.pc.chn.moe"; })
-            [ "xn--qbtm095lrg0bfka60z" ]));
+          // { "xn--qbtm095lrg0bfka60z.chn.moe" = { upstream.address = "tinc0.pc.chn.moe"; }; }
+          // { "jupyterhub.chn.moe" = { upstream.address = "tinc0.srv2-node2.chn.moe"; }; };
           applications =
           {
             element.instances."element.chn.moe" = {};

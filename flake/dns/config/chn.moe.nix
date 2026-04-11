@@ -8,7 +8,7 @@ let
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi" "ua" "xserver2"
-      "xserver2.vps6" "s" "headscale" "missgram" "vikunja" "question" "xserver3"
+      "xserver2.vps6" "s" "headscale" "missgram" "vikunja" "question" "xserver3" "jupyterhub"
       # to pc
       "铜锣湾实验室"
       # temporary
