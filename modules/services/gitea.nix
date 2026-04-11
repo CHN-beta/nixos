@@ -61,6 +61,12 @@
       # https://her.esy.fun/posts/0031-how-i-protect-my-forgejo-instance-from-ai-web-crawlers/index.html
       nginx.virtualHosts."https:${gitea.hostname}".locations."/".extraConfigPre =
       ''
+        # 允许 blog.chn.moe 引用静态资源
+        valid_referers blog.chn.moe;
+        if ($invalid_referer = "") {
+          set $bypass_cookie 1;
+        }
+
         if ($http_user_agent ~* "git/|git-lfs/|curl/|Nix/") {
           set $bypass_cookie 1;
         }
