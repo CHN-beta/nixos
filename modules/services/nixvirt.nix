@@ -84,7 +84,7 @@ inputs:
       {
         enable = true;
         verbose = true;
-        connections."qemu:///system" = let inherit (inputs.topInputs.nixvirt) lib; in
+        connections."qemu:///system" = let inherit (inputs.flakeInputs.nixvirt) lib; in
         {
           domains = builtins.map
             (vm:
@@ -135,7 +135,7 @@ inputs:
         templates = inputs.lib.mapAttrs'
           (n: v: inputs.lib.nameValuePair "nixvirt/${n}.xml"
           {
-            content = inputs.topInputs.nixvirt.lib.domain.getXML
+            content = inputs.flakeInputs.nixvirt.lib.domain.getXML
             # port from 8bcc23e27a62297254d0e9c87281e650ff777132
             {
               name = n;
@@ -213,7 +213,7 @@ inputs:
                     device = "cdrom";
                     driver = { name = "qemu"; type = "raw"; };
                     source.file =
-                      if v.storage.iso == null then "${inputs.topInputs.self.src.iso.netboot}" else v.storage.iso;
+                      if v.storage.iso == null then "${inputs.flakeInputs.self.src.iso.netboot}" else v.storage.iso;
                     target = { dev = "sdc"; bus = "sata"; };
                     readonly = true;
                     boot.order = 10;

@@ -68,12 +68,12 @@ inputs:
           version = inputs.lib.versions.majorMinor inputs.config.boot.kernelPackages.kernel.version;
           patches =
           {
-            btrfs = [(inputs.topInputs.self.src.btrfs.${version} // { name = "btrfs"; })];
+            btrfs = [(inputs.flakeInputs.self.src.btrfs.${version} // { name = "btrfs"; })];
             asus = builtins.map
               (file:
               {
                 name = "asus-${file}";
-                patch = "${inputs.topInputs.linux-asus}/${file}";
+                patch = "${inputs.flakeInputs.linux-asus}/${file}";
               })
               [
                 # copy from PKGBUILD

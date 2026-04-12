@@ -1,4 +1,4 @@
-{ lib, config, pkgs, topInputs, ... }:
+{ lib, config, pkgs, flakeInputs, ... }:
 {
   options.nixos.services.kvm = lib.mkOption
   {
@@ -42,7 +42,7 @@
     };
     systemd.mounts =
     [{
-      what = "${topInputs.nixvirt.lib.guest-install.virtio-win.iso}";
+      what = "${flakeInputs.nixvirt.lib.guest-install.virtio-win.iso}";
       where = "/var/lib/libvirt/images/virtio-win.iso";
       options = "bind";
       wantedBy = [ "local-fs.target" ];

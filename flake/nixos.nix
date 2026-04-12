@@ -29,7 +29,7 @@ in builtins.mapAttrs
   (n: v: lib.nixosSystem
   {
     system = null;
-    specialArgs = { topInputs = inputs; inherit localLib; };
+    specialArgs = { flakeInputs = inputs; inherit localLib; };
     modules = localLib.mkModules v;
   })
   deviceModules

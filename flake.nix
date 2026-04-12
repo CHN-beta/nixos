@@ -80,7 +80,7 @@
     nixosConfigurations = import ./flake/nixos.nix { inherit inputs localLib; };
     overlays.default = final: prev:
     {
-      localPackages = (import ./packages { inherit localLib; pkgs = final; topInputs = inputs; });
+      localPackages = (import ./packages { inherit localLib; pkgs = final; flakeInputs = inputs; });
       pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++
         [(finalPython: prevPython: final.localPackages.pythonOverlay finalPython)];
     };

@@ -1,4 +1,4 @@
-# inputs = { lib, topInputs, ...}; nixpkgs = { march, cuda, nixos, arch, rocm, isKernel310 };
+# inputs = { lib, flakeInputs, ...}; nixpkgs = { march, cuda, nixos, arch, rocm, isKernel310 };
 { inputs, nixpkgs }:
 let
   platformConfig =
@@ -37,23 +37,23 @@ let
   {
     addon =
     [
-      inputs.topInputs.aagl.overlays.default
-      inputs.topInputs.nur-xddxdd.overlays.inSubTree
-      inputs.topInputs.buildproxy.overlays.default
-      inputs.topInputs.nix4vscode.overlays.default
-      inputs.topInputs.bscpkgs.overlays.default
-      inputs.topInputs.nix-cachyos-kernel.overlays.default
-      inputs.topInputs.chinese-fonts.overlays.default
+      inputs.flakeInputs.aagl.overlays.default
+      inputs.flakeInputs.nur-xddxdd.overlays.inSubTree
+      inputs.flakeInputs.buildproxy.overlays.default
+      inputs.flakeInputs.nix4vscode.overlays.default
+      inputs.flakeInputs.bscpkgs.overlays.default
+      inputs.flakeInputs.nix-cachyos-kernel.overlays.default
+      inputs.flakeInputs.chinese-fonts.overlays.default
       (final: prev:
       {
-        nur-linyinfeng = (inputs.topInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
-        firefox-addons = (import "${inputs.topInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
-        dwproton = final.callPackage inputs.topInputs.dwproton {};
+        nur-linyinfeng = (inputs.flakeInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
+        firefox-addons = (import "${inputs.flakeInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
+        dwproton = final.callPackage inputs.flakeInputs.dwproton {};
       })
-      inputs.topInputs.self.overlays.default
+      inputs.flakeInputs.self.overlays.default
       (final: prev:
       {
-        genericPackages = import inputs.topInputs.nixpkgs
+        genericPackages = import inputs.flakeInputs.nixpkgs
           { inherit (final) system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
       }
       // (
@@ -100,7 +100,7 @@ let
             };
           };
           packages = name:
-            let flakeSource = inputs.topInputs.${source.${name}.source or source.${name}};
+            let flakeSource = inputs.flakeInputs.${source.${name}.source or source.${name}};
             in import flakeSource
             {
               localSystem =

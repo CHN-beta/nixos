@@ -1,4 +1,4 @@
-{ lib, config, topInputs, ... }:
+{ lib, config, flakeInputs, ... }:
 {
   options.nixos.services.gatus = lib.mkOption
     { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
@@ -38,7 +38,7 @@
             {
               name = "tinc ${h}";
               group = "tinc";
-              url = "icmp://${topInputs.self.config.dns."chn.moe".getAddress "tinc0.${h}"}";
+              url = "icmp://${flakeInputs.self.config.dns."chn.moe".getAddress "tinc0.${h}"}";
               interval = "1m";
               conditions = [ "[CONNECTED] == true" ];
               alerts = [{ type = "telegram"; }];
@@ -65,7 +65,7 @@
             {
               name = "tinc pc";
               group = "tinc";
-              url = "icmp://${topInputs.self.config.dns."chn.moe".getAddress "tinc0.pc"}";
+              url = "icmp://${flakeInputs.self.config.dns."chn.moe".getAddress "tinc0.pc"}";
               interval = "1m";
               conditions = [ "[CONNECTED] == true" ];
             }

@@ -70,7 +70,7 @@ inputs:
             if builtins.pathExists "${path}/secrets.yaml" then [ "${path}/secrets.yaml" ]
             else if builtins.pathExists "${path}/secrets/default.yaml" then [ "${path}/secrets/default.yaml" ]
             else [];
-          devicePath =  "${inputs.topInputs.self}/devices";
+          devicePath =  "${inputs.flakeInputs.self}/devices";
           inherit (inputs.config.nixos) model;
         in
           []

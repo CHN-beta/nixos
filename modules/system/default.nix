@@ -61,11 +61,11 @@ inputs:
     system =
     {
       stateVersion = "25.05";
-      configurationRevision = inputs.topInputs.self.rev or "dirty";
+      configurationRevision = inputs.flakeInputs.self.rev or "dirty";
       nixos =
       {
         versionSuffix = inputs.lib.mkForce "";
-        tags = let inherit (inputs.topInputs) self; in
+        tags = let inherit (inputs.flakeInputs) self; in
           [ (builtins.substring 2 6 self.lastModifiedDate) (builtins.substring 0 6 self.rev or "dirty") ];
       };
     };

@@ -1,4 +1,4 @@
-{ lib, config, topInputs, pkgs, ... }:
+{ lib, config, flakeInputs, pkgs, ... }:
 {
   options.nixos.services.lumericalLicenseManager = lib.mkOption
   {
@@ -13,7 +13,7 @@
   {
     virtualisation.oci-containers.containers.lumericalLicenseManager =
     {
-      inherit (topInputs.self.src.lumerical.licenseManager) image imageFile;
+      inherit (flakeInputs.self.src.lumerical.licenseManager) image imageFile;
       extraOptions = [ "--network=host" ];
       volumes =
         let

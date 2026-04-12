@@ -1,4 +1,4 @@
-{ lib, config, pkgs, topInputs, localLib, ... }:
+{ lib, config, pkgs, flakeInputs, localLib, ... }:
 {
   options.nixos.services.slurm = let inherit (lib) mkOption types; in
   {
@@ -207,7 +207,7 @@
               format = "binary";
               sopsFile =
                 let
-                  devicePath = "${topInputs.self}/devices";
+                  devicePath = "${flakeInputs.self}/devices";
                   inherit (config.nixos) model;
                 in localLib.mkConditional (model.cluster == null)
                   "${devicePath}/${model.hostname}/secrets/munge.key"

@@ -29,7 +29,7 @@ inputs:
           }
           template IN A {
             match ^autoroute\.chn\.moe\.$
-            answer "{{.Name}} 60 IN A ${inputs.topInputs.self.config.dns."chn.moe".getAddress "vps6"}"
+            answer "{{.Name}} 60 IN A ${inputs.flakeInputs.self.config.dns."chn.moe".getAddress "vps6"}"
           }
           template IN ANY {
             match ".*"

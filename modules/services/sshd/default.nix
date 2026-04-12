@@ -1,4 +1,4 @@
-{ lib, config, pkgs, topInputs, ... }:
+{ lib, config, pkgs, flakeInputs, ... }:
 {
   options.nixos.services.sshd = lib.mkOption
   {
@@ -32,7 +32,7 @@
       nixos =
       {
         packages.packages._packages =
-          [ (pkgs.fancy-motd.overrideAttrs { src = topInputs.fancy-motd; }) ];
+          [ (pkgs.fancy-motd.overrideAttrs { src = flakeInputs.fancy-motd; }) ];
         user.sharedModules = [(home-inputs: { config.programs.zsh.loginExtra =
         ''
           [ -f /etc/fancy-motd/banner ] && (${lib.getExe pkgs.dotacat} -f /etc/fancy-motd/banner 2> /dev/null)

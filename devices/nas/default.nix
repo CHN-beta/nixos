@@ -1,4 +1,4 @@
-{ topInputs, lib, ...}:
+{ flakeInputs, lib, ...}:
 {
   config =
   {
@@ -32,7 +32,7 @@
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
-        nix.marches = topInputs.self.nixosConfigurations.pc.config.nixos.system.nix.marches;
+        nix.marches = flakeInputs.self.nixosConfigurations.pc.config.nixos.system.nix.marches;
         network.settings.static =
         {
           enp3s0 = { ip = "192.168.1.2"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; };
@@ -47,7 +47,7 @@
         sshd = {};
         xray.client =
         {
-          xray.serverAddress = topInputs.self.config.dns."chn.moe".getAddress "vps9";
+          xray.serverAddress = flakeInputs.self.config.dns."chn.moe".getAddress "vps9";
           coredns = { extraInterfaces = [ "enp3s0" ]; hosts."git.chn.moe" = "127.0.0.1"; };
         };
         beesd."/".hashTableSizeMB = 10 * 128;

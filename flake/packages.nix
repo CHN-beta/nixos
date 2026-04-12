@@ -2,7 +2,7 @@
 {
   pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
   {
-    inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
+    inputs = { inherit (inputs.nixpkgs) lib; flakeInputs = inputs; };
     nixpkgs = { march = null; nixos = false; };
   });
   hpcstat =

@@ -1,4 +1,4 @@
-{ lib, config, pkgs, topInputs, ... }:
+{ lib, config, pkgs, flakeInputs, ... }:
 {
   options.nixos.packages.firefox = lib.mkOption
   {
@@ -35,9 +35,9 @@
                 wappalyzer grammarly zotero-connector smartproxy kiss-translator readeck
               ];
               search = { default = "google"; force = true; };
-              userChrome = builtins.readFile "${topInputs.lepton}/userChrome.css";
-              userContent = builtins.readFile "${topInputs.lepton}/userContent.css";
-              extraConfig = builtins.readFile "${topInputs.lepton}/user.js";
+              userChrome = builtins.readFile "${flakeInputs.lepton}/userChrome.css";
+              userContent = builtins.readFile "${flakeInputs.lepton}/userContent.css";
+              extraConfig = builtins.readFile "${flakeInputs.lepton}/user.js";
               settings =
               {
                 # general

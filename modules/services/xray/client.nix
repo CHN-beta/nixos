@@ -1,4 +1,4 @@
-{ lib, topInputs, config, pkgs, ... }:
+{ lib, flakeInputs, config, pkgs, ... }:
 {
   options.nixos.services.xray.client = lib.mkOption
   {
@@ -9,7 +9,7 @@
         serverAddress = lib.mkOption
         {
           type = lib.types.nonEmptyStr;
-          default = topInputs.self.config.dns."chn.moe".getAddress "xserver3";
+          default = flakeInputs.self.config.dns."chn.moe".getAddress "xserver3";
         };
       };
       coredns =

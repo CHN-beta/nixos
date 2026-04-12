@@ -1,4 +1,4 @@
-{ lib, config, pkgs, topInputs, ... }:
+{ lib, config, pkgs, flakeInputs, ... }:
 {
   options.nixos.services.nextcloud = lib.mkOption
   {
@@ -43,7 +43,7 @@
       extraApps =
         let
           version = lib.versions.major config.services.nextcloud.package.version;
-          info = builtins.fromJSON (builtins.readFile "${topInputs.nc4nix}/${version}.json");
+          info = builtins.fromJSON (builtins.readFile "${flakeInputs.nc4nix}/${version}.json");
           getInfo = package:
           {
             inherit (info.${package}) hash url description homepage;

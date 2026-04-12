@@ -1,4 +1,4 @@
-{ topInputs, config, ... }:
+{ flakeInputs, config, ... }:
 {
   config =
   {
@@ -70,8 +70,8 @@
       family = "inet";
       content =
         let
-          srv2 = topInputs.self.config.dns."chn.moe".getAddress "tinc0.srv2-node0";
-          pc = topInputs.self.config.dns."chn.moe".getAddress "tinc0.pc";
+          srv2 = flakeInputs.self.config.dns."chn.moe".getAddress "tinc0.srv2-node0";
+          pc = flakeInputs.self.config.dns."chn.moe".getAddress "tinc0.pc";
         in
       ''
         chain prerouting {

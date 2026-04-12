@@ -2,7 +2,7 @@
 {
   pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
   {
-    inputs = { inherit (inputs.nixpkgs) lib; topInputs = inputs; };
+    inputs = { inherit (inputs.nixpkgs) lib; flakeInputs = inputs; };
     nixpkgs = { march = "haswell"; nixos = false; isKernel310 = true; };
   });
   python = pkgs.python312.withPackages (ps: with ps; [ phonopy sumo ]);

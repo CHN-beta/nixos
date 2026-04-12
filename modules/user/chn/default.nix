@@ -1,4 +1,4 @@
-{ localLib, config, lib, pkgs, topInputs, ... }:
+{ localLib, config, lib, pkgs, flakeInputs, ... }:
 {
   imports = localLib.findModules ./.;
   config = lib.mkIf (builtins.elem "chn" config.nixos.user.users)
@@ -38,7 +38,7 @@
                 (builtins.map (system: builtins.concatStringsSep "\n"
                   [
                     "decrypt-${system.name}() {"
-                    "  key=$(${cat} ${topInputs.self}/devices/cross/luks-manual/${system.name}.key \\"
+                    "  key=$(${cat} ${flakeInputs.self}/devices/cross/luks-manual/${system.name}.key \\"
                     "    | ${gpg} --decrypt)"
                     (builtins.concatStringsSep "\n" (builtins.map
                       (device: "  echo $key | ${ssh} root@initrd.${system.name}.chn.moe cryptsetup luksOpen "

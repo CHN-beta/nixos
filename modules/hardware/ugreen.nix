@@ -1,4 +1,4 @@
-{ lib, config, pkgs, topInputs, ... }:
+{ lib, config, pkgs, flakeInputs, ... }:
 {
   options.nixos.hardware.ugreen = lib.mkOption { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
   config = let inherit (config.nixos.hardware) ugreen; in lib.mkIf (ugreen != null)
@@ -6,7 +6,7 @@
     let
       cli = pkgs.ugreen-leds-cli.overrideAttrs (prev:
       {
-        src = topInputs.ugreen;
+        src = flakeInputs.ugreen;
         sourceRoot = "source/cli";
         nativeBuildInputs = prev.nativeBuildInputs or [] ++ [ pkgs.makeWrapper ];
         postInstall =
@@ -28,7 +28,7 @@
       kernelModule = pkgs.stdenv.mkDerivation
       {
         name = "ugreen-leds-kmod";
-        src = topInputs.ugreen;
+        src = flakeInputs.ugreen;
         sourceRoot = "source/kmod";
         nativeBuildInputs = kernel.moduleBuildDependencies;
         KERNELRELEASE = kernel.modDirVersion;

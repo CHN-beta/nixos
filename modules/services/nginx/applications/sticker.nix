@@ -1,4 +1,4 @@
-{ lib, config, pkgs, topInputs, ... }:
+{ lib, config, pkgs, flakeInputs, ... }:
 {
   options.nixos.services.nginx.applications.sticker = lib.mkOption
     { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
@@ -9,9 +9,9 @@
       root = builtins.toString (pkgs.runCommand "web" {}
       ''
         mkdir -p $out
-        cp -r ${topInputs.stickerpicker}/web/* $out
+        cp -r ${flakeInputs.stickerpicker}/web/* $out
         chmod -R +w $out
-        cp -r ${topInputs.sticker}/web/* $out
+        cp -r ${flakeInputs.sticker}/web/* $out
       '');
       index = [ "index.html" ];
     };

@@ -1,4 +1,4 @@
-{ lib, config, pkgs, topInputs, localLib, ... }:
+{ lib, config, pkgs, flakeInputs, localLib, ... }:
 {
   options.nixos.packages.nushell = lib.mkOption
     { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
@@ -16,7 +16,7 @@
             enable = true;
             extraConfig =
             ''
-              source ${topInputs.nu-scripts}/aliases/git/git-aliases.nu
+              source ${flakeInputs.nu-scripts}/aliases/git/git-aliases.nu
               $env.PATH = ($env.PATH | split row (char esep) | append "~/bin")
             '';
           };

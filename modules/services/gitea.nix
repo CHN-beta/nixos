@@ -1,4 +1,4 @@
-{ pkgs, lib, topInputs, config, ... }:
+{ pkgs, lib, flakeInputs, config, ... }:
 {
   options.nixos.services.gitea = lib.mkOption
   {
@@ -96,7 +96,7 @@
         {
           "/".proxy.upstream = "http://127.0.0.1:3002";
           "/robots.txt".static.root = builtins.toString
-            (pkgs.runCommand "robots.txt" {} "mkdir -p $out; cp ${topInputs.gitea-robots-txt} $out/robots.txt");
+            (pkgs.runCommand "robots.txt" {} "mkdir -p $out; cp ${flakeInputs.gitea-robots-txt} $out/robots.txt");
         };
         postgresql.instances.gitea = {};
       };

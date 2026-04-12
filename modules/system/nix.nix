@@ -52,18 +52,18 @@ inputs:
       {
         registry =
         {
-          nixpkgs.flake = inputs.topInputs.nixpkgs;
-          nixos.flake = inputs.topInputs.self;
-          nixpkgs-unstable.flake = inputs.topInputs.nixpkgs-unstable;
+          nixpkgs.flake = inputs.flakeInputs.nixpkgs;
+          nixos.flake = inputs.flakeInputs.self;
+          nixpkgs-unstable.flake = inputs.flakeInputs.nixpkgs-unstable;
         };
-        nixPath = [ "nixpkgs=${inputs.topInputs.nixpkgs}" ];
+        nixPath = [ "nixpkgs=${inputs.flakeInputs.nixpkgs}" ];
       };
       environment =
       {
         etc =
         {
-          "channels/nixpkgs".source = inputs.topInputs.nixpkgs.outPath;
-          "nixos".source = inputs.topInputs.self.outPath;
+          "channels/nixpkgs".source = inputs.flakeInputs.nixpkgs.outPath;
+          "nixos".source = inputs.flakeInputs.self.outPath;
         };
         variables.COMMA_NIXPKGS_FLAKE = "nixpkgs-unstable";
       };
