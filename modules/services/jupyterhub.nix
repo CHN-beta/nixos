@@ -14,7 +14,14 @@
       '';
       kernels =
       {
-        python3 = (pkgs.jupyter-kernel.override { python3 = config.nixos.packages.python; }).default.python3;
+        python = let env = config.nixos.packages.python; in
+        {
+          displayName = "Python";
+          argv = [ env.interpreter "-m" "ipykernel_launcher" "-f" "{connection_file}" ];
+          language = "python";
+          logo32 = "${env}/${env.sitePackages}/ipykernel/resources/logo-32x32.png";
+          logo64 = "${env}/${env.sitePackages}/ipykernel/resources/logo-64x64.png";
+        };
         root = config.nixos.packages.root.jupyterKernelDefinition;
       };
     };
