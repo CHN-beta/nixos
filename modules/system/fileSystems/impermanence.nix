@@ -21,9 +21,7 @@ inputs:
       {
         hideMounts = true;
         directories = [ "/var/db" "/var/lib" "/var/log" "/var/spool" "/var/backup" "/srv" ];
-        files = builtins.concatLists (builtins.map
-            (suf: builtins.map (f: "/etc/ssh/ssh_host_${f}_key${suf}") [ "ed25519" "rsa" ])
-            [ "" ".pub" ]);
+        files = builtins.map (f: "/etc/ssh/ssh_host_${f}_key") [ "ed25519" "rsa" ];
       };
       "/nix/rootfs/current" =
       {
