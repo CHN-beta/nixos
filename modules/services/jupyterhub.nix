@@ -12,11 +12,16 @@
       ''
         c.Authenticator.allowed_users = { ${builtins.concatStringsSep ", " users} }
       '';
-      # kernels =
-      #   # TODO: sync with system python environment
-      #   (pkgs.jupyter-kernel.create { definitions = pkgs.jupyter-kernel.default; })
-      #     // (config.nixos.packages.root.jupyterKernel or {});
+      kernels =
+      {
+        python3 = (pkgs.jupyter-kernel.override { python3 = config.nixos.packages.python; }).default.python3;
+        root = config.nixos.packages.root.jupyterKernelDefinition;
+      };
     };
-    nixos.services.nginx.https."jupyterhub.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:5374";
+    nixos =
+    {
+      services.nginx.https."jupyterhub.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:5374";
+      packages = { server = {}; desktopPython = {}; root = {}; };
+    };
   };
 }
