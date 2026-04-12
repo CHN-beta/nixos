@@ -1,8 +1,8 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.services.podman = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = null; };
-  config = let inherit (inputs.config.nixos.services) podman; in inputs.lib.mkIf (podman != null)
+  options.nixos.services.podman = lib.mkOption
+    { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
+  config = let inherit (config.nixos.services) podman; in lib.mkIf (podman != null)
   {
     virtualisation =
     {
@@ -18,12 +18,12 @@ inputs:
         dockerCompat = true;
         # Required for containers under podman-compose to be able to talk to each other.
         defaultNetwork.settings.dns_enabled = true;
-        extraPackages = [ inputs.pkgs.nftables ];
+        extraPackages = [ pkgs.nftables ];
       };
     };
     hardware.nvidia-container-toolkit =
     {
-      enable = inputs.lib.mkIf (inputs.config.nixos.system.nixpkgs.cuda != null) true;
+      enable = lib.mkIf (config.nixos.system.nixpkgs.cuda != null) true;
       # suppress warning, triggered when dc driver is used but datacenter is false (libfabric is disabled), 
       suppressNvidiaDriverAssertion = true;
     };

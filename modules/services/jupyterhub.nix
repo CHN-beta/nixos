@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, ... }:
 {
   options.nixos.services.jupyterhub = lib.mkOption
     { type = lib.types.nullOr (lib.types.submodule {}); default = null; };

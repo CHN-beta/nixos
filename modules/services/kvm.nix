@@ -1,17 +1,17 @@
-inputs:
+{ lib, config, pkgs, topInputs, ... }:
 {
-  options.nixos.services.kvm = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.kvm = lib.mkOption
   {
-    type = types.nullOr (types.submodule { options =
+    type = lib.types.nullOr (lib.types.submodule { options =
     {
-      nodatacow = mkOption { type = types.bool; default = false; };
+      nodatacow = lib.mkOption { type = lib.types.bool; default = false; };
     };});
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services) kvm; in inputs.lib.mkIf (kvm != null)
+  config = let inherit (config.nixos.services) kvm; in lib.mkIf (kvm != null)
   {
     nix.settings.system-features = [ "kvm" ];
-    boot = let inherit (inputs.config.nixos.hardware) cpu; in
+    boot = let inherit (config.nixos.hardware) cpu; in
     {
       kernelModules = { intel = [ "kvm-intel" ]; amd = []; }.${cpu};
       extraModprobeConfig = { intel = "options kvm_intel nested=1"; amd = ""; }.${cpu};
@@ -32,14 +32,17 @@ inputs:
     };
     environment =
     {
-      persistence."/nix/nodatacow".directories = inputs.lib.mkIf kvm.nodatacow
+      persistence."/nix/nodatacow".directories = lib.mkIf kvm.nodatacow
         [{ directory = "/var/lib/libvirt/images"; mode = "0711"; }];
-      systemPackages = with inputs.pkgs;
-        [ win-spice guestfs-tools virt-manager virt-viewer inputs.config.virtualisation.libvirtd.qemu.package ];
+      systemPackages = with pkgs;
+      [
+        win-spice guestfs-tools virt-manager virt-viewer
+        config.virtualisation.libvirtd.qemu.package
+      ];
     };
     systemd.mounts =
     [{
-      what = "${inputs.topInputs.nixvirt.lib.guest-install.virtio-win.iso}";
+      what = "${topInputs.nixvirt.lib.guest-install.virtio-win.iso}";
       where = "/var/lib/libvirt/images/virtio-win.iso";
       options = "bind";
       wantedBy = [ "local-fs.target" ];

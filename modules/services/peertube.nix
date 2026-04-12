@@ -1,14 +1,14 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.services.peertube = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.peertube = lib.mkOption
   {
-    type = types.nullOr (types.submodule { options =
+    type = lib.types.nullOr (lib.types.submodule { options =
     {
-      hostname = mkOption { type = types.nonEmptyStr; default = "peertube.chn.moe"; };
+      hostname = lib.mkOption { type = lib.types.nonEmptyStr; default = "peertube.chn.moe"; };
     };});
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services) peertube; in inputs.lib.mkIf (peertube != null)
+  config = let inherit (config.nixos.services) peertube; in lib.mkIf (peertube != null)
   {
     services.peertube =
     {
@@ -17,22 +17,22 @@ inputs:
       listenHttp = 5046;
       listenWeb = 443;
       enableWebHttps = true;
-      serviceEnvironmentFile = inputs.config.nixos.system.sops.templates."peertube/env".path;
-      secrets.secretsFile = inputs.config.nixos.system.sops.secrets."peertube/secrets".path;
+      serviceEnvironmentFile = config.nixos.system.sops.templates."peertube/env".path;
+      secrets.secretsFile = config.nixos.system.sops.secrets."peertube/secrets".path;
       configureNginx = true;
       database =
       {
         createLocally = true;
         host = "127.0.0.1";
-        passwordFile = inputs.config.nixos.system.sops.secrets."peertube/postgresql".path;
+        passwordFile = config.nixos.system.sops.secrets."peertube/postgresql".path;
       };
       redis =
       {
         host = "127.0.0.1";
         port = 7599;
-        passwordFile = inputs.config.nixos.system.sops.secrets."redis/peertube".path;
+        passwordFile = config.nixos.system.sops.secrets."redis/peertube".path;
       };
-      smtp.passwordFile = inputs.config.nixos.system.sops.secrets."peertube/smtp".path;
+      smtp.passwordFile = config.nixos.system.sops.secrets."peertube/smtp".path;
       settings.smtp = { host = "mail.chn.moe"; username = "bot@chn.moe"; from_address = "bot@chn.moe"; };
     };
     nixos =
@@ -41,14 +41,14 @@ inputs:
       {
         templates."peertube/env".content =
         ''
-          PT_INITIAL_ROOT_PASSWORD=${inputs.config.nixos.system.sops.placeholder."peertube/password"}
+          PT_INITIAL_ROOT_PASSWORD=${config.nixos.system.sops.placeholder."peertube/password"}
         '';
         secrets =
         {
-          "peertube/postgresql" = { owner = inputs.config.services.peertube.user; key = "postgresql/peertube"; };
+          "peertube/postgresql" = { owner = config.services.peertube.user; key = "postgresql/peertube"; };
           "peertube/password" = {};
-          "peertube/secrets".owner = inputs.config.services.peertube.user;
-          "peertube/smtp" = { owner = inputs.config.services.peertube.user; key = "mail/bot"; };
+          "peertube/secrets".owner = config.services.peertube.user;
+          "peertube/smtp" = { owner = config.services.peertube.user; key = "mail/bot"; };
         };
       };
       services =

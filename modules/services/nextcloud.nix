@@ -1,14 +1,14 @@
-inputs:
+{ lib, config, pkgs, topInputs, ... }:
 {
-  options.nixos.services.nextcloud = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.nextcloud = lib.mkOption
   {
-    type = types.nullOr (types.submodule { options =
+    type = lib.types.nullOr (lib.types.submodule { options =
     {
-      hostname = mkOption { type = types.nonEmptyStr; default = "nextcloud.chn.moe"; };
+      hostname = lib.mkOption { type = lib.types.nonEmptyStr; default = "nextcloud.chn.moe"; };
     };});
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services) nextcloud; in inputs.lib.mkIf (nextcloud != null)
+  config = let inherit (config.nixos.services) nextcloud; in lib.mkIf (nextcloud != null)
   {
     services.nextcloud =
     {
@@ -16,14 +16,14 @@ inputs:
       hostName = nextcloud.hostname;
       appstoreEnable = false;
       https = true;
-      package = inputs.pkgs.nextcloud32;
+      package = pkgs.nextcloud32;
       maxUploadSize = "10G";
       config =
       {
         dbtype = "pgsql";
-        dbpassFile = inputs.config.nixos.system.sops.secrets."nextcloud/postgresql".path;
+        dbpassFile = config.nixos.system.sops.secrets."nextcloud/postgresql".path;
         adminuser = "admin";
-        adminpassFile = inputs.config.nixos.system.sops.secrets."nextcloud/admin".path;
+        adminpassFile = config.nixos.system.sops.secrets."nextcloud/admin".path;
       };
       configureRedis = true;
       settings =
@@ -39,11 +39,11 @@ inputs:
         overwriteprotocol = "https";
         default_phone_region = "CN";
       };
-      secretFile = inputs.config.nixos.system.sops.templates."nextcloud/secret".path;
+      secretFile = config.nixos.system.sops.templates."nextcloud/secret".path;
       extraApps =
         let
-          version = inputs.lib.versions.major inputs.config.services.nextcloud.package.version;
-          info = builtins.fromJSON (builtins.readFile "${inputs.topInputs.nc4nix}/${version}.json");
+          version = lib.versions.major config.services.nextcloud.package.version;
+          info = builtins.fromJSON (builtins.readFile "${topInputs.nc4nix}/${version}.json");
           getInfo = package:
           {
             inherit (info.${package}) hash url description homepage;
@@ -56,7 +56,7 @@ inputs:
               in licenses.${originalLincense} or originalLincense;
           };
         in builtins.listToAttrs (builtins.map
-          (package: { name = package; value = inputs.pkgs.fetchNextcloudApp (getInfo package); })
+          (package: { name = package; value = pkgs.fetchNextcloudApp (getInfo package); })
           [ "phonetrack" "twofactor_webauthn" "calendar" ]);
     };
     nixos =
@@ -67,15 +67,15 @@ inputs:
         {
           content = builtins.toJSON
           {
-            redis.password = inputs.config.nixos.system.sops.placeholder."redis/nextcloud";
-            mail_smtppassword = inputs.config.nixos.system.sops.placeholder."mail/bot";
+            redis.password = config.nixos.system.sops.placeholder."redis/nextcloud";
+            mail_smtppassword = config.nixos.system.sops.placeholder."mail/bot";
           };
-          owner = inputs.config.users.users.nextcloud.name;
+          owner = config.users.users.nextcloud.name;
         };
         secrets =
         {
-          "nextcloud/postgresql" = { key = "postgresql/nextcloud"; owner = inputs.config.users.users.nextcloud.name; };
-          "nextcloud/admin".owner = inputs.config.users.users.nextcloud.name;
+          "nextcloud/postgresql" = { key = "postgresql/nextcloud"; owner = config.users.users.nextcloud.name; };
+          "nextcloud/admin".owner = config.users.users.nextcloud.name;
         };
       };
       services =

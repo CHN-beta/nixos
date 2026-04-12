@@ -1,18 +1,18 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.services.misskey.instances = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.misskey.instances = lib.mkOption
   {
-    type = types.attrsOf (types.submodule { options =
+    type = lib.types.attrsOf (lib.types.submodule { options =
     {
-      port = mkOption { type = types.ints.unsigned; default = 9726; };
-      redis.port = mkOption { type = types.ints.unsigned; default = 3545; };
-      hostname = mkOption { type = types.nonEmptyStr; default = "misskey.chn.moe"; };
+      port = lib.mkOption { type = lib.types.ints.unsigned; default = 9726; };
+      redis.port = lib.mkOption { type = lib.types.ints.unsigned; default = 3545; };
+      hostname = lib.mkOption { type = lib.types.nonEmptyStr; default = "misskey.chn.moe"; };
     };});
     default = {};
   };
-  config = let inherit (inputs.config.nixos.services) misskey; in
+  config = let inherit (config.nixos.services) misskey; in
   {
-    systemd = inputs.lib.mkMerge (builtins.map
+    systemd = lib.mkMerge (builtins.map
       (instance:
       {
         services."misskey-${instance.name}" = rec
@@ -22,7 +22,7 @@ inputs:
           requires = after;
           wantedBy = [ "multi-user.target" ];
           environment.MISSKEY_CONFIG_JSON =
-            inputs.config.nixos.system.sops.templates."misskey/${instance.name}.json".path;
+            config.nixos.system.sops.templates."misskey/${instance.name}.json".path;
           serviceConfig = rec
           {
             User = "misskey-${instance.name}";
@@ -37,13 +37,13 @@ inputs:
         tmpfiles.rules = let dir = "/var/lib/misskey/${instance.name}/files"; owner = "misskey-${instance.name}"; in
           [ "d ${dir} 0700 ${owner} ${owner}" "Z ${dir} - ${owner} ${owner}" ];
       })
-      (inputs.lib.attrsToList misskey.instances));
-    fileSystems = inputs.lib.mkMerge (builtins.map
+      (lib.attrsToList misskey.instances));
+    fileSystems = lib.mkMerge (builtins.map
       (instance:
       {
         "/var/lib/misskey/${instance.name}/work" =
         {
-          device = "${inputs.pkgs.localPackages.misskey}";
+          device = "${pkgs.localPackages.misskey}";
           options = [ "bind" "private" "x-gvfs-hide" "X-fstrim.notrim" ];
         };
         "/var/lib/misskey/${instance.name}/work/files" =
@@ -52,38 +52,38 @@ inputs:
           options = [ "bind" "private" "x-gvfs-hide" "X-fstrim.notrim" ];
         };
       })
-      (inputs.lib.attrsToList misskey.instances));
-    users = inputs.lib.mkMerge (builtins.map
+      (lib.attrsToList misskey.instances));
+    users = lib.mkMerge (builtins.map
       (instance:
       {
         users."misskey-${instance.name}" =
         {
-          uid = inputs.config.nixos.user.uid."misskey-${instance.name}";
+          uid = config.nixos.user.uid."misskey-${instance.name}";
           group = "misskey-${instance.name}";
           home = "/var/lib/misskey/${instance.name}";
           createHome = true;
           isSystemUser = true;
         };
-        groups."misskey-${instance.name}".gid = inputs.config.nixos.user.gid."misskey-${instance.name}";
+        groups."misskey-${instance.name}".gid = config.nixos.user.gid."misskey-${instance.name}";
       })
-      (inputs.lib.attrsToList misskey.instances));
+      (lib.attrsToList misskey.instances));
     nixos =
     {
       services =
       {
         redis.instances = builtins.listToAttrs (builtins.map
           (instance: { name = "misskey-${instance.name}"; value.port = instance.value.redis.port; })
-          (inputs.lib.attrsToList misskey.instances));
+          (lib.attrsToList misskey.instances));
         postgresql.instances = builtins.listToAttrs (builtins.map
           (instance: { name = "misskey_${builtins.replaceStrings [ "-" ] [ "_" ] instance.name}"; value = {}; })
-          (inputs.lib.attrsToList misskey.instances));
+          (lib.attrsToList misskey.instances));
         nginx.https = builtins.listToAttrs (builtins.map
           (instance: with instance.value;
           {
             name = hostname;
             value.location."/".proxy.upstream = "http://127.0.0.1:${toString port}";
           })
-          (inputs.lib.attrsToList misskey.instances));
+          (lib.attrsToList misskey.instances));
       };
       system.sops.templates = builtins.listToAttrs (builtins.map
         (instance:
@@ -93,8 +93,8 @@ inputs:
           {
             content =
               let
-                placeholder = inputs.config.nixos.system.sops.placeholder;
-                redis = inputs.config.nixos.services.redis.instances."misskey-${instance.name}";
+                placeholder = config.nixos.system.sops.placeholder;
+                redis = config.nixos.services.redis.instances."misskey-${instance.name}";
               in builtins.toJSON
               {
                 url = "https://${instance.value.hostname}/";
@@ -132,7 +132,7 @@ inputs:
             owner = "misskey-${instance.name}";
           };
         })
-        (inputs.lib.attrsToList misskey.instances));
+        (lib.attrsToList misskey.instances));
     };
   };
 }
