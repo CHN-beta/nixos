@@ -1,19 +1,19 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.system.initrd = let inherit (inputs.lib) mkOption types; in
+  options.nixos.system.initrd =
   {
-    sshd = mkOption { type = types.nullOr (types.submodule {}); default = null; };
-    network = mkOption
+    sshd = lib.mkOption { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
+    network = lib.mkOption
     {
-      type = types.nullOr (types.submodule { options =
+      type = lib.types.nullOr (lib.types.submodule { options =
       {
         # null: enable all interfaces configured in systemd.network
-        interfaces = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
+        interfaces = lib.mkOption { type = lib.types.nullOr (lib.types.listOf lib.types.nonEmptyStr); default = null; };
       };});
       default = null;
     };
   };
-  config = let inherit (inputs.config.nixos.system) initrd; in inputs.lib.mkMerge
+  config = let inherit (config.nixos.system) initrd; in lib.mkMerge
   [
     {
       boot =
@@ -23,7 +23,7 @@ inputs:
       };
     }
     (
-      inputs.lib.mkIf (initrd.sshd != null)
+      lib.mkIf (initrd.sshd != null)
       {
         boot.initrd.network.ssh =
           { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
@@ -31,11 +31,11 @@ inputs:
       }
     )
     (
-      inputs.lib.mkIf (initrd.network != null)
+      lib.mkIf (initrd.network != null)
       {
         assertions =
         [{
-          assertion = inputs.config.nixos.system.network.implementation == "systemd-networkd";
+          assertion = config.nixos.system.network.implementation == "systemd-networkd";
           message = "initrd network requires systemd networkd.";
         }];
         boot =
@@ -46,9 +46,9 @@ inputs:
             # resolved does not work in initrd, causing network.target to fail
             services.resolved.enable = false;
             systemd.network =
-              let inherit (inputs.config.nixos.system.network.settings) dhcp static bridge; in
+              let inherit (config.nixos.system.network.settings) dhcp static bridge; in
               let
-                networks = inputs.lib.unique
+                networks = lib.unique
                 (
                   dhcp ++ (builtins.attrNames static) ++ (builtins.attrNames bridge)
                   ++ (builtins.concatLists (builtins.map (network: network.interfaces) (builtins.attrValues bridge)))
@@ -57,7 +57,7 @@ inputs:
               in
               {
                 networks = builtins.listToAttrs (builtins.map
-                  (network: { name = "10-${network}"; value = inputs.config.systemd.network.networks."10-${network}"; })
+                  (network: { name = "10-${network}"; value = config.systemd.network.networks."10-${network}"; })
                   (builtins.filter
                     (network:
                       if initrd.network.interfaces == null then true
@@ -65,7 +65,7 @@ inputs:
                     )
                     networks));
                 netdevs = builtins.listToAttrs (builtins.map
-                  (netdev: { name = "10-${netdev}"; value = inputs.config.systemd.network.netdevs."10-${netdev}"; })
+                  (netdev: { name = "10-${netdev}"; value = config.systemd.network.netdevs."10-${netdev}"; })
                   (builtins.filter
                     (netdev:
                       if initrd.network.interfaces == null then true
