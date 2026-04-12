@@ -5,6 +5,15 @@
     let simpleSubmodule = lib.mkOption { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
     in
     {
+      python = lib.mkOption
+      {
+        type = lib.types.anything;
+        default =
+          let inherit (config.nixos.packages.packages) _pythonPackages _pythonEnvFlags;
+          in (pkgs.python3.withPackages (p: builtins.concatLists (builtins.map (f: f p) _pythonPackages)))
+            .override (prev: { makeWrapperArgs = prev.makeWrapperArgs or [] ++ _pythonEnvFlags; });
+        readOnly = true;
+      };
       packages =
       {
         _packages = lib.mkOption { type = lib.types.listOf lib.types.unspecified; default = []; };
@@ -22,10 +31,7 @@
       environment.systemPackages = with config.nixos.packages.packages;
         _packages
         ++ [
-          (
-            (pkgs.python3.withPackages (pythonPackages:
-              builtins.concatLists (builtins.map (packageFunction: packageFunction pythonPackages) _pythonPackages)))
-            .override (prev: { makeWrapperArgs = prev.makeWrapperArgs or [] ++ _pythonEnvFlags; }))
+          config.nixos.packages.python
           (pkgs.writeTextDir "share/prebuild-packages"
             (builtins.concatStringsSep "\n" (builtins.map builtins.toString _prebuildPackages)))
         ];
