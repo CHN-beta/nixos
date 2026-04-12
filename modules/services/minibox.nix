@@ -19,8 +19,8 @@
       {
         User = "minibox";
         Group = "minibox";
-        WorkingDirectory = "${pkgs.localPackages.minibox}";
-        ExecStart = "${pkgs.localPackages.minibox}/bin/minibox";
+        WorkingDirectory = "${pkgs.localPkgs.minibox}";
+        ExecStart = "${pkgs.localPkgs.minibox}/bin/minibox";
         CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
         AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
         Restart = "always";

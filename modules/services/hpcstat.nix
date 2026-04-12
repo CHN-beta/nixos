@@ -18,7 +18,7 @@ inputs:
             token = inputs.config.nixos.system.sops.secrets."telegram/token".path;
             chat = inputs.config.nixos.system.sops.secrets."telegram/user/chn".path;
             date = "${inputs.pkgs.coreutils}/bin/date";
-            hpcstat = "${inputs.pkgs.localPackages.hpcstat}/bin/hpcstat";
+            hpcstat = "${inputs.pkgs.localPkgs.hpcstat}/bin/hpcstat";
             ssh = "${inputs.pkgs.openssh}/bin/ssh -i ${key} -o StrictHostKeyChecking=no"
               + " -o ForwardAgent=yes -o AddKeysToAgent=yes";
             key = inputs.config.nixos.system.sops.secrets."hpcstat/key".path;

@@ -136,7 +136,7 @@ let
       prrte = prev.prrte.overrideAttrs (prev:
       {
         configureFlags = prev.configureFlags or [] ++ [ "--with-lsf" ];
-        buildInputs = prev.buildInputs or [] ++ [ final.localPackages.lsf final.libnsl ];
+        buildInputs = prev.buildInputs or [] ++ [ final.localPkgs.lsf final.libnsl ];
       });
       cpptrace = prev.cpptrace.overrideAttrs (prev: { doCheck = !final.stdenv.hostPlatform.isStatic; });
       range-v3 = prev.range-v3.overrideAttrs (prev:

@@ -42,9 +42,9 @@
       {
         _packages =
         [
-          localPackages.vasp.intel localPackages.vasp.vtst localPackages.vaspkit wannier90
-          (if config.nixos.system.nixpkgs.cuda != null then localPackages.vasp.nvidia else emptyDirectory)
-          localPackages.atomkit (lib.mkAfter localPackages.atat)
+          localPkgs.vasp.intel localPkgs.vasp.vtst localPkgs.vaspkit wannier90
+          (if config.nixos.system.nixpkgs.cuda != null then localPkgs.vasp.nvidia else emptyDirectory)
+          localPkgs.atomkit (lib.mkAfter localPkgs.atat)
         ];
         _pythonPackages = [(ps: with ps; [ py4vasp ])];
       };
@@ -55,7 +55,7 @@
     {
       nixos =
       {
-        packages.packages._packages = [ pkgs.localPackages.lumerical.lumerical.cmd ];
+        packages.packages._packages = [ pkgs.localPkgs.lumerical.lumerical.cmd ];
         services.lumericalLicenseManager = {};
       };
     })

@@ -6,7 +6,7 @@
     nixpkgs = { march = "haswell"; nixos = false; isKernel310 = true; };
   });
   python = pkgs.python312.withPackages (ps: with ps; [ phonopy sumo ]);
-  chn-bsub = pkgs.localPackages.chn-bsub.override
+  chn-bsub = pkgs.localPkgs.chn-bsub.override
     (prev: { bsubConfig = builtins.toFile "bsub.yaml" (builtins.toJSON (import ./bsub.nix)); });
   mkEnv = paths:
     let result = pkgs.symlinkJoin
@@ -18,7 +18,7 @@
     };
     in result;
   python-lyj =
-    let python = pkgs.pkgs-2411.python310.withPackages (_: [ pkgs.localPackages.pybinding ]);
+    let python = pkgs.pkgs-2411.python310.withPackages (_: [ pkgs.localPkgs.pybinding ]);
     in pkgs.runCommand "python-lyj" { }
     ''
       mkdir -p $out/bin
@@ -28,7 +28,7 @@
   {
     name = "vasp";
     paths =
-      let buildVaspFor = march: pkgs.localPackages.vasp.intel.override (prev: { suffix = march; oneapiArch = march; });
+      let buildVaspFor = march: pkgs.localPkgs.vasp.intel.override (prev: { suffix = march; oneapiArch = march; });
       in builtins.map buildVaspFor ([ "core-avx2" "core-avx-i" ] ++ (pkgs.lib.unique (builtins.map (v: v.march)
         (builtins.attrValues (import ./bsub.nix)))));
   };
@@ -49,8 +49,8 @@
   ]);
   jykang = mkEnv (with pkgs;
   [
-    gnuplot localPackages.vaspkit pv python-lyj sqlite zstd vasp chn-bsub potcar
-    localPackages.vasp.vtst wannier90 python
+    gnuplot localPkgs.vaspkit pv python-lyj sqlite zstd vasp chn-bsub potcar
+    localPkgs.vasp.vtst wannier90 python
   ]);
   hwang = mkEnv (with pkgs;
   [

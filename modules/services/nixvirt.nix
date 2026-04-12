@@ -273,7 +273,7 @@ inputs:
     security.wrappers.vm =
     {
       source =
-        let vm = inputs.pkgs.localPackages.vm.override
+        let vm = inputs.pkgs.localPkgs.vm.override
         {
           vmConfig = inputs.pkgs.writeText "vm.yaml" (builtins.toJSON
           ({

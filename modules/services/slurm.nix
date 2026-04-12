@@ -47,7 +47,7 @@
   };
   config = let inherit (config.nixos.services) slurm; in lib.mkIf slurm.enable
   (
-    let info = pkgs.localPackages.info.override
+    let info = pkgs.localPkgs.info.override
     {
       slurm = config.services.slurm.package;
       configFile = config.nixos.system.sops.templates."info.yaml".path;
@@ -295,7 +295,7 @@
         };
         nixos =
         {
-          packages.packages._packages = [(pkgs.localPackages.sbatch-tui.override
+          packages.packages._packages = [(pkgs.localPkgs.sbatch-tui.override
           {
             sbatchConfig = pkgs.writeText "sbatch.yaml" (builtins.toJSON
             ({

@@ -21,7 +21,7 @@ inputs:
           User = inputs.config.users.users.missgram.name;
           Group = inputs.config.users.users.missgram.group;
           ExecStart =
-            let forwarder = inputs.pkgs.localPackages.missgram.override
+            let forwarder = inputs.pkgs.localPkgs.missgram.override
               { configFile = inputs.config.nixos.system.sops.templates."missgram/config.yaml".path; };
             in "${forwarder}/bin/missgram";
         };

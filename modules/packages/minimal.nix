@@ -10,7 +10,7 @@
       [
         # basic tools
         beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq yq-go
-        ipfetch localPackages.pslist
+        ipfetch localPkgs.pslist
         fastfetch reptyr duc ncdu progress libva-utils ksh neofetch
         dateutils glib cryptsetup i2c-tools trash-cli cpuid
         stress-ng
@@ -49,7 +49,7 @@
         (if pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then nix-init else emptyDirectory)
         (octodns.withProviders (_: with octodns-providers; [ cloudflare ]))
         # stupid things
-        toilet dotacat localPackages.stickerpicker graph-easy tokei
+        toilet dotacat localPkgs.stickerpicker graph-easy tokei
         # shell
         # somehow fish does not compile on aarch64
         (if config.nixos.model.arch == "x86_64" then kitty else emptyDirectory)

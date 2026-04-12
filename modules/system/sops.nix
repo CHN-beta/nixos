@@ -25,7 +25,7 @@ inputs:
               inputs.lib.lists.findFirstIndex (x: x) null
               (builtins.map
                 (file: inputs.lib.hasAttrByPath (inputs.lib.splitString "/" submoduleInputs.config.key)
-                  (inputs.pkgs.localPackages.fromYaml (builtins.readFile file)))
+                  (inputs.pkgs.localPkgs.fromYaml (builtins.readFile file)))
                 inputs.config.nixos.system.sops.defaultSopsFile);
             in
               if secretFileIndex == null then builtins.abort "No sops file found for ${submoduleInputs.config.key}"
@@ -96,7 +96,7 @@ inputs:
           else if builtins.typeOf x == "list" then [[]]
           else builtins.abort "Invalid type for availableKeys, get type ${builtins.typeOf x}";
         in builtins.concatLists (builtins.map
-          (f: getPath (inputs.pkgs.localPackages.fromYaml (builtins.readFile f)))
+          (f: getPath (inputs.pkgs.localPkgs.fromYaml (builtins.readFile f)))
           inputs.config.nixos.system.sops.defaultSopsFile);
     };
   };

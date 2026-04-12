@@ -14,7 +14,7 @@
         # office
         pdfgrep ffmpeg-full hdf5 immich-cli
         # scientific computing
-        (if config.nixos.system.nixpkgs.cuda != null then localPackages.mumax else emptyDirectory)
+        (if config.nixos.system.nixpkgs.cuda != null then localPkgs.mumax else emptyDirectory)
         (if config.nixos.system.nixpkgs.cuda != null
           then (lammps.override { stdenv = cudaPackages.backendStdenv; }).overrideAttrs (prev:
           {
@@ -29,7 +29,7 @@
         # development
         gcc go rustc nodejs pnpm yarn tio
         # media
-        localPackages.asmroner
+        localPkgs.asmroner
       ];
       _pythonPackages = [(pythonPackages: with pythonPackages;
       [

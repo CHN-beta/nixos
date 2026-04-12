@@ -18,7 +18,7 @@
       volumes =
         let
           macAddress = builtins.replaceStrings [ ":" ] [ "" ] lumericalLicenseManager.macAddress;
-          license = pkgs.localPackages.lumerical.license.override { inherit macAddress; };
+          license = pkgs.localPkgs.lumerical.license.override { inherit macAddress; };
         in [ "${license}:/home/ansys_inc/shared_files/licensing/license_files/ansyslmd.lic" ];
     };
     nixos.services.podman = {};

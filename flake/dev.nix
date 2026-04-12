@@ -2,62 +2,62 @@
 {
   biu = pkgs.mkShell
   {
-    inputsFrom = [ pkgs.localPackages.biu ];
+    inputsFrom = [ pkgs.localPkgs.biu ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
   hpcstat = pkgs.mkShell
   {
-    inputsFrom = [ (pkgs.localPackages.hpcstat.override { version = null; }) ];
+    inputsFrom = [ (pkgs.localPkgs.hpcstat.override { version = null; }) ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
   sbatch-tui = pkgs.mkShell
   {
-    inputsFrom = [ pkgs.localPackages.sbatch-tui ];
+    inputsFrom = [ pkgs.localPkgs.sbatch-tui ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
   ufo = pkgs.mkShell
   {
-    inputsFrom = [ pkgs.localPackages.ufo ];
+    inputsFrom = [ pkgs.localPkgs.ufo ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
   chn-bsub = pkgs.mkShell
   {
-    inputsFrom = [ pkgs.localPackages.chn-bsub ];
+    inputsFrom = [ pkgs.localPkgs.chn-bsub ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
   };
   info = pkgs.mkShell
   {
-    inputsFrom = [ pkgs.localPackages.info ];
+    inputsFrom = [ pkgs.localPkgs.info ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
   vm = pkgs.mkShell
   {
-    inputsFrom = [ pkgs.localPackages.vm ];
+    inputsFrom = [ pkgs.localPkgs.vm ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
   xinli = pkgs.mkShell
   {
-    inputsFrom = [ pkgs.localPackages.xinli ];
+    inputsFrom = [ pkgs.localPkgs.xinli ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
   missgram = pkgs.mkShell
   {
-    inputsFrom = [ pkgs.localPackages.missgram ];
+    inputsFrom = [ pkgs.localPkgs.missgram ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];

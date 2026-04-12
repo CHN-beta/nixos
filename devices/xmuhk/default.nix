@@ -62,7 +62,7 @@ let
   xmuhk = pkgs.symlinkJoin
   {
     name = "xmuhk";
-    paths = (with pkgs; [ hello btop htop iotop pv localPackages.lumerical.lumerical.cmd ])
+    paths = (with pkgs; [ hello btop htop iotop pv localPkgs.lumerical.lumerical.cmd ])
       ++ [ lumericalLicenseManager ];
     postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
     passthru = { inherit pkgs; archive = pkgs.closureInfo { rootPaths = [ xmuhk.drvPath ]; }; };

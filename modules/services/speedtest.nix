@@ -13,7 +13,7 @@ inputs:
     nixos.services =
     {
       phpfpm.instances.speedtest = {};
-      nginx.https.${speedtest.hostname} = let pkg = inputs.pkgs.localPackages.speedtest; in
+      nginx.https.${speedtest.hostname} = let pkg = inputs.pkgs.localPkgs.speedtest; in
       {
         global.root = "${pkg}";
         location."~ ^.+?\.php(/.*)?$".php =

@@ -18,7 +18,7 @@ An overlay is provided through `outputs.overlays.default`, you could use it in y
     modules = [({pkgs, ...}: { config =
     {
       nixpkgs.overlays = [ inputs.chn-nixos.overlays.default ];
-      environment.systemPackages = [ pkgs.localPackages.vasp.intel ];
+      environment.systemPackages = [ pkgs.localPkgs.vasp.intel ];
     };})];
   };
 }

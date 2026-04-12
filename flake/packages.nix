@@ -12,16 +12,16 @@
       duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
       glaze = pkgs.pkgs-2411.pkgsStatic.glaze.overrideAttrs
         (prev: { cmakeFlags = prev.cmakeFlags ++ [ "-Dglaze_ENABLE_FUZZING=OFF" ]; });
-      biu = pkgs.pkgsStatic.localPackages.biu.override { inherit glaze; };
-    in pkgs.pkgsStatic.localPackages.hpcstat.override
+      biu = pkgs.pkgsStatic.localPkgs.biu.override { inherit glaze; };
+    in pkgs.pkgsStatic.localPkgs.hpcstat.override
     {
       inherit openssh duc biu;
       standalone = true;
       version = inputs.self.rev or "dirty";
       stdenv = pkgs.pkgsStatic.gcc14Stdenv;
     };
-  inherit (pkgs.localPackages.pkgsStatic) chn-bsub;
-  vaspberry = pkgs.pkgsStatic.localPackages.vaspberry.override
+  inherit (pkgs.localPkgs.pkgsStatic) chn-bsub;
+  vaspberry = pkgs.pkgsStatic.localPkgs.vaspberry.override
   {
     gfortran = pkgs.pkgsStatic.gfortran;
     lapack = pkgs.pkgsStatic.openblas;
@@ -52,6 +52,6 @@
         ((builtins.attrValues systems) ++ [ src inputListFile ]));
     in
     archive // { passthru = archive.passthru // systems // { inherit src; inputs = inputListFile; }; };
-  inherit (pkgs.pkgsCross.ucrt64.localPackages) xinli;
+  inherit (pkgs.pkgsCross.ucrt64.localPkgs) xinli;
 }
 // (builtins.mapAttrs (_: v: v.config.system.build.toplevel) inputs.self.outputs.nixosConfigurations)

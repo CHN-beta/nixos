@@ -5,6 +5,6 @@
   config = let inherit (config.nixos.services.nginx.applications) blog; in lib.mkIf (blog != null)
     {
       nixos.services.nginx.https."blog.chn.moe".location."/".static =
-        { root = "${pkgs.localPackages.blog}"; index = [ "index.html" ]; };
+        { root = "${pkgs.localPkgs.blog}"; index = [ "index.html" ]; };
     };
 }

@@ -60,14 +60,14 @@
         crow-translate zotero pandoc texliveFull poppler-utils pdftk
         pdfchain kdePackages.kruler kdePackages.okular
         ydict texstudio panoply pspp libreoffice-fresh ocrmypdf typst
-        rnote localPackages.xinli # paperwork
+        rnote localPkgs.xinli # paperwork
         # required by ltex-plus.vscode-ltex-plus
         ltex-ls ltex-ls-plus
         # matplot++ needs old gnuplot
         pkgs-2311.gnuplot
         # math, physics and chemistry
-        octaveFull ovito localPackages.vesta localPackages.v-sim mpi geogebra6
-        localPackages.ufo
+        octaveFull ovito localPkgs.vesta localPkgs.v-sim mpi geogebra6
+        localPkgs.ufo
         (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; })
         pkgs-2311.hdfview
         # media
