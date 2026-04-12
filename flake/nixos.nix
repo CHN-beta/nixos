@@ -6,7 +6,7 @@ let
   deviceModules = builtins.listToAttrs
   (
     (builtins.map
-      (n: { name = n; value = [ { config.nixos.model.hostname = n; } ../modules ../devices/${n} ../devices/cross ]; })
+      (n: { name = n; value = [ { config.nixos.model.hostname = n; } ../devices/${n} ]; })
       singles)
     ++ (builtins.concatLists (builtins.map
       (cluster: builtins.map
@@ -16,10 +16,8 @@ let
           value =
           [
             { config.nixos.model.cluster = { clusterName = cluster.name; nodeName = node; }; }
-            ../modules
             ../devices/${cluster.name}
             ../devices/${cluster.name}/${node}
-            ../devices/cross
           ];
         })
         (builtins.genList (n: "node${builtins.toString n}") cluster.value))
@@ -30,6 +28,6 @@ in builtins.mapAttrs
   {
     system = null;
     specialArgs = { flakeInputs = inputs; inherit localLib; };
-    modules = localLib.mkModules v;
+    modules = (localLib.mkModules v) ++ [ inputs.self.nixosModules.default ];
   })
   deviceModules
