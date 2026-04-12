@@ -1,4 +1,4 @@
-inputs:
+{ config, ... }:
 {
   config =
   {
@@ -24,6 +24,18 @@ inputs:
       coredump = { enable = true; extraConfig = "Storage=none"; };
       # seems useless
       shutdownRamfs.enable = false;
+    };
+    # accroding to systemd document, machine-id should be confidiential,
+    # although I doubt is it really a problem for sharing over the network
+    environment.etc.machine-id.source = config.nixos.system.sops.templates.machineId.path;
+    nixos.system.sops =
+    {
+      secrets.machineId = {};
+      templates.machineId =
+      {
+        content = config.nixos.system.sops.placeholder.machineId + "\n";
+        mode = "0444";
+      };
     };
   };
 }
