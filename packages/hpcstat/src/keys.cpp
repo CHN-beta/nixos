@@ -19,6 +19,7 @@ namespace hpcstat
     { "SUoYlxc2OVSH5YJqptKhl5o1Q2TW+PG+bBvpXfHNITI", { "qmx", "Mingxuan Qiu" } },
     { "gtibfPaDxwsV1q6kZbsNsy5TKL5rfLlK3fSM/fVQTAY", { "ccy", "Chaoye Chen" } },
     { "XWP5goo/Xj6FxvrG7lKSJ4otEBKUsSOF7V2brwpBcik", { "stq", "Tianqi Sun" } },
+    { "1fVbzvfs31NinizC2DwgBP19ydl1m4pW04hQtaeQpU4", { "wzy", "Zhengyu Wang" } },
     { "7bmG24muNsaAZkCy7mQ9Nf2HuNafmvUO+Hf1bId9zts", { "00", "Yaping Wu" } },
     { "dtx0QxdgFrXn2SYxtIRz43jIAH6rLgJidSdTvuTuews", { "01", "Jing Li" } },
     { "8crUO9u4JiVqw3COyjXfzZe87s6XZFhvi0LaY0Mv6bg", { "02", "Huahan Zhan" } },
