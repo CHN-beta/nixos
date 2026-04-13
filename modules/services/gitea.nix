@@ -63,8 +63,15 @@
       ''
         # 允许 blog.chn.moe 引用静态资源
         valid_referers blog.chn.moe;
+        set $allow_hotlink "";
+        if ($request_uri ~* "\.(jpg|jpeg|png|gif|ico|svg|css|js|woff|woff2|ttf)$") {
+                set $allow_hotlink "S";
+        }
         if ($invalid_referer = "") {
-          set $bypass_cookie 1;
+                set $allow_hotlink "''${allow_hotlink}R";
+        }
+        if ($allow_hotlink = "SR") {
+                set $bypass_cookie 1;
         }
 
         if ($http_user_agent ~* "git/|git-lfs/|curl/|Nix/") {
