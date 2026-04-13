@@ -18,7 +18,12 @@
           trust = [ "eno146" ];
         };
       };
-      services = { sshd.motd = true; beesd."/" = { hashTableSizeMB = 128; threads = 4; }; };
+      services =
+      {
+        sshd.motd = true;
+        beesd."/" = { hashTableSizeMB = 128; threads = 4; };
+        lumericalLicenseManager.macAddress = "34:48:ed:f8:59:9c";
+      };
     };
   };
 }

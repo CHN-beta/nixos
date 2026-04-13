@@ -23,6 +23,7 @@
       {
         beesd."/".threads = 4;
         kvm.nodatacow = true;
+        lumericalLicenseManager.macAddress = "80:18:44:e8:b1:20";
       };
     };
   };

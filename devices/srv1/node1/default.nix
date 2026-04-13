@@ -12,7 +12,11 @@
           trust = [ "eno2" ];
         };
       };
-      services.beesd."/".threads = 4;
+      services =
+      {
+        beesd."/".threads = 4;
+        lumericalLicenseManager.macAddress = "80:18:44:e2:6b:c1";
+      };
     };
   };
 }

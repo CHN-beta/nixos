@@ -62,7 +62,7 @@
         mariadb.mountFrom = "nodatacow";
         xray.client.xray.serverAddress = flakeInputs.self.config.dns."chn.moe".getAddress "vps9";
       };
-      packages.vasp = {};
+      packages = { vasp = {}; lumerical = {}; };
       user.users = [ "chn" "xll" "zem" "yjq" "gb" "wp" "hjp" "wm" "GROUPIII-1" "GROUPIII-2" "GROUPIII-3" "zgq" ];
     };
   };
