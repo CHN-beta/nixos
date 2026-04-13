@@ -16,6 +16,7 @@
             {
               "/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
               "/dev/mapper/ssd1"."/nix/ssd" = "/nix/ssd";
+              "/dev/mapper/single1"."/nix" = "/nix/backup/nix";
             };
           };
           swap = [ "/dev/mapper/swap" ];
@@ -28,6 +29,7 @@
             "/dev/disk/by-partlabel/nas-swap" = { mapper = "swap"; ssd = true; };
             "/dev/disk/by-partlabel/nas-ssd1" = { mapper = "ssd1"; ssd = true; };
             "/dev/disk/by-partlabel/nas-ssd2" = { mapper = "ssd2"; ssd = true; };
+            "/dev/disk/by-partlabel/nas-single1".mapper = "single1";
           };
         };
         initrd.sshd = {};
@@ -50,7 +52,11 @@
           xray.serverAddress = flakeInputs.self.config.dns."chn.moe".getAddress "vps9";
           coredns = { extraInterfaces = [ "enp3s0" ]; hosts."git.chn.moe" = "127.0.0.1"; };
         };
-        beesd."/".hashTableSizeMB = 10 * 128;
+        beesd =
+        {
+          "/".hashTableSizeMB = 10 * 128;
+          "/nix/backup/nix".hashTableSizeMB = 3 * 128;
+        };
         postgresql.mountFrom = "ssd";
         mariadb.mountFrom = "ssd";
         rsshub = {};
