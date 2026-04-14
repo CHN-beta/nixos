@@ -57,37 +57,24 @@
           "cron.gc_lfs" = { ENABLED = true; SCHEDULE = "@monthly"; NUMBER_TO_CHECK_PER_REPO = 0; };
         };
       };
-      # prevent AI web crawlers
-      # https://her.esy.fun/posts/0031-how-i-protect-my-forgejo-instance-from-ai-web-crawlers/index.html
-      nginx.virtualHosts."https:${gitea.hostname}".locations."/".extraConfigPre =
-      ''
-        # 允许 blog.chn.moe 引用静态资源
-        valid_referers blog.chn.moe;
-        set $allow_hotlink "";
-        if ($request_uri ~* "\.(jpg|jpeg|png|gif|ico|svg|css|js|woff|woff2|ttf)$") {
-                set $allow_hotlink "S";
-        }
-        if ($invalid_referer = "") {
-                set $allow_hotlink "''${allow_hotlink}R";
-        }
-        if ($allow_hotlink = "SR") {
-                set $bypass_cookie 1;
-        }
-
-        if ($http_user_agent ~* "git/|git-lfs/|curl/|Nix/") {
-          set $bypass_cookie 1;
-        }
-        if ($cookie_Yogsototh_opens_the_door = "1") {
-          set $bypass_cookie 1;
-        }
-        if ($request_method != "GET") {
-          set $bypass_cookie 1;
-        }
-        if ($bypass_cookie != 1) {
-          add_header Content-Type text/html always;
-          return 418 '<script>document.cookie = "Yogsototh_opens_the_door=1; Path=/;"; window.location.reload();</script>';
-        }
-      '';
+      anubis.instances.gitea =
+      {
+        settings =
+        {
+          OG_PASSTHROUGH = true;
+          TARGET = "http://127.0.0.1:3002";
+          BIND_NETWORK = "tcp";
+          BIND = "127.0.0.1:7757";
+          WEBMASTER_EMAIL = "chn@chn.moe";
+          SERVE_ROBOTS_TXT = true;
+          METRICS_BIND = "/run/anubis/anubis-gitea/anubis-metrics.sock";
+        };
+        botPolicy.bots =
+        [
+          { name = "allow-blog-referer"; action = "ALLOW"; headers_regex.Referer = ''.*blog\.chn\.moe.*''; }
+          { import = "(data)/meta/default-config.yaml"; }
+        ];
+      };
     };
     nixos =
     {
@@ -101,7 +88,7 @@
       {
         nginx.https.${gitea.hostname}.location =
         {
-          "/".proxy.upstream = "http://127.0.0.1:3002";
+          "/".proxy.upstream = "http://127.0.0.1:7757";
           "/robots.txt".static.root = builtins.toString
             (pkgs.runCommand "robots.txt" {} "mkdir -p $out; cp ${flakeInputs.gitea-robots-txt} $out/robots.txt");
         };
