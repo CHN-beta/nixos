@@ -55,7 +55,7 @@
   jykang = mkEnv (with pkgs;
   [
     gnuplot localPkgs.vaspkit pv python-lyj sqlite zstd vasp chn-bsub potcar
-    localPkgs.vasp.vtst wannier90 python hpcstat
+    localPkgs.vasp.vtst wannier90 python
   ]);
   hwang = mkEnv (with pkgs;
   [
