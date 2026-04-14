@@ -36,7 +36,6 @@
           DATABASE_URL=postgresql://minibox:${placeholder."postgresql/minibox"}@localhost:5432/minibox
           ADMIN_PASSWORD=${placeholder."minibox/admin"}
           SESSION_SECRET=${placeholder."minibox/session"}
-          PORT=6240
         '';
         secrets = lib.genAttrs' [ "admin" "session" ] (n: lib.nameValuePair "minibox/${n}" {});
       };

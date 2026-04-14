@@ -6,9 +6,9 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "next dev --port ${PORT:-3000}",
+    "dev": "next dev --port 6240",
     "build": "next build",
-    "start": "next start --port ${PORT:-3000}",
+    "start": "next start --port 6240",
     "lint": "eslint"
   },
   "dependencies": {
