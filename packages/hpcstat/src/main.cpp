@@ -181,7 +181,6 @@ int main(int argc, const char** argv)
       if (auto jobs = sql::check_job_status(); !jobs) return 1;
       else if (!push::push(*jobs)) return 1;
     }
-    else if (args[1] == "version") { std::cout << HPCSTAT_VERSION << std::endl; }
     else if (args[1] == "diskstat")
       { if (!disk::stat()) { std::cerr << "Failed to collect disk usage statistic.\n"; return 1; } }
     else { std::cerr << "Unknown command.\n"; return 1; }

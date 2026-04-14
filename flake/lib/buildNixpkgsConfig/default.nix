@@ -194,6 +194,7 @@ let
     ];
     kernel310Fix = [(final: prev: inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
     {
+      isKernel310 = true;
       linuxHeaders = prev.linuxHeaders.overrideAttrs (prev:
       {
         version = "3.10.108";
@@ -295,6 +296,7 @@ let
         configureFlags = prev.configureFlags or [] ++ [ "--disable-pidwait" ];
         patches = prev.patches or [] ++ [ ./procps.patch ];
       });
+      duc = prev.duc.override { enableCairo = false; };
     })];
   };
 in platformConfig //

@@ -42,6 +42,11 @@
     mkdir -p $out/share
     ln -s ${inputs.self.src.vaspkit.potcar} $out/share/potcar
   '';
+  hpcstat =
+    let openssh = (pkgs.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
+      (prev: { doCheck = false; patches = prev.patches ++ [ ./openssh.patch ];});
+    in pkgs.localPkgs.hpcstat.override
+      { inherit openssh; dataDir = "/data/gpfs01/jykang/linwei/chn/software/hpcstat/var/lib/hpcstat"; };
 
   wlin = mkEnv (with pkgs;
   [
@@ -50,7 +55,7 @@
   jykang = mkEnv (with pkgs;
   [
     gnuplot localPkgs.vaspkit pv python-lyj sqlite zstd vasp chn-bsub potcar
-    localPkgs.vasp.vtst wannier90 python
+    localPkgs.vasp.vtst wannier90 python hpcstat
   ]);
   hwang = mkEnv (with pkgs;
   [

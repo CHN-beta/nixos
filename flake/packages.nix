@@ -5,21 +5,6 @@
     inputs = { inherit (inputs.nixpkgs) lib; flakeInputs = inputs; };
     nixpkgs = { march = null; nixos = false; };
   });
-  hpcstat =
-    let
-      openssh = (pkgs.pkgsStatic.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs
-        (prev: { doCheck = false; patches = prev.patches ++ [ ../packages/hpcstat/openssh.patch ];});
-      duc = pkgs.pkgsStatic.duc.override { enableCairo = false; cairo = null; pango = null; };
-      glaze = pkgs.pkgs-2411.pkgsStatic.glaze.overrideAttrs
-        (prev: { cmakeFlags = prev.cmakeFlags ++ [ "-Dglaze_ENABLE_FUZZING=OFF" ]; });
-      biu = pkgs.pkgsStatic.localPkgs.biu.override { inherit glaze; };
-    in pkgs.pkgsStatic.localPkgs.hpcstat.override
-    {
-      inherit openssh duc biu;
-      standalone = true;
-      version = inputs.self.rev or "dirty";
-      stdenv = pkgs.pkgsStatic.gcc14Stdenv;
-    };
   inherit (pkgs.localPkgs.pkgsStatic) chn-bsub;
   vaspberry = pkgs.pkgsStatic.localPkgs.vaspberry.override
   {

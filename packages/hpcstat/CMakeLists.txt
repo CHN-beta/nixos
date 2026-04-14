@@ -10,8 +10,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-set(HPCSTAT_VERSION "unknown" CACHE STRING "Version of the hpcstat")
-
 find_package(Boost REQUIRED COMPONENTS url)
 find_package(SqliteOrm REQUIRED)
 find_package(nlohmann_json REQUIRED)
@@ -28,7 +26,6 @@ target_compile_options(hpcstat PRIVATE "-std=c++26")
 target_include_directories(hpcstat PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(hpcstat PRIVATE Boost::url sqlite_orm::sqlite_orm nlohmann_json::nlohmann_json date::date
   date::date-tz httplib::httplib termcolor::termcolor biu::biu OpenXLSX::OpenXLSX)
-target_compile_definitions(hpcstat PRIVATE HPCSTAT_VERSION="${HPCSTAT_VERSION}")
 
 install(TARGETS hpcstat RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 install(DIRECTORY share/ DESTINATION ${CMAKE_INSTALL_DATADIR}/hpcstat)

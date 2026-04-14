@@ -4,6 +4,7 @@ enable_testing()
 include(GNUInstallDirs)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
+option(BIU_KERNEL_310 "Build with kernel 3.10 fix" OFF)
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message("Setting build type to 'Release' as none was specified.")
@@ -45,6 +46,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif()
 target_compile_features(biu PUBLIC cxx_std_23)
 target_compile_options(biu PUBLIC -Wno-gnu-string-literal-operator-template)
+if(BIU_KERNEL_310)
+  target_compile_definitions(biu PUBLIC BOOST_PROCESS_V2_DISABLE_NOTIFY_FORK)
+endif()
 install(TARGETS biu EXPORT biuTargets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
