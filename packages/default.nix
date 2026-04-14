@@ -137,7 +137,7 @@ inputs: rec
     phono3py = python3Packages.callPackage ./phono3py.nix { src = inputs.flakeInputs.phono3py; };
     brokenaxes = python3Packages.callPackage ./brokenaxes.nix { src = inputs.flakeInputs.brokenaxes; };
   };
-  minibox = inputs.pkgs.callPackage ./minibox { inherit mkPnpmPackage; };
+  minibox = inputs.pkgs.callPackage ./minibox {};
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}

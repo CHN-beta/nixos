@@ -20,7 +20,7 @@
         User = "minibox";
         Group = "minibox";
         WorkingDirectory = "${pkgs.localPkgs.minibox}";
-        ExecStart = "${pkgs.localPkgs.minibox}/bin/minibox";
+        ExecStart = "${pkgs.nodejs}/bin/node ${pkgs.localPkgs.minibox}/server.js";
         CapabilityBoundingSet = [ "CAP_NET_BIND_SERVICE" ];
         AmbientCapabilities = [ "CAP_NET_BIND_SERVICE" ];
         Restart = "always";
@@ -36,6 +36,7 @@
           DATABASE_URL=postgresql://minibox:${placeholder."postgresql/minibox"}@localhost:5432/minibox
           ADMIN_PASSWORD=${placeholder."minibox/admin"}
           SESSION_SECRET=${placeholder."minibox/session"}
+          PORT=6240
         '';
         secrets = lib.genAttrs' [ "admin" "session" ] (n: lib.nameValuePair "minibox/${n}" {});
       };
