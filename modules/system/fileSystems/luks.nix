@@ -16,19 +16,22 @@
     };});
     default = {};
   };
-  config = let inherit (config.nixos.system.fileSystems) luks; in { boot.initrd =
+  config = let inherit (config.nixos.system.fileSystems) luks; in
   {
-    luks.devices = luks
+    boot.initrd.luks.devices = luks
       |> (lib.mapAttrs' (n: v: lib.nameValuePair v.mapper
         {
           device = n;
           allowDiscards = v.ssd;
           bypassWorkqueues = v.ssd;
+          # otherwise systemd complains: PKCS#11 mode selected but no key file specified, refusing. 
+          # keyFile = "none";
           crypttabExtraOpts =
           [
             "x-initrd.attach"
-            { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=pkcs11:token=YubiKey%20LUKS"; }.${v.token}
+            # { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=pkcs11:token=YubiKey%20LUKS"; }.${v.token}
+            { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=auto"; }.${v.token}
           ];
         }));
-  };};
+  };
 }

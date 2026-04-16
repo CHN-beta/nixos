@@ -10,7 +10,11 @@
       {
         contents."/etc/pkcs11/modules/opensc.module".source =
           config.environment.etc."pkcs11/modules/opensc.module".source;
-        storePaths = [ pkgs.opensc ];
+        storePaths = with pkgs;
+        [
+          opensc p11-kit pcsclite pcsclite.lib
+          "${config.boot.initrd.systemd.package}/lib/cryptsetup/libcryptsetup-token-systemd-pkcs11.so"
+        ];
         tmpfiles.settings."10-pcscd"."/run/pcscd".d.mode = "0755";
       };
     };
