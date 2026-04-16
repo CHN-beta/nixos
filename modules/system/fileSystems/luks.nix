@@ -31,6 +31,7 @@
             crypttabExtraOpts =
             [
               "x-initrd.attach"
+              "token-timeout=1800"
               # { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=pkcs11:token=YubiKey%20LUKS"; }.${v.token}
               { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=auto"; }.${v.token}
             ];
