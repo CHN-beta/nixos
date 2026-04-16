@@ -26,7 +26,6 @@
           default = null;
         };
         rewriteHttps = lib.mkOption { type = lib.types.bool; default = true; };
-        tlsCert = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = null; };
         extraConfig = lib.mkOption { type = lib.types.nullOr lib.types.str; default = null; };
       };
       listen = lib.mkOption
@@ -214,11 +213,7 @@
               # do not automatically add http2 listen
               http2 = false;
               onlySSL = true;
-              useACMEHost = lib.mkIf (site.value.global.tlsCert == null) site.name;
-              sslCertificate = lib.mkIf (site.value.global.tlsCert != null)
-                "${site.value.global.tlsCert}/fullchain.pem";
-              sslCertificateKey = lib.mkIf (site.value.global.tlsCert != null)
-                "${site.value.global.tlsCert}/privkey.pem";
+              useACMEHost = site.name;
               locations = builtins.listToAttrs (builtins.map
                 (location:
                 {
