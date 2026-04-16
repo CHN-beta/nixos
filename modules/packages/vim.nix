@@ -1,8 +1,6 @@
-{ lib, config, pkgs, ... }:
+{ config, pkgs, ... }:
 {
-  options.nixos.packages.vim = lib.mkOption
-    { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
-  config = let inherit (config.nixos.packages) vim; in lib.mkIf (vim != null)
+  config =
   {
     nixos.user.sharedModules =
     [{

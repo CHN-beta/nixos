@@ -1,8 +1,6 @@
-{ lib, config, pkgs, ... }:
+{ config, pkgs, ... }:
 {
-  options.nixos.packages.minimal = lib.mkOption
-    { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
-  config = let inherit (config.nixos.packages) minimal; in lib.mkIf (minimal != null)
+  config =
   {
     environment.systemPackages = with pkgs;
     [
@@ -60,6 +58,7 @@
       command-not-found.enable = false;
       autojump.enable = true;
       mosh.enable = true;
+      gnupg.agent.enable = true;
     };
     services =
     {

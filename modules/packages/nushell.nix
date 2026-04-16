@@ -1,8 +1,6 @@
-{ lib, config, pkgs, flakeInputs, localLib, ... }:
+{ pkgs, flakeInputs, localLib, ... }:
 {
-  options.nixos.packages.nushell = lib.mkOption
-    { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
-  config = let inherit (config.nixos.packages) nushell; in lib.mkIf (nushell != null)
+  config =
   {
     environment.systemPackages = [ pkgs.nushell ];
     nixos.user.sharedModules =

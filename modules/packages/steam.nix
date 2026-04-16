@@ -1,11 +1,6 @@
 { lib, config, pkgs, ... }:
 {
-  options.nixos.packages.steam = lib.mkOption
-  {
-    type = lib.types.nullOr (lib.types.submodule {});
-    default = if config.nixos.model.type == "desktop" then {} else null;
-  };
-  config = let inherit (config.nixos.packages) steam; in lib.mkIf (steam != null)
+  config = lib.mkIf (config.nixos.model.type == "desktop")
   {
     programs.steam =
     {

@@ -1,8 +1,6 @@
-{ lib, config, pkgs, ... }:
+{ pkgs, ... }:
 {
-  options.nixos.packages.zellij = lib.mkOption
-    { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
-  config = let inherit (config.nixos.packages) zellij; in lib.mkIf (zellij != null)
+  config =
   {
     environment.systemPackages = [ pkgs.zellij ];
     nixos.user.sharedModules =

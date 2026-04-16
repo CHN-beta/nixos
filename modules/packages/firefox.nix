@@ -1,11 +1,6 @@
 { lib, config, pkgs, flakeInputs, ... }:
 {
-  options.nixos.packages.firefox = lib.mkOption
-  {
-    type = lib.types.nullOr (lib.types.submodule {});
-    default = if config.nixos.model.type == "desktop" then {} else null;
-  };
-  config = let inherit (config.nixos.packages) firefox; in lib.mkIf (firefox != null)
+  config = lib.mkIf (config.nixos.model.type == "desktop")
   {
     # still enable global firefox, to install language packs
     programs.firefox =

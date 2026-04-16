@@ -1,14 +1,9 @@
 { lib, config, pkgs, ... }:
 {
-  options.nixos.packages.vscode = lib.mkOption
+  config = lib.mkIf (config.nixos.model.type == "desktop")
   {
-    type = lib.types.nullOr (lib.types.submodule {});
-    default = if config.nixos.model.type == "desktop" then {} else null;
-  };
-  config = let inherit (config.nixos.packages) vscode; in lib.mkIf (vscode != null)
-  {
-    nixos.user.sharedModules =
-    [(hmInputs: {
+    nixos.user.sharedModules = [(hmInputs:
+    {
       config.programs.vscode = lib.mkIf (hmInputs.config.home.username != "root")
       {
         enable = true;

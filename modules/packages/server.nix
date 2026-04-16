@@ -1,11 +1,6 @@
 { lib, config, pkgs, ... }:
 {
-  options.nixos.packages.server = lib.mkOption
-  {
-    type = lib.types.nullOr (lib.types.submodule {});
-    default = if builtins.elem config.nixos.model.type [ "server" "desktop" ] then {} else null;
-  };
-  config = let inherit (config.nixos.packages) server; in lib.mkIf (server != null)
+  config = lib.mkIf (builtins.elem config.nixos.model.type [ "server" "desktop" ])
   {
     environment.systemPackages = with pkgs;
     [

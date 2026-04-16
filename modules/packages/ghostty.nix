@@ -1,7 +1,6 @@
-{ lib, pkgs, config, ... }:
+{ pkgs, ... }:
 {
-  options.nixos.packages.ghostty = lib.mkOption { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
-  config = let inherit (config.nixos.packages) ghostty; in lib.mkIf (ghostty != null)
+  config =
   {
     nixos.user.sharedModules =
     [{
