@@ -17,7 +17,6 @@
       packages =
       {
         _pythonPackages = lib.mkOption { type = lib.types.listOf lib.types.unspecified; default = []; };
-        _prebuildPackages = lib.mkOption { type = lib.types.listOf lib.types.unspecified; default = []; };
         _pythonEnvFlags = lib.mkOption { type = lib.types.listOf lib.types.nonEmptyStr; default = []; };
         _vscodeEnvFlags = lib.mkOption { type = lib.types.listOf lib.types.nonEmptyStr; default = []; };
       };
@@ -26,14 +25,7 @@
       [ "vasp" "mathematica" "lumerical" "flatpak" "android-studio" ]));
   config = lib.mkMerge
   [
-    {
-      environment.systemPackages = with config.nixos.packages.packages;
-      [
-        config.nixos.packages.python
-        (pkgs.writeTextDir "share/prebuild-packages"
-          (builtins.concatStringsSep "\n" (builtins.map builtins.toString _prebuildPackages)))
-      ];
-    }
+    { environment.systemPackages = [ config.nixos.packages.python ]; }
     (lib.mkIf (config.nixos.packages.vasp != null)
     {
       environment.systemPackages = with pkgs;
