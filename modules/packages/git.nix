@@ -18,6 +18,7 @@
         receive.denyCurrentBranch = "warn"; # 允许 push 到非 bare 的仓库
         merge.ours.driver = true; # 允许 .gitattributes 中设置的 merge=ours 生效
         advice.addIgnoredFile = false; # 关闭 add 忽略文件时的提示
+        commit.verbose = true; # always show diff when commit, even if no -v is given
       };
     };
   };
