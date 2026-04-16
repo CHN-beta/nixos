@@ -9,6 +9,21 @@
       {
         fileSystems =
         {
+          # windows partitions:
+          #   /dev/nvme0n1p3, esp
+          #   /dev/nvme0n1p4, ntfs
+          # linux partition:
+          #   esp: /dev/nvme0n1p1 or /dev/disk/by-partlabel/pc-boot
+          #   nix: /nix/{store,var,remote} are mounted from:
+          #     /dev/mapper/tf2, btrfs metadata, decrypted from:
+          #       /dev/nvme0n1p5 or /dev/disk/by-partlabel/pc-tf2, luks
+          #     /dev/mapper/tf1, btrfs data, decrypted from:
+          #       /dev/disk/by-uuid/e6764d00-1132-49bc-b321-9a195ba09ea3, bcache, ensembled from:
+          #         /dev/nvme0n1p6, bcache cache device
+          #         /dev/mmcblk0p1, bcache backend device
+          #   anything else: mounted from:
+          #     /dev/mapper/root1, btrfs, decrypted from:
+          #       /dev/nvme0n1p2 or /dev/disk/by-partlabel/pc-root1, luks
           mount =
           {
             vfat."/dev/disk/by-partlabel/pc-boot" = "/boot";
