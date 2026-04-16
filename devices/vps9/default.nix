@@ -16,7 +16,7 @@
             };
           };
           swap = [ "/nix/swap/swap" ];
-          luks."/dev/disk/by-partlabel/vps9-root" = { mapper = "root"; ssd = true; token = "pkcs11"; };
+          luks."/dev/disk/by-partlabel/vps9-root" = { mapper = "root"; ssd = true; };
         };
         grub.installDevice = "/dev/disk/by-path/pci-0000:06:0a.0";
         nixpkgs.march = "znver3";

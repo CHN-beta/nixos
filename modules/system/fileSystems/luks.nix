@@ -12,7 +12,6 @@
       # rm pubkey_9a.pem
       # systemd-cryptenroll --pkcs11-token-uri=list
       # sudo systemd-cryptenroll --pkcs11-token-uri=pkcs11:token=YubiKey%20LUKS /dev/nvme0n1p2
-      token = lib.mkOption { type = lib.types.enum [ "fido2" "pkcs11" ]; default = "fido2"; };
     };});
     default = {};
   };
@@ -26,15 +25,7 @@
             device = n;
             allowDiscards = v.ssd;
             bypassWorkqueues = v.ssd;
-            # otherwise systemd complains: PKCS#11 mode selected but no key file specified, refusing. 
-            # keyFile = "none";
-            crypttabExtraOpts =
-            [
-              "x-initrd.attach"
-              "token-timeout=1800"
-              # { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=pkcs11:token=YubiKey%20LUKS"; }.${v.token}
-              { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=auto"; }.${v.token}
-            ];
+            crypttabExtraOpts = [ "x-initrd.attach" "token-timeout=1800" "fido2-device=auto" "pkcs11-uri=auto" ];
           }));
       systemd = lib.mkIf (luks != {})
       {
