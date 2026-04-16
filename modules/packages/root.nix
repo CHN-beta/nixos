@@ -22,10 +22,10 @@
   };
   config = let inherit (config.nixos.packages) root; in lib.mkIf (root != null)
   {
+    environment.systemPackages =  [ pkgs.root ];
     nixos.packages.packages =
       let jupyterKernel = pkgs.jupyter-kernel.create { definitions.root = root.jupyterKernelDefinition; }; in
       {
-        _packages = [ pkgs.root ];
         _pythonPackages = [(pythonPackages: with pythonPackages; [ metakernel notebook ])];
         _pythonEnvFlags =
           [ "--prefix JUPYTER_PATH : ${jupyterKernel}" "--suffix NIX_PYTHONPATH : ${pkgs.root}/lib" ];

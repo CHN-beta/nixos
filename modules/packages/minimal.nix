@@ -4,58 +4,55 @@
     { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
   config = let inherit (config.nixos.packages) minimal; in lib.mkIf (minimal != null)
   {
-    nixos.packages.packages =
-    {
-      _packages = with pkgs;
-      [
-        # basic tools
-        beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq yq-go
-        ipfetch localPkgs.pslist
-        fastfetch reptyr duc ncdu progress libva-utils ksh neofetch
-        dateutils glib cryptsetup i2c-tools trash-cli cpuid
-        stress-ng
-        (if config.nixos.system.nixpkgs.cuda == null then emptyDirectory else gpu-burn)
-        # lsxx
-        pciutils usbutils lshw util-linux lsof dmidecode lm_sensors hwloc
-        acpica-tools ethtool
-        # top
-        iotop iftop htop powertop s-tui
-        # editor
-        nano bat
-        # downloader
-        wget aria2 curl yt-dlp ffsend b4
-        # file manager
-        tree eza trash-cli lsd broot file xdg-ninja mlocate
-        # compress
-        pigz upx unzip zip lzip p7zip rpm
-        (if pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then rar else emptyDirectory)
-        # file system management
-        sshfs e2fsprogs compsize exfatprogs
-        # disk management
-        smartmontools hdparm gptfdisk
-        (if pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then megacli else emptyDirectory)
-        # encryption and authentication
-        apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f
-        yubico-piv-tool libfido2 gnutls opensc
-        # networking
-        ipset iptables iproute2 dig nettools traceroute tcping-go whois
-        tcpdump nmap inetutils wireguard-tools openvpn
-        parted xray iw
-        # nix tools
-        nix-output-monitor nix-tree ssh-to-age nix-inspect
-        # development
-        gdb try rr hexo-cli gh hugo
-        # build failed on aarch64
-        (if pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then nix-init else emptyDirectory)
-        (octodns.withProviders (_: with octodns-providers; [ cloudflare ]))
-        # stupid things
-        toilet dotacat localPkgs.stickerpicker graph-easy tokei
-        # shell
-        # somehow fish does not compile on aarch64
-        (if config.nixos.model.arch == "x86_64" then kitty else emptyDirectory)
-      ]
-        ++ (with config.boot.kernelPackages; [ cpupower usbip ]);
-    };
+    environment.systemPackages = with pkgs;
+    [
+      # basic tools
+      beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq yq-go
+      ipfetch localPkgs.pslist
+      fastfetch reptyr duc ncdu progress libva-utils ksh neofetch
+      dateutils glib cryptsetup i2c-tools trash-cli cpuid
+      stress-ng
+      (if config.nixos.system.nixpkgs.cuda == null then emptyDirectory else gpu-burn)
+      # lsxx
+      pciutils usbutils lshw util-linux lsof dmidecode lm_sensors hwloc
+      acpica-tools ethtool
+      # top
+      iotop iftop htop powertop s-tui
+      # editor
+      nano bat
+      # downloader
+      wget aria2 curl yt-dlp ffsend b4
+      # file manager
+      tree eza trash-cli lsd broot file xdg-ninja mlocate
+      # compress
+      pigz upx unzip zip lzip p7zip rpm
+      (if pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then rar else emptyDirectory)
+      # file system management
+      sshfs e2fsprogs compsize exfatprogs
+      # disk management
+      smartmontools hdparm gptfdisk
+      (if pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then megacli else emptyDirectory)
+      # encryption and authentication
+      apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f
+      yubico-piv-tool libfido2 gnutls opensc
+      # networking
+      ipset iptables iproute2 dig nettools traceroute tcping-go whois
+      tcpdump nmap inetutils wireguard-tools openvpn
+      parted xray iw
+      # nix tools
+      nix-output-monitor nix-tree ssh-to-age nix-inspect
+      # development
+      gdb try rr hexo-cli gh hugo
+      # build failed on aarch64
+      (if pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then nix-init else emptyDirectory)
+      (octodns.withProviders (_: with octodns-providers; [ cloudflare ]))
+      # stupid things
+      toilet dotacat localPkgs.stickerpicker graph-easy tokei
+      # shell
+      # somehow fish does not compile on aarch64
+      (if config.nixos.model.arch == "x86_64" then kitty else emptyDirectory)
+    ]
+      ++ (with config.boot.kernelPackages; [ cpupower usbip ]);
     programs =
     {
       nix-index-database.comma.enable = true;

@@ -28,6 +28,6 @@ inputs:
         ];
       })
       beesd;
-    nixos.packages.packages._packages = [ inputs.pkgs.bees ];
+    environment.systemPackages = [ inputs.pkgs.bees ];
   };
 }

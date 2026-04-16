@@ -283,7 +283,6 @@
           };
           tmpfiles.rules = [ "d /var/log/slurmctld 700 slurm slurm" ];
         };
-        nixos.system.sops.secrets."slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; };
         security.wrappers.info =
         {
           source = "${info}/bin/info";
@@ -295,53 +294,54 @@
         };
         nixos =
         {
-          packages.packages._packages = [(pkgs.localPkgs.sbatch-tui.override
-          {
-            sbatchConfig = pkgs.writeText "sbatch.yaml" (builtins.toJSON
-            ({
-              Program =
-              {
-                VaspCpu.Queue = builtins.map
-                  (queue:
-                  {
-                    Name = queue.name;
-                    Recommended =
-                    {
-                      Mpi = queue.mpiThreads;
-                      Openmp = queue.openmpThreads;
-                      Memory = queue.memoryGB;
-                      Cpus = queue.allocateCpus;
-                    };
-                  })
-                  slurm.tui.cpuQueues;
-                Fdtd.Queue = builtins.map
-                  (queue:
-                  {
-                    Name = queue.name;
-                    Recommended =
-                    {
-                      Cpus =
-                        if queue.allocateCpus != null then queue.allocateCpus
-                        else queue.mpiThreads * queue.openmpThreads;
-                      Memory = queue.memoryGB;
-                    };
-                  })
-                  slurm.tui.cpuQueues;
-              }
-              // (if slurm.tui.gpuQueues == null then {} else rec
-              {
-                VaspGpu.Queue = builtins.map (queue: { Name = queue.name; Gpu = queue.gpuIds; }) slurm.tui.gpuQueues;
-                Mumax3 = VaspGpu;
-              });
-            }));
-          })];
           user.sharedModules = [{ home.packages =
           [
             (pkgs.writeShellScriptBin "sbatch"
               ''if [ "$#" -eq 0 ]; then sbatch-tui; else /run/current-system/sw/bin/sbatch "$@"; fi'')
           ];}];
           services.mariadb = { enable = true; instances.slurm = {}; };
+          system.sops.secrets."slurm/db" = { owner = "slurm"; key = "mariadb/slurm"; };
         };
+        environment.systemPackages = [(pkgs.localPkgs.sbatch-tui.override
+        {
+          sbatchConfig = pkgs.writeText "sbatch.yaml" (builtins.toJSON
+          {
+            Program =
+            {
+              VaspCpu.Queue = builtins.map
+                (queue:
+                {
+                  Name = queue.name;
+                  Recommended =
+                  {
+                    Mpi = queue.mpiThreads;
+                    Openmp = queue.openmpThreads;
+                    Memory = queue.memoryGB;
+                    Cpus = queue.allocateCpus;
+                  };
+                })
+                slurm.tui.cpuQueues;
+              Fdtd.Queue = builtins.map
+                (queue:
+                {
+                  Name = queue.name;
+                  Recommended =
+                  {
+                    Cpus =
+                      if queue.allocateCpus != null then queue.allocateCpus
+                      else queue.mpiThreads * queue.openmpThreads;
+                    Memory = queue.memoryGB;
+                  };
+                })
+                slurm.tui.cpuQueues;
+            }
+            // (if slurm.tui.gpuQueues == null then {} else rec
+            {
+              VaspGpu.Queue = builtins.map (queue: { Name = queue.name; Gpu = queue.gpuIds; }) slurm.tui.gpuQueues;
+              Mumax3 = VaspGpu;
+            });
+          });
+        })];
       })
     ]);
 }

@@ -30,19 +30,18 @@
     }
     (lib.mkIf sshd.motd
     {
-      nixos =
-      {
-        packages.packages._packages =
-          [ (pkgs.fancy-motd.overrideAttrs { src = flakeInputs.fancy-motd; }) ];
-        user.sharedModules = [(home-inputs: { config.programs.zsh.loginExtra =
-        ''
-          [ -f /etc/fancy-motd/banner ] && (${lib.getExe pkgs.dotacat} -f /etc/fancy-motd/banner 2> /dev/null)
-          motd
-        '';})];
-      }; 
+      nixos.user.sharedModules = [(home-inputs: { config.programs.zsh.loginExtra =
+      ''
+        [ -f /etc/fancy-motd/banner ] && (${lib.getExe pkgs.dotacat} -f /etc/fancy-motd/banner 2> /dev/null)
+        motd
+      '';})];
       # generate from https://patorjk.com/software/taag with font "BlurVision ASCII"
       # generate using `toilet -f wideterm -F border "InAlGaN / SiC"`
-      environment.etc = lib.mkIf sshd.groupBanner { "fancy-motd/banner".source = ./banner.txt; };
+      environment =
+      {
+        etc = lib.mkIf sshd.groupBanner { "fancy-motd/banner".source = ./banner.txt; };
+        systemPackages = [(pkgs.fancy-motd.overrideAttrs { src = flakeInputs.fancy-motd; })];
+      };
     })
   ]);
 }

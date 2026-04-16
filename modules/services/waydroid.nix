@@ -4,7 +4,7 @@ inputs:
     { type = types.nullOr (types.submodule {}); default = null; };
   config = let inherit (inputs.config.nixos.services) waydroid; in inputs.lib.mkIf (waydroid != null)
   {
-    nixos.packages.packages._packages = [ inputs.pkgs.waydroid-helper ];
+    environment.systemPackages = [ inputs.pkgs.waydroid-helper ];
     virtualisation.waydroid.enable = true;
   };
 }

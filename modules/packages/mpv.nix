@@ -7,10 +7,7 @@
   };
   config = let inherit (config.nixos.packages) mpv; in lib.mkIf (mpv != null)
   {
-    nixos =
-    {
-      user.sharedModules = [{ config.programs.mpv = { enable = true; scripts = [ pkgs.mpvScripts.mpris ]; }; }];
-      packages.packages._packages = [ pkgs.mpv ];
-    };
+    nixos.user.sharedModules = [{ config.programs.mpv = { enable = true; scripts = [ pkgs.mpvScripts.mpris ]; }; }];
+    environment.systemPackages = [ pkgs.mpv ];
   };
 }

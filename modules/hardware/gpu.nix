@@ -75,21 +75,24 @@
             nvidia = lib.optionals (gpu.nvidia.driver != "dc") [ "nvidia" ];
           };
           in driver.${gpu.type};
-        nixos.packages.packages._packages =
-          let packages = with pkgs;
-          {
-            intel = [ intel-gpu-tools ];
-            nvidia = [ nvtopPackages.full ];
-            amd = [ radeontop rocmPackages.rocm-smi ];
-          };
-          in packages.${gpu.type};
-        environment.etc."nvidia/nvidia-application-profiles-rc.d/vram" = lib.mkIf (gpu.type == "nvidia")
+        environment =
         {
-          source = pkgs.writeText "save-vram" (builtins.toJSON
+          etc."nvidia/nvidia-application-profiles-rc.d/vram" = lib.mkIf (gpu.type == "nvidia")
           {
-            rules = [{ pattern = { feature = "true"; matches = ""; }; profile = "save-vram"; }];
-            profiles = [{ name = "save-vram"; settings = [{ key = "GLVidHeapReuseRatio"; value = 0; }]; }];
-          });
+            source = pkgs.writeText "save-vram" (builtins.toJSON
+            {
+              rules = [{ pattern = { feature = "true"; matches = ""; }; profile = "save-vram"; }];
+              profiles = [{ name = "save-vram"; settings = [{ key = "GLVidHeapReuseRatio"; value = 0; }]; }];
+            });
+          };
+          systemPackages =
+            let packages = with pkgs;
+            {
+              intel = [ intel-gpu-tools ];
+              nvidia = [ nvtopPackages.full ];
+              amd = [ radeontop rocmPackages.rocm-smi ];
+            };
+            in packages.${gpu.type};
         };
       }
     )

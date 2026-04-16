@@ -4,7 +4,7 @@
     { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
   config = let inherit (config.nixos.packages) extra; in lib.mkIf (extra != null)
   {
-    nixos.packages.packages._packages = with pkgs;
+    environment.systemPackages = with pkgs;
     [
       ventoy-full
       davinci-resolve

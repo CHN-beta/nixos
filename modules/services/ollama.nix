@@ -23,6 +23,6 @@
       };
       package = pkgs.pkgs-unstable.ollama;
     };
-    nixos.packages.packages._packages = [ pkgs.oterm ];
+    environment.systemPackages = [ pkgs.oterm ];
   };
 }
