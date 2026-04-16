@@ -111,6 +111,7 @@
       localsend.enable = true;
       thunderbird.enable = true;
       nh.enable = true;
+      chromium = { enable = true; extraOpts.PasswordManagerEnabled = false; };
     };
   };
 }
