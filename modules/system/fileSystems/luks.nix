@@ -8,7 +8,6 @@ inputs:
       {
         mapper = mkOption { type = types.nonEmptyStr; };
         ssd = mkOption { type = types.bool; default = false; };
-        before = mkOption { type = types.nullOr (types.listOf types.nonEmptyStr); default = null; };
       };});
       default = {};
     };
@@ -39,17 +38,6 @@ inputs:
           };
         })
         (inputs.lib.attrsToList luks.auto)));
-      systemd.services = builtins.listToAttrs (builtins.map
-        (device:
-        {
-          name = "systemd-cryptsetup@${device.value.mapper}";
-          value =
-          {
-            before = map (device: "systemd-cryptsetup@${device}.service") device.value.before;
-            overrideStrategy = "asDropin";
-          };
-        })
-        (builtins.filter (device: device.value.before != null) (inputs.lib.attrsToList luks.auto)));
     };})
     (inputs.lib.mkIf (luks.manual != null)
     {
