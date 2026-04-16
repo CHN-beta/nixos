@@ -6,17 +6,6 @@
     {
       # allow non-root users to access intel gpu performance counters
       kernel.sysctl."dev.i915.perf_stream_paranoid" = false;
-      initrd.systemd =
-      {
-        contents."/etc/pkcs11/modules/opensc.module".source =
-          config.environment.etc."pkcs11/modules/opensc.module".source;
-        storePaths = with pkgs;
-        [
-          opensc p11-kit pcsclite pcsclite.lib
-          "${config.boot.initrd.systemd.package}/lib/cryptsetup/libcryptsetup-token-systemd-pkcs11.so"
-        ];
-        tmpfiles.settings."10-pcscd"."/run/pcscd".d.mode = "0755";
-      };
     };
     security =
     {

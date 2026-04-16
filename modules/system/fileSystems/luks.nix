@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 {
   options.nixos.system.fileSystems.luks = lib.mkOption
   {
@@ -18,20 +18,34 @@
   };
   config = let inherit (config.nixos.system.fileSystems) luks; in
   {
-    boot.initrd.luks.devices = luks
-      |> (lib.mapAttrs' (n: v: lib.nameValuePair v.mapper
-        {
-          device = n;
-          allowDiscards = v.ssd;
-          bypassWorkqueues = v.ssd;
-          # otherwise systemd complains: PKCS#11 mode selected but no key file specified, refusing. 
-          # keyFile = "none";
-          crypttabExtraOpts =
-          [
-            "x-initrd.attach"
-            # { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=pkcs11:token=YubiKey%20LUKS"; }.${v.token}
-            { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=auto"; }.${v.token}
-          ];
-        }));
+    boot.initrd =
+    {
+      luks.devices = luks
+        |> (lib.mapAttrs' (n: v: lib.nameValuePair v.mapper
+          {
+            device = n;
+            allowDiscards = v.ssd;
+            bypassWorkqueues = v.ssd;
+            # otherwise systemd complains: PKCS#11 mode selected but no key file specified, refusing. 
+            # keyFile = "none";
+            crypttabExtraOpts =
+            [
+              "x-initrd.attach"
+              # { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=pkcs11:token=YubiKey%20LUKS"; }.${v.token}
+              { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=auto"; }.${v.token}
+            ];
+          }));
+      systemd = lib.mkIf (luks != {})
+      {
+        contents."/etc/pkcs11/modules/opensc.module".source =
+          config.environment.etc."pkcs11/modules/opensc.module".source;
+        storePaths = with pkgs;
+        [
+          opensc p11-kit pcsclite pcsclite.lib
+          "${config.boot.initrd.systemd.package}/lib/cryptsetup/libcryptsetup-token-systemd-pkcs11.so"
+        ];
+        tmpfiles.settings."10-pcscd"."/run/pcscd".d.mode = "0755";
+      };
+    };
   };
 }
