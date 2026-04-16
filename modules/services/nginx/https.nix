@@ -108,14 +108,6 @@
                 (lib.types.submodule { options = { return = lib.mkOption { type = lib.types.nonEmptyStr; }; };});
               default = null;
             };
-            alias = lib.mkOption
-            {
-              type = lib.types.nullOr (lib.types.submodule { options =
-              {
-                path = lib.mkOption { type = lib.types.nonEmptyStr; };
-              };});
-              default = null;
-            };
           };});
         default = {};
       };
@@ -273,7 +265,6 @@
                       include ${config.services.nginx.package}/conf/fastcgi.conf;
                     '';
                     return.return = location.value.return;
-                    alias.alias = location.value.path;
                   }.${location.value.type};
                 })
                 site.value.locations);
