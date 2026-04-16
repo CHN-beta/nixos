@@ -73,8 +73,6 @@
                   type = lib.types.attrsOf lib.types.str;
                   default.Host = siteSubmoduleInputs.config._module.args.name;
                 };
-                # echo -n "username:password" | base64
-                addAuth = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = null; };
               };});
               default = null;
             };
@@ -251,11 +249,6 @@
                           (location.value.detectAuth != null || site.value.global.detectAuth != null)
                           [ "proxy_hide_header Authorization;" ]
                         )
-                        ++ (lib.optionals (location.value.addAuth != null)
-                          (
-                            let authFile = "nginx/templates/addAuth/${location.value.addAuth}";
-                            in [ "include ${config.nixos.system.sops.templates.${authFile}.path};" ]
-                          ))
                       );
                     };
                     static =
@@ -350,48 +343,21 @@
                     [ { name = "${escapeURL site.name}-global"; value = site.value.global.detectAuth.users; } ])
                 ))
                 sites);
-              addAuth = builtins.concatLists (builtins.map
-                (site: builtins.map
-                  (location:
-                  {
-                    name = "${escapeURL site.name}/${escapeURL location.name}";
-                    value = location.value.addAuth;
-                  })
-                  (builtins.filter (location: location.value.addAuth or null != null) site.value.locations)
-                )
-                sites);
             in
             {
-              templates = let inherit (config.nixos.system.sops) placeholder; in builtins.listToAttrs
-              (
-                (builtins.map
-                  (detectAuth: lib.nameValuePair "nginx/templates/detectAuth/${detectAuth.name}"
-                  {
-                    owner = config.users.users.nginx.name;
-                    content = builtins.concatStringsSep "\n" (builtins.map
-                      (user: "${user}:{PLAIN}${placeholder."nginx/detectAuth/${user}"}")
-                      detectAuth.value);
-                  })
-                  detectAuthUsers)
-                ++ (builtins.map
-                  (addAuth: lib.nameValuePair "nginx/templates/addAuth/${addAuth.name}"
-                  {
-                    owner = config.users.users.nginx.name;
-                    content =
-                      ''proxy_set_header Authorization "Basic ${placeholder."nginx/addAuth/${addAuth.value}"}";'';
-                  })
-                  addAuth)
-              );
-              secrets = builtins.listToAttrs
-              (
-                (builtins.map
-                  (secret: { name = "nginx/detectAuth/${secret}"; value = {}; })
-                  (lib.unique (builtins.concatLists (builtins.map (detectAuth: detectAuth.value)
-                    detectAuthUsers))))
-                ++ (builtins.map
-                  (secret: { name = "nginx/addAuth/${secret}"; value = {}; })
-                  (lib.unique (builtins.map (addAuth: addAuth.value) addAuth)))
-              );
+              templates = let inherit (config.nixos.system.sops) placeholder; in builtins.listToAttrs (builtins.map
+                (detectAuth: lib.nameValuePair "nginx/templates/detectAuth/${detectAuth.name}"
+                {
+                  owner = config.users.users.nginx.name;
+                  content = builtins.concatStringsSep "\n" (builtins.map
+                    (user: "${user}:{PLAIN}${placeholder."nginx/detectAuth/${user}"}")
+                    detectAuth.value);
+                })
+                detectAuthUsers);
+              secrets = builtins.listToAttrs (builtins.map
+                (secret: { name = "nginx/detectAuth/${secret}"; value = {}; })
+                (lib.unique (builtins.concatLists (builtins.map (detectAuth: detectAuth.value)
+                  detectAuthUsers))));
             };
         };
       }
