@@ -23,13 +23,12 @@
   config = let inherit (config.nixos.packages) root; in lib.mkIf (root != null)
   {
     environment.systemPackages =  [ pkgs.root ];
-    nixos.packages.packages =
+    nixos.packages =
       let jupyterKernel = pkgs.jupyter-kernel.create { definitions.root = root.jupyterKernelDefinition; }; in
       {
-        _pythonPackages = [(pythonPackages: with pythonPackages; [ metakernel notebook ])];
-        _pythonEnvFlags =
-          [ "--prefix JUPYTER_PATH : ${jupyterKernel}" "--suffix NIX_PYTHONPATH : ${pkgs.root}/lib" ];
-        _vscodeEnvFlags = [ "--prefix JUPYTER_PATH : ${jupyterKernel}" ];
+        pythonPackages = [(pythonPackages: with pythonPackages; [ metakernel notebook ])];
+        pythonEnvFlags = [ "--prefix JUPYTER_PATH : ${jupyterKernel}" "--suffix NIX_PYTHONPATH : ${pkgs.root}/lib" ];
+        vscodeEnvFlags = [ "--prefix JUPYTER_PATH : ${jupyterKernel}" ];
       };
   };
 }

@@ -15,7 +15,7 @@
         package = pkgs.vscode.overrideAttrs (prev: { preFixup = prev.preFixup +
         ''
           gappsWrapperArgs+=(
-            ${builtins.concatStringsSep " " config.nixos.packages.packages._vscodeEnvFlags}
+            ${builtins.concatStringsSep " " config.nixos.packages.vscodeEnvFlags}
           )
         '';});
         profiles.default =

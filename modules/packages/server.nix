@@ -29,7 +29,7 @@
       # media
       localPkgs.asmroner
     ];
-    nixos.packages.packages._pythonPackages = [(pythonPackages: with pythonPackages;
+    nixos.packages.pythonPackages = [(pythonPackages: with pythonPackages;
     [
       phonopy ruamel-yaml
       # for vasp plot-workfunc.py
