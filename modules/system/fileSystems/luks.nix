@@ -11,15 +11,6 @@ inputs:
       };});
       default = {};
     };
-    manual = mkOption
-    {
-      type = types.nullOr (types.attrsOf (types.submodule { options =
-      {
-        mapper = mkOption { type = types.nonEmptyStr; };
-        ssd = mkOption { type = types.bool; default = false; };
-      };}));
-      default = null;
-    };
   };
   config = let inherit (inputs.config.nixos.system.fileSystems) luks; in inputs.lib.mkMerge
   [
@@ -39,26 +30,5 @@ inputs:
         })
         (inputs.lib.attrsToList luks.auto)));
     };})
-    (inputs.lib.mkIf (luks.manual != null)
-    {
-      boot.initrd =
-      {
-        luks.forceLuksSupportInInitrd = true;
-        systemd =
-        {
-          services.wait-manual-decrypt =
-          {
-            wantedBy = [ "initrd-root-fs.target" ];
-            before = [ "roll-rootfs.service" ];
-            unitConfig.DefaultDependencies = false;
-            serviceConfig.Type = "oneshot";
-            script = builtins.concatStringsSep "\n" (builtins.map
-              (device: "while [ ! -e /dev/mapper/${device.value.mapper} ]; do sleep 1; done")
-              (inputs.lib.attrsToList luks.manual));
-          };
-          extraBin.cryptsetup = "${inputs.pkgs.cryptsetup}/bin/cryptsetup";
-        };
-      };
-    })
   ];
 }
