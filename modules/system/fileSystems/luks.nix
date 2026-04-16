@@ -44,7 +44,6 @@
           opensc p11-kit pcsclite pcsclite.lib
           "${config.boot.initrd.systemd.package}/lib/cryptsetup/libcryptsetup-token-systemd-pkcs11.so"
         ];
-        tmpfiles.settings."10-pcscd"."/run/pcscd".d.mode = "0755";
       };
     };
   };

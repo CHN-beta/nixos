@@ -25,14 +25,19 @@
     (
       lib.mkIf (initrd.sshd != null)
       {
-        boot.initrd.network.ssh =
+        boot.initrd =
         {
-          enable = true;
-          hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ];
-          extraConfig =
-          ''
-            StreamLocalBindUnlink yes
-          '';
+          network.ssh =
+          {
+            enable = true;
+            hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ];
+            extraConfig =
+            ''
+              StreamLocalBindUnlink yes
+            '';
+          };
+          # automatically create /run/pcscd directory
+          systemd.services.sshd.unitConfig.RuntimeDirectory = "pcscd";
         };
         nixos.system.initrd.network = {};
       }
