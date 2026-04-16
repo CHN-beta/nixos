@@ -36,7 +36,7 @@
         (if pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then megacli else emptyDirectory)
         # encryption and authentication
         apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f
-        yubico-piv-tool libfido2
+        yubico-piv-tool libfido2 gnutls opensc
         # networking
         ipset iptables iproute2 dig nettools traceroute tcping-go whois
         tcpdump nmap inetutils wireguard-tools openvpn
