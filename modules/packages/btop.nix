@@ -1,19 +1,8 @@
-{ lib, pkgs, config, ... }:
+{ pkgs, ... }:
 {
-  options.nixos.packages.btop = lib.mkOption { type = lib.types.nullOr (lib.types.submodule {}); default = {}; };
-  config = let inherit (config.nixos.packages) btop; in lib.mkIf (btop != null)
+  config =
   {
-    nixos =
-    {
-      packages.packages._packages = [ pkgs.btop ];
-      user.sharedModules =
-      [{
-        config.programs.btop =
-        {
-          enable = true;
-          settings.btrfs_group_subvolumes = true;
-        };
-      }];
-    };
+    environment.systemPackages = [ pkgs.btop ];
+    nixos.user.sharedModules = [{ config.programs.btop = { enable = true; settings.btrfs_group_subvolumes = true; }; }];
   };
 }
