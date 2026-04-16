@@ -1,7 +1,7 @@
 { lib, config, ... }:
 {
   options.nixos.packages.desktopPython = lib.mkOption
-    { type = lib.types.nullOr (lib.types.submodule {}); default = config.nixos.packages.desktop; };
+    { type = lib.types.nullOr (lib.types.submodule {}); default = config.nixos.model.type == "desktop"; };
   config = let inherit (config.nixos.packages) desktopPython; in lib.mkIf (desktopPython != null)
   {
     nixos.packages.pythonPackages = [(pythonPackages: with pythonPackages;

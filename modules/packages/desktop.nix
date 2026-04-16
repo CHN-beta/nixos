@@ -1,11 +1,6 @@
 { lib, pkgs, config, ... }:
 {
-  options.nixos.packages.desktop = lib.mkOption
-  {
-    type = lib.types.nullOr (lib.types.submodule {});
-    default = if config.nixos.model.type == "desktop" then {} else null;
-  };
-  config = let inherit (config.nixos.packages) desktop; in lib.mkIf (desktop != null)
+  config = lib.mkIf (config.nixos.model.type == "desktop")
   {
     environment.systemPackages = with pkgs;
     [
