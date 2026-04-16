@@ -16,6 +16,8 @@
             };
           };
           swap = [ "/nix/swap/swap" ];
+          luks."/dev/disk/by-uuid/bf7646f9-496c-484e-ada0-30335da57068" =
+            { mapper = "root"; ssd = true; token = "pkcs11"; };
         };
         grub.installDevice = "/dev/disk/by-path/pci-0000:00:04.0";
         nixpkgs.march = "znver2";

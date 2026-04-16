@@ -33,7 +33,7 @@
             };
             nfs."nas.ts.chn.moe:/nix/persistent" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
           };
-          luks.auto =
+          luks =
           {
             "/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
             "/dev/disk/by-uuid/e6764d00-1132-49bc-b321-9a195ba09ea3".mapper = "tf1";

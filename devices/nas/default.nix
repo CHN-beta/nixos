@@ -20,7 +20,7 @@
             };
           };
           swap = [ "/dev/mapper/swap" ];
-          luks.auto =
+          luks =
           {
             "/dev/disk/by-partlabel/nas-root1".mapper = "root1";
             "/dev/disk/by-partlabel/nas-root2".mapper = "root2";

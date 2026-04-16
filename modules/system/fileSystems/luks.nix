@@ -1,34 +1,29 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.system.fileSystems.luks = let inherit (inputs.lib) mkOption types; in
+  options.nixos.system.fileSystems.luks = lib.mkOption
   {
-    auto = mkOption
+    type = lib.types.attrsOf (lib.types.submodule { options =
     {
-      type = types.attrsOf (types.submodule { options =
-      {
-        mapper = mkOption { type = types.nonEmptyStr; };
-        ssd = mkOption { type = types.bool; default = false; };
-      };});
-      default = {};
-    };
+      mapper = lib.mkOption { type = lib.types.nonEmptyStr; };
+      ssd = lib.mkOption { type = lib.types.bool; default = false; };
+      token = lib.mkOption { type = lib.types.enum [ "fido2" "pkcs11" ]; default = "fido2"; };
+    };});
+    default = {};
   };
-  config = let inherit (inputs.config.nixos.system.fileSystems) luks; in inputs.lib.mkMerge
-  [
-    (inputs.lib.mkIf (luks.auto != null) { boot.initrd =
-    {
-      luks.devices = (builtins.listToAttrs (builtins.map
-        (device:
-        {
-          name = device.value.mapper;
-          value =
-          {
-            device = device.name;
-            allowDiscards = device.value.ssd;
-            bypassWorkqueues = device.value.ssd;
-            crypttabExtraOpts = [ "fido2-device=auto" "x-initrd.attach" ];
-          };
-        })
-        (inputs.lib.attrsToList luks.auto)));
-    };})
-  ];
+  config = let inherit (config.nixos.system.fileSystems) luks; in { boot.initrd =
+  {
+    luks.devices = lib.mapAttrs'
+      (n: v: lib.nameValuePair v.mapper
+      {
+        device = n;
+        allowDiscards = v.ssd;
+        bypassWorkqueues = v.ssd;
+        crypttabExtraOpts =
+        [
+          "x-initrd.attach"
+          { fido2 = "fido2-device=auto"; pkcs11 = "pkcs11-uri=auto"; }.${v.token}
+        ];
+      })
+      luks;
+  };};
 }
