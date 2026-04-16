@@ -24,6 +24,7 @@
           KbdInteractiveAuthentication = false;
           UsePAM = true;
           GatewayPorts = "yes";
+          StreamLocalBindUnlink = "yes";
         };
       };
     }

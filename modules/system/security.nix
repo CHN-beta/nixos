@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, config, lib, ... }:
 {
   config =
   {
@@ -11,6 +11,7 @@
         contents."/etc/pkcs11/modules/opensc.module".source =
           config.environment.etc."pkcs11/modules/opensc.module".source;
         storePaths = [ pkgs.opensc ];
+        tmpfiles.settings."10-pcscd"."/run/pcscd".d.mode = "0755";
       };
     };
     security =
@@ -57,7 +58,11 @@
       };
       sudo.extraConfig = "Defaults pwfeedback";
     };
-    systemd.user.extraConfig = "DefaultLimitNOFILE=524288:524288";
+    systemd =
+    {
+      user.extraConfig = "DefaultLimitNOFILE=524288:524288";
+      tmpfiles.settings."10-pcscd"."/run/pcscd".d.mode = "0755";
+    };
     # needed by xray tproxy if we want to forward traffic from other machine
     networking.firewall.checkReversePath = false;
     # this file is needed by p11tool and systemd-cryptenroll to detect opensc lib
@@ -66,5 +71,7 @@
       module: ${pkgs.opensc}/lib/opensc-pkcs11.so
       managed: yes
     '';
+    # only enable on desktop, use socket forwarding on server
+    services.pcscd.enable = lib.mkIf (config.nixos.model.type == "desktop") true;
   };
 }

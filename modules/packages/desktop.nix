@@ -112,6 +112,5 @@
       thunderbird.enable = true;
       nh.enable = true;
     };
-    services.pcscd.enable = true;
   };
 }

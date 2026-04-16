@@ -26,7 +26,14 @@
       lib.mkIf (initrd.sshd != null)
       {
         boot.initrd.network.ssh =
-          { enable = true; hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ]; };
+        {
+          enable = true;
+          hostKeys = [ "/nix/persistent/etc/ssh/initrd_ssh_host_ed25519_key" ];
+          extraConfig =
+          ''
+            StreamLocalBindUnlink yes
+          '';
+        };
         nixos.system.initrd.network = {};
       }
     )
