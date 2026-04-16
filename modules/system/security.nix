@@ -1,4 +1,4 @@
-inputs:
+{ pkgs, config, ... }:
 {
   config =
   {
@@ -17,7 +17,7 @@ inputs:
             appid = "pam://chn.moe";
             origin = "pam://chn.moe";
             # generate using: `pamu2fcfg -u chn -o pam://chn.moe -i pam://chn.moe`
-            authfile = builtins.toString (inputs.pkgs.writeText "yubikey_mappings" (builtins.concatStringsSep "\n"
+            authfile = builtins.toString (pkgs.writeText "yubikey_mappings" (builtins.concatStringsSep "\n"
             [
               (builtins.concatStringsSep ":"
               [
@@ -34,7 +34,7 @@ inputs:
           };
         };
         rssh.enable = true;
-        services = let u2fOrder = s: inputs.config.security.pam.services.${s}.rules.auth.u2f.order; in
+        services = let u2fOrder = s: config.security.pam.services.${s}.rules.auth.u2f.order; in
         {
           sudo = { rssh = true; rules.auth.rssh.order = (u2fOrder "sudo") + 10; };
           su = { rssh = true; rules.auth.rssh.order = (u2fOrder "su") + 10; };
