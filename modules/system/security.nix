@@ -2,8 +2,17 @@
 {
   config =
   {
-    # allow non-root users to access intel gpu performance counters
-    boot.kernel.sysctl."dev.i915.perf_stream_paranoid" = false;
+    boot =
+    {
+      # allow non-root users to access intel gpu performance counters
+      kernel.sysctl."dev.i915.perf_stream_paranoid" = false;
+      initrd.systemd =
+      {
+        contents."/etc/pkcs11/modules/opensc.module".source =
+          config.environment.etc."pkcs11/modules/opensc.module".source;
+        storePaths = [ pkgs.opensc ];
+      };
+    };
     security =
     {
       pam =
@@ -51,5 +60,11 @@
     systemd.user.extraConfig = "DefaultLimitNOFILE=524288:524288";
     # needed by xray tproxy if we want to forward traffic from other machine
     networking.firewall.checkReversePath = false;
+    # this file is needed by p11tool and systemd-cryptenroll to detect opensc lib
+    environment.etc."pkcs11/modules/opensc.module".text =
+    ''
+      module: ${pkgs.opensc}/lib/opensc-pkcs11.so
+      managed: yes
+    '';
   };
 }
