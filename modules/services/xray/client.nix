@@ -21,260 +21,261 @@
     };}));
     default = null;
   };
-  config = let inherit (config.nixos.services.xray) client; in lib.mkIf (client != null)
-  {
-    services =
+  config = let inherit (config.nixos.services.xray) client; in lib.mkIf (client != null) (lib.mkMerge
+  [
+    # xray part
     {
-      xray =
+      services.xray =
       {
         enable = true;
         package = pkgs.pkgs-unstable.xray;
         settingsFile = config.nixos.system.sops.templates."xray-client.json".path;
       };
-      coredns =
+      nixos.system.sops =
       {
-        enable = true;
-        config =
-          let
-            hosts = pkgs.writeText "coredns.hosts" (builtins.concatStringsSep "\n"
-              (lib.mapAttrsToList (n: v: "${v} ${n}") client.coredns.hosts));
-          in
-          ''
-            . {
-              log
-              errors
-              bind lo ${builtins.concatStringsSep " " client.coredns.extraInterfaces}
-              hosts ${hosts} {
-                fallthrough
-              }
-              rewrite name exact git.chn.moe nas.ts.chn.moe
-              forward . 127.0.0.1:10853
-              cache 300 {
-                disable denial
-              }
-            }
-          '';
-      };
-      resolved.enable = false;
-    };
-    nixos.system.sops =
-    {
-      templates."xray-client.json" =
-      {
-        owner = config.users.users.v2ray.name;
-        group = config.users.users.v2ray.group;
-        content = builtins.toJSON
+        templates."xray-client.json" =
         {
-          log.loglevel = "warning";
-          dns =
+          owner = config.users.users.v2ray.name;
+          group = config.users.users.v2ray.group;
+          content = builtins.toJSON
           {
-            servers =
-            # 先尝试匹配域名列表进行查询，若匹配成功则使用前两个 dns 查询。
-            # 若匹配域名列表失败，或者匹配成功但是查询到的 IP 不在期望的 IP 列表中，则回落到使用后两个 dns 依次查询。
-            [
-              {
-                address = "https://223.5.5.5/dns-query";
-                domains = [ "geosite:geolocation-cn" ];
-                expectIPs = [ "geoip:cn" ];
-                skipFallback = true;
-              }
-              {
-                address = "8.8.8.8";
-                domains = [ "geosite:geolocation-!cn" ];
-                expectIPs = [ "geoip:!cn" ];
-                skipFallback = true;
-              }
-              { address = "https://223.5.5.5/dns-query"; expectIPs = [ "geoip:cn" ]; }
-              { address = "8.8.8.8"; }
-            ];
-            disableCache = true;
-            queryStrategy = "UseIPv4";
-            tag = "dns-internal";
-          };
-          inbounds =
-          [
+            log.loglevel = "warning";
+            dns =
             {
-              port = 10853;
-              protocol = "dokodemo-door";
-              settings = { address = "8.8.8.8"; network = "tcp,udp"; port = 53; };
-              tag = "dns-in";
-            }
-            {
-              port = 10880;
-              protocol = "dokodemo-door";
-              settings = { network = "tcp,udp"; followRedirect = true; };
-              streamSettings.sockopt.tproxy = "tproxy";
-              sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
-              tag = "common-in";
-            }
-            {
-              port = 10881;
-              protocol = "dokodemo-door";
-              settings = { network = "tcp,udp"; followRedirect = true; };
-              streamSettings.sockopt.tproxy = "tproxy";
-              tag = "xmu-in";
-            }
-            {
-              port = 10883;
-              protocol = "dokodemo-door";
-              settings = { network = "tcp,udp"; followRedirect = true; };
-              streamSettings.sockopt.tproxy = "tproxy";
-              tag = "proxy-in";
-            }
-            { port = 10884; protocol = "socks"; settings.udp = true; tag = "proxy-socks-in"; }
-            { port = 10882; protocol = "socks"; settings.udp = true; tag = "direct-in"; }
-            {
-              port = 10885;
-              protocol = "socks";
-              settings.udp = true;
-              sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
-              tag = "common-socks-in";
-            }
-          ];
-          outbounds =
-          [
-            {
-              protocol = "vless";
-              settings.vnext =
-              [{
-                address = client.xray.serverAddress;
-                port = 443;
-                users =
-                [{
-                  id = config.nixos.system.sops.placeholder."xray-client/uuid";
-                  encryption = "none";
-                }];
-              }];
-              streamSettings =
-              {
-                network = "xhttp";
-                security = "reality";
-                realitySettings =
+              servers =
+              # 先尝试匹配域名列表进行查询，若匹配成功则使用前两个 dns 查询。
+              # 若匹配域名列表失败，或者匹配成功但是查询到的 IP 不在期望的 IP 列表中，则回落到使用后两个 dns 依次查询。
+              [
                 {
-                  serverName = "xserver3.chn.moe";
-                  publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
-                  fingerprint = "firefox";
-                };
-                xhttpSettings.path = "/kT9hRk6D4gJ5WxNT";
-              };
-              tag = "proxy-vless";
-            }
-            { protocol = "freedom"; tag = "direct"; }
-            { protocol = "dns"; tag = "dns-out"; }
-            {
-              protocol = "socks";
-              settings.servers = [{ address = "127.0.0.1"; port = 10069; }];
-              tag = "xmu-out";
-            }
-            { protocol = "blackhole"; tag = "block"; }
-          ];
-          routing =
-          {
-            domainStrategy = "AsIs";
-            rules = builtins.map (rule: rule // { type = "field"; })
+                  address = "https://223.5.5.5/dns-query";
+                  domains = [ "geosite:geolocation-cn" ];
+                  expectIPs = [ "geoip:cn" ];
+                  skipFallback = true;
+                }
+                {
+                  address = "8.8.8.8";
+                  domains = [ "geosite:geolocation-!cn" ];
+                  expectIPs = [ "geoip:!cn" ];
+                  skipFallback = true;
+                }
+                { address = "https://223.5.5.5/dns-query"; expectIPs = [ "geoip:cn" ]; }
+                { address = "8.8.8.8"; }
+              ];
+              disableCache = true;
+              queryStrategy = "UseIPv4";
+              tag = "dns-internal";
+            };
+            inbounds =
             [
-              { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
               {
-                inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
-                ip = [ "223.5.5.5" ];
-                outboundTag = "direct";
+                port = 10853;
+                protocol = "dokodemo-door";
+                settings = { address = "8.8.8.8"; network = "tcp,udp"; port = 53; };
+                tag = "dns-in";
               }
               {
-                inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
-                ip = [ "8.8.8.8" "1.1.1.1" ];
-                outboundTag = "proxy-vless";
-              }
-              { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
-              { inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
-              { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
-              { inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = "proxy-vless"; }
-              {
-                inboundTag = [ "common-in" "common-socks-in" ];
-                domain = [ "geosite:geolocation-cn" ];
-                outboundTag = "direct";
+                port = 10880;
+                protocol = "dokodemo-door";
+                settings = { network = "tcp,udp"; followRedirect = true; };
+                streamSettings.sockopt.tproxy = "tproxy";
+                sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
+                tag = "common-in";
               }
               {
-                inboundTag = [ "common-in" "common-socks-in" ];
-                domain = [ "geosite:geolocation-!cn" ];
-                outboundTag = "proxy-vless";
+                port = 10881;
+                protocol = "dokodemo-door";
+                settings = { network = "tcp,udp"; followRedirect = true; };
+                streamSettings.sockopt.tproxy = "tproxy";
+                tag = "xmu-in";
               }
               {
-                inboundTag = [ "common-in" "common-socks-in" ];
-                ip = [ "geoip:cn" "geoip:private" ];
-                outboundTag = "direct";
+                port = 10883;
+                protocol = "dokodemo-door";
+                settings = { network = "tcp,udp"; followRedirect = true; };
+                streamSettings.sockopt.tproxy = "tproxy";
+                tag = "proxy-in";
               }
-              { inboundTag = [ "common-in" "common-socks-in" ]; outboundTag = "proxy-vless"; }
+              { port = 10884; protocol = "socks"; settings.udp = true; tag = "proxy-socks-in"; }
+              { port = 10882; protocol = "socks"; settings.udp = true; tag = "direct-in"; }
+              {
+                port = 10885;
+                protocol = "socks";
+                settings.udp = true;
+                sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; };
+                tag = "common-socks-in";
+              }
             ];
+            outbounds =
+            [
+              {
+                protocol = "vless";
+                settings.vnext =
+                [{
+                  address = client.xray.serverAddress;
+                  port = 443;
+                  users =
+                  [{
+                    id = config.nixos.system.sops.placeholder."xray-client/uuid";
+                    encryption = "none";
+                  }];
+                }];
+                streamSettings =
+                {
+                  network = "xhttp";
+                  security = "reality";
+                  realitySettings =
+                  {
+                    serverName = "xserver3.chn.moe";
+                    publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
+                    fingerprint = "firefox";
+                  };
+                  xhttpSettings.path = "/kT9hRk6D4gJ5WxNT";
+                };
+                tag = "proxy-vless";
+              }
+              { protocol = "freedom"; tag = "direct"; }
+              { protocol = "dns"; tag = "dns-out"; }
+              {
+                protocol = "socks";
+                settings.servers = [{ address = "127.0.0.1"; port = 10069; }];
+                tag = "xmu-out";
+              }
+              { protocol = "blackhole"; tag = "block"; }
+            ];
+            routing =
+            {
+              domainStrategy = "AsIs";
+              rules = builtins.map (rule: rule // { type = "field"; })
+              [
+                { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
+                {
+                  inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
+                  ip = [ "223.5.5.5" ];
+                  outboundTag = "direct";
+                }
+                {
+                  inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
+                  ip = [ "8.8.8.8" "1.1.1.1" ];
+                  outboundTag = "proxy-vless";
+                }
+                { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
+                { inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
+                { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
+                { inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = "proxy-vless"; }
+                {
+                  inboundTag = [ "common-in" "common-socks-in" ];
+                  domain = [ "geosite:geolocation-cn" ];
+                  outboundTag = "direct";
+                }
+                {
+                  inboundTag = [ "common-in" "common-socks-in" ];
+                  domain = [ "geosite:geolocation-!cn" ];
+                  outboundTag = "proxy-vless";
+                }
+                {
+                  inboundTag = [ "common-in" "common-socks-in" ];
+                  ip = [ "geoip:cn" "geoip:private" ];
+                  outboundTag = "direct";
+                }
+                { inboundTag = [ "common-in" "common-socks-in" ]; outboundTag = "proxy-vless"; }
+              ];
+            };
           };
         };
+        secrets."xray-client/uuid" = {};
       };
-      secrets."xray-client/uuid" = {};
-    };
-    systemd =
-    {
-      services = lib.mkMerge
-      [
-        {
-          xray =
-          {
-            serviceConfig =
-            {
-              DynamicUser = lib.mkForce false;
-              User = "v2ray";
-              Group = "v2ray";
-              CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-              AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-              LimitNPROC = 65536;
-              LimitNOFILE = 524288;
-              CPUSchedulingPolicy = "rr";
-            };
-            restartTriggers = [ config.nixos.system.sops.templates."xray-client.json".file ];
-          };
-        }
-        (lib.mkIf (config.nixos.system.network.implementation == "networkmanager")
-        {
-          v2ray-forwarder =
-          {
-            description = "v2ray-forwarder Daemon";
-            after = [ "network.target" ];
-            wantedBy = [ "multi-user.target" ];
-            serviceConfig = let ip = "${pkgs.iproute2}/bin/ip"; in
-            {
-              Type = "oneshot";
-              RemainAfterExit = true;
-              ExecStart = pkgs.writeShellScript "v2ray-forwarder.start"
-              ''
-                ${ip} rule add fwmark 1/1 table 100 priority 5000
-                ${ip} route add local 0.0.0.0/0 dev lo table 100
-              '';
-              ExecStop = pkgs.writeShellScript "v2ray-forwarder.stop"
-              ''
-                ${ip} rule del fwmark 1/1 table 100 priority 5000
-                ${ip} route del local 0.0.0.0/0 dev lo table 100
-              '';
-            };
-          };
-        })
-      ];
-      network.networks = lib.mkIf (config.nixos.system.network.implementation == "systemd-networkd")
+      systemd.services.xray =
       {
-        "10-custom" =
+        serviceConfig =
+        {
+          DynamicUser = lib.mkForce false;
+          User = "v2ray";
+          Group = "v2ray";
+          CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+          AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
+          LimitNPROC = 65536;
+          LimitNOFILE = 524288;
+          CPUSchedulingPolicy = "rr";
+        };
+        restartTriggers = [ config.nixos.system.sops.templates."xray-client.json".file ];
+      };
+      users =
+      {
+        users.v2ray = { uid = config.nixos.user.uid.v2ray; group = "v2ray"; isSystemUser = true; };
+        groups.v2ray.gid = config.nixos.user.gid.v2ray;
+      };
+      networking.firewall =
+      {
+        allowedTCPPortRanges = [{ from = 10880; to = 10884; }];
+        allowedUDPPortRanges = [{ from = 10880; to = 10884; }];
+      };
+    }
+    # dns part
+    {
+      services =
+      {
+        coredns =
+        {
+          enable = true;
+          config =
+            let
+              hosts = pkgs.writeText "coredns.hosts" (builtins.concatStringsSep "\n"
+                (lib.mapAttrsToList (n: v: "${v} ${n}") client.coredns.hosts));
+            in
+            ''
+              . {
+                log
+                errors
+                bind lo ${builtins.concatStringsSep " " client.coredns.extraInterfaces}
+                hosts ${hosts} {
+                  fallthrough
+                }
+                rewrite name exact git.chn.moe nas.ts.chn.moe
+                forward . 127.0.0.1:10853
+                cache 300 {
+                  disable denial
+                }
+              }
+            '';
+        };
+        resolved.enable = false;
+      };
+      environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
+      networking.firewall = { allowedTCPPorts = [ 53 ]; allowedUDPPorts = [ 53 ]; };
+    }
+    # transparent proxy part
+    {
+      systemd =
+      {
+        services.v2ray-forwarder = lib.mkIf (config.nixos.system.network.implementation == "networkmanager")
+        {
+          description = "v2ray-forwarder Daemon";
+          after = [ "network.target" ];
+          wantedBy = [ "multi-user.target" ];
+          serviceConfig = let ip = "${pkgs.iproute2}/bin/ip"; in
+          {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = pkgs.writeShellScript "v2ray-forwarder.start"
+            ''
+              ${ip} rule add fwmark 1/1 table 100 priority 5000
+              ${ip} route add local 0.0.0.0/0 dev lo table 100
+            '';
+            ExecStop = pkgs.writeShellScript "v2ray-forwarder.stop"
+            ''
+              ${ip} rule del fwmark 1/1 table 100 priority 5000
+              ${ip} route del local 0.0.0.0/0 dev lo table 100
+            '';
+          };
+        };
+        network.networks."10-custom" = lib.mkIf (config.nixos.system.network.implementation == "systemd-networkd")
         {
           matchConfig.Name = "lo";
           routes = [{ Table = 100; Destination = "0.0.0.0/0"; Type = "local"; }];
           routingPolicyRules = [{ FirewallMark = "1/1"; Table = 100; Priority = 5000; }];
         };
       };
-    };
-    users =
-    {
-      users.v2ray = { uid = config.nixos.user.uid.v2ray; group = "v2ray"; isSystemUser = true; };
-      groups.v2ray.gid = config.nixos.user.gid.v2ray;
-    };
-    environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
-    networking =
-    {
-      nftables.tables.v2ray =
+      networking.nftables.tables.v2ray =
       {
         family = "inet";
         content =
@@ -337,13 +338,6 @@
             }
           '';
       };
-      firewall =
-      {
-        allowedTCPPorts = [ 53 ];
-        allowedUDPPorts = [ 53 ];
-        allowedTCPPortRanges = [{ from = 10880; to = 10884; }];
-        allowedUDPPortRanges = [{ from = 10880; to = 10884; }];
-      };
-    };
-  };
+    }
+  ]);
 }
