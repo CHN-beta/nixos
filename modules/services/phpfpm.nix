@@ -1,70 +1,41 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.services.phpfpm = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.phpfpm.instances = lib.mkOption
   {
-    instances = mkOption
+    type = lib.types.attrsOf (lib.types.submodule (submoduleInputs: { options =
     {
-      type = types.attrsOf (types.submodule (submoduleInputs: { options =
+      fastcgi = lib.mkOption
       {
-        user = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        group = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        package = mkOption { type = types.nullOr types.package; default = inputs.pkgs.php; };
-        fastcgi = mkOption
-        {
-          type = types.nonEmptyStr;
-          readOnly = true;
-          default = "unix:${inputs.config.services.phpfpm.pools.${submoduleInputs.config._module.args.name}.socket}";
-        };
-      };}));
-      default = {};
-    };
+        type = lib.types.nonEmptyStr;
+        readOnly = true;
+        default = "unix:${config.services.phpfpm.pools.${submoduleInputs.config._module.args.name}.socket}";
+      };
+    };}));
+    default = {};
   };
-  config =
-  let
-    inherit (builtins) map listToAttrs filter;
-    inherit (inputs.lib) attrsToList;
-    inherit (inputs.config.nixos.services) phpfpm;
-  in
+  config = let inherit (config.nixos.services) phpfpm; in
   {
-    services.phpfpm.pools = listToAttrs (map
-      (pool:
+    services.phpfpm.pools = phpfpm.instances
+      |> (builtins.mapAttrs (n: v:
       {
-        inherit (pool) name;
-        value = rec
+        user = n;
+        group = config.users.users.${n}.group;
+        settings =
         {
-          user = if pool.value.user == null then pool.name else pool.value.user;
-          group = if pool.value.group == null then inputs.config.users.users.${user}.group else pool.value.group;
-          phpPackage = pool.value.package;
-          settings =
-          {
-            "pm" = "ondemand";
-            "pm.max_children" = 4;
-            "pm.process_idle_timeout" = "60s";
-            "pm.max_requests" = 128;
-            "listen.owner" = inputs.config.services.nginx.user;
-            "listen.group" = inputs.config.services.nginx.group;
-          };
+          "pm" = "ondemand";
+          "pm.max_children" = 4;
+          "pm.process_idle_timeout" = "60s";
+          "pm.max_requests" = 128;
+          "listen.owner" = config.services.nginx.user;
+          "listen.group" = config.services.nginx.group;
         };
-      })
-      (attrsToList phpfpm.instances));
+      }));
     users =
     {
-      users = listToAttrs (map
-        (pool:
-        {
-          inherit (pool) name;
-          value =
-          {
-            uid = inputs.config.nixos.user.uid.${pool.name};
-            group = pool.name;
-            extraGroups = [ "nginx" ];
-            isSystemUser = true;
-          };
-        })
-        (filter (pool: pool.value.user == null) (attrsToList phpfpm.instances)));
-      groups = listToAttrs (map
-        (pool: { inherit (pool) name; value.gid = inputs.config.nixos.user.gid.${pool.name}; })
-        (filter (pool: pool.value.user == null) (attrsToList phpfpm.instances)));
+      users = phpfpm.instances
+        |> (builtins.mapAttrs (n: v:
+          { uid = config.nixos.user.uid.${n}; group = n; extraGroups = [ "nginx" ]; isSystemUser = true; }));
+      groups = builtins.mapAttrs (n: v: { gid = config.nixos.user.gid.${n}; }) phpfpm.instances;
     };
   };
 }
