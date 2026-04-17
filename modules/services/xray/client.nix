@@ -25,6 +25,12 @@
   {
     services =
     {
+      xray =
+      {
+        enable = true;
+        package = pkgs.pkgs-unstable.xray;
+        settingsFile = config.nixos.system.sops.templates."xray-client.json".path;
+      };
       coredns =
       {
         enable = true;
@@ -209,19 +215,15 @@
       services = lib.mkMerge
       [
         {
-          xray-client =
+          xray =
           {
-            after = [ "network.target" ];
-            wantedBy = [ "multi-user.target" ];
-            script = let configFile = config.nixos.system.sops.templates."xray-client.json".path; in
-              "exec ${pkgs.pkgs-unstable.xray}/bin/xray -config ${configFile}";
             serviceConfig =
             {
+              DynamicUser = lib.mkForce false;
               User = "v2ray";
               Group = "v2ray";
               CapabilityBoundingSet = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
               AmbientCapabilities = "CAP_NET_ADMIN CAP_NET_BIND_SERVICE";
-              NoNewPrivileges = true;
               LimitNPROC = 65536;
               LimitNOFILE = 524288;
               CPUSchedulingPolicy = "rr";
