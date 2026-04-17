@@ -1,8 +1,7 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.services.howdy = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = null; };
-  config = let inherit (inputs.config.nixos.services) howdy; in inputs.lib.mkIf (howdy != null)
+  options.nixos.services.howdy = lib.mkOption { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
+  config = let inherit (config.nixos.services) howdy; in lib.mkIf (howdy != null)
   {
     services =
     {
