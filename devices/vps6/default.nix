@@ -30,13 +30,7 @@
         nginx =
         {
           streamProxy.map =
-          {
-            "anchor.fm" = { upstream = "anchor.fm:443"; proxyProtocol = false; };
-            "podcasters.spotify.com" = { upstream = "podcasters.spotify.com:443"; proxyProtocol = false; };
-            "xlog.chn.moe" = { upstream = "cname.xlog.app:443"; proxyProtocol = false; };
-            "xservernas.chn.moe" = { upstream = "tinc0.nas.chn.moe:443"; proxyProtocol = false; };
-          }
-          // (builtins.listToAttrs (builtins.map
+          (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "tinc0.nas.chn.moe"; })
             [ "xn--s8w913fdga" "matrix" "git" "question" ]))
           // { "xn--qbtm095lrg0bfka60z.chn.moe" = { upstream.address = "tinc0.pc.chn.moe"; }; }

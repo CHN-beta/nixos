@@ -3,7 +3,7 @@ let
   cname =
   {
     nas = [ "initrd.nas" ];
-    office = [ "xserverxmu" "srv2-node0" ];
+    office = [ "srv2-node0" ];
     vps4 = [ "initrd.vps4" "xserver2.vps4" "status" ];
     vps6 =
     [
@@ -16,7 +16,6 @@ let
     ];
     # temporary
     "remove-me.vps6" = [ "zzzhongbao2026" ];
-    "xlog.autoroute" = [ "xlog" ];
     "tinc0.srv1-node0" = [ "tinc0.srv1" ];
     "tinc0.srv2-node0" = [ "tinc0.srv2" ];
     srv1-node0 = [ "srv1" ];
@@ -28,7 +27,7 @@ let
     [
       "initrd.vps9" "xserver2.vps9"
       # to nas
-      "grafana" "peertube" "send" "xservernas" "freshrss" "huginn" "nextcloud"
+      "grafana" "peertube" "send" "freshrss" "huginn" "nextcloud"
       "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api" "photo" "readeck"
     ];
   };
@@ -66,7 +65,6 @@ in
     }
     { type = "TXT"; value = "v=spf1 include:mxlogin.com -all"; }
   ];
-  "_xlog-challenge.xlog" = { type = "TXT"; value = "chn"; };
   autoroute = { type = "NS"; values = "vps6.chn.moe."; };
   ts = { type = "NS"; values = "vps6.chn.moe."; };
   "mail" = { type = "CNAME"; value = "tuesday.mxrouting.net."; };
