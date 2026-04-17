@@ -1,16 +1,21 @@
-inputs:
+{ lib, config, flakeInputs, ... }:
 {
-  options.nixos.services.coredns = let inherit (inputs.lib) mkOption types; in mkOption
+  options.nixos.services.coredns = lib.mkOption
   {
-    type = types.nullOr (types.submodule (submoduleInputs: { options =
+    type = lib.types.nullOr (lib.types.submodule (submoduleInputs: { options =
     {
-      interface = mkOption { type = types.str; };
-      ns = mkOption { type = types.str; };
+      interface = lib.mkOption { type = lib.types.str; };
+      ns = lib.mkOption { type = lib.types.str; };
     };}));
     default = null;
   };
-  config = let inherit (inputs.config.nixos.services) coredns; in inputs.lib.mkIf (coredns != null)
+  config = let inherit (config.nixos.services) coredns; in lib.mkIf (coredns != null)
   {
+    assertions =
+    [{
+      assertion = config.nixos.services.xray.client == null;
+      message = "Currenty xray.client and coredns could not be simutaniusly enabled.";
+    }];
     services.coredns =
     {
       enable = true;
@@ -18,7 +23,7 @@ inputs:
       ''
         autoroute.chn.moe {
           bind ${coredns.interface}
-          geoip ${inputs.config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
+          geoip ${config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
           log
           errors
           metadata
@@ -29,7 +34,7 @@ inputs:
           }
           template IN A {
             match ^autoroute\.chn\.moe\.$
-            answer "{{.Name}} 60 IN A ${inputs.flakeInputs.self.config.dns."chn.moe".getAddress "vps6"}"
+            answer "{{.Name}} 60 IN A ${flakeInputs.self.config.dns."chn.moe".getAddress "vps6"}"
           }
           template IN ANY {
             match ".*"
