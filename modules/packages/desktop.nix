@@ -1,4 +1,4 @@
-{ lib, pkgs, config, ... }:
+{ lib, pkgs, config, flakeInputs, ... }:
 {
   config = lib.mkIf (config.nixos.model.type == "desktop") (lib.mkMerge
   [

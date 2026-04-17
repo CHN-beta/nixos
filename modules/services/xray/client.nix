@@ -317,9 +317,10 @@
               # otherwise, all packets will be leave for further decision
               ${if !client.v2ray-forwarder.asRouter then "meta mark & 1 == 0 counter return" else ""}
               ip daddr @noproxy_net counter return
-              ip daddr @proxy_net counter tproxy ip to :${proxyPort} meta mark set meta mark | 1 return
+              ip daddr @proxy_net meta l4proto == { tcp, udp } counter \
+                tproxy ip to :${proxyPort} meta mark set meta mark | 1 return
               ip daddr @lo_net counter return
-              counter tproxy ip to :${autoPort} meta mark set meta mark | 1 return
+              meta l4proto == { tcp, udp } counter tproxy ip to :${autoPort} meta mark set meta mark | 1 return
               return
             }
 
