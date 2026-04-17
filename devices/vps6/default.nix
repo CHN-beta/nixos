@@ -47,7 +47,7 @@
             synapse-admin.instances."synapse-admin.chn.moe" = {};
             catalog.enable = true;
             main = {};
-            nekomia.enable = true;
+            nekomia = {};
             blog = {};
             sticker = {};
             tgapi = {};

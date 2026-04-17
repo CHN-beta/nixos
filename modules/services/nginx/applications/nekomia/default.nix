@@ -1,10 +1,8 @@
 { lib, config, pkgs, ... }:
 {
-  options.nixos.services.nginx.applications.nekomia =
-  {
-    enable = lib.mkOption { type = lib.types.bool; default = false; };
-  };
-  config = let inherit (config.nixos.services.nginx.applications) nekomia; in lib.mkIf nekomia.enable
+  options.nixos.services.nginx.applications.nekomia = lib.mkOption
+    { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
+  config = let inherit (config.nixos.services.nginx.applications) nekomia; in lib.mkIf (nekomia != null)
   {
     nixos.services.nginx.https."nekomia.moe".location."/".static =
     {
