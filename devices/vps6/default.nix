@@ -44,7 +44,7 @@
           applications =
           {
             element = {};
-            synapse-admin.instances."synapse-admin.chn.moe" = {};
+            synapse-admin = {};
             catalog = {};
             main = {};
             nekomia = {};
