@@ -45,7 +45,7 @@
           {
             element.instances."element.chn.moe" = {};
             synapse-admin.instances."synapse-admin.chn.moe" = {};
-            catalog.enable = true;
+            catalog = {};
             main = {};
             nekomia = {};
             blog = {};
