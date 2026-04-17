@@ -43,8 +43,11 @@
             dns =
             {
               servers =
-              # 先尝试匹配域名列表进行查询，若匹配成功则使用前两个 dns 查询。
-              # 若匹配域名列表失败，或者匹配成功但是查询到的 IP 不在期望的 IP 列表中，则回落到使用后两个 dns 依次查询。
+              # try to match the domain list first, if matched successfully, use the first two dns for query.
+              # if matching the domain list fails, or matched successfully but the queried IP is not in the expected IP 
+              #   list, then fallback to use the last two dns for query.
+              # here we use DoH GET instead of POST since 223.5.5.5 seems does not support DoH POST.
+              # see patch in buildNixpkgsConfig.
               [
                 {
                   address = "https://223.5.5.5/dns-query";
@@ -61,6 +64,7 @@
                 { address = "https://223.5.5.5/dns-query"; expectIPs = [ "geoip:cn" ]; }
                 { address = "8.8.8.8"; }
               ];
+              # use cache in coredns instead of xray
               disableCache = true;
               queryStrategy = "UseIPv4";
               tag = "dns-internal";
@@ -232,6 +236,17 @@
     }
     # transparent proxy part
     {
+      # three type of TCP/UDP stream should be considered:
+      # 1. we are server (raised by other machine or us, destined to us).
+      #     These stream should never be proxied, and will be marked with ct mark 1.
+      # 2. we are client (raised by us, destined to other machine).
+      #     These stream should be proxied, and the packet (not the stream) will be marked with fwmark 1,
+      #     except some special cases.
+      # 3. we are router (raised by other machine, destined to other machine).
+      #     These stream should be proxied or not, depending on the usage scenario.
+      # packets should be proxied will be marked with fwmark 1 then route to lo,
+      #   and stream should not be proxied will be marked with ct mark 1.
+      # note that ip rule should have higher priority than talescale (5270)
       systemd =
       {
         services.v2ray-forwarder = lib.mkIf (config.nixos.system.network.implementation == "networkmanager")
@@ -283,39 +298,46 @@
           ''
             set lo_net { type ipv4_addr; flags interval; elements = { ${loNetStr} }; }
             set noproxy_net { type ipv4_addr; flags interval; elements = { 223.5.5.5 }; }
-            set noproxy_src_net { type ipv4_addr; flags interval; }
             set proxy_net { type ipv4_addr; flags interval; elements = { 8.8.8.8 }; }
 
             chain prerouting {
               type filter hook prerouting priority mangle; policy accept;
               meta l4proto != { tcp, udp } counter return
 
-              # 对于目标地址为本机的新建的流，标记并永不代理
+              # stream destined to us should not be proxied
               fib daddr type local ct state new counter ct mark set ct mark | 1 return
               ct mark & 1 == 1 counter return
 
-              # 如果不作为路由器使用，则可以返回那些没有被标记的流量
-              ${if client.v2ray-forwarder.asRouter then "" else "meta mark & 1 == 0 counter return"}
-
-              ip saddr @noproxy_src_net counter return
+              # The remaining packets are destined to other machines
+              # if it is raised by us, weather it should be proxied (packet type 2a) or not (packet type 2b)
+              #   should have been decided in the output chain and mark with fwmark 1 (2a) or not (2b)
+              # if it is raised by other machine (packet type 3), then we will here to decide whether to proxy it
+              # if it is not used as router, we should not proxy packet without fwmark 1 (2b and 3),
+              #   leaving only packet with fwmark 1 (2a) to be proxied
+              # otherwise, all packets will be leave for further decision
+              ${if !client.v2ray-forwarder.asRouter then "meta mark & 1 == 0 counter return" else ""}
               ip daddr @noproxy_net counter return
-              ip daddr @proxy_net meta l4proto { tcp, udp } counter tproxy ip to :${proxyPort} \
-                meta mark set meta mark | 1 return
+              ip daddr @proxy_net counter tproxy ip to :${proxyPort} meta mark set meta mark | 1 return
               ip daddr @lo_net counter return
-              meta l4proto { tcp, udp } counter tproxy ip to :${autoPort} meta mark set meta mark | 1 return
+              counter tproxy ip to :${autoPort} meta mark set meta mark | 1 return
               return
             }
 
             chain output {
               type route hook output priority mangle; policy accept;
-              ct mark & 1 == 1 counter return
-              meta skuid { ${noproxyUserStr} } counter return
+              meta l4proto != { tcp, udp } counter return
 
-              ip saddr @noproxy_src_net counter return
+              # stream destined to us should not be proxied
+              ct mark & 1 == 1 counter return
+
+              # remaining streams are raised by us and destined to other machines,
+              #   we should decide whether to proxy them or not
+              # for packet should be proxied, mark it with fwmark 1, it will then be handled by prerouting chain
+              meta skuid { ${noproxyUserStr} } counter return
               ip daddr @noproxy_net counter return
               ip daddr @proxy_net counter meta mark set meta mark | 1 return
               ip daddr @lo_net counter return
-              meta l4proto { tcp, udp } counter meta mark set meta mark | 1 return
+              counter meta mark set meta mark | 1 return
               return
             }
           '';
