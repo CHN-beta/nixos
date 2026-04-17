@@ -1,8 +1,7 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.services.headscale = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = null; };
-  config = let inherit (inputs.config.nixos.services) headscale; in inputs.lib.mkIf (headscale != null)
+  options.nixos.services.headscale = lib.mkOption { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
+  config = let inherit (config.nixos.services) headscale; in lib.mkIf (headscale != null)
   {
     services.headscale =
     {
@@ -16,7 +15,7 @@ inputs:
         {
           user = "headscale";
           port = 5432;
-          password_file = inputs.config.nixos.system.sops.secrets."headscale/postgresql".path;
+          password_file = config.nixos.system.sops.secrets."headscale/postgresql".path;
           name = "headscale";
           host = "127.0.0.1";
         };
