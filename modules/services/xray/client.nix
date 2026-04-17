@@ -82,13 +82,6 @@
                 tag = "common-in";
               }
               {
-                port = 10881;
-                protocol = "dokodemo-door";
-                settings = { network = "tcp,udp"; followRedirect = true; };
-                streamSettings.sockopt.tproxy = "tproxy";
-                tag = "xmu-in";
-              }
-              {
                 port = 10883;
                 protocol = "dokodemo-door";
                 settings = { network = "tcp,udp"; followRedirect = true; };
@@ -135,11 +128,6 @@
               }
               { protocol = "freedom"; tag = "direct"; }
               { protocol = "dns"; tag = "dns-out"; }
-              {
-                protocol = "socks";
-                settings.servers = [{ address = "127.0.0.1"; port = 10069; }];
-                tag = "xmu-out";
-              }
               { protocol = "blackhole"; tag = "block"; }
             ];
             routing =
@@ -159,7 +147,6 @@
                   outboundTag = "proxy-vless";
                 }
                 { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
-                { inboundTag = [ "xmu-in" ]; outboundTag = "xmu-out"; }
                 { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
                 { inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = "proxy-vless"; }
                 {
@@ -281,7 +268,6 @@
         content =
           let
             autoPort = "10880";
-            xmuPort = "10881";
             proxyPort = "10883";
             loNet =
             [
@@ -296,7 +282,6 @@
           in
           ''
             set lo_net { type ipv4_addr; flags interval; elements = { ${loNetStr} }; }
-            set xmu_net { type ipv4_addr; flags interval; }
             set noproxy_net { type ipv4_addr; flags interval; elements = { 223.5.5.5 }; }
             set noproxy_src_net { type ipv4_addr; flags interval; }
             set proxy_net { type ipv4_addr; flags interval; elements = { 8.8.8.8 }; }
@@ -314,8 +299,6 @@
 
               ip saddr @noproxy_src_net counter return
               ip daddr @noproxy_net counter return
-              ip saddr != 172.16.0.0/12 ip daddr @xmu_net meta l4proto { tcp, udp } counter \
-                tproxy ip to :${xmuPort} meta mark set meta mark | 1 return
               ip daddr @proxy_net meta l4proto { tcp, udp } counter tproxy ip to :${proxyPort} \
                 meta mark set meta mark | 1 return
               ip daddr @lo_net counter return
@@ -330,7 +313,6 @@
 
               ip saddr @noproxy_src_net counter return
               ip daddr @noproxy_net counter return
-              ip daddr @xmu_net counter meta mark set meta mark | 1 return
               ip daddr @proxy_net counter meta mark set meta mark | 1 return
               ip daddr @lo_net counter return
               meta l4proto { tcp, udp } counter meta mark set meta mark | 1 return
