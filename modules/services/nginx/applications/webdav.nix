@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, ... }:
 {
   options.nixos.services.nginx.applications.webdav.instances = lib.mkOption
   {
