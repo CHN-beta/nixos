@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, flakeInputs, localLib, ... }:
 {
   config = lib.mkMerge
   [
@@ -336,7 +336,7 @@
       programs.zsh.enable = true;
     }
     {
-      config.nixos.user.sharedModules = [(homeInputs:
+      nixos.user.sharedModules = [(homeInputs:
       {
         config =
         {

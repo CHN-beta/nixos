@@ -1,6 +1,5 @@
-{ lib, config, ... }:
 {
-  config = lib.mkIf (config.nixos.packages.git != null)
+  config =
   {
     home-manager.users.chn.config.programs =
     {
