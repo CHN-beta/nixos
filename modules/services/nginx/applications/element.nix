@@ -1,33 +1,18 @@
 { lib, config, pkgs, ... }:
 {
-  options.nixos.services.nginx.applications.element.instances = lib.mkOption
+  options.nixos.services.nginx.applications.element = lib.mkOption
+    { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
+  config = let inherit (config.nixos.services.nginx.applications) element; in lib.mkIf (element != null)
   {
-    type = lib.types.attrsOf (lib.types.submodule (submoduleInputs: { options =
+    nixos.services.nginx.https."element.chn.moe".location."/".static =
     {
-      hostname = lib.mkOption { type = lib.types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-      defaultServer = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = "matrix.chn.moe"; };
-    };}));
-    default = {};
-  };
-  config = let inherit (config.nixos.services.nginx.applications.element) instances; in
-  {
-    nixos.services.nginx.https = builtins.listToAttrs (builtins.map
-      (instance: with instance.value;
+      root = builtins.toString (pkgs.element-web.override { conf =
       {
-        name = hostname;
-        value.location."/".static =
-        {
-          root =
-            if defaultServer == null then builtins.toString pkgs.element-web
-            else builtins.toString (pkgs.element-web.override { conf =
-            {
-              default_server_config."m.homeserver" =
-                { base_url = "https://${defaultServer}"; server_name = defaultServer; };
-              disable_guests = false;
-            };});
-          index = [ "index.html" ];
-        };
-      })
-      (lib.attrsToList instances));
+        default_server_config."m.homeserver" =
+          { base_url = "https://element.chn.moe"; server_name = "element.chn.moe"; };
+        disable_guests = false;
+      };});
+      index = [ "index.html" ];
+    };
   };
 }

@@ -43,7 +43,7 @@
           // { "jupyterhub.chn.moe" = { upstream.address = "tinc0.srv2-node2.chn.moe"; }; };
           applications =
           {
-            element.instances."element.chn.moe" = {};
+            element = {};
             synapse-admin.instances."synapse-admin.chn.moe" = {};
             catalog = {};
             main = {};
