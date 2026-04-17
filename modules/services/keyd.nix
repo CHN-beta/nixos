@@ -1,8 +1,7 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.services.keyd = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = null; };
-  config = let inherit (inputs.config.nixos.services) keyd; in inputs.lib.mkIf (keyd != null)
+  options.nixos.services.keyd = lib.mkOption { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
+  config = let inherit (config.nixos.services) keyd; in lib.mkIf (keyd != null)
   {
     services.keyd =
     {
@@ -17,6 +16,6 @@ inputs:
         };
       };
     };
-    environment.systemPackages = [ inputs.pkgs.keyd ];
+    environment.systemPackages = [ pkgs.keyd ];
   };
 }
