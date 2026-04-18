@@ -1,29 +1,25 @@
-inputs:
+{ lib, config, pkgs, ... }:
 {
-  options.nixos.services.postgresql = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.postgresql =
   {
-    enable = mkOption { type = types.bool; default = inputs.config.nixos.services.postgresql.instances != {}; };
-    instances = mkOption
+    instances = lib.mkOption
     {
-      type = types.attrsOf (types.submodule (submoduleInputs: { options =
+      type = lib.types.attrsOf (lib.types.submodule (submoduleInputs: { options =
       {
-        database = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-        user = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-        passwordFile = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        initializeFlags = mkOption { type = types.attrsOf types.nonEmptyStr; default = {}; };
+        initializeFlags = lib.mkOption { type = lib.types.attrsOf lib.types.nonEmptyStr; default = {}; };
       };}));
       default = {};
     };
-    mountFrom = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
+    mountFrom = lib.mkOption { type = lib.types.nullOr lib.types.nonEmptyStr; default = null; };
   };
-  config = let inherit (inputs.config.nixos.services) postgresql; in inputs.lib.mkIf postgresql.enable
+  config = let inherit (config.nixos.services) postgresql; in lib.mkIf (postgresql.instances != {})
   {
     services =
     {
       postgresql =
       {
         enable = true;
-        package = inputs.pkgs.postgresql_17;
+        package = pkgs.postgresql_17;
         extensions = ps: with ps; [ pgroonga ];
         enableTCPIP = true;
         authentication = "host all all 0.0.0.0/0 md5";
@@ -48,47 +44,42 @@ inputs:
         # chattr +C /path/to/dir
         # cp -a --reflink=never /path/to/dir_old/. /path/to/dir
         # rm -rf /path/to/dir_old
-        ensureUsers = builtins.map (db: { name = db.value.user; }) (inputs.lib.attrsToList postgresql.instances);
+        ensureUsers = postgresql.instances |> lib.mapAttrsToList (n: v: { name = n; });
       };
       postgresqlBackup =
       {
         enable = postgresql.mountFrom != null;
         pgdumpOptions = "-Fc";
         compression = "none";
-        databases = builtins.map (db: db.value.database) (inputs.lib.attrsToList postgresql.instances);
+        databases = postgresql.instances |> lib.mapAttrsToList (n: v: n);
       };
     };
-    systemd.services.postgresql-setup.script = inputs.lib.mkAfter (builtins.concatStringsSep "\n" (builtins.map
-      (db:
+    systemd.services.postgresql-setup.script = postgresql.instances
+      |> lib.mapAttrsToList (n: v:
         let
-          passwordFile =
-            if db.value.passwordFile or null != null then db.value.passwordFile
-            else inputs.config.nixos.system.sops.secrets."postgresql/${db.value.user}".path;
-          initializeFlag =
-            if db.value.initializeFlags != {} then
-              " WITH "
-              + (builtins.concatStringsSep " " (map
-                (flag: ''${flag.name} = "${flag.value}"'')
-                (inputs.lib.attrsToList db.value.initializeFlags)))
-            else "";
+          passwordFile = config.nixos.system.sops.secrets."postgresql/${n}".path;
+          initializeFlag = lib.optionalString (v.initializeFlags != {}) (v.initializeFlags
+            |> lib.mapAttrsToList (n: v: ''${n} = "${v}"'')
+            |> builtins.concatStringsSep " "
+            |> (s: " WITH ${s}"));
         in
-        # create database if not exist
-        "psql -tAc \"SELECT 1 FROM pg_database WHERE datname = '${db.value.database}'\" | grep -q 1"
-          + " || psql -tAc 'CREATE DATABASE \"${db.value.database}\"${initializeFlag}'"
-        # set user password
-          + "\n"
-          + "psql -tAc \"ALTER USER ${db.value.user} with encrypted password '$(cat ${passwordFile})'\""
-        # set db owner
-          + "\n"
-          + "psql -tAc \"select pg_catalog.pg_get_userbyid(d.datdba) FROM pg_catalog.pg_database d"
-          + " WHERE d.datname = '${db.value.database}' ORDER BY 1\""
-          + " | grep -E '^${db.value.user}$' -q"
-          + " || psql -tAc \"ALTER DATABASE ${db.value.database} OWNER TO ${db.value.user}\"")
-      (inputs.lib.attrsToList postgresql.instances)));
-    nixos.system.sops.secrets = builtins.listToAttrs (builtins.map
-      (db: { name = "postgresql/${db.value.user}"; value.owner = inputs.config.users.users.postgres.name; })
-      (builtins.filter (db: db.value.passwordFile == null) (inputs.lib.attrsToList postgresql.instances)));
-    environment.persistence = inputs.lib.mkIf (postgresql.mountFrom != null)
+        ''
+          # create database if not exist
+          psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${n}'" | grep -q 1 \
+            || psql -tAc 'CREATE DATABASE "${n}"${initializeFlag}'
+          # set user password
+          psql -tAc "ALTER USER ${n} with encrypted password '$(cat ${passwordFile})'"
+          # set db owner
+          psql -tAc "select pg_catalog.pg_get_userbyid(d.datdba) FROM pg_catalog.pg_database \
+              d WHERE d.datname = '${n}' ORDER BY 1" \
+            | grep -E '^${n}$' -q \
+            || psql -tAc "ALTER DATABASE ${n} OWNER TO ${n}"
+        '')
+      |> builtins.concatStringsSep "\n"
+      |> lib.mkAfter;
+    nixos.system.sops.secrets = postgresql.instances
+      |> lib.mapAttrs' (n: v: lib.nameValuePair "postgresql/${n}" { owner = "postgres"; });
+    environment.persistence = lib.mkIf (postgresql.mountFrom != null)
     {
       "/nix/${postgresql.mountFrom}".directories =
         [{ directory = "/var/lib/postgresql"; user = "postgres"; group = "postgres"; mode = "0750"; }];
