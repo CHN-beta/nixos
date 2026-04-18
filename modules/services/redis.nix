@@ -1,44 +1,33 @@
-inputs:
+{ lib, config, ... }:
 {
-  options.nixos.services.redis = let inherit (inputs.lib) mkOption types; in
+  options.nixos.services.redis =
   {
-    instances = mkOption
+    instances = lib.mkOption
     {
-      type = types.attrsOf (types.submodule (submoduleInputs: { options =
+      type = lib.types.attrsOf (lib.types.submodule (submoduleInputs: { options =
       {
-        user = mkOption { type = types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
-        passwordFile = mkOption { type = types.nullOr types.nonEmptyStr; default = null; };
-        port = mkOption { type = types.ints.unsigned; };
+        user = lib.mkOption { type = lib.types.nonEmptyStr; default = submoduleInputs.config._module.args.name; };
+        port = lib.mkOption { type = lib.types.ints.unsigned; };
       };}));
       default = {};
     };
   };
-  config = let inherit (inputs.config.nixos.services) redis; in
+  config = let inherit (config.nixos.services) redis; in
   {
-    services.redis.servers = builtins.listToAttrs (builtins.map
-      (server:
+    services.redis.servers = redis.instances
+      |> builtins.mapAttrs (n: v:
       {
-        inherit (server) name;
-        value =
-        {
-          enable = true;
-          bind = null;
-          port = server.value.port;
-          user = server.value.user;
-          # unixSocket = null; # bug
-          unixSocketPerm = 600;
-          requirePassFile =
-            if server.value.passwordFile == null
-              then inputs.config.nixos.system.sops.secrets."redis/${server.name}".path
-            else server.value.passwordFile;
-        };
-      })
-      (inputs.lib.attrsToList redis.instances));
-    nixos.system.sops.secrets = builtins.listToAttrs (builtins.map
-      (server: { name = "redis/${server.name}"; value.owner = inputs.config.users.users.${server.value.user}.name; })
-      (builtins.filter (server: server.value.passwordFile == null) (inputs.lib.attrsToList redis.instances)));
-    systemd.services = builtins.listToAttrs (builtins.map
-      (server: { name = "redis-${server}"; value.serviceConfig.TimeoutStartSec = 0; })
-      (builtins.attrNames redis.instances));
+        enable = true;
+        bind = null;
+        port = v.port;
+        user = v.user;
+        # unixSocket = null; # bug
+        unixSocketPerm = 600;
+        requirePassFile = config.nixos.system.sops.secrets."redis/${n}".path;
+      });
+    nixos.system.sops.secrets = redis.instances
+      |> lib.mapAttrs' (n: v: lib.nameValuePair "redis/${n}" { owner = v.user; });
+    systemd.services = redis.instances
+      |> lib.mapAttrs' (n: v: lib.nameValuePair "redis-${n}" { serviceConfig.TimeoutStartSec = 0; });
   };
 }
