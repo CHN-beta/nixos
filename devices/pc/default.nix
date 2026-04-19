@@ -152,11 +152,6 @@
       # 插拔电源和扩展坞不要唤醒电脑
       "acpi.ec_no_wakeup=1"
     ];
-    systemd.tmpfiles.rules =
-    [
-      "w /sys/block/bcache*/bcache/sequential_cutoff - - - - 0"
-      "w /sys/block/bcache*/bcache/writeback_percent - - - - 30"
-    ];
     # 手写笔
     hardware.opentabletdriver.enable = true;
     # 从休眠/睡眠中恢复后，重载重力传感器
