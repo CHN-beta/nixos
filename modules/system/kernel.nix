@@ -109,7 +109,7 @@
                 "sys-kernel_arch-sources-g14_files-0047-asus-nb-wmi-Add-tablet_mode_sw-lid-flip.patch"
                 "sys-kernel_arch-sources-g14_files-0048-asus-nb-wmi-fix-tablet_mode_sw_int.patch"
                 "ga403wr-fix-audio.patch"
-                "0001-bluetooth-btus-add-new-vid-pid.patch"
+                # "0001-bluetooth-btus-add-new-vid-pid.patch"
               ];
           };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
