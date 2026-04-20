@@ -56,8 +56,7 @@
       ];
       kernelPackages = lib.mkIf (kernel.variant != null)
       {
-        # TODO: use linuxPackages in next release
-        nixos = pkgs.linuxPackages_6_18;
+        nixos = pkgs.linuxPackages;
         xanmod-lts = pkgs.linuxPackages_xanmod;
         xanmod-latest = pkgs.linuxPackages_xanmod_latest;
       }.${kernel.variant};
