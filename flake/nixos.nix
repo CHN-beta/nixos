@@ -25,7 +25,3 @@ in deviceModules
       specialArgs = { flakeInputs = inputs; inherit localLib; };
       modules = (localLib.mkModules v) ++ [ inputs.self.nixosModules.default ];
     })
-  |> builtins.mapAttrs (n: v:
-    let archive = (v.extendModules { modules = [{ config.system.includeBuildDependencies = true; }]; })
-      .config.system.build.toplevel;
-    in v |> lib.addMetaAttrs { inherit archive; })

@@ -27,7 +27,10 @@
   };
   archive =
     let
-      systems = inputs.nixpkgs.lib.mapAttrs (_: v: v.archive) inputs.self.outputs.nixosConfigurations;
+      systemWithBuildDeps = system:
+        (system.extendModules { modules = [{ config.system.includeBuildDependencies = true; }]; })
+          .config.system.build.toplevel;
+      systems = inputs.nixpkgs.lib.mapAttrs (_: v: systemWithBuildDeps v) inputs.self.outputs.nixosConfigurations;
       inputListFile = pkgs.writeText "input-list"
         (builtins.concatStringsSep "\n" (builtins.attrValues inputs));
       archive = pkgs.writeText "archive" (builtins.concatStringsSep "\n"
