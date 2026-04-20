@@ -1,17 +1,16 @@
-inputs:
+{ lib, config, pkgs, flakeInputs, ... }:
 {
-  options.nixos.system.kernel = let inherit (inputs.lib) mkOption types; in
+  options.nixos.system.kernel =
   {
-    variant = mkOption
+    variant = lib.mkOption
     {
-      type = types.nullOr
-        (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" "cachyos" "cachyos-lts" ]);
-      default =
-        if with inputs.config.nixos.model; (arch == "x86_64" && type == "desktop") then "xanmod-lts" else "nixos";
+      type = lib.types.nullOr
+        (lib.types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" "cachyos" "cachyos-lts" ]);
+      default = if with config.nixos.model; (arch == "x86_64" && type == "desktop") then "xanmod-lts" else "nixos";
     };
-    patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
+    patches = lib.mkOption { type = lib.types.listOf lib.types.nonEmptyStr; default = []; };
   };
-  config = let inherit (inputs.config.nixos.system) kernel; in
+  config = let inherit (config.nixos.system) kernel; in
   {
     boot =
     {
@@ -48,34 +47,34 @@ inputs:
         "bcache"
       ]
         # touchscreen for one
-        ++ (inputs.lib.optionals (inputs.config.nixos.model.arch == "x86_64") [ "pinctrl-tigerlake" ]);
-      extraModulePackages = inputs.lib.optionals (inputs.pkgs.stdenv.hostPlatform.linuxArch == "x86_64")
-        [ inputs.config.boot.kernelPackages.zenpower ];
-      kernelParams = inputs.lib.mkMerge
+        ++ (lib.optionals (config.nixos.model.arch == "x86_64") [ "pinctrl-tigerlake" ]);
+      extraModulePackages = lib.optionals (config.nixos.model.arch == "x86_64")
+        [ config.boot.kernelPackages.zenpower ];
+      kernelParams = lib.mkMerge
       [
         [ "delayacct" ]
-        (inputs.lib.mkIf (builtins.elem "btrfs" kernel.patches) [ "btrfs.read_policy=queue" ])
+        (lib.mkIf (builtins.elem "btrfs" kernel.patches) [ "btrfs.read_policy=queue" ])
       ];
-      kernelPackages = inputs.lib.mkIf (kernel.variant != null)
+      kernelPackages = lib.mkIf (kernel.variant != null)
       {
         # TODO: use linuxPackages in next release
-        nixos = inputs.pkgs.linuxPackages_6_18;
-        xanmod-lts = inputs.pkgs.linuxPackages_xanmod;
-        xanmod-latest = inputs.pkgs.linuxPackages_xanmod_latest;
-        cachyos = inputs.pkgs.cachyosKernels.linuxPackages-cachyos-latest;
-        cachyos-lts = inputs.pkgs.cachyosKernels.linuxPackages-cachyos-lts;
+        nixos = pkgs.linuxPackages_6_18;
+        xanmod-lts = pkgs.linuxPackages_xanmod;
+        xanmod-latest = pkgs.linuxPackages_xanmod_latest;
+        cachyos = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
+        cachyos-lts = pkgs.cachyosKernels.linuxPackages-cachyos-lts;
       }.${kernel.variant};
       kernelPatches =
         let
-          version = inputs.lib.versions.majorMinor inputs.config.boot.kernelPackages.kernel.version;
+          version = lib.versions.majorMinor config.boot.kernelPackages.kernel.version;
           patches =
           {
-            btrfs = [(inputs.flakeInputs.self.src.btrfs.${version} // { name = "btrfs"; })];
+            btrfs = [(flakeInputs.self.src.btrfs.${version} // { name = "btrfs"; })];
             asus = builtins.map
               (file:
               {
                 name = "asus-${file}";
-                patch = "${inputs.flakeInputs.linux-asus}/${file}";
+                patch = "${flakeInputs.linux-asus}/${file}";
               })
               [
                 # copy from PKGBUILD
