@@ -6,7 +6,8 @@ inputs:
     {
       type = types.nullOr
         (types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" "cachyos" "cachyos-lts" ]);
-      default = { x86_64 = "xanmod-lts"; aarch64 = "nixos"; }.${inputs.config.nixos.model.arch};
+      default =
+        if with inputs.config.nixos.model; (arch == "x86_64" && type == "desktop") then "xanmod-lts" else "nixos";
     };
     patches = mkOption { type = types.listOf types.nonEmptyStr; default = []; };
   };
@@ -57,7 +58,8 @@ inputs:
       ];
       kernelPackages = inputs.lib.mkIf (kernel.variant != null)
       {
-        nixos = inputs.pkgs.linuxPackages;
+        # TODO: use linuxPackages in next release
+        nixos = inputs.pkgs.linuxPackages_6_18;
         xanmod-lts = inputs.pkgs.linuxPackages_xanmod;
         xanmod-latest = inputs.pkgs.linuxPackages_xanmod_latest;
         cachyos = inputs.pkgs.cachyosKernels.linuxPackages-cachyos-latest;
