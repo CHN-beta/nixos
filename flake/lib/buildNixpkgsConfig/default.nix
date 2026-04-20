@@ -42,7 +42,6 @@ let
       inputs.flakeInputs.buildproxy.overlays.default
       inputs.flakeInputs.nix4vscode.overlays.default
       inputs.flakeInputs.bscpkgs.overlays.default
-      inputs.flakeInputs.nix-cachyos-kernel.overlays.default
       inputs.flakeInputs.chinese-fonts.overlays.default
       (final: prev:
       {

@@ -4,8 +4,7 @@
   {
     variant = lib.mkOption
     {
-      type = lib.types.nullOr
-        (lib.types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" "cachyos" "cachyos-lts" ]);
+      type = lib.types.nullOr (lib.types.enum [ "nixos" "xanmod-lts" "xanmod-latest" "xanmod-unstable" ]);
       default = if with config.nixos.model; (arch == "x86_64" && type == "desktop") then "xanmod-lts" else "nixos";
     };
     patches = lib.mkOption { type = lib.types.listOf lib.types.nonEmptyStr; default = []; };
@@ -61,8 +60,6 @@
         nixos = pkgs.linuxPackages_6_18;
         xanmod-lts = pkgs.linuxPackages_xanmod;
         xanmod-latest = pkgs.linuxPackages_xanmod_latest;
-        cachyos = pkgs.cachyosKernels.linuxPackages-cachyos-latest;
-        cachyos-lts = pkgs.cachyosKernels.linuxPackages-cachyos-lts;
       }.${kernel.variant};
       kernelPatches =
         let
