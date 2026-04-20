@@ -10,5 +10,6 @@
       supergfxd.enable = false;
     };
     programs.rog-control-center.enable = true;
+    nixos.system.kernel.patches = [ "asus" ];
   };
 }
