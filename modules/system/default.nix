@@ -1,6 +1,6 @@
-inputs:
+{ localLib, config, flakeInputs, lib, ... }:
 {
-  imports = inputs.localLib.findModules ./.;
+  imports = localLib.findModules ./.;
   config =
   {
     services =
@@ -48,7 +48,7 @@ inputs:
       };
       variables =
       {
-        NIXOS_CONFIGURATION_REVISION = inputs.config.system.configurationRevision;
+        NIXOS_CONFIGURATION_REVISION = config.system.configurationRevision;
         # CPATH = "/run/current-system/sw/include";
         # LIBRARY_PATH = "/run/current-system/sw/lib";
       };
@@ -61,11 +61,11 @@ inputs:
     system =
     {
       stateVersion = "25.05";
-      configurationRevision = inputs.flakeInputs.self.rev or "dirty";
+      configurationRevision = flakeInputs.self.rev or "dirty";
       nixos =
       {
-        versionSuffix = inputs.lib.mkForce "";
-        tags = let inherit (inputs.flakeInputs) self; in
+        versionSuffix = lib.mkForce "";
+        tags = let inherit (flakeInputs) self; in
           [ (builtins.substring 2 6 self.lastModifiedDate) (builtins.substring 0 6 self.rev or "dirty") ];
       };
     };
