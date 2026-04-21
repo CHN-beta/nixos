@@ -5,7 +5,7 @@
     variant = lib.mkOption
     {
       type = lib.types.nullOr (lib.types.enum [ "nixos" "xanmod-lts" "xanmod-latest" ]);
-      default = if with config.nixos.model; (arch == "x86_64" && type == "desktop") then "xanmod-lts" else "nixos";
+      default = if with config.nixos.model; (arch == "x86_64" && variant == "desktop") then "xanmod-lts" else "nixos";
     };
     patches = lib.mkOption { type = lib.types.listOf lib.types.nonEmptyStr; default = []; };
   };

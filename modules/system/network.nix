@@ -40,7 +40,7 @@ inputs:
     implementation = mkOption
     {
       type = types.enum [ "systemd-networkd" "networkmanager" ];
-      default = if inputs.config.nixos.model.type == "desktop" then "networkmanager" else "systemd-networkd";
+      default = if inputs.config.nixos.model.variant == "desktop" then "networkmanager" else "systemd-networkd";
     };
   };
   config = let inherit (inputs.config.nixos.system) network; in inputs.lib.mkMerge

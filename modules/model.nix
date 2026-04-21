@@ -4,7 +4,7 @@
   {
     hostname = lib.mkOption { type = lib.types.nonEmptyStr; };
     arch = lib.mkOption { type = lib.types.nonEmptyStr; default = "x86_64"; };
-    type = lib.mkOption { type = lib.types.enum [ "minimal" "desktop" "server" ]; default = "minimal"; };
+    variant = lib.mkOption { type = lib.types.enum [ "minimal" "desktop" "server" ]; default = "minimal"; };
     private = lib.mkOption { type = lib.types.bool; default = false; };
     cluster = lib.mkOption
     {

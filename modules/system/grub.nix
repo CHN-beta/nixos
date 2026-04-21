@@ -18,7 +18,7 @@ inputs:
         boot.loader =
         {
           grub = { enable = true; useOSProber = false; };
-          timeout = if inputs.config.nixos.model.type == "desktop" then null else 15;
+          timeout = if inputs.config.nixos.model.variant == "desktop" then null else 15;
         };
       }
       # grub install

@@ -4,7 +4,7 @@
   {
     nixos =
     {
-      model.type = "server";
+      model.variant = "server";
       system =
       {
         fileSystems.mount = let inherit (config.nixos.model.cluster) clusterName nodeName; in

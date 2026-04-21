@@ -4,7 +4,7 @@
   {
     nixos =
     {
-      model.type = "server";
+      model.variant = "server";
       system =
       {
         fileSystems =

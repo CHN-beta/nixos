@@ -1,6 +1,6 @@
 inputs:
 {
-  config = inputs.lib.mkIf (builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ])
+  config = inputs.lib.mkIf (builtins.elem inputs.config.nixos.model.variant [ "desktop" "server" ])
   {
     fonts =
     {

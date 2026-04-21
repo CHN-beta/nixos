@@ -5,7 +5,7 @@
     let genericOption = lib.mkOption
     {
       type = lib.types.nullOr (lib.types.submodule {});
-      default = if builtins.elem config.nixos.model.type [ "desktop" "server" ] then {} else null;
+      default = if builtins.elem config.nixos.model.variant [ "desktop" "server" ] then {} else null;
     };
     in { joystick = genericOption; printer = genericOption; sound = genericOption; bolt = genericOption; };
   config = let inherit (config.nixos) hardware; in lib.mkMerge

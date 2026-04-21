@@ -6,12 +6,12 @@ inputs:
     smartd = mkOption
     {
       type = types.nullOr (types.submodule {});
-      default = if builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ] then {} else null;
+      default = if builtins.elem inputs.config.nixos.model.variant [ "desktop" "server" ] then {} else null;
     };
     noisetorch = mkOption
     {
       type = types.nullOr (types.submodule {});
-      default = if inputs.config.nixos.model.type == "desktop" then {} else null;
+      default = if inputs.config.nixos.model.variant == "desktop" then {} else null;
     };
   };
   config = let inherit (inputs.config.nixos.services) smartd noisetorch; in inputs.lib.mkMerge

@@ -4,7 +4,7 @@
   {
     nixos =
     {
-      model = { type = "desktop"; private = true; };
+      model = { variant = "desktop"; private = true; };
       system =
       {
         fileSystems =

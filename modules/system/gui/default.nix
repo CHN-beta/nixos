@@ -1,6 +1,6 @@
 { lib, config, pkgs, ... }:
 {
-  config = lib.mkIf (config.nixos.model.type == "desktop")
+  config = lib.mkIf (config.nixos.model.variant == "desktop")
   {
     services =
     {

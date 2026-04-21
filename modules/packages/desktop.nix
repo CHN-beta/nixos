@@ -1,6 +1,6 @@
 { lib, pkgs, config, flakeInputs, ... }:
 {
-  config = lib.mkIf (config.nixos.model.type == "desktop") (lib.mkMerge
+  config = lib.mkIf (config.nixos.model.variant == "desktop") (lib.mkMerge
   [
     {
       environment.systemPackages = with pkgs;

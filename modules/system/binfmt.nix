@@ -3,7 +3,7 @@ inputs:
   options.nixos.system.binfmt = let inherit (inputs.lib) mkOption types; in mkOption
   {
     type = types.nullOr (types.submodule {});
-    default = if inputs.config.nixos.model.type == "desktop" then {} else null;
+    default = if inputs.config.nixos.model.variant == "desktop" then {} else null;
   };
   config = let inherit (inputs.config.nixos.system) binfmt; in inputs.lib.mkIf (binfmt != null)
   {

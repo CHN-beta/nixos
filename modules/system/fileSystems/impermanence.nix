@@ -47,7 +47,7 @@ inputs:
         directories = builtins.map
           (user: { directory = "/home/${user}"; inherit user; group = user; mode = "0700"; })
           (builtins.filter
-            (user: !(user == "chn" && inputs.config.nixos.model.type == "desktop"))
+            (user: !(user == "chn" && inputs.config.nixos.model.variant == "desktop"))
             inputs.config.nixos.user.users);
       };
     }
@@ -59,7 +59,7 @@ inputs:
         inputs.config.nixos.user.users);
     }
     # 对于桌面用途的 chn，有一些需要 persist 的目录
-    (inputs.lib.mkIf (inputs.config.nixos.model.type == "desktop")
+    (inputs.lib.mkIf (inputs.config.nixos.model.variant == "desktop")
     {
       "/nix/persistent".users.chn.directories =
       [

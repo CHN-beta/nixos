@@ -65,6 +65,6 @@
       managed: yes
     '';
     # only enable on desktop, use socket forwarding on server
-    services.pcscd.enable = lib.mkIf (config.nixos.model.type == "desktop") true;
+    services.pcscd.enable = lib.mkIf (config.nixos.model.variant == "desktop") true;
   };
 }

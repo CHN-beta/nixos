@@ -28,7 +28,7 @@
             crypttabExtraOpts = [ "x-initrd.attach" "token-timeout=1800" "fido2-device=auto" ]
               # disable pkcs11 on desktop,
               # since enabling pkcs11 cause fido2 pin prompt on every device instead of only once
-              ++ lib.optionals (config.nixos.model.type != "desktop") [ "pkcs11-uri=auto" ];
+              ++ lib.optionals (config.nixos.model.variant != "desktop") [ "pkcs11-uri=auto" ];
           }));
       systemd = lib.mkIf (luks != {})
       {

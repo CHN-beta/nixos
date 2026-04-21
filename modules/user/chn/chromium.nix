@@ -1,6 +1,6 @@
 { lib, config, ... }:
 {
-  config = lib.mkIf (config.nixos.model.type == "desktop")
+  config = lib.mkIf (config.nixos.model.variant == "desktop")
   {
     home-manager.users.chn.config.programs.chromium =
     {

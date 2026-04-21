@@ -5,7 +5,7 @@ inputs:
     type = types.nullOr (types.submodule {});
     default =
       if (inputs.config.nixos.model.arch == "x86_64")
-        && (builtins.elem inputs.config.nixos.model.type [ "desktop" "server" ])
+        && (builtins.elem inputs.config.nixos.model.variant [ "desktop" "server" ])
       then {} else null;
   };
   config = let inherit (inputs.config.nixos.system) nix-ld; in inputs.lib.mkIf (nix-ld != null)

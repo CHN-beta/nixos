@@ -3,7 +3,7 @@
   options.nixos.packages.server = lib.mkOption
   {
     type = lib.types.nullOr (lib.types.submodule {});
-    default = if builtins.elem config.nixos.model.type [ "server" "desktop" ] then {} else null;
+    default = if builtins.elem config.nixos.model.variant [ "server" "desktop" ] then {} else null;
   };
   config = lib.mkIf (config.nixos.packages.server != null)
   {

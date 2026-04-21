@@ -18,7 +18,7 @@
         };
       };
     });
-    default = if config.nixos.model.type == "desktop" then {} else null;
+    default = if config.nixos.model.variant == "desktop" then {} else null;
   };
   config = let inherit (config.nixos.packages) root; in lib.mkIf (root != null)
   {
