@@ -1,5 +1,6 @@
 { inputs, localLib }: rec
 {
+  inherit (inputs.nixpkgs) lib;
   pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
   {
     inputs = { inherit (inputs.nixpkgs) lib; flakeInputs = inputs; };
@@ -15,7 +16,7 @@
   xmuhpc = import ../devices/xmuhpc { inherit inputs localLib; };
   src =
     let getDrv = x:
-      if pkgs.lib.isDerivation x then [ x ]
+      if lib.isDerivation x then [ x ]
       else if builtins.isAttrs x then builtins.concatMap getDrv (builtins.attrValues x)
       else if builtins.isList x then builtins.concatMap getDrv x
       else [];
@@ -27,16 +28,14 @@
   };
   archive =
     let
-      systemWithBuildDeps = system:
-        (system.extendModules { modules = [{ config.system.includeBuildDependencies = true; }]; })
-          .config.system.build.toplevel;
-      systems = inputs.nixpkgs.lib.mapAttrs (_: v: systemWithBuildDeps v) inputs.self.outputs.nixosConfigurations;
-      inputListFile = pkgs.writeText "input-list"
-        (builtins.concatStringsSep "\n" (builtins.attrValues inputs));
-      archive = pkgs.writeText "archive" (builtins.concatStringsSep "\n"
-        ((builtins.attrValues systems) ++ [ src inputListFile ]));
-    in
-    archive // { passthru = archive.passthru // systems // { inherit src; inputs = inputListFile; }; };
+      systems = inputs.self.outputs.nixosConfigurations
+        |> lib.mapAttrs (_: v: v.extendModules { modules = [{ config.system.includeBuildDependencies = true; }]; })
+        |> lib.mapAttrs (_: v: v.config.system.build.toplevel);
+      inputListFile = inputs |> builtins.attrValues |> builtins.concatStringsSep "\n" |> pkgs.writeText "input-list";
+    in (builtins.attrValues systems) ++ [ src inputListFile ]
+      |> builtins.concatStringsSep "\n"
+      |> pkgs.writeText "archive"
+      |> lib.addMetaAttrs (systems // { inherit src; inputs = inputListFile; });
   inherit (pkgs.pkgsCross.ucrt64.localPkgs) xinli;
 }
 // (builtins.mapAttrs (_: v: v.config.system.build.toplevel) inputs.self.outputs.nixosConfigurations)
