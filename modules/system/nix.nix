@@ -1,22 +1,22 @@
-inputs:
+{ lib, config, flakeInputs, ... }:
 {
-  options.nixos.system.nix = let inherit (inputs.lib) mkOption types; in
+  options.nixos.system.nix =
   {
     # marches allowed to be compiled on this machine
-    marches = mkOption
+    marches = lib.mkOption
     {
-      type = types.listOf types.nonEmptyStr;
-      default = with inputs.config.nixos.system.nixpkgs; if march == null then [] else [ march ];
+      type = lib.types.listOf lib.types.nonEmptyStr;
+      default = with config.nixos.system.nixpkgs; if march == null then [] else [ march ];
     };
     remote =
     {
-      slave = mkOption { type = types.nullOr (types.submodule {}); default = null; };
+      slave = lib.mkOption { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
       # host.[gcc arches]
-      master.host = mkOption { type = types.attrsOf (types.listOf types.nonEmptyStr); default = {}; };
+      master.host = lib.mkOption { type = lib.types.attrsOf (lib.types.listOf lib.types.nonEmptyStr); default = {}; };
     };
-    githubToken.enable = mkOption { type = types.bool; default = inputs.config.nixos.model.private; };
+    githubToken.enable = lib.mkOption { type = lib.types.bool; default = config.nixos.model.private; };
   };
-  config = let inherit (inputs.config.nixos.system) nix; in inputs.lib.mkMerge
+  config = let inherit (config.nixos.system) nix; in lib.mkMerge
   [
     # general nix config
     {
@@ -26,11 +26,7 @@ inputs:
         experimental-features = [ "nix-command" "flakes" "ca-derivations" "mounted-ssh-store" "pipe-operators" ];
         keep-failed = true;
         max-substitution-jobs = 4;
-        trusted-public-keys =
-        [
-          "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE="
-          "cache.ngi0.nixos.org-1:KqH5CBLNSyX184S9BKZJo1LxrxJ9ltnY2uAs5c/f1MA="
-        ];
+        trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
         trusted-users = [ "@wheel" ];
         show-trace = true;
         max-jobs = 4;
@@ -52,26 +48,22 @@ inputs:
       {
         registry =
         {
-          nixpkgs.flake = inputs.flakeInputs.nixpkgs;
-          nixos.flake = inputs.flakeInputs.self;
-          nixpkgs-unstable.flake = inputs.flakeInputs.nixpkgs-unstable;
+          nixpkgs.flake = flakeInputs.nixpkgs;
+          nixos.flake = flakeInputs.self;
+          nixpkgs-unstable.flake = flakeInputs.nixpkgs-unstable;
         };
-        nixPath = [ "nixpkgs=${inputs.flakeInputs.nixpkgs}" ];
+        nixPath = [ "nixpkgs=${flakeInputs.nixpkgs}" ];
       };
       environment =
       {
-        etc =
-        {
-          "channels/nixpkgs".source = inputs.flakeInputs.nixpkgs.outPath;
-          "nixos".source = inputs.flakeInputs.self.outPath;
-        };
+        etc = { "channels/nixpkgs".source = flakeInputs.nixpkgs.outPath; "nixos".source = flakeInputs.self.outPath; };
         variables.COMMA_NIXPKGS_FLAKE = "nixpkgs-unstable";
       };
     }
     # marches
     { nix.settings.system-features = builtins.map (march: "gccarch-${march}") nix.marches; }
     # remote.slave
-    (inputs.lib.mkIf (nix.remote.slave != null)
+    (lib.mkIf (nix.remote.slave != null)
     {
       nix =
       {
@@ -86,19 +78,19 @@ inputs:
       };
     })
     # remote.master
-    (inputs.lib.mkIf (nix.remote.master.host != {})
+    (lib.mkIf (nix.remote.master.host != {})
     {
       nix =
       {
         distributedBuilds = true;
-        buildMachines = inputs.lib.mapAttrsToList
+        buildMachines = lib.mapAttrsToList
           (n: v:
           {
             hostName = n;
             protocol = "ssh-ng";
             systems = [ "x86_64-linux" ];
             sshUser = "nix-ssh";
-            sshKey = inputs.config.nixos.system.sops.secrets."nix/remote".path;
+            sshKey = config.nixos.system.sops.secrets."nix/remote".path;
             maxJobs = 1;
             mandatoryFeatures = [ "big-parallel" ];
             supportedFeatures = builtins.map (f: "gccarch-${f}") v;
@@ -107,14 +99,14 @@ inputs:
       };
       nixos.system.sops.secrets."nix/remote" = {};
     })
-    (inputs.lib.mkIf nix.githubToken.enable
+    (lib.mkIf nix.githubToken.enable
     {
-      nix.extraOptions = "!include ${inputs.config.nixos.system.sops.templates."nix-github.conf".path}";
+      nix.extraOptions = "!include ${config.nixos.system.sops.templates."nix-github.conf".path}";
       nixos.system.sops =
       {
         templates."nix-github.conf" =
         {
-          content = "access-tokens = github.com=${inputs.config.nixos.system.sops.placeholder."github/token"}";
+          content = "access-tokens = github.com=${config.nixos.system.sops.placeholder."github/token"}";
           mode = "0444";
         };
         secrets."github/token" = {};
