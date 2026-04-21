@@ -38,6 +38,7 @@
         # https://cache.nixos.org 已经自带
         substituters = [ "https://nix-store.chn.moe" ];
         build-dir = "/var/cache/nix";
+        download-buffer-size = 524288000;
       };
     }
     # nix daemon use lower io/cpu priority
