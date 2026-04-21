@@ -1,6 +1,12 @@
-{ localLib, config, flakeInputs, lib, ... }:
+{ localLib, config, flakeInputs, lib, pkgs, ... }:
 {
   imports = localLib.findModules ./.;
+  options.system.build.archive = lib.mkOption
+  {
+    type = lib.types.package;
+    readOnly = true;
+    default = pkgs.closureInfo { rootPaths = [ config.system.build.toplevel.drvPath ]; };
+  };
   config =
   {
     services =
