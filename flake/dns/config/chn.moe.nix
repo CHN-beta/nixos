@@ -21,7 +21,7 @@ let
     srv1-node0 = [ "srv1" ];
     srv2-node0 = [ "srv2" ];
     "pc.ts" = [ "nix-store" "chat" ];
-    "nas.ts" = [ "ssh.git" ];
+    "nas.ts" = [ "ssh.git" "backup-store" ];
     autoroute = [ "铜锣湾" "matrix" "git" ];
     vps9 =
     [

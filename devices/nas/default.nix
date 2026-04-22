@@ -82,6 +82,7 @@
         immich = {};
         readeck = {};
         minibox = {};
+        harmonia = { hostname = "backup-store.chn.moe"; store = "/nix/backup";};
       };
     };
     systemd.tmpfiles.rules =
