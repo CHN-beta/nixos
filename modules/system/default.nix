@@ -75,5 +75,6 @@
           [ (builtins.substring 2 6 self.lastModifiedDate) (builtins.substring 0 6 self.rev or "dirty") ];
       };
     };
+    programs.criu.enable = true;
   };
 }
