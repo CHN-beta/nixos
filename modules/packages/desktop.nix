@@ -38,7 +38,7 @@
         # download
         qbittorrent
         # editor
-        typora standardnotes obsidian
+        pkgs-unstable.typora standardnotes obsidian
         # news
         fluent-reader rssguard newsflash newsboat folo
         # nix tools
