@@ -1076,16 +1076,16 @@
     },
     "nixpkgs-unstable": {
       "locked": {
-        "lastModified": 1776954785,
-        "narHash": "sha256-3Dc6HvALsgIleSGinLoCEDzutnM+Ttd90HNywgQcerc=",
-        "owner": "CHN-beta",
+        "lastModified": 1776169885,
+        "narHash": "sha256-l/iNYDZ4bGOAFQY2q8y5OAfBBtrDAaPuRQqWaFHVRXM=",
+        "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "445a4dfbf21f4509cff92ba76b82281583c8da96",
+        "rev": "4bd9165a9165d7b5e33ae57f3eecbcb28fb231c9",
         "type": "github"
       },
       "original": {
-        "owner": "CHN-beta",
-        "ref": "fix-typora2",
+        "owner": "nixos",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
