@@ -31,6 +31,11 @@
             "/dev/disk/by-partlabel/nas-ssd2" = { mapper = "ssd2"; ssd = true; };
             "/dev/disk/by-partlabel/nas-single1".mapper = "single1";
           };
+          backup =
+          {
+            persistent = { device = "/dev/mapper/root1"; subvol = "/nix/persistent"; };
+            ssd = { device = "/dev/mapper/ssd1"; subvol = "/nix/ssd"; };
+          };
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
@@ -83,6 +88,7 @@
         readeck = {};
         minibox = {};
         harmonia = { hostname = "backup-store.chn.moe"; store = "/nix/backup";};
+        snapper = { persistent = "/nix/persistent"; ssd = "/nix/ssd"; };
       };
     };
     systemd.tmpfiles.rules =
