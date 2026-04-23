@@ -21,7 +21,6 @@
         unitConfig.DefaultDependencies = false;
         serviceConfig.Type = "oneshot";
         script = let inherit (config.fileSystems."/") device; in
-          # TODO: snapshot should take place just before switching root
         ''
           # wait for device to be available
           while [ ! -b '${device}' ] || ! btrfs device ready '${device}'; do
@@ -44,12 +43,6 @@
           # make systemd happy
           mkdir -p /mnt/nix/rootfs/current/usr
           touch /mnt/nix/rootfs/current/usr/make-systemd-happy
-
-          # backup persistent
-          if [ -d /mnt/nix/persistent/.backups ]; then
-            btrfs subvolume snapshot -r /mnt/nix/persistent \
-              /mnt/nix/persistent/.backups/boot-$(date '+%Y%m%d%H%M%S')
-          fi
 
           umount /mnt
         '';
