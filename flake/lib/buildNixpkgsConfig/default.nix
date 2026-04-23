@@ -79,7 +79,6 @@ let
                 })
               ];
             };
-            pkgs-2505 = "nixpkgs-2505";
             pkgs-unstable =
             {
               source = "nixpkgs-unstable";

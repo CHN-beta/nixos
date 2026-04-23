@@ -1043,22 +1043,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-2505": {
-      "locked": {
-        "lastModified": 1758415798,
-        "narHash": "sha256-Y6sSsTf2gjT1jLBlK/0fd8pzbK143AqOIPoawOVOrqE=",
-        "owner": "CHN-beta",
-        "repo": "nixpkgs",
-        "rev": "e6859abf26a6a4a113becf9c58dc5b18ed9a0de4",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "ref": "nixos-25.05",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "nixpkgs-lib": {
       "locked": {
         "lastModified": 1765674936,
@@ -1444,7 +1428,6 @@
         "nixpkgs-2305": "nixpkgs-2305",
         "nixpkgs-2311": "nixpkgs-2311",
         "nixpkgs-2411": "nixpkgs-2411",
-        "nixpkgs-2505": "nixpkgs-2505",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nixvirt": "nixvirt",
         "nu-scripts": "nu-scripts",
