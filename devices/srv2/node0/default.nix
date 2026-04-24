@@ -25,6 +25,7 @@
         hpcstat = {};
         sshd = { groupBanner = true; motd = true; };
         lumericalLicenseManager.macAddress = "04:42:1a:26:0c:07";
+        nginx.streamProxy.map."jupyterhub.chn.moe".upstream.address = "tinc0.srv2-node2.chn.moe";
       };
     };
   };

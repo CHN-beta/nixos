@@ -8,7 +8,7 @@ let
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi" "ua" "xserver2"
-      "xserver2.vps6" "s" "headscale" "missgram" "vikunja" "question" "xserver3" "jupyterhub"
+      "xserver2.vps6" "s" "headscale" "missgram" "vikunja" "question" "xserver3"
       # to pc
       "铜锣湾实验室"
       # temporary
@@ -19,7 +19,7 @@ let
     "tinc0.srv1-node0" = [ "tinc0.srv1" ];
     "tinc0.srv2-node0" = [ "tinc0.srv2" ];
     srv1-node0 = [ "srv1" ];
-    srv2-node0 = [ "srv2" ];
+    srv2-node0 = [ "srv2" "jupyterhub" ];
     "pc.ts" = [ "nix-store" "chat" ];
     "nas.ts" = [ "ssh.git" "backup-store" ];
     autoroute = [ "铜锣湾" "matrix" "git" ];
