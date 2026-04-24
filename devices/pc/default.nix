@@ -15,12 +15,12 @@
           # linux partition:
           #   esp: /dev/nvme0n1p1 or /dev/disk/by-partlabel/pc-boot
           #   nix: /nix/{store,var,remote} are mounted from:
-          #     /dev/mapper/tf2, btrfs metadata, decrypted from:
-          #       /dev/nvme0n1p5 or /dev/disk/by-partlabel/pc-tf2, luks
-          #     /dev/mapper/tf1, btrfs data, decrypted from:
-          #       /dev/disk/by-uuid/e6764d00-1132-49bc-b321-9a195ba09ea3, bcache, ensembled from:
-          #         /dev/nvme0n1p6, bcache cache device
-          #         /dev/mmcblk0p1, bcache backend device
+          #     /dev/tf/tf-metadata, btrfs metadata, lvm, ensembled from:
+          #     /dev/tf/tf, btrfs data with cache, lvm, ensembled from:
+          #       /dev/mapper/tf2, decrypted from:
+          #         /dev/nvme0n1p5 or /dev/disk/by-partlabel/pc-tf2, luks
+          #       /dev/mapper/tf1, decrypted from:
+          #         /dev/mmcblk0p1 or /dev/disk/by-partlabel/pc-tf1, luks
           #   anything else: mounted from:
           #     /dev/mapper/root1, btrfs, decrypted from:
           #       /dev/nvme0n1p2 or /dev/disk/by-partlabel/pc-root1, luks
@@ -37,7 +37,7 @@
                 "/nix/nodatacow" = "/nix/nodatacow";
                 "/nix/rootfs" = "/nix/rootfs";
               };
-              "/dev/mapper/tf1" =
+              "/dev/tf/tf" =
               {
                 "/nix" = "/nix";
                 "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
@@ -51,7 +51,7 @@
           luks =
           {
             "/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
-            "/dev/disk/by-uuid/e6764d00-1132-49bc-b321-9a195ba09ea3".mapper = "tf1";
+            "/dev/disk/by-partlabel/pc-tf1" = { mapper = "tf1"; ssd = true; };
             "/dev/disk/by-partlabel/pc-tf2" = { mapper = "tf2"; ssd = true; };
           };
           swap = [ "/nix/swap/swap" ];
