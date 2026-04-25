@@ -11,3 +11,72 @@ index 01d0216..4084e46 100644
    {
      other.fd = target;
      other.fd_needs_closing = false;
+diff --git a/include/boost/process/v2/stdio.hpp b/include/boost/process/v2/stdio.hpp
+index 4084e46..6100c34 100644
+--- a/boost/process/v2/stdio.hpp
++++ b/boost/process/v2/stdio.hpp
+@@ -13,6 +13,7 @@
+ #include <boost/process/v2/detail/config.hpp>
+ #include <boost/process/v2/detail/last_error.hpp>
+ #include <boost/process/v2/default_launcher.hpp>
++#include <iostream>
+ #include <cstddef>
+ #if defined(BOOST_PROCESS_V2_STANDALONE)
+ #include <asio/connect_pipe.hpp>
+@@ -173,10 +174,18 @@ struct process_io_binding
+   bool fd_needs_closing{false};
+   error_code ec;
+ 
+-  ~process_io_binding()
++  void close()
+   {
+     if (fd_needs_closing)
++    {
+       ::close(fd);
++      fd = target;
++      fd_needs_closing = false;
++    }
++  }
++  ~process_io_binding()
++  {
++    close();
+   }
+ 
+   process_io_binding() = default;
+@@ -193,8 +202,7 @@ struct process_io_binding
+ 
+   process_io_binding & operator=(process_io_binding && other) noexcept
+   {
+-    if (fd_needs_closing)
+-      ::close(fd);
++    close();
+ 
+     fd = other.fd;
+     fd_needs_closing = other.fd_needs_closing;
+@@ -358,6 +366,26 @@ struct process_stdio
+ 
+     return error_code {};
+   };
++
++  // weather fork succeeded or not, we should close the pipe properly in the parent
++  void close_pipes()
++  {
++    std::cout << "closing pipes" << std::endl;
++    std::cout << "in: " << in.fd << " out: " << out.fd << " err: " << err.fd << std::endl;
++    std::cout << "in needs closing: " << in.fd_needs_closing << " out needs closing: " << out.fd_needs_closing << " err needs closing: " << err.fd_needs_closing << std::endl;
++    in.close();
++    out.close();
++    err.close();
++    // return error_code {};
++  };
++  void on_success(posix::default_launcher & /*launcher*/, const filesystem::path &, const char * const *)
++  {
++    close_pipes();
++  };
++  void on_error(posix::default_launcher & /*launcher*/, const filesystem::path &, const char * const *)
++  {
++    close_pipes();
++  };
+ #endif
+ 
+ };
