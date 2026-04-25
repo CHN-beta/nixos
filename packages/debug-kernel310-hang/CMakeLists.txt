@@ -1,0 +1,24 @@
+# cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.29)
+project(debug-kernel310-hang VERSION 0.0.0 LANGUAGES CXX)
+enable_testing()
+include(GNUInstallDirs)
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message("Setting build type to 'Release' as none was specified.")
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
+find_package(biu REQUIRED)
+
+add_executable(debug-kernel310-hang src/main.cpp)
+# target_compile_features(debug-kernel310-hang PRIVATE cxx_std_26)
+target_compile_options(debug-kernel310-hang PRIVATE "-std=c++26")
+target_link_libraries(debug-kernel310-hang PRIVATE biu::biu)
+
+install(TARGETS debug-kernel310-hang RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+get_property(ImportedTargets DIRECTORY "${CMAKE_SOURCE_DIR}" PROPERTY IMPORTED_TARGETS)
+message("Imported targets: ${ImportedTargets}")
+message("List of compile features: ${CMAKE_CXX_COMPILE_FEATURES}")
