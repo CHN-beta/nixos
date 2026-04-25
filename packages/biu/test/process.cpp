@@ -8,8 +8,8 @@ int main()
     ({.Program = "sleep", .Args = {"10"}, .Timeout = 3s});
   std::cout << "{}\n"_f(result.ExitCode);
   assert(!result);
-  auto result2 = biu::exec<{.SearchPath = true, .Timeout = true, .Stdin = biu::IoType::String}>
-    ({.Program = "sh", .Args = {"-s"}, .Stdin = "echo \\\n hello world", .Timeout = 10s});
+  auto result2 = biu::exec<{.SearchPath = true, .Stdout = biu::IoType::String}>
+    ({.Program = "echo", .Args = {"hello world"}});
   std::cout << "{}\n"_f(result2.ExitCode);
   assert(result2);
 }

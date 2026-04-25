@@ -18,9 +18,6 @@ namespace biu::process
     detail_::ExecResult<Mode> result;
     using namespace biu::literals;
 
-    // 进程是在创建时就开始运行的，而不是在 io_context.run() 时才开始运行
-    // 传入的 io_context 只是为了方便同步 io
-
     // seach actual program
     boost::filesystem::path actual_program = [&]
     {
@@ -44,94 +41,64 @@ namespace biu::process
     }();
     log();
 
-    // prepare io pipes
-    std::unique_ptr<boost::asio::writable_pipe> stdin_pipe;
-    std::unique_ptr<boost::asio::readable_pipe> stdout_pipe, stderr_pipe;
-    auto create_pipe_on_necessary = [&context]<typename T, IoType V>(auto& pipe) -> decltype(auto)
+    // io pipes
+    std::optional<boost::asio::writable_pipe> stdin_pipe;
+    std::optional<boost::asio::readable_pipe> stdout_pipe, stderr_pipe;
+    bp::process_stdio stdio; // all io were set to Direct by default
     {
-      if constexpr (V == IoType::Close) return nullptr;
-      else if constexpr (V == IoType::Direct) return T();
-      else if constexpr (V == IoType::String)
+      if constexpr (Mode.Stdin == IoType::Close) stdio.in = nullptr;
+      else if constexpr (Mode.Stdin == IoType::String)
       {
-        pipe = std::make_unique<typename std::remove_reference_t<decltype(pipe)>::element_type>(context);
-        return (*pipe);
+        stdio.in = stdin_pipe.emplace(context);
+        boost::asio::async_write(*stdin_pipe, boost::asio::buffer(input.Stdin),
+          [&](const boost::system::error_code&, std::size_t) { stdin_pipe->close(); });
       }
-      else std::unreachable();
-    };
-    bp::process_stdio stdio
-    {
-      .in = create_pipe_on_necessary.template operator()
-        <decltype(bp::process_stdio::in), Mode.Stdin>(stdin_pipe),
-      .out = create_pipe_on_necessary.template operator()
-        <decltype(bp::process_stdio::out), Mode.Stdout>(stdout_pipe),
-      .err = create_pipe_on_necessary.template operator()
-        <decltype(bp::process_stdio::err), Mode.Stderr>(stderr_pipe)
-    };
-    auto stdio_write = [&]
-    {
-      if constexpr (Mode.Stdin == IoType::String)
+      if constexpr (Mode.Stdout == IoType::Close) stdio.out = nullptr;
+      else if constexpr (Mode.Stdout == IoType::String)
       {
-        boost::asio::write(*stdin_pipe, boost::asio::buffer(input.Stdin));
-        stdin_pipe->close();
+        stdio.out = stdout_pipe.emplace(context);
+        boost::asio::async_read(*stdout_pipe, boost::asio::dynamic_buffer(result.Stdout), boost::asio::detached);
       }
-    };
-    auto stdio_read = [&]
-    {
-      if constexpr (Mode.Stdout == IoType::String)
-        boost::asio::read(*stdout_pipe, boost::asio::dynamic_buffer(result.Stdout));
-      if constexpr (Mode.Stderr == IoType::String)
-        boost::asio::read(*stderr_pipe, boost::asio::dynamic_buffer(result.Stderr));
-    };
-    log();
+      if constexpr (Mode.Stderr == IoType::Close) stdio.err = nullptr;
+      else if constexpr (Mode.Stderr == IoType::String)
+      {
+        stdio.err = stderr_pipe.emplace(context);
+        boost::asio::async_read(*stderr_pipe, boost::asio::dynamic_buffer(result.Stderr), boost::asio::detached);
+      }
+    }
 
     // start process
-    if constexpr (Mode.Timeout)
-    {
-      boost::asio::steady_timer timeout{context, input.Timeout};
-      boost::asio::cancellation_signal sig;
-      Atomic<bool> finished{false};
-      Logger::try_exec([&]
-      {
-        auto proc = bp::process
-          (context, actual_program, input.Args, std::move(stdio), std::move(env), std::forward<Ts>(args)...);
-        bp::async_execute
-        (
-          std::move(proc),
-          boost::asio::bind_cancellation_slot
-          (
-            sig.slot(),
-            [&](bp::v2::error_code ec, int exit_code)
-            {
-              result.ExitCode = exit_code;
-              timeout.cancel();
-              finished = true;
-            }
-          )
-        );
-        timeout.expires_after(input.Timeout);
-        timeout.async_wait([&](auto ec)
-        {
-          if (ec) return;
-          sig.emit(boost::asio::cancellation_type::partial);
-          timeout.expires_after(input.Timeout);
-          timeout.async_wait
-            ([&](auto ec) { if (!ec) sig.emit(boost::asio::cancellation_type::terminal); });
-        });
-        stdio_write();
-        context.run();
-        finished.wait([](auto& v) { return v; });
-        stdio_read();
-      });
-    }
-    else Logger::try_exec([&]
+    Logger::try_exec([&]
     {
       auto proc = bp::process
         (context, actual_program, input.Args, std::move(stdio), std::move(env), std::forward<Ts>(args)...);
-      stdio_write();
-      proc.wait();
-      stdio_read();
-      result.ExitCode = proc.exit_code();
+      std::optional<boost::asio::steady_timer> timeout;
+      boost::asio::cancellation_signal sig;
+      bp::async_execute
+      (
+        std::move(proc),
+        boost::asio::bind_cancellation_slot
+        (
+          sig.slot(),
+          [&](bp::v2::error_code ec, int exit_code) { result.ExitCode = exit_code; if (timeout) timeout->cancel(); }
+        )
+      );
+      if constexpr (Mode.Timeout)
+      {
+        timeout.emplace(context, input.Timeout);
+        timeout->async_wait([&](boost::system::error_code ec)
+        {
+          if (ec) return; // 定时器被取消（进程已正常退出）
+          sig.emit(boost::asio::cancellation_type::partial);
+          timeout->expires_after(input.Timeout);
+          timeout->async_wait([&](boost::system::error_code ec2)
+            { if (!ec2) sig.emit(boost::asio::cancellation_type::terminal); });
+        });
+      }
+
+      context.run(); 
     });
+
     return result;
   }
 }
