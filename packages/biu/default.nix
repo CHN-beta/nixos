@@ -1,5 +1,5 @@
 {
-  stdenv, cmake, lib, isKernel310 ? false,
+  stdenv, cmake, lib,
   magic-enum, fmt, boost, eigen, range-v3, nameof, zpp-bits, highfive, tgbot-cpp, hdf5, concurrencpp,
   pocketfft, yaml-cpp, glaze, cpptrace, bzip2, xz, zlib, zstd
 }: stdenv.mkDerivation rec
@@ -13,6 +13,5 @@
     ];
   propagatedBuildInputs = buildInputs;
   nativeBuildInputs = [ cmake ];
-  cmakeFlags = [(lib.cmakeBool "BIU_KERNEL_310" isKernel310)];
   doCheck = true;
 }
