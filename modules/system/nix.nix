@@ -36,7 +36,7 @@
         keep-outputs = false;
         connect-timeout = 5;
         # https://cache.nixos.org 已经自带
-        substituters = [ "https://nix-store.chn.moe" ];
+        substituters = [ "https://nix-store.chn.moe" "https://backup-store.chn.moe" ];
         build-dir = "/var/cache/nix";
         download-buffer-size = 524288000;
       };
