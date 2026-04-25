@@ -62,8 +62,7 @@ inputs: rec
     boost = inputs.pkgs.boost188;
     fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
   };
-  hpcstat = inputs.pkgs.callPackage ./hpcstat
-    { inherit sqlite-orm date biu openxlsx; stdenv = inputs.pkgs.gcc14Stdenv; };
+  hpcstat = inputs.pkgs.callPackage ./hpcstat { inherit sqlite-orm date biu openxlsx; };
   openxlsx = inputs.pkgs.callPackage ./openxlsx.nix { src = inputs.flakeInputs.openxlsx; };
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm.nix { src = inputs.flakeInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};

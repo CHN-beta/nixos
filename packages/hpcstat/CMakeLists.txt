@@ -21,8 +21,7 @@ find_package(OpenXLSX REQUIRED)
 
 add_executable(hpcstat src/main.cpp src/env.cpp src/keys.cpp src/ssh.cpp src/sql.cpp src/lfs.cpp src/common.cpp
   src/push.cpp src/disk.cpp)
-# target_compile_features(hpcstat PRIVATE cxx_std_26)
-target_compile_options(hpcstat PRIVATE "-std=c++26")
+target_compile_features(hpcstat PRIVATE cxx_std_26)
 target_include_directories(hpcstat PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_link_libraries(hpcstat PRIVATE Boost::url sqlite_orm::sqlite_orm nlohmann_json::nlohmann_json date::date
   date::date-tz httplib::httplib termcolor::termcolor biu::biu OpenXLSX::OpenXLSX)
