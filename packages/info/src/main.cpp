@@ -79,7 +79,9 @@ int main()
           { return "{:%Y-%m-%d %H:%M:%S}"_f(*std::localtime(&time)); };
         auto get_status = [](int code)
           { return std::vector{ "{}"_f(job_states(code & 0xff)), "{:#x}"_f(code) }; };
-        info["Job Id"] = job_info->job_array->job_id;
+        info["Job Id"] = job_info->job_array->array_job_id == 0
+          ? "{}"_f(job_info->job_array->job_id)
+          : "{}[{}]"_f(job_info->job_array->array_job_id, job_info->job_array->array_task_id);
         info["Job Name"] = null_to_empty(job_info->job_array->name);
         info["Working Directory"] = null_to_empty(job_info->job_array->work_dir);
         info["Output File"] = null_to_empty(job_info->job_array->std_out);
