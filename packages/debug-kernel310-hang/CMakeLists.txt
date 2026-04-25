@@ -10,12 +10,11 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-find_package(biu REQUIRED)
+find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem system process)
 
 add_executable(debug-kernel310-hang src/main.cpp)
-# target_compile_features(debug-kernel310-hang PRIVATE cxx_std_26)
-target_compile_options(debug-kernel310-hang PRIVATE "-std=c++26")
-target_link_libraries(debug-kernel310-hang PRIVATE biu::biu)
+target_compile_features(debug-kernel310-hang PRIVATE cxx_std_26)
+target_link_libraries(debug-kernel310-hang PRIVATE Boost::headers Boost::iostreams Boost::filesystem Boost::process)
 
 install(TARGETS debug-kernel310-hang RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 

@@ -1,7 +1,7 @@
-{ stdenv, cmake, biu }: stdenv.mkDerivation
+{ stdenv, cmake, boost }: stdenv.mkDerivation
 {
   name = "debug-kernel310-hang";
   src = ./.;
-  buildInputs = [ biu ];
+  buildInputs = [ boost ];
   nativeBuildInputs = [ cmake ];
 }
