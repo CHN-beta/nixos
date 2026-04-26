@@ -19,12 +19,8 @@ if [ -z "${BASHRC_SOURCED-}" ]; then
 		export CHN_DEBUG=1
 	fi
 
-	export HPCSTAT_DATADIR=$HOME/linwei/chn/software/hpcstat/var/lib/hpcstat
-	export HPCSTAT_SHAREDIR=$HOME/linwei/chn/software/hpcstat/share/hpcstat
-	export HPCSTAT_SSH_BINDIR=$HOME/linwei/chn/software/hpcstat/bin
-	export HPCSTAT_DUC_BINDIR=$HOME/linwei/chn/software/hpcstat/bin
 	export HPCSTAT_BSUB=/opt/ibm/lsfsuite/lsf/10.1/linux2.6-glibc2.3-x86_64/bin/bsub
-	${HPCSTAT_SSH_BINDIR}/hpcstat login
+	$HOME/.nix/state/gcroots/current/bin/hpcstat login
 	if [ "$?" -ne 0 ]; then
 		exit 1
 	fi
@@ -35,7 +31,7 @@ if [ -f /etc/bashrc ]; then
 fi
 
 if [ -z "${BASHRC_SOURCED-}" ]; then
-	export PATH=$HOME/.nix/state/gcroots/current/bin:$HPCSTAT_SSH_BINDIR:$PATH:$HOME/bin:$HOME/linwei/chn/software/scripts
+	export PATH=$HOME/.nix/state/gcroots/current/bin:$PATH:$HOME/bin:$HOME/linwei/chn/software/scripts
 	export BASHRC_SOURCED=1
 	if [ "${HPCSTAT_SUBACCOUNT}" == "lyj" ]; then
 		export PATH=$HOME/wuyaping/lyj/bin:$PATH
