@@ -57,8 +57,6 @@ inputs: rec
   biu = inputs.pkgs.callPackage ./biu
   {
     inherit nameof zpp-bits tgbot-cpp concurrencpp pocketfft;
-    # TODO: report glaze bug to upstream
-    inherit (inputs.pkgs.pkgs-2411) glaze;
     boost = inputs.pkgs.boost188;
     fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
   };
