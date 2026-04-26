@@ -72,29 +72,15 @@ namespace biu::process
     {
       auto proc = bp::process
         (context, actual_program, input.Args, std::move(stdio), std::move(env), std::forward<Ts>(args)...);
-      std::optional<boost::asio::steady_timer> timeout;
-      boost::asio::cancellation_signal sig;
-      bp::async_execute
-      (
-        std::move(proc),
-        boost::asio::bind_cancellation_slot
-        (
-          sig.slot(),
-          [&](bp::v2::error_code ec, int exit_code) { result.ExitCode = exit_code; if (timeout) timeout->cancel(); }
-        )
-      );
-      if constexpr (Mode.Timeout)
+      auto&& execute = bp::async_execute(std::move(proc));
+      auto&& cancel = [&]
       {
-        timeout.emplace(context, input.Timeout);
-        timeout->async_wait([&](boost::system::error_code ec)
-        {
-          if (ec) return; // 定时器被取消（进程已正常退出）
-          sig.emit(boost::asio::cancellation_type::partial);
-          timeout->expires_after(input.Timeout);
-          timeout->async_wait([&](boost::system::error_code ec2)
-            { if (!ec2) sig.emit(boost::asio::cancellation_type::terminal); });
-        });
-      }
+        if constexpr (Mode.Timeout) return std::move(execute)
+          (boost::asio::cancel_after(input.Timeout, boost::asio::cancellation_type::partial))
+          (boost::asio::cancel_after(input.Timeout, boost::asio::cancellation_type::terminal));
+        else return std::move(execute);
+      }();
+      std::move(cancel)(boost::asio::detached);
 
       context.run(); 
     });
