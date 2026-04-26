@@ -9,7 +9,7 @@
   };
   hpcstat = pkgs.mkShell
   {
-    inputsFrom = [ (pkgs.localPkgs.hpcstat.override { version = null; }) ];
+    inputsFrom = [ pkgs.localPkgs.hpcstat ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
