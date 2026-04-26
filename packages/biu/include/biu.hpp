@@ -8,7 +8,6 @@
 # ifdef __linux__
 #   include <biu/eigen.tpp>
 #   include <biu/hdf5.tpp>
-#   include <biu/glaze.tpp>
 #   include <biu/process.tpp>
 # endif
 # ifndef BIU_INTERNAL
