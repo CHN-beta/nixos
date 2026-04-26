@@ -18,7 +18,11 @@ inputs:
         enable = true;
         signKeyPaths = [ inputs.config.nixos.system.sops.secrets."store/signingKey".path ];
         settings = inputs.lib.mkIf (harmonia.store != null)
-          { virtual_nix_store = "/nix/store"; real_nix_store = "${harmonia.store}/nix/store"; };
+        {
+          virtual_nix_store = "/nix/store";
+          real_nix_store = "${harmonia.store}/nix/store";
+          enable_compression = true;
+        };
       };
       daemon =
       {
