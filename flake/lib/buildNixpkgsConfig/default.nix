@@ -186,12 +186,8 @@ let
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
         embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
-        pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-        {
-          picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
-          astropy = prev.astropy.overridePythonAttrs (prev:
-            { disabledTests = prev.disabledTests or [] ++ [ "test_iers_b_out_of_range_handling" ]; });
-        })];
+        pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++
+          [(final: prev: { picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; }; })];
       })
     ];
     kernel310Fix = [(final: prev: inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
