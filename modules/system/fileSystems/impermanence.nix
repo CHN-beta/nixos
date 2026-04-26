@@ -68,6 +68,8 @@ inputs:
         "Zotero" ".thunderbird"
         # dms 将剪贴板历史数据和主题的一些设置存放在这里
         ".cache/dms-clipboard" ".cache/DankMaterialShell"
+        # gemini-cli
+        ".gemini"
       ];
     })
     # 对于集群的工作节点，挂载一些本来由 home-manager 生成的文件，以及一些用来存放 home-manager 生成文件的目录
