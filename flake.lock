@@ -1722,12 +1722,12 @@
     "ufo": {
       "flake": false,
       "locked": {
-        "lastModified": 1774496814,
+        "lastModified": 1777197120,
         "lfs": true,
-        "narHash": "sha256-eIoEfcgcaJa0rE+Rr3Mht+/FXZHnpmaxtw69NR2JupM=",
+        "narHash": "sha256-Dn4WKxLlwuZm4DjAxhYXr8H8g3rZGJkdnNCNsC1FsGo=",
         "ref": "refs/heads/main",
-        "rev": "23fbe1c21391f1edcc8134612b2e341b1ea584ac",
-        "revCount": 94,
+        "rev": "870d2449e113fcefb935c8dafaa1ca2483c506cc",
+        "revCount": 95,
         "type": "git",
         "url": "https://git.chn.moe/chn/ufo.git"
       },
