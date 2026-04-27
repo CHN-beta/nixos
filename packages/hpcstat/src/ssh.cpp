@@ -14,17 +14,20 @@ namespace hpcstat::ssh
     (
       auto output = biu::exec<{.Timeout = true, .Stdout = biu::IoType::String}>
         ({.Program=std::filesystem::path(*sshbindir) / "ssh-add", .Args{ "-l" }, .Timeout=10s});
-      !output
+      // sometimes ssh-add -l succeeds but returns 1, which is really weird
+      !output && output.ExitCode != 1
     )
-      { std::cerr << "Failed to get ssh fingerprints\n"; return std::nullopt; }
+    {
+      std::cerr << "Failed to get ssh fingerprints, ssh-add return: {} {}\n"_f(output.ExitCode, output.Stdout);
+      return std::nullopt;
+    }
     else
     {
       std::regex pattern(R"r(\b(?:sha|SHA)256:([0-9A-Za-z+/=]{43})\b)r");
       std::smatch match;
       for
       (
-        auto i = std::sregex_iterator
-          (output.Stdout.begin(), output.Stdout.end(), pattern);
+        auto i = std::sregex_iterator(output.Stdout.begin(), output.Stdout.end(), pattern);
         i != std::sregex_iterator();
         ++i
       )
