@@ -7,7 +7,8 @@
 
 namespace biu::process
 {
-  template <detail_::ExecMode Mode> detail_::ExecResult<Mode>::operator bool() const { return ExitCode == 0; }
+  template <detail_::ExecMode Mode> detail_::ExecResult<Mode>::operator bool() const
+    { return !BoostErrorCode && !ExitCode; }
 
   template <detail_::ExecMode Mode, typename... Ts> detail_::ExecResult<Mode> exec
     (detail_::ExecInput<Mode> input, Ts&&... args)
@@ -80,9 +81,10 @@ namespace biu::process
           (boost::asio::cancel_after(input.Timeout, boost::asio::cancellation_type::terminal));
         else return std::move(execute);
       }();
-      std::move(cancel)(boost::asio::detached);
+      std::move(cancel)
+        ([&](boost::system::error_code ec, int exit_code){ result.ExitCode = exit_code; result.BoostErrorCode = ec; });
 
-      context.run(); 
+      context.run();
     });
 
     return result;

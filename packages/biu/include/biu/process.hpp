@@ -1,5 +1,6 @@
 # pragma once
 # include <biu/common.hpp>
+# include <boost/asio.hpp>
 
 namespace biu
 {
@@ -16,6 +17,7 @@ namespace biu
       template <ExecMode Mode> struct ExecResult
       {
         int ExitCode;
+        boost::system::error_code BoostErrorCode;
         std::conditional_t<Mode.Stdout == IoType::String, std::string, Empty> Stdout;
         std::conditional_t<Mode.Stderr == IoType::String, std::string, Empty> Stderr;
         operator bool() const;
