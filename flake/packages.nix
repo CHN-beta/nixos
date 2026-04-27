@@ -6,7 +6,6 @@
     inputs = { inherit (inputs.nixpkgs) lib; flakeInputs = inputs; };
     nixpkgs = { march = null; nixos = false; };
   });
-  inherit (pkgs.localPkgs.pkgsStatic) chn-bsub;
   vaspberry = pkgs.pkgsStatic.localPkgs.vaspberry.override
   {
     gfortran = pkgs.pkgsStatic.gfortran;
