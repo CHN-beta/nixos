@@ -135,7 +135,6 @@ inputs: rec
     brokenaxes = python3Packages.callPackage ./brokenaxes.nix { src = inputs.flakeInputs.brokenaxes; };
   };
   minibox = inputs.pkgs.callPackage ./minibox {};
-  debug-kernel310-hang = inputs.pkgs.callPackage ./debug-kernel310-hang { boost = inputs.pkgs.boost188; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
