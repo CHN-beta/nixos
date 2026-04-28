@@ -158,6 +158,8 @@ let
         phonopy = prev.phonopy.overridePythonAttrs { patches = prev.patches or [] ++ [ ./phonopy.patch ]; };
       })];
       niri = prev.niri.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./niri.patch ]; });
+      # allow tbb to be built on static platforms
+      onetbb = prev.onetbb |> inputs.lib.addMetaAttrs { badPlatforms = []; };
     })];
     marchFix =
     [
