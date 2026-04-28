@@ -62,4 +62,11 @@
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
+  debug-kernel310-hang = pkgs.mkShell
+  {
+    inputsFrom = [ pkgs.localPkgs.debug-kernel310-hang ];
+    packages = [ pkgs.llvmPackages.clang-tools ];
+    CMAKE_EXPORT_COMPILE_COMMANDS = "1";
+    hardeningDisable = [ "all" ];
+  };
 }
