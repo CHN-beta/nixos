@@ -65,7 +65,7 @@ inputs: rec
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm.nix { src = inputs.flakeInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
   sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
-  ufo = inputs.pkgs.callPackage inputs.flakeInputs.ufo { inherit biu matplotplusplus; tbb = inputs.pkgs.tbb_2022; };
+  ufo = inputs.pkgs.callPackage inputs.flakeInputs.ufo { inherit biu matplotplusplus; };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
   pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.flakeInputs.pocketfft; };
   vaspberry = inputs.pkgs.callPackage ./vaspberry.nix { src = inputs.flakeInputs.vaspberry; };
