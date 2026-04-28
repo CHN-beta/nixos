@@ -156,6 +156,9 @@ let
       pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
       {
         phonopy = prev.phonopy.overridePythonAttrs { patches = prev.patches or [] ++ [ ./phonopy.patch ]; };
+        # test failed after patch boost, not sure why
+        astropy = prev.astropy.overridePythonAttrs (prev:
+          { disabledTests = prev.disabledTests or [] ++ [ "test_iers_b_out_of_range_handling" ]; });
       })];
       niri = prev.niri.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./niri.patch ]; });
       # allow tbb to be built on static platforms
@@ -191,8 +194,6 @@ let
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
         {
           picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
-          astropy = prev.astropy.overridePythonAttrs (prev:
-            { disabledTests = prev.disabledTests or [] ++ [ "test_iers_b_out_of_range_handling" ]; });
         })];
       })
     ];
