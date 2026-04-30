@@ -118,6 +118,12 @@
               ];
           };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
+      # TODO: remove in next release
+      # cve 2026-31431 https://copy.fail
+      extraModprobeConfig =
+      ''
+        install algif_aead ${pkgs.coreutils}/bin/false
+      '';
     };
   };
 }
