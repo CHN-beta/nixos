@@ -29,6 +29,7 @@ inputs:
         directories = [ "/var/lib/flatpak" ]
           ++ builtins.map (f: "/var/lib/systemd/${f}") [ "linger" "coredump" "backlight" ];
       };
+      # TODO: remove in next release
       "/nix/nodatacow" =
       {
         hideMounts = true;
@@ -52,6 +53,7 @@ inputs:
       };
     }
     # 挂载更详细的目录
+    # TODO: remove in next release
     # 对于任何情况，`.cache` `.config/systemd` 都应该在重启后丢失
     {
       "/nix/rootfs/current".users = builtins.listToAttrs (builtins.map
