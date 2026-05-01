@@ -36,5 +36,6 @@
       |> pkgs.writeText "archive"
       |> lib.addMetaAttrs (systems // { inherit src; inputs = inputListFile; });
   inherit (pkgs.pkgsCross.ucrt64.localPkgs) xinli;
+  inherit (pkgs.pkgsStatic.localPkgs) ufo;
 }
 // (builtins.mapAttrs (_: v: v.config.system.build.toplevel) inputs.self.outputs.nixosConfigurations)
