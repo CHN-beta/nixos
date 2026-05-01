@@ -1700,11 +1700,11 @@
     "ufo": {
       "flake": false,
       "locked": {
-        "lastModified": 1777635122,
-        "narHash": "sha256-slfJCXH5RDZDoIirQXvUB2So4r9yr/2lvANfQpPzj78=",
+        "lastModified": 1777647771,
+        "narHash": "sha256-zz3vulpwO5h992kLr8ZQpIElOzGN31YdwtTGhNfmKxg=",
         "owner": "CHN-beta",
         "repo": "ufo",
-        "rev": "2ed9c48af5d0c6a35aa5b1aa644ff1ec4da317b8",
+        "rev": "584eb41843504f22d443cc7a6fe3ec2ac4b0a7db",
         "type": "github"
       },
       "original": {
