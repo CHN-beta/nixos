@@ -162,7 +162,13 @@ let
       })];
       niri = prev.niri.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./niri.patch ]; });
       # allow tbb to be built on static platforms
-      onetbb = prev.onetbb |> inputs.lib.addMetaAttrs { badPlatforms = []; };
+      onetbb = prev.onetbb.overrideAttrs
+        {
+          doCheck = !final.stdenv.hostPlatform.isStatic;
+          cmakeFlags = prev.cmakeFlags or [] ++ final.lib.optionals final.stdenv.hostPlatform.isStatic
+            [ "-DTBB_TEST=OFF" "-DTBBMALLOC_BUILD=OFF" "-DBUILD_SHARED_LIBS=OFF" ];
+        }
+        |> inputs.lib.addMetaAttrs { badPlatforms = []; };
     })];
     marchFix =
     [
