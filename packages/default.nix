@@ -65,7 +65,7 @@ inputs: rec
   sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm.nix { src = inputs.flakeInputs.sqlite-orm; };
   mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
   sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
-  ufo = inputs.pkgs.callPackage inputs.flakeInputs.ufo { inherit biu matplotplusplus; };
+  ufo = inputs.pkgs.callPackage inputs.flakeInputs.ufo { inherit biu matplotplusplus poolstl; };
   chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
   pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.flakeInputs.pocketfft; };
   vaspberry = inputs.pkgs.callPackage ./vaspberry.nix { src = inputs.flakeInputs.vaspberry; };
@@ -135,6 +135,7 @@ inputs: rec
     brokenaxes = python3Packages.callPackage ./brokenaxes.nix { src = inputs.flakeInputs.brokenaxes; };
   };
   minibox = inputs.pkgs.callPackage ./minibox {};
+  poolstl = inputs.pkgs.callPackage ./poolstl.nix { src = inputs.flakeInputs.poolstl; };
 
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
