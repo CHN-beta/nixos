@@ -89,6 +89,7 @@
         minibox = {};
         harmonia = { hostname = "backup-store.chn.moe"; store = "/nix/backup";};
         snapper = { persistent = "/nix/persistent"; ssd = "/nix/ssd"; };
+        github-runners = {};
       };
     };
     systemd.tmpfiles.rules =
