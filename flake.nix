@@ -65,7 +65,7 @@
     sqlgen = { url = "git+https://github.com/getml/sqlgen?submodules=1"; flake = false; };
     reflectcpp = { url = "git+https://github.com/getml/reflect-cpp?submodules=1"; flake = false; };
     linux-asus = { url = "github:CHN-beta/linux-g14/6.18"; flake = false; };
-    ufo = { url = "git+https://git.chn.moe/chn/ufo.git?lfs=1"; flake = false; };
+    ufo = { url = "github:CHN-beta/ufo"; flake = false; };
     gitea-robots-txt = { url = "https://gitea.com/robots.txt"; flake = false; };
     ugreen = { url = "github:miskcoo/ugreen_leds_controller"; flake = false; };
     asmroner = { url = "github:fireinrain/asmr-downloader"; flake = false; };
