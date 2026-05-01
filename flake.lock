@@ -1269,22 +1269,6 @@
         "type": "github"
       }
     },
-    "poolstl": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1717382866,
-        "narHash": "sha256-JUsWZMYH1UNz4RYS3ONZdh4DlAe+hSjb1pjCbNX9M9I=",
-        "owner": "alugowski",
-        "repo": "poolSTL",
-        "rev": "26d95b90aea7c36732a2df50df1c6fa26c96f93e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "alugowski",
-        "repo": "poolSTL",
-        "type": "github"
-      }
-    },
     "pre-commit-hooks-nix": {
       "inputs": {
         "flake-compat": "flake-compat_4",
@@ -1430,7 +1414,6 @@
         "openxlsx": "openxlsx",
         "phono3py": "phono3py",
         "pocketfft": "pocketfft",
-        "poolstl": "poolstl",
         "py4vasp": "py4vasp",
         "pybinding": "pybinding",
         "reflectcpp": "reflectcpp",

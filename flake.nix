@@ -70,7 +70,6 @@
     ugreen = { url = "github:miskcoo/ugreen_leds_controller"; flake = false; };
     asmroner = { url = "github:fireinrain/asmr-downloader"; flake = false; };
     dwproton = { url = "github:imaviso/dwproton-flake"; flake = false; };
-    poolstl = { url = "github:alugowski/poolSTL"; flake = false; };
   };
 
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in
