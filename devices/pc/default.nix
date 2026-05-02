@@ -32,14 +32,11 @@
               "/dev/mapper/root1" =
               {
                 "/nix/rootfs/current" = "/";
-                "/nix/persistent" = "/nix/persistent";
-                "/nix/swap" = "/nix/swap";
-                "/nix/nodatacow" = "/nix/nodatacow";
-                "/nix/rootfs" = "/nix/rootfs";
+                "/nix" = "/nix";
               };
               "/dev/tf/tf" =
               {
-                "/nix" = "/nix";
+                "/" = "/nix/tf";
                 "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
                 "/nix/remote/jykang" = "/data/gpfs01/jykang/.nix";
                 "/nix/remote/wlin" = "/data/gpfs01/wlin/.nix";
@@ -100,7 +97,7 @@
           );
           extraInterfaces = [ "wlp194s0" ];
         };
-        harmonia = {};
+        harmonia.store = "/nix/tf";
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
         beesd =
         {
