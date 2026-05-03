@@ -65,13 +65,13 @@
         pnpm config set reporter append-only
         pnpm config set package-manager-strict false
         cp -f ${patchedLockFile} pnpm-lock.yaml
+        pnpm install --frozen-lockfile --offline
         runHook postConfigure
       '';
 
       buildPhase =
         ''
           runHook preBuild
-          pnpm install --frozen-lockfile --offline
           pnpm run ${buildScript}
           runHook postBuild
         '';

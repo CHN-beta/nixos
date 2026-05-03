@@ -1,15 +1,14 @@
 # TODO: update to use pnpm.setupHook
 {
   lib, mkPnpmPackage, nodejs, writeShellScript, src, extraIntegritySha256,
-  bash, cypress, vips, python3
+  bash, cypress, vips, python3, autoPatchelfHook
 }: (mkPnpmPackage.override { inherit nodejs; })
 {
   inherit src extraIntegritySha256;
-  extraNativeBuildInputs = [ bash nodejs.pkgs.typescript nodejs.pkgs.gulp python3 ];
+  extraNativeBuildInputs = [ bash nodejs.pkgs.typescript nodejs.pkgs.gulp python3 autoPatchelfHook ];
   extraAttrs =
   {
-    CYPRESS_INSTALL_BINARY = "0";
-    NODE_ENV = "production";
+    env = { CYPRESS_INSTALL_BINARY = "0"; NODE_ENV = "production"; };
     postInstall =
       let startScript = writeShellScript "misskey"
       ''
@@ -25,5 +24,10 @@
         cp ${startScript} $out/bin/misskey
         mkdir -p $out/files
       '';
+    preBuild =
+    ''
+      autoPatchelf node_modules/.pnpm/sass-embedded-linux-x64*/node_modules/sass-embedded-linux-x64/dart-sass/src/dart
+    '';
+    autoPatchelfIgnoreMissingDeps = [ "libc.musl-x86_64.so.1" ];
   };
 }
