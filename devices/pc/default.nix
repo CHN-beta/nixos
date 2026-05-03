@@ -14,16 +14,18 @@
           #   /dev/nvme0n1p4, ntfs
           # linux partition:
           #   esp: /dev/nvme0n1p1 or /dev/disk/by-partlabel/pc-boot
-          #   nix: /nix/{store,var,remote} are mounted from:
-          #     /dev/tf/tf-metadata, btrfs metadata, lvm, ensembled from:
-          #     /dev/tf/tf, btrfs data with cache, lvm, ensembled from:
-          #       /dev/mapper/tf2, decrypted from:
-          #         /dev/nvme0n1p5 or /dev/disk/by-partlabel/pc-tf2, luks
-          #       /dev/mapper/tf1, decrypted from:
-          #         /dev/mmcblk0p1 or /dev/disk/by-partlabel/pc-tf1, luks
-          #   anything else: mounted from:
-          #     /dev/mapper/root1, btrfs, decrypted from:
-          #       /dev/nvme0n1p2 or /dev/disk/by-partlabel/pc-root1, luks
+          #   most stuff: mounted from:
+          #     /dev/mapper/root1 /dev/tf/pc-root2, btrfs
+          #   nix build cache (/nix/tf and hpc stuff): mounted from:
+          #     /dev/tf/tf, btrfs
+          #   swap: /dev/tf/pc-swap
+          #   lvm:
+          #     - /dev/mapper/tf2 -> /dev/tf/swap and /dev/tf/pc-root2
+          #     - /dev/mapper/tf1 -> /dev/tf/tf
+          #   luks:
+          #     - /dev/disk/by-partlabel/pc-root1 or /dev/nvme0n1p2 -> /dev/mapper/root1
+          #     - /dev/disk/by-partlabel/pc-tf2 or /dev/nvme0n1p5 -> /dev/mapper/tf2
+          #     - /dev/disk/by-partlabel/pc-tf1 or /dev/mmcblk0p1 -> /dev/mapper/tf1
           mount =
           {
             vfat."/dev/disk/by-partlabel/pc-boot" = "/boot";
@@ -51,8 +53,7 @@
             "/dev/disk/by-partlabel/pc-tf1" = { mapper = "tf1"; ssd = true; };
             "/dev/disk/by-partlabel/pc-tf2" = { mapper = "tf2"; ssd = true; };
           };
-          swap = [ "/nix/swap/swap" ];
-          resume = { device = "/dev/mapper/root1"; offset = 156901642; };
+          swap = [ "/dev/tf/pc-swap" ];
         };
         grub.windowsEntries."08D3-10DE" = "Windows";
         nix.marches =
