@@ -27,7 +27,7 @@
           "8.9"
         ];
       };
-      hardware.gpu.type = "nvidia";
+      hardware.gpu.type = [ "nvidia" ];
       services =
       {
         sshd = {};

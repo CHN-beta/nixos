@@ -2,7 +2,8 @@
 {
   options.nixos.hardware.gpu =
   {
-    type = lib.mkOption { type = lib.types.nullOr (lib.types.enum [ "intel" "nvidia" "amd" ]); default = null; };
+    type = lib.mkOption
+      { type = lib.types.nullOr (lib.types.listOf (lib.types.enum [ "intel" "nvidia" "amd" ])); default = null; };
     nvidia =
     {
       dynamicBoost = lib.mkOption { type = lib.types.bool; default = false; };
@@ -20,41 +21,48 @@
   config = let inherit (config.nixos.hardware) gpu; in lib.mkIf (gpu.type != null) (lib.mkMerge
   [
     # generic settings
-    (
-      let gpus = lib.strings.splitString "+" gpu.type; in
+    {
+      boot.blacklistedKernelModules = [ "nouveau" ];
+      hardware.graphics =
       {
-        boot =
-        {
-          initrd.availableKernelModules =
-            {
-              intel = [ "i915" ];
-              nvidia = []; # early loading breaks resume from hibernation
-              amd = [];
-            }.${gpu.type};
-          blacklistedKernelModules = [ "nouveau" ];
-        };
+        enable = true;
+        extraPackages = with pkgs;
+        [
+          vulkan-loader vulkan-validation-layers vulkan-extension-layer
+          vulkan-tools
+        ];
+      };
+    }
+    # amdgpu
+    (
+      lib.mkIf (builtins.elem "amd" gpu.type)
+      {
+        hardware.amdgpu = { opencl.enable = true; initrd.enable = true; legacySupport.enable = true; };
+        services.xserver.videoDrivers = [ "amdgpu" ];
+        environment.systemPackages = with pkgs; [ radeontop rocmPackages.rocm-smi ];
+      }
+    )
+    # intel
+    (
+      lib.mkIf (builtins.elem "intel" gpu.type)
+      {
+        boot.initrd.availableKernelModules = [ "i915" ];
+        hardware.graphics.extraPackages = with pkgs;
+          [ intel-vaapi-driver libvdpau-va-gl intel-media-driver ];
+        services.xserver.videoDrivers = [ "modesetting" ];
+        environment.systemPackages = with pkgs; [ intel-gpu-tools ];
+      }
+    )
+    # nvidia
+    (
+      lib.mkIf (builtins.elem "nvidia" gpu.type)
+      {
+        # do not load nvidia kernel module in initrd, otherwise breaking hibernation
+        # boot.initrd.availableKernelModules = [ "nvidia" ];
         hardware =
         {
-          graphics =
-          {
-            enable = true;
-            extraPackages =
-              let packages = with pkgs;
-              {
-                # TODO: import from nixos-hardware instead
-                # enableHybridCodec is only needed for some old intel gpus (Atom, Nxxx, etc)
-                intel =
-                  [ intel-vaapi-driver libvdpau-va-gl intel-media-driver ];
-                nvidia = [ libva-vdpau-driver ];
-                amd = [];
-              };
-              in packages.${gpu.type} ++ (with pkgs;
-              [
-                vulkan-loader vulkan-validation-layers vulkan-extension-layer
-                vulkan-tools
-              ]);
-          };
-          nvidia = lib.mkIf (gpu.type == "nvidia")
+          graphics.extraPackages = with pkgs; [ libva-vdpau-driver ];
+          nvidia =
           {
             modesetting.enable = true;
             powerManagement.enable = true;
@@ -67,14 +75,7 @@
             nvidiaPersistenced = gpu.nvidia.persistence;
           };
         };
-        services.xserver.videoDrivers =
-          let driver =
-          {
-            intel = [ "modesetting" ];
-            amd = [ "amdgpu" ];
-            nvidia = lib.optionals (gpu.nvidia.driver != "dc") [ "nvidia" ];
-          };
-          in driver.${gpu.type};
+        services.xserver.videoDrivers = lib.optionals (gpu.nvidia.driver != "dc") [ "nvidia" ];
         environment =
         {
           etc."nvidia/nvidia-application-profiles-rc.d/vram" = lib.mkIf (gpu.type == "nvidia")
@@ -85,23 +86,10 @@
               profiles = [{ name = "save-vram"; settings = [{ key = "GLVidHeapReuseRatio"; value = 0; }]; }];
             });
           };
-          systemPackages =
-            let packages = with pkgs;
-            {
-              intel = [ intel-gpu-tools ];
-              nvidia = [ nvtopPackages.full ];
-              amd = [ radeontop rocmPackages.rocm-smi ];
-            };
-            in packages.${gpu.type};
+          systemPackages = with pkgs; [ nvtopPackages.full ];
         };
+        systemd.services.nvidia-fabricmanager = lib.mkIf gpu.nvidia.disableFabricmanager { enable = lib.mkForce false; };
       }
     )
-    # amdgpu
-    (
-      lib.mkIf (lib.strings.hasPrefix "amd" gpu.type)
-        { hardware.amdgpu = { opencl.enable = true; initrd.enable = true; legacySupport.enable = true; };}
-    )
-    # sometimes dc gpu without nvlink or nvswitch
-    (lib.mkIf gpu.nvidia.disableFabricmanager { systemd.services.nvidia-fabricmanager.enable = lib.mkForce false; })
   ]);
 }

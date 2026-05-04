@@ -48,7 +48,7 @@
         kernel.patches = [ "btrfs" ];
         binfmt = {};
       };
-      hardware = { gpu.type = "intel"; ugreen = {}; };
+      hardware = { gpu.type = [ "intel" ]; ugreen = {}; };
       services =
       {
         sshd = {};
