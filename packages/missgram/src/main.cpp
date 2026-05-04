@@ -55,24 +55,19 @@ int main()
           content.type != "note"    // 只考虑 note 的情况，这里note包括了回复、转发、引用
             || !content.body.note   // 大概不会发生，但还是判断一下
             || content.body.note->visibility != "public" || content.body.note->localOnly // 只转发公开的、允许联合的帖子
+            || content.body.note->replyId.has_value() // 不转发回复
         ) return;
 
         // 如果是转发/回复/引用，需要检查被回复或者被引用的帖子是否已经被转发过
         bool is_forward = !content.body.note->text && content.body.note->files.empty() && content.body.note->renote;
         bool is_renote = (content.body.note->text || !content.body.note->files.empty()) && content.body.note->renote;
-        bool is_reply = content.body.note->replyId.has_value();
-        std::optional<std::uint32_t> tg_reply_id;
-        bool fond_renote = false, found_reply = false;
-        if (is_reply)
-          { tg_reply_id = db_read(*content.body.note->replyId); found_reply = tg_reply_id.has_value(); }
-        else if (is_forward || is_renote)
-          { tg_reply_id = db_read(content.body.note->renote->id); fond_renote = tg_reply_id.has_value(); }
+        std::optional<std::uint32_t> tg_renote_id;
+        if (is_forward || is_renote) tg_renote_id = db_read(content.body.note->renote->id);
 
         // 一些情况下，需要生成预览链接
         // 优先回复的帖子，然后是引用的帖子，最后是正文中的第一个链接
         std::optional<std::string> preview_url;
-        if (is_reply && !found_reply) preview_url = "{}/notes/{}"_f(content.server, *content.body.note->replyId);
-        else if ((is_forward || is_renote) && !fond_renote)
+        if ((is_forward || is_renote) && !tg_renote_id)
           preview_url = "{}/notes/{}"_f(content.server, content.body.note->renote->id);
         else if (content.body.note->text)
         {
@@ -86,23 +81,14 @@ int main()
         // 接下来准备要回复的文本内容
         std::string text_html;
         if (is_forward)  // 如果是转发帖子
-          if (fond_renote) text_html = "转发了自己的帖子。";
+          if (tg_renote_id) text_html = "转发了自己的帖子。";
           else text_html = parse("转发了[帖子]({}/notes/{})"_f(content.server, content.body.note->id));
         // 否则（引用或普通帖子）
         else
         {
           std::string text = content.body.note->text.value_or("");
-          if (is_reply)
-          {
-            // 移除开头的 @user 或者 @user@server
-            std::regex reply_regex(R"(^@\S+(@\S+)?\s*)");
-            std::string new_text;
-            while (new_text = std::regex_replace(text, reply_regex, ""), new_text != text) text = new_text;
-          }
-          if (is_renote && !fond_renote)
+          if (is_renote && !tg_renote_id)
             text = "引用了[帖子]({}/notes/{})\n"_f(content.server, content.body.note->renote->id) + text;
-          if (is_reply && !found_reply)
-            text = "回复了[帖子]({}/notes/{})\n"_f(content.server, *content.body.note->replyId) + text;
           text_html = parse(text);
           // 可能还有content warning，如果有的话需要处理
           if (content.body.note->cw && !content.body.note->cw->empty())
@@ -114,11 +100,11 @@ int main()
         }
 
         // 异步发送消息
-        std::thread([text_html, note_id = content.body.note->id, tg_reply_id,
+        std::thread([text_html, note_id = content.body.note->id, tg_renote_id,
           files = content.body.note->files, preview_url]
         {
           auto message_id =
-            tg_send(text_html, tg_reply_id, files, preview_url);
+            tg_send(text_html, tg_renote_id, files, preview_url);
           if (message_id) db_write(note_id, *message_id);
         }).detach();
 
