@@ -73,7 +73,7 @@
         sysctl.laptop-mode = 5;
         kernel.patches = [ "btrfs" ];
       };
-      hardware = { gpu.type = [ "amd" ]; asus = {};};
+      hardware = { gpu = { type = [ "amd" "nvidia" ]; nvidia.persistence = false; }; asus = {}; };
       services =
       {
         samba =
