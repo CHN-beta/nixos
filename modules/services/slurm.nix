@@ -234,7 +234,7 @@
         {
           SLURM_UNBUFFEREDIO = "1";
           SLURM_CPU_BIND = "v";
-          SQUEUE_FORMAT2 = "jobid:6,partition:10,name:10,username:10,state:10,prioritylong:10,timeused:10,nodelist:10";
+          SQUEUE_FORMAT2 = "jobarrayid:15,partition:10,name:10,username:10,state:10,prioritylong:10,timeused:10,nodelist:10";
         };
       }
       # master 配置
