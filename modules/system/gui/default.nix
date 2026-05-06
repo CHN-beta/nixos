@@ -123,7 +123,7 @@
               {
                 "Tianma Microelectronics Ltd. TL134ADXP03 Unknown" =
                   { scale = 1; position = { x = 0; y = 0; }; mode = { width = 2560; height = 1600; refresh = 180.; }; };
-                "Xiaomi Corporation Mi Monitor 0x00000001" =
+                "Xiaomi Corporation Mi Monitor" =
                 {
                   scale = 1;
                   position = { x = 0; y = -2160; };
