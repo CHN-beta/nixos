@@ -145,7 +145,6 @@
               spawn-at-startup =
               [
                 { argv = [ "Telegram" "-startintray" ]; }
-                { argv = [ "steam" "-silent" ]; }
                 { argv = [ "element-desktop" "--hidden" ]; }
                 { argv = [ "discord" "--start-minimized" "--no-startup-id" ]; }
               ];
