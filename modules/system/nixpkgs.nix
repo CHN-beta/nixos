@@ -7,6 +7,7 @@ inputs:
     {
       type = types.nullOr (types.submodule { options =
       {
+        enableForAllPackages = mkOption { type = types.bool; default = true; };
         capabilities = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
         forwardCompat = mkOption { type = types.nullOr types.bool; default = false; };
       };});

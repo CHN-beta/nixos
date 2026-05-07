@@ -11,7 +11,7 @@
         fastfetch reptyr duc ncdu progress libva-utils ksh neofetch
         dateutils glib cryptsetup i2c-tools trash-cli cpuid
         stress-ng
-        (if config.nixos.system.nixpkgs.cuda == null then emptyDirectory else gpu-burn)
+        (if pkgs.config.cudaSupport or false then gpu-burn else emptyDirectory)
         # lsxx
         pciutils usbutils lshw util-linux lsof dmidecode lm_sensors hwloc
         acpica-tools ethtool

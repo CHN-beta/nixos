@@ -10,7 +10,7 @@ let
     };
   cudaConfig = inputs.lib.optionalAttrs (nixpkgs.cuda or null != null)
   (
-    { cudaSupport = true; }
+    (inputs.lib.optionalAttrs (nixpkgs.cuda.enableForAllPackages or true) { cudaSupport = true; })
     // (inputs.lib.optionalAttrs (nixpkgs.cuda.capabilities != null)
       { cudaCapabilities = nixpkgs.cuda.capabilities; })
     // (inputs.lib.optionalAttrs (nixpkgs.cuda.forwardCompat != null)
