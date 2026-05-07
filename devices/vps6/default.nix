@@ -32,7 +32,10 @@
           streamProxy.map =
           (builtins.listToAttrs (builtins.map
             (site: { name = "${site}.chn.moe"; value.upstream.address = "tinc0.nas.chn.moe"; })
-            [ "xn--s8w913fdga" "matrix" "git" "question" ]))
+            [
+              "xn--s8w913fdga" "matrix" "git" "question" "send" "grafana" "peertube" "rsshub" "misskey" "synapse"
+              "vaultwarden" "nextcloud" "freshrss" "huginn" "api" "webdav" "photo" "readeck"
+            ]))
           // { "xn--qbtm095lrg0bfka60z.chn.moe" = { upstream.address = "tinc0.pc.chn.moe"; }; };
           applications =
           {

@@ -8,7 +8,10 @@ let
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi" "ua" "xserver2"
-      "xserver2.vps6" "s" "headscale" "missgram" "vikunja" "question" "xserver3"
+      "xserver2.vps6" "s" "headscale" "missgram" "vikunja" "xserver3"
+      # to nas
+      "铜锣湾" "matrix" "git" "question" "grafana" "peertube" "send" "freshrss" "huginn" "nextcloud"
+      "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api" "photo" "readeck"
       # to pc
       "铜锣湾实验室"
       # temporary
@@ -22,14 +25,7 @@ let
     srv2-node0 = [ "srv2" "jupyterhub" ];
     "pc.ts" = [ "nix-store" "chat" ];
     "nas.ts" = [ "ssh.git" "backup-store" ];
-    autoroute = [ "铜锣湾" "matrix" "git" ];
-    vps9 =
-    [
-      "initrd.vps9" "xserver2.vps9"
-      # to nas
-      "grafana" "peertube" "send" "freshrss" "huginn" "nextcloud"
-      "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api" "photo" "readeck"
-    ];
+    vps9 = [ "initrd.vps9" "xserver2.vps9" ];
   };
   a =
   {
