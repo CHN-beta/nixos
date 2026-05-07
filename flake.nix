@@ -30,6 +30,7 @@
     harmonia.url = "github:nix-community/harmonia";
     dms-plugin-registry = { url = "github:AvengeMedia/dms-plugin-registry"; inputs.nixpkgs.follows = "nixpkgs"; };
     chinese-fonts = { url = "github:brsvh/chinese-fonts-overlay"; inputs.nixpkgs.follows = "nixpkgs"; };
+    llm-agents.url = "github:numtide/llm-agents.nix";
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?ref=chn-mod&submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };

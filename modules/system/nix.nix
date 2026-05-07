@@ -26,7 +26,12 @@
         experimental-features = [ "nix-command" "flakes" "ca-derivations" "mounted-ssh-store" "pipe-operators" ];
         keep-failed = true;
         max-substitution-jobs = 4;
-        trusted-public-keys = [ "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE=" ];
+        trusted-public-keys =
+        [
+          "chn:Cc+nowW1LIpe1kyXOZmNaznFDiH1glXmpb4A+WD/DTE="
+          # llm-agents
+          "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+        ];
         trusted-users = [ "@wheel" ];
         show-trace = true;
         max-jobs = 4;
@@ -36,7 +41,12 @@
         keep-outputs = false;
         connect-timeout = 5;
         # https://cache.nixos.org 已经自带
-        substituters = [ "https://nix-store.chn.moe" "https://backup-store.chn.moe" ];
+        substituters =
+        [
+          "https://nix-store.chn.moe" "https://backup-store.chn.moe"
+          # llm-agents
+          "https://cache.numtide.com"
+        ];
         build-dir = "/var/cache/nix";
         download-buffer-size = 524288000;
       };
