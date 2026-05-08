@@ -11,60 +11,51 @@ index 01d0216..4084e46 100644
    {
      other.fd = target;
      other.fd_needs_closing = false;
-diff --git a/include/boost/process/v2/stdio.hpp b/include/boost/process/v2/stdio.hpp
-index 01d0216..1dc3d28 100644
---- a/boost/process/v2/stdio.hpp
-+++ b/boost/process/v2/stdio.hpp
-@@ -173,10 +173,18 @@ struct process_io_binding
-   bool fd_needs_closing{false};
-   error_code ec;
+diff --git a/include/boost/process/v2/posix/default_launcher.hpp b/include/boost/process/v2/posix/default_launcher.hpp
+index fc826fe..6a8b36b 100644
+--- a/boost/process/v2/posix/default_launcher.hpp
++++ b/boost/process/v2/posix/default_launcher.hpp
+@@ -29,6 +29,7 @@
+ #include <sys/types.h>
+ #include <sys/wait.h>
+ #include <unistd.h>
++#include <iostream>
  
--  ~process_io_binding()
-+  void close()
-   {
-     if (fd_needs_closing)
-+    {
-       ::close(fd);
-+      fd = target;
-+      fd_needs_closing = false;
-+    }
-+  }
-+  ~process_io_binding()
-+  {
-+    close();
-   }
+ #if defined(__APPLE__)
+ # include <crt_externs.h>
+@@ -425,6 +426,7 @@ struct default_launcher
+     void ignore_unused(std::size_t ) {}
+     void close_all_fds(error_code & ec)
+     {
++        std::cerr << "close_all_fds" << std::endl;
+         std::sort(fd_whitelist.begin(), fd_whitelist.end());
+         detail::close_all(fd_whitelist, ec);
+         fd_whitelist = {STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO};
+diff --git a/src/posix/close_handles.cpp b/src/posix/close_handles.cpp
+index 5795a3b..b560c95 100644
+--- a/libs/process/src/posix/close_handles.cpp
++++ b/libs/process/src/posix/close_handles.cpp
+@@ -13,6 +13,7 @@
  
-   process_io_binding() = default;
-@@ -193,8 +201,7 @@ struct process_io_binding
+ #include <algorithm>
+ #include <memory>
++#include <iostream>
  
-   process_io_binding & operator=(process_io_binding && other) noexcept
-   {
--    if (fd_needs_closing)
--      ::close(fd);
-+    close();
+ // linux has close_range since 5.19
  
-     fd = other.fd;
-     fd_needs_closing = other.fd_needs_closing;
-@@ -358,6 +365,22 @@ struct process_stdio
- 
-     return error_code {};
-   };
-+
-+  // weather fork succeeded or not, we should close the pipe properly in the parent
-+  void close_pipes()
-+  {
-+    in.close();
-+    out.close();
-+    err.close();
-+  };
-+  void on_success(posix::default_launcher & /*launcher*/, const filesystem::path &, const char * const *)
-+  {
-+    close_pipes();
-+  };
-+  void on_error(posix::default_launcher & /*launcher*/, const filesystem::path &, const char * const *)
-+  {
-+    close_pipes();
-+  };
- #endif
- 
- };
+@@ -148,6 +149,7 @@ void close_all(const std::vector<int> & whitelist, error_code & ec)
+ // linux impl - whitelist must be ordered
+ void close_all(const std::vector<int> & whitelist, error_code & /*ec*/)
+ {
++    std::cout << "linux close_all" << std::endl;
+ // https://patchwork.kernel.org/project/linux-fsdevel/cover/20200602204219.186620-1-christian.brauner@ubuntu.com/
+     //the most common scenario is whitelist = {0,1,2}
+     if (!whitelist.empty())
+@@ -178,6 +180,7 @@ void close_all(const std::vector<int> & whitelist, error_code & /*ec*/)
+ // default one
+ void close_all(const std::vector<int> & whitelist, error_code & ec)
+ {
++    std::cout << "default close_all" << std::endl;
+     std::unique_ptr<DIR, void(*)(DIR*)> dir{::opendir("/dev/fd"), +[](DIR* p){::closedir(p);}};
+     if (dir.get() == nullptr)
+     {

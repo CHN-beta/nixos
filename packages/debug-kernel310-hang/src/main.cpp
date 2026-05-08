@@ -7,13 +7,12 @@ int main()
 {
   namespace bp = boost::process;
   boost::asio::io_context context;
-  boost::filesystem::path actual_program = bp::environment::find_executable("echo");
-  auto env = bp::environment::current();
+  boost::filesystem::path program = bp::environment::find_executable("echo");
   auto stdout_pipe = std::make_unique<boost::asio::readable_pipe>(context);
   std::string stdout_string;
-  bp::process_stdio stdio{ .in = {}, .out = *stdout_pipe, .err = {} };
-  auto proc = bp::process
-    (context, actual_program, { "hhh" }, std::move(stdio), std::move(env));
+  bp::process_stdio stdio{ .out = *stdout_pipe };
+  auto proc = bp::process(context, program, { "hhh" }, bp::process_stdio(std::move(stdio)));
+  std::print(std::cout, "process started\n");
   proc.wait();
   boost::system::error_code ec;
   boost::asio::read(*stdout_pipe, boost::asio::dynamic_buffer(stdout_string), ec);
