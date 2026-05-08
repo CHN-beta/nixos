@@ -60,6 +60,7 @@
         missgram = 2014;
         hongbao = 2015;
         minibox = 2016;
+        hermes = 2017;
       };
     };
     gid = lib.mkOption

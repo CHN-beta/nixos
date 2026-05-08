@@ -14,6 +14,7 @@
     { config.niri-flake.cache.enable = false; }
     flakeInputs.harmonia.nixosModules.harmonia
     flakeInputs.dms-plugin-registry.modules.default
+    flakeInputs.hermes.nixosModules.default
     { config.home-manager.sharedModules =
     [
       flakeInputs.catppuccin.homeModules.catppuccin

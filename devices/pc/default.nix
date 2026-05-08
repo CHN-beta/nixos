@@ -134,6 +134,7 @@
         howdy = {};
         # for debug and development
         postgresql.instances.minibox = {};
+        hermes = {};
       };
       packages = { mathematica = {}; vasp = {}; extra = {}; lumerical = {}; };
       user.users = [ "chn" "lilydjwg" "hjp" ];
