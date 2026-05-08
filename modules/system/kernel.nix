@@ -120,9 +120,13 @@
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
       # TODO: remove in next release
       # cve 2026-31431 https://copy.fail
+      # cve https://github.com/V4bel/dirtyfrag
       extraModprobeConfig =
       ''
         install algif_aead ${pkgs.coreutils}/bin/false
+        install esp4 ${pkgs.coreutils}/bin/false
+        install esp6 ${pkgs.coreutils}/bin/false
+        install rxrpc ${pkgs.coreutils}/bin/false
       '';
     };
   };
