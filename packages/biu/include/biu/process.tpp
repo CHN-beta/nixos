@@ -72,7 +72,7 @@ namespace biu::process
     Logger::try_exec([&]
     {
       auto proc = bp::process
-        (context, actual_program, input.Args, std::move(stdio), std::move(env), std::forward<Ts>(args)...);
+        (context, actual_program, input.Args, auto(std::move(stdio)), auto(std::move(env)), std::forward<Ts>(args)...);
       auto&& execute = bp::async_execute(std::move(proc));
       auto&& cancel = [&]
       {
