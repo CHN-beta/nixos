@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, flakeInputs, ... }:
 {
   config = lib.mkIf (config.nixos.model.variant == "desktop")
   {
@@ -56,7 +56,15 @@
         qt6Packages.fcitx5-chinese-addons fcitx5-mozc fcitx5-material-color fcitx5-gtk
       ];
     };
-    programs = { dconf.enable = true; niri = { enable = true; package = pkgs.niri; }; };
+    programs =
+    {
+      dconf.enable = true;
+      niri =
+      {
+        enable = true;
+        package = flakeInputs.nixpkgs-unstable2.legacyPackages.x86_64-linux.niri.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./niri.patch ]; });
+      };
+    };
     nixos.user.sharedModules = [(hmInputs:
     {
       config =
@@ -85,7 +93,7 @@
           };
           niri =
           {
-            package = pkgs.niri;
+            package = flakeInputs.nixpkgs-unstable2.legacyPackages.x86_64-linux.niri;
             # TODO: use raw config file
             settings =
             {

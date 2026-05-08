@@ -5,6 +5,7 @@
   {
     nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs-unstable2.url = "github:nixos/nixpkgs/549bd84d6279f9852cae6225e372cc67fb91a4c1";
     nixpkgs-2411.url = "github:CHN-beta/nixpkgs/nixos-24.11";
     nixpkgs-2311.url = "github:CHN-beta/nixpkgs/nixos-23.11";
     nixpkgs-2305.url = "github:CHN-beta/nixpkgs/nixos-23.05";
