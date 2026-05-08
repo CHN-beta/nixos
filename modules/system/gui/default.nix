@@ -41,7 +41,7 @@
         # needed for icons
         adwaita-icon-theme
         # voice input
-        pkgs-unstable.voxtype-vulkan
+        pkgs-unstable.voxtype-onnx
       ];
     };
     xdg.portal.extraPortals = (builtins.map (p: pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" "gnome" ]);
@@ -157,7 +157,7 @@
           Service =
           {
             type = "simple";
-            ExecStart = "${pkgs.pkgs-unstable.voxtype-vulkan}/bin/voxtype";
+            ExecStart = "${pkgs.pkgs-unstable.voxtype-onnx}/bin/voxtype";
             Restart = "on-failure";
             RestartSec = "5s";
           };
