@@ -42,6 +42,8 @@
         adwaita-icon-theme
         # voice input
         pkgs-unstable.voxtype-vulkan
+        # manually adjust brightness and media play
+        playerctl brightnessctl
       ];
     };
     xdg.portal.extraPortals = (builtins.map (p: pkgs."xdg-desktop-portal-${p}") [ "gtk" "wlr" "gnome" ]);
