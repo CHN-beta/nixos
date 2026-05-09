@@ -107,8 +107,6 @@
         chromium = { enable = true; extraOpts.PasswordManagerEnabled = false; };
         gamescope = { enable = true; capSysNice = true; };
       };
-      # needed by gamescope
-      services.seatd.enable = true;
     }
     (lib.mkIf (config.nixos.model.arch == "x86_64")
     {
