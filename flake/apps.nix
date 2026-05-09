@@ -6,7 +6,7 @@ let
     |> builtins.map (name:
       ''
         echo building ${name}
-        nix --store /nix/tf build .#nixosConfigurations.${name}.config.system.build.toplevel
+        nix --store /nix/tf build .#nixosConfigurations.${name}.config.system.build.toplevel "$@"
       '')
     |> builtins.concatStringsSep "\n"
     |> pkgs.writeShellScript "build";
