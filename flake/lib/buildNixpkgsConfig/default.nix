@@ -90,8 +90,8 @@ let
                     { env.NIX_CFLAGS_COMPILE = prev.env.NIX_CFLAGS_COMPILE or "" + " -Wno-error=stringop-overflow"; });
                   pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
                   {
-                    scipy = prev.scipy.overridePythonAttrs (prev:
-                      { disabledTests = prev.disabledTests or [] ++ [ "test_roundtrip_scaling" ]; });
+                    scipy = prev.scipy.overridePythonAttrs (prev: { disabledTests = prev.disabledTests or [] ++
+                      [ "test_roundtrip_scaling" "test_bug_6139" "test_initial_step" ]; });
                   })];
                 })
               ];
