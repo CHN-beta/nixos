@@ -18,7 +18,7 @@
     };
     in result;
   python-lyj =
-    let python = pkgs.pkgs-2411.python310.withPackages (_: [ pkgs.localPkgs.pybinding ]);
+    let python = pkgs.pkgs2411.python310.withPackages (_: [ pkgs.localPkgs.pybinding ]);
     in pkgs.runCommand "python-lyj" { }
     ''
       mkdir -p $out/bin

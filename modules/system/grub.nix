@@ -40,7 +40,7 @@ inputs:
         {
           memtest86.enable = true;
           extraFiles = inputs.lib.mkIf (builtins.elem grub.installDevice [ "efi" "efiRemovable" ])
-            { "shell.efi" = "${inputs.pkgs.genericPackages.edk2-uefi-shell}/shell.efi"; };
+            { "shell.efi" = "${inputs.pkgs.genericPkgs.edk2-uefi-shell}/shell.efi"; };
           extraEntries = inputs.lib.mkMerge (builtins.concatLists
           [
             (builtins.map

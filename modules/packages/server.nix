@@ -38,7 +38,7 @@
       ])];
     }
     {
-      environment.systemPackages = [ pkgs.pkgs-unstable.gemini-cli ];
+      environment.systemPackages = [ pkgs.pkgsUnstable.gemini-cli ];
       # TODO: move persistent .gemini here
     }
   ]);

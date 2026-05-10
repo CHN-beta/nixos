@@ -18,7 +18,7 @@
       services.xray =
       {
         enable = true;
-        package = pkgs.pkgs-unstable.xray;
+        package = pkgs.pkgsUnstable.xray;
         settingsFile = config.sops.templates."xray-server.json".path;
       };
       nixos =
@@ -233,7 +233,7 @@
           {
             script =
               let
-                xray = "${pkgs.pkgs-unstable.xray}/bin/xray";
+                xray = "${pkgs.pkgsUnstable.xray}/bin/xray";
                 awk = "${pkgs.gawk}/bin/awk";
                 curl = "${pkgs.curl}/bin/curl";
                 jq = "${pkgs.jq}/bin/jq";

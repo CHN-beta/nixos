@@ -52,7 +52,7 @@ let
       inputs.flakeInputs.self.overlays.default
       (final: prev:
       {
-        genericPackages = import inputs.flakeInputs.nixpkgs
+        genericPkgs = import inputs.flakeInputs.nixpkgs
           { inherit (final) system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
       }
       // (
@@ -62,9 +62,9 @@ let
             inputs.lib.optionalAttrs (inputs.lib.versionOlder version "25.05") { znver5 = "znver4"; };
           source =
           {
-            pkgs-2305 = "nixpkgs-2305";
-            pkgs-2311 = "nixpkgs-2311";
-            pkgs-2411 =
+            pkgs2305 = "nixpkgs-2305";
+            pkgs2311 = "nixpkgs-2311";
+            pkgs2411 =
             {
               source = "nixpkgs-2411";
               overlays =
@@ -79,7 +79,7 @@ let
                 })
               ];
             };
-            pkgs-unstable =
+            pkgsUnstable =
             {
               source = "nixpkgs-unstable";
               overlays =
@@ -98,7 +98,13 @@ let
             };
           };
           packages = name:
-            let flakeSource = inputs.flakeInputs.${source.${name}.source or source.${name}};
+            let
+              flakeSource = inputs.flakeInputs.${source.${name}.source or source.${name}};
+              genericPkgs = import flakeSource
+              {
+                system = "${nixpkgs.arch or "x86_64"}-linux";
+                config = { allowUnfree = true; inherit allowInsecurePredicate; };
+              };
             in import flakeSource
             {
               localSystem =
@@ -107,7 +113,7 @@ let
                   let march = (marchFilter flakeSource.lib.version).${nixpkgs.march} or nixpkgs.march;
                   in { system = "${nixpkgs.arch or "x86_64"}-linux"; gcc = { arch = march; tune = march; }; };
               inherit config;
-              overlays = source.${name}.overlays or [(_: _: {})];
+              overlays = (source.${name}.overlays or []) ++ [(_: _: { inherit genericPkgs; })];
             };
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
@@ -175,7 +181,7 @@ let
       (final: prev: inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
         { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
       (final: prev: inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
-        { frei0r = final.genericPackages.frei0r; })
+        { frei0r = final.genericPkgs.frei0r; })
       (final: prev: inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
         { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
       (final: prev: inputs.lib.optionalAttrs (nixpkgs.march == "cascadelake")
@@ -190,13 +196,13 @@ let
         ffmpeg = final.ffmpeg_8;
         ffmpeg-headless = final.ffmpeg_8-headless;
         ffmpeg-full = final.ffmpeg_8-full;
-        assimp = prev.assimp.override { stdenv = final.genericPackages.stdenv; };
+        assimp = prev.assimp.override { stdenv = final.genericPkgs.stdenv; };
         xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
         opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
         rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
-        embree = prev.embree.override { stdenv = final.genericPackages.stdenv; };
-        simde = prev.simde.override { stdenv = final.genericPackages.stdenv; };
+        embree = prev.embree.override { stdenv = final.genericPkgs.stdenv; };
+        simde = prev.simde.override { stdenv = final.genericPkgs.stdenv; };
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
         {
           picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
@@ -246,7 +252,7 @@ let
       udevSupport = false;
       withSystemd = false;
       # per package fixes
-      audit = final.pkgs-2411.audit;
+      audit = final.pkgs2411.audit;
       rpm = (prev.rpm.override { systemd = null; audit = null; libcap = null; }).overrideAttrs (prev:
       {
         cmakeFlags = prev.cmakeFlags or [] ++

@@ -28,7 +28,7 @@
       services.xray =
       {
         enable = true;
-        package = pkgs.pkgs-unstable.xray;
+        package = pkgs.pkgsUnstable.xray;
         settingsFile = config.nixos.system.sops.templates."xray-client.json".path;
       };
       nixos.system.sops =

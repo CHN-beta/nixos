@@ -15,11 +15,11 @@ inputs: rec
   nameof = inputs.pkgs.callPackage ./nameof.nix { src = inputs.flakeInputs.nameof; };
   pslist = inputs.pkgs.callPackage ./pslist.nix { src = inputs.flakeInputs.self.src.pslist; };
   tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp.nix { src = inputs.flakeInputs.tgbot-cpp; };
-  mirism-old = inputs.pkgs.pkgs-2305.callPackage ./mirism-old.nix
+  mirism-old = inputs.pkgs.pkgs2305.callPackage ./mirism-old.nix
   {
     inherit cppcoro nameof date;
     src = inputs.flakeInputs.mirism-old;
-    nghttp2 = inputs.pkgs.pkgs-2305.nghttp2.override { enableAsioLib = true; };
+    nghttp2 = inputs.pkgs.pkgs2305.nghttp2.override { enableAsioLib = true; };
   };
   cppcoro = inputs.pkgs.callPackage ./cppcoro { src = inputs.flakeInputs.cppcoro; };
   date = inputs.pkgs.callPackage ./date.nix { src = inputs.flakeInputs.date; };
@@ -119,7 +119,7 @@ inputs: rec
   atat = inputs.pkgs.callPackage ./atat.nix { src = inputs.flakeInputs.self.src.atat; };
   atomkit = inputs.pkgs.callPackage ./atomkit.nix { src = inputs.flakeInputs.self.src.atomkit; };
   xinli = inputs.pkgs.callPackage ./xinli { inherit biu; };
-  pybinding = inputs.pkgs.pkgs-2411.python310Packages.callPackage ./pybinding
+  pybinding = inputs.pkgs.pkgs2411.python310Packages.callPackage ./pybinding
   {
     src = inputs.flakeInputs.pybinding;
     buildProxy = inputs.pkgs.lib.mkBuildproxy ./pybinding/proxy.nix;

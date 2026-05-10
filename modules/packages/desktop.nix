@@ -58,18 +58,18 @@
         # required by ltex-plus.vscode-ltex-plus
         ltex-ls ltex-ls-plus
         # matplot++ needs old gnuplot
-        pkgs-2311.gnuplot
+        pkgs2311.gnuplot
         # math, physics and chemistry
         octaveFull ovito localPkgs.vesta localPkgs.v-sim mpi geogebra6
         localPkgs.ufo
         (quantum-espresso.override { stdenv = gcc14Stdenv; gfortran = gfortran14; })
-        pkgs-2311.hdfview
+        pkgs2311.hdfview
         # media
         nur-xddxdd.svp
         # for kdenlive auto subtitle
         openai-whisper
         # daily management
-        super-productivity pkgs-unstable.vikunja-desktop
+        super-productivity pkgsUnstable.vikunja-desktop
         # gaming
         (bottles.override { removeWarningPopup = true; }) lutris
         # AI
