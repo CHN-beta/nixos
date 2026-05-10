@@ -19,7 +19,7 @@
       boot =
       {
         initrd.systemd.enable = true;
-        kernelParams = [ "boot.shell_on_fail" "systemd.setenv=SYSTEMD_SULOGIN_FORCE=1" ];
+        kernelParams = [ "boot.shell_on_fail" "systemd.setenv=SYSTEMD_SULOGIN_FORCE=1" "rd.systemd.debug_shell" ];
       };
     }
     (
