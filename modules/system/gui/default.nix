@@ -41,7 +41,7 @@
         # needed for icons
         adwaita-icon-theme
         # voice input
-        pkgsUnstable.voxtype-vulkan
+        pkgsUnstable.voxtype-onnx
         # manually adjust brightness and media play
         playerctl brightnessctl
       ];
@@ -159,7 +159,7 @@
           Service =
           {
             type = "simple";
-            ExecStart = "${pkgs.pkgsUnstable.voxtype-vulkan}/bin/voxtype";
+            ExecStart = "${pkgs.pkgsUnstable.voxtype-onnx}/bin/voxtype";
             Restart = "on-failure";
             RestartSec = "5s";
           };
