@@ -4,7 +4,13 @@ let
   {
     nas = [ "initrd.nas" ];
     office = [ "srv2-node0" ];
-    vps4 = [ "initrd.vps4" "xserver2.vps4" "status" ];
+    vps4 =
+    [
+      "initrd.vps4" "xserver2.vps4" "status"
+      # to nas
+      "grafana" "peertube" "send" "freshrss" "huginn" "nextcloud"
+      "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api" "photo" "readeck"
+    ];
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi" "ua" "xserver2"
@@ -23,13 +29,7 @@ let
     "pc.ts" = [ "nix-store" "chat" ];
     "nas.ts" = [ "ssh.git" "backup-store" ];
     autoroute = [ "铜锣湾" "matrix" "git" ];
-    vps9 =
-    [
-      "initrd.vps9" "xserver2.vps9"
-      # to nas
-      "grafana" "peertube" "send" "freshrss" "huginn" "nextcloud"
-      "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api" "photo" "readeck"
-    ];
+    vps9 = [ "initrd.vps9" "xserver2.vps9" ];
   };
   a =
   {
