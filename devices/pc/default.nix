@@ -72,7 +72,7 @@
         nixpkgs =
         {
           march = "znver5";
-          rocm = true;
+          rocm.targets = [ "gfx1151" ];
           cuda = { enableForAllPackages = false; capabilities = [ "8.9" ]; };
         };
         sysctl.laptop-mode = 5;
