@@ -48,6 +48,7 @@
       {
         nixos =
         {
+          # TODO: master should export /nix/persistent /nix/nodatacow without crossmnt
           services.nfs = lib.mkIf (cluster.nodeType or null == "master") { exports."/" = [ "192.168.178.0/24" ]; };
           system.fileSystems.mount.nfs = lib.mkIf (cluster.nodeType or null == "worker")
             { "192.168.178.${fsCluster.masterAddress}:/" = "/nix/remote/${cluster.clusterName}"; };
