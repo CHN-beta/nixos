@@ -13,7 +13,15 @@ inputs:
       };});
       default = null;
     };
-    rocm = mkOption { type = types.bool; default = false; };
+    rocm = mkOption
+    {
+      type = types.nullOr (types.submodule { options =
+      {
+        enableForAllPackages = mkOption { type = types.bool; default = true; };
+        targets = mkOption { type = types.nullOr (types.nonEmptyListOf types.nonEmptyStr); default = null; };
+      };});
+      default = null;
+    };
   };
   config = let inherit (inputs.config.nixos.system) nixpkgs; in
   {

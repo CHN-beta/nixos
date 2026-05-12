@@ -16,23 +16,35 @@ let
     // (inputs.lib.optionalAttrs (nixpkgs.cuda.forwardCompat != null)
       { cudaForwardCompat = nixpkgs.cuda.forwardCompat; })
   );
-  rocmConfig = inputs.lib.optionalAttrs (nixpkgs.rocm or false) { rocmSupport = true; };
+  rocmConfig = inputs.lib.optionalAttrs (nixpkgs.rocm or null != null)
+  {
+    "${if nixpkgs.rocm.enableForAllPackages or true then "rocmSupport" else null}" = true;
+    problems.handlers = inputs.lib.genAttrs' (nixpkgs.rocm.targets or [])
+      (target: inputs.lib.nameValuePair "composable_kernel-${target}" { broken = "ignore"; });
+  };
+  rocmOverlay = final: prev: inputs.lib.optionalAttrs (nixpkgs.rocm.targets or null != null)
+  {
+    rocmPackages = prev.rocmPackages.overrideScope (final: prev:
+      { clr = prev.clr.override { localGpuTargets = nixpkgs.rocm.targets; }; });
+  };
   allowInsecurePredicate = p: inputs.lib.warn "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
-  config = cudaConfig // rocmConfig
-    // {
-      inherit allowInsecurePredicate;
-      allowUnfree = true;
-      android_sdk.accept_license = true;
-      # allowBroken = true;
-      nvidia.acceptLicense = true;
-      microsoftVisualStudioLicenseAccepted = true;
-      # allowUnsupportedSystem = true;
-    }
-    // (inputs.lib.optionalAttrs (nixpkgs.march != null)
-    {
-      oneapiArch = let match.znver5 = "znver4"; in match.${nixpkgs.march} or nixpkgs.march;
-      nvhpcArch = nixpkgs.march;
-    });
+  genericConfig =
+  {
+    inherit allowInsecurePredicate;
+    allowUnfree = true;
+    android_sdk.accept_license = true;
+    # allowBroken = true;
+    nvidia.acceptLicense = true;
+    microsoftVisualStudioLicenseAccepted = true;
+    # allowUnsupportedSystem = true;
+  };
+  genericOverlay = flake: final: prev: 
+    { genericPkgs = import flake { inherit (final) system; config = genericConfig; }; };
+  config = cudaConfig // rocmConfig // genericConfig // (inputs.lib.optionalAttrs (nixpkgs.march != null)
+  {
+    oneapiArch = let match.znver5 = "znver4"; in match.${nixpkgs.march} or nixpkgs.march;
+    nvhpcArch = nixpkgs.march;
+  });
   overlays =
   {
     addon =
@@ -50,12 +62,9 @@ let
         dwproton = final.callPackage inputs.flakeInputs.dwproton {};
       })
       inputs.flakeInputs.self.overlays.default
+      rocmOverlay
+      (genericOverlay inputs.flakeInputs.nixpkgs)
       (final: prev:
-      {
-        genericPkgs = import inputs.flakeInputs.nixpkgs
-          { inherit (final) system; config = { allowUnfree = true; inherit allowInsecurePredicate; }; };
-      }
-      // (
         let
           marchFilter = version:
             # old version of nixpkgs does not recognize znver5, use znver4 instead
@@ -97,15 +106,8 @@ let
               ];
             };
           };
-          packages = name:
-            let
-              flakeSource = inputs.flakeInputs.${source.${name}.source or source.${name}};
-              genericPkgs = import flakeSource
-              {
-                system = "${nixpkgs.arch or "x86_64"}-linux";
-                config = { allowUnfree = true; inherit allowInsecurePredicate; };
-              };
-            in import flakeSource
+          packages = name: let flakeSource = inputs.flakeInputs.${source.${name}.source or source.${name}}; in
+            import flakeSource
             {
               localSystem =
                 if nixpkgs.march == null then { system = "${nixpkgs.arch or "x86_64"}-linux"; }
@@ -113,11 +115,11 @@ let
                   let march = (marchFilter flakeSource.lib.version).${nixpkgs.march} or nixpkgs.march;
                   in { system = "${nixpkgs.arch or "x86_64"}-linux"; gcc = { arch = march; tune = march; }; };
               inherit config;
-              overlays = (source.${name}.overlays or []) ++ [(_: _: { inherit genericPkgs; })];
+              overlays = (source.${name}.overlays or []) ++ [ rocmOverlay (genericOverlay flakeSource) ];
             };
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
-      ))
+      )
     ];
     patch = [(final: prev:
     {
