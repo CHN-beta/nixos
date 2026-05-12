@@ -68,7 +68,10 @@ inputs:
         [ ./default.yaml ./chn.yaml ./xray-server.yaml ]
         ++ (inputs.lib.optionals (model.cluster == null) [ ./devices/${model.hostname}.yaml ])
         ++ (inputs.lib.optionals (model.cluster != null)
-          [ ./devices/${model.cluster.clusterName}/${model.cluster.nodeName}.yaml ])
+        [
+          ./devices/${model.cluster.clusterName}/default.yaml
+          ./devices/${model.cluster.clusterName}/${model.cluster.nodeName}.yaml
+        ])
       );
     };
     availableKeys = mkOption
