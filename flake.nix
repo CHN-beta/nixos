@@ -78,12 +78,7 @@
   {
     packages.x86_64-linux = import ./flake/packages.nix { inherit inputs localLib; };
     nixosConfigurations = import ./flake/nixos.nix { inherit inputs localLib; };
-    overlays.default = final: prev:
-    {
-      localPkgs = (import ./packages { inherit localLib; pkgs = final; flakeInputs = inputs; });
-      pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++
-        [(finalPython: prevPython: final.localPkgs.pythonOverlay finalPython)];
-    };
+    overlays.default = import ./overlays { inherit localLib; flakeInputs = inputs; };
     nixosModules.default.imports = localLib.mkModules [ ./nixosModules ];
     config.dns = inputs.self.packages.x86_64-linux.dns-push.meta.config;
     devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
