@@ -13,7 +13,6 @@ inputs:
           readOnly = true;
         };
         key = mkOption { type = types.str; default = submoduleInputs.config._module.args.name; };
-        format = mkOption { type = types.enum [ "yaml" "binary" ]; default = "yaml"; };
         mode = mkOption { type = types.str; default = "0400"; };
         owner = mkOption { type = types.nullOr types.str; default = null; };
         group = mkOption { type = types.nullOr types.str; default = null; };
@@ -64,24 +63,13 @@ inputs:
     {
       type = types.nonEmptyListOf types.path;
       readOnly = true;
-      default =
-        let
-          defaultSopsFile = path:
-            if builtins.pathExists "${path}/secrets.yaml" then [ "${path}/secrets.yaml" ]
-            else if builtins.pathExists "${path}/secrets/default.yaml" then [ "${path}/secrets/default.yaml" ]
-            else [];
-          devicePath =  "${inputs.flakeInputs.self}/devices";
-          inherit (inputs.config.nixos) model;
-        in
-          []
-          ++ (inputs.lib.optionals (model.cluster == null) (defaultSopsFile "${devicePath}/${model.hostname}"))
-          ++ (inputs.lib.optionals (model.cluster != null)
-            (
-              (defaultSopsFile "${devicePath}/${model.cluster.clusterName}/${model.cluster.nodeName}")
-                ++ (defaultSopsFile "${devicePath}/${model.cluster.clusterName}")
-            ))
-          ++ (defaultSopsFile "${devicePath}/cross")
-          ++ [ "${devicePath}/cross/secrets/chn.yaml" "${devicePath}/cross/secrets/xray-server.yaml" ];
+      default = let inherit (inputs.config.nixos) model; in builtins.filter builtins.pathExists
+      (
+        [ ./default.yaml ./chn.yaml ./xray-server.yaml ]
+        ++ (inputs.lib.optionals (model.cluster == null) [ ./devices/${model.hostname}.yaml ])
+        ++ (inputs.lib.optionals (model.cluster != null)
+          [ ./devices/${model.cluster.clusterName}/${model.cluster.nodeName}.yaml ])
+      );
     };
     availableKeys = mkOption
     {
@@ -108,7 +96,7 @@ inputs:
     sops =
     {
       secrets = builtins.mapAttrs
-        (n: v: { inherit (v) key format mode owner group sopsFile neededForUsers; })
+        (n: v: { inherit (v) key mode owner group sopsFile neededForUsers; })
         inputs.config.nixos.system.sops.secrets;
       templates = builtins.mapAttrs
         (n: v: { inherit (v) content owner group mode; })

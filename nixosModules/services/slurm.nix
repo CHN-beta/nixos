@@ -189,7 +189,7 @@
               required ${info}/lib/libinfo-spank.so
             '';
           };
-          munge = { enable = true; password = config.nixos.system.sops.secrets."munge.key".path; };
+          munge = { enable = true; password = config.nixos.system.sops.secrets."slurm/munge".path; };
         };
         systemd.services.slurmd.environment =
           let gpus = slurm.node.${config.nixos.model.hostname}.gpus or null;
@@ -201,20 +201,7 @@
         nixos.system.sops =
         {
           secrets =
-          {
-            "munge.key" =
-            {
-              format = "binary";
-              sopsFile =
-                let
-                  devicePath = "${flakeInputs.self}/devices";
-                  inherit (config.nixos) model;
-                in localLib.mkConditional (model.cluster == null)
-                  "${devicePath}/${model.hostname}/secrets/munge.key"
-                  "${devicePath}/${model.cluster.clusterName}/secrets/munge.key";
-              owner = config.systemd.services.munged.serviceConfig.User;
-            };
-          }
+          { "slurm/munge".owner = config.systemd.services.munged.serviceConfig.User; }
           // builtins.listToAttrs (builtins.map
             (n: lib.nameValuePair "telegram/${n}" {})
             [ "token" "user/chn" "user/hjp" "user/root" ]);
