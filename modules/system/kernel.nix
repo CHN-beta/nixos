@@ -13,7 +13,7 @@
   {
     boot =
     {
-      kernelModules = [ "br_netfilter" "dm_cache" "dm_cache_smq" ];
+      kernelModules = [ "br_netfilter" "dm_cache" "dm_cache_smq" "dm_writecache" ];
       # modprobe --show-depends
       initrd =
       {
@@ -50,7 +50,7 @@
           # touchscreen for one
           ++ (lib.optionals (config.nixos.model.arch == "x86_64") [ "pinctrl-tigerlake" ]);
         # to mount lvm with cache
-        kernelModules = [ "dm_cache" "dm_cache_smq" ];
+        kernelModules = [ "dm_cache" "dm_cache_smq" "dm_writecache" ];
       };
       extraModulePackages = lib.optionals (config.nixos.model.arch == "x86_64")
         [ config.boot.kernelPackages.zenpower ];
