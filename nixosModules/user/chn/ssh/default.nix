@@ -29,7 +29,7 @@
           {
             ".ssh/id_rsa.pub".source = ./id_rsa.pub;
             ".ssh/id_ed25519.pub".source = ./id_ed25519.pub;
-            ".ssh/id_ed25519_sk.pub".source = "${flakeInputs.self}/modules/user/keys/chn";
+            ".ssh/id_ed25519_sk.pub".source = "${flakeInputs.self}/nixosModules/user/keys/chn";
           }
           // (builtins.listToAttrs (builtins.map
             (type:

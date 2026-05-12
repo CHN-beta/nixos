@@ -84,7 +84,7 @@
       pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++
         [(finalPython: prevPython: final.localPkgs.pythonOverlay finalPython)];
     };
-    nixosModules.default = { imports = localLib.mkModules [ ./modules ./devices/cross ]; };
+    nixosModules.default = { imports = localLib.mkModules [ ./nixosModules ./devices/cross ]; };
     config.dns = inputs.self.packages.x86_64-linux.dns-push.meta.config;
     devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
     src = import ./flake/src.nix { inherit inputs; };

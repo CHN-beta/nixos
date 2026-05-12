@@ -35,7 +35,7 @@
   banner = pkgs.runCommand "banner" {}
   ''
     mkdir -p $out/etc
-    cp ${inputs.self}/modules/services/sshd/banner.txt $out/etc/banner
+    cp ${inputs.self}/nixosModules/services/sshd/banner.txt $out/etc/banner
   '';
   potcar = pkgs.runCommand "potcar" {}
   ''
