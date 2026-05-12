@@ -77,7 +77,7 @@
   outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in
   {
     packages.x86_64-linux = import ./flake/packages.nix { inherit inputs localLib; };
-    nixosConfigurations = import ./flake/nixos.nix { inherit inputs localLib; };
+    nixosConfigurations = import ./nixosConfigurations { inherit inputs localLib; };
     overlays.default = import ./overlays { inherit localLib; flakeInputs = inputs; };
     nixosModules.default.imports = localLib.mkModules [ ./nixosModules ];
     config.dns = inputs.self.packages.x86_64-linux.dns-push.meta.config;
