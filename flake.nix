@@ -74,12 +74,13 @@
     dwproton = { url = "github:imaviso/dwproton-flake"; flake = false; };
   };
 
-  outputs = inputs: let localLib = import ./flake/lib inputs.nixpkgs.lib; in
+  outputs = inputs: rec
   {
-    packages.x86_64-linux = import ./flake/packages.nix { inherit inputs localLib; };
-    nixosConfigurations = import ./nixosConfigurations { inherit inputs localLib; };
-    overlays.default = import ./overlay { inherit localLib; flakeInputs = inputs; };
-    nixosModules.default.imports = localLib.mkModules [ ./nixosModules ];
+    lib = import ./lib inputs.nixpkgs.lib;
+    packages.x86_64-linux = import ./flake/packages.nix { inherit inputs; localLib = lib; };
+    nixosConfigurations = import ./nixosConfigurations { inherit inputs; localLib = lib; };
+    overlays.default = import ./overlay { localLib = lib; flakeInputs = inputs; };
+    nixosModules.default.imports = lib.mkModules [ ./nixosModules ];
     config.dns = inputs.self.packages.x86_64-linux.dns-push.meta.config;
     devShells.x86_64-linux = import ./flake/dev.nix { inherit inputs; };
     src = import ./flake/src.nix { inherit inputs; };
