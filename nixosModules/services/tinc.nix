@@ -25,13 +25,13 @@ let
     { device = lib.genAttrs [ "vps4" "vps6" "vps9" ] getAddress; distance = 1; }
     # 使用 vps9 代理的机器
     {
-      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" ] (_: null)) // { vps9 = getAddress "vps9"; };
+      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" "nas" ] (_: null)) // { vps9 = getAddress "vps9"; };
       distance = 10;
     }
     # 使用 vps6 代理的机器
-    { device = { vps6 = getAddress "vps6"; pc = null; pe = null; }; distance = 10; }
+    { device = { vps6 = getAddress "vps6"; pc = null; pe = null; nas = null; }; distance = 10; }
     # 使用 vps4 代理的机器
-    { device = { vps4 = getAddress "vps4"; nas = null; }; distance = 10; }
+    # { device = { vps4 = getAddress "vps4"; }; distance = 10; }
     # 校内网络
     { device = (lib.genAttrs [ "srv1-node0" "srv2-node0" ] getAddress) // { nas = null; }; distance = 1; }
     # srv1 内部网络
