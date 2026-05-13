@@ -239,6 +239,8 @@
             ''
               StorageHost=*
               StorageLoc=slurm
+              # otherwise name with uppercase letter could not submit job
+              Parameters=PreserveCaseUser
             '';
           };
           extraConfig =
