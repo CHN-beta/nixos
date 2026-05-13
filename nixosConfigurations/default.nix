@@ -1,6 +1,6 @@
 self:
 let
-  inherit (self.inputs.nixpkgs) lib;
+  inherit (self) lib;
   singles = [ "nas" "pc" "vps4" "vps6" "vps9" "pe" ];
   cluster = { srv1 = 3; srv2 = 3; };
   deviceModules =
@@ -18,6 +18,11 @@ in deviceModules
     (n: v: lib.nixosSystem
     {
       system = null;
-      specialArgs = { flakeInputs = self.inputs; localLib = self.lib; inherit self; };
-      modules = (self.lib.mkModules v) ++ [ self.nixosModules.default ];
+      specialArgs =
+      {
+        flakeInputs = self.inputs; # deprecated
+        localLib = lib; # deprecated
+        inherit self lib;
+      };
+      modules = (lib.mkModules v) ++ [ self.nixosModules.default ];
     })
