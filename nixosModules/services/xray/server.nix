@@ -56,7 +56,7 @@ in
                     realitySettings =
                     {
                       dest = "127.0.0.1:${fallbackPort}";
-                      serverNames = [ legacyServerName ];
+                      serverNames = [ "xserver2.chn.moe" ];
                       privateKey = config.nixos.system.sops.placeholder."xray-server/private-key";
                       minClientVer = "1.8.0";
                       shortIds = [ "" ];
@@ -179,19 +179,19 @@ in
       {
         acme.cert =
         {
-          ${legacyServerName}.group = config.users.users.nginx.group;
+          "xserver2.chn.moe".group = config.users.users.nginx.group;
           "xserver3.chn.moe".group = config.users.users.nginx.group;
         };
         nginx =
         {
           transparentProxy.map =
           {
-            ${legacyServerName} = 4726;
+            "xserver2.chn.moe" = 4726;
             "xserver3.chn.moe" = 4727;
           };
           https =
           {
-            ${legacyServerName} =
+            "xserver2.chn.moe" =
             {
               listen.main = { proxyProtocol = false; addToTransparentProxy = false; };
               location."/".return.return = "400";
