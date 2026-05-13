@@ -1,6 +1,6 @@
-{ localLib, lib, config, pkgs, ... }:
+{ lib, config, pkgs, ... }:
 {
-  imports = localLib.findModules ./.;
+  imports = lib.findModules ./.;
   options.nixos.hardware =
     let genericOption = lib.mkOption
     {
