@@ -1,7 +1,7 @@
-self: let inherit (self.inputs.nixpkgs) lib; in rec
+self: self.inputs.nixpkgs.lib.extend (final: prev: rec
 {
-  mkConditional = condition: trueResult: falseResult: let inherit (lib) mkMerge mkIf; in
-    mkMerge [ ( mkIf condition trueResult ) ( mkIf (!condition) falseResult ) ];
+  mkConditional = condition: trueResult: falseResult:
+    final.mkMerge [ (final.mkIf condition trueResult) (final.mkIf (!condition) falseResult) ];
 
   # Behaviors of these two NixOS modules would be different:
   # { pkgs, ... }@inputs: { environment.systemPackages = [ pkgs.hello ]; }
@@ -27,7 +27,7 @@ self: let inherit (self.inputs.nixpkgs) lib; in rec
     mkModules (builtins.filter (path: path != null) (builtins.map
       (subPath:
         if subPath.value == "regular" && subPath.name != "default.nix"
-          then if lib.strings.hasSuffix ".nix" subPath.name
+          then if final.strings.hasSuffix ".nix" subPath.name
             then "${path}/${subPath.name}"
             else null
           else if subPath.value == "directory"
@@ -35,7 +35,7 @@ self: let inherit (self.inputs.nixpkgs) lib; in rec
               then "${path}/${subPath.name}"
             else null
           else null)
-      (lib.attrsToList (builtins.readDir path))));
+      (final.attrsToList (builtins.readDir path))));
 
   # replace the value in a nested attrset. example:
   # deepReplace
@@ -54,7 +54,7 @@ self: let inherit (self.inputs.nixpkgs) lib; in rec
             (n: v: if n == currentPath then replace { path = nextPath; inherit value; content = v; } else v) content
         else if (builtins.typeOf currentPath) == "int" then
           if (builtins.typeOf content) != "list" then builtins.throw "content should be a list"
-          else lib.imap0
+          else final.imap0
             (i: v: if i == currentPath then replace { path = nextPath; inherit value; content = v; } else v) content
         else if (builtins.typeOf currentPath) != "lambda" then throw "path should be a lambda"
         else
@@ -62,12 +62,12 @@ self: let inherit (self.inputs.nixpkgs) lib; in rec
             (v: if currentPath v then replace { path = nextPath; inherit value; content = v; } else v) content
           else if (builtins.typeOf content) == "set" then builtins.listToAttrs (builtins.map
             (v: if currentPath v then replace { path = nextPath; inherit value; content = v; } else v)
-            (lib.attrsToList content))
+            (final.attrsToList content))
           else throw "content should be a list or a set.";
     in
       if (builtins.typeOf pattern) != "list" then throw "pattern should be a list"
       else if pattern == [] then origin
       else deepReplace (builtins.tail pattern) (replace ((builtins.head pattern) // { content = origin; }));
 
-    buildNixpkgsConfig = import ./buildNixpkgsConfig self;
-}
+    buildNixpkgsConfig = import ./buildNixpkgsConfig final self;
+})

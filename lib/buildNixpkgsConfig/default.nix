@@ -1,7 +1,6 @@
 # nixpkgsConfig = { march, cuda, nixos, arch, rocm, isKernel310 };
-self: nixpkgsConfig:
+lib: self: nixpkgsConfig:
 let
-  inherit (self.inputs.nixpkgs) lib;
   platformConfig =
     if nixpkgsConfig.march == null then { system = "${nixpkgsConfig.arch or "x86_64"}-linux"; }
     else
