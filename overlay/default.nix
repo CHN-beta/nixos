@@ -1,6 +1,6 @@
-{ localLib, flakeInputs }: final: prev:
+self: final: prev:
 {
-  localPkgs = (import ./packages { inherit localLib flakeInputs; pkgs = final; });
+  localPkgs = (import ./packages { localLib = self.lib; flakeInputs = self.inputs; pkgs = final; });
   pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++
     [(finalPython: prevPython: final.localPkgs.pythonOverlay finalPython)];
 }

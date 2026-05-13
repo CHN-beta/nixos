@@ -1,7 +1,7 @@
-{ inputs }:
+self:
 let
-  inherit (inputs.self.packages.x86_64-linux) dns-push pkgs lib;
-  build = inputs.self.nixosConfigurations
+  inherit (self.packages.x86_64-linux) dns-push pkgs lib;
+  build = self.nixosConfigurations
     |> builtins.attrNames
     |> builtins.map (name:
       ''
@@ -10,7 +10,7 @@ let
       '')
     |> builtins.concatStringsSep "\n"
     |> pkgs.writeShellScript "build";
-  deployKdl = inputs.self.nixosConfigurations
+  deployKdl = self.nixosConfigurations
     |> builtins.attrNames
     |> lib.subtractLists [ "pe" ]
     |> builtins.map (host:

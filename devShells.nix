@@ -1,4 +1,4 @@
-{ inputs }: let inherit (inputs.self.nixosConfigurations.pc) pkgs; in
+self: let inherit (self.nixosConfigurations.pc) pkgs; in
 {
   biu = pkgs.mkShell
   {

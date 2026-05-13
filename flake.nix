@@ -77,12 +77,12 @@
   outputs = inputs: rec
   {
     lib = import ./lib inputs.nixpkgs.lib;
-    packages.x86_64-linux = import ./packages { inherit inputs; localLib = lib; };
-    nixosConfigurations = import ./nixosConfigurations { inherit inputs; localLib = lib; };
-    overlays.default = import ./overlay { localLib = lib; flakeInputs = inputs; };
+    packages.x86_64-linux = import ./packages inputs.self;
+    nixosConfigurations = import ./nixosConfigurations inputs.self;
+    overlays.default = import ./overlay inputs.self;
     nixosModules.default.imports = lib.mkModules [ ./nixosModules ];
-    devShells.x86_64-linux = import ./devShells.nix { inherit inputs; };
-    src = import ./src.nix { inherit inputs; };
-    apps.x86_64-linux = import ./apps.nix { inherit inputs; };
+    devShells.x86_64-linux = import ./devShells.nix inputs.self;
+    src = import ./src.nix inputs.self;
+    apps.x86_64-linux = import ./apps.nix inputs.self;
   };
 }

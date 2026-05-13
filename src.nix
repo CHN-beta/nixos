@@ -1,4 +1,4 @@
-{ inputs }: let inherit (inputs.self.packages.x86_64-linux) pkgs; inherit (inputs.nixpkgs) lib; in
+self: let inherit (self.packages.x86_64-linux) pkgs lib; in
 {
   nvhpc =
   {

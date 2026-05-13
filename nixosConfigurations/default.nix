@@ -1,6 +1,6 @@
-{ inputs, localLib }:
+self:
 let
-  inherit (inputs.nixpkgs) lib;
+  inherit (self.inputs.nixpkgs) lib;
   singles = [ "nas" "pc" "vps4" "vps6" "vps9" "pe" ];
   cluster = { srv1 = 3; srv2 = 3; };
   deviceModules =
@@ -18,6 +18,6 @@ in deviceModules
     (n: v: lib.nixosSystem
     {
       system = null;
-      specialArgs = { flakeInputs = inputs; inherit localLib; };
-      modules = (localLib.mkModules v) ++ [ inputs.self.nixosModules.default ];
+      specialArgs = { flakeInputs = self.inputs; localLib = self.lib; inherit self; };
+      modules = (self.lib.mkModules v) ++ [ self.nixosModules.default ];
     })
