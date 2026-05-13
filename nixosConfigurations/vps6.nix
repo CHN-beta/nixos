@@ -26,7 +26,6 @@
       services =
       {
         sshd = {};
-        xray.server = {};
         nginx =
         {
           streamProxy.map =

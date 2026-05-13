@@ -26,7 +26,6 @@
       {
         sshd = {};
         fail2ban = {};
-        xray.server.serverName = "xserver2.vps9.chn.moe";
       };
     };
   };

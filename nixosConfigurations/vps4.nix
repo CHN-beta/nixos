@@ -26,7 +26,6 @@
       {
         sshd = {};
         fail2ban = {};
-        xray.server.serverName = "xserver2.vps4.chn.moe";
         gatus = {};
         nginx.streamProxy.map = builtins.listToAttrs (builtins.map
           (site: { name = "${site}.chn.moe"; value.upstream.address = "tinc0.nas.chn.moe"; })
