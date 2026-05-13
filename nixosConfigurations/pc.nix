@@ -95,12 +95,9 @@
         sshd = {};
         xray.client.coredns =
         {
-          hosts = builtins.listToAttrs
-          (
-            (builtins.map
-              (name: { inherit name; value = "144.34.225.59"; })
-              [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ])
-          );
+          hosts = builtins.listToAttrs (builtins.map
+            (name: { inherit name; value = "144.34.225.59"; })
+            [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ]);
           extraInterfaces = [ "wlp194s0" ];
         };
         harmonia.store = "/nix/tf";

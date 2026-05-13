@@ -20,7 +20,6 @@
       services =
       {
         sshd = {};
-        xray.client = {};
       };
     };
   };

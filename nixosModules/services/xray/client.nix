@@ -1,27 +1,21 @@
 { lib, config, pkgs, ... }:
+let
+  proxyUsingVps6 = [ "pc" "pe" "r2s" ];
+  proxyUsingVps9 = [ "srv1-node0" "srv1-node1" "srv1-node2" "srv2-node0" "srv2-node1" "srv2-node2" ];
+  proxyHybrid = [ "nas" ];
+  enableProxy = builtins.elem config.nixos.model.hostname (proxyUsingVps6 ++ proxyUsingVps9 ++ proxyHybrid);
+in
 {
-  options.nixos.services.xray.client = lib.mkOption
+  options.nixos.services.xray.client =
   {
-    type = lib.types.nullOr (lib.types.submodule (submoduleInputs: { options =
+    coredns =
     {
-      xray =
-      {
-        serverAddress = lib.mkOption
-        {
-          type = lib.types.nonEmptyStr;
-          default = pkgs.localPkgs.getAddress "xserver3";
-        };
-      };
-      coredns =
-      {
-        extraInterfaces = lib.mkOption { type = lib.types.listOf lib.types.nonEmptyStr; default = []; };
-        hosts = lib.mkOption { type = lib.types.attrsOf lib.types.nonEmptyStr; default = {}; };
-      };
-      v2ray-forwarder.asRouter = lib.mkOption { type = lib.types.bool; default = false; };
-    };}));
-    default = null;
+      extraInterfaces = lib.mkOption { type = lib.types.listOf lib.types.nonEmptyStr; default = []; };
+      hosts = lib.mkOption { type = lib.types.attrsOf lib.types.nonEmptyStr; default = {}; };
+    };
+    v2ray-forwarder.asRouter = lib.mkOption { type = lib.types.bool; default = false; };
   };
-  config = let inherit (config.nixos.services.xray) client; in lib.mkIf (client != null) (lib.mkMerge
+  config = let inherit (config.nixos.services.xray) client; in lib.mkIf enableProxy (lib.mkMerge
   [
     # xray part
     {
@@ -102,74 +96,97 @@
                 tag = "common-socks-in";
               }
             ];
-            outbounds =
+            outbounds = lib.concatLists
             [
-              {
-                protocol = "vless";
-                settings.vnext =
-                [{
-                  address = client.xray.serverAddress;
-                  port = 443;
-                  users =
-                  [{
-                    id = config.nixos.system.sops.placeholder."xray-client/uuid";
-                    encryption = "none";
-                  }];
-                }];
-                streamSettings =
-                {
-                  network = "xhttp";
-                  security = "reality";
-                  realitySettings =
+              (
+                [ "vps4" "vps6" "vps9" ]
+                |> lib.map (n:
                   {
-                    serverName = "xserver3.chn.moe";
-                    publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
-                    fingerprint = "firefox";
-                  };
-                  xhttpSettings.path = "/kT9hRk6D4gJ5WxNT";
-                };
-                tag = "proxy-vless";
-              }
-              { protocol = "freedom"; tag = "direct"; }
-              { protocol = "dns"; tag = "dns-out"; }
-              { protocol = "blackhole"; tag = "block"; }
+                    protocol = "vless";
+                    settings.vnext =
+                    [{
+                      address = pkgs.localPkgs.getAddress n;
+                      port = 443;
+                      users = [{ id = config.nixos.system.sops.placeholder."xray-client/uuid"; encryption = "none"; }];
+                    }];
+                    streamSettings =
+                    {
+                      network = "xhttp";
+                      security = "reality";
+                      realitySettings =
+                      {
+                        serverName = "xserver3.chn.moe";
+                        publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
+                        fingerprint = "firefox";
+                      };
+                      xhttpSettings.path = "/kT9hRk6D4gJ5WxNT";
+                    };
+                    tag = "proxy-${n}";
+                  })
+              )
+              [
+                { protocol = "freedom"; tag = "direct"; }
+                { protocol = "dns"; tag = "dns-out"; }
+                { protocol = "blackhole"; tag = "block"; }
+              ]
             ];
             routing =
             {
               domainStrategy = "AsIs";
-              rules = builtins.map (rule: rule // { type = "field"; })
-              [
-                { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
+              rules =
+                let outbound =
+                  if lib.elem config.nixos.model.hostname proxyUsingVps6 then "proxy-vps6"
+                  else if lib.elem config.nixos.model.hostname proxyUsingVps9 then "proxy-vps9"
+                  else if lib.elem config.nixos.model.hostname proxyHybrid then "proxy-balance"
+                  else null;
+                in builtins.map (rule: rule // { type = "field"; })
+                [
+                  { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
+                  {
+                    inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
+                    ip = [ "223.5.5.5" ];
+                    outboundTag = "direct";
+                  }
+                  {
+                    inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
+                    ip = [ "8.8.8.8" "1.1.1.1" ];
+                    outboundTag = outbound;
+                  }
+                  { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
+                  { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
+                  { inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = outbound; }
+                  {
+                    inboundTag = [ "common-in" "common-socks-in" ];
+                    domain = [ "geosite:geolocation-cn" ];
+                    outboundTag = "direct";
+                  }
+                  {
+                    inboundTag = [ "common-in" "common-socks-in" ];
+                    domain = [ "geosite:geolocation-!cn" ];
+                    outboundTag = outbound;
+                  }
+                  {
+                    inboundTag = [ "common-in" "common-socks-in" ];
+                    ip = [ "geoip:cn" "geoip:private" ];
+                    outboundTag = "direct";
+                  }
+                  { inboundTag = [ "common-in" "common-socks-in" ]; outboundTag = outbound; }
+                ];
+              balancers = lib.optional (lib.elem config.nixos.model.hostname proxyHybrid)
+              {
+                proxy-balance =
                 {
-                  inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
-                  ip = [ "223.5.5.5" ];
-                  outboundTag = "direct";
-                }
-                {
-                  inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
-                  ip = [ "8.8.8.8" "1.1.1.1" ];
-                  outboundTag = "proxy-vless";
-                }
-                { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
-                { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
-                { inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = "proxy-vless"; }
-                {
-                  inboundTag = [ "common-in" "common-socks-in" ];
-                  domain = [ "geosite:geolocation-cn" ];
-                  outboundTag = "direct";
-                }
-                {
-                  inboundTag = [ "common-in" "common-socks-in" ];
-                  domain = [ "geosite:geolocation-!cn" ];
-                  outboundTag = "proxy-vless";
-                }
-                {
-                  inboundTag = [ "common-in" "common-socks-in" ];
-                  ip = [ "geoip:cn" "geoip:private" ];
-                  outboundTag = "direct";
-                }
-                { inboundTag = [ "common-in" "common-socks-in" ]; outboundTag = "proxy-vless"; }
-              ];
+                  tag = "proxy-balance";
+                  selector = [ "proxy-vps9" ];
+                  fallbackTag = "proxy-vps6";
+                  strategy.type = "random";
+                };
+              };
+              observatory = lib.optionalAttrs (lib.elem config.nixos.model.hostname proxyHybrid)
+              {
+                subjectSelector = [ "vless-vps9" ];
+                probeUrl = "https://www.google.com/generate_204";
+              };
             };
           };
         };

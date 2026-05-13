@@ -83,7 +83,6 @@
             ];
           };
         };
-        xray.client.xray.serverAddress = pkgs.localPkgs.getAddress "vps9";
       };
       packages = { vasp = {}; lumerical = {}; };
       user.users =
