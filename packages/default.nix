@@ -11,8 +11,8 @@
     gfortran = pkgs.pkgsStatic.gfortran;
     lapack = pkgs.pkgsStatic.openblas;
   };
-  xmuhk = import ../devices/xmuhk { inherit inputs localLib; };
-  xmuhpc = import ../devices/xmuhpc { inherit inputs localLib; };
+  xmuhk = import ./xmuhk { inherit inputs localLib; };
+  xmuhpc = import ./xmuhpc { inherit inputs localLib; };
   src =
     let getDrv = x:
       if lib.isDerivation x then [ x ]

@@ -1,4 +1,4 @@
-{ flakeInputs, config, ... }:
+{ config, pkgs, ... }:
 {
   config =
   {
@@ -62,11 +62,7 @@
     networking.nftables.tables.forward =
     {
       family = "inet";
-      content =
-        let
-          srv2 = flakeInputs.self.config.dns."chn.moe".getAddress "tinc0.srv2-node0";
-          pc = flakeInputs.self.config.dns."chn.moe".getAddress "tinc0.pc";
-        in
+      content = let srv2 = pkgs.localPkgs.getAddress "tinc0.srv2-node0"; pc = pkgs.localPkgs.getAddress "tinc0.pc"; in
       ''
         chain prerouting {
           type nat hook prerouting priority dstnat; policy accept;

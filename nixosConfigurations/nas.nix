@@ -1,4 +1,4 @@
-{ flakeInputs, lib, ...}:
+{ lib, pkgs, ...}:
 {
   config =
   {
@@ -54,7 +54,7 @@
         sshd = {};
         xray.client =
         {
-          xray.serverAddress = flakeInputs.self.config.dns."chn.moe".getAddress "vps4";
+          xray.serverAddress = pkgs.localPkgs.getAddress "vps4";
           coredns = { extraInterfaces = [ "enp3s0" ]; hosts."git.chn.moe" = "127.0.0.1"; };
         };
         beesd =

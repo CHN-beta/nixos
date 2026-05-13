@@ -77,11 +77,10 @@
   outputs = inputs: rec
   {
     lib = import ./lib inputs.nixpkgs.lib;
-    packages.x86_64-linux = import ./flake/packages.nix { inherit inputs; localLib = lib; };
+    packages.x86_64-linux = import ./packages { inherit inputs; localLib = lib; };
     nixosConfigurations = import ./nixosConfigurations { inherit inputs; localLib = lib; };
     overlays.default = import ./overlay { localLib = lib; flakeInputs = inputs; };
     nixosModules.default.imports = lib.mkModules [ ./nixosModules ];
-    config.dns = inputs.self.packages.x86_64-linux.dns-push.meta.config;
     devShells.x86_64-linux = import ./devShells.nix { inherit inputs; };
     src = import ./flake/src.nix { inherit inputs; };
     apps.x86_64-linux = import ./flake/apps.nix { inherit inputs; };

@@ -1,6 +1,6 @@
-{ flakeInputs, config, lib, pkgs, ... }:
+{ config, lib, pkgs, ... }:
 let
-  inherit (flakeInputs.self.config.dns."chn.moe") getAddress;
+  inherit (pkgs.localPkgs) getAddress;
   inherit (config.nixos.model) hostname;
   publicKey =
   {

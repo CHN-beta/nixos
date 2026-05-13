@@ -1,4 +1,4 @@
-{ config, flakeInputs, ... }:
+{ config, pkgs, ... }:
 {
   config =
   {
@@ -83,7 +83,7 @@
             ];
           };
         };
-        xray.client.xray.serverAddress = flakeInputs.self.config.dns."chn.moe".getAddress "vps9";
+        xray.client.xray.serverAddress = pkgs.localPkgs.getAddress "vps9";
       };
       packages = { vasp = {}; lumerical = {}; };
       user.users =

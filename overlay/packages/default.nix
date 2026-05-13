@@ -140,4 +140,5 @@ inputs: rec
   fromYaml = content: builtins.fromJSON (builtins.readFile
     (inputs.pkgs.runCommand "toJSON" {}
       "${inputs.pkgs.yj}/bin/yj < ${builtins.toFile "content.yaml" content} > $out"));
+  inherit (inputs.flakeInputs.self.packages.x86_64-linux.dns-push.meta.config."chn.moe") getAddress;
 }

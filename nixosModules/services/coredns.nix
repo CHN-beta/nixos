@@ -1,4 +1,4 @@
-{ lib, config, flakeInputs, ... }:
+{ lib, config, pkgs, ... }:
 {
   options.nixos.services.coredns = lib.mkOption
   {
@@ -34,7 +34,7 @@
           }
           template IN A {
             match ^autoroute\.chn\.moe\.$
-            answer "{{.Name}} 60 IN A ${flakeInputs.self.config.dns."chn.moe".getAddress "vps6"}"
+            answer "{{.Name}} 60 IN A ${pkgs.localPkgs.getAddress "vps6"}"
           }
           template IN ANY {
             match ".*"
