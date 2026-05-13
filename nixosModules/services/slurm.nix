@@ -1,4 +1,4 @@
-{ lib, config, pkgs, flakeInputs, localLib, ... }:
+{ lib, config, pkgs, ... }:
 {
   options.nixos.services.slurm = let inherit (lib) mkOption types; in
   {
