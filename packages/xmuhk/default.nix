@@ -1,10 +1,6 @@
-{ inputs, localLib }:
+{ inputs, buildNixpkgsConfig, ... }:
 let
-  pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
-  {
-    inputs = { inherit (inputs.nixpkgs) lib; flakeInputs = inputs; };
-    nixpkgs = { march = null; nixos = false; };
-  });
+  pkgs = import inputs.nixpkgs (buildNixpkgsConfig { march = null; nixos = false; });
   lumericalLicenseManager = 
     let
       ip = "${pkgs.iproute2}/bin/ip";

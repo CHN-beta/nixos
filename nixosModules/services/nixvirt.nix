@@ -213,7 +213,7 @@ inputs:
                     device = "cdrom";
                     driver = { name = "qemu"; type = "raw"; };
                     source.file =
-                      if v.storage.iso == null then "${inputs.flakeInputs.self.src.iso.netboot}" else v.storage.iso;
+                      if v.storage.iso == null then "${inputs.self.src.iso.netboot}" else v.storage.iso;
                     target = { dev = "sdc"; bus = "sata"; };
                     readonly = true;
                     boot.order = 10;

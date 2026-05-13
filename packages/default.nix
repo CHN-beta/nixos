@@ -1,18 +1,14 @@
 self: rec
 {
   inherit (self.inputs.nixpkgs) lib;
-  pkgs = import self.inputs.nixpkgs (self.lib.buildNixpkgsConfig
-  {
-    inputs = { inherit (self.inputs.nixpkgs) lib; flakeInputs = self.inputs; };
-    nixpkgs = { march = null; nixos = false; };
-  });
+  pkgs = import self.inputs.nixpkgs (self.lib.buildNixpkgsConfig { march = null; nixos = false; });
   vaspberry = pkgs.pkgsStatic.localPkgs.vaspberry.override
   {
     gfortran = pkgs.pkgsStatic.gfortran;
     lapack = pkgs.pkgsStatic.openblas;
   };
-  xmuhk = import ./xmuhk { inherit (self) inputs; localLib = self.lib; };
-  xmuhpc = import ./xmuhpc { inherit (self) inputs; localLib = self.lib; };
+  xmuhk = import ./xmuhk { inherit (self) inputs; inherit (self.lib) buildNixpkgsConfig; };
+  xmuhpc = import ./xmuhpc { inherit (self) inputs; inherit (self.lib) buildNixpkgsConfig; };
   src =
     let getDrv = x:
       if lib.isDerivation x then [ x ]

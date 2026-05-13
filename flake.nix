@@ -76,7 +76,7 @@
 
   outputs = inputs: rec
   {
-    lib = import ./lib inputs.nixpkgs.lib;
+    lib = import ./lib inputs.self;
     packages.x86_64-linux = import ./packages inputs.self;
     nixosConfigurations = import ./nixosConfigurations inputs.self;
     overlays.default = import ./overlay inputs.self;

@@ -22,7 +22,7 @@ inputs:
             ssh = "${inputs.pkgs.openssh}/bin/ssh -i ${key} -o StrictHostKeyChecking=no"
               + " -o ForwardAgent=yes -o AddKeysToAgent=yes";
             key = inputs.config.nixos.system.sops.secrets."hpcstat/key".path;
-            jykang = "${inputs.flakeInputs.self}/xmuhpc/jykang";
+            jykang = "${inputs.self}/xmuhpc/jykang";
             ssh-agent = "${inputs.pkgs.openssh}/bin/ssh-agent";
           in
           {

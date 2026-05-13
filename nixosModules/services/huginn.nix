@@ -13,7 +13,7 @@ inputs:
     virtualisation.oci-containers.containers.huginn =
     {
       image = "ghcr.io/huginn/huginn:latest";
-      imageFile = inputs.flakeInputs.self.src.huginn;
+      imageFile = inputs.self.src.huginn;
       ports = [ "127.0.0.1:3000:3000/tcp" ];
       environmentFiles = [ inputs.config.nixos.system.sops.templates."huginn/env".path ];
     };

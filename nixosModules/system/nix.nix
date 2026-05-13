@@ -1,4 +1,4 @@
-{ lib, config, flakeInputs, ... }:
+{ lib, config, flakeInputs, self, ... }:
 {
   options.nixos.system.nix =
   {
@@ -60,14 +60,14 @@
         registry =
         {
           nixpkgs.flake = flakeInputs.nixpkgs;
-          nixos.flake = flakeInputs.self;
+          nixos.flake = self;
           nixpkgs-unstable.flake = flakeInputs.nixpkgs-unstable;
         };
         nixPath = [ "nixpkgs=${flakeInputs.nixpkgs}" ];
       };
       environment =
       {
-        etc = { "channels/nixpkgs".source = flakeInputs.nixpkgs.outPath; "nixos".source = flakeInputs.self.outPath; };
+        etc = { "channels/nixpkgs".source = flakeInputs.nixpkgs.outPath; "nixos".source = self.outPath; };
         variables.COMMA_NIXPKGS_FLAKE = "nixpkgs-unstable";
       };
     }

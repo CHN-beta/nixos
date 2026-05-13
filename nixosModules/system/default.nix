@@ -1,4 +1,4 @@
-{ localLib, config, flakeInputs, lib, pkgs, ... }:
+{ localLib, config, lib, pkgs, self, ... }:
 {
   imports = localLib.findModules ./.;
   options.system.build.archive = lib.mkOption
@@ -67,12 +67,11 @@
     system =
     {
       stateVersion = "25.05";
-      configurationRevision = flakeInputs.self.rev or "dirty";
+      configurationRevision = self.rev or "dirty";
       nixos =
       {
         versionSuffix = lib.mkForce "";
-        tags = let inherit (flakeInputs) self; in
-          [ (builtins.substring 2 6 self.lastModifiedDate) (builtins.substring 0 6 self.rev or "dirty") ];
+        tags = [ (builtins.substring 2 6 self.lastModifiedDate) (builtins.substring 0 6 self.rev or "dirty") ];
       };
     };
     programs.criu.enable = true;

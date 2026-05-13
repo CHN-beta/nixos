@@ -13,7 +13,7 @@ inputs:
     virtualisation.oci-containers.containers.rsshub =
     {
       image = "rsshub:latest";
-      imageFile = inputs.flakeInputs.self.src.rsshub;
+      imageFile = inputs.self.src.rsshub;
       ports = [ "127.0.0.1:5221:5221/tcp" ];
       environmentFiles = [ inputs.config.nixos.system.sops.templates."rsshub/env".path ];
     };

@@ -1,10 +1,6 @@
-{ inputs, localLib }: rec
+{ inputs, buildNixpkgsConfig }: rec
 {
-  pkgs = import inputs.nixpkgs (localLib.buildNixpkgsConfig
-  {
-    inputs = { inherit (inputs.nixpkgs) lib; flakeInputs = inputs; };
-    nixpkgs = { march = "haswell"; nixos = false; isKernel310 = true; };
-  });
+  pkgs = import inputs.nixpkgs (buildNixpkgsConfig { march = "haswell"; nixos = false; isKernel310 = true; });
   python = pkgs.python312.withPackages (ps: with ps; [ phonopy sumo ]);
   chn-bsub = pkgs.localPkgs.chn-bsub.override
     (prev: { bsubConfig = builtins.toFile "bsub.yaml" (builtins.toJSON (import ./bsub.nix)); });

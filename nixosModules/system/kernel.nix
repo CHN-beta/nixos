@@ -1,4 +1,4 @@
-{ lib, config, pkgs, flakeInputs, ... }:
+{ lib, config, pkgs, flakeInputs, self, ... }:
 {
   options.nixos.system.kernel =
   {
@@ -70,7 +70,7 @@
           version = lib.versions.majorMinor config.boot.kernelPackages.kernel.version;
           patches =
           {
-            btrfs = [(flakeInputs.self.src.btrfs.${version} // { name = "btrfs"; })];
+            btrfs = [(self.src.btrfs.${version} // { name = "btrfs"; })];
             asus = builtins.map
               (file:
               {

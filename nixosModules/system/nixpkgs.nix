@@ -25,10 +25,7 @@ inputs:
   };
   config = let inherit (inputs.config.nixos.system) nixpkgs; in
   {
-    nixpkgs = inputs.localLib.buildNixpkgsConfig
-    {
-      inherit inputs;
-      nixpkgs = nixpkgs // { nixos = true; inherit (inputs.config.nixos.model) arch; };
-    };
+    nixpkgs = inputs.self.lib.buildNixpkgsConfig
+      (nixpkgs // { nixos = true; inherit (inputs.config.nixos.model) arch; });
   };
 }

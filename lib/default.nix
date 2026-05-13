@@ -1,4 +1,4 @@
-lib: rec
+self: let inherit (self.inputs.nixpkgs) lib; in rec
 {
   mkConditional = condition: trueResult: falseResult: let inherit (lib) mkMerge mkIf; in
     mkMerge [ ( mkIf condition trueResult ) ( mkIf (!condition) falseResult ) ];
@@ -68,6 +68,6 @@ lib: rec
       if (builtins.typeOf pattern) != "list" then throw "pattern should be a list"
       else if pattern == [] then origin
       else deepReplace (builtins.tail pattern) (replace ((builtins.head pattern) // { content = origin; }));
-  
-  buildNixpkgsConfig = import ./buildNixpkgsConfig;
+
+    buildNixpkgsConfig = import ./buildNixpkgsConfig self;
 }

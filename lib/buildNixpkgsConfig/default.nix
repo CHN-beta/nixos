@@ -1,33 +1,37 @@
-# inputs = { lib, flakeInputs, ...}; nixpkgs = { march, cuda, nixos, arch, rocm, isKernel310 };
-{ inputs, nixpkgs }:
+# nixpkgsConfig = { march, cuda, nixos, arch, rocm, isKernel310 };
+self: nixpkgsConfig:
 let
+  inherit (self.inputs.nixpkgs) lib;
   platformConfig =
-    if nixpkgs.march == null then { system = "${nixpkgs.arch or "x86_64"}-linux"; }
+    if nixpkgsConfig.march == null then { system = "${nixpkgsConfig.arch or "x86_64"}-linux"; }
     else
     {
-      ${if nixpkgs.nixos then "hostPlatform" else "localSystem"} =
-        { system = "${nixpkgs.arch or "x86_64"}-linux"; gcc = { arch = nixpkgs.march; tune = nixpkgs.march; }; };
+      ${if nixpkgsConfig.nixos then "hostPlatform" else "localSystem"} =
+      {
+        system = "${nixpkgsConfig.arch or "x86_64"}-linux";
+        gcc = { arch = nixpkgsConfig.march; tune = nixpkgsConfig.march; };
+      };
     };
-  cudaConfig = inputs.lib.optionalAttrs (nixpkgs.cuda or null != null)
+  cudaConfig = lib.optionalAttrs (nixpkgsConfig.cuda or null != null)
   (
-    (inputs.lib.optionalAttrs (nixpkgs.cuda.enableForAllPackages or true) { cudaSupport = true; })
-    // (inputs.lib.optionalAttrs (nixpkgs.cuda.capabilities != null)
-      { cudaCapabilities = nixpkgs.cuda.capabilities; })
-    // (inputs.lib.optionalAttrs (nixpkgs.cuda.forwardCompat != null)
-      { cudaForwardCompat = nixpkgs.cuda.forwardCompat; })
+    (lib.optionalAttrs (nixpkgsConfig.cuda.enableForAllPackages or true) { cudaSupport = true; })
+    // (lib.optionalAttrs (nixpkgsConfig.cuda.capabilities != null)
+      { cudaCapabilities = nixpkgsConfig.cuda.capabilities; })
+    // (lib.optionalAttrs (nixpkgsConfig.cuda.forwardCompat != null)
+      { cudaForwardCompat = nixpkgsConfig.cuda.forwardCompat; })
   );
-  rocmConfig = inputs.lib.optionalAttrs (nixpkgs.rocm or null != null)
+  rocmConfig = lib.optionalAttrs (nixpkgsConfig.rocm or null != null)
   {
-    "${if nixpkgs.rocm.enableForAllPackages or true then "rocmSupport" else null}" = true;
-    problems.handlers = inputs.lib.genAttrs' (nixpkgs.rocm.targets or [])
-      (target: inputs.lib.nameValuePair "composable_kernel-${target}" { broken = "ignore"; });
+    "${if nixpkgsConfig.rocm.enableForAllPackages or true then "rocmSupport" else null}" = true;
+    problems.handlers = lib.genAttrs' (nixpkgsConfig.rocm.targets or [])
+      (target: lib.nameValuePair "composable_kernel-${target}" { broken = "ignore"; });
   };
-  rocmOverlay = final: prev: inputs.lib.optionalAttrs (nixpkgs.rocm.targets or null != null)
+  rocmOverlay = final: prev: lib.optionalAttrs (nixpkgsConfig.rocm.targets or null != null)
   {
     rocmPackages = prev.rocmPackages.overrideScope (final: prev:
-      { clr = prev.clr.override { localGpuTargets = nixpkgs.rocm.targets; }; });
+      { clr = prev.clr.override { localGpuTargets = nixpkgsConfig.rocm.targets; }; });
   };
-  allowInsecurePredicate = p: inputs.lib.warn "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
+  allowInsecurePredicate = p: lib.warn "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
   genericConfig =
   {
     inherit allowInsecurePredicate;
@@ -40,35 +44,35 @@ let
   };
   genericOverlay = flake: final: prev: 
     { genericPkgs = import flake { inherit (final) system; config = genericConfig; }; };
-  config = cudaConfig // rocmConfig // genericConfig // (inputs.lib.optionalAttrs (nixpkgs.march != null)
+  config = cudaConfig // rocmConfig // genericConfig // (lib.optionalAttrs (nixpkgsConfig.march != null)
   {
-    oneapiArch = let match.znver5 = "znver4"; in match.${nixpkgs.march} or nixpkgs.march;
-    nvhpcArch = nixpkgs.march;
+    oneapiArch = let match.znver5 = "znver4"; in match.${nixpkgsConfig.march} or nixpkgsConfig.march;
+    nvhpcArch = nixpkgsConfig.march;
   });
   overlays =
   {
     addon =
     [
-      inputs.flakeInputs.aagl.overlays.default
-      inputs.flakeInputs.nur-xddxdd.overlays.inSubTree
-      inputs.flakeInputs.buildproxy.overlays.default
-      inputs.flakeInputs.nix4vscode.overlays.default
-      inputs.flakeInputs.bscpkgs.overlays.default
-      inputs.flakeInputs.chinese-fonts.overlays.default
+      self.inputs.aagl.overlays.default
+      self.inputs.nur-xddxdd.overlays.inSubTree
+      self.inputs.buildproxy.overlays.default
+      self.inputs.nix4vscode.overlays.default
+      self.inputs.bscpkgs.overlays.default
+      self.inputs.chinese-fonts.overlays.default
       (final: prev:
       {
-        nur-linyinfeng = (inputs.flakeInputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
-        firefox-addons = (import "${inputs.flakeInputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
-        dwproton = final.callPackage inputs.flakeInputs.dwproton {};
+        nur-linyinfeng = (self.inputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
+        firefox-addons = (import "${self.inputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
+        dwproton = final.callPackage self.inputs.dwproton {};
       })
-      inputs.flakeInputs.self.overlays.default
+      self.overlays.default
       rocmOverlay
-      (genericOverlay inputs.flakeInputs.nixpkgs)
+      (genericOverlay self.inputs.nixpkgs)
       (final: prev:
         let
           marchFilter = version:
             # old version of nixpkgs does not recognize znver5, use znver4 instead
-            inputs.lib.optionalAttrs (inputs.lib.versionOlder version "25.05") { znver5 = "znver4"; };
+            lib.optionalAttrs (lib.versionOlder version "25.05") { znver5 = "znver4"; };
           source =
           {
             pkgs2305 = "nixpkgs-2305";
@@ -78,7 +82,7 @@ let
               source = "nixpkgs-2411";
               overlays =
               [
-                (final: prev: inputs.lib.optionalAttrs (nixpkgs.march != null)
+                (final: prev: lib.optionalAttrs (nixpkgsConfig.march != null)
                 {
                   pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
                   {
@@ -93,7 +97,7 @@ let
               source = "nixpkgs-unstable";
               overlays =
               [
-                (final: prev: inputs.lib.optionalAttrs (nixpkgs.march != null)
+                (final: prev: lib.optionalAttrs (nixpkgsConfig.march != null)
                 {
                   libtpms = prev.libtpms.overrideAttrs (prev:
                     { env.NIX_CFLAGS_COMPILE = prev.env.NIX_CFLAGS_COMPILE or "" + " -Wno-error=stringop-overflow"; });
@@ -106,14 +110,14 @@ let
               ];
             };
           };
-          packages = name: let flakeSource = inputs.flakeInputs.${source.${name}.source or source.${name}}; in
+          packages = name: let flakeSource = self.inputs.${source.${name}.source or source.${name}}; in
             import flakeSource
             {
               localSystem =
-                if nixpkgs.march == null then { system = "${nixpkgs.arch or "x86_64"}-linux"; }
+                if nixpkgsConfig.march == null then { system = "${nixpkgsConfig.arch or "x86_64"}-linux"; }
                 else
-                  let march = (marchFilter flakeSource.lib.version).${nixpkgs.march} or nixpkgs.march;
-                  in { system = "${nixpkgs.arch or "x86_64"}-linux"; gcc = { arch = march; tune = march; }; };
+                  let march = (marchFilter flakeSource.lib.version).${nixpkgsConfig.march} or nixpkgsConfig.march;
+                  in { system = "${nixpkgsConfig.arch or "x86_64"}-linux"; gcc = { arch = march; tune = march; }; };
               inherit config;
               overlays = (source.${name}.overlays or []) ++ [ rocmOverlay (genericOverlay flakeSource) ];
             };
@@ -176,19 +180,19 @@ let
           doCheck = false;
           cmakeFlags = prev.cmakeFlags or [] ++ [ "-DTBB_TEST=OFF" "-DTBBMALLOC_BUILD=OFF" "-DBUILD_SHARED_LIBS=OFF" ];
         }
-        |> inputs.lib.addMetaAttrs { badPlatforms = []; };
+        |> lib.addMetaAttrs { badPlatforms = []; };
     })];
     marchFix =
     [
-      (final: prev: inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
+      (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
         { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
-      (final: prev: inputs.lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
+      (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
         { frei0r = final.genericPkgs.frei0r; })
-      (final: prev: inputs.lib.optionalAttrs (nixpkgs.march == "alderlake")
+      (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "alderlake")
         { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
-      (final: prev: inputs.lib.optionalAttrs (nixpkgs.march == "cascadelake")
+      (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "cascadelake")
         { postgresql_17 = prev.postgresql_17.override { jitSupport = false; }; })
-      (final: prev: inputs.lib.optionalAttrs (nixpkgs.march != null)
+      (final: prev: lib.optionalAttrs (nixpkgsConfig.march != null)
       {
         ffmpeg_8 = prev.ffmpeg_8.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./ffmpeg.patch ]; });
         ffmpeg_8-headless = prev.ffmpeg_8-headless.overrideAttrs
@@ -211,7 +215,7 @@ let
         })];
       })
     ];
-    kernel310Fix = [(final: prev: inputs.lib.optionalAttrs (nixpkgs.isKernel310 or false)
+    kernel310Fix = [(final: prev: lib.optionalAttrs (nixpkgsConfig.isKernel310 or false)
     {
       isKernel310 = true;
       linuxHeaders = prev.linuxHeaders.overrideAttrs (prev:
@@ -232,7 +236,7 @@ let
       # ktls not working
       enableKTLS = false;
       gnutls = prev.gnutls.overrideAttrs
-        (prev: { configureFlags = inputs.lib.remove "--enable-ktls" (prev.configureFlags or []); });
+        (prev: { configureFlags = lib.remove "--enable-ktls" (prev.configureFlags or []); });
       # x11 mostly not working
       gobjectSupport = false;
       withIntrospection = false;
@@ -279,7 +283,7 @@ let
       valgrind = null;
       valgrind-light = null;
       v4l-utils = prev.v4l-utils.overrideAttrs (prev:
-        { mesonFlags = prev.mesonFlags or [] ++ [(inputs.lib.mesonOption "bpf" "disabled")]; });
+        { mesonFlags = prev.mesonFlags or [] ++ [(lib.mesonOption "bpf" "disabled")]; });
       # for ffmpeg
       withV4l2 = false;
       withVaapi = false;
