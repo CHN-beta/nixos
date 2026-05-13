@@ -21,31 +21,6 @@
       enable = true;
       config =
       ''
-        autoroute.chn.moe {
-          bind ${coredns.interface}
-          geoip ${config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
-          log
-          errors
-          metadata
-
-          template IN SOA {
-            match ^autoroute\.chn\.moe\.$
-            answer "{{ .Name }} 60 IN SOA ${coredns.ns}. chn.chn.moe. 2023010100 7200 3600 1209600 3600"
-          }
-          template IN A {
-            match ^autoroute\.chn\.moe\.$
-            answer "{{.Name}} 60 IN A ${pkgs.localPkgs.getAddress "vps6"}"
-          }
-          template IN ANY {
-            match ".*"
-            rcode NOERROR
-          }
-
-          header {
-            response set aa
-          }
-        }
-
         ts.chn.moe {
           bind ${coredns.interface}
           log

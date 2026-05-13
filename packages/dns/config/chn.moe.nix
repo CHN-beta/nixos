@@ -4,13 +4,7 @@ let
   {
     nas = [ "initrd.nas" ];
     office = [ "srv2-node0" ];
-    vps4 =
-    [
-      "initrd.vps4" "xserver2.vps4" "status"
-      # to nas
-      "grafana" "peertube" "send" "freshrss" "huginn" "nextcloud"
-      "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api" "photo" "readeck"
-    ];
+    vps4 = [ "initrd.vps4" "xserver2.vps4" "status" ];
     vps6 =
     [
       "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi" "ua" "xserver2"
@@ -19,6 +13,9 @@ let
       "铜锣湾实验室"
       # temporary
       "hongbao2026"
+      # to nas
+      "grafana" "peertube" "send" "freshrss" "huginn" "nextcloud" "铜锣湾" "matrix" "git"
+      "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api" "photo" "readeck"
     ];
     # temporary
     "remove-me.vps6" = [ "zzzhongbao2026" ];
@@ -28,7 +25,6 @@ let
     srv2-node0 = [ "srv2" "jupyterhub" ];
     "pc.ts" = [ "nix-store" "chat" ];
     "nas.ts" = [ "ssh.git" "backup-store" ];
-    autoroute = [ "铜锣湾" "matrix" "git" ];
     vps9 = [ "initrd.vps9" "xserver2.vps9" ];
   };
   a =
@@ -65,7 +61,6 @@ in
     }
     { type = "TXT"; value = "v=spf1 include:mxlogin.com -all"; }
   ];
-  autoroute = { type = "NS"; values = "vps6.chn.moe."; };
   ts = { type = "NS"; values = "vps6.chn.moe."; };
   "mail" = { type = "CNAME"; value = "tuesday.mxrouting.net."; };
   "webmail" = { type = "CNAME"; value = "tuesday.mxrouting.net."; };
