@@ -27,12 +27,6 @@
         sshd = {};
         fail2ban = {};
         gatus = {};
-        nginx.streamProxy.map = builtins.listToAttrs (builtins.map
-          (site: { name = "${site}.chn.moe"; value.upstream.address = "tinc0.nas.chn.moe"; })
-          [
-            "xn--s8w913fdga" "matrix" "send" "git" "grafana" "peertube" "rsshub" "misskey" "synapse" "vaultwarden"
-            "nextcloud" "freshrss" "huginn" "api" "webdav" "photo" "readeck"
-          ]);
       };
     };
   };

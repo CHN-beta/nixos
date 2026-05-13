@@ -1,5 +1,6 @@
 { lib, config, ... }:
 {
+  imports = lib.findModules ./.;
   options.nixos.services.nginx.streamProxy =
   {
     map = lib.mkOption
