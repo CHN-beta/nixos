@@ -82,7 +82,7 @@
     overlays.default = import ./overlay { localLib = lib; flakeInputs = inputs; };
     nixosModules.default.imports = lib.mkModules [ ./nixosModules ];
     devShells.x86_64-linux = import ./devShells.nix { inherit inputs; };
-    src = import ./flake/src.nix { inherit inputs; };
+    src = import ./src.nix { inherit inputs; };
     apps.x86_64-linux = import ./apps.nix { inherit inputs; };
   };
 }
