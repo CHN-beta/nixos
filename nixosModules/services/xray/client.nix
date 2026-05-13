@@ -121,7 +121,7 @@ in
                       };
                       xhttpSettings.path = "/kT9hRk6D4gJ5WxNT";
                     };
-                    tag = "proxy-${n}";
+                    tag = "vless-${n}";
                   })
               )
               [
@@ -133,50 +133,61 @@ in
             routing =
             {
               domainStrategy = "AsIs";
-              rules =
-                let outbound =
-                  if lib.elem config.nixos.model.hostname proxyUsingVps6 then "proxy-vps6"
-                  else if lib.elem config.nixos.model.hostname proxyUsingVps9 then "proxy-vps9"
-                  else if lib.elem config.nixos.model.hostname proxyHybrid then "proxy-balance"
-                  else null;
-                in builtins.map (rule: rule // { type = "field"; })
-                [
-                  { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
-                  {
-                    inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
-                    ip = [ "223.5.5.5" ];
-                    outboundTag = "direct";
-                  }
-                  {
-                    inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
-                    ip = [ "8.8.8.8" "1.1.1.1" ];
-                    outboundTag = outbound;
-                  }
-                  { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
-                  { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
-                  { inboundTag = [ "proxy-in" "proxy-socks-in" ]; outboundTag = outbound; }
-                  {
-                    inboundTag = [ "common-in" "common-socks-in" ];
-                    domain = [ "geosite:geolocation-cn" ];
-                    outboundTag = "direct";
-                  }
-                  {
-                    inboundTag = [ "common-in" "common-socks-in" ];
-                    domain = [ "geosite:geolocation-!cn" ];
-                    outboundTag = outbound;
-                  }
-                  {
-                    inboundTag = [ "common-in" "common-socks-in" ];
-                    ip = [ "geoip:cn" "geoip:private" ];
-                    outboundTag = "direct";
-                  }
-                  { inboundTag = [ "common-in" "common-socks-in" ]; outboundTag = outbound; }
-                ];
+              rules = builtins.map (rule: rule // { type = "field"; }) (lib.concatLists
+              [
+                (
+                  [ "vps6" "vps9" ]
+                  |> lib.map (n:
+                    {
+                      inboundTag = [ "dns-internal" "common-in" "common-socks-in" "proxy-in" "proxy-socks-in" ];
+                      ip = [(pkgs.localPkgs.getAddress n)];
+                      outboundTag = "vless-${n}";
+                    })
+                )
+                (
+                  let defaultOutbound =
+                    if lib.elem config.nixos.model.hostname proxyUsingVps6 then { outboundTag = "vless-vps6"; }
+                    else if lib.elem config.nixos.model.hostname proxyUsingVps9 then { outboundTag = "vless-vps9"; }
+                    else if lib.elem config.nixos.model.hostname proxyHybrid then { balancerTag = "vless-balance"; }
+                    else null;
+                  in
+                  [
+                    { inboundTag = [ "dns-in" ]; outboundTag = "dns-out"; }
+                    {
+                      inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
+                      ip = [ "223.5.5.5" ];
+                      outboundTag = "direct";
+                    }
+                    ({
+                      inboundTag = [ "dns-internal" "common-in" "common-socks-in" ];
+                      ip = [ "8.8.8.8" "1.1.1.1" ];
+                    } // defaultOutbound)
+                    { inboundTag = [ "dns-internal" ]; outboundTag = "block"; }
+                    { inboundTag = [ "direct-in" ]; outboundTag = "direct"; }
+                    ({ inboundTag = [ "proxy-in" "proxy-socks-in" ]; } // defaultOutbound)
+                    {
+                      inboundTag = [ "common-in" "common-socks-in" ];
+                      domain = [ "geosite:geolocation-cn" ];
+                      outboundTag = "direct";
+                    }
+                    ({
+                      inboundTag = [ "common-in" "common-socks-in" ];
+                      domain = [ "geosite:geolocation-!cn" ];
+                    } // defaultOutbound)
+                    {
+                      inboundTag = [ "common-in" "common-socks-in" ];
+                      ip = [ "geoip:cn" "geoip:private" ];
+                      outboundTag = "direct";
+                    }
+                    ({ inboundTag = [ "common-in" "common-socks-in" ]; } // defaultOutbound)
+                  ]
+                )
+              ]);
               balancers = lib.optional (lib.elem config.nixos.model.hostname proxyHybrid)
               {
-                tag = "proxy-balance";
-                selector = [ "proxy-vps9" ];
-                fallbackTag = "proxy-vps6";
+                tag = "vless-balance";
+                selector = [ "vless-vps9" ];
+                fallbackTag = "vless-vps6";
                 strategy.type = "random";
               };
             };
