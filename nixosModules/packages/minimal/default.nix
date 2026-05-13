@@ -1,4 +1,4 @@
-{ lib, config, pkgs, flakeInputs, localLib, ... }:
+{ lib, config, pkgs, self, ... }:
 {
   config = lib.mkMerge
   [
@@ -144,7 +144,7 @@
             enable = true;
             extraConfig =
             ''
-              source ${flakeInputs.nu-scripts}/aliases/git/git-aliases.nu
+              source ${self.inputs.nu-scripts}/aliases/git/git-aliases.nu
               $env.PATH = ($env.PATH | split row (char esep) | append "~/bin")
             '';
           };
@@ -153,7 +153,7 @@
           {
             enable = true;
             enableZshIntegration = false;
-            settings = localLib.deepReplace
+            settings = lib.deepReplace
               [
                 {
                   path = [ "blocks" 0 "segments" (v: v.type or "" == "path") "properties" "style" ];

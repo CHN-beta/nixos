@@ -1,4 +1,4 @@
-{ lib, pkgs, config, flakeInputs, ... }:
+{ lib, pkgs, config, self, ... }:
 {
   config = lib.mkIf (config.nixos.model.variant == "desktop") (lib.mkMerge
   [
@@ -142,9 +142,9 @@
                   wappalyzer grammarly zotero-connector smartproxy kiss-translator readeck
                 ];
                 search = { default = "google"; force = true; };
-                userChrome = builtins.readFile "${flakeInputs.lepton}/userChrome.css";
-                userContent = builtins.readFile "${flakeInputs.lepton}/userContent.css";
-                extraConfig = builtins.readFile "${flakeInputs.lepton}/user.js";
+                userChrome = builtins.readFile "${self.inputs.lepton}/userChrome.css";
+                userContent = builtins.readFile "${self.inputs.lepton}/userContent.css";
+                extraConfig = builtins.readFile "${self.inputs.lepton}/user.js";
                 settings =
                 {
                   # general
