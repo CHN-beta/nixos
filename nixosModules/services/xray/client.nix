@@ -174,20 +174,14 @@ in
                 ];
               balancers = lib.optional (lib.elem config.nixos.model.hostname proxyHybrid)
               {
-                proxy-balance =
-                {
-                  tag = "proxy-balance";
-                  selector = [ "proxy-vps9" ];
-                  fallbackTag = "proxy-vps6";
-                  strategy.type = "random";
-                };
-              };
-              observatory = lib.optionalAttrs (lib.elem config.nixos.model.hostname proxyHybrid)
-              {
-                subjectSelector = [ "vless-vps9" ];
-                probeUrl = "https://www.google.com/generate_204";
+                tag = "proxy-balance";
+                selector = [ "proxy-vps9" ];
+                fallbackTag = "proxy-vps6";
+                strategy.type = "random";
               };
             };
+            observatory = lib.optionalAttrs (lib.elem config.nixos.model.hostname proxyHybrid)
+              { subjectSelector = [ "vless-vps9" ]; probeUrl = "https://www.google.com/generate_204"; };
           };
         };
         secrets."xray-client/uuid" = {};
