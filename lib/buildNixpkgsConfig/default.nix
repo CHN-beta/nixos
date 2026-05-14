@@ -63,6 +63,7 @@ let
         nur-linyinfeng = (self.inputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
         firefox-addons = (import "${self.inputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
         dwproton = final.callPackage self.inputs.dwproton {};
+        inherit lib;
       })
       self.overlays.default
       rocmOverlay

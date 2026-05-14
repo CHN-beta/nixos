@@ -1,5 +1,7 @@
-self: self.inputs.nixpkgs.lib.extend (final: prev: rec
+self:
+let __functor = final: prev: rec
 {
+  inherit __functor;
   mkConditional = condition: trueResult: falseResult:
     final.mkMerge [ (final.mkIf condition trueResult) (final.mkIf (!condition) falseResult) ];
 
@@ -70,4 +72,5 @@ self: self.inputs.nixpkgs.lib.extend (final: prev: rec
       else deepReplace (builtins.tail pattern) (replace ((builtins.head pattern) // { content = origin; }));
 
     buildNixpkgsConfig = import ./buildNixpkgsConfig final self;
-})
+};
+in self.inputs.nixpkgs.lib.extend __functor
