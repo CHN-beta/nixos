@@ -98,7 +98,7 @@ inputs: rec
   blog = inputs.pkgs.callPackage inputs.flakeInputs.blog
   {
     inherit (inputs.flakeInputs) hextra;
-    buildProxy = inputs.pkgs.lib.mkBuildproxy ./blog-buildproxy.nix;
+    buildProxy = inputs.pkgs.mkBuildproxy ./blog-buildproxy.nix;
   };
   vm = inputs.pkgs.callPackage ./vm { inherit biu; };
   oneapiPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
@@ -122,7 +122,7 @@ inputs: rec
   pybinding = inputs.pkgs.pkgs2411.python310Packages.callPackage ./pybinding
   {
     src = inputs.flakeInputs.pybinding;
-    buildProxy = inputs.pkgs.lib.mkBuildproxy ./pybinding/proxy.nix;
+    buildProxy = inputs.pkgs.mkBuildproxy ./pybinding/proxy.nix;
   };
   missgram = inputs.pkgs.callPackage ./missgram { inherit biu sqlgen; };
   sqlgen = inputs.pkgs.callPackage ./sqlgen.nix { src = inputs.flakeInputs.sqlgen; inherit reflectcpp; };
