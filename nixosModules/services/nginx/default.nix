@@ -76,8 +76,19 @@
           };
           meta.license = [];
         };
-        in (pkgs.nginxMainline.override (prev: { modules = prev.modules ++ [ nginx-geoip2 ]; }))
-            .overrideAttrs (prev: { buildInputs = prev.buildInputs ++ [ pkgs.libmaxminddb ]; });
+        in pkgs.nginxMainline
+          |> (p: p.override (prev: { modules = prev.modules ++ [ nginx-geoip2 ]; }))
+          |> (p: p.overrideAttrs (prev: { buildInputs = prev.buildInputs ++ [ pkgs.libmaxminddb ]; }))
+          # TODO: remove in next release
+          |> (p: p.overrideAttrs (prev: rec
+            {
+              version = "1.30.1";
+              src = pkgs.fetchurl
+              {
+                url = "https://nginx.org/download/nginx-${version}.tar.gz";
+                hash = "sha256-mXZQANl0iWsxyliC2MJ5zj/n729cb58Kln7X/TQH+cw=";
+              };
+            }));
       streamConfig =
       ''
         geoip2 ${config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
