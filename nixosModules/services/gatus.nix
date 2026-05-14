@@ -87,7 +87,7 @@
               conditions = [ "[STATUS] == any(200, 418, 400)" ];
               alerts = [{ type = "telegram"; }];
             })
-            [ "git" "铜锣湾" "matrix" "vaultwarden" "photo" "nextcloud" "xserver2" "xserver2.vps9" ])
+            [ "git" "铜锣湾" "matrix" "vaultwarden" "photo" "nextcloud" "xserver2" ])
         ];
       };
       environmentFile = config.nixos.system.sops.templates."gatus.env".path;
