@@ -3,11 +3,16 @@ let
   proxyUsingVps6 = [ "pc" "pe" "r2s" ];
   proxyUsingVps9 = [ "srv1-node0" "srv1-node1" "srv1-node2" "srv2-node0" "srv2-node1" "srv2-node2" ];
   proxyHybrid = [ "nas" ];
-  enableProxy = builtins.elem config.nixos.model.hostname (proxyUsingVps6 ++ proxyUsingVps9 ++ proxyHybrid);
 in
 {
   options.nixos.services.xray.client =
   {
+    enable = lib.mkOption
+    {
+      type = lib.types.bool;
+      default = builtins.elem config.nixos.model.hostname (proxyUsingVps6 ++ proxyUsingVps9 ++ proxyHybrid);
+      readOnly = true;
+    };
     coredns =
     {
       extraInterfaces = lib.mkOption { type = lib.types.listOf lib.types.nonEmptyStr; default = []; };
@@ -15,7 +20,7 @@ in
     };
     v2ray-forwarder.asRouter = lib.mkOption { type = lib.types.bool; default = false; };
   };
-  config = let inherit (config.nixos.services.xray) client; in lib.mkIf enableProxy (lib.mkMerge
+  config = let inherit (config.nixos.services.xray) client; in lib.mkIf client.enable (lib.mkMerge
   [
     # xray part
     {

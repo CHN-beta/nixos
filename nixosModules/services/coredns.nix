@@ -11,6 +11,11 @@
   };
   config = let inherit (config.nixos.services) coredns; in lib.mkIf (coredns != null)
   {
+    assertions =
+    [{
+      assertion = !config.nixos.services.xray.client.enable;
+      message = "Currenty xray.client and coredns could not be simutaniusly enabled.";
+    }];
     services.coredns =
     {
       enable = true;
