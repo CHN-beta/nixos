@@ -1,91 +1,81 @@
-inputs: rec
+{ self, pkgs }: rec
 {
-  vesta = inputs.pkgs.callPackage ./vesta.nix { src = inputs.flakeInputs.self.src.vesta; };
-  misskey = inputs.pkgs.callPackage ./misskey.nix
-  {
-    inherit mkPnpmPackage;
-    src = inputs.flakeInputs.misskey;
-    extraIntegritySha256 = inputs.flakeInputs.self.src.misskey;
-  };
-  vaspkit = inputs.pkgs.callPackage ./vaspkit.nix { src = inputs.flakeInputs.self.src.vaspkit; };
-  v-sim = inputs.pkgs.callPackage ./v-sim.nix { src = inputs.flakeInputs.v-sim; };
-  concurrencpp = inputs.pkgs.callPackage ./concurrencpp.nix { src = inputs.flakeInputs.concurrencpp; };
-  matplotplusplus = inputs.pkgs.callPackage ./matplotplusplus.nix { src = inputs.flakeInputs.matplotplusplus; };
-  zpp-bits = inputs.pkgs.callPackage ./zpp-bits.nix { src = inputs.flakeInputs.zpp-bits; };
-  nameof = inputs.pkgs.callPackage ./nameof.nix { src = inputs.flakeInputs.nameof; };
-  pslist = inputs.pkgs.callPackage ./pslist.nix { src = inputs.flakeInputs.self.src.pslist; };
-  tgbot-cpp = inputs.pkgs.callPackage ./tgbot-cpp.nix { src = inputs.flakeInputs.tgbot-cpp; };
-  mirism-old = inputs.pkgs.pkgs2305.callPackage ./mirism-old.nix
+  vesta = pkgs.callPackage ./vesta.nix { src = self.src.vesta; };
+  misskey = pkgs.callPackage ./misskey.nix
+    { inherit mkPnpmPackage; src = self.inputs.misskey; extraIntegritySha256 = self.src.misskey; };
+  vaspkit = pkgs.callPackage ./vaspkit.nix { src = self.src.vaspkit; };
+  v-sim = pkgs.callPackage ./v-sim.nix { src = self.inputs.v-sim; };
+  concurrencpp = pkgs.callPackage ./concurrencpp.nix { src = self.inputs.concurrencpp; };
+  matplotplusplus = pkgs.callPackage ./matplotplusplus.nix { src = self.inputs.matplotplusplus; };
+  zpp-bits = pkgs.callPackage ./zpp-bits.nix { src = self.inputs.zpp-bits; };
+  nameof = pkgs.callPackage ./nameof.nix { src = self.inputs.nameof; };
+  pslist = pkgs.callPackage ./pslist.nix { src = self.src.pslist; };
+  tgbot-cpp = pkgs.callPackage ./tgbot-cpp.nix { src = self.inputs.tgbot-cpp; };
+  mirism-old = pkgs.pkgs2305.callPackage ./mirism-old.nix
   {
     inherit cppcoro nameof date;
-    src = inputs.flakeInputs.mirism-old;
-    nghttp2 = inputs.pkgs.pkgs2305.nghttp2.override { enableAsioLib = true; };
+    src = self.inputs.mirism-old;
+    nghttp2 = pkgs.pkgs2305.nghttp2.override { enableAsioLib = true; };
   };
-  cppcoro = inputs.pkgs.callPackage ./cppcoro { src = inputs.flakeInputs.cppcoro; };
-  date = inputs.pkgs.callPackage ./date.nix { src = inputs.flakeInputs.date; };
+  cppcoro = pkgs.callPackage ./cppcoro { src = self.inputs.cppcoro; };
+  date = pkgs.callPackage ./date.nix { src = self.inputs.date; };
   vasp =
   {
-    gnu = inputs.pkgs.callPackage ./vasp/gnu
+    gnu = pkgs.callPackage ./vasp/gnu
     {
-      inherit (inputs.pkgs.llvmPackages) openmp;
-      src = inputs.flakeInputs.self.src.vasp.vasp;
-      hdf5 = inputs.pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; cppSupport = false; };
+      inherit (pkgs.llvmPackages) openmp;
+      src = self.src.vasp.vasp;
+      hdf5 = pkgs.hdf5.override { mpiSupport = true; fortranSupport = true; cppSupport = false; };
     };
-    nvidia = inputs.pkgs.callPackage ./vasp/nvidia
-      { inherit (nvhpcPackages) stdenv hdf5 mpi; src = inputs.flakeInputs.self.src.vasp; };
-    intel = inputs.pkgs.callPackage ./vasp/intel
+    nvidia = pkgs.callPackage ./vasp/nvidia { inherit (nvhpcPackages) stdenv hdf5 mpi; src = self.src.vasp; };
+    intel = pkgs.callPackage ./vasp/intel
     {
-      src = inputs.flakeInputs.self.src.vasp;
-      inherit (inputs.pkgs.intelPackages_2023) stdenv;
-      mpi = inputs.pkgs.openmpi.override
+      src = self.src.vasp;
+      inherit (pkgs.intelPackages_2023) stdenv;
+      mpi = pkgs.openmpi.override { inherit (pkgs.intelPackages_2023) stdenv; enableSubstitute = false; };
+      hdf5 = pkgs.hdf5.override
       {
-        inherit (inputs.pkgs.intelPackages_2023) stdenv;
-        enableSubstitute = false;
-      };
-      hdf5 = inputs.pkgs.hdf5.override
-      {
-        inherit (inputs.pkgs.intelPackages_2023) stdenv;
+        inherit (pkgs.intelPackages_2023) stdenv;
         cppSupport = false;
         fortranSupport = true;
         enableShared = false;
         enableStatic = true;
       };
     };
-    vtst = inputs.pkgs.callPackage ./vasp/vtst.nix { src = inputs.flakeInputs.self.src.vasp.vtst.script; };
+    vtst = pkgs.callPackage ./vasp/vtst.nix { src = self.src.vasp.vtst.script; };
   };
-  mumax = inputs.pkgs.callPackage ./mumax.nix { src = inputs.flakeInputs.mumax; };
-  biu = inputs.pkgs.callPackage ./biu
+  mumax = pkgs.callPackage ./mumax.nix { src = self.inputs.mumax; };
+  biu = pkgs.callPackage ./biu
   {
     inherit nameof zpp-bits tgbot-cpp concurrencpp pocketfft;
-    boost = inputs.pkgs.boost188;
-    fmt = inputs.pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
+    boost = pkgs.boost188;
+    fmt = pkgs.fmt_11.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./biu/fmt.patch ]; });
   };
-  hpcstat = inputs.pkgs.callPackage ./hpcstat { inherit sqlite-orm date biu openxlsx; };
-  openxlsx = inputs.pkgs.callPackage ./openxlsx.nix { src = inputs.flakeInputs.openxlsx; };
-  sqlite-orm = inputs.pkgs.callPackage ./sqlite-orm.nix { src = inputs.flakeInputs.sqlite-orm; };
-  mkPnpmPackage = inputs.pkgs.callPackage ./mkPnpmPackage.nix {};
-  sbatch-tui = inputs.pkgs.callPackage ./sbatch-tui { inherit biu; };
-  buildUfo = src: inputs.pkgs.callPackage src { inherit biu matplotplusplus; };
-  ufo = buildUfo inputs.flakeInputs.ufo;
-  chn-bsub = inputs.pkgs.callPackage ./chn-bsub { inherit biu; };
-  pocketfft = inputs.pkgs.callPackage ./pocketfft.nix { src = inputs.flakeInputs.pocketfft; };
-  vaspberry = inputs.pkgs.callPackage ./vaspberry.nix { src = inputs.flakeInputs.vaspberry; };
-  nvhpcPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
+  hpcstat = pkgs.callPackage ./hpcstat { inherit sqlite-orm date biu openxlsx; };
+  openxlsx = pkgs.callPackage ./openxlsx.nix { src = self.inputs.openxlsx; };
+  sqlite-orm = pkgs.callPackage ./sqlite-orm.nix { src = self.inputs.sqlite-orm; };
+  mkPnpmPackage = pkgs.callPackage ./mkPnpmPackage.nix {};
+  sbatch-tui = pkgs.callPackage ./sbatch-tui { inherit biu; };
+  buildUfo = src: pkgs.callPackage src { inherit biu matplotplusplus; };
+  ufo = buildUfo self.inputs.ufo;
+  chn-bsub = pkgs.callPackage ./chn-bsub { inherit biu; };
+  pocketfft = pkgs.callPackage ./pocketfft.nix { src = self.inputs.pocketfft; };
+  vaspberry = pkgs.callPackage ./vaspberry.nix { src = self.inputs.vaspberry; };
+  nvhpcPackages = pkgs.lib.makeScope pkgs.newScope (final:
   {
-    stdenv = inputs.pkgs.callPackage ./nvhpc/stdenv.nix { src = inputs.flakeInputs.self.src.nvhpc; };
-    fmt = (inputs.pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; };
-    hdf5 = (inputs.pkgs.hdf5-fortran.override { inherit (final) stdenv; cppSupport = false; }).overrideAttrs (prev:
+    stdenv = pkgs.callPackage ./nvhpc/stdenv.nix { src = self.src.nvhpc; };
+    fmt = (pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; };
+    hdf5 = (pkgs.hdf5-fortran.override { inherit (final) stdenv; cppSupport = false; }).overrideAttrs (prev:
     {
       patches = prev.patches or [] ++ [ ./nvhpc/hdf5.patch ];
       cmakeFlags = prev.cmakeFlags ++ [ "-DHDF5_ENABLE_NONSTANDARD_FEATURE_FLOAT16=OFF" ];
     });
-    mpi = inputs.pkgs.callPackage ./nvhpc/mpi.nix
-      { inherit (final) stdenv; src = inputs.flakeInputs.self.src.nvhpc.mpi; };
+    mpi = pkgs.callPackage ./nvhpc/mpi.nix { inherit (final) stdenv; src = self.src.nvhpc.mpi; };
   });
-  gccFull = inputs.pkgs.symlinkJoin
+  gccFull = pkgs.symlinkJoin
   {
     name = "gcc";
-    paths = with inputs.pkgs;
+    paths = with pkgs;
     [
       # wrapped binaries
       gcc gfortran glibc glibc.dev binutils iconv
@@ -93,52 +83,44 @@ inputs: rec
       gcc.cc gcc.cc.lib gfortran.cc gfortran.cc.lib binutils.bintools
     ];
   };
-  stickerpicker = inputs.pkgs.python3Packages.callPackage ./stickerpicker.nix { src = inputs.flakeInputs.stickerpicker; };
-  info = inputs.pkgs.callPackage ./info { inherit biu; };
-  blog = inputs.pkgs.callPackage inputs.flakeInputs.blog
+  stickerpicker = pkgs.python3Packages.callPackage ./stickerpicker.nix { src = self.inputs.stickerpicker; };
+  info = pkgs.callPackage ./info { inherit biu; };
+  blog = pkgs.callPackage self.inputs.blog
+    { inherit (self.inputs) hextra; buildProxy = pkgs.mkBuildproxy ./blog-buildproxy.nix; };
+  vm = pkgs.callPackage ./vm { inherit biu; };
+  oneapiPackages = pkgs.lib.makeScope pkgs.newScope (final:
   {
-    inherit (inputs.flakeInputs) hextra;
-    buildProxy = inputs.pkgs.mkBuildproxy ./blog-buildproxy.nix;
-  };
-  vm = inputs.pkgs.callPackage ./vm { inherit biu; };
-  oneapiPackages = inputs.pkgs.lib.makeScope inputs.pkgs.newScope (final:
-  {
-    stdenv = inputs.pkgs.callPackage ./oneapi/stdenv.nix { src = inputs.flakeInputs.self.src.oneapi; inherit gccFull; };
-    fmt = (inputs.pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; env.VERBOSE = "1"; };
+    stdenv = pkgs.callPackage ./oneapi/stdenv.nix { src = self.src.oneapi; inherit gccFull; };
+    fmt = (pkgs.fmt.override { inherit (final) stdenv; }).overrideAttrs { doCheck = false; env.VERBOSE = "1"; };
   });
   lumerical =
   {
-    lumerical = inputs.pkgs.callPackage ./lumerical/lumerical.nix
-      { src = inputs.flakeInputs.self.src.lumerical.lumerical; };
-    licenseManager = inputs.pkgs.callPackage ./lumerical/licenseManager.nix
-      { inherit (inputs.flakeInputs.self.src.lumerical.licenseManager) src crack; };
-    license = inputs.pkgs.callPackage ./lumerical/license.nix
-      { src = inputs.flakeInputs.self.src.lumerical.licenseManager.license; };
+    lumerical = pkgs.callPackage ./lumerical/lumerical.nix { src = self.src.lumerical.lumerical; };
+    licenseManager = pkgs.callPackage ./lumerical/licenseManager.nix
+      { inherit (self.src.lumerical.licenseManager) src crack; };
+    license = pkgs.callPackage ./lumerical/license.nix { src = self.src.lumerical.licenseManager.license; };
   };
-  speedtest = inputs.pkgs.callPackage ./speedtest.nix { src = inputs.flakeInputs.speedtest; };
-  atat = inputs.pkgs.callPackage ./atat.nix { src = inputs.flakeInputs.self.src.atat; };
-  atomkit = inputs.pkgs.callPackage ./atomkit.nix { src = inputs.flakeInputs.self.src.atomkit; };
-  xinli = inputs.pkgs.callPackage ./xinli { inherit biu; };
-  pybinding = inputs.pkgs.pkgs2411.python310Packages.callPackage ./pybinding
-  {
-    src = inputs.flakeInputs.pybinding;
-    buildProxy = inputs.pkgs.mkBuildproxy ./pybinding/proxy.nix;
-  };
-  missgram = inputs.pkgs.callPackage ./missgram { inherit biu sqlgen; };
-  sqlgen = inputs.pkgs.callPackage ./sqlgen.nix { src = inputs.flakeInputs.sqlgen; inherit reflectcpp; };
-  reflectcpp = inputs.pkgs.callPackage ./reflectcpp.nix { src = inputs.flakeInputs.reflectcpp; };
-  lsf = inputs.pkgs.callPackage ./lsf.nix { src = inputs.flakeInputs.self.src.lsf; };
-  asmroner = inputs.pkgs.callPackage ./asmroner.nix { src = inputs.flakeInputs.asmroner; };
+  speedtest = pkgs.callPackage ./speedtest.nix { src = self.inputs.speedtest; };
+  atat = pkgs.callPackage ./atat.nix { src = self.src.atat; };
+  atomkit = pkgs.callPackage ./atomkit.nix { src = self.src.atomkit; };
+  xinli = pkgs.callPackage ./xinli { inherit biu; };
+  pybinding = pkgs.pkgs2411.python310Packages.callPackage ./pybinding
+    { src = self.inputs.pybinding; buildProxy = pkgs.mkBuildproxy ./pybinding/proxy.nix; };
+  missgram = pkgs.callPackage ./missgram { inherit biu sqlgen; };
+  sqlgen = pkgs.callPackage ./sqlgen.nix { src = self.inputs.sqlgen; inherit reflectcpp; };
+  reflectcpp = pkgs.callPackage ./reflectcpp.nix { src = self.inputs.reflectcpp; };
+  lsf = pkgs.callPackage ./lsf.nix { src = self.src.lsf; };
+  asmroner = pkgs.callPackage ./asmroner.nix { src = self.inputs.asmroner; };
   pythonOverlay = python3Packages:
   {
-    py4vasp = python3Packages.callPackage ./py4vasp.nix { src = inputs.flakeInputs.py4vasp; };
-    phono3py = python3Packages.callPackage ./phono3py.nix { src = inputs.flakeInputs.phono3py; };
-    brokenaxes = python3Packages.callPackage ./brokenaxes.nix { src = inputs.flakeInputs.brokenaxes; };
+    py4vasp = python3Packages.callPackage ./py4vasp.nix { src = self.inputs.py4vasp; };
+    phono3py = python3Packages.callPackage ./phono3py.nix { src = self.inputs.phono3py; };
+    brokenaxes = python3Packages.callPackage ./brokenaxes.nix { src = self.inputs.brokenaxes; };
+    pyrho = python3Packages.callPackage ./pyrho.nix { src = self.inputs.pyrho; };
   };
-  minibox = inputs.pkgs.callPackage ./minibox {};
+  minibox = pkgs.callPackage ./minibox {};
 
-  fromYaml = content: builtins.fromJSON (builtins.readFile
-    (inputs.pkgs.runCommand "toJSON" {}
-      "${inputs.pkgs.yj}/bin/yj < ${builtins.toFile "content.yaml" content} > $out"));
-  inherit (inputs.flakeInputs.self.packages.x86_64-linux.dns-push.meta.config."chn.moe") getAddress;
+  fromYaml = content: builtins.fromJSON (builtins.readFile (pkgs.runCommand "toJSON" {}
+    "${pkgs.yj}/bin/yj < ${builtins.toFile "content.yaml" content} > $out"));
+  inherit (self.packages.x86_64-linux.dns-push.meta.config."chn.moe") getAddress;
 }
