@@ -175,8 +175,8 @@ self: let inherit (self.packages.x86_64-linux) pkgs lib; in
   rsshub = pkgs.dockerTools.pullImage
   {
     imageName = "diygod/rsshub";
-    imageDigest = "sha256:1f9d97263033752bf5e20c66a75e134e6045b6d69ae843c1f6610add696f8c22";
-    hash = "sha256-zN47lhQc3EX28LmGF4N3rDUPqumwmhfGn1OpvBYd2Vw=";
+    imageDigest = "sha256:67fab5d669cf7060046ec8940f148e27b4adc425e8659a6076050516af32bc69";
+    hash = "sha256-VSQ/5dZy2OsFnu5VryeHY4OT+RmNHV44G9iBDEwZOpA=";
     finalImageName = "rsshub";
     finalImageTag = "latest";
   };
