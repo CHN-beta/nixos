@@ -26,6 +26,7 @@ inputs:
           PORT=5221
           CACHE_TYPE=memory
           PIXIV_REFRESHTOKEN='${placeholder."rsshub/pixiv-refreshtoken"}'
+          PIXIV_BYPASS_CDN=true
           YOUTUBE_KEY='${placeholder."rsshub/youtube-key"}'
           YOUTUBE_CLIENT_ID='${placeholder."rsshub/youtube-client-id"}'
           YOUTUBE_CLIENT_SECRET='${placeholder."rsshub/youtube-client-secret"}'
