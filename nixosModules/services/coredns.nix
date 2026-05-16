@@ -25,8 +25,7 @@
           }
           template IN A {
             match ^autoroute\.chn\.moe\.$
-            answer "{{ if eq (index .Meta \"geoip/country/code\") \"CN\" }}{{.Name}} 60 IN A ${pkgs.localPkgs.getAddress "vps6"}{{ end }}"
-            answer "{{ if ne (index .Meta \"geoip/country/code\") \"CN\" }}{{.Name}} 60 IN A ${pkgs.localPkgs.getAddress "vps9"}{{ end }}"
+            answer "{{ .Name }} 60 IN A {{ if eq (.Meta \"geoip/country/code\") \"CN\" }}${pkgs.localPkgs.getAddress "vps6"}{{ else }}${pkgs.localPkgs.getAddress "vps9"}{{ end }}"
           }
           template IN ANY {
             match ".*"
