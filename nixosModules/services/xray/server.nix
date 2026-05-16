@@ -4,17 +4,11 @@ let
   userList = builtins.map (user: builtins.elemAt user 2) (builtins.filter
     (user: builtins.length user == 3 && lib.lists.hasPrefix [ "xray-server" "clients" ] user)
     config.nixos.system.sops.availableKeys);
-  legacyServerName = "xserver2.${config.nixos.model.hostname}.chn.moe";
 in
 {
   config = lib.mkIf (lib.elem config.nixos.model.hostname servers)
   {
-    services.xray =
-    {
-      enable = true;
-      package = pkgs.pkgsUnstable.xray;
-      settingsFile = config.sops.templates."xray-server.json".path;
-    };
+    services.xray = { enable = true; settingsFile = config.sops.templates."xray-server.json".path; };
     nixos =
     {
       system.sops =
@@ -227,7 +221,7 @@ in
         {
           script =
             let
-              xray = "${pkgs.pkgsUnstable.xray}/bin/xray";
+              xray = "${pkgs.xray}/bin/xray";
               awk = "${pkgs.gawk}/bin/awk";
               curl = "${pkgs.curl}/bin/curl";
               jq = "${pkgs.jq}/bin/jq";
