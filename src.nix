@@ -220,4 +220,11 @@ self: let inherit (self.packages.x86_64-linux) pkgs lib; in
     hashMode = "recursive";
     message = "lsf not found.";
   };
+  pyrho = pkgs.fetchFromGitHub
+  {
+    owner = "materialsproject";
+    repo = "pyrho";
+    tag = "v0.5.1";
+    hash = "sha256-O4IZusn9/tDhX5NgRs+CpfQ17MYS535fXi8mPHfh9kc=";
+  };
 }

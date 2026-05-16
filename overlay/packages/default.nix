@@ -116,7 +116,9 @@
     py4vasp = python3Packages.callPackage ./py4vasp.nix { src = self.inputs.py4vasp; };
     phono3py = python3Packages.callPackage ./phono3py.nix { src = self.inputs.phono3py; };
     brokenaxes = python3Packages.callPackage ./brokenaxes.nix { src = self.inputs.brokenaxes; };
-    pyrho = python3Packages.callPackage ./pyrho.nix { src = self.inputs.pyrho; };
+    pyrho = python3Packages.callPackage ./pyrho.nix { src = self.src.pyrho; };
+    pymatgen-analysis-defects = python3Packages.callPackage ./pymatgen-analysis-defects
+      { src = self.inputs.pymatgen-analysis-defects; };
   };
   minibox = pkgs.callPackage ./minibox {};
 

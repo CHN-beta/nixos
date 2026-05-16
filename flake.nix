@@ -72,7 +72,7 @@
     ugreen = { url = "github:miskcoo/ugreen_leds_controller"; flake = false; };
     asmroner = { url = "github:fireinrain/asmr-downloader"; flake = false; };
     dwproton = { url = "github:imaviso/dwproton-flake"; flake = false; };
-    pyrho = { url = "github:materialsproject/pyrho"; flake = false; };
+    pymatgen-analysis-defects = { url = "github:materialsproject/pymatgen-analysis-defects"; flake = false; };
   };
 
   outputs = inputs: rec

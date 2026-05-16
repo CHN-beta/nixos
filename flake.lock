@@ -1527,6 +1527,22 @@
         "url": "https://github.com/dean0x7d/pybinding"
       }
     },
+    "pymatgen-analysis-defects": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1773976325,
+        "narHash": "sha256-Eo63B65cEu+uk0tQ34BbQ8+lG4tCT8W2G+JIJEroVg8=",
+        "owner": "materialsproject",
+        "repo": "pymatgen-analysis-defects",
+        "rev": "12c1f80562e69e285073eafdce58281fe0c67618",
+        "type": "github"
+      },
+      "original": {
+        "owner": "materialsproject",
+        "repo": "pymatgen-analysis-defects",
+        "type": "github"
+      }
+    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -1612,22 +1628,6 @@
       "original": {
         "owner": "pyproject-nix",
         "repo": "pyproject.nix",
-        "type": "github"
-      }
-    },
-    "pyrho": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1778530570,
-        "narHash": "sha256-4Hno8r5zRgPCoYuLrwW2AmmVeOp5F7qahol6DC9y/J4=",
-        "owner": "materialsproject",
-        "repo": "pyrho",
-        "rev": "58c5bc06834143a25c72fd3eadd0baa23e7ce749",
-        "type": "github"
-      },
-      "original": {
-        "owner": "materialsproject",
-        "repo": "pyrho",
         "type": "github"
       }
     },
@@ -1722,7 +1722,7 @@
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
         "pybinding": "pybinding",
-        "pyrho": "pyrho",
+        "pymatgen-analysis-defects": "pymatgen-analysis-defects",
         "reflectcpp": "reflectcpp",
         "rsshub": "rsshub",
         "rycee": "rycee",
