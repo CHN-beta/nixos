@@ -14,7 +14,7 @@ let
       # temporary
       "hongbao2026"
       # to nas
-      "grafana" "peertube" "send" "freshrss" "huginn" "nextcloud" "铜锣湾" "matrix" "git"
+      "grafana" "peertube" "send" "freshrss" "huginn" "nextcloud"
       "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api" "photo" "readeck"
     ];
     # temporary
@@ -26,6 +26,7 @@ let
     "pc.ts" = [ "nix-store" "chat" ];
     "nas.ts" = [ "ssh.git" "backup-store" ];
     vps9 = [ "initrd.vps9" "xserver2.vps9" ];
+    autoroute = [ "铜锣湾" "matrix" "git" ];
   };
   a =
   {
@@ -61,6 +62,7 @@ in
     }
     { type = "TXT"; value = "v=spf1 include:mxlogin.com -all"; }
   ];
+  autoroute = { type = "NS"; values = "vps6.chn.moe."; };
   ts = { type = "NS"; values = "vps6.chn.moe."; };
   "mail" = { type = "CNAME"; value = "tuesday.mxrouting.net."; };
   "webmail" = { type = "CNAME"; value = "tuesday.mxrouting.net."; };
