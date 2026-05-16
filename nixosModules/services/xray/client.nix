@@ -141,13 +141,20 @@ in
               rules = builtins.map (rule: rule // { type = "field"; }) (lib.concatLists
               [
                 (
-                  [ "vps6" "vps9" ]
-                  |> lib.map (n:
-                    {
-                      inboundTag = [ "dns-internal" "common-in" "common-socks-in" "proxy-in" "proxy-socks-in" ];
-                      ip = [(pkgs.localPkgs.getAddress n)];
-                      outboundTag = "vless-${n}";
-                    })
+                  lib.optional (lib.elem config.nixos.model.hostname (proxyUsingVps6 ++ proxyHybrid))
+                  {
+                    inboundTag = [ "dns-internal" "common-in" "common-socks-in" "proxy-in" "proxy-socks-in" ];
+                    ip = [(pkgs.localPkgs.getAddress "vps6")];
+                    outboundTag = "vless-vps6";
+                  }
+                )
+                (
+                  lib.optional (lib.elem config.nixos.model.hostname (proxyUsingVps9 ++ proxyHybrid))
+                  {
+                    inboundTag = [ "dns-internal" "common-in" "common-socks-in" "proxy-in" "proxy-socks-in" ];
+                    ip = [(pkgs.localPkgs.getAddress "vps9")];
+                    outboundTag = "vless-vps9";
+                  }
                 )
                 (
                   let defaultOutbound =
