@@ -1,15 +1,6 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, ... }: let ns = "vps6"; interface = "ens18"; in
 {
-  options.nixos.services.coredns = lib.mkOption
-  {
-    type = lib.types.nullOr (lib.types.submodule (submoduleInputs: { options =
-    {
-      interface = lib.mkOption { type = lib.types.str; };
-      ns = lib.mkOption { type = lib.types.str; };
-    };}));
-    default = null;
-  };
-  config = let inherit (config.nixos.services) coredns; in lib.mkIf (coredns != null)
+  config = lib.mkIf (config.nixos.model.hostname == ns)
   {
     assertions =
     [{
@@ -21,8 +12,34 @@
       enable = true;
       config =
       ''
+        autoroute.chn.moe {
+          bind ${interface}
+          geoip ${config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
+          log
+          errors
+          metadata
+
+          template IN SOA {
+            match ^autoroute\.chn\.moe\.$
+            answer "{{ .Name }} 60 IN SOA ${ns}.chn.moe. chn.chn.moe. 2023010100 7200 3600 1209600 3600"
+          }
+          template IN A {
+            match ^autoroute\.chn\.moe\.$
+            answer "{{ if eq (index .Meta \"geoip/country/code\") \"CN\" }}{{.Name}} 60 IN A ${pkgs.localPkgs.getAddress "vps6"}{{ end }}"
+            answer "{{ if ne (index .Meta \"geoip/country/code\") \"CN\" }}{{.Name}} 60 IN A ${pkgs.localPkgs.getAddress "vps9"}{{ end }}"
+          }
+          template IN ANY {
+            match ".*"
+            rcode NOERROR
+          }
+
+          header {
+            response set aa
+          }
+        }
+
         ts.chn.moe {
-          bind ${coredns.interface}
+          bind ${interface}
           log
           errors
 
@@ -35,7 +52,7 @@
 
           template IN SOA {
             match ".*"
-            answer "{{ .Name }} 60 IN SOA ${coredns.ns}. chn.chn.moe. 2023010100 7200 3600 1209600 3600"
+            answer "{{ .Name }} 60 IN SOA ${ns}.chn.moe. chn.chn.moe. 2023010100 7200 3600 1209600 3600"
           }
           forward . 100.100.100.100
 
@@ -45,7 +62,7 @@
         }
 
         . {
-          bind ${coredns.interface}
+          bind ${interface}
           acl {}
           errors
           log

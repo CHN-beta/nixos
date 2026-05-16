@@ -43,7 +43,6 @@
         mirism = {};
         fail2ban = {};
         beesd."/" = {};
-        coredns = { interface = "ens18"; ns = "vps6.chn.moe"; };
         headscale = {};
         missgram = {};
         hongbao = {};
