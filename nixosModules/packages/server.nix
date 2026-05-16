@@ -32,7 +32,7 @@
       ];
       nixos.packages.pythonPackages = [(pythonPackages: with pythonPackages;
       [
-        phonopy ruamel-yaml
+        phonopy ruamel-yaml pymatgen pymatgen-analysis-defects
         # for vasp plot-workfunc.py
         ase
       ])];
