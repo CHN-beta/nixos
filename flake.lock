@@ -809,6 +809,22 @@
         "type": "github"
       }
     },
+    "matplotlib-label-lines": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1778579270,
+        "narHash": "sha256-8yH2NcjyqGPGko7v1qyMs/al9/kapfDKHSr67k0aoQI=",
+        "owner": "cphyc",
+        "repo": "matplotlib-label-lines",
+        "rev": "a617492e3b68f3739603046c04e3ca58814e992f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cphyc",
+        "repo": "matplotlib-label-lines",
+        "type": "github"
+      }
+    },
     "matplotplusplus": {
       "flake": false,
       "locked": {
@@ -1527,6 +1543,22 @@
         "url": "https://github.com/dean0x7d/pybinding"
       }
     },
+    "pydefect": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1778744235,
+        "narHash": "sha256-2r4T0OYhYvQ4L+T0PDBUqQikGspB+TVx0jOdjPsCaOM=",
+        "owner": "kumagai-group",
+        "repo": "pydefect",
+        "rev": "1199483dff86e95fe8a5295351be44ad22533079",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kumagai-group",
+        "repo": "pydefect",
+        "type": "github"
+      }
+    },
     "pymatgen-analysis-defects": {
       "flake": false,
       "locked": {
@@ -1698,6 +1730,7 @@
         "linux-asus": "linux-asus",
         "llm-agents": "llm-agents",
         "mac-style": "mac-style",
+        "matplotlib-label-lines": "matplotlib-label-lines",
         "matplotplusplus": "matplotplusplus",
         "mirism-old": "mirism-old",
         "misskey": "misskey",
@@ -1722,6 +1755,7 @@
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
         "pybinding": "pybinding",
+        "pydefect": "pydefect",
         "pymatgen-analysis-defects": "pymatgen-analysis-defects",
         "reflectcpp": "reflectcpp",
         "rsshub": "rsshub",
@@ -1737,6 +1771,7 @@
         "ugreen": "ugreen",
         "v-sim": "v-sim",
         "vaspberry": "vaspberry",
+        "vise": "vise",
         "zpp-bits": "zpp-bits"
       }
     },
@@ -2151,6 +2186,22 @@
       "original": {
         "owner": "Infant83",
         "repo": "VASPBERRY",
+        "type": "github"
+      }
+    },
+    "vise": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1778744193,
+        "narHash": "sha256-k+dBi1hnziK2dXN8Rp3u/o5dkCg09eEIhjUXyMJw7hU=",
+        "owner": "kumagai-group",
+        "repo": "vise",
+        "rev": "19bc8c4582109201ac2e3faf6e69d985ab85d494",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kumagai-group",
+        "repo": "vise",
         "type": "github"
       }
     },

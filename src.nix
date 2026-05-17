@@ -227,4 +227,38 @@ self: let inherit (self.packages.x86_64-linux) pkgs lib; in
     tag = "v0.5.1";
     hash = "sha256-O4IZusn9/tDhX5NgRs+CpfQ17MYS535fXi8mPHfh9kc=";
   };
+  mp-api = pkgs.fetchFromGitHub
+  {
+    owner = "materialsproject";
+    repo = "api";
+    tag = "v0.46.0";
+    hash = "sha256-vBYiMn+QOHhPbQldpzyswE1F539zVztBEPgfSBjvlEg=";
+  };
+  emmet = pkgs.fetchFromGitHub
+  {
+    owner = "materialsproject";
+    repo = "emmet";
+    tag = "v0.86.4";
+    hash = "sha256-96f4Vws4jg+zuUO4xHYl07B+3p4WqNbeoNj5/ej9qB8=";
+  };
+  pymatgen-io-validation = rec
+  {
+    version = "0.1.2";
+    src = pkgs.fetchPypi
+    {
+      pname = "pymatgen_io_validation";
+      inherit version;
+      hash = "sha256-dmMoeKsiaTVgktq1uuCMj0JBjD4V1GEPTrME8BAufyQ=";
+    };
+  };
+  pubchempy = rec
+  {
+    version = "1.0.5";
+    src = pkgs.fetchPypi
+    {
+      pname = "pubchempy";
+      inherit version;
+      hash = "sha256-CPCyqCpcql1h4Uk11lXaVUYC17Vob+Zhq1hMiC//9iM=";
+    };
+  };
 }

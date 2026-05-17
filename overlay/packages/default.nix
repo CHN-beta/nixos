@@ -119,6 +119,15 @@
     pyrho = python3Packages.callPackage ./pyrho.nix { src = self.src.pyrho; };
     pymatgen-analysis-defects = python3Packages.callPackage ./pymatgen-analysis-defects
       { src = self.inputs.pymatgen-analysis-defects; };
+    pydefect = python3Packages.callPackage ./pydefect.nix { src = self.inputs.pydefect; };
+    matplotlib-label-lines = python3Packages.callPackage ./matplotlib-label-lines.nix
+      { src = self.inputs.matplotlib-label-lines; };
+    vise = python3Packages.callPackage ./vise.nix { src = self.inputs.vise; };
+    mp-api = python3Packages.callPackage ./mp-api.nix { src = self.src.mp-api; };
+    emmet-core = python3Packages.callPackage ./emmet-core.nix { src = self.src.emmet; };
+    pymatgen-io-validation = python3Packages.callPackage ./pymatgen-io-validation.nix
+      { src = self.src.pymatgen-io-validation; };
+    pubchempy = python3Packages.callPackage ./pubchempy.nix { src = self.src.pubchempy; };
   };
   minibox = pkgs.callPackage ./minibox {};
 
