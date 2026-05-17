@@ -16,7 +16,8 @@
         nixpkgs.cuda.capabilities =
         [
           # p5000 p400
-          "6.1"
+          # cudnn have dropped support for this
+          # "6.1"
           # 2080 Ti
           "7.5"
           # A30
