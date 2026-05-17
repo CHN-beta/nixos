@@ -72,7 +72,6 @@
     ugreen = { url = "github:miskcoo/ugreen_leds_controller"; flake = false; };
     asmroner = { url = "github:fireinrain/asmr-downloader"; flake = false; };
     dwproton = { url = "github:imaviso/dwproton-flake"; flake = false; };
-    pymatgen-analysis-defects = { url = "github:materialsproject/pymatgen-analysis-defects"; flake = false; };
     pydefect = { url = "github:kumagai-group/pydefect"; flake = false; };
     matplotlib-label-lines = { url = "github:cphyc/matplotlib-label-lines"; flake = false; };
     vise = { url = "github:kumagai-group/vise"; flake = false; };

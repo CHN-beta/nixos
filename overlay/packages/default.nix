@@ -117,8 +117,8 @@
     phono3py = python3Packages.callPackage ./phono3py.nix { src = self.inputs.phono3py; };
     brokenaxes = python3Packages.callPackage ./brokenaxes.nix { src = self.inputs.brokenaxes; };
     pyrho = python3Packages.callPackage ./pyrho.nix { src = self.src.pyrho; };
-    pymatgen-analysis-defects = python3Packages.callPackage ./pymatgen-analysis-defects
-      { src = self.inputs.pymatgen-analysis-defects; };
+    pymatgen-analysis-defects = python3Packages.callPackage ./pymatgen-analysis-defects.nix
+      { src = self.src.pymatgen-analysis-defects; };
     pydefect = python3Packages.callPackage ./pydefect.nix { src = self.inputs.pydefect; };
     matplotlib-label-lines = python3Packages.callPackage ./matplotlib-label-lines.nix
       { src = self.inputs.matplotlib-label-lines; };
@@ -128,6 +128,11 @@
     pymatgen-io-validation = python3Packages.callPackage ./pymatgen-io-validation.nix
       { src = self.src.pymatgen-io-validation; };
     pubchempy = python3Packages.callPackage ./pubchempy.nix { src = self.src.pubchempy; };
+    shakenbreak = python3Packages.callPackage ./shakenbreak { src = self.src.shakenbreak; };
+    cmcrameri = python3Packages.callPackage ./cmcrameri.nix { src = self.src.cmcrameri; };
+    doped = python3Packages.callPackage ./doped.nix { src = self.src.doped; };
+    hiphive = python3Packages.callPackage ./hiphive.nix { src = self.src.hiphive; };
+    trainstation = python3Packages.callPackage ./trainstation.nix { src = self.src.trainstation; };
   };
   minibox = pkgs.callPackage ./minibox {};
 

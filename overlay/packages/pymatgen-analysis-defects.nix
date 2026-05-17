@@ -3,9 +3,8 @@ buildPythonPackage
 {
   name = "pymatgen-analysis-defects";
   pyproject = true;
-  inherit src;
+  inherit (src) src version;
   build-system = [ setuptools versioningit ];
   dependencies = [ pymatgen scikit-image numpy pyrho pydefect ];
   pythonImportsCheck = [ "pymatgen.analysis.defects" ];
-  patches = [ ./version.patch ];
 }

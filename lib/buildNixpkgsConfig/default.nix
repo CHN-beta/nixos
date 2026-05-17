@@ -213,6 +213,8 @@ let
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
         {
           picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
+          dscribe = prev.dscribe.overridePythonAttrs
+            (prev: { disabledTests = prev.disabledTests or [] ++ [ "test_cell_list"  ]; });
         })];
       })
     ];

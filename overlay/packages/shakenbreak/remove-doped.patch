@@ -1,0 +1,13 @@
+diff --git a/setup.py b/setup.py
+index a3698d6..2d59184 100644
+--- a/setup.py
++++ b/setup.py
+@@ -162,7 +162,7 @@ setup(
+         "monty",
+         "click>8.0",
+         "importlib_metadata",
+-        "doped>=3.2.1",  # ``most_common_oxi`` now in ``doped.core``
++        # "doped>=3.2.1",  # ``most_common_oxi`` now in ``doped.core``
+     ],
+     extras_require={
+         "tests": [

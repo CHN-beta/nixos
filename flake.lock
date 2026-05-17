@@ -1559,22 +1559,6 @@
         "type": "github"
       }
     },
-    "pymatgen-analysis-defects": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1773976325,
-        "narHash": "sha256-Eo63B65cEu+uk0tQ34BbQ8+lG4tCT8W2G+JIJEroVg8=",
-        "owner": "materialsproject",
-        "repo": "pymatgen-analysis-defects",
-        "rev": "12c1f80562e69e285073eafdce58281fe0c67618",
-        "type": "github"
-      },
-      "original": {
-        "owner": "materialsproject",
-        "repo": "pymatgen-analysis-defects",
-        "type": "github"
-      }
-    },
     "pyproject-build-systems": {
       "inputs": {
         "nixpkgs": [
@@ -1756,7 +1740,6 @@
         "py4vasp": "py4vasp",
         "pybinding": "pybinding",
         "pydefect": "pydefect",
-        "pymatgen-analysis-defects": "pymatgen-analysis-defects",
         "reflectcpp": "reflectcpp",
         "rsshub": "rsshub",
         "rycee": "rycee",

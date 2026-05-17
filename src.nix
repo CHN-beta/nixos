@@ -261,4 +261,64 @@ self: let inherit (self.packages.x86_64-linux) pkgs lib; in
       hash = "sha256-CPCyqCpcql1h4Uk11lXaVUYC17Vob+Zhq1hMiC//9iM=";
     };
   };
+  shakenbreak = rec
+  {
+    version = "3.4.4";
+    src = pkgs.fetchPypi
+    {
+      pname = "shakenbreak";
+      inherit version;
+      hash = "sha256-Tc4TUmYM8Gfnws6N5cUMIQzoddUHXNr4gKjBKe9YPiE=";
+    };
+  };
+  cmcrameri = rec
+  {
+    version = "1.9";
+    src = pkgs.fetchPypi
+    {
+      pname = "cmcrameri";
+      inherit version;
+      hash = "sha256-Vvr5t/U+sD/tRQE3vsfcJcGFSSnXuEG5x1YW/Cw1dkA=";
+    };
+  };
+  doped = rec
+  {
+    version = "3.2.1";
+    src = pkgs.fetchPypi
+    {
+      pname = "doped";
+      inherit version;
+      hash = "sha256-3dyS1+n4bca5M2YWUnwZgcK3I0VyVlroPWhZajb8onI=";
+    };
+  };
+  hiphive = rec
+  {
+    version = "1.5";
+    src = pkgs.fetchPypi
+    {
+      pname = "hiphive";
+      inherit version;
+      hash = "sha256-qBYmhiZa7YjPpq0nIfOWKRAlJRAIeUhFMMt8JSaaw4Y=";
+    };
+  };
+  trainstation = rec
+  {
+    version = "1.2";
+    src = pkgs.fetchPypi
+    {
+      pname = "trainstation";
+      inherit version;
+      hash = "sha256-4s2hcWoJ+YkwqjRkC9sqwF5J5nWv5Ul52BZX8/rDfZs=";
+    };
+  };
+  pymatgen-analysis-defects = rec
+  {
+    version = "2026.3.20";
+    src = pkgs.fetchPypi
+    {
+      pname = "pymatgen_analysis_defects";
+      inherit version;
+      hash = "sha256-rc9GR1F0G9p7OYHnx+ZDEz83399WR8AIEtTCLg8uIho=";
+    };
+  };
 }
