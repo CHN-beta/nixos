@@ -19,11 +19,19 @@ let
     // (lib.optionalAttrs (nixpkgsConfig.cuda.forwardCompat != null)
       { cudaForwardCompat = nixpkgsConfig.cuda.forwardCompat; })
   );
+  cudaOverlay = final: prev: lib.optionalAttrs (nixpkgsConfig.cuda.capabilities or null != null)
+  {
+    # used by cp2k
+    cudaTarget = nixpkgsConfig.cuda.capabilities |> lib.map (lib.replaceString ["."] [""]) |> lib.concatStringsSep ";";
+  };
   rocmConfig = lib.optionalAttrs (nixpkgsConfig.rocm or null != null)
   {
     "${if nixpkgsConfig.rocm.enableForAllPackages or true then "rocmSupport" else null}" = true;
     problems.handlers = lib.genAttrs' (nixpkgsConfig.rocm.targets or [])
       (target: lib.nameValuePair "composable_kernel-${target}" { broken = "ignore"; });
+    # used by cp2k
+    "${if nixpkgsConfig.rocm.targets or null != null then "hipTarget" else null}" =
+      nixpkgsConfig.rocm.targets |> lib.concatStringsSep ";";
   };
   rocmOverlay = final: prev: lib.optionalAttrs (nixpkgsConfig.rocm.targets or null != null)
   {

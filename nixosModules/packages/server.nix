@@ -23,6 +23,7 @@
             buildInputs = prev.buildInputs ++ [ mpi ];
           })
           else lammps-mpi)
+        cp2k
         # calculator
         numbat
         # development
