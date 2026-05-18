@@ -32,6 +32,7 @@
     chinese-fonts = { url = "github:brsvh/chinese-fonts-overlay"; inputs.nixpkgs.follows = "nixpkgs"; };
     llm-agents.url = "github:numtide/llm-agents.nix";
     hermes.url = "github:NousResearch/hermes-agent";
+    qchem = { url = "github:Nix-QChem/NixOS-QChem/release-25.11"; inputs.nixpkgs.follows = "nixpkgs"; };
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?ref=chn-mod&submodules=1"; flake = false; };
     rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };

@@ -47,6 +47,8 @@ let
   {
     oneapiArch = let match.znver5 = "znver4"; in match.${nixpkgsConfig.march} or nixpkgsConfig.march;
     nvhpcArch = nixpkgsConfig.march;
+    qchem-config = (lib.optionalAttrs (nixpkgsConfig.march != null) { optArch = nixpkgsConfig.march; })
+      // (lib.optionalAttrs (nixpkgsConfig.cuda != null) { useCuda = true; });
   });
   overlays =
   {
@@ -58,6 +60,7 @@ let
       self.inputs.nix4vscode.overlays.default
       self.inputs.bscpkgs.overlays.default
       self.inputs.chinese-fonts.overlays.default
+      self.inputs.qchem.overlays.default
       (final: prev:
       {
         nur-linyinfeng = (self.inputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
