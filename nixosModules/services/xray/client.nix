@@ -1,9 +1,8 @@
 { lib, config, pkgs, ... }:
 let
-  proxyUsingVps6 = [ "pe" "r2s" ];
+  proxyUsingVps6 = [ "pc" "pe" "r2s" ];
   proxyUsingVps9 = [ "srv1-node0" "srv1-node1" "srv1-node2" "srv2-node0" "srv2-node1" "srv2-node2" ];
-  # TODO: pc use vps6 in the next month
-  proxyHybrid = [ "nas" "pc" ];
+  proxyHybrid = [ "nas" ];
 in
 {
   options.nixos.services.xray.client =
