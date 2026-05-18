@@ -14,7 +14,7 @@
             vfat."/dev/disk/by-partlabel/nas-boot" = "/boot";
             btrfs =
             {
-              "/dev/mapper/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+              "/dev/lvm/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
               "/dev/mapper/ssd1"."/nix/ssd" = "/nix/ssd";
               "/dev/mapper/single1"."/nix" = "/nix/backup/nix";
             };
