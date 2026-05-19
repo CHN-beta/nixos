@@ -34,5 +34,6 @@ self: rec
       |> lib.addMetaAttrs (systems // { inherit src; inputs = inputListFile; });
   inherit (pkgs.pkgsCross.ucrt64.localPkgs) xinli;
   inherit (pkgs.pkgsStatic.localPkgs) ufo;
+  gsl = self.nixosConfigurations.pc.pkgs.gsl.overrideAttrs { src = self.inputs.gsl; doCheck = true; };
 }
 // (builtins.mapAttrs (_: v: v.config.system.build.toplevel) self.outputs.nixosConfigurations)

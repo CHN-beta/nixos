@@ -75,6 +75,7 @@
     pydefect = { url = "github:kumagai-group/pydefect"; flake = false; };
     matplotlib-label-lines = { url = "github:cphyc/matplotlib-label-lines"; flake = false; };
     vise = { url = "github:kumagai-group/vise"; flake = false; };
+    gsl = { url = "github:ampl/GSL"; flake = false; };
   };
 
   outputs = inputs: rec

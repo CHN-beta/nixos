@@ -641,6 +641,22 @@
         "type": "github"
       }
     },
+    "gsl": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1779192534,
+        "narHash": "sha256-K8FXJcWiOrwS71+vNPYyvlHKS7aoRnjLQEX5yUPVTgA=",
+        "owner": "ampl",
+        "repo": "GSL",
+        "rev": "cf180cd7fbd06039a577f9c9ff0b428784765ac1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ampl",
+        "repo": "GSL",
+        "type": "github"
+      }
+    },
     "harmonia": {
       "inputs": {
         "crane": "crane",
@@ -1705,6 +1721,7 @@
         "dwproton": "dwproton",
         "fancy-motd": "fancy-motd",
         "gitea-robots-txt": "gitea-robots-txt",
+        "gsl": "gsl",
         "harmonia": "harmonia",
         "hermes": "hermes",
         "hextra": "hextra",
