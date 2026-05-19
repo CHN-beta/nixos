@@ -29,14 +29,14 @@ let
     "${if nixpkgsConfig.rocm.enableForAllPackages or true then "rocmSupport" else null}" = true;
     problems.handlers = lib.genAttrs' (nixpkgsConfig.rocm.targets or [])
       (target: lib.nameValuePair "composable_kernel-${target}" { broken = "ignore"; });
-    # used by cp2k
-    "${if nixpkgsConfig.rocm.targets or null != null then "hipTarget" else null}" =
-      nixpkgsConfig.rocm.targets |> lib.concatStringsSep ";";
   };
   rocmOverlay = final: prev: lib.optionalAttrs (nixpkgsConfig.rocm.targets or null != null)
   {
     rocmPackages = prev.rocmPackages.overrideScope (final: prev:
       { clr = prev.clr.override { localGpuTargets = nixpkgsConfig.rocm.targets; }; });
+    # used by cp2k
+    "${if nixpkgsConfig.rocm.targets or null != null then "hipTarget" else null}" =
+      nixpkgsConfig.rocm.targets |> lib.concatStringsSep ";";
   };
   allowInsecurePredicate = p: lib.warn "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
   genericConfig =
@@ -117,6 +117,8 @@ let
                       [ "test_roundtrip_scaling" "test_bug_6139" "test_initial_step" ]; });
                   })];
                 })
+                (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
+                  { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
               ];
             };
           };
