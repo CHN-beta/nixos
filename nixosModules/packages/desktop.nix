@@ -257,6 +257,8 @@
               # C/C++
               "ms-vscode.cmake-tools" "ms-vscode.cpptools-extension-pack" "ms-vscode.cpptools" "coolchyni.beyond-debug"
               "vadimcn.vscode-lldb"
+              # cp2k
+              "nilsholle.cp2k"
             ];
             keybindings =
             [
