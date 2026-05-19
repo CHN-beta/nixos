@@ -22,7 +22,7 @@ let
   cudaOverlay = final: prev: lib.optionalAttrs (nixpkgsConfig.cuda.capabilities or null != null)
   {
     # used by cp2k
-    cudaTarget = nixpkgsConfig.cuda.capabilities |> lib.map (lib.replaceString ["."] [""]) |> lib.concatStringsSep ";";
+    cudaTarget = nixpkgsConfig.cuda.capabilities |> lib.map (lib.replaceString "." "") |> lib.concatStringsSep ";";
   };
   rocmConfig = lib.optionalAttrs (nixpkgsConfig.rocm or null != null)
   {
@@ -76,6 +76,7 @@ let
       })
       self.overlays.default
       rocmOverlay
+      cudaOverlay
       (genericOverlay self.inputs.nixpkgs)
       (final: prev:
         let
@@ -128,7 +129,7 @@ let
                   let march = (marchFilter flakeSource.lib.version).${nixpkgsConfig.march} or nixpkgsConfig.march;
                   in { system = "${nixpkgsConfig.arch or "x86_64"}-linux"; gcc = { arch = march; tune = march; }; };
               inherit config;
-              overlays = (source.${name}.overlays or []) ++ [ rocmOverlay (genericOverlay flakeSource) ];
+              overlays = (source.${name}.overlays or []) ++ [ cudaOverlay rocmOverlay (genericOverlay flakeSource) ];
             };
         in builtins.listToAttrs (builtins.map
           (name: { inherit name; value = packages name; }) (builtins.attrNames source))
