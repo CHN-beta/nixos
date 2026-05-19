@@ -191,6 +191,7 @@ let
           cmakeFlags = prev.cmakeFlags or [] ++ [ "-DTBB_TEST=OFF" "-DTBBMALLOC_BUILD=OFF" "-DBUILD_SHARED_LIBS=OFF" ];
         }
         |> lib.addMetaAttrs { badPlatforms = []; };
+      cp2k = prev.cp2k.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./cp2k.patch ]; });
     })];
     marchFix =
     [
