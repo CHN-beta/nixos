@@ -1,4 +1,4 @@
-{ lib, config, pkgs, ... }:
+{ lib, config, pkgs, self, ... }:
 {
   options.nixos.packages.server = lib.mkOption
   {
@@ -39,7 +39,7 @@
       ])];
     }
     {
-      environment.systemPackages = [ pkgs.pkgsUnstable.gemini-cli ];
+      environment.systemPackages = [ self.inputs.llm-agents.packages.x86_64-linux.gemini-cli ];
       # TODO: move persistent .gemini here
     }
   ]);
