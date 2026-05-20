@@ -415,11 +415,11 @@
     "dwproton": {
       "flake": false,
       "locked": {
-        "lastModified": 1777886765,
-        "narHash": "sha256-9qmLB11jO4AxnnZlbtFVa8qQcvK3XyWsXZkqXS6yRM4=",
+        "lastModified": 1779166874,
+        "narHash": "sha256-LHUiPvJhZCxGSeLncROHJjN3mlwPhnhQ2iDU+8+J0iM=",
         "owner": "imaviso",
         "repo": "dwproton-flake",
-        "rev": "71671c6b4bbabe5fe3790144c93df73d8a74b722",
+        "rev": "822347d168c9edee43e50c3411c7eaa4b039a24e",
         "type": "github"
       },
       "original": {
