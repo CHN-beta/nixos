@@ -18,20 +18,7 @@
       // {
         packages = lib.mapAttrs
           (name: value:
-            if (value.resolution ? integrity) == (value.resolution ? tarball)
-              then throw "could not determine source ${name}"
-            else if value.resolution ? integrity then
-              # name maybe /@vue/compiler-core@3.4.18 or @vue/compiler-core@3.4.18
-              #   or /@storybook/core-server@8.0.0-beta.6(react-dom@18.2.0)(react@18.2.0)
-              let nameAtVersion = builtins.head (lib.splitString "(" name);
-              in let
-                version = lib.last (lib.splitString "@" nameAtVersion);
-                name = lib.last (lib.init (lib.splitString "@" nameAtVersion));
-                baseName = lib.last (lib.splitString "/" name);
-                url = "${registry}/${if name == baseName then "" else "@"}${name}/-/${baseName}-${version}.tgz";
-                tarball = fetchurl { inherit url; sha512 = value.resolution.integrity; };
-              in value // { resolution.tarball = "file:${tarball}"; }
-            else # if value.resolution ? tarball then
+            if value.resolution ? tarball then
               if lib.hasPrefix "https://codeload.github.com" value.resolution.tarball then
                 let
                   match = lib.strings.match
@@ -48,6 +35,18 @@
                 let tarball = fetchurl rec
                   { url = value.resolution.tarball; sha256 = extraIntegritySha256.${url}; };
                 in value // { resolution.tarball = "file:${tarball}"; }
+            else if value.resolution ? integrity then
+              # name maybe /@vue/compiler-core@3.4.18 or @vue/compiler-core@3.4.18
+              #   or /@storybook/core-server@8.0.0-beta.6(react-dom@18.2.0)(react@18.2.0)
+              let nameAtVersion = builtins.head (lib.splitString "(" name);
+              in let
+                version = lib.last (lib.splitString "@" nameAtVersion);
+                name = lib.last (lib.init (lib.splitString "@" nameAtVersion));
+                baseName = lib.last (lib.splitString "/" name);
+                url = "${registry}/${if name == baseName then "" else "@"}${name}/-/${baseName}-${version}.tgz";
+                tarball = fetchurl { inherit url; sha512 = value.resolution.integrity; };
+              in value // { resolution.tarball = "file:${tarball}"; }
+            else throw "could not determine source ${name}"
           )
           originalLock.packages;
       };
@@ -65,7 +64,7 @@
         pnpm config set reporter append-only
         pnpm config set package-manager-strict false
         cp -f ${patchedLockFile} pnpm-lock.yaml
-        pnpm install --frozen-lockfile --offline
+        pnpm install --frozen-lockfile --offline --dangerously-allow-all-builds
         runHook postConfigure
       '';
 
