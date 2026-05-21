@@ -29,7 +29,7 @@ let
       distance = 10;
     }
     # 使用 vps6 代理的机器
-    { device = { vps6 = getAddress "vps6"; pc = null; pe = null; nas = null; }; distance = 10; }
+    { device = { vps6 = getAddress "vps6"; pc = null; pe = null; }; distance = 10; }
     # 使用 vps4 代理的机器
     # { device = { vps4 = getAddress "vps4"; }; distance = 10; }
     # 校内网络
