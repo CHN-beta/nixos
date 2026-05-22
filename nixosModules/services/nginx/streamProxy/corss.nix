@@ -7,7 +7,7 @@
       lib.mkIf (lib.elem config.nixos.model.hostname [ "vps6" "vps9" ])
       (
         [
-          "xn--s8w913fdga" "matrix" "send" "git" "grafana" "peertube" "rsshub" "misskey" "synapse" "vaultwarden"
+          "xn--s8w913fdga" "matrix" "send" "git" "grafana" "peertube" "misskey" "synapse" "vaultwarden"
           "nextcloud" "freshrss" "huginn" "api" "webdav" "photo" "readeck" "xn--s8w913fdga" "matrix" "git" "question"
         ]
         |> lib.flip lib.genAttrs'

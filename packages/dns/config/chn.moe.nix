@@ -21,13 +21,13 @@ let
     srv1-node0 = [ "srv1" ];
     srv2-node0 = [ "srv2" "jupyterhub" ];
     "pc.ts" = [ "nix-store" "chat" ];
-    "nas.ts" = [ "ssh.git" "backup-store" ];
+    "nas.ts" = [ "ssh.git" "backup-store" "rsshub" ];
     vps9 =
     [
       "initrd.vps9" "xserver2.vps9"
       # to nas
       "grafana" "peertube" "send" "freshrss" "huginn" "nextcloud"
-      "rsshub" "vaultwarden" "webdav" "synapse" "misskey" "api" "photo" "readeck"
+      "vaultwarden" "webdav" "synapse" "misskey" "api" "photo" "readeck"
     ];
     autoroute = [ "铜锣湾" "matrix" "git" ];
   };
