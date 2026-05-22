@@ -1,6 +1,7 @@
-{ inputs, buildNixpkgsConfig }: rec
+self: rec
 {
-  pkgs = import inputs.nixpkgs (buildNixpkgsConfig { march = "haswell"; nixos = false; isKernel310 = true; });
+  pkgs = import self.inputs.nixpkgs (self.lib.buildNixpkgsConfig
+    { march = "haswell"; nixos = false; isKernel310 = true; });
   python = pkgs.python312.withPackages (ps: with ps; [ phonopy sumo ]);
   chn-bsub = pkgs.localPkgs.chn-bsub.override
     (prev: { bsubConfig = builtins.toFile "bsub.yaml" (builtins.toJSON (import ./bsub.nix)); });
@@ -9,7 +10,7 @@
     {
       name = "env";
       inherit paths;
-      postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
+      postBuild = "echo ${self.rev or "dirty"} > $out/.version";
       passthru.archive = pkgs.closureInfo { rootPaths = [ result.drvPath ]; };
     };
     in result;
@@ -31,12 +32,12 @@
   banner = pkgs.runCommand "banner" {}
   ''
     mkdir -p $out/etc
-    cp ${inputs.self}/nixosModules/services/sshd/banner.txt $out/etc/banner
+    cp ${self}/nixosModules/services/sshd/banner.txt $out/etc/banner
   '';
   potcar = pkgs.runCommand "potcar" {}
   ''
     mkdir -p $out/share
-    ln -s ${inputs.self.src.vaspkit.potcar} $out/share/potcar
+    ln -s ${self.src.vaspkit.potcar} $out/share/potcar
   '';
   hpcstat =
     let openssh = (pkgs.openssh.override { withLdns = false; etcDir = null; }).overrideAttrs

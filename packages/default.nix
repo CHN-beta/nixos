@@ -8,7 +8,7 @@ self: rec
     lapack = pkgs.pkgsStatic.openblas;
   };
   xmuhk = import ./xmuhk { inherit (self) inputs; inherit (self.lib) buildNixpkgsConfig; };
-  xmuhpc = import ./xmuhpc { inherit (self) inputs; inherit (self.lib) buildNixpkgsConfig; };
+  xmuhpc = import ./xmuhpc self;
   src =
     let getDrv = x:
       if lib.isDerivation x then [ x ]
