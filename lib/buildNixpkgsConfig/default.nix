@@ -335,6 +335,8 @@ let
         patches = prev.patches or [] ++ [ ./procps.patch ];
       });
       duc = prev.duc.override { enableCairo = false; };
+      cp2k = (prev.cp2k.override { trexio = null; }).overrideAttrs (prev:
+        { cmakeFlags = lib.filter (flag: !(lib.hasInfix "TREXIO" flag)) prev.cmakeFlags or []; });
     })];
   };
 in platformConfig //
