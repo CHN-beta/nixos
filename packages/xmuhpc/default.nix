@@ -44,7 +44,7 @@ self: rec
       (prev: { doCheck = false; patches = prev.patches ++ [ ./openssh.patch ];});
     in pkgs.localPkgs.hpcstat.override
       { inherit openssh; dataDir = "/data/gpfs01/jykang/linwei/chn/software/hpcstat/var/lib/hpcstat"; };
-  cp2k = pkgs.writeShellScript "cp2k"
+  cp2k = pkgs.writeShellScriptBin "cp2k"
   ''
     export PATH="${pkgs.mpi}/bin:${pkgs.cp2k}/bin:$PATH"
     exec "$@"
