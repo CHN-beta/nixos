@@ -44,19 +44,24 @@ self: rec
       (prev: { doCheck = false; patches = prev.patches ++ [ ./openssh.patch ];});
     in pkgs.localPkgs.hpcstat.override
       { inherit openssh; dataDir = "/data/gpfs01/jykang/linwei/chn/software/hpcstat/var/lib/hpcstat"; };
+  cp2k = pkgs.writeShellScript "cp2k"
+  ''
+    export PATH="${pkgs.mpi}/bin:${pkgs.cp2k}/bin:$PATH"
+    exec "$@"
+  '';
 
   wlin = mkEnv (with pkgs;
   [
-    pv vasp chn-bsub zstd dotacat banner glibc.bin
+    pv vasp chn-bsub zstd dotacat banner glibc.bin cp2k
   ]);
   jykang = mkEnv (with pkgs;
   [
     gnuplot localPkgs.vaspkit pv python-lyj sqlite zstd vasp chn-bsub potcar
-    localPkgs.vasp.vtst wannier90 python hpcstat
+    localPkgs.vasp.vtst wannier90 python hpcstat cp2k
   ]);
   hwang = mkEnv (with pkgs;
   [
-    pv vasp chn-bsub zstd
+    pv vasp chn-bsub zstd cp2k
   ]);
 }
 # sudo nix build --store 'local?store=/data/gpfs01/wlin/.nix/store&state=/data/gpfs01/wlin/.nix/state&log=/data/gpfs01/wlin/.nix/log' .#wlin
