@@ -37,6 +37,8 @@ let
     # used by cp2k
     "${if nixpkgsConfig.rocm.targets or null != null then "hipTarget" else null}" =
       nixpkgsConfig.rocm.targets |> lib.concatStringsSep ";";
+    # cp2k rocm support is currently broken
+    cp2k = prev.cp2k.override { gpuBackend = "none"; }; 
   };
   allowInsecurePredicate = p: lib.warn "Allowing insecure package ${p.name or "${p.pname}-${p.version}"}" true;
   genericConfig =
