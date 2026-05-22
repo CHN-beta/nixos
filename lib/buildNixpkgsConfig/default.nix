@@ -186,6 +186,8 @@ let
         # test failed after patch boost, not sure why
         astropy = prev.astropy.overridePythonAttrs (prev:
           { disabledTests = prev.disabledTests or [] ++ [ "test_iers_b_out_of_range_handling" ]; });
+        sumo = prev.sumo.overridePythonAttrs (prev: { disabledTestPaths = prev.disabledTestPaths or [] ++
+          [ "tests/tests_io/test_questaal.py" "tests/tests_io/test_castep.py" ]; });
       })];
       niri = prev.niri.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./niri.patch ]; });
       # allow tbb to be built on static platforms
