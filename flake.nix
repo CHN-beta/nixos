@@ -34,7 +34,6 @@
     hermes.url = "github:NousResearch/hermes-agent";
 
     misskey = { url = "git+https://github.com/CHN-beta/misskey?ref=chn-mod&submodules=1"; flake = false; };
-    rsshub = { url = "github:DIYgod/RSSHub"; flake = false; };
     zpp-bits = { url = "github:eyalz800/zpp_bits"; flake = false; };
     concurrencpp = { url = "github:David-Haim/concurrencpp"; flake = false; };
     cppcoro = { url = "github:Garcia6l20/cppcoro"; flake = false; };

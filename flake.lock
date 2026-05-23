@@ -1740,7 +1740,6 @@
         "pybinding": "pybinding",
         "pydefect": "pydefect",
         "reflectcpp": "reflectcpp",
-        "rsshub": "rsshub",
         "rycee": "rycee",
         "sops-nix": "sops-nix",
         "speedtest": "speedtest",
@@ -1755,22 +1754,6 @@
         "vaspberry": "vaspberry",
         "vise": "vise",
         "zpp-bits": "zpp-bits"
-      }
-    },
-    "rsshub": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1766246081,
-        "narHash": "sha256-0T/irp921k49XvKsXmH+fegbISNohaVW8YAB3TildBY=",
-        "owner": "DIYgod",
-        "repo": "RSSHub",
-        "rev": "14757b8d5e22d9af85d259d9f1188f286874f14c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "DIYgod",
-        "repo": "RSSHub",
-        "type": "github"
       }
     },
     "rust-overlay": {
