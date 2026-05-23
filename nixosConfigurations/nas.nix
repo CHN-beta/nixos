@@ -1,4 +1,4 @@
-{ lib, pkgs, self, ...}:
+{ self, ...}:
 {
   config =
   {
@@ -16,7 +16,7 @@
             {
               "/dev/lvm/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
               "/dev/mapper/ssd1"."/nix/ssd" = "/nix/ssd";
-              "/dev/mapper/single1"."/nix" = "/nix/backup/nix";
+              "/dev/lvm/single1"."/nix" = "/nix/backup/nix";
             };
           };
           swap = [ "/dev/mapper/swap" ];
@@ -29,11 +29,10 @@
             "/dev/disk/by-partlabel/nas-swap" = { mapper = "swap"; ssd = true; };
             "/dev/disk/by-partlabel/nas-ssd1" = { mapper = "ssd1"; ssd = true; };
             "/dev/disk/by-partlabel/nas-ssd2" = { mapper = "ssd2"; ssd = true; };
-            "/dev/disk/by-partlabel/nas-single1".mapper = "single1";
           };
           backup =
           {
-            persistent = { device = "/dev/mapper/root1"; subvol = "/nix/persistent"; };
+            persistent = { device = "/dev/lvm/root1"; subvol = "/nix/persistent"; };
             ssd = { device = "/dev/mapper/ssd1"; subvol = "/nix/ssd"; };
           };
         };
