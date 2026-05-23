@@ -7,8 +7,8 @@
       lib.mkIf (lib.elem config.nixos.model.hostname [ "vps6" "vps9" ])
       (
         [
-          "xn--s8w913fdga" "matrix" "send" "git" "grafana" "peertube" "misskey" "synapse" "vaultwarden"
-          "nextcloud" "freshrss" "huginn" "api" "webdav" "photo" "readeck" "xn--s8w913fdga" "matrix" "git" "question"
+          "xn--s8w913fdga" "matrix" "send" "git" "peertube" "misskey" "synapse" "nextcloud" "freshrss" "api" "webdav"
+          "matrix" "git" "question"
         ]
         |> lib.flip lib.genAttrs'
           (site: lib.nameValuePair "${site}.chn.moe" { upstream.address = "tinc0.nas.chn.moe"; })
