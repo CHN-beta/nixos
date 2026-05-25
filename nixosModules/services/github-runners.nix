@@ -7,7 +7,6 @@
     services.github-runners.ufo =
     {
       enable = true;
-      package = pkgs.pkgsUnstable.github-runner;
       url = "https://github.com/CHN-beta/ufo";
       tokenFile = config.nixos.system.sops.secrets."github-runners/pat".path;
       extraPackages = with pkgs; [ nix git bash  ];

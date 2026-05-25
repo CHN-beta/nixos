@@ -1,4 +1,4 @@
-{ lib, yq, fetchurl, runCommand, nodejs, stdenv, pkg-config, writeText }:
+{ lib, yq, fetchurl, runCommand, nodejs, stdenv, pkg-config, writeText, pnpm }:
   {
     src,
     lockFile ? "${src}/pnpm-lock.yaml",
@@ -54,7 +54,7 @@
     in stdenv.mkDerivation
     ({
       inherit src pname version;
-      nativeBuildInputs = [ nodejs nodejs.pkgs.pnpm pkg-config ] ++ extraNativeBuildInputs;
+      nativeBuildInputs = [ nodejs pnpm pkg-config ] ++ extraNativeBuildInputs;
 
       configurePhase =
       ''

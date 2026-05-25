@@ -12,11 +12,7 @@
   [
     # 将一部分由 home-manager 生成软链接的文件改为直接挂载，以兼容集群的设置
     (
-      let files = user:
-      [
-        "/home/${user}/.zshrc" "/home/${user}/.zshenv" "/home/${user}/.zlogin"
-        ".profile" ".bashrc" ".bash_profile"
-      ];
+      let files = user: [ "./.zshrc" "./.zshenv" "./.zlogin" ".profile" ".bashrc" ".bash_profile" ];
       in
       {
         home-manager.users = builtins.listToAttrs (builtins.map

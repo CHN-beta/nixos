@@ -1,8 +1,10 @@
 {
   stdenv, src, buildFHSEnv, writeScript, autoPatchelfHook, writeShellScriptBin,
-  libz, freeglut, libGLU, xorg, alsa-lib, freetype, wayland, fontconfig, libxkbcommon, systemd, numactl, nss,
+  libz, freeglut, libGLU, alsa-lib, freetype, wayland, fontconfig, libxkbcommon, systemd, numactl, nss,
   at-spi2-atk, libxcrypt-legacy, glibtool, tbb, libxslt, glib, gtk3, libedit, gdbm, ncurses5, mesa, libdrm, xmlsec,
-  libsForQt5, mpi, libGL, xz, libgbm, libxml2_13
+  libsForQt5, mpi, libGL, xz, libgbm, libxml2_13,
+  libXdamage, libXfixes, libXt, libICE, libSM, xcbutilwm, libXft, xcbutilimage, xcbutilkeysyms, xcbutilrenderutil,
+  libXcomposite, libXcursor, libXtst, libXScrnSaver
 }:
 let
   unwrapped = stdenv.mkDerivation
@@ -33,13 +35,10 @@ let
     [
       stdenv.cc.cc libz libGLU libGL mpi libxml2_13 xmlsec freeglut fontconfig libxkbcommon systemd tbb xz glib
       libxcrypt-legacy at-spi2-atk gtk3 libdrm alsa-lib ncurses5 libgbm libedit gdbm
-    ]
-      ++ (with xorg;
-      [
-        libXdamage libXfixes libXt libICE libSM xcbutilwm libXft xcbutilimage xcbutilkeysyms xcbutilrenderutil
-        libXcomposite libXcursor libXtst libXScrnSaver
-      ])
-      ++ (with libsForQt5; [ wayland ]);
+      libXdamage libXfixes libXt libICE libSM xcbutilwm libXft xcbutilimage xcbutilkeysyms xcbutilrenderutil
+      libXcomposite libXcursor libXtst libXScrnSaver
+      libsForQt5.qtwayland
+    ];
     nativeBuildInputs = [ autoPatchelfHook ];
     dontConfigure = true;
     dontBuild = true;
@@ -75,10 +74,8 @@ in buildFHSEnv
     freeglut libGLU alsa-lib freetype fontconfig libxkbcommon systemd numactl nss
     libxcrypt-legacy glibtool tbb libxslt glib gtk3 libedit gdbm ncurses5 mesa libdrm xmlsec
     libsForQt5.full libsForQt5.qt5.qtnetworkauth mpi
-  ]
-  ++ (with xorg; [
     libX11 libXt libICE libXdamage libXfixes xcbutilwm xcbutilimage xcbutilkeysyms xcbutilrenderutil libXcursor
     libXcomposite libXtst libXft libXScrnSaver libSM libXext
-  ]);
+  ];
   runScript = startScript;
 }

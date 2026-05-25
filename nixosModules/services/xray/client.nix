@@ -27,7 +27,7 @@ in
       services.xray =
       {
         enable = true;
-        package = pkgs.pkgsUnstable.xray;
+        package = pkgs.xray;
         settingsFile = config.nixos.system.sops.templates."xray-client.json".path;
       };
       nixos.system.sops =
@@ -266,7 +266,7 @@ in
         resolved.enable = false;
       };
       environment.etc."resolv.conf".text = "nameserver 127.0.0.1";
-      networking.firewall = { allowedTCPPorts = [ 53 ]; allowedUDPPorts = [ 53 ]; };
+      networking = { firewall = { allowedTCPPorts = [ 53 ]; allowedUDPPorts = [ 53 ]; }; resolvconf.enable = false;};
     }
     # transparent proxy part
     {

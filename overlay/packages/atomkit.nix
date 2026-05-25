@@ -1,10 +1,10 @@
-{ stdenv, src, autoPatchelfHook, xorg }: stdenv.mkDerivation
+{ stdenv, src, autoPatchelfHook, libX11 }: stdenv.mkDerivation
 {
   name = "atomkit";
   inherit src;
   dontConfigure = true;
   dontBuild = true;
-  buildInputs = [ stdenv.cc.cc xorg.libX11 ];
+  buildInputs = [ stdenv.cc.cc libX11 ];
   nativeBuildInputs = [ autoPatchelfHook ];
   installPhase =
   ''

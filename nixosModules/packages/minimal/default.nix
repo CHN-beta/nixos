@@ -8,7 +8,7 @@
         # basic tools
         beep dos2unix gnugrep pv tmux screen parallel tldr cowsay jq yq-go
         ipfetch localPkgs.pslist
-        fastfetch reptyr duc ncdu progress libva-utils ksh neofetch
+        fastfetch reptyr duc ncdu progress libva-utils ksh
         dateutils glib cryptsetup i2c-tools trash-cli cpuid
         stress-ng
         (if pkgs.config.cudaSupport or false then gpu-burn else emptyDirectory)
@@ -94,6 +94,7 @@
         config.programs.yazi =
         {
           enable = true;
+          shellWrapperName = "yy";
           keymap.mgr.append_keymap =
           [
             { on = "T"; run = "shell --orphan ghostty"; }
@@ -177,11 +178,10 @@
         config.programs.ghostty =
         {
           enable = true;
-          package = pkgs.pkgsUnstable.ghostty;
           settings = { scrollback-limit = 100000000; keybind = "ctrl+shift+r=reset"; linux-cgroup = "always"; };
         };
       }];
-      environment.systemPackages = [ pkgs.pkgsUnstable.ghostty ];
+      environment.systemPackages = [ pkgs.ghostty ];
     }
     {
       environment.systemPackages = [ pkgs.btop ];
@@ -197,6 +197,7 @@
             programs.zsh =
             {
               enable = true;
+              dotDir = home-inputs.config.home.homeDirectory;
               history =
               {
                 path = "${home-inputs.config.xdg.dataHome}/zsh/zsh_history";

@@ -21,7 +21,6 @@
         # limit ollama CPU threads
         OLLAMA_NUM_THREADS = "1";
       };
-      package = pkgs.pkgsUnstable.ollama;
     };
     environment.systemPackages = [ pkgs.oterm ];
   };

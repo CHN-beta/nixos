@@ -41,7 +41,7 @@
         # needed for icons
         adwaita-icon-theme
         # voice input
-        pkgsUnstable.voxtype-onnx
+        voxtype-onnx
         # manually adjust brightness and media play
         playerctl brightnessctl
       ];
@@ -68,7 +68,7 @@
           dank-material-shell =
           {
             enable = true;
-            niri.enableKeybinds = true;
+            niri = { enableKeybinds = true; includes.enable = false; };
             systemd = { enable = true; restartIfChanged = true; };
             plugins =
             {
@@ -159,7 +159,7 @@
           Service =
           {
             type = "simple";
-            ExecStart = "${pkgs.pkgsUnstable.voxtype-onnx}/bin/voxtype";
+            ExecStart = "${pkgs.voxtype-onnx}/bin/voxtype";
             Restart = "on-failure";
             RestartSec = "5s";
           };

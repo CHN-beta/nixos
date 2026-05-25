@@ -80,35 +80,33 @@ in
       {
         enable = true;
         enableDefaultConfig = false;
-        matchBlocks = lib.mkMerge
+        settings = lib.mkMerge
         [
-          (lib.genAttrs [ "wlin" "hwang" ] (n: { host = n; hostname = "hpc.xmu.edu.cn"; user = n; }))
-          rec {
-            gitea = { host = "gitea"; hostname = "ssh.git.chn.moe"; };
+          (lib.genAttrs' [ "wlin" "hwang" ] (n: lib.nameValuePair n { HostName = "hpc.xmu.edu.cn"; User = n; }))
+          {
+            gitea.HostName = "ssh.git.chn.moe";
             jykang =
             {
-              host = "jykang";
-              hostname = "hpc.xmu.edu.cn";
-              user = "jykang";
-              forwardAgent = true;
-              extraOptions.AddKeysToAgent = "yes";
+              HostName = "hpc.xmu.edu.cn";
+              User = "jykang";
+              ForwardAgent = true;
+              AddKeysToAgent = true;
             };
-            "tinc0.jykang" = jykang // { host = "tinc0.jykang"; proxyJump = "tinc0.nas"; };
             "*" =
             {
-              controlMaster = "auto";
-              controlPersist = "1m";
-              compression = true;
-              controlPath = "~/.ssh/master-%r@%n:%p";
+              ControlMaster = "auto";
+              ControlPersist = "1m";
+              Compression = true;
+              ControlPath = "~/.ssh/master-%r@%n:%p";
             };
           }
           (
             let genericConfig =
             {
-              forwardX11 = true;
-              forwardX11Trusted = true;
-              forwardAgent = true;
-              extraOptions.AddKeysToAgent = "yes";
+              ForwardX11 = true;
+              ForwardX11Trusted = true;
+              ForwardAgent = true;
+              AddKeysToAgent = true;
             };
             in builtins.listToAttrs (builtins.concatLists (builtins.concatLists
             [
@@ -116,21 +114,21 @@ in
               (builtins.map
                 (device: builtins.map
                   (name: lib.nameValuePair name (genericConfig //
-                    { host = name; hostname = "${name}.chn.moe"; proxyJump = device.value.proxyJump or null; }))
+                    { HostName = "${name}.chn.moe"; ProxyJump = device.value.proxyJump or null; }))
                   ((device.value.extraAccess or []) ++ [ device.name ]))
                 (lib.attrsToList devices))
               # 通过 tinc 访问
               (builtins.map
                 (device: builtins.map
-                  (name: lib.nameValuePair "tinc0.${name}" (genericConfig //
-                    { host = "tinc0.${name}"; hostname = "tinc0.${name}.chn.moe"; }))
+                  (name: lib.nameValuePair "tinc0.${name}"
+                    (genericConfig // { HostName = "tinc0.${name}.chn.moe"; }))
                   (device.value.extraAccess or [] ++ [ device.name ]))
                 (lib.attrsToList devices))
               # 通过 tailscale 访问
               (builtins.map
                 (device: builtins.map
-                  (name: lib.nameValuePair "ts.${name}" (genericConfig //
-                    { host = "ts.${name}"; hostname = "${name}.ts.chn.moe"; }))
+                  (name: lib.nameValuePair "ts.${name}"
+                    (genericConfig // { HostName = "${name}.ts.chn.moe"; }))
                   (device.value.extraAccess or [] ++ [ device.name ]))
                 (lib.attrsToList devices))
             ]))

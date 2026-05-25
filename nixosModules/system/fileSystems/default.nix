@@ -88,7 +88,7 @@ inputs:
           resumeDevice = fileSystems.resume.device;
           kernelParams = [ "resume_offset=${builtins.toString fileSystems.resume.offset}" ];
         };
-      systemd.sleep.extraConfig = "HibernateMode=reboot";
+      systemd.sleep.settings.Sleep.HibernateMode = "reboot";
     })
   ];
 }

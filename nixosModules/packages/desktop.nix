@@ -24,7 +24,7 @@
         # media
         nomacs simplescreenrecorder imagemagick gimp-with-plugins
         netease-cloud-music-gtk splayer go-musicfox
-        waifu2x-converter-cpp blender vlc whalebird spotify obs-studio
+        waifu2x-converter-cpp blender vlc spotify obs-studio
         subtitlecomposer
         (inkscape-with-extensions.override { inkscapeExtensions = [ inkscape-extensions.textext ]; })
         (paraview.overrideAttrs (prev: { nativeBuildInputs = prev.nativeBuildInputs
@@ -33,6 +33,7 @@
         # development
         adb-sync scrcpy dbeaver-bin cling aircrack-ng opencode
         weston cage openbox krita fprettify # jetbrains.clion 
+        android-tools
         # password and key management
         yubikey-manager bitwarden-desktop hashcat yubikey-personalization
         # download
@@ -42,12 +43,11 @@
         # news
         fluent-reader rssguard newsflash newsboat folo
         # nix tools
-        nixpkgs-fmt appimage-run nixd nix-serve node2nix nix-prefetch-github
+        nixpkgs-fmt appimage-run nixd nix-serve nix-prefetch-github
         prefetch-npm-deps nix-prefetch-docker
         nix-template nil bundix
         # instant messager
         element-desktop telegram-desktop discord zoom-us slack nheko
-        teamspeak3
         # browser
         google-chrome tor-browser
         # office
@@ -69,7 +69,7 @@
         # for kdenlive auto subtitle
         openai-whisper
         # daily management
-        super-productivity pkgsUnstable.vikunja-desktop
+        super-productivity vikunja-desktop
         # gaming
         (bottles.override { removeWarningPopup = true; }) lutris
         # AI
@@ -96,7 +96,6 @@
       }];
       programs =
       {
-        adb.enable = true;
         wireshark = { enable = true; package = pkgs.wireshark; };
         yubikey-touch-detector.enable = true;
         kdeconnect.enable = true;
@@ -130,6 +129,7 @@
             programs.firefox =
             {
               enable = true;
+              configPath = ".mozilla/firefox";
               nativeMessagingHosts = [ pkgs.uget-integrator ];
               # TODO: use fixed-version of plugins
               policies.DefaultDownloadDirectory = "\${home}/Downloads";

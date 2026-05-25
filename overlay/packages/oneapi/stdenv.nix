@@ -2,7 +2,7 @@
   src, stdenv, autoPatchelfHook, wrapCCWith, config, overrideCC, makeSetupHook, writeScript, overrideInStdenv,
   runCommand, lib, gccFull,
   gcc, glibc, zlib, zstd, libxml2, flock, numactl, ncurses, openssl, gmp, kdePackages,
-  libxcrypt-legacy, libfabric, rdma-core, xorg, bash, p7zip, hwloc
+  libxcrypt-legacy, libfabric, rdma-core, bash, p7zip, hwloc
 }:
 let
   oneapi = stdenv.mkDerivation

@@ -8,14 +8,13 @@
       {
         programs.ssh =
         {
-          matchBlocks = rec
+          settings =
           {
-            xmuhk = { host = "xmuhk"; hostname = "10.26.14.64"; user = "xmuhk"; };
-            xmuhk2 = { host = "xmuhk2"; hostname = "183.233.219.132"; user = "xmuhk"; port = 62022; };
-            jykang.setEnv.TERM = "chn_unset_ls_colors:chn_cd:linwei/chn:xterm-256color";
-            wlin.setEnv.TERM = "xterm-256color";
-            hwang = wlin;
-            "tinc0.jykang" = jykang;
+            xmuhk = { HostName = "10.26.14.64"; User = "xmuhk"; };
+            xmuhk2 = { HostName = "183.233.219.132"; User = "xmuhk"; Port = 62022; };
+            xmuhk2.SetEnv.TERM = "chn_unset_ls_colors:chn_cd:linwei/chn:xterm-256color";
+            wlin.SetEnv.TERM = "xterm-256color";
+            hwang.SetEnv.TERM = "xterm-256color";
           };
           extraConfig = lib.mkIf config.nixos.model.private
           ''

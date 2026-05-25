@@ -44,11 +44,13 @@
         "/var/lib/misskey/${instance.name}/work" =
         {
           device = "${pkgs.localPkgs.misskey}";
+          fsType = "auto";
           options = [ "bind" "private" "x-gvfs-hide" "X-fstrim.notrim" ];
         };
         "/var/lib/misskey/${instance.name}/work/files" =
         {
           device = "/var/lib/misskey/${instance.name}/files";
+          fsType = "auto";
           options = [ "bind" "private" "x-gvfs-hide" "X-fstrim.notrim" ];
         };
       })

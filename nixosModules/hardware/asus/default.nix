@@ -6,7 +6,7 @@
   {
     services =
     {
-      asusd = { enable = true; enableUserService = true; asusdConfig.source = ./asusd.ron; };
+      asusd = { enable = true; asusdConfig.source = ./asusd.ron; };
       supergfxd.enable = false;
     };
     programs.rog-control-center.enable = true;

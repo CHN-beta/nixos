@@ -3,12 +3,12 @@
 
   inputs =
   {
-    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-25.11";
-    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:CHN-beta/nixpkgs/nixos-26.05";
     nixpkgs-2411.url = "github:CHN-beta/nixpkgs/nixos-24.11";
     nixpkgs-2311.url = "github:CHN-beta/nixpkgs/nixos-23.11";
     nixpkgs-2305.url = "github:CHN-beta/nixpkgs/nixos-23.05";
-    home-manager = { url = "github:nix-community/home-manager/release-25.11"; inputs.nixpkgs.follows = "nixpkgs"; };
+    # TODO: switch to release-26.11
+    home-manager = { url = "github:nix-community/home-manager/master"; inputs.nixpkgs.follows = "nixpkgs"; };
     sops-nix = { url = "github:Mic92/sops-nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     nix-index-database = { url = "github:Mic92/nix-index-database"; inputs.nixpkgs.follows = "nixpkgs"; };
     nur-xddxdd = { url = "github:CHN-beta/nur-xddxdd"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -17,15 +17,13 @@
     nix-flatpak.url = "github:gmodena/nix-flatpak";
     catppuccin = { url = "github:catppuccin/nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     bscpkgs = { url = "github:CHN-beta/bscpkgs"; inputs.nixpkgs.follows = "nixpkgs"; };
-    aagl = { url = "github:ezKEa/aagl-gtk-on-nix/release-25.11"; inputs.nixpkgs.follows = "nixpkgs"; };
+    # TODO: switch to release-26.11
+    aagl = { url = "github:ezKEa/aagl-gtk-on-nix/main"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixvirt = { url = "github:CHN-beta/NixVirt"; inputs.nixpkgs.follows = "nixpkgs"; };
     buildproxy = { url = "github:polygon/nix-buildproxy"; inputs.nixpkgs.follows = "nixpkgs"; };
+    # TODO: remove this
     niri = { url = "github:CHN-beta/niri-flake"; inputs.nixpkgs.follows = "nixpkgs"; };
-    nix4vscode =
-    {
-      url = "github:nix-community/nix4vscode?rev=6c603c201b11dafda616940bac1f295144ac1c41";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nix4vscode = { url = "github:nix-community/nix4vscode"; inputs.nixpkgs.follows = "nixpkgs"; };
     dankmaterialshell = { url = "github:AvengeMedia/DankMaterialShell"; inputs.nixpkgs.follows = "nixpkgs"; };
     harmonia.url = "github:nix-community/harmonia";
     dms-plugin-registry = { url = "github:AvengeMedia/dms-plugin-registry"; inputs.nixpkgs.follows = "nixpkgs"; };
@@ -50,6 +48,7 @@
     nc4nix = { url = "github:helsinki-systems/nc4nix"; flake = false; };
     hextra = { url = "github:imfing/hextra"; flake = false; };
     nu-scripts = { url = "github:nushell/nu_scripts"; flake = false; };
+    # TODO: use fetch pypi
     py4vasp = { url = "github:vasp-dev/py4vasp?ref=v0.10.2"; flake = false; };
     pocketfft = { url = "github:mreineck/pocketfft"; flake = false; };
     blog = { url = "git+https://git.chn.moe/chn/blog-public.git?lfs=1"; flake = false; };

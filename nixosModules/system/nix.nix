@@ -61,14 +61,13 @@
         {
           nixpkgs.flake = flakeInputs.nixpkgs;
           nixos.flake = self;
-          nixpkgs-unstable.flake = flakeInputs.nixpkgs-unstable;
         };
         nixPath = [ "nixpkgs=${flakeInputs.nixpkgs}" ];
       };
       environment =
       {
         etc = { "channels/nixpkgs".source = flakeInputs.nixpkgs.outPath; "nixos".source = self.outPath; };
-        variables.COMMA_NIXPKGS_FLAKE = "nixpkgs-unstable";
+        variables.COMMA_NIXPKGS_FLAKE = "nixpkgs";
       };
     }
     # marches

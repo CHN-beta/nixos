@@ -21,7 +21,7 @@
       };
       # do not clean /tmp
       timers.systemd-tmpfiles-clean.enable = false;
-      coredump = { enable = true; extraConfig = "Storage=none"; };
+      coredump = { enable = true; settings.Coredump.Storage = "none"; };
       # seems useless
       shutdownRamfs.enable = false;
     };

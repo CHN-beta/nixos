@@ -224,7 +224,7 @@
       {
         services.slurm =
         {
-          server = { enable = true; flag.i = true; };
+          server = { enable = true; flags.i = true; };
           dbdserver =
           {
             enable = true;

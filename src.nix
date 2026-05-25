@@ -4,8 +4,8 @@ self: let inherit (self.packages.x86_64-linux) pkgs lib; in
   {
     src = pkgs.fetchurl
     {
-      url = "https://developer.download.nvidia.com/hpc-sdk/25.3/nvhpc_2025_253_Linux_x86_64_cuda_12.8.tar.gz";
-      sha256 = "11gxb099yxrsxg9i6vydi7znxqiwqqkhgmg90s74qwpjyriqpbsp";
+      url = "https://developer.download.nvidia.com/hpc-sdk/25.7/nvhpc_2025_257_Linux_x86_64_cuda_12.9.tar.gz";
+      sha256 = "08rrn2cgx6d4pc0ir6qj5hf0m5zvrj5gph9advg1f47pn3r8ws2c";
     };
     mpi = pkgs.requireFile
     {
@@ -15,8 +15,8 @@ self: let inherit (self.packages.x86_64-linux) pkgs lib; in
       sha256 = "1lx5gld4ay9p327hdlqsi72911cfm6s5v3yabjlmwr7sb27y8151";
       message = "Source file not found.";
     };
-    version = "25.3";
-    cudaVersion = "12.8";
+    version = "25.7";
+    cudaVersion = "12.9";
   };
   iso =
   {
@@ -58,8 +58,8 @@ self: let inherit (self.packages.x86_64-linux) pkgs lib; in
   huginn = pkgs.dockerTools.pullImage
   {
     imageName = "ghcr.io/huginn/huginn";
-    imageDigest = "sha256:68e2c7082cd51d417e5ce76fe123810e9d52f4ab2018569df5b74b913ed3bc64";
-    sha256 = "0jpdysdphy1lyj6zwx2b1kbgs6bfnpkkx85mf1b9ybh3is6gaz6s";
+    imageDigest = "sha256:d5a06a195a867c7c7f2d65ac0b39229661ef27fdf6ce97f7a098b3272e80e10b";
+    hash = "sha256-hX2I0h96O/bTDmJB6QacE2ArPb6B17c/V3AuBmHJYwE=";
     finalImageName = "ghcr.io/huginn/huginn";
     finalImageTag = "latest";
   };

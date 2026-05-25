@@ -105,25 +105,6 @@ let
                 })
               ];
             };
-            pkgsUnstable =
-            {
-              source = "nixpkgs-unstable";
-              overlays =
-              [
-                (final: prev: lib.optionalAttrs (nixpkgsConfig.march != null)
-                {
-                  libtpms = prev.libtpms.overrideAttrs (prev:
-                    { env.NIX_CFLAGS_COMPILE = prev.env.NIX_CFLAGS_COMPILE or "" + " -Wno-error=stringop-overflow"; });
-                  pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-                  {
-                    scipy = prev.scipy.overridePythonAttrs (prev: { disabledTests = prev.disabledTests or [] ++
-                      [ "test_roundtrip_scaling" "test_bug_6139" "test_initial_step" ]; });
-                  })];
-                })
-                (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
-                  { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
-              ];
-            };
           };
           packages = name: let flakeSource = self.inputs.${source.${name}.source or source.${name}}; in
             import flakeSource
@@ -178,14 +159,12 @@ let
       httplib = prev.httplib.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./httplib.patch ]; });
       libmaddy-markdown = prev.libmaddy-markdown.overrideAttrs
         (prev: { patches = prev.patches or [] ++ [ ./maddy.patch ]; });
-      libreoffice-fresh = prev.libreoffice-fresh.override (prev:
-        { unwrapped = prev.unwrapped.overrideAttrs (prev: { doCheck = false; });});
       pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
       {
-        phonopy = prev.phonopy.overridePythonAttrs { patches = prev.patches or [] ++ [ ./phonopy.patch ]; };
         # test failed after patch boost, not sure why
-        astropy = prev.astropy.overridePythonAttrs (prev:
-          { disabledTests = prev.disabledTests or [] ++ [ "test_iers_b_out_of_range_handling" ]; });
+        # astropy = prev.astropy.overridePythonAttrs (prev:
+        #   { disabledTests = prev.disabledTests or [] ++ [ "test_iers_b_out_of_range_handling" ]; });
+        # test failed after update monty
         sumo = prev.sumo.overridePythonAttrs (prev: { disabledTestPaths = prev.disabledTestPaths or [] ++
           [ "tests/tests_io/test_questaal.py" "tests/tests_io/test_castep.py" ]; });
       })];
@@ -202,38 +181,30 @@ let
     })];
     marchFix =
     [
-      (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
-        { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
-      (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
-        { frei0r = final.genericPkgs.frei0r; })
-      (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "alderlake")
-        { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
-      (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "cascadelake")
-        { postgresql_17 = prev.postgresql_17.override { jitSupport = false; }; })
-      (final: prev: lib.optionalAttrs (nixpkgsConfig.march != null)
-      {
-        ffmpeg_8 = prev.ffmpeg_8.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./ffmpeg.patch ]; });
-        ffmpeg_8-headless = prev.ffmpeg_8-headless.overrideAttrs
-          (prev: { patches = prev.patches or [] ++ [ ./ffmpeg.patch ]; });
-        ffmpeg_8-full = prev.ffmpeg_8-full.overrideAttrs
-          (prev: { patches = prev.patches or [] ++ [ ./ffmpeg.patch ]; });
-        ffmpeg = final.ffmpeg_8;
-        ffmpeg-headless = final.ffmpeg_8-headless;
-        ffmpeg-full = final.ffmpeg_8-full;
-        assimp = prev.assimp.override { stdenv = final.genericPkgs.stdenv; };
-        xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
-        lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
-        opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
-        rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
-        embree = prev.embree.override { stdenv = final.genericPkgs.stdenv; };
-        simde = prev.simde.override { stdenv = final.genericPkgs.stdenv; };
-        pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
-        {
-          picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
-          dscribe = prev.dscribe.overridePythonAttrs
-            (prev: { disabledTests = prev.disabledTests or [] ++ [ "test_cell_list"  ]; });
-        })];
-      })
+      # (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
+      #   { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
+      # (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
+      #   { frei0r = final.genericPkgs.frei0r; })
+      # (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "alderlake")
+      #   { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
+      # (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "cascadelake")
+      #   { postgresql_17 = prev.postgresql_17.override { jitSupport = false; }; })
+      # (final: prev: lib.optionalAttrs (nixpkgsConfig.march != null)
+      # {
+      #   assimp = prev.assimp.override { stdenv = final.genericPkgs.stdenv; };
+      #   xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
+      #   lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
+      #   opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
+      #   rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
+      #   embree = prev.embree.override { stdenv = final.genericPkgs.stdenv; };
+      #   simde = prev.simde.override { stdenv = final.genericPkgs.stdenv; };
+      #   pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
+      #   {
+      #     picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
+      #     dscribe = prev.dscribe.overridePythonAttrs
+      #       (prev: { disabledTests = prev.disabledTests or [] ++ [ "test_cell_list"  ]; });
+      #   })];
+      # })
     ];
     kernel310Fix = [(final: prev: lib.optionalAttrs (nixpkgsConfig.isKernel310 or false)
     {

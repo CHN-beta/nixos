@@ -8,9 +8,7 @@
   src = ./.;
   buildInputs = [ magic-enum fmt boost range-v3 nameof zpp-bits concurrencpp pocketfft yaml-cpp bzip2 xz zlib zstd ]
     ++ lib.optionals stdenv.hostPlatform.isLinux
-    [
-      eigen hdf5 (highfive.override { inherit boost; }) (tgbot-cpp.override { inherit boost; }) cpptrace
-    ];
+      [ eigen hdf5 highfive (tgbot-cpp.override { inherit boost; }) cpptrace ];
   propagatedBuildInputs = buildInputs;
   nativeBuildInputs = [ cmake ];
   doCheck = true;

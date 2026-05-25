@@ -20,12 +20,14 @@ inputs:
       "/nix/persistent" =
       {
         hideMounts = true;
+        allowTrash = true;
         directories = [ "/var/db" "/var/lib" "/var/log" "/var/spool" "/var/backup" "/srv" ];
         files = builtins.map (f: "/etc/ssh/ssh_host_${f}_key") [ "ed25519" "rsa" ];
       };
       "/nix/rootfs/current" =
       {
         hideMounts = true;
+        allowTrash = true;
         directories = [ "/var/lib/flatpak" ]
           ++ builtins.map (f: "/var/lib/systemd/${f}") [ "linger" "coredump" "backlight" ];
       };
@@ -33,6 +35,7 @@ inputs:
       "/nix/nodatacow" =
       {
         hideMounts = true;
+        allowTrash = true;
         directories =
           [{ directory = "/var/log/journal"; user = "root"; group = "systemd-journal"; mode = "u=rwx,g=rx+s,o=rx"; }];
       };
@@ -45,6 +48,7 @@ inputs:
       ${inputs.config.nixos.system.fileSystems.impermanence.clusterPersistentDirectory} =
       {
         hideMounts = true;
+        allowTrash = true;
         directories = builtins.map
           (user: { directory = "/home/${user}"; inherit user; group = user; mode = "0700"; })
           (builtins.filter

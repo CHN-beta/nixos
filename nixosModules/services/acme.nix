@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 {
   options.nixos.services.acme = lib.mkOption
   {
@@ -30,28 +30,13 @@
         email = "chn@chn.moe";
         dnsProvider = "cloudflare";
         dnsResolver = "1.1.1.1";
+        credentialFiles.CLOUDFLARE_DNS_API_TOKEN_FILE = config.nixos.system.sops.secrets."acme/token".path;
+        environmentFile = pkgs.writeText "acme-env" "CLOUDFLARE_PROPAGATION_TIMEOUT=300";
       };
-      certs = builtins.listToAttrs (builtins.map
-        (cert:
-        {
-          name = builtins.elemAt cert.value.domains 0;
-          value =
-          {
-            credentialsFile = config.nixos.system.sops.templates."acme/cloudflare.ini".path;
-            extraDomainNames = builtins.tail cert.value.domains;
-            group = lib.mkIf (cert.value.group != null) cert.value.group;
-          };
-        })
-        (lib.attrsToList acme.cert));
+      certs = acme.cert
+        |> lib.mapAttrs' (n: v: lib.nameValuePair (lib.elemAt v.domains 0)
+          { extraDomainNames = builtins.tail v.domains; group = lib.mkIf (v.group != null) v.group; });
     };
-    nixos.system.sops =
-    {
-      templates."acme/cloudflare.ini".content =
-      ''
-        CLOUDFLARE_DNS_API_TOKEN=${config.nixos.system.sops.placeholder."acme/token"}
-        CLOUDFLARE_PROPAGATION_TIMEOUT=300
-      '';
-      secrets."acme/token" = {};
-    };
+    nixos.system.sops.secrets."acme/token" = {};
   };
 }
