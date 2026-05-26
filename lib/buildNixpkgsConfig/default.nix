@@ -63,7 +63,6 @@ let
   {
     addon =
     [
-      self.inputs.aagl.overlays.default
       self.inputs.nur-xddxdd.overlays.inSubTree
       self.inputs.buildproxy.overlays.default
       self.inputs.nix4vscode.overlays.default

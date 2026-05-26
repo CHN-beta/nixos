@@ -17,8 +17,6 @@
     nix-flatpak.url = "github:gmodena/nix-flatpak";
     catppuccin = { url = "github:catppuccin/nix"; inputs.nixpkgs.follows = "nixpkgs"; };
     bscpkgs = { url = "github:CHN-beta/bscpkgs"; inputs.nixpkgs.follows = "nixpkgs"; };
-    # TODO: switch to release-26.11
-    aagl = { url = "github:ezKEa/aagl-gtk-on-nix/main"; inputs.nixpkgs.follows = "nixpkgs"; };
     nixvirt = { url = "github:CHN-beta/NixVirt"; inputs.nixpkgs.follows = "nixpkgs"; };
     buildproxy = { url = "github:polygon/nix-buildproxy"; inputs.nixpkgs.follows = "nixpkgs"; };
     # TODO: remove this

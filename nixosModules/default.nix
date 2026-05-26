@@ -8,7 +8,6 @@
     flakeInputs.impermanence.nixosModules.impermanence
     flakeInputs.nix-flatpak.nixosModules.nix-flatpak
     flakeInputs.catppuccin.nixosModules.catppuccin
-    flakeInputs.aagl.nixosModules.default
     flakeInputs.nixvirt.nixosModules.default
     flakeInputs.niri.nixosModules.niri
     { config.niri-flake.cache.enable = false; }

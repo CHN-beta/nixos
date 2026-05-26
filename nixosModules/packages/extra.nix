@@ -16,11 +16,5 @@
       yubioath-flutter electrum jabref john crunch
       wgetpaste onedrive onedrivegui rclone
     ];
-    programs =
-    {
-      anime-game-launcher = { enable = true; package = pkgs.anime-game-launcher; };
-      honkers-railway-launcher = { enable = true; package = pkgs.honkers-railway-launcher; };
-      sleepy-launcher = { enable = true; package = pkgs.sleepy-launcher; };
-    };
   };
 }
