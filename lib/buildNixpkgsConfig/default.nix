@@ -188,9 +188,10 @@ let
       #   { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
       # (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "cascadelake")
       #   { postgresql_17 = prev.postgresql_17.override { jitSupport = false; }; })
-      # (final: prev: lib.optionalAttrs (nixpkgsConfig.march != null)
-      # {
-      #   assimp = prev.assimp.override { stdenv = final.genericPkgs.stdenv; };
+      (final: prev: lib.optionalAttrs (nixpkgsConfig.march != null)
+      {
+        # TODO: patch upstream
+        assimp = prev.assimp.overrideAttrs { doCheck = false; };
       #   xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
       #   lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
       #   opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
@@ -203,7 +204,7 @@ let
       #     dscribe = prev.dscribe.overridePythonAttrs
       #       (prev: { disabledTests = prev.disabledTests or [] ++ [ "test_cell_list"  ]; });
       #   })];
-      # })
+      })
     ];
     kernel310Fix = [(final: prev: lib.optionalAttrs (nixpkgsConfig.isKernel310 or false)
     {
