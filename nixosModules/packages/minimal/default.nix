@@ -221,7 +221,7 @@
           {
             programs =
               let optional = lib.mkIf (builtins.elem home-inputs.config.home.username
-                [ "chn" "root" "aleksana" "alikia" "hjp" "lilydjwg" ]);
+                [ "chn" "root" "aleksana" "alikia" "hjp" "lilydjwg" "straycat" ]);
               in
               {
                 zsh = optional

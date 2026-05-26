@@ -94,6 +94,7 @@ in
               extraOptions.AddKeysToAgent = "yes";
             };
             "tinc0.jykang" = jykang // { host = "tinc0.jykang"; proxyJump = "tinc0.nas"; };
+            straycat = { host = "straycat"; hostname = "127.0.0.1"; user = "straycat"; };
             "*" =
             {
               controlMaster = "auto";

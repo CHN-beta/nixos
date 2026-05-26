@@ -134,7 +134,7 @@
         hermes = {};
       };
       packages = { mathematica = {}; vasp = {}; extra = {}; lumerical = {}; };
-      user.users = [ "chn" "lilydjwg" "hjp" ];
+      user.users = [ "chn" "lilydjwg" "hjp" "straycat" ];
     };
     # 允许kvm读取物理硬盘
     users.users.qemu-libvirtd.extraGroups = [ "disk" ];
