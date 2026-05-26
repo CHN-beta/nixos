@@ -105,7 +105,7 @@
                 # "0002-platform-x86-asus-armoury-add-keyboard-control-firmw.patch"
                 "0001-acpi-proc-idle-skip-dummy-wait.patch"
                 "PATCH-v5-00-11-Improvements-to-S5-power-consumption.patch"
-                "PATCH-asus-wmi-fixup-screenpad-brightness.patch"
+                # "PATCH-asus-wmi-fixup-screenpad-brightness.patch"
                 "asus-patch-series.patch"
                 "0070-acpi-x86-s2idle-Add-ability-to-configure-wakeup-by-A.patch"
                 "0040-workaround_hardware_decoding_amdgpu.patch"
