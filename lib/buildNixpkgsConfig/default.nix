@@ -180,8 +180,9 @@ let
     })];
     marchFix =
     [
-      # (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
-      #   { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
+      # TODO: report to upstream
+      (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.avx512Support)
+        { gsl = prev.gsl.overrideAttrs { doCheck = false; }; })
       # (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
       #   { frei0r = final.genericPkgs.frei0r; })
       # (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "alderlake")
