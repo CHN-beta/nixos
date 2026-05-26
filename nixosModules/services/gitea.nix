@@ -69,11 +69,19 @@
           SERVE_ROBOTS_TXT = true;
           METRICS_BIND = "/run/anubis/anubis-gitea/anubis-metrics.sock";
         };
-        botPolicy.bots =
-        [
-          { name = "allow-blog-referer"; action = "ALLOW"; headers_regex.Referer = ''.*blog\.chn\.moe.*''; }
-          { import = "(data)/meta/default-config.yaml"; }
-        ];
+        botPolicy =
+        {
+          bots =
+          [
+            { import = "(data)/meta/default-config.yaml"; }
+            {
+              name = "challenge-all";
+              path_regex = ".*";
+              action = "CHALLENGE";
+              challenge = { algorithm = "fast"; difficulty = 4; };
+            }
+          ];
+        };
       };
     };
     nixos =
@@ -88,13 +96,22 @@
       {
         nginx.https.${gitea.hostname}.location =
         {
-          "/".proxy.upstream = "http://127.0.0.1:7757";
+          "/".proxy.upstream = "http://127.0.0.1:$proxy_port";
           "/robots.txt".static.root = builtins.toString
             (pkgs.runCommand "robots.txt" {} "mkdir -p $out; cp ${flakeInputs.gitea-robots-txt} $out/robots.txt");
         };
         postgresql.instances.gitea = {};
       };
     };
+    services.nginx.virtualHosts."https:git.chn.moe".locations."/".extraConfigPre =
+    ''
+      # bypass anubis when referer is from https://blog.chn.moe
+      valid_referers blog.chn.moe;
+      set $proxy_port 3002;
+      if ($invalid_referer) {
+        set $proxy_port 7757;
+      }
+    '';
     systemd.services.gitea.path = [ pkgs.git-lfs-transfer ];
   };
 }
