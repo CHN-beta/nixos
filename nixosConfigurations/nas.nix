@@ -1,4 +1,3 @@
-{ self, ...}:
 {
   config =
   {
@@ -35,7 +34,6 @@
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
-        nix.marches = self.nixosConfigurations.pc.config.nixos.system.nix.marches;
         network.settings.static =
         {
           enp3s0 = { ip = "192.168.1.2"; mask = 24; gateway = "192.168.1.1"; dns = "192.168.1.1"; };
