@@ -13,7 +13,7 @@
             vfat."/dev/disk/by-partlabel/nas-boot" = "/boot";
             btrfs =
             {
-              "/dev/lvm/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+              "/dev/lvm/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; "/" = "/nix/export"; };
               "/dev/lvm/ssd1"."/nix/ssd" = "/nix/ssd";
               "/dev/lvm/single1"."/nix" = "/nix/backup/nix";
             };
@@ -73,7 +73,7 @@
         podman = {};
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
-        nfs = { exports."/nix/persistent" = [ "100.97.101.0/24" ]; crossmnt = false; };
+        nfs = { exports."/nix/export" = [ "100.97.101.0/24" ]; crossmnt = false; };
         immich = {};
         readeck = {};
         minibox = {};

@@ -45,7 +45,7 @@
               #   "/nix/remote/hwang" = "/data/gpfs01/hwang/.nix";
               # };
             };
-            nfs."nas.ts.chn.moe:/nix/persistent" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
+            nfs."nas.ts.chn.moe:/nix/export" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
           };
           luks =
           {
