@@ -192,15 +192,6 @@ self: let inherit (self.packages.x86_64-linux) pkgs lib; in
   };
   btrfs =
   {
-    "6.12" =
-    {
-      patch = pkgs.fetchurl
-      {
-        url = "https://github.com/kakra/linux/pull/36.patch";
-        sha256 = "0wimihsvrxib6g23jcqdbvqlkqk6nbqjswfx9bzmpm1vlvzxj8m0";
-      };
-      structuredExtraConfig.BTRFS_EXPERIMENTAL = lib.kernel.yes;
-    };
     "6.18" =
     {
       patch = pkgs.fetchurl
