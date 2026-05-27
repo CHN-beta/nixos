@@ -45,13 +45,7 @@
               #   "/nix/remote/hwang" = "/data/gpfs01/hwang/.nix";
               # };
             };
-            nfs =
-            {
-              "nas.ts.chn.moe:/nix/export" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
-              # setup x-systemd.automount later
-              "nas.ts.chn.moe:/nix/export/nix" =
-                { mountPoint = "/nix/remote/nix"; mountBeforeSwitch = false; readOnly = false; };
-            };
+            nfs."nas.ts.chn.moe:/nix/export" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
           };
           luks =
           {
@@ -180,7 +174,5 @@
         __EGL_VENDOR_LIBRARY_FILENAMES = "/run/opengl-driver/share/glvnd/egl_vendor.d/50_mesa.json";
       };
     };
-    # set /nix/remote/nix to be automount
-    fileSystems."/nix/remote/nix".options = [ "x-systemd.automount" "x-systemd.idle-timeout=10s" ];
   };
 }
