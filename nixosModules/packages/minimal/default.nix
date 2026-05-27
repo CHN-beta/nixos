@@ -29,7 +29,7 @@
         # file system management
         sshfs e2fsprogs compsize exfatprogs
         # disk management
-        smartmontools hdparm gptfdisk
+        smartmontools hdparm gptfdisk multipath-tools
         (if pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then megacli else emptyDirectory)
         # encryption and authentication
         apacheHttpd openssl ssh-to-age gnupg age sops pam_u2f
@@ -60,6 +60,7 @@
         autojump.enable = true;
         mosh.enable = true;
         gnupg.agent.enable = true;
+        nbd.enable = true;
       };
       services =
       {
