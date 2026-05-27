@@ -43,7 +43,7 @@
         # https://cache.nixos.org 已经自带
         substituters =
         [
-          "https://nix-store.chn.moe" "https://backup-store.chn.moe"
+          "https://backup-store.chn.moe"
           # llm-agents
           "https://cache.numtide.com"
         ];
