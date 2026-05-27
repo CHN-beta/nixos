@@ -36,21 +36,21 @@
                 "/nix/rootfs/current" = "/";
                 "/nix" = "/nix";
               };
-              "/dev/tf/tf" =
-              {
-                "/" = "/nix/tf";
-                "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
-                "/nix/remote/jykang" = "/data/gpfs01/jykang/.nix";
-                "/nix/remote/wlin" = "/data/gpfs01/wlin/.nix";
-                "/nix/remote/hwang" = "/data/gpfs01/hwang/.nix";
-              };
+              # "/dev/tf/tf" =
+              # {
+              #   "/" = "/nix/tf";
+              #   "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
+              #   "/nix/remote/jykang" = "/data/gpfs01/jykang/.nix";
+              #   "/nix/remote/wlin" = "/data/gpfs01/wlin/.nix";
+              #   "/nix/remote/hwang" = "/data/gpfs01/hwang/.nix";
+              # };
             };
             nfs."nas.ts.chn.moe:/nix/persistent" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
           };
           luks =
           {
             "/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
-            "/dev/disk/by-partlabel/pc-tf1" = { mapper = "tf1"; ssd = true; };
+            # "/dev/disk/by-partlabel/pc-tf1" = { mapper = "tf1"; ssd = true; };
             "/dev/disk/by-partlabel/pc-tf2" = { mapper = "tf2"; ssd = true; };
           };
           swap = [ "/dev/tf/pc-swap" ];
@@ -100,12 +100,12 @@
             [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ]);
           extraInterfaces = [ "wlp194s0" ];
         };
-        harmonia.store = "/nix/tf";
+        # harmonia.store = "/nix/tf";
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
         beesd =
         {
           "/" = { hashTableSizeMB = 2 * 128; loadAverage = 4; };
-          "/nix" = { hashTableSizeMB = 128; loadAverage = 4; };
+          # "/nix" = { hashTableSizeMB = 128; loadAverage = 4; };
         };
         slurm =
         {
