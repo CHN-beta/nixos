@@ -1,4 +1,4 @@
-{ pkgs, ...}:
+{ pkgs, lib, ...}:
 {
   config =
   {
@@ -16,16 +16,15 @@
           #   esp: /dev/nvme0n1p1 or /dev/disk/by-partlabel/pc-boot
           #   most stuff: mounted from:
           #     /dev/mapper/root1 /dev/tf/pc-root2, btrfs
-          #   nix build cache (/nix/tf and hpc stuff): mounted from:
-          #     /dev/tf/tf, btrfs
+          #   nix build cache (/nix/remote/nix/store and hpc stuff): mounted from:
+          #     /dev/bcache0 /dev/tf/nbd-metadata, btrfs
           #   swap: /dev/tf/pc-swap
           #   lvm:
-          #     - /dev/mapper/tf2 -> /dev/tf/swap and /dev/tf/pc-root2
-          #     - /dev/mapper/tf1 -> /dev/tf/tf
+          #     - /dev/mapper/tf2 -> /dev/tf/swap /dev/tf/pc-root2 /dev/tf/nbd-metadata /dev/tf/nbd-cache
           #   luks:
           #     - /dev/disk/by-partlabel/pc-root1 or /dev/nvme0n1p2 -> /dev/mapper/root1
           #     - /dev/disk/by-partlabel/pc-tf2 or /dev/nvme0n1p5 -> /dev/mapper/tf2
-          #     - /dev/disk/by-partlabel/pc-tf1 or /dev/mmcblk0p1 -> /dev/mapper/tf1
+          #   bcache: /dev/tf/nbd-cache /dev/nbd1 -> /dev/bcache0
           mount =
           {
             vfat."/dev/disk/by-partlabel/pc-boot" = "/boot";
@@ -35,22 +34,26 @@
               {
                 "/nix/rootfs/current" = "/";
                 "/nix" = "/nix";
+                "/nix/remote/xmuhk/nix" = "/public/home/xmuhk/.nix";
+                "/nix/remote/jykang/nix" = "/data/gpfs01/jykang/.nix";
+                "/nix/remote/wlin/nix" = "/data/gpfs01/wlin/.nix";
+                "/nix/remote/hwang/nix" = "/data/gpfs01/hwang/.nix";
               };
-              # "/dev/tf/tf" =
-              # {
-              #   "/" = "/nix/tf";
-              #   "/nix/remote/xmuhk" = "/public/home/xmuhk/.nix";
-              #   "/nix/remote/jykang" = "/data/gpfs01/jykang/.nix";
-              #   "/nix/remote/wlin" = "/data/gpfs01/wlin/.nix";
-              #   "/nix/remote/hwang" = "/data/gpfs01/hwang/.nix";
-              # };
+              # these will be mounted on demand
+              "/dev/bcache0" =
+              {
+                "/nix/store" = "/nix/remote/nix/store";
+                "/nix/remote/xmuhk/nix/store" = "/public/home/xmuhk/.nix/store";
+                "/nix/remote/jykang/nix/store" = "/data/gpfs01/jykang/.nix/store";
+                "/nix/remote/wlin/nix/store" = "/data/gpfs01/wlin/.nix/store";
+                "/nix/remote/hwang/nix/store" = "/data/gpfs01/hwang/.nix/store";
+              };
             };
             nfs."nas.ts.chn.moe:/nix/export" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
           };
           luks =
           {
             "/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
-            # "/dev/disk/by-partlabel/pc-tf1" = { mapper = "tf1"; ssd = true; };
             "/dev/disk/by-partlabel/pc-tf2" = { mapper = "tf2"; ssd = true; };
           };
           swap = [ "/dev/tf/pc-swap" ];
@@ -102,11 +105,7 @@
         };
         # harmonia.store = "/nix/tf";
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
-        beesd =
-        {
-          "/" = { hashTableSizeMB = 2 * 128; loadAverage = 4; };
-          # "/nix" = { hashTableSizeMB = 128; loadAverage = 4; };
-        };
+        beesd."/" = { hashTableSizeMB = 2 * 128; loadAverage = 4; };
         slurm =
         {
           enable = true;
@@ -163,16 +162,45 @@
       sleep 1
       ${pkgs.kmod}/bin/modprobe hid_sensor_hub hid_sensor_accel_3d hid_sensor_trigger hid_sensor_iio_common hid_sensor_custom
     '';
-    # niri use only amd graphics
-    systemd.user.services.niri =
+    systemd =
     {
-      overrideStrategy = "asDropin";
-      enableDefaultPath = false;
-      environment =
+      # niri use only amd graphics
+      user.services.niri =
       {
-        VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/radeon_icd.x86_64.json";
-        __EGL_VENDOR_LIBRARY_FILENAMES = "/run/opengl-driver/share/glvnd/egl_vendor.d/50_mesa.json";
+        overrideStrategy = "asDropin";
+        enableDefaultPath = false;
+        environment =
+        {
+          VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/radeon_icd.x86_64.json";
+          __EGL_VENDOR_LIBRARY_FILENAMES = "/run/opengl-driver/share/glvnd/egl_vendor.d/50_mesa.json";
+        };
+      };
+      services.nbd-client =
+      {
+        after = [ "tailscaled.service" ];
+        serviceConfig =
+        {
+          Type = "oneshot";
+          ExecStart = "${pkgs.nbd}/bin/nbd-client nas.ts.chn.moe -N nbd1 /dev/nbd1 -persist -timeout 3600";
+          ExecStop = "${pkgs.nbd}/bin/nbd-client -d /dev/nbd1";
+          RemainAfterExit = "yes";
+        };
       };
     };
+    # mount on demand
+    fileSystems = lib.genAttrs
+      [
+        "/nix/remote/nix/store" "/public/home/xmuhk/.nix/store" "/data/gpfs01/jykang/.nix/store"
+        "/data/gpfs01/wlin/.nix/store" "/data/gpfs01/hwang/.nix/store"
+      ]
+      (n:
+      {
+        neededForBoot = false;
+        options =
+        [
+          "x-systemd.automount" "x-systemd.idle-timeout=10s"
+          "x-systemd.requires=nbd-client.service" "x-systemd.after=nbd-client.service"
+        ];
+      });
   };
 }

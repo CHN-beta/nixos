@@ -67,7 +67,7 @@
                 # default noflushoncommit can cause data loss, especially working with beesd, when power lost
                 "flushoncommit"
               ];
-              neededForBoot = true;
+              neededForBoot = lib.mkDefault true;
             }))
         |> lib.mergeAttrsList;
     }
