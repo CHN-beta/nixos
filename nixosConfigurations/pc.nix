@@ -69,12 +69,7 @@
           # SAHF FXSR XSAVE RDRND LZCNT HLE PREFETCHW SGX PCONFIG
           "icelake-server"
         ];
-        nixpkgs =
-        {
-          march = "znver5";
-          rocm.targets = [ "gfx1151" ];
-          cuda = { enableForAllPackages = false; capabilities = [ "8.9" ]; };
-        };
+        nixpkgs = { march = "znver5"; rocm.targets = [ "gfx1151" ]; };
         sysctl.laptop-mode = 5;
         kernel.patches = [ "btrfs" ];
       };
