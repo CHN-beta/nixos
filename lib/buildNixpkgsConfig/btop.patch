@@ -13,8 +13,8 @@ index eaaa577..3074a08 100644
 @@ -336,6 +337,7 @@ namespace Config {
  	#endif
  		{"terminal_sync", true},
--		{"save_config_on_exit", true}
-+		{"save_config_on_exit", true},
+ 		{"save_config_on_exit", true},
+ 		{"disable_mouse", false},
 +		{"btrfs_group_subvolumes", false},
  	};
  	std::unordered_map<std::string_view, bool> boolsTmp;
