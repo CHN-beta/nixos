@@ -198,7 +198,7 @@ let
         c-blosc2 = prev.c-blosc2.overrideAttrs { doCheck = false; };
         libtpms = prev.libtpms.overrideAttrs { env.NIX_CFLAGS_COMPILE = "-Wno-error=stringop-overflow"; };
       #   xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
-      #   lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
+        lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
       #   opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
       #   rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
       #   embree = prev.embree.override { stdenv = final.genericPkgs.stdenv; };
