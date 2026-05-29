@@ -116,6 +116,7 @@
                 "ga403wr-fix-audio.patch"
                 # "0001-bluetooth-btus-add-new-vid-pid.patch"
               ];
+            bcache = [{ name = "bcache"; patch = ./bcache.patch; }];
           };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };

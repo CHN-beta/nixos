@@ -71,7 +71,7 @@
         ];
         nixpkgs = { march = "znver5"; rocm.targets = [ "gfx1151" ]; };
         sysctl.laptop-mode = 5;
-        kernel.patches = [ "btrfs" ];
+        kernel.patches = [ "btrfs" "bcache" ];
       };
       hardware = { gpu = { type = [ "amd" "nvidia" ]; nvidia.persistence = false; }; asus = {}; };
       services =
