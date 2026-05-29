@@ -39,15 +39,6 @@
                 "/nix/remote/wlin/nix" = "/data/gpfs01/wlin/.nix";
                 "/nix/remote/hwang/nix" = "/data/gpfs01/hwang/.nix";
               };
-              # these will be mounted on demand
-              "/dev/bcache0" =
-              {
-                "/nix/store" = "/nix/remote/nix/store";
-                "/nix/remote/xmuhk/nix/store" = "/public/home/xmuhk/.nix/store";
-                "/nix/remote/jykang/nix/store" = "/data/gpfs01/jykang/.nix/store";
-                "/nix/remote/wlin/nix/store" = "/data/gpfs01/wlin/.nix/store";
-                "/nix/remote/hwang/nix/store" = "/data/gpfs01/hwang/.nix/store";
-              };
             };
             nfs."nas.ts.chn.moe:/nix/export" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
           };
@@ -175,32 +166,6 @@
           __EGL_VENDOR_LIBRARY_FILENAMES = "/run/opengl-driver/share/glvnd/egl_vendor.d/50_mesa.json";
         };
       };
-      services.nbd-client =
-      {
-        after = [ "tailscaled.service" ];
-        serviceConfig =
-        {
-          Type = "oneshot";
-          ExecStart = "${pkgs.nbd}/bin/nbd-client nas.ts.chn.moe -N nbd1 /dev/nbd1 -persist -timeout 3600";
-          ExecStop = "${pkgs.nbd}/bin/nbd-client -d /dev/nbd1";
-          RemainAfterExit = "yes";
-        };
-      };
     };
-    # mount on demand
-    fileSystems = lib.genAttrs
-      [
-        "/nix/remote/nix/store" "/public/home/xmuhk/.nix/store" "/data/gpfs01/jykang/.nix/store"
-        "/data/gpfs01/wlin/.nix/store" "/data/gpfs01/hwang/.nix/store"
-      ]
-      (n:
-      {
-        neededForBoot = false;
-        options =
-        [
-          "x-systemd.automount" "x-systemd.idle-timeout=10s"
-          "x-systemd.requires=nbd-client.service" "x-systemd.after=nbd-client.service"
-        ];
-      });
   };
 }
