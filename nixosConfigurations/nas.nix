@@ -87,11 +87,5 @@
     };
     systemd.tmpfiles.rules =
       [ "w /sys/class/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw - - - - 10000000" ];
-    services.nbd.server =
-    {
-      enable = true;
-      listenAddress = "0.0.0.0";
-      exports.nbd1 = { path = "/dev/lvm/nbd1"; allowAddresses = [ "100.97.101.1" ]; };
-    };
   };
 }
