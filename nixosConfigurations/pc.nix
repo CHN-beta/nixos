@@ -167,5 +167,33 @@
         };
       };
     };
+    fileSystems =
+      {
+        jykang = "/data/gpfs01/jykang";
+        hwang = "/data/gpfs01/hwang";
+        wlin = "/data/gpfs01/wlin";
+        xmuhk = "/public/home/xmuhk";
+      }
+      |> lib.mapAttrs' (n: v: lib.nameValuePair "${v}/.nix/store"
+        { device = "/nix/juicefs/nix/remote/${n}/nix/store"; fsType = "none"; options = [ "_netdev" "bind" ]; })
+      |> lib.mergeAttrs
+        {
+          "/nix/juicefs" =
+          {
+            device = "sqlite3:///var/lib/juicefs/db.sqlite";
+            fsType = "juicefs";
+            options =
+            [
+              "_netdev" "cache-dir=/var/lib/juicefs/cache" "writeback" "cache-size=102400" "cache-items=1000000"
+              "free-space-ratio=0.01"
+            ];
+          };
+          "/nix/remote/nix/store" =
+          {
+            device = "/nix/juicefs/nix/remote/nix/store";
+            fsType = "none";
+            options = [ "_netdev" "bind" ];
+          };
+        };
   };
 }
