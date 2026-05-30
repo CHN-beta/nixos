@@ -184,8 +184,9 @@
             fsType = "juicefs";
             options =
             [
-              "_netdev" "cache-dir=/var/lib/juicefs/cache" "writeback" "cache-size=102400" "cache-items=1000000"
-              "free-space-ratio=0.01"
+              "_netdev" "cache-dir=/var/lib/juicefs/cache" "writeback" "cache-size=10240"
+              # juicefs bug: https://github.com/juicedata/juicefs/pull/6675
+              "cache-items=0"
             ];
           };
           "/nix/remote/nix/store" =
