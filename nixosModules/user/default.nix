@@ -62,6 +62,7 @@
         hongbao = 2015;
         minibox = 2016;
         hermes = 2017;
+        garage = 2018;
       };
     };
     gid = lib.mkOption

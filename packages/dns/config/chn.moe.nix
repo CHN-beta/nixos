@@ -21,7 +21,7 @@ let
     srv1-node0 = [ "srv1" ];
     srv2-node0 = [ "srv2" "jupyterhub" ];
     "pc.ts" = [ "nix-store" "chat" ];
-    "nas.ts" = [ "ssh.git" "backup-store" "rsshub" "grafana" "huginn" "vaultwarden" "photo" "readeck" ];
+    "nas.ts" = [ "ssh.git" "backup-store" "rsshub" "grafana" "huginn" "vaultwarden" "photo" "readeck" "garage" ];
     vps9 =
     [
       "initrd.vps9" "xserver2.vps9"

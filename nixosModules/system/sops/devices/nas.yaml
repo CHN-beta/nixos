@@ -82,6 +82,8 @@ minibox:
 machineId: ENC[AES256_GCM,data://XPPnP3K9Hl92uwaE5rfbbyrIMhlIldF+AhReG5b74=,iv:UrQSf/jTdwP+WPF+j4BAE1AyeL9jOPX8fR1SWQ+EvIU=,tag:Q2D9F0a22YeBSR4shnfRyQ==,type:str]
 github-runners:
     pat: ENC[AES256_GCM,data:lEJJROhjXGzWUAs5oapAoFJUUeHbePELhSHQ0HfUs02yGNDN38+ooxgvwbdb8nzLBu0UzMxM+0o6eTvHI/BPexA/isgOYLY5RmHMVu9CsRmiIbTvEXhcI8v5NRW0,iv:gRbkmmwPM/9DSsBcIWbm92oWrceFLd6LUaYBrgMgqwo=,tag:3TFLKosf18EAnVhSE/cdYQ==,type:str]
+garage:
+    rpc: ENC[AES256_GCM,data:AUHyPVsAhRNl5A+bZOn0zz/6NttOJI5nSPvHapYk91FMVy3DOKpmeEowSoSVT+Mpgv276dFvC3okCNALlUuVpQ==,iv:SSr2MvgPA7MKBMY3UqOiL375qcC08xn3XZZLwlGkTKY=,tag:31AC3F1SIqtOP5LcC0Qz4Q==,type:str]
 sops:
     age:
         - recipient: age19ax6vm3pv8rph5tq3mmehd9sy9jk823tw8svsd790r0lkslycquqvlwz9m
@@ -102,7 +104,7 @@ sops:
             by9Rd0U0bzNiK21BQTNxN1RuQ09DQVkKJmSlzV5ppEkZFljsS17ZWmoI++fz4tJh
             kTdoAStG1zsKASHyZTsmdm3RBDO3qV1KhQC2gC7d4EiwNZngxOOZJg==
             -----END AGE ENCRYPTED FILE-----
-    lastmodified: "2026-05-15T13:15:50Z"
-    mac: ENC[AES256_GCM,data:852oGvBF86Lk0//DPAA6dl87ni/6kzYq9b4THgagRHyfGJWB3Ug6lsnianrzH7cfFNQHZcxf9Q2aj0CuGJCOs1ZsoqaiattGIvD3sZqhppjqSwB5V6SsEjnyCNzeeoBMERnzbGBXg2ZoiiTXlxTC8/GSXltuwYnUwVAw0p/pijU=,iv:CqeIhwydWAhqQi+xsN9lAT7Sat9ETcSULpFaK6h+9UA=,tag:FOD5Qb5iccV6nLXptvUalA==,type:str]
+    lastmodified: "2026-05-30T02:56:44Z"
+    mac: ENC[AES256_GCM,data:FqaKpY2ZGfuW2RT+i2bRkOfpiKyauG0IqohnI9oxYdv5D7b+HOQD+w2IJ+jRDA8tOK8zkFVoU+DPphR6i8vsF8oxSjjDEcUtA2IHjfLApvyQNzXHGhPprZ6MgnDQUg0W1AJYHuTZecb03H3U/+2X/cYiNjzW1l8y0cBB23sfTIU=,iv:JCI3MPhyyyXcT37Pi02iTennyw8W5d8x5SbxTiqsMNE=,tag:2Oo4C5qXGdKgMPmnLl8+8g==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.11.0
