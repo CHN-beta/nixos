@@ -199,6 +199,7 @@ let
         }
         |> lib.addMetaAttrs { badPlatforms = []; };
       cp2k = prev.cp2k.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./cp2k.patch ]; });
+      juicefs = prev.juicefs.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./juicefs.patch ]; });
     })];
     marchFix =
     [
