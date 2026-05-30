@@ -182,7 +182,11 @@
           {
             device = "sqlite3:///var/lib/juicefs/db.sqlite";
             fsType = "juicefs";
-            options = [ "_netdev" "cache-dir=/var/lib/juicefs/cache" "writeback" ];
+            options =
+            [
+              "_netdev" "cache-dir=/var/lib/juicefs/cache" "writeback"
+              "attr-cache=60" "entry-cache=60" "dir-entry-cache=60"
+            ];
           };
           "/nix/remote/nix/store" =
           {
