@@ -185,7 +185,8 @@
             options =
             [
               "_netdev" "cache-dir=/var/lib/juicefs/cache" "writeback"
-              "attr-cache=60" "entry-cache=60" "dir-entry-cache=60"
+              "attr-cache=60" "entry-cache=60" "dir-entry-cache=60" "upload-delay=600" "cache-size=32768"
+              "verify-cache-checksum=none"
             ];
           };
           "/nix/remote/nix/store" =
