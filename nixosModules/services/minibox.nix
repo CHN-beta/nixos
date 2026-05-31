@@ -37,8 +37,10 @@
           ADMIN_PASSWORD=${placeholder."minibox/admin"}
           SESSION_SECRET=${placeholder."minibox/session"}
           PORT=6240
+          TELEGRAM_BOT_TOKEN=${placeholder."telegram/token"}
+          TELEGRAM_CHAT_ID=${placeholder."telegram/user/chn"}
         '';
-        secrets = lib.genAttrs' [ "admin" "session" ] (n: lib.nameValuePair "minibox/${n}" {});
+        secrets = { "minibox/admin" = {}; "minibox/session" = {}; "telegram/token" = {}; "telegram/user/chn" = {}; };
       };
       services =
       {

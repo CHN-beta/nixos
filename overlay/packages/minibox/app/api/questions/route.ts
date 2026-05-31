@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { query } from '@/lib/db'
 import { saveFile, MAX_FILE_SIZE } from '@/lib/upload'
+import { sendTelegramMessage } from '@/lib/telegram'
 
 export async function GET() {
   try {
@@ -36,6 +37,9 @@ export async function POST(request: Request) {
       'INSERT INTO questions (question_text, question_attachment_url) VALUES ($1, $2)',
       [questionText.trim(), attachmentUrl]
     )
+
+    // Send Telegram notification
+    await sendTelegramMessage(`收到新的提问：\n\n${questionText.trim()}`)
 
     return NextResponse.json({ success: true }, { status: 201 })
   } catch (error) {
