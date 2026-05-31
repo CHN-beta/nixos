@@ -43,6 +43,7 @@
         lilydjwg = 1029;
         stq = 1030;
         wzy = 1031;
+        straycat = 1032;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
@@ -61,6 +62,7 @@
         hongbao = 2015;
         minibox = 2016;
         hermes = 2017;
+        garage = 2018;
       };
     };
     gid = lib.mkOption
@@ -152,5 +154,8 @@
     }
     # setup test
     (lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
+    # setup straycat
+    (lib.mkIf (builtins.elem "straycat" user.users)
+      { users.users.straycat.openssh.authorizedKeys.keys = [(builtins.readFile ./keys/chn)]; })
   ];
 }

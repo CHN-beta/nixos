@@ -40,7 +40,8 @@
           $geoip2_data_country_code country iso_code;
         }
         log_format http '[$time_local] $remote_addr-$geoip2_data_country_code "$host"'
-          ' $request_length $bytes_sent $status "$request" referer: "$http_referer" ua: "$http_user_agent"';
+          ' $request_length $bytes_sent $status "$request" referer: "$http_referer" ua: "$http_user_agent"'
+          ' proxy_pass: "$upstream_addr"';
         access_log syslog:server=unix:/dev/log http;
         proxy_ssl_server_name on;
         proxy_ssl_session_reuse off;

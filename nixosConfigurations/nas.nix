@@ -14,7 +14,7 @@
             vfat."/dev/disk/by-partlabel/nas-boot" = "/boot";
             btrfs =
             {
-              "/dev/lvm/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; };
+              "/dev/lvm/root1" = { "/nix" = "/nix"; "/nix/rootfs/current" = "/"; "/" = "/nix/export"; };
               "/dev/lvm/ssd1"."/nix/ssd" = "/nix/ssd";
               "/dev/lvm/single1"."/nix" = "/nix/backup/nix";
             };
@@ -35,6 +35,7 @@
         };
         initrd.sshd = {};
         nixpkgs.march = "alderlake";
+        # somehow needed by mounted-ssh-ng
         nix.marches = self.nixosConfigurations.pc.config.nixos.system.nix.marches;
         network.settings.static =
         {
@@ -75,13 +76,14 @@
         podman = {};
         peertube = {};
         nginx.applications.webdav.instances."webdav.chn.moe" = {};
-        nfs = { exports."/nix/persistent" = [ "100.97.101.0/24" ]; crossmnt = false; };
+        nfs = { exports."/nix/export" = [ "100.97.101.0/24" ]; crossmnt = false; };
         immich = {};
         readeck = {};
         minibox = {};
         harmonia = { hostname = "backup-store.chn.moe"; store = "/nix/backup";};
         snapper = { persistent = "/nix/persistent"; ssd = "/nix/ssd"; };
         github-runners = {};
+        garage.metadataDir = "/nix/ssd/var/lib/garage/meta";
       };
     };
     systemd.tmpfiles.rules =

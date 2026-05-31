@@ -92,6 +92,7 @@ in
               ForwardAgent = true;
               AddKeysToAgent = true;
             };
+            straycat = { HostName = "127.0.0.1"; User = "straycat"; };
             "*" =
             {
               ControlMaster = "auto";
