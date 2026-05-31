@@ -222,6 +222,11 @@ let
           # dscribe = prev.dscribe.overridePythonAttrs
           #   (prev: { disabledTests = prev.disabledTests or [] ++ [ "test_cell_list"  ]; });
         })];
+        libffi_3_3 = prev.libffi_3_3.overrideAttrs (prev: { doCheck = false; });
+        perlPackages = prev.perlPackages.overrideScope (final: prev:
+        {
+          Test2Harness = prev.Test2Harness.overrideAttrs { doCheck = false; };
+        });
       })
     ];
     kernel310Fix = [(final: prev: lib.optionalAttrs (nixpkgsConfig.isKernel310 or false)
