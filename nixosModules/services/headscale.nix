@@ -1,4 +1,4 @@
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 {
   options.nixos.services.headscale = lib.mkOption { type = lib.types.nullOr (lib.types.submodule {}); default = null; };
   config = let inherit (config.nixos.services) headscale; in lib.mkIf (headscale != null)
@@ -20,8 +20,16 @@
           host = "127.0.0.1";
         };
         dns = { base_domain = "ts.chn.moe"; override_local_dns = false; };
+        derp.server =
+        {
+          enabled = true;
+          stun_listen_addr = "0.0.0.0:3479";
+          ipv4 = pkgs.localPkgs.getAddress "headscale";
+          verify_clients = true;
+        };
       };
     };
+    networking.firewall = { allowedUDPPorts = [ 3479 ]; allowedTCPPorts = [ 3479 ]; };
     nixos =
     {
       services =
