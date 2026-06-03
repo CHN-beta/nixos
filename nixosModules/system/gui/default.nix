@@ -112,7 +112,8 @@
                   "Mod+Ctrl+C".action.spawn = [ "sh" "-c" "${xsel} -ob | ${wl-copy}" ];
                   "Mod+Ctrl+V".action.spawn = [ "sh" "-c" "${wl-paste} -n | ${xsel} -ib" ];
                   "Mod+S".action.screenshot = {};
-                  "Mod+F".action.switch-preset-column-width = {};
+                  "Mod+D".action.switch-preset-column-width = {};
+                  "Mod+F".action.maximize-window-to-edges = {};
                   "Mod+T".action.spawn = [ "ghostty" ];
                   "Mod+B".action.spawn = [ "firefox" ];
                   "Mod+Y".action.spawn = [ "typora" ];
@@ -142,7 +143,7 @@
               layout =
               {
                 default-column-width.proportion = 0.5;
-                preset-column-widths = [ { proportion = 0.5; } { proportion = 1.; } ];
+                preset-column-widths = [ { proportion = 0.3333; } { proportion = 0.5; } { proportion = 0.6667; } ];
               };
               spawn-at-startup =
               [
