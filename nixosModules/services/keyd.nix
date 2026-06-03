@@ -11,7 +11,13 @@
         ids = [ "*" ];
         settings =
         {
-          main = { rightcontrol = "overload(r_ctrl, rightcontrol)"; prog4 = "sysrq"; };
+          main =
+          {
+            rightcontrol = "overload(r_ctrl, rightcontrol)";
+            prog4 = "sysrq";
+            capslock = "leftmeta";
+            leftmeta = "capslock";
+          };
           "r_ctrl:C" = { left = "home"; right = "end"; up = "pageup"; down = "pagedown"; };
         };
       };
