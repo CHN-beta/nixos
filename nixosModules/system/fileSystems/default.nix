@@ -32,7 +32,6 @@
   };
   config = let inherit (config.nixos.system) fileSystems; in lib.mkMerge
   [
-    { system.fsPackages = [ pkgs.juicefs ]; }
     # mount.vfat
     {
       fileSystems = fileSystems.mount.vfat |> lib.mapAttrs'

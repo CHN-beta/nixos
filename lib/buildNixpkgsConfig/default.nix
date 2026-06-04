@@ -199,18 +199,6 @@ let
         }
         |> lib.addMetaAttrs { badPlatforms = []; };
       cp2k = prev.cp2k.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./cp2k.patch ]; });
-      # juicefs bug https://github.com/juicedata/juicefs/pull/6675
-      juicefs = prev.juicefs.overrideAttrs (prev:
-      {
-        src = final.fetchFromGitHub
-        {
-          owner = "juicedata";
-          repo = "juicefs";
-          rev = "v1.4.0-beta2";
-          sha256 = "sha256-9a/v6QGH2N5aZ7wUGvbswNSo/wcKszazsF8H+bmH/oM=";
-        };
-        vendorHash = "sha256-AEfoxBpE0ovjse0Ul+EVMX4LTT245M7hOWxNG9uzubM=";
-      });
     })];
     marchFix =
     [
