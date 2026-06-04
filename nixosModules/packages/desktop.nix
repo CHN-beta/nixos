@@ -31,7 +31,8 @@
           ++ [(python3.withPackages (ps: with ps; [ numpy matplotlib ]))]; }))
         satty
         # development
-        adb-sync scrcpy dbeaver-bin cling aircrack-ng opencode
+        adb-sync scrcpy dbeaver-bin cling aircrack-ng
+        self.inputs.llm-agents.packages.x86_64-linux.opencode
         weston cage openbox krita fprettify # jetbrains.clion 
         android-tools
         # password and key management

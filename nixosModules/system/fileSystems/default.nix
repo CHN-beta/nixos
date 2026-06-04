@@ -32,7 +32,6 @@
   };
   config = let inherit (config.nixos.system) fileSystems; in lib.mkMerge
   [
-    { system.fsPackages = [ pkgs.juicefs ]; }
     # mount.vfat
     {
       fileSystems = fileSystems.mount.vfat |> lib.mapAttrs'
@@ -66,7 +65,7 @@
                 # large btrfs volume need more time to mount (default 90s might not be enough)
                 "x-systemd.mount-timeout=300s"
                 # default noflushoncommit can cause data loss, especially working with beesd, when power lost
-                "flushoncommit"
+                "flushoncommit" "commit=300"
               ];
               neededForBoot = lib.mkDefault true;
             }))

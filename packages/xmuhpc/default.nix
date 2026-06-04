@@ -52,16 +52,16 @@ self: rec
 
   wlin = mkEnv (with pkgs;
   [
-    pv vasp chn-bsub zstd dotacat banner glibc.bin cp2k
+    pv vasp chn-bsub zstd dotacat banner glibc.bin cp2k helix
   ]);
   jykang = mkEnv (with pkgs;
   [
     gnuplot localPkgs.vaspkit pv python-lyj sqlite zstd vasp chn-bsub potcar
-    localPkgs.vasp.vtst wannier90 python hpcstat cp2k
+    localPkgs.vasp.vtst wannier90 python hpcstat cp2k helix
   ]);
   hwang = mkEnv (with pkgs;
   [
-    pv vasp chn-bsub zstd cp2k
+    pv vasp chn-bsub zstd cp2k helix
   ]);
 }
 # sudo nix build --store 'local?store=/data/gpfs01/wlin/.nix/store&state=/data/gpfs01/wlin/.nix/state&log=/data/gpfs01/wlin/.nix/log' .#wlin

@@ -30,14 +30,14 @@
             vfat."/dev/disk/by-partlabel/pc-boot" = "/boot";
             btrfs =
             {
-              "/dev/mapper/root1" =
+              "/dev/mapper/root1" = { "/nix/rootfs/current" = "/"; "/nix" = "/nix"; };
+              "/dev/tf/tf" =
               {
-                "/nix/rootfs/current" = "/";
-                "/nix" = "/nix";
-                "/nix/remote/xmuhk/nix" = "/public/home/xmuhk/.nix";
-                "/nix/remote/jykang/nix" = "/data/gpfs01/jykang/.nix";
-                "/nix/remote/wlin/nix" = "/data/gpfs01/wlin/.nix";
-                "/nix/remote/hwang/nix" = "/data/gpfs01/hwang/.nix";
+                "/nix" = "/nix/tf/nix";
+                "/nix/remote/xmuhk" = "/public/home/xmuhk";
+                "/nix/remote/jykang" = "/data/gpfs01/jykang";
+                "/nix/remote/wlin" = "/data/gpfs01/wlin";
+                "/nix/remote/hwang" = "/data/gpfs01/hwang";
               };
             };
             nfs."nas.ts.chn.moe:/nix/export" = { mountPoint = "/nix/remote/nas"; mountBeforeSwitch = false; };
@@ -45,6 +45,7 @@
           luks =
           {
             "/dev/disk/by-partlabel/pc-root1" = { mapper = "root1"; ssd = true; };
+            "/dev/disk/by-partlabel/pc-tf1".mapper = "tf1";
             "/dev/disk/by-partlabel/pc-tf2" = { mapper = "tf2"; ssd = true; };
           };
           swap = [ "/dev/tf/pc-swap" ];
@@ -89,9 +90,13 @@
             [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ]);
           extraInterfaces = [ "wlp194s0" ];
         };
-        # harmonia.store = "/nix/tf";
+        harmonia.store = "/nix/tf";
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
-        beesd."/" = { hashTableSizeMB = 2 * 128; loadAverage = 4; };
+        beesd =
+        {
+          "/" = { hashTableSizeMB = 2 * 128; loadAverage = 4; };
+          "/nix/tf/nix" = { hashTableSizeMB = 128; loadAverage = 4; };
+        };
         slurm =
         {
           enable = true;
@@ -162,33 +167,5 @@
         };
       };
     };
-    fileSystems =
-      {
-        jykang = "/data/gpfs01/jykang";
-        hwang = "/data/gpfs01/hwang";
-        wlin = "/data/gpfs01/wlin";
-        xmuhk = "/public/home/xmuhk";
-      }
-      |> lib.mapAttrs' (n: v: lib.nameValuePair "${v}/.nix/store"
-        { device = "/nix/juicefs/nix/remote/${n}/nix/store"; fsType = "none"; options = [ "_netdev" "bind" ]; })
-      |> lib.mergeAttrs
-        {
-          "/nix/juicefs" =
-          {
-            device = "sqlite3:///var/lib/juicefs/db.sqlite";
-            fsType = "juicefs";
-            options =
-            [
-              "_netdev" "cache-dir=/var/lib/juicefs/cache" "writeback"
-              "attr-cache=60" "entry-cache=60" "dir-entry-cache=60"
-            ];
-          };
-          "/nix/remote/nix/store" =
-          {
-            device = "/nix/juicefs/nix/remote/nix/store";
-            fsType = "none";
-            options = [ "_netdev" "bind" ];
-          };
-        };
   };
 }
