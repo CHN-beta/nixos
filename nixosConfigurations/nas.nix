@@ -83,7 +83,6 @@
         harmonia = { hostname = "backup-store.chn.moe"; store = "/nix/backup";};
         snapper = { persistent = "/nix/persistent"; ssd = "/nix/ssd"; };
         github-runners = {};
-        garage.metadataDir = "/nix/ssd/var/lib/garage/meta";
       };
     };
     systemd.tmpfiles.rules =
