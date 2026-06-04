@@ -95,7 +95,7 @@
             [ "mirism.one" "beta.mirism.one" "ng01.mirism.one" "initrd.vps6.chn.moe" ]);
           extraInterfaces = [ "wlp194s0" ];
         };
-        # harmonia.store = "/nix/tf";
+        harmonia.store = "/nix/tf";
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
         beesd =
         {
