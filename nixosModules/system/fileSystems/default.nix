@@ -65,7 +65,7 @@
                 # large btrfs volume need more time to mount (default 90s might not be enough)
                 "x-systemd.mount-timeout=300s"
                 # default noflushoncommit can cause data loss, especially working with beesd, when power lost
-                "flushoncommit" "commit=300"
+                "flushoncommit"
               ];
               neededForBoot = lib.mkDefault true;
             }))
