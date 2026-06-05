@@ -212,6 +212,11 @@ let
         {
           picosvg = prev.picosvg.overridePythonAttrs { doCheck = false; };
           scipy = prev.scipy.overridePythonAttrs { doCheck = false; };
+          # somehow run out of memory
+          cryptography = prev.cryptography.overridePythonAttrs (prev:
+          {
+            disabledTestPaths = prev.disabledTestPaths or [] ++ [ "tests/hazmat/primitives/test_argon2.py" ];
+          });
           # dscribe = prev.dscribe.overridePythonAttrs
           #   (prev: { disabledTests = prev.disabledTests or [] ++ [ "test_cell_list"  ]; });
         })];
