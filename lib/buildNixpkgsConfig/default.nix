@@ -191,6 +191,11 @@ let
       #   { postgresql_17 = prev.postgresql_17.override { jitSupport = false; }; })
       (final: prev: lib.optionalAttrs (nixpkgsConfig.march != null)
       {
+        # https://github.com/NixOS/nixpkgs/pull/522648
+        openldap = prev.openldap.overrideAttrs (prev: { preCheck = prev.preCheck +
+        ''
+          rm -f tests/scripts/test*-sync*
+        '';});
         # TODO: patch upstream
         assimp = prev.assimp.overrideAttrs { doCheck = false; };
         # not sure why but test SEGFAULT
