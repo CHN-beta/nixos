@@ -2,7 +2,11 @@
 {
   vesta = pkgs.callPackage ./vesta.nix { src = self.src.vesta; };
   misskey = pkgs.callPackage ./misskey.nix
-    { inherit mkPnpmPackage; src = self.inputs.misskey; extraIntegritySha256 = self.src.misskey; };
+  {
+    inherit mkPnpmPackage;
+    inherit (self.src.misskey) re2 extraIntegritySha256;
+    src = self.inputs.misskey;
+  };
   vaspkit = pkgs.callPackage ./vaspkit.nix { src = self.src.vaspkit; };
   v-sim = pkgs.callPackage ./v-sim.nix { src = self.inputs.v-sim; };
   concurrencpp = pkgs.callPackage ./concurrencpp.nix { src = self.inputs.concurrencpp; };

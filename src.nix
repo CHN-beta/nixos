@@ -63,7 +63,15 @@ self: let inherit (self.packages.x86_64-linux) pkgs lib; in
     finalImageName = "ghcr.io/huginn/huginn";
     finalImageTag = "latest";
   };
-  misskey = {};
+  misskey =
+  {
+    re2 = pkgs.fetchurl
+    {
+      url = "https://github.com/uhop/node-re2/releases/download/1.24.1/linux-x64-137.br";
+      sha256 = "1zvr93vshl10q1fwax3rf58j6j81xv79yc3iwb6xhlpm1z2b0lb9";
+    };
+    extraIntegritySha256 = {};
+  };
   lumerical =
   {
     lumerical = pkgs.requireFile
