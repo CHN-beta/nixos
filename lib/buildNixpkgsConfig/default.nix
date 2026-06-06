@@ -167,7 +167,8 @@ let
         sumo = prev.sumo.overridePythonAttrs (prev: { disabledTestPaths = prev.disabledTestPaths or [] ++
           [ "tests/tests_io/test_questaal.py" "tests/tests_io/test_castep.py" ]; });
       })];
-      niri = prev.niri.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./niri.patch ]; });
+      # TODO: wating for pr to be rebased https://github.com/niri-wm/niri/pull/1856
+      # niri = prev.niri.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./niri.patch ]; });
       # allow tbb to be built on static platforms
       onetbb = if !final.stdenv.hostPlatform.isStatic then prev.onetbb
         else prev.onetbb.overrideAttrs
