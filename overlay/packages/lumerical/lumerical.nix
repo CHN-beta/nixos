@@ -39,7 +39,7 @@ let
       libXcomposite libXcursor libXtst libXScrnSaver
       libsForQt5.qtwayland
     ];
-    nativeBuildInputs = [ autoPatchelfHook ];
+    nativeBuildInputs = [ autoPatchelfHook libsForQt5.wrapQtAppsHook ];
     dontConfigure = true;
     dontBuild = true;
     installPhase =
@@ -73,7 +73,7 @@ in buildFHSEnv
     unwrapped libxml2 xmlsec libz libGL stdenv.cc.cc.lib
     freeglut libGLU alsa-lib freetype fontconfig libxkbcommon systemd numactl nss
     libxcrypt-legacy glibtool tbb libxslt glib gtk3 libedit gdbm ncurses5 mesa libdrm xmlsec
-    libsForQt5.full libsForQt5.qt5.qtnetworkauth mpi
+    libsForQt5.qt5.qtnetworkauth mpi
     libX11 libXt libICE libXdamage libXfixes xcbutilwm xcbutilimage xcbutilkeysyms xcbutilrenderutil libXcursor
     libXcomposite libXtst libXft libXScrnSaver libSM libXext
   ];
