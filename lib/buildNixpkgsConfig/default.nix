@@ -203,6 +203,8 @@ let
         c-blosc = prev.c-blosc.overrideAttrs { doCheck = false; };
         c-blosc2 = prev.c-blosc2.overrideAttrs { doCheck = false; };
         libtpms = prev.libtpms.overrideAttrs { env.NIX_CFLAGS_COMPILE = "-Wno-error=stringop-overflow"; };
+        # do not install doc
+        eigen_5 = prev.eigen_5.overrideAttrs { postInstall = ""; outputs = [ "out" ]; };
       #   xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
       #   opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
