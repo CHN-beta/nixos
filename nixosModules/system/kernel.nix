@@ -129,6 +129,6 @@
         install rxrpc ${pkgs.coreutils}/bin/false
       '';
     };
-    services.scx = lib.mkIf (config.nixos.model.variant == "desktop") { enable = true; scheduler = "scx_lavd"; };
+    services.scx = lib.mkIf (config.nixos.model.variant == "desktop") { enable = true; scheduler = "scx_bpfland"; };
   };
 }
