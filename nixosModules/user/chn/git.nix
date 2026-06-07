@@ -1,20 +1,15 @@
 {
-  config =
-  {
-    home-manager.users.chn.config.programs =
-    {
-      git =
-      {
+  config = {
+    home-manager.users.chn.config.programs = {
+      git = {
         enable = true;
-        settings =
-        {
-          core.editor = "hx"; 
+        settings = {
+          core.editor = "hx";
           http.postBuffer = 624288000;
           advice.detachedHead = false;
           merge.conflictstyle = "diff3";
           diff.colorMoved = "default";
-          lfs =
-          {
+          lfs = {
             concurrenttransfers = 10;
             activitytimeout = 3600;
             dialtimeout = 3600;
@@ -22,15 +17,16 @@
             tlstimeout = 3600;
             transfer.maxretries = 1;
           };
-          user = { name = "Haonan Chen"; email = "chn@chn.moe"; };
+          user = {
+            name = "Haonan Chen";
+            email = "chn@chn.moe";
+          };
         };
       };
-      delta =
-      {
+      delta = {
         enable = true;
         enableGitIntegration = true;
-        options =
-        {
+        options = {
           side-by-side = true;
           navigate = true;
           syntax-theme = "GitHub";

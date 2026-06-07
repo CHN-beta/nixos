@@ -1,1 +1,6 @@
-_: { "" = { type = "ALIAS"; value = "vps6.chn.moe."; }; }
+_: {
+  "" = {
+    type = "ALIAS";
+    value = "vps6.chn.moe.";
+  };
+}

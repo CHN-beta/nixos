@@ -1,1 +1,6 @@
-_: { entry = { type = "CNAME"; value = "vps6.chn.moe."; }; }
+_: {
+  entry = {
+    type = "CNAME";
+    value = "vps6.chn.moe.";
+  };
+}

@@ -1,19 +1,31 @@
-{ src, crack, buildFHSEnv, stdenvNoCC, writeScript, licenseFile ? "/tmp/lumerical-license" }:
+{
+  src,
+  crack,
+  buildFHSEnv,
+  stdenvNoCC,
+  writeScript,
+  licenseFile ? "/tmp/lumerical-license",
+}:
 let
-  builder = buildFHSEnv
-  {
+  builder = buildFHSEnv {
     name = "builder";
-    targetPkgs = pkgs: with pkgs; [ coreutils glib ];
-    extraBwrapArgs = [ "--bind" "$out" "$out" ];
+    targetPkgs =
+      pkgs: with pkgs; [
+        coreutils
+        glib
+      ];
+    extraBwrapArgs = [
+      "--bind"
+      "$out"
+      "$out"
+    ];
   };
-  package = stdenvNoCC.mkDerivation
-  {
+  package = stdenvNoCC.mkDerivation {
     name = "lumericalLicenseManager";
     dontUnpack = true;
     dontBuild = true;
     dontFixup = true;
-    installPhase =
-    ''
+    installPhase = ''
       mkdir -p $out
       cp -r ${src}/* .
       chmod +x ./INSTALL
@@ -38,23 +50,28 @@ let
       sed -i "s|/home/ansys_inc|$out/opt/ansys_inc/shared_files/licensing/../..|g" \
         $out/opt/ansys_inc/shared_files/licensing/tools/tomcat/bin/setenv.sh
       rm $out/opt/ansys_inc/shared_files/licensing/tools/tomcat/bin/setenv.sh.old
-      
+
       # fix permissions
       chmod +x $out/opt/ansys_inc/shared_files/licensing/tools/tomcat/bin/*
       chmod +x $out/opt/ansys_inc/shared_files/licensing/linx64/*
     '';
   };
-  startScript = writeScript "fdtd"
-  ''
+  startScript = writeScript "fdtd" ''
     pushd /opt/ansys_inc/shared_files/licensing
     ./start_ansysli &
     ./start_lmcenter &
     tail -f /dev/null
   '';
-in buildFHSEnv
-{
+in
+buildFHSEnv {
   name = "lumericalLicenseManager";
   passthru = { inherit builder package; };
-  targetPkgs = pkgs: (with pkgs; [ coreutils glib ]) ++ [ package ];
+  targetPkgs =
+    pkgs:
+    (with pkgs; [
+      coreutils
+      glib
+    ])
+    ++ [ package ];
   runScript = startScript;
 }

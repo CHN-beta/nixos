@@ -1,15 +1,18 @@
 { inputs, buildNixpkgsConfig, ... }:
 let
-  pkgs = import inputs.nixpkgs (buildNixpkgsConfig { march = null; nixos = false; });
-  lumericalLicenseManager = 
+  pkgs = import inputs.nixpkgs (buildNixpkgsConfig {
+    march = null;
+    nixos = false;
+  });
+  lumericalLicenseManager =
     let
       ip = "${pkgs.iproute2}/bin/ip";
       awk = "${pkgs.gawk}/bin/awk";
       sed = "${pkgs.gnused}/bin/sed";
       chmod = "${pkgs.coreutils}/bin/chmod";
       sing = "/public/software/singularity/singularity-3.8.3/bin/singularity";
-    in pkgs.writeShellScriptBin "lumericalLicenseManager"
-    ''
+    in
+    pkgs.writeShellScriptBin "lumericalLicenseManager" ''
       echo "Cleaning up..."
       ${sing} instance stop lumericalLicenseManager || true
       [ -d /tmp/lumerical ] && chmod -R u+w /tmp/lumerical && rm -rf /tmp/lumerical || true
@@ -55,12 +58,23 @@ let
       trap cleanup SIGINT SIGTERM SIGHUP EXIT
       tail -f /dev/null
     '';
-  xmuhk = pkgs.symlinkJoin
-  {
+  xmuhk = pkgs.symlinkJoin {
     name = "xmuhk";
-    paths = (with pkgs; [ hello btop htop iotop pv localPkgs.lumerical.lumerical.cmd ])
+    paths =
+      (with pkgs; [
+        hello
+        btop
+        htop
+        iotop
+        pv
+        localPkgs.lumerical.lumerical.cmd
+      ])
       ++ [ lumericalLicenseManager ];
     postBuild = "echo ${inputs.self.rev or "dirty"} > $out/.version";
-    passthru = { inherit pkgs; archive = pkgs.closureInfo { rootPaths = [ xmuhk.drvPath ]; }; };
+    passthru = {
+      inherit pkgs;
+      archive = pkgs.closureInfo { rootPaths = [ xmuhk.drvPath ]; };
+    };
   };
-in xmuhk
+in
+xmuhk

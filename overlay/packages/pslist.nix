@@ -1,12 +1,19 @@
 # http://launchpadlibrarian.net/632309499/pslist_1.4.0-4_all.deb
 # https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/pslist/1.4.0-4/pslist_1.4.0.orig.tar.xz
-{ stdenv, src, perl, procps }: stdenv.mkDerivation
 {
+  stdenv,
+  src,
+  perl,
+  procps,
+}:
+stdenv.mkDerivation {
   pname = "pslist";
   inherit (src) version src;
-  buildInstall = [ perl procps ];
-  installPhase =
-  ''
+  buildInstall = [
+    perl
+    procps
+  ];
+  installPhase = ''
     mkdir -p $out/bin
     cp $src/pslist $out/bin
     ln -s pslist $out/bin/rkill

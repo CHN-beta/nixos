@@ -1,76 +1,150 @@
 self:
-let __functor = final: prev: rec
-{
-  inherit __functor;
-  mkConditional = condition: trueResult: falseResult:
-    final.mkMerge [ (final.mkIf condition trueResult) (final.mkIf (!condition) falseResult) ];
+let
+  __functor = final: prev: rec {
+    inherit __functor;
+    mkConditional =
+      condition: trueResult: falseResult:
+      final.mkMerge [
+        (final.mkIf condition trueResult)
+        (final.mkIf (!condition) falseResult)
+      ];
 
-  # Behaviors of these two NixOS modules would be different:
-  # { pkgs, ... }@inputs: { environment.systemPackages = [ pkgs.hello ]; }
-  # inputs: { environment.systemPackages = [ pkgs.hello ]; }
-  # The second one would failed to evaluate because nixpkgs would not pass pkgs to it.
-  # So that we wrote a wrapper to make it always works like the first one.
-  mkModules = moduleList:
-    (builtins.map
-      (
-        let handle = module: let type = builtins.typeOf module; in
-          if type == "path" || type == "string" then (handle (import module))
-          else if type == "lambda" && builtins.functionArgs module == {}
-            then ({ pkgs, utils, ... }@inputs: (module inputs))
-          else module;
-        in handle
-      )
-      moduleList);
+    # Behaviors of these two NixOS modules would be different:
+    # { pkgs, ... }@inputs: { environment.systemPackages = [ pkgs.hello ]; }
+    # inputs: { environment.systemPackages = [ pkgs.hello ]; }
+    # The second one would failed to evaluate because nixpkgs would not pass pkgs to it.
+    # So that we wrote a wrapper to make it always works like the first one.
+    mkModules =
+      moduleList:
+      (builtins.map (
+        let
+          handle =
+            module:
+            let
+              type = builtins.typeOf module;
+            in
+            if type == "path" || type == "string" then
+              (handle (import module))
+            else if type == "lambda" && builtins.functionArgs module == { } then
+              ({ pkgs, utils, ... }@inputs: (module inputs))
+            else
+              module;
+        in
+        handle
+      ) moduleList);
 
-  # return a list of path, including:
-  # - all .nix file in the directory except for default.nix
-  # - all directories containing a default.nix
-  findModules = path:
-    mkModules (builtins.filter (path: path != null) (builtins.map
-      (subPath:
-        if subPath.value == "regular" && subPath.name != "default.nix"
-          then if final.strings.hasSuffix ".nix" subPath.name
-            then "${path}/${subPath.name}"
-            else null
-          else if subPath.value == "directory"
-            then if (builtins.readDir "${path}/${subPath.name}")."default.nix" or null == "regular"
-              then "${path}/${subPath.name}"
-            else null
-          else null)
-      (final.attrsToList (builtins.readDir path))));
+    # return a list of path, including:
+    # - all .nix file in the directory except for default.nix
+    # - all directories containing a default.nix
+    findModules =
+      path:
+      mkModules (
+        builtins.filter (path: path != null) (
+          builtins.map (
+            subPath:
+            if subPath.value == "regular" && subPath.name != "default.nix" then
+              if final.strings.hasSuffix ".nix" subPath.name then "${path}/${subPath.name}" else null
+            else if subPath.value == "directory" then
+              if (builtins.readDir "${path}/${subPath.name}")."default.nix" or null == "regular" then
+                "${path}/${subPath.name}"
+              else
+                null
+            else
+              null
+          ) (final.attrsToList (builtins.readDir path))
+        )
+      );
 
-  # replace the value in a nested attrset. example:
-  # deepReplace
-  #   [ { path = [ "a" "b" 1 ]; value = "new value"; } ]
-  #   { a = { b = [ "old value" "old value" ]; }; }
-  # => { a = { b = [ "old value" "new value" ]; }; }
-  deepReplace = pattern: origin:
-    let replace = { path, value, content }:
-      if path == [] then
-        if (builtins.typeOf value) == "lambda" then value content
-        else value
-      else let currentPath = builtins.head path; nextPath = builtins.tail path; in
-        if (builtins.typeOf currentPath) == "string" then
-          if (builtins.typeOf content) != "set" then builtins.throw "content should be a set"
-          else builtins.mapAttrs
-            (n: v: if n == currentPath then replace { path = nextPath; inherit value; content = v; } else v) content
-        else if (builtins.typeOf currentPath) == "int" then
-          if (builtins.typeOf content) != "list" then builtins.throw "content should be a list"
-          else final.imap0
-            (i: v: if i == currentPath then replace { path = nextPath; inherit value; content = v; } else v) content
-        else if (builtins.typeOf currentPath) != "lambda" then throw "path should be a lambda"
-        else
-          if (builtins.typeOf content) == "list" then builtins.map
-            (v: if currentPath v then replace { path = nextPath; inherit value; content = v; } else v) content
-          else if (builtins.typeOf content) == "set" then builtins.listToAttrs (builtins.map
-            (v: if currentPath v then replace { path = nextPath; inherit value; content = v; } else v)
-            (final.attrsToList content))
-          else throw "content should be a list or a set.";
-    in
-      if (builtins.typeOf pattern) != "list" then throw "pattern should be a list"
-      else if pattern == [] then origin
-      else deepReplace (builtins.tail pattern) (replace ((builtins.head pattern) // { content = origin; }));
+    # replace the value in a nested attrset. example:
+    # deepReplace
+    #   [ { path = [ "a" "b" 1 ]; value = "new value"; } ]
+    #   { a = { b = [ "old value" "old value" ]; }; }
+    # => { a = { b = [ "old value" "new value" ]; }; }
+    deepReplace =
+      pattern: origin:
+      let
+        replace =
+          {
+            path,
+            value,
+            content,
+          }:
+          if path == [ ] then
+            if (builtins.typeOf value) == "lambda" then value content else value
+          else
+            let
+              currentPath = builtins.head path;
+              nextPath = builtins.tail path;
+            in
+            if (builtins.typeOf currentPath) == "string" then
+              if (builtins.typeOf content) != "set" then
+                builtins.throw "content should be a set"
+              else
+                builtins.mapAttrs (
+                  n: v:
+                  if n == currentPath then
+                    replace {
+                      path = nextPath;
+                      inherit value;
+                      content = v;
+                    }
+                  else
+                    v
+                ) content
+            else if (builtins.typeOf currentPath) == "int" then
+              if (builtins.typeOf content) != "list" then
+                builtins.throw "content should be a list"
+              else
+                final.imap0 (
+                  i: v:
+                  if i == currentPath then
+                    replace {
+                      path = nextPath;
+                      inherit value;
+                      content = v;
+                    }
+                  else
+                    v
+                ) content
+            else if (builtins.typeOf currentPath) != "lambda" then
+              throw "path should be a lambda"
+            else if (builtins.typeOf content) == "list" then
+              builtins.map (
+                v:
+                if currentPath v then
+                  replace {
+                    path = nextPath;
+                    inherit value;
+                    content = v;
+                  }
+                else
+                  v
+              ) content
+            else if (builtins.typeOf content) == "set" then
+              builtins.listToAttrs (
+                builtins.map (
+                  v:
+                  if currentPath v then
+                    replace {
+                      path = nextPath;
+                      inherit value;
+                      content = v;
+                    }
+                  else
+                    v
+                ) (final.attrsToList content)
+              )
+            else
+              throw "content should be a list or a set.";
+      in
+      if (builtins.typeOf pattern) != "list" then
+        throw "pattern should be a list"
+      else if pattern == [ ] then
+        origin
+      else
+        deepReplace (builtins.tail pattern) (replace ((builtins.head pattern) // { content = origin; }));
 
     buildNixpkgsConfig = import ./buildNixpkgsConfig final self;
-};
-in self.inputs.nixpkgs.lib.extend __functor
+  };
+in
+self.inputs.nixpkgs.lib.extend __functor

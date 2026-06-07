@@ -1,8 +1,20 @@
-{ stdenvNoCC, fetchPnpmDeps, lib, pnpmConfigHook, nodejs, pnpm }: stdenvNoCC.mkDerivation rec {
+{
+  stdenvNoCC,
+  fetchPnpmDeps,
+  lib,
+  pnpmConfigHook,
+  nodejs,
+  pnpm,
+}:
+stdenvNoCC.mkDerivation rec {
   pname = "minibox";
   version = "0.1.0";
   src = ./.;
-  nativeBuildInputs = [ pnpmConfigHook nodejs pnpm ];
+  nativeBuildInputs = [
+    pnpmConfigHook
+    nodejs
+    pnpm
+  ];
   pnpmDeps = fetchPnpmDeps {
     inherit pname version src;
     fetcherVersion = 2;

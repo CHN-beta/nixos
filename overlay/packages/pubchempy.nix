@@ -1,5 +1,9 @@
-{ src, buildPythonPackage, setuptools }: buildPythonPackage
 {
+  src,
+  buildPythonPackage,
+  setuptools,
+}:
+buildPythonPackage {
   pname = "pubchempy";
   inherit (src) src version;
   pyproject = true;

@@ -1,5 +1,10 @@
-{ stdenv, src, gfortran, lapack }: stdenv.mkDerivation
 {
+  stdenv,
+  src,
+  gfortran,
+  lapack,
+}:
+stdenv.mkDerivation {
   name = "vaspberry";
   inherit src;
   nativeBuildInputs = [ gfortran ];

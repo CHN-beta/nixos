@@ -1,8 +1,25 @@
-{ stdenv, src, cmake, pkg-config, boost, openssl, zlib, curl }: stdenv.mkDerivation rec
 {
+  stdenv,
+  src,
+  cmake,
+  pkg-config,
+  boost,
+  openssl,
+  zlib,
+  curl,
+}:
+stdenv.mkDerivation rec {
   name = "tgbot-cpp";
   inherit src;
-  nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [ boost openssl zlib curl ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
+  buildInputs = [
+    boost
+    openssl
+    zlib
+    curl
+  ];
   propagatedBuildInputs = buildInputs;
 }

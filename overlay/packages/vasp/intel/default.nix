@@ -1,35 +1,54 @@
 {
-  stdenv, src, writeShellScriptBin, lib, rsync, which, wannier90, hdf5, mpi, mkl, prrte,
-  suffix ? "intel", oneapiArch ? null
+  stdenv,
+  src,
+  writeShellScriptBin,
+  lib,
+  rsync,
+  which,
+  wannier90,
+  hdf5,
+  mpi,
+  mkl,
+  prrte,
+  suffix ? "intel",
+  oneapiArch ? null,
 }:
 let
-  vasp = stdenv.mkDerivation
-  {
+  vasp = stdenv.mkDerivation {
     name = "vasp-${suffix}";
     src = src.vasp;
     patches = [ ../vtst.patch ];
-    configurePhase =
-    ''
+    configurePhase = ''
       cp ${./makefile.include} makefile.include
       chmod +w makefile.include
       cp ${../constr_cell_relax.F} src/constr_cell_relax.F
       cp -r ${src.vtst.patch}/vtstcode6.4.3/* src
       chmod -R +w src
     '';
-    buildInputs = [ hdf5 wannier90 mkl ];
-    nativeBuildInputs = [ rsync which mpi ];
-    installPhase =
-    ''
+    buildInputs = [
+      hdf5
+      wannier90
+      mkl
+    ];
+    nativeBuildInputs = [
+      rsync
+      which
+      mpi
+    ];
+    installPhase = ''
       mkdir -p $out/bin
       for i in std gam ncl; do cp bin/vasp_$i $out/bin/vasp-$i; done
     '';
     # NIX_DEBUG = "7";
     enableParallelBuilding = true;
-    env = { DEPS = "1"; MKLROOT = mkl; OMPI_F90 = "ifx"; }
-      // (lib.optionalAttrs (oneapiArch != null) { NIX_ONEAPI_ARCH = oneapiArch; });
+    env = {
+      DEPS = "1";
+      MKLROOT = mkl;
+      OMPI_F90 = "ifx";
+    }
+    // (lib.optionalAttrs (oneapiArch != null) { NIX_ONEAPI_ARCH = oneapiArch; });
   };
-  wrapper = writeShellScriptBin "vasp-${suffix}"
-  ''
+  wrapper = writeShellScriptBin "vasp-${suffix}" ''
     export PATH=${vasp}/bin:${mpi}/bin:${mpi.dev}/bin:${prrte}/bin:${prrte.dev}/bin''${PATH:+:$PATH}
 
     ulimit -s unlimited
@@ -52,4 +71,10 @@ let
 
     exec "$@"
   '';
-in wrapper // { passthru = wrapper.passthru // { inherit mpi; }; }
+in
+wrapper
+// {
+  passthru = wrapper.passthru // {
+    inherit mpi;
+  };
+}

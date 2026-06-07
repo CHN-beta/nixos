@@ -1,14 +1,31 @@
 { lib }:
 let
-  cname =
-  {
+  cname = {
     nas = [ "initrd.nas" ];
     office = [ "srv2-node0" ];
-    vps4 = [ "initrd.vps4" "xserver2.vps4" "status" ];
-    vps6 =
-    [
-      "blog" "catalog" "coturn" "element" "initrd.vps6" "sticker" "synapse-admin" "tgapi" "ua" "xserver2"
-      "xserver2.vps6" "s" "headscale" "missgram" "vikunja" "question" "xserver3"
+    vps4 = [
+      "initrd.vps4"
+      "xserver2.vps4"
+      "status"
+    ];
+    vps6 = [
+      "blog"
+      "catalog"
+      "coturn"
+      "element"
+      "initrd.vps6"
+      "sticker"
+      "synapse-admin"
+      "tgapi"
+      "ua"
+      "xserver2"
+      "xserver2.vps6"
+      "s"
+      "headscale"
+      "missgram"
+      "vikunja"
+      "question"
+      "xserver3"
       # to pc
       "铜锣湾实验室"
       # temporary
@@ -19,19 +36,44 @@ let
     "tinc0.srv1-node0" = [ "tinc0.srv1" ];
     "tinc0.srv2-node0" = [ "tinc0.srv2" ];
     srv1-node0 = [ "srv1" ];
-    srv2-node0 = [ "srv2" "jupyterhub" ];
-    "pc.ts" = [ "nix-store" "chat" ];
-    "nas.ts" = [ "ssh.git" "backup-store" "rsshub" "grafana" "huginn" "vaultwarden" "photo" "readeck" ];
-    vps9 =
-    [
-      "initrd.vps9" "xserver2.vps9"
-      # to nas
-      "peertube" "send" "freshrss" "nextcloud" "webdav" "synapse" "misskey" "api"
+    srv2-node0 = [
+      "srv2"
+      "jupyterhub"
     ];
-    autoroute = [ "铜锣湾" "matrix" "git" ];
+    "pc.ts" = [
+      "nix-store"
+      "chat"
+    ];
+    "nas.ts" = [
+      "ssh.git"
+      "backup-store"
+      "rsshub"
+      "grafana"
+      "huginn"
+      "vaultwarden"
+      "photo"
+      "readeck"
+    ];
+    vps9 = [
+      "initrd.vps9"
+      "xserver2.vps9"
+      # to nas
+      "peertube"
+      "send"
+      "freshrss"
+      "nextcloud"
+      "webdav"
+      "synapse"
+      "misskey"
+      "api"
+    ];
+    autoroute = [
+      "铜锣湾"
+      "matrix"
+      "git"
+    ];
   };
-  a =
-  {
+  a = {
     nas = "192.168.178.10";
     pc = "192.168.1.3";
     office = "210.34.16.21";
@@ -51,37 +93,77 @@ let
   tinc = import ./tinc.nix;
 in
 {
-  "" =
-  [
-    { type = "ALIAS"; value = "vps6.chn.moe."; }
+  "" = [
+    {
+      type = "ALIAS";
+      value = "vps6.chn.moe.";
+    }
     {
       type = "MX";
-      values =
-      [
-        { exchange = "tuesday.mxrouting.net."; preference = 10; }
-        { exchange = "tuesday-relay.mxrouting.net."; preference = 20; }
+      values = [
+        {
+          exchange = "tuesday.mxrouting.net.";
+          preference = 10;
+        }
+        {
+          exchange = "tuesday-relay.mxrouting.net.";
+          preference = 20;
+        }
       ];
     }
-    { type = "TXT"; value = "v=spf1 include:mxlogin.com -all"; }
+    {
+      type = "TXT";
+      value = "v=spf1 include:mxlogin.com -all";
+    }
   ];
-  autoroute = { type = "NS"; values = "vps6.chn.moe."; };
-  ts = { type = "NS"; values = "vps6.chn.moe."; };
-  "mail" = { type = "CNAME"; value = "tuesday.mxrouting.net."; };
-  "webmail" = { type = "CNAME"; value = "tuesday.mxrouting.net."; };
-  "x._domainkey" =
-  {
+  autoroute = {
+    type = "NS";
+    values = "vps6.chn.moe.";
+  };
+  ts = {
+    type = "NS";
+    values = "vps6.chn.moe.";
+  };
+  "mail" = {
+    type = "CNAME";
+    value = "tuesday.mxrouting.net.";
+  };
+  "webmail" = {
+    type = "CNAME";
+    value = "tuesday.mxrouting.net.";
+  };
+  "x._domainkey" = {
     type = "TXT";
     value = ''v=DKIM1\; k=rsa\; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0CjW96ffx1tVrJkt630lSRrdEF495OAkFbUxwgZm+EjMhdQtG3erl+AzcyjK3gJpg2ylqOYxCFElerqiN9IiggYy4z6tJwVqoh7bucMbO5J4EJQvFdbyRveq7LVm+n5Qgr/CRi6105zfpzX0NbQZoLINSJMCGOmWcYPZZYv7T260ghVFkn4qVpAkFqvvc+RBtY9P96nPZ+omYvpKDV+JReNanxBZRoxuKQDpYPZhV7E6mLulzHzFyuwDLg7THBCcmEr3DlAAeZcLdm6cTdwYTG2cMv2CUiocSdxmrZeBaWa1Xef+70ddrr823o105l6PP437L4337JIMH19g9iTT+QIDAQAB'';
   };
 }
-// builtins.listToAttrs (builtins.concatLists (builtins.map
-  (cname: builtins.map
-    (name: { inherit name; value = { type = "CNAME"; value = "${cname.name}.chn.moe."; }; })
-    cname.value)
-  (lib.attrsToList cname)))
-// builtins.listToAttrs (builtins.map
-  (a: {inherit (a) name; value = { inherit (a) value; type = "A"; }; })
-  (lib.attrsToList a))
-// lib.mapAttrs'
-  (n: v: lib.nameValuePair "tinc0.${n}" { type = "A"; value = "192.168.85.${builtins.toString v}"; })
-  tinc
+// builtins.listToAttrs (
+  builtins.concatLists (
+    builtins.map (
+      cname:
+      builtins.map (name: {
+        inherit name;
+        value = {
+          type = "CNAME";
+          value = "${cname.name}.chn.moe.";
+        };
+      }) cname.value
+    ) (lib.attrsToList cname)
+  )
+)
+// builtins.listToAttrs (
+  builtins.map (a: {
+    inherit (a) name;
+    value = {
+      inherit (a) value;
+      type = "A";
+    };
+  }) (lib.attrsToList a)
+)
+// lib.mapAttrs' (
+  n: v:
+  lib.nameValuePair "tinc0.${n}" {
+    type = "A";
+    value = "192.168.85.${builtins.toString v}";
+  }
+) tinc

@@ -1,12 +1,20 @@
-inputs:
-{
-  options.nixos.services.waydroid = let inherit (inputs.lib) mkOption types; in mkOption
-    { type = types.nullOr (types.submodule {}); default = null; };
-  config = let inherit (inputs.config.nixos.services) waydroid; in inputs.lib.mkIf (waydroid != null)
-  {
-    environment.systemPackages = [ inputs.pkgs.waydroid-helper ];
-    virtualisation.waydroid.enable = true;
-  };
+inputs: {
+  options.nixos.services.waydroid =
+    let
+      inherit (inputs.lib) mkOption types;
+    in
+    mkOption {
+      type = types.nullOr (types.submodule { });
+      default = null;
+    };
+  config =
+    let
+      inherit (inputs.config.nixos.services) waydroid;
+    in
+    inputs.lib.mkIf (waydroid != null) {
+      environment.systemPackages = [ inputs.pkgs.waydroid-helper ];
+      virtualisation.waydroid.enable = true;
+    };
 }
 
 # sudo waydroid shell wm set-fix-to-user-rotation enabled

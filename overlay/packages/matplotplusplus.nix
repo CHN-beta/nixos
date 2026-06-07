@@ -1,7 +1,18 @@
-{ stdenv, src, cmake, pkg-config }: stdenv.mkDerivation
 {
+  stdenv,
+  src,
+  cmake,
+  pkg-config,
+}:
+stdenv.mkDerivation {
   name = "matplotplusplus";
   inherit src;
-  cmakeFlags = [ "-DBUILD_SHARED_LIBS=ON" "-DMATPLOTPP_BUILD_EXAMPLES=OFF" ];
-  nativeBuildInputs = [ cmake pkg-config ];
+  cmakeFlags = [
+    "-DBUILD_SHARED_LIBS=ON"
+    "-DMATPLOTPP_BUILD_EXAMPLES=OFF"
+  ];
+  nativeBuildInputs = [
+    cmake
+    pkg-config
+  ];
 }

@@ -1,16 +1,25 @@
-{ config, lib, localLib, pkgs, ... }:
+{
+  config,
+  lib,
+  localLib,
+  pkgs,
+  ...
+}:
 {
   imports = localLib.findModules ./.;
-  options.nixos.user =
-  {
-    users = lib.mkOption { type = lib.types.listOf lib.types.nonEmptyStr; default = [ "chn" ]; };
-    sharedModules = lib.mkOption { type = lib.types.listOf lib.types.anything; default = []; };
-    uid = lib.mkOption
-    {
+  options.nixos.user = {
+    users = lib.mkOption {
+      type = lib.types.listOf lib.types.nonEmptyStr;
+      default = [ "chn" ];
+    };
+    sharedModules = lib.mkOption {
+      type = lib.types.listOf lib.types.anything;
+      default = [ ];
+    };
+    uid = lib.mkOption {
       type = lib.types.attrsOf lib.types.ints.unsigned;
       readOnly = true;
-      default =
-      {
+      default = {
         chn = 1000;
         xll = 1001;
         yjq = 1002;
@@ -65,97 +74,113 @@
         garage = 2018;
       };
     };
-    gid = lib.mkOption
-    {
+    gid = lib.mkOption {
       type = lib.types.attrsOf lib.types.ints.unsigned;
       readOnly = true;
-      default = config.nixos.user.uid //
-      {
+      default = config.nixos.user.uid // {
         groupshare = 3000;
         telegram = 3001;
       };
     };
   };
-  config = let inherit (config.nixos) user; in lib.mkMerge
-  [
-    {
-      users =
+  config =
+    let
+      inherit (config.nixos) user;
+    in
+    lib.mkMerge [
       {
-        users = builtins.listToAttrs (builtins.map
-          (userName:
-          {
-            name = userName;
-            value =
-            {
-              uid = user.uid.${userName};
-              group = userName;
-              isNormalUser = true;
-              shell = pkgs.zsh;
-              createHome = true;
-              extraGroups = lib.intersectLists [ "users" "video" "audio" "i2c" ]
-                (builtins.attrNames config.users.groups);
-              # ykman fido credentials list
-              # ykman fido credentials delete f2c1ca2d
-              # ssh-keygen -t ed25519-sk -O resident
-              # ssh-keygen -K
-              openssh.authorizedKeys.keys =
-                lib.optionals (builtins.pathExists ./keys/${userName}) [(builtins.readFile ./keys/${userName})];
-            };
-          })
-          user.users);
-        groups = builtins.listToAttrs (builtins.map
-          (name: { inherit name; value.gid = user.gid.${name}; })
-          user.users);
-      };
-      home-manager.users = builtins.listToAttrs (builtins.map
-        (name: { inherit name; value.imports = user.sharedModules; })
-        user.users);
-    }
-    # set hashedPassword if it exist in secrets
-    (
-      let hashedPasswordExist = userName: lib.lists.any
-        (lib.lists.hasPrefix [ "users" userName ]) config.nixos.system.sops.availableKeys;
-      in
-      {
-        users.users = builtins.listToAttrs (builtins.map
-          (name: { inherit name; value.hashedPasswordFile = config.sops.secrets."users/${name}".path; })
-          (builtins.filter (user: hashedPasswordExist user) user.users));
-        nixos.system.sops.secrets = builtins.listToAttrs (builtins.map
-          (name: lib.nameValuePair "users/${name}" { neededForUsers = true; })
-          (builtins.filter (user: hashedPasswordExist user) user.users));
+        users = {
+          users = builtins.listToAttrs (
+            builtins.map (userName: {
+              name = userName;
+              value = {
+                uid = user.uid.${userName};
+                group = userName;
+                isNormalUser = true;
+                shell = pkgs.zsh;
+                createHome = true;
+                extraGroups = lib.intersectLists [ "users" "video" "audio" "i2c" ] (
+                  builtins.attrNames config.users.groups
+                );
+                # ykman fido credentials list
+                # ykman fido credentials delete f2c1ca2d
+                # ssh-keygen -t ed25519-sk -O resident
+                # ssh-keygen -K
+                openssh.authorizedKeys.keys = lib.optionals (builtins.pathExists ./keys/${userName}) [
+                  (builtins.readFile ./keys/${userName})
+                ];
+              };
+            }) user.users
+          );
+          groups = builtins.listToAttrs (
+            builtins.map (name: {
+              inherit name;
+              value.gid = user.gid.${name};
+            }) user.users
+          );
+        };
+        home-manager.users = builtins.listToAttrs (
+          builtins.map (name: {
+            inherit name;
+            value.imports = user.sharedModules;
+          }) user.users
+        );
       }
-    )
-    # setup root
-    {
-      users.users.root =
-      {
-        shell = pkgs.zsh;
-        openssh.authorizedKeys.keys = [(builtins.readFile ./keys/chn)];
-        hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
-      };
-      home-manager.users.root = homeInputs:
-      {
-        imports = user.sharedModules;
-        config =
+      # set hashedPassword if it exist in secrets
+      (
+        let
+          hashedPasswordExist =
+            userName:
+            lib.lists.any (lib.lists.hasPrefix [
+              "users"
+              userName
+            ]) config.nixos.system.sops.availableKeys;
+        in
         {
-          programs.git.settings =
-          {
-            user = { name = "Haonan Chen"; email = "chn@chn.moe"; };
-            # allow root operate on git repositories owned by others
-            safe.directory = "*";
-          };
-          home.file = lib.mkIf config.nixos.model.private
-          {
-            ".ssh/id_ed25519_sk".source = homeInputs.config.lib.file.mkOutOfStoreSymlink
-              config.nixos.system.sops.secrets."root/ed25519_sk".path;
+          users.users = builtins.listToAttrs (
+            builtins.map (name: {
+              inherit name;
+              value.hashedPasswordFile = config.sops.secrets."users/${name}".path;
+            }) (builtins.filter (user: hashedPasswordExist user) user.users)
+          );
+          nixos.system.sops.secrets = builtins.listToAttrs (
+            builtins.map (name: lib.nameValuePair "users/${name}" { neededForUsers = true; }) (
+              builtins.filter (user: hashedPasswordExist user) user.users
+            )
+          );
+        }
+      )
+      # setup root
+      {
+        users.users.root = {
+          shell = pkgs.zsh;
+          openssh.authorizedKeys.keys = [ (builtins.readFile ./keys/chn) ];
+          hashedPassword = "$y$j9T$.UyKKvDnmlJaYZAh6./rf/$65dRqishAiqxCE6LEMjqruwJPZte7uiyYLVKpzdZNH5";
+        };
+        home-manager.users.root = homeInputs: {
+          imports = user.sharedModules;
+          config = {
+            programs.git.settings = {
+              user = {
+                name = "Haonan Chen";
+                email = "chn@chn.moe";
+              };
+              # allow root operate on git repositories owned by others
+              safe.directory = "*";
+            };
+            home.file = lib.mkIf config.nixos.model.private {
+              ".ssh/id_ed25519_sk".source =
+                homeInputs.config.lib.file.mkOutOfStoreSymlink
+                  config.nixos.system.sops.secrets."root/ed25519_sk".path;
+            };
           };
         };
-      };
-    }
-    # setup test
-    (lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
-    # setup straycat
-    (lib.mkIf (builtins.elem "straycat" user.users)
-      { users.users.straycat.openssh.authorizedKeys.keys = [(builtins.readFile ./keys/chn)]; })
-  ];
+      }
+      # setup test
+      (lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
+      # setup straycat
+      (lib.mkIf (builtins.elem "straycat" user.users) {
+        users.users.straycat.openssh.authorizedKeys.keys = [ (builtins.readFile ./keys/chn) ];
+      })
+    ];
 }

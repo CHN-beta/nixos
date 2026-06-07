@@ -1,16 +1,20 @@
-{ localLib, config, lib, pkgs, self, ... }:
+{
+  localLib,
+  config,
+  lib,
+  pkgs,
+  self,
+  ...
+}:
 {
   imports = localLib.findModules ./.;
-  options.system.build.archive = lib.mkOption
-  {
+  options.system.build.archive = lib.mkOption {
     type = lib.types.package;
     readOnly = true;
     default = pkgs.closureInfo { rootPaths = [ config.system.build.toplevel.drvPath ]; };
   };
-  config =
-  {
-    services =
-    {
+  config = {
+    services = {
       dbus.implementation = "broker";
       acpid.enable = true;
       # TODO: set ipfs as separate service
@@ -22,17 +26,22 @@
       gvfs.enable = true;
     };
     time.timeZone = "Asia/Shanghai";
-    boot =
-    {
-      supportedFilesystems = [ "ntfs" "nfs" "nfsv4" ];
+    boot = {
+      supportedFilesystems = [
+        "ntfs"
+        "nfs"
+        "nfsv4"
+      ];
       # consoleLogLevel = 7;
     };
-    hardware =
-      { enableAllFirmware = true; bluetooth.enable = true; sensor.iio.enable = true; i2c.enable = true; };
-    environment =
-    {
-      sessionVariables = rec
-      {
+    hardware = {
+      enableAllFirmware = true;
+      bluetooth.enable = true;
+      sensor.iio.enable = true;
+      i2c.enable = true;
+    };
+    environment = {
+      sessionVariables = rec {
         XDG_CACHE_HOME = "$HOME/.cache";
         XDG_CONFIG_HOME = "$HOME/.config";
         XDG_DATA_HOME = "$HOME/.local/share";
@@ -52,26 +61,29 @@
         # it is safe to always enable this, only effective when using wayland
         NIXOS_OZONE_WL = "1";
       };
-      variables =
-      {
+      variables = {
         NIXOS_CONFIGURATION_REVISION = config.system.configurationRevision;
         # CPATH = "/run/current-system/sw/include";
         # LIBRARY_PATH = "/run/current-system/sw/lib";
       };
       # pathsToLink = [ "/include" ];
     };
-    i18n = { defaultLocale = "C.UTF-8"; supportedLocales = [ "all" ]; };
+    i18n = {
+      defaultLocale = "C.UTF-8";
+      supportedLocales = [ "all" ];
+    };
     users.mutableUsers = false;
     virtualisation.oci-containers.backend = "podman";
-    home-manager.sharedModules = [{ home.stateVersion = "25.05"; }];
-    system =
-    {
+    home-manager.sharedModules = [ { home.stateVersion = "25.05"; } ];
+    system = {
       stateVersion = "25.05";
       configurationRevision = self.rev or "dirty";
-      nixos =
-      {
+      nixos = {
         versionSuffix = lib.mkForce "";
-        tags = [ (builtins.substring 2 6 self.lastModifiedDate) (builtins.substring 0 6 self.rev or "dirty") ];
+        tags = [
+          (builtins.substring 2 6 self.lastModifiedDate)
+          (builtins.substring 0 6 self.rev or "dirty")
+        ];
       };
     };
     programs.criu.enable = true;

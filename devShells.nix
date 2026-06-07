@@ -1,62 +1,56 @@
-self: let inherit (self.nixosConfigurations.pc) pkgs; in
+self:
+let
+  inherit (self.nixosConfigurations.pc) pkgs;
+in
 {
-  biu = pkgs.mkShell
-  {
+  biu = pkgs.mkShell {
     inputsFrom = [ pkgs.localPkgs.biu ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
-  hpcstat = pkgs.mkShell
-  {
+  hpcstat = pkgs.mkShell {
     inputsFrom = [ pkgs.localPkgs.hpcstat ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
-  sbatch-tui = pkgs.mkShell
-  {
+  sbatch-tui = pkgs.mkShell {
     inputsFrom = [ pkgs.localPkgs.sbatch-tui ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
-  ufo = pkgs.mkShell
-  {
+  ufo = pkgs.mkShell {
     inputsFrom = [ pkgs.localPkgs.ufo ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
-  chn-bsub = pkgs.mkShell
-  {
+  chn-bsub = pkgs.mkShell {
     inputsFrom = [ pkgs.localPkgs.chn-bsub ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
   };
-  info = pkgs.mkShell
-  {
+  info = pkgs.mkShell {
     inputsFrom = [ pkgs.localPkgs.info ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
-  vm = pkgs.mkShell
-  {
+  vm = pkgs.mkShell {
     inputsFrom = [ pkgs.localPkgs.vm ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
-  xinli = pkgs.mkShell
-  {
+  xinli = pkgs.mkShell {
     inputsFrom = [ pkgs.localPkgs.xinli ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
-  missgram = pkgs.mkShell
-  {
+  missgram = pkgs.mkShell {
     inputsFrom = [ pkgs.localPkgs.missgram ];
     packages = [ pkgs.llvmPackages.clang-tools ];
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";

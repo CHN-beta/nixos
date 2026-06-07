@@ -1,5 +1,10 @@
-{ src, buildPythonPackage, setuptools, matplotlib }: buildPythonPackage
 {
+  src,
+  buildPythonPackage,
+  setuptools,
+  matplotlib,
+}:
+buildPythonPackage {
   name = "brokenaxes";
   pyproject = true;
   inherit src;

@@ -1,17 +1,24 @@
-{ lib, config, pkgs, ... }: let ns = "vps6"; interface = "ens18"; in
 {
-  config = lib.mkIf (config.nixos.model.hostname == ns)
-  {
-    assertions =
-    [{
-      assertion = !config.nixos.services.xray.client.enable;
-      message = "Currenty xray.client and coredns could not be simutaniusly enabled.";
-    }];
-    services.coredns =
-    {
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+let
+  ns = "vps6";
+  interface = "ens18";
+in
+{
+  config = lib.mkIf (config.nixos.model.hostname == ns) {
+    assertions = [
+      {
+        assertion = !config.nixos.services.xray.client.enable;
+        message = "Currenty xray.client and coredns could not be simutaniusly enabled.";
+      }
+    ];
+    services.coredns = {
       enable = true;
-      config =
-      ''
+      config = ''
         autoroute.chn.moe {
           bind ${interface}
           geoip ${config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb
@@ -69,7 +76,7 @@
         }
       '';
     };
-    nixos.services.geoipupdate = {};
+    nixos.services.geoipupdate = { };
     networking.firewall.allowedUDPPorts = [ 53 ];
   };
 }

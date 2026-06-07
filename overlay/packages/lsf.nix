@@ -1,14 +1,21 @@
-{ stdenv, src, autoPatchelfHook, libz }: stdenv.mkDerivation rec
 {
+  stdenv,
+  src,
+  autoPatchelfHook,
+  libz,
+}:
+stdenv.mkDerivation rec {
   name = "lsf";
   inherit src;
   dontConfigure = true;
   dontBuild = true;
-  buildInputs = [ stdenv.cc.cc libz ];
+  buildInputs = [
+    stdenv.cc.cc
+    libz
+  ];
   nativeBuildInputs = [ autoPatchelfHook ];
   autoPatchelfIgnoreMissingDeps = [ "libnvidia-ml.so.1" ];
-  installPhase =
-  ''
+  installPhase = ''
     runHook preInstall
     mkdir -p $out
     cp -r * $out
