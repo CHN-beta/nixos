@@ -123,7 +123,7 @@
         postgresql.instances.minibox = {};
         hermes = {};
       };
-      packages = { mathematica = {}; vasp = {}; extra = {}; lumerical = {}; };
+      packages = { mathematica = {}; vasp = {}; lumerical = {}; };
       user.users = [ "chn" "lilydjwg" "hjp" "straycat" ];
     };
     # 允许kvm读取物理硬盘
