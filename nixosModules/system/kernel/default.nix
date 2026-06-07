@@ -120,6 +120,6 @@
           };
         in builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
     };
-    services.scx = lib.mkIf (config.nixos.model.variant == "desktop") { enable = true; scheduler = "scx_lavd"; };
+    services.scx = lib.mkIf (config.nixos.model.variant == "desktop") { enable = true; scheduler = "scx_bpfland"; };
   };
 }
