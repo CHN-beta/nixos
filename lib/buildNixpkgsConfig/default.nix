@@ -208,7 +208,7 @@ let
       #   xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
         lib2geom = prev.lib2geom.overrideAttrs (prev: { doCheck = false; });
       #   opencolorio = prev.opencolorio.overrideAttrs (prev: { doCheck = false; });
-      #   rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
+        rapidjson = prev.rapidjson.overrideAttrs { doCheck = false; };
         embree = prev.embree.override { stdenv = final.genericPkgs.stdenv; };
         simde = prev.simde.override { stdenv = final.genericPkgs.stdenv; };
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [] ++ [(final: prev:
