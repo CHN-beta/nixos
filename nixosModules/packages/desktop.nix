@@ -73,8 +73,6 @@
         super-productivity vikunja-desktop
         # gaming
         (bottles.override { removeWarningPopup = true; }) lutris
-        # AI
-        alpaca
       ];
       nixos.user.sharedModules =
       [{
