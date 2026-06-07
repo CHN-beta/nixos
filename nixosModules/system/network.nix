@@ -235,7 +235,7 @@ inputs: {
         };
         services = {
           # dnsable dns fallback, use provided dns servers or no dns
-          resolved.fallbackDns = [ ];
+          resolved.settings.Resolve.FallbackDNS = [ ];
           udev.extraRules = inputs.lib.mkIf (network.settings.wireless.fourAddr) ''
             ACTION=="add", SUBSYSTEM=="net", ENV{INTERFACE}=="wlp*", RUN+="${inputs.pkgs.iw}/bin/iw dev %k set 4addr on"
           '';
