@@ -67,6 +67,10 @@ let
       "misskey"
       "api"
     ];
+    vps10 = [
+      "initrd.vps10"
+      "xserver2.vps10"
+    ];
     autoroute = [
       "铜锣湾"
       "matrix"
@@ -81,6 +85,7 @@ let
     vps4 = "59.152.127.72";
     vps6 = "144.34.225.59";
     vps9 = "154.3.39.17";
+    vps10 = "216.75.75.102";
     search = "127.0.0.1";
     srv1-node1 = "192.168.178.2";
     srv1-node2 = "192.168.178.3";

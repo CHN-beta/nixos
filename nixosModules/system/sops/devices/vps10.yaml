@@ -1,0 +1,26 @@
+tinc: ENC[AES256_GCM,data:MiAjSIw9UGV9jsEIe3B9aOQArPxRc/bgy8EeHJFrtXVouptYyPOoeITrC/K37WCXOZLsoj5vBztOfSznc7hLVqAy6G/s/bQxqdyVNsPDQbM6ZY9rQQpPERt1wGoJzoWvNqcR2ROLconBlaXvoH0gqmVKRPCXw2vJTFymnVACyuZbR8Wxta0WwsMh8hbrO9lwwGAijan4xAu7d3ux9AmKrM4I12LXWHxraBUPU8vk93VUgrc3Vy4zEiO7/ISShZyienCCZ3hMnFQ=,iv:9vFhJnFJ8tkcOw4tSeODkv8c+pQ+voH4wPbcGhweaR0=,tag:75PXgFAF8oE5XdQF6aKOAQ==,type:str]
+machineId: ENC[AES256_GCM,data:+3a1tsFYVYM1vAwomdaij/l6tLkwWH3o6RzqF2gHJMY=,iv:qXns9sWw+mmwzhDeGwOXSxHoN7cdGSZbhgJksuY1BCU=,tag:HcdlsCSqmM2EilQG8A2bEg==,type:str]
+sops:
+    age:
+        - recipient: age19ax6vm3pv8rph5tq3mmehd9sy9jk823tw8svsd790r0lkslycquqvlwz9m
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBaeXRTQUtYazlOczFvRFlr
+            QW5sbisrdXh2QkVRcXhHUGdpbDN0SEVVV2dJCndQcXdML0tRVzZZckdQMVNjYWNW
+            OWxsQlhhWDl0dHBvODJFd1RiRDZHSDgKLS0tIDVXYlZYanN1NHhNQ0svbXJqQmFF
+            UW9TcVdiTnFUTzUxQ0xJKzhSb0l4cmsKRMyvSr+d/pxYlnsUw0s3nk4iuZfOfimv
+            ewqTvhnmJy5L9Vz7UXTKYbDJB5L67hSbFUltXhmy2YaeFPbDeBLxig==
+            -----END AGE ENCRYPTED FILE-----
+        - recipient: age1navuwp0q2dw28h6zrkv5mhjexkt72475c0rd9rel0x6xf5a205ns82qv6j
+          enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBuYWdqbnR4c3ZKYmx3ZjZL
+            ZmZJRjNCZUh5UnZiblphMjlBOUxBM3ZCblZVCm9YWnkwdUMvTnlsYlM3SVByOGFI
+            bitOeHcyUTU4c3Q0L09YZityWngwSjgKLS0tIFJVcDczMmVKMW5rVTFWYkRHbWxj
+            S0gyd2ZNemk4eUZmeXBjdW5BdUJnNWcK9Hc1mK/FrQFCaoljb2YylcyuVU9Rb2pf
+            9O7EWTjZuGI5FBibPf8Xw9otQ6CeoKuzf/8S5Ase5KxSB06BJTl3xQ==
+            -----END AGE ENCRYPTED FILE-----
+    lastmodified: "2026-06-07T06:21:29Z"
+    mac: ENC[AES256_GCM,data:FYpef0dBmYrHSYAamEAFo5PtObWDVVtiaBCWoX0pMWNkitsLLmV7pr6+SQekAwt4RZkhQjls81dIA23fsbCnTjd2uYrzqEFM6QAB7RuuMNySnGJmHDQ3xBostfMo2qU+YQCOVWgUEeSqhALKa1ZwBIeZgIGkzrgrfmTE2dqD10o=,iv:kwc5WREVj7nxgIxpcXkMZqUQza+ufvRFbXVBtN2/fSs=,tag:algD0HuQ0IzR1Msay/DAZA==,type:str]
+    unencrypted_suffix: _unencrypted
+    version: 3.11.0

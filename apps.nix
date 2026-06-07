@@ -18,6 +18,7 @@ let
         "vps4"
         "vps6"
         "vps9"
+        "vps10"
       ];
       deployKdl =
         self.nixosConfigurations

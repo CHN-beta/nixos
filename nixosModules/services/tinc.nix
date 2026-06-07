@@ -19,6 +19,7 @@ let
     vps4 = "N03OoCyj4ADkeN3cimJI/bJrBw8g1kz3TJ+1BTe+oyA";
     vps6 = "rYOCGG+B4isTifKJQqsEdfhQuQRnUiIsvz7uI7vZiDN";
     vps9 = "fCAqgs9VcYpTLccwFtSkx3dwMDG6787MQX4ycekxRSJ";
+    vps10 = "ojNWDzYxt9VhWT5rDhiMOiFALzabJ0URg+tB5yfnEUN";
     pe = "h09nsWrcO55qndZmayePfWZjgwjv2aXbKnpFE9lUsfP";
   };
   # 描述可以直接的设备之间的连接（图上的路径）。若一个设备可以主动接受连接，则设置它接受连接的 ip；否则设置为 null
@@ -26,7 +27,7 @@ let
   subnets = [
     # vps
     {
-      device = lib.genAttrs [ "vps4" "vps6" "vps9" ] getAddress;
+      device = lib.genAttrs [ "vps4" "vps6" "vps9" "vps10" ] getAddress;
       distance = 1;
     }
     # 使用 vps9 代理的机器

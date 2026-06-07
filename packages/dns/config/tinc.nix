@@ -2,6 +2,7 @@
   vps4 = 2;
   vps6 = 1;
   vps9 = 5;
+  vps10 = 13;
   pc = 3;
   nas = 4;
   srv1-node0 = 9;
