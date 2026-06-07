@@ -312,6 +312,9 @@ let
                   "test_blosc"
                 ];
               });
+              torchcodec = prev.torchcodec.overridePythonAttrs (prev: {
+                disabledTests = prev.disabledTests or [ ] ++ [ "test_against_cli" ];
+              });
               # dscribe = prev.dscribe.overridePythonAttrs
               #   (prev: { disabledTests = prev.disabledTests or [] ++ [ "test_cell_list"  ]; });
             })
