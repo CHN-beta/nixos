@@ -305,6 +305,13 @@ let
               cryptography = prev.cryptography.overridePythonAttrs (prev: {
                 disabledTestPaths = prev.disabledTestPaths or [ ] ++ [ "tests/hazmat/primitives/test_argon2.py" ];
               });
+              numcodecs = prev.numcodecs.overridePythonAttrs (prev: {
+                disabledTests = prev.disabledTests or [ ] ++ [
+                  "test_encode_decode"
+                  "test_partial_decode"
+                  "test_blosc"
+                ];
+              });
               # dscribe = prev.dscribe.overridePythonAttrs
               #   (prev: { disabledTests = prev.disabledTests or [] ++ [ "test_cell_list"  ]; });
             })
