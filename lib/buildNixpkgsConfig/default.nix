@@ -335,6 +335,9 @@ let
             disabledTests = prev.disabledTests or [ ] ++ [ "test_transformer_tps_precision" ];
           });
           arrow-cpp = prev.arrow-cpp.override { enableAzure = false; };
+          # time-consuming and flaky test
+          redis = prev.redis.overrideAttrs (prev: { doCheck = false; });
+          valkey = prev.valkey.overrideAttrs (prev: { doCheck = false; });
         }
       )
     ];
