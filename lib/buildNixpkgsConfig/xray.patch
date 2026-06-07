@@ -25,6 +25,6 @@ index cba59423..19c6d34f 100644
  
  	req.Header.Add("Accept", "application/dns-message")
 -	req.Header.Add("Content-Type", "application/dns-message")
- 
- 	req.Header.Set("X-Padding", strings.Repeat("X", int(crypto.RandBetween(100, 1000))))
+ 	utils.TryDefaultHeadersWith(req.Header, "fetch")
+ 	req.Header.Set("X-Padding", utils.H2Base62Pad(crypto.RandBetween(100, 1000)))
  
