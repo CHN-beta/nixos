@@ -20,6 +20,7 @@
         };
         grub.installDevice = "/dev/disk/by-path/pci-0000:09:01.0-scsi-0:0:0:0";
         initrd.sshd = { };
+        nixpkgs.march = "x86-64-v3";
       };
       services = {
         sshd = { };

@@ -10,7 +10,7 @@ let
           system = "${nixpkgsConfig.arch or "x86_64"}-linux";
           gcc = {
             arch = nixpkgsConfig.march;
-            tune = nixpkgsConfig.march;
+            tune = if lib.hasPrefix "x86-64-v" nixpkgsConfig.march then "generic" else nixpkgsConfig.march;
           };
         };
       };
