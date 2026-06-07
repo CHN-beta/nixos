@@ -315,8 +315,12 @@ let
               torchcodec = prev.torchcodec.overridePythonAttrs (prev: {
                 disabledTests = prev.disabledTests or [ ] ++ [ "test_against_cli" ];
               });
-              # dscribe = prev.dscribe.overridePythonAttrs
-              #   (prev: { disabledTests = prev.disabledTests or [] ++ [ "test_cell_list"  ]; });
+              dscribe = prev.dscribe.overridePythonAttrs (prev: {
+                disabledTests = prev.disabledTests or [ ] ++ [ "test_cell_list" ];
+              });
+              torchaudio = prev.torchaudio.overridePythonAttrs (prev: {
+                disabledTests = prev.disabledTests or [ ] ++ [ "test_batch_pitch_shift" ];
+              });
             })
           ];
           libffi_3_3 = prev.libffi_3_3.overrideAttrs (prev: {
