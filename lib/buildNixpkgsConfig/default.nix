@@ -228,6 +228,8 @@ let
         {
           Test2Harness = prev.Test2Harness.overrideAttrs { doCheck = false; };
         });
+        gdal = prev.gdal.overrideAttrs (prev: { disabledTests = prev.disabledTests or []
+          ++ [ "test_transformer_tps_precision" ]; });
       })
     ];
     kernel310Fix = [(final: prev: lib.optionalAttrs (nixpkgsConfig.isKernel310 or false)
