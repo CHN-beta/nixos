@@ -46,8 +46,6 @@ rec {
         inherit (pkgs.intelPackages_2023) stdenv;
         cppSupport = false;
         fortranSupport = true;
-        enableShared = false;
-        enableStatic = true;
       };
     };
     vtst = pkgs.callPackage ./vasp/vtst.nix { src = self.src.vasp.vtst.script; };
