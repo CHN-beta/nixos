@@ -1,0 +1,11 @@
+diff --git a/pyproject.toml b/pyproject.toml
+index 4ab3a11e..ca0a4d5e 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -1,5 +1,5 @@
+ [build-system]
+-requires = ["scikit-build-core", "nanobind<2.10.0", "numpy"]
++requires = ["scikit-build-core", "nanobind", "numpy"]
+ build-backend = "scikit_build_core.build"
+ 
+ [project]

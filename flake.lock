@@ -1454,23 +1454,6 @@
         "type": "github"
       }
     },
-    "phono3py": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1761222649,
-        "narHash": "sha256-UokZVrvXs39itenMXpHis7AaTzEM78D1Pm2/EnYrCn0=",
-        "owner": "phonopy",
-        "repo": "phono3py",
-        "rev": "2cce73cd2405f63a7d70f3bc25de94ee9561e134",
-        "type": "github"
-      },
-      "original": {
-        "owner": "phonopy",
-        "ref": "v3.19.4",
-        "repo": "phono3py",
-        "type": "github"
-      }
-    },
     "pocketfft": {
       "flake": false,
       "locked": {
@@ -1713,7 +1696,6 @@
         "nur-linyinfeng": "nur-linyinfeng",
         "nur-xddxdd": "nur-xddxdd",
         "openxlsx": "openxlsx",
-        "phono3py": "phono3py",
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
         "pybinding": "pybinding",

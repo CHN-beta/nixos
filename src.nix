@@ -320,4 +320,14 @@ self: let inherit (self.packages.x86_64-linux) pkgs lib; in
       hash = "sha256-rc9GR1F0G9p7OYHnx+ZDEz83399WR8AIEtTCLg8uIho=";
     };
   };
+  phono3py = rec
+  {
+    version = "3.31.1";
+    src = pkgs.fetchPypi
+    {
+      pname = "phono3py";
+      inherit version;
+      hash = "sha256-5j9Wj8cl6s8ZOew0LLiy3kOD9PgcvzQQWoSn3+rHuUk=";
+    };
+  };
 }
