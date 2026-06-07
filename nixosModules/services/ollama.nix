@@ -22,6 +22,5 @@
         OLLAMA_NUM_THREADS = "1";
       };
     };
-    environment.systemPackages = [ pkgs.oterm ];
   };
 }
