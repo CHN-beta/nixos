@@ -146,10 +146,7 @@
           mpi
           geogebra6
           localPkgs.ufo
-          (quantum-espresso.override {
-            stdenv = gcc14Stdenv;
-            gfortran = gfortran14;
-          })
+          quantum-espresso
           pkgs2311.hdfview
           # media
           nur-xddxdd.svp
