@@ -330,6 +330,7 @@ let
           gdal = prev.gdal.overrideAttrs (prev: {
             disabledTests = prev.disabledTests or [ ] ++ [ "test_transformer_tps_precision" ];
           });
+          arrow-cpp = prev.arrow-cpp.override { enableAzure = false; };
         }
       )
     ];
