@@ -259,8 +259,8 @@ let
           gsl = prev.gsl.overrideAttrs { doCheck = false; };
         }
       )
-      # (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
-      #   { frei0r = final.genericPkgs.frei0r; })
+      (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
+        { frei0r = final.genericPkgs.frei0r; })
       # (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "alderlake")
       #   { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
       # (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "cascadelake")
