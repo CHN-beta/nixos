@@ -259,8 +259,10 @@ let
           gsl = prev.gsl.overrideAttrs { doCheck = false; };
         }
       )
-      (final: prev: lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support)
-        { frei0r = final.genericPkgs.frei0r; })
+      (
+        final: prev:
+        lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support) { frei0r = final.genericPkgs.frei0r; }
+      )
       # (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "alderlake")
       #   { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
       # (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "cascadelake")
@@ -285,7 +287,9 @@ let
             postInstall = "";
             outputs = [ "out" ];
           };
-          #   xen = prev.xen.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./xen.patch ]; });
+          xen = prev.xen.overrideAttrs (prev: {
+            patches = prev.patches or [ ] ++ [ ./xen.patch ];
+          });
           lib2geom = prev.lib2geom.overrideAttrs (prev: {
             doCheck = false;
           });
