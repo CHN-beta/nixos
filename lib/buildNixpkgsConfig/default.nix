@@ -174,7 +174,8 @@ let
         root = prev.root.overrideAttrs (prev: {
           cmakeFlags = prev.cmakeFlags ++ [ "-DCMAKE_CXX_STANDARD=23" ];
         });
-        boost188 = prev.boost188.overrideAttrs (prev: {
+        # TODO: remove when boost 190 become default
+        boost189 = prev.boost189.overrideAttrs (prev: {
           patches = prev.patches or [ ] ++ [ ./boost188.patch ];
         });
         chromium = prev.chromium.override (prev: {
