@@ -53,6 +53,7 @@ in
           export CYPRESS_RUN_BINARY="${cypress}/bin/Cypress"
           export NODE_ENV=production
           export COREPACK_ENABLE_STRICT=0
+          export PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false
           pnpm run migrateandstart
         '';
       in
