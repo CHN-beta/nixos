@@ -1,4 +1,4 @@
 include "nix-generated-config.kdl"
-# input {
-#   touch "T0UCH LKS LKS-27" { map-to-output "Xiaomi Corporation Mi Monitor 0x00000001"; }
-# }
+// input {
+//   touch "T0UCH LKS LKS-27" { map-to-output "Xiaomi Corporation Mi Monitor 0x00000001"; }
+// }
