@@ -42,7 +42,10 @@
             user:
             builtins.map (file: {
               what = "${config.home-manager.users.${user}.home.file.${file}.source}";
-              where = if lib.strings.hasPrefix "/home" file then file else "/home/${user}/${file}";
+              # prepend /. to remove /./ etc from path
+              where = lib.toString (
+                /. + (if lib.strings.hasPrefix "/home" file then file else "/home/${user}/${file}")
+              );
               options = "bind";
               wantedBy = [ "local-fs.target" ];
             }) (files user)
