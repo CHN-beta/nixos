@@ -75,6 +75,11 @@
           [
             { import = "(data)/meta/default-config.yaml"; }
             {
+              name = "allow-git";
+              action = "ALLOW";
+              expression.any = [ ''userAgent.contains("git/")'' ''userAgent.contains("Nix/")'' ];
+            }
+            {
               name = "challenge-all";
               path_regex = ".*";
               action = "CHALLENGE";
