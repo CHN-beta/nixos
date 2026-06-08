@@ -244,7 +244,7 @@
                       pakkujs
                       rsshub-radar
                       rsspreview
-                      tabliss
+                      tablissng
                       tree-style-tab
                       ublock-origin
                       wappalyzer

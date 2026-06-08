@@ -6,9 +6,8 @@
     nixpkgs-2411.url = "github:CHN-beta/nixpkgs/nixos-24.11";
     nixpkgs-2311.url = "github:CHN-beta/nixpkgs/nixos-23.11";
     nixpkgs-2305.url = "github:CHN-beta/nixpkgs/nixos-23.05";
-    # TODO: switch to release-26.11
     home-manager = {
-      url = "github:nix-community/home-manager/master";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sops-nix = {
