@@ -59,6 +59,7 @@ rec {
       concurrencpp
       pocketfft
       ;
+    boost = pkgs.boost188;
     fmt = pkgs.fmt_11.overrideAttrs (prev: {
       patches = prev.patches or [ ] ++ [ ./biu/fmt.patch ];
     });
