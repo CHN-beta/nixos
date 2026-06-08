@@ -2,6 +2,7 @@ providers:
   config:
     class: octodns.provider.yaml.YamlProvider
     directory: env/OCTODNS_CONFIG
+    enforce_order: false
   cloudflare:
     class: octodns_cloudflare.CloudflareProvider
     token: env/CLOUDFLARE_TOKEN
