@@ -29,10 +29,7 @@
           };
           secretsFile = config.nixos.system.sops.templates."immich.env".path;
           accelerationDevices = null;
-          database = {
-            enableVectors = false;
-            host = "127.0.0.1";
-          };
+          database.host = "127.0.0.1";
         };
         # immich module bind redis to only interface specified by cfg.redis.host, but we prefer to bind to all interfaces
         redis.servers.immich.bind = lib.mkForce null;
