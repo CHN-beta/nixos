@@ -59,7 +59,8 @@ rec {
       concurrencpp
       pocketfft
       ;
-    boost = pkgs.boost188;
+    # TODO: remove when boost 190 become default
+    boost = pkgs.boost190;
     fmt = pkgs.fmt_11.overrideAttrs (prev: {
       patches = prev.patches or [ ] ++ [ ./biu/fmt.patch ];
     });
