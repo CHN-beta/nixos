@@ -85,7 +85,11 @@ stdenv.mkDerivation (
       runHook preConfigure
       export HOME=$NIX_BUILD_TOP # Some packages need a writable HOME
       export npm_config_nodedir=${nodejs}
+      export PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN=false
+      export PNPM_CONFIG_TRUST_LOCKFILE=true
       pnpm config set reporter append-only
+      pnpm config set minimum-release-age 0
+      pnpm config set trust-policy none
       # pnpm config set package-manager-strict false
       cp -f ${patchedLockFile} pnpm-lock.yaml
       pnpm install --frozen-lockfile --offline --dangerously-allow-all-builds
