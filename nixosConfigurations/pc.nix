@@ -194,6 +194,8 @@
       "mt7925e.disable_aspm=1"
       # 插拔电源和扩展坞不要唤醒电脑
       "acpi.ec_no_wakeup=1"
+      # fix tf card bug
+      "sdhci.debug_quirks2=0x4"
     ];
     # 手写笔
     hardware.opentabletdriver.enable = true;
