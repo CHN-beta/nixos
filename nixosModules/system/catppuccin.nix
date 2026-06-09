@@ -1,17 +1,13 @@
 inputs: {
   config = {
-    catppuccin = {
-      flavor = "latte";
-      tty.enable = true;
-      autoEnable = false;
-    };
+    catppuccin.flavor = "latte";
+    catppuccin.tty.enable = true;
     nixos.user.sharedModules = [
       {
         config = {
           catppuccin = {
             btop.enable = true;
             bat.enable = true;
-            autoEnable = false;
           };
           programs = {
             bat.enable = true;
