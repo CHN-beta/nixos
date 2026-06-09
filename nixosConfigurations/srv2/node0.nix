@@ -5,9 +5,16 @@
       system = {
         nixpkgs.march = "znver3";
         network.settings = {
-          static.enp58s0 = {
-            ip = "192.168.178.1";
-            mask = 24;
+          static = {
+            enp58s0 = {
+              ip = "192.168.178.1";
+              mask = 24;
+            };
+            enp56s0 = {
+              ip = "192.168.1.2";
+              mask = 24;
+              gateway = "192.168.1.1";
+            };
           };
           trust = [ "enp58s0" ];
           masquerade = [ "enp58s0" ];
