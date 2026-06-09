@@ -29,7 +29,7 @@
     };
     nix-flatpak.url = "github:gmodena/nix-flatpak";
     catppuccin = {
-      url = "github:catppuccin/nix";
+      url = "github:catppuccin/nix/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     bscpkgs = {
