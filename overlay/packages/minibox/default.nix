@@ -17,8 +17,8 @@ stdenvNoCC.mkDerivation rec {
   ];
   pnpmDeps = fetchPnpmDeps {
     inherit pname version src;
-    fetcherVersion = 2;
-    hash = "sha256-22eKpPX093M0qyCe8a6BMcgTUbMVs0QPIn0mTZkbUos=";
+    fetcherVersion = 3;
+    hash = "sha256-tsoIsKc6LaGMdHzAYQDELqa0g4ZpFiKzDQYIkxM62lY=";
   };
   buildPhase = ''
     runHook preBuild
