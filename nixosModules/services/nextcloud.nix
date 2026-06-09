@@ -29,7 +29,7 @@
         hostName = nextcloud.hostname;
         appstoreEnable = false;
         https = true;
-        package = pkgs.nextcloud32;
+        package = pkgs.nextcloud33;
         maxUploadSize = "10G";
         config = {
           dbtype = "pgsql";
