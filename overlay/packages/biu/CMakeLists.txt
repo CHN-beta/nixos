@@ -13,7 +13,7 @@ endif()
 
 find_package(magic_enum REQUIRED)
 find_package(fmt REQUIRED)
-find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem system process)
+find_package(Boost REQUIRED COMPONENTS headers iostreams filesystem process)
 find_package(range-v3 REQUIRED)
 find_path(NAMEOF_INCLUDE_DIR nameof.hpp REQUIRED)
 find_path(ZPP_BITS_INCLUDE_DIR zpp_bits.h REQUIRED)
