@@ -271,51 +271,65 @@
     {
       environment.systemPackages = [ pkgs.nushell ];
       nixos.user.sharedModules = [
-        {
-          config.programs = {
-            nushell = {
-              enable = true;
-              extraConfig = ''
-                source ${self.inputs.nu-scripts}/aliases/git/git-aliases.nu
-                $env.PATH = ($env.PATH | split row (char esep) | append "~/bin")
-              '';
-            };
-            carapace.enable = true;
-            oh-my-posh = {
-              enable = true;
-              enableZshIntegration = false;
-              settings =
-                lib.deepReplace
-                  [
+        (
+          hmInputs:
+          let
+            enableNerdFonts = builtins.elem hmInputs.config.home.username [
+              "chn"
+              "root"
+              "aleksana"
+              "alikia"
+              "hjp"
+              "lilydjwg"
+              "straycat"
+            ];
+          in
+          {
+            config = {
+              programs = {
+                nushell = {
+                  enable = true;
+                  extraConfig = ''
+                    source ${self.inputs.nu-scripts}/aliases/git/git-aliases.nu
+                    $env.PATH = ($env.PATH | split row (char esep) | append "~/bin")
+                  '';
+                };
+                carapace.enable = true;
+                starship = {
+                  enable = true;
+                  settings = lib.mkMerge [
                     {
-                      path = [
-                        "blocks"
-                        0
-                        "segments"
-                        (v: v.type or "" == "path")
-                        "properties"
-                        "style"
-                      ];
-                      value = "powerlevel";
+                      directory = {
+                        truncation_length = 0;
+                        truncate_to_repo = false;
+                      };
+                      line_break.disabled = false;
+                      hostname = {
+                        ssh_only = true;
+                        style = "bg:red fg:crust";
+                        format = "[@$hostname]($style)";
+                      };
+                      os.symbols.NixOS = "";
                     }
-                    {
-                      path = [
-                        "blocks"
-                        0
-                        "segments"
-                        (v: v.type or "" == "executiontime")
-                        "template"
-                      ];
-                      value = v: builtins.replaceStrings [ "⠀" ] [ " " ] v;
-                    }
-                  ]
-                  (
-                    builtins.fromJSON (builtins.readFile "${pkgs.oh-my-posh}/share/oh-my-posh/themes/atomic.omp.json")
-                  );
+                    (lib.optionalAttrs enableNerdFonts {
+                      palette = "catppuccin_latte";
+                      format = "${pkgs.starship}/share/starship/presets/catppuccin-powerline.toml"
+                        |> lib.readFile
+                        |> lib.fromTOML
+                        |> lib.getAttr "format"
+                        |> lib.replaceString "$username" "$username$hostname";
+                    })
+                  ];
+                  presets = lib.mkMerge [
+                    (lib.mkIf enableNerdFonts [ "catppuccin-powerline" ])
+                    (lib.mkIf (!enableNerdFonts) [ "no-nerd-font" ])
+                  ];
+                };
+                zoxide.enable = true;
+              };
             };
-            zoxide.enable = true;
-          };
-        }
+          }
+        )
       ];
     }
     {
@@ -328,6 +342,7 @@
                 scrollback-limit = 100000000;
                 keybind = "ctrl+shift+r=reset";
                 linux-cgroup = "always";
+                font-family = "FiraCode Nerd Font";
               };
             };
             catppuccin.ghostty.enable = true;
@@ -404,16 +419,6 @@
                   zsh = optional {
                     plugins = [
                       {
-                        file = "powerlevel10k.zsh-theme";
-                        name = "powerlevel10k";
-                        src = "${pkgs.zsh-powerlevel10k}/share/zsh-powerlevel10k";
-                      }
-                      {
-                        file = "p10k.zsh";
-                        name = "powerlevel10k-config";
-                        src = ./p10k-config;
-                      }
-                      {
                         name = "zsh-lsd";
                         src = pkgs.fetchFromGitHub {
                           owner = "z-shell";
@@ -424,9 +429,6 @@
                       }
                     ];
                     initContent = lib.mkOrder 550 ''
-                      # p10k instant prompt
-                      P10K_INSTANT_PROMPT="$XDG_CACHE_HOME/p10k-instant-prompt-''${(%):-%n}.zsh"
-                      [[ ! -r "$P10K_INSTANT_PROMPT" ]] || source "$P10K_INSTANT_PROMPT"
                       HYPHEN_INSENSITIVE="true"
                       export PATH=~/bin:$PATH
                       zstyle ':vcs_info:*' disable-patterns "/nix/remote/*"
