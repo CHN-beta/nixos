@@ -122,7 +122,6 @@ inputs: {
         "Zotero"
         ".thunderbird"
         # dms 将剪贴板历史数据和主题的一些设置存放在这里
-        ".cache/dms-clipboard"
         ".cache/DankMaterialShell"
         # gemini-cli
         ".gemini"
