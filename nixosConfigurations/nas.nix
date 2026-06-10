@@ -1,10 +1,7 @@
 {
   config = {
     nixos = {
-      model = {
-        variant = "server";
-        private = true;
-      };
+      model.private = true;
       system = {
         fileSystems = {
           mount = {
