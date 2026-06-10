@@ -25,6 +25,7 @@
           geekbench
           xpra
           wl-clipboard
+          cliphist
           xsel
           libinput
           (writeShellScriptBin "xclip" ''
