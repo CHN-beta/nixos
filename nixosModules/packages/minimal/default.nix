@@ -334,9 +334,13 @@
       environment.systemPackages = [ pkgs.btop ];
       nixos.user.sharedModules = [
         {
-          config.programs.btop = {
-            enable = true;
-            settings.btrfs_group_subvolumes = true;
+          config = {
+            programs.btop = {
+              enable = true;
+              settings.btrfs_group_subvolumes = true;
+            };
+            catppuccin.btop.enable = true;
+            xdg.configFile."btop/btop.conf".force = true;
           };
         }
       ];
@@ -464,6 +468,16 @@
           commit.verbose = true; # always show diff when commit, even if no -v is given
         };
       };
+    }
+    {
+      nixos.user.sharedModules = [
+        {
+          config = {
+            programs.bat.enable = true;
+            catppuccin.bat.enable = true;
+          };
+        }
+      ];
     }
   ];
 }

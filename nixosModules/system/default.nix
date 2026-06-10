@@ -87,5 +87,9 @@
       };
     };
     programs.criu.enable = true;
+    catppuccin = {
+      flavor = "latte";
+      tty.enable = true;
+    };
   };
 }
