@@ -318,13 +318,16 @@
     {
       nixos.user.sharedModules = [
         {
-          config.programs.ghostty = {
-            enable = true;
-            settings = {
-              scrollback-limit = 100000000;
-              keybind = "ctrl+shift+r=reset";
-              linux-cgroup = "always";
+          config = {
+            programs.ghostty = {
+              enable = true;
+              settings = {
+                scrollback-limit = 100000000;
+                keybind = "ctrl+shift+r=reset";
+                linux-cgroup = "always";
+              };
             };
+            catppuccin.ghostty.enable = true;
           };
         }
       ];

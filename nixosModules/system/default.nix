@@ -74,7 +74,14 @@
     };
     users.mutableUsers = false;
     virtualisation.oci-containers.backend = "podman";
-    home-manager.sharedModules = [ { home.stateVersion = "25.05"; } ];
+    home-manager.sharedModules = [
+      {
+        config = {
+          home.stateVersion = "25.05";
+          catppuccin.flavor = "latte";
+        };
+      }
+    ];
     system = {
       stateVersion = "25.05";
       configurationRevision = self.rev or "dirty";
