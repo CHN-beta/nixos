@@ -9,16 +9,12 @@
       flakeInputs.nix-flatpak.nixosModules.nix-flatpak
       flakeInputs.catppuccin.nixosModules.catppuccin
       flakeInputs.nixvirt.nixosModules.default
-      flakeInputs.niri.nixosModules.niri
-      { config.niri-flake.cache.enable = false; }
       flakeInputs.harmonia.nixosModules.harmonia
       flakeInputs.dms-plugin-registry.modules.default
       flakeInputs.hermes.nixosModules.default
       {
         config.home-manager.sharedModules = [
           flakeInputs.catppuccin.homeModules.catppuccin
-          flakeInputs.dankmaterialshell.homeModules.dank-material-shell
-          flakeInputs.dankmaterialshell.homeModules.niri
           flakeInputs.dms-plugin-registry.modules.default
         ];
       }

@@ -44,17 +44,8 @@
       url = "github:polygon/nix-buildproxy";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # TODO: remove this
-    niri = {
-      url = "github:CHN-beta/niri-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     nix4vscode = {
       url = "github:nix-community/nix4vscode";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    dankmaterialshell = {
-      url = "github:AvengeMedia/DankMaterialShell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     harmonia.url = "github:nix-community/harmonia";
