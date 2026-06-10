@@ -380,6 +380,7 @@
                 loginExtra = " ";
               };
               home.shell.enableZshIntegration = true;
+              catppuccin.zsh-syntax-highlighting.enable = true;
             }
             {
               programs =
