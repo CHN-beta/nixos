@@ -74,8 +74,6 @@ let
       "matrix"
       "git"
     ];
-    autoroute = [
-    ];
   };
   a = {
     nas = "192.168.178.10";
@@ -121,10 +119,6 @@ in
       value = "v=spf1 include:mxlogin.com -all";
     }
   ];
-  autoroute = {
-    type = "NS";
-    values = "vps6.chn.moe.";
-  };
   ts = {
     type = "NS";
     values = "vps6.chn.moe.";
