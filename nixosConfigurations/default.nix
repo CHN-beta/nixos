@@ -9,6 +9,7 @@ let
     "vps9"
     "vps10"
     "pe"
+    "r2s"
   ];
   cluster = {
     srv1 = 3;

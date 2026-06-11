@@ -58,6 +58,7 @@
                 "srv2-node0"
                 "srv2-node1"
                 "srv2-node2"
+                "r2s"
               ]
             )
             (builtins.map
@@ -81,6 +82,7 @@
                 "srv2-node0"
                 "srv2-node1"
                 "srv2-node2"
+                "r2s"
               ]
             )
             [

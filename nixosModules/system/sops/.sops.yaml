@@ -13,11 +13,12 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &srv2-node1 age1l4stuz0vr7gs7pqwjrmezam44702jp2vmqaqyxw0l0r42kf9updq4dfhrw
   - &srv2-node2 age1k2y0vm4tmf88vg6zfed8q8zv544g4u0l5ry4kmm4hmzslvj5vdxskhat2n
   - &pe age10ud96nzj0wu6s3g89md939md4dyh9ynt9zgnxn0njqx79d9ydpessltcma
+  - &r2s age167z9vaknwvq4ndhq2n9gvr7fmt704skfy2h0me47um60g5xh2c5qp50rmd
 creation_rules:
   - path_regex: '^default\.yaml$'
     key_groups:
-    - age: [ *chn, *pc, *vps4, *vps6, *vps9, *vps10, *nas, *srv1-node0, *srv1-node1, *srv1-node2, *srv2-node0, *srv2-node1,
-      *srv2-node2, *pe ]
+    - age: [ *chn, *pc, *vps4, *vps6, *vps9, *vps10, *nas, *srv1-node0, *srv1-node1, *srv1-node2, *srv2-node0,
+      *srv2-node1, *srv2-node2, *pe, *r2s ]
   - path_regex: '^chn\.yaml$'
     key_groups:
     - age: [ *chn, *pc, *nas ]
@@ -54,3 +55,5 @@ creation_rules:
     key_groups: [{ age: [ *chn, *srv2-node2 ] }]
   - path_regex: '^devices/pe\.yaml$'
     key_groups: [{ age: [ *chn, *pe ] }]
+  - path_regex: '^devices/r2s\.yaml$'
+    key_groups: [{ age: [ *chn, *r2s ] }]

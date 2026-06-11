@@ -37,7 +37,7 @@
           cryptsetup
           i2c-tools
           trash-cli
-          cpuid
+          (if pkgs.stdenv.hostPlatform.linuxArch == "x86_64" then cpuid else emptyDirectory)
           stress-ng
           (if pkgs.config.cudaSupport or false then gpu-burn else emptyDirectory)
           # lsxx

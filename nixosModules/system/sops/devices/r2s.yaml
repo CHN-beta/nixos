@@ -1,0 +1,26 @@
+tinc: ENC[AES256_GCM,data:DsrqUHYgioSoMOBAcmVUC4XSrc1+Qzx7hU3OvyFUnBxKt+PaY470TfhU0av3/gbgddlm8XYL/t6r7ZVn8IZnz0XKSMGBudbIYXd9EEvF0h5yfzQfODOmw5EArA13mb2bb6sJom7rL2cXcnRXOgOgXLG4M8aCQuXmeTbe9J4R1y/0S1YstWd2OJzrvlpFjMPbuYNCkRWK+QKywJoq+sIazoob+ta70N0xFWwkj12JYS36vc5R1cuMnLSATX7997nNdLA4alVGxlg=,iv:UFt3GmJNOarZdA9RUfFG4qTuW1g5I7dMelVmIQxOe8Q=,tag:IMRoc9MRkR4lcD4KP61j2A==,type:str]
+machineId: ENC[AES256_GCM,data:prQrDLjcIsQJ910VNRxdz0wie1zjtuDAxrdYz4qIbYU=,iv:na31j5SUES5vaEszKYYbOH0EKADvvaBAgE+fXgv3JqI=,tag:oBcXqqsXyYbHM4VA92NStA==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBwVkdFUWV6M2o4TlFzcXhw
+            ZXVtRkM3OHRaSHl1UVNmd3JZb0Vybkdxc1VjCkdjRkpMK2Zlb1k3QjZ3b1J1cEJT
+            NVlpQzk1Z2NxL1BpN1ljZ0Y4L2R0Q2sKLS0tIENTZ3p4TGUxb1hwUUREd1N3cENa
+            K21wMksxeHhuR3RyR1JwMFcxam1nQlkKxFvFNFPuX137nxsnVTvlkbXOhnWHYCdl
+            +9tIIt3kU0YMxUXSiDsZED3AAr33htMD9LdM8IGVbn24qL1wOxGvOQ==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age19ax6vm3pv8rph5tq3mmehd9sy9jk823tw8svsd790r0lkslycquqvlwz9m
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBCZ2NQNEZ1eGdETjBiUkRr
+            aW1aZisxL3k5ZVVkOVZkOUxGeTR3TExLVmtFCmo3MkU2UGxRY3lmNnpLRmUyVFpi
+            UlFsRGVLTkE1aEcrbDBpeU5HK1p2UHMKLS0tIFAwc2NBL1hBYXMxeU1acXJFUWJQ
+            d3pnZVduMFZBUktPc21VNTRGQkNSdVUKB6oql69ohLVYCKChZ3WxqoSlT/tYV3tF
+            YOXKHDPWAJDQvsRHygSHxnH7BsyCBi21kZWPA6cuTognogLcPzvpLA==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age167z9vaknwvq4ndhq2n9gvr7fmt704skfy2h0me47um60g5xh2c5qp50rmd
+    lastmodified: "2026-06-11T10:12:37Z"
+    mac: ENC[AES256_GCM,data:FlHo+pa4429wJss6lWwA3ctUC4Ce8/zoIH9NG86K0uRaQncgDVFy7Tq0EcNj3MxagaSzTWFNeP+T2VNEgTdOyXUl4ZvmX2kVsX69HxWcjAYFlSkNQQ0e+eJ24+HOWQXtt0IMBXTnrB+Co+UkI8OYcxBsibnBHzWBGSFvdXnVgm4=,iv:Bp3/B7N4ewfRIIg65fundPeipB0a1+hib41IRq0GEvY=,tag:oDJafosHQ51xKdQcd4+lNA==,type:str]
+    unencrypted_suffix: _unencrypted
+    version: 3.13.1
