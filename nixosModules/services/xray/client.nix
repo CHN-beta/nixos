@@ -19,14 +19,13 @@ let
     "srv2-node2"
     "nas"
   ];
-  proxyHybrid = [ ];
 in
 {
   options.nixos.services.xray.client = {
     enable = lib.mkOption {
       type = lib.types.bool;
       default = builtins.elem config.nixos.model.hostname (
-        proxyUsingVps6 ++ proxyUsingVps9 ++ proxyHybrid
+        proxyUsingVps6 ++ proxyUsingVps9
       );
       readOnly = true;
     };
@@ -216,7 +215,7 @@ in
                   domainStrategy = "AsIs";
                   rules = builtins.map (rule: rule // { type = "field"; }) (
                     lib.concatLists [
-                      (lib.optional (lib.elem config.nixos.model.hostname (proxyUsingVps6 ++ proxyHybrid)) {
+                      (lib.optional (lib.elem config.nixos.model.hostname proxyUsingVps6) {
                         inboundTag = [
                           "dns-internal"
                           "common-in"
@@ -227,7 +226,7 @@ in
                         ip = [ (pkgs.localPkgs.getAddress "vps6") ];
                         outboundTag = "vless-vps6";
                       })
-                      (lib.optional (lib.elem config.nixos.model.hostname (proxyUsingVps9 ++ proxyHybrid)) {
+                      (lib.optional (lib.elem config.nixos.model.hostname proxyUsingVps9) {
                         inboundTag = [
                           "dns-internal"
                           "common-in"
@@ -245,8 +244,6 @@ in
                               { outboundTag = "vless-vps6"; }
                             else if lib.elem config.nixos.model.hostname proxyUsingVps9 then
                               { outboundTag = "vless-vps9"; }
-                            else if lib.elem config.nixos.model.hostname proxyHybrid then
-                              { balancerTag = "vless-balance"; }
                             else
                               null;
                         in
@@ -337,16 +334,6 @@ in
                       )
                     ]
                   );
-                  balancers = lib.optional (lib.elem config.nixos.model.hostname proxyHybrid) {
-                    tag = "vless-balance";
-                    selector = [ "vless-vps9" ];
-                    fallbackTag = "vless-vps6";
-                    strategy.type = "random";
-                  };
-                };
-                observatory = lib.optionalAttrs (lib.elem config.nixos.model.hostname proxyHybrid) {
-                  subjectSelector = [ "vless-vps9" ];
-                  probeUrl = "https://www.google.com/generate_204";
                 };
               };
             };
