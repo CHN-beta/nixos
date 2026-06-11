@@ -44,7 +44,35 @@
             else
               lammps-mpi
           )
-          cp2k
+          (
+            let
+              umpire = pkgs.umpire.override {
+                cudaSupport = false;
+                rocmSupport = false;
+              };
+              sirius = pkgs.sirius.override {
+                gpuBackend = "none";
+                inherit umpire;
+              };
+              cp2k = pkgs.cp2k.override {
+                gpuBackend = "none";
+                inherit sirius;
+              };
+            in
+            pkgs.runCommand "cp2k-cpu" { } ''
+              mkdir -p $out/bin
+              ln -s ${cp2k}/bin/cp2k.psmp $out/bin/cp2k-cpu
+            ''
+          )
+          (
+            if pkgs.config.cudaSupport || pkgs.config.rocmSupport then
+              pkgs.runCommand "cp2k-gpu" { } ''
+                mkdir -p $out/bin
+                ln -s ${pkgs.cp2k}/bin/cp2k.psmp $out/bin/cp2k-gpu
+              ''
+            else
+              pkgs.emptyDirectory
+          )
           # calculator
           numbat
           # development
