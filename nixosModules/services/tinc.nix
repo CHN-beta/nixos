@@ -32,7 +32,7 @@ let
     }
     # 使用 vps9 代理的机器
     {
-      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" "nas" ] (_: null)) // {
+      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" ] (_: null)) // {
         vps9 = getAddress "vps9";
       };
       distance = 10;
@@ -46,8 +46,14 @@ let
       };
       distance = 10;
     }
-    # 使用 vps4 代理的机器
-    # { device = { vps4 = getAddress "vps4"; }; distance = 10; }
+    # 使用 vps10 代理的机器
+    {
+      device = {
+        vps10 = getAddress "vps10";
+        nas = null;
+      };
+      distance = 10;
+    }
     # 校内网络
     {
       device = (lib.genAttrs [ "srv1-node0" "srv2-node0" ] getAddress) // {

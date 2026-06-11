@@ -24,7 +24,6 @@ let
       "headscale"
       "missgram"
       "vikunja"
-      "question"
       "xserver3"
       # to pc
       "铜锣湾实验室"
@@ -57,6 +56,10 @@ let
     vps9 = [
       "initrd.vps9"
       "xserver2.vps9"
+    ];
+    vps10 = [
+      "initrd.vps10"
+      "xserver2.vps10"
       # to nas
       "peertube"
       "send"
@@ -66,15 +69,12 @@ let
       "synapse"
       "misskey"
       "api"
-    ];
-    vps10 = [
-      "initrd.vps10"
-      "xserver2.vps10"
-    ];
-    autoroute = [
+      "question"
       "铜锣湾"
       "matrix"
       "git"
+    ];
+    autoroute = [
     ];
   };
   a = {
