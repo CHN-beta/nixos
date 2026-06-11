@@ -5,28 +5,25 @@
   ...
 }:
 let
-  proxyUsingVps6 = [
-    "pc"
-    "pe"
-    "r2s"
-  ];
-  proxyUsingVps9 = [
-    "srv1-node0"
-    "srv1-node1"
-    "srv1-node2"
-    "srv2-node0"
-    "srv2-node1"
-    "srv2-node2"
-    "nas"
-  ];
+  proxyUsingMap = {
+    pc = "vps6";
+    pe = "vps6";
+    r2s = "vps6";
+    srv1-node0 = "vps9";
+    srv1-node1 = "vps9";
+    srv1-node2 = "vps9";
+    srv2-node0 = "vps9";
+    srv2-node1 = "vps9";
+    srv2-node2 = "vps9";
+    nas = "vps9";
+  };
+  proxyUsing = proxyUsingMap.${config.nixos.model.hostname} or null;
 in
 {
   options.nixos.services.xray.client = {
     enable = lib.mkOption {
       type = lib.types.bool;
-      default = builtins.elem config.nixos.model.hostname (
-        proxyUsingVps6 ++ proxyUsingVps9
-      );
+      default = proxyUsing != null;
       readOnly = true;
     };
     coredns = {
@@ -162,178 +159,124 @@ in
                     tag = "common-socks-in";
                   }
                 ];
-                outbounds = lib.concatLists [
-                  (
-                    [
-                      "vps4"
-                      "vps6"
-                      "vps9"
-                    ]
-                    |> lib.map (n: {
-                      protocol = "vless";
-                      settings.vnext = [
-                        {
-                          address = pkgs.localPkgs.getAddress n;
-                          port = 443;
-                          users = [
-                            {
-                              id = config.nixos.system.sops.placeholder."xray-client/uuid";
-                              encryption = "none";
-                            }
-                          ];
-                        }
-                      ];
-                      streamSettings = {
-                        network = "xhttp";
-                        security = "reality";
-                        realitySettings = {
-                          serverName = "xserver3.chn.moe";
-                          publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
-                          fingerprint = "firefox";
-                        };
-                        xhttpSettings.path = "/kT9hRk6D4gJ5WxNT";
+                outbounds = [
+                  {
+                    protocol = "vless";
+                    settings.vnext = [
+                      {
+                        address = pkgs.localPkgs.getAddress proxyUsing;
+                        port = 443;
+                        users = [
+                          {
+                            id = config.nixos.system.sops.placeholder."xray-client/uuid";
+                            encryption = "none";
+                          }
+                        ];
+                      }
+                    ];
+                    streamSettings = {
+                      network = "xhttp";
+                      security = "reality";
+                      realitySettings = {
+                        serverName = "xserver3.chn.moe";
+                        publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
+                        fingerprint = "firefox";
                       };
-                      tag = "vless-${n}";
-                    })
-                  )
-                  [
-                    {
-                      protocol = "freedom";
-                      tag = "direct";
-                    }
-                    {
-                      protocol = "dns";
-                      tag = "dns-out";
-                    }
-                    {
-                      protocol = "blackhole";
-                      tag = "block";
-                    }
-                  ]
+                      xhttpSettings.path = "/kT9hRk6D4gJ5WxNT";
+                    };
+                    tag = "vless";
+                  }
+                  {
+                    protocol = "freedom";
+                    tag = "direct";
+                  }
+                  {
+                    protocol = "dns";
+                    tag = "dns-out";
+                  }
+                  {
+                    protocol = "blackhole";
+                    tag = "block";
+                  }
                 ];
                 routing = {
                   domainStrategy = "AsIs";
-                  rules = builtins.map (rule: rule // { type = "field"; }) (
-                    lib.concatLists [
-                      (lib.optional (lib.elem config.nixos.model.hostname proxyUsingVps6) {
-                        inboundTag = [
-                          "dns-internal"
-                          "common-in"
-                          "common-socks-in"
-                          "proxy-in"
-                          "proxy-socks-in"
-                        ];
-                        ip = [ (pkgs.localPkgs.getAddress "vps6") ];
-                        outboundTag = "vless-vps6";
-                      })
-                      (lib.optional (lib.elem config.nixos.model.hostname proxyUsingVps9) {
-                        inboundTag = [
-                          "dns-internal"
-                          "common-in"
-                          "common-socks-in"
-                          "proxy-in"
-                          "proxy-socks-in"
-                        ];
-                        ip = [ (pkgs.localPkgs.getAddress "vps9") ];
-                        outboundTag = "vless-vps9";
-                      })
-                      (
-                        let
-                          defaultOutbound =
-                            if lib.elem config.nixos.model.hostname proxyUsingVps6 then
-                              { outboundTag = "vless-vps6"; }
-                            else if lib.elem config.nixos.model.hostname proxyUsingVps9 then
-                              { outboundTag = "vless-vps9"; }
-                            else
-                              null;
-                        in
-                        [
-                          {
-                            inboundTag = [ "dns-in" ];
-                            outboundTag = "dns-out";
-                          }
-                          {
-                            inboundTag = [
-                              "dns-internal"
-                              "common-in"
-                              "common-socks-in"
-                            ];
-                            ip = [ "223.5.5.5" ];
-                            outboundTag = "direct";
-                          }
-                          (
-                            {
-                              inboundTag = [
-                                "dns-internal"
-                                "common-in"
-                                "common-socks-in"
-                              ];
-                              ip = [
-                                "8.8.8.8"
-                                "1.1.1.1"
-                              ];
-                            }
-                            // defaultOutbound
-                          )
-                          {
-                            inboundTag = [ "dns-internal" ];
-                            outboundTag = "block";
-                          }
-                          {
-                            inboundTag = [ "direct-in" ];
-                            outboundTag = "direct";
-                          }
-                          (
-                            {
-                              inboundTag = [
-                                "proxy-in"
-                                "proxy-socks-in"
-                              ];
-                            }
-                            // defaultOutbound
-                          )
-                          {
-                            inboundTag = [
-                              "common-in"
-                              "common-socks-in"
-                            ];
-                            domain = [ "geosite:geolocation-cn" ];
-                            outboundTag = "direct";
-                          }
-                          (
-                            {
-                              inboundTag = [
-                                "common-in"
-                                "common-socks-in"
-                              ];
-                              domain = [ "geosite:geolocation-!cn" ];
-                            }
-                            // defaultOutbound
-                          )
-                          {
-                            inboundTag = [
-                              "common-in"
-                              "common-socks-in"
-                            ];
-                            ip = [
-                              "geoip:cn"
-                              "geoip:private"
-                            ];
-                            outboundTag = "direct";
-                          }
-                          (
-                            {
-                              inboundTag = [
-                                "common-in"
-                                "common-socks-in"
-                              ];
-                            }
-                            // defaultOutbound
-                          )
-                        ]
-                      )
-                    ]
-                  );
+                  rules = builtins.map (rule: rule // { type = "field"; }) [
+                    {
+                      inboundTag = [ "dns-in" ];
+                      outboundTag = "dns-out";
+                    }
+                    {
+                      inboundTag = [
+                        "dns-internal"
+                        "common-in"
+                        "common-socks-in"
+                      ];
+                      ip = [ "223.5.5.5" ];
+                      outboundTag = "direct";
+                    }
+                    {
+                      inboundTag = [
+                        "dns-internal"
+                        "common-in"
+                        "common-socks-in"
+                      ];
+                      ip = [
+                        "8.8.8.8"
+                        "1.1.1.1"
+                      ];
+                      outboundTag = "vless";
+                    }
+                    {
+                      inboundTag = [ "dns-internal" ];
+                      outboundTag = "block";
+                    }
+                    {
+                      inboundTag = [ "direct-in" ];
+                      outboundTag = "direct";
+                    }
+                    {
+                      inboundTag = [
+                        "proxy-in"
+                        "proxy-socks-in"
+                      ];
+                      outboundTag = "vless";
+                    }
+                    {
+                      inboundTag = [
+                        "common-in"
+                        "common-socks-in"
+                      ];
+                      domain = [ "geosite:geolocation-cn" ];
+                      outboundTag = "direct";
+                    }
+                    {
+                      inboundTag = [
+                        "common-in"
+                        "common-socks-in"
+                      ];
+                      domain = [ "geosite:geolocation-!cn" ];
+                      outboundTag = "vless";
+                    }
+                    {
+                      inboundTag = [
+                        "common-in"
+                        "common-socks-in"
+                      ];
+                      ip = [
+                        "geoip:cn"
+                        "geoip:private"
+                      ];
+                      outboundTag = "direct";
+                    }
+                    {
+                      inboundTag = [
+                        "common-in"
+                        "common-socks-in"
+                      ];
+                      outboundTag = "vless";
+                    }
+                  ];
                 };
               };
             };
