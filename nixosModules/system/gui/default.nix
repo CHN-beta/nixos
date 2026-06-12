@@ -98,18 +98,35 @@
     nixos.user.sharedModules = [
       (hmInputs: {
         config = {
-          systemd.user.services.voxtype = {
-            Unit = {
-              PartOf = [ "graphical-session.target" ];
-              After = [ "graphical-session.target" ];
+          services.voxtype = {
+            enable = true;
+            package = pkgs.voxtype-onnx;
+            settings = {
+              audio = {
+                device = "default";
+                feedback.enabled = true;
+                max_duration_secs = 60;
+                sample_rate = 16000;
+              };
+              engine = "sensevoice";
+              hotkey.enabled = false;
+              output = {
+                fallback_to_clipboard = true;
+                mode = "clipboard";
+                notification = {
+                  on_recording_start = false;
+                  on_recording_stop = false;
+                  on_transcription = false;
+                };
+                type_delay_ms = 50;
+              };
+              sensevoice = {
+                language = "auto";
+                model = "small";
+                use_itn = true;
+              };
+              state_file = "auto";
             };
-            Service = {
-              type = "simple";
-              ExecStart = "${pkgs.voxtype-onnx}/bin/voxtype";
-              Restart = "on-failure";
-              RestartSec = "5s";
-            };
-            Install.WantedBy = [ "graphical-session.target" ];
           };
           xdg.configFile."niri/config.kdl".source = ./config.kdl;
         };
