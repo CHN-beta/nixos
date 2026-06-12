@@ -15,7 +15,7 @@
     in
     lib.mkIf (synapse-admin != null) {
       nixos.services.nginx.https."synapse-admin.chn.moe".location."/".static = {
-        root = "${pkgs.synapse-admin-etkecc}";
+        root = "${pkgs.ketesa}";
         index = [ "index.html" ];
       };
     };
