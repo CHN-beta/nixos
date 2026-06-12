@@ -26,8 +26,17 @@
             base_domain = "ts.chn.moe";
             override_local_dns = false;
           };
+          derp = {
+            server = {
+              enabled = true;
+              verify_clients = true;
+              stun_listen_addr = "0.0.0.0:3479";
+            };
+            urls = [ ];
+          };
         };
       };
+      networking.firewall.allowedUDPPorts = [ 3479 ];
       nixos = {
         services = {
           nginx.https."headscale.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:6538";
