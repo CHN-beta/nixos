@@ -29,8 +29,12 @@
           derp = {
             server = {
               enabled = true;
+              region_id = 999;
+              region_code = "chn";
+              region_name = "CHN DERP";
               verify_clients = true;
               stun_listen_addr = "0.0.0.0:3479";
+              automatically_add_embedded_derp_region = true;
             };
             urls = [ ];
           };
