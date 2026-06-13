@@ -120,6 +120,7 @@ let
                 )
               ];
             };
+            pkgs2511 = "nixpkgs-2511";
           };
           packages =
             name:
@@ -330,8 +331,12 @@ let
           });
           arrow-cpp = prev.arrow-cpp.override { enableAzure = false; };
           # time-consuming and flaky test
-          redis = prev.redis.overrideAttrs (prev: { doCheck = false; });
-          valkey = prev.valkey.overrideAttrs (prev: { doCheck = false; });
+          redis = prev.redis.overrideAttrs (prev: {
+            doCheck = false;
+          });
+          valkey = prev.valkey.overrideAttrs (prev: {
+            doCheck = false;
+          });
         }
       )
     ];
@@ -363,7 +368,8 @@ let
           x11Support = false;
           enableGStreamer = false;
           # ftxui = prev.ftxui.overrideAttrs (prev: { nativeBuildInputs = [ final.cmake ]; });
-          graphviz = null;
+          # for matplotlib
+          enableTk = false;
           vtk = null;
           # systemd does not working
           systemd = null;
@@ -402,7 +408,11 @@ let
               NIX_CFLAGS_COMPILE = "-Wno-error=unused-but-set-variable";
             };
           });
-          go = prev.go.overrideAttrs { CGO_ENABLED = 0; };
+          go = prev.go.overrideAttrs (prev: {
+            env = prev.env or { } // {
+              CGO_ENABLED = 0;
+            };
+          });
           libfabric =
             (prev.libfabric.override {
               enablePsm2 = false;
@@ -416,6 +426,7 @@ let
           # fabric built but intel libpsm2 not
           # we using ucx anyway
           openmpi = prev.openmpi.override { fabricSupport = false; };
+          inherit (final.pkgs2511) libnl util-linux util-linuxMinimal;
           libbpf = null;
           valgrind = null;
           valgrind-light = null;
