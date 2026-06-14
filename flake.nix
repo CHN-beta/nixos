@@ -8,7 +8,7 @@
     nixpkgs-2311.url = "github:CHN-beta/nixpkgs/nixos-23.11";
     nixpkgs-2305.url = "github:CHN-beta/nixpkgs/nixos-23.05";
     home-manager = {
-      url = "github:nix-community/home-manager/release-26.05";
+      url = "github:CHN-beta/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     sops-nix = {
