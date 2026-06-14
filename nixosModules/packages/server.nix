@@ -102,10 +102,6 @@
           )
         ];
       }
-      {
-        environment.systemPackages = [ self.inputs.llm-agents.packages.x86_64-linux.gemini-cli ];
-        # TODO: move persistent .gemini here
-      }
     ]
   );
 }
