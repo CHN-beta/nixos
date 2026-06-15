@@ -5,7 +5,7 @@ inputs: {
     in
     mkOption {
       type = types.nullOr (types.submodule { });
-      default = if inputs.config.nixos.model.arch == "x86_64" then { } else null;
+      default = { };
     };
   config =
     let
