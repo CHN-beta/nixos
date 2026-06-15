@@ -163,17 +163,10 @@
         gnupg.agent.enable = true;
         nbd.enable = true;
       };
-      services = {
-        udev.packages = with pkgs; [
-          yubikey-personalization
-          libfido2
-        ];
-        fwupd = {
-          enable = true;
-          # allow fwupd install firmware from any source (e.g. manually extracted from msi)
-          daemonSettings.OnlyTrusted = false;
-        };
-      };
+      services.udev.packages = with pkgs; [
+        yubikey-personalization
+        libfido2
+      ];
       home-manager = {
         useGlobalPkgs = true;
         useUserPackages = true;
@@ -313,7 +306,8 @@
                     }
                     (lib.optionalAttrs enableNerdFonts {
                       palette = "catppuccin_latte";
-                      format = "${pkgs.starship}/share/starship/presets/catppuccin-powerline.toml"
+                      format =
+                        "${pkgs.starship}/share/starship/presets/catppuccin-powerline.toml"
                         |> lib.readFile
                         |> lib.fromTOML
                         |> lib.getAttr "format"
