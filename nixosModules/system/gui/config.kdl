@@ -83,7 +83,7 @@ binds {
     XF86AudioMute allow-when-locked=true { spawn "dms" "ipc" "audio" "mute"; }
     XF86AudioPlay { spawn "dms" "ipc" "call" "mpris" "playPause"; }
     XF86AudioRaiseVolume allow-when-locked=true { spawn "dms" "ipc" "audio" "increment" "3"; }
-    XF86Launch3 { spawn "voxtype" "record" "toggle"; }
+    F10 { spawn "voxtype" "record" "toggle"; }
     XF86MonBrightnessDown allow-when-locked=true { spawn "dms" "ipc" "brightness" "decrement" "5" ""; }
     XF86MonBrightnessUp allow-when-locked=true { spawn "dms" "ipc" "brightness" "increment" "5" ""; }
 }
