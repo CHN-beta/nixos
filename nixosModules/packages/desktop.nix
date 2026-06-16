@@ -77,6 +77,7 @@
           openbox
           fprettify # jetbrains.clion
           android-tools
+          kitty
           # password and key management
           yubikey-manager
           bitwarden-desktop
@@ -767,7 +768,7 @@
                   enable = true;
                   package = self.inputs.llm-agents.packages.x86_64-linux.opencode;
                   enableMcpIntegration = true;
-                  settings ={
+                  settings = {
                     plugin = [ "opencode-gemini-auth@latest" ];
                   };
                 };
@@ -789,6 +790,25 @@
             };
           }
         ];
+      }
+      {
+        nixos.user.sharedModules = [
+          {
+            config = {
+              programs.ghostty = {
+                enable = true;
+                settings = {
+                  scrollback-limit = 100000000;
+                  keybind = "ctrl+shift+r=reset";
+                  linux-cgroup = "always";
+                  font-family = "FiraCode Nerd Font";
+                };
+              };
+              catppuccin.ghostty.enable = true;
+            };
+          }
+        ];
+        environment.systemPackages = [ pkgs.ghostty ];
       }
     ]
   );

@@ -146,9 +146,6 @@
           localPkgs.stickerpicker
           graph-easy
           tokei
-          # shell
-          # somehow fish does not compile on aarch64
-          (if config.nixos.model.arch == "x86_64" then kitty else emptyDirectory)
         ]
         ++ (with config.boot.kernelPackages; [
           cpupower
@@ -325,25 +322,6 @@
           }
         )
       ];
-    }
-    {
-      nixos.user.sharedModules = [
-        {
-          config = {
-            programs.ghostty = {
-              enable = true;
-              settings = {
-                scrollback-limit = 100000000;
-                keybind = "ctrl+shift+r=reset";
-                linux-cgroup = "always";
-                font-family = "FiraCode Nerd Font";
-              };
-            };
-            catppuccin.ghostty.enable = true;
-          };
-        }
-      ];
-      environment.systemPackages = [ pkgs.ghostty ];
     }
     {
       environment.systemPackages = [ pkgs.btop ];
