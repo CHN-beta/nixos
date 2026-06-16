@@ -29,41 +29,33 @@
       inherit (config.nixos.services) postgresql;
     in
     lib.mkIf (postgresql.instances != { }) {
-      services = {
-        postgresql = {
-          enable = true;
-          package = pkgs.postgresql_17;
-          extensions = ps: with ps; [ pgroonga ];
-          enableTCPIP = true;
-          authentication = "host all all 0.0.0.0/0 md5";
-          settings = {
-            unix_socket_permissions = "0700";
-            shared_buffers = "512MB";
-            work_mem = "512MB";
-            autovacuum = "on";
-          };
-          # log_timezone = 'Asia/Shanghai'
-          # datestyle = 'iso, mdy'
-          # timezone = 'Asia/Shanghai'
-          # lc_messages = 'en_US.utf8'
-          # lc_monetary = 'en_US.utf8'
-          # lc_numeric = 'en_US.utf8'
-          # lc_time = 'en_US.utf8'
-          # default_text_search_config = 'pg_catalog.english'
-          # plperl.on_init = 'use utf8; use re; package utf8; require "utf8_heavy.pl";'
-          # mv /path/to/dir /path/to/dir_old
-          # mkdir /path/to/dir
-          # chattr +C /path/to/dir
-          # cp -a --reflink=never /path/to/dir_old/. /path/to/dir
-          # rm -rf /path/to/dir_old
-          ensureUsers = postgresql.instances |> lib.mapAttrsToList (n: v: { name = n; });
+      services.postgresql = {
+        enable = true;
+        package = pkgs.postgresql_17;
+        extensions = ps: with ps; [ pgroonga ];
+        enableTCPIP = true;
+        authentication = "host all all 0.0.0.0/0 md5";
+        settings = {
+          unix_socket_permissions = "0700";
+          shared_buffers = "512MB";
+          work_mem = "512MB";
+          autovacuum = "on";
         };
-        postgresqlBackup = {
-          enable = postgresql.mountFrom != null;
-          pgdumpOptions = "-Fc";
-          compression = "none";
-          databases = postgresql.instances |> lib.mapAttrsToList (n: v: n);
-        };
+        # log_timezone = 'Asia/Shanghai'
+        # datestyle = 'iso, mdy'
+        # timezone = 'Asia/Shanghai'
+        # lc_messages = 'en_US.utf8'
+        # lc_monetary = 'en_US.utf8'
+        # lc_numeric = 'en_US.utf8'
+        # lc_time = 'en_US.utf8'
+        # default_text_search_config = 'pg_catalog.english'
+        # plperl.on_init = 'use utf8; use re; package utf8; require "utf8_heavy.pl";'
+        # mv /path/to/dir /path/to/dir_old
+        # mkdir /path/to/dir
+        # chattr +C /path/to/dir
+        # cp -a --reflink=never /path/to/dir_old/. /path/to/dir
+        # rm -rf /path/to/dir_old
+        ensureUsers = postgresql.instances |> lib.mapAttrsToList (n: v: { name = n; });
       };
       systemd.services.postgresql-setup.script =
         postgresql.instances
