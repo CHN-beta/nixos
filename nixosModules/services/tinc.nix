@@ -232,7 +232,6 @@ in
       settings = {
         Interface = "tinc0";
         Name = tincHostname hostname;
-        PingInterval = 1;
         TCPOnly = true;
         Proxy = lib.mkIf (config.nixos.services.xray.client.enable) "socks5 127.0.0.1 10885";
         ConnectTo = builtins.map tincHostname (
@@ -301,5 +300,19 @@ in
       allowedUDPPorts = [ 655 ];
       trustedInterfaces = [ "tinc0" ];
     };
+    systemd.services =
+      connection.${hostname}
+      |> lib.filterAttrs (n: v: (v.address or null != null) && (v.jump or null == n))
+      |> lib.mapAttrs' (
+        n: v:
+        lib.nameValuePair "tinc-ping-${n}" {
+          after = [ "network.target" ];
+          wantedBy = [ "multi-user.target" ];
+          serviceConfig = {
+            ExecStart = "${pkgs.iputils}/bin/ping -i 5 tinc0.${n}.chn.moe";
+            Restart = "always";
+          };
+        }
+      );
   };
 }
