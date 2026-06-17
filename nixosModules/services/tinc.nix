@@ -58,9 +58,7 @@ let
     }
     # 校内网络
     {
-      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" ] getAddress) // {
-        nas = null;
-      };
+      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" ] getAddress);
       distance = 1;
     }
     # srv1 内部网络
