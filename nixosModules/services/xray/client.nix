@@ -37,7 +37,10 @@ in
       };
     };
     v2ray-forwarder.asRouter = lib.mkOption {
-      type = lib.types.bool;
+      type = lib.types.oneOf [
+        lib.types.bool
+        (lib.types.listOf lib.types.nonEmptyStr)
+      ];
       default = false;
     };
   };
@@ -464,7 +467,16 @@ in
                   # if it is not used as router, we should not proxy packet without fwmark 1 (2b and 3),
                   #   leaving only packet with fwmark 1 (2a) to be proxied
                   # otherwise, all packets will be leave for further decision
-                  ${if !client.v2ray-forwarder.asRouter then "meta mark & 1 == 0 counter return" else ""}
+                  ${
+                    if client.v2ray-forwarder.asRouter == false then
+                      "meta mark & 1 == 0 counter return"
+                    else if lib.isList client.v2ray-forwarder.asRouter then
+                      "iifname != { ${
+                        lib.concatStringsSep ", " (map (x: ''"${x}"'') client.v2ray-forwarder.asRouter)
+                      } } meta mark & 1 == 0 counter return"
+                    else
+                      ""
+                  }
                   ip daddr @noproxy_net counter return
                   ip daddr @proxy_net meta l4proto == { tcp, udp } counter \
                     tproxy ip to :${proxyPort} meta mark set meta mark | 1 return
