@@ -358,6 +358,8 @@ in
             };
             resolvconf.enable = false;
           };
+          nixos.services.xray.client.coredns.extraInterfaces =
+            lib.mkIf (lib.isList client.v2ray-forwarder.asRouter) client.v2ray-forwarder.asRouter;
         }
         # transparent proxy part
         {

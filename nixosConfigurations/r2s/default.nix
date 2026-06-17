@@ -1,5 +1,6 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 {
+  imports = lib.findModules ./.;
   config = {
     nixos = {
       model.arch = "aarch64";
