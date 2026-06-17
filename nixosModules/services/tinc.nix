@@ -230,7 +230,6 @@ in
       settings = {
         Interface = "tinc0";
         Name = tincHostname hostname;
-        TCPOnly = true;
         Proxy = lib.mkIf (config.nixos.services.xray.client.enable) "socks5 127.0.0.1 10885";
         ConnectTo = builtins.map tincHostname (
           builtins.attrNames (
