@@ -308,7 +308,9 @@ in
           serviceConfig = {
             ExecStart = "${pkgs.iputils}/bin/ping -i 5 tinc0.${n}.chn.moe";
             Restart = "always";
+            RestartSec = 5;
           };
+          unitConfig.StartLimitIntervalSec = 0;
         }
       );
   };
