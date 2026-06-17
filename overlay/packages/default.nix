@@ -73,7 +73,7 @@ rec {
       openxlsx
       ;
   };
-  openxlsx = pkgs.callPackage ./openxlsx.nix { src = self.inputs.openxlsx; };
+  openxlsx = pkgs.callPackage ./openxlsx { src = self.inputs.openxlsx; };
   sqlite-orm = pkgs.callPackage ./sqlite-orm.nix { src = self.inputs.sqlite-orm; };
   mkPnpmPackage = pkgs.callPackage ./mkPnpmPackage.nix { };
   sbatch-tui = pkgs.callPackage ./sbatch-tui { inherit biu; };

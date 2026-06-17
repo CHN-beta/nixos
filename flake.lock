@@ -1346,17 +1346,16 @@
     "openxlsx": {
       "flake": false,
       "locked": {
-        "lastModified": 1716560554,
-        "narHash": "sha256-Aqn1830lG4g7BbwEeePhvGawLarmrIMnF2MXROTUBCw=",
+        "lastModified": 1781537209,
+        "narHash": "sha256-mmDTeT+6HFSA8kYaEBZv9UYvanPvNjd0qQ4OWFrCMuk=",
         "owner": "troldal",
         "repo": "OpenXLSX",
-        "rev": "f85f7f1bd632094b5d78d4d1f575955fc3801886",
+        "rev": "c1220f3e0dc570f96fae456e69ac2eb13aa65f4d",
         "type": "github"
       },
       "original": {
         "owner": "troldal",
         "repo": "OpenXLSX",
-        "rev": "f85f7f1bd632094b5d78d4d1f575955fc3801886",
         "type": "github"
       }
     },

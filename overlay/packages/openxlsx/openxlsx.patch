@@ -1,0 +1,13 @@
+diff --git a/OpenXLSX/CMakeLists.txt b/OpenXLSX/CMakeLists.txt
+index 65f5c47..cb9ec17 100644
+--- a/OpenXLSX/CMakeLists.txt
++++ b/OpenXLSX/CMakeLists.txt
+@@ -526,7 +526,7 @@ endif()
+ file(WRITE ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${OPENXLSX_LIBRARY_NAME}.pc.in.in
+     "prefix=@DEFERRED@CMAKE_INSTALL_PREFIX@DEFERRED@\n"
+     "exec_prefix=\${prefix}\n"
+-    "includedir=\${prefix}/@CMAKE_INSTALL_INCLUDEDIR@/@OPENXLSX_LIBRARY_NAME@\n" # includedir=${prefix}/include
++    "includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@/@OPENXLSX_LIBRARY_NAME@\n" # includedir=${prefix}/include
+     "libdir=\${exec_prefix}/lib\n"
+     "\n"
+     "Name: @OPENXLSX_LIBRARY_NAME@\n"

@@ -18,6 +18,8 @@ find_package(httplib REQUIRED)
 find_package(termcolor REQUIRED)
 find_package(biu REQUIRED)
 find_package(OpenXLSX REQUIRED)
+find_package(pugixml REQUIRED)
+find_package(libzip REQUIRED)
 
 add_executable(hpcstat src/main.cpp src/env.cpp src/keys.cpp src/ssh.cpp src/sql.cpp src/lfs.cpp src/common.cpp
   src/push.cpp src/disk.cpp)

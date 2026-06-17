@@ -110,7 +110,7 @@
       flake = false;
     };
     openxlsx = {
-      url = "github:troldal/OpenXLSX?rev=f85f7f1bd632094b5d78d4d1f575955fc3801886";
+      url = "github:troldal/OpenXLSX";
       flake = false;
     };
     sqlite-orm = {
