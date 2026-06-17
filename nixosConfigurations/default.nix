@@ -21,7 +21,8 @@ let
         singles
         |> lib.flip lib.genAttrs (n: [
           { config.nixos.model.hostname = n; }
-          ./${n}.nix
+          (if lib.pathIsRegularFile ./${n}.nix then ./${n}.nix else {})
+          (if lib.pathIsRegularFile ./${n}/default.nix then ./${n} else {})
         ])
       )
       (
