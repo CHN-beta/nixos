@@ -28,7 +28,7 @@
       };
       services = {
         sshd = { };
-        pppoe.interface = "enu1";
+        # pppoe.interface = "enu1";
       };
     };
   };
