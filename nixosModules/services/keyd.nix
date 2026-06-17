@@ -34,6 +34,15 @@
           };
         };
       };
-      environment.systemPackages = [ pkgs.keyd ];
+      environment = {
+        # keyd makes touchpad disable-when-typing does not work, this fixes it
+        etc."libinput/local-overrides.quirks".text = ''
+          [Serial Keyboards]
+          MatchUdevType=keyboard
+          MatchName=keyd virtual keyboard
+          AttrKeyboardIntegration=internal
+        '';
+        systemPackages = [ pkgs.keyd ];
+      };
     };
 }
