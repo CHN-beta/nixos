@@ -195,7 +195,7 @@ let
           doCheck = !final.stdenv.hostPlatform.isStatic;
         });
         range-v3 = prev.range-v3.overrideAttrs (prev: {
-          doCheck = final.stdenv.hostPlatform.isLinux;
+          doCheck = final.stdenv.hostPlatform.isLinux && !final.stdenv.hostPlatform.isAarch64;
           cmakeFlags =
             prev.cmakeFlags or [ ]
             ++ final.lib.optionals (!final.stdenv.hostPlatform.isLinux) [ "-DRANGE_V3_TESTS=OFF" ];

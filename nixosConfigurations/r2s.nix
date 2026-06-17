@@ -4,6 +4,7 @@
     nixos = {
       model.arch = "aarch64";
       system = {
+        # 带贴纸的接口是 enu1，不带贴纸的接口是 end0
         fileSystems = {
           mount = {
             vfat."/dev/disk/by-uuid/BCB5-1029" = "/boot";
@@ -27,6 +28,7 @@
       };
       services = {
         sshd = { };
+        pppoe.interface = "enu1";
       };
     };
   };
