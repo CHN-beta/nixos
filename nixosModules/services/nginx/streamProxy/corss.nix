@@ -7,7 +7,6 @@
         "peertube"
         "send"
         "freshrss"
-        "nextcloud"
         "webdav"
         "synapse"
         "misskey"

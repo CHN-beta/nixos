@@ -52,6 +52,7 @@ let
       "vaultwarden"
       "photo"
       "readeck"
+      "nextcloud"
     ];
     vps9 = [
       "initrd.vps9"
@@ -64,7 +65,6 @@ let
       "peertube"
       "send"
       "freshrss"
-      "nextcloud"
       "webdav"
       "synapse"
       "misskey"
