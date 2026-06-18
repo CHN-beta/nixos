@@ -18,7 +18,6 @@ let
     srv2-node2 = "csZoiTwZItonm6h+uqkJ5z9J6o1iFlBESQ2u97Wz2JL";
     vps4 = "N03OoCyj4ADkeN3cimJI/bJrBw8g1kz3TJ+1BTe+oyA";
     vps6 = "rYOCGG+B4isTifKJQqsEdfhQuQRnUiIsvz7uI7vZiDN";
-    vps9 = "fCAqgs9VcYpTLccwFtSkx3dwMDG6787MQX4ycekxRSJ";
     vps10 = "ojNWDzYxt9VhWT5rDhiMOiFALzabJ0URg+tB5yfnEUN";
     pe = "h09nsWrcO55qndZmayePfWZjgwjv2aXbKnpFE9lUsfP";
     r2s = "es8aI+V7sZ0Uxhks5WYimuTZiFi6f5McVrVeYkqaUGF";
@@ -28,13 +27,13 @@ let
   subnets = [
     # vps
     {
-      device = lib.genAttrs [ "vps4" "vps6" "vps9" "vps10" ] getAddress;
+      device = lib.genAttrs [ "vps4" "vps6" "vps10" ] getAddress;
       distance = 1;
     }
-    # 使用 vps9 代理的机器
+    # 使用 vps10 代理的机器
     {
-      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" ] (_: null)) // {
-        vps9 = getAddress "vps9";
+      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" "nas"  ] (_: null)) // {
+        vps10 = getAddress "vps10";
       };
       distance = 10;
     }
@@ -45,14 +44,6 @@ let
         pc = null;
         pe = null;
         r2s = null;
-      };
-      distance = 10;
-    }
-    # 使用 vps10 代理的机器
-    {
-      device = {
-        vps10 = getAddress "vps10";
-        nas = null;
       };
       distance = 10;
     }

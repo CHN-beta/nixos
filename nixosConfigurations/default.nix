@@ -6,7 +6,6 @@ let
     "pc"
     "vps4"
     "vps6"
-    "vps9"
     "vps10"
     "pe"
     "r2s"

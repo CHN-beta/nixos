@@ -8,7 +8,6 @@ let
   servers = [
     "vps4"
     "vps6"
-    "vps9"
     "vps10"
   ];
   userList = builtins.map (user: builtins.elemAt user 2) (

@@ -9,12 +9,12 @@ let
     pc = "vps6";
     pe = "vps6";
     r2s = "vps6";
-    srv1-node0 = "vps9";
-    srv1-node1 = "vps9";
-    srv1-node2 = "vps9";
-    srv2-node0 = "vps9";
-    srv2-node1 = "vps9";
-    srv2-node2 = "vps9";
+    srv1-node0 = "vps10";
+    srv1-node1 = "vps10";
+    srv1-node2 = "vps10";
+    srv2-node0 = "vps10";
+    srv2-node1 = "vps10";
+    srv2-node2 = "vps10";
     nas = "vps10";
   };
   proxyUsing = proxyUsingMap.${config.nixos.model.hostname} or null;

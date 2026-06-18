@@ -49,7 +49,6 @@
               [
                 "vps4"
                 "vps6"
-                "vps9"
                 "vps10"
                 "nas"
                 "srv1-node0"
@@ -73,7 +72,6 @@
               [
                 "vps4"
                 "vps6"
-                "vps9"
                 "vps10"
                 "nas"
                 "srv1-node0"

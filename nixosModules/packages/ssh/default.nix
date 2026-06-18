@@ -8,7 +8,6 @@ let
   devices = {
     vps4 = { };
     vps6 = { };
-    vps9 = { };
     vps10 = { };
     nas = {
       extraAccess = [ "ssh.git" ];

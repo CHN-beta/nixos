@@ -54,10 +54,6 @@ let
       "readeck"
       "nextcloud"
     ];
-    vps9 = [
-      "initrd.vps9"
-      "xserver2.vps9"
-    ];
     vps10 = [
       "initrd.vps10"
       "xserver2.vps10"
@@ -82,7 +78,6 @@ let
     srv1-node0 = "59.77.36.250";
     vps4 = "59.152.127.72";
     vps6 = "144.34.225.59";
-    vps9 = "154.3.39.17";
     vps10 = "157.254.234.38";
     search = "127.0.0.1";
     srv1-node1 = "192.168.178.2";
