@@ -267,7 +267,7 @@
             in
             lib.mkIf (gpus != null) {
               CUDA_PATH = "${pkgs.cudatoolkit}";
-              LD_LIBRARY_PATH = "${config.hardware.nvidia.package}/lib";
+              LD_LIBRARY_PATH = "/run/opengl-driver/lib";
             };
           nixos.system.sops = {
             secrets = {
