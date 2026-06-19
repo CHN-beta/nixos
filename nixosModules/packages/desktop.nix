@@ -71,7 +71,6 @@
           dbeaver-bin
           cling
           aircrack-ng
-          self.inputs.llm-agents.packages.x86_64-linux.opencode
           weston
           cage
           openbox
@@ -757,38 +756,6 @@
               };
             };
           })
-        ];
-      }
-      {
-        nixos.user.sharedModules = [
-          {
-            config = {
-              programs = {
-                opencode = {
-                  enable = true;
-                  package = self.inputs.llm-agents.packages.x86_64-linux.opencode;
-                  enableMcpIntegration = true;
-                  settings = {
-                    plugin = [ "opencode-gemini-auth@latest" ];
-                  };
-                };
-                mcp = {
-                  enable = true;
-                  servers = {
-                    nixos = {
-                      command = "nix";
-                      args = [
-                        "run"
-                        "github:utensils/mcp-nixos"
-                        "--"
-                      ];
-                    };
-                  };
-                };
-              };
-              catppuccin.opencode.enable = true;
-            };
-          }
         ];
       }
       {
