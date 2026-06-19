@@ -803,11 +803,11 @@
     "misskey": {
       "flake": false,
       "locked": {
-        "lastModified": 1779342959,
-        "narHash": "sha256-kPuLV7WkSfgE/Z8zsytIjaOHY6OHxA/jdk0K0zZn8k8=",
+        "lastModified": 1781832925,
+        "narHash": "sha256-+LPgq/WTnX9g+g97Kx4PirRtvxkp0ptHvdMR7KSy19I=",
         "ref": "chn-mod",
-        "rev": "2df8bee4fdd10728a15c62b23445d801425a4eef",
-        "revCount": 28584,
+        "rev": "6c46e88e0fb2dfbd24fcfa995a46c01a66bfd6d0",
+        "revCount": 28585,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/CHN-beta/misskey"
