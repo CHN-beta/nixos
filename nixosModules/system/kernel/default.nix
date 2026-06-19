@@ -183,6 +183,12 @@
             };
           in
           builtins.concatLists (builtins.map (name: patches.${name}) kernel.patches);
+        # TODO: remove in next release
+        # CVE-2026-46331
+        blacklistedKernelModules = [ "act_pedit" ];
+        extraModprobeConfig = ''
+          install act_pedit ${pkgs.coreutils}/bin/false
+        '';
       };
     };
 }
