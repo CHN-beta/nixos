@@ -244,6 +244,13 @@ let
         cp2k = prev.cp2k.overrideAttrs (prev: {
           patches = prev.patches or [ ] ++ [ ./cp2k.patch ];
         });
+        # prevent rebuild on aarch64
+        # TODO: remove in next release
+        cryptsetup =
+          if final.stdenv.hostPlatform.isAarch64 then
+            prev.cryptsetup.override { systemdTokensSupport = false; }
+          else
+            prev.cryptsetup;
       })
     ];
     marchFix = [
