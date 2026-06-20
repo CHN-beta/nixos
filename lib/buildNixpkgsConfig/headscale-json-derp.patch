@@ -1,0 +1,25 @@
+diff --git a/hscontrol/derp/derp.go b/hscontrol/derp/derp.go
+index 42d74abe..304fddc9 100644
+--- a/hscontrol/derp/derp.go
++++ b/hscontrol/derp/derp.go
+@@ -15,6 +15,7 @@ import (
+ 	"slices"
+ 	"sync"
+ 	"time"
++	"path/filepath"
+ 
+ 	"github.com/juanfont/headscale/hscontrol/types"
+ 	"github.com/spf13/viper"
+@@ -33,7 +34,11 @@ func loadDERPMapFromPath(path string) (*tailcfg.DERPMap, error) {
+ 	if err != nil {
+ 		return nil, err
+ 	}
+-	err = yaml.Unmarshal(b, &derpMap)
++	if filepath.Ext(path) == ".json" {
++		err = json.Unmarshal(b, &derpMap)
++	} else {
++		err = yaml.Unmarshal(b, &derpMap)
++	}
+ 
+ 	return &derpMap, err
+ }

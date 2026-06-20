@@ -1,4 +1,10 @@
-{ lib, config, ... }:
+{
+  lib,
+  config,
+  pkgs,
+  self,
+  ...
+}:
 {
   options.nixos.services.headscale = lib.mkOption {
     type = lib.types.nullOr (lib.types.submodule { });
@@ -37,6 +43,11 @@
               automatically_add_embedded_derp_region = true;
             };
             urls = [ ];
+            paths = [
+              (pkgs.runCommand "custom-derp.json" { } ''
+                ${pkgs.jq}/bin/jq '.Regions[].Nodes[].stunOnly = true' "${self.src.tailscaleOfficialDerp}" > $out
+              '')
+            ];
           };
         };
       };

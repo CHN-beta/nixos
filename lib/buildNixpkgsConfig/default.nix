@@ -251,6 +251,9 @@ let
             prev.cryptsetup.override { systemdTokensSupport = false; }
           else
             prev.cryptsetup;
+        headscale = prev.headscale.overrideAttrs (old: {
+          patches = (old.patches or [ ]) ++ [ ./headscale-json-derp.patch ];
+        });
       })
     ];
     marchFix = [

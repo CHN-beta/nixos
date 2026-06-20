@@ -277,4 +277,8 @@ in
       hash = "sha256-5j9Wj8cl6s8ZOew0LLiy3kOD9PgcvzQQWoSn3+rHuUk=";
     };
   };
+  tailscaleOfficialDerp = pkgs.fetchurl {
+    url = "https://controlplane.tailscale.com/derpmap/default";
+    sha256 = "0hgs6aq9fcbz2pb6380jzcb0ikx6h4122n5icx2zqbflb2j2in4l";
+  };
 }
