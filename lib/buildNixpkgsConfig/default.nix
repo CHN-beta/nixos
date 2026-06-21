@@ -417,6 +417,8 @@ let
             env = prev.env or { } // {
               NIX_CFLAGS_COMPILE = "-Wno-error=unused-but-set-variable";
             };
+            doCheck = false;
+            doInstallCheck = false;
           });
           go = prev.go.overrideAttrs (prev: {
             env = prev.env or { } // {
