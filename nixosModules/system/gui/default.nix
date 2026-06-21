@@ -128,6 +128,13 @@
               state_file = "auto";
             };
           };
+          systemd.user.services.voxtype = {
+            Unit = {
+              PartOf = lib.mkForce [ "graphical-session.target" ];
+              After = lib.mkForce [ "graphical-session.target" ];
+            };
+            Install.WantedBy = lib.mkForce [ "graphical-session.target" ];
+          };
           xdg.configFile."niri/config.kdl".source = ./config.kdl;
         };
       })
