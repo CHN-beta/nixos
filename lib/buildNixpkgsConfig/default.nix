@@ -480,7 +480,6 @@ let
           fbthrift = null;
           procps = prev.procps.overrideAttrs (prev: {
             configureFlags = prev.configureFlags or [ ] ++ [ "--disable-pidwait" ];
-            patches = prev.patches or [ ] ++ [ ./procps.patch ];
           });
           duc = prev.duc.override { enableCairo = false; };
           cp2k = (prev.cp2k.override { trexio = null; }).overrideAttrs (prev: {
