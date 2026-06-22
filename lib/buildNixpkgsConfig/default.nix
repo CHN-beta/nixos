@@ -213,9 +213,6 @@ let
         });
         pythonPackagesExtensions = prev.pythonPackagesExtensions or [ ] ++ [
           (final: prev: {
-            # test failed after patch boost, not sure why
-            # astropy = prev.astropy.overridePythonAttrs (prev:
-            #   { disabledTests = prev.disabledTests or [] ++ [ "test_iers_b_out_of_range_handling" ]; });
             # test failed after update monty
             sumo = prev.sumo.overridePythonAttrs (prev: {
               disabledTestPaths = prev.disabledTestPaths or [ ] ++ [
@@ -268,10 +265,6 @@ let
         final: prev:
         lib.optionalAttrs (prev.stdenv.hostPlatform.sse4_1Support) { frei0r = final.genericPkgs.frei0r; }
       )
-      # (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "alderlake")
-      #   { redis = prev.redis.overrideAttrs (prev: { doCheck = false; }); })
-      # (final: prev: lib.optionalAttrs (nixpkgsConfig.march == "cascadelake")
-      #   { postgresql_17 = prev.postgresql_17.override { jitSupport = false; }; })
       (
         final: prev:
         lib.optionalAttrs (nixpkgsConfig.march != null) {
