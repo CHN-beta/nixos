@@ -1,0 +1,16 @@
+--- a/src/system.c
++++ b/src/system.c
+@@ -27,6 +27,13 @@
+ #include <unistd.h>
+ 
+ #include "system.h"
++#if !defined(__x86_64__)
++#error "libseccomp-nr.patch is only intended for x86_64 architecture."
++#endif
++
++#ifndef __NR_seccomp
++#define __NR_seccomp 317
++#endif
+ 
+ #include <seccomp.h>
+ 
