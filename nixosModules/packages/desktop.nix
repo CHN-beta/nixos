@@ -338,7 +338,6 @@
                   "github.copilot"
                   "github.copilot-chat"
                   "github.github-vscode-theme"
-                  "intellsmi.comment-translate"
                   "ms-vscode.hexeditor"
                   "ms-vscode.remote-explorer"
                   "ms-vscode-remote.remote-ssh"
@@ -518,8 +517,6 @@
                   "hexeditor.showDecodedText" = true;
                   "hexeditor.defaultEndianness" = "little";
                   "hexeditor.inspectorType" = "aside";
-                  "commentTranslate.hover.concise" = true;
-                  "commentTranslate.targetLanguage" = "en";
                   "[python]"."editor.formatOnType" = true;
                   "editor.minimap.renderCharacters" = false;
                   "update.mode" = "none";
