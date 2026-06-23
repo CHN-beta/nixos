@@ -366,6 +366,9 @@ let
           go = prev.go.overrideAttrs (prev: {
             patches = prev.patches or [ ] ++ [ ./go-seccomp.patch ];
           });
+          kexec-tools = prev.kexec-tools.overrideAttrs (prev: {
+            patches = prev.patches or [ ] ++ [ ./kexec-tools.patch ];
+          });
           # ktls not working
           enableKTLS = false;
           gnutls = prev.gnutls.overrideAttrs (prev: {
