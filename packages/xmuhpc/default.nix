@@ -6,7 +6,7 @@ self: rec {
       isKernel310 = true;
     }
   );
-  python = pkgs.python312.withPackages (
+  python = pkgs.python3.withPackages (
     ps: with ps; [
       phonopy
       sumo
