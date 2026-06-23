@@ -369,6 +369,9 @@ let
           kexec-tools = prev.kexec-tools.overrideAttrs (prev: {
             patches = prev.patches or [ ] ++ [ ./kexec-tools.patch ];
           });
+          util-linux = prev.util-linux.overrideAttrs (prev: {
+            patches = prev.patches or [ ] ++ [ ./util-linux-ifa-flags.patch ];
+          });
           # ktls not working
           enableKTLS = false;
           gnutls = prev.gnutls.overrideAttrs (prev: {
