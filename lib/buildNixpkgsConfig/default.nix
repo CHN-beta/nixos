@@ -360,6 +360,9 @@ let
               make headers_install $makeFlags
             '';
           });
+          libnl = prev.libnl.overrideAttrs (prev: {
+            patches = prev.patches or [ ] ++ [ ./libnl-ila.patch ];
+          });
           # ktls not working
           enableKTLS = false;
           gnutls = prev.gnutls.overrideAttrs (prev: {

@@ -1,0 +1,23 @@
+--- /dev/null
++++ b/include/linux-private/linux/ila.h
+@@ -0,0 +1,20 @@
++#ifndef _LINUX_ILA_H
++#define _LINUX_ILA_H
++
++enum {
++	ILA_ATTR_UNSPEC,
++	ILA_ATTR_LOCATOR,
++	ILA_ATTR_IDENT,
++	ILA_ATTR_LOCATOR_MATCH,
++	ILA_ATTR_IFINDEX,
++	ILA_ATTR_DIR,
++	ILA_ATTR_PAD,
++	ILA_ATTR_CSUM_MODE,
++	ILA_ATTR_IDENT_TYPE,
++	ILA_ATTR_HOOK_TYPE,
++	__ILA_ATTR_MAX,
++};
++
++#define ILA_ATTR_MAX (__ILA_ATTR_MAX - 1)
++
++#endif /* _LINUX_ILA_H */
