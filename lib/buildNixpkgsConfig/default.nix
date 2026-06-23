@@ -363,6 +363,9 @@ let
           libnl = prev.libnl.overrideAttrs (prev: {
             patches = prev.patches or [ ] ++ [ ./libnl-ila.patch ];
           });
+          go = prev.go.overrideAttrs (prev: {
+            patches = prev.patches or [ ] ++ [ ./go-seccomp.patch ];
+          });
           # ktls not working
           enableKTLS = false;
           gnutls = prev.gnutls.overrideAttrs (prev: {

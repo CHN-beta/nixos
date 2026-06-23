@@ -1,0 +1,21 @@
+--- a/src/crypto/internal/sysrand/internal/seccomp/seccomp_linux.go
++++ b/src/crypto/internal/sysrand/internal/seccomp/seccomp_linux.go
+@@ -7,6 +7,18 @@
+ /*
+ #include <sys/prctl.h>
+ #include <sys/syscall.h>
++
++#if !defined(__x86_64__)
++#error "go-seccomp.patch is only intended for x86_64 architecture."
++#endif
++
++#ifndef SYS_getrandom
++#define SYS_getrandom 318
++#endif
++#ifndef SYS_seccomp
++#define SYS_seccomp 317
++#endif
++
+ #include <errno.h>
+ #include <stddef.h>
+ #include <unistd.h>
