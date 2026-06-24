@@ -162,10 +162,6 @@
       url = "git+https://git.chn.moe/chn/sticker.git?lfs=1";
       flake = false;
     };
-    speedtest = {
-      url = "github:librespeed/speedtest";
-      flake = false;
-    };
     pybinding = {
       url = "git+https://github.com/dean0x7d/pybinding?submodules=1";
       flake = false;

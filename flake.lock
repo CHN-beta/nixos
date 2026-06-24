@@ -1607,7 +1607,6 @@
         "reflectcpp": "reflectcpp",
         "rycee": "rycee",
         "sops-nix": "sops-nix",
-        "speedtest": "speedtest",
         "sqlgen": "sqlgen",
         "sqlite-orm": "sqlite-orm",
         "sticker": "sticker",
@@ -1654,22 +1653,6 @@
       "original": {
         "owner": "Mic92",
         "repo": "sops-nix",
-        "type": "github"
-      }
-    },
-    "speedtest": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1779915287,
-        "narHash": "sha256-qzkpiBnf7zQYtebaQQXjBu900Ri712K2i6rp/lhCqXs=",
-        "owner": "librespeed",
-        "repo": "speedtest",
-        "rev": "23b77800562a2c26f13cf8ebc0a498c076c0a16c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "librespeed",
-        "repo": "speedtest",
         "type": "github"
       }
     },

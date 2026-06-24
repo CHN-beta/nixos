@@ -145,7 +145,6 @@ rec {
       src = self.src.lumerical.licenseManager.license;
     };
   };
-  speedtest = pkgs.callPackage ./speedtest.nix { src = self.inputs.speedtest; };
   atat = pkgs.callPackage ./atat.nix { src = self.src.atat; };
   atomkit = pkgs.callPackage ./atomkit.nix { src = self.src.atomkit; };
   xinli = pkgs.callPackage ./xinli { inherit biu; };
