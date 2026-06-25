@@ -81,7 +81,6 @@
         sysctl.laptop-mode = 5;
         kernel.patches = [
           "btrfs"
-          "bcache"
         ];
       };
       hardware = {
