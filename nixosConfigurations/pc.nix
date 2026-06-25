@@ -79,9 +79,7 @@
           rocm.targets = [ "gfx1151" ];
         };
         sysctl.laptop-mode = 5;
-        kernel.patches = [
-          "btrfs"
-        ];
+        kernel.variant = "xanmod-latest";
       };
       hardware = {
         gpu = {
