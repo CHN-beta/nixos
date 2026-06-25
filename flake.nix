@@ -183,7 +183,7 @@
       flake = false;
     };
     linux-asus = {
-      url = "github:CHN-beta/linux-g14/6.18";
+      url = "gitlab:asus-linux/linux-g14/7.0";
       flake = false;
     };
     ufo = {
