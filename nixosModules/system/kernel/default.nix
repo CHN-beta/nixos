@@ -144,7 +144,7 @@
                     "0003-platform-x86-asus-armoury-add-support-for-GA403WR.patch"
                     "0003-0-4-platform-x86-asus-armoury-ppt-fixes-and-new-models.patch"
                     "0001-acpi-proc-idle-skip-dummy-wait.patch"
-                    "PATCH-asus-wmi-fixup-screenpad-brightness.patch"
+                    #"PATCH-asus-wmi-fixup-screenpad-brightness.patch"
                     "0070-acpi-x86-s2idle-Add-ability-to-configure-wakeup-by-A.patch"
                     "0040-workaround_hardware_decoding_amdgpu.patch"
                     "0084-enable-steam-deck-hdr.patch"
