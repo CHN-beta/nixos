@@ -32,6 +32,12 @@ output "Xiaomi Corporation Mi Monitor 0x00000001" {
     position x=0 y=-2160
     mode "3840x2160@160.000000"
 }
+output "Xiaomi Corporation Mi Monitor 0x00000004" {
+    scale 1
+    transform "normal"
+    position x=0 y=-2160
+    mode "3840x2160@160.000000"
+}
 screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 layout {
     gaps 16
