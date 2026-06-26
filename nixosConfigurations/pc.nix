@@ -203,16 +203,5 @@
       sleep 1
       ${pkgs.kmod}/bin/modprobe hid_sensor_hub hid_sensor_accel_3d hid_sensor_trigger hid_sensor_iio_common hid_sensor_custom
     '';
-    systemd = {
-      # niri use only amd graphics
-      user.services.niri = {
-        overrideStrategy = "asDropin";
-        enableDefaultPath = false;
-        environment = {
-          VK_ICD_FILENAMES = "/run/opengl-driver/share/vulkan/icd.d/radeon_icd.x86_64.json";
-          __EGL_VENDOR_LIBRARY_FILENAMES = "/run/opengl-driver/share/glvnd/egl_vendor.d/50_mesa.json";
-        };
-      };
-    };
   };
 }
