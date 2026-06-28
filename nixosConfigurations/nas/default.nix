@@ -1,4 +1,6 @@
+{ lib, ... }:
 {
+  imports = lib.findModules ./.;
   config = {
     nixos = {
       model.private = true;
@@ -42,12 +44,6 @@
         };
         initrd.sshd = { };
         nixpkgs.march = "alderlake";
-        network.settings.static.enp2s0 = {
-          ip = "192.168.178.10";
-          mask = 24;
-          gateway = "192.168.178.1";
-          dns = "192.168.1.1";
-        };
         kernel.patches = [ "btrfs" ];
         binfmt = { };
       };
@@ -109,6 +105,7 @@
           ssd = "/nix/ssd";
         };
         github-runners = { };
+        pppoe.interface = "enp3s0";
       };
     };
     systemd.tmpfiles.rules = [
