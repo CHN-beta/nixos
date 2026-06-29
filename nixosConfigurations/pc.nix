@@ -179,12 +179,20 @@
     # 允许kvm读取物理硬盘
     users.users.qemu-libvirtd.extraGroups = [ "disk" ];
     services.colord.enable = true;
-    services.udev.extraRules = ''
-      # 禁止鼠标等在睡眠时唤醒
-      ACTION=="add", ATTR{power/wakeup}="disabled"
-      # CPU降压
-      SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fff40"
-    '';
+    services.udev = {
+      extraRules = ''
+        # 禁止鼠标等在睡眠时唤醒
+        ACTION=="add", ATTR{power/wakeup}="disabled"
+        # CPU降压
+        SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fff40"
+      '';
+      extraHwdb = ''
+        # 交换键盘按键
+        evdev:input:b*v*p*e*
+         KEYBOARD_KEY_70039=leftmeta
+         KEYBOARD_KEY_700e3=capslock
+      '';
+    };
     boot.kernelParams = [
       # 解决有时蓝牙不能使用的问题
       "mt7925e.disable_aspm=1"
