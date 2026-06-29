@@ -112,7 +112,7 @@
               hotkey.enabled = false;
               output = {
                 fallback_to_clipboard = true;
-                mode = "type";
+                mode = "clipboard";
                 notification = {
                   on_recording_start = false;
                   on_recording_stop = false;
