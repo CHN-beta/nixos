@@ -77,7 +77,16 @@ let
     });
   overlays = {
     addon = [
-      self.inputs.nur-xddxdd.overlays.inSubTree
+      (final: prev: rec
+      # nur-xddxdd use prev unconditionally
+      # for newly added packages, we need to use final
+      # for packages aimed to be replace ones in nixpkgs, we need to use prev
+      {
+        nur-xddxdd = (self.inputs.nur-xddxdd.overlays.inSubTree null final).nur-xddxdd;
+        nur-xddxdd-prev = (self.inputs.nur-xddxdd.overlays.inSubTree null prev).nur-xddxdd;
+        libnftnl = nur-xddxdd-prev.libnftnl-fullcone;
+        nftables = nur-xddxdd-prev.nftables-fullcone;
+      })
       self.inputs.buildproxy.overlays.default
       self.inputs.nix4vscode.overlays.default
       self.inputs.bscpkgs.overlays.default

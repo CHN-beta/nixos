@@ -20,7 +20,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nur-xddxdd = {
-      url = "github:CHN-beta/nur-xddxdd";
+      url = "github:xddxdd/nur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     impermanence.url = "github:CHN-beta/impermanence";

@@ -10,14 +10,6 @@
   config = lib.mkMerge [
     # 1. 启用 Fullcone NAT 的功能
     {
-      nixpkgs.overlays = [
-        (final: prev: {
-          nftables = final.callPackage "${self.inputs.nur-xddxdd}/pkgs/uncategorized/nftables-fullcone" {
-            libnftnl-fullcone = final.nur-xddxdd.libnftnl-fullcone;
-            inherit (prev) nftables;
-          };
-        })
-      ];
       boot = {
         extraModulePackages = [
           (pkgs.nur-xddxdd.nft-fullcone.override {
