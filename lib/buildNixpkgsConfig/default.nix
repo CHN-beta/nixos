@@ -84,8 +84,6 @@ let
       {
         nur-xddxdd = (self.inputs.nur-xddxdd.overlays.inSubTree null final).nur-xddxdd;
         nur-xddxdd-prev = (self.inputs.nur-xddxdd.overlays.inSubTree null prev).nur-xddxdd;
-        libnftnl = nur-xddxdd-prev.libnftnl-fullcone;
-        nftables = nur-xddxdd-prev.nftables-fullcone;
       })
       self.inputs.buildproxy.overlays.default
       self.inputs.nix4vscode.overlays.default

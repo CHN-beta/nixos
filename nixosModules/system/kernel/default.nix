@@ -38,6 +38,8 @@
           "dm_cache"
           "dm_cache_smq"
           "dm_writecache"
+          # fullcone nat
+          "nft_fullcone"
         ];
         # modprobe --show-depends
         initrd = {
@@ -109,9 +111,15 @@
             "dm_writecache"
           ];
         };
-        extraModulePackages = lib.optionals (config.nixos.model.arch == "x86_64") [
-          config.boot.kernelPackages.zenpower
-        ];
+        extraModulePackages =
+          lib.optionals (config.nixos.model.arch == "x86_64") [
+            config.boot.kernelPackages.zenpower
+          ]
+          ++ [
+            (pkgs.nur-xddxdd.nft-fullcone.override {
+              inherit (config.boot.kernelPackages) kernel;
+            })
+          ];
         kernelParams = lib.mkMerge [
           [ "delayacct" ]
           (lib.mkIf (builtins.elem "btrfs" kernel.patches) [ "btrfs.read_policy=queue" ])

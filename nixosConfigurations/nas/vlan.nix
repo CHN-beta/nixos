@@ -1,8 +1,5 @@
 {
-  config,
-  pkgs,
   lib,
-  self,
   ...
 }:
 {
@@ -10,14 +7,12 @@
   config = lib.mkMerge [
     # 1. 启用 Fullcone NAT 的功能
     {
-      boot = {
-        extraModulePackages = [
-          (pkgs.nur-xddxdd.nft-fullcone.override {
-            inherit (config.boot.kernelPackages) kernel;
-          })
-        ];
-        kernelModules = [ "nft_fullcone" ];
-      };
+      nixpkgs.overlays = [
+        (final: prev: {
+          libnftnl = final.nur-xddxdd-prev.libnftnl-fullcone;
+          nftables = final.nur-xddxdd-prev.nftables-fullcone;
+        })
+      ];
     }
 
     # 2. 应用 NAT、VLAN 接口及路由策略
