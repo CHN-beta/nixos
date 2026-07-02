@@ -1,8 +1,6 @@
 {
   lib,
   config,
-  pkgs,
-  self,
   ...
 }:
 {
@@ -32,26 +30,8 @@
             base_domain = "ts.chn.moe";
             override_local_dns = false;
           };
-          derp = {
-            server = {
-              enabled = true;
-              region_id = 999;
-              region_code = "chn";
-              region_name = "CHN DERP";
-              verify_clients = true;
-              stun_listen_addr = "0.0.0.0:3479";
-              automatically_add_embedded_derp_region = true;
-            };
-            urls = [ ];
-            paths = [
-              (pkgs.runCommand "custom-derp.json" { } ''
-                ${pkgs.jq}/bin/jq '.Regions[].Nodes[].stunOnly = true' "${self.src.tailscaleOfficialDerp}" > $out
-              '')
-            ];
-          };
         };
       };
-      networking.firewall.allowedUDPPorts = [ 3479 ];
       nixos = {
         services = {
           nginx.https."headscale.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:6538";
