@@ -13,7 +13,7 @@ let
 
   deploy =
     let
-      doNotDeploy = [ "pe" "r2s" ];
+      doNotDeploy = [ "pe" ];
       doNotUseTailscale = [
         "vps4"
         "vps6"

@@ -8,7 +8,6 @@ let
   proxyUsingMap = {
     pc = "vps6";
     pe = "vps6";
-    r2s = "vps6";
     srv1-node0 = "vps10";
     srv1-node1 = "vps10";
     srv1-node2 = "vps10";

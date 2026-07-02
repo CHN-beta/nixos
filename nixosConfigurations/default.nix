@@ -8,7 +8,6 @@ let
     "vps6"
     "vps10"
     "pe"
-    "r2s"
   ];
   cluster = {
     srv1 = 3;
