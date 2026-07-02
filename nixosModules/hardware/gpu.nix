@@ -98,6 +98,7 @@
           # do not load nvidia kernel module in initrd, otherwise breaking hibernation
           # boot.initrd.availableKernelModules = [ "nvidia" ];
           hardware = {
+            firmware = lib.optional (gpu.nvidia.driver == "dc") config.hardware.nvidia.package.firmware;
             graphics.extraPackages = with pkgs; [ libva-vdpau-driver ];
             nvidia = {
               modesetting.enable = true;
