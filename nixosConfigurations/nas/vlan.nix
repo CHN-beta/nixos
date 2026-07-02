@@ -85,13 +85,7 @@
 
     # 3. DNS 和 DHCP
     {
-      networking.firewall = {
-        allowedUDPPorts = [ 67 ];
-        extraForwardRules = ''
-          iifname { "enp2s0.10", "enp2s0.20" } oifname "ppp0" accept
-          iifname "ppp0" oifname { "enp2s0.10", "enp2s0.20" } accept
-        '';
-      };
+      networking.firewall.allowedUDPPorts = [ 67 ];
       services.dnsmasq = {
         enable = true;
         resolveLocalQueries = false;
