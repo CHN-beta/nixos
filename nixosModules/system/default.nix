@@ -41,7 +41,14 @@
       i2c.enable = true;
     };
     environment = {
-      enableAllTerminfo = true;
+      systemPackages = map (p: p.terminfo) (
+        with pkgs;
+        [
+          kitty
+          ghostty
+          tmux
+        ]
+      );
       sessionVariables = rec {
         XDG_CACHE_HOME = "$HOME/.cache";
         XDG_CONFIG_HOME = "$HOME/.config";
