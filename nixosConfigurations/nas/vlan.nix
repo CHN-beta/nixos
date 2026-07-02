@@ -70,6 +70,10 @@
         tables.fullcone_nat = {
           family = "inet";
           content = ''
+            chain prerouting {
+              type nat hook prerouting priority dstnat; policy accept;
+              iifname "ppp0" fullcone
+            }
             chain postrouting {
               type nat hook postrouting priority srcnat; policy accept;
               oifname "ppp0" fullcone
@@ -81,7 +85,13 @@
 
     # 3. DNS 和 DHCP
     {
-      networking.firewall.allowedUDPPorts = [ 67 ];
+      networking.firewall = {
+        allowedUDPPorts = [ 67 ];
+        extraForwardRules = ''
+          iifname { "enp2s0.10", "enp2s0.20" } oifname "ppp0" accept
+          iifname "ppp0" oifname { "enp2s0.10", "enp2s0.20" } accept
+        '';
+      };
       services.dnsmasq = {
         enable = true;
         resolveLocalQueries = false;
