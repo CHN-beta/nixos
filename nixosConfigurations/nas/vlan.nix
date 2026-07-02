@@ -64,6 +64,9 @@
         services.xray.client.v2ray-forwarder.asRouter = [ "enp2s0.20" ];
       };
       networking.nftables = {
+        preCheckRuleset = ''
+          sed -i 's/\bfullcone\b/masquerade/g' ruleset.conf
+        '';
         tables.fullcone_nat = {
           family = "inet";
           content = ''
