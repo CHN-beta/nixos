@@ -7,6 +7,36 @@
 {
   config = lib.mkIf (config.nixos.model.variant == "desktop") {
     services = {
+      xserver.xkb = {
+        layout = "custom_nav";
+        extraLayouts."custom_nav" = {
+          description = "Custom layout with Right Ctrl as Navigation modifier";
+          languages = [ "eng" ];
+          symbolsFile = pkgs.writeText "custom-xkb-symbols" ''
+            xkb_symbols "right_ctrl_nav" {
+                include "us(basic)"
+                key <RCTL> { [ ISO_Level3_Shift ] };
+                modifier_map Mod5 { ISO_Level3_Shift };
+                key <UP>   { 
+                    type= "FOUR_LEVEL",
+                    symbols[Group1]= [ Up, Up, Prior, Prior ] 
+                };
+                key <DOWN> { 
+                    type= "FOUR_LEVEL",
+                    symbols[Group1]= [ Down, Down, Next, Next ] 
+                };
+                key <LEFT> { 
+                    type= "FOUR_LEVEL",
+                    symbols[Group1]= [ Left, Left, Home, Home ] 
+                };
+                key <RGHT> { 
+                    type= "FOUR_LEVEL",
+                    symbols[Group1]= [ Right, Right, End, End ] 
+                };
+            };
+          '';
+        };
+      };
       greetd = {
         enable = true;
         settings.default_session.command =
