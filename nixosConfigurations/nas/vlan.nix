@@ -5,16 +5,6 @@
 {
   # enp3s0 靠近 hdmi 口 enp2s0 远离 hdmi 口
   config = lib.mkMerge [
-    # 1. 启用 Fullcone NAT 的功能
-    {
-      nixpkgs.overlays = [
-        (final: prev: {
-          libnftnl = final.nur-xddxdd-prev.libnftnl-fullcone;
-          nftables = final.nur-xddxdd-prev.nftables-fullcone;
-        })
-      ];
-    }
-
     # 2. 应用 NAT、VLAN 接口及路由策略
     {
       systemd = {
@@ -60,26 +50,12 @@
             "enp2s0.10"
             "enp2s0.20"
           ];
+          masquerade = [
+            "enp2s0.10"
+            "enp2s0.20"
+          ];
         };
         services.xray.client.v2ray-forwarder.asRouter = [ "enp2s0.20" ];
-      };
-      networking.nftables = {
-        preCheckRuleset = ''
-          sed -i 's/\bfullcone\b/masquerade/g' ruleset.conf
-        '';
-        tables.fullcone_nat = {
-          family = "inet";
-          content = ''
-            chain prerouting {
-              type nat hook prerouting priority dstnat; policy accept;
-              iifname "ppp0" fullcone
-            }
-            chain postrouting {
-              type nat hook postrouting priority srcnat; policy accept;
-              oifname "ppp0" fullcone
-            }
-          '';
-        };
       };
     }
 
