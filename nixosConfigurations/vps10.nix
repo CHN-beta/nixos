@@ -18,6 +18,7 @@
         };
         initrd.sshd = { };
         nixpkgs.march = "x86-64-v3";
+        network.settings.dhcp = [ "ens18" ];
       };
       services = {
         sshd = { };

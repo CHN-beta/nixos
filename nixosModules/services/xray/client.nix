@@ -390,8 +390,12 @@ in
                       ExecStart = pkgs.writeShellScript "v2ray-forwarder.start" ''
                         ${ip} rule add fwmark 1/1 table 100 priority 5000
                         ${ip} route add local 0.0.0.0/0 dev lo table 100
+                        ${ip} -6 rule add fwmark 1/1 table 100 priority 5000
+                        ${ip} -6 route add local ::/0 dev lo table 100
                       '';
                       ExecStop = pkgs.writeShellScript "v2ray-forwarder.stop" ''
+                        ${ip} -6 rule del fwmark 1/1 table 100 priority 5000
+                        ${ip} -6 route del local ::/0 dev lo table 100
                         ${ip} rule del fwmark 1/1 table 100 priority 5000
                         ${ip} route del local 0.0.0.0/0 dev lo table 100
                       '';
@@ -405,6 +409,11 @@ in
                     {
                       Table = 100;
                       Destination = "0.0.0.0/0";
+                      Type = "local";
+                    }
+                    {
+                      Table = 100;
+                      Destination = "::/0";
                       Type = "local";
                     }
                   ];
@@ -439,6 +448,9 @@ in
                   "203.0.113.0/24"
                   "224.0.0.0/4"
                   "240.0.0.0/4"
+                  "::1/128"
+                  "fc00::/7"
+                  "fe80::/10"
                 ];
                 loNetStr = builtins.concatStringsSep ", " loNet;
                 noproxyUserStr = builtins.concatStringsSep ", " (

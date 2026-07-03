@@ -113,7 +113,7 @@ int main()
         res.body = "OK";
       });
     });
-    svr.listen("0.0.0.0", config.ServerPort);
+    svr.listen("::", config.ServerPort);
     return 0;
   });
 }

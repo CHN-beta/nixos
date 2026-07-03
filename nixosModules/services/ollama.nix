@@ -16,7 +16,7 @@
     lib.mkIf (ollama != null) {
       services.ollama = {
         enable = true;
-        host = "0.0.0.0";
+        host = "[::]";
         environmentVariables = {
           # fix model pull failed
           OLLAMA_REGISTRY_MAXSTREAMS = "2";

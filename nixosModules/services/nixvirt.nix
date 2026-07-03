@@ -229,7 +229,7 @@ inputs: {
         };
         libvirtd.qemu.verbatimConfig = ''
           namespaces = []
-          vnc_listen = "0.0.0.0"
+          vnc_listen = "::"
         '';
       };
       nixos = {

@@ -37,6 +37,7 @@
         }
         server {
           listen 0.0.0.0:443;
+          listen [::]:443;
           ssl_preread on;
           proxy_bind $remote_addr transparent;
           proxy_pass $transparent_proxy_backend;
@@ -54,8 +55,12 @@
               start = pkgs.writeShellScript "nginx-proxy.start" ''
                 ${ip} rule add fwmark 2/2 table 200 priority 5001
                 ${ip} route add local 0.0.0.0/0 dev lo table 200
+                ${ip} -6 rule add fwmark 2/2 table 200 priority 5001
+                ${ip} -6 route add local ::/0 dev lo table 200
               '';
               stop = pkgs.writeShellScript "nginx-proxy.stop" ''
+                ${ip} -6 rule del fwmark 2/2 table 200 priority 5001
+                ${ip} -6 route del local ::/0 dev lo table 200
                 ${ip} rule del fwmark 2/2 table 200 priority 5001
                 ${ip} route del local 0.0.0.0/0 dev lo table 200
               '';
@@ -80,6 +85,11 @@
               {
                 Table = 200;
                 Destination = "0.0.0.0/0";
+                Type = "local";
+              }
+              {
+                Table = 200;
+                Destination = "::/0";
                 Type = "local";
               }
             ];

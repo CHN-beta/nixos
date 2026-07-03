@@ -34,7 +34,10 @@
         package = pkgs.postgresql_17;
         extensions = ps: with ps; [ pgroonga ];
         enableTCPIP = true;
-        authentication = "host all all 0.0.0.0/0 md5";
+        authentication = ''
+          host all all 0.0.0.0/0 md5
+          host all all ::/0 md5
+        '';
         settings = {
           unix_socket_permissions = "0700";
           shared_buffers = "512MB";

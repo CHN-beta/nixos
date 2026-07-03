@@ -71,20 +71,16 @@ let
       "git"
     ];
   };
-  a = {
-    nas = "192.168.178.10";
-    pc = "192.168.1.3";
-    office = "210.34.16.66";
+  a_aaaa = {
+    office = "210.34.16.101";
     srv1-node0 = "59.77.36.250";
     vps4 = "59.152.127.72";
-    vps6 = "144.34.225.59";
+    vps6 = {
+      A = "144.34.225.59";
+      AAAA = "2607:8700:5500:2255::2";
+    };
     vps10 = "157.254.234.38";
     search = "127.0.0.1";
-    srv1-node1 = "192.168.178.2";
-    srv1-node2 = "192.168.178.3";
-    srv2-node1 = "192.168.178.2";
-    srv2-node2 = "192.168.178.3";
-    "409test" = "192.168.1.5";
     # temporary
     "remove-me.vps6" = [ "127.0.0.1" ];
   };
@@ -145,15 +141,19 @@ in
     ) (lib.attrsToList cname)
   )
 )
-// builtins.listToAttrs (
-  builtins.map (a: {
-    inherit (a) name;
-    value = {
-      inherit (a) value;
+// lib.mapAttrs (
+  n: v:
+  if (lib.isAttrs v) then
+    lib.mapAttrsToList (n: v: {
+      value = v;
+      type = n;
+    }) v
+  else
+    {
+      value = v;
       type = "A";
-    };
-  }) (lib.attrsToList a)
-)
+    }
+) a_aaaa
 // lib.mapAttrs' (
   n: v:
   lib.nameValuePair "tinc0.${n}" {

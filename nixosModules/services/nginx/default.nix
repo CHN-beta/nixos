@@ -72,6 +72,7 @@
             absolute_redirect off;
             # allow realip module to set ip
             set_real_ip_from 0.0.0.0/0;
+            set_real_ip_from ::/0;
             real_ip_header proxy_protocol;
             # gitea needs long time to upload/download large files over ssh
             client_body_timeout 1h;

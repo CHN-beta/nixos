@@ -39,12 +39,25 @@ let
         deviceName:
         let
           dns = meta.config."chn.moe";
+          getAttrFromList =
+            type: domain:
+            let
+              result = lib.filter (attr: attr.type == type) domain;
+            in
+            if result == [ ] then null else (lib.head result).value;
+          getAttr =
+            type: domain:
+            if lib.isAttrs domain then getAttrFromList type [ domain ] else getAttrFromList type domain;
           f =
             domain:
-            if dns.${domain}.type == "A" then
-              dns.${domain}.value
-            else if dns.${domain}.type == "CNAME" then
-              f (lib.removeSuffix ".chn.moe." dns.${domain}.value)
+            let
+              recordA = getAttr "A" dns.${domain};
+              recordCNAME = getAttr "CNAME" dns.${domain};
+            in
+            if recordCNAME != null then
+              f (lib.removeSuffix ".chn.moe." recordCNAME)
+            else if recordA != null then
+              recordA
             else
               throw "Not found ${domain}";
         in

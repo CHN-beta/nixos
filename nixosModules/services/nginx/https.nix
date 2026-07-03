@@ -282,17 +282,30 @@
                         (lib.optionals (extraConfig != null) [ extraConfig ])
                       ]
                     );
-                  listen = builtins.map (listen: {
-                    addr = if listen.proxyProtocol then "0.0.0.0" else "127.0.0.1";
-                    port =
-                      with nginx.global;
-                      httpsPort
-                      + (if listen.http2 then httpsPortShift.http2 else 0)
-                      + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
-                    ssl = true;
-                    proxyProtocol = listen.proxyProtocol;
-                    extraParameters = lib.mkIf listen.http2 [ "http2" ];
-                  }) site.value.listens;
+                  listen = builtins.concatMap (listen: [
+                    {
+                      addr = if listen.proxyProtocol then "0.0.0.0" else "127.0.0.1";
+                      port =
+                        with nginx.global;
+                        httpsPort
+                        + (if listen.http2 then httpsPortShift.http2 else 0)
+                        + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
+                      ssl = true;
+                      proxyProtocol = listen.proxyProtocol;
+                      extraParameters = lib.mkIf listen.http2 [ "http2" ];
+                    }
+                    {
+                      addr = if listen.proxyProtocol then "[::]" else "[::1]";
+                      port =
+                        with nginx.global;
+                        httpsPort
+                        + (if listen.http2 then httpsPortShift.http2 else 0)
+                        + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
+                      ssl = true;
+                      proxyProtocol = listen.proxyProtocol;
+                      extraParameters = lib.mkIf listen.http2 [ "http2" ];
+                    }
+                  ]) site.value.listens;
                   # do not automatically add http2 listen
                   http2 = false;
                   onlySSL = true;
