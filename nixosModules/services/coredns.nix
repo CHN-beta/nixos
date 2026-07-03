@@ -28,9 +28,14 @@ in
             allow type A
             allow type AAAA
             allow type SOA
+            allow type CAA
             filter type *
           }
 
+          template IN CAA {
+            match ".*"
+            rcode NOERROR
+          }
           template IN SOA {
             match ".*"
             answer "{{ .Name }} 60 IN SOA ${ns}.chn.moe. chn.chn.moe. 2023010100 7200 3600 1209600 3600"
