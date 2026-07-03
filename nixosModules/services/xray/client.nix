@@ -432,7 +432,7 @@ in
               let
                 autoPort = "10880";
                 proxyPort = "10883";
-                loNet = [
+                loNet4 = [
                   "0.0.0.0/8"
                   "10.0.0.0/8"
                   "100.64.0.0/10"
@@ -448,11 +448,14 @@ in
                   "203.0.113.0/24"
                   "224.0.0.0/4"
                   "240.0.0.0/4"
+                ];
+                loNet6 = [
                   "::1/128"
                   "fc00::/7"
                   "fe80::/10"
                 ];
-                loNetStr = builtins.concatStringsSep ", " loNet;
+                loNet4Str = builtins.concatStringsSep ", " loNet4;
+                loNet6Str = builtins.concatStringsSep ", " loNet6;
                 noproxyUserStr = builtins.concatStringsSep ", " (
                   builtins.map (user: builtins.toString config.nixos.user.uid.${user}) [
                     "v2ray"
@@ -461,7 +464,8 @@ in
                 );
               in
               ''
-                set lo_net { type ipv4_addr; flags interval; elements = { ${loNetStr} }; }
+                set lo_net4 { type ipv4_addr; flags interval; elements = { ${loNet4Str} }; }
+                set lo_net6 { type ipv6_addr; flags interval; elements = { ${loNet6Str} }; }
                 set noproxy_net { type ipv4_addr; flags interval; elements = { 223.5.5.5 }; }
                 set proxy_net { type ipv4_addr; flags interval; elements = { 8.8.8.8 }; }
 
@@ -493,7 +497,8 @@ in
                   ip daddr @noproxy_net counter return
                   ip daddr @proxy_net meta l4proto == { tcp, udp } counter \
                     tproxy ip to :${proxyPort} meta mark set meta mark | 1 return
-                  ip daddr @lo_net counter return
+                  ip daddr @lo_net4 counter return
+                  ip6 daddr @lo_net6 counter return
                   meta l4proto == { tcp, udp } counter tproxy ip to :${autoPort} meta mark set meta mark | 1 return
                   return
                 }
@@ -511,7 +516,8 @@ in
                   meta skuid { ${noproxyUserStr} } counter return
                   ip daddr @noproxy_net counter return
                   ip daddr @proxy_net counter meta mark set meta mark | 1 return
-                  ip daddr @lo_net counter return
+                  ip daddr @lo_net4 counter return
+                  ip6 daddr @lo_net6 counter return
                   counter meta mark set meta mark | 1 return
                   return
                 }
