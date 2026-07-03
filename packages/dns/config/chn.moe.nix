@@ -53,6 +53,7 @@ let
       "photo"
       "readeck"
       "nextcloud"
+      "ha"
     ];
     vps10 = [
       "initrd.vps10"
