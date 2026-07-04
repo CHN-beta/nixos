@@ -333,6 +333,9 @@ in
                 in
                 ''
                   . {
+                    view a_aaaa {
+                      expr type() == 'A' || type() == 'AAAA'
+                    }
                     log
                     errors
                     bind lo ${builtins.concatStringsSep " " client.coredns.extraInterfaces}
@@ -344,6 +347,13 @@ in
                     cache 300 {
                       disable denial
                     }
+                  }
+                  . {
+                    view others
+                    log
+                    errors
+                    bind lo ${builtins.concatStringsSep " " client.coredns.extraInterfaces}
+                    forward . 223.5.5.5
                   }
                 '';
             };
