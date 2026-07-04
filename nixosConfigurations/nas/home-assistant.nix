@@ -9,6 +9,7 @@
     ];
     customComponents = with pkgs.home-assistant-custom-components; [
       tuya_local
+      xiaomi_miot
     ];
     config = {
       homeassistant = {
