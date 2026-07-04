@@ -1,26 +1,18 @@
 {
   lib,
-  config,
-  pkgs,
   ...
 }:
 let
   ns = "vps6";
-  interface = "ens18";
+  interfaces = [ "ens18" "ipv6net" ];
 in
 {
-  config = lib.mkIf (config.nixos.model.hostname == ns) {
-    assertions = [
-      {
-        assertion = !config.nixos.services.xray.client.enable;
-        message = "Currenty xray.client and coredns could not be simutaniusly enabled.";
-      }
-    ];
+  config = {
     services.coredns = {
       enable = true;
       config = ''
         ts.chn.moe {
-          bind ${interface}
+          bind ${lib.concatStringsSep " " interfaces}
           log
           errors
 
@@ -48,7 +40,7 @@ in
         }
 
         . {
-          bind ${interface}
+          bind ${lib.concatStringsSep " " interfaces}
           acl {}
           errors
           log
