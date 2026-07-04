@@ -43,8 +43,7 @@
           dnsProvider = "cloudflare";
           dnsResolver = "1.1.1.1";
           credentialFiles.CLOUDFLARE_DNS_API_TOKEN_FILE = config.nixos.system.sops.secrets."acme/token".path;
-          environmentFile = pkgs.writeText "acme-env" "CLOUDFLARE_PROPAGATION_TIMEOUT=600";
-          extraLegoFlags = [ "--dns.propagation-wait=300s" ];
+          environmentFile = pkgs.writeText "acme-env" "CLOUDFLARE_PROPAGATION_TIMEOUT=300";
         };
         certs =
           acme.cert
