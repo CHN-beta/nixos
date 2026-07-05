@@ -375,11 +375,11 @@ let
           # util-linux = prev.util-linux.overrideAttrs (prev: {
           #   patches = prev.patches or [ ] ++ [ ./util-linux-ifa-flags.patch ];
           # });
-          # # ktls not working
-          # enableKTLS = false;
-          # gnutls = prev.gnutls.overrideAttrs (prev: {
-          #   configureFlags = lib.remove "--enable-ktls" (prev.configureFlags or [ ]);
-          # });
+          # ktls not working
+          enableKTLS = false;
+          gnutls = prev.gnutls.overrideAttrs (prev: {
+            configureFlags = lib.remove "--enable-ktls" (prev.configureFlags or [ ]);
+          });
           # # x11 mostly not working
           # gobjectSupport = false;
           # withIntrospection = false;
