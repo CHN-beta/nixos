@@ -360,26 +360,26 @@ let
               make headers_install $makeFlags
             '';
           });
-          libnl = prev.libnl.overrideAttrs (prev: {
-            patches = prev.patches or [ ] ++ [ ./libnl-ila.patch ];
-          });
-          go = prev.go.overrideAttrs (prev: {
-            patches = prev.patches or [ ] ++ [ ./go-seccomp.patch ];
-          });
-          kexec-tools = prev.kexec-tools.overrideAttrs (prev: {
-            patches = prev.patches or [ ] ++ [ ./kexec-tools.patch ];
-          });
-          libseccomp = prev.libseccomp.overrideAttrs (prev: {
-            patches = prev.patches or [ ] ++ [ ./libseccomp-nr.patch ];
-          });
-          util-linux = prev.util-linux.overrideAttrs (prev: {
-            patches = prev.patches or [ ] ++ [ ./util-linux-ifa-flags.patch ];
-          });
-          # ktls not working
-          enableKTLS = false;
-          gnutls = prev.gnutls.overrideAttrs (prev: {
-            configureFlags = lib.remove "--enable-ktls" (prev.configureFlags or [ ]);
-          });
+          # libnl = prev.libnl.overrideAttrs (prev: {
+          #   patches = prev.patches or [ ] ++ [ ./libnl-ila.patch ];
+          # });
+          # go = prev.go.overrideAttrs (prev: {
+          #   patches = prev.patches or [ ] ++ [ ./go-seccomp.patch ];
+          # });
+          # kexec-tools = prev.kexec-tools.overrideAttrs (prev: {
+          #   patches = prev.patches or [ ] ++ [ ./kexec-tools.patch ];
+          # });
+          # libseccomp = prev.libseccomp.overrideAttrs (prev: {
+          #   patches = prev.patches or [ ] ++ [ ./libseccomp-nr.patch ];
+          # });
+          # util-linux = prev.util-linux.overrideAttrs (prev: {
+          #   patches = prev.patches or [ ] ++ [ ./util-linux-ifa-flags.patch ];
+          # });
+          # # ktls not working
+          # enableKTLS = false;
+          # gnutls = prev.gnutls.overrideAttrs (prev: {
+          #   configureFlags = lib.remove "--enable-ktls" (prev.configureFlags or [ ]);
+          # });
           # # x11 mostly not working
           # gobjectSupport = false;
           # withIntrospection = false;
@@ -448,12 +448,12 @@ let
           # openmpi = prev.openmpi.override { fabricSupport = false; };
           # inherit (final.pkgs2511) libnl util-linux util-linuxMinimal;
           # libbpf = null;
-          valgrind = prev.valgrind.overrideAttrs (prev: {
-            patches = prev.patches or [ ] ++ [ ./valgrind.patch ];
-          });
-          valgrind-light = prev.valgrind-light.overrideAttrs (prev: {
-            patches = prev.patches or [ ] ++ [ ./valgrind.patch ];
-          });
+          # valgrind = prev.valgrind.overrideAttrs (prev: {
+          #   patches = prev.patches or [ ] ++ [ ./valgrind.patch ];
+          # });
+          # valgrind-light = prev.valgrind-light.overrideAttrs (prev: {
+          #   patches = prev.patches or [ ] ++ [ ./valgrind.patch ];
+          # });
           # v4l-utils = prev.v4l-utils.overrideAttrs (prev: {
           #   mesonFlags = prev.mesonFlags or [ ] ++ [ (lib.mesonOption "bpf" "disabled") ];
           # });
