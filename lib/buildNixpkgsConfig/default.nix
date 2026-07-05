@@ -353,12 +353,8 @@ let
         lib.optionalAttrs (nixpkgsConfig.isKernel310 or false) {
           isKernel310 = true;
           linuxHeaders = prev.linuxHeaders.overrideAttrs (prev: {
-            version = "3.10.108";
-            src = final.fetchurl {
-              url = "mirror://kernel/linux/kernel/v3.x/linux-3.10.108.tar.xz";
-              hash = "sha256-OEnqgRlRf2BfnVPFfdbFOa+NWEwvHZAx9PVig680CaU=";
-            };
-            patches = prev.patches or [ ] ++ [ ./linux-310.patch ];
+            version = final.localPkgs.centos7-kernel-source.version;
+            src = final.localPkgs.centos7-kernel-source;
             buildPhase = ''
               make defconfig $makeFlags
               make headers_install $makeFlags
