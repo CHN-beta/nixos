@@ -186,6 +186,10 @@ rec {
     trainstation = python3Packages.callPackage ./trainstation.nix { src = self.src.trainstation; };
   };
   minibox = pkgs.callPackage ./minibox { };
+  centos7-kernel-source = pkgs.callPackage ./centos7-kernel-source.nix {
+    cpio = pkgs.pkgs2411.cpio;
+    rpm = pkgs.pkgs2411.rpm;
+  };
 
   fromYaml =
     content:
