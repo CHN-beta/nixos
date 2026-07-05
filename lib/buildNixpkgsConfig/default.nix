@@ -409,7 +409,19 @@ let
           # udevSupport = false;
           # withSystemd = false;
           # # per package fixes
-          # audit = final.pkgs2411.audit;
+          audit = prev.audit.overrideAttrs (old: {
+            patches = old.patches or [ ] ++ [ ./audit-calipso.patch ];
+            configureFlags = lib.filter (
+              flag:
+              !(lib.elem flag [
+                "--with-arm"
+                "--with-aarch64"
+                "--with-riscv"
+                "--with-io_uring"
+                "--with-libcap-ng=yes"
+              ])
+            ) (old.configureFlags or [ ]);
+          });
           # rpm =
           #   (prev.rpm.override {
           #     systemd = null;

@@ -1,0 +1,25 @@
+--- a/lib/libaudit.h
++++ b/lib/libaudit.h
+@@ -27,6 +27,22 @@
+ #include <stdint.h>
+ #include <sys/socket.h>
+ #include <linux/netlink.h>
++#ifndef AUDIT_TIME_INJOFFSET
++#define AUDIT_TIME_INJOFFSET 1332
++#endif
++#ifndef AUDIT_TIME_ADJNTPVAL
++#define AUDIT_TIME_ADJNTPVAL 1333
++#endif
++#ifndef AUDIT_MAC_CALIPSO_ADD
++#define AUDIT_MAC_CALIPSO_ADD 1418
++#endif
++#ifndef AUDIT_MAC_CALIPSO_DEL
++#define AUDIT_MAC_CALIPSO_DEL 1419
++#endif
++#ifndef AUDIT_SADDR_FAM
++#define AUDIT_SADDR_FAM 113
++#endif
++
+ #include <linux/audit.h>
+ #include <stdarg.h>
+ #include <syslog.h>
