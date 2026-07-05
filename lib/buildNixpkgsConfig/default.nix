@@ -364,9 +364,9 @@ let
               make headers_install $makeFlags
             '';
           });
-          # libnl = prev.libnl.overrideAttrs (prev: {
-          #   patches = prev.patches or [ ] ++ [ ./libnl-ila.patch ];
-          # });
+          libnl = prev.libnl.overrideAttrs (prev: {
+            patches = prev.patches or [ ] ++ [ ./libnl-ila.patch ];
+          });
           # go = prev.go.overrideAttrs (prev: {
           #   patches = prev.patches or [ ] ++ [ ./go-seccomp.patch ];
           # });
