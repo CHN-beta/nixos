@@ -121,6 +121,10 @@ let
                         sphinx = prev.sphinx.overridePythonAttrs (prev: {
                           disabledTests = prev.disabledTests or [ ] ++ [ "test_xml_warnings" ];
                         });
+                        # somehow run out of memory
+                        cryptography = prev.cryptography.overridePythonAttrs (prev: {
+                          disabledTestPaths = prev.disabledTestPaths or [ ] ++ [ "tests/hazmat/primitives/test_argon2.py" ];
+                        });
                       })
                     ];
                   }
