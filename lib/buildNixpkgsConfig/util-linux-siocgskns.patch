@@ -1,0 +1,13 @@
+--- a/lsfd-cmd/sock.c
++++ b/lsfd-cmd/sock.c
+@@ -27,6 +27,10 @@
+ #include "lsfd.h"
+ #include "sock.h"
+ 
++#ifndef SIOCGSKNS
++#define SIOCGSKNS 0x894A
++#endif
++
+ static void attach_sock_xinfo(struct file *file)
+ {
+ 	struct sock *sock = (struct sock *)file;

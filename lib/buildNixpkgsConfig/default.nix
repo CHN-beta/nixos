@@ -379,6 +379,9 @@ let
           # util-linux = prev.util-linux.overrideAttrs (prev: {
           #   patches = prev.patches or [ ] ++ [ ./util-linux-ifa-flags.patch ];
           # });
+          util-linux = prev.util-linux.overrideAttrs (prev: {
+            patches = prev.patches or [ ] ++ [ ./util-linux-siocgskns.patch ];
+          });
           # ktls not working
           enableKTLS = false;
           gnutls = prev.gnutls.overrideAttrs (prev: {
