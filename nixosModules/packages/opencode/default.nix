@@ -6,7 +6,10 @@
 }:
 {
   config = lib.mkIf (config.nixos.model.variant == "desktop") {
-    environment.systemPackages = [ self.inputs.llm-agents.packages.x86_64-linux.opencode ];
+    environment = {
+      systemPackages = [ self.inputs.llm-agents.packages.x86_64-linux.opencode ];
+      persistence."/nix/persistent".users.chn.directories = [ ".cache/opencode" ];
+    };
     nixos.user.sharedModules = [
       {
         config = {
@@ -35,7 +38,8 @@
             };
           };
           catppuccin.opencode.enable = true;
-          xdg.configFile."opencode/plugins/opencode-antigravity-auth".source = self.inputs.opencode-antigravity-auth;
+          xdg.configFile."opencode/plugins/opencode-antigravity-auth".source =
+            self.inputs.opencode-antigravity-auth;
         };
       }
     ];
