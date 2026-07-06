@@ -1343,22 +1343,6 @@
         "type": "github"
       }
     },
-    "opencode-antigravity-auth": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1782412015,
-        "narHash": "sha256-tOD2mpXKrwBkgcyX3Thpr4M7wGfmhYYmtQwHOrwh2gs=",
-        "owner": "NoeFabris",
-        "repo": "opencode-antigravity-auth",
-        "rev": "9a2cf7e5c05f103a809a8302715d28a2722c8c4a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NoeFabris",
-        "repo": "opencode-antigravity-auth",
-        "type": "github"
-      }
-    },
     "openxlsx": {
       "flake": false,
       "locked": {
@@ -1615,7 +1599,6 @@
         "nu-scripts": "nu-scripts",
         "nur-linyinfeng": "nur-linyinfeng",
         "nur-xddxdd": "nur-xddxdd",
-        "opencode-antigravity-auth": "opencode-antigravity-auth",
         "openxlsx": "openxlsx",
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
