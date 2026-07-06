@@ -77,15 +77,27 @@ let
     });
   overlays = {
     addon = [
-      (final: prev: rec
       # nur-xddxdd use prev unconditionally
       # for newly added packages, we need to use final
       # for packages aimed to be replace ones in nixpkgs, we need to use prev
-      {
+      (final: prev: {
         nur-xddxdd = (self.inputs.nur-xddxdd.overlays.inSubTree null final).nur-xddxdd;
         nur-xddxdd-prev = (self.inputs.nur-xddxdd.overlays.inSubTree null prev).nur-xddxdd;
       })
-      self.inputs.buildproxy.overlays.default
+      # manually import buildProxy
+      (final: prev: {
+        mkBuildproxy =
+          proxy-content-file:
+          final.callPackage "${self.inputs.buildproxy}/nix-buildproxy/buildproxy.nix" {
+            self = self.inputs.buildproxy;
+            content = final.mkBuildproxyContent proxy-content-file;
+          };
+        mkBuildproxyContent =
+          proxy-content-file:
+          final.callPackage "${self.inputs.buildproxy}/nix-buildproxy/build-content.nix" {
+            proxy_content = import proxy-content-file;
+          };
+      })
       self.inputs.nix4vscode.overlays.default
       self.inputs.bscpkgs.overlays.default
       self.inputs.chinese-fonts.overlays.default
@@ -93,7 +105,6 @@ let
         nur-linyinfeng = (self.inputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
         firefox-addons = (import "${self.inputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
         dwproton = final.callPackage self.inputs.dwproton { };
-        inherit (prev.lib) mkBuildproxy;
         inherit lib;
       })
       self.overlays.default
@@ -230,6 +241,10 @@ let
                 "tests/tests_io/test_questaal.py"
                 "tests/tests_io/test_castep.py"
               ];
+            });
+            # make buildProxy works
+            mitmproxy = prev.mitmproxy.overridePythonAttrs (prev: {
+              dependencies = prev.dependencies or [ ] ++ [ final.httpx ];
             });
           })
         ];
