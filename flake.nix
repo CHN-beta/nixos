@@ -219,7 +219,7 @@
       flake = false;
     };
     opencode-antigravity-auth = {
-      url = "https://registry.npmjs.org/opencode-antigravity-auth/-/opencode-antigravity-auth-1.6.0.tgz";
+      url = "github:NoeFabris/opencode-antigravity-auth";
       flake = false;
     };
   };

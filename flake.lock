@@ -135,11 +135,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1782772816,
-        "narHash": "sha256-s9BuFv0mRuZx9C1MF8qPHRdcAK14ONi0A5m6E2wqOoM=",
+        "lastModified": 1778446047,
+        "narHash": "sha256-oQvcadh2BCkrog+SGrG6YffKJrveYpjj3TdQJWaKhaM=",
         "owner": "nix-community",
         "repo": "bun2nix",
-        "rev": "5a39d717029e94163ac223aee8d5c9946cafed1c",
+        "rev": "f2bc12af1a6369648aac41041ceeaa0b866599c6",
         "type": "github"
       },
       "original": {
@@ -455,11 +455,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1782949081,
-        "narHash": "sha256-vp6Y/Grm98ESt6ceOkWiHWyZRDV3J1RID4w+6NWK9yA=",
+        "lastModified": 1778716662,
+        "narHash": "sha256-m1Yf0wZ8j1OHjTc2UwHwyQRSnNeSgLJOd7q5Y45hzi4=",
         "owner": "hercules-ci",
         "repo": "flake-parts",
-        "rev": "17c9d6cdfc60c64f4ee8d306f9bc0b4ccb51481e",
+        "rev": "f7c1a2d347e4c52d5fb8d10cb4d94b5884e546fb",
         "type": "github"
       },
       "original": {
@@ -723,11 +723,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1783243767,
-        "narHash": "sha256-iiQL/IHgQlmnZgKgs4wBOiDA9+S3tRFsQPRxtYIhUYo=",
+        "lastModified": 1780881774,
+        "narHash": "sha256-rerEuAetLDa/0drxCKlG3FOm+IaERC85bjePsEAgNqI=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "22f1080fb54a217bdda6cfd6eca5dbf9e7afddac",
+        "rev": "d2516f1045bcce250f7116232899b33252c2866a",
         "type": "github"
       },
       "original": {
@@ -1157,11 +1157,11 @@
     },
     "nixpkgs_4": {
       "locked": {
-        "lastModified": 1783187857,
-        "narHash": "sha256-CoKGv2FwkvFwzsVLB/N89eFjr40puk/p51IMvIp+ddo=",
+        "lastModified": 1780747962,
+        "narHash": "sha256-IX7G1dlKrOqPOImfbo7ADDfV5yU1+j+MRChI3TL4tAA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "19a8a1e6d8b7315b6fd84e5a51977ce6f69d5a5b",
+        "rev": "cbb5cf358f50aa6acc9efd6113b7bcfbc352cd73",
         "type": "github"
       },
       "original": {
@@ -1346,14 +1346,17 @@
     "opencode-antigravity-auth": {
       "flake": false,
       "locked": {
-        "lastModified": 499162500,
-        "narHash": "sha256-y6Urq9WXH8wFRUZaW1jN/iqKcX5Rx+hk/pxTRpZXdkc=",
-        "type": "tarball",
-        "url": "https://registry.npmjs.org/opencode-antigravity-auth/-/opencode-antigravity-auth-1.6.0.tgz"
+        "lastModified": 1782412015,
+        "narHash": "sha256-tOD2mpXKrwBkgcyX3Thpr4M7wGfmhYYmtQwHOrwh2gs=",
+        "owner": "NoeFabris",
+        "repo": "opencode-antigravity-auth",
+        "rev": "9a2cf7e5c05f103a809a8302715d28a2722c8c4a",
+        "type": "github"
       },
       "original": {
-        "type": "tarball",
-        "url": "https://registry.npmjs.org/opencode-antigravity-auth/-/opencode-antigravity-auth-1.6.0.tgz"
+        "owner": "NoeFabris",
+        "repo": "opencode-antigravity-auth",
+        "type": "github"
       }
     },
     "openxlsx": {
