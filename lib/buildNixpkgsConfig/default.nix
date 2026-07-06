@@ -470,12 +470,12 @@ let
           # openmpi = prev.openmpi.override { fabricSupport = false; };
           # inherit (final.pkgs2511) libnl util-linux util-linuxMinimal;
           # libbpf = null;
-          valgrind = prev.valgrind.overrideAttrs (prev: {
-            patches = prev.patches or [ ] ++ [ ./valgrind.patch ];
-          });
-          valgrind-light = prev.valgrind-light.overrideAttrs (prev: {
-            patches = prev.patches or [ ] ++ [ ./valgrind.patch ];
-          });
+          # valgrind = prev.valgrind.overrideAttrs (prev: {
+          #   patches = prev.patches or [ ] ++ [ ./valgrind.patch ];
+          # });
+          # valgrind-light = prev.valgrind-light.overrideAttrs (prev: {
+          #   patches = prev.patches or [ ] ++ [ ./valgrind.patch ];
+          # });
           # v4l-utils = prev.v4l-utils.overrideAttrs (prev: {
           #   mesonFlags = prev.mesonFlags or [ ] ++ [ (lib.mesonOption "bpf" "disabled") ];
           # });
