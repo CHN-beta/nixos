@@ -5,7 +5,7 @@
  #include "sock.h"
  
 +#ifndef SIOCGSKNS
-+#define SIOCGSKNS 0x894A
++#define SIOCGSKNS 0x894C
 +#endif
 +
  static void attach_sock_xinfo(struct file *file)

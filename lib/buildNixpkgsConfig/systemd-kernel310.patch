@@ -1,0 +1,121 @@
+diff -ruN systemd-src/src/basic/socket-util.c systemd-src-test/src/basic/socket-util.c
+--- systemd-src/src/basic/socket-util.c	2026-07-06 09:37:19.337684556 +0800
++++ systemd-src-test/src/basic/socket-util.c	2026-07-06 09:48:45.444855967 +0800
+@@ -1,3 +1,13 @@
++#ifndef SO_PEERGROUPS
++#define SO_PEERGROUPS 59
++#endif
++#ifndef SO_BINDTOIFINDEX
++#define SO_BINDTOIFINDEX 62
++#endif
++#ifndef SO_COOKIE
++#define SO_COOKIE 57
++#endif
++
+ /* SPDX-License-Identifier: LGPL-2.1-or-later */
+ 
+ #include <fcntl.h>
+diff -ruN systemd-src/src/basic/terminal-util.c systemd-src-test/src/basic/terminal-util.c
+--- systemd-src/src/basic/terminal-util.c	2026-07-06 09:37:19.338264609 +0800
++++ systemd-src-test/src/basic/terminal-util.c	2026-07-06 09:48:45.447640922 +0800
+@@ -1,3 +1,8 @@
++#include <sys/ioctl.h>
++#ifndef TIOCGPTPEER
++#define TIOCGPTPEER _IO('T', 0x41)
++#endif
++
+ /* SPDX-License-Identifier: LGPL-2.1-or-later */
+ 
+ #include <fcntl.h>
+diff -ruN systemd-src/src/core/exec-invoke.c systemd-src-test/src/core/exec-invoke.c
+--- systemd-src/src/core/exec-invoke.c	2026-07-06 09:37:19.344244226 +0800
++++ systemd-src-test/src/core/exec-invoke.c	2026-07-06 09:48:45.452857528 +0800
+@@ -1,3 +1,7 @@
++#ifndef PRJQUOTA
++#define PRJQUOTA 2
++#endif
++
+ /* SPDX-License-Identifier: LGPL-2.1-or-later */
+ 
+ #include <grp.h>
+diff -ruN systemd-src/src/include/override/linux/nsfs.h systemd-src-test/src/include/override/linux/nsfs.h
+--- systemd-src/src/include/override/linux/nsfs.h	2026-07-06 09:37:19.353363134 +0800
++++ systemd-src-test/src/include/override/linux/nsfs.h	2026-07-06 09:48:45.433016552 +0800
+@@ -1,7 +1,12 @@
+ /* SPDX-License-Identifier: LGPL-2.1-or-later */
+ #pragma once
+ 
+-#include_next <linux/nsfs.h>    /* IWYU pragma: export */
++#define NSIO 0xb7
++#define NS_GET_USERNS _IO(NSIO, 0x1)
++#define NS_GET_PARENT _IO(NSIO, 0x2)
++#define NS_GET_NSTYPE _IO(NSIO, 0x3)
++#define NS_GET_OWNER_UID _IO(NSIO, 0x4)
++#include <sys/ioctl.h>
+ 
+ /* Root namespace inode numbers, as per include/linux/proc_ns.h in the kernel source tree, since v3.8:
+  * https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=98f842e675f96ffac96e6c50315790912b2812be */
+diff -ruN systemd-src/src/include/override/sys/kcmp.h systemd-src-test/src/include/override/sys/kcmp.h
+--- systemd-src/src/include/override/sys/kcmp.h	2026-07-06 09:37:19.353578409 +0800
++++ systemd-src-test/src/include/override/sys/kcmp.h	2026-07-06 09:48:45.430919109 +0800
+@@ -1,7 +1,7 @@
+ /* SPDX-License-Identifier: LGPL-2.1-or-later */
+ #pragma once
+ 
+-#include <linux/kcmp.h>         /* IWYU pragma: export */
++#define KCMP_FILE 0
+ #include <sys/types.h>
+ 
+ /* Supported since kernel v3.5 (d97b46a64674a267bc41c9e16132ee2a98c3347d). */
+diff -ruN systemd-src/src/journal/journald-audit.c systemd-src-test/src/journal/journald-audit.c
+--- systemd-src/src/journal/journald-audit.c	2026-07-06 09:37:19.357127793 +0800
++++ systemd-src-test/src/journal/journald-audit.c	2026-07-06 09:46:34.800977210 +0800
+@@ -1,3 +1,7 @@
++#ifndef AUDIT_NLGRP_READLOG
++#define AUDIT_NLGRP_READLOG 1
++#endif
++
+ /* SPDX-License-Identifier: LGPL-2.1-or-later */
+ 
+ #include <linux/audit.h>
+diff -ruN systemd-src/src/libc/bpf.c systemd-src-test/src/libc/bpf.c
+--- systemd-src/src/libc/bpf.c	2026-07-06 09:37:19.358589841 +0800
++++ systemd-src-test/src/libc/bpf.c	2026-07-06 09:48:45.438498546 +0800
+@@ -3,9 +3,10 @@
+ #include <sys/bpf.h>
+ #include <sys/syscall.h>
+ #include <unistd.h>
++#include <errno.h>
+ 
+ #if !HAVE_BPF
+ int missing_bpf(int cmd, union bpf_attr *attr, size_t size) {
+-        return syscall(__NR_bpf, cmd, attr, size);
++        return -1;
+ }
+ #endif
+diff -ruN systemd-src/src/libc/kcmp.c systemd-src-test/src/libc/kcmp.c
+--- systemd-src/src/libc/kcmp.c	2026-07-06 09:37:19.358616570 +0800
++++ systemd-src-test/src/libc/kcmp.c	2026-07-06 09:48:45.442882507 +0800
+@@ -3,9 +3,10 @@
+ #include <sys/kcmp.h>
+ #include <sys/syscall.h>
+ #include <unistd.h>
++#include <errno.h>
+ 
+ #if !HAVE_KCMP
+ int missing_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned long idx2) {
+-        return syscall(__NR_kcmp, pid1, pid2, type, idx1, idx2);
++        return -1;
+ }
+ #endif
+diff -ruN systemd-src/src/shared/quota-util.c systemd-src-test/src/shared/quota-util.c
+--- systemd-src/src/shared/quota-util.c	2026-07-06 09:37:19.388339943 +0800
++++ systemd-src-test/src/shared/quota-util.c	2026-07-06 09:48:45.450592340 +0800
+@@ -1,3 +1,7 @@
++#ifndef PRJQUOTA
++#define PRJQUOTA 2
++#endif
++
+ /* SPDX-License-Identifier: LGPL-2.1-or-later */
+ 
+ #include <sys/quota.h>
