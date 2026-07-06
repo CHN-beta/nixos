@@ -446,13 +446,13 @@ let
           #   patches = prev.patches or [ ] ++ [ ./sysprof.patch ];
           # });
           # gnupg = prev.gnupg.override { enableMinimal = true; };
-          # elfutils = prev.elfutils.overrideAttrs (prev: {
-          #   env = prev.env or { } // {
-          #     NIX_CFLAGS_COMPILE = "-Wno-error=unused-but-set-variable";
-          #   };
-          #   doCheck = false;
-          #   doInstallCheck = false;
-          # });
+          elfutils = prev.elfutils.overrideAttrs (prev: {
+            env = prev.env or { } // {
+              NIX_CFLAGS_COMPILE = "-Wno-error=unused-but-set-variable";
+            };
+            doCheck = false;
+            doInstallCheck = false;
+          });
           # go = prev.go.overrideAttrs (prev: {
           #   env = prev.env or { } // {
           #     CGO_ENABLED = 0;
