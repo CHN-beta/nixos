@@ -19,7 +19,7 @@
               package = self.inputs.llm-agents.packages.x86_64-linux.opencode;
               enableMcpIntegration = true;
               settings = {
-                plugin = [ "opencode-antigravity-auth@latest" ];
+                plugin = [ "opencode-antigravity-auth@1.6.0" ];
                 # copy from https://github.com/NoeFabris/opencode-antigravity-auth#models
                 provider.google = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google;
               };
