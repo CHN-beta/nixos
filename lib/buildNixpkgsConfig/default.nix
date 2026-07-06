@@ -396,9 +396,16 @@ let
           # # for matplotlib
           # enableTk = false;
           # vtk = null;
-          systemd = prev.systemd.overrideAttrs (old: {
-            patches = old.patches or [ ] ++ [ ./systemd-kernel310.patch ];
-          });
+          systemd =
+            (prev.systemd.override {
+              withLibBPF = false;
+              withTpm2Tss = false;
+              withLibseccomp = false;
+              withNetworkd = false;
+            }).overrideAttrs
+              (old: {
+                patches = old.patches or [ ] ++ [ ./systemd-kernel310.patch ];
+              });
           # # systemd does not working
           # systemd = null;
           # systemdMinimal = null;
