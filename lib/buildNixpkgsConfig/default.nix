@@ -396,24 +396,18 @@ let
           # # for matplotlib
           # enableTk = false;
           # vtk = null;
-          # systemd = prev.systemd.overrideAttrs (old: {
-          #   patches = old.patches or [ ] ++ [ ./systemd-kernel310.patch ];
-          # });
-          # systemd use too much new kernel features
-          systemd = null;
-          systemdMinimal = null;
-          systemdLibs = null;
-          enableSystemd = false;
-          systemdSupport = false;
-          withSystemd = false;
-          # udev depend on systemd
-          enableUdev = false;
-          withLogind = false;
-          udevSupport = false;
-          udevCheckHook = null;
-          # bluez depend on udev
-          bluez = null;
-          libgudev = prev.libgudev.overrideAttrs (prev: { doCheck = false; });
+          # # systemd does not working
+          # systemd = null;
+          # systemdMinimal = null;
+          # systemdLibs = null;
+          # udevCheckHook = null;
+          # bubblewrap = null;
+          # enableUdev = false;
+          # enableSystemd = false;
+          # withLogind = false;
+          # systemdSupport = false;
+          # udevSupport = false;
+          # withSystemd = false;
           # # per package fixes
           audit = prev.audit.overrideAttrs (old: {
             patches = old.patches or [ ] ++ [ ./audit-calipso.patch ];
