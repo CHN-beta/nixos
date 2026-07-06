@@ -218,6 +218,10 @@
       url = "github:kumagai-group/vise";
       flake = false;
     };
+    opencode-antigravity-auth = {
+      url = "github:NoeFabris/opencode-antigravity-auth";
+      flake = false;
+    };
   };
 
   outputs = inputs: rec {
