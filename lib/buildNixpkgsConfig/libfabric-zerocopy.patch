@@ -1,0 +1,19 @@
+--- a/include/linux/osd.h	2026-07-06 14:43:16.534336248 +0800
++++ b/include/linux/osd.h	2026-07-06 14:43:16.543848328 +0800
+@@ -48,6 +48,16 @@
+ #include <sys/socket.h>
+ 
+ #include <linux/errqueue.h>
++#ifndef SO_EE_ORIGIN_ZEROCOPY
++#define SO_EE_ORIGIN_ZEROCOPY 5
++#endif
++#ifndef SO_EE_CODE_ZEROCOPY_COPIED
++#define SO_EE_CODE_ZEROCOPY_COPIED 1
++#endif
++#ifndef SO_ZEROCOPY
++#define SO_ZEROCOPY 60
++#endif
++
+ #include <ifaddrs.h>
+ #include "unix/osd.h"
+ #include "rdma/fi_errno.h"
