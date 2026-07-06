@@ -476,6 +476,7 @@ let
           libfabric = (prev.libfabric.override { enableOpx = false; }).overrideAttrs (old: {
             patches = old.patches or [ ] ++ [ ./libfabric-zerocopy.patch ];
           });
+          bluezSupport = false;
           # go = prev.go.overrideAttrs (prev: {
           #   env = prev.env or { } // {
           #     CGO_ENABLED = 0;
