@@ -507,8 +507,8 @@ let
           # v4l-utils = prev.v4l-utils.overrideAttrs (prev: {
           #   mesonFlags = prev.mesonFlags or [ ] ++ [ (lib.mesonOption "bpf" "disabled") ];
           # });
-          # # for ffmpeg
-          # withV4l2 = false;
+          # for ffmpeg
+          withV4l2 = false;
           # withVaapi = false;
           # withDrm = false;
           # withSdl2 = false;
