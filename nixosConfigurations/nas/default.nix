@@ -15,12 +15,7 @@
                 "/" = "/nix/export";
               };
               "/dev/lvm/ssd1"."/nix/ssd" = "/nix/ssd";
-              "/dev/lvm/single1" = {
-                "/nix" = "/nix/backup/nix";
-                "/nix/remote/jykang" = "/nix/backup/jykang";
-                "/nix/remote/hwang" = "/nix/backup/hwang";
-                "/nix/remote/wlin" = "/nix/backup/wlin";
-              };
+              "/dev/lvm/single1"."/nix" = "/nix/backup/nix";
             };
           };
           swap = [ "/dev/lvm/swap" ];
