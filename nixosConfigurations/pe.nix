@@ -13,6 +13,7 @@
           swap = [ "/nix/swap/swap" ];
         };
         grub.installDevice = "efiRemovable";
+        kernel.patches = [ "btrfs" ];
       };
       services = {
         sshd = { };
