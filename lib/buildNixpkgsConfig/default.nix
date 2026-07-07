@@ -472,12 +472,12 @@ let
             doCheck = false;
             doInstallCheck = false;
           });
-          pipewire = prev.pipewire.override { modemmanager = null; };
           libfabric = (prev.libfabric.override { enableOpx = false; }).overrideAttrs (old: {
             patches = old.patches or [ ] ++ [ ./libfabric-zerocopy.patch ];
           });
           bluezSupport = false;
           libgudev = prev.libgudev.overrideAttrs { doCheck = false; };
+          pipewireSupport = false;
           # go = prev.go.overrideAttrs (prev: {
           #   env = prev.env or { } // {
           #     CGO_ENABLED = 0;
