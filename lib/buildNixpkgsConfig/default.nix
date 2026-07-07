@@ -382,18 +382,6 @@ let
           libnl = prev.libnl.overrideAttrs (prev: {
             patches = prev.patches or [ ] ++ [ ./libnl-ila.patch ];
           });
-          # go = prev.go.overrideAttrs (prev: {
-          #   patches = prev.patches or [ ] ++ [ ./go-seccomp.patch ];
-          # });
-          # kexec-tools = prev.kexec-tools.overrideAttrs (prev: {
-          #   patches = prev.patches or [ ] ++ [ ./kexec-tools.patch ];
-          # });
-          # libseccomp = prev.libseccomp.overrideAttrs (prev: {
-          #   patches = prev.patches or [ ] ++ [ ./libseccomp-nr.patch ];
-          # });
-          # util-linux = prev.util-linux.overrideAttrs (prev: {
-          #   patches = prev.patches or [ ] ++ [ ./util-linux-ifa-flags.patch ];
-          # });
           util-linux = prev.util-linux.overrideAttrs (prev: {
             patches = prev.patches or [ ] ++ [ ./util-linux-siocgskns.patch ];
           });
@@ -402,15 +390,6 @@ let
           gnutls = prev.gnutls.overrideAttrs (prev: {
             configureFlags = lib.remove "--enable-ktls" (prev.configureFlags or [ ]);
           });
-          # # x11 mostly not working
-          # gobjectSupport = false;
-          # withIntrospection = false;
-          # x11Support = false;
-          # enableGStreamer = false;
-          # # ftxui = prev.ftxui.overrideAttrs (prev: { nativeBuildInputs = [ final.cmake ]; });
-          # # for matplotlib
-          # enableTk = false;
-          # vtk = null;
           systemd =
             (prev.systemd.override {
               withLibBPF = false;
@@ -421,19 +400,6 @@ let
               (old: {
                 patches = old.patches or [ ] ++ [ ./systemd-kernel310.patch ];
               });
-          # # systemd does not working
-          # systemd = null;
-          # systemdMinimal = null;
-          # systemdLibs = null;
-          # udevCheckHook = null;
-          # bubblewrap = null;
-          # enableUdev = false;
-          # enableSystemd = false;
-          # withLogind = false;
-          # systemdSupport = false;
-          # udevSupport = false;
-          # withSystemd = false;
-          # # per package fixes
           audit = prev.audit.overrideAttrs (old: {
             patches = old.patches or [ ] ++ [ ./audit-calipso.patch ];
             configureFlags = lib.filter (
@@ -447,23 +413,6 @@ let
               ])
             ) (old.configureFlags or [ ]);
           });
-          # rpm =
-          #   (prev.rpm.override {
-          #     systemd = null;
-          #     audit = null;
-          #     libcap = null;
-          #   }).overrideAttrs
-          #     (prev: {
-          #       cmakeFlags = prev.cmakeFlags or [ ] ++ [
-          #         "-DENABLE_TESTSUITE=OFF"
-          #         "-DWITH_CAP=OFF"
-          #         "-DWITH_AUDIT=OFF"
-          #         "-DWITH_ACL=OFF"
-          #       ];
-          #     });
-          # libsysprof-capture = prev.libsysprof-capture.overrideAttrs (prev: {
-          #   patches = prev.patches or [ ] ++ [ ./sysprof.patch ];
-          # });
           gnupg = prev.gnupg.override { enableMinimal = true; };
           elfutils = prev.elfutils.overrideAttrs (prev: {
             env = prev.env or { } // {
@@ -478,75 +427,10 @@ let
           bluezSupport = false;
           libgudev = prev.libgudev.overrideAttrs { doCheck = false; };
           pipewireSupport = false;
-          # go = prev.go.overrideAttrs (prev: {
-          #   env = prev.env or { } // {
-          #     CGO_ENABLED = 0;
-          #   };
-          # });
-          # libfabric =
-          #   (prev.libfabric.override {
-          #     enablePsm2 = false;
-          #     enableOpx = false;
-          #   }).overrideAttrs
-          #     (prev: {
-          #       patches = prev.patches or [ ] ++ [ ./libfabric.patch ];
-          #       # zero copy not working
-          #       configureFlags = (prev.configureFlags or [ ]) ++ [ "--enable-tcp=no" ];
-          #     });
-          # # fabric built but intel libpsm2 not
-          # # we using ucx anyway
-          # openmpi = prev.openmpi.override { fabricSupport = false; };
-          # inherit (final.pkgs2511) libnl util-linux util-linuxMinimal;
-          # libbpf = null;
-          valgrind = prev.valgrind.overrideAttrs (prev: {
-            doCheck = false;
-          });
-          valgrind-light = prev.valgrind-light.overrideAttrs (prev: {
-            doCheck = false;
-          });
-          # v4l-utils = prev.v4l-utils.overrideAttrs (prev: {
-          #   mesonFlags = prev.mesonFlags or [ ] ++ [ (lib.mesonOption "bpf" "disabled") ];
-          # });
+          valgrind = prev.valgrind.overrideAttrs { doCheck = false; };
+          valgrind-light = prev.valgrind-light.overrideAttrs { doCheck = false; };
           # for ffmpeg
           withV4l2 = false;
-          # withVaapi = false;
-          # withDrm = false;
-          # withSdl2 = false;
-          # withHeadlessDeps = true;
-          # withSmallDeps = false;
-          # withFullDeps = false;
-          # # for openssh
-          # withFIDO = false;
-          # # for minio
-          # enableS3 = false;
-          # # bluez currently depend on systemd
-          # bluez = null;
-          # pythonPackagesExtensions = prev.pythonPackagesExtensions or [ ] ++ [
-          #   (final: prev: {
-          #     tkinter = prev.tkinter.overridePythonAttrs { doCheck = false; };
-          #     vtk = null;
-          #     multidict = prev.multidict.overridePythonAttrs { doCheck = false; };
-          #     django = prev.django.overridePythonAttrs { doCheck = false; };
-          #     pillow-heif = prev.pillow-heif.overridePythonAttrs { doCheck = false; };
-          #     pymatgen = prev.pymatgen.overridePythonAttrs { doCheck = false; };
-          #   })
-          # ];
-          # folly = prev.folly.overrideAttrs (prev: {
-          #   env = prev.env or { } // {
-          #     NIX_CFLAGS_COMPILE = prev.env.NIX_CFLAGS_COMPILE or "" + " -DFOLLY_HAVE_SO_TIMESTAMPING=0";
-          #   };
-          # });
-          # grpc = prev.grpc.overrideAttrs (prev: {
-          #   buildInputs = prev.buildInputs or [ ] ++ [ final.linuxHeaders ];
-          # });
-          # fbthrift = null;
-          # procps = prev.procps.overrideAttrs (prev: {
-          #   configureFlags = prev.configureFlags or [ ] ++ [ "--disable-pidwait" ];
-          # });
-          # duc = prev.duc.override { enableCairo = false; };
-          # cp2k = (prev.cp2k.override { trexio = null; }).overrideAttrs (prev: {
-          #   cmakeFlags = lib.filter (flag: !(lib.hasInfix "TREXIO" flag)) prev.cmakeFlags or [ ];
-          # });
         }
       )
     ];
