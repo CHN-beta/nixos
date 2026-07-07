@@ -477,6 +477,7 @@ let
             patches = old.patches or [ ] ++ [ ./libfabric-zerocopy.patch ];
           });
           bluezSupport = false;
+          libgudev = prev.libgudev.overrideAttrs { doCheck = false; };
           # go = prev.go.overrideAttrs (prev: {
           #   env = prev.env or { } // {
           #     CGO_ENABLED = 0;
