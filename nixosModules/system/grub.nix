@@ -30,7 +30,7 @@ inputs: {
     let
       inherit (inputs.config.nixos.system) grub;
     in
-    inputs.localLib.mkConditional (grub != null) (inputs.lib.mkMerge [
+    inputs.lib.mkConditional (grub != null) (inputs.lib.mkMerge [
       # general settings
       {
         boot.loader = {

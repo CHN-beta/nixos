@@ -1,5 +1,5 @@
 inputs: {
-  imports = inputs.localLib.findModules ./.;
+  imports = inputs.lib.findModules ./.;
   options.nixos.services =
     let
       inherit (inputs.lib) mkOption types;

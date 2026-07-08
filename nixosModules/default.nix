@@ -1,7 +1,7 @@
-{ localLib, flakeInputs, ... }:
+{ lib, flakeInputs, ... }:
 {
   imports =
-    localLib.mkModules [
+    lib.mkModules [
       flakeInputs.home-manager.nixosModules.home-manager
       flakeInputs.sops-nix.nixosModules.sops
       flakeInputs.nix-index-database.nixosModules.nix-index
@@ -19,5 +19,5 @@
         ];
       }
     ]
-    ++ (localLib.findModules ./.);
+    ++ (lib.findModules ./.);
 }

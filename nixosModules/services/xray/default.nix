@@ -1,4 +1,4 @@
-{ localLib, config, ... }:
+{ lib, ... }:
 {
-  imports = localLib.findModules ./.;
+  imports = lib.findModules ./.;
 }

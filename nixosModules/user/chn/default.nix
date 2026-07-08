@@ -1,11 +1,10 @@
 {
-  localLib,
   config,
   lib,
   ...
 }:
 {
-  imports = localLib.findModules ./.;
+  imports = lib.findModules ./.;
   config = lib.mkIf (builtins.elem "chn" config.nixos.user.users) {
     users.users.chn = {
       extraGroups = lib.intersectLists [

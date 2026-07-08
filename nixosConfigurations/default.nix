@@ -54,7 +54,6 @@ deviceModules
     system = null;
     specialArgs = {
       flakeInputs = self.inputs; # deprecated
-      localLib = lib; # deprecated
       inherit self lib;
     };
     modules = (lib.mkModules v) ++ [ self.nixosModules.default ];

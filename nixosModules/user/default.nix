@@ -1,12 +1,11 @@
 {
   config,
   lib,
-  localLib,
   pkgs,
   ...
 }:
 {
-  imports = localLib.findModules ./.;
+  imports = lib.findModules ./.;
   options.nixos.user = {
     users = lib.mkOption {
       type = lib.types.listOf lib.types.nonEmptyStr;

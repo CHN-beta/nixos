@@ -1,12 +1,11 @@
 {
-  localLib,
   lib,
   config,
   pkgs,
   ...
 }:
 {
-  imports = localLib.findModules ./.;
+  imports = lib.findModules ./.;
   options.nixos.services.nginx = {
     # transparentProxy -> https(with proxyProtocol) or transparentProxy -> streamProxy -> https(with proxyProtocol)
     # https without proxyProtocol listen on private ip, with proxyProtocol listen on all ip

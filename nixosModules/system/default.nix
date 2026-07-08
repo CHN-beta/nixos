@@ -1,5 +1,4 @@
 {
-  localLib,
   config,
   lib,
   pkgs,
@@ -7,7 +6,7 @@
   ...
 }:
 {
-  imports = localLib.findModules ./.;
+  imports = lib.findModules ./.;
   options.system.build.archive = lib.mkOption {
     type = lib.types.package;
     readOnly = true;
