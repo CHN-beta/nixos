@@ -431,6 +431,9 @@ let
           valgrind-light = prev.valgrind-light.overrideAttrs { doCheck = false; };
           # for ffmpeg
           withV4l2 = false;
+          gtk4 = prev.gtk4.overrideAttrs (prev: {
+            mesonFlags = prev.mesonFlags or [ ] ++ [ "-Dbuild-testsuite=false" ];
+          });
         }
       )
     ];
