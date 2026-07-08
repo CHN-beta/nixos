@@ -103,6 +103,7 @@
           gnupg
           age
           sops
+          age-plugin-yubikey
           pam_u2f
           yubico-piv-tool
           libfido2

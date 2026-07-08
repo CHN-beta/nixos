@@ -1,5 +1,5 @@
 keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
-  - &chn age19ax6vm3pv8rph5tq3mmehd9sy9jk823tw8svsd790r0lkslycquqvlwz9m
+  - &chn age1yubikey1qvkn6rxkuh38fdrz6rqusz49lxhj500cmyac26v7dsr08rvskp78kv8uu69
   - &pc age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
   - &vps4 age1yvrl4y0r6yzcxzzkgfwshlrtsjt8uuya6rfwks09pnft7esfcyvqmrtm5q
   - &vps6 age164tyqklwhdm57tfm5u863mdt2xrzrrzac4py8a0j9y6kzqcjy9zsp073t6

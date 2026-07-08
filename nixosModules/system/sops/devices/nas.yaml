@@ -91,20 +91,21 @@ sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSB3aWJSUVUwMnYwN01vSEJO
-            cHV3Ylkzb1Z6Z1E3a2NwZXdIVlpacHJDNWhBCkZXZWx5M21HKy94WkhuaDhkVEFL
-            M01MdUlza0VmK1hKTExmeFdUWDllbTAKLS0tIE8wR1F6ZVZPNVYwU1Y3ZFJaUkhT
-            a3B1UzdQSjlzTmxReVhWMzhTaVdTRDgKG76K16V6NAMaeyfne4LL/zwa5+lfPz/y
-            1SX1JOaWNpXqfOIGflZUF88lxCLR8ttEFea391x2vhoKPZKCvIDGHw==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHBpdi1wMjU2IE1wVWkzZyBBbkRad2NO
+            R1VnWEtjVkRlK0RoZXdUdjNURW85NTVMbC8vS3pSWG5vYTRBKwpGZ0FqN1IxNG56
+            NnJDR2xkTXBnTEl2NXdwanI0SG5JL1NVUmR4Y09uRUlVCi0tLSBsekNNUW1iOTN6
+            bXo3dlNzWWp5SlhqY3BlVytyLzIweXBBV0krWGRJRkxVCqccWQQEcTO5aBNWalXI
+            X+njEx5H0kyaqQs1UxzI5dLC6Wpyn0D/iJkYLqPE3iKK7bYF7n0IEPMg6ovCMXwa
+            dEM=
             -----END AGE ENCRYPTED FILE-----
-          recipient: age19ax6vm3pv8rph5tq3mmehd9sy9jk823tw8svsd790r0lkslycquqvlwz9m
+          recipient: age1yubikey1qvkn6rxkuh38fdrz6rqusz49lxhj500cmyac26v7dsr08rvskp78kv8uu69
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA4eXhkb1B3WXhGTTBLTDk2
-            ZmhTUDltWGk4ZU1PUk8vYkVaUkx0MDFEWUZNCjl2R25JR3Z0U3NKWWwzbjVsMXVq
-            NXMxOThGaFVHQ1ZacU4yUXVBVXNBNUkKLS0tIFkyUjhzMzlMVkM2WFZ1VUw5Zlcy
-            by9Rd0U0bzNiK21BQTNxN1RuQ09DQVkKJmSlzV5ppEkZFljsS17ZWmoI++fz4tJh
-            kTdoAStG1zsKASHyZTsmdm3RBDO3qV1KhQC2gC7d4EiwNZngxOOZJg==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSA2dmJGbU5SRTRBUG1qMnpK
+            MTZnMXpWbEYwMUR2ZTNOSzgvZDA4SHUxOVZZCkNyQVNQTk53UElTNXhCUDBNZHFu
+            dkVRVWkvdnRZckx0R29rL3JEakJCRTgKLS0tIHN1eUM2Q1h3M2ErMTJodmxITXFR
+            czUxdmQvYmwwS0ovdlI5YWdMT24xd2cKZxMMRO2cBR6UWFhPRMQwDuHsrBlouZ79
+            bhL2Ftp4Sv+yd1+85WFZugMe3kc8OnHOQAGByNg5XhuygTEpjdqdDA==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
     lastmodified: "2026-06-28T04:07:50Z"
