@@ -1,21 +1,21 @@
-{ lib, flakeInputs, ... }:
+{ lib, self, ... }:
 {
   imports =
     lib.mkModules [
-      flakeInputs.home-manager.nixosModules.home-manager
-      flakeInputs.sops-nix.nixosModules.sops
-      flakeInputs.nix-index-database.nixosModules.nix-index
-      flakeInputs.impermanence.nixosModules.impermanence
-      flakeInputs.nix-flatpak.nixosModules.nix-flatpak
-      flakeInputs.catppuccin.nixosModules.catppuccin
-      flakeInputs.nixvirt.nixosModules.default
-      flakeInputs.harmonia.nixosModules.harmonia
-      flakeInputs.dms-plugin-registry.modules.default
-      flakeInputs.hermes.nixosModules.default
+      self.inputs.home-manager.nixosModules.home-manager
+      self.inputs.sops-nix.nixosModules.sops
+      self.inputs.nix-index-database.nixosModules.nix-index
+      self.inputs.impermanence.nixosModules.impermanence
+      self.inputs.nix-flatpak.nixosModules.nix-flatpak
+      self.inputs.catppuccin.nixosModules.catppuccin
+      self.inputs.nixvirt.nixosModules.default
+      self.inputs.harmonia.nixosModules.harmonia
+      self.inputs.dms-plugin-registry.modules.default
+      self.inputs.hermes.nixosModules.default
       {
         config.home-manager.sharedModules = [
-          flakeInputs.catppuccin.homeModules.catppuccin
-          flakeInputs.dms-plugin-registry.modules.default
+          self.inputs.catppuccin.homeModules.catppuccin
+          self.inputs.dms-plugin-registry.modules.default
         ];
       }
     ]

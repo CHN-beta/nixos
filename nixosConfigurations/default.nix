@@ -19,8 +19,8 @@ let
         singles
         |> lib.flip lib.genAttrs (n: [
           { config.nixos.model.hostname = n; }
-          (if lib.pathIsRegularFile ./${n}.nix then ./${n}.nix else {})
-          (if lib.pathIsRegularFile ./${n}/default.nix then ./${n} else {})
+          (if lib.pathIsRegularFile ./${n}.nix then ./${n}.nix else { })
+          (if lib.pathIsRegularFile ./${n}/default.nix then ./${n} else { })
         ])
       )
       (
@@ -52,10 +52,7 @@ deviceModules
   n: v:
   lib.nixosSystem {
     system = null;
-    specialArgs = {
-      flakeInputs = self.inputs; # deprecated
-      inherit self lib;
-    };
+    specialArgs = { inherit self lib; };
     modules = (lib.mkModules v) ++ [ self.nixosModules.default ];
   }
 )

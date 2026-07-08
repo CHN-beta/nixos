@@ -4,7 +4,7 @@ inputs: {
     enable = false;
     theme = "mac-style";
     themePackages = [
-      ((inputs.pkgs.callPackage inputs.flakeInputs.mac-style { }).overrideAttrs (prev: {
+      ((inputs.pkgs.callPackage inputs.self.inputs.mac-style { }).overrideAttrs (prev: {
         installPhase =
           prev.installPhase
           + ''cp ${./nix-doge.png} $out/share/plymouth/themes/mac-style/images/header-image.png'';

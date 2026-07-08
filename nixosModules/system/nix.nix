@@ -1,7 +1,6 @@
 {
   lib,
   config,
-  flakeInputs,
   self,
   ...
 }:
@@ -85,14 +84,14 @@
       {
         nix = {
           registry = {
-            nixpkgs.flake = flakeInputs.nixpkgs;
+            nixpkgs.flake = self.inputs.nixpkgs;
             nixos.flake = self;
           };
-          nixPath = [ "nixpkgs=${flakeInputs.nixpkgs}" ];
+          nixPath = [ "nixpkgs=${self.inputs.nixpkgs}" ];
         };
         environment = {
           etc = {
-            "channels/nixpkgs".source = flakeInputs.nixpkgs.outPath;
+            "channels/nixpkgs".source = self.inputs.nixpkgs.outPath;
             "nixos".source = self.outPath;
           };
           variables.COMMA_NIXPKGS_FLAKE = "nixpkgs";

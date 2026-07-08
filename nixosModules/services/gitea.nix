@@ -1,7 +1,7 @@
 {
   pkgs,
   lib,
-  flakeInputs,
+  self,
   config,
   ...
 }:
@@ -141,7 +141,7 @@
           nginx.https.${gitea.hostname}.location = {
             "/".proxy.upstream = "http://127.0.0.1:$proxy_port";
             "/robots.txt".static.root = builtins.toString (
-              pkgs.runCommand "robots.txt" { } "mkdir -p $out; cp ${flakeInputs.gitea-robots-txt} $out/robots.txt"
+              pkgs.runCommand "robots.txt" { } "mkdir -p $out; cp ${self.inputs.gitea-robots-txt} $out/robots.txt"
             );
           };
           postgresql.instances.gitea = { };

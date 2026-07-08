@@ -2,7 +2,7 @@
   lib,
   config,
   pkgs,
-  flakeInputs,
+  self,
   ...
 }:
 {
@@ -60,7 +60,7 @@
           # generate using `toilet -f wideterm -F border "InAlGaN / SiC"`
           environment = {
             etc = lib.mkIf sshd.groupBanner { "fancy-motd/banner".source = ./banner.txt; };
-            systemPackages = [ (pkgs.fancy-motd.overrideAttrs { src = flakeInputs.fancy-motd; }) ];
+            systemPackages = [ (pkgs.fancy-motd.overrideAttrs { src = self.inputs.fancy-motd; }) ];
           };
         })
       ]

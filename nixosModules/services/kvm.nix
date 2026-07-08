@@ -2,7 +2,7 @@
   lib,
   config,
   pkgs,
-  flakeInputs,
+  self,
   ...
 }:
 {
@@ -72,7 +72,7 @@
       };
       systemd.mounts = [
         {
-          what = "${flakeInputs.nixvirt.lib.guest-install.virtio-win.iso}";
+          what = "${self.inputs.nixvirt.lib.guest-install.virtio-win.iso}";
           where = "/var/lib/libvirt/images/virtio-win.iso";
           options = "bind";
           wantedBy = [ "local-fs.target" ];

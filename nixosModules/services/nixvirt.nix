@@ -181,7 +181,7 @@ inputs: {
           verbose = true;
           connections."qemu:///system" =
             let
-              inherit (inputs.flakeInputs.nixvirt) lib;
+              inherit (inputs.self.inputs.nixvirt) lib;
             in
             {
               domains = builtins.map (vm: {
@@ -238,7 +238,7 @@ inputs: {
             n: v:
             inputs.lib.nameValuePair "nixvirt/${n}.xml" {
               content =
-                inputs.flakeInputs.nixvirt.lib.domain.getXML
+                inputs.self.inputs.nixvirt.lib.domain.getXML
                   # port from 8bcc23e27a62297254d0e9c87281e650ff777132
                   {
                     name = n;

@@ -2,7 +2,7 @@
   lib,
   config,
   pkgs,
-  flakeInputs,
+  self,
   ...
 }:
 {
@@ -54,7 +54,7 @@
         extraApps =
           let
             version = lib.versions.major config.services.nextcloud.package.version;
-            info = builtins.fromJSON (builtins.readFile "${flakeInputs.nc4nix}/${version}.json");
+            info = builtins.fromJSON (builtins.readFile "${self.inputs.nc4nix}/${version}.json");
             getInfo = package: {
               inherit (info.${package})
                 hash

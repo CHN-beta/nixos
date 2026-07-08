@@ -2,7 +2,7 @@
   lib,
   config,
   pkgs,
-  flakeInputs,
+  self,
   ...
 }:
 {
@@ -19,9 +19,9 @@
         root = builtins.toString (
           pkgs.runCommand "web" { } ''
             mkdir -p $out
-            cp -r ${flakeInputs.stickerpicker}/web/* $out
+            cp -r ${self.inputs.stickerpicker}/web/* $out
             chmod -R +w $out
-            cp -r ${flakeInputs.sticker}/web/* $out
+            cp -r ${self.inputs.sticker}/web/* $out
           ''
         );
         index = [ "index.html" ];

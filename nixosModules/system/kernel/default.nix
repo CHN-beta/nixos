@@ -2,7 +2,6 @@
   lib,
   config,
   pkgs,
-  flakeInputs,
   self,
   ...
 }:
@@ -141,7 +140,7 @@
                 builtins.map
                   (file: {
                     name = "asus-${file}";
-                    patch = "${flakeInputs.linux-asus}/${file}";
+                    patch = "${self.inputs.linux-asus}/${file}";
                   })
                   [
                     # copy from PKGBUILD
