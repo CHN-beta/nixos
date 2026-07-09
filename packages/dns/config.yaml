@@ -7,9 +7,16 @@ providers:
     class: octodns_cloudflare.CloudflareProvider
     token: env/CLOUDFLARE_TOKEN
     pagerules: false
+processors:
+  ignore_nas:
+    class: octodns.processor.filter.NameRejectlistFilter
+    regexes:
+      - ^nas$
 zones:
   '*':
     sources:
       - config
     targets:
       - cloudflare
+    processors:
+      - ignore_nas
