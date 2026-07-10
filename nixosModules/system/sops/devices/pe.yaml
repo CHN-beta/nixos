@@ -6,21 +6,21 @@ sops:
     age:
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHBpdi1wMjU2IE1wVWkzZyBBL3BYOXFw
-            RDY3bXVXeHV3aFBrY2pXVmV0WDMvczVzWFByN2RvRlRmWDdLdgo2ZnVkWHlmVGtZ
-            NG9rdE5oY2g0aFk4cXdNbGc2U3JWdUgvcTZGOHlWV0VJCi0tLSBVMlQvcDBYZVNV
-            bGVaQmNFK1FNKzBDdDNIMjVydXltR0doNW9IWVplOXE4CjSaN+H6YetJWhT3ItOH
-            xvrnHjo3vDTB6zmLebLz3HcBCK9oDXjREXOfpxhg3q9uT4rPqZiCGzDxcizh9L07
-            14w=
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IHBpdi1wMjU2IGFUbWd4ZyBBbWhoRkxt
+            RjBDeU1kV1h6VGdidVUyMUlDZVZqa1k5WFI0NHJ3UDM1cDMvdwpqNTJxTzlBNGVG
+            aEthWXJZZ2xtSmF6SHZVN1lmUkRHYjdTOUgvbFdFbjE0Ci0tLSBCZWhtMjVuQVVZ
+            SkxZemtwWTF1NnBQNDgvdWFBVDh1bGxrZ0VhWW13a0gwCkuuaEp9zfTITaF/2uVA
+            LCGNKEyN6+yJbvtYsIOVaP+vxTPv9weaOAfrWWCt0MtOgefg8DHY7vWW5YadIog1
+            1GI=
             -----END AGE ENCRYPTED FILE-----
-          recipient: age1yubikey1qvkn6rxkuh38fdrz6rqusz49lxhj500cmyac26v7dsr08rvskp78kv8uu69
+          recipient: age1yubikey1qtkjcn7umxt8j9zvrmnu7r6rgvl69c2u2zv8ufut4de2ealk2axvj9k0f03
         - enc: |
             -----BEGIN AGE ENCRYPTED FILE-----
-            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBwZk5FVjV4SmxYWFRLQmJZ
-            cjlrdTNnc2NraTk3SnNjMnUwRlptMDlVQW5JCjU3T2hBNW5TK0hnVUV3U1ZRaGRh
-            d3d1U3ZFYU1Sbk5qcU9DZ3FCN3UyVlEKLS0tIDdVczNrNkw4ckxOaWhZOUhqVjda
-            d1NUeWU4V1hVTkNWcTVnL1N2VXd3RU0KA3drBCtVCQ7GcTwBJC1/J/Z3p6FnJU8I
-            hXeazZ7dznFaTAThSnBxWiEuV9ZvpGizR8M5Ptt+ktIPHFJVJU+wug==
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBRUGMwbnNadElPelRTRDcr
+            RTUvNk9mQnpPai81dlhrNlIvYk0xWlE4VkZzCjhtSGdVejR6TElWYVpBMnNEbHJx
+            VmZudXJ2NS9KRlRjbVUzKzJXWUFJc2cKLS0tIFVwSnlkZ2xrOVBaZlNOWWFtVFJT
+            WE83VW1MYVBxQ0l6MSsrU3dmcE8yQ0EKeHy9yZceTb7mcHftmPpQIYIvreGo2QUg
+            3bL6vL4D1yVEnNt63FKi2EMxN58TjrZIFoKRF1lcmeil9x6F/gllnQ==
             -----END AGE ENCRYPTED FILE-----
           recipient: age10ud96nzj0wu6s3g89md939md4dyh9ynt9zgnxn0njqx79d9ydpessltcma
     lastmodified: "2026-04-12T13:01:06Z"
