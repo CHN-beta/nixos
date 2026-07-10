@@ -104,6 +104,7 @@
           age
           sops
           age-plugin-yubikey
+          git-agecrypt
           pam_u2f
           yubico-piv-tool
           libfido2
