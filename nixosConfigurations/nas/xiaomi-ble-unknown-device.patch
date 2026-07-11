@@ -1,0 +1,46 @@
+--- xiaomi-ble-1.12.2/src/xiaomi_ble/devices.py	2026-05-21 01:37:35.000000000 +0800
++++ xiaomi-ble-1.12.2-mod/src/xiaomi_ble/devices.py	2026-07-11 13:25:34.876652163 +0800
+@@ -135,6 +135,10 @@
+         name="Door/Window Sensor",
+         model="MCCGQ02HL",
+     ),
++    0x2CB6: DeviceEntry(
++        name="LineHope Door and Window Sensor TM1",
++        model="line.magnet.tm1",
++    ),
+     0x06D3: DeviceEntry(
+         name="Alarm Clock",
+         model="MHO-C303",
+--- xiaomi-ble-1.12.2/src/xiaomi_ble/parser.py	2026-05-21 01:37:35.000000000 +0800
++++ xiaomi-ble-1.12.2-mod/src/xiaomi_ble/parser.py	2026-07-11 13:25:42.173420122 +0800
+@@ -90,6 +90,8 @@
+     "0x4a0c",
+     "0x4a0d",
+     "0x4a0e",
++    "0x4a12",
++    "0x4a13",
+     "0x4e0c",
+     "0x4e0d",
+     "0x4e0e",
+@@ -1365,6 +1367,10 @@
+     xobj: bytes, device: XiaomiBluetoothDeviceData, device_type: str
+ ) -> dict[str, Any]:
+     """Opening (event)"""
++    if len(xobj) == 0:
++        if device_type == "line.magnet.tm1":
++            device.update_predefined_binary_sensor(BinarySensorDeviceClass.OPENING, True)
++        return {}
+     opening_state = xobj[0]
+     # Opening event, used in combination with obj4804
+     if opening_state == 1:
+@@ -1390,6 +1396,10 @@
+     xobj: bytes, device: XiaomiBluetoothDeviceData, device_type: str
+ ) -> dict[str, Any]:
+     """Button press (MS1BB(MI))"""
++    if len(xobj) == 0:
++        if device_type == "line.magnet.tm1":
++            device.update_predefined_binary_sensor(BinarySensorDeviceClass.OPENING, False)
++        return {}
+     press = xobj[0]
+     if press == 1:
+         device.fire_event(

@@ -1,5 +1,17 @@
 { pkgs, ... }:
 {
+  nixpkgs.overlays = [
+    (final: prev: {
+      home-assistant = prev.home-assistant.override {
+        packageOverrides = self: super: {
+          xiaomi-ble = super.xiaomi-ble.overrideAttrs (old: {
+            patches = (old.patches or []) ++ [ ./xiaomi-ble-unknown-device.patch ];
+          });
+        };
+      };
+    })
+  ];
+
   services.home-assistant = {
     enable = true;
     extraComponents = [
@@ -22,6 +34,12 @@
         time_zone = "Asia/Shanghai";
         temperature_unit = "C";
         unit_system = "metric";
+      };
+      logger = {
+        default = "warning";
+        logs = {
+          "xiaomi_ble" = "debug";
+        };
       };
       default_config = { };
       http = {
