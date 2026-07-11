@@ -1,6 +1,5 @@
 { pkgs, lib, ... }:
 {
-  imports = lib.findModules ./.;
   config = {
     nixos = {
       model = {
