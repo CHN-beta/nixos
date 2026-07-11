@@ -6,6 +6,10 @@
       "default_config"
       "met"
       "radio_browser"
+      "esphome"
+      "bluetooth"
+      "bthome"
+      "xiaomi_ble"
     ];
     customComponents = with pkgs.home-assistant-custom-components; [
       tuya_local
@@ -30,4 +34,7 @@
     };
   };
   nixos.services.nginx.https."ha.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:8123";
+
+  # 放行 mDNS 端口，以便 Home Assistant 能够自动发现局域网内的设备（如 ESPHome、HomeKit 等）
+  networking.firewall.allowedUDPPorts = [ 5353 ];
 }
