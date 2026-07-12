@@ -190,6 +190,12 @@ rec {
     cpio = pkgs.pkgs2411.cpio;
     rpm = pkgs.pkgs2411.rpm;
   };
+  stealth-browser-mcp = pkgs.callPackage ./stealth-browser-mcp/default.nix {
+    src = self.inputs.stealth-browser-mcp;
+    uv2nix = self.inputs.uv2nix;
+    pyproject-nix = self.inputs.pyproject-nix;
+    pyproject-build-systems = self.inputs.pyproject-build-systems;
+  };
 
   fromYaml =
     content:

@@ -32,6 +32,10 @@
               provider.google = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google;
               autoupdate = false;
               mcp = {
+                stealth-browser = {
+                  type = "local";
+                  command = [ "${lib.getExe pkgs.localPkgs.stealth-browser-mcp}" ];
+                };
                 nixos = {
                   type = "local";
                   command = [
