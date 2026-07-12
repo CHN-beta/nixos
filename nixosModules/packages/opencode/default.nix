@@ -32,6 +32,10 @@
               provider.google = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google;
               autoupdate = false;
               mcp = {
+                camoufox = {
+                  type = "local";
+                  command = [ "${lib.getExe self.inputs.camoufox-nix.packages.x86_64-linux.camofox-mcp}" ];
+                };
                 nixos = {
                   type = "local";
                   command = [
