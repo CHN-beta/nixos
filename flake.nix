@@ -60,21 +60,6 @@
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
     hermes.url = "github:NousResearch/hermes-agent";
-    pyproject-nix = {
-      url = "github:nix-community/pyproject.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    uv2nix = {
-      url = "github:adisbladis/uv2nix";
-      inputs.pyproject-nix.follows = "pyproject-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    pyproject-build-systems = {
-      url = "github:pyproject-nix/build-system-pkgs";
-      inputs.pyproject-nix.follows = "pyproject-nix";
-      inputs.uv2nix.follows = "uv2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     misskey = {
       url = "git+https://github.com/CHN-beta/misskey?ref=chn-mod&submodules=1";
@@ -231,10 +216,6 @@
     };
     vise = {
       url = "github:kumagai-group/vise";
-      flake = false;
-    };
-    stealth-browser-mcp = {
-      url = "github:vibheksoni/stealth-browser-mcp";
       flake = false;
     };
   };
