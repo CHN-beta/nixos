@@ -89,6 +89,7 @@
             intel-vaapi-driver
             libvdpau-va-gl
             intel-media-driver
+            intel-compute-runtime
           ];
           services.xserver.videoDrivers = [ "modesetting" ];
           environment.systemPackages = with pkgs; [ intel-gpu-tools ];

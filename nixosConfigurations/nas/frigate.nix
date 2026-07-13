@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
   services.frigate = {
     enable = true;
@@ -7,6 +7,10 @@
     checkConfig = false;
     settings = {
       mqtt.enabled = false;
+      ffmpeg = {
+        path = pkgs.ffmpeg-full;
+        hwaccel_args = "preset-vaapi";
+      };
       cameras.tplink_ipc43aw = {
         ffmpeg.inputs = [
           {
@@ -43,6 +47,28 @@
             };
           };
         };
+      };
+      detectors = {
+        ov = {
+          type = "openvino";
+          device = "GPU";
+        };
+      };
+      model = {
+        model_type = "yolo-generic";
+        width = 320;
+        height = 320;
+        input_tensor = "nchw";
+        input_dtype = "float";
+        path = "${pkgs.requireFile {
+          name = "yolov9-t-320.onnx";
+          sha256 = "1ak6nz5w9kbxksyiz2hkrrkzh9vgjpjakj925akwxqscz19g3m2n";
+          message = "Model missing from nix store. Add it using: nix-prefetch-url file:///tmp/opencode/yolov9-t-320.onnx";
+        }}";
+        labelmap_path = "${pkgs.fetchurl {
+          url = "https://raw.githubusercontent.com/blakeblackshear/frigate/master/labelmap.txt";
+          sha256 = "02dc5zjfvcwmp8zj13spyzvkgn1li8b1qjllkx4lqd1m9wgvx138";
+        }}";
       };
     };
   };
