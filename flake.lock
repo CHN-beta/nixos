@@ -1259,11 +1259,11 @@
     },
     "nixpkgs_7": {
       "locked": {
-        "lastModified": 1782388843,
-        "narHash": "sha256-OxutyxIXUrNZF+Qtg0pQomgVsxi7v+ah5h86PRSs27A=",
+        "lastModified": 1783945359,
+        "narHash": "sha256-p/GaJfNA8aKLTx3ta5nVWSVkT1/Q/ymO+dTrDZcbe6w=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "3ecbf0f9a569740f67c5802d6d14a13d425ca9c7",
+        "rev": "d5eb00671ba6f4a921a8c57eee3f642e308d90ec",
         "type": "github"
       },
       "original": {
