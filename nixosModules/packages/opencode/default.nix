@@ -12,6 +12,7 @@
         self.inputs.llm-agents.packages.x86_64-linux.opencode
         # needed by opencode-notifier
         pkgs.libnotify
+        self.inputs.llm-agents.packages.x86_64-linux.agent-browser
       ];
       persistence."/nix/persistent".users.chn.directories = [ ".cache/opencode" ];
     };
@@ -32,15 +33,6 @@
               provider.google = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google;
               autoupdate = false;
               mcp = {
-                agent-browser = {
-                  type = "local";
-                  command = "${lib.getExe self.inputs.llm-agents.packages.x86_64-linux.agent-browser}";
-                  args = [
-                    "mcp"
-                    "--tools"
-                    "all"
-                  ];
-                };
                 nixos = {
                   type = "local";
                   command = [
