@@ -4,6 +4,7 @@
     enable = true;
     hostname = "frigate.chn.moe";
     vaapiDriver = "iHD";
+    checkConfig = false;
     settings = {
       mqtt.enabled = false;
       cameras.tplink_ipc43aw = {
