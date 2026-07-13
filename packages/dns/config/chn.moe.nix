@@ -54,6 +54,7 @@ let
       "readeck"
       "nextcloud"
       "ha"
+      "frigate"
     ];
     vps10 = [
       "initrd.vps10"

@@ -10,8 +10,8 @@ providers:
 processors:
   ignore_nas:
     class: octodns.processor.filter.NameRejectlistFilter
-    regexes:
-      - ^nas$
+    rejectlist:
+      - /^nas$/
 zones:
   '*':
     sources:

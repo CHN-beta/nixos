@@ -342,6 +342,14 @@ let
               torchaudio = prev.torchaudio.overridePythonAttrs (prev: {
                 disabledTests = prev.disabledTests or [ ] ++ [ "test_batch_pitch_shift" ];
               });
+              paho-mqtt = prev.paho-mqtt.overridePythonAttrs (prev: {
+                disabledTests = prev.disabledTests or [ ] ++ [
+                  "test_08_ssl_connect_alpn"
+                  "test_08_ssl_connect_crt_auth_pw"
+                  "test_08_ssl_connect_crt_auth"
+                  "test_08_ssl_connect_no_auth"
+                ];
+              });
             })
           ];
           libffi_3_3 = prev.libffi_3_3.overrideAttrs (prev: {

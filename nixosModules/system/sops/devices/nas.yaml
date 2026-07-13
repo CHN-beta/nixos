@@ -87,6 +87,8 @@ garage:
 pppoe:
     user: ENC[AES256_GCM,data:OmUoj7u4BQhHIfeh,iv:v4guA9k8Gf681JA32Q65n/zBoofqoBXrnQylJStaVA0=,tag:BbE/C9ZiE6fqoLENJ43Lqg==,type:str]
     password: ENC[AES256_GCM,data:CNed32glV4A=,iv:Qr2ntkvYE8jk5XltijJSk6NSJff4zMlt6yoE57nXT2I=,tag:IyrqeDB/KWpy8MmUwUzylA==,type:str]
+frigate:
+    camera_password: ENC[AES256_GCM,data:AH/0Pxeem/Y=,iv:2HkaZxR9c4oEPu+oEi92jqvNTMuYhltA1/ZKF0dFHdY=,tag:MbrTs9jNqrtjTxBtJiRnbg==,type:str]
 sops:
     age:
         - enc: |
@@ -108,7 +110,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-06-28T04:07:50Z"
-    mac: ENC[AES256_GCM,data:VuF4hmPFOOb9PdP334QbHjSsz7Iu00oHg2KM8nRSPNG2wA2EfQnMH1dq+PjHuZqseqjkRV1EYkNF0nQPAY1bNPkke+OWdyQDbyeWD6emi+qOYJVglg+Q4g5iKab87HBXRJqyiSiR+JRjSVeph+z3xrClHHyyPkEWnU4r4hLFltg=,iv:X3pSFd7ygiaZa5T4aQdizFoUt1ypLqG4EZL6hdxEX7w=,tag:cr5PUHiNMHKZYPunZeWzjA==,type:str]
+    lastmodified: "2026-07-13T06:28:59Z"
+    mac: ENC[AES256_GCM,data:j7vfYY0KIrU3+r1+5AhUDk/yiiBShMgk+cfz78suYxX5Xj5SqHNqUhh032/gY6MrLToYFrPMobhY3SvhQMuT7ww2dyjkmiQUudTUhysCw6r82Cp6eS3OgUSaXImzz907ra8eZBLYKfgnVvhm58fo66J+xpPxmp+uUCLDj3ocRqQ=,iv:WJKw2A8MOip5vbRgfeQXoJSvhdBbLSdP1XNXKM7yQ8Y=,tag:ky7q5DEq6dKj3+ZhAofuag==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
