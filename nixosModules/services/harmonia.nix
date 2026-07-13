@@ -26,7 +26,7 @@
           enable = true;
           signKeyPaths = [ config.nixos.system.sops.secrets."store/signingKey".path ];
           settings = lib.mkMerge [
-            { bind = "127.0.0.1:5001"; }
+            { bind = "127.0.0.1:4999"; }
             (lib.mkIf (harmonia.store != null) {
               virtual_nix_store = "/nix/store";
               real_nix_store = "${harmonia.store}/nix/store";
@@ -41,7 +41,7 @@
       };
       nixos = {
         system.sops.secrets."store/signingKey" = { };
-        services.nginx.https.${harmonia.hostname}.location."/".proxy.upstream = "http://127.0.0.1:5001";
+        services.nginx.https.${harmonia.hostname}.location."/".proxy.upstream = "http://127.0.0.1:4999";
       };
     };
 }
