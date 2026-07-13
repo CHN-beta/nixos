@@ -17,8 +17,11 @@
       services.hermes-agent = {
         enable = true;
         settings.model.default = "gemini-3.1-flash-lite";
+        extraDependencyGroups = [ "messaging" ];
         environmentFiles = [ config.nixos.system.sops.templates."hermes.env".path ];
-        # environment = {};
+        environment = {
+          HERMES_MEDIA_ALLOW_DIRS = "/var/lib/hermes/workspace";
+        };
         # authFile = ./auth.json;
         # authFileForceOverwrite = true;
         # mcpServers = {};
