@@ -8,15 +8,15 @@
   config = {
     services.hermes-agent = {
       enable = true;
-        settings = {
-          model = {
-            default = "gemini-3.5-pro";
-            provider = "antigravity";
-          };
-          providers.antigravity = {
-            api_key = "mock";
-            base_url = "http://127.0.0.1:8999/v1";
-          };
+      settings = {
+        model = {
+          default = "gemini-3.5-pro";
+          provider = "antigravity";
+        };
+        providers.antigravity = {
+          api_key = "mock";
+          base_url = "http://127.0.0.1:8999/v1";
+        };
         plugins.enabled = [ "antigravity_mrhisyammm" ];
         gateway.platforms.api_server = {
           enabled = true;
@@ -53,7 +53,7 @@
       createUser = false;
     };
     systemd.services.hermes-agent.restartTriggers = [
-      config.services.hermes-agent
+      (builtins.toJSON config.services.hermes-agent.settings)
       config.nixos.system.sops.templates."hermes.env".content
     ];
     nixos.system.sops = {
@@ -99,7 +99,9 @@
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
             wrapProgram $out/bin/aichat \
-              --run 'export HERMES_API_KEY=$(cat ${config.nixos.system.sops.secrets."hermes/api_server_token".path})'
+              --run 'export HERMES_API_KEY=$(cat ${
+                config.nixos.system.sops.secrets."hermes/api_server_token".path
+              })'
           '';
         };
         settings = {
