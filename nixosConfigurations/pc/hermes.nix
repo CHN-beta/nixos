@@ -8,12 +8,15 @@
   config = {
     services.hermes-agent = {
       enable = true;
-      settings = {
-        model.default = "gemini-3.1-flash-lite";
-        providers.antigravity = {
-          api_key = "mock";
-          base_url = "http://127.0.0.1:8999/v1";
-        };
+        settings = {
+          model = {
+            default = "gemini-3.5-pro";
+            provider = "antigravity";
+          };
+          providers.antigravity = {
+            api_key = "mock";
+            base_url = "http://127.0.0.1:8999/v1";
+          };
         plugins.enabled = [ "antigravity_mrhisyammm" ];
         gateway.platforms.api_server = {
           enabled = true;
