@@ -17,8 +17,10 @@
         plugins.enabled = [ "antigravity_mrhisyammm" ];
         gateway.platforms.api_server = {
           enabled = true;
-          port = 9090;
-          host = "127.0.0.1";
+          extra = {
+            port = 9090;
+            host = "127.0.0.1";
+          };
         };
       };
       extraPlugins = [
@@ -62,14 +64,14 @@
             GEMINI_API_KEY=${placeholder."hermes/gemini"}
             TELEGRAM_BOT_TOKEN=${placeholder."hermes/tgbot"}
             TELEGRAM_ALLOWED_USERS=${placeholder."telegram/user/chn"}
-            HERMES_GATEWAY_PLATFORMS_API_SERVER_AUTH_TOKEN=${placeholder."hermes/api_server_token"}
+            API_SERVER_KEY=${placeholder."hermes/api_server_token"}
           '';
       };
       secrets = {
         "hermes/gemini" = { };
         "hermes/tgbot" = { };
         "telegram/user/chn" = { };
-        "hermes/api_server_token" = { };
+        "hermes/api_server_token".owner = "chn";
       };
     };
     users = {
@@ -82,6 +84,29 @@
         shell = pkgs.bashInteractive;
       };
       groups.hermes.gid = config.nixos.user.gid.hermes;
+    };
+    home-manager.users.chn = { pkgs, ... }: {
+      programs.aichat = {
+        enable = true;
+        package = pkgs.symlinkJoin {
+          name = "aichat-wrapped";
+          paths = [ pkgs.aichat ];
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+          postBuild = ''
+            wrapProgram $out/bin/aichat \
+              --run 'export HERMES_API_KEY=$(cat ${config.nixos.system.sops.secrets."hermes/api_server_token".path})'
+          '';
+        };
+        settings = {
+          clients = [
+            {
+              type = "openai";
+              name = "hermes";
+              api_base = "http://127.0.0.1:9090/v1";
+            }
+          ];
+        };
+      };
     };
   };
 }
