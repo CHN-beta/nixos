@@ -1,5 +1,6 @@
 { pkgs, lib, ... }:
 {
+  imports = lib.findModules ./.;
   config = {
     nixos = {
       model = {
@@ -164,7 +165,6 @@
         howdy = { };
         # for debug and development
         postgresql.instances.minibox = { };
-        hermes = { };
       };
       packages = {
         mathematica = { };
