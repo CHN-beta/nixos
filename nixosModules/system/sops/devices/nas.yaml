@@ -89,6 +89,10 @@ pppoe:
     password: ENC[AES256_GCM,data:CNed32glV4A=,iv:Qr2ntkvYE8jk5XltijJSk6NSJff4zMlt6yoE57nXT2I=,tag:IyrqeDB/KWpy8MmUwUzylA==,type:str]
 frigate:
     camera_password: ENC[AES256_GCM,data:AH/0Pxeem/Y=,iv:2HkaZxR9c4oEPu+oEi92jqvNTMuYhltA1/ZKF0dFHdY=,tag:MbrTs9jNqrtjTxBtJiRnbg==,type:str]
+hermes:
+    gemini: ENC[AES256_GCM,data:l5fbBZ7sd6AfzbUlmMjXlKFYButb4T3Gumww2Q42CCj6ZbwJieu5,iv:dzfGTsPrci9XET7lp5xtuiqT5J6fMtywuoMMTr9ruVE=,tag:2IM7ZgHIGznY/RKEkF/j+Q==,type:str]
+    tgbot: ENC[AES256_GCM,data:sMMJnl2URIz8WovP1wQTymBl1aK50Qe3yzt0J2v9HPvYa09ixrEHWEzJMbS85g==,iv:6aYG8YG/gNzVP+IOxZF2tb17vLAshB3MsJhmPSNdQeI=,tag:Gxjx0Nvx0QKIHeh05Jp1sQ==,type:str]
+    api_server_token: ENC[AES256_GCM,data:f0gA0a11WVLmqyfKPithL7NVEkQ14uLD7JSvExlgAd8=,iv:ecpYwkqXIlxM2aFAzjLAP2sQd9Wmy1ykXuyYIGzmrxI=,tag:mZQGbd5oerqaKVd6fhFCdA==,type:str]
 sops:
     age:
         - enc: |
@@ -110,7 +114,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-07-13T06:28:59Z"
-    mac: ENC[AES256_GCM,data:j7vfYY0KIrU3+r1+5AhUDk/yiiBShMgk+cfz78suYxX5Xj5SqHNqUhh032/gY6MrLToYFrPMobhY3SvhQMuT7ww2dyjkmiQUudTUhysCw6r82Cp6eS3OgUSaXImzz907ra8eZBLYKfgnVvhm58fo66J+xpPxmp+uUCLDj3ocRqQ=,iv:WJKw2A8MOip5vbRgfeQXoJSvhdBbLSdP1XNXKM7yQ8Y=,tag:ky7q5DEq6dKj3+ZhAofuag==,type:str]
+    lastmodified: "2026-07-14T06:44:52Z"
+    mac: ENC[AES256_GCM,data:2STnoaI9aYwsw61Dz5wYFdP2+zRz34DYjUzH8sV7R+LhxCWzvPbNWUkrByc6cV5p9WdRD1ZeKP7v+7QIM3emg0zKx3K/h49IFlRFm0cV1hBr12xshsLINUe9aBNz2YffeIZZ7pd1gZITtp518q+LhIAoNmZnxq5hICwLJ6AlQuI=,iv:3IEPl76YZE2H8ctRw2Kz9PEQaO3gxwSMMd+oEKza8zU=,tag:C9KFtEMjCCgdxe//L5C9Og==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
