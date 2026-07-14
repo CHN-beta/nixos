@@ -15,6 +15,11 @@
           base_url = "http://127.0.0.1:8999/v1";
         };
         plugins.enabled = [ "antigravity_mrhisyammm" ];
+        gateway.platforms.api_server = {
+          enabled = true;
+          port = 9090;
+          host = "127.0.0.1";
+        };
       };
       extraPlugins = [
         (pkgs.stdenv.mkDerivation {
@@ -57,12 +62,14 @@
             GEMINI_API_KEY=${placeholder."hermes/gemini"}
             TELEGRAM_BOT_TOKEN=${placeholder."hermes/tgbot"}
             TELEGRAM_ALLOWED_USERS=${placeholder."telegram/user/chn"}
+            HERMES_GATEWAY_PLATFORMS_API_SERVER_AUTH_TOKEN=${placeholder."hermes/api_server_token"}
           '';
       };
       secrets = {
         "hermes/gemini" = { };
         "hermes/tgbot" = { };
         "telegram/user/chn" = { };
+        "hermes/api_server_token" = { };
       };
     };
     users = {
