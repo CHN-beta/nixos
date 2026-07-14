@@ -60,6 +60,10 @@
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
     hermes.url = "github:NousResearch/hermes-agent";
+    hermes-antigravity-auth = {
+      url = "github:mrhisyammm/hermes-antigravity-auth";
+      flake = false;
+    };
 
     misskey = {
       url = "git+https://github.com/CHN-beta/misskey?ref=chn-mod&submodules=1";

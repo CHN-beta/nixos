@@ -603,6 +603,22 @@
         "type": "github"
       }
     },
+    "hermes-antigravity-auth": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782231922,
+        "narHash": "sha256-t1sOJ/rP7VlPBImoh+AFKTbAydQhY6OCKIxiw8G+8Zc=",
+        "owner": "mrhisyammm",
+        "repo": "hermes-antigravity-auth",
+        "rev": "1f91c1862747a1c832e401bff6bb6ee458554392",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mrhisyammm",
+        "repo": "hermes-antigravity-auth",
+        "type": "github"
+      }
+    },
     "hextra": {
       "flake": false,
       "locked": {
@@ -1573,6 +1589,7 @@
         "gitea-robots-txt": "gitea-robots-txt",
         "harmonia": "harmonia",
         "hermes": "hermes",
+        "hermes-antigravity-auth": "hermes-antigravity-auth",
         "hextra": "hextra",
         "home-manager": "home-manager",
         "impermanence": "impermanence",

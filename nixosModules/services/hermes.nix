@@ -2,6 +2,7 @@
   lib,
   config,
   pkgs,
+  self,
   ...
 }:
 {
@@ -16,7 +17,32 @@
     lib.mkIf (hermes != null) {
       services.hermes-agent = {
         enable = true;
-        settings.model.default = "gemini-3.1-flash-lite";
+        settings = {
+          model.default = "gemini-3.1-flash-lite";
+          providers.antigravity = {
+            api_key = "mock";
+            base_url = "http://127.0.0.1:8999/v1";
+          };
+          plugins.enabled = [ "antigravity_mrhisyammm" ];
+        };
+        extraPlugins = [
+          (pkgs.stdenv.mkDerivation {
+            name = "antigravity_mrhisyammm";
+            src = self.inputs.hermes-antigravity-auth;
+            installPhase = ''
+              mkdir -p $out
+              cp -r plugins/antigravity_mrhisyammm/* $out/
+            '';
+          })
+          (pkgs.stdenv.mkDerivation {
+            name = "antigravity-provider";
+            src = self.inputs.hermes-antigravity-auth;
+            installPhase = ''
+              mkdir -p $out
+              cp -r plugins/model-providers/antigravity/* $out/
+            '';
+          })
+        ];
         extraDependencyGroups = [ "messaging" ];
         environmentFiles = [ config.nixos.system.sops.templates."hermes.env".path ];
         environment = {
