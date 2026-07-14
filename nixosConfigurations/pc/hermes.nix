@@ -46,15 +46,16 @@
       ];
       extraDependencyGroups = [ "messaging" ];
       environmentFiles = [ config.nixos.system.sops.templates."hermes.env".path ];
-      environment = {
-        HERMES_MEDIA_ALLOW_DIRS = "/var/lib/hermes/workspace";
-      };
       # authFile = ./auth.json;
       # authFileForceOverwrite = true;
       # mcpServers = {};
       addToSystemPackages = true;
       createUser = false;
     };
+    systemd.services.hermes-agent.restartTriggers = [
+      config.services.hermes-agent
+      config.nixos.system.sops.templates."hermes.env".content
+    ];
     nixos.system.sops = {
       templates."hermes.env" = {
         owner = "hermes";
@@ -68,6 +69,7 @@
             TELEGRAM_BOT_TOKEN=${placeholder."hermes/tgbot"}
             TELEGRAM_ALLOWED_USERS=${placeholder."telegram/user/chn"}
             API_SERVER_KEY=${placeholder."hermes/api_server_token"}
+            HERMES_MEDIA_ALLOW_DIRS=/var/lib/hermes/workspace
           '';
       };
       secrets = {
