@@ -606,15 +606,15 @@
     "hermes-antigravity-auth": {
       "flake": false,
       "locked": {
-        "lastModified": 1782231922,
-        "narHash": "sha256-t1sOJ/rP7VlPBImoh+AFKTbAydQhY6OCKIxiw8G+8Zc=",
-        "owner": "mrhisyammm",
+        "lastModified": 1784010109,
+        "narHash": "sha256-byHQo4iZecLPV+GJxyFfwE9eolcQDUCAjaVCaaDSug8=",
+        "owner": "CHN-beta",
         "repo": "hermes-antigravity-auth",
-        "rev": "1f91c1862747a1c832e401bff6bb6ee458554392",
+        "rev": "cad8a56be1fd30e8cbdc1d219f00d05de1a3a078",
         "type": "github"
       },
       "original": {
-        "owner": "mrhisyammm",
+        "owner": "CHN-beta",
         "repo": "hermes-antigravity-auth",
         "type": "github"
       }
