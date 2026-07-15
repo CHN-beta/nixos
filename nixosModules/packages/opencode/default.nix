@@ -34,6 +34,23 @@
               provider.google = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google;
               autoupdate = false;
               mcp = {
+                openalex = {
+                  type = "local";
+                  command = [
+                    (lib.getExe (
+                      pkgs.runCommand "alex-mcp"
+                        {
+                          nativeBuildInputs = [ pkgs.makeWrapper ];
+                          meta.mainProgram = "alex-mcp";
+                        }
+                        ''
+                          mkdir -p $out/bin
+                          makeWrapper ${lib.getExe pkgs.python3Packages.alex-mcp} $out/bin/alex-mcp \
+                            --set OPENALEX_MAILTO chn@chn.moe
+                        ''
+                    ))
+                  ];
+                };
                 camoufox = {
                   type = "local";
                   command = [

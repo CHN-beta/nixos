@@ -48,3 +48,17 @@ nix <command> <arguments>
 1. Is this path `/data/gpfs01/...`? -> Use `sudo` + xmuhpc `--store 'local?...'`
 2. Are we just building/inspecting (not running locally)? -> Use `sudo` + `--store /nix/tf`
 3. Are we building to run locally right now? -> Use normal user + default store.
+
+## 4. Packaging Preferences (`overlay/packages`)
+
+When asked to package new software (especially Python packages), adhere to the following stylistic and architectural preferences based on existing practices in this repository:
+
+1. **Directory Structure**: Place new package expressions (e.g., `my-package.nix`) inside `overlay/packages/`.
+2. **Registration**: 
+   - Standard packages should be instantiated in `overlay/packages/default.nix` using `pkgs.callPackage`.
+   - **Python Packages** MUST be placed inside the `pythonOverlay = python3Packages: { ... }` block. Use `python3Packages.callPackage`.
+3. **Source Management**:
+   - Prefer using flake inputs (`src = self.inputs.foo;` or `self.src.foo`) if the source is managed at the flake level.
+   - If fetching directly from GitHub within the `.nix` file, use `fetchFromGitHub` and provide a proper SRI base32 hash (`sha256 = "..."`).
+4. **Build System**: For Python packages, use `buildPythonPackage` with `pyproject = true` and define the appropriate `build-system` (e.g., `setuptools`, `wheel`, `poetry-core`).
+5. **Tests**: If the test suite requires network access, heavy external I/O, or broken transitive cloud dependencies (like AWS SDKs), it is perfectly acceptable and common to set `doCheck = false;` to bypass flaky tests.

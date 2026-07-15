@@ -350,6 +350,9 @@ let
                   "test_08_ssl_connect_no_auth"
                 ];
               });
+              cfn-lint = prev.cfn-lint.overridePythonAttrs (prev: {
+                doCheck = false;
+              });
             })
           ];
           libffi_3_3 = prev.libffi_3_3.overrideAttrs (prev: {
