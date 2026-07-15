@@ -6,7 +6,7 @@
   ...
 }:
 {
-  config = lib.mkIf (config.nixos.model.variant == "desktop") {
+  config = {
     environment = {
       systemPackages = [
         self.inputs.llm-agents.packages.x86_64-linux.opencode
