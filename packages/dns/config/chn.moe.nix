@@ -55,6 +55,7 @@ let
       "nextcloud"
       "ha"
       "frigate"
+      "wechat"
     ];
     vps10 = [
       "initrd.vps10"

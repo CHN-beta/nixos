@@ -152,6 +152,13 @@ in
       "intel.oneapi.lin.compilers-common,v=2025.1.1+10"
     ];
   };
+  wechat = pkgs.dockerTools.pullImage {
+    imageName = "nickrunning/wechat-selkies";
+    imageDigest = "sha256:145e1d9b0433d151da0d6741e2adaf7ab72cf7aec7c6dd40f3642843799b04a1";
+    hash = "sha256-TkFAJX+JWUOjR7z5G55qCLhOj8ZqJGXuXDuytKYdd7E=";
+    finalImageName = "nickrunning/wechat-selkies";
+    finalImageTag = "0.0.12-minimal";
+  };
   rsshub = pkgs.dockerTools.pullImage {
     imageName = "diygod/rsshub";
     imageDigest = "sha256:67fab5d669cf7060046ec8940f148e27b4adc425e8659a6076050516af32bc69";
