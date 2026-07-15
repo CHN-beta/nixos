@@ -161,6 +161,7 @@ rec {
   lsf = pkgs.callPackage ./lsf.nix { src = self.src.lsf; };
   asmroner = pkgs.callPackage ./asmroner.nix { src = self.inputs.asmroner; };
   pythonOverlay = python3Packages: {
+    mineru-mcp = python3Packages.callPackage ./mineru-mcp.nix { };
     pyalex = python3Packages.callPackage ./pyalex.nix { };
     alex-mcp = python3Packages.callPackage ./alex-mcp.nix { };
     py4vasp = python3Packages.callPackage ./py4vasp.nix { src = self.inputs.py4vasp; };

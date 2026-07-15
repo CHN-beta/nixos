@@ -17,7 +17,10 @@
       ];
       persistence."/nix/persistent".users.chn.directories = [ ".cache/opencode" ];
     };
-    nixos.system.sops.secrets."github/token".mode = "0444";
+    nixos.system.sops.secrets = {
+      "github/token".mode = "0444";
+      "opencode/mineru".mode = "0444";
+    };
     nixos.user.sharedModules = [
       {
         config = {
@@ -49,6 +52,24 @@
                             --set OPENALEX_MAILTO chn@chn.moe
                         ''
                     ))
+                  ];
+                };
+                mineru = {
+                  type = "local";
+                  command = [
+                    (lib.getExe (
+                      pkgs.runCommand "mineru-mcp"
+                        {
+                          nativeBuildInputs = [ pkgs.makeWrapper ];
+                          meta.mainProgram = "mineru-mcp";
+                        }
+                        ''
+                          mkdir -p $out/bin
+                          makeWrapper ${lib.getExe pkgs.python3Packages.mineru-mcp} $out/bin/mineru-mcp \
+                            --run 'export MINERU_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/mineru".path})'
+                        ''
+                    ))
+                    "stdio"
                   ];
                 };
                 camoufox = {
