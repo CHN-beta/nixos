@@ -13,6 +13,7 @@
         # needed by opencode-notifier
         pkgs.libnotify
         self.inputs.llm-agents.packages.x86_64-linux.agent-browser
+        self.inputs.camoufox-nix.packages.x86_64-linux.camofox-browser
       ];
       persistence."/nix/persistent".users.chn.directories = [ ".cache/opencode" ];
     };
@@ -33,6 +34,12 @@
               provider.google = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google;
               autoupdate = false;
               mcp = {
+                camoufox = {
+                  type = "local";
+                  command = [
+                    (lib.getExe self.inputs.camoufox-nix.packages.x86_64-linux.camofox-mcp)
+                  ];
+                };
                 nixos = {
                   type = "local";
                   command = [
