@@ -27,13 +27,17 @@
       services.nginx.streamConfig = ''
         log_format transparent_proxy '[$time_local] $remote_addr-$geoip2_data_country_code '
           '"$ssl_preread_server_name"->$transparent_proxy_backend $bytes_sent $bytes_received';
+        map $remote_addr $backend_loopback {
+          ~:      "[::1]";
+          default "127.0.0.1";
+        }
         map $ssl_preread_server_name $transparent_proxy_backend {
           ${builtins.concatStringsSep "\n    " (
             lib.mapAttrsToList (
-              n: v: ''"${n}" ${if builtins.isInt v then "127.0.0.1:${builtins.toString v}" else v};''
+              n: v: ''"${n}" ${if builtins.isInt v then "$backend_loopback:${builtins.toString v}" else v};''
             ) nginx.transparentProxy.map
           )}
-          default 127.0.0.1:${toString (with nginx.global; (httpsPort + httpsPortShift.http2))};
+          default $backend_loopback:${toString (with nginx.global; (httpsPort + httpsPortShift.http2))};
         }
         server {
           listen 0.0.0.0:443;

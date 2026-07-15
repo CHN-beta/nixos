@@ -81,6 +81,7 @@
         }
         server {
           listen 127.0.0.1:${toString nginx.global.streamPort};
+          listen [::1]:${toString nginx.global.streamPort};
           ssl_preread on;
           proxy_pass $stream_proxy_backend;
           proxy_connect_timeout 10s;
@@ -90,6 +91,9 @@
         }
         server {
           listen 127.0.0.1:${
+            builtins.toString (with nginx.global; (streamPort + streamPortShift.proxyProtocol))
+          };
+          listen [::1]:${
             builtins.toString (with nginx.global; (streamPort + streamPortShift.proxyProtocol))
           };
           proxy_protocol on;

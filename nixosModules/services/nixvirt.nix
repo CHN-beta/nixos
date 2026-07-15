@@ -405,6 +405,7 @@ inputs: {
                 ip = "192.168.${builtins.toString nixvirt.subnet}.${builtins.toString vm.network.address}";
               in
               {
+                # FIXME: ipv4 and v6 could not be used together
                 transparentProxy.map = builtins.listToAttrs (
                   builtins.map (host: inputs.lib.nameValuePair host "${ip}:443") vm.network.portForward.web.httpsProxy
                 );
