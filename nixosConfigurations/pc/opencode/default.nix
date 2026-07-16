@@ -86,12 +86,7 @@
                 };
                 nixos = {
                   type = "local";
-                  command = [
-                    "nix"
-                    "run"
-                    "github:utensils/mcp-nixos"
-                    "--"
-                  ];
+                  command = [ (lib.getExe pkgs.mcp-nixos) ];
                 };
                 github = {
                   type = "remote";

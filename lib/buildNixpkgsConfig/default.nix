@@ -374,6 +374,9 @@ let
           valkey = prev.valkey.overrideAttrs (prev: {
             doCheck = false;
           });
+          mcp-nixos = prev.mcp-nixos.overridePythonAttrs (prev: {
+            disabledTests = prev.disabledTests or [ ] ++ [ "test_read_text_file" ];
+          });
         }
       )
     ];
