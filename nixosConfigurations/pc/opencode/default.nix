@@ -40,7 +40,7 @@
                 dockerhub = {
                   type = "local";
                   command = [
-                    (lib.getExe pkgs.dockerhub-mcp)
+                    (lib.getExe pkgs.localPkgs.dockerhub-mcp)
                   ];
                 };
                 openalex = {
