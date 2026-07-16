@@ -11,7 +11,7 @@
   typer,
 }:
 
-buildPythonPackage rec {
+buildPythonPackage {
   pname = "mineru-converter-mcp-server";
   version = "1.0.0rc5";
   pyproject = true;
@@ -37,6 +37,7 @@ buildPythonPackage rec {
   doCheck = false;
 
   meta = {
+    mainProgram = "mineru-converter-mcp-server";
     description = "MCP server for converting documents to Markdown using MinerU API";
     homepage = "https://github.com/AvatarGanymede/MinerU-MCP";
     license = lib.licenses.mit;
