@@ -154,10 +154,10 @@ in
   };
   wechat = pkgs.dockerTools.pullImage {
     imageName = "nickrunning/wechat-selkies";
-    imageDigest = "sha256:145e1d9b0433d151da0d6741e2adaf7ab72cf7aec7c6dd40f3642843799b04a1";
-    hash = "sha256-TkFAJX+JWUOjR7z5G55qCLhOj8ZqJGXuXDuytKYdd7E=";
+    imageDigest = "sha256:387eed17951aca783c9125ade88640702174d5fd676b0cffafaa474a20a9d416";
+    hash = "sha256-RkjQsoJ3Py/n9ZJBdBnX9VuaqEJHy9wn4tHZQgCWUg0=";
     finalImageName = "nickrunning/wechat-selkies";
-    finalImageTag = "0.0.12-minimal";
+    finalImageTag = "0.0.12";
   };
   rsshub = pkgs.dockerTools.pullImage {
     imageName = "diygod/rsshub";
