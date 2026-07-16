@@ -39,44 +39,35 @@
               mcp = {
                 dockerhub = {
                   type = "local";
-                  command = [
-                    (lib.getExe pkgs.localPkgs.dockerhub-mcp)
-                  ];
+                  command = [ (lib.getExe pkgs.localPkgs.dockerhub-mcp) ];
                 };
                 openalex = {
                   type = "local";
-                  command = [
-                    (lib.getExe (
-                      pkgs.runCommand "alex-mcp"
-                        {
-                          nativeBuildInputs = [ pkgs.makeWrapper ];
-                          meta.mainProgram = "alex-mcp";
-                        }
-                        ''
-                          mkdir -p $out/bin
-                          makeWrapper ${lib.getExe pkgs.python3Packages.alex-mcp} $out/bin/alex-mcp \
-                            --set OPENALEX_MAILTO chn@chn.moe
-                        ''
-                    ))
-                  ];
+                  command =
+                    pkgs.python3Packages.alex-mcp
+                    |> lib.getExe
+                    |> (
+                      p:
+                      pkgs.writeShellScript "alex-mcp" ''
+                        export OPENALEX_MAILTO=chn@chn.moe
+                        exec ${lib.getExe p}
+                      ''
+                    )
+                    |> lib.singleton;
                 };
                 mineru = {
                   type = "local";
-                  command = [
-                    (lib.getExe (
-                      pkgs.runCommand "mineru-mcp"
-                        {
-                          nativeBuildInputs = [ pkgs.makeWrapper ];
-                          meta.mainProgram = "mineru-mcp";
-                        }
-                        ''
-                          mkdir -p $out/bin
-                          makeWrapper ${lib.getExe pkgs.python3Packages.mineru-mcp} $out/bin/mineru-mcp \
-                            --run 'export MINERU_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/mineru".path})'
-                        ''
-                    ))
-                    "stdio"
-                  ];
+                  command =
+                    pkgs.python3Packages.mineru-mcp
+                    |> lib.getExe
+                    |> (
+                      p:
+                      pkgs.writeShellScript "mineru-mcp" ''
+                        export MINERU_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/mineru".path})'
+                        exec ${lib.getExe p} stdio
+                      ''
+                    )
+                    |> lib.singleton;
                 };
                 camoufox = {
                   type = "local";
