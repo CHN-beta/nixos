@@ -14,7 +14,6 @@
         })
       ];
     }
-
     # 2. 应用 NAT、VLAN 接口及路由策略
     {
       systemd = {
@@ -46,8 +45,9 @@
       };
       nixos = {
         system.network.settings = {
+          bridge.nixvirt.interfaces = [ "enp2s0.10" ];
           static = {
-            "enp2s0.10" = {
+            nixvirt = {
               ip = "192.168.2.1";
               mask = 24;
             };
@@ -57,7 +57,7 @@
             };
           };
           trust = [
-            "enp2s0.10"
+            "nixvirt"
             "enp2s0.20"
           ];
         };
@@ -82,7 +82,6 @@
         };
       };
     }
-
     # 3. DNS 和 DHCP
     {
       networking.firewall.allowedUDPPorts = [ 67 ];
@@ -93,16 +92,16 @@
           # disable dns
           port = 0;
           interface = [
-            "enp2s0.10"
+            "nixvirt"
             "enp2s0.20"
           ];
           bind-dynamic = true;
           dhcp-range = [
-            "interface:enp2s0.10,192.168.2.100,192.168.2.250,255.255.255.0,12h"
+            "interface:nixvirt,192.168.2.100,192.168.2.250,255.255.255.0,12h"
             "interface:enp2s0.20,192.168.3.100,192.168.3.250,255.255.255.0,12h"
           ];
           dhcp-option = [
-            "interface:enp2s0.10,option:dns-server,223.5.5.5"
+            "interface:nixvirt,option:dns-server,223.5.5.5"
             "interface:enp2s0.20,option:dns-server,192.168.3.1"
           ];
         };
