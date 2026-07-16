@@ -252,7 +252,6 @@
                       zotero-connector
                       smartproxy
                       kiss-translator
-                      readeck
                     ];
                     search = {
                       default = "google";

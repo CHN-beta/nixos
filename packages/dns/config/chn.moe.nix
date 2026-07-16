@@ -49,7 +49,6 @@ let
       "huginn"
       "vaultwarden"
       "photo"
-      "readeck"
       "nextcloud"
       "ha"
       "frigate"

@@ -27,7 +27,6 @@ postgresql:
     synapse_matrix: ENC[AES256_GCM,data:uyV13dMgUzPLGmSGN3Hoi6u1tY9rMU186VUSl7HspZXFqhs+OmRGL86cf91o/owvz15WijIw4wuAP++T8MY4LA==,iv:TG7Fi3ETAvmrOxv8ZahnrOR7Z90Vf5YgHcOtPkzueJI=,tag:uH10mk1m0q3a0fGcDbH9HQ==,type:str]
     peertube: ENC[AES256_GCM,data:J/qNYYuOhENTVFU+6Iz9P8Cy1FcHlD6xpPADDzdYDZuce9DEsnFq28d+tTJ7Z71IvOKvNySly7ru/R+Tu7rqpQ==,iv:sV34o2Zf7yLUovdVND7wh+rcoGglz4llc3xfSEllHNM=,tag:c9wzEAlWMINTN8TEZhDIRw==,type:str]
     immich: ENC[AES256_GCM,data:0jIjTw13NFsaGNse8a36drDsOTl8tDTrFFY5UqffBbtoCgnVjhZZ0qfqf7QhFkijmpjZxXBT5ZIvyTHavsJ3nQ==,iv:9KWp1wGvGaV64cZYx2KciAIehVgQQuFFARwmEnjfOg0=,tag:6ymDEYRLIgyQXS4/QrJuYA==,type:str]
-    readeck: ENC[AES256_GCM,data:DdUZ62d9ivm+B0RqrkSy2aQ5ZsgTfElhvM1Z6gHiNkBIf4O8owT0+rDmsaxj22yo/JXhwkDL/H9KxhAsp+5quw==,iv:SExqhmfwvq2iWk/RGHernt5TjiUBB6D0PJw32eNjX98=,tag:9sInXu4QnyENJR0b7fDr9w==,type:str]
     minibox: ENC[AES256_GCM,data:CpPrAOuNIkumH/xDNF0/wuvxKrRYJ/QQex03RThee9KhAzeJu26jHneONUl8yARdJiXAhoH5ZJ9qSxVQt02cEQ==,iv:v8e+Y6hNRz9f274KQJ3rlLEtDSloi2UElGfWv5CQfSM=,tag:Fpi1n103dsavXe5GIGBzhQ==,type:str]
 rsshub:
     pixiv-refreshtoken: ENC[AES256_GCM,data:GDPLcjTAat76kOVmd4FQGYshbvV2i8HpeCpEAHQy7FN8BCrRmIpaT5q/eQ==,iv:eYEM/YgTMqS3vva3WCYicS71xowJhlGonAz75aeCskc=,tag:HPolufwNJBtiRwzh5dcwGg==,type:str]
@@ -74,8 +73,6 @@ peertube:
 nixvirt:
     yumieko: ENC[AES256_GCM,data:tO+67mdCFH8=,iv:vl+PLSBfMDk7rGmpjuZ8TnEC1B8tni2pphC7cTmxQU0=,tag:RVW5UaUD0g0HDpoGp2/mAA==,type:str]
 tinc: ENC[AES256_GCM,data:IziBdx/fkWltRubpBYcCuZ/jwM7U6OUA8WAglvMRoCN3eFjQEm3GN+J30tfTt8P2ngwHmaKJ7ry7rB7nhLmIUzhNrLEHprwZwqhAIgpMHo4pcCfJBE5Y7ba+kTk3eOI4waxwmfRqFdccmmkDTtw0En0WtSj0/ysOM4n8mmgeYxc5KIUNfasc0IHfHVtNahljvFUpExeT6Tpu9Caa1cznnFQYlMXsEGkveUHNOcEq4DWCUEVCTOE4/jcSg2j3+dJre3/Qz1ELi78=,iv:PmkrR2nccHrKrXr5V+YBVP4eQHBxPIw16ePfgjP7wgY=,tag:jsAh/QfimQ4swHnEtQsiIQ==,type:str]
-readeck:
-    secret_key: ENC[AES256_GCM,data:pxVnvyB1VQmzpD6Hd4iRPUX4V9r8NJzvWeFEFNzyxXIVlvwTbvxbtOdilT7NTJgDKBnBuQebIvsXKvvqEQ/fCw==,iv:fvrKmurcB7A0M4OmqSJDpSrwJsKFT6mHMzhc3+oVzV0=,tag:lm/+b6MLqJvZWjZPPpBuIg==,type:str]
 minibox:
     admin: ENC[AES256_GCM,data:ZkBkk2CaZk14OSCHZO/mzjTfqlQKiQV7G+Je3LQKZBrOCZGsupJkoXDTBuyjeeHy3hXDp28nJBwr+Wt0q6QZSQ==,iv:ugQE03zuUEdIU6phUkKmN7qHzVqiDLsTX2ubMp3jG3I=,tag:5VDh3+cUIRAX41BGBCaxKA==,type:str]
     session: ENC[AES256_GCM,data:bqh5P1k9gu2Cqpjom5nXXCaY4KHP4fn6PMKi4iyqcq84H6mso3g2Uly+dT9hfZRYoTo/qVAdYLjkq+KfMxls7g==,iv:FPjAmsQ/nsde7pSN0kUNj9eig6ow9Ii9LkJeIbfe4to=,tag:ovqLaS+IHoilkGYSnSpf3w==,type:str]
@@ -114,7 +111,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-07-14T06:44:52Z"
-    mac: ENC[AES256_GCM,data:2STnoaI9aYwsw61Dz5wYFdP2+zRz34DYjUzH8sV7R+LhxCWzvPbNWUkrByc6cV5p9WdRD1ZeKP7v+7QIM3emg0zKx3K/h49IFlRFm0cV1hBr12xshsLINUe9aBNz2YffeIZZ7pd1gZITtp518q+LhIAoNmZnxq5hICwLJ6AlQuI=,iv:3IEPl76YZE2H8ctRw2Kz9PEQaO3gxwSMMd+oEKza8zU=,tag:C9KFtEMjCCgdxe//L5C9Og==,type:str]
+    lastmodified: "2026-07-16T11:31:08Z"
+    mac: ENC[AES256_GCM,data:OmFhYawHUsEQCMD3owdgdhfPSZLj32Zt0ZHSc3agvZdp4EEbEjsLiH46CIqP1lcqpyfIbF6Rxj9det2e9miV7kiTlU0FyqbDhUHSu9q9sst5mDk7ZZ3p3I9mZ3kVMZQbVf60yJn0qMEfK13B7ixMObKegetYPb3vx7GrPwCA+iE=,iv:gayesVzI9ileD7IGzW74YCVg3MHtB9WnhooQPApNrvY=,tag:/PCvgv2WJlbqnJrwinO0WQ==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

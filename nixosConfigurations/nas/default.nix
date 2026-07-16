@@ -94,7 +94,6 @@
           crossmnt = false;
         };
         immich = { };
-        readeck = { };
         minibox = { };
         harmonia = {
           hostname = "backup-store.chn.moe";
