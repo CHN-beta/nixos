@@ -23,7 +23,6 @@ let
       "s"
       "headscale"
       "missgram"
-      "vikunja"
       "xserver3"
       # to pc
       "铜锣湾实验室"

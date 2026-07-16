@@ -51,7 +51,6 @@
         headscale = { };
         missgram = { };
         hongbao = { };
-        vikunja = { };
       };
     };
     networking.nftables.tables.forward = {

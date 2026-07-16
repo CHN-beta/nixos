@@ -155,7 +155,6 @@
           openai-whisper
           # daily management
           super-productivity
-          vikunja-desktop
           # gaming
           (bottles.override { removeWarningPopup = true; })
           lutris
