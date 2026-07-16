@@ -288,4 +288,19 @@ in
     url = "https://controlplane.tailscale.com/derpmap/default";
     sha256 = "0hgs6aq9fcbz2pb6380jzcb0ikx6h4122n5icx2zqbflb2j2in4l";
   };
+  dockerhub-mcp = rec {
+    pname = "dockerhub-mcp";
+    version = "1.0.0";
+    src = pkgs.fetchFromGitHub {
+      owner = "docker";
+      repo = "hub-mcp";
+      rev = "ad806e2cab0489a296aec0f32f3d3eea807d65c2";
+      hash = "sha256-2Nhb2gAZa6P8HT9jL5DdEgnK/APUNETrXZmpwC69W1U=";
+    };
+    npmDeps = pkgs.fetchNpmDeps {
+      name = "${pname}-${version}-npm-deps";
+      inherit src;
+      hash = "sha256-di/EDkHKQrUySc5wtyK2z/nqwAT1UEymx69bVPf+oaM=";
+    };
+  };
 }

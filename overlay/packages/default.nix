@@ -193,6 +193,7 @@ rec {
     cpio = pkgs.pkgs2411.cpio;
     rpm = pkgs.pkgs2411.rpm;
   };
+  dockerhub-mcp = pkgs.callPackage ./dockerhub-mcp.nix { src = self.src.dockerhub-mcp; };
 
   fromYaml =
     content:

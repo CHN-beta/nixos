@@ -37,6 +37,12 @@
               provider.google = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google;
               autoupdate = false;
               mcp = {
+                dockerhub = {
+                  type = "local";
+                  command = [
+                    (lib.getExe pkgs.dockerhub-mcp)
+                  ];
+                };
                 openalex = {
                   type = "local";
                   command = [
