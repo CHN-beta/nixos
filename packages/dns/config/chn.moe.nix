@@ -40,7 +40,6 @@ let
     ];
     "pc.ts" = [
       "nix-store"
-      "chat"
     ];
     "nas.ts" = [
       "ssh.git"
