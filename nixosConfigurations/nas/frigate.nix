@@ -70,6 +70,7 @@
           sha256 = "02dc5zjfvcwmp8zj13spyzvkgn1li8b1qjllkx4lqd1m9wgvx138";
         }}";
       };
+      database.path = "/nix/ssd/var/lib/frigate/frigate.db";
     };
   };
   nixos = {
@@ -81,7 +82,18 @@
     };
     services.nginx.https."frigate.chn.moe".global.configName = "frigate.chn.moe";
   };
-  systemd.services.frigate.serviceConfig.EnvironmentFile = [
-    config.nixos.system.sops.templates."frigate.env".path
-  ];
+  systemd = {
+    tmpfiles.rules = [
+      "d /nix/ssd/var/cache/frigate 0750 frigate frigate -"
+      "d /nix/ssd/var/lib/frigate 0750 frigate frigate -"
+    ];
+    services.frigate.serviceConfig = {
+      EnvironmentFile = [
+        config.nixos.system.sops.templates."frigate.env".path
+      ];
+      BindPaths = [
+        "/nix/ssd/var/cache/frigate:/var/cache/frigate"
+      ];
+    };
+  };
 }
