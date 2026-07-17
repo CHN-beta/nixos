@@ -70,8 +70,8 @@
                 } $out/node-exporter.json
                 cp ${
                   pkgs.fetchurl {
-                    url = "https://grafana.com/api/dashboards/24237/revisions/1/download";
-                    sha256 = "0zxwbcvkccbg31xk5gx2gszkr4ifbamnk4n90dsrsrjj9ykar7il";
+                    url = "https://grafana.com/api/dashboards/20043/revisions/1/download";
+                    sha256 = "1r3rs5v36y80w3mmw083713y51ayvzwhvac4l2jqc787r6s0nwlg";
                   }
                 } $out/nginx-vts.json
                 cp ${
