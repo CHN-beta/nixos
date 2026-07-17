@@ -45,7 +45,6 @@
                   type = "local";
                   command =
                     pkgs.python3Packages.alex-mcp
-                    |> lib.getExe
                     |> (
                       p:
                       pkgs.writeShellScript "alex-mcp" ''
@@ -59,7 +58,6 @@
                   type = "local";
                   command =
                     pkgs.python3Packages.mineru-mcp
-                    |> lib.getExe
                     |> (
                       p:
                       pkgs.writeShellScript "mineru-mcp" ''
