@@ -68,6 +68,12 @@
                     sha256 = "0qza4j8lywrj08bqbww52dgh2p2b9rkhq5p313g72i57lrlkacfl";
                   }
                 } $out/node-exporter.json
+                cp ${
+                  pkgs.fetchurl {
+                    url = "https://grafana.com/api/dashboards/24237/revisions/1/download";
+                    sha256 = "0zxwbcvkccbg31xk5gx2gszkr4ifbamnk4n90dsrsrjj9ykar7il";
+                  }
+                } $out/nginx-vts.json
               '';
             }
           ];
@@ -96,6 +102,28 @@
                       "srv2-node0"
                       "srv2-node1"
                       "srv2-node2"
+                    ])
+                    (lib.map (h: "${h}.chn.moe:${port}") [
+                      "vps4"
+                      "vps6"
+                      "vps10"
+                    ])
+                  ];
+              }
+            ];
+          }
+          {
+            job_name = "nginx";
+            scrape_interval = "1m";
+            static_configs = [
+              {
+                targets =
+                  let
+                    port = "9113"; # nginx exporter port
+                  in
+                  lib.concatLists [
+                    (lib.map (h: "${h}.ts.chn.moe:${port}") [
+                      "nas"
                     ])
                     (lib.map (h: "${h}.chn.moe:${port}") [
                       "vps4"

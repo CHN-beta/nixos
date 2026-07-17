@@ -56,6 +56,8 @@
             use epoll;
           '';
           commonHttpConfig = ''
+            vhost_traffic_status_zone;
+            vhost_traffic_status_filter_by_host on;
             geoip2 ${config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
               $geoip2_data_country_code country iso_code;
             }
@@ -85,7 +87,10 @@
           recommendedGzipSettings = true;
           recommendedBrotliSettings = true;
           clientMaxBodySize = "0";
-          package =
+          package = pkgs.nginxMainline.overrideAttrs (prev: {
+            buildInputs = prev.buildInputs ++ [ pkgs.libmaxminddb ];
+          });
+          additionalModules =
             let
               nginx-geoip2 = {
                 name = "ngx_http_geoip2_module";
@@ -98,19 +103,10 @@
                 meta.license = [ ];
               };
             in
-            pkgs.nginxMainline
-            |> (
-              p:
-              p.override (prev: {
-                modules = prev.modules ++ [ nginx-geoip2 ];
-              })
-            )
-            |> (
-              p:
-              p.overrideAttrs (prev: {
-                buildInputs = prev.buildInputs ++ [ pkgs.libmaxminddb ];
-              })
-            );
+            [
+              nginx-geoip2
+              pkgs.nginxModules.vts
+            ];
           streamConfig = ''
             geoip2 ${config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
               $geoip2_data_country_code country iso_code;
@@ -119,10 +115,27 @@
           '';
           # anyway to use host dns?
           resolver.addresses = [ "8.8.8.8" ];
+          virtualHosts."vts-metrics" = {
+            listen = [
+              {
+                addr = "0.0.0.0";
+                port = 9113;
+              }
+              {
+                addr = "[::]";
+                port = 9113;
+              }
+            ];
+            locations."/metrics".extraConfig = ''
+              vhost_traffic_status_display;
+              vhost_traffic_status_display_format prometheus;
+            '';
+          };
         };
         networking.firewall.allowedTCPPorts = [
           80
           443
+          9113
         ];
         nixos.services.geoipupdate = { };
         systemd.services.nginx.serviceConfig = {
