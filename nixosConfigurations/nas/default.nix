@@ -85,7 +85,6 @@
         huginn = { };
         httpapi = { };
         gitea = { };
-        grafana = { };
         podman = { };
         peertube = { };
         nginx.applications.webdav.instances."webdav.chn.moe" = { };
