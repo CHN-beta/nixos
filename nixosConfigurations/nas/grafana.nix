@@ -74,6 +74,12 @@
                     sha256 = "0zxwbcvkccbg31xk5gx2gszkr4ifbamnk4n90dsrsrjj9ykar7il";
                   }
                 } $out/nginx-vts.json
+                cp ${
+                  pkgs.fetchurl {
+                    url = "https://grafana.com/api/dashboards/11545/revisions/2/download";
+                    sha256 = "0im7qy4piqwwjyww8h7gf4qmaba5ikzv5rd3gx8dqfi2786bppmc";
+                  }
+                } $out/v2ray-exporter.json
               '';
             }
           ];
@@ -130,6 +136,23 @@
                       "vps6"
                       "vps10"
                     ])
+                  ];
+              }
+            ];
+          }
+          {
+            job_name = "xray";
+            scrape_interval = "1m";
+            static_configs = [
+              {
+                targets =
+                  let
+                    port = toString config.services.prometheus.exporters.v2ray.port;
+                  in
+                  lib.map (h: "${h}.chn.moe:${port}") [
+                    "vps4"
+                    "vps6"
+                    "vps10"
                   ];
               }
             ];

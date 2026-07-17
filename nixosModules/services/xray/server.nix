@@ -22,6 +22,11 @@ in
       enable = true;
       settingsFile = config.sops.templates."xray-server.json".path;
     };
+    services.prometheus.exporters.v2ray = {
+      enable = true;
+      v2rayEndpoint = "127.0.0.1:6149";
+    };
+    networking.firewall.allowedTCPPorts = [ 9299 ];
     nixos = {
       system.sops = {
         templates."xray-server.json" = {
