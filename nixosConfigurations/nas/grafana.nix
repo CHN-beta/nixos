@@ -80,6 +80,7 @@
                     sha256 = "0im7qy4piqwwjyww8h7gf4qmaba5ikzv5rd3gx8dqfi2786bppmc";
                   }
                 } $out/v2ray-exporter.json
+                sed -i 's/"\''${DS_PROMETHEUS}"/"Prometheus"/g' $out/v2ray-exporter.json
               '';
             }
           ];
