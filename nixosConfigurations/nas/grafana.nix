@@ -142,6 +142,7 @@
           }
           {
             job_name = "xray";
+            metrics_path = "/scrape";
             scrape_interval = "1m";
             static_configs = [
               {
