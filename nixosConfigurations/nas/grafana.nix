@@ -1,4 +1,10 @@
-{ config, pkgs, ... }: {
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+{
   config = {
     services = {
       grafana = {
@@ -51,21 +57,52 @@
               }
             ];
           };
+          dashboards.settings.providers = [
+            {
+              name = "dashboards";
+              options.path = pkgs.runCommand "grafana-dashboards" { } ''
+                mkdir -p $out
+                cp ${
+                  pkgs.fetchurl {
+                    url = "https://grafana.com/api/dashboards/1860/revisions/37/download";
+                    hash = "sha256-0qza4j8lywrj08bqbww52dgh2p2b9rkhq5p313g72i57lrlkacfl";
+                  }
+                } $out/node-exporter.json
+              '';
+            }
+          ];
         };
       };
       prometheus = {
         enable = true;
-        exporters = {
-          node = {
-            enable = true;
-            enabledCollectors = [ "systemd" ];
-          };
-        };
         scrapeConfigs = [
           {
-            job_name = "lapetus";
+            job_name = "node";
+            scrape_interval = "1m";
             static_configs = [
-              { targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ]; }
+              {
+                targets =
+                  let
+                    port = toString config.services.prometheus.exporters.node.port;
+                  in
+                  lib.concatLists [
+                    (lib.map (h: "${h}.ts.chn.moe:${port}") [
+                      "nas"
+                      "pc"
+                      "srv1-node0"
+                      "srv1-node1"
+                      "srv1-node2"
+                      "srv2-node0"
+                      "srv2-node1"
+                      "srv2-node2"
+                    ])
+                    (lib.map (h: "${h}.chn.moe:${port}") [
+                      "vps4"
+                      "vps6"
+                      "vps10"
+                    ])
+                  ];
+              }
             ];
           }
         ];

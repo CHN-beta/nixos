@@ -1,8 +1,14 @@
 { config, ... }:
 {
   config = {
-    # only preserve the last 7 days of logs
-    services.journald.extraConfig = "MaxRetentionSec=7d";
+    services = {
+      # only preserve the last 7 days of logs
+      journald.extraConfig = "MaxRetentionSec=7d";
+      prometheus.exporters.node = {
+        enable = true;
+        enabledCollectors = [ "systemd" ];
+      };
+    };
     systemd = {
       settings.Manager = {
         DefaultTimeoutStopSec = "10s";
