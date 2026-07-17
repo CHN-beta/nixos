@@ -79,6 +79,7 @@
           gcc
           go
           rustc
+          cargo
           nodejs
           pnpm
           yarn
