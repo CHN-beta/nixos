@@ -52,7 +52,7 @@
                 name = "Prometheus";
                 type = "prometheus";
                 access = "proxy";
-                url = "http://localhost:9090";
+                url = "http://127.0.0.1:${toString config.services.prometheus.port}";
                 editable = false;
               }
             ];
@@ -75,6 +75,7 @@
       };
       prometheus = {
         enable = true;
+        port = 9091;
         scrapeConfigs = [
           {
             job_name = "node";
