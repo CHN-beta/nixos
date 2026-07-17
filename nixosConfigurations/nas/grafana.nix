@@ -109,7 +109,7 @@
                       "srv2-node1"
                       "srv2-node2"
                     ])
-                    (lib.map (h: "${h}.chn.moe:${port}") [
+                    (lib.map (h: "tinc0.${h}.chn.moe:${port}") [
                       "vps4"
                       "vps6"
                       "vps10"
@@ -131,7 +131,7 @@
                     (lib.map (h: "${h}.ts.chn.moe:${port}") [
                       "nas"
                     ])
-                    (lib.map (h: "${h}.chn.moe:${port}") [
+                    (lib.map (h: "tinc0.${h}.chn.moe:${port}") [
                       "vps4"
                       "vps6"
                       "vps10"
@@ -149,7 +149,7 @@
                   let
                     port = toString config.services.prometheus.exporters.v2ray.port;
                   in
-                  lib.map (h: "${h}.chn.moe:${port}") [
+                  lib.map (h: "tinc0.${h}.chn.moe:${port}") [
                     "vps4"
                     "vps6"
                     "vps10"
