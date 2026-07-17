@@ -61,7 +61,7 @@
                     |> (
                       p:
                       pkgs.writeShellScript "mineru-mcp" ''
-                        export MINERU_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/mineru".path})'
+                        export MINERU_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/mineru".path})
                         exec ${lib.getExe p} stdio
                       ''
                     )
