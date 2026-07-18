@@ -28,6 +28,10 @@
             enable = true;
             package = self.inputs.llm-agents.packages.x86_64-linux.opencode;
             enableMcpIntegration = true;
+            tui.keybinds = {
+              input_submit = "ctrl+return";
+              input_newline = "return";
+            };
             settings = {
               plugin = [
                 "opencode-antigravity-auth@1.6.0"
