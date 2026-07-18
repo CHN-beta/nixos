@@ -761,7 +761,10 @@
                 enable = true;
                 settings = {
                   scrollback-limit = 100000000;
-                  keybind = "ctrl+shift+r=reset";
+                  keybind = [
+                    "ctrl+shift+r=reset"
+                    "ctrl+enter=unbind"
+                  ];
                   linux-cgroup = "always";
                   font-family = "FiraCode Nerd Font";
                 };
