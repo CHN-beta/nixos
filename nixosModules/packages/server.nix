@@ -2,7 +2,6 @@
   lib,
   config,
   pkgs,
-  self,
   ...
 }:
 {
@@ -80,6 +79,8 @@
           go
           rustc
           cargo
+          rustfmt
+          clippy
           nodejs
           pnpm
           yarn
@@ -102,6 +103,10 @@
             ]
           )
         ];
+      }
+      {
+        # rust-analyzer could not find rust-src
+        environment.variables.RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
       }
     ]
   );

@@ -158,6 +158,11 @@
           # gaming
           (bottles.override { removeWarningPopup = true; })
           lutris
+          # rust development
+          rust-analyzer
+          cargo-watch
+          cargo-expand
+          sccache
         ];
         nixos.user.sharedModules = [
           {
@@ -333,6 +338,10 @@
                 enableExtensionUpdateCheck = false;
                 enableUpdateCheck = false;
                 extensions = pkgs.nix4vscode.forVscode [
+                  "rust-lang.rust-analyzer"
+                  "vadimcn.vscode-lldb"
+                  "tamasfe.even-better-toml"
+                  "fill-labs.dependi"
                   "github.copilot"
                   "github.copilot-chat"
                   "github.github-vscode-theme"
