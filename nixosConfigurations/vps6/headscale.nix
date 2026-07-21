@@ -23,8 +23,12 @@
           override_local_dns = false;
         };
         derp = {
-          server.enabled = false;
-          urls = [ "https://controlplane.tailscale.com/derpmap/default" ];
+          server = {
+            enabled = false;
+            automatically_add_embedded_derp_region = false;
+          };
+          urls = [ ];
+          # urls = [ "https://controlplane.tailscale.com/derpmap/default" ];
           paths = [
             (pkgs.writeText "derp.yaml" ''
               regions:
