@@ -92,6 +92,7 @@ hermes:
     tgbot: ENC[AES256_GCM,data:sMMJnl2URIz8WovP1wQTymBl1aK50Qe3yzt0J2v9HPvYa09ixrEHWEzJMbS85g==,iv:6aYG8YG/gNzVP+IOxZF2tb17vLAshB3MsJhmPSNdQeI=,tag:Gxjx0Nvx0QKIHeh05Jp1sQ==,type:str]
     api_server_token: ENC[AES256_GCM,data:f0gA0a11WVLmqyfKPithL7NVEkQ14uLD7JSvExlgAd8=,iv:ecpYwkqXIlxM2aFAzjLAP2sQd9Wmy1ykXuyYIGzmrxI=,tag:mZQGbd5oerqaKVd6fhFCdA==,type:str]
     matrix_password: ENC[AES256_GCM,data:aozsjBs2I7NLnC2Ou+DazGyyDzuD7NJtIxYS5aDYSc8=,iv:ObCKKLSdOlhjalU2gIy/wC2AAIF3safrR3+xFEuvhcQ=,tag:QHfNKyYax4wPrLQHZT75kQ==,type:str]
+    matrix_home: ENC[AES256_GCM,data:QjxCjTKe+/M46yJlDy0Ocr+WQDPRTSvi1feX,iv:iwhRTqCHkhI+6sTvarlbl6vzvAI6E8MkhoWYhRMl24Q=,tag:4ZhQ4fjBoxdlc9AC2Dk7Cg==,type:str]
 sops:
     age:
         - enc: |
@@ -113,7 +114,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-07-21T09:15:18Z"
-    mac: ENC[AES256_GCM,data:VuuzvJPWFEQd/HsziK/N9fxxgT4CG07WVIgeqay+P9KQOlfRRIQumFdakGgl2ueTalJktJjiAozTcqPWC1Pj05d9s31rMwhL0Bbs0EsQolU6SG0TWs6NZaPEhPXE0kMQcv/EN51bS6jssIyoBQXPY1F8PWQO31P6rs/A7llMcbQ=,iv:G4rGcbvsKHaFIq15gXFYtDc1aI/1iWYm93Hqb9bkVH4=,tag:RG92HZ/ZR9/ah4AJI/1QFA==,type:str]
+    lastmodified: "2026-07-21T15:01:45Z"
+    mac: ENC[AES256_GCM,data:dO88ML3vwexLAHn/Ve1xXyJUVMeH911lAPU8p40Fq4PBbJe3l0N865/E0hgvVEpJ6qoDkgwh3FYENH+V4HsWSEk2TASyG7VBJ1/iPcf5enfyb0zJvBNmQFZPqX1AxqKhCUxtVlKH8+s1fUTiApi5bR9ikiEjvxAXmV+R8MJCruQ=,iv:5WsNr3h62SPVfeU/gJIQoFWkrnjqqN4pRn8YVpkkl5Q=,tag:4eXsI0kwUNh27VhNaTgEdQ==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

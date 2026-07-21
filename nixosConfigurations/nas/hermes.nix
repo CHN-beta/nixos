@@ -86,6 +86,10 @@
               MATRIX_USER_ID=@hermes:chn.moe
               MATRIX_PASSWORD=${placeholder."hermes/matrix_password"}
               MATRIX_ALLOWED_USERS=@chn:chn.moe
+              MATRIX_REQUIRE_MENTION=false
+              MATRIX_ENCRYPTION=true
+              MATRIX_DEVICE_ID=HERMES_BOT
+              MATRIX_HOME_ROOM=${placeholder."hermes/matrix_home"}
               PGPASSWORD=${placeholder."postgresql/hermes-mem0"}
             '';
         };
@@ -93,6 +97,7 @@
           "hermes/gemini" = { };
           "hermes/tgbot" = { };
           "hermes/matrix_password" = { };
+          "hermes/matrix_home" = { };
           "telegram/user/chn" = { };
           "hermes/api_server_token".owner = "chn";
         };
