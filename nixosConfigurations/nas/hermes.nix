@@ -83,7 +83,7 @@
               API_SERVER_KEY=${placeholder."hermes/api_server_token"}
               HERMES_MEDIA_ALLOW_DIRS=/var/lib/hermes/workspace
               MATRIX_HOMESERVER=https://matrix.chn.moe
-              MATRIX_USER=@hermes:chn.moe
+              MATRIX_USER_ID=@hermes:chn.moe
               MATRIX_PASSWORD=${placeholder."hermes/matrix_password"}
               MATRIX_ALLOWED_USERS=@chn:chn.moe
               PGPASSWORD=${placeholder."postgresql/hermes-mem0"}
