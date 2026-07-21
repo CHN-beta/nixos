@@ -164,22 +164,23 @@ async fn handle_webhook(
         };
     } else {
         let mut text = note.text.clone().unwrap_or_default();
-        if is_renote && tg_renote_id.is_none() {
-            if let Some(renote) = &note.renote {
-                text = format!(
-                    "引用了[帖子]({}/notes/{})\n{}",
-                    content.server, renote.id, text
-                );
-            }
+        if is_renote
+            && tg_renote_id.is_none()
+            && let Some(renote) = &note.renote
+        {
+            text = format!(
+                "引用了[帖子]({}/notes/{})\n{}",
+                content.server, renote.id, text
+            );
         }
         text_html = md::parse(&text);
 
         // 处理 Misskey 的内容折叠/警告 (Content Warning) 特性
-        if let Some(cw) = &note.cw {
-            if !cw.is_empty() {
-                let cw_html = md::parse(cw);
-                text_html = format!("{}<span class=\"tg-spoiler\">{}</span>", cw_html, text_html);
-            }
+        if let Some(cw) = &note.cw
+            && !cw.is_empty()
+        {
+            let cw_html = md::parse(cw);
+            text_html = format!("{}<span class=\"tg-spoiler\">{}</span>", cw_html, text_html);
         }
 
         text_html += &md::parse(&format!(
@@ -205,9 +206,11 @@ async fn handle_webhook(
             if let Err(e) = db::write(&state.db_pool, &note.id, id).await {
                 error!("Error writing to DB: {:?}", e);
             }
-        }
-        else {
-            error!("Failed to send message to Telegram for note ID: {}", note.id);
+        } else {
+            error!(
+                "Failed to send message to Telegram for note ID: {}",
+                note.id
+            );
         }
     });
 

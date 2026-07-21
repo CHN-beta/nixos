@@ -1,13 +1,13 @@
 use crate::types::File;
 use std::time::Duration;
 use teloxide::{
+    Bot,
     payloads::{SendDocumentSetters, SendMediaGroupSetters, SendMessageSetters, SendPhotoSetters},
     requests::Requester,
     types::{
         ChatId, InputFile, InputMedia, InputMediaDocument, InputMediaPhoto, LinkPreviewOptions,
         MessageId, ParseMode, ReplyParameters,
     },
-    Bot,
 };
 use tracing::error;
 
@@ -65,7 +65,7 @@ async fn send_impl(
 
     if files.is_empty() {
         let mut req = bot.send_message(chat, text).parse_mode(ParseMode::Html);
-        
+
         let link_preview = match preview_url {
             Some(url) => LinkPreviewOptions {
                 is_disabled: false,
@@ -90,27 +90,29 @@ async fn send_impl(
 
         let msg = req.await?;
         Ok(Some(msg.id.0))
-
     } else if files.len() == 1 {
         let is_photo = files[0].file_type.starts_with("image/");
-        let input_file = InputFile::memory(file_contents[0].clone()).file_name(files[0].name.clone());
+        let input_file =
+            InputFile::memory(file_contents[0].clone()).file_name(files[0].name.clone());
 
         if is_photo {
-            let mut req = bot.send_photo(chat, input_file)
+            let mut req = bot
+                .send_photo(chat, input_file)
                 .caption(text)
                 .parse_mode(ParseMode::Html)
                 .has_spoiler(files[0].is_sensitive);
-            
+
             if let Some(rp) = reply_params {
                 req = req.reply_parameters(rp);
             }
             let msg = req.await?;
             Ok(Some(msg.id.0))
         } else {
-            let mut req = bot.send_document(chat, input_file)
+            let mut req = bot
+                .send_document(chat, input_file)
                 .caption(text)
                 .parse_mode(ParseMode::Html);
-            
+
             if let Some(rp) = reply_params {
                 req = req.reply_parameters(rp);
             }
@@ -119,11 +121,12 @@ async fn send_impl(
         }
     } else {
         let all_photo = files.iter().all(|f| f.file_type.starts_with("image/"));
-        
+
         let mut media_group = Vec::new();
         for (i, file) in files.iter().enumerate() {
-            let input_file = InputFile::memory(file_contents[i].clone()).file_name(file.name.clone());
-            
+            let input_file =
+                InputFile::memory(file_contents[i].clone()).file_name(file.name.clone());
+
             if all_photo {
                 let mut photo = InputMediaPhoto::new(input_file);
                 if file.is_sensitive {
@@ -148,7 +151,7 @@ async fn send_impl(
         if let Some(rp) = reply_params {
             req = req.reply_parameters(rp);
         }
-        
+
         let msgs = req.await?;
         if let Some(first_msg) = msgs.first() {
             Ok(Some(first_msg.id.0))
