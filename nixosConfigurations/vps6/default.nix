@@ -49,7 +49,6 @@
         fail2ban = { };
         beesd."/" = { };
         headscale = { };
-        missgram = { };
         hongbao = { };
       };
     };

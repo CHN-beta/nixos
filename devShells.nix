@@ -50,10 +50,4 @@ in
     CMAKE_EXPORT_COMPILE_COMMANDS = "1";
     hardeningDisable = [ "all" ];
   };
-  missgram = pkgs.mkShell {
-    inputsFrom = [ pkgs.localPkgs.missgram ];
-    packages = [ pkgs.llvmPackages.clang-tools ];
-    CMAKE_EXPORT_COMPILE_COMMANDS = "1";
-    hardeningDisable = [ "all" ];
-  };
 }
