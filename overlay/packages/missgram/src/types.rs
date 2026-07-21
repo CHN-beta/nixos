@@ -7,10 +7,7 @@ pub struct Config {
     pub telegram_chat_id: i64,
     pub server_port: u16,
     pub db_password: String,
-    pub twitter_api_key: String,
-    pub twitter_api_secret: String,
-    pub twitter_access_token: String,
-    pub twitter_access_token_secret: String,
+    pub make_webhook_url: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]

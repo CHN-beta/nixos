@@ -1,0 +1,1 @@
+ALTER TABLE "Record" DROP COLUMN IF EXISTS twitter_tweet_id;
