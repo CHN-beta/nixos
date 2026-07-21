@@ -169,7 +169,7 @@ async fn handle_webhook(
             && let Some(renote) = &note.renote
         {
             text = format!(
-                "引用了[帖子]({}/notes/{})\n{}",
+                "引用了[帖子]({}/notes/{})\n\n{}",
                 content.server, renote.id, text
             );
         }
@@ -184,7 +184,7 @@ async fn handle_webhook(
         }
 
         text_html += &md::parse(&format!(
-            "\n[在联邦宇宙查看]({}/notes/{})",
+            "\n\n[在联邦宇宙查看]({}/notes/{})",
             content.server, note.id
         ));
     }
