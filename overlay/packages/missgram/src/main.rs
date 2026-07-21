@@ -1,6 +1,7 @@
 mod db;
 mod md;
 mod tg;
+mod tw;
 mod types;
 
 use axum::{
@@ -28,6 +29,7 @@ struct AppState {
     config: Config,
     db_pool: sqlx::Pool<sqlx::Postgres>,
     tracker: TaskTracker,
+    tw_api: twitter_v2::TwitterApi<twitter_v2::authorization::Oauth1aToken>,
 }
 
 #[tokio::main]
@@ -44,10 +46,20 @@ async fn main() -> anyhow::Result<()> {
         let args = Args::parse();
         let config: Config = serde_yaml::from_str(&fs::read_to_string(&args.config)?)?;
         let db_pool = db::create_pool(&config.db_password).await?;
+        
+        let tw_auth = twitter_v2::authorization::Oauth1aToken::new(
+            config.twitter_api_key.clone(),
+            config.twitter_api_secret.clone(),
+            config.twitter_access_token.clone(),
+            config.twitter_access_token_secret.clone(),
+        );
+        let tw_api = twitter_v2::TwitterApi::new(tw_auth);
+
         AppState {
             config,
             db_pool,
             tracker: TaskTracker::new(),
+            tw_api,
         }
     });
     let tracker = state.tracker.clone();
@@ -129,17 +141,17 @@ async fn handle_webhook(
     if note.visibility != "public" || note.local_only || note.reply_id.is_some() {
         return Ok("OK");
     }
-
     // 转发
     let is_forward = note.text.is_none() && note.files.is_empty() && note.renote.is_some();
     // 引用（带文字或者图片）
     let is_renote = (note.text.is_some() || !note.files.is_empty()) && note.renote.is_some();
-    let tg_renote_id = match &note.renote {
-        Some(renote) if is_forward || is_renote => {
-            db::read(&state.db_pool, &renote.id).await.unwrap_or(None)
-        }
+    
+    let db_record = match &note.renote {
+        Some(renote) if is_forward || is_renote => db::read(&state.db_pool, &renote.id).await.unwrap_or(None),
         _ => None,
     };
+    let tg_renote_id = db_record.as_ref().and_then(|r| r.tg_id);
+    let tw_renote_id = db_record.as_ref().and_then(|r| r.tw_id.clone());
 
     let preview_url = if (is_forward || is_renote) && tg_renote_id.is_none() {
         note.renote
@@ -153,6 +165,8 @@ async fn handle_webhook(
     };
 
     let mut text_html;
+    let mut tw_text; // 为 Twitter 组装的纯文本
+
     if is_forward {
         text_html = match tg_renote_id {
             Some(_) => "转发了自己的帖子。".to_string(),
@@ -162,8 +176,18 @@ async fn handle_webhook(
                 note.renote.as_ref().unwrap().id
             )),
         };
+        tw_text = match tw_renote_id {
+            Some(_) => "转发了自己的帖子。".to_string(),
+            None => format!(
+                "转发了帖子：{}/notes/{}",
+                content.server,
+                note.renote.as_ref().unwrap().id
+            ),
+        };
     } else {
         let mut text = note.text.clone().unwrap_or_default();
+        let mut tw_base_text = text.clone();
+
         if is_renote
             && tg_renote_id.is_none()
             && let Some(renote) = &note.renote
@@ -173,6 +197,16 @@ async fn handle_webhook(
                 content.server, renote.id, text
             );
         }
+        if is_renote
+            && tw_renote_id.is_none()
+            && let Some(renote) = &note.renote
+        {
+            tw_base_text = format!(
+                "引用了帖子：{}/notes/{}\n{}",
+                content.server, renote.id, tw_base_text
+            );
+        }
+        
         text_html = md::parse(&text);
 
         // 处理 Misskey 的内容折叠/警告 (Content Warning) 特性
@@ -181,36 +215,62 @@ async fn handle_webhook(
         {
             let cw_html = md::parse(cw);
             text_html = format!("{}<span class=\"tg-spoiler\">{}</span>", cw_html, text_html);
+            tw_text = format!("剧透警告：{}\n{}", cw, tw_base_text);
+        } else {
+            tw_text = tw_base_text;
         }
 
         text_html += &md::parse(&format!(
             "\n\n[在联邦宇宙查看]({}/notes/{})",
             content.server, note.id
         ));
+        
+        tw_text.push_str(&format!(
+            "\n在联邦宇宙查看：{}/notes/{}",
+            content.server, note.id
+        ));
+
+        // 对于 Twitter，如果带有文件，将文件的 URL 附在文本末尾
+        for file in &note.files {
+            tw_text.push_str(&format!("\n{}", file.url));
+        }
     }
 
     let tracker = state.tracker.clone();
     tracker.spawn(async move {
         // 调用我们自己写的 tg 模块发往电报
-        let message_id = tg::send(
+        let tg_task = tg::send(
             &state.config.telegram_bot_token,
             state.config.telegram_chat_id,
             text_html,
             tg_renote_id,
             note.files,
             preview_url,
-        )
-        .await;
+        );
 
-        if let Some(id) = message_id {
-            if let Err(e) = db::write(&state.db_pool, &note.id, id).await {
+        // 发送往 Twitter
+        let tw_task = async {
+            tw::send_thread(&state.tw_api, &tw_text, tw_renote_id).await.unwrap_or_else(|e| {
+                error!("Error sending to Twitter: {:?}", e);
+                None
+            })
+        };
+
+        let (tg_result, tw_result) = tokio::join!(tg_task, tw_task);
+
+        if tg_result.is_none() {
+            error!("Failed to send message to Telegram for note ID: {}", note.id);
+        }
+        if tw_result.is_none() {
+            error!("Failed to send message to Twitter for note ID: {}", note.id);
+        }
+
+        if tg_result.is_some() || tw_result.is_some() {
+            if let Err(e) = db::write(&state.db_pool, &note.id, tg_result, tw_result).await {
                 error!("Error writing to DB: {:?}", e);
             }
         } else {
-            error!(
-                "Failed to send message to Telegram for note ID: {}",
-                note.id
-            );
+            error!("Both platforms failed for note ID: {}", note.id);
         }
     });
 

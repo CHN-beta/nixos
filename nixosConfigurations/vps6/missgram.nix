@@ -45,11 +45,19 @@
               telegram_chat_id = -1003641252872;
               server_port = 9173;
               db_password = placeholder."postgresql/missgram";
+              twitter_api_key = placeholder."missgram/twitter_api_key";
+              twitter_api_secret = placeholder."missgram/twitter_api_secret";
+              twitter_access_token = placeholder."missgram/twitter_access_token";
+              twitter_access_token_secret = placeholder."missgram/twitter_access_token_secret";
             };
         };
         secrets = {
           "missgram/secret" = { };
           "missgram/telegramBotToken" = { };
+          "missgram/twitter_api_key" = { };
+          "missgram/twitter_api_secret" = { };
+          "missgram/twitter_access_token" = { };
+          "missgram/twitter_access_token_secret" = { };
         };
       };
     };
