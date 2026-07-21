@@ -28,6 +28,7 @@ postgresql:
     peertube: ENC[AES256_GCM,data:J/qNYYuOhENTVFU+6Iz9P8Cy1FcHlD6xpPADDzdYDZuce9DEsnFq28d+tTJ7Z71IvOKvNySly7ru/R+Tu7rqpQ==,iv:sV34o2Zf7yLUovdVND7wh+rcoGglz4llc3xfSEllHNM=,tag:c9wzEAlWMINTN8TEZhDIRw==,type:str]
     immich: ENC[AES256_GCM,data:0jIjTw13NFsaGNse8a36drDsOTl8tDTrFFY5UqffBbtoCgnVjhZZ0qfqf7QhFkijmpjZxXBT5ZIvyTHavsJ3nQ==,iv:9KWp1wGvGaV64cZYx2KciAIehVgQQuFFARwmEnjfOg0=,tag:6ymDEYRLIgyQXS4/QrJuYA==,type:str]
     minibox: ENC[AES256_GCM,data:CpPrAOuNIkumH/xDNF0/wuvxKrRYJ/QQex03RThee9KhAzeJu26jHneONUl8yARdJiXAhoH5ZJ9qSxVQt02cEQ==,iv:v8e+Y6hNRz9f274KQJ3rlLEtDSloi2UElGfWv5CQfSM=,tag:Fpi1n103dsavXe5GIGBzhQ==,type:str]
+    hermes-mem0: ENC[AES256_GCM,data:5vTZEoPVwLKoYHLNFyDG9yL6mkDaOSkdwepZFAk8yMQ=,iv:HOl68CnWc/HR6yYVdK8ElYqx9jyAVrpI9iDsSDgAq9o=,tag:p2B9tJs+icllMUXLymHmcA==,type:str]
 rsshub:
     pixiv-refreshtoken: ENC[AES256_GCM,data:GDPLcjTAat76kOVmd4FQGYshbvV2i8HpeCpEAHQy7FN8BCrRmIpaT5q/eQ==,iv:eYEM/YgTMqS3vva3WCYicS71xowJhlGonAz75aeCskc=,tag:HPolufwNJBtiRwzh5dcwGg==,type:str]
     youtube-key: ENC[AES256_GCM,data:XOPAZPIE8Hd3vKWAR8tlaXQp/FGeH2pIBmwym8h7TXUf+MGTGQko,iv:mv1csjmeKi/ZQIiuhzPIr3DPyygjWevhFGSK+URaQiA=,tag:yh4Zr9MpINU8O0eeH9+z3A==,type:str]
@@ -112,7 +113,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-07-21T08:23:51Z"
-    mac: ENC[AES256_GCM,data:2EsNqF6HN7NvgEwqxainqIhyXFY3uCJEJS1eFh3IDQRvxFVH+xvIUc97C+kbWlnS9MkJCbu+HKY9FKg55kjmRpaxZc4r7ygMGpiy9cchRjfWDSKgJrT+qlqa+C+n+kG6+c32+DAuOaPX4JYPGlk2ubvguSRJUosO855oJhsRUgo=,iv:tqxEo7FtMyY2ZDj2vdfAGIb5ijwHhKERn9vnqXQphk8=,tag:+2SI7MTTv4xOBg3frkAssA==,type:str]
+    lastmodified: "2026-07-21T09:15:18Z"
+    mac: ENC[AES256_GCM,data:VuuzvJPWFEQd/HsziK/N9fxxgT4CG07WVIgeqay+P9KQOlfRRIQumFdakGgl2ueTalJktJjiAozTcqPWC1Pj05d9s31rMwhL0Bbs0EsQolU6SG0TWs6NZaPEhPXE0kMQcv/EN51bS6jssIyoBQXPY1F8PWQO31P6rs/A7llMcbQ=,iv:G4rGcbvsKHaFIq15gXFYtDc1aI/1iWYm93Hqb9bkVH4=,tag:RG92HZ/ZR9/ah4AJI/1QFA==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

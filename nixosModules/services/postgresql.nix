@@ -14,6 +14,10 @@
               type = lib.types.attrsOf lib.types.nonEmptyStr;
               default = { };
             };
+            extensions = lib.mkOption {
+              type = lib.types.listOf lib.types.nonEmptyStr;
+              default = [ ];
+            };
           };
         })
       );
@@ -32,7 +36,11 @@
       services.postgresql = {
         enable = true;
         package = pkgs.postgresql_17;
-        extensions = ps: with ps; [ pgroonga ];
+        extensions =
+          ps: with ps; [
+            pgroonga
+            pgvector
+          ];
         enableTCPIP = true;
         authentication = ''
           host all all 0.0.0.0/0 md5
@@ -40,9 +48,13 @@
         '';
         settings = {
           unix_socket_permissions = "0700";
-          shared_buffers = "512MB";
-          work_mem = "512MB";
           autovacuum = "on";
+          shared_buffers = "4GB"; 
+          maintenance_work_mem = "2GB";
+          work_mem = "64MB"; 
+          effective_cache_size = "12GB"; 
+          random_page_cost = "1.1";
+          max_wal_size = "4GB";
         };
         # log_timezone = 'Asia/Shanghai'
         # datestyle = 'iso, mdy'
@@ -78,12 +90,16 @@
             psql -tAc "SELECT 1 FROM pg_database WHERE datname = '${n}'" | grep -q 1 \
               || psql -tAc 'CREATE DATABASE "${n}"${initializeFlag}'
             # set user password
-            psql -tAc "ALTER USER ${n} with encrypted password '$(cat ${passwordFile})'"
+            psql -tAc "ALTER USER \"${n}\" with encrypted password '$(cat ${passwordFile})'"
             # set db owner
             psql -tAc "select pg_catalog.pg_get_userbyid(d.datdba) FROM pg_catalog.pg_database \
                 d WHERE d.datname = '${n}' ORDER BY 1" \
               | grep -E '^${n}$' -q \
-              || psql -tAc "ALTER DATABASE ${n} OWNER TO ${n}"
+              || psql -tAc "ALTER DATABASE \"${n}\" OWNER TO \"${n}\""
+            # create extensions
+            ${lib.concatMapStringsSep "\n" (ext: ''
+              psql -d "${n}" -tAc 'CREATE EXTENSION IF NOT EXISTS "${ext}"'
+            '') v.extensions}
           ''
         )
         |> builtins.concatStringsSep "\n"

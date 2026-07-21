@@ -18,9 +18,6 @@
         enable = true;
         host = "[::]";
         environmentVariables = {
-          # fix model pull failed
-          OLLAMA_REGISTRY_MAXSTREAMS = "2";
-          OLLAMA_EXPERIMENT = "client2";
           # minimize context memory usage
           OLLAMA_KV_CACHE_TYPE = "q4_0";
           OLLAMA_FLASH_ATTENTION = "1";
