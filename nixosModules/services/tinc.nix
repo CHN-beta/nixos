@@ -45,6 +45,13 @@ let
       };
       distance = 10;
     }
+    # 国内网络
+    {
+      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" "pc" "pe"  ] (_: null)) // {
+        nas = "nas.chn.moe";
+      };
+      distance = 3;
+    }
     # 校内网络
     {
       device = (lib.genAttrs [ "srv1-node0" "srv2-node0" ] getAddress);
