@@ -67,18 +67,35 @@
         preCheckRuleset = ''
           sed -i 's/\bfullcone\b/masquerade/g' ruleset.conf
         '';
-        tables.fullcone_nat = {
-          family = "inet";
-          content = ''
-            chain prerouting {
-              type nat hook prerouting priority dstnat; policy accept;
-              iifname "ppp0" fullcone
-            }
-            chain postrouting {
-              type nat hook postrouting priority srcnat; policy accept;
-              oifname "ppp0" fullcone
-            }
-          '';
+        tables = {
+          fullcone_nat = {
+            family = "inet";
+            content = ''
+              chain prerouting {
+                type nat hook prerouting priority dstnat; policy accept;
+                iifname "ppp0" fullcone
+              }
+              chain postrouting {
+                type nat hook postrouting priority srcnat; policy accept;
+                oifname "ppp0" fullcone
+              }
+            '';
+          };
+          hairpin = {
+            family = "inet";
+            content = ''
+              chain prerouting {
+                type nat hook prerouting priority dstnat; policy accept;
+                iifname "nixvirt" fib daddr type local ip daddr != 192.168.2.0/24 dnat ip to 192.168.2.1
+                iifname "enp2s0.20" fib daddr type local ip daddr != 192.168.3.0/24 dnat ip to 192.168.3.1
+              }
+              chain postrouting {
+                type nat hook postrouting priority srcnat; policy accept;
+                iifname "nixvirt" ip daddr 192.168.2.0/24 masquerade
+                iifname "enp2s0.20" ip daddr 192.168.3.0/24 masquerade
+              }
+            '';
+          };
         };
       };
     }
