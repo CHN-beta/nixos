@@ -22,7 +22,7 @@ pub async fn write(
     misskey_note: &str,
     telegram_message_id: i32,
 ) -> Result<(), sqlx::Error> {
-    sqlx::query("INSERT INTO Record (misskey_note, telegram_message_id) VALUES ($1, $2)")
+    sqlx::query("INSERT INTO \"Record\" (misskey_note, telegram_message_id) VALUES ($1, $2)")
         .bind(misskey_note)
         .bind(telegram_message_id)
         .execute(pool) // 直接使用传入的 pool 执行 SQL
@@ -36,7 +36,7 @@ pub async fn read(pool: &Pool<Postgres>, misskey_note: &str) -> Result<Option<i3
     use sqlx::Row;
 
     let result =
-        sqlx::query("SELECT telegram_message_id FROM Record WHERE misskey_note = $1 LIMIT 1")
+        sqlx::query("SELECT telegram_message_id FROM \"Record\" WHERE misskey_note = $1 LIMIT 1")
             .bind(misskey_note)
             .fetch_optional(pool) // 直接使用传入的 pool 查询
             .await?;
