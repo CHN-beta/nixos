@@ -11,14 +11,25 @@
         path = pkgs.ffmpeg-full;
         hwaccel_args = "preset-vaapi";
       };
+      # Frigate config still needs go2rtc block for UI WebRTC proxying
+      go2rtc = {
+        streams = {
+          tplink_ipc43aw = [
+            "rtsp://admin:{FRIGATE_CAMERA_PASSWORD}@192.168.2.209:554/stream1#backchannel=0"
+          ];
+          tplink_ipc43aw_sub = [
+            "rtsp://admin:{FRIGATE_CAMERA_PASSWORD}@192.168.2.209:554/stream2"
+          ];
+        };
+      };
       cameras.tplink_ipc43aw = {
         ffmpeg.inputs = [
           {
-            path = "rtsp://admin:{FRIGATE_CAMERA_PASSWORD}@192.168.2.209:554/stream1";
+            path = "rtsp://127.0.0.1:8554/tplink_ipc43aw";
             roles = [ "record" ];
           }
           {
-            path = "rtsp://admin:{FRIGATE_CAMERA_PASSWORD}@192.168.2.209:554/stream2";
+            path = "rtsp://127.0.0.1:8554/tplink_ipc43aw_sub";
             roles = [ "detect" ];
           }
         ];
@@ -82,11 +93,33 @@
     };
     services.nginx.https."frigate.chn.moe".global.configName = "frigate.chn.moe";
   };
+  services.go2rtc = {
+    enable = true;
+    settings = {
+      streams = {
+        tplink_ipc43aw = [
+          # Add #backchannel=0 for ONVIF Profile T two-way audio support
+          "rtsp://admin:\${FRIGATE_CAMERA_PASSWORD}@192.168.2.209:554/stream1#backchannel=0"
+          # Fallback to tapo protocol if standard RTSP backchannel fails
+          "tapo://admin:\${FRIGATE_CAMERA_PASSWORD}@192.168.2.209"
+          "rtsp://admin:\${FRIGATE_CAMERA_PASSWORD}@192.168.2.209:554/stream1"
+        ];
+        tplink_ipc43aw_sub = [
+          "rtsp://admin:\${FRIGATE_CAMERA_PASSWORD}@192.168.2.209:554/stream2"
+        ];
+      };
+    };
+  };
   systemd = {
     tmpfiles.rules = [
       "d /nix/ssd/var/cache/frigate 0750 frigate frigate -"
       "d /nix/ssd/var/lib/frigate 0750 frigate frigate -"
     ];
+    services.go2rtc.serviceConfig = {
+      EnvironmentFile = [
+        config.nixos.system.sops.templates."frigate.env".path
+      ];
+    };
     services.frigate.serviceConfig = {
       EnvironmentFile = [
         config.nixos.system.sops.templates."frigate.env".path
