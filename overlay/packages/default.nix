@@ -152,7 +152,7 @@ rec {
     src = self.inputs.pybinding;
     buildProxy = pkgs.mkBuildproxy ./pybinding/proxy.nix;
   };
-  missgram = pkgs.callPackage ./missgram { inherit biu sqlgen; };
+  missgram = pkgs.callPackage ./missgram { };
   sqlgen = pkgs.callPackage ./sqlgen.nix {
     src = self.inputs.sqlgen;
     inherit reflectcpp;

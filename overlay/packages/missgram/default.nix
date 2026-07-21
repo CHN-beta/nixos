@@ -1,28 +1,25 @@
 {
   lib,
-  stdenv,
-  cmake,
+  rustPlatform,
   pkg-config,
-  biu,
-  configFile ? null,
-  httplib,
-  sqlgen,
-  nlohmann_json,
-  libmaddy-markdown,
+  versionCheckHook,
 }:
-stdenv.mkDerivation {
-  name = "missgram";
+
+rustPlatform.buildRustPackage {
+  pname = "missgram";
+  version = "0.1.0";
   src = ./.;
-  buildInputs = [
-    biu
-    httplib
-    sqlgen
-    nlohmann_json
-    libmaddy-markdown
-  ];
+  cargoLock.lockFile = ./Cargo.lock;
   nativeBuildInputs = [
-    cmake
     pkg-config
   ];
-  cmakeFlags = lib.optional (configFile != null) [ "-DMISSGRAM_CONFIG_FILE=${configFile}" ];
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
+  doInstallCheck = true;
+  meta = with lib; {
+    description = "Misskey to Telegram forwarder bot";
+    license = licenses.mit; # Or whichever license was applicable
+    maintainers = [ ];
+  };
 }
