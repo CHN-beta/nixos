@@ -90,6 +90,7 @@ hermes:
     gemini: ENC[AES256_GCM,data:l5fbBZ7sd6AfzbUlmMjXlKFYButb4T3Gumww2Q42CCj6ZbwJieu5,iv:dzfGTsPrci9XET7lp5xtuiqT5J6fMtywuoMMTr9ruVE=,tag:2IM7ZgHIGznY/RKEkF/j+Q==,type:str]
     tgbot: ENC[AES256_GCM,data:sMMJnl2URIz8WovP1wQTymBl1aK50Qe3yzt0J2v9HPvYa09ixrEHWEzJMbS85g==,iv:6aYG8YG/gNzVP+IOxZF2tb17vLAshB3MsJhmPSNdQeI=,tag:Gxjx0Nvx0QKIHeh05Jp1sQ==,type:str]
     api_server_token: ENC[AES256_GCM,data:f0gA0a11WVLmqyfKPithL7NVEkQ14uLD7JSvExlgAd8=,iv:ecpYwkqXIlxM2aFAzjLAP2sQd9Wmy1ykXuyYIGzmrxI=,tag:mZQGbd5oerqaKVd6fhFCdA==,type:str]
+    matrix_password: ENC[AES256_GCM,data:aozsjBs2I7NLnC2Ou+DazGyyDzuD7NJtIxYS5aDYSc8=,iv:ObCKKLSdOlhjalU2gIy/wC2AAIF3safrR3+xFEuvhcQ=,tag:QHfNKyYax4wPrLQHZT75kQ==,type:str]
 sops:
     age:
         - enc: |
@@ -111,7 +112,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-07-16T11:31:08Z"
-    mac: ENC[AES256_GCM,data:OmFhYawHUsEQCMD3owdgdhfPSZLj32Zt0ZHSc3agvZdp4EEbEjsLiH46CIqP1lcqpyfIbF6Rxj9det2e9miV7kiTlU0FyqbDhUHSu9q9sst5mDk7ZZ3p3I9mZ3kVMZQbVf60yJn0qMEfK13B7ixMObKegetYPb3vx7GrPwCA+iE=,iv:gayesVzI9ileD7IGzW74YCVg3MHtB9WnhooQPApNrvY=,tag:/PCvgv2WJlbqnJrwinO0WQ==,type:str]
+    lastmodified: "2026-07-21T08:23:51Z"
+    mac: ENC[AES256_GCM,data:2EsNqF6HN7NvgEwqxainqIhyXFY3uCJEJS1eFh3IDQRvxFVH+xvIUc97C+kbWlnS9MkJCbu+HKY9FKg55kjmRpaxZc4r7ygMGpiy9cchRjfWDSKgJrT+qlqa+C+n+kG6+c32+DAuOaPX4JYPGlk2ubvguSRJUosO855oJhsRUgo=,iv:tqxEo7FtMyY2ZDj2vdfAGIb5ijwHhKERn9vnqXQphk8=,tag:+2SI7MTTv4xOBg3frkAssA==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

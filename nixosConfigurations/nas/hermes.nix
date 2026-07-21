@@ -18,12 +18,15 @@
           base_url = "http://127.0.0.1:8999/v1";
         };
         plugins.enabled = [ "antigravity_mrhisyammm" ];
-        gateway.platforms.api_server = {
-          enabled = true;
-          extra = {
-            port = 9090;
-            host = "127.0.0.1";
+        gateway.platforms = {
+          api_server = {
+            enabled = true;
+            extra = {
+              port = 9090;
+              host = "127.0.0.1";
+            };
           };
+          matrix.enabled = true;
         };
       };
       extraPlugins = [
@@ -44,7 +47,10 @@
           '';
         })
       ];
-      extraDependencyGroups = [ "messaging" ];
+      extraDependencyGroups = [
+        "messaging"
+        "matrix"
+      ];
       environmentFiles = [ config.nixos.system.sops.templates."hermes.env".path ];
       # authFile = ./auth.json;
       # authFileForceOverwrite = true;
@@ -70,11 +76,16 @@
             TELEGRAM_ALLOWED_USERS=${placeholder."telegram/user/chn"}
             API_SERVER_KEY=${placeholder."hermes/api_server_token"}
             HERMES_MEDIA_ALLOW_DIRS=/var/lib/hermes/workspace
+            MATRIX_HOMESERVER=https://matrix.chn.moe
+            MATRIX_USER=@hermes:chn.moe
+            MATRIX_PASSWORD=${placeholder."hermes/matrix_password"}
+            MATRIX_ALLOWED_USERS=@chn:chn.moe
           '';
       };
       secrets = {
         "hermes/gemini" = { };
         "hermes/tgbot" = { };
+        "hermes/matrix_password" = { };
         "telegram/user/chn" = { };
         "hermes/api_server_token".owner = "chn";
       };
