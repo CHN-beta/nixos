@@ -209,7 +209,7 @@
       ${pkgs.kmod}/bin/modprobe -r hid_sensor_accel_3d hid_sensor_trigger hid_sensor_iio_common hid_sensor_custom
       ${pkgs.kmod}/bin/modprobe -r hid_sensor_hub
       sleep 1
-      ${pkgs.kmod}/bin/modprobe hid_sensor_hub hid_sensor_accel_3d hid_sensor_trigger hid_sensor_iio_common hid_sensor_custom
+      ${pkgs.kmod}/bin/modprobe -a hid_sensor_hub hid_sensor_accel_3d hid_sensor_trigger hid_sensor_iio_common hid_sensor_custom
     '';
     systemd = {
       # niri use only amd graphics
