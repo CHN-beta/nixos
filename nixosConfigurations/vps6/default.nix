@@ -48,7 +48,6 @@
         mirism = { };
         fail2ban = { };
         beesd."/" = { };
-        headscale = { };
         hongbao = { };
       };
     };
