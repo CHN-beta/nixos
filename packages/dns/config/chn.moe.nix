@@ -56,6 +56,8 @@ let
       "ha"
       "frigate"
       "wechat"
+      "mem0"
+      "mem0-api"
     ];
     vps10 = [
       "initrd.vps10"

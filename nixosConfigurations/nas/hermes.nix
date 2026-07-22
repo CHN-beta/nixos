@@ -9,7 +9,7 @@
       hermes-agent = {
         enable = true;
         settings = {
-          memory.provider = "mem0";
+          # memory.provider = "mem0";
           model = {
             default = "antigravity-gemini-3.1-pro";
             provider = "gemini";
@@ -67,7 +67,6 @@
               MATRIX_ENCRYPTION=true
               MATRIX_DEVICE_ID=HERMES_BOT
               MATRIX_HOME_ROOM=${placeholder."hermes/matrix_home"}
-              PGPASSWORD=${placeholder."postgresql/hermes-mem0"}
             '';
         };
         secrets = {
@@ -78,10 +77,6 @@
           "telegram/user/chn" = { };
           "hermes/api_server_token".owner = "chn";
         };
-      };
-      services = {
-        postgresql.instances.hermes-mem0.extensions = [ "vector" ];
-        ollama = { };
       };
     };
     users = {
