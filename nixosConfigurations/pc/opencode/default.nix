@@ -33,12 +33,18 @@
               input_newline = "return";
             };
             settings = {
+              model = "antigravity/gemini-3.1-pro";
+              provider.antigravity = {
+                options = {
+                  baseURL = "http://localhost:8999/v1";
+                  apiKey = "sk-mock";
+                };
+                # copy from https://github.com/NoeFabris/opencode-antigravity-auth#models
+                models = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google.models;
+              };
               plugin = [
-                "opencode-antigravity-auth@1.6.0"
                 "@mohak34/opencode-notifier@0.2.8"
               ];
-              # copy from https://github.com/NoeFabris/opencode-antigravity-auth#models
-              provider.google = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google;
               autoupdate = false;
               mcp = {
                 dockerhub = {
