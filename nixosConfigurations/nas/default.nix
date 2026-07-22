@@ -104,6 +104,7 @@
         };
         github-runners = { };
         pppoe.interface = "enp3s0";
+        antigravity-route = { };
       };
     };
     systemd.tmpfiles.rules = [

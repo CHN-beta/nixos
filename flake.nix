@@ -223,6 +223,10 @@
       url = "github:CHN-beta/hermes-antigravity-auth";
       flake = false;
     };
+    antigravity-route = {
+      url = "github:CHN-beta/antigravity-route";
+      flake = false;
+    };
   };
 
   outputs = inputs: rec {
