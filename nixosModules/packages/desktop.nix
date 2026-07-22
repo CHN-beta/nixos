@@ -162,6 +162,7 @@
           rust-analyzer
           cargo-watch
           cargo-expand
+          cargo-edit
           sccache
         ];
         nixos.user.sharedModules = [
