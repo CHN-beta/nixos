@@ -3,11 +3,11 @@
     "antigravity-route": {
       "flake": false,
       "locked": {
-        "lastModified": 1784707113,
-        "narHash": "sha256-uXlJffUQEw5Q2dG5YpDB0OOL6d3JXUYhBdhgifselHE=",
+        "lastModified": 1784726605,
+        "narHash": "sha256-tH84iV2rbHewmH6FNWx3AaL/9S3Ili8r1INCgwmHqLQ=",
         "owner": "CHN-beta",
         "repo": "antigravity-route",
-        "rev": "533a8bd04f42d3a140f1d3ff21ceb2f28457dceb",
+        "rev": "b92f349b5e6d32fc07766595ae28cf9d3dc711a2",
         "type": "github"
       },
       "original": {
