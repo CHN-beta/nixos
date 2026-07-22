@@ -33,7 +33,8 @@
               input_newline = "return";
             };
             settings = {
-              model = "gemini-3.1-pro";
+              model = "antigravity-gemini-3.1-pro";
+              small_model = "antigravity-gemini-3-flash";
               provider.google = {
                 options = {
                   baseURL = "http://localhost:8999/v1";
