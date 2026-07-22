@@ -219,10 +219,6 @@
       url = "github:kumagai-group/vise";
       flake = false;
     };
-    hermes-antigravity-auth = {
-      url = "github:CHN-beta/hermes-antigravity-auth";
-      flake = false;
-    };
     antigravity-route = {
       url = "github:CHN-beta/antigravity-route";
       flake = false;

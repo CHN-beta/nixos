@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  self,
   ...
 }:
 {
@@ -31,24 +30,6 @@
             matrix.enabled = true;
           };
         };
-        extraPlugins = [
-          (pkgs.stdenv.mkDerivation {
-            name = "antigravity_mrhisyammm";
-            src = self.inputs.hermes-antigravity-auth;
-            installPhase = ''
-              mkdir -p $out
-              cp -r plugins/antigravity_mrhisyammm/* $out/
-            '';
-          })
-          (pkgs.stdenv.mkDerivation {
-            name = "antigravity-provider";
-            src = self.inputs.hermes-antigravity-auth;
-            installPhase = ''
-              mkdir -p $out
-              cp -r plugins/model-providers/antigravity/* $out/
-            '';
-          })
-        ];
         extraDependencyGroups = [
           "messaging"
           "matrix"
