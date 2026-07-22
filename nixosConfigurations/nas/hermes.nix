@@ -11,14 +11,10 @@
         settings = {
           memory.provider = "mem0";
           model = {
-            default = "gemini-3.5-pro";
-            provider = "antigravity";
+            default = "antigravity-gemini-3.1-pro";
+            provider = "gemini";
+            base_url = "http://127.0.0.1:8999/v1beta/generativelanguage.googleapis.com/..";
           };
-          providers.antigravity = {
-            api_key = "mock";
-            base_url = "http://127.0.0.1:8999/v1";
-          };
-          plugins.enabled = [ "antigravity_mrhisyammm" ];
           gateway.platforms = {
             api_server = {
               enabled = true;
