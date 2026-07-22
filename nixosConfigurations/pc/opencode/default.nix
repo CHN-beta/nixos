@@ -33,8 +33,8 @@
               input_newline = "return";
             };
             settings = {
-              model = "antigravity/gemini-3.1-pro";
-              provider.antigravity = {
+              model = "gemini-3.1-pro";
+              provider.google = {
                 options = {
                   baseURL = "http://localhost:8999/v1";
                   apiKey = "sk-mock";
