@@ -62,3 +62,16 @@ When asked to package new software (especially Python packages), adhere to the f
    - If fetching directly from GitHub within the `.nix` file, use `fetchFromGitHub` and provide a proper SRI base32 hash (`sha256 = "..."`).
 4. **Build System**: For Python packages, use `buildPythonPackage` with `pyproject = true` and define the appropriate `build-system` (e.g., `setuptools`, `wheel`, `poetry-core`).
 5. **Tests**: If the test suite requires network access, heavy external I/O, or broken transitive cloud dependencies (like AWS SDKs), it is perfectly acceptable and common to set `doCheck = false;` to bypass flaky tests.
+## 5. Declarative Service Configuration Preferences
+
+When writing NixOS service configurations (especially for Nginx, PostgreSQL, and SOPS secrets), **DO NOT** blindly use the standard NixOS options (e.g., `services.nginx.virtualHosts` or raw `services.postgresql.ensureUsers`). 
+
+This repository has heavily abstracted and wrapped these common services into custom modules (usually under the `nixos.services.*` namespace) to unify routing, security, and internal logic.
+
+**Action:**
+- **Always Search First:** Before writing or modifying a service, `grep` or `read` other modules in `nixosConfigurations/` (e.g., `nas/wechat.nix`, `nas/home-assistant.nix`) to see how similar services are deployed.
+- **Nginx Examples:** Use the custom HTTPS wrapper syntax:
+  `nixos.services.nginx.https."domain.moe".location."/".proxy.upstream = "http://127.0.0.1:port";`
+- **PostgreSQL Examples:** Use the instance manager:
+  `nixos.services.postgresql.instances.<name>.extensions = [ ... ];`
+- **SOPS Examples:** Follow the repository's established SOPS template and secret inclusion patterns rather than raw `sops.secrets`.

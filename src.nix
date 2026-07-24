@@ -313,4 +313,11 @@ in
       hash = "sha256-pDx8mxGkwVF+W/lRUZYOFiHRty96STNksB44bPGqodM=";
     };
   };
+  hindsight = pkgs.dockerTools.pullImage {
+    imageName = "ghcr.io/vectorize-io/hindsight";
+    imageDigest = "sha256:067636a79666807d804f1c35a4a34e0c916b52a1adeccb9bab003003bc127fc6";
+    hash = "sha256-tqGQSYa1906ioavD8wLQD5HdTWgzvmC6Zw7SYKk+aeo=";
+    finalImageName = "hindsight";
+    finalImageTag = "latest";
+  };
 }
