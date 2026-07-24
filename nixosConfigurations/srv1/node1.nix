@@ -4,7 +4,7 @@
       system = {
         nixpkgs.march = "broadwell";
         network.settings = {
-          static.eno2 = {
+          static.eno2.ipv4 = {
             ip = "192.168.178.2";
             mask = 24;
             gateway = "192.168.178.1";

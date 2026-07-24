@@ -16,10 +16,34 @@ inputs: {
                 type = types.attrsOf (
                   types.submodule {
                     options = {
-                      ip = mkOption { type = types.nonEmptyStr; };
-                      mask = mkOption { type = types.ints.unsigned; };
-                      gateway = mkOption {
-                        type = types.nullOr types.nonEmptyStr;
+                      ipv4 = mkOption {
+                        type = types.nullOr (
+                          types.submodule {
+                            options = {
+                              ip = mkOption { type = types.nonEmptyStr; };
+                              mask = mkOption { type = types.ints.unsigned; };
+                              gateway = mkOption {
+                                type = types.nullOr types.nonEmptyStr;
+                                default = null;
+                              };
+                            };
+                          }
+                        );
+                        default = null;
+                      };
+                      ipv6 = mkOption {
+                        type = types.nullOr (
+                          types.submodule {
+                            options = {
+                              ip = mkOption { type = types.nonEmptyStr; };
+                              mask = mkOption { type = types.ints.unsigned; };
+                              gateway = mkOption {
+                                type = types.nullOr types.nonEmptyStr;
+                                default = null;
+                              };
+                            };
+                          }
+                        );
                         default = null;
                       };
                       dns = mkOption {
@@ -152,13 +176,22 @@ inputs: {
                 name = "10-${network.name}";
                 value = {
                   matchConfig.Name = network.name;
-                  address = [ "${network.value.ip}/${builtins.toString network.value.mask}" ];
-                  routes = inputs.lib.mkIf (network.value.gateway != null) [
-                    {
-                      Gateway = network.value.gateway;
+                  address =
+                    (inputs.lib.optional (
+                      network.value.ipv4 != null
+                    ) "${network.value.ipv4.ip}/${builtins.toString network.value.ipv4.mask}")
+                    ++ (inputs.lib.optional (
+                      network.value.ipv6 != null
+                    ) "${network.value.ipv6.ip}/${builtins.toString network.value.ipv6.mask}");
+                  routes =
+                    (inputs.lib.optional (network.value.ipv4.gateway or null != null) {
+                      Gateway = network.value.ipv4.gateway;
                       Destination = "0.0.0.0/0";
-                    }
-                  ];
+                    })
+                    ++ (inputs.lib.optional (network.value.ipv6.gateway or null != null) {
+                      Gateway = network.value.ipv6.gateway;
+                      Destination = "::/0";
+                    });
                   linkConfig.RequiredForOnline = "routable";
                   dns = inputs.lib.mkIf (network.value.dns != null) [ network.value.dns ];
                 };

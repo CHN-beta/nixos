@@ -47,11 +47,11 @@
         system.network.settings = {
           bridge.nixvirt.interfaces = [ "enp2s0.10" ];
           static = {
-            nixvirt = {
+            nixvirt.ipv4 = {
               ip = "192.168.2.1";
               mask = 24;
             };
-            "enp2s0.20" = {
+            "enp2s0.20".ipv4 = {
               ip = "192.168.3.1";
               mask = 24;
             };

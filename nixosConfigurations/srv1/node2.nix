@@ -5,12 +5,12 @@
         nixpkgs.march = "broadwell";
         network.settings = {
           static = {
-            br0 = {
+            br0.ipv4 = {
               ip = "192.168.1.12";
               mask = 24;
               gateway = "192.168.1.1";
             };
-            eno2 = {
+            eno2.ipv4 = {
               ip = "192.168.178.3";
               mask = 24;
             };
