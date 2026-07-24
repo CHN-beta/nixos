@@ -56,6 +56,7 @@ let
       "ha"
       "frigate"
       "wechat"
+      "hindsight"
     ];
     vps10 = [
       "initrd.vps10"
