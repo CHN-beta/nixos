@@ -40,7 +40,7 @@
     {
       boot.initrd = {
         luks.devices =
-          luks
+          luks.devices
           |> (lib.mapAttrs' (
             n: v:
             lib.nameValuePair v.mapper {
