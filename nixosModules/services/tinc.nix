@@ -273,7 +273,7 @@ in
     nixos.system = {
       sops.secrets."tinc".owner = "tinc-tinc0";
       network.settings = lib.mkIf (config.nixos.system.network.implementation == "systemd-networkd") {
-        static."tinc0" = {
+        static."tinc0".ipv4 = {
           ip = getAddress "tinc0.${hostname}";
           mask = 24;
         };
