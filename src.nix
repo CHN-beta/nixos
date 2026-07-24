@@ -303,4 +303,14 @@ in
       hash = "sha256-di/EDkHKQrUySc5wtyK2z/nqwAT1UEymx69bVPf+oaM=";
     };
   };
+  models = {
+    embed = pkgs.fetchurl {
+      url = "https://huggingface.co/ggml-org/bge-m3-Q8_0-GGUF/resolve/main/bge-m3-q8_0.gguf";
+      hash = "sha256-qkc9UfRRoi8Pzzm6MzDBS+04o4VxKxETRA9p30BHoXM=";
+    };
+    rerank = pkgs.fetchurl {
+      url = "https://huggingface.co/gpustack/bge-reranker-v2-m3-GGUF/resolve/main/bge-reranker-v2-m3-Q8_0.gguf";
+      hash = "sha256-pDx8mxGkwVF+W/lRUZYOFiHRty96STNksB44bPGqodM=";
+    };
+  };
 }
