@@ -41,6 +41,45 @@
               "enp2s0.20"
             ];
           };
+          networks."10-ppp0" = {
+            matchConfig.Name = "ppp0";
+            networkConfig = {
+              KeepConfiguration = "static";
+              IPv6AcceptRA = true;
+              DHCP = "ipv6";
+            };
+            dhcpV6Config = {
+              PrefixDelegationHint = "::/60";
+            };
+          };
+          networks."10-nixvirt" = {
+            networkConfig = {
+              IPv6SendRA = true;
+              DHCPPrefixDelegation = true;
+            };
+            dhcpPrefixDelegationConfig = {
+              SubnetId = 0;
+              Token = "::1";
+            };
+            ipv6SendRAConfig = {
+              Managed = false;
+              OtherInformation = true;
+            };
+          };
+          networks."10-enp2s0.20" = {
+            networkConfig = {
+              IPv6SendRA = true;
+              DHCPPrefixDelegation = true;
+            };
+            dhcpPrefixDelegationConfig = {
+              SubnetId = 1;
+              Token = "::1";
+            };
+            ipv6SendRAConfig = {
+              Managed = false;
+              OtherInformation = true;
+            };
+          };
         };
       };
       nixos = {
@@ -73,11 +112,11 @@
             content = ''
               chain prerouting {
                 type nat hook prerouting priority dstnat; policy accept;
-                iifname "ppp0" fullcone
+                meta nfproto ipv4 iifname "ppp0" fullcone
               }
               chain postrouting {
                 type nat hook postrouting priority srcnat; policy accept;
-                oifname "ppp0" fullcone
+                meta nfproto ipv4 oifname "ppp0" fullcone
               }
             '';
           };
