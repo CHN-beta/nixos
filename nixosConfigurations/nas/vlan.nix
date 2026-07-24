@@ -117,6 +117,9 @@
             "interface:nixvirt,192.168.2.100,192.168.2.250,255.255.255.0,12h"
             "interface:enp2s0.20,192.168.3.100,192.168.3.250,255.255.255.0,12h"
           ];
+          dhcp-host = [
+            "f8:c9:03:1d:8d:cf,192.168.2.209"
+          ];
           dhcp-option = [
             "interface:nixvirt,option:dns-server,223.5.5.5"
             "interface:enp2s0.20,option:dns-server,192.168.3.1"
