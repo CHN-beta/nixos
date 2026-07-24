@@ -5,25 +5,33 @@
   ...
 }:
 {
-  options.nixos.system.fileSystems.luks = lib.mkOption {
-    type = lib.types.attrsOf (
-      lib.types.submodule {
-        options = {
-          mapper = lib.mkOption { type = lib.types.nonEmptyStr; };
-          ssd = lib.mkOption {
-            type = lib.types.bool;
-            default = false;
+  options.nixos.system.fileSystems.luks = {
+    devices = lib.mkOption {
+      type = lib.types.attrsOf (
+        lib.types.submodule {
+          options = {
+            mapper = lib.mkOption { type = lib.types.nonEmptyStr; };
+            ssd = lib.mkOption {
+              type = lib.types.bool;
+              default = false;
+            };
+            # steps to initlize pkcs11 token:
+            # ykman piv keys generate --touch-policy=always -a ECCP256 9d pubkey_9d.pem
+            # ykman piv certificates generate --valid-days 3650 -s "CN=YubiKey LUKS" 9d pubkey_9d.pem
+            # rm pubkey_9a.pem
+            # systemd-cryptenroll --pkcs11-token-uri=list
+            # sudo systemd-cryptenroll --pkcs11-token-uri=pkcs11:token=YubiKey%20LUKS /dev/nvme0n1p2
           };
-          # steps to initlize pkcs11 token:
-          # ykman piv keys generate --touch-policy=always -a ECCP256 9d pubkey_9d.pem
-          # ykman piv certificates generate --valid-days 3650 -s "CN=YubiKey LUKS" 9d pubkey_9d.pem
-          # rm pubkey_9a.pem
-          # systemd-cryptenroll --pkcs11-token-uri=list
-          # sudo systemd-cryptenroll --pkcs11-token-uri=pkcs11:token=YubiKey%20LUKS /dev/nvme0n1p2
-        };
-      }
-    );
-    default = { };
+        }
+      );
+      default = { };
+    };
+    # disable pkcs11 on desktop,
+    # since enabling pkcs11 cause fido2 pin prompt on every device instead of only once
+    enablePkcs11 = lib.mkOption {
+      type = lib.types.bool;
+      default = config.nixos.model.variant != "desktop";
+    };
   };
   config =
     let
@@ -44,9 +52,7 @@
                 "token-timeout=1800"
                 "fido2-device=auto"
               ]
-              # disable pkcs11 on desktop,
-              # since enabling pkcs11 cause fido2 pin prompt on every device instead of only once
-              ++ lib.optionals (config.nixos.model.variant != "desktop") [ "pkcs11-uri=auto" ];
+              ++ lib.optionals luks.enablePkcs11 [ "pkcs11-uri=auto" ];
             }
           ));
         systemd = lib.mkIf (luks != { }) {

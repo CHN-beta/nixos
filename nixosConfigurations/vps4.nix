@@ -13,7 +13,7 @@
             };
           };
           swap = [ "/nix/swap/swap" ];
-          luks."/dev/disk/by-uuid/bf7646f9-496c-484e-ada0-30335da57068" = {
+          luks.devices."/dev/disk/by-uuid/bf7646f9-496c-484e-ada0-30335da57068" = {
             mapper = "root";
             ssd = true;
           };

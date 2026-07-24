@@ -11,7 +11,7 @@
             };
           };
           swap = [ "/nix/swap/swap" ];
-          luks."/dev/disk/by-partlabel/vps10-root" = {
+          luks.devices."/dev/disk/by-partlabel/vps10-root" = {
             mapper = "root";
             ssd = true;
           };

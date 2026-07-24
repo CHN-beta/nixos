@@ -45,7 +45,7 @@
               mountBeforeSwitch = false;
             };
           };
-          luks = {
+          luks.devices. = {
             "/dev/disk/by-partlabel/pc-root1" = {
               mapper = "root1";
               ssd = true;

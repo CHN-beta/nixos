@@ -20,16 +20,19 @@
           };
           swap = [ "/dev/lvm/swap" ];
           luks = {
-            "/dev/disk/by-partlabel/nas-root1".mapper = "root1";
-            "/dev/disk/by-partlabel/nas-root2".mapper = "root2";
-            "/dev/disk/by-partlabel/nas-root3" = {
-              mapper = "root3";
-              ssd = true;
+            devices = {
+              "/dev/disk/by-partlabel/nas-root1".mapper = "root1";
+              "/dev/disk/by-partlabel/nas-root2".mapper = "root2";
+              "/dev/disk/by-partlabel/nas-root3" = {
+                mapper = "root3";
+                ssd = true;
+              };
+              "/dev/disk/by-partlabel/nas-root4" = {
+                mapper = "root4";
+                ssd = true;
+              };
             };
-            "/dev/disk/by-partlabel/nas-root4" = {
-              mapper = "root4";
-              ssd = true;
-            };
+            enablePkcs11 = false;
           };
           backup = {
             persistent = {
