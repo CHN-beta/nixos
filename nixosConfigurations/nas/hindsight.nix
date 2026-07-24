@@ -7,10 +7,10 @@
   config = {
     nixos = {
       services = {
-        postgresql.instances.hindsight.extensions = [ "pgvector" ];
+        postgresql.instances.hindsight.extensions = [ "vector" ];
         nginx.https."hindsight.chn.moe".location = {
           "/".proxy.upstream = "http://127.0.0.1:9999";
-          "/api/".proxy.upstream = "http://127.0.0.1:8888/";
+          "~ ^/(docs|openapi\\.json|health|metrics|v1|mcp)".proxy.upstream = "http://127.0.0.1:8888";
         };
       };
       system.sops = {
@@ -33,6 +33,10 @@
     virtualisation.oci-containers.containers.hindsight = {
       image = "hindsight:latest";
       imageFile = self.src.hindsight;
+      ports = [
+        "127.0.0.1:8888:8888"
+        "127.0.0.1:9999:9999"
+      ];
       environmentFiles = [ config.nixos.system.sops.templates."hindsight.env".path ];
       environment = {
         HINDSIGHT_API_LLM_PROVIDER = "openai";
