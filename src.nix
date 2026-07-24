@@ -303,16 +303,4 @@ in
       hash = "sha256-di/EDkHKQrUySc5wtyK2z/nqwAT1UEymx69bVPf+oaM=";
     };
   };
-  mem0 = {
-    api = pkgs.requireFile {
-      name = "my-mem0-api.tar";
-      sha256 = "DDy96yG2MGo3vo53mnLnn/56GqZcZS9vEpOW/MHiQu0=";
-      message = "mem0-api not found.";
-    };
-    dashboard = pkgs.requireFile {
-      name = "my-mem0-dashboard.tar";
-      sha256 = "pEEOtfYyR8peiGhrSgbA5W9hcndv5zd9SbdKafh1TP4=";
-      message = "mem0-dashboard not found.";
-    };
-  };
 }

@@ -9,7 +9,6 @@
       hermes-agent = {
         enable = true;
         settings = {
-          memory.provider = "mem0";
           model = {
             default = "antigravity-gemini-3.1-pro";
             provider = "gemini";
@@ -29,7 +28,6 @@
         extraDependencyGroups = [
           "messaging"
           "matrix"
-          "mem0"
         ];
         environmentFiles = [ config.nixos.system.sops.templates."hermes.env".path ];
         # authFile = ./auth.json;
@@ -67,8 +65,6 @@
               MATRIX_ENCRYPTION=true
               MATRIX_DEVICE_ID=HERMES_BOT
               MATRIX_HOME_ROOM=${placeholder."hermes/matrix_home"}
-              MEM0_HOST=https://mem0-api.chn.moe
-              MEM0_API_KEY=${placeholder."hermes/mem0"}
             '';
         };
         secrets = {
@@ -78,7 +74,6 @@
           "hermes/matrix_home" = { };
           "telegram/user/chn" = { };
           "hermes/api_server_token".owner = "chn";
-          "hermes/mem0" = { };
         };
       };
     };
