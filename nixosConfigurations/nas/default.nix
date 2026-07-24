@@ -109,6 +109,7 @@
         pppoe.interface = "enp3s0";
         antigravity-route = { };
       };
+      packages.opencode = { };
     };
     systemd.tmpfiles.rules = [
       "w /sys/class/powercap/intel-rapl/intel-rapl:0/constraint_0_power_limit_uw - - - - 10000000"

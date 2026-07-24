@@ -45,7 +45,7 @@
               mountBeforeSwitch = false;
             };
           };
-          luks.devices. = {
+          luks.devices = {
             "/dev/disk/by-partlabel/pc-root1" = {
               mapper = "root1";
               ssd = true;
@@ -170,6 +170,7 @@
         mathematica = { };
         vasp = { };
         lumerical = { };
+        opencode = { };
       };
       user.users = [
         "chn"

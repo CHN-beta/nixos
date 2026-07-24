@@ -6,7 +6,11 @@
   ...
 }:
 {
-  config = {
+  options.nixos.packages.opencode = lib.mkOption {
+    type = lib.types.nullOr (lib.types.submodule { });
+    default = null;
+  };
+  config = lib.mkIf (config.nixos.packages.opencode != null) {
     environment = {
       systemPackages = [
         self.inputs.llm-agents.packages.x86_64-linux.opencode
