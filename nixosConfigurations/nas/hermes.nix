@@ -9,6 +9,7 @@
       hermes-agent = {
         enable = true;
         settings = {
+          memory.provider = "hindsight";
           model = {
             default = "antigravity-gemini-3.1-pro";
             provider = "gemini";
@@ -28,6 +29,7 @@
         extraDependencyGroups = [
           "messaging"
           "matrix"
+          "hindsight"
         ];
         environmentFiles = [ config.nixos.system.sops.templates."hermes.env".path ];
         # authFile = ./auth.json;
@@ -65,6 +67,9 @@
               MATRIX_ENCRYPTION=true
               MATRIX_DEVICE_ID=HERMES_BOT
               MATRIX_HOME_ROOM=${placeholder."hermes/matrix_home"}
+              HINDSIGHT_MODE=cloud
+              HINDSIGHT_API_URL=https://hindsight.chn.moe
+              HINDSIGHT_API_KEY=${placeholder."hindsight/password"}
             '';
         };
         secrets = {
@@ -74,6 +79,7 @@
           "hermes/matrix_home" = { };
           "telegram/user/chn" = { };
           "hermes/api_server_token".owner = "chn";
+          "hindsight/password" = { };
         };
       };
     };
