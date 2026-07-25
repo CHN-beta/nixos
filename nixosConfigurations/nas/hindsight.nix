@@ -25,11 +25,20 @@
             HINDSIGHT_API_LLM_API_KEY=${placeholder."hindsight/siliconflow"}
             HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY=${placeholder."hindsight/siliconflow"}
             HINDSIGHT_API_RERANKER_SILICONFLOW_API_KEY=${placeholder."hindsight/siliconflow"}
+            HINDSIGHT_API_TENANT_API_KEY=${placeholder."hindsight/password"}
+            HINDSIGHT_CP_ACCESS_KEY=${placeholder."hindsight/password"}
+            HINDSIGHT_CP_DATAPLANE_API_KEY=${placeholder."hindsight/password"}
           '';
-        secrets."hindsight/siliconflow" = { };
+        secrets = {
+          "hindsight/siliconflow" = { };
+          "hindsight/password" = { };
+        };
       };
     };
-    systemd.services.podman-hindsight.after = [ "postgresql.service" ];
+    systemd.services.podman-hindsight = {
+      after = [ "postgresql.service" ];
+      restartTriggers = [ config.nixos.system.sops.templates."hindsight.env".content ];
+    };
     virtualisation.oci-containers.containers.hindsight = {
       image = "hindsight:latest";
       imageFile = self.src.hindsight;
