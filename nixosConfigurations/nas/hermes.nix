@@ -38,7 +38,6 @@
         addToSystemPackages = true;
         createUser = false;
       };
-      ollama.loadModels = [ "mxbai-embed-large" ];
     };
     systemd.services.hermes-agent.restartTriggers = [
       (builtins.toJSON config.services.hermes-agent.settings)
