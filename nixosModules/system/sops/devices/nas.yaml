@@ -87,6 +87,7 @@ pppoe:
     password: ENC[AES256_GCM,data:CNed32glV4A=,iv:Qr2ntkvYE8jk5XltijJSk6NSJff4zMlt6yoE57nXT2I=,tag:IyrqeDB/KWpy8MmUwUzylA==,type:str]
 frigate:
     camera_password: ENC[AES256_GCM,data:AH/0Pxeem/Y=,iv:2HkaZxR9c4oEPu+oEi92jqvNTMuYhltA1/ZKF0dFHdY=,tag:MbrTs9jNqrtjTxBtJiRnbg==,type:str]
+    jwt_secret: ENC[AES256_GCM,data:uXxEbqAitTSqJTHGl92culNyG/bSuDKQstaYRyRgPTsR5utjsobCvc6KM0PTX2RkttXZe90siCz0ZGAtSJyJiHkRmkkdj6hV9He/uIrZRqhgpbksGY/ZxsqdSUpT12RETbzXBwLSuy/AxmvEkT19K04e2weC6UNzQvGx0JP3U/w=,iv:9xfO6OAWLVMgkol0BEWaI4TB8n2JHIE1XYGcq3ZFcL0=,tag:gHRVV3cFx9c7tfrxUh6iIQ==,type:str]
 hermes:
     gemini: ENC[AES256_GCM,data:l5fbBZ7sd6AfzbUlmMjXlKFYButb4T3Gumww2Q42CCj6ZbwJieu5,iv:dzfGTsPrci9XET7lp5xtuiqT5J6fMtywuoMMTr9ruVE=,tag:2IM7ZgHIGznY/RKEkF/j+Q==,type:str]
     tgbot: ENC[AES256_GCM,data:sMMJnl2URIz8WovP1wQTymBl1aK50Qe3yzt0J2v9HPvYa09ixrEHWEzJMbS85g==,iv:6aYG8YG/gNzVP+IOxZF2tb17vLAshB3MsJhmPSNdQeI=,tag:Gxjx0Nvx0QKIHeh05Jp1sQ==,type:str]
@@ -119,7 +120,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-07-25T06:09:34Z"
-    mac: ENC[AES256_GCM,data:i5aXcFYBDNA5LyUAjOoBokt7RSBQclDjO7rLtTv4yvBR0DLcDNjwTbdAMLSgiN8EJ6NnUciJbXKEFRPzrVojvyf6p+r0ndYkFiF7JPYIuEbyy03a+zvT21ZtP/zhYqxrJAujVFy+WivFMJwmnrPcuKkuhM1STABI45Vh8yxGO+g=,iv:T+d9MqB4pW9FelJCAi0bEscLLzc5EwwfEpDuGrVTefM=,tag:nZPI8iabGgh5TZWqa++asg==,type:str]
+    lastmodified: "2026-07-26T02:19:33Z"
+    mac: ENC[AES256_GCM,data:alEki1dVTr8oq2g0XnBdq8RFWFdqSwPzNoohTWer18xm7eBKtd3fs/yK53m52Ul3kCh7CbENuQl9muXQyA+p0JtGGgkATkYBSElB/AYmxpLQ5Eb8Y9LZZ6cA4hRwrRY5ALm4Mo+JMfpvrjACsAjn9EE02Eo7F+WJrxvGzAH2jy0=,iv:C/9qMT8imMsoPqP8fRzD7Iuh6VZWrzzfADP6D/6zJLE=,tag:kdenRey593U+P7uy6h/b1A==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

@@ -82,13 +82,18 @@
         }}";
       };
       database.path = "/nix/ssd/var/lib/frigate/frigate.db";
+      auth.session_length = 86400;
     };
   };
   nixos = {
     system.sops = {
-      secrets."frigate/camera_password" = { };
+      secrets = {
+        "frigate/camera_password" = { };
+        "frigate/jwt_secret" = { };
+      };
       templates."frigate.env".content = ''
         FRIGATE_CAMERA_PASSWORD=${config.nixos.system.sops.placeholder."frigate/camera_password"}
+        FRIGATE_JWT_SECRET=${config.nixos.system.sops.placeholder."frigate/jwt_secret"}
       '';
     };
     services.nginx.https."frigate.chn.moe".global.configName = "frigate.chn.moe";
