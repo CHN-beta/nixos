@@ -69,6 +69,7 @@
               HINDSIGHT_MODE=cloud
               HINDSIGHT_API_URL=https://hindsight.chn.moe
               HINDSIGHT_API_KEY=${placeholder."hindsight/password"}
+              HINDSIGHT_BANK_ID=chn
             '';
         };
         secrets = {
