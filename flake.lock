@@ -832,11 +832,11 @@
     "misskey": {
       "flake": false,
       "locked": {
-        "lastModified": 1782911164,
-        "narHash": "sha256-wFroIsabzu4Lr7/gbYAQ3lAbPQOCxx2ySmEPuwR7zu8=",
+        "lastModified": 1785730353,
+        "narHash": "sha256-TqrktCh4BWjtaZCzaLFRhf0um96C1J9hOBM8Z/tRhGI=",
         "ref": "chn-mod",
-        "rev": "ec434732fb5fcb1376148ccc24477ce8f3677077",
-        "revCount": 28672,
+        "rev": "15d22cdf05f427d1882cb17cee7c9e487d2a036d",
+        "revCount": 28955,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/CHN-beta/misskey"
@@ -1249,11 +1249,11 @@
     },
     "nixpkgs_7": {
       "locked": {
-        "lastModified": 1783945359,
-        "narHash": "sha256-p/GaJfNA8aKLTx3ta5nVWSVkT1/Q/ymO+dTrDZcbe6w=",
+        "lastModified": 1785762264,
+        "narHash": "sha256-tsgOawjyAK5IthzWSwCTwb0YQ6LbVuDyWsWaEs14u+8=",
         "owner": "CHN-beta",
         "repo": "nixpkgs",
-        "rev": "d5eb00671ba6f4a921a8c57eee3f642e308d90ec",
+        "rev": "9e8ebf380e6adba7b7f94a59d989c3d6a7a7a6b7",
         "type": "github"
       },
       "original": {
