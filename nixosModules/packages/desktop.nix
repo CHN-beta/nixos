@@ -504,6 +504,7 @@
                   "[xml]"."editor.defaultFormatter" = "DotJoshJohnson.xml";
                   "git.ignoreLegacyWarning" = true;
                   "git.confirmSync" = false;
+                  "git.openRepositoryInParentFolders" = "always";
                   "cmake.configureArgs" = [
                     "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON"
                     "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
@@ -533,7 +534,6 @@
                   "nix.serverPath" = "nixd";
                   "nix.formatterPath" = "nixpkgs-fmt";
                   "xmake.envBehaviour" = "erase";
-                  "git.openRepositoryInParentFolders" = "never";
                   "todo-tree.regex.regex" = "(//|#|<!--|;|/\\*|^|%|^[ \\t]*(-|\\d+.))\\s*($TAGS)";
                   "latex-workshop.latex.recipes" = [
                     {
