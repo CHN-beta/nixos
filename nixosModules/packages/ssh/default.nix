@@ -21,6 +21,7 @@ let
     srv2-node1.proxyJump = "srv2";
     srv2-node2.proxyJump = "srv2";
     pe = { };
+    ddml-dev-vm = { };
   };
 in
 {
