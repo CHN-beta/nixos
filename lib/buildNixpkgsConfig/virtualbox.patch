@@ -1,0 +1,10 @@
+--- a/src/VBox/Devices/PC/ipxe/Makefile.kmk	2025-10-17 01:59:31.000000000 -0700
++++ b/src/VBox/Devices/PC/ipxe/Makefile.kmk	2026-05-20 18:22:52.131710173 -0700
+@@ -125,6 +125,7 @@
+ 	-ffreestanding \
+ 	-ffunction-sections \
+ 	-march=i386 \
++	-mtune=i386 \
+ 	-fomit-frame-pointer \
+ 	-fstrength-reduce \
+ 	-falign-jumps=1 \
