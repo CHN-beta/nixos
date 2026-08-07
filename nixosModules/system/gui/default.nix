@@ -28,7 +28,7 @@
     lib.mkMerge [
       # Common GUI settings
       {
-        services.environment = {
+        environment = {
           sessionVariables.GTK_USE_PORTAL = "1";
           systemPackages = with pkgs; [
             voxtype-onnx
