@@ -206,9 +206,6 @@ let
         btop = prev.btop.overrideAttrs (prev: {
           patches = prev.patches or [ ] ++ [ ./btop.patch ];
         });
-        virtualbox = prev.virtualbox.overrideAttrs (prev: {
-          patches = prev.patches or [ ] ++ [ ./virtualbox.patch ];
-        });
         prrte = prev.prrte.overrideAttrs (prev: {
           configureFlags = prev.configureFlags or [ ] ++ [ "--with-lsf" ];
           buildInputs = prev.buildInputs or [ ] ++ [
