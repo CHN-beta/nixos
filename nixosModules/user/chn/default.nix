@@ -15,6 +15,7 @@
         "libvirtd"
         "ipfs"
         "dialout"
+        "vboxusers"
       ] (builtins.attrNames config.users.groups);
       subUidRanges = [
         {
