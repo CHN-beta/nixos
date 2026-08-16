@@ -87,7 +87,6 @@
         send = { };
         huginn = { };
         httpapi = { };
-        gitea = { };
         podman = { };
         peertube = { };
         nginx.applications.webdav.instances."webdav.chn.moe" = { };
