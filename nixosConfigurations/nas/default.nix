@@ -85,7 +85,6 @@
         nextcloud = { };
         freshrss = { };
         send = { };
-        huginn = { };
         httpapi = { };
         podman = { };
         peertube = { };

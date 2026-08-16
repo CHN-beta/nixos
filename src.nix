@@ -48,13 +48,6 @@ in
       };
     };
   };
-  huginn = pkgs.dockerTools.pullImage {
-    imageName = "ghcr.io/huginn/huginn";
-    imageDigest = "sha256:d5a06a195a867c7c7f2d65ac0b39229661ef27fdf6ce97f7a098b3272e80e10b";
-    hash = "sha256-hX2I0h96O/bTDmJB6QacE2ArPb6B17c/V3AuBmHJYwE=";
-    finalImageName = "ghcr.io/huginn/huginn";
-    finalImageTag = "latest";
-  };
   misskey = {
     re2 = pkgs.fetchurl {
       url = "https://github.com/uhop/node-re2/releases/download/1.24.1/linux-x64-137.br";

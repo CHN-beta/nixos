@@ -49,7 +49,6 @@ let
       "backup-store"
       "rsshub"
       "grafana"
-      "huginn"
       "vaultwarden"
       "photo"
       "nextcloud"
