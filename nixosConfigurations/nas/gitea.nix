@@ -109,6 +109,11 @@
               ];
             }
             {
+              name = "allow-api";
+              action = "ALLOW";
+              path_regex = "^/(api|twirp)/";
+            }
+            {
               name = "challenge-all";
               path_regex = ".*";
               action = "CHALLENGE";
