@@ -223,6 +223,10 @@
       url = "github:CHN-beta/antigravity-route";
       flake = false;
     };
+    ghostty-cursor-shaders = {
+      url = "github:sahaj-b/ghostty-cursor-shaders";
+      flake = false;
+    };
   };
 
   outputs = inputs: rec {
