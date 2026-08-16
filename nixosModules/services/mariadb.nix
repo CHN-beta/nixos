@@ -46,8 +46,8 @@
           enable = true;
           package = pkgs.mariadb;
           settings.mysqld.skip_name_resolve = true;
-          ensureDatabases = builtins.map (db: db.value.database) (lib.attrsToList mariadb.instances);
-          ensureUsers = builtins.map (db: {
+          ensureDatabases = map (db: db.value.database) (lib.attrsToList mariadb.instances);
+          ensureUsers = map (db: {
             name = db.value.user;
             ensurePermissions."${db.value.database}.*" = "ALL PRIVILEGES";
           }) (lib.attrsToList mariadb.instances);
@@ -55,31 +55,31 @@
         mysqlBackup = {
           enable = mariadb.mountFrom != null;
           singleTransaction = true;
-          databases = builtins.map (db: db.value.database) (lib.attrsToList mariadb.instances);
+          databases = map (db: db.value.database) (lib.attrsToList mariadb.instances);
         };
       };
       systemd.services.mysql.postStart = lib.mkAfter (
-        builtins.concatStringsSep "\n" (
-          builtins.map (
-            db:
+        lib.concatStringsSep "\n" (
+          lib.mapAttrsToList (
+            _: db:
             let
               passwordFile =
-                if db.value.passwordFile or null != null then
-                  db.value.passwordFile
+                if db.passwordFile or null != null then
+                  db.passwordFile
                 else
-                  config.nixos.system.sops.secrets."mariadb/${db.value.user}".path;
+                  config.nixos.system.sops.secrets."mariadb/${db.user}".path;
               mysql = "${config.services.mysql.package}/bin/mysql";
             in
             # force user use password auth
-            ''echo "ALTER USER '${db.value.user}' IDENTIFIED BY '$(cat ${passwordFile})';" | ${mysql} -N''
-          ) (lib.attrsToList mariadb.instances)
+            ''echo "ALTER USER '${db.user}' IDENTIFIED BY '$(cat ${passwordFile})';" | ${mysql} -N''
+          ) mariadb.instances
         )
       );
-      nixos.system.sops.secrets = builtins.listToAttrs (
-        builtins.map (db: {
+      nixos.system.sops.secrets = lib.listToAttrs (
+        map (db: {
           name = "mariadb/${db.value.user}";
           value.owner = config.users.users.mysql.name;
-        }) (builtins.filter (db: db.value.passwordFile == null) (lib.attrsToList mariadb.instances))
+        }) (lib.filter (db: db.value.passwordFile == null) (lib.attrsToList mariadb.instances))
       );
       environment.persistence = lib.mkIf (mariadb.mountFrom != null) {
         "/nix/${mariadb.mountFrom}".directories = [
