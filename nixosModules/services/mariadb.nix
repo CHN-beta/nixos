@@ -45,7 +45,10 @@
         mysql = {
           enable = true;
           package = pkgs.mariadb;
-          settings.mysqld.skip_name_resolve = true;
+          settings.mysqld = {
+            skip_name_resolve = true;
+            innodb_force_recovery = 1;
+          };
           ensureDatabases = builtins.map (db: db.value.database) (lib.attrsToList mariadb.instances);
           ensureUsers = builtins.map (db: {
             name = db.value.user;
