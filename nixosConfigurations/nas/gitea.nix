@@ -63,6 +63,30 @@
           };
         };
       };
+      gitea-actions-runner = {
+        instances.nas = {
+          enable = true;
+          name = "nas";
+          url = "https://git.chn.moe";
+          tokenFile = config.nixos.system.sops.templates."gitea-runner.env".path;
+          labels = [
+            "nixos:host"
+            "native:host"
+          ];
+          hostPackages = with pkgs; [
+            bash
+            coreutils
+            curl
+            gawk
+            git
+            gnused
+            jq
+            nix
+            nodejs
+            wget
+          ];
+        };
+      };
       anubis.instances.gitea = {
         settings = {
           OG_PASSTHROUGH = true;
@@ -98,16 +122,22 @@
       };
     };
     nixos = {
-      system.sops.secrets = {
-        "gitea/mail" = {
-          owner = "gitea";
-          key = "mail/bot";
+      system.sops = {
+        secrets = {
+          "gitea/mail" = {
+            owner = "gitea";
+            key = "mail/bot";
+          };
+          "gitea/db" = {
+            owner = "gitea";
+            key = "postgresql/gitea";
+          };
+          "gitea/runner-token" = { };
+          "mail/bot" = { };
         };
-        "gitea/db" = {
-          owner = "gitea";
-          key = "postgresql/gitea";
-        };
-        "mail/bot" = { };
+        templates."gitea-runner.env".content = "TOKEN=${
+          config.nixos.system.sops.placeholder."gitea/runner-token"
+        }";
       };
       services = {
         nginx.https."git.chn.moe".location = {
