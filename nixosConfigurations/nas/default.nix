@@ -104,7 +104,6 @@
           persistent = "/nix/persistent";
           ssd = "/nix/ssd";
         };
-        github-runners = { };
         pppoe.interface = "enp3s0";
         antigravity-route = { };
       };

@@ -78,8 +78,6 @@ minibox:
     admin: ENC[AES256_GCM,data:ZkBkk2CaZk14OSCHZO/mzjTfqlQKiQV7G+Je3LQKZBrOCZGsupJkoXDTBuyjeeHy3hXDp28nJBwr+Wt0q6QZSQ==,iv:ugQE03zuUEdIU6phUkKmN7qHzVqiDLsTX2ubMp3jG3I=,tag:5VDh3+cUIRAX41BGBCaxKA==,type:str]
     session: ENC[AES256_GCM,data:bqh5P1k9gu2Cqpjom5nXXCaY4KHP4fn6PMKi4iyqcq84H6mso3g2Uly+dT9hfZRYoTo/qVAdYLjkq+KfMxls7g==,iv:FPjAmsQ/nsde7pSN0kUNj9eig6ow9Ii9LkJeIbfe4to=,tag:ovqLaS+IHoilkGYSnSpf3w==,type:str]
 machineId: ENC[AES256_GCM,data://XPPnP3K9Hl92uwaE5rfbbyrIMhlIldF+AhReG5b74=,iv:UrQSf/jTdwP+WPF+j4BAE1AyeL9jOPX8fR1SWQ+EvIU=,tag:Q2D9F0a22YeBSR4shnfRyQ==,type:str]
-github-runners:
-    pat: ENC[AES256_GCM,data:lEJJROhjXGzWUAs5oapAoFJUUeHbePELhSHQ0HfUs02yGNDN38+ooxgvwbdb8nzLBu0UzMxM+0o6eTvHI/BPexA/isgOYLY5RmHMVu9CsRmiIbTvEXhcI8v5NRW0,iv:gRbkmmwPM/9DSsBcIWbm92oWrceFLd6LUaYBrgMgqwo=,tag:3TFLKosf18EAnVhSE/cdYQ==,type:str]
 garage:
     rpc: ENC[AES256_GCM,data:AUHyPVsAhRNl5A+bZOn0zz/6NttOJI5nSPvHapYk91FMVy3DOKpmeEowSoSVT+Mpgv276dFvC3okCNALlUuVpQ==,iv:SSr2MvgPA7MKBMY3UqOiL375qcC08xn3XZZLwlGkTKY=,tag:31AC3F1SIqtOP5LcC0Qz4Q==,type:str]
 pppoe:
@@ -122,7 +120,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-08-16T02:22:35Z"
-    mac: ENC[AES256_GCM,data:JnCi+qk1amOUMDZVfK6I19ZC/d1y0SWuopZyLE6fELQk/lceySGvHALhoOeLkLdnG5AKUcj9o00+VsMXxmlq5uwQr7Xf1eLM9aJhMn/6wbO+0LBcF99bB+cgKoApRGZVGueuz2XMrisGFMQkski26PvS5PiZivJv2aNquTFbn6Q=,iv:7Gk13sWH91CvECNqqgpeyddRniFuPBAYf6F0fwuyj40=,tag:wel8tZTJkKYRkHdjmFukJw==,type:str]
+    lastmodified: "2026-08-16T03:17:09Z"
+    mac: ENC[AES256_GCM,data:UyC3uycvr4jlvVV8mM8iAs9f620vkiHnQFeBZT+5RN/RGbPBD64kIZELZIDpH8o9Mje1xDXUGY7cl1lXtlNfNzd6EZKAzTCHQUNzLuWU05mCyEqW87bnzGXkNommQUIMu44bdCzDxj0lz42wPK4e5NowVc37h68Q7M5XXdxpStY=,iv:TXo/UiJVh17aEBHbwxBNPrZHqp0tYXaFKN5yDqJhBYg=,tag:kF49esEzYTAiEC+38h9q1Q==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
