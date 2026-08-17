@@ -163,6 +163,7 @@
           cargo-watch
           cargo-expand
           cargo-edit
+          cargo-tauri
           sccache
         ];
         nixos.user.sharedModules = [
