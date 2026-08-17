@@ -408,6 +408,11 @@
                   "vadimcn.vscode-lldb"
                   # cp2k
                   "nilsholle.cp2k"
+                  # vue
+                  "vue.volar"
+                  "esbenp.prettier-vscode"
+                  # tauri
+                  "tauri-apps.tauri-vscode"
                 ];
                 keybindings = [
                   # use alt+a to complete inline suggestions, instead of tab or ctrl+enter
