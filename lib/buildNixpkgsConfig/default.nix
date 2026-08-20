@@ -253,6 +253,12 @@ let
         ];
         # TODO: wating for pr to be rebased https://github.com/niri-wm/niri/pull/1856
         # niri = prev.niri.overrideAttrs (prev: { patches = prev.patches or [] ++ [ ./niri.patch ]; });
+        niri = prev.niri.overrideAttrs (prev: {
+          patches = prev.patches or [ ] ++ [
+            ./niri/support-shm-sharing.patch
+            ./niri/obs-regression-fix.patch
+          ];
+        });
         # allow tbb to be built on static platforms
         onetbb =
           if !final.stdenv.hostPlatform.isStatic then
