@@ -149,6 +149,7 @@
           localPkgs.ufo
           quantum-espresso
           pkgs2311.hdfview
+          wemeet
           # media
           nur-xddxdd.svp
           # for kdenlive auto subtitle
