@@ -24,6 +24,10 @@ in
             filter type *
           }
 
+          template IN AAAA {
+            match ".*"
+            rcode NOERROR
+          }
           template IN CAA {
             match ".*"
             rcode NOERROR
