@@ -53,6 +53,9 @@
             input_newline = "return";
           };
           settings = {
+            instructions = [
+              "${./instructions.md}"
+            ];
             model = "antigravity-gemini-3.1-pro";
             small_model = "antigravity-gemini-3-flash";
             provider.google = {
