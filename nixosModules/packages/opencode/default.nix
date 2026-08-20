@@ -93,6 +93,15 @@
                 oauth = false;
                 headers.Authorization = "Bearer {file:${config.nixos.system.sops.secrets."opencode/github".path}}";
               };
+              agent-browser = {
+                type = "local";
+                command = [
+                  (lib.getExe self.inputs.llm-agents.packages.x86_64-linux.agent-browser)
+                  "mcp"
+                  "--tools"
+                  "all"
+                ];
+              };
             };
           };
         };
