@@ -784,6 +784,7 @@
                   linux-cgroup = "always";
                   font-family = "FiraCode Nerd Font";
                   custom-shader = "${self.inputs.ghostty-cursor-shaders}/cursor_warp.glsl";
+                  custom-shader-animation = "always";
                 };
               };
               catppuccin.ghostty.enable = true;
