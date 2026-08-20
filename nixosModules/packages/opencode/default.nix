@@ -89,7 +89,7 @@
               };
               steel = {
                 type = "local";
-                command = [ (lib.getExe' pkgs.nodejs "npx") "-y" "github:steel-dev/steel-mcp-server" ];
+                command = [ "${pkgs.localPkgs.steel-mcp}/bin/steel-mcp" ];
                 env = {
                   STEEL_LOCAL = "true";
                   STEEL_BASE_URL = "https://steel.chn.moe";
