@@ -18,8 +18,6 @@
         export HINDSIGHT_BANK_ID=chn
         export OPENALEX_MAILTO=chn@chn.moe
         export MINERU_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/mineru".path})
-        export STEEL_LOCAL=true
-        export STEEL_BASE_URL=https://steel.chn.moe
         exec ${lib.getExe self.inputs.llm-agents.packages.x86_64-linux.opencode} "$@"
       '';
     in
@@ -88,10 +86,6 @@
               nixos = {
                 type = "local";
                 command = [ (lib.getExe pkgs.mcp-nixos) ];
-              };
-              steel = {
-                type = "local";
-                command = [ "${pkgs.localPkgs.steel-mcp}/bin/steel-mcp" ];
               };
               github = {
                 type = "remote";

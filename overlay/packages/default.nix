@@ -194,7 +194,6 @@ rec {
     rpm = pkgs.pkgs2411.rpm;
   };
   dockerhub-mcp = pkgs.callPackage ./dockerhub-mcp.nix { src = self.src.dockerhub-mcp; };
-  steel-mcp = pkgs.callPackage ./steel-mcp.nix { };
 
   fromYaml =
     content:
