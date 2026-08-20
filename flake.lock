@@ -179,11 +179,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1784000569,
-        "narHash": "sha256-j1C59aiRC+qxTysb3UmDKxOJjrbfip8sGxwi3rRDm3k=",
+        "lastModified": 1787207473,
+        "narHash": "sha256-/K1qLZ2DO3SgdWA/lwRTzpo7D1sdk9p2C5PrO3NO9q8=",
         "owner": "CHN-beta",
         "repo": "camoufox-nix",
-        "rev": "c6c42db8294e05df37d4f68aead9a0ce145afba1",
+        "rev": "ebde7fb898d72f54118a0def39217e86af6d0d08",
         "type": "github"
       },
       "original": {
