@@ -42,7 +42,6 @@
           # needed by opencode-notifier
           pkgs.libnotify
           self.inputs.llm-agents.packages.x86_64-linux.agent-browser
-          self.inputs.camoufox-nix.packages.x86_64-linux.camofox-browser
         ];
         programs.opencode = {
           enable = true;
@@ -83,12 +82,6 @@
               mineru = {
                 type = "local";
                 command = [ (lib.getExe pkgs.python3Packages.mineru-mcp) ];
-              };
-              camoufox = {
-                type = "local";
-                command = [
-                  (lib.getExe self.inputs.camoufox-nix.packages.x86_64-linux.camofox-mcp)
-                ];
               };
               nixos = {
                 type = "local";
