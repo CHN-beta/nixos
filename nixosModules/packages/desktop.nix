@@ -764,6 +764,7 @@
                   "workbench.secondarySideBar.defaultVisibility" = "hidden";
                   # disable terminal suggestions
                   "terminal.integrated.suggest.enabled" = false;
+                  "[vue]"."editor.defaultFormatter" = "Vue.volar";
                 };
               };
             };
