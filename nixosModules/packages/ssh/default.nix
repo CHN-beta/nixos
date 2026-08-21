@@ -30,8 +30,6 @@ in
       # maybe better network performance
       package = pkgs.openssh_hpn;
       startAgent = true;
-      enableAskPassword = true;
-      askPassword = "${pkgs.systemd}/bin/systemd-ask-password";
       extraConfig = "AddKeysToAgent yes";
       knownHosts = lib.mkMerge [
         (builtins.listToAttrs (
@@ -85,7 +83,6 @@ in
       ];
     };
     environment = {
-      sessionVariables.SSH_ASKPASS_REQUIRE = "prefer";
       etc = lib.genAttrs' [ "ed25519" "rsa" ] (
         f:
         lib.nameValuePair "ssh/ssh_host_${f}_key.pub" {
