@@ -197,6 +197,8 @@
       '';
     };
     boot.kernelParams = [
+      # 禁用蓝牙自动休眠以防 MT7925 死机
+      "btusb.enable_autosuspend=0"
       # 解决有时蓝牙不能使用的问题
       "mt7925e.disable_aspm=1"
       # 插拔电源和扩展坞不要唤醒电脑
