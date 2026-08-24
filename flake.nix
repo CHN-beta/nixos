@@ -60,6 +60,10 @@
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
     hermes.url = "github:NousResearch/hermes-agent";
+    cliproxyapi = {
+      url = "github:benjaminkitt/nix-cliproxyapi";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     misskey = {
       url = "git+https://github.com/CHN-beta/misskey?ref=chn-mod&submodules=1";

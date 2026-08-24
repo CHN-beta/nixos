@@ -57,13 +57,51 @@
             ];
             model = "antigravity-gemini-3.1-pro";
             small_model = "antigravity-gemini-3-flash";
-            provider.google = {
-              options = {
-                baseURL = "http://localhost:8999/v1";
-                apiKey = "sk-mock";
+            provider = {
+              google = {
+                options = {
+                  baseURL = "http://localhost:8999/v1";
+                  apiKey = "sk-mock";
+                };
+                # copy from https://github.com/NoeFabris/opencode-antigravity-auth#models
+                models = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google.models;
               };
-              # copy from https://github.com/NoeFabris/opencode-antigravity-auth#models
-              models = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google.models;
+              cliproxyapi = {
+                options = {
+                  baseURL = "http://localhost:8317/v1";
+                  apiKey = "sk-mock";
+                };
+                models = {
+                  "gpt-5.4" = {
+                    name = "GPT-5.4";
+                    limit = {
+                      context = 400000;
+                      output = 128000;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+                  "gpt-5.4-mini" = {
+                    name = "GPT-5.4 Mini";
+                    limit = {
+                      context = 400000;
+                      output = 128000;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+                };
+              };
             };
             plugin = [
               "@mohak34/opencode-notifier@0.2.8"
