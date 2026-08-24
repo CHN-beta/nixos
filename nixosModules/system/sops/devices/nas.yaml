@@ -94,8 +94,11 @@ hindsight:
     password: ENC[AES256_GCM,data:juoIpieA/B89kJE+6C/KSGsjkNbAfYmTji9p8pxw76s=,iv:qYAS0eYksoyEfEzD1oWDmi9mAvk6olKWsowvmRNeFfE=,tag:+MkZ0Z6fyTL2JoHg7zsRIw==,type:str]
 opencode:
     mineru: ENC[AES256_GCM,data:HBQWpvaUbeimkkMOM/24L7zspquQErKGzvtTBlBm11lptL4Q3vCX23BoSdvFvfEgdIKp,iv:686D+ReqILLS5gJLzKk5XvpQDheN6aN72q+fGDiNLEc=,tag:Atfj8U+uHpzR2mEaYK/ycg==,type:str]
+    cliproxyapi: ENC[AES256_GCM,data:uHwkb7eGpeXGOI+WdSsmV2VW0I5V4hHKU5bxTAcZaOnkxRTPmfKXolEACt0Vl5PiPtkI,iv:2G72j4L++Rgz7YNGKZBTbpDVZ+eYVMr9HRAhybfH25o=,tag:/su+slKiJ6tlaq8fw+B54A==,type:str]
 gitea:
     runner-token: ENC[AES256_GCM,data:yOj3F3aYDTSDOU8ujf83eRfTeXAvXTPSe9EmVYvrVOMNCCidw05fhA==,iv:IpMAG7etI1L9+FJxIvgQ8k5IkRC59lt+7HK3TSrR0iA=,tag:Y95XsyneU5+zCRlNQQNMKQ==,type:str]
+cliproxyapi:
+    management: ENC[AES256_GCM,data:QMog0QJQgNehjGTT,iv:yc+/dBXD8XYmmLy2S/o+4AndkDpzD3b6PrqcuH+1pXU=,tag:r2YUvv9jF8avFEugpqqMLg==,type:str]
 sops:
     age:
         - enc: |
@@ -117,7 +120,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-08-16T03:18:29Z"
-    mac: ENC[AES256_GCM,data:jUi4rOmnq+5EaoEkZH9IR/ur2KniE9vc7yvSPk7baKsNqraFcaODFpf9uxbqUVayD6lMU4n8Bo5R9wMsa1tyLCTIOBSjlkwPcNovS2dJmKeA/wwtpNZ877Fg4wcR2f5q91oojGTjfG4J3qR7cb0iLstgbT+INRVMWJHzvf/CfxE=,iv:XnKtM+/4kDjSwk2ohF6oyLuOhbRc42bvZWZjWA4q0So=,tag:77rEu6tM2X3YMuYkbUqqlw==,type:str]
+    lastmodified: "2026-08-24T15:26:51Z"
+    mac: ENC[AES256_GCM,data:m0N1J3nboQxSztxYIArNrrKGK38i7ew+VuPu3b/cSmSpL+82UhmbEXYGtKB/f+XxONeo8SH4ezqfP7V4QVuIm4JTpQzasnJbW6pGkT9VbRdPnNW9y/sOVC/A7sow/6oYHyAXU04Dhzlb/Oo9PZL/ctsS6Q1bZQS1RQ+2aeRwFuo=,iv:dpbrrhWMD6m3MyUIn4On/m45d4fGwHLJqoRMZUnoS9M=,tag:SftqaYErumdXM6dZiMIe0Q==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

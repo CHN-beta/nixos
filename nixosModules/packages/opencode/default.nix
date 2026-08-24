@@ -29,6 +29,7 @@
           key = "github/token";
         };
         "github/token" = { };
+        "opencode/cliproxyapi".owner = "chn";
         "opencode/mineru".owner = "chn";
         "opencode/hindsight" = {
           owner = "chn";
@@ -68,8 +69,8 @@
               };
               cliproxyapi = {
                 options = {
-                  baseURL = "http://localhost:8317/v1";
-                  apiKey = "sk-mock";
+                  baseURL = "https://cliproxyapi.chn.moe/v1";
+                  apiKey = "{file:${config.nixos.system.sops.secrets."opencode/cliproxyapi".path}}";
                 };
                 models = {
                   "gpt-5.4" = {

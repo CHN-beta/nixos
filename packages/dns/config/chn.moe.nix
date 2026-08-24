@@ -56,6 +56,7 @@ let
       "frigate"
       "wechat"
       "hindsight"
+      "cliproxyapi"
     ];
     vps10 = [
       "initrd.vps10"
