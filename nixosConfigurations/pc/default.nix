@@ -164,7 +164,6 @@
         howdy = { };
         # for debug and development
         postgresql.instances.minibox = { };
-        antigravity-route = { };
       };
       packages = {
         mathematica = { };

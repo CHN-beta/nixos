@@ -56,17 +56,9 @@
             instructions = [
               "${./instructions.md}"
             ];
-            model = "antigravity-gemini-3.1-pro";
-            small_model = "antigravity-gemini-3-flash";
+            model = "gpt-5.6-terra";
+            small_model = "gpt-5.6-terra";
             provider = {
-              google = {
-                options = {
-                  baseURL = "http://localhost:8999/v1";
-                  apiKey = "sk-mock";
-                };
-                # copy from https://github.com/NoeFabris/opencode-antigravity-auth#models
-                models = (builtins.fromJSON (builtins.readFile ./google.json)).provider.google.models;
-              };
               cliproxyapi = {
                 options = {
                   baseURL = "https://cliproxyapi.chn.moe/v1";
@@ -103,6 +95,34 @@
                   };
                   "gpt-5.6-luna" = {
                     name = "GPT-5.6 Luna";
+                    limit = {
+                      context = 400000;
+                      output = 128000;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+                  "gemini-3.1-pro-low" = {
+                    name = "Gemini 3.1 Pro Low";
+                    limit = {
+                      context = 400000;
+                      output = 128000;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+                  "gemini-3.7-flash-high" = {
+                    name = "Gemini 3.7 Flash High";
                     limit = {
                       context = 400000;
                       output = 128000;

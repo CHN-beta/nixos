@@ -104,7 +104,6 @@
           ssd = "/nix/ssd";
         };
         pppoe.interface = "enp3s0";
-        antigravity-route = { };
       };
       packages.opencode = { };
     };

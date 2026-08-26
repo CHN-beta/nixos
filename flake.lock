@@ -1,21 +1,5 @@
 {
   "nodes": {
-    "antigravity-route": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1784726605,
-        "narHash": "sha256-tH84iV2rbHewmH6FNWx3AaL/9S3Ili8r1INCgwmHqLQ=",
-        "owner": "CHN-beta",
-        "repo": "antigravity-route",
-        "rev": "b92f349b5e6d32fc07766595ae28cf9d3dc711a2",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "repo": "antigravity-route",
-        "type": "github"
-      }
-    },
     "asmroner": {
       "flake": false,
       "locked": {
@@ -1564,7 +1548,6 @@
     },
     "root": {
       "inputs": {
-        "antigravity-route": "antigravity-route",
         "asmroner": "asmroner",
         "blog": "blog",
         "brokenaxes": "brokenaxes",

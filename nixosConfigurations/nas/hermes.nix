@@ -8,24 +8,30 @@
     services = {
       hermes-agent = {
         enable = true;
-        settings = {
-          memory.provider = "hindsight";
-          model = {
-            default = "antigravity-gemini-3.1-pro";
-            provider = "gemini";
-            base_url = "http://127.0.0.1:8999/v1beta/generativelanguage.googleapis.com/..";
-          };
-          gateway.platforms = {
-            api_server = {
-              enabled = true;
-              extra = {
-                port = 9090;
-                host = "127.0.0.1";
-              };
+        configFile = pkgs.writeText "config.yaml" (
+          builtins.toJSON {
+            memory.provider = "hindsight";
+            model = {
+              default = "gemini-3.7-flash-high";
+              provider = "cliproxyapi";
             };
-            matrix.enabled = true;
-          };
-        };
+            providers.cliproxyapi = {
+              base_url = "https://cliproxyapi.chn.moe/v1";
+              key_env = "CLIPROXYAPI_API_KEY";
+              system_prompt_mode = "user";
+            };
+            gateway.platforms = {
+              api_server = {
+                enabled = true;
+                extra = {
+                  port = 9090;
+                  host = "127.0.0.1";
+                };
+              };
+              matrix.enabled = true;
+            };
+          }
+        );
         extraDependencyGroups = [
           "messaging"
           "matrix"
@@ -53,7 +59,6 @@
               inherit (config.nixos.system.sops) placeholder;
             in
             ''
-              GEMINI_API_KEY=${placeholder."hermes/gemini"}
               TELEGRAM_BOT_TOKEN=${placeholder."hermes/tgbot"}
               TELEGRAM_ALLOWED_USERS=${placeholder."telegram/user/chn"}
               API_SERVER_KEY=${placeholder."hermes/api_server_token"}
@@ -70,10 +75,10 @@
               HINDSIGHT_API_URL=https://hindsight.chn.moe
               HINDSIGHT_API_KEY=${placeholder."hindsight/password"}
               HINDSIGHT_BANK_ID=chn
+              CLIPROXYAPI_API_KEY=${placeholder."opencode/cliproxyapi"}
             '';
         };
         secrets = {
-          "hermes/gemini" = { };
           "hermes/tgbot" = { };
           "hermes/matrix_password" = { };
           "hermes/matrix_home" = { };
