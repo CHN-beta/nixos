@@ -4,6 +4,11 @@
   config = {
     services.cliproxyapi = {
       enable = true;
+      package = self.inputs.llm-agents.packages.x86_64-linux.cli-proxy-api.overrideAttrs (prev: {
+        postInstall = prev.postInstall + ''
+          ln -s cli-proxy-api $out/bin/cliproxyapi
+        '';
+      });
       managementPasswordFile = config.nixos.system.sops.secrets."cliproxyapi/management".path;
     };
     nixos = {
