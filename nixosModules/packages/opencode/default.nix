@@ -73,8 +73,8 @@
                   apiKey = "{file:${config.nixos.system.sops.secrets."opencode/cliproxyapi".path}}";
                 };
                 models = {
-                  "gpt-5.4" = {
-                    name = "GPT-5.4";
+                  "gpt-5.6-sol" = {
+                    name = "GPT-5.6 Sol";
                     limit = {
                       context = 400000;
                       output = 128000;
@@ -87,8 +87,22 @@
                       output = [ "text" ];
                     };
                   };
-                  "gpt-5.4-mini" = {
-                    name = "GPT-5.4 Mini";
+                  "gpt-5.6-terra" = {
+                    name = "GPT-5.6 Terra";
+                    limit = {
+                      context = 400000;
+                      output = 128000;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+                  "gpt-5.6-luna" = {
+                    name = "GPT-5.6 Luna";
                     limit = {
                       context = 400000;
                       output = 128000;
