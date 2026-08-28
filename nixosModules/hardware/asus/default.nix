@@ -13,6 +13,7 @@
         asusd = {
           enable = true;
           asusdConfig.source = ./asusd.ron;
+          fanCurvesConfig.source = ./fan_curves.ron;
         };
         supergfxd.enable = false;
       };
