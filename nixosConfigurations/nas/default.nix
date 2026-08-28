@@ -46,14 +46,11 @@
           };
         };
         initrd.sshd = { };
-        nixpkgs.march = "alderlake";
+        nixpkgs.march = "znver4";
         kernel.patches = [ "btrfs" ];
         binfmt = { };
       };
-      hardware = {
-        gpu.type = [ "intel" ];
-        ugreen = { };
-      };
+      hardware.gpu.type = [ "amd" ];
       services = {
         sshd = { };
         xray.client.coredns = {
