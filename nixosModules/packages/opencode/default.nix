@@ -137,6 +137,25 @@
                   };
                 };
               };
+              ollama = {
+                options.baseURL = "https://ollama.chn.moe/v1";
+                models = {
+                  "hf.co/unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_M" = {
+                    name = "Qwen3.8 27B (UD-Q4_K_M)";
+                    limit = {
+                      context = 262144;
+                      output = 131072;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+                };
+              };
             };
             plugin = [
               "@mohak34/opencode-notifier@0.2.8"
