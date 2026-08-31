@@ -43,6 +43,7 @@ let
     ];
     "pc.ts" = [
       "nix-store"
+      "ollama"
     ];
     "nas.ts" = [
       "ssh.git"

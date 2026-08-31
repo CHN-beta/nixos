@@ -155,7 +155,6 @@
             }
           ];
         };
-        ollama = { };
         podman = { };
         ananicy = { };
         kvm = { };
