@@ -3,7 +3,7 @@
   services.frigate = {
     enable = true;
     hostname = "frigate.chn.moe";
-    vaapiDriver = "iHD";
+    vaapiDriver = "radeonsi";
     checkConfig = false;
     settings = {
       mqtt.enabled = false;
@@ -59,12 +59,7 @@
           };
         };
       };
-      detectors = {
-        ov = {
-          type = "openvino";
-          device = "GPU";
-        };
-      };
+      detectors.cpu.type = "cpu";
       model = {
         model_type = "yolo-generic";
         width = 320;
