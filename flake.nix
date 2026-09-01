@@ -64,6 +64,21 @@
       url = "github:benjaminkitt/nix-cliproxyapi";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    pyproject-nix = {
+      url = "github:pyproject-nix/pyproject.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    uv2nix = {
+      url = "github:pyproject-nix/uv2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+    };
+    pyproject-build-systems = {
+      url = "github:pyproject-nix/build-system-pkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.pyproject-nix.follows = "pyproject-nix";
+      inputs.uv2nix.follows = "uv2nix";
+    };
 
     misskey = {
       url = "git+https://github.com/CHN-beta/misskey?ref=chn-mod&submodules=1";
@@ -224,6 +239,10 @@
     };
     ghostty-cursor-shaders = {
       url = "github:sahaj-b/ghostty-cursor-shaders";
+      flake = false;
+    };
+    mcp-server-qdrant = {
+      url = "github:qdrant/mcp-server-qdrant";
       flake = false;
     };
   };

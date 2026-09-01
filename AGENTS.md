@@ -56,7 +56,8 @@ When asked to package new software (especially Python packages), adhere to the f
 1. **Directory Structure**: Place new package expressions (e.g., `my-package.nix`) inside `overlay/packages/`.
 2. **Registration**: 
    - Standard packages should be instantiated in `overlay/packages/default.nix` using `pkgs.callPackage`.
-   - **Python Packages** MUST be placed inside the `pythonOverlay = python3Packages: { ... }` block. Use `python3Packages.callPackage`.
+   - **Python Libraries** that are imported by other Python packages MUST be placed inside the `pythonOverlay = python3Packages: { ... }` block. Use `python3Packages.callPackage`.
+   - **Python Terminal Applications** whose primary output is an executable command MUST be registered as standard packages with `pkgs.callPackage`, not inside `pythonOverlay`. This includes self-contained application environments built with `uv2nix`.
 3. **Source Management**:
    - Prefer using flake inputs (`src = self.inputs.foo;` or `self.src.foo`) if the source is managed at the flake level.
    - If fetching directly from GitHub within the `.nix` file, use `fetchFromGitHub` and provide a proper SRI base32 hash (`sha256 = "..."`).

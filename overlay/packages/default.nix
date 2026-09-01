@@ -195,6 +195,15 @@ rec {
   };
   dockerhub-mcp = pkgs.callPackage ./dockerhub-mcp.nix { src = self.src.dockerhub-mcp; };
   translate-mcp = pkgs.callPackage ./translate-mcp.nix { };
+  mcp-server-qdrant = pkgs.callPackage ./mcp-server-qdrant.nix {
+    python = pkgs.python313;
+    src = self.inputs.mcp-server-qdrant;
+    inherit (self.inputs)
+      uv2nix
+      pyproject-nix
+      pyproject-build-systems
+      ;
+  };
 
   fromYaml =
     content:
