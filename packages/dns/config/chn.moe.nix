@@ -58,6 +58,7 @@ let
       "wechat"
       "hindsight"
       "cliproxyapi"
+      "qdrant"
     ];
     vps10 = [
       "initrd.vps10"
