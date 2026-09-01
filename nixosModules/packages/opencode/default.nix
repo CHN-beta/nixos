@@ -202,7 +202,7 @@
                   (lib.getExe self.inputs.llm-agents.packages.x86_64-linux.agent-browser)
                   "mcp"
                   "--tools"
-                  "all"
+                  "core,tabs"
                 ];
               };
             };
