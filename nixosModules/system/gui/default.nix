@@ -154,48 +154,85 @@
           };
         };
         nixos.user.sharedModules = [
-          (hmInputs: {
-            config = {
-              services.voxtype = {
-                enable = true;
-                package = pkgs.voxtype-onnx;
-                settings = {
-                  audio = {
-                    device = "default";
-                    feedback.enabled = true;
-                    max_duration_secs = 60;
-                    sample_rate = 16000;
-                  };
-                  engine = "sensevoice";
-                  hotkey.enabled = false;
-                  output = {
-                    fallback_to_clipboard = true;
-                    mode = "clipboard";
-                    notification = {
-                      on_recording_start = false;
-                      on_recording_stop = false;
-                      on_transcription = false;
+          (
+            hmInputs:
+            let
+              voxtypePostProcess = pkgs.writeShellApplication {
+                name = "voxtype-post-process";
+                runtimeInputs = with pkgs; [
+                  curl
+                  jq
+                ];
+                text = ''
+                  input=$(cat)
+                  response=$(jq -n --arg input "$input" '{
+                    model: "hf.co/unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_M",
+                    messages: [
+                      {
+                        role: "system",
+                        content: "Polish speech-to-text transcripts in their original language. Correct recognition errors, grammar, punctuation, and formatting; remove filler words and repetitions without changing the meaning. Preserve technical terms, commands, code, paths, and URLs exactly. Output only the polished text, without quotes, explanations, markdown fences, or emojis."
+                      },
+                      { role: "user", content: $input }
+                    ],
+                    stream: false,
+                    think: false,
+                    options: { temperature: 0.1 }
+                  }' | curl --fail --silent --show-error --max-time 110 \
+                    --header 'Content-Type: application/json' \
+                    --data-binary @- \
+                    https://ollama.chn.moe/api/chat)
+
+                  jq --exit-status --raw-output '.message.content | select(type == "string" and length > 0)' <<< "$response"
+                '';
+              };
+            in
+            {
+              config = {
+                services.voxtype = {
+                  enable = true;
+                  package = pkgs.voxtype-onnx;
+                  settings = {
+                    audio = {
+                      device = "default";
+                      feedback.enabled = true;
+                      max_duration_secs = 60;
+                      sample_rate = 16000;
                     };
-                    type_delay_ms = 50;
+                    engine = "sensevoice";
+                    hotkey.enabled = false;
+                    output = {
+                      fallback_to_clipboard = true;
+                      mode = "clipboard";
+                      notification = {
+                        on_recording_start = false;
+                        on_recording_stop = false;
+                        on_transcription = false;
+                      };
+                      post_process = {
+                        command = lib.getExe voxtypePostProcess;
+                        timeout_ms = 30000;
+                      };
+                      type_delay_ms = 50;
+                    };
+                    sensevoice = {
+                      language = "auto";
+                      model = "small";
+                      use_itn = true;
+                    };
+                    state_file = "auto";
                   };
-                  sensevoice = {
-                    language = "auto";
-                    model = "small";
-                    use_itn = true;
+                };
+                systemd.user.services.voxtype = {
+                  Unit = {
+                    PartOf = lib.mkForce [ "graphical-session.target" ];
+                    After = lib.mkForce [ "graphical-session.target" ];
                   };
-                  state_file = "auto";
+                  Install.WantedBy = lib.mkForce [ "graphical-session.target" ];
                 };
+                xdg.configFile."niri/config.kdl".source = ./config.kdl;
               };
-              systemd.user.services.voxtype = {
-                Unit = {
-                  PartOf = lib.mkForce [ "graphical-session.target" ];
-                  After = lib.mkForce [ "graphical-session.target" ];
-                };
-                Install.WantedBy = lib.mkForce [ "graphical-session.target" ];
-              };
-              xdg.configFile."niri/config.kdl".source = ./config.kdl;
-            };
-          })
+            }
+          )
         ];
         systemd.user.services = {
           # use polkit from dms
