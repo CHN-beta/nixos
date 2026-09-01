@@ -194,6 +194,7 @@ rec {
     rpm = pkgs.pkgs2411.rpm;
   };
   dockerhub-mcp = pkgs.callPackage ./dockerhub-mcp.nix { src = self.src.dockerhub-mcp; };
+  translate-mcp = pkgs.callPackage ./translate-mcp.nix { };
 
   fromYaml =
     content:

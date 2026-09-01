@@ -1,0 +1,28 @@
+server:
+  transport: stdio
+
+logging:
+  format: json
+  level: info
+  mask_text: true
+
+cache:
+  default_ttl: 24h
+  l1:
+    type: memory
+    max_entries: 10000
+
+providers:
+  openai:
+    base_url: https://cliproxyapi.chn.moe/v1
+    api_key: ${CLIPROXYAPI_API_KEY}
+    default_model: gemini-3.7-flash-high
+
+translation:
+  default_provider: openai
+  max_text_length: 20000
+  max_batch_items: 50
+  request_timeout: 120s
+  fallback_chain:
+    - openai
+  glossary_preprocessing: true

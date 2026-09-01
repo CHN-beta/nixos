@@ -18,6 +18,7 @@
         export HINDSIGHT_BANK_ID=chn
         export OPENALEX_MAILTO=chn@chn.moe
         export MINERU_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/mineru".path})
+        export CLIPROXYAPI_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/cliproxyapi".path})
         exec ${lib.getExe self.inputs.llm-agents.packages.x86_64-linux.opencode} "$@"
       '';
     in
@@ -178,6 +179,16 @@
               nixos = {
                 type = "local";
                 command = [ (lib.getExe pkgs.mcp-nixos) ];
+              };
+              translate = {
+                type = "local";
+                command = [
+                  (lib.getExe pkgs.localPkgs.translate-mcp)
+                  "-transport"
+                  "stdio"
+                  "-config"
+                  "${./translate-mcp.yaml}"
+                ];
               };
               github = {
                 type = "remote";
