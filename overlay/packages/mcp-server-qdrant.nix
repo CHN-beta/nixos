@@ -16,4 +16,11 @@ let
     ]
   );
 in
-pythonSet.mkVirtualEnv "mcp-server-qdrant-0.8.1" workspace.deps.default
+(pythonSet.mkVirtualEnv "mcp-server-qdrant-0.8.1" workspace.deps.default).overrideAttrs {
+  meta = {
+    description = "Official MCP server for Qdrant";
+    homepage = "https://github.com/qdrant/mcp-server-qdrant";
+    license = lib.licenses.asl20;
+    mainProgram = "mcp-server-qdrant";
+  };
+}

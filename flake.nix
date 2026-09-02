@@ -242,7 +242,7 @@
       flake = false;
     };
     mcp-server-qdrant = {
-      url = "github:qdrant/mcp-server-qdrant";
+      url = "github:CHN-beta/mcp-server-qdrant";
       flake = false;
     };
   };

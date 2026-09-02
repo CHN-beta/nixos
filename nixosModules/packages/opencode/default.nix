@@ -19,6 +19,8 @@
         export OPENALEX_MAILTO=chn@chn.moe
         export MINERU_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/mineru".path})
         export CLIPROXYAPI_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/cliproxyapi".path})
+        export QDRANT_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/qdrant".path})
+        export OPENAI_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/siliconflow".path})
         exec ${lib.getExe self.inputs.llm-agents.packages.x86_64-linux.opencode} "$@"
       '';
     in
@@ -37,6 +39,16 @@
           key = "hindsight/password";
         };
         "hindsight/password" = { };
+        "opencode/qdrant" = {
+          owner = "chn";
+          key = "qdrant/api_key";
+        };
+        "opencode/siliconflow" = {
+          owner = "chn";
+          key = "hindsight/siliconflow";
+        };
+        "hindsight/siliconflow" = { };
+        "qdrant/api_key" = { };
       };
       home-manager.users.chn.config = {
         home.packages = [
@@ -179,6 +191,20 @@
               nixos = {
                 type = "local";
                 command = [ (lib.getExe pkgs.mcp-nixos) ];
+              };
+              qdrant = {
+                type = "local";
+                command = [ (lib.getExe pkgs.localPkgs.mcp-server-qdrant) ];
+                timeout = 300000;
+                environment = {
+                  QDRANT_URL = "https://qdrant.chn.moe:443";
+                  EMBEDDING_PROVIDER = "openai";
+                  EMBEDDING_MODEL = "BAAI/bge-m3";
+                  OPENAI_BASE_URL = "https://api.siliconflow.cn/v1";
+                  OPENAI_VECTOR_SIZE = "1024";
+                  TOOL_STORE_DESCRIPTION = "Store information in a specified Qdrant collection for semantic retrieval. Use this only when the user explicitly asks to use Qdrant; otherwise use Hindsight for memory.";
+                  TOOL_FIND_DESCRIPTION = "Search a specified Qdrant collection by meaning and return relevant information with metadata. Use this only when the user explicitly asks to use Qdrant; otherwise use Hindsight for memory retrieval.";
+                };
               };
               translate = {
                 type = "local";
