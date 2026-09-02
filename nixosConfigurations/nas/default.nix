@@ -46,7 +46,10 @@
           };
         };
         initrd.sshd = { };
-        nixpkgs.march = "znver4";
+        nixpkgs = {
+          march = "znver4";
+          rocm.targets = [ "gfx1103" ];
+        };
         kernel.patches = [ "btrfs" ];
         binfmt = { };
       };
@@ -58,8 +61,14 @@
           hosts."git.chn.moe" = "127.0.0.1";
         };
         beesd = {
-          "/" = { threads = 4; hashTableSizeMB = 10 * 128; };
-          "/nix/backup/nix" = { threads = 4; hashTableSizeMB = 3 * 128; };
+          "/" = {
+            threads = 4;
+            hashTableSizeMB = 10 * 128;
+          };
+          "/nix/backup/nix" = {
+            threads = 4;
+            hashTableSizeMB = 3 * 128;
+          };
         };
         postgresql.mountFrom = "ssd";
         mariadb.mountFrom = "ssd";
