@@ -22,7 +22,7 @@
             HINDSIGHT_API_DATABASE_URL=postgresql://hindsight:${
               placeholder."postgresql/hindsight"
             }@host.containers.internal:5432/hindsight
-            HINDSIGHT_API_LLM_API_KEY=${placeholder."hindsight/siliconflow"}
+            HINDSIGHT_API_LLM_API_KEY=${placeholder."opencode/cliproxyapi"}
             HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY=${placeholder."hindsight/siliconflow"}
             HINDSIGHT_API_RERANKER_SILICONFLOW_API_KEY=${placeholder."hindsight/siliconflow"}
             HINDSIGHT_API_TENANT_API_KEY=${placeholder."hindsight/password"}
@@ -32,6 +32,7 @@
         secrets = {
           "hindsight/siliconflow" = { };
           "hindsight/password" = { };
+          "opencode/cliproxyapi" = { };
         };
       };
     };
@@ -49,8 +50,8 @@
       environmentFiles = [ config.nixos.system.sops.templates."hindsight.env".path ];
       environment = {
         HINDSIGHT_API_LLM_PROVIDER = "openai";
-        HINDSIGHT_API_LLM_BASE_URL = "https://api.siliconflow.cn/v1";
-        HINDSIGHT_API_LLM_MODEL = "deepseek-ai/DeepSeek-V4-Flash";
+        HINDSIGHT_API_LLM_BASE_URL = "https://cliproxyapi.chn.moe/v1";
+        HINDSIGHT_API_LLM_MODEL = "gemini-3.8-flash-high";
 
         HINDSIGHT_API_EMBEDDINGS_PROVIDER = "openai";
         HINDSIGHT_API_EMBEDDINGS_OPENAI_BASE_URL = "https://api.siliconflow.cn/v1";
