@@ -25,7 +25,10 @@
       timers.systemd-tmpfiles-clean.enable = false;
       coredump = {
         enable = true;
-        settings.Coredump.Storage = "none";
+        settings.Coredump = {
+          Storage = "none";
+          ProcessSizeMax = "2G";
+        };
       };
       # seems useless
       shutdownRamfs.enable = false;
