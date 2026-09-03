@@ -175,6 +175,9 @@
               "@vectorize-io/opencode-hindsight"
             ];
             autoupdate = false;
+            experimental = {
+              disable_paste_summary = true;
+            };
             mcp = {
               dockerhub = {
                 type = "local";
