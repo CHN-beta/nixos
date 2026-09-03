@@ -297,6 +297,22 @@ in
     };
   };
   models = {
+    bge-m3 = pkgs.fetchgit {
+      url = "https://huggingface.co/BAAI/bge-m3";
+      rev = "5617a9f61b028005a4858fdac845db406aefb181";
+      fetchLFS = true;
+      sparseCheckout = [
+        "colbert_linear.pt"
+        "config.json"
+        "pytorch_model.bin"
+        "sentencepiece.bpe.model"
+        "sparse_linear.pt"
+        "special_tokens_map.json"
+        "tokenizer.json"
+        "tokenizer_config.json"
+      ];
+      hash = "sha256-5NQXk8zd9Cf0SC5fPnAlmOQawB3O7+y7FxQfrnHDvaY=";
+    };
     embed = pkgs.fetchurl {
       url = "https://huggingface.co/ggml-org/bge-m3-Q8_0-GGUF/resolve/main/bge-m3-q8_0.gguf";
       hash = "sha256-qkc9UfRRoi8Pzzm6MzDBS+04o4VxKxETRA9p30BHoXM=";

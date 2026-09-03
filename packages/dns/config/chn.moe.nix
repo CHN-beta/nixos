@@ -59,6 +59,7 @@ let
       "hindsight"
       "cliproxyapi"
       "qdrant"
+      "bgem3"
     ];
     vps10 = [
       "initrd.vps10"

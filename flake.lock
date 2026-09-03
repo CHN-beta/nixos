@@ -816,11 +816,11 @@
     "mcp-server-qdrant": {
       "flake": false,
       "locked": {
-        "lastModified": 1788320606,
-        "narHash": "sha256-dBfsaBAKvSdxY+aNseMLRnEUKWCZRLJgWB8UIcr6O14=",
+        "lastModified": 1788407132,
+        "narHash": "sha256-9QsYLikVWoXGn27Xzo9qo1dKfMGIyhj/+2Yi4UYR35U=",
         "owner": "CHN-beta",
         "repo": "mcp-server-qdrant",
-        "rev": "f4a5176761ea0238caed1d6efaafd4faaeb3fb72",
+        "rev": "eb80f6760a95f0144a65664a9f622756ecd136b5",
         "type": "github"
       },
       "original": {

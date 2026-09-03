@@ -161,6 +161,7 @@ rec {
   lsf = pkgs.callPackage ./lsf.nix { src = self.src.lsf; };
   asmroner = pkgs.callPackage ./asmroner.nix { src = self.inputs.asmroner; };
   pythonOverlay = python3Packages: {
+    flagembedding = python3Packages.callPackage ./flagembedding.nix { };
     mineru-mcp = python3Packages.callPackage ./mineru-mcp.nix { };
     pyalex = python3Packages.callPackage ./pyalex.nix { };
     alex-mcp = python3Packages.callPackage ./alex-mcp.nix { };
@@ -195,6 +196,7 @@ rec {
   };
   dockerhub-mcp = pkgs.callPackage ./dockerhub-mcp.nix { src = self.src.dockerhub-mcp; };
   translate-mcp = pkgs.callPackage ./translate-mcp.nix { };
+  bge-m3-server = pkgs.callPackage ./bge-m3-server { };
   mcp-server-qdrant = pkgs.callPackage ./mcp-server-qdrant.nix {
     python = pkgs.python313;
     src = self.inputs.mcp-server-qdrant;

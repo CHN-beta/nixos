@@ -198,10 +198,9 @@
                 timeout = 300000;
                 environment = {
                   QDRANT_URL = "https://qdrant.chn.moe:443";
-                  EMBEDDING_PROVIDER = "openai";
+                  EMBEDDING_PROVIDER = "bge-m3";
                   EMBEDDING_MODEL = "BAAI/bge-m3";
-                  OPENAI_BASE_URL = "https://api.siliconflow.cn/v1";
-                  OPENAI_VECTOR_SIZE = "1024";
+                  BGE_M3_BASE_URL = "https://bgem3.chn.moe";
                   TOOL_STORE_DESCRIPTION = "Store information in a specified Qdrant collection for semantic retrieval. Use this only when the user explicitly asks to use Qdrant; otherwise use Hindsight for memory.";
                   TOOL_FIND_DESCRIPTION = "Search a specified Qdrant collection by meaning and return relevant information with metadata. Use this only when the user explicitly asks to use Qdrant; otherwise use Hindsight for memory retrieval.";
                 };
