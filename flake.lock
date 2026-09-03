@@ -656,11 +656,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783738664,
-        "narHash": "sha256-90ZdU6sfg0GXkF8FrSNexLdQRQ4WCNDPAdXDewba118=",
+        "lastModified": 1788459922,
+        "narHash": "sha256-6ENqohNLInw6aspiIy0a0ddwIoEwq1yUW3dVfnYCdac=",
         "owner": "CHN-beta",
         "repo": "home-manager",
-        "rev": "f993c919d30d5b576170ae7666db7debbf954b1f",
+        "rev": "82af48f450e0b0604c82843646e00c3fc0aeed9e",
         "type": "github"
       },
       "original": {
