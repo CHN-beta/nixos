@@ -134,8 +134,8 @@
                       output = [ "text" ];
                     };
                   };
-                  "gemini-3.7-flash-high" = {
-                    name = "Gemini 3.7 Flash High";
+                  "gemini-3.8-flash-high" = {
+                    name = "Gemini 3.8 Flash High";
                     limit = {
                       context = 400000;
                       output = 128000;
