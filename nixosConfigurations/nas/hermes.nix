@@ -1,6 +1,8 @@
 {
   config,
   pkgs,
+  lib,
+  self,
   ...
 }:
 {
@@ -29,6 +31,57 @@
                 };
               };
             };
+            mcp_servers = {
+              dockerhub = {
+                command = lib.getExe pkgs.localPkgs.dockerhub-mcp;
+              };
+              openalex = {
+                command = lib.getExe pkgs.python3Packages.alex-mcp;
+                env.OPENALEX_MAILTO = "chn@chn.moe";
+              };
+              mineru = {
+                command = lib.getExe pkgs.python3Packages.mineru-mcp;
+                env.MINERU_API_KEY = "\${MINERU_API_KEY}";
+              };
+              nixos = {
+                command = lib.getExe pkgs.mcp-nixos;
+              };
+              qdrant = {
+                command = lib.getExe pkgs.localPkgs.mcp-server-qdrant;
+                timeout = 300;
+                env = {
+                  QDRANT_URL = "https://qdrant.chn.moe:443";
+                  QDRANT_API_KEY = "\${QDRANT_API_KEY}";
+                  EMBEDDING_PROVIDER = "bge-m3";
+                  EMBEDDING_MODEL = "BAAI/bge-m3";
+                  BGE_M3_BASE_URL = "https://bgem3.chn.moe";
+                  TOOL_STORE_DESCRIPTION = "Store information in a specified Qdrant collection for semantic retrieval. Use this only when the user explicitly asks to use Qdrant; otherwise use Hindsight for memory.";
+                  TOOL_FIND_DESCRIPTION = "Search a specified Qdrant collection by meaning and return relevant information with metadata. Use this only when the user explicitly asks to use Qdrant; otherwise use Hindsight for memory retrieval.";
+                };
+              };
+              translate = {
+                command = lib.getExe pkgs.localPkgs.translate-mcp;
+                args = [
+                  "-transport"
+                  "stdio"
+                  "-config"
+                  "${../../nixosModules/packages/opencode/translate-mcp.yaml}"
+                ];
+                env.CLIPROXYAPI_API_KEY = "\${CLIPROXYAPI_API_KEY}";
+              };
+              agent-browser = {
+                command = lib.getExe self.inputs.llm-agents.packages.x86_64-linux.agent-browser;
+                args = [
+                  "mcp"
+                  "--tools"
+                  "core,tabs"
+                ];
+              };
+              github = {
+                url = "https://api.githubcopilot.com/mcp/";
+                headers.Authorization = "Bearer \${MCP_GITHUB_TOKEN}";
+              };
+            };
           }
         );
         extraDependencyGroups = [
@@ -37,13 +90,12 @@
         environmentFiles = [ config.nixos.system.sops.templates."hermes.env".path ];
         # authFile = ./auth.json;
         # authFileForceOverwrite = true;
-        # mcpServers = {};
         addToSystemPackages = true;
         createUser = false;
       };
     };
     systemd.services.hermes-agent.restartTriggers = [
-      (builtins.toJSON config.services.hermes-agent.settings)
+      (builtins.readFile config.services.hermes-agent.configFile)
       config.nixos.system.sops.templates."hermes.env".content
     ];
     systemd.services.hermes-dashboard = {
@@ -98,12 +150,18 @@
               HERMES_DASHBOARD_BASIC_AUTH_USERNAME=admin
               HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=${placeholder."hermes/dashboard"}
               HERMES_DASHBOARD_PUBLIC_URL=https://hermes.chn.moe
+              MINERU_API_KEY=${placeholder."opencode/mineru"}
+              QDRANT_API_KEY=${placeholder."qdrant/api_key"}
+              MCP_GITHUB_TOKEN=${placeholder."opencode/github"}
             '';
         };
         secrets = {
           "hermes/api_server_token".owner = "chn";
           "hermes/dashboard" = { };
           "hindsight/password" = { };
+          "opencode/mineru" = { };
+          "qdrant/api_key" = { };
+          "opencode/github" = { };
         };
       };
     };
