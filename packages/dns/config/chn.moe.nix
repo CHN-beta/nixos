@@ -60,6 +60,7 @@ let
       "cliproxyapi"
       "qdrant"
       "bgem3"
+      "chat"
     ];
     vps10 = [
       "initrd.vps10"
