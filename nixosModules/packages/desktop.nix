@@ -86,6 +86,7 @@
           qbittorrent
           # editor
           typora
+          marktext
           standardnotes
           obsidian
           # news
