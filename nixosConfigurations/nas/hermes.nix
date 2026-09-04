@@ -28,13 +28,10 @@
                   host = "127.0.0.1";
                 };
               };
-              matrix.enabled = true;
             };
           }
         );
         extraDependencyGroups = [
-          "messaging"
-          "matrix"
           "hindsight"
         ];
         environmentFiles = [ config.nixos.system.sops.templates."hermes.env".path ];
@@ -91,18 +88,8 @@
               inherit (config.nixos.system.sops) placeholder;
             in
             ''
-              TELEGRAM_BOT_TOKEN=${placeholder."hermes/tgbot"}
-              TELEGRAM_ALLOWED_USERS=${placeholder."telegram/user/chn"}
               API_SERVER_KEY=${placeholder."hermes/api_server_token"}
               HERMES_MEDIA_ALLOW_DIRS=/var/lib/hermes/workspace
-              MATRIX_HOMESERVER=https://matrix.chn.moe
-              MATRIX_USER_ID=@hermes:chn.moe
-              MATRIX_PASSWORD=${placeholder."hermes/matrix_password"}
-              MATRIX_ALLOWED_USERS=@chn:chn.moe
-              MATRIX_REQUIRE_MENTION=false
-              MATRIX_ENCRYPTION=true
-              MATRIX_DEVICE_ID=HERMES_BOT
-              MATRIX_HOME_ROOM=${placeholder."hermes/matrix_home"}
               HINDSIGHT_MODE=cloud
               HINDSIGHT_API_URL=https://hindsight.chn.moe
               HINDSIGHT_API_KEY=${placeholder."hindsight/password"}
@@ -114,12 +101,8 @@
             '';
         };
         secrets = {
-          "hermes/tgbot" = { };
-          "hermes/matrix_password" = { };
-          "hermes/matrix_home" = { };
-          "hermes/dashboard" = { };
-          "telegram/user/chn" = { };
           "hermes/api_server_token".owner = "chn";
+          "hermes/dashboard" = { };
           "hindsight/password" = { };
         };
       };
