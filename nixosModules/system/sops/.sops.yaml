@@ -12,7 +12,6 @@ keys: # cat /etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age
   - &srv2-node1 age1l4stuz0vr7gs7pqwjrmezam44702jp2vmqaqyxw0l0r42kf9updq4dfhrw
   - &srv2-node2 age1k2y0vm4tmf88vg6zfed8q8zv544g4u0l5ry4kmm4hmzslvj5vdxskhat2n
   - &pe age10ud96nzj0wu6s3g89md939md4dyh9ynt9zgnxn0njqx79d9ydpessltcma
-  - &ddml-dev-vm age1stppe3xkxqgte8n3j9c3dvfwgssl4u9k8zpnrjycksst07emnf7smp357x
 creation_rules:
   - path_regex: '^default\.yaml$'
     key_groups:
@@ -52,5 +51,3 @@ creation_rules:
     key_groups: [{ age: [ *chn, *srv2-node2 ] }]
   - path_regex: '^devices/pe\.yaml$'
     key_groups: [{ age: [ *chn, *pe ] }]
-  - path_regex: '^devices/ddml\-dev\-vm\.yaml$'
-    key_groups: [{ age: [ *chn, *ddml-dev-vm ] }]
