@@ -21,6 +21,7 @@ let
     vps10 = "ojNWDzYxt9VhWT5rDhiMOiFALzabJ0URg+tB5yfnEUN";
     pe = "h09nsWrcO55qndZmayePfWZjgwjv2aXbKnpFE9lUsfP";
     ddml-dev-vm = "grPTW5etegFdONUYWhhkuRyp+i+h+5LuGNV4eiHiA1H";
+    ddml-vm = "h317Y+NcMAXWPQlTCAurdU+mTdIAs9aDZc+2mrChFyK";
   };
   # 描述可以直接的设备之间的连接（图上的路径）。若一个设备可以主动接受连接，则设置它接受连接的 ip；否则设置为 null
   # 因为一条条路径描述起来比较麻烦，所以这里一次描述多条
@@ -45,6 +46,14 @@ let
         pe = null;
       };
       distance = 10;
+    }
+    # 运行在nas上的虚拟机
+    {
+      device = {
+        nas = "192.168.122.1";
+        ddml-vm = null;
+      };
+      distance = 1;
     }
     # 国内网络
     {

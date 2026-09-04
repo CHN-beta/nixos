@@ -12,4 +12,5 @@
   srv2-node2 = 11;
   pe = 12;
   ddml-dev-vm = 13;
+  ddml-vm = 14;
 }
