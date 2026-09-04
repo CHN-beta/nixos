@@ -65,7 +65,7 @@
                   "-transport"
                   "stdio"
                   "-config"
-                  "${../../nixosModules/packages/opencode/translate-mcp.yaml}"
+                  "${self}/nixosModules/packages/opencode/translate-mcp.yaml"
                 ];
                 env.CLIPROXYAPI_API_KEY = "\${CLIPROXYAPI_API_KEY}";
               };
