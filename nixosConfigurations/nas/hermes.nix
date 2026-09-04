@@ -75,7 +75,7 @@
               inherit (config.services.hermes-agent) extraDependencyGroups extraPythonPackages;
             };
           in
-          "${hermesPkg}/bin/hermes dashboard --no-open --host 127.0.0.1 --port 9119";
+          "${hermesPkg}/bin/hermes dashboard --no-open --host 0.0.0.0 --port 9119";
         Restart = "always";
         RestartSec = 5;
       };
