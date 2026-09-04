@@ -8,6 +8,7 @@
         WEBUI_URL = "https://chat.chn.moe";
         ADMIN_EMAIL = "chn@chn.moe";
         OPENAI_API_BASE_URLS = "https://cliproxyapi.chn.moe/v1;http://127.0.0.1:9090/v1";
+        DEFAULT_MODELS = "hermes-agent";
         CORS_ALLOW_ORIGIN = "https://chat.chn.moe";
         TASK_MODEL = "gemini-3.8-flash-high";
         TASK_MODEL_EXTERNAL = "gemini-3.8-flash-high";
