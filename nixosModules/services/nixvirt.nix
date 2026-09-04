@@ -222,7 +222,7 @@ inputs: {
               # do not use it to define disk, since it is not declartive
               # create disk manually, by:
               # sudo qemu-img create -f raw /var/lib/libvirt/images/test.img 20G
-              # sudo chown qemu-libvirt:qemu-libvirt /var/lib/libvirt/images/test.img
+              # sudo chown qemu-libvirtd:qemu-libvirtd /var/lib/libvirt/images/test.img
               # sudo chmod 600 /var/lib/libvirt/images/test.img
               pools = [ ];
             };
@@ -271,10 +271,10 @@ inputs: {
                       loader = {
                         readonly = true;
                         type = "pflash";
-                        path = "/run/libvirt/nix-ovmf/OVMF_CODE.fd";
+                        path = "/run/libvirt/nix-ovmf/edk2-x86_64-code.fd";
                       };
                       nvram = {
-                        template = "/run/libvirt/nix-ovmf/OVMF_VARS.fd";
+                        template = "/run/libvirt/nix-ovmf/edk2-i386-vars.fd";
                         path = "/var/lib/libvirt/qemu/nvram/${n}_VARS.fd";
                         templateFormat = "raw";
                         format = "raw";
