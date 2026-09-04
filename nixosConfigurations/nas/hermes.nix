@@ -49,7 +49,39 @@
       (builtins.toJSON config.services.hermes-agent.settings)
       config.nixos.system.sops.templates."hermes.env".content
     ];
+    systemd.services.hermes-dashboard = {
+      description = "Hermes Agent Web Dashboard";
+      wantedBy = [ "multi-user.target" ];
+      after = [
+        "network.target"
+        "hermes-agent.service"
+      ];
+      wants = [ "hermes-agent.service" ];
+      restartTriggers = [
+        config.nixos.system.sops.templates."hermes.env".content
+      ];
+      environment = {
+        HOME = config.services.hermes-agent.stateDir;
+        HERMES_HOME = "${config.services.hermes-agent.stateDir}/.hermes";
+      };
+      serviceConfig = {
+        User = config.services.hermes-agent.user;
+        Group = config.services.hermes-agent.group;
+        WorkingDirectory = config.services.hermes-agent.workingDirectory;
+        EnvironmentFile = [ config.nixos.system.sops.templates."hermes.env".path ];
+        ExecStart =
+          let
+            hermesPkg = config.services.hermes-agent.package.override {
+              inherit (config.services.hermes-agent) extraDependencyGroups extraPythonPackages;
+            };
+          in
+          "${hermesPkg}/bin/hermes dashboard --no-open --host 127.0.0.1 --port 9119";
+        Restart = "always";
+        RestartSec = 5;
+      };
+    };
     nixos = {
+      services.nginx.https."hermes.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:9119";
       system.sops = {
         templates."hermes.env" = {
           owner = "hermes";
@@ -76,12 +108,16 @@
               HINDSIGHT_API_KEY=${placeholder."hindsight/password"}
               HINDSIGHT_BANK_ID=chn
               CLIPROXYAPI_API_KEY=${placeholder."opencode/cliproxyapi"}
+              HERMES_DASHBOARD_BASIC_AUTH_USERNAME=admin
+              HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=${placeholder."hermes/dashboard"}
+              HERMES_DASHBOARD_PUBLIC_URL=https://hermes.chn.moe
             '';
         };
         secrets = {
           "hermes/tgbot" = { };
           "hermes/matrix_password" = { };
           "hermes/matrix_home" = { };
+          "hermes/dashboard" = { };
           "telegram/user/chn" = { };
           "hermes/api_server_token".owner = "chn";
           "hindsight/password" = { };

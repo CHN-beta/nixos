@@ -89,6 +89,7 @@ hermes:
     api_server_token: ENC[AES256_GCM,data:f0gA0a11WVLmqyfKPithL7NVEkQ14uLD7JSvExlgAd8=,iv:ecpYwkqXIlxM2aFAzjLAP2sQd9Wmy1ykXuyYIGzmrxI=,tag:mZQGbd5oerqaKVd6fhFCdA==,type:str]
     matrix_password: ENC[AES256_GCM,data:aozsjBs2I7NLnC2Ou+DazGyyDzuD7NJtIxYS5aDYSc8=,iv:ObCKKLSdOlhjalU2gIy/wC2AAIF3safrR3+xFEuvhcQ=,tag:QHfNKyYax4wPrLQHZT75kQ==,type:str]
     matrix_home: ENC[AES256_GCM,data:QjxCjTKe+/M46yJlDy0Ocr+WQDPRTSvi1feX,iv:iwhRTqCHkhI+6sTvarlbl6vzvAI6E8MkhoWYhRMl24Q=,tag:4ZhQ4fjBoxdlc9AC2Dk7Cg==,type:str]
+    dashboard: ENC[AES256_GCM,data:laPV5IwZKMRvMawPiKK+2QGLwVRQhZhnTr6SKILQ2No=,iv:91EATxTL/q5przy2Vhm/DJQDRF4IXCqAML/HRoTIrZk=,tag:2gfjXwyBf3VJDyBY3pdR+g==,type:str]
 hindsight:
     siliconflow: ENC[AES256_GCM,data:nMEpRVCzFxjNvKPp7bWO4XOA9opHAPGDOqWZ0drr0a4kD65eJ26CJbC7qslv/yzlKE/i,iv:w+XBHXGQGMSs81NSVhH9vJJL0yEV8GtZXiB4r3wvqOk=,tag:4um29SIokSNMoWml5aKX3w==,type:str]
     password: ENC[AES256_GCM,data:juoIpieA/B89kJE+6C/KSGsjkNbAfYmTji9p8pxw76s=,iv:qYAS0eYksoyEfEzD1oWDmi9mAvk6olKWsowvmRNeFfE=,tag:+MkZ0Z6fyTL2JoHg7zsRIw==,type:str]
@@ -124,7 +125,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-09-04T10:13:39Z"
-    mac: ENC[AES256_GCM,data:aNYv9vmgrmAbJY0S+FQm1wVvUP9kJ2WQX0oDSy8SH+cvPssc6uU0Bxl+JMpcCs/5U+1I/yFiZHv0WFmwRxQvmAZPJLVlzYevjgZHAd37dUBfbgb7q/Al4BmyjamfaLE7M3c2smtEpoRMptjSWSM+b90YeXolwegjdF8ozYBz1GE=,iv:HJ4P+/kh6PD0NYzhtmW0/rGRhCLTecVLzMdY+46iEJ8=,tag:ayG/nIPdElMWn8dqjnTUvQ==,type:str]
+    lastmodified: "2026-09-04T10:36:00Z"
+    mac: ENC[AES256_GCM,data:NgRJIbxGNpbFVllZxhqxV7YKzQaXRzKnzvS/FrB+zrl2VeAXjtd/4/hk+oMrjRqYuvo9X9dQedB87iP64J2F/flnaIZoyJpIY1KX85ASHUFyAsxiBRRjE0jyuiuYLnTMdfMkDUM73p9vc55nXyPeQTES00J/72nn2Xo9Yls6qy0=,iv:sRlsP6noQDnkFUbW8A/5H0XzPSUXJ4/zLjJrAlY3YMc=,tag:OU43WcwkGSpFkBEKFB8dIA==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

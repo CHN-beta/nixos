@@ -61,6 +61,7 @@ let
       "qdrant"
       "bgem3"
       "chat"
+      "hermes"
     ];
     vps10 = [
       "initrd.vps10"
