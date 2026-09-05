@@ -31,13 +31,12 @@
           builtins.toJSON {
             memory.provider = "hindsight";
             model = {
-              default = "gemini-3.7-flash-high";
+              default = "gemini-3.8-flash-high";
               provider = "cliproxyapi";
             };
             providers.cliproxyapi = {
               base_url = "https://cliproxyapi.chn.moe/v1";
               key_env = "CLIPROXYAPI_API_KEY";
-              system_prompt_mode = "user";
             };
             gateway.platforms = {
               api_server = {
