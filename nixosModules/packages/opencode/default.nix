@@ -120,6 +120,20 @@
                       output = [ "text" ];
                     };
                   };
+                  "gpt-6-astra" = {
+                    name = "GPT-6 Astra";
+                    limit = {
+                      context = 400000;
+                      output = 128000;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
                   "gemini-3.1-pro-low" = {
                     name = "Gemini 3.1 Pro Low";
                     limit = {
