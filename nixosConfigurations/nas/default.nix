@@ -111,7 +111,10 @@
         };
         pppoe.interface = "enp2s0";
       };
-      packages.opencode = { };
+      packages = {
+        opencode = { };
+        desktopPython = { };
+      };
     };
   };
 }
