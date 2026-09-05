@@ -28,7 +28,12 @@ inputs: {
       inherit (inputs.config.nixos.services) smartd noisetorch;
     in
     inputs.lib.mkMerge [
-      (inputs.lib.mkIf (smartd != null) { services.smartd.enable = true; })
+      (inputs.lib.mkIf (smartd != null) {
+        services.smartd = {
+          enable = true;
+          defaults.monitored = "-a -U 198+";
+        };
+      })
       (inputs.lib.mkIf (noisetorch != null) { programs.noisetorch.enable = true; })
     ];
 }
