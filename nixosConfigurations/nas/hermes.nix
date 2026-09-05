@@ -29,6 +29,7 @@
         enable = true;
         configFile = pkgs.writeText "config.yaml" (
           builtins.toJSON {
+            terminal.cwd = config.services.hermes-agent.workingDirectory;
             memory.provider = "hindsight";
             model = {
               default = "gemini-3.8-flash-high";
