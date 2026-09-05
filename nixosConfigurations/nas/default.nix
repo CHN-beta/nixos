@@ -3,7 +3,10 @@
   imports = lib.findModules ./.;
   config = {
     nixos = {
-      model.private = true;
+      model = {
+        private = true;
+        variant = "server";
+      };
       system = {
         fileSystems = {
           mount = {
