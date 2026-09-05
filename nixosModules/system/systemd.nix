@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 {
   config = {
     services = {
@@ -8,6 +8,7 @@
         enable = true;
         enabledCollectors = [ "systemd" ];
       };
+      logind.settings.Login.HandlePowerKey = lib.mkIf (config.nixos.model.variant == "desktop") "suspend";
     };
     systemd = {
       settings.Manager = {
