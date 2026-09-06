@@ -143,6 +143,7 @@ let
               ];
             };
             pkgs2511 = "nixpkgs-2511";
+            pkgsUnstable = "nixpkgs-unstable";
           };
           packages =
             name:
