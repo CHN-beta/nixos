@@ -30,10 +30,6 @@
               type = lib.types.nullOr (
                 lib.types.submodule {
                   options = {
-                    text = lib.mkOption {
-                      type = lib.types.nonEmptyStr;
-                      default = "Restricted Content";
-                    };
                     users = lib.mkOption { type = lib.types.nonEmptyListOf lib.types.nonEmptyStr; };
                   };
                 }
@@ -262,7 +258,6 @@
                     let
                       inherit (site.value.global)
                         index
-                        detectAuth
                         charset
                         extraConfig
                         ;
@@ -277,7 +272,6 @@
                           else
                             [ ]
                         )
-                        (lib.optionals (detectAuth != null) [ ''auth_basic "${detectAuth.text}"'' ])
                         (lib.optionals (charset != null) [ "charset ${charset};" ])
                         (lib.optionals (extraConfig != null) [ extraConfig ])
                       ]
