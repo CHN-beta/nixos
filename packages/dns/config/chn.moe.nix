@@ -78,6 +78,7 @@ let
       "铜锣湾"
       "matrix"
       "git"
+      "ddml"
     ];
   };
   a_aaaa = {

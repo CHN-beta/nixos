@@ -71,6 +71,7 @@
         minibox = 2016;
         hermes = 2017;
         garage = 2018;
+        ddml-service = 2019;
       };
     };
     gid = lib.mkOption {
