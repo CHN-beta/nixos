@@ -5,6 +5,7 @@ store:
 postgresql:
     misskey_misskey: ENC[AES256_GCM,data:MSDbQffk/WjZ6EYiwVuUMdhdv9VE59ZM7t4XldOKRO0=,iv:J/x9t4Pk5zi7Av9fbzxgAbbtbEUZttSx/JGRmmgmvE4=,tag:CwFR9K++T7YqYR932z3IAg==,type:str]
     minibox: ENC[AES256_GCM,data:vmDGrzwu,iv:FoMxCTYxbfktDY97PzNO/wUMKWlOKRcgWlEbQK9E7nE=,tag:iYO9CJch2HAi/mGc0rWCiw==,type:str]
+    ddml: ENC[AES256_GCM,data:Nvrj6mpY,iv:5z55CDfau75cL+9F7zMcYPUu+nnL7IIXVqfEhBO/SLo=,tag:JuhjK4KbjUnGWZML2Yigow==,type:str]
 redis:
     misskey-misskey: ENC[AES256_GCM,data:vcvQ/hs/F3BZd1sfvWwfEeB8vVoqdnprxobcmL6xsmg=,iv:S32yrjrjj56HbxTlfFGjOb+sO2M9KKEDEazCrpQWj6Q=,tag:iwnvqwQEdd6jicx9jJBdbg==,type:str]
 mariadb:
@@ -44,7 +45,7 @@ sops:
             WLmJ1ayrY2BABdIAudjtrZ6jvUSbrCvXBrNUvR/fX2uRrk6ZAAqE8g==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
-    lastmodified: "2026-09-02T07:25:21Z"
-    mac: ENC[AES256_GCM,data:2T+ELjA5OKLkatGdMPd13CPlRGLJ55Yllmk3SeMA9jgqbuXAfeALcHoLVE4bJ4GcL0Bif0vAp8BAlaSHuxElciDlUod77gVV7IWs4sq4Gi++ff18y8FeCv2OABkgztRUiFbqg/YupVpjn2MZB9TUQ906NR8tbYulkGX1w8HPwmI=,iv:l0j+FQ8pEpK2LZ6ZeFk8n/MvHvkMbZY43ukDjXqEmu8=,tag:mN5SgyZVsE9eZzmbURmORw==,type:str]
+    lastmodified: "2026-09-08T12:48:05Z"
+    mac: ENC[AES256_GCM,data:TuEtWPmLIsCbOkWOzyhYkwhH2dqmXoi1SLCXHXeSgKB6rutpuJfRsMTggnA0Ew9aQ4C5o1qQ6qOgI8Ln1VaM0e9UAnxR1YTKErfM5tixAPSNiHiIHrQpVmUiPL6PQMsJcVFu8+FeWn9l9Cog9U2EgbWHmc9XXLr3eh1HPGcW9d0=,iv:zBRkDGFOe4PEeYdavMHbuFfSGDrfAJ9Q7+UtTJh7T3w=,tag:dscX4/RPp1fBGJSmadNQTw==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

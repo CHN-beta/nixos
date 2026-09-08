@@ -162,7 +162,10 @@
         lumericalLicenseManager.macAddress = "a8:e2:91:52:5f:7c";
         howdy = { };
         # for debug and development
-        postgresql.instances.minibox = { };
+        postgresql.instances = {
+          minibox = { };
+          ddml = { };
+        };
       };
       packages = {
         mathematica = { };
