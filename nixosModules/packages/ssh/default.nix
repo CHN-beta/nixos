@@ -23,6 +23,8 @@ let
     pe = { };
     ddml-dev-vm = { };
     ddml-vm = { };
+    ddml-vm-n1 = { };
+    ddml-vm-n2 = { };
   };
 in
 {

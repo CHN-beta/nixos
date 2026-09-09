@@ -13,4 +13,6 @@
   pe = 12;
   ddml-dev-vm = 13;
   ddml-vm = 14;
+  ddml-vm-n1 = 15;
+  ddml-vm-n2 = 16;
 }
