@@ -162,6 +162,62 @@
                       output = [ "text" ];
                     };
                   };
+                  "claude-sonnet-5" = {
+                    name = "Claude Sonnet 5";
+                    limit = {
+                      context = 400000;
+                      output = 128000;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+                  "claude-opus-5" = {
+                    name = "Claude Opus 5";
+                    limit = {
+                      context = 400000;
+                      output = 128000;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+                  "claude-fable-5" = {
+                    name = "Claude Fable 5";
+                    limit = {
+                      context = 400000;
+                      output = 128000;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+                  "claude-fable-5-1" = {
+                    name = "Claude Fable 5.1";
+                    limit = {
+                      context = 400000;
+                      output = 128000;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
                 };
               };
               ollama = {
