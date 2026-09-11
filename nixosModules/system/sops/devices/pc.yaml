@@ -19,6 +19,7 @@ slurm:
 opencode:
     mineru: ENC[AES256_GCM,data:T7qk3nkn/WkWNAkjxijQYk4xSjsK182xp//I/XDHQ7Wh65I4Qes7SZu95w5P0DItQ8Kw,iv:aYjDI3Mnw3qCsvAR/cobFrPenaLZyyl75Ju5WsCiV2Q=,tag:vyzUrt8snOFVdU3aJtxNbA==,type:str]
     cliproxyapi: ENC[AES256_GCM,data:y+jKYUYTfOnSdGqRvIAyG2MEnShYAwE5pmwG8lK19dMKHW7GMKCJjeHcXG42ndxoOvxd,iv:MY5zM89LeDFFtGgOXaxlyKVULTnnmxg/WSoU+XUhXa8=,tag:chUEImEAQyrENnihJr69xw==,type:str]
+    deepseek: ENC[AES256_GCM,data:z+qDlBm2pC/ZUAf1KMAGeVUs33Hye5GZ5abKjfZSQZlWjCw=,iv:wHntEwWotoDSQmZPlRrmJmgenpCST93lKgew7DQaSG8=,tag:wTSQfpAYsJk4Y0TYmkZuDg==,type:str]
 hindsight:
     password: ENC[AES256_GCM,data:gUdMtAxB7zE+E7XaLEb2THoOwKlxV3IZyKdwU7llfXA=,iv:uAo8fCGnPonZazdvATiAqgXzvxUa57fVV3gnKf1BoxI=,tag:IUwrsFT2AFW3itQAKltyJw==,type:str]
     siliconflow: ENC[AES256_GCM,data:I1uhte9NZlM6F4BLko2ZUEA7XIhS1mLPUdi+llAvaPzGfOZimq+0YAPkLOi6x3F8u8aN,iv:+tWdE/3NE7kPytaNhkQnookWD+qNRzfOmc+HknPPeP0=,tag:tN2e0nTX6s1zywY+Q0ahAQ==,type:str]
@@ -45,7 +46,7 @@ sops:
             WLmJ1ayrY2BABdIAudjtrZ6jvUSbrCvXBrNUvR/fX2uRrk6ZAAqE8g==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
-    lastmodified: "2026-09-08T12:48:05Z"
-    mac: ENC[AES256_GCM,data:TuEtWPmLIsCbOkWOzyhYkwhH2dqmXoi1SLCXHXeSgKB6rutpuJfRsMTggnA0Ew9aQ4C5o1qQ6qOgI8Ln1VaM0e9UAnxR1YTKErfM5tixAPSNiHiIHrQpVmUiPL6PQMsJcVFu8+FeWn9l9Cog9U2EgbWHmc9XXLr3eh1HPGcW9d0=,iv:zBRkDGFOe4PEeYdavMHbuFfSGDrfAJ9Q7+UtTJh7T3w=,tag:dscX4/RPp1fBGJSmadNQTw==,type:str]
+    lastmodified: "2026-09-11T09:43:38Z"
+    mac: ENC[AES256_GCM,data:ZPiwjCnxpjzL1YY2dGTxa0rs1Wb3kTe/lhMedtUD0++dIATF7pdr5R3GPXMj3pbe+KsAFnqietqDL4vk9Uk4CAobI6cP+7GfX9+4LXXmSgy2nIThjHQOo2fno4gfhClmJAeclgRdULKD13s4MDUbv6+FC2GSGHmAOfxYUp7nTRw=,iv:52oN0r6aAtsqMyL/col+7C8zMyWEdttl6ADOJ+dJY+4=,tag:A4GfPWvQJbGS7haciaUjhg==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

@@ -21,6 +21,7 @@
         export CLIPROXYAPI_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/cliproxyapi".path})
         export QDRANT_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/qdrant".path})
         export OPENAI_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/siliconflow".path})
+        export DEEPSEEK_API_KEY=$(cat ${config.nixos.system.sops.secrets."opencode/deepseek".path})
         exec ${lib.getExe self.inputs.llm-agents.packages.x86_64-linux.opencode} "$@"
       '';
     in
@@ -47,6 +48,7 @@
           owner = "chn";
           key = "hindsight/siliconflow";
         };
+        "opencode/deepseek".owner = "chn";
         "hindsight/siliconflow" = { };
         "qdrant/api_key" = { };
       };
@@ -234,6 +236,39 @@
                         "text"
                         "image"
                       ];
+                      output = [ "text" ];
+                    };
+                  };
+                };
+              };
+              deepseek = {
+                options = {
+                  baseURL = "https://api.deepseek.com";
+                  apiKey = "{file:${config.nixos.system.sops.secrets."opencode/deepseek".path}}";
+                };
+                models = {
+                  "deepseek-flash" = {
+                    name = "DeepSeek-V4.1 Flash";
+                    limit = {
+                      context = 1000000;
+                      output = 384000;
+                    };
+                    modalities = {
+                      input = [
+                        "text"
+                        "image"
+                      ];
+                      output = [ "text" ];
+                    };
+                  };
+                  "deepseek-v4-pro" = {
+                    name = "DeepSeek-V4 Pro";
+                    limit = {
+                      context = 1000000;
+                      output = 384000;
+                    };
+                    modalities = {
+                      input = [ "text" ];
                       output = [ "text" ];
                     };
                   };
