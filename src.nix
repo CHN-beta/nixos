@@ -329,4 +329,11 @@ in
     finalImageName = "hindsight";
     finalImageTag = "latest";
   };
+  redroid = pkgs.dockerTools.pullImage {
+    imageName = "redroid/redroid";
+    imageDigest = "sha256:60b0810684be4578733a847be3314c50b70f73bc92405b5a627ebe9b633ebb5e";
+    hash = "sha256-B2gwmECNPqrB6mIpvd7UEYODZQABSB0Lu0cMNFOYMds=";
+    finalImageName = "redroid/redroid";
+    finalImageTag = "11.0.0-latest";
+  };
 }
