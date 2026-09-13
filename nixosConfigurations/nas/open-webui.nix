@@ -8,6 +8,8 @@
         AUTH_MAX_LOGIN_ATTEMPTS = "5";
         AUTH_LOGIN_ATTEMPT_LOCKOUT_DURATION = "900";
         ENABLE_COMMUNITY_SHARING = "False";
+        USER_PERMISSIONS_CHAT_ALLOW_OPEN_SHARING = "True";
+        USER_PERMISSIONS_CHAT_ALLOW_PUBLIC_SHARING = "True";
         WEBUI_URL = "https://chat.chn.moe";
         ADMIN_EMAIL = "chn@chn.moe";
         OPENAI_API_BASE_URLS = "https://cliproxyapi.chn.moe/v1;http://127.0.0.1:9090/v1";
