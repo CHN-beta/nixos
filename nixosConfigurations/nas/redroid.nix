@@ -11,6 +11,9 @@
         "/dev/net/tun:/dev/tun"
       ];
       privileged = true;
+      extraOptions = [
+        "--sysctl=net.ipv6.conf.all.disable_ipv6=0"
+      ];
       cmd = [
         "androidboot.redroid_width=1280"
         "androidboot.redroid_height=720"
