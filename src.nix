@@ -331,9 +331,9 @@ in
   };
   redroid = pkgs.dockerTools.pullImage {
     imageName = "redroid/redroid";
-    imageDigest = "sha256:60b0810684be4578733a847be3314c50b70f73bc92405b5a627ebe9b633ebb5e";
-    hash = "sha256-B2gwmECNPqrB6mIpvd7UEYODZQABSB0Lu0cMNFOYMds=";
+    imageDigest = "sha256:41e5f0c1ff27a4a474c474e5595168cedf6c40fc5dd102c5617f48c80f511e9e";
+    hash = "sha256-xvD3vT4ZYarQtmgyAzSeTOFXm+6mQgjpJTLtu4rc6DU=";
     finalImageName = "redroid/redroid";
-    finalImageTag = "11.0.0-latest";
+    finalImageTag = "13.0.0-latest";
   };
 }

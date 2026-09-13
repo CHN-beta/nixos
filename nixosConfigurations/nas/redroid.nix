@@ -3,7 +3,7 @@
   config = {
     virtualisation.oci-containers.containers.redroid = {
       imageFile = self.src.redroid;
-      image = "redroid/redroid:11.0.0-latest";
+      image = "redroid/redroid:13.0.0-latest";
       ports = [ "0.0.0.0:5555:5555" ];
       volumes = [
         "redroid:/data"
