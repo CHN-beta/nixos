@@ -4,7 +4,10 @@
       enable = true;
       environment = {
         ENABLE_PERSISTENT_CONFIG = "False";
-        ENABLE_SIGNUP = "True";
+        ENABLE_SIGNUP = "False";
+        AUTH_MAX_LOGIN_ATTEMPTS = "5";
+        AUTH_LOGIN_ATTEMPT_LOCKOUT_DURATION = "900";
+        ENABLE_COMMUNITY_SHARING = "False";
         WEBUI_URL = "https://chat.chn.moe";
         ADMIN_EMAIL = "chn@chn.moe";
         OPENAI_API_BASE_URLS = "https://cliproxyapi.chn.moe/v1;http://127.0.0.1:9090/v1";

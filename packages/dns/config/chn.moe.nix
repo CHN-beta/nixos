@@ -60,7 +60,6 @@ let
       "cliproxyapi"
       "qdrant"
       "bgem3"
-      "chat"
       "hermes"
     ];
     vps10 = [
@@ -79,6 +78,7 @@ let
       "matrix"
       "git"
       "ddml"
+      "chat"
     ];
   };
   a_aaaa = {

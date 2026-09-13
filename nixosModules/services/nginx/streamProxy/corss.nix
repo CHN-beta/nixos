@@ -15,6 +15,7 @@
         "xn--s8w913fdga"
         "matrix"
         "git"
+        "chat"
       ]
       |> lib.flip lib.genAttrs' (
         site: lib.nameValuePair "${site}.chn.moe" { upstream.address = "tinc0.nas.chn.moe"; }
