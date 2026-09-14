@@ -10,15 +10,8 @@ let
   model = self.src.models.bge-m3;
 in
 {
-  assertions = [
-    {
-      assertion = pkgs.config.rocmSupport;
-      message = "The NAS BGE-M3 service requires nixpkgs ROCm support";
-    }
-  ];
-
   systemd.services.bge-m3 = {
-    description = "BGE-M3 ROCm embedding server";
+    description = "BGE-M3 embedding server";
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     environment = {
@@ -30,10 +23,6 @@ in
       Type = "simple";
       User = "bge-m3";
       Group = "bge-m3";
-      SupplementaryGroups = [
-        "render"
-        "video"
-      ];
       ExecStart = lib.escapeShellArgs [
         (lib.getExe package)
         "--model"
@@ -43,9 +32,9 @@ in
         "--port"
         (toString port)
         "--device"
-        "cuda:0"
+        "cpu"
         "--dtype"
-        "float16"
+        "float32"
         "--batch-size"
         "8"
         "--max-length"
@@ -84,10 +73,6 @@ in
     users.bge-m3 = {
       isSystemUser = true;
       group = "bge-m3";
-      extraGroups = [
-        "render"
-        "video"
-      ];
     };
     groups.bge-m3 = { };
   };
