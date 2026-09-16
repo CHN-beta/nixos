@@ -210,13 +210,13 @@ in
           defaultProvider = "cliproxyapi";
           defaultModel = "gpt-5.6-terra";
           enableInstallTelemetry = false;
-          richRenderer.imageScale = 1;
           packages = [
             "npm:pi-mcp-adapter@2.34.0"
             "npm:pi-subagents@0.68.0"
             "npm:@thurstonsand/pi-permissions@0.11.0"
             "npm:pi-notify@1.4.0"
-            "npm:pi-rich-renderer@0.1.0"
+            "npm:@monotykamary/pi-math@0.5.4"
+            "npm:pi-markdown-preview@0.17.0"
             "npm:@narumitw/pi-plan-mode@0.58.0"
             "npm:@juicesharp/rpiv-todo@2.10.1"
             "npm:@juicesharp/rpiv-ask-user-question@2.10.1"
