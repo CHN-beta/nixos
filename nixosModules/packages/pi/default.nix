@@ -210,6 +210,7 @@ in
           defaultProvider = "cliproxyapi";
           defaultModel = "gpt-5.6-terra";
           enableInstallTelemetry = false;
+          richRenderer.imageScale = 1;
           packages = [
             "npm:pi-mcp-adapter@2.34.0"
             "npm:pi-subagents@0.68.0"
