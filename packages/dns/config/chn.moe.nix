@@ -44,6 +44,7 @@ let
     "pc.ts" = [
       "nix-store"
       "ollama"
+      "bgem3-fast"
     ];
     "nas.ts" = [
       "ssh.git"

@@ -166,6 +166,10 @@
           minibox = { };
           ddml = { };
         };
+        bge-m3 = {
+          hostname = "bgem3-fast.chn.moe";
+          gpu = true;
+        };
       };
       packages = {
         mathematica = { };

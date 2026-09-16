@@ -103,6 +103,10 @@
           crossmnt = false;
         };
         immich = { };
+        bge-m3 = {
+          hostname = "bgem3.chn.moe";
+          gpu = false;
+        };
         minibox = { };
         harmonia = {
           hostname = "backup-store.chn.moe";
