@@ -61,6 +61,7 @@
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
     hermes.url = "github:NousResearch/hermes-agent";
+    pi.url = "github:lukasl-dev/pi.nix";
     cliproxyapi = {
       url = "github:benjaminkitt/nix-cliproxyapi";
       inputs.nixpkgs.follows = "nixpkgs";

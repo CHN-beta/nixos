@@ -1,0 +1,12 @@
+{
+  "serverMode": "self-hosted",
+  "bankId": "chn",
+  "dynamicBankId": false,
+  "autoReflect": true,
+  "retainSessions": true,
+  "autoSeed": false,
+  "gitIngest": "none",
+  "codebaseSurvey": false,
+  "autoUpdate": false,
+  "manageBankConfig": false
+}

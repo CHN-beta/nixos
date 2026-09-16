@@ -176,6 +176,7 @@
         vasp = { };
         lumerical = { };
         opencode = { };
+        pi = { };
       };
       user.users = [
         "chn"

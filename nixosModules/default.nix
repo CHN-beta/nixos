@@ -16,6 +16,7 @@
         config.home-manager.sharedModules = [
           self.inputs.catppuccin.homeModules.catppuccin
           self.inputs.dms-plugin-registry.modules.default
+          self.inputs.pi.homeModules.default
         ];
       }
     ]
