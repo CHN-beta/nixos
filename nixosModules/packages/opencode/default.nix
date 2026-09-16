@@ -339,6 +339,7 @@
                 ];
               };
             };
+            snapshot = false;
           };
         };
         catppuccin.opencode.enable = true;
