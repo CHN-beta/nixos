@@ -247,6 +247,10 @@
       url = "github:CHN-beta/mcp-server-qdrant";
       flake = false;
     };
+    pi-catppuccin = {
+      url = "github:otahontas/pi-coding-agent-catppuccin";
+      flake = false;
+    };
   };
 
   outputs = inputs: rec {

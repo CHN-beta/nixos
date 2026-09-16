@@ -205,11 +205,16 @@ in
         rules = ./instructions.md;
         extensions = [ hindsight.extension ];
         skills = [ hindsight.skill ];
+        themes = [ "${self.inputs.pi-catppuccin}/catppuccin-latte.json" ];
         inherit environment;
         settings = {
+          theme = "catppuccin-latte";
           defaultProvider = "cliproxyapi";
-          defaultModel = "gpt-5.6-terra";
+          defaultModel = "gemini-3.8-flash-high";
           enableInstallTelemetry = false;
+          hideThinkingBlock = true;
+          defaultThinkingLevel = "high";
+          tuiMode = "fullscreen";
           packages = [
             "npm:pi-mcp-adapter@2.34.0"
             "npm:pi-subagents@0.68.0"

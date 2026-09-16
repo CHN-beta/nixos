@@ -1522,6 +1522,22 @@
         "type": "github"
       }
     },
+    "pi-catppuccin": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782296443,
+        "narHash": "sha256-vGLVjYeLeySjNFD6yfpog9Z8YEe5amg8ZngEPBRGs00=",
+        "owner": "otahontas",
+        "repo": "pi-coding-agent-catppuccin",
+        "rev": "9a716a630c911a4d29d9520a8d5f87e3b8867f93",
+        "type": "github"
+      },
+      "original": {
+        "owner": "otahontas",
+        "repo": "pi-coding-agent-catppuccin",
+        "type": "github"
+      }
+    },
     "pocketfft": {
       "flake": false,
       "locked": {
@@ -1776,6 +1792,7 @@
         "nur-xddxdd": "nur-xddxdd",
         "openxlsx": "openxlsx",
         "pi": "pi",
+        "pi-catppuccin": "pi-catppuccin",
         "pocketfft": "pocketfft",
         "py4vasp": "py4vasp",
         "pybinding": "pybinding",
