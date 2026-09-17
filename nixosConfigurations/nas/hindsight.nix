@@ -10,7 +10,7 @@
         postgresql.instances.hindsight.extensions = [ "vector" ];
         nginx.https."hindsight.chn.moe".location = {
           "/".proxy.upstream = "http://127.0.0.1:9999";
-          "~ ^/(docs|openapi\\.json|health|metrics|v1|mcp)".proxy.upstream = "http://127.0.0.1:8888";
+          "~ ^/(docs|version|openapi\\.json|health|metrics|v1|mcp)".proxy.upstream = "http://127.0.0.1:8888";
         };
       };
       system.sops = {

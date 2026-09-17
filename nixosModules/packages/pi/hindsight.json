@@ -2,7 +2,7 @@
   "serverMode": "self-hosted",
   "bankId": "chn",
   "dynamicBankId": false,
-  "autoReflect": true,
+  "autoReflect": false,
   "retainSessions": true,
   "autoSeed": false,
   "gitIngest": "none",

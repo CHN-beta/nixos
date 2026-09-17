@@ -324,8 +324,9 @@ in
   };
   hindsight = pkgs.dockerTools.pullImage {
     imageName = "ghcr.io/vectorize-io/hindsight";
-    imageDigest = "sha256:067636a79666807d804f1c35a4a34e0c916b52a1adeccb9bab003003bc127fc6";
-    hash = "sha256-tqGQSYa1906ioavD8wLQD5HdTWgzvmC6Zw7SYKk+aeo=";
+    # v0.10.0 — 引入 knowledge-base（知识页）API，v0.9.0 之前不存在
+    imageDigest = "sha256:3edcb6165cefdeaa6721dd0fce43cfd13b7a9c346ce0d2c5f4b4bf7bc3c8ac0b";
+    hash = "sha256-z8axnAxslTRY4NcQQhkFrzS2x6WQrFkSjqr3X2RE82w=";
     finalImageName = "hindsight";
     finalImageTag = "latest";
   };
