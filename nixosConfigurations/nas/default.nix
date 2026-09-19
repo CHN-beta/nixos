@@ -60,7 +60,7 @@
       services = {
         sshd = { };
         xray.client.coredns = {
-          extraInterfaces = [ "enp3s0.20" ];
+          extraInterfaces = [ "enp4s0.20" ];
           hosts."git.chn.moe" = "127.0.0.1";
         };
         beesd = {
@@ -117,7 +117,7 @@
           persistent = "/nix/persistent";
           ssd = "/nix/ssd";
         };
-        pppoe.interface = "enp2s0";
+        pppoe.interface = "enp3s0";
       };
       packages = {
         opencode = { };
