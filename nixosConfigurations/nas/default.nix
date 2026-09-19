@@ -34,6 +34,10 @@
                 mapper = "root4";
                 ssd = true;
               };
+              "/dev/disk/by-partlabel/nas-root5" = {
+                mapper = "root5";
+                ssd = true;
+              };
             };
             enablePkcs11 = false;
           };
