@@ -62,6 +62,7 @@ let
       "qdrant"
       "bgem3"
       "hermes"
+      "miniflux"
     ];
     vps10 = [
       "initrd.vps10"
