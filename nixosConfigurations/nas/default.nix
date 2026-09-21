@@ -125,6 +125,7 @@
       };
       packages = {
         desktopPython = { };
+        pi = { };
       };
       user.users = [
         "chn"
