@@ -41,6 +41,16 @@ let
   adb = "${androidSdkRoot}/platform-tools/adb";
   emulator = "${androidSdkRoot}/emulator/emulator";
 
+  # avdmanager 是 shell 脚本：它用 `which java` 探测 java，并用 awk 检查 JDK 版本，
+  # 而 systemd 服务的最小 PATH（coreutils/findutils/gnugrep/gnused/systemd）
+  # 里既没有 which 也没有 awk。java 本身不用管 —— nixpkgs 的 cmdline-tools
+  # wrapper 已经把合适的 JDK 加进 PATH 了，自己再钉一个版本反而会在 nixpkgs
+  # 更新 JDK 时对不上，所以只补 which / awk。
+  toolPath = lib.makeBinPath [
+    pkgs.which
+    pkgs.gawk
+  ];
+
   # systemd 服务不继承登录环境，这里手动准备 emulator 需要的一切
   environment = ''
     export HOME=${dataDir}
@@ -48,7 +58,7 @@ let
     export ANDROID_SDK_ROOT=${androidSdkRoot}
     export ANDROID_USER_HOME=${dataDir}
     export ANDROID_AVD_HOME=${avdHome}
-    export PATH=${sdk}/bin:${androidSdkRoot}/platform-tools:$PATH
+    export PATH=${toolPath}:${sdk}/bin:${androidSdkRoot}/platform-tools:$PATH
     # emulator 用 -gpu host 时会 dlopen libEGL / libvulkan
     export LD_LIBRARY_PATH=/run/opengl-driver/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
   '';
