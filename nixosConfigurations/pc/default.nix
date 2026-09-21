@@ -175,7 +175,6 @@
         mathematica = { };
         vasp = { };
         lumerical = { };
-        opencode = { };
         pi = { };
       };
       user.users = [

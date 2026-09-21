@@ -38,12 +38,9 @@
       global.extraConfig = "client_max_body_size 64m;";
       location."/".proxy.upstream = "http://127.0.0.1:6333";
     };
-    system.sops = {
-      secrets."qdrant/api_key" = { };
-      templates."qdrant.env".content = "QDRANT__SERVICE__API_KEY=${
-        config.nixos.system.sops.placeholder."qdrant/api_key"
-      }";
-    };
+    system.sops.templates."qdrant.env".content = "QDRANT__SERVICE__API_KEY=${
+      config.nixos.system.sops.placeholder."straycat/qdrant"
+    }";
   };
 
   environment.persistence."/nix/ssd".directories = [

@@ -13,28 +13,21 @@
           "~ ^/(docs|version|openapi\\.json|health|metrics|v1|mcp)".proxy.upstream = "http://127.0.0.1:8888";
         };
       };
-      system.sops = {
-        templates."hindsight.env".content =
-          let
-            inherit (config.nixos.system.sops) placeholder;
-          in
-          ''
-            HINDSIGHT_API_DATABASE_URL=postgresql://hindsight:${
-              placeholder."postgresql/hindsight"
-            }@host.containers.internal:5432/hindsight
-            HINDSIGHT_API_LLM_API_KEY=${placeholder."opencode/cliproxyapi"}
-            HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY=${placeholder."hindsight/siliconflow"}
-            HINDSIGHT_API_RERANKER_SILICONFLOW_API_KEY=${placeholder."hindsight/siliconflow"}
-            HINDSIGHT_API_TENANT_API_KEY=${placeholder."hindsight/password"}
-            HINDSIGHT_CP_ACCESS_KEY=${placeholder."hindsight/password"}
-            HINDSIGHT_CP_DATAPLANE_API_KEY=${placeholder."hindsight/password"}
-          '';
-        secrets = {
-          "hindsight/siliconflow" = { };
-          "hindsight/password" = { };
-          "opencode/cliproxyapi" = { };
-        };
-      };
+      system.sops.templates."hindsight.env".content =
+        let
+          inherit (config.nixos.system.sops) placeholder;
+        in
+        ''
+          HINDSIGHT_API_DATABASE_URL=postgresql://hindsight:${
+            placeholder."postgresql/hindsight"
+          }@host.containers.internal:5432/hindsight
+          HINDSIGHT_API_LLM_API_KEY=${placeholder."straycat/cliproxyapi"}
+          HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY=${placeholder."straycat/siliconflow"}
+          HINDSIGHT_API_RERANKER_SILICONFLOW_API_KEY=${placeholder."straycat/siliconflow"}
+          HINDSIGHT_API_TENANT_API_KEY=${placeholder."straycat/hindsight"}
+          HINDSIGHT_CP_ACCESS_KEY=${placeholder."straycat/hindsight"}
+          HINDSIGHT_CP_DATAPLANE_API_KEY=${placeholder."straycat/hindsight"}
+        '';
     };
     systemd.services.podman-hindsight = {
       after = [ "postgresql.service" ];

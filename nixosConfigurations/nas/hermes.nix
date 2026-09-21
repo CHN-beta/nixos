@@ -176,24 +176,20 @@
               HERMES_MEDIA_ALLOW_DIRS=/var/lib/hermes/workspace
               HINDSIGHT_MODE=cloud
               HINDSIGHT_API_URL=https://hindsight.chn.moe
-              HINDSIGHT_API_KEY=${placeholder."hindsight/password"}
+              HINDSIGHT_API_KEY=${placeholder."straycat/hindsight"}
               HINDSIGHT_BANK_ID=chn
-              CLIPROXYAPI_API_KEY=${placeholder."opencode/cliproxyapi"}
+              CLIPROXYAPI_API_KEY=${placeholder."straycat/cliproxyapi"}
               HERMES_DASHBOARD_BASIC_AUTH_USERNAME=admin
               HERMES_DASHBOARD_BASIC_AUTH_PASSWORD=${placeholder."hermes/dashboard"}
               HERMES_DASHBOARD_PUBLIC_URL=https://hermes.chn.moe
-              MINERU_API_KEY=${placeholder."opencode/mineru"}
-              QDRANT_API_KEY=${placeholder."qdrant/api_key"}
-              MCP_GITHUB_TOKEN=${placeholder."opencode/github"}
+              MINERU_API_KEY=${placeholder."straycat/mineru"}
+              QDRANT_API_KEY=${placeholder."straycat/qdrant"}
+              MCP_GITHUB_TOKEN=${placeholder."straycat/github"}
             '';
         };
         secrets = {
           "hermes/api_server_token".owner = "chn";
           "hermes/dashboard" = { };
-          "hindsight/password" = { };
-          "opencode/mineru" = { };
-          "qdrant/api_key" = { };
-          "opencode/github" = { };
         };
       };
     };

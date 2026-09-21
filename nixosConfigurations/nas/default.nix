@@ -124,9 +124,12 @@
         pppoe.interface = "enp3s0";
       };
       packages = {
-        opencode = { };
         desktopPython = { };
       };
+      user.users = [
+        "chn"
+        "straycat"
+      ];
     };
   };
 }

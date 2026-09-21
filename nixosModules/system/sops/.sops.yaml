@@ -17,6 +17,9 @@ creation_rules:
     key_groups:
     - age: [ *chn, *pc, *vps4, *vps6, *vps10, *nas, *srv1-node0, *srv1-node1, *srv1-node2, *srv2-node0,
       *srv2-node1, *srv2-node2, *pe ]
+  - path_regex: '^straycat\.yaml$'
+    key_groups:
+    - age: [ *chn, *pc, *nas ]
   - path_regex: '^chn\.yaml$'
     key_groups:
     - age: [ *chn, *pc, *nas ]

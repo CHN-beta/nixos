@@ -120,44 +120,18 @@ let
     };
   };
 
-  secrets = {
-    "opencode/github" = {
-      owner = "chn";
-      key = "github/token";
-    };
-    "github/token" = { };
-    "opencode/cliproxyapi".owner = "chn";
-    "opencode/mineru".owner = "chn";
-    "opencode/hindsight" = {
-      owner = "chn";
-      key = "hindsight/password";
-    };
-    "hindsight/password" = { };
-    "opencode/qdrant" = {
-      owner = "chn";
-      key = "qdrant/api_key";
-    };
-    "opencode/siliconflow" = {
-      owner = "chn";
-      key = "hindsight/siliconflow";
-    };
-    "opencode/deepseek".owner = "chn";
-    "hindsight/siliconflow" = { };
-    "qdrant/api_key" = { };
-  };
-
   environment = {
-    HINDSIGHT_API_TOKEN.file = config.nixos.system.sops.secrets."opencode/hindsight".path;
+    HINDSIGHT_API_TOKEN.file = config.nixos.system.sops.secrets."straycat/hindsight".path;
     HINDSIGHT_API_URL.value = "https://hindsight.chn.moe";
     HINDSIGHT_BANK_ID.value = "chn";
     HINDSIGHT_CONFIG.value = "${hindsight.configFile}";
     OPENALEX_MAILTO.value = "chn@chn.moe";
-    MINERU_API_KEY.file = config.nixos.system.sops.secrets."opencode/mineru".path;
-    CLIPROXYAPI_API_KEY.file = config.nixos.system.sops.secrets."opencode/cliproxyapi".path;
-    QDRANT_API_KEY.file = config.nixos.system.sops.secrets."opencode/qdrant".path;
-    OPENAI_API_KEY.file = config.nixos.system.sops.secrets."opencode/siliconflow".path;
-    DEEPSEEK_API_KEY.file = config.nixos.system.sops.secrets."opencode/deepseek".path;
-    GITHUB_TOKEN.file = config.nixos.system.sops.secrets."opencode/github".path;
+    MINERU_API_KEY.file = config.nixos.system.sops.secrets."straycat/mineru".path;
+    CLIPROXYAPI_API_KEY.file = config.nixos.system.sops.secrets."straycat/cliproxyapi".path;
+    QDRANT_API_KEY.file = config.nixos.system.sops.secrets."straycat/qdrant".path;
+    OPENAI_API_KEY.file = config.nixos.system.sops.secrets."straycat/siliconflow".path;
+    DEEPSEEK_API_KEY.file = config.nixos.system.sops.secrets."straycat/deepseek".path;
+    GITHUB_TOKEN.file = config.nixos.system.sops.secrets."straycat/github".path;
     PI_SKIP_VERSION_CHECK.value = "1";
   };
 in
@@ -167,7 +141,6 @@ in
     default = null;
   };
   config = lib.mkIf (config.nixos.packages.pi != null) {
-    nixos.system.sops.secrets = secrets;
     environment.persistence."/nix/persistent".users.chn.directories = [
       ".pi/agent/sessions"
       ".pi/agent/npm"

@@ -31,11 +31,10 @@
           in
           # IMAGES_OPENAI_API_KEY=${placeholder."open-webui/openai"}
           ''
-            OPENAI_API_KEYS=${placeholder."open-webui/openai"};${placeholder."hermes/api_server_token"}
+            OPENAI_API_KEYS=${placeholder."straycat/cliproxyapi"};${placeholder."hermes/api_server_token"}
             WEBUI_SECRET_KEY=${placeholder."open-webui/webui"}
           '';
         secrets = {
-          "open-webui/openai".key = "opencode/cliproxyapi";
           "open-webui/webui" = { };
           "hermes/api_server_token" = { };
         };
