@@ -146,70 +146,64 @@ in
       ".pi/agent/npm"
     ];
     nixos.user.sharedModules = [
-      (hmInputs: {
-        config =
-          lib.mkIf
-            (lib.elem hmInputs.config.home.username [
-              "chn"
-              "straycat"
-            ])
-            {
-              home = {
-                packages = [
-                  (pkgs.texlive.combine {
-                    inherit (pkgs.texlive) scheme-small dvipng preview;
-                  })
-                  # needed by the agent-browser MCP server
-                  self.inputs.llm-agents.packages.x86_64-linux.agent-browser
-                ];
-                file = {
-                  ".pi/agent/models.json".text = builtins.toJSON { inherit providers; };
-                  ".pi/agent/keybindings.json".text = builtins.toJSON {
-                    "tui.input.newLine" = [ "enter" ];
-                    "tui.input.submit" = [ "ctrl+enter" ];
-                  };
-                  # pi-permissions ignores individual symlinked files but loads a
-                  # symlinked directory whose entries are regular files.
-                  ".pi/agent/permissions".source = ./extensions/permissions;
-                };
+      {
+        config = {
+          home = {
+            packages = [
+              (pkgs.texlive.combine {
+                inherit (pkgs.texlive) scheme-small dvipng preview;
+              })
+              # needed by the agent-browser MCP server
+              self.inputs.llm-agents.packages.x86_64-linux.agent-browser
+            ];
+            file = {
+              ".pi/agent/models.json".text = builtins.toJSON { inherit providers; };
+              ".pi/agent/keybindings.json".text = builtins.toJSON {
+                "tui.input.newLine" = [ "enter" ];
+                "tui.input.submit" = [ "ctrl+enter" ];
               };
-              xdg.configFile."mcp/mcp.json".text = builtins.toJSON {
-                inherit mcpServers;
-                settings = {
-                  mcpFooterStatus = "compact";
-                  toolPrefix = "server";
-                };
-              };
-              programs.pi.coding-agent = {
-                enable = true;
-                rules = ./instructions.md;
-                extensions = [ hindsight.extension ];
-                skills = [ hindsight.skill ];
-                themes = [ "${self.inputs.pi-catppuccin}/catppuccin-latte.json" ];
-                inherit environment;
-                settings = {
-                  theme = "catppuccin-latte";
-                  defaultProvider = "cliproxyapi";
-                  defaultModel = "gemini-3.8-flash-high";
-                  enableInstallTelemetry = false;
-                  hideThinkingBlock = true;
-                  defaultThinkingLevel = "high";
-                  tuiMode = "fullscreen";
-                  packages = [
-                    "npm:pi-mcp-adapter@2.34.0"
-                    "npm:pi-subagents@0.68.0"
-                    "npm:@thurstonsand/pi-permissions@0.11.0"
-                    "npm:pi-notify@1.4.0"
-                    "npm:@monotykamary/pi-math@0.5.4"
-                    "npm:pi-markdown-preview@0.17.0"
-                    "npm:@narumitw/pi-plan-mode@0.58.0"
-                    "npm:@juicesharp/rpiv-todo@2.10.1"
-                    "npm:@juicesharp/rpiv-ask-user-question@2.10.1"
-                  ];
-                };
-              };
+              # pi-permissions ignores individual symlinked files but loads a
+              # symlinked directory whose entries are regular files.
+              ".pi/agent/permissions".source = ./extensions/permissions;
             };
-      })
+          };
+          xdg.configFile."mcp/mcp.json".text = builtins.toJSON {
+            inherit mcpServers;
+            settings = {
+              mcpFooterStatus = "compact";
+              toolPrefix = "server";
+            };
+          };
+          programs.pi.coding-agent = {
+            enable = true;
+            rules = ./instructions.md;
+            extensions = [ hindsight.extension ];
+            skills = [ hindsight.skill ];
+            themes = [ "${self.inputs.pi-catppuccin}/catppuccin-latte.json" ];
+            inherit environment;
+            settings = {
+              theme = "catppuccin-latte";
+              defaultProvider = "cliproxyapi";
+              defaultModel = "gemini-3.8-flash-high";
+              enableInstallTelemetry = false;
+              hideThinkingBlock = true;
+              defaultThinkingLevel = "high";
+              tuiMode = "fullscreen";
+              packages = [
+                "npm:pi-mcp-adapter@2.34.0"
+                "npm:pi-subagents@0.68.0"
+                "npm:@thurstonsand/pi-permissions@0.11.0"
+                "npm:pi-notify@1.4.0"
+                "npm:@monotykamary/pi-math@0.5.4"
+                "npm:pi-markdown-preview@0.17.0"
+                "npm:@narumitw/pi-plan-mode@0.58.0"
+                "npm:@juicesharp/rpiv-todo@2.10.1"
+                "npm:@juicesharp/rpiv-ask-user-question@2.10.1"
+              ];
+            };
+          };
+        };
+      }
     ];
   };
 }
