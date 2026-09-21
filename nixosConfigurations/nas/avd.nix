@@ -131,6 +131,12 @@ in
         serviceConfig = {
           User = owner;
           WorkingDirectory = dataDir;
+          # 显式给 HOME：adb server 初始化 KnownWifiHostsFile 时会 mkdir $HOME/.android，
+          # 不设的话它会退回 passwd 里的 home（/var/empty，0555 且 immutable）而直接 abort
+          Environment = [
+            "HOME=${dataDir}"
+            "ANDROID_USER_HOME=${dataDir}"
+          ];
           # 先准备好 adbkey，避免 adb server 和 emulator 各生成一个
           ExecStartPre = "${prepare}/bin/avd-prepare";
           ExecStart = "${adb} -a -P 5037 nodaemon server";
@@ -169,6 +175,9 @@ in
         "kvm"
         "render"
       ];
+      # 这个用户的 state（$HOME/.android、AVD 数据）都在 dataDir，
+      # home 保持默认的 /var/empty 会让不读 HOME 而走 getpwuid 的工具直接失败
+      home = dataDir;
     };
     groups.${owner} = { };
   };
