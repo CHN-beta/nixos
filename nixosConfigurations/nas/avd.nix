@@ -59,8 +59,9 @@ let
     export ANDROID_USER_HOME=${dataDir}
     export ANDROID_AVD_HOME=${avdHome}
     export PATH=${toolPath}:${sdk}/bin:${androidSdkRoot}/platform-tools:$PATH
-    # emulator 用 -gpu host 时会 dlopen libEGL / libvulkan
-    export LD_LIBRARY_PATH=/run/opengl-driver/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+    # emulator 用的是 dlopen：libEGL.so.1 / libGL.so.1 由 libglvnd 提供（不在
+    # /run/opengl-driver/lib 里），而 mesa 的 vendor 库（libEGL_mesa.so.0）在后者
+    export LD_LIBRARY_PATH=${pkgs.libglvnd}/lib:/run/opengl-driver/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
   '';
 
   emulatorFlags = [
@@ -117,6 +118,12 @@ let
   run = pkgs.writeShellScriptBin "avd-emulator" ''
     set -euo pipefail
     ${environment}
+    # 无 DISPLAY（headless 服务器）时 gfxstream 默认的 GLX 引擎会失败：
+    #   "GlxEngine...Failed to open display 0" -> "Failed to get EGL display"
+    # ANDROID_EGL_ON_EGL=1 让它改用 EglEngine，EGL_PLATFORM=surfaceless 让
+    # mesa 的 libEGL 不依赖 X/Wayland 拿到 GPU display（实测 GL_RENDERER = radeonsi）
+    export ANDROID_EGL_ON_EGL=1
+    export EGL_PLATFORM=surfaceless
     exec ${emulator} ${lib.escapeShellArgs emulatorFlags} "$@"
   '';
 in
