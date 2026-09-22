@@ -7,7 +7,10 @@ in
     enable = true;
     environmentFiles = [ config.nixos.system.sops.templates."vikunja.env".path ];
     settings = {
-      service.timezone = "Asia/Shanghai";
+      service = {
+        timezone = "Asia/Shanghai";
+        enableregistration = false;
+      };
       mailer = {
         enable = true;
         host = "mail.chn.moe";
