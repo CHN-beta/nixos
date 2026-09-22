@@ -81,6 +81,7 @@ let
       "git"
       "ddml"
       "chat"
+      "vikunja"
     ];
   };
   a_aaaa = {
