@@ -78,6 +78,11 @@
                 name = "google/gemini-3.8-flash";
                 alias = "gemini-3.8-flash-high";
               }
+              {
+                name = "openai/gpt-6-astra";
+                alias = "gpt-6-astra";
+                max-context-length = 272000;
+              }
             ];
           }
         ];
