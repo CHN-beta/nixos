@@ -105,6 +105,10 @@ let
         "${./translate-mcp.yaml}"
       ];
     };
+    vikunja = {
+      command = lib.getExe pkgs.localPkgs.vikunja-mcp;
+      env.VIKUNJA_URL = "https://vikunja.chn.moe";
+    };
     github = {
       url = "https://api.githubcopilot.com/mcp/";
       auth = "bearer";
@@ -132,6 +136,7 @@ let
     OPENAI_API_KEY.file = config.nixos.system.sops.secrets."straycat/siliconflow".path;
     DEEPSEEK_API_KEY.file = config.nixos.system.sops.secrets."straycat/deepseek".path;
     GITHUB_TOKEN.file = config.nixos.system.sops.secrets."straycat/github".path;
+    VIKUNJA_API_TOKEN.file = config.nixos.system.sops.secrets."straycat/vikunja".path;
     PI_SKIP_VERSION_CHECK.value = "1";
   };
 in

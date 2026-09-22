@@ -195,6 +195,7 @@ rec {
     rpm = pkgs.pkgs2411.rpm;
   };
   dockerhub-mcp = pkgs.callPackage ./dockerhub-mcp.nix { src = self.src.dockerhub-mcp; };
+  vikunja-mcp = pkgs.callPackage ./vikunja-mcp.nix { src = self.src.vikunja-mcp; };
   translate-mcp = pkgs.callPackage ./translate-mcp.nix { };
   bge-m3-server = pkgs.callPackage ./bge-m3-server { };
   mcp-server-qdrant = pkgs.callPackage ./mcp-server-qdrant.nix {

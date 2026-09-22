@@ -86,6 +86,10 @@
                 ];
                 env.CLIPROXYAPI_API_KEY = "\${CLIPROXYAPI_API_KEY}";
               };
+              vikunja = {
+                command = lib.getExe pkgs.localPkgs.vikunja-mcp;
+                env.VIKUNJA_URL = "https://vikunja.chn.moe";
+              };
               agent-browser = {
                 command = lib.getExe self.inputs.llm-agents.packages.x86_64-linux.agent-browser;
                 args = [
@@ -185,6 +189,7 @@
               MINERU_API_KEY=${placeholder."straycat/mineru"}
               QDRANT_API_KEY=${placeholder."straycat/qdrant"}
               MCP_GITHUB_TOKEN=${placeholder."straycat/github"}
+              VIKUNJA_API_TOKEN=${placeholder."straycat/vikunja"}
             '';
         };
         secrets = {

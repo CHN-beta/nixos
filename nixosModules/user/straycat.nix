@@ -13,6 +13,7 @@
         "hindsight"
         "siliconflow"
         "openrouter"
+        "vikunja"
       ]
       |> lib.flip lib.genAttrs' (
         s:

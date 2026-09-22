@@ -296,6 +296,17 @@ in
       hash = "sha256-di/EDkHKQrUySc5wtyK2z/nqwAT1UEymx69bVPf+oaM=";
     };
   };
+  vikunja-mcp = rec {
+    pname = "vikunja-mcp";
+    version = "1.2.0";
+    src = pkgs.fetchFromGitHub {
+      owner = "0xK3vin";
+      repo = "vikunja-mcp";
+      rev = "f6ed3c0313b76b52342edf45bb95d41173b07631";
+      hash = "sha256-IklLMEmLglpIAbHmXdSrmXsl3cyipIhHjua2VP+tRu4=";
+    };
+    npmDepsHash = "sha256-EAIHe/z86fnFkUa4gu4UoywxZQlu+KFDrbrcon/GNMo=";
+  };
   models = {
     bge-m3 = pkgs.fetchgit {
       url = "https://huggingface.co/BAAI/bge-m3";
