@@ -12,6 +12,7 @@
         "github"
         "hindsight"
         "siliconflow"
+        "openrouter"
       ]
       |> lib.flip lib.genAttrs' (
         s:
