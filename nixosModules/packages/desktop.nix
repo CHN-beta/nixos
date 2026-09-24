@@ -75,7 +75,6 @@
           cage
           openbox
           fprettify # jetbrains.clion
-          android-tools
           kitty
           # password and key management
           yubikey-manager

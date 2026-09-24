@@ -87,6 +87,7 @@
           tio
           uv
           nixfmt
+          android-tools
           # media
           localPkgs.asmroner
         ];
