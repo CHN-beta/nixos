@@ -87,6 +87,7 @@
           tio
           uv
           nixfmt
+          android-tools
           # media
           localPkgs.asmroner
         ];
@@ -103,7 +104,6 @@
             ]
           )
         ];
-        programs.adb.enable = true;
       }
       {
         # rust-analyzer could not find rust-src
