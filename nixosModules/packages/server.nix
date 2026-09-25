@@ -104,6 +104,8 @@
             ]
           )
         ];
+        services.udev.packages = [ pkgs.android-udev-rules ];
+        users.groups.adbusers = { };
       }
       {
         # rust-analyzer could not find rust-src
