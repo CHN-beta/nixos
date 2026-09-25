@@ -47,6 +47,7 @@
                   host = "127.0.0.1";
                 };
               };
+              matrix.enabled = true;
             };
             mcp_servers = {
               dockerhub = {
@@ -106,6 +107,8 @@
           }
         );
         extraDependencyGroups = [
+          "messaging"
+          "matrix"
           "hindsight"
         ];
         documents."AGENTS.md" = ''
@@ -190,11 +193,21 @@
               QDRANT_API_KEY=${placeholder."straycat/qdrant"}
               MCP_GITHUB_TOKEN=${placeholder."straycat/github"}
               VIKUNJA_API_TOKEN=${placeholder."straycat/vikunja"}
+              MATRIX_HOMESERVER=https://matrix.chn.moe
+              MATRIX_USER_ID=@hermes:chn.moe
+              MATRIX_PASSWORD=${placeholder."hermes/matrix_password"}
+              MATRIX_ALLOWED_USERS=@chn:chn.moe
+              MATRIX_REQUIRE_MENTION=false
+              MATRIX_ENCRYPTION=true
+              MATRIX_DEVICE_ID=HERMES_BOT
+              MATRIX_HOME_ROOM=${placeholder."hermes/matrix_home"}
             '';
         };
         secrets = {
           "hermes/api_server_token".owner = "chn";
           "hermes/dashboard" = { };
+          "hermes/matrix_password" = { };
+          "hermes/matrix_home" = { };
         };
       };
     };

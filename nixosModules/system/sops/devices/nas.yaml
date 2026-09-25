@@ -91,6 +91,8 @@ frigate:
 hermes:
     api_server_token: ENC[AES256_GCM,data:f0gA0a11WVLmqyfKPithL7NVEkQ14uLD7JSvExlgAd8=,iv:ecpYwkqXIlxM2aFAzjLAP2sQd9Wmy1ykXuyYIGzmrxI=,tag:mZQGbd5oerqaKVd6fhFCdA==,type:str]
     dashboard: ENC[AES256_GCM,data:laPV5IwZKMRvMawPiKK+2QGLwVRQhZhnTr6SKILQ2No=,iv:91EATxTL/q5przy2Vhm/DJQDRF4IXCqAML/HRoTIrZk=,tag:2gfjXwyBf3VJDyBY3pdR+g==,type:str]
+    matrix_password: ENC[AES256_GCM,data:XJhusaPFudbmXJSPiZj/jqD0PR9JP1xdmljKN5+Ffbk=,iv:cf/h8FgiixWGYeJ4r5ND25y3RZCrJMUjJP2UWRR0nvc=,tag:MGs2MXQNzSFqAteehBbGpQ==,type:str]
+    matrix_home: ENC[AES256_GCM,data:EzbstOPQASzfmSRpiVeqhhXwOG7WtbN/rOlq,iv:Pjfn9gcS7D7cVoCRvpaWFTtRIIU/CdXIIfUzwwGqjUQ=,tag:H80Z6wqMoDN+orGn0dvCbg==,type:str]
 gitea:
     runner-token: ENC[AES256_GCM,data:yOj3F3aYDTSDOU8ujf83eRfTeXAvXTPSe9EmVYvrVOMNCCidw05fhA==,iv:IpMAG7etI1L9+FJxIvgQ8k5IkRC59lt+7HK3TSrR0iA=,tag:Y95XsyneU5+zCRlNQQNMKQ==,type:str]
 cliproxyapi:
@@ -122,7 +124,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-09-22T06:23:27Z"
-    mac: ENC[AES256_GCM,data:36tei8O7ROKNiDFACcnybCw3Jm/3CCatvdFxczlCztgEQpMMrphO5NDSWN5nm93BesIYlvPi/vnZsxiKhYovxHaoFre2SqHpI1QU7Nt0kAePrVklxEVi+ZDsGtWna1pe9j/zF82O7dL44DuHjV+8sbNJfwWVMSmnYFvE9y7lrP8=,iv:tmroaT4tujtHRQTOJd4dlPd+NKhf//TVYgFF+1orS4o=,tag:mnGGmTsz8SmMRgb2yQ2Apg==,type:str]
+    lastmodified: "2026-09-25T02:44:24Z"
+    mac: ENC[AES256_GCM,data:Hj/KHF4+ajIw8FI068IYEUkzBJRPu5A5jMLhtecv+GbVEv9fSXuJ86AzUWtQKxSYUgpVz4RvvfsEBiF5Cw+KQ1QS6PwuTEDebJv/bHHN6bjc7+b0V6WFAzqBXoqo3j7aUmk2bLzQ2SV5Ut1CqXMd1FON0e8r8bIxzK2giKikeOs=,iv:9hlt5EKz5UYv9kXSc1mQ4TfNhsRNWfmwWVEfJD0vNIU=,tag:2Nt9cPG87f2uQeLGCEKsGQ==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
