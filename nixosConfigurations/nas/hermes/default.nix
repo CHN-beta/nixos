@@ -6,6 +6,7 @@
   ...
 }:
 {
+  imports = lib.findModules ./.;
   config = {
     services = {
       microbin = {
@@ -220,6 +221,7 @@
         createHome = true;
         isSystemUser = true;
         shell = pkgs.bashInteractive;
+        extraGroups = [ "adbusers" ];
       };
       groups.hermes.gid = config.nixos.user.gid.hermes;
     };
