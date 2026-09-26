@@ -36,7 +36,12 @@
           switch-preview-model = true;
           antigravity-credits = true;
         };
-        routing.strategy = "round-robin";
+        routing = {
+          strategy = "round-robin";
+          session-affinity = true;
+          session-affinity-ttl = "1h";
+          session-affinity-subagents = true;
+        };
         ws-auth = false;
         enable-gemini-cli-endpoint = false;
         nonstream-keepalive-interval = 0;
