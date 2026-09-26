@@ -88,6 +88,7 @@
           uv
           nixfmt
           android-tools
+          awscli2
           # media
           localPkgs.asmroner
         ];
