@@ -203,6 +203,7 @@
               MATRIX_ENCRYPTION=true
               MATRIX_DEVICE_ID=HERMES_BOT
               MATRIX_HOME_ROOM=${placeholder."hermes/matrix_home"}
+              DEEPSEEK_API_KEY=${placeholder."straycat/deepseek"}
             '';
         };
         secrets = {
