@@ -131,7 +131,8 @@
           pspp
           libreoffice
           ocrmypdf
-          typst
+          # last typst fixed a bug https://github.com/typst/typst/issues/7269
+          pkgsUnstable.typst
           rnote
           localPkgs.xinli # paperwork
           # required by ltex-plus.vscode-ltex-plus
