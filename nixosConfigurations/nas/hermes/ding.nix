@@ -58,10 +58,10 @@
         ## 三、定位异常处理规则（重要）
         打开考勤页后若显示灰色“Unable to clock in/out”或“Out of range”：这通常是 LSPosed 定位模块注入延迟，并非真实超出范围。
         处理步骤：
-        1. 原地等待 10 秒后重新截图检查是否变成蓝色按钮 + 绿字“Within range”；
-        2. 若仍未恢复，按 KEYCODE_BACK 退出并重新点击 Attendance 进考勤页，等待 10 秒；
-        3. 若仍未恢复，使用 \`am force-stop com.alibaba.android.rimet\` 强制停止钉钉并重新冷启动走一遍导航；
-        4. 最多重试 3 轮。若仍不在范围内则判定打卡失败，绝对不要盲点打卡按钮。
+        1. 原地等待几秒后重新截图检查是否变成蓝色按钮 + 绿字“Within range”；
+        2. 若仍显示“Out of range”，不要重启钉钉，而是点击“Out of range”的说明，等待几秒，然后按返回键（KEYCODE_BACK）返回；
+        3. 返回后等待几秒重新截图检查；可重复上述点击说明并返回的步骤重试（最多重试 3 轮）；
+        4. 若仍不在范围内则判定打卡失败，绝对不要盲点打卡按钮。
 
         ## 四、执行与核验
         1. 截图确认进入考勤页且在打卡范围内；
@@ -85,7 +85,7 @@
         )
 
         # 3. 调用 Hermes 单次运行，TERMINAL_CWD 设为临时目录避免受工作区 AGENTS.md 干扰
-        OUTPUT=$(TERMINAL_CWD="$TMP_DIR" hermes -z "$PROMPT" -t "terminal,file") || {
+        OUTPUT=$(TERMINAL_CWD="$TMP_DIR" hermes --provider deepseek -m deepseek-flash -z "$PROMPT" -t "terminal,file") || {
           hermes send --to matrix "打卡失败：Hermes agent 执行发生异常错误退出。"
           exit 1
         }
