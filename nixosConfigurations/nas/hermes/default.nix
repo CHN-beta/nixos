@@ -32,6 +32,23 @@
           builtins.toJSON {
             terminal.cwd = config.services.hermes-agent.workingDirectory;
             memory.provider = "hindsight";
+            agent.disabled_toolsets = [
+              "browser"
+              "clarify"
+              "code_execution"
+              "computer_use"
+              "cron"
+              "cronjob"
+              "delegate"
+              "delegation"
+              "image_gen"
+              "kanban"
+              "session_search"
+              "todo"
+              "tts"
+              "vision"
+              "web"
+            ];
             model = {
               default = "gemini-3.8-flash-high";
               provider = "cliproxyapi";
