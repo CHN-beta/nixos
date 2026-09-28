@@ -760,7 +760,7 @@
                   };
                   "ltex.language" = "auto";
                   # maybe this could fix typst preview freezing on large project
-                  "tinymist.preview.partialRendering" = false;
+                  "tinymist.preview.partialRendering" = true;
                   "tinymist.preview.refresh" = "onSave";
                   "workbench.secondarySideBar.defaultVisibility" = "hidden";
                   # disable terminal suggestions
