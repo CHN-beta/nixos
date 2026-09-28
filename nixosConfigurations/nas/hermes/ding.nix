@@ -54,6 +54,8 @@
           2. Workplace 页「My」区「Attendance」图标：点击坐标 (134, 882)，等待 10 秒
         - 考勤页中央打卡大圆按钮：坐标 (540, 1440)
         - 打卡成功后广告弹窗右上角关闭按钮 X：坐标 (908, 374)
+        - 强制退出钉钉：\`adb -s $SERIAL shell am force-stop com.alibaba.android.rimet\`
+        - 熄屏：\`adb -s $SERIAL shell input keyevent KEYCODE_SLEEP\`
 
         ## 三、定位异常处理规则（重要）
         打开考勤页后若显示灰色“Unable to clock in/out”或“Out of range”：这通常是 LSPosed 定位模块注入延迟，并非真实超出范围。
@@ -68,14 +70,19 @@
         2. 点击中央打卡大圆按钮 (540, 1440) 进行当前班次打卡，等待 8 秒；
         3. 将打卡成功页面截图保存为 \`$TMP_DIR/punch_success.png\`；
         4. 点击 (908, 374) 关闭可能遮挡页面的广告浮层；
-        5. 返回钉钉首页，通过 \`uiautomator dump\` 或查看聊天列表确认收到“打卡·成功”通知进行独立复核。
+        5. 返回钉钉首页，通过 \`uiautomator dump\` 或查看聊天列表确认收到“打卡·成功”通知进行独立复核；
+        6. 收尾清理：确认核验完成后
+           a. 强制退出钉钉：\`adb -s $SERIAL shell am force-stop com.alibaba.android.rimet\`
+           b. 关闭手机屏幕（熄屏）：\`adb -s $SERIAL shell input keyevent KEYCODE_SLEEP\`
+           c. 用 \`adb -s $SERIAL shell dumpsys window | grep -i mDreamingLockscreen\` 确认手机已熄屏且钉钉已不在前台。
+        7. 上述熄屏与退出钉钉的操作必须在截图保存、消息核验全部完成之后执行，严禁在保存 \`$TMP_DIR/punch_success.png\` 之前熄屏。
+        8. 即使打卡判定失败（例如超出范围），只要曾打开过钉钉，同样必须执行第 6 步的退出钉钉 + 熄屏清理。
 
         ## 五、汇报要求（严格遵守）
         - 若打卡成功：
           必须以“打卡成功”字样开头，并包含截图的 MEDIA 绝对路径，格式如下：
           打卡成功
           MEDIA:$TMP_DIR/punch_success.png
-          打卡班次与详细信息...
 
           ⚠️ 严禁将图片上传到 MicroBin，严禁使用 markdown 图片链接语法 \`![...](...)\`，必须使用纯文本 \`MEDIA:$TMP_DIR/punch_success.png\`。
 
