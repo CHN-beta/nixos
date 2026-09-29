@@ -125,6 +125,7 @@
       };
       packages = {
         desktopPython = { };
+        omp = { };
       };
       user.users = [
         "chn"
