@@ -17,6 +17,7 @@
           self.inputs.catppuccin.homeModules.catppuccin
           self.inputs.dms-plugin-registry.modules.default
           self.inputs.pi.homeModules.default
+          self.inputs.omp.homeManagerModules.default
         ];
       }
     ]

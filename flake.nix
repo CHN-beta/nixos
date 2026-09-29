@@ -62,6 +62,7 @@
     llm-agents.url = "github:numtide/llm-agents.nix";
     hermes.url = "github:NousResearch/hermes-agent";
     pi.url = "github:lukasl-dev/pi.nix";
+    omp.url = "github:CHN-beta/oh-my-pi";
     pyproject-nix = {
       url = "github:pyproject-nix/pyproject.nix";
       inputs.nixpkgs.follows = "nixpkgs";

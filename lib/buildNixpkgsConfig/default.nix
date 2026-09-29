@@ -101,6 +101,7 @@ let
       self.inputs.nix4vscode.overlays.default
       self.inputs.bscpkgs.overlays.default
       self.inputs.chinese-fonts.overlays.default
+      self.inputs.omp.overlays.default
       (final: prev: {
         nur-linyinfeng = (self.inputs.nur-linyinfeng.overlays.default final prev).linyinfeng;
         firefox-addons = (import "${self.inputs.rycee}" { inherit (prev) pkgs; }).firefox-addons;
