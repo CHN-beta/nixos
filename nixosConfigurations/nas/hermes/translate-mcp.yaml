@@ -16,7 +16,7 @@ providers:
   openai:
     base_url: https://cliproxyapi.chn.moe/v1
     api_key: ${CLIPROXYAPI_API_KEY}
-    default_model: gemini-3.7-flash-high
+    default_model: gemini-3.8-flash-high
 
 translation:
   default_provider: openai
