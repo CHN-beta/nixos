@@ -783,7 +783,6 @@
                   keybind = [
                     "ctrl+shift+r=reset"
                     "ctrl+enter=unbind"
-                    "ctrl+shift+a=unbind"
                   ];
                   linux-cgroup = "always";
                   font-family = "FiraCode Nerd Font";
