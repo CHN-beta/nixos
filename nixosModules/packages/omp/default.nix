@@ -165,11 +165,7 @@ in
     default = null;
   };
   config = lib.mkIf (config.nixos.packages.omp != null) {
-    environment.persistence."/nix/persistent".users.chn.directories = [
-      ".omp/agent/sessions"
-      ".omp/agent/blobs"
-      ".omp/plugins"
-    ];
+    environment.persistence."/nix/persistent".users.chn.directories = [ ".omp/agent" ];
     nixos.user.sharedModules = [
       {
         config = {
