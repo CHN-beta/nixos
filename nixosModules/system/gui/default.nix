@@ -238,7 +238,7 @@
                       max_duration_secs = 60;
                       sample_rate = 16000;
                     };
-                    engine = "sensevoice";
+                    engine = "paraformer";
                     hotkey.enabled = false;
                     output = {
                       fallback_to_clipboard = true;
@@ -254,11 +254,7 @@
                       };
                       type_delay_ms = 50;
                     };
-                    sensevoice = {
-                      language = "auto";
-                      model = "small";
-                      use_itn = true;
-                    };
+                    paraformer.model = "zh";
                     state_file = "auto";
                   };
                 };
