@@ -156,7 +156,6 @@ let
       scoping = "global";
     };
     github.enabled = true;
-    tui.mouse = true;
   };
 in
 {
