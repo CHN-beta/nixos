@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
   config = {
     services.cliproxyapi = {
@@ -6,10 +6,11 @@
       settings = {
         host = "127.0.0.1";
         port = 8317;
+        # TODO: migrate config when upgrading to 8.x
         remote-management = {
           allow-remote = true;
           secret-key._secret = config.nixos.system.sops.secrets."cliproxyapi/management".path;
-          disable-control-panel = false;
+          disable-control-panel = true;
           panel-github-repository = "https://github.com/router-for-me/Cli-Proxy-API-Management-Center";
         };
         auth-dir = "/var/lib/cliproxyapi/.cli-proxy-api";
@@ -96,7 +97,21 @@
 
     nixos = {
       system.sops.secrets."cliproxyapi/management" = { };
-      services.nginx.https."cliproxyapi.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:8317";
+      services.nginx.https."cliproxyapi.chn.moe".location = {
+        "/".proxy.upstream = "http://127.0.0.1:8317";
+        "/management.html".static.root =
+          let
+            managementHtml = pkgs.fetchurl {
+              url = "https://github.com/router-for-me/Cli-Proxy-API-Management-Center/releases/download/v1.24.2/management.html";
+              sha256 = "sha256-UbJNuBcKVBSHVgLC9ONQFxhbHB3X6aaxwN5pkFqB6Zc=";
+            };
+            root = pkgs.runCommand "management" { } ''
+              mkdir -p $out
+              cp ${managementHtml} $out/management.html
+            '';
+          in
+          "${root}";
+      };
     };
   };
 }
