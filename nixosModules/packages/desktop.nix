@@ -415,6 +415,8 @@
                   "esbenp.prettier-vscode"
                   # tauri
                   "tauri-apps.tauri-vscode"
+                  # acp
+                  "formulahendry.acp-client"
                 ];
                 keybindings = [
                   # use alt+a to complete inline suggestions, instead of tab or ctrl+enter
@@ -766,6 +768,13 @@
                   # disable terminal suggestions
                   "terminal.integrated.suggest.enabled" = false;
                   "[vue]"."editor.defaultFormatter" = "Vue.volar";
+                  # acp client
+                  "acp.agents" = {
+                    "omp" = {
+                      "command" = "omp";
+                      "args" = [ "acp" ];
+                    };
+                  };
                 };
               };
             };
