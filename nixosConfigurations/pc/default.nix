@@ -92,7 +92,9 @@
           ];
           nvidia.persistence = false;
         };
-        asus = { };
+        asus = {
+          rearGlow.enable = true;
+        };
       };
       services = {
         samba = {
