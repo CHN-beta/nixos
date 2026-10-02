@@ -112,7 +112,6 @@ inputs: {
         "Videos"
         ".config"
         ".local"
-        ".ecdata"
         {
           directory = ".mozilla/firefox/default";
           mode = "0700";
