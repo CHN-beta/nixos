@@ -171,7 +171,7 @@ in
     "6.18" = {
       patch = pkgs.fetchurl {
         url = "https://github.com/kakra/linux/pull/40.patch";
-        sha256 = "02q3x64rdyj6nx7jdknlg7x69v10xxbm0ry2xbgr069dfdm2w1ya";
+        sha256 = "1allyx9avbca3d7dlhaq1bsh48izzp6qw5kb3jndhl0aifr0p1br";
       };
       structuredExtraConfig = {
         BTRFS_ALLOCATOR_HINTS = lib.kernel.yes;
