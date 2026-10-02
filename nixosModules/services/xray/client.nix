@@ -15,6 +15,7 @@ let
     srv2-node1 = "vps10";
     srv2-node2 = "vps10";
     nas = "vps10";
+    pe-rdhx = "vps6";
   };
   proxyUsing = proxyUsingMap.${config.nixos.model.hostname} or null;
 in

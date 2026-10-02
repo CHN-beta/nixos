@@ -25,6 +25,7 @@ let
     ddml-vm = { };
     ddml-vm-n1 = { };
     ddml-vm-n2 = { };
+    pe-rdhx = { };
   };
 in
 {

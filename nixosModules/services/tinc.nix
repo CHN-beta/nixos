@@ -24,6 +24,7 @@ let
     ddml-vm = "h317Y+NcMAXWPQlTCAurdU+mTdIAs9aDZc+2mrChFyK";
     ddml-vm-n1 = "BzJS8BhW6IDcIi1jvXxndOcBTW6e7cNFx6uJThtq42M";
     ddml-vm-n2 = "FC7wIaap2hyie7bZyf9C/h3UACOltkjVmv1d/BjfjyH";
+    rdhx-pe = "DiwCGlXjkas5UxVS5rl590M/IfJjll+g7bqyEnsPaIC";
   };
   # 描述可以直接的设备之间的连接（图上的路径）。若一个设备可以主动接受连接，则设置它接受连接的 ip；否则设置为 null
   # 因为一条条路径描述起来比较麻烦，所以这里一次描述多条
@@ -46,6 +47,7 @@ let
         vps6 = getAddress "vps6";
         pc = null;
         pe = null;
+        pe-rdhx = null;
       };
       distance = 10;
     }

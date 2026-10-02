@@ -15,4 +15,5 @@
   ddml-vm = 14;
   ddml-vm-n1 = 15;
   ddml-vm-n2 = 16;
+  pe-rdhx = 17;
 }
