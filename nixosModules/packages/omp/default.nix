@@ -146,9 +146,6 @@ let
     };
     startup.checkUpdate = false;
     telemetry.otlpExportEnabled = false;
-    # pi's confirm-operations permission handler prompts for everything that is
-    # not a read-only tool, which is what `always-ask` means here.
-    tools.approvalMode = "always-ask";
     memory.backend = "hindsight";
     hindsight = {
       apiUrl = "https://hindsight.chn.moe";
