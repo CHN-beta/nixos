@@ -72,6 +72,7 @@
         hermes = 2017;
         garage = 2018;
         ddml-service = 2019;
+        freshman-followup = 2020;
       };
     };
     gid = lib.mkOption {

@@ -197,6 +197,7 @@ rec {
   dockerhub-mcp = pkgs.callPackage ./dockerhub-mcp.nix { src = self.src.dockerhub-mcp; };
   vikunja-mcp = pkgs.callPackage ./vikunja-mcp.nix { src = self.src.vikunja-mcp; };
   translate-mcp = pkgs.callPackage ./translate-mcp.nix { };
+  freshman-followup = pkgs.callPackage ./freshman-followup { };
   bge-m3-server = pkgs.callPackage ./bge-m3-server { };
   mcp-server-qdrant = pkgs.callPackage ./mcp-server-qdrant.nix {
     python = pkgs.python313;

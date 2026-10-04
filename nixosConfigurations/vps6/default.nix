@@ -49,6 +49,7 @@
         fail2ban = { };
         beesd."/" = { };
         hongbao = { };
+        freshman-followup.hostname = "hf.chn.moe";
       };
     };
     networking.nftables.tables.forward = {

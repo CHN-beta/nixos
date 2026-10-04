@@ -1,0 +1,5 @@
+# 新生回访系统后端配置文件示例 (所有字段均为必填项，无默认值)
+database_url: "postgres://postgres:postgres@localhost:5432/freshman_followup"
+jwt_secret: "freshman-followup-secret-key-xmu-2026"
+host: "0.0.0.0"
+port: 3000

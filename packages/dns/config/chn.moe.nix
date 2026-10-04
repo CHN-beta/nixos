@@ -16,6 +16,7 @@ let
       "catalog"
       "coturn"
       "element"
+      "hf"
       "initrd.vps6"
       "sticker"
       "synapse-admin"
