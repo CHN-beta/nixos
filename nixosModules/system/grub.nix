@@ -1,36 +1,38 @@
-inputs: {
-  options.nixos.system.grub =
-    let
-      inherit (inputs.lib) mkOption types;
-    in
-    mkOption {
-      type = types.nullOr (
-        types.submodule {
-          options = {
-            windowsEntries = mkOption {
-              type = types.attrsOf types.nonEmptyStr;
-              default = { };
-            };
-            # "efi" using efi, "efiRemovable" using efi with install grub removable, or dev path like "/dev/sda" using bios
-            installDevice = mkOption {
-              type = types.str;
-              default = "efi";
-            };
+{
+  lib,
+  config,
+  pkgs,
+  ...
+}:
+{
+  options.nixos.system.grub = lib.mkOption {
+    type = lib.types.nullOr (
+      lib.types.submodule {
+        options = {
+          windowsEntries = lib.mkOption {
+            type = lib.types.attrsOf lib.types.nonEmptyStr;
+            default = { };
           };
-        }
-      );
-      default =
-        {
-          x86_64 = { };
-          aarch64 = null;
-        }
-        .${inputs.config.nixos.model.arch};
-    };
+          # "efi" using efi, "efiRemovable" using efi with install grub removable, dev path like "/dev/sda" using bios, or "hybrid:/dev/sda" using hybrid
+          installDevice = lib.mkOption {
+            type = lib.types.str;
+            default = "efi";
+          };
+        };
+      }
+    );
+    default =
+      {
+        x86_64 = { };
+        aarch64 = null;
+      }
+      .${config.nixos.model.arch};
+  };
   config =
     let
-      inherit (inputs.config.nixos.system) grub;
+      inherit (config.nixos.system) grub;
     in
-    inputs.lib.mkConditional (grub != null) (inputs.lib.mkMerge [
+    lib.mkConditional (grub != null) (lib.mkMerge [
       # general settings
       {
         boot.loader = {
@@ -38,7 +40,7 @@ inputs: {
             enable = true;
             useOSProber = false;
           };
-          timeout = if inputs.config.nixos.model.variant == "desktop" then null else 15;
+          timeout = if config.nixos.model.variant == "desktop" then null else 15;
         };
       }
       # grub install
@@ -53,13 +55,18 @@ inputs: {
                 ]
               then
                 "nodev"
+              else if lib.strings.hasPrefix "hybrid:" grub.installDevice then
+                lib.strings.removePrefix "hybrid:" grub.installDevice
               else
                 grub.installDevice;
-            efiSupport = builtins.elem grub.installDevice [
-              "efi"
-              "efiRemovable"
-            ];
-            efiInstallAsRemovable = grub.installDevice == "efiRemovable";
+            efiSupport =
+              builtins.elem grub.installDevice [
+                "efi"
+                "efiRemovable"
+              ]
+              || lib.strings.hasPrefix "hybrid:" grub.installDevice;
+            efiInstallAsRemovable =
+              grub.installDevice == "efiRemovable" || lib.strings.hasPrefix "hybrid:" grub.installDevice;
           };
           efi.canTouchEfiVariables = grub.installDevice == "efi";
         };
@@ -68,11 +75,14 @@ inputs: {
       {
         boot.loader.grub = {
           memtest86.enable = true;
-          extraFiles = inputs.lib.mkIf (builtins.elem grub.installDevice [
-            "efi"
-            "efiRemovable"
-          ]) { "shell.efi" = "${inputs.pkgs.genericPkgs.edk2-uefi-shell}/shell.efi"; };
-          extraEntries = inputs.lib.mkMerge (
+          extraFiles = lib.mkIf (
+            builtins.elem grub.installDevice [
+              "efi"
+              "efiRemovable"
+            ]
+            || lib.strings.hasPrefix "hybrid:" grub.installDevice
+          ) { "shell.efi" = "${pkgs.genericPkgs.edk2-uefi-shell}/shell.efi"; };
+          extraEntries = lib.mkMerge (
             builtins.concatLists [
               (builtins.map (system: ''
                 menuentry "${system.value}" {
@@ -83,7 +93,7 @@ inputs: {
                   search --fs-uuid --set=root ${system.name}
                   chainloader /EFI/Microsoft/Boot/bootmgfw.efi
                 }
-              '') (inputs.lib.attrsToList grub.windowsEntries))
+              '') (lib.attrsToList grub.windowsEntries))
               [
                 ''
                   menuentry "System shutdown" {
@@ -95,11 +105,14 @@ inputs: {
                     reboot
                   }
                 ''
-                (inputs.lib.optionalString
-                  (builtins.elem grub.installDevice [
-                    "efi"
-                    "efiRemovable"
-                  ])
+                (lib.optionalString
+                  (
+                    builtins.elem grub.installDevice [
+                      "efi"
+                      "efiRemovable"
+                    ]
+                    || lib.strings.hasPrefix "hybrid:" grub.installDevice
+                  )
                   ''
                     menuentry 'UEFI Firmware Settings' --id 'uefi-firmware' {
                       fwsetup
