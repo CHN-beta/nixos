@@ -14,7 +14,7 @@
         <textarea
           v-model="remarksText"
           rows="4"
-          placeholder="请输入学生回访详情、沟通情况、心理意向或后续跟进安排..."
+          placeholder="请输入学生回访详情、沟通情况或后续跟进安排..."
           class="w-full p-3 text-xs sm:text-sm rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
         ></textarea>
       </div>

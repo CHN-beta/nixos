@@ -119,7 +119,7 @@ const statusOptions = [
   { name: '未联系', textClass: 'text-slate-700', desc: '新分配或尚未致电联系' },
   { name: '成功预约', textClass: 'text-emerald-700', desc: '强绑定并选定空闲老师排班' },
   { name: '暂时没空', textClass: 'text-amber-700', desc: '学生表示暂忙，待后续跟进' },
-  { name: '拒绝回访', textClass: 'text-rose-700', desc: '学生主动表示不需咨询或拒绝' },
+  { name: '拒绝回访', textClass: 'text-rose-700', desc: '学生主动表示不需要或拒绝' },
   { name: '空号', textClass: 'text-red-700', desc: '手机号停机、空号或无法接通' },
   { name: '未接通', textClass: 'text-orange-700', desc: '电话无人接听、挂断或占线' },
   { name: '其它', textClass: 'text-purple-700', desc: '休学、退学或特殊情况' },

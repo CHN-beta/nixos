@@ -100,7 +100,7 @@
                 :class="t.student_id !== null ? 'opacity-70 cursor-not-allowed' : 'hover:scale-105 active:scale-95 cursor-pointer ring-1 ring-black/5'"
               >
                 <span class="text-[10px] bg-black/15 px-1 py-0.2 rounded font-mono">
-                  第 {{ t.column_index + 1 }} 列
+                  房间{{ roomNames[t.column_index] }}
                 </span>
                 <span>{{ t.teacher_name }}</span>
                 <span v-if="t.student_id !== null" class="text-[10px] ml-1 bg-black/20 px-1 py-0.2 rounded">
@@ -136,9 +136,9 @@
             <span class="font-medium text-slate-800">{{ pendingTarget.slot.timeRange }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-slate-500">排班位置 / 咨询师:</span>
+            <span class="text-slate-500">排班位置 / 老师:</span>
             <span class="font-bold text-slate-900">
-              第 {{ pendingTarget.teacher.column_index + 1 }} 列 · {{ pendingTarget.teacher.teacher_name }}
+              房间{{ roomNames[pendingTarget.teacher.column_index] }} · {{ pendingTarget.teacher.teacher_name }}
             </span>
           </div>
         </div>
@@ -174,6 +174,7 @@ import { ref, watch, computed } from 'vue';
 import Modal from './Modal.vue';
 import { api } from '../api/client';
 import { getTeacherHslColor, getAllSlots } from '../utils/color';
+const roomNames = ['一', '二', '三', '四', '五', '六', '七', '八'];
 
 const props = defineProps({
   modelValue: {

@@ -1,13 +1,10 @@
 <template>
   <div class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-slate-100 to-emerald-50/30">
     <div class="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
-      <!-- Logo & Header -->
+      <!-- Header -->
       <div class="text-center mb-8">
-        <div class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center text-white text-xl font-bold mx-auto mb-3 shadow-md shadow-emerald-600/20">
-          心
-        </div>
-        <h2 class="text-xl font-bold text-slate-800">新生回访系统</h2>
-        <p class="text-xs text-slate-500 mt-1">心理咨询中心 · 助理排班与回访平台</p>
+        <h2 class="text-2xl font-bold text-slate-800 tracking-tight">登 录</h2>
+        <p class="text-xs text-slate-400 mt-1.5">请使用您的账号与密码登录系统</p>
       </div>
 
       <!-- Error message -->
@@ -24,19 +21,19 @@
       <!-- Login Form -->
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">账号 / 用户名</label>
+          <label class="block text-xs font-medium text-slate-700 mb-1">账号</label>
           <input
             v-model="username"
             type="text"
             required
             autocomplete="username"
-            placeholder="请输入管理员或助理账号"
+            placeholder="请输入账号"
             class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-700 mb-1">登录密码</label>
+          <label class="block text-xs font-medium text-slate-700 mb-1">密码</label>
           <input
             v-model="password"
             type="password"
@@ -66,9 +63,6 @@
         </button>
       </form>
 
-      <div class="mt-6 text-center text-xs text-slate-400">
-        如需账号请联系心理咨询中心管理员通过数据库统一配置
-      </div>
     </div>
   </div>
 </template>

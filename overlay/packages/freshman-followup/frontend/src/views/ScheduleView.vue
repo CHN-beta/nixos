@@ -3,13 +3,9 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
       <div>
-        <h2 class="text-lg font-bold text-slate-800 flex items-center space-x-2">
-          <span>心理咨询师值班排班表</span>
-          <span class="text-xs bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-medium">
-            全天 28 时段 · 8 列固定展示
-          </span>
+        <h2 class="text-lg font-bold text-slate-800">
+          值班排班表
         </h2>
-        <p class="text-xs text-slate-500 mt-0.5">纵轴为 28 个半小时时段，横轴为 8 个固定咨询师列（老师可固定在专属列连续排班）</p>
       </div>
 
       <button
@@ -69,27 +65,34 @@
 
       <!-- Matrix Table -->
       <div v-else class="overflow-x-auto">
-        <table class="min-w-[960px] w-full border-collapse text-xs">
+        <table class="min-w-[1040px] w-full border-collapse text-xs">
           <!-- Table Header: Columns -->
           <thead>
             <tr class="bg-slate-100/80 border-b border-slate-200 text-slate-700">
-              <th class="p-2.5 w-32 min-w-[128px] text-left font-semibold sticky left-0 bg-slate-100 z-10 border-r border-slate-200 shadow-xs">
-                时段 (纵轴)
+              <th class="p-2.5 sm:p-3 w-36 min-w-[140px] text-left font-semibold sticky left-0 bg-slate-100 z-10 border-r border-slate-200 shadow-xs">
+                时段
               </th>
               <th
                 v-for="colIndex in 8"
                 :key="colIndex - 1"
-                class="p-2.5 text-center font-semibold border-r border-slate-200 last:border-r-0 min-w-[105px]"
+                class="p-2 sm:p-2.5 text-center font-semibold border-r border-slate-200 last:border-r-0 min-w-[110px] sm:min-w-[130px]"
               >
                 <div class="flex flex-col items-center">
-                  <span class="font-bold text-slate-800">第 {{ colIndex }} 列</span>
-                  <span
-                    v-if="getColumnSummary(colIndex - 1)"
-                    class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-1.5 py-0.2 rounded-full mt-0.5 max-w-[95px] truncate font-normal"
-                    :title="getColumnSummary(colIndex - 1)"
+                  <span class="font-bold text-slate-800 text-xs sm:text-sm">房间{{ roomNames[colIndex - 1] }}</span>
+                  <div
+                    v-if="getColumnTeachers(colIndex - 1).length > 0"
+                    class="flex items-center justify-center gap-1 flex-wrap mt-1"
                   >
-                    {{ getColumnSummary(colIndex - 1) }}
-                  </span>
+                    <span
+                      v-for="name in getColumnTeachers(colIndex - 1)"
+                      :key="name"
+                      class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold text-white shadow-2xs cursor-default shrink-0 select-none"
+                      :style="getTeacherHslStyle(name)"
+                      :title="name"
+                    >
+                      {{ name.charAt(0) }}
+                    </span>
+                  </div>
                 </div>
               </th>
             </tr>
@@ -103,18 +106,36 @@
               class="hover:bg-slate-50/40 transition-colors"
             >
               <!-- Left Sticky Time Column -->
-              <td class="p-2 w-32 min-w-[128px] sticky left-0 bg-white border-r border-slate-200 z-10 shadow-xs">
+              <td class="p-2 sm:p-2.5 w-36 min-w-[140px] sticky left-0 bg-white border-r border-slate-200 z-10 shadow-xs align-middle">
                 <div
                   @click="openSlotModal(slot, null)"
-                  class="cursor-pointer group flex items-center space-x-1.5 hover:text-emerald-700"
+                  class="cursor-pointer group flex flex-col justify-center hover:text-emerald-700 py-1"
                   title="点击管理此时段所有排班"
                 >
-                  <span class="w-4 h-4 rounded-full bg-slate-100 group-hover:bg-emerald-100 group-hover:text-emerald-700 text-slate-500 flex items-center justify-center text-[10px] font-mono shrink-0">
-                    {{ slot.index + 1 }}
-                  </span>
-                  <span class="font-mono text-slate-700 font-semibold text-[11px] group-hover:underline">
-                    {{ slot.timeRange }}
-                  </span>
+                  <div class="flex items-center space-x-1.5">
+                    <span class="w-5 h-5 rounded-full bg-slate-100 group-hover:bg-emerald-100 group-hover:text-emerald-700 text-slate-500 flex items-center justify-center text-[10px] font-mono shrink-0">
+                      {{ slot.index + 1 }}
+                    </span>
+                    <span class="font-mono text-slate-700 font-semibold text-xs sm:text-[13px] group-hover:underline">
+                      {{ slot.timeRange }}
+                    </span>
+                  </div>
+
+                  <!-- Teacher initial labels under time -->
+                  <div
+                    v-if="getSlotTeachers(slot.index).length > 0"
+                    class="flex items-center gap-1 flex-wrap mt-1.5 pl-0.5"
+                  >
+                    <span
+                      v-for="name in getSlotTeachers(slot.index)"
+                      :key="name"
+                      class="w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold text-white shadow-2xs cursor-default shrink-0 select-none"
+                      :style="getTeacherHslStyle(name)"
+                      :title="name"
+                    >
+                      {{ name.charAt(0) }}
+                    </span>
+                  </div>
                 </div>
               </td>
 
@@ -122,28 +143,28 @@
               <td
                 v-for="colIndex in 8"
                 :key="colIndex - 1"
-                class="p-1 border-r border-slate-100 last:border-r-0 text-center align-middle h-11"
+                class="p-1 sm:p-1.5 border-r border-slate-100 last:border-r-0 text-center align-middle h-14 sm:h-16 md:h-[68px]"
               >
                 <!-- Cell with Teacher -->
                 <div
                   v-if="getTeacherAt(slot.index, colIndex - 1)"
                   @click="openSlotModal(slot, colIndex - 1)"
-                  class="w-full h-full min-h-[34px] px-1.5 py-1 rounded-lg text-xs font-medium shadow-2xs flex flex-col justify-center items-center transition-all hover:scale-[1.02] cursor-pointer"
+                  class="w-full h-full min-h-[46px] sm:min-h-[54px] px-2 py-1.5 rounded-lg text-xs font-medium shadow-2xs flex flex-col justify-center items-center transition-all hover:scale-[1.02] cursor-pointer"
                   :style="getTeacherBadgeStyle(getTeacherAt(slot.index, colIndex - 1))"
                   :title="getTeacherAt(slot.index, colIndex - 1).student_id ? `已预约: ${getTeacherAt(slot.index, colIndex - 1).student_name}` : '空闲可预约'"
                 >
-                  <span class="font-semibold leading-tight truncate max-w-[95px]">
+                  <span class="font-semibold text-xs sm:text-[13px] leading-snug sm:leading-normal truncate w-full text-center px-0.5">
                     {{ getTeacherAt(slot.index, colIndex - 1).teacher_name }}
                   </span>
                   <span
                     v-if="getTeacherAt(slot.index, colIndex - 1).student_id !== null"
-                    class="text-[9px] bg-black/25 text-white px-1 rounded mt-0.5 truncate max-w-[95px]"
+                    class="text-[9px] sm:text-[10px] bg-black/25 text-white px-1.5 py-0.5 rounded mt-1 truncate max-w-full leading-none font-normal"
                   >
                     已约: {{ getTeacherAt(slot.index, colIndex - 1).student_name }}
                   </span>
                   <span
                     v-else
-                    class="text-[9px] bg-white/25 text-white px-1 rounded mt-0.5"
+                    class="text-[9px] sm:text-[10px] bg-white/25 text-white px-1.5 py-0.5 rounded mt-1 leading-none font-normal"
                   >
                     空闲
                   </span>
@@ -154,10 +175,10 @@
                   v-else
                   @click="openSlotModal(slot, colIndex - 1)"
                   type="button"
-                  class="w-full h-full min-h-[34px] rounded-lg border border-dashed border-transparent hover:border-emerald-300 hover:bg-emerald-50/40 text-slate-300 hover:text-emerald-600 transition-all flex items-center justify-center group"
-                  :title="`在 ${slot.timeRange} 第 ${colIndex} 列排班`"
+                  class="w-full h-full min-h-[46px] sm:min-h-[54px] rounded-lg border border-dashed border-slate-200/70 hover:border-emerald-300 hover:bg-emerald-50/40 text-slate-300 hover:text-emerald-600 transition-all flex items-center justify-center group"
+                  :title="`在 ${slot.timeRange} 房间${roomNames[colIndex - 1]} 排班`"
                 >
-                  <svg class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                   </svg>
                 </button>
@@ -183,6 +204,7 @@ import { ref, computed, onMounted } from 'vue';
 import { api } from '../api/client';
 import { getTeacherHslColor, getAllSlots } from '../utils/color';
 import SlotManageModal from '../components/SlotManageModal.vue';
+const roomNames = ['一', '二', '三', '四', '五', '六', '七', '八'];
 
 const availableDates = ref([]);
 const selectedDate = ref('');
@@ -229,18 +251,33 @@ function getTeacherAt(slotIndex, columnIndex) {
   return schedules.value.find(s => s.slot_index === slotIndex && s.column_index === columnIndex);
 }
 
+function getTeacherHslStyle(name) {
+  const hsl = getTeacherHslColor(name);
+  return {
+    backgroundColor: hsl.bg,
+    color: hsl.color,
+    border: `1px solid ${hsl.border}`,
+  };
+}
+
 /**
- * 汇总某列上当天主要出现的老师姓名（方便在表头一目了然看列归属）
+ * 获取某房间（列）当天出现的所有不同老师列表
  */
-function getColumnSummary(colIndex) {
+function getColumnTeachers(colIndex) {
   const teachersInCol = schedules.value
     .filter(s => s.column_index === colIndex)
     .map(s => s.teacher_name);
+  return [...new Set(teachersInCol)];
+}
 
-  if (teachersInCol.length === 0) return '';
-  const uniqueNames = [...new Set(teachersInCol)];
-  if (uniqueNames.length === 1) return uniqueNames[0];
-  return uniqueNames.slice(0, 2).join(' / ');
+/**
+ * 获取某时段（行）当天出现的所有不同老师列表
+ */
+function getSlotTeachers(slotIndex) {
+  const teachersInSlot = schedules.value
+    .filter(s => s.slot_index === slotIndex)
+    .map(s => s.teacher_name);
+  return [...new Set(teachersInSlot)];
 }
 
 async function loadDates() {

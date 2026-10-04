@@ -38,7 +38,7 @@
       <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2.5">
         <div class="flex items-center justify-between text-xs">
           <label class="font-semibold text-slate-700">添加排班老师</label>
-          <span class="text-slate-400">支持指定固定展示列（第 1 ~ 8 列）</span>
+          <span class="text-slate-400">支持指定房间（房间一至八）</span>
         </div>
 
         <div v-if="teachers.length >= 8" class="text-xs text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
@@ -58,7 +58,7 @@
                 :value="col - 1"
                 :disabled="isColumnOccupied(col - 1)"
               >
-                第 {{ col }} 列 {{ isColumnOccupied(col - 1) ? '(已占)' : '' }}
+                房间{{ roomNames[col - 1] }} {{ isColumnOccupied(col - 1) ? '(已占)' : '' }}
               </option>
             </select>
           </div>
@@ -97,7 +97,7 @@
             <!-- Teacher info badge -->
             <div class="flex items-center space-x-2.5 min-w-0">
               <span class="px-2 py-0.5 rounded text-[11px] font-mono bg-slate-100 text-slate-600 font-semibold border border-slate-200 shrink-0">
-                第 {{ t.column_index + 1 }} 列
+                房间{{ roomNames[t.column_index] }}
               </span>
 
               <span
@@ -180,6 +180,7 @@ import { ref, computed, watch } from 'vue';
 import Modal from './Modal.vue';
 import { api } from '../api/client';
 import { getTeacherHslColor } from '../utils/color';
+const roomNames = ['一', '二', '三', '四', '五', '六', '七', '八'];
 
 const props = defineProps({
   modelValue: {
@@ -254,7 +255,7 @@ async function handleAddTeacher() {
   }
 
   if (isColumnOccupied(selectedColumn.value)) {
-    errorMessage.value = `第 ${selectedColumn.value + 1} 列已被占用，请选择其他列`;
+    errorMessage.value = `房间${roomNames[selectedColumn.value]} 已被占用，请选择其他房间`;
     return;
   }
 

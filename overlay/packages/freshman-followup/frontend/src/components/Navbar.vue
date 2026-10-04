@@ -3,14 +3,13 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-14">
         <!-- Logo & Title -->
-        <div class="flex items-center space-x-3">
-          <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
-            心
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+            </svg>
           </div>
-          <div>
-            <h1 class="text-base font-semibold text-slate-800 leading-tight">新生回访系统</h1>
-            <p class="text-xs text-slate-500 hidden sm:block">厦门大学心理咨询中心</p>
-          </div>
+          <h1 class="text-base font-semibold text-slate-800 leading-tight">新生回访系统</h1>
         </div>
 
         <!-- Desktop Navigation Tabs -->

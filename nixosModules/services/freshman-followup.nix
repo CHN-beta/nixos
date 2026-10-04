@@ -26,7 +26,7 @@ in
       }
     );
     default = null;
-    description = "Freshman Follow-up System (厦大心理咨询中心新生回访系统).";
+    description = "Freshman Follow-up System.";
   };
 
   config =

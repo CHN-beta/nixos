@@ -9,7 +9,6 @@
             共 {{ total }} 人
           </span>
         </h2>
-        <p class="text-xs text-slate-500 mt-0.5">支持一键拨打联系、状态修改确认、排班强绑定与备注独立编辑</p>
       </div>
 
       <button
