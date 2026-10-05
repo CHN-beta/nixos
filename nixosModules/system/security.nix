@@ -20,35 +20,63 @@
             origin = "pam://chn.moe";
             # generate using: `pamu2fcfg -u chn -o pam://chn.moe -i pam://chn.moe`
             authfile = builtins.toString (
-              pkgs.writeText "yubikey_mappings" (
-                builtins.concatStringsSep "\n" [
-                  (builtins.concatStringsSep ":" [
+              pkgs.writeText "u2f_mappings" (
+                let
+                  key = builtins.concatStringsSep "," [
+                    "83Y3cLxhcmwbDOH1h67SQ1xy0dFBcoKYM0VO/YVq+9lpOpdPdmFaB7BNngO3xCmAxJeO/Fg9jNmEF9vMJEmAaw=="
+                    "9bSjr+12JVwtHlyoa70J7w3bEQff+MwLxg5elzdP1OGHcfWGkolRvS+luAgcWjKn1g0swaYdnklCYWYOoCAJbA=="
+                    "es256"
+                    "+presence"
+                  ];
+                  users = [
                     "chn"
-                    (builtins.concatStringsSep "," [
-                      "83Y3cLxhcmwbDOH1h67SQ1xy0dFBcoKYM0VO/YVq+9lpOpdPdmFaB7BNngO3xCmAxJeO/Fg9jNmEF9vMJEmAaw=="
-                      "9bSjr+12JVwtHlyoa70J7w3bEQff+MwLxg5elzdP1OGHcfWGkolRvS+luAgcWjKn1g0swaYdnklCYWYOoCAJbA=="
-                      "es256"
-                      "+presence"
-                    ])
-                  ])
-                ]
+                    "root"
+                    "straycat"
+                  ];
+                in
+                builtins.concatStringsSep "\n" (map (u: "${u}:${key}") users)
               )
             );
           };
+        };
+        yubico = {
+          enable = true;
+          id = "91291";
         };
         rssh.enable = true;
         services =
           let
             u2fOrder = s: config.security.pam.services.${s}.rules.auth.u2f.order;
+            yubicoMappings = builtins.toString (
+              pkgs.writeText "yubico_mappings" (
+                let
+                  yubicoId = "cccccbgrhnub";
+                  users = [
+                    "chn"
+                    "root"
+                    "straycat"
+                  ];
+                in
+                builtins.concatStringsSep "\n" (map (u: "${u}:${yubicoId}") users)
+              )
+            );
           in
           {
             sudo = {
               rssh = true;
               rules.auth.rssh.order = (u2fOrder "sudo") + 10;
+              rules.auth.yubico.order = (u2fOrder "sudo") + 20;
+              rules.auth.yubico.settings.authfile = yubicoMappings;
             };
             su = {
               rssh = true;
               rules.auth.rssh.order = (u2fOrder "su") + 10;
+              rules.auth.yubico.order = (u2fOrder "su") + 20;
+              rules.auth.yubico.settings.authfile = yubicoMappings;
+            };
+            login = {
+              rules.auth.yubico.order = (u2fOrder "login") + 10;
+              rules.auth.yubico.settings.authfile = yubicoMappings;
             };
           };
         loginLimits = [
