@@ -23,13 +23,11 @@
       };
       enableDefaultPath = false;
     };
+    # pam_unix hands the password to the unix_chkpwd helper, which runs as the nginx
+    # user and therefore needs the shadow group to read /etc/shadow (0640 root:shadow).
     users.users.nginx.extraGroups = [ "shadow" ];
-    # anyway to make it better?
-    security.pam.services."nginx-omp".text = ''
-      auth required pam_succeed_if.so user in straycat
-      auth required pam_unix.so
-      account required pam_unix.so
-    '';
+    # The "nginx-omp" PAM service itself is defined in nixosModules/system/security.nix,
+    # next to the yubico key mapping it has to reference.
     nixos.services.nginx.https."omp.chn.moe" = {
       global.extraConfig = ''
         proxy_buffering off;
