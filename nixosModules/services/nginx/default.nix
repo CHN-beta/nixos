@@ -106,6 +106,7 @@
             [
               nginx-geoip2
               pkgs.nginxModules.vts
+              pkgs.nginxModules.pam
             ];
           streamConfig = ''
             geoip2 ${config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
@@ -143,6 +144,7 @@
           AmbientCapabilities = [ "CAP_NET_ADMIN" ];
           LimitNPROC = 65536;
           LimitNOFILE = 524288;
+          SystemCallErrorNumber = "EPERM";
         };
       };
 }

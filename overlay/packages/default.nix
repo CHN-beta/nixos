@@ -208,6 +208,7 @@ rec {
       pyproject-build-systems
       ;
   };
+  omp-web = pkgs.callPackage ./omp-web { };
 
   fromYaml =
     content:

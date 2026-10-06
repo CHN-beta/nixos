@@ -1,0 +1,3 @@
+# Frontend (backend build output is covered by backend/.gitignore)
+frontend/node_modules/
+frontend/dist/
