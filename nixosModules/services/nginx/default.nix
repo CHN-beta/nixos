@@ -144,7 +144,18 @@
           AmbientCapabilities = [ "CAP_NET_ADMIN" ];
           LimitNPROC = 65536;
           LimitNOFILE = 524288;
+          # Denied syscalls fail with EPERM instead of the default SIGSYS, so a blocked
+          # call becomes a diagnosable error instead of a coredump of the worker.
           SystemCallErrorNumber = "EPERM";
+          # nixpkgs additionally denies "@privileged @setuid", which also covers setuid,
+          # setgid and setgroups. Those must stay allowed: pam_unix's unix_chkpwd helper
+          # re-drops to its own uid/gid (setgid(getgid()) / setuid(getuid())) before
+          # verifying, and with the syscalls blocked it aborts with PAM_AUTH_ERR without
+          # writing anything, showing up only as "read unix_chkpwd output error 0".
+          # Needed by nixos.services.omp-web (nginx auth_pam).
+          # Cheap concession: this unit holds no CAP_SETUID/CAP_SETGID/CAP_SYS_ADMIN and
+          # sets NoNewPrivileges, so those syscalls can only no-op or drop privileges.
+          SystemCallFilter = lib.mkForce [ "~@cpu-emulation @debug @keyring @mount @obsolete" ];
         };
       };
 }

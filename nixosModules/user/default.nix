@@ -179,9 +179,5 @@
       }
       # setup test
       (lib.mkIf (builtins.elem "test" user.users) { users.users.test.password = "test"; })
-      # setup straycat
-      (lib.mkIf (builtins.elem "straycat" user.users) {
-        users.users.straycat.openssh.authorizedKeys.keys = [ (builtins.readFile ./keys/chn) ];
-      })
     ];
 }
