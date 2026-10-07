@@ -1,18 +1,42 @@
 <template>
-  <div class="flex h-screen w-screen overflow-hidden bg-canvas text-ink font-sans">
-    <!-- Sidebar -->
-    <aside class="w-72 bg-surface border-r border-line flex flex-col shrink-0 select-none">
+  <div class="flex h-dvh w-screen overflow-hidden bg-canvas text-ink font-sans">
+    <!-- Mobile scrim: dismisses the session drawer. -->
+    <div
+      @click="sidebarOpen = false"
+      :class="[
+        'fixed inset-0 z-30 bg-ink/40 transition-opacity duration-200 md:hidden',
+        sidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0',
+      ]"
+    ></div>
+
+    <!-- Sidebar: static rail from md up, slide-in drawer below. -->
+    <aside
+      id="session-sidebar"
+      :class="[
+        'fixed inset-y-0 left-0 z-40 flex w-72 shrink-0 select-none flex-col border-r border-line bg-surface transition-transform duration-200 ease-out md:static md:inset-auto',
+        sidebarOpen ? 'translate-x-0 shadow-2xl md:shadow-none' : '-translate-x-full md:translate-x-0',
+      ]"
+    >
       <div class="p-4 border-b border-line flex items-center justify-between">
         <div class="flex items-center space-x-2">
           <span class="text-xl font-bold tracking-tight text-accent">⌥ omp</span>
           <span class="text-xs px-1.5 py-0.5 rounded-sm bg-sunken text-ink-faint border border-line font-mono">web</span>
         </div>
-        <button
-          @click="showNewModal = true"
-          class="px-2.5 py-1 text-xs font-medium rounded-md bg-accent hover:bg-accent-hover text-white transition flex items-center space-x-1"
-        >
-          <span>+ New</span>
-        </button>
+        <div class="flex items-center space-x-1">
+          <button
+            @click="openNewSession"
+            class="px-2.5 py-1 text-xs font-medium rounded-md bg-accent hover:bg-accent-hover text-white transition flex items-center space-x-1"
+          >
+            <span>+ New</span>
+          </button>
+          <button
+            @click="sidebarOpen = false"
+            class="md:hidden p-1.5 -mr-1 rounded-md text-ink-faint hover:bg-sunken hover:text-ink transition"
+            aria-label="Collapse session list"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       <!-- Sessions List -->
@@ -55,14 +79,22 @@
     <main class="flex-1 flex flex-col min-w-0 bg-canvas">
       <template v-if="activeSession">
         <!-- Session Topbar -->
-        <header class="h-12 border-b border-line px-4 flex items-center justify-between shrink-0 bg-surface">
-          <div class="flex items-center space-x-2 truncate">
+        <header class="h-12 border-b border-line px-3 md:px-4 flex items-center justify-between gap-2 shrink-0 bg-surface">
+          <button
+            @click="sidebarOpen = true"
+            class="md:hidden shrink-0 -ml-0.5 p-1.5 rounded-md text-ink-soft hover:bg-sunken hover:text-ink transition"
+            aria-label="Open session list"
+            aria-controls="session-sidebar"
+          >
+            ☰
+          </button>
+          <div class="flex flex-1 min-w-0 items-center space-x-2 truncate">
             <span class="text-xs font-medium text-ink-soft">CWD:</span>
             <span class="text-xs font-mono bg-sunken text-accent-ink px-2 py-0.5 rounded-sm border border-line-strong truncate">
               {{ activeSession.cwd }}
             </span>
           </div>
-          <div class="flex items-center space-x-3 text-xs">
+          <div class="flex shrink-0 items-center space-x-3 text-xs">
             <span class="flex items-center space-x-1.5 font-mono text-[11px]">
               <span :class="['w-2 h-2 rounded-full', isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500']"></span>
               <span :class="isConnected ? 'text-ink-soft' : 'text-rose-600'">
@@ -163,13 +195,15 @@
           <form @submit.prevent="sendMessage" class="flex flex-col space-y-2">
             <textarea
               v-model="promptInput"
-              @keydown.enter.exact.prevent="sendMessage"
-              placeholder="Type your instruction to omp (Enter to send, Shift+Enter for newline)..."
+              @keydown.ctrl.enter.prevent="sendMessage"
+              @keydown.meta.enter.prevent="sendMessage"
+              placeholder="Type your instruction to omp (Ctrl+Enter to send)..."
               rows="3"
+              enterkeyhint="enter"
               class="w-full bg-surface border border-line focus:border-accent rounded-lg p-2.5 text-sm text-ink placeholder:text-ink-ghost focus:outline-hidden resize-none font-sans"
             ></textarea>
             <div class="flex justify-between items-center">
-              <span class="text-[11px] text-ink-faint">Press Enter to send</span>
+              <span class="text-[11px] text-ink-faint">Enter inserts a newline · Ctrl/⌘+Enter sends</span>
               <button
                 type="submit"
                 :disabled="!promptInput.trim() || !isConnected"
@@ -183,16 +217,29 @@
       </template>
 
       <!-- Empty State -->
-      <div v-else class="flex-1 flex flex-col items-center justify-center text-ink-soft space-y-3">
-        <span class="text-4xl text-ink-ghost">⌥</span>
-        <p class="text-sm">Select a session from the sidebar or create a new one.</p>
-        <button
-          @click="showNewModal = true"
-          class="px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg text-xs font-medium transition"
-        >
-          Create Session
-        </button>
-      </div>
+      <template v-else>
+        <header class="md:hidden h-12 shrink-0 border-b border-line bg-surface px-3 flex items-center gap-2">
+          <button
+            @click="sidebarOpen = true"
+            class="-ml-0.5 p-1.5 rounded-md text-ink-soft hover:bg-sunken hover:text-ink transition"
+            aria-label="Open session list"
+            aria-controls="session-sidebar"
+          >
+            ☰
+          </button>
+          <span class="text-sm font-semibold text-accent">⌥ omp</span>
+        </header>
+        <div class="flex-1 flex flex-col items-center justify-center text-ink-soft space-y-3 px-6 text-center">
+          <span class="text-4xl text-ink-ghost">⌥</span>
+          <p class="text-sm">Select a session from the sidebar or create a new one.</p>
+          <button
+            @click="openNewSession"
+            class="px-4 py-2 bg-accent hover:bg-accent-hover text-white rounded-lg text-xs font-medium transition"
+          >
+            Create Session
+          </button>
+        </div>
+      </template>
     </main>
 
     <!-- New Session Modal -->
@@ -243,6 +290,8 @@ const newCwdInput = ref('/home/chn/repo/nixos');
 const creating = ref(false);
 const isConnected = ref(false);
 const chatContainer = ref(null);
+// Mobile-only drawer state; ignored from md up where the rail is static.
+const sidebarOpen = ref(false);
 
 let ws = null;
 
@@ -250,6 +299,13 @@ function getDirName(path) {
   if (!path) return 'Workspace';
   const parts = path.split('/').filter(Boolean);
   return parts.length ? parts[parts.length - 1] : path;
+}
+
+// "+ New" from either the sidebar or the mobile empty state: the drawer would
+// otherwise stay open behind the modal.
+function openNewSession() {
+  sidebarOpen.value = false;
+  showNewModal.value = true;
 }
 
 function renderMarkdown(content) {
@@ -275,6 +331,7 @@ async function fetchSessions() {
 }
 
 function selectSession(id) {
+  sidebarOpen.value = false;
   if (activeSessionId.value === id) return;
   activeSessionId.value = id;
   activeSession.value = sessions.value.find((s) => s.id === id) || null;
