@@ -17,8 +17,10 @@ use tokio::process::Command;
 use tokio::sync::{broadcast, mpsc, Mutex, Notify, RwLock};
 use tracing::{error, info};
 
-/// Number of ACP messages kept per session so a browser tab can reload (or a
-/// second tab can attach) without losing the visible transcript.
+/// Number of transcript frames kept per session so a browser tab can reload (or
+/// a second tab can attach) without losing the visible conversation. Frames are
+/// retained in both directions: prompts the browser sent and the agent's
+/// replies.
 const BUFFER_CAPACITY: usize = 512;
 
 /// The SPA and the REST/websocket surface are published by nginx on the same
@@ -40,13 +42,56 @@ struct Session {
     /// ACP requests from the browser to the `omp acp` child.
     stdin_tx: mpsc::Sender<String>,
     /// ACP messages from the child, fanned out to every attached websocket.
-    /// The sequence number orders this stream against `buffer`'s replay window.
+    /// The sequence number orders this stream against the replay window.
     event_tx: broadcast::Sender<(u64, String)>,
-    /// Tail of that stream, replayed to websockets that attach late.
-    buffer: Arc<Mutex<VecDeque<(u64, String)>>>,
+    /// Tail of the transcript, replayed to websockets that attach late.
+    transcript: Arc<Mutex<Transcript>>,
     /// Identity the agent assigned to this session during the handshake.
     agent_session: Arc<AgentSession>,
     supervisor: tokio::task::AbortHandle,
+}
+
+/// Ordered frames retained for websockets that attach late.
+///
+/// A reloaded tab (or a second tab) has to rebuild the conversation from this
+/// window, so it holds both directions: what the operator sent and what the
+/// agent answered. The agent only ever reports its own side, hence the browser
+/// frames recorded in `handle_ws`.
+struct Transcript {
+    next_sequence: u64,
+    frames: VecDeque<(u64, String)>,
+}
+
+impl Transcript {
+    fn new() -> Self {
+        Self {
+            next_sequence: 0,
+            frames: VecDeque::with_capacity(BUFFER_CAPACITY),
+        }
+    }
+
+    /// Appends a frame and stamps it with the next sequence number.
+    fn record(&mut self, frame: String) -> u64 {
+        self.next_sequence += 1;
+        self.frames.push_back((self.next_sequence, frame));
+        if self.frames.len() > BUFFER_CAPACITY {
+            self.frames.pop_front();
+        }
+        self.next_sequence
+    }
+
+    fn snapshot(&self) -> Vec<(u64, String)> {
+        self.frames.iter().cloned().collect()
+    }
+
+    /// Frames the cursor has not seen, used to recover a lagged subscriber.
+    fn since(&self, cursor: u64) -> Vec<(u64, String)> {
+        self.frames
+            .iter()
+            .filter(|(sequence, _)| *sequence > cursor)
+            .cloned()
+            .collect()
+    }
 }
 
 /// The `sessionId` an `omp acp` child returns from `session/new`.
@@ -129,6 +174,61 @@ async fn stamped_session_id(request: &str, agent_session: &AgentSession) -> Stri
         _ => return request.to_string(),
     }
     serde_json::to_string(&value).unwrap_or_else(|_| request.to_string())
+}
+
+/// Gateway-private notification carrying a prompt the browser submitted.
+///
+/// The SPA renders operator messages from this echo rather than optimistically,
+/// which is what makes the transcript after a reload identical to the live one.
+/// It is deliberately not an ACP method: the frame never reaches the child,
+/// it only travels back out to browsers.
+fn prompt_frame(text: &str) -> String {
+    serde_json::json!({
+        "jsonrpc": "2.0",
+        "method": "web/prompt",
+        "params": { "text": text },
+    })
+    .to_string()
+}
+
+/// Same, for the answer the browser gave to `session/request_permission`: a
+/// replayed transcript must not offer to answer the same request twice.
+fn permission_response_frame(request_id: &serde_json::Value) -> String {
+    serde_json::json!({
+        "jsonrpc": "2.0",
+        "method": "web/permission_response",
+        "params": { "id": request_id },
+    })
+    .to_string()
+}
+
+/// The frames a browser sends that belong in the transcript.
+///
+/// Only the agent's own frames reach the websockets otherwise, so a tab that
+/// reloads (or a second tab that attaches) would replay answers whose prompts
+/// are missing.
+fn browser_transcript_frame(request: &str) -> Option<String> {
+    let value: serde_json::Value = serde_json::from_str(request).ok()?;
+    match value.get("method").and_then(|method| method.as_str()) {
+        Some("session/prompt") => {
+            let text: String = value
+                .pointer("/params/prompt")?
+                .as_array()?
+                .iter()
+                .filter(|block| block.get("type").and_then(|kind| kind.as_str()) == Some("text"))
+                .filter_map(|block| block.get("text").and_then(|text| text.as_str()))
+                .collect();
+            (!text.is_empty()).then(|| prompt_frame(&text))
+        }
+        // A JSON-RPC response: `session/request_permission` is the only request
+        // the browser ever answers.
+        None if value.get("id").is_some()
+            && (value.get("result").is_some() || value.get("error").is_some()) =>
+        {
+            Some(permission_response_frame(value.get("id")?))
+        }
+        _ => None,
+    }
 }
 
 #[derive(Serialize)]
@@ -255,13 +355,13 @@ async fn create_session(
 
     let (stdin_tx, mut stdin_rx) = mpsc::channel::<String>(128);
     let (event_tx, _) = broadcast::channel::<(u64, String)>(BUFFER_CAPACITY);
-    let buffer = Arc::new(Mutex::new(VecDeque::with_capacity(BUFFER_CAPACITY)));
+    let transcript = Arc::new(Mutex::new(Transcript::new()));
     let agent_session = Arc::new(AgentSession::default());
 
     let sessions = state.sessions.clone();
     let supervisor_id = session_id.clone();
     let supervisor_cwd = canonical_cwd.to_string_lossy().to_string();
-    let buffer_handle = buffer.clone();
+    let transcript_handle = transcript.clone();
     let event_tx_handle = event_tx.clone();
     let agent_session_handle = agent_session.clone();
     let stdin_tx_handle = stdin_tx.clone();
@@ -311,7 +411,6 @@ async fn create_session(
             let _ = stdin_tx_handle.send(request.to_string()).await;
         }
 
-        let mut sequence: u64 = 0;
         loop {
             let line = match reader.next_line().await {
                 Ok(Some(line)) => line,
@@ -332,14 +431,7 @@ async fn create_session(
                 info!("[{}] ACP session {}", supervisor_id, agent_id);
                 agent_session_handle.assign(agent_id).await;
             }
-            sequence += 1;
-            {
-                let mut buf = buffer_handle.lock().await;
-                buf.push_back((sequence, trimmed.to_string()));
-                if buf.len() > BUFFER_CAPACITY {
-                    buf.pop_front();
-                }
-            }
+            let sequence = transcript_handle.lock().await.record(trimmed.to_string());
             let _ = event_tx_handle.send((sequence, trimmed.to_string()));
         }
 
@@ -356,7 +448,7 @@ async fn create_session(
         created_at: std::time::SystemTime::now(),
         stdin_tx,
         event_tx,
-        buffer,
+        transcript,
         agent_session,
         supervisor: supervisor.abort_handle(),
     });
@@ -404,10 +496,7 @@ async fn handle_ws(socket: WebSocket, session: Arc<Session>) {
     // overlap by construction, and the sequence numbers drop that overlap, so a
     // client attaching mid-turn sees every frame exactly once.
     let mut event_rx = session.event_tx.subscribe();
-    let replay: Vec<(u64, String)> = {
-        let buf = session.buffer.lock().await;
-        buf.iter().cloned().collect()
-    };
+    let replay: Vec<(u64, String)> = session.transcript.lock().await.snapshot();
     let mut cursor = 0u64;
     for (sequence, msg) in replay {
         if ws_sender.send(Message::Text(msg.into())).await.is_err() {
@@ -417,7 +506,9 @@ async fn handle_ws(socket: WebSocket, session: Arc<Session>) {
     }
 
     let stdin_tx = session.stdin_tx.clone();
-    let buffer = session.buffer.clone();
+    let transcript = session.transcript.clone();
+    let replay_transcript = transcript.clone();
+    let event_tx = session.event_tx.clone();
     let sess_id = session.id.clone();
 
     let mut send_task = tokio::spawn(async move {
@@ -436,13 +527,7 @@ async fn handle_ws(socket: WebSocket, session: Arc<Session>) {
                 // This socket fell behind the broadcast; recover the gap from
                 // the retained window instead of dropping the client.
                 Err(broadcast::error::RecvError::Lagged(_)) => {
-                    let missed: Vec<(u64, String)> = {
-                        let buf = buffer.lock().await;
-                        buf.iter()
-                            .filter(|(sequence, _)| *sequence > cursor)
-                            .cloned()
-                            .collect()
-                    };
+                    let missed: Vec<(u64, String)> = replay_transcript.lock().await.since(cursor);
                     for (sequence, msg) in missed {
                         cursor = sequence;
                         if ws_sender.send(Message::Text(msg.into())).await.is_err() {
@@ -460,7 +545,15 @@ async fn handle_ws(socket: WebSocket, session: Arc<Session>) {
         while let Some(Ok(msg)) = ws_receiver.next().await {
             match msg {
                 Message::Text(text) => {
-                    if stdin_tx.send(text.to_string()).await.is_err() {
+                    let request = text.to_string();
+                    // Recorded before the request is forwarded: the operator's
+                    // own message belongs in the transcript even if the child
+                    // never accepts it.
+                    if let Some(frame) = browser_transcript_frame(&request) {
+                        let sequence = transcript.lock().await.record(frame.clone());
+                        let _ = event_tx.send((sequence, frame));
+                    }
+                    if stdin_tx.send(request).await.is_err() {
                         break;
                     }
                 }

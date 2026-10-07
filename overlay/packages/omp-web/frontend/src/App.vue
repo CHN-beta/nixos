@@ -251,7 +251,7 @@
           <input
             v-model="newCwdInput"
             type="text"
-            placeholder="/home/chn/repo/nixos"
+            placeholder="/home/straycat"
             class="w-full bg-sunken border border-line focus:border-accent rounded-lg px-3 py-2 text-xs font-mono text-ink placeholder:text-ink-ghost focus:outline-hidden"
           />
           <p class="text-[11px] text-ink-faint">The session will be spawned in this directory with full local context.</p>
@@ -286,7 +286,7 @@ const activeSession = ref(null);
 const messages = ref([]);
 const promptInput = ref('');
 const showNewModal = ref(false);
-const newCwdInput = ref('/home/chn/repo/nixos');
+const newCwdInput = ref('/home/straycat');
 const creating = ref(false);
 const isConnected = ref(false);
 const chatContainer = ref(null);
@@ -380,6 +380,16 @@ function connectWebSocket(id) {
 function handleAcpMessage(msg) {
   if (msg.method === 'session/update') {
     applySessionUpdate(msg.params?.update);
+  } else if (msg.method === 'web/prompt') {
+    // The gateway echoes prompts so a reload replays the operator's own
+    // messages, not just the agent's replies.
+    messages.value.push({ role: 'user', text: msg.params?.text || '' });
+  } else if (msg.method === 'web/permission_response') {
+    for (const message of messages.value) {
+      if (message.permission && message.permission.id === msg.params?.id) {
+        message.permission = null;
+      }
+    }
   } else if (msg.method === 'session/request_permission') {
     currentAssistantMessage().permission = {
       id: msg.id,
@@ -505,10 +515,8 @@ function sendMessage() {
   const text = promptInput.value.trim();
   if (!text || !ws || !isConnected.value) return;
 
-  messages.value.push({
-    role: 'user',
-    text,
-  });
+  // The message bubble is rendered from the gateway's `web/prompt` echo, so the
+  // live transcript and the replayed one are built by the same code path.
 
   // ACP session/prompt; the session id is stamped on by the gateway, which
   // owns the handshake the browser never sees.
