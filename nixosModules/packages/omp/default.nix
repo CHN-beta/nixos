@@ -19,6 +19,10 @@ let
                 name = "GPT-6 Astra";
               }
               {
+                id = "gpt-6.1-sol";
+                name = "GPT-6.1 Sol";
+              }
+              {
                 id = "gpt-6-luna";
                 name = "GPT-6 Luna";
               }
