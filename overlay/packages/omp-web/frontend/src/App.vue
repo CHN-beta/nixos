@@ -109,44 +109,48 @@
               <!-- Main Content / Markdown -->
               <div v-if="msg.text" class="markdown max-w-none text-sm break-words" v-html="renderMarkdown(msg.text)"></div>
 
+              <!-- Error the agent returned for a rejected request -->
+              <div v-if="msg.error" class="text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-sm p-2 font-mono whitespace-pre-wrap">
+                {{ msg.error }}
+              </div>
+
               <!-- Tool Calls -->
               <div v-if="msg.tools && msg.tools.length" class="space-y-2 mt-2">
                 <div
-                  v-for="(t, tidx) in msg.tools"
-                  :key="tidx"
+                  v-for="t in msg.tools"
+                  :key="t.id"
                   class="rounded-sm bg-sunken p-2.5 border border-line text-xs font-mono space-y-1"
                 >
                   <div class="text-accent-ink font-semibold flex items-center space-x-1.5">
-                    <span>⚙ Tool:</span>
-                    <span>{{ t.name }}</span>
+                    <span>⚙ {{ t.title || 'Tool' }}</span>
+                    <span v-if="t.status" class="text-ink-faint font-normal">{{ t.status }}</span>
                   </div>
-                  <pre class="text-ink-soft text-[11px] overflow-x-auto p-1 bg-surface rounded-sm">{{ t.params }}</pre>
-                  <div v-if="t.result" class="text-emerald-700 text-[11px] mt-1 border-t border-line pt-1">
-                    ✓ Result: {{ t.result }}
-                  </div>
+                  <pre v-if="t.params" class="text-ink-soft text-[11px] overflow-x-auto p-1 bg-surface rounded-sm">{{ t.params }}</pre>
+                  <div v-if="t.result" class="text-emerald-700 text-[11px] mt-1 border-t border-line pt-1 whitespace-pre-wrap">{{ t.result }}</div>
                 </div>
               </div>
 
               <!-- Tool Permission Request Approval Banner -->
-              <div v-if="msg.permissionRequest" class="mt-3 p-3 bg-accent-soft border border-accent-soft-line rounded-lg">
+              <div v-if="msg.permission" class="mt-3 p-3 bg-accent-soft border border-accent-soft-line rounded-lg">
                 <div class="text-xs text-accent-ink font-semibold mb-1 flex items-center space-x-1.5">
                   <span>⚠ Tool Permission Requested</span>
                 </div>
                 <div class="text-xs text-ink-soft mb-2 font-mono bg-surface p-2 rounded-sm border border-line">
-                  {{ msg.permissionRequest.title || JSON.stringify(msg.permissionRequest) }}
+                  {{ msg.permission.title }}
                 </div>
                 <div class="flex space-x-2">
                   <button
-                    @click="resolvePermission(msg.permissionRequest.id, true)"
-                    class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-sm text-xs font-medium transition"
+                    v-for="option in msg.permission.options"
+                    :key="option.optionId"
+                    @click="resolvePermission(msg, option)"
+                    :class="[
+                      'px-3 py-1 text-white rounded-sm text-xs font-medium transition',
+                      option.kind.startsWith('allow')
+                        ? 'bg-emerald-600 hover:bg-emerald-500'
+                        : 'bg-rose-600 hover:bg-rose-500',
+                    ]"
                   >
-                    Allow
-                  </button>
-                  <button
-                    @click="resolvePermission(msg.permissionRequest.id, false)"
-                    class="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-sm text-xs font-medium transition"
-                  >
-                    Deny
+                    {{ option.name }}
                   </button>
                 </div>
               </div>
@@ -241,7 +245,6 @@ const isConnected = ref(false);
 const chatContainer = ref(null);
 
 let ws = null;
-let currentMessage = null;
 
 function getDirName(path) {
   if (!path) return 'Workspace';
@@ -306,63 +309,132 @@ function connectWebSocket(id) {
 
   ws.onmessage = (event) => {
     try {
-      const data = JSON.parse(event.data);
-      handleAcpMessage(data);
+      handleAcpMessage(JSON.parse(event.data));
     } catch {
-      // Plain text output
-      appendAssistantChunk(event.data);
+      // Anything that is not a JSON-RPC frame is shown verbatim.
+      appendAssistantChunk(event.data, false);
     }
   };
 }
 
+// ACP dispatching. The gateway replays the transcript before forwarding live
+// frames, so every handler below is incremental and drives its state through
+// the reactive `messages` array.
 function handleAcpMessage(msg) {
-  // ACP JSON-RPC message dispatching
-  if (msg.method === 'session/update' || msg.method === 'notifications/message') {
-    const params = msg.params || {};
-    if (params.thinking) {
-      ensureCurrentMessage();
-      currentMessage.thinking = (currentMessage.thinking || '') + params.thinking;
-    }
-    if (params.delta || params.text) {
-      appendAssistantChunk(params.delta || params.text);
-    }
-    if (params.tool) {
-      ensureCurrentMessage();
-      currentMessage.tools = currentMessage.tools || [];
-      currentMessage.tools.push(params.tool);
-    }
-  } else if (msg.method === 'request_permission' || msg.method === 'session/request_permission') {
-    ensureCurrentMessage();
-    currentMessage.permissionRequest = {
+  if (msg.method === 'session/update') {
+    applySessionUpdate(msg.params?.update);
+  } else if (msg.method === 'session/request_permission') {
+    currentAssistantMessage().permission = {
       id: msg.id,
-      title: msg.params?.title || msg.params?.command || JSON.stringify(msg.params),
+      title: msg.params?.toolCall?.title || 'Tool permission requested',
+      options: (msg.params?.options || []).map((option) => ({
+        optionId: option.optionId,
+        name: option.name || option.optionId,
+        kind: option.kind || 'reject_once',
+      })),
     };
-  } else if (msg.result && currentMessage) {
-    if (msg.result.text) {
-      currentMessage.text = (currentMessage.text || '') + msg.result.text;
+  } else if (msg.error) {
+    currentAssistantMessage().error = msg.error.message || JSON.stringify(msg.error);
+  }
+  scrollToBottom();
+}
+
+// `session/update` notifications carry one incremental change each.
+function applySessionUpdate(update) {
+  if (!update || typeof update !== 'object') return;
+  switch (update.sessionUpdate) {
+    case 'agent_message_chunk':
+      appendAssistantChunk(contentText(update.content), false);
+      break;
+    case 'agent_thought_chunk':
+      appendAssistantChunk(contentText(update.content), true);
+      break;
+    case 'tool_call':
+    case 'tool_call_update':
+      upsertTool(update);
+      break;
+    default:
+      break;
+  }
+}
+
+// The message the running turn appends to. Reading it back out of the array is
+// what makes it reactive: mutating the pushed object itself would never
+// re-render, so a streamed turn would only ever show its first frame.
+function currentAssistantMessage() {
+  const last = messages.value[messages.value.length - 1];
+  if (last && last.role === 'assistant') {
+    return last;
+  }
+  messages.value.push({
+    role: 'assistant',
+    text: '',
+    thinking: '',
+    tools: [],
+    permission: null,
+    error: '',
+  });
+  return messages.value[messages.value.length - 1];
+}
+
+// Flatten an ACP content block (or a list of them) into displayable text.
+function contentText(content) {
+  if (!content) return '';
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) return content.map(contentText).join('');
+  return typeof content.text === 'string' ? content.text : '';
+}
+
+function appendAssistantChunk(chunk, thought) {
+  if (!chunk) return;
+  const message = currentAssistantMessage();
+  if (thought) {
+    message.thinking += chunk;
+  } else {
+    message.text += chunk;
+  }
+  scrollToBottom();
+}
+
+// A tool call arrives as `tool_call` and is then refined by `tool_call_update`.
+function upsertTool(update) {
+  const message = currentAssistantMessage();
+  const id = update.toolCallId || update.title || '';
+  let tool = message.tools.find((candidate) => candidate.id === id);
+  if (!tool) {
+    message.tools.push({ id, title: '', kind: '', status: '', params: '', result: '' });
+    tool = message.tools[message.tools.length - 1];
+  }
+  if (update.title) tool.title = update.title;
+  if (update.kind) tool.kind = update.kind;
+  if (update.status) tool.status = update.status;
+  if (update.rawInput !== undefined && update.rawInput !== null) {
+    tool.params = JSON.stringify(update.rawInput, null, 2);
+  }
+  const output = toolOutput(update);
+  if (output) tool.result = output;
+}
+
+function toolOutput(update) {
+  const parts = [];
+  for (const item of update.content || []) {
+    if (item?.type === 'content') {
+      parts.push(contentText(item.content));
+    } else if (item?.type === 'diff') {
+      parts.push(`${item.path}:\n+ ${item.newText}`);
+    } else if (item?.type === 'terminal') {
+      parts.push(`terminal ${item.terminalId}`);
     }
   }
-  scrollToBottom();
-}
-
-function ensureCurrentMessage() {
-  if (!currentMessage || currentMessage.role !== 'assistant') {
-    currentMessage = {
-      role: 'assistant',
-      text: '',
-      thinking: '',
-      tools: [],
-      permissionRequest: null,
-    };
-    messages.value.push(currentMessage);
+  if (update.rawOutput !== undefined && update.rawOutput !== null) {
+    parts.push(
+      typeof update.rawOutput === 'string' ? update.rawOutput : JSON.stringify(update.rawOutput),
+    );
   }
+  return parts.filter(Boolean).join('\n');
 }
 
-function appendAssistantChunk(chunk) {
-  ensureCurrentMessage();
-  currentMessage.text += chunk;
-  scrollToBottom();
-}
+
 
 function scrollToBottom() {
   nextTick(() => {
@@ -381,7 +453,8 @@ function sendMessage() {
     text,
   });
 
-  // ACP session/prompt format
+  // ACP session/prompt; the session id is stamped on by the gateway, which
+  // owns the handshake the browser never sees.
   const rpc = {
     jsonrpc: '2.0',
     id: Date.now(),
@@ -393,21 +466,19 @@ function sendMessage() {
 
   ws.send(JSON.stringify(rpc));
   promptInput.value = '';
-  currentMessage = null;
   scrollToBottom();
 }
 
-function resolvePermission(requestId, approved) {
-  if (!ws || !isConnected.value) return;
+// ACP answers `session/request_permission` with the chosen option id.
+function resolvePermission(message, option) {
+  if (!ws || !isConnected.value || !message?.permission) return;
   const resp = {
     jsonrpc: '2.0',
-    id: requestId,
-    result: { approved },
+    id: message.permission.id,
+    result: { outcome: { outcome: 'selected', optionId: option.optionId } },
   };
   ws.send(JSON.stringify(resp));
-  if (currentMessage) {
-    currentMessage.permissionRequest = null;
-  }
+  message.permission = null;
 }
 
 async function closeSession(id) {

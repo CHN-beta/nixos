@@ -14,7 +14,7 @@ use futures::{SinkExt, StreamExt};
 use serde::{Deserialize, Serialize};
 use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::process::Command;
-use tokio::sync::{broadcast, mpsc, Mutex, RwLock};
+use tokio::sync::{broadcast, mpsc, Mutex, Notify, RwLock};
 use tracing::{error, info};
 
 /// Number of ACP messages kept per session so a browser tab can reload (or a
@@ -40,9 +40,95 @@ struct Session {
     /// ACP requests from the browser to the `omp acp` child.
     stdin_tx: mpsc::Sender<String>,
     /// ACP messages from the child, fanned out to every attached websocket.
-    event_tx: broadcast::Sender<String>,
-    buffer: Arc<Mutex<VecDeque<String>>>,
+    /// The sequence number orders this stream against `buffer`'s replay window.
+    event_tx: broadcast::Sender<(u64, String)>,
+    /// Tail of that stream, replayed to websockets that attach late.
+    buffer: Arc<Mutex<VecDeque<(u64, String)>>>,
+    /// Identity the agent assigned to this session during the handshake.
+    agent_session: Arc<AgentSession>,
     supervisor: tokio::task::AbortHandle,
+}
+
+/// The `sessionId` an `omp acp` child returns from `session/new`.
+///
+/// The browser speaks a session-less dialect — it never sees the handshake — so
+/// every `session/*` request it sends is stamped with this id on the way to the
+/// child, which rejects any request naming a session it does not know.
+#[derive(Default)]
+struct AgentSession {
+    id: Mutex<Option<String>>,
+    assigned: Notify,
+}
+
+impl AgentSession {
+    /// Resolves once the handshake completed: a browser may send its first
+    /// request before the child has answered `session/new`.
+    async fn required(&self) -> String {
+        loop {
+            let assigned = self.assigned.notified();
+            if let Some(id) = self.id.lock().await.clone() {
+                return id;
+            }
+            assigned.await;
+        }
+    }
+
+    async fn assign(&self, id: String) {
+        *self.id.lock().await = Some(id);
+        self.assigned.notify_waiters();
+    }
+}
+
+/// Request ids the gateway uses for the handshake it performs itself.
+const INITIALIZE_REQUEST_ID: u64 = 1;
+const NEW_SESSION_REQUEST_ID: u64 = 2;
+
+/// The answer to `session/new` carries the id the agent assigned.
+fn assigned_session_id(frame: &str) -> Option<String> {
+    let response: serde_json::Value = serde_json::from_str(frame).ok()?;
+    if response.get("id")?.as_u64()? != NEW_SESSION_REQUEST_ID {
+        return None;
+    }
+    Some(response.get("result")?.get("sessionId")?.as_str()?.to_string())
+}
+
+/// Stamp the agent-assigned session id onto a browser-originated request.
+///
+/// `session/new` creates the session, so it is the one method that must not
+/// carry one; anything that is not JSON, or already names a session, is
+/// forwarded untouched.
+async fn stamped_session_id(request: &str, agent_session: &AgentSession) -> String {
+    let mut value: serde_json::Value = match serde_json::from_str(request) {
+        Ok(value) => value,
+        Err(_) => return request.to_string(),
+    };
+    let stamps = value
+        .get("method")
+        .and_then(|method| method.as_str())
+        .is_some_and(|method| method.starts_with("session/") && method != "session/new");
+    if !stamps || value.pointer("/params/sessionId").is_some() {
+        return request.to_string();
+    }
+
+    // A child that never answers `session/new` must not hang the browser: the
+    // unstamped request reaches the agent, which reports the protocol error.
+    let session_id = match tokio::time::timeout(
+        std::time::Duration::from_secs(15),
+        agent_session.required(),
+    )
+    .await
+    {
+        Ok(session_id) => session_id,
+        Err(_) => return request.to_string(),
+    };
+
+    match value.get_mut("params") {
+        Some(serde_json::Value::Object(params)) => {
+            params.insert("sessionId".to_string(), session_id.into());
+        }
+        _ => return request.to_string(),
+    }
+    serde_json::to_string(&value).unwrap_or_else(|_| request.to_string())
 }
 
 #[derive(Serialize)]
@@ -168,14 +254,16 @@ async fn create_session(
     })?;
 
     let (stdin_tx, mut stdin_rx) = mpsc::channel::<String>(128);
-    let (event_tx, _) = broadcast::channel::<String>(BUFFER_CAPACITY);
+    let (event_tx, _) = broadcast::channel::<(u64, String)>(BUFFER_CAPACITY);
     let buffer = Arc::new(Mutex::new(VecDeque::with_capacity(BUFFER_CAPACITY)));
+    let agent_session = Arc::new(AgentSession::default());
 
     let sessions = state.sessions.clone();
     let supervisor_id = session_id.clone();
     let supervisor_cwd = canonical_cwd.to_string_lossy().to_string();
     let buffer_handle = buffer.clone();
     let event_tx_handle = event_tx.clone();
+    let agent_session_handle = agent_session.clone();
     let stdin_tx_handle = stdin_tx.clone();
 
     let supervisor = tokio::spawn(async move {
@@ -184,6 +272,7 @@ async fn create_session(
         // Pump browser-originated ACP requests into the child's stdin. Ends once
         // every sender is gone, so the child sees EOF.
         let writer_id = supervisor_id.clone();
+        let agent_session_for_writer = agent_session_handle.clone();
         let write_task = tokio::spawn(async move {
             let mut writer = child_stdin;
             while let Some(msg) = stdin_rx.recv().await {
@@ -191,7 +280,8 @@ async fn create_session(
                 if trimmed.is_empty() {
                     continue;
                 }
-                if let Err(e) = writer.write_all(format!("{}\n", trimmed).as_bytes()).await {
+                let frame = stamped_session_id(trimmed, &agent_session_for_writer).await;
+                if let Err(e) = writer.write_all(format!("{}\n", frame).as_bytes()).await {
                     error!("[{}] Error writing to omp stdin: {}", writer_id, e);
                     break;
                 }
@@ -207,13 +297,13 @@ async fn create_session(
         for request in [
             serde_json::json!({
                 "jsonrpc": "2.0",
-                "id": 1,
+                "id": INITIALIZE_REQUEST_ID,
                 "method": "initialize",
                 "params": { "protocolVersion": 1, "clientCapabilities": {} }
             }),
             serde_json::json!({
                 "jsonrpc": "2.0",
-                "id": 2,
+                "id": NEW_SESSION_REQUEST_ID,
                 "method": "session/new",
                 "params": { "cwd": supervisor_cwd, "mcpServers": [] }
             }),
@@ -221,6 +311,7 @@ async fn create_session(
             let _ = stdin_tx_handle.send(request.to_string()).await;
         }
 
+        let mut sequence: u64 = 0;
         loop {
             let line = match reader.next_line().await {
                 Ok(Some(line)) => line,
@@ -234,14 +325,22 @@ async fn create_session(
             if trimmed.is_empty() {
                 continue;
             }
+            // Learn the id the agent assigned before any request that needs it
+            // can be stamped; the frame itself stays in the transcript either
+            // way.
+            if let Some(agent_id) = assigned_session_id(trimmed) {
+                info!("[{}] ACP session {}", supervisor_id, agent_id);
+                agent_session_handle.assign(agent_id).await;
+            }
+            sequence += 1;
             {
                 let mut buf = buffer_handle.lock().await;
-                if buf.len() >= BUFFER_CAPACITY {
+                buf.push_back((sequence, trimmed.to_string()));
+                if buf.len() > BUFFER_CAPACITY {
                     buf.pop_front();
                 }
-                buf.push_back(trimmed.to_string());
             }
-            let _ = event_tx_handle.send(trimmed.to_string());
+            let _ = event_tx_handle.send((sequence, trimmed.to_string()));
         }
 
         info!("[{}] omp acp exited", supervisor_id);
@@ -258,6 +357,7 @@ async fn create_session(
         stdin_tx,
         event_tx,
         buffer,
+        agent_session,
         supervisor: supervisor.abort_handle(),
     });
 
@@ -300,24 +400,57 @@ async fn ws_handler(
 async fn handle_ws(socket: WebSocket, session: Arc<Session>) {
     let (mut ws_sender, mut ws_receiver) = socket.split();
 
-    // Replay what this session has already produced so a reload attaches mid-stream.
-    {
+    // Subscribe before snapshotting: the replay window and the live stream then
+    // overlap by construction, and the sequence numbers drop that overlap, so a
+    // client attaching mid-turn sees every frame exactly once.
+    let mut event_rx = session.event_tx.subscribe();
+    let replay: Vec<(u64, String)> = {
         let buf = session.buffer.lock().await;
-        for msg in buf.iter() {
-            if ws_sender.send(Message::Text(msg.clone().into())).await.is_err() {
-                return;
-            }
+        buf.iter().cloned().collect()
+    };
+    let mut cursor = 0u64;
+    for (sequence, msg) in replay {
+        if ws_sender.send(Message::Text(msg.into())).await.is_err() {
+            return;
         }
+        cursor = sequence;
     }
 
-    let mut event_rx = session.event_tx.subscribe();
     let stdin_tx = session.stdin_tx.clone();
+    let buffer = session.buffer.clone();
     let sess_id = session.id.clone();
 
     let mut send_task = tokio::spawn(async move {
-        while let Ok(msg) = event_rx.recv().await {
-            if ws_sender.send(Message::Text(msg.into())).await.is_err() {
-                break;
+        loop {
+            match event_rx.recv().await {
+                Ok((sequence, msg)) => {
+                    // Already covered by the replay above.
+                    if sequence <= cursor {
+                        continue;
+                    }
+                    cursor = sequence;
+                    if ws_sender.send(Message::Text(msg.into())).await.is_err() {
+                        break;
+                    }
+                }
+                // This socket fell behind the broadcast; recover the gap from
+                // the retained window instead of dropping the client.
+                Err(broadcast::error::RecvError::Lagged(_)) => {
+                    let missed: Vec<(u64, String)> = {
+                        let buf = buffer.lock().await;
+                        buf.iter()
+                            .filter(|(sequence, _)| *sequence > cursor)
+                            .cloned()
+                            .collect()
+                    };
+                    for (sequence, msg) in missed {
+                        cursor = sequence;
+                        if ws_sender.send(Message::Text(msg.into())).await.is_err() {
+                            return;
+                        }
+                    }
+                }
+                Err(broadcast::error::RecvError::Closed) => break,
             }
         }
     });
