@@ -16,7 +16,7 @@ let
     pname = "omp-web-ui";
     inherit version;
     src = ./frontend;
-    npmDepsHash = "sha256-qxse+3yiHAWa7jiSc/ySsRH459vzx9eAVwTrDiGVeuA=";
+    npmDepsHash = "sha256-Sy3ptqfos7hqwFDHZXTfSOzge/nBfXMHHhEqDgppOYg=";
     installPhase = ''
       runHook preInstall
       mkdir -p $out

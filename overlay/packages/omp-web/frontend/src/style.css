@@ -1,6 +1,36 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss' source(none);
+
+/* Sources are declared explicitly so the build does not depend on a .git
+   directory being present (the Nix build copies only this directory). */
+@source '../index.html';
+@source '../src';
+
+/* Light palette.
+   The neutral ramp is the previous dark scheme inverted (canvas <- zinc-950,
+   surface <- zinc-900, line <- zinc-800), and the amber brand accent is
+   darkened one step so it keeps contrast against white. */
+@theme static {
+  --color-canvas: #f4f4f5; /* app + workspace background */
+  --color-surface: #ffffff; /* sidebar, cards, modal, inputs */
+  --color-sunken: #f4f4f5; /* code blocks, inset panels, hover fills */
+  --color-line: #e4e4e7; /* hairline borders */
+  --color-line-strong: #d4d4d8; /* selected / emphasis borders */
+
+  --color-ink: #18181b; /* primary text */
+  --color-ink-soft: #52525b; /* secondary text */
+  --color-ink-faint: #71717a; /* tertiary text */
+  --color-ink-ghost: #a1a1aa; /* placeholders, disabled glyphs */
+
+  --color-accent: #d97706; /* brand mark, primary buttons */
+  --color-accent-hover: #f59e0b;
+  --color-accent-ink: #b45309; /* accent-coloured text on white */
+  --color-accent-soft: #fffbeb; /* accent banner background */
+  --color-accent-soft-line: #fde68a;
+}
+
+:root {
+  color-scheme: light;
+}
 
 ::-webkit-scrollbar {
   width: 6px;
@@ -12,10 +42,110 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: #d4d4d8;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
+  background: #a1a1aa;
+}
+
+/* Markdown emitted by marked() into the assistant stream. */
+.markdown {
+  color: var(--color-ink);
+}
+
+.markdown :where(p, ul, ol, pre, blockquote, table, hr) {
+  margin: 0.5em 0;
+}
+
+.markdown :where(h1, h2, h3, h4, h5, h6) {
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0.75em 0 0.35em;
+}
+
+.markdown :where(h1) {
+  font-size: 1.25em;
+}
+
+.markdown :where(h2) {
+  font-size: 1.15em;
+}
+
+.markdown :where(h3) {
+  font-size: 1.05em;
+}
+
+.markdown :where(ul, ol) {
+  padding-left: 1.35em;
+}
+
+.markdown :where(ul) {
+  list-style: disc;
+}
+
+.markdown :where(ol) {
+  list-style: decimal;
+}
+
+.markdown :where(a) {
+  color: var(--color-accent-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown :where(code) {
+  background: var(--color-sunken);
+  border: 1px solid var(--color-line);
+  border-radius: 0.25rem;
+  padding: 0.1em 0.35em;
+  font-size: 0.875em;
+}
+
+.markdown :where(pre) {
+  background: var(--color-sunken);
+  border: 1px solid var(--color-line);
+  border-radius: 0.5rem;
+  padding: 0.75em;
+  overflow-x: auto;
+}
+
+.markdown :where(pre code) {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: 1em;
+}
+
+.markdown :where(blockquote) {
+  border-left: 3px solid var(--color-line-strong);
+  padding-left: 0.75em;
+  color: var(--color-ink-soft);
+}
+
+.markdown :where(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.markdown :where(th, td) {
+  border: 1px solid var(--color-line);
+  padding: 0.3em 0.6em;
+  text-align: left;
+}
+
+.markdown :where(th) {
+  background: var(--color-sunken);
+  font-weight: 600;
+}
+
+.markdown :where(hr) {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+}
+
+.markdown :where(img) {
+  max-width: 100%;
 }
