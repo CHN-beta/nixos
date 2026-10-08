@@ -63,6 +63,10 @@
     hermes.url = "github:NousResearch/hermes-agent";
     pi.url = "github:lukasl-dev/pi.nix";
     omp.url = "github:CHN-beta/oh-my-pi";
+    ompweb = {
+      url = "github:kahme247/ompweb";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     bun2nix = {
       url = "github:nix-community/bun2nix";
       inputs.nixpkgs.follows = "nixpkgs";

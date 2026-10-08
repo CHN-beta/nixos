@@ -1,0 +1,39 @@
+--- a/app/layout.tsx
++++ b/app/layout.tsx
+@@ -4 +4 @@
+-import { Geist, JetBrains_Mono, Noto_Sans_Mono, Noto_Serif_SC, Source_Serif_4 } from "next/font/google";
++import localFont from "next/font/local";
+@@ -11,2 +11,3 @@
+-const geist = Geist({
+-  subsets: ["latin"],
++const geist = localFont({
++  src: "./fonts/Geist.ttf",
++  weight: "100 900",
+@@ -17,3 +17,3 @@
+-const jetbrainsMono = JetBrains_Mono({
+-  subsets: ["latin"],
+-  weight: ["400", "500", "600"],
++const jetbrainsMono = localFont({
++  src: "./fonts/JetBrainsMono.ttf",
++  weight: "100 800",
+@@ -24,2 +24,3 @@
+-const notoSansMono = Noto_Sans_Mono({
+-  subsets: ["latin", "cyrillic"],
++const notoSansMono = localFont({
++  src: "./fonts/NotoSansMono.ttf",
++  weight: "100 900",
+@@ -33,2 +33,3 @@
+-const sourceSerif = Source_Serif_4({
+-  subsets: ["latin"],
++const sourceSerif = localFont({
++  src: "./fonts/SourceSerif4Variable-Roman.otf",
++  weight: "200 900",
+@@ -39,5 +39,3 @@
+-const notoSerifSC = Noto_Serif_SC({
+-  // CJK glyphs are served via unicode-range slices regardless of subset;
+-  // "latin" satisfies next/font's preloading requirement.
+-  subsets: ["latin"],
+-  weight: ["600", "700"],
++const notoSerifSC = localFont({
++  src: "./fonts/NotoSerifSC-VF.otf",
++  weight: "200 900",

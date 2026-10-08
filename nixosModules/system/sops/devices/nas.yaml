@@ -103,6 +103,8 @@ miniflux:
     password: ENC[AES256_GCM,data:ysGhyXMnlw8MW/5xoMoxEgxvsnYi76jn7i/nDFOubjY=,iv:qLfv5sJGbrxrPTR6HMX/SMfatyFiyVAtXgBfmyRL6R0=,tag:SqJVczr3s7Dgt+GU9zRAhg==,type:str]
 vikunja:
     jwtsecret: ENC[AES256_GCM,data:bCbxeUR24AxS+FJHSIEsFB9dPflkj3vhhl1rMvZzavMhj7iEKbfCNs9sNTIt7javDqWhtEufcPHK/cza6lgkhw==,iv:SJ+7eQNnl4QQQRG2oRB+FUwBH18gZ3JsRPyDnCSzI64=,tag:S1BBxgpFUCwqYaHdTBKQVg==,type:str]
+omp-web:
+    password: ENC[AES256_GCM,data:SOzXRSg7L1UpgC9Qm6c3EmiB+oPUyo/pChR0Nq1ujts=,iv:DToKIPUm7NsnYf3UiWZ07908DSMWDiPQ1KX3dpPlQ54=,tag:2o3fXL1vjCGCG+j8lMSQ8g==,type:str]
 sops:
     age:
         - enc: |
@@ -124,7 +126,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-09-25T02:44:24Z"
-    mac: ENC[AES256_GCM,data:Hj/KHF4+ajIw8FI068IYEUkzBJRPu5A5jMLhtecv+GbVEv9fSXuJ86AzUWtQKxSYUgpVz4RvvfsEBiF5Cw+KQ1QS6PwuTEDebJv/bHHN6bjc7+b0V6WFAzqBXoqo3j7aUmk2bLzQ2SV5Ut1CqXMd1FON0e8r8bIxzK2giKikeOs=,iv:9hlt5EKz5UYv9kXSc1mQ4TfNhsRNWfmwWVEfJD0vNIU=,tag:2Nt9cPG87f2uQeLGCEKsGQ==,type:str]
+    lastmodified: "2026-10-08T07:15:29Z"
+    mac: ENC[AES256_GCM,data:Ype5+TLANI0uX8IbfNbtxmVUWOnl28AarL+FMN6f1gJWibFeihmSzritdI3m5AKbO4o/2BMS8eCqAf5sMcJcnVpOmTjCAqh01UVoUajo9X5MDHg4zBS/eRqskrEB+ywPJydSXrNROAxpDLIib43dBJ9A+zNNqn8lCxwVI18FR/U=,iv:DwmDF/hOyY7xoVAqicxmD/6HZGuPkvmouD63jPyqLvg=,tag:uEwJCYKleHinvCDDOy2+9g==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

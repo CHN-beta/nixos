@@ -78,43 +78,6 @@
               rules.auth.yubico.order = (u2fOrder "login") + 10;
               rules.auth.yubico.settings.authfile = yubicoMappings;
             };
-            # PAM service for nginx's auth_pam, used only by omp-web (see
-            # nixosConfigurations/nas/omp-web.nix). Defined here rather than in that
-            # host because yubicoMappings only exists in this scope.
-            "nginx-omp" = {
-              # The nginx worker runs with PrivateDevices=yes and DevicePolicy=closed,
-              # so it has no /dev/hidraw* and u2f can never work: keep it out of the stack
-              # instead of leaving a module that only ever fails.
-              u2f.enable = false;
-              rules = {
-                # Only the user owning the omp sessions may log in.
-                auth.restrict-user = {
-                  order = config.security.pam.services."nginx-omp".rules.auth.unix.order - 1000;
-                  control = "requisite";
-                  modulePath = "${pkgs.linux-pam}/lib/security/pam_succeed_if.so";
-                  args = [
-                    "user"
-                    "="
-                    "straycat"
-                  ];
-                };
-                account.restrict-user = {
-                  order = config.security.pam.services."nginx-omp".rules.account.unix.order - 1000;
-                  control = "requisite";
-                  modulePath = "${pkgs.linux-pam}/lib/security/pam_succeed_if.so";
-                  args = [
-                    "user"
-                    "="
-                    "straycat"
-                  ];
-                };
-                # The yubico rule itself is injected by nixpkgs (security.pam.yubico.enable),
-                # with `control = sufficient` and `id`. Only the key mapping has to be passed
-                # explicitly: nginx runs with ProtectHome=yes, so pam_yubico cannot fall back
-                # to reading ~/.yubico/authorized_yubikeys.
-                auth.yubico.settings.authfile = yubicoMappings;
-              };
-            };
           };
         loginLimits = [
           {

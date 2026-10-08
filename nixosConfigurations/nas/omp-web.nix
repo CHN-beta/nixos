@@ -1,53 +1,45 @@
-{
-  pkgs,
-  ...
-}:
+{ config, pkgs, ... }:
 {
   config = {
     systemd.services.omp-web = {
-      description = "omp-web - Browser workspace for oh-my-pi";
+      description = "ompweb - Browser workspace for oh-my-pi";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
       environment = {
         HOME = "/home/straycat";
         PATH = "/etc/profiles/per-user/straycat/bin:/run/current-system/sw/bin";
+        OMP_WEB_OMP_BIN = "/etc/profiles/per-user/straycat/bin/omp";
+        PI_CODING_AGENT_DIR = "/home/straycat/.omp/agent";
+        OMP_WEB_HOSTNAME = "127.0.0.1";
+        PORT = "30177";
+        OMP_WEB_NO_OPEN = "1";
+        OMP_WEB_DISABLE_AUTOUPDATE = "1";
       };
       serviceConfig = {
         Type = "simple";
         User = "straycat";
         Group = "straycat";
         WorkingDirectory = "/home/straycat";
-        ExecStart = "${pkgs.localPkgs.omp-web.backend}/bin/omp-web";
+        EnvironmentFile = config.nixos.system.sops.templates."omp-web.env".path;
+        ExecStart = "${pkgs.localPkgs.ompweb}/bin/ompweb";
         Restart = "on-failure";
         RestartSec = 5;
       };
       enableDefaultPath = false;
     };
-    # pam_unix hands the password to the unix_chkpwd helper, which runs as the nginx
-    # user and therefore needs the shadow group to read /etc/shadow (0640 root:shadow).
-    users.users.nginx.extraGroups = [ "shadow" ];
-    # The "nginx-omp" PAM service itself is defined in nixosModules/system/security.nix,
-    # next to the yubico key mapping it has to reference.
+    nixos.system.sops = {
+      secrets."omp-web/password" = { };
+      templates."omp-web.env".content = ''
+        OMP_WEB_PASSWORD=${config.nixos.system.sops.placeholder."omp-web/password"}
+      '';
+    };
     nixos.services.nginx.https."omp.chn.moe" = {
       global.extraConfig = ''
         proxy_buffering off;
         proxy_cache off;
         gzip off;
-        auth_pam "omp-web";
-        auth_pam_service_name "nginx-omp";
       '';
-      location = {
-        "/api".proxy.upstream = "http://127.0.0.1:30141";
-        "/".static = {
-          root = "${pkgs.localPkgs.omp-web.ui}";
-          index = [ "index.html" ];
-          tryFiles = [
-            "$uri"
-            "$uri/"
-            "/index.html"
-          ];
-        };
-      };
+      location."/".proxy.upstream = "http://127.0.0.1:30177";
     };
   };
 }
