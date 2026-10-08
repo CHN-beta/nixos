@@ -101,6 +101,7 @@ let
       self.inputs.nix4vscode.overlays.default
       self.inputs.bscpkgs.overlays.default
       self.inputs.chinese-fonts.overlays.default
+      self.inputs.bun2nix.overlays.default
       self.inputs.omp.overlays.default
       (final: prev: {
         nur-linyinfeng = (self.inputs.nur-linyinfeng.overlays.default final prev).linyinfeng;

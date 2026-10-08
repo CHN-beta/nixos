@@ -63,6 +63,14 @@
     hermes.url = "github:NousResearch/hermes-agent";
     pi.url = "github:lukasl-dev/pi.nix";
     omp.url = "github:CHN-beta/oh-my-pi";
+    bun2nix = {
+      url = "github:nix-community/bun2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nix-bun = {
+      url = "github:ryoppippi/nix-bun";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     pyproject-nix = {
       url = "github:pyproject-nix/pyproject.nix";
       inputs.nixpkgs.follows = "nixpkgs";
