@@ -128,11 +128,11 @@
         beesd = {
           "/" = {
             hashTableSizeMB = 2 * 128;
-            loadAverage = 4;
+            threads = 4;
           };
           "/nix/tf/nix" = {
             hashTableSizeMB = 128;
-            loadAverage = 4;
+            threads = 4;
           };
         };
         slurm = {
