@@ -20,7 +20,6 @@
           "siliconflow"
           "openrouter"
           "vikunja"
-          "ssh"
         ]
         |> lib.flip lib.genAttrs' (
           s:
@@ -32,6 +31,11 @@
       )
       {
         "straycat/github".key = "github/token";
+        "straycat/ssh" = {
+          owner = "straycat";
+          group = "straycat";
+          mode = "0400";
+        };
       }
     ];
     home-manager.users.straycat = homeInputs: {
