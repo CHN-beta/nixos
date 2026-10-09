@@ -132,14 +132,16 @@ let
     |> pkgs.writeText "omp-mcp.json";
 
   keybindingsFile =
+    user:
     {
       "tui.input.newLine" = [ "enter" ];
       "tui.input.submit" = [ "ctrl+enter" ];
     }
+    |> lib.optionalAttrs (user != "wyh")
     |> builtins.toJSON
     |> pkgs.writeText "omp-keybindings.yml";
 
-  settings = {
+  settings = user: {
     modelRoles.default = "cliproxyapi/gemini-3.8-flash-high";
     defaultThinkingLevel = "high";
     hideThinkingBlock = true;
@@ -153,7 +155,7 @@ let
     memory.backend = "hindsight";
     hindsight = {
       apiUrl = "https://hindsight.chn.moe";
-      bankId = "chn";
+      bankId = if user == "wyh" then "wyh" else "chn";
       scoping = "global";
     };
     github.enabled = true;
@@ -167,7 +169,7 @@ in
   };
   config = lib.mkIf (config.nixos.packages.omp != null) {
     environment.persistence."/nix/persistent".users.chn.directories = [ ".omp" ];
-    nixos.user.sharedModules = [
+    nixos.user.sharedModules = [(homeInputs:
       {
         config = {
           home.activation.ompAgentConfig = {
@@ -178,12 +180,12 @@ in
               run rm -f "$HOME/.omp/agent/models.yml" "$HOME/.omp/agent/mcp.json" "$HOME/.omp/agent/keybindings.yml"
               run install -m 600 ${modelsFile} "$HOME/.omp/agent/models.yml"
               run install -m 600 ${mcpFile} "$HOME/.omp/agent/mcp.json"
-              run install -m 600 ${keybindingsFile} "$HOME/.omp/agent/keybindings.yml"
+              run install -m 600 ${keybindingsFile homeInputs.config.user.username} "$HOME/.omp/agent/keybindings.yml"
             '';
           };
           programs.omp = {
             enable = true;
-            inherit settings;
+            settings = settings homeInputs.config.user.username;
             package = pkgs.writeShellScriptBin "omp" ''
               export HINDSIGHT_API_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/hindsight".path}")"
               export MINERU_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/mineru".path}")"
@@ -204,6 +206,6 @@ in
           };
         };
       }
-    ];
+    )];
   };
 }
