@@ -169,8 +169,8 @@ in
   };
   config = lib.mkIf (config.nixos.packages.omp != null) {
     environment.persistence."/nix/persistent".users.chn.directories = [ ".omp" ];
-    nixos.user.sharedModules = [(homeInputs:
-      {
+    nixos.user.sharedModules = [
+      (homeInputs: {
         config = {
           home.activation.ompAgentConfig = {
             before = [ ];
@@ -180,12 +180,12 @@ in
               run rm -f "$HOME/.omp/agent/models.yml" "$HOME/.omp/agent/mcp.json" "$HOME/.omp/agent/keybindings.yml"
               run install -m 600 ${modelsFile} "$HOME/.omp/agent/models.yml"
               run install -m 600 ${mcpFile} "$HOME/.omp/agent/mcp.json"
-              run install -m 600 ${keybindingsFile homeInputs.config.user.username} "$HOME/.omp/agent/keybindings.yml"
+              run install -m 600 ${keybindingsFile homeInputs.config.home.username} "$HOME/.omp/agent/keybindings.yml"
             '';
           };
           programs.omp = {
             enable = true;
-            settings = settings homeInputs.config.user.username;
+            settings = settings homeInputs.config.home.username;
             package = pkgs.writeShellScriptBin "omp" ''
               export HINDSIGHT_API_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/hindsight".path}")"
               export MINERU_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/mineru".path}")"
@@ -205,7 +205,7 @@ in
             '';
           };
         };
-      }
-    )];
+      })
+    ];
   };
 }
