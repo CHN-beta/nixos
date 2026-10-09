@@ -275,6 +275,7 @@
               "hjp"
               "lilydjwg"
               "straycat"
+              "wyh"
             ];
           in
           {
