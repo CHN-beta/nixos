@@ -130,6 +130,7 @@
       user.users = [
         "chn"
         "straycat"
+        "wyh"
       ];
     };
   };

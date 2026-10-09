@@ -105,6 +105,8 @@ vikunja:
     jwtsecret: ENC[AES256_GCM,data:bCbxeUR24AxS+FJHSIEsFB9dPflkj3vhhl1rMvZzavMhj7iEKbfCNs9sNTIt7javDqWhtEufcPHK/cza6lgkhw==,iv:SJ+7eQNnl4QQQRG2oRB+FUwBH18gZ3JsRPyDnCSzI64=,tag:S1BBxgpFUCwqYaHdTBKQVg==,type:str]
 omp-web:
     password: ENC[AES256_GCM,data:SOzXRSg7L1UpgC9Qm6c3EmiB+oPUyo/pChR0Nq1ujts=,iv:DToKIPUm7NsnYf3UiWZ07908DSMWDiPQ1KX3dpPlQ54=,tag:2o3fXL1vjCGCG+j8lMSQ8g==,type:str]
+wyh:
+    ssh: ENC[AES256_GCM,data:6jYEukICg+4uNCM+lLKKOTId349YNOVjL7nzbRsrP5BjTZcwnvAUD0NQuWGBqcN3u8UHOjHB2qpkp54dCHVHcgZqom2QP6iQNvcnzWF/N2E4x9l0xrmgiOLqZInMhXzEA2ZyMx1QIb2ayBQ26g0m9k3BjCrdXzYuXKpEplBIfQQGd7oLWDbUDd1jTTVVl9cg8VISsmGKH7HwXfqukK4H5DEThAy1guID2pJ7AsEFaPCSqls67xkyJnpbYkbOjRPrW+gbCbov/c388X4y3rEVMLr2XTn0DacbLNEGQuLPjxCUdeXuhNnPTer0rYpn4CiV71irQSlfx5O6eIt0KEvKq55655cyG6vdFeSZ/by+pMmN4cpou/4vxlfyZ7NppsarOxDvwXQE/Jo5ZP4JyCSSr/+2V6w+hanYyecZRIC9gJORbSJC9sbAImTzp+0tpTmwT8GUZCFTImkzBZ4ptmYCbNwnmkJw9LQyeWvyzasU78hw8PZBo/pW20Oxi2R1FiU/1CuV,iv:wo1dq6+lm6M29V7+xOe/Z02755D8ir36dS0VECrpxoY=,tag:zEDdNtIoRtZgaMH8KQj5iQ==,type:str]
 sops:
     age:
         - enc: |
@@ -126,7 +128,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-10-08T07:15:29Z"
-    mac: ENC[AES256_GCM,data:Ype5+TLANI0uX8IbfNbtxmVUWOnl28AarL+FMN6f1gJWibFeihmSzritdI3m5AKbO4o/2BMS8eCqAf5sMcJcnVpOmTjCAqh01UVoUajo9X5MDHg4zBS/eRqskrEB+ywPJydSXrNROAxpDLIib43dBJ9A+zNNqn8lCxwVI18FR/U=,iv:DwmDF/hOyY7xoVAqicxmD/6HZGuPkvmouD63jPyqLvg=,tag:uEwJCYKleHinvCDDOy2+9g==,type:str]
+    lastmodified: "2026-10-09T07:01:18Z"
+    mac: ENC[AES256_GCM,data:Va3C3xF1QyjtbnvvJzvQsWVDp4tMILZ2BKYBXVrc2LY1RuCzswuBNbzJgrEtmh8yd2gqQbLcQyVW+btVgFT7olPchSwTloyZc/Vrcl+PzlehU9Ma0UTB7XbjOjw/DIM3Xa8T7+4mDPg4qzdUuWwRTHci2L6NilCQKimC6x5alaA=,iv:9XiAbfIVB+Ki8TTkJh6W5dYA5YRvu/rkWKoJclPRjkw=,tag:csmb558TTADbqn9UBfYOAw==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
