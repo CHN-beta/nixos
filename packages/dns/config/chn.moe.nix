@@ -65,6 +65,7 @@ let
       "hermes"
       "miniflux"
       "omp"
+      "ompwyh"
     ];
     vps10 = [
       "initrd.vps10"
