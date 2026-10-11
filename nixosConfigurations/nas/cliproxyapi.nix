@@ -71,27 +71,6 @@
         };
         redis-usage-queue-retention-seconds = 60;
         gemini-api-key = [ ];
-        openai-compatibility = [
-          {
-            name = "openrouter";
-            base-url = "https://openrouter.ai/api/v1";
-            priority = -1;
-            api-key-entries = [
-              { api-key._secret = config.nixos.system.sops.secrets."straycat/openrouter".path; }
-            ];
-            models = [
-              {
-                name = "google/gemini-3.8-flash";
-                alias = "gemini-3.8-flash-high";
-              }
-              {
-                name = "openai/gpt-6-astra";
-                alias = "gpt-6-astra";
-                max-context-length = 272000;
-              }
-            ];
-          }
-        ];
       };
     };
 
