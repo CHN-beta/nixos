@@ -98,7 +98,7 @@
         vaultwarden = { };
         nextcloud = { };
         freshrss = { };
-        send = { };
+        # send = { };
         httpapi = { };
         podman = { };
         peertube = { };
