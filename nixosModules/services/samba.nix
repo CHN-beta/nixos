@@ -1,49 +1,45 @@
-inputs: {
-  options.nixos.services.samba =
-    let
-      inherit (inputs.lib) mkOption types;
-    in
-    mkOption {
-      type = types.nullOr (
-        types.submodule {
-          options = {
-            # make shares visible for windows 10 clients
-            wsdd = mkOption {
-              type = types.bool;
-              default = false;
-            };
-            private = mkOption {
-              type = types.bool;
-              default = false;
-            };
-            hostsAllowed = mkOption {
-              type = types.str;
-              default = "127.";
-            };
-            shares = mkOption {
-              type = types.attrsOf (
-                types.submodule {
-                  options = {
-                    comment = mkOption {
-                      type = types.nullOr types.nonEmptyStr;
-                      default = null;
-                    };
-                    path = mkOption { type = types.nonEmptyStr; };
-                  };
-                }
-              );
-              default = { };
-            };
+{ lib, config, ... }: {
+  options.nixos.services.samba = lib.mkOption {
+    type = lib.types.nullOr (
+      lib.types.submodule {
+        options = {
+          # make shares visible for windows 10 clients
+          wsdd = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
           };
-        }
-      );
-      default = null;
-    };
+          private = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+          };
+          hostsAllowed = lib.mkOption {
+            type = lib.types.str;
+            default = "127.";
+          };
+          shares = lib.mkOption {
+            type = lib.types.attrsOf (
+              lib.types.submodule {
+                options = {
+                  comment = lib.mkOption {
+                    type = lib.types.nullOr lib.types.nonEmptyStr;
+                    default = null;
+                  };
+                  path = lib.mkOption { type = lib.types.nonEmptyStr; };
+                };
+              }
+            );
+            default = { };
+          };
+        };
+      }
+    );
+    default = null;
+  };
   config =
     let
-      inherit (inputs.config.nixos.services) samba;
+      inherit (config.nixos.services) samba;
     in
-    inputs.lib.mkIf (samba != null) {
+    lib.mkIf (samba != null) {
       services = {
         samba-wsdd.enable = samba.wsdd;
         samba = {
@@ -51,24 +47,24 @@ inputs: {
           # TCP 139 445 UDP 137 138
           openFirewall = !samba.private;
           settings = {
-            global."hosts allow" = "${samba.hostsAllowed}";
+            global = {
+              "smb2 leases" = false;
+              "oplocks" = false;
+              "level2 oplocks" = false;
+              "hosts allow" = "${samba.hostsAllowed}";
+            };
           }
-          // builtins.listToAttrs (
-            builtins.map (share: {
-              name = share.name;
-              value = {
-                comment = if share.value.comment != null then share.value.comment else share.name;
-                path = share.value.path;
-                browseable = true;
-                writeable = true;
-                "create mask" = "644";
-                "force create mode" = "644";
-                "directory mask" = "2755";
-                "force directory mode" = "2755";
-                "acl allow execute always" = true;
-              };
-            }) (inputs.lib.attrsToList samba.shares)
-          );
+          // lib.mapAttrs (n: share: {
+            comment = if share.comment != null then share.comment else n;
+            path = share.path;
+            browseable = true;
+            writeable = true;
+            "create mask" = "644";
+            "force create mode" = "644";
+            "directory mask" = "2755";
+            "force directory mode" = "2755";
+            "acl allow execute always" = true;
+          }) samba.shares;
         };
       };
     };
