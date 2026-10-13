@@ -95,6 +95,7 @@ let
     |> pkgs.writeText "omp-models.yml";
 
   mcpFile =
+    user:
     {
       mcpServers = {
         dockerhub.command = lib.getExe pkgs.localPkgs.dockerhub-mcp;
@@ -122,11 +123,19 @@ let
             "${./translate-mcp.yaml}"
           ];
         };
-        vikunja = {
-          command = lib.getExe pkgs.localPkgs.vikunja-mcp;
-          env.VIKUNJA_URL = "https://vikunja.chn.moe";
-        };
-      };
+      }
+      //
+        lib.optionalAttrs
+          (lib.elem user [
+            "chn"
+            "straycat"
+          ])
+          {
+            vikunja = {
+              command = lib.getExe pkgs.localPkgs.vikunja-mcp;
+              env.VIKUNJA_URL = "https://vikunja.chn.moe";
+            };
+          };
     }
     |> builtins.toJSON
     |> pkgs.writeText "omp-mcp.json";
@@ -155,7 +164,7 @@ let
     memory.backend = "hindsight";
     hindsight = {
       apiUrl = "https://hindsight.chn.moe";
-      bankId = if user == "wyh" then "wyh" else "chn";
+      bankId = { straycat = "chn"; }.${user} or user;
       scoping = "global";
     };
     github.enabled = true;
@@ -179,7 +188,7 @@ in
               run mkdir -p "$HOME/.omp/agent"
               run rm -f "$HOME/.omp/agent/models.yml" "$HOME/.omp/agent/mcp.json" "$HOME/.omp/agent/keybindings.yml"
               run install -m 600 ${modelsFile} "$HOME/.omp/agent/models.yml"
-              run install -m 600 ${mcpFile} "$HOME/.omp/agent/mcp.json"
+              run install -m 600 ${mcpFile homeInputs.config.home.username} "$HOME/.omp/agent/mcp.json"
               run install -m 600 ${keybindingsFile homeInputs.config.home.username} "$HOME/.omp/agent/keybindings.yml"
             '';
           };
@@ -196,7 +205,17 @@ in
               export OPENAI_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/siliconflow".path}")"
               export DEEPSEEK_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/deepseek".path}")"
               export GITHUB_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/github".path}")"
-              export VIKUNJA_API_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/vikunja".path}")"
+              ${
+                if
+                  lib.elem homeInputs.config.home.username [
+                    "chn"
+                    "straycat"
+                  ]
+                then
+                  ''export VIKUNJA_API_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/vikunja".path}")"''
+                else
+                  ""
+              } 
               export OPENALEX_MAILTO=chn@chn.moe
 
               export PUPPETEER_EXECUTABLE_PATH=${pkgs.chromium}/bin/chromium
