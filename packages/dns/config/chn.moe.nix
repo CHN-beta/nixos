@@ -86,6 +86,7 @@ let
       "chat"
       "vikunja"
     ];
+    "ddml-vm.ts" = [ "omprdhx" ];
   };
   a_aaaa = {
     office = "210.34.16.100";
