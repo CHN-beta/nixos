@@ -20,6 +20,7 @@
           "siliconflow"
           "openrouter"
           "vikunja"
+          "ark"
         ]
         |> lib.flip lib.genAttrs' (
           s:
