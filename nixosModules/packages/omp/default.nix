@@ -27,8 +27,8 @@ let
                 name = "GPT-6 Luna";
               }
               {
-                id = "gemini-3.1-pro-low";
-                name = "Gemini 3.1 Pro Low";
+                id = "gemini-4-argon-high";
+                name = "Gemini 4 Argon High";
               }
               {
                 id = "gemini-3.8-flash-high";
@@ -43,8 +43,8 @@ let
                   "text"
                   "image"
                 ];
-                contextWindow = 400000;
-                maxTokens = 128000;
+                contextWindow = 524288;
+                maxTokens = 131072;
               }
             );
         };
@@ -77,15 +77,15 @@ let
                 "text"
                 "image"
               ];
-              contextWindow = 1000000;
-              maxTokens = 384000;
+              contextWindow = 1048576;
+              maxTokens = 393216;
             }
             {
               id = "deepseek-v4-pro";
               name = "DeepSeek-V4 Pro";
               input = [ "text" ];
-              contextWindow = 1000000;
-              maxTokens = 384000;
+              contextWindow = 1048576;
+              maxTokens = 393216;
             }
           ];
         };
