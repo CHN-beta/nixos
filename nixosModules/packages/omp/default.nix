@@ -89,6 +89,23 @@ let
             }
           ];
         };
+        doubao = {
+          baseUrl = "https://ark.cn-beijing.volces.com/api/v3";
+          api = "openai-responses";
+          apiKey = "ARK_API_KEY";
+          models = [
+            {
+              id = "doubao-seed-evolving";
+              name = "Doubao Seed Evolving";
+              input = [
+                "text"
+                "image"
+              ];
+              contextWindow = 1048576;
+              maxTokens = 262144;
+            }
+          ];
+        };
       };
     }
     |> builtins.toJSON
@@ -205,6 +222,7 @@ in
               export OPENAI_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/siliconflow".path}")"
               export DEEPSEEK_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/deepseek".path}")"
               export GITHUB_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/github".path}")"
+              export ARK_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/ark".path}")"
               ${
                 if
                   lib.elem homeInputs.config.home.username [
