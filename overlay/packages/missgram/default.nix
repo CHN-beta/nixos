@@ -2,6 +2,7 @@
   lib,
   rustPlatform,
   versionCheckHook,
+  cacert,
 }:
 
 rustPlatform.buildRustPackage {
@@ -11,6 +12,9 @@ rustPlatform.buildRustPackage {
   cargoLock.lockFile = ./Cargo.lock;
   nativeInstallCheckInputs = [
     versionCheckHook
+  ];
+  nativeCheckInputs = [
+    cacert
   ];
   doInstallCheck = true;
   meta = with lib; {
