@@ -45,13 +45,11 @@
               telegram_chat_id = -1003641252872;
               server_port = 9173;
               db_password = placeholder."postgresql/missgram";
-              make_webhook_url = placeholder."missgram/make_webhook_url";
             };
         };
         secrets = {
           "missgram/secret" = { };
           "missgram/telegramBotToken" = { };
-          "missgram/make_webhook_url" = { };
         };
       };
     };

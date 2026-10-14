@@ -636,17 +636,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0881ea181b1df73ff77ffaaf9c7544ecc11e82fba9b5f27b262a3c73a332555"
 
 [[package]]
-name = "egg-mode-text"
-version = "1.15.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "32956c707081e778906fc194f400fb9e1c220a494f50eebd4a3bfe1224d21c27"
-dependencies = [
- "lazy_static",
- "regex",
- "unicode-normalization",
-]
-
-[[package]]
 name = "either"
 version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1479,7 +1468,6 @@ dependencies = [
  "anyhow",
  "axum",
  "clap",
- "egg-mode-text",
  "pulldown-cmark",
  "regex",
  "reqwest 0.13.4",
@@ -1489,7 +1477,6 @@ dependencies = [
  "sqlx",
  "teloxide",
  "tokio",
- "tokio-util",
  "tracing",
  "tracing-subscriber",
 ]
@@ -2846,7 +2833,6 @@ dependencies = [
  "bytes",
  "futures-core",
  "futures-sink",
- "futures-util",
  "pin-project-lite",
  "tokio",
 ]

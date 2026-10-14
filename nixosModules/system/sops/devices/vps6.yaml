@@ -11,7 +11,6 @@ postgresql:
 missgram:
     secret: ENC[AES256_GCM,data:qsxJue8mGAJejSxOoPd4MXD06upnk0fxUM5EKPBs/WI=,iv:HaHj/vJkIERUQ0Lr93s9kaApNWPjDcpLu2897qmCjqA=,tag:u73jUDd6pGKk1yir/oF4hQ==,type:str]
     telegramBotToken: ENC[AES256_GCM,data:kNGhj1SjyK1H8NJmJLi90cpGtWmmGpFEFFT/JkDX4QqxbOC6BfFIMgzVsZ5GVQ==,iv:sccRmCs8HBAvi9mDAaz8OjxqXLAVXepJHaj7RrUt6kI=,tag:RuK3EdRMVhS9pVDw50lW6A==,type:str]
-    make_webhook_url: ENC[AES256_GCM,data:AZ0NMHIdGV5de+qpvkKUE+TJp7k9Pn1XPb6YIC5XhRVZ5cGLG0XSm+tBVHpH+lNRM9np9PH7O81GiQ==,iv:oYzN2IGXK1exEMVBEWI6zuIZuUQk9IyLEEDZYeuafbQ=,tag:dOEdigz0Gt7oruuAc411yg==,type:str]
 mail:
     bot: ENC[AES256_GCM,data:wWZnPP+IH0ltY9X34cfyGw==,iv:RjbpDyV9I4nxybIWTY2O8lf0dsZdqOZmVqLFu+f92UM=,tag:Dzq1eugNZWSLub4z11GDvA==,type:str]
 machineId: ENC[AES256_GCM,data:RFtcISv20bO7FwgtKH/8KB2OwF28njVTBUIQ3pQGnCg=,iv:5uetRBREgPdai/cM1+FeuKx1IQqxjU9s4MYcyObUUCg=,tag:CHx3MVxDU2z1cYNvnYKZ6w==,type:str]
@@ -38,7 +37,7 @@ sops:
             /jZhBt42BOCZwOiNqt9cgU1+DRu24DE019VTyR15dhLNwqiIo5jQkg==
             -----END AGE ENCRYPTED FILE-----
           recipient: age164tyqklwhdm57tfm5u863mdt2xrzrrzac4py8a0j9y6kzqcjy9zsp073t6
-    lastmodified: "2026-10-04T06:24:36Z"
-    mac: ENC[AES256_GCM,data:t2J+8tKZKYeOMrxtHk+IINJhW6Vf7pvW2xQCwRZ626Ea9N9/SuIae1Su6aeSduposYhHA4mBCTXfrqDIXvX6HB9iKVLQ3XHZnJY6PRawZIs8zqZuDG3wp/f+D1PtcYYlPyiKFQSoMlLhFUYTCyjqW2biu6KvPWdmRQCXCsc0aVo=,iv:ctJJ/GZjP6RcJ2bgJXahjFFF0HVJvgI3ChVWQ3jvmvI=,tag:Gc0l8eGy8fvKVzjGIVHYqQ==,type:str]
+    lastmodified: "2026-10-14T13:49:16Z"
+    mac: ENC[AES256_GCM,data:6w/n36zP9ZaKd354grOuf4NtYJ3wXILaUz9tFP3uehW7w5DZ+Dcp5Avt9icT051RTS4/IBcSqzKmFX6Y0DbOtaxx7w0mkm81yP/ycPJX/AdcWwFf27I6jQzeZ8o1UYULGU5xIcak10+ZtY4jRXXG7LgwHqN0jyXFdYxhxpbLECw=,iv:VUkt7XkBu2x95JGgazq2JnsAtPG7fDdm3VMFml7IPB8=,tag:RdXCWHt4sePfnyhBvNpqzQ==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
