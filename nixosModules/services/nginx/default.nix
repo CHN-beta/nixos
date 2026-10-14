@@ -103,10 +103,12 @@
                 meta.license = [ ];
               };
             in
+            with pkgs.nginxModules;
             [
               nginx-geoip2
-              pkgs.nginxModules.vts
-              pkgs.nginxModules.pam
+              vts
+              pam
+              njs
             ];
           streamConfig = ''
             geoip2 ${config.services.geoipupdate.settings.DatabaseDirectory}/GeoLite2-Country.mmdb {
