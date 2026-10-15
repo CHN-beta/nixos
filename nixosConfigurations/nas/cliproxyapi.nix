@@ -76,20 +76,27 @@
 
     nixos = {
       system.sops.secrets."cliproxyapi/management" = { };
-      services.nginx.https."cliproxyapi.chn.moe".location = {
-        "/".proxy.upstream = "http://127.0.0.1:8317";
-        "/management.html".static.root =
-          let
-            managementHtml = pkgs.fetchurl {
-              url = "https://github.com/router-for-me/Cli-Proxy-API-Management-Center/releases/download/v1.24.2/management.html";
-              sha256 = "sha256-UbJNuBcKVBSHVgLC9ONQFxhbHB3X6aaxwN5pkFqB6Zc=";
-            };
-            root = pkgs.runCommand "management" { } ''
-              mkdir -p $out
-              cp ${managementHtml} $out/management.html
-            '';
-          in
-          "${root}";
+      services.nginx.https."cliproxyapi.chn.moe" = {
+        global.extraConfig = ''
+          # Forward streaming responses immediately without buffering or caching.
+          proxy_buffering off;
+          proxy_cache off;
+        '';
+        location = {
+          "/".proxy.upstream = "http://127.0.0.1:8317";
+          "/management.html".static.root =
+            let
+              managementHtml = pkgs.fetchurl {
+                url = "https://github.com/router-for-me/Cli-Proxy-API-Management-Center/releases/download/v1.24.2/management.html";
+                sha256 = "sha256-UbJNuBcKVBSHVgLC9ONQFxhbHB3X6aaxwN5pkFqB6Zc=";
+              };
+              root = pkgs.runCommand "management" { } ''
+                mkdir -p $out
+                cp ${managementHtml} $out/management.html
+              '';
+            in
+            "${root}";
+        };
       };
     };
   };
