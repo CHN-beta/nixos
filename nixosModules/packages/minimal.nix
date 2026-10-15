@@ -61,6 +61,7 @@
           # editor
           nano
           bat
+          micro
           # downloader
           wget
           aria2
