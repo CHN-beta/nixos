@@ -255,7 +255,10 @@
           config.programs.helix = {
             enable = true;
             defaultEditor = true;
-            settings.theme = "catppuccin_latte";
+            settings = {
+              theme = "catppuccin_latte";
+              editor.soft-wrap.enable = true;
+            };
           };
         }
       ];
