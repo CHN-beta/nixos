@@ -43,6 +43,8 @@ inputs: {
             "${builtins.toString v.loadAverage}"
             "--verbose"
             "4"
+            "--throttle-factor"
+            "10"
           ];
         }
       ) beesd;
