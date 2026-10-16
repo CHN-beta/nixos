@@ -5,11 +5,24 @@
   ...
 }:
 let
-  package = pkgs.vllm.overridePythonAttrs (
-    final: prev: {
-      dependencies = (prev.dependencies or [ ]) ++ pkgs.vllm.optional-dependencies.audio;
+  # vLLM 0.16 requires Transformers < 5; Qwen's official ASR Space pins 4.57.6.
+  # Keep the overrides private, including transitive Python dependencies.
+  python = pkgs.python3.override (
+    prev: {
+      packageOverrides = lib.composeExtensions (prev.packageOverrides or (_: _: { })) (
+        final: prev: {
+          transformers = final.transformers_4;
+          huggingface-hub = final.huggingface-hub_0;
+          diffusers = prev.diffusers.overridePythonAttrs (old: {
+            dependencies = (old.dependencies or [ ]) ++ [ final.httpx ];
+          });
+        }
+      );
     }
   );
+  package = python.pkgs.vllm.overridePythonAttrs (prev: {
+    dependencies = (prev.dependencies or [ ]) ++ python.pkgs.vllm.optional-dependencies.audio;
+  });
   model = self.src.models.qwen3-asr-1_7b;
 in
 {
@@ -31,6 +44,7 @@ in
               };
               engine = "whisper";
               hotkey.enabled = false;
+              osd.enabled = false;
               output = {
                 fallback_to_clipboard = true;
                 mode = "clipboard";
@@ -43,9 +57,9 @@ in
               };
               state_file = "auto";
               whisper = {
-                backend = "remote";
+                mode = "remote";
                 remote_endpoint = "http://127.0.0.1:8000";
-                remote_model = "Qwen/Qwen3-ASR-1.7B";
+                model = "Qwen/Qwen3-ASR-1.7B";
                 language = "zh";
               };
             };
