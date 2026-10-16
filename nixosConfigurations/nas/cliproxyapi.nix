@@ -4,50 +4,64 @@
     services.cliproxyapi = {
       enable = true;
       settings = {
-        host = "127.0.0.1";
-        port = 8317;
-        # TODO: migrate config when upgrading to 8.x
-        remote-management = {
+        config-version = 8;
+        server = {
+          host = "127.0.0.1";
+          port = 8317;
+          commercial-mode = false;
+        };
+        management = {
           allow-remote = true;
           secret-key._secret = config.nixos.system.sops.secrets."cliproxyapi/management".path;
           disable-control-panel = true;
           panel-github-repository = "https://github.com/router-for-me/Cli-Proxy-API-Management-Center";
         };
-        auth-dir = "/var/lib/cliproxyapi/.cli-proxy-api";
-        api-keys = [ { _secret = config.nixos.system.sops.secrets."straycat/cliproxyapi".path; } ];
-        debug = false;
-        pprof = {
-          enable = false;
-          addr = "127.0.0.1:8316";
+        oauth = {
+          auth-dir = "/var/lib/cliproxyapi/.cli-proxy-api";
+          providers = {
+            aistudio.ws-auth = true;
+            antigravity = {
+              sensitive-words = [ "Nous Research" ];
+              antigravity-credits = true;
+            };
+          };
         };
-        commercial-mode = false;
-        logging-to-file = false;
-        logs-max-total-size-mb = 0;
-        error-logs-max-files = 10;
-        usage-statistics-enabled = false;
-        proxy-url = "";
-        force-model-prefix = false;
-        passthrough-headers = false;
-        request-retry = 3;
-        max-retry-credentials = 0;
-        max-retry-interval = 30;
-        disable-cooling = false;
-        quota-exceeded = {
-          switch-project = true;
-          switch-preview-model = true;
-          antigravity-credits = true;
+        access.api-keys = [ { _secret = config.nixos.system.sops.secrets."straycat/cliproxyapi".path; } ];
+        observability = {
+          logs = {
+            debug = false;
+            logging-to-file = false;
+            logs-max-total-size-mb = 0;
+            error-logs-max-files = 10;
+          };
+          usage = {
+            usage-statistics-enabled = false;
+            redis-usage-queue-retention-seconds = 60;
+          };
+          pprof = {
+            enable = false;
+            addr = "127.0.0.1:8316";
+          };
+        };
+        requests = {
+          proxy-url = "";
+          passthrough-headers = false;
+          nonstream-keepalive-interval = 0;
         };
         routing = {
           strategy = "round-robin";
           session-affinity = true;
           session-affinity-ttl = "1h";
           session-affinity-subagents = true;
+          force-model-prefix = false;
+          retry = {
+            request-retry = 3;
+            max-retry-credentials = 0;
+            max-retry-interval = 30;
+          };
+          cooldown.disable-cooling = false;
         };
-        ws-auth = false;
-        enable-gemini-cli-endpoint = false;
-        nonstream-keepalive-interval = 0;
-        antigravity.sensitive-words = [ "Nous Research" ];
-        credential-concurrency = {
+        credentials.concurrency = {
           cpa-heartbeat-timeout = "3s";
           cpa-cancel-bound = "5s";
           reclaim-grace = "5s";
@@ -58,7 +72,7 @@
           busy-retry-max = "1s";
           max-limit = 1000000;
         };
-        credential-in-flight = {
+        credentials.in-flight = {
           snapshot-interval = "2s";
           stale-after = "10s";
           max-part-bytes = 262144;
@@ -69,8 +83,7 @@
           max-string-bytes = 256;
           staging-retention = "1m";
         };
-        redis-usage-queue-retention-seconds = 60;
-        gemini-api-key = [ ];
+        api-keys.gemini = [ ];
       };
     };
 
@@ -87,8 +100,8 @@
           "/management.html".static.root =
             let
               managementHtml = pkgs.fetchurl {
-                url = "https://github.com/router-for-me/Cli-Proxy-API-Management-Center/releases/download/v1.24.2/management.html";
-                sha256 = "sha256-UbJNuBcKVBSHVgLC9ONQFxhbHB3X6aaxwN5pkFqB6Zc=";
+                url = "https://github.com/router-for-me/Cli-Proxy-API-Management-Center/releases/download/v1.26.4/management.html";
+                sha256 = "sha256-g8ZHdet6t3t1fCN0aMtx3MCqEt4U08znTpTo0375u9k=";
               };
               root = pkgs.runCommand "management" { } ''
                 mkdir -p $out
