@@ -308,6 +308,25 @@ in
     npmDepsHash = "sha256-EAIHe/z86fnFkUa4gu4UoywxZQlu+KFDrbrcon/GNMo=";
   };
   models = {
+    qwen3-asr-1_7b = pkgs.fetchgit {
+      url = "https://huggingface.co/Qwen/Qwen3-ASR-1.7B";
+      rev = "7278e1e70fe206f11671096ffdd38061171dd6e5";
+      fetchLFS = true;
+      nonConeMode = true;
+      sparseCheckout = [
+        "chat_template.json"
+        "config.json"
+        "generation_config.json"
+        "merges.txt"
+        "model-00001-of-00002.safetensors"
+        "model-00002-of-00002.safetensors"
+        "model.safetensors.index.json"
+        "preprocessor_config.json"
+        "tokenizer_config.json"
+        "vocab.json"
+      ];
+      hash = "sha256-UsmWxoKP/O2peSg59bidQgiluCV2j6JkAyEgdmmwAFY=";
+    };
     bge-m3 = pkgs.fetchgit {
       url = "https://huggingface.co/BAAI/bge-m3";
       rev = "5617a9f61b028005a4858fdac845db406aefb181";
