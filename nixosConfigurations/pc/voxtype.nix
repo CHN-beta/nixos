@@ -89,7 +89,7 @@ in
         StateDirectoryMode = "0700";
         WorkingDirectory = "/var/lib/vllm";
         ExecStart = lib.escapeShellArgs [
-          (lib.getExe package)
+          (lib.getExe' package "vllm")
           "serve"
           (toString model)
           "--served-model-name"
