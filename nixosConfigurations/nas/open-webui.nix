@@ -39,7 +39,14 @@
           "hermes/api_server_token" = { };
         };
       };
-      services.nginx.https."chat.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:8080";
+      services.nginx.https."chat.chn.moe" = {
+        global.extraConfig = ''
+          # Forward streaming responses immediately without buffering or caching.
+          proxy_buffering off;
+          proxy_cache off;
+        '';
+        location."/".proxy.upstream = "http://127.0.0.1:8080";
+      };
     };
   };
 }
