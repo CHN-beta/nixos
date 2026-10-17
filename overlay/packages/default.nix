@@ -222,8 +222,8 @@ rec {
       };
     };
   }).overrideAttrs (old: {
-    patches = [ ./ompweb-fonts.patch ];
-    npmDeps = old.npmDeps.overrideAttrs { patches = [ ./ompweb-fonts.patch ]; };
+    patches = [ ./ompweb/fonts.patch ];
+    npmDeps = old.npmDeps.overrideAttrs { patches = [ ./ompweb/fonts.patch ]; };
   });
 
   fromYaml =
