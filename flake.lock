@@ -1685,15 +1685,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1792071393,
-        "narHash": "sha256-jISkHtTWLEokO0lJxNgNv4eqK4wpdcioDUMQLVv1E9k=",
-        "owner": "kahme247",
+        "lastModified": 1792247539,
+        "narHash": "sha256-/x9vJ4fe9o4Dj29n2JWIUCORs+QiM4xFdzwgzScM9/c=",
+        "owner": "CHN-beta",
         "repo": "ompweb",
-        "rev": "7cb3133374ca174d53c3e164d478f2e8f0c43980",
+        "rev": "edba2c8cd9411865e774d74aa75e81b49ca9313c",
         "type": "github"
       },
       "original": {
-        "owner": "kahme247",
+        "owner": "CHN-beta",
         "repo": "ompweb",
         "type": "github"
       }

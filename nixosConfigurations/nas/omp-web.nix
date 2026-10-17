@@ -2,6 +2,7 @@
   config,
   pkgs,
   lib,
+  self,
   ...
 }:
 {
@@ -34,7 +35,7 @@
               Group = "${user}";
               WorkingDirectory = "/home/${user}";
               EnvironmentFile = config.nixos.system.sops.templates."omp-web-${user}.env".path;
-              ExecStart = "${pkgs.localPkgs.ompweb}/bin/ompweb";
+              ExecStart = "${self.inputs.ompweb.packages.x86_64-linux.default}/bin/ompweb";
               Restart = "on-failure";
               RestartSec = 5;
             };

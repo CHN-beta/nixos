@@ -64,7 +64,7 @@
     pi.url = "github:lukasl-dev/pi.nix";
     omp.url = "github:CHN-beta/oh-my-pi";
     ompweb = {
-      url = "github:kahme247/ompweb";
+      url = "github:CHN-beta/ompweb";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     bun2nix = {
