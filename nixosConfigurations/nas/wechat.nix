@@ -5,6 +5,7 @@
     image = "nickrunning/wechat-selkies:0.0.17";
     ports = [ "127.0.0.1:23000:3000/tcp" ];
     volumes = [ "wechat_data:/config" ];
+    devices = [ "/dev/dri:/dev/dri" ];
     extraOptions = [ "--shm-size=1gb" ];
     environment = {
       TZ = "Asia/Shanghai";
