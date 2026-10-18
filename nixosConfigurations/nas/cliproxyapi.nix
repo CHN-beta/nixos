@@ -18,6 +18,14 @@
         };
         oauth = {
           auth-dir = "/var/lib/cliproxyapi/.cli-proxy-api";
+          model-alias.codex = [
+            {
+              name = "gpt-6.1-sol";
+              alias = "coding";
+              fork = true;
+              force-mapping = true;
+            }
+          ];
           providers = {
             aistudio.ws-auth = true;
             antigravity = {
@@ -83,7 +91,28 @@
           max-string-bytes = 256;
           staging-retention = "1m";
         };
-        api-keys.gemini = [ ];
+        api-keys = {
+          gemini = [ ];
+          openai-compatibility = [
+            {
+              name = "deepseek";
+              base-url = "https://api.deepseek.com";
+              priority = -1;
+              keys = [
+                {
+                  api-key._secret = config.nixos.system.sops.secrets."straycat/deepseek".path;
+                }
+              ];
+              models = [
+                {
+                  name = "deepseek-flash";
+                  alias = "coding";
+                  force-mapping = true;
+                }
+              ];
+            }
+          ];
+        };
       };
     };
 
