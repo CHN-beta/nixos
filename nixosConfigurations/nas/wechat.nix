@@ -10,6 +10,9 @@
     environment = {
       TZ = "Asia/Shanghai";
       AUTO_START_WECHAT = "true";
+      MAX_RES = "1920x1080";
+      SELKIES_MANUAL_WIDTH = "1920";
+      SELKIES_MANUAL_HEIGHT = "1080";
     };
   };
   nixos.services.nginx.https."wechat.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:23000";
