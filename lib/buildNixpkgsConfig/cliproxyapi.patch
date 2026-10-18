@@ -1,0 +1,82 @@
+--- a/sdk/cliproxy/auth/selector.go
++++ b/sdk/cliproxy/auth/selector.go
+@@ -1183,9 +1183,14 @@
+ 		}
+ 	}
+ 
++	preempted := false
+ 	if cachedAuthID, ok := s.cache.GetAndRefresh(cacheKey); ok {
+ 		for _, auth := range available {
+ 			if auth.ID == cachedAuthID {
++				if len(fallbackAuths) > 0 && authPriority(fallbackAuths[0]) > authPriority(auth) {
++					preempted = true
++					break
++				}
+ 				bind(auth.ID)
+ 				entry.Infof("session-affinity: cache hit | session=%s auth=%s provider=%s model=%s", truncateSessionID(primaryID), auth.ID, provider, model)
+ 				return auth, nil
+@@ -1199,13 +1204,17 @@
+ 		if auth == nil {
+ 			return nil, nil
+ 		}
+-		if s.shouldPreserveBindingWhenUnavailable(ctx, availabilityCandidates, model, cachedAuthID, now) {
++		if !preempted && s.shouldPreserveBindingWhenUnavailable(ctx, availabilityCandidates, model, cachedAuthID, now) {
+ 			bind(cachedAuthID)
+ 			entry.Infof("session-affinity: cache hit but auth transiently unavailable, failover without rebinding | session=%s bound_auth=%s failover_auth=%s provider=%s model=%s", truncateSessionID(primaryID), cachedAuthID, auth.ID, provider, model)
+ 			return auth, nil
+ 		}
+ 		bind(auth.ID)
+-		entry.Infof("session-affinity: cache hit but auth unavailable, reselected | session=%s auth=%s provider=%s model=%s", truncateSessionID(primaryID), auth.ID, provider, model)
++		if preempted {
++			entry.Infof("session-affinity: higher priority auth recovered, preempted binding | session=%s old_auth=%s new_auth=%s provider=%s model=%s", truncateSessionID(primaryID), cachedAuthID, auth.ID, provider, model)
++		} else {
++			entry.Infof("session-affinity: cache hit but auth unavailable, reselected | session=%s auth=%s provider=%s model=%s", truncateSessionID(primaryID), auth.ID, provider, model)
++		}
+ 		return auth, nil
+ 	}
+ 
+@@ -1214,6 +1223,10 @@
+ 			for _, auth := range available {
+ 				if auth.ID == cachedAuthID {
+ 					if !isSubagent || s.subagentAffinity {
++						if len(fallbackAuths) > 0 && authPriority(fallbackAuths[0]) > authPriority(auth) {
++							preempted = true
++							break
++						}
+ 						bind(auth.ID)
+ 						if isFork {
+ 							entry.Infof("session-affinity: fork cache hit | session=%s parent=%s auth=%s provider=%s model=%s", truncateSessionID(primaryID), truncateSessionID(fallbackID), auth.ID, provider, model)
+@@ -1287,6 +1300,8 @@
+ 	if errAvailable != nil {
+ 		return nil, true, errAvailable
+ 	}
++	fallbackAuths := highestPriorityAuths(available)
++	lcpPreempted := false
+ 
+ 	var preservedAuthID string
+ 	if match, ok := s.matcher.MatchFingerprintsWithContext(namespace, fingerprints, tailFingerprints, envDigest, minPrefixLength); ok {
+@@ -1294,6 +1309,10 @@
+ 			if auth == nil || auth.ID != match.AuthID {
+ 				continue
+ 			}
++			if len(fallbackAuths) > 0 && authPriority(fallbackAuths[0]) > authPriority(auth) {
++				lcpPreempted = true
++				break
++			}
+ 			if match.SessionID != "" {
+ 				opts.Metadata[cliproxyexecutor.LCPAffinitySessionIDMetadataKey] = match.SessionID
+ 				opts.Metadata[cliproxyexecutor.CanonicalSessionIDMetadataKey] = match.SessionID
+@@ -1330,12 +1349,11 @@
+ 			}
+ 			return auth, true, nil
+ 		}
+-		if !match.IsFork && s.shouldPreserveBindingWhenUnavailable(ctx, availabilityCandidates, model, match.AuthID, now) {
++		if !lcpPreempted && !match.IsFork && s.shouldPreserveBindingWhenUnavailable(ctx, availabilityCandidates, model, match.AuthID, now) {
+ 			preservedAuthID = match.AuthID
+ 		}
+ 	}
+ 
+-	fallbackAuths := highestPriorityAuths(available)
+ 	auth, errPick := s.fallback.Pick(ctx, provider, model, opts, fallbackAuths)
+ 	if errPick != nil {
+ 		return nil, true, errPick
