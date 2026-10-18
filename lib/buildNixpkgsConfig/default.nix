@@ -207,7 +207,7 @@ let
           patches = prev.patches or [ ] ++ [ ./xray.patch ];
         });
         cliproxyapi = prev.cliproxyapi.overrideAttrs (prev: {
-          patches = prev.patches or [ ] ++ [ ./cliproxyapi.patch ];
+          patches = prev.patches or [ ] ++ [ ./cliproxyapi.patch ./cliproxyapi-6610.patch ];
         });
         btop = prev.btop.overrideAttrs (prev: {
           patches = prev.patches or [ ] ++ [ ./btop.patch ];

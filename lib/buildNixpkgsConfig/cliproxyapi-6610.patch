@@ -1,0 +1,250 @@
+From ae489d4fb430deb0fdcbcff94b56a7eda982fcef Mon Sep 17 00:00:00 2001
+From: Nguyen Le <nguyenlx@outlook.com>
+Date: Wed, 14 Oct 2026 11:01:26 +0700
+Subject: [PATCH] fix(antigravity): use cli user-agent to enable Gemini 4 Argon
+ availability
+
+---
+ internal/auth/antigravity/auth_test.go    |   4 +-
+ internal/misc/antigravity_version.go      |  17 +++-
+ internal/misc/antigravity_version_test.go |  14 ++-
+ internal/registry/models/models.json      | 102 ++++++++++++++++++++++
+ sdk/auth/antigravity_headless_test.go     |   4 +-
+ 5 files changed, 130 insertions(+), 11 deletions(-)
+
+diff --git a/internal/auth/antigravity/auth_test.go b/internal/auth/antigravity/auth_test.go
+index 10acc2a7ec7..55c00afe443 100644
+--- a/internal/auth/antigravity/auth_test.go
++++ b/internal/auth/antigravity/auth_test.go
+@@ -107,7 +107,7 @@ func assertLoadCodeAssistHeaders(t *testing.T, req *http.Request) {
+ 		t.Fatalf("X-Goog-Api-Client = %q, want empty", got)
+ 	}
+ 	userAgent := req.Header.Get("User-Agent")
+-	if !strings.HasPrefix(userAgent, "antigravity/hub/") {
++	if !strings.HasPrefix(userAgent, "antigravity/cli/") {
+ 		t.Fatalf("User-Agent = %q", userAgent)
+ 	}
+ 	if strings.Contains(userAgent, "google-api-nodejs-client/") {
+@@ -127,7 +127,7 @@ func assertOnboardUserHeaders(t *testing.T, req *http.Request) {
+ 		t.Fatalf("X-Goog-Api-Client = %q", got)
+ 	}
+ 	userAgent := req.Header.Get("User-Agent")
+-	if !strings.HasPrefix(userAgent, "antigravity/hub/") {
++	if !strings.HasPrefix(userAgent, "antigravity/cli/") {
+ 		t.Fatalf("User-Agent = %q", userAgent)
+ 	}
+ 	if !strings.Contains(userAgent, "google-api-nodejs-client/10.3.0") {
+diff --git a/internal/misc/antigravity_version.go b/internal/misc/antigravity_version.go
+index 679b815ac20..f44db0ece1a 100644
+--- a/internal/misc/antigravity_version.go
++++ b/internal/misc/antigravity_version.go
+@@ -112,13 +112,13 @@ func AntigravityLatestVersion() string {
+ 	return antigravityFallbackVersion
+ }
+ 
+-// AntigravityUserAgent returns the User-Agent string used by the Antigravity Hub family.
++// AntigravityUserAgent returns the User-Agent string used by the Antigravity CLI family.
+ func AntigravityUserAgent() string {
+-	return fmt.Sprintf("antigravity/hub/%s %s", AntigravityLatestVersion(), antigravityHubPlatform)
++	return fmt.Sprintf("antigravity/cli/%s %s", AntigravityLatestVersion(), antigravityHubPlatform)
+ }
+ 
+ func isAntigravityFamilyUserAgent(lower string) bool {
+-	return strings.HasPrefix(lower, "antigravity/hub/") || strings.HasPrefix(lower, "antigravity/")
++	return strings.HasPrefix(lower, "antigravity/cli/") || strings.HasPrefix(lower, "antigravity/hub/") || strings.HasPrefix(lower, "antigravity/")
+ }
+ 
+ func antigravityBaseUserAgent(userAgent string) string {
+@@ -172,6 +172,17 @@ func AntigravityOnboardUserUserAgent(userAgent string) string {
+ func AntigravityVersionFromUserAgent(userAgent string) string {
+ 	base := antigravityBaseUserAgent(userAgent)
+ 	lower := strings.ToLower(base)
++	if strings.HasPrefix(lower, "antigravity/cli/") {
++		rest := base[len("antigravity/cli/"):]
++		if idx := strings.IndexAny(rest, " \t"); idx >= 0 {
++			rest = rest[:idx]
++		}
++		rest = strings.TrimSpace(rest)
++		if rest == "" {
++			return AntigravityLatestVersion()
++		}
++		return rest
++	}
+ 	if strings.HasPrefix(lower, "antigravity/hub/") {
+ 		rest := base[len("antigravity/hub/"):]
+ 		if idx := strings.IndexAny(rest, " 	"); idx >= 0 {
+diff --git a/internal/misc/antigravity_version_test.go b/internal/misc/antigravity_version_test.go
+index eb36b5d78b2..83793b594f1 100644
+--- a/internal/misc/antigravity_version_test.go
++++ b/internal/misc/antigravity_version_test.go
+@@ -62,16 +62,22 @@ func TestAntigravityFallbackVersionMeetsBackendFloor(t *testing.T) {
+ 	}
+ }
+ 
+-func TestAntigravityUserAgentUsesHubFamily(t *testing.T) {
++func TestAntigravityUserAgentUsesCliFamily(t *testing.T) {
+ 	restore := overrideAntigravityVersionCacheForTest(t, "2.2.1", time.Now().Add(time.Hour))
+ 	defer restore()
+ 
+-	want := "antigravity/hub/2.2.1 darwin/arm64"
++	want := "antigravity/cli/2.2.1 darwin/arm64"
+ 	if got := AntigravityUserAgent(); got != want {
+ 		t.Fatalf("AntigravityUserAgent() = %q, want %q", got, want)
+ 	}
+ }
+ 
++func TestAntigravityVersionFromUserAgentParsesCliFamily(t *testing.T) {
++	if got := AntigravityVersionFromUserAgent("antigravity/cli/2.2.1 darwin/arm64"); got != "2.2.1" {
++		t.Fatalf("AntigravityVersionFromUserAgent() = %q, want %q", got, "2.2.1")
++	}
++}
++
+ func TestAntigravityVersionFromUserAgentParsesHubFamily(t *testing.T) {
+ 	if got := AntigravityVersionFromUserAgent("antigravity/hub/2.2.1 darwin/arm64"); got != "2.2.1" {
+ 		t.Fatalf("AntigravityVersionFromUserAgent() = %q, want %q", got, "2.2.1")
+@@ -88,7 +94,7 @@ func TestAntigravityLoadCodeAssistUserAgentUsesShortUA(t *testing.T) {
+ 	restore := overrideAntigravityVersionCacheForTest(t, "2.2.1", time.Now().Add(time.Hour))
+ 	defer restore()
+ 
+-	want := "antigravity/hub/2.2.1 darwin/arm64"
++	want := "antigravity/cli/2.2.1 darwin/arm64"
+ 	if got := AntigravityLoadCodeAssistUserAgent(""); got != want {
+ 		t.Fatalf("AntigravityLoadCodeAssistUserAgent() = %q, want %q", got, want)
+ 	}
+@@ -101,7 +107,7 @@ func TestAntigravityOnboardUserUserAgentUsesLongUA(t *testing.T) {
+ 	restore := overrideAntigravityVersionCacheForTest(t, "2.2.1", time.Now().Add(time.Hour))
+ 	defer restore()
+ 
+-	want := "antigravity/hub/2.2.1 darwin/arm64 google-api-nodejs-client/10.3.0"
++	want := "antigravity/cli/2.2.1 darwin/arm64 google-api-nodejs-client/10.3.0"
+ 	if got := AntigravityOnboardUserUserAgent(""); got != want {
+ 		t.Fatalf("AntigravityOnboardUserUserAgent() = %q, want %q", got, want)
+ 	}
+diff --git a/internal/registry/models/models.json b/internal/registry/models/models.json
+index 293c86387c4..d0122916809 100644
+--- a/internal/registry/models/models.json
++++ b/internal/registry/models/models.json
+@@ -4038,6 +4038,108 @@
+         "text"
+       ]
+     },
++    {
++      "id": "gemini-4-argon",
++      "object": "model",
++      "owned_by": "antigravity",
++      "type": "antigravity",
++      "supports_web_search": true,
++      "display_name": "Gemini 4 Argon",
++      "name": "gemini-4-argon",
++      "description": "Gemini 4 Argon",
++      "context_length": 1048576,
++      "max_completion_tokens": 1048576,
++      "thinking": {
++        "min": 1,
++        "max": 65535,
++        "dynamic_allowed": true,
++        "levels": [
++          "low",
++          "medium",
++          "high"
++        ]
++      },
++      "supportedInputModalities": [
++        "text",
++        "image",
++        "audio",
++        "video"
++      ],
++      "supportedOutputModalities": [
++        "text"
++      ],
++      "native_capabilities": {
++        "web_search": true
++      }
++    },
++    {
++      "id": "gemini-4-argon-medium",
++      "object": "model",
++      "owned_by": "antigravity",
++      "type": "antigravity",
++      "supports_web_search": true,
++      "display_name": "Gemini 4 Argon",
++      "name": "gemini-4-argon-medium",
++      "description": "Gemini 4 Argon (Medium)",
++      "context_length": 1048576,
++      "max_completion_tokens": 1048576,
++      "thinking": {
++        "min": 1,
++        "max": 65535,
++        "dynamic_allowed": true,
++        "levels": [
++          "low",
++          "medium",
++          "high"
++        ]
++      },
++      "supportedInputModalities": [
++        "text",
++        "image",
++        "audio",
++        "video"
++      ],
++      "supportedOutputModalities": [
++        "text"
++      ],
++      "native_capabilities": {
++        "web_search": true
++      }
++    },
++    {
++      "id": "gemini-4-argon-low",
++      "object": "model",
++      "owned_by": "antigravity",
++      "type": "antigravity",
++      "supports_web_search": true,
++      "display_name": "Gemini 4 Argon",
++      "name": "gemini-4-argon-low",
++      "description": "Gemini 4 Argon (Low)",
++      "context_length": 1048576,
++      "max_completion_tokens": 1048576,
++      "thinking": {
++        "min": 1,
++        "max": 65535,
++        "dynamic_allowed": true,
++        "levels": [
++          "low",
++          "medium",
++          "high"
++        ]
++      },
++      "supportedInputModalities": [
++        "text",
++        "image",
++        "audio",
++        "video"
++      ],
++      "supportedOutputModalities": [
++        "text"
++      ],
++      "native_capabilities": {
++        "web_search": true
++      }
++    },
+     {
+       "id": "gemini-4-argon-high",
+       "object": "model",
+diff --git a/sdk/auth/antigravity_headless_test.go b/sdk/auth/antigravity_headless_test.go
+index 351f2dfcfd1..6f23ed0179c 100644
+--- a/sdk/auth/antigravity_headless_test.go
++++ b/sdk/auth/antigravity_headless_test.go
+@@ -67,8 +67,8 @@ func TestAntigravityConstantsAndURLBuilder(t *testing.T) {
+ 
+ func TestAntigravityUserAgent(t *testing.T) {
+ 	ua := auth.AntigravityUserAgent()
+-	if !strings.HasPrefix(ua, "antigravity/hub/") {
+-		t.Fatalf("expected AntigravityUserAgent to start with antigravity/hub/, got %q", ua)
++	if !strings.HasPrefix(ua, "antigravity/cli/") {
++		t.Fatalf("expected AntigravityUserAgent to start with antigravity/cli/, got %q", ua)
+ 	}
+ }
+ 
