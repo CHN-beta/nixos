@@ -97,18 +97,7 @@
         '';
         location = {
           "/".proxy.upstream = "http://127.0.0.1:8317";
-          "/management.html".static.root =
-            let
-              managementHtml = pkgs.fetchurl {
-                url = "https://github.com/router-for-me/Cli-Proxy-API-Management-Center/releases/download/v1.26.4/management.html";
-                sha256 = "sha256-g8ZHdet6t3t1fCN0aMtx3MCqEt4U08znTpTo0375u9k=";
-              };
-              root = pkgs.runCommand "management" { } ''
-                mkdir -p $out
-                cp ${managementHtml} $out/management.html
-              '';
-            in
-            "${root}";
+          "/management.html".static.root = "${pkgs.cliproxyapi}/share/cliproxyapi";
         };
       };
     };
