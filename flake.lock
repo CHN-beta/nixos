@@ -1685,11 +1685,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1792247539,
-        "narHash": "sha256-/x9vJ4fe9o4Dj29n2JWIUCORs+QiM4xFdzwgzScM9/c=",
+        "lastModified": 1792418392,
+        "narHash": "sha256-Tcgf0SB8hhzpnUW23pcaGMC+axGeMBY4KBqULR1sQlI=",
         "owner": "CHN-beta",
         "repo": "ompweb",
-        "rev": "edba2c8cd9411865e774d74aa75e81b49ca9313c",
+        "rev": "36c0f5416345489e1f54a7b87da706bfa58f511a",
         "type": "github"
       },
       "original": {
