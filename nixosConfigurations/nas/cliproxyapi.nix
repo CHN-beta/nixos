@@ -18,14 +18,6 @@
         };
         oauth = {
           auth-dir = "/var/lib/cliproxyapi/.cli-proxy-api";
-          model-alias.codex = [
-            {
-              name = "gpt-6.1-sol";
-              alias = "coding";
-              fork = true;
-              force-mapping = true;
-            }
-          ];
           providers = {
             aistudio.ws-auth = true;
             antigravity = {
@@ -106,8 +98,6 @@
               models = [
                 {
                   name = "deepseek-flash";
-                  alias = "coding";
-                  force-mapping = true;
                 }
               ];
             }
