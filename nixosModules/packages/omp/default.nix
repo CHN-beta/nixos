@@ -103,9 +103,15 @@ let
     user:
     {
       "tui.input.newLine" = [ "enter" ];
-      "tui.input.submit" = [ "ctrl+enter" ];
+      "tui.input.submit" = [ "ctrl+shift+enter" ];
+      "app.message.followUp" = [ "ctrl+enter" ];
     }
-    |> lib.optionalAttrs (user != "wyh")
+    |> lib.optionalAttrs (
+      lib.elem user [
+        "chn"
+        "straycat"
+      ]
+    )
     |> builtins.toJSON
     |> pkgs.writeText "omp-keybindings.yml";
 
@@ -201,12 +207,10 @@ in
               run install -m 600 ${mcpFile homeInputs.config.home.username} "$HOME/.omp/agent/mcp.json"
               run install -m 600 ${keybindingsFile homeInputs.config.home.username} "$HOME/.omp/agent/keybindings.yml"
               ${lib.concatLines (
-                lib.mapAttrsToList (
-                  name: file: ''
-                    run rm -f "$HOME/.omp/agent/agents/${name}.md"
-                    run install -m 600 ${file} "$HOME/.omp/agent/agents/${name}.md"
-                  ''
-                ) agentFiles
+                lib.mapAttrsToList (name: file: ''
+                  run rm -f "$HOME/.omp/agent/agents/${name}.md"
+                  run install -m 600 ${file} "$HOME/.omp/agent/agents/${name}.md"
+                '') agentFiles
               )}
             '';
           };
