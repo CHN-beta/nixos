@@ -212,6 +212,8 @@
       "acpi.ec_no_wakeup=1"
       # fix tf card bug
       "sdhci.debug_quirks2=0x4"
+      # fix amdgpu hang
+      "amdgpu.dcdebugmask=0x410"
     ];
     # 手写笔
     hardware.opentabletdriver.enable = true;
