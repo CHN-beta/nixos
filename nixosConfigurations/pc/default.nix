@@ -80,9 +80,10 @@
           rocm.targets = [ "gfx1151" ];
         };
         sysctl.laptop-mode = 5;
-        kernel.patches = [
-          "btrfs"
-        ];
+        kernel = {
+          variant = "xanmod-latest";
+          patches = [ "btrfs" ];
+        };
       };
       hardware = {
         gpu = {
@@ -224,9 +225,5 @@
       sleep 1
       ${pkgs.kmod}/bin/modprobe -a hid_sensor_hub hid_sensor_accel_3d hid_sensor_trigger hid_sensor_iio_common hid_sensor_custom
     '';
-    virtualisation.virtualbox.host = {
-      enable = true;
-      enableExtensionPack = true;
-    };
   };
 }

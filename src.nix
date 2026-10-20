@@ -178,6 +178,13 @@ in
         BTRFS_READ_POLICIES = lib.kernel.yes;
       };
     };
+    "7.2" = {
+      patch = ./nixosModules/system/kernel/btrfs-7.2.patch;
+      structuredExtraConfig = {
+        BTRFS_ALLOCATOR_HINTS = lib.kernel.yes;
+        BTRFS_READ_POLICIES = lib.kernel.yes;
+      };
+    };
   };
   # download include from /opt/ibm/lsfsuite/lsf/10.1/include into lsf/include
   # download lib from /opt/ibm/lsfsuite/lsf/10.1/linux2.6-glibc2.3-x86_64/lib into lsf/lib and only preserve .so
