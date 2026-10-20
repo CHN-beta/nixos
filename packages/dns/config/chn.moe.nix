@@ -82,11 +82,10 @@ let
       "铜锣湾"
       "matrix"
       "git"
-      "ddml"
       "chat"
       "vikunja"
     ];
-    "ddml-vm.ts" = [ "omprdhx" ];
+    "ddml-vm.ts" = [ "omprdhx" "ddml" ];
   };
   a_aaaa = {
     office = "210.34.16.100";

@@ -26,9 +26,5 @@
     (lib.mkIf (config.nixos.model.hostname == "vps6") {
       "xn--qbtm095lrg0bfka60z.chn.moe".upstream.address = "tinc0.pc.chn.moe";
     })
-    # vps10 -> ddml-vm
-    (lib.mkIf (config.nixos.model.hostname == "vps10") {
-      "ddml.chn.moe".upstream.address = "tinc0.ddml-vm.chn.moe";
-    })
   ];
 }
