@@ -84,7 +84,18 @@
           staging-retention = "1m";
         };
         api-keys = {
-          gemini = [ ];
+          gemini = [
+            {
+              name = "aistudio";
+              base-url = "https://generativelanguage.googleapis.com";
+              priority = -1;
+              keys = [
+                {
+                  api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/gemini".path;
+                }
+              ];
+            }
+          ];
           openai-compatibility = [
             {
               name = "deepseek";
@@ -108,6 +119,7 @@
 
     nixos = {
       system.sops.secrets."cliproxyapi/management" = { };
+      system.sops.secrets."cliproxyapi/gemini" = { };
       services.nginx.https."cliproxyapi.chn.moe" = {
         global.extraConfig = ''
           # Forward streaming responses immediately without buffering or caching.

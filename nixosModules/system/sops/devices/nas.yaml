@@ -97,6 +97,7 @@ gitea:
     runner-token: ENC[AES256_GCM,data:yOj3F3aYDTSDOU8ujf83eRfTeXAvXTPSe9EmVYvrVOMNCCidw05fhA==,iv:IpMAG7etI1L9+FJxIvgQ8k5IkRC59lt+7HK3TSrR0iA=,tag:Y95XsyneU5+zCRlNQQNMKQ==,type:str]
 cliproxyapi:
     management: ENC[AES256_GCM,data:QMog0QJQgNehjGTT,iv:yc+/dBXD8XYmmLy2S/o+4AndkDpzD3b6PrqcuH+1pXU=,tag:r2YUvv9jF8avFEugpqqMLg==,type:str]
+    gemini: ENC[AES256_GCM,data:t484pPXC5yNZNHqEbXCVXswZUZynZ9or6VEKCwwt7koSTVSzPWkKmE8s861v4fv5aQ4iQQw=,iv:C5LnTCFn192IoYFLuCxJGeETbNpVaJSf/wpUPiuAXv0=,tag:29hqDoic7SgdjrNOOYJhDg==,type:str]
 open-webui:
     webui: ENC[AES256_GCM,data:KeEp+Cr7H4NNG7iV,iv:Gs54XOT6fGZnBLutS48/0Djn3EGTCGOmBHQBVkXVsoM=,tag:XhXmneczfPrhYL0y7S51lQ==,type:str]
 miniflux:
@@ -129,7 +130,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-10-10T08:37:30Z"
-    mac: ENC[AES256_GCM,data:be3/EGO9aEO7GDV88T1yJj4il7Nrhn8/GWPtKc3d/UXfKMcfP6tZhcA0jMhB3m5wHeDINC7kTkjyjiHIARJJg1PyQmqESN+20xNbW2Ra8PPWw6RaQ20yAPtty2maJcWLGOjW0G1BEZ78Do3qq/Ih2B7ciCJLh35AhT9jVc9zR7A=,iv:nq3DirzSde2SiIt9cyisp/HeTs0oK4YwNRMRs/7uc/s=,tag:aWhlGgz9qYxSpvERH5tzBA==,type:str]
+    lastmodified: "2026-10-21T12:27:09Z"
+    mac: ENC[AES256_GCM,data:buFWOerFkZhWzKQQUZPKqmPUJ/+WgS5XfeOmHZkHPwgjw/h77fNaz7LTmPFGSzAWk6oLbFYRyV0uxc5AVmMeT5oJp5/uudFHtx5EAOOrN8ZpedKxKeIKRYxYiV3vUCvkKN28x6TnGZPxq3muDUrY81OnilLVyzXLxw/lwGWzUm8=,iv:L0MY7XF0c+ZvsrP0Y5N6RtqzNKHBOW80BoPRIBjh/V0=,tag:0F3Uf+MfEBIQxIFvLCBtGQ==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
