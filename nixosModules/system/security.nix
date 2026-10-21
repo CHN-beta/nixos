@@ -90,6 +90,14 @@
         ];
       };
       sudo.extraConfig = "Defaults pwfeedback";
+      # TODO: remove in next release
+      pki.caCertificateBlacklist = [
+        "Comodo AAA Services root"
+        "emSign ECC Root CA - G3"
+        "emSign Root CA - C1"
+        "emSign ECC Root CA - C3"
+      ];
+
     };
     systemd = {
       user.extraConfig = "DefaultLimitNOFILE=524288:524288";
