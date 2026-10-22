@@ -195,6 +195,32 @@ let
     ''
   ) agents;
 
+  vibePromptExtension = pkgs.writeText "omp-vibe-prompt.ts" ''
+    import type { ExtensionAPI } from "@oh-my-pi/pi-coding-agent";
+
+    const VIBE_DIRECTOR_INSTRUCTIONS = `<vibe-user-preferences>
+    Vibe 模式调度准则：
+    1. 积极派发：除非是非常简单的任务（例如仅用 \`read\` 读取单个文件即可直接回答），否则必须将任务拆解并通过 \`vibe_spawn\` / \`vibe_send\` 派发给对应领域的 subagent（\`doc\` / \`code\` / \`debug\` / \`design\` / \`math\`）执行。
+    2. 非阻塞立即回复：调用 \`vibe_spawn\` 或 \`vibe_send\` 派发任务后，立即结束当前回合并直接回复用户（扼要告知已派发的 worker 及任务安排），让用户可以继续输入新指令。仅在用户明确要求等待结果时才调用 \`vibe_wait\`。
+    3. 完成后汇报总结：当后台 subagent 执行完毕、异步结果投递回主会话触发新一轮响应时，先核实结果（必要时 \`read\` 检查修改的文件），再向用户输出清晰、精炼的完成情况总结。
+    </vibe-user-preferences>`;
+
+    export default function (pi: ExtensionAPI) {
+      pi.on("before_agent_start", async (_event, ctx) => {
+        if (ctx.agent.kind !== "main") return;
+        if (!pi.getActiveTools().includes("vibe_spawn")) return;
+        return {
+          message: {
+            customType: "vibe-mode-context",
+            content: VIBE_DIRECTOR_INSTRUCTIONS,
+            display: false,
+            attribution: "agent",
+          },
+        };
+      });
+    }
+  '';
+
   settings = user: {
     modelRoles.default = "cliproxyapi/gemini-4-argon:medium";
     defaultThinkingLevel = "high";
@@ -230,11 +256,12 @@ in
             before = [ ];
             after = [ "writeBoundary" ];
             data = ''
-              run mkdir -p "$HOME/.omp/agent/agents"
-              run rm -f "$HOME/.omp/agent/models.yml" "$HOME/.omp/agent/mcp.json" "$HOME/.omp/agent/keybindings.yml"
+              run mkdir -p "$HOME/.omp/agent/agents" "$HOME/.omp/agent/extensions"
+              run rm -f "$HOME/.omp/agent/models.yml" "$HOME/.omp/agent/mcp.json" "$HOME/.omp/agent/keybindings.yml" "$HOME/.omp/agent/extensions/vibe-prompt.ts"
               run install -m 600 ${modelsFile} "$HOME/.omp/agent/models.yml"
               run install -m 600 ${mcpFile homeInputs.config.home.username} "$HOME/.omp/agent/mcp.json"
               run install -m 600 ${keybindingsFile homeInputs.config.home.username} "$HOME/.omp/agent/keybindings.yml"
+              run install -m 600 ${vibePromptExtension} "$HOME/.omp/agent/extensions/vibe-prompt.ts"
               ${lib.concatLines (
                 lib.mapAttrsToList (name: file: ''
                   run rm -f "$HOME/.omp/agent/agents/${name}.md"
