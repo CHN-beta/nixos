@@ -11,7 +11,6 @@
       self.inputs.nixvirt.nixosModules.default
       self.inputs.harmonia.nixosModules.harmonia
       self.inputs.dms-plugin-registry.modules.default
-      self.inputs.hermes.nixosModules.default
       {
         config.home-manager.sharedModules = [
           self.inputs.catppuccin.homeModules.catppuccin

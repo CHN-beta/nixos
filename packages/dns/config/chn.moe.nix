@@ -62,7 +62,6 @@ let
       "cliproxyapi"
       "qdrant"
       "bgem3"
-      "hermes"
       "miniflux"
       "omp"
       "ompwyh"
