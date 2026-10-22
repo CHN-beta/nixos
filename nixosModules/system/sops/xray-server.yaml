@@ -60,6 +60,8 @@ xray-server:
         user34: ENC[AES256_GCM,data:vgq3bflj86UOMj6bnxQHCpL/2B6ZAKQHlmc5kpVLefH80vhU,iv:DEbqoe4g28tRLgX3W6Q90k50MDiQhwZZa6DPkdsy1aI=,tag:Q+lqiJyjTv8tP0N2L+kg6Q==,type:str]
         #ENC[AES256_GCM,data:/mJYn4YTioJ8TQ==,iv:Sdn/3ez/97Yw/T555hXAkk6UYyumUSGxps8GII/Vkqk=,tag:ZvDk/B6upDRSfL7SXlL6uA==,type:comment]
         user35: ENC[AES256_GCM,data:uUMq/2N+GhD7iiSlR0nY0BS/zR2yHBtYqCzrYUPL5SzKmN9K,iv:iGbTmQKx/RvQK1uta6fAoM7iAZQLMAzQFczClBPWWqw=,tag:/+OqVhJkVF7e/TabZaWFig==,type:str]
+        #ENC[AES256_GCM,data:XJxJw0SlRjw=,iv:v8bT+2zr/j/zIDhEloZ+OYV6Dn0888EufTevk6NPDoE=,tag:luYTqrU+6RQ8C4dKWqyuyw==,type:comment]
+        user36: ENC[AES256_GCM,data:KP69Oh7sjSHlN+fvArNO84vOKqPu6BQoiYrXhs/s06TEdE/A,iv:JAEAVyuTb7GOzt8rfVJGuU6M3aZfid5vatacpcBwv5s=,tag:Hil9rOKJ9He7KpzxaO6LSQ==,type:str]
     private-key: ENC[AES256_GCM,data:j3juaKDM2ybruxp0T+7BkGBRwLWWwZARnHg42r/lDYNn+HPSAAc3dKQKFg==,iv:lzyHejiEri4S4mzDPm7xtbvbva3Nssmx0MCzyt4SngI=,tag:0FpbyU7OlgpaLIoj93oNFg==,type:str]
 sops:
     age:
@@ -109,7 +111,7 @@ sops:
             zU/DQMQEZa5DQFZEspu5dj1roeHjiOIsiAPrBHLTi7rT9RZOCy6jTw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-10-10T10:34:24Z"
-    mac: ENC[AES256_GCM,data:cTsusVhJ05DvkrJ2cvB+pnbHTY72c2NONDO5EJ1zR1Tvcz2d4/OhETpI5vK++e3mg6mG+5rT+MGvEr78vVPOinUMLOcSy364psCfqEcuwx0Ej+WLJW2YHCPSB0TUE86Z4oo9VElLZS1ALY7HjUhHC8l/wXNSC/zQ873mugvYkEk=,iv:7pll28aDNlJFX+NFZ9NdiXnED6HhG0iicqnqboECn80=,tag:afdktMa72Ic/97xSFjewUw==,type:str]
+    lastmodified: "2026-10-22T12:19:31Z"
+    mac: ENC[AES256_GCM,data:EG8MtUYetwdZr7Rrdyu+y4HfjKFN3Q+RgRbsIJOhgN0bK/ktPvanE08yiBCk3RaOGikbCkgxHp9/vAlc5zLdY7ysxkGuxpBAi+9A65cPMtXPVQJcaq9mE8+iGFF0hE4UogP/ZjlEldLxQPGyiuYbejzlhAiYq22/lSqk/I56fg8=,iv:y+wW/MdpULo/xRyp4BRZtlugZvc2lcNJC+gsVlNBZNc=,tag:Remfg1yCrYAyg+dUEz0cqA==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
