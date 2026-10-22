@@ -7,6 +7,7 @@
         (builtins.readFile ./keys/straycat)
       ];
       hashedPassword = "$y$j9T$1nnqD525KXm/G3xc.bqXD1$jR5ZVT1XsF2Qp0wVy4vc2QiHTkUhqgAkALPaPTrLML7";
+      extraGroups = lib.intersectLists [ "adbusers" ] (builtins.attrNames config.users.groups);
     };
     nixos.system.sops.secrets = lib.mkMerge [
       (
