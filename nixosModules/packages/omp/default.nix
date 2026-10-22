@@ -94,6 +94,13 @@ let
               command = lib.getExe pkgs.localPkgs.vikunja-mcp;
               env.VIKUNJA_URL = "https://vikunja.chn.moe";
             };
+            matrix = {
+              command = lib.getExe pkgs.localPkgs.matrix-mcp;
+              env = {
+                MATRIX_HOMESERVER = "https://matrix.chn.moe";
+                MATRIX_USER = "hermes";
+              };
+            };
           };
     }
     |> builtins.toJSON
@@ -249,6 +256,7 @@ in
               export OPENAI_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/siliconflow".path}")"
               export GITHUB_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/github".path}")"
               export ARK_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/ark".path}")"
+              export MATRIX_PASSWORD="$(cat "${config.nixos.system.sops.secrets."straycat/matrix".path}")"
               ${
                 if
                   lib.elem homeInputs.config.home.username [

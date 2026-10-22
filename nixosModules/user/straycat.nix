@@ -21,6 +21,7 @@
           "openrouter"
           "vikunja"
           "ark"
+          "matrix"
         ]
         |> lib.flip lib.genAttrs' (
           s:

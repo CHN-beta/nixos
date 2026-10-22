@@ -50,7 +50,7 @@
               "web"
             ];
             model = {
-              default = "gemini-3.8-flash-high";
+              default = "gemini-3.8-flash";
               provider = "cliproxyapi";
             };
             providers.cliproxyapi = {

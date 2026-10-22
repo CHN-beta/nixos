@@ -16,8 +16,8 @@
         OLLAMA_BASE_URL = "https://ollama.chn.moe";
         DEFAULT_MODELS = "hermes-agent";
         CORS_ALLOW_ORIGIN = "https://chat.chn.moe";
-        TASK_MODEL = "gemini-3.8-flash-high";
-        TASK_MODEL_EXTERNAL = "gemini-3.8-flash-high";
+        TASK_MODEL = "gemini-3.8-flash";
+        TASK_MODEL_EXTERNAL = "gemini-3.8-flash";
         # ENABLE_IMAGE_GENERATION = "True";
         # IMAGES_OPENAI_API_BASE_URL = "https://oa.api2d.net/v1";
       };
