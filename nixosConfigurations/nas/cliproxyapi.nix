@@ -18,6 +18,24 @@
         };
         oauth = {
           auth-dir = "/var/lib/cliproxyapi/.cli-proxy-api";
+          model-alias.antigravity = [
+            {
+              name = "gemini-4-argon-high";
+              alias = "gemini-4-argon";
+            }
+            {
+              name = "gemini-3.8-flash-high";
+              alias = "gemini-3.8-flash";
+            }
+            {
+              name = "claude-opus-5-5-high";
+              alias = "claude-opus-5-5";
+            }
+            {
+              name = "claude-sonnet-5-5-high";
+              alias = "claude-sonnet-5-5";
+            }
+          ];
           providers = {
             aistudio.ws-auth = true;
             antigravity = {
