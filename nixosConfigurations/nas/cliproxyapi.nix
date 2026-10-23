@@ -71,13 +71,17 @@
           session-affinity = true;
           session-affinity-ttl = "1h";
           session-affinity-subagents = true;
+          session-affinity-rebind-on = "quota";
           force-model-prefix = false;
           retry = {
             request-retry = 3;
-            max-retry-credentials = 0;
+            max-retry-credentials = 1;
             max-retry-interval = 30;
           };
-          cooldown.disable-cooling = false;
+          cooldown = {
+            disable-cooling = false;
+            transient-error-cooldown-seconds = -1;
+          };
         };
         credentials.concurrency = {
           cpa-heartbeat-timeout = "3s";
