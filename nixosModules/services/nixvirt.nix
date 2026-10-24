@@ -377,10 +377,7 @@ inputs: {
                         passwd = inputs.config.sops.placeholder."nixvirt/${n}";
                       };
                       video.model = {
-                        type = "qxl";
-                        ram = 65536;
-                        vram = 65536;
-                        vgamem = 16384;
+                        type = "virtio";
                         heads = 1;
                         primary = true;
                       };
