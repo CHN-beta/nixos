@@ -27,6 +27,7 @@
           ffmpeg-full
           hdf5
           immich-cli
+          rclone
           # scientific computing
           (if config.nixos.system.nixpkgs.cuda != null then localPkgs.mumax else emptyDirectory)
           (
@@ -112,22 +113,6 @@
         # rust-analyzer could not find rust-src
         environment.variables.RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
       }
-      (lib.mkIf config.nixos.model.private {
-        home-manager.users.chn.config.programs.rclone = {
-          enable = true;
-          remotes.gdrive = {
-            config = {
-              type = "drive";
-              scope = "drive";
-              client_id = "789650076500-ll29jtc547kq07ntvnvg3o515ti7kjf7.apps.googleusercontent.com";
-            };
-            secrets = {
-              client_secret = config.nixos.system.sops.secrets."rclone/client".path;
-            };
-          };
-        };
-        nixos.system.sops.secrets."rclone/client".owner = "chn";
-      })
     ]
   );
 }
