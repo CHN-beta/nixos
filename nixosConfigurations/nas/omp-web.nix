@@ -68,6 +68,11 @@
         user = "wyh";
         domain = "ompwyh";
       }
+      {
+        port = 30179;
+        user = "lcl";
+        domain = "omplcl";
+      }
     ]
     |> map mkConfig
     |> lib.mkMerge;

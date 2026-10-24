@@ -65,6 +65,7 @@ let
       "miniflux"
       "omp"
       "ompwyh"
+      "omplcl"
     ];
     vps10 = [
       "initrd.vps10"
