@@ -45,6 +45,8 @@
         HINDSIGHT_API_LLM_PROVIDER = "openai";
         HINDSIGHT_API_LLM_BASE_URL = "https://cliproxyapi.chn.moe/v1";
         HINDSIGHT_API_LLM_MODEL = "gemini-3.8-flash";
+        HINDSIGHT_API_LLM_TIMEOUT = "600";
+        HINDSIGHT_API_MENTAL_MODEL_MIN_REFRESH_INTERVAL_SECONDS = "86400";
 
         HINDSIGHT_API_EMBEDDINGS_PROVIDER = "openai";
         HINDSIGHT_API_EMBEDDINGS_OPENAI_BASE_URL = "https://api.siliconflow.cn/v1";
