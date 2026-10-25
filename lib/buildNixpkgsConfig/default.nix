@@ -206,6 +206,9 @@ let
         xray = prev.xray.overrideAttrs (prev: {
           patches = prev.patches or [ ] ++ [ ./xray.patch ];
         });
+        headscale = prev.headscale.overrideAttrs (prev: {
+          patches = prev.patches or [ ] ++ [ ./headscale.patch ];
+        });
         cliproxyapi = prev.cliproxyapi.overrideAttrs (prev: {
           patches = prev.patches or [ ] ++ [ ./cliproxyapi.patch ];
         });

@@ -1,10 +1,7 @@
 { lib }:
 let
   cname = {
-    nas = [
-      "initrd.nas"
-      "derp"
-    ];
+    nas = [ "initrd.nas" ];
     office = [ "srv2-node0" ];
     vps4 = [
       "initrd.vps4"

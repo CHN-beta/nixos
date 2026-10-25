@@ -1,0 +1,45 @@
+--- a/hscontrol/app.go
++++ b/hscontrol/app.go
+@@ -295,6 +295,12 @@
+ 				if h.cfg.DERP.ServerEnabled && h.cfg.DERP.AutomaticallyAddEmbeddedDerpRegion {
+ 					region, _ := h.DERPServer.GenerateRegion()
+ 					derpMap.Regions[region.RegionID] = &region
++					if derpMap.HomeParams == nil {
++						derpMap.HomeParams = &tailcfg.DERPHomeParams{
++							RegionScore: map[int]float64{},
++						}
++					}
++					derpMap.HomeParams.RegionScore[region.RegionID] = 0.001
+ 				}
+ 
+ 				return derpMap, nil
+@@ -532,6 +538,12 @@
+ 	if h.cfg.DERP.ServerEnabled && h.cfg.DERP.AutomaticallyAddEmbeddedDerpRegion {
+ 		region, _ := h.DERPServer.GenerateRegion()
+ 		derpMap.Regions[region.RegionID] = &region
++		if derpMap.HomeParams == nil {
++			derpMap.HomeParams = &tailcfg.DERPHomeParams{
++				RegionScore: map[int]float64{},
++			}
++		}
++		derpMap.HomeParams.RegionScore[region.RegionID] = 0.001
+ 	}
+ 
+ 	if len(derpMap.Regions) == 0 {
+--- a/hscontrol/derp/derp.go
++++ b/hscontrol/derp/derp.go
+@@ -80,6 +80,14 @@
+ 
+ 	for _, derpMap := range derpMaps {
+ 		maps.Copy(result.Regions, derpMap.Regions)
++		if derpMap.HomeParams != nil && len(derpMap.HomeParams.RegionScore) > 0 {
++			if result.HomeParams == nil {
++				result.HomeParams = &tailcfg.DERPHomeParams{
++					RegionScore: map[int]float64{},
++				}
++			}
++			maps.Copy(result.HomeParams.RegionScore, derpMap.HomeParams.RegionScore)
++		}
+ 	}
+ 
+ 	for id, region := range result.Regions {

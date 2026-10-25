@@ -1,6 +1,5 @@
 {
   config,
-  pkgs,
   ...
 }:
 {
@@ -22,25 +21,12 @@
           base_domain = "ts.chn.moe";
           override_local_dns = false;
         };
-        derp = {
-          server.enabled = false;
-          urls = [ "https://controlplane.tailscale.com/derpmap/default" ];
-          paths = [
-            (pkgs.writeText "derp.yaml" ''
-              regions:
-                900:
-                  regionid: 900
-                  regioncode: cn
-                  regionname: China Custom DERP
-                  nodes:
-                    - name: nas
-                      regionid: 900
-                      hostname: derp.chn.moe
-                      stunport: 3478
-                      stunonly: false
-                      derpport: 3443
-            '')
-          ];
+        derp.server = {
+          enabled = true;
+          region_id = 999;
+          region_code = "headscale";
+          region_name = "Headscale Embedded DERP";
+          stun_listen_addr = "0.0.0.0:3479";
         };
       };
     };
@@ -54,5 +40,6 @@
         owner = "headscale";
       };
     };
+    networking.firewall.allowedUDPPorts = [ 3479 ];
   };
 }
