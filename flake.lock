@@ -295,6 +295,38 @@
         "type": "github"
       }
     },
+    "cliproxyapi": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792990739,
+        "narHash": "sha256-N0NLUV7p5BPMiPSU5vs09vzhsm+PD+BraW4zV7WamZo=",
+        "owner": "CHN-beta",
+        "repo": "CLIProxyAPI",
+        "rev": "fb8bd4c5e3f72fd8c8263b99754090501deba715",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "CLIProxyAPI",
+        "type": "github"
+      }
+    },
+    "cliproxyapi-management": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792990796,
+        "narHash": "sha256-ZBQVYwCaHZwjIAp0eH/Jnbp+ylVSyD5SwNz8G77dPqc=",
+        "owner": "CHN-beta",
+        "repo": "Cli-Proxy-API-Management-Center",
+        "rev": "eb0d919135838c5631850f6c889083dd1a999617",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CHN-beta",
+        "repo": "Cli-Proxy-API-Management-Center",
+        "type": "github"
+      }
+    },
     "concurrencpp": {
       "flake": false,
       "locked": {
@@ -1834,6 +1866,8 @@
         "bun2nix": "bun2nix",
         "catppuccin": "catppuccin",
         "chinese-fonts": "chinese-fonts",
+        "cliproxyapi": "cliproxyapi",
+        "cliproxyapi-management": "cliproxyapi-management",
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",
         "date": "date",

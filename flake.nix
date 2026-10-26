@@ -259,6 +259,14 @@
       url = "github:otahontas/pi-coding-agent-catppuccin";
       flake = false;
     };
+    cliproxyapi = {
+      url = "github:CHN-beta/CLIProxyAPI";
+      flake = false;
+    };
+    cliproxyapi-management = {
+      url = "github:CHN-beta/Cli-Proxy-API-Management-Center";
+      flake = false;
+    };
   };
 
   outputs = inputs: rec {

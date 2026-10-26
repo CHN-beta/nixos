@@ -194,6 +194,9 @@ rec {
     cpio = pkgs.pkgs2411.cpio;
     rpm = pkgs.pkgs2411.rpm;
   };
+  cliproxyapi-management = pkgs.callPackage ./cliproxyapi-management.nix {
+    src = self.inputs.cliproxyapi-management;
+  };
   dockerhub-mcp = pkgs.callPackage ./dockerhub-mcp.nix { src = self.src.dockerhub-mcp; };
   vikunja-mcp = pkgs.callPackage ./vikunja-mcp.nix { src = self.src.vikunja-mcp; };
   translate-mcp = pkgs.callPackage ./translate-mcp.nix { };

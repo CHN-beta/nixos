@@ -209,8 +209,18 @@ let
         headscale = prev.headscale.overrideAttrs (prev: {
           patches = prev.patches or [ ] ++ [ ./headscale.patch ];
         });
-        cliproxyapi = prev.cliproxyapi.overrideAttrs (prev: {
-          patches = prev.patches or [ ] ++ [ ./cliproxyapi.patch ];
+        cliproxyapi = prev.cliproxyapi.overrideAttrs (prevAttrs: {
+          version = "8.0.40-unstable-2026-10-26";
+          src = self.inputs.cliproxyapi;
+          vendorHash = "sha256-yMO0DdE0pjtFxWaQXV17enV8u0KA5fIUbE8Gui/RvWU=";
+          passthru =
+            builtins.removeAttrs (prevAttrs.passthru or { }) [
+              "management"
+              "managementVersion"
+            ]
+            // {
+              management = final.localPkgs.cliproxyapi-management;
+            };
         });
         btop = prev.btop.overrideAttrs (prev: {
           patches = prev.patches or [ ] ++ [ ./btop.patch ];

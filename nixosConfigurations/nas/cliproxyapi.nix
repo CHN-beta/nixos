@@ -44,7 +44,12 @@
             };
           };
         };
-        access.api-keys = [ { _secret = config.nixos.system.sops.secrets."straycat/cliproxyapi".path; } ];
+        access.api-keys = [
+          {
+            key._secret = config.nixos.system.sops.secrets."straycat/cliproxyapi".path;
+            name = "self";
+          }
+        ];
         observability = {
           logs = {
             debug = false;
@@ -53,8 +58,9 @@
             error-logs-max-files = 10;
           };
           usage = {
-            usage-statistics-enabled = false;
+            usage-statistics-enabled = true;
             redis-usage-queue-retention-seconds = 60;
+            postgres-dsn._secret = config.nixos.system.sops.templates."cliproxyapi/postgres-dsn".path;
           };
           pprof = {
             enable = false;
@@ -138,20 +144,33 @@
         };
       };
     };
-
+    systemd.services.cliproxyapi = {
+      after = [ "postgresql.service" ];
+      requires = [ "postgresql.service" ];
+    };
     nixos = {
-      system.sops.secrets."cliproxyapi/management" = { };
-      system.sops.secrets."cliproxyapi/gemini" = { };
-      services.nginx.https."cliproxyapi.chn.moe" = {
-        global.extraConfig = ''
-          # Forward streaming responses immediately without buffering or caching.
-          proxy_buffering off;
-          proxy_cache off;
-        '';
-        location = {
-          "/".proxy.upstream = "http://127.0.0.1:8317";
-          "/management.html".static.root = "${pkgs.cliproxyapi}/share/cliproxyapi";
+      services = {
+        postgresql.instances.cliproxyapi = { };
+        nginx.https."cliproxyapi.chn.moe" = {
+          global.extraConfig = ''
+            # Forward streaming responses immediately without buffering or caching.
+            proxy_buffering off;
+            proxy_cache off;
+          '';
+          location = {
+            "/".proxy.upstream = "http://127.0.0.1:8317";
+            "/management.html".static.root = "${pkgs.cliproxyapi}/share/cliproxyapi";
+          };
         };
+      };
+      system.sops = {
+        secrets = {
+          "cliproxyapi/management" = { };
+          "cliproxyapi/gemini" = { };
+        };
+        templates."cliproxyapi/postgres-dsn".content = "postgres://cliproxyapi:${
+          config.nixos.system.sops.placeholder."postgresql/cliproxyapi"
+        }@127.0.0.1:5432/cliproxyapi?sslmode=disable";
       };
     };
   };

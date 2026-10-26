@@ -31,6 +31,7 @@ postgresql:
     hindsight: ENC[AES256_GCM,data:SVXOkKYr/ipNZZLCbsyyEY3c8kyr2uDufnVM1oqDPLo=,iv:6dqs5VDUMk6jbx9eyVqi9W3QsDCxHNzMKVIvt4ryR08=,tag:MtSz8R/auy2pXM77YjbtJQ==,type:str]
     miniflux: ENC[AES256_GCM,data:HBmkEeqve8J/hpp0gG0ucuE2eBQZOkjq1CJgg3P5NFQ=,iv:QtCi2LO2EDGoaAcINPmR270eeCh7OFqaYXjhQrRu9Oo=,tag:5lkyaxjoJzrGLIANMjsVIA==,type:str]
     vikunja: ENC[AES256_GCM,data:p+3jtR3LT5SgHxIsbZUgJGGhloWt142HnXa1RLJFyCU=,iv:Lo++2RII6Irqo9GiNUelZgDBDhtL41FVvV5oaUa4Tsk=,tag:PXmMN1zWvICkmG8pV9x60Q==,type:str]
+    cliproxyapi: ENC[AES256_GCM,data:mioVX5TC1+o9Muz3dBoK0zrIK/Ew5u+KMe73rSfYg/4=,iv:lZifKbXmBVf8SC+C0L8xxiib/6zQQSC/BajK8hP+WUY=,tag:0nYPfx0b2+CYw7347xYICw==,type:str]
 rsshub:
     pixiv-refreshtoken: ENC[AES256_GCM,data:GDPLcjTAat76kOVmd4FQGYshbvV2i8HpeCpEAHQy7FN8BCrRmIpaT5q/eQ==,iv:eYEM/YgTMqS3vva3WCYicS71xowJhlGonAz75aeCskc=,tag:HPolufwNJBtiRwzh5dcwGg==,type:str]
     youtube-key: ENC[AES256_GCM,data:XOPAZPIE8Hd3vKWAR8tlaXQp/FGeH2pIBmwym8h7TXUf+MGTGQko,iv:mv1csjmeKi/ZQIiuhzPIr3DPyygjWevhFGSK+URaQiA=,tag:yh4Zr9MpINU8O0eeH9+z3A==,type:str]
@@ -133,7 +134,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-10-24T12:17:16Z"
-    mac: ENC[AES256_GCM,data:vtOCoSfN9mvTPJ45c8yF4tuwP0MDxY4Rb9Flbjf3XWm3TrUqkgXSCvmOO6GOOVY959hC5m4FWfDeClzBuyAWx7ZrmfTtiZtISoXyASQH65Vk0TXEYNXIYEEMZvxyLbkQ7nt91N8IMpMCqKryPV11tHDs44fkAvl7raWhFadanSM=,iv:3sInAyxhf1cSyOKyIJmWYsAzlpAzGqOfleLhYt8xCrk=,tag:3QQAk1JNDwYMCnqWfuBIEw==,type:str]
+    lastmodified: "2026-10-26T06:47:07Z"
+    mac: ENC[AES256_GCM,data:51hwbeD1FVJhFAEFCFif8cLPBHJZ/zCmwrskz1XL3ARRtsCWt5QdphmMmu0C33IiNPqAO13ekSgtObRx86adkgFZDl9TeW9Eh/awSpwniD7JimawWlj+NFs7AZdSBxoc3PwKVECUsrMOR24a2+eydvjJTTLpbAkEICALLwrBjFc=,iv:obNpCmRO/Jwxn8fGr/q8tZEJFZIeK/VMySNJ0k355tw=,tag:yfZ5G8WXBBKgcjPutWrFZA==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
