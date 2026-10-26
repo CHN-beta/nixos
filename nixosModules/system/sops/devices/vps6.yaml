@@ -20,6 +20,8 @@ freshman-followup:
 cliproxyapi:
     management: ENC[AES256_GCM,data:h6HlhVkEKfXPkOAy,iv:JjAu54sMaUCVqW0USnr0WlMyTS41kJuT+CzAkFEBAJk=,tag:+0zaSsrS7ahIGg5m6sABbA==,type:str]
     gemini: ENC[AES256_GCM,data:xl/j3NQj7gQ2V/NIRvuctCBtwddYGLxF1r5sxeN9XxDjc5YLCbssgQopJLlLoCFaeSg15FI=,iv:SIGrHOUSnzRNF7PB5TJ6TVWiV5kwjUboJ1PXN1xY5tw=,tag:rvZM3DYiLnHEB575ZzpMyA==,type:str]
+    keys:
+        southfox: ENC[AES256_GCM,data:/DVs9UGBvdEc0FHaDTSCsM4IFvq5i5XIJ8ElO1QAZvFv9SQ7dWmWiBKu3MXMQ8XlifeL,iv:QnOw5I9FnJmQvp78+q09mkOcALcHTFRtPXVJZuLdqMo=,tag:Npa9tDMuCfFf1BU/2ihIYQ==,type:str]
 sops:
     age:
         - enc: |
@@ -41,7 +43,7 @@ sops:
             /jZhBt42BOCZwOiNqt9cgU1+DRu24DE019VTyR15dhLNwqiIo5jQkg==
             -----END AGE ENCRYPTED FILE-----
           recipient: age164tyqklwhdm57tfm5u863mdt2xrzrrzac4py8a0j9y6kzqcjy9zsp073t6
-    lastmodified: "2026-10-26T08:07:15Z"
-    mac: ENC[AES256_GCM,data:0JVfLIpqL3vG11dWrfMaVZFauqZ3IZ9gDlN+gXfW5XWgQvMxwOgoM/0nFd6zYPRljjfUODbIdyOA0TF+C7Q9/r57C5Y+wfo1Zq5tlIFZj5JCM3YuezJ6PWPXaw/0aAKp6akzrFSKhu9hx6ga6c8aaQuE/cQJon6yFi2gzcKH43E=,iv:y0ZTVP0QOOdAqmeUXUeZ1NHDRGcB9Djgf4zZWMrWsO8=,tag:fDdF6Xghi3R00h4ppYfF4A==,type:str]
+    lastmodified: "2026-10-26T08:27:24Z"
+    mac: ENC[AES256_GCM,data:A2SM9EQuTa9pxiyG9tpKl5azX6b7/9jX1khHd+3vqBhuihV43Xajks8cBLqT6iZdxj5zTXCC8J+ql6jJDiJK/1/XbfdWlq6pTyD2GADrJEYmyy1AG8JZ4QtxG2sHXsFsO9YHZrPVkHHQgYlzECJtAz06V0MGtLGAR9YvNPzKp+w=,iv:Bm2l2EvTmO1nawZVWycDh6z9l/X0Y0nsA+rHoTLI77E=,tag:y5SiEDhfya4mhXif+Zo81g==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
