@@ -76,3 +76,4 @@ This repository has heavily abstracted and wrapped these common services into cu
 - **PostgreSQL Examples:** Use the instance manager:
   `nixos.services.postgresql.instances.<name>.extensions = [ ... ];`
 - **SOPS Examples:** Follow the repository's established SOPS template and secret inclusion patterns rather than raw `sops.secrets`.
+  - **User-Managed Secrets Policy:** Never write or inject secret values into SOPS files on behalf of the user. Only inform the user which keys need to be added. If these secrets require a specific format or generation command, provide the instructions or command to the user so they can generate and populate them themselves.
