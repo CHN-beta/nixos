@@ -25,6 +25,7 @@ let
     ddml-vm-n1 = "BzJS8BhW6IDcIi1jvXxndOcBTW6e7cNFx6uJThtq42M";
     ddml-vm-n2 = "FC7wIaap2hyie7bZyf9C/h3UACOltkjVmv1d/BjfjyH";
     pe-rdhx = "DiwCGlXjkas5UxVS5rl590M/IfJjll+g7bqyEnsPaIC";
+    rdhx-test = "48+YA41Z1dy1KQCfKJMLm6ryYz1buFxsRYCaMh+k7ID";
   };
   # 描述可以直接的设备之间的连接（图上的路径）。若一个设备可以主动接受连接，则设置它接受连接的 ip；否则设置为 null
   # 因为一条条路径描述起来比较麻烦，所以这里一次描述多条
@@ -36,7 +37,7 @@ let
     }
     # 使用 vps10 代理的机器
     {
-      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" "nas" "ddml-dev-vm" ] (_: null)) // {
+      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" "nas" "ddml-dev-vm" "rdhx-test" ] (_: null)) // {
         vps10 = getAddress "vps10";
       };
       distance = 10;
