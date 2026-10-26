@@ -18,23 +18,23 @@ sudo nix --store 'local?store=/data/gpfs01/xxx/.nix/store&state=/data/gpfs01/xxx
 
 ## 2. Chroot Store (`/nix/tf`)
 
-**Condition:** You are attempting to build a derivation (without intending to run it locally), or you need to search/inspect store contents for other non-xmuhpc parts of the system. 
+**Condition:** The user has **explicitly requested** using `/nix/tf`. The `/nix/tf` chroot store (`sudo nix --store /nix/tf ...`) is ONLY used when the user explicitly requests it.
 
 **Action:** 
-- Do NOT look in the default `/nix/store`. Instead, look in `/nix/tf/nix/store` (the chroot store).
-- When executing nix commands for these builds, you MUST use `sudo` and specify the store appropriately (e.g., `--store /nix/tf`).
+- Only when explicitly instructed by the user, look in `/nix/tf/nix/store` (the chroot store).
+- When executing nix commands for these builds, you MUST use `sudo` and specify the store appropriately (`--store /nix/tf`).
 
 **Command Template:**
 ```bash
 sudo nix --store /nix/tf <command> <arguments>
 ```
 
-## 3. Standard Local Store
+## 3. Standard Local Store (Default)
 
-**Condition:** You are building a derivation specifically to **run it on the local machine**.
+**Condition:** In the vast majority of cases (building, inspecting, evaluating, or running derivations), the standard default Nix store MUST be used by default (unless interacting with `/data/gpfs01/...` xmuhpc user stores or when `/nix/tf` is explicitly requested by the user).
 
 **Action:**
-- Use the standard default Nix store.
+- Use the standard default Nix store (`/nix/store`).
 - Do NOT use `sudo`.
 - Do NOT pass any custom `--store` arguments.
 
@@ -45,9 +45,9 @@ nix <command> <arguments>
 
 ---
 **Summary Checklist before running Nix:**
-1. Is this path `/data/gpfs01/...`? -> Use `sudo` + xmuhpc `--store 'local?...'`
-2. Are we just building/inspecting (not running locally)? -> Use `sudo` + `--store /nix/tf`
-3. Are we building to run locally right now? -> Use normal user + default store.
+1. Is this path `/data/gpfs01/...`? -> Use `sudo` + xmuhpc `--store 'local?...'` (Section 1)
+2. Did the user explicitly request `/nix/tf`? -> Use `sudo` + `--store /nix/tf` (Section 2)
+3. Default / vast majority of cases (building, inspecting, evaluating, or running derivations)? -> Use normal user + default store (`nix <command> <arguments>` without `sudo` or `--store`) (Section 3).
 
 ## 4. Packaging Preferences (`overlay/packages`)
 
