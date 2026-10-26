@@ -31,7 +31,6 @@ postgresql:
     hindsight: ENC[AES256_GCM,data:SVXOkKYr/ipNZZLCbsyyEY3c8kyr2uDufnVM1oqDPLo=,iv:6dqs5VDUMk6jbx9eyVqi9W3QsDCxHNzMKVIvt4ryR08=,tag:MtSz8R/auy2pXM77YjbtJQ==,type:str]
     miniflux: ENC[AES256_GCM,data:HBmkEeqve8J/hpp0gG0ucuE2eBQZOkjq1CJgg3P5NFQ=,iv:QtCi2LO2EDGoaAcINPmR270eeCh7OFqaYXjhQrRu9Oo=,tag:5lkyaxjoJzrGLIANMjsVIA==,type:str]
     vikunja: ENC[AES256_GCM,data:p+3jtR3LT5SgHxIsbZUgJGGhloWt142HnXa1RLJFyCU=,iv:Lo++2RII6Irqo9GiNUelZgDBDhtL41FVvV5oaUa4Tsk=,tag:PXmMN1zWvICkmG8pV9x60Q==,type:str]
-    cliproxyapi: ENC[AES256_GCM,data:mioVX5TC1+o9Muz3dBoK0zrIK/Ew5u+KMe73rSfYg/4=,iv:lZifKbXmBVf8SC+C0L8xxiib/6zQQSC/BajK8hP+WUY=,tag:0nYPfx0b2+CYw7347xYICw==,type:str]
 rsshub:
     pixiv-refreshtoken: ENC[AES256_GCM,data:GDPLcjTAat76kOVmd4FQGYshbvV2i8HpeCpEAHQy7FN8BCrRmIpaT5q/eQ==,iv:eYEM/YgTMqS3vva3WCYicS71xowJhlGonAz75aeCskc=,tag:HPolufwNJBtiRwzh5dcwGg==,type:str]
     youtube-key: ENC[AES256_GCM,data:XOPAZPIE8Hd3vKWAR8tlaXQp/FGeH2pIBmwym8h7TXUf+MGTGQko,iv:mv1csjmeKi/ZQIiuhzPIr3DPyygjWevhFGSK+URaQiA=,tag:yh4Zr9MpINU8O0eeH9+z3A==,type:str]
@@ -96,9 +95,6 @@ hermes:
     matrix_home: ENC[AES256_GCM,data:EzbstOPQASzfmSRpiVeqhhXwOG7WtbN/rOlq,iv:Pjfn9gcS7D7cVoCRvpaWFTtRIIU/CdXIIfUzwwGqjUQ=,tag:H80Z6wqMoDN+orGn0dvCbg==,type:str]
 gitea:
     runner-token: ENC[AES256_GCM,data:yOj3F3aYDTSDOU8ujf83eRfTeXAvXTPSe9EmVYvrVOMNCCidw05fhA==,iv:IpMAG7etI1L9+FJxIvgQ8k5IkRC59lt+7HK3TSrR0iA=,tag:Y95XsyneU5+zCRlNQQNMKQ==,type:str]
-cliproxyapi:
-    management: ENC[AES256_GCM,data:QMog0QJQgNehjGTT,iv:yc+/dBXD8XYmmLy2S/o+4AndkDpzD3b6PrqcuH+1pXU=,tag:r2YUvv9jF8avFEugpqqMLg==,type:str]
-    gemini: ENC[AES256_GCM,data:t484pPXC5yNZNHqEbXCVXswZUZynZ9or6VEKCwwt7koSTVSzPWkKmE8s861v4fv5aQ4iQQw=,iv:C5LnTCFn192IoYFLuCxJGeETbNpVaJSf/wpUPiuAXv0=,tag:29hqDoic7SgdjrNOOYJhDg==,type:str]
 open-webui:
     webui: ENC[AES256_GCM,data:KeEp+Cr7H4NNG7iV,iv:Gs54XOT6fGZnBLutS48/0Djn3EGTCGOmBHQBVkXVsoM=,tag:XhXmneczfPrhYL0y7S51lQ==,type:str]
 miniflux:
@@ -134,7 +130,7 @@ sops:
             5IUObwi13dbHPLE+AgZopoW3/OlqquN3Fumm8bHbDoAmCEDerKlHSw==
             -----END AGE ENCRYPTED FILE-----
           recipient: age19lhcwk37jmvn6z0v4dpdfh0k4u23f76twdjknc0p7atktf37rd7s4t4wj3
-    lastmodified: "2026-10-26T06:47:07Z"
-    mac: ENC[AES256_GCM,data:51hwbeD1FVJhFAEFCFif8cLPBHJZ/zCmwrskz1XL3ARRtsCWt5QdphmMmu0C33IiNPqAO13ekSgtObRx86adkgFZDl9TeW9Eh/awSpwniD7JimawWlj+NFs7AZdSBxoc3PwKVECUsrMOR24a2+eydvjJTTLpbAkEICALLwrBjFc=,iv:obNpCmRO/Jwxn8fGr/q8tZEJFZIeK/VMySNJ0k355tw=,tag:yfZ5G8WXBBKgcjPutWrFZA==,type:str]
+    lastmodified: "2026-10-26T08:06:35Z"
+    mac: ENC[AES256_GCM,data:4BE2Juc3nCWotr/uxqwl23U4W4hLhRjL9V/+PAlvQALvNEP0gGiN0S/qhjw5ij2+1byTIUReLxlsYg/NTFtct0TFq4eeEnqDnCcqCMvj0qiVLqyGFTuOhx5GjlcfSEwn6thXcv3K6Rht1vbpKHTk1Xd6bHX8r/BaFSfTrT/4iww=,iv:QykCa+91s6EjEpXg2gFGkeWyP9jvkE3udLLt17Ku6E8=,tag:64ohxo1nd/9I66bTTxvYKA==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

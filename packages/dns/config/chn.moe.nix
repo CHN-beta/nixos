@@ -25,6 +25,7 @@ let
       "headscale"
       "missgram"
       "xserver3"
+      "cliproxyapi"
       # to pc
       "铜锣湾实验室"
       # temporary
@@ -56,7 +57,6 @@ let
       "frigate"
       "wechat"
       "hindsight"
-      "cliproxyapi"
       "qdrant"
       "bgem3"
       "miniflux"
@@ -82,7 +82,10 @@ let
       "chat"
       "vikunja"
     ];
-    "ddml-vm.ts" = [ "omprdhx" "ddml" ];
+    "ddml-vm.ts" = [
+      "omprdhx"
+      "ddml"
+    ];
   };
   a_aaaa = {
     office = "210.34.16.100";

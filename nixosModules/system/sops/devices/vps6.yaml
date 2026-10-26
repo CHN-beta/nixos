@@ -8,6 +8,7 @@ postgresql:
     missgram: ENC[AES256_GCM,data:zUY6397ThfeHDD8/Msy3mWnTjXCkEhpgsUwcjXnhIiNET1J14hIojCbwUpdCtGTFF+RQOtaS9aGSp8ctQeWIwg==,iv:0+WeCoMFQFhnzjSfvz0ZnqK6FIn1QBHr9fB+tjBNSDk=,tag:Bf5krX2hxIPlkdiAXppSqA==,type:str]
     vikunja: ENC[AES256_GCM,data:fkLvg2MQe7DufKz+t8El4vg1J0ZuYfFaqnaytjDU4MwwihM5qANms+iwI5s+qUMa4v9zEQZi0UAJVLeOEDQGZw==,iv:LpPnjMAJcL4zzRXzEByYSNenSeHYPuAIirLpD6MWp1M=,tag:7nRehP5HIl7aQ7ShA5c/Nw==,type:str]
     hf: ENC[AES256_GCM,data:PF4bUZHyRZfVN454OGrM9dlFza+368WoYhqhJXzZMsw=,iv:MnopzFgiASg3EbNQamrjfJCKWqJXxpMMwOGgdjAv/5s=,tag:GHQiVJt4zk5688Tm/KXQRA==,type:str]
+    cliproxyapi: ENC[AES256_GCM,data:kf/gXTS4v2EpC6LvxMjF9Srok3flzmJWOrmBMp3MaIE=,iv:qena/5bSXqhI+o2vfaW8DvYJNZJc9KSqiZiY4o+HZf4=,tag:hR+mACHD6smNkAA+YZeZZA==,type:str]
 missgram:
     secret: ENC[AES256_GCM,data:qsxJue8mGAJejSxOoPd4MXD06upnk0fxUM5EKPBs/WI=,iv:HaHj/vJkIERUQ0Lr93s9kaApNWPjDcpLu2897qmCjqA=,tag:u73jUDd6pGKk1yir/oF4hQ==,type:str]
     telegramBotToken: ENC[AES256_GCM,data:kNGhj1SjyK1H8NJmJLi90cpGtWmmGpFEFFT/JkDX4QqxbOC6BfFIMgzVsZ5GVQ==,iv:sccRmCs8HBAvi9mDAaz8OjxqXLAVXepJHaj7RrUt6kI=,tag:RuK3EdRMVhS9pVDw50lW6A==,type:str]
@@ -16,6 +17,9 @@ mail:
 machineId: ENC[AES256_GCM,data:RFtcISv20bO7FwgtKH/8KB2OwF28njVTBUIQ3pQGnCg=,iv:5uetRBREgPdai/cM1+FeuKx1IQqxjU9s4MYcyObUUCg=,tag:CHx3MVxDU2z1cYNvnYKZ6w==,type:str]
 freshman-followup:
     jwt_secret: ENC[AES256_GCM,data:gELng6MmrxggG1oOdmPlXtQvP+oIkfGKSqLuHQoOQSmdTnwdZH6eZ0EE2mQ=,iv:O7kjWA0LlIbH1qhNzcr3lfqUmBQSGZy4zfuCILKaOpQ=,tag:7UzKsPpIxgeo4XUyj+1PZQ==,type:str]
+cliproxyapi:
+    management: ENC[AES256_GCM,data:h6HlhVkEKfXPkOAy,iv:JjAu54sMaUCVqW0USnr0WlMyTS41kJuT+CzAkFEBAJk=,tag:+0zaSsrS7ahIGg5m6sABbA==,type:str]
+    gemini: ENC[AES256_GCM,data:xl/j3NQj7gQ2V/NIRvuctCBtwddYGLxF1r5sxeN9XxDjc5YLCbssgQopJLlLoCFaeSg15FI=,iv:SIGrHOUSnzRNF7PB5TJ6TVWiV5kwjUboJ1PXN1xY5tw=,tag:rvZM3DYiLnHEB575ZzpMyA==,type:str]
 sops:
     age:
         - enc: |
@@ -37,7 +41,7 @@ sops:
             /jZhBt42BOCZwOiNqt9cgU1+DRu24DE019VTyR15dhLNwqiIo5jQkg==
             -----END AGE ENCRYPTED FILE-----
           recipient: age164tyqklwhdm57tfm5u863mdt2xrzrrzac4py8a0j9y6kzqcjy9zsp073t6
-    lastmodified: "2026-10-14T13:49:16Z"
-    mac: ENC[AES256_GCM,data:6w/n36zP9ZaKd354grOuf4NtYJ3wXILaUz9tFP3uehW7w5DZ+Dcp5Avt9icT051RTS4/IBcSqzKmFX6Y0DbOtaxx7w0mkm81yP/ycPJX/AdcWwFf27I6jQzeZ8o1UYULGU5xIcak10+ZtY4jRXXG7LgwHqN0jyXFdYxhxpbLECw=,iv:VUkt7XkBu2x95JGgazq2JnsAtPG7fDdm3VMFml7IPB8=,tag:RdXCWHt4sePfnyhBvNpqzQ==,type:str]
+    lastmodified: "2026-10-26T08:07:15Z"
+    mac: ENC[AES256_GCM,data:0JVfLIpqL3vG11dWrfMaVZFauqZ3IZ9gDlN+gXfW5XWgQvMxwOgoM/0nFd6zYPRljjfUODbIdyOA0TF+C7Q9/r57C5Y+wfo1Zq5tlIFZj5JCM3YuezJ6PWPXaw/0aAKp6akzrFSKhu9hx6ga6c8aaQuE/cQJon6yFi2gzcKH43E=,iv:y0ZTVP0QOOdAqmeUXUeZ1NHDRGcB9Djgf4zZWMrWsO8=,tag:fDdF6Xghi3R00h4ppYfF4A==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

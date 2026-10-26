@@ -167,6 +167,8 @@
         secrets = {
           "cliproxyapi/management" = { };
           "cliproxyapi/gemini" = { };
+          "straycat/cliproxyapi" = { };
+          "straycat/deepseek" = { };
         };
         templates."cliproxyapi/postgres-dsn".content = "postgres://cliproxyapi:${
           config.nixos.system.sops.placeholder."postgresql/cliproxyapi"
