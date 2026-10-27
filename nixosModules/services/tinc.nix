@@ -37,19 +37,38 @@ let
     }
     # 使用 vps10 代理的机器
     {
-      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" "nas" "ddml-dev-vm" "rdhx-test" ] (_: null)) // {
-        vps10 = getAddress "vps10";
-      };
+      device =
+        (lib.genAttrs [
+          "srv1-node0"
+          "srv2-node0"
+          "nas"
+          "ddml-dev-vm"
+          "rdhx-test"
+          "pc"
+          "pe"
+          "pe-rdhx"
+        ] (_: null))
+        // {
+          vps10 = getAddress "vps10";
+        };
       distance = 10;
     }
     # 使用 vps6 代理的机器
     {
-      device = {
-        vps6 = getAddress "vps6";
-        pc = null;
-        pe = null;
-        pe-rdhx = null;
-      };
+      device =
+        (lib.genAttrs [
+          "srv1-node0"
+          "srv2-node0"
+          "nas"
+          "ddml-dev-vm"
+          "rdhx-test"
+          "pc"
+          "pe"
+          "pe-rdhx"
+        ] (_: null))
+        // {
+          vps6 = getAddress "vps6";
+        };
       distance = 10;
     }
     # 运行在nas上的虚拟机
@@ -63,12 +82,12 @@ let
       distance = 1;
     }
     # 国内网络
-    {
-      device = (lib.genAttrs [ "srv1-node0" "srv2-node0" "pc" "pe" ] (_: null)) // {
-        nas = "nas.chn.moe";
-      };
-      distance = 3;
-    }
+    # {
+    #   device = (lib.genAttrs [ "srv1-node0" "srv2-node0" "pc" "pe" ] (_: null)) // {
+    #     nas = "nas.chn.moe";
+    #   };
+    #   distance = 3;
+    # }
     # 校内网络
     {
       device = (lib.genAttrs [ "srv1-node0" "srv2-node0" ] getAddress);
