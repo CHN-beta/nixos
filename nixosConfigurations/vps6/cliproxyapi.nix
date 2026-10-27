@@ -53,6 +53,10 @@
             key._secret = config.nixos.system.sops.secrets."cliproxyapi/keys/southfox".path;
             name = "southfox";
           }
+          {
+            key._secret = config.nixos.system.sops.secrets."cliproxyapi/keys/alikia".path;
+            name = "alikia";
+          }
         ];
         observability = {
           logs = {
@@ -174,6 +178,7 @@
           "straycat/cliproxyapi" = { };
           "straycat/deepseek" = { };
           "cliproxyapi/keys/southfox" = { };
+          "cliproxyapi/keys/alikia" = { };
         };
         templates."cliproxyapi/postgres-dsn".content = "postgres://cliproxyapi:${
           config.nixos.system.sops.placeholder."postgresql/cliproxyapi"

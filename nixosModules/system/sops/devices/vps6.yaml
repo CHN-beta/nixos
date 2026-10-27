@@ -22,6 +22,7 @@ cliproxyapi:
     gemini: ENC[AES256_GCM,data:xl/j3NQj7gQ2V/NIRvuctCBtwddYGLxF1r5sxeN9XxDjc5YLCbssgQopJLlLoCFaeSg15FI=,iv:SIGrHOUSnzRNF7PB5TJ6TVWiV5kwjUboJ1PXN1xY5tw=,tag:rvZM3DYiLnHEB575ZzpMyA==,type:str]
     keys:
         southfox: ENC[AES256_GCM,data:/DVs9UGBvdEc0FHaDTSCsM4IFvq5i5XIJ8ElO1QAZvFv9SQ7dWmWiBKu3MXMQ8XlifeL,iv:QnOw5I9FnJmQvp78+q09mkOcALcHTFRtPXVJZuLdqMo=,tag:Npa9tDMuCfFf1BU/2ihIYQ==,type:str]
+        alikia: ENC[AES256_GCM,data:6Xt+wRCt9UwKRtGHQGm8DWLYUHQCeSCfKapuOqiV4pz94DgxCtmWyPRJpEIqOB3JDZqv,iv:dqMtnUiH2VHmCZmvj8AOqkAzEv1KhoZH/Bsx9pyqD/o=,tag:W8mad8I4BUprhiPUAyRyTA==,type:str]
 sops:
     age:
         - enc: |
@@ -43,7 +44,7 @@ sops:
             /jZhBt42BOCZwOiNqt9cgU1+DRu24DE019VTyR15dhLNwqiIo5jQkg==
             -----END AGE ENCRYPTED FILE-----
           recipient: age164tyqklwhdm57tfm5u863mdt2xrzrrzac4py8a0j9y6kzqcjy9zsp073t6
-    lastmodified: "2026-10-26T08:27:24Z"
-    mac: ENC[AES256_GCM,data:A2SM9EQuTa9pxiyG9tpKl5azX6b7/9jX1khHd+3vqBhuihV43Xajks8cBLqT6iZdxj5zTXCC8J+ql6jJDiJK/1/XbfdWlq6pTyD2GADrJEYmyy1AG8JZ4QtxG2sHXsFsO9YHZrPVkHHQgYlzECJtAz06V0MGtLGAR9YvNPzKp+w=,iv:Bm2l2EvTmO1nawZVWycDh6z9l/X0Y0nsA+rHoTLI77E=,tag:y5SiEDhfya4mhXif+Zo81g==,type:str]
+    lastmodified: "2026-10-27T09:20:01Z"
+    mac: ENC[AES256_GCM,data:LclA5mRm9GSlfI0oPL2hcOaHTiNzk8D1i0TTMdTaXq6knFkDB/3ADCA3kqpsN9zJOImVvm1kPF813L5CrOVxiL7l1kDXfEp8gnkYRh5snsU33Sk3CKcYXG6F8/EZyXim5sVZQ80LIUAGbw4SI7IuUq7Ez8QZtP7aqGkKrGZ/9zQ=,iv:vMAHCwwLcBMFy4XELZI7HATtks0sEaw5c6SlRCOdMYY=,tag:xUsWAPeYyru6WmaBzSZLPA==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
