@@ -34,7 +34,24 @@
             SMTP_PORT = 465;
             USER = "bot@chn.moe";
           };
-          service.DISABLE_REGISTRATION = true;
+          service = {
+            DISABLE_REGISTRATION = true;
+            # allow registration via external authentication sources while keeping
+            # local (password) registration closed
+            ALLOW_ONLY_EXTERNAL_REGISTRATION = true;
+          };
+          openid = {
+            ENABLE_OPENID_SIGNIN = true;
+            ENABLE_OPENID_SIGNUP = true;
+          };
+          oauth2_client = {
+            REGISTER_EMAIL_CONFIRM = false;
+            OPENID_CONNECT_SCOPES = "openid email profile";
+            ENABLE_AUTO_REGISTRATION = true;
+            USERNAME = "preferred_username";
+            UPDATE_AVATAR = false;
+            ACCOUNT_LINKING = "auto";
+          };
           security.LOGIN_REMEMBER_DAYS = 365;
           "git.timeout" = lib.listToAttrs (
             map
