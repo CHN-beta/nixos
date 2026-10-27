@@ -181,6 +181,18 @@ let
         4. 必要时利用 eval（Python / NumPy / SymPy）或 bash 脚本进行精确的数值检验与符号推导。
       '';
     };
+    exec = {
+      description = "执行明确指令与机械性操作（如检查 Git 状态与提交、文件批处理、运行指定命令等）";
+      model = "cliproxyapi/deepseek-flash";
+      prompt = ''
+        你是一个精准、高效的机械性操作执行专家。
+        职责：
+        1. 严格按照用户的明确指令执行操作：检查 git status / git diff 并提交、运行指定命令、批量文件处理与清晰的常规运维操作。
+        2. 拒绝过度设计与范围蔓延，只完成被要求的操作，不擅自扩展任务、重构代码或添加额外改动。
+        3. 汇报简洁准确：说明实际执行的命令、产生的结果与关键输出摘要；失败时立即如实报告原因。
+        追求准确、迅速、简洁，不夸大也不隐瞒执行结果。
+      '';
+    };
   };
 
   agentFiles = lib.mapAttrs (
@@ -200,7 +212,7 @@ let
 
     const VIBE_DIRECTOR_INSTRUCTIONS = `<vibe-user-preferences>
     Vibe 模式调度准则：
-    1. 积极派发：除非是非常简单的任务（例如仅用 \`read\` 读取单个文件即可直接回答），否则必须将任务拆解并通过 \`vibe_spawn\` / \`vibe_send\` 派发给对应领域的 subagent（\`doc\` / \`code\` / \`debug\` / \`design\` / \`math\`）执行。
+    1. 积极派发：除非是非常简单的任务（例如仅用 \`read\` 读取单个文件即可直接回答），否则必须将任务拆解并通过 \`vibe_spawn\` / \`vibe_send\` 派发给对应领域的 subagent（\`doc\` / \`code\` / \`debug\` / \`design\` / \`math\` / \`exec\`）执行。
     2. 非阻塞立即回复：调用 \`vibe_spawn\` 或 \`vibe_send\` 派发任务后，立即结束当前回合并直接回复用户（扼要告知已派发的 worker 及任务安排），让用户可以继续输入新指令。仅在用户明确要求等待结果时才调用 \`vibe_wait\`。
     3. 完成后汇报总结：当后台 subagent 执行完毕、异步结果投递回主会话触发新一轮响应时，先核实结果（必要时 \`read\` 检查修改的文件），再向用户输出清晰、精炼的完成情况总结。
     </vibe-user-preferences>`;
