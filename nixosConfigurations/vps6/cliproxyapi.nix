@@ -8,6 +8,7 @@
         server = {
           host = "127.0.0.1";
           port = 8317;
+          trusted-proxies = [ "127.0.0.1" "::1" ];
           commercial-mode = false;
         };
         management = {
