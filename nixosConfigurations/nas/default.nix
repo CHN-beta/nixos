@@ -126,6 +126,7 @@
           hostsAllowed = "192.168. 127. 100.97.101.";
           shares.home.path = "/home";
         };
+        cliproxyapi.hostname = "internal.cliproxyapi.chn.moe";
       };
       packages = {
         desktopPython = { };

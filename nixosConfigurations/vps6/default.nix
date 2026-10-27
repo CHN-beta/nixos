@@ -50,6 +50,7 @@
         beesd."/" = { };
         hongbao = { };
         freshman-followup.hostname = "hf.chn.moe";
+        cliproxyapi.users = [ "southfox" "alikia" ];
       };
     };
     networking.nftables.tables.forward = {
