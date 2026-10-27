@@ -1,0 +1,38 @@
+[package]
+name = "aidesk-backend"
+version = "0.1.0"
+edition = "2021"
+description = "AIDesk backend server (Rust port of the omp-web API)"
+license = "MIT"
+
+[[bin]]
+name = "aidesk-backend"
+path = "src/main.rs"
+
+[dependencies]
+axum = { version = "0.8", features = ["multipart"] }
+tokio = { version = "1", features = ["full"] }
+tokio-stream = "0.1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml_ng = "0.10"
+libc = "0.2"
+flate2 = "1"
+sha1 = "0.10"
+sha2 = "0.10"
+base64 = "0.22"
+uuid = { version = "1", features = ["v4"] }
+ring = "0.17"
+futures-util = "0.3"
+percent-encoding = "2"
+tokio-util = { version = "0.7", features = ["io"] }
+hyper = { version = "1", features = ["server", "http1"] }
+hyper-util = { version = "0.1", features = ["tokio", "server-auto", "service"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+mime = "0.3"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "multipart"] }
+bytes = "1"
+
+[dev-dependencies]
+tower = { version = "0.5", features = ["util"] }
+http-body-util = "0.1"

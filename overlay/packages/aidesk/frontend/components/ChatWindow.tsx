@@ -1,0 +1,1911 @@
+import { sendAgentCommand } from "@/lib/agent-client";
+import { registerAbortHandler } from "@/hooks/useKeyboardShortcuts";
+import { Fragment, memo, useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type Ref } from "react";
+import { ArrowDown, ChevronDown, ChevronUp, Layers, Paperclip, Square } from "lucide-react";
+import type { AgentMessage, AssistantContentBlock, AssistantMessage, BashExecutionMessage, ExtensionUiRequest, SessionInfo, SessionTreeNode, ToolResultMessage } from "@/lib/types";
+import { translate, useI18n } from "@/lib/i18n";
+import { collectToolResults, isGroupAnchor, planTranscriptRows, type ActivityPiece, type TranscriptRow } from "@/lib/chat-transcript-plan";
+import { resolveForkTargets } from "@/lib/chat-fork";
+import { MessageView } from "./MessageView";
+import { ChatInput, type ChatInputHandle } from "./ChatInput";
+import { ExtensionDialog } from "./ExtensionDialog";
+import { SubagentTranscriptDialog } from "./SubagentTranscriptDialog";
+import { ChatMinimap, useMessageRefs } from "./ChatMinimap";
+import { ComposerPanels } from "./ComposerPanels";
+import { SkillDiagnosticsNotice } from "./SkillDiagnostics";
+import { BtwHistoryDialog, type BtwPanelProps } from "./BtwPanel";
+import AideskLogo from "./AideskLogo";
+import { CHAT_COLUMN_MAX_WIDTH, MINIMAP_WIDTH } from "@/lib/chat-layout";
+import { WorkspaceState } from "./AppShell-layout";
+import { useAgentSession, type AgentPhase, type NoticeItem, type SubagentInfo } from "@/hooks/useAgentSession";
+import { useAudio } from "@/hooks/useAudio";
+import { useSpeechSynthesis, SpeechSynthesisProvider } from "@/hooks/useSpeechSynthesis";
+import { GithubRepoContext } from "@/lib/github-refs";
+import { useDragDrop } from "@/hooks/useDragDrop";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useModalDialog } from "@/hooks/useModalDialog";
+import type { SessionStatsInfo, GenerationSpeedInfo } from "@/lib/pi-types";
+import type { ProviderUsageContext } from "@/lib/provider-usage-types";
+import { normalizeCustomPanelLines, parseAnsiLine } from "@/lib/ansi";
+import { resolveAvailableThinkingLevels } from "@/lib/thinking-levels";
+import { asBracketedPaste, toTerminalKeyData } from "@/lib/terminal-input";
+import { AgentLinkContext, agentLinkTarget } from "@/lib/agent-links";
+import {
+  captureScrollDistance,
+  getNextVisibleCount,
+  restoreScrollTop,
+  VISIBLE_PAGE_SIZE,
+} from "@/lib/chat-lazy-load";
+import { getDraftSummary } from "@/lib/draft-store";
+
+interface Props {
+  session: SessionInfo | null;
+  newSessionCwd: string | null;
+  newSessionWorkspace?: ReactNode;
+  toolCallsDefaultCollapsed?: boolean;
+  /** "Expand thinking blocks by default": open each thinking block on mount. */
+  expandThinkingByDefault?: boolean;
+  /** omp `hideThinkingBlock`: omit thinking from the transcript. */
+  hideThinkingBlock?: boolean;
+  onAgentEnd?: () => void;
+  onSessionCreated?: (session: SessionInfo) => void;
+  onSessionForked?: (newSessionId: string) => void;
+  modelsRefreshKey?: number;
+  chatInputRef?: React.RefObject<ChatInputHandle | null>;
+  sessionInfoContainer?: HTMLDivElement | null;
+  onBranchDataChange?: (tree: SessionTreeNode[], activeLeafId: string | null, onLeafChange: (leafId: string | null) => void) => void;
+  onSessionStatsChange?: (stats: SessionStatsInfo | null) => void;
+  onSessionStatsPanelOpen?: () => void;
+  onProviderUsageContextChange?: (context: ProviderUsageContext | null) => void;
+  onOpenFile?: (filePath: string) => void;
+  /** Handles the open_url host tool; returns the result text for the agent. */
+  onOpenUrl?: (url: string) => string;
+  onGenerationSpeedChange?: (speed: GenerationSpeedInfo | null) => void;
+  /** Open Settings → API Keys & Providers (from the model picker). */
+}
+
+function phaseLabel(phase: AgentPhase): string {
+  if (phase?.kind === "running_tools") {
+    const names = phase.tools.map((tool) => tool.name);
+    if (names.length === 0) return translate("chatWindow.runningTool");
+    if (names.length <= 3) return translate("chatWindow.runningNamed", { names: names.join(", ") });
+    return translate("chatWindow.runningNamedMore", { names: names.slice(0, 2).join(", "), more: names.length - 2 });
+  }
+  if (phase?.kind === "waiting_model") return translate("chatWindow.waitingModel");
+  if (phase?.kind === "running_command") return translate("chatWindow.runningCommand");
+  return translate("chatWindow.thinking");
+}
+
+const CHAT_COLUMN_PADDING = 16;
+// Symmetric centering halves maxWidth reduction across both sides; compensate
+// so the right clearance (padding + half-reduction) equals the minimap width.
+const MINIMAP_CLEARANCE = 2 * (MINIMAP_WIDTH - CHAT_COLUMN_PADDING);
+const CHAT_COLUMN_MAX_WIDTH_DESKTOP = `min(${CHAT_COLUMN_MAX_WIDTH}px, calc(100% - ${MINIMAP_CLEARANCE}px))`;
+// Trigger the next history page while the sentinel is still this far below
+// the top edge, so a normal upward scroll seamlessly continues into the newly
+// loaded messages. Triggering only at the very top made the load invisible:
+// the restore anchored the viewport to the old content, so the user parked on
+// the banner and the load looked like a no-op.
+const LOAD_MORE_ROOT_MARGIN = "400px 0px 0px 0px";
+
+function getUserInputText(message: AgentMessage): string | null {
+  if (message.role !== "user") return null;
+  if (typeof message.content === "string") {
+    const text = message.content.trim();
+    return text.length > 0 ? text : null;
+  }
+  const text = message.content
+    .filter((block) => block.type === "text")
+    .map((block) => block.text)
+    .join("\n")
+    .trim();
+  return text.length > 0 ? text : null;
+}
+
+/**
+ * Text of the newest assistant reply for read-aloud. The live streaming
+ * message wins when present; otherwise the last committed assistant row is
+ * used, keyed by its entry id so the row's own speaker button lights up.
+ */
+function assistantSpeech(
+  messages: AgentMessage[],
+  entryIds: string[],
+  streaming: Partial<AgentMessage> | null,
+): { id: string; text: string } | null {
+  const textOf = (content: unknown): string => {
+    if (!Array.isArray(content)) return "";
+    return content
+      .filter((block: unknown): block is { type: "text"; text: string } => {
+        if (!block || typeof block !== "object") return false;
+        if (!("type" in block) || block.type !== "text") return false;
+        return "text" in block && typeof block.text === "string";
+      })
+      .map((block) => block.text)
+      .join("\n\n");
+  };
+
+  if (streaming && streaming.role === "assistant") {
+    const text = textOf(streaming.content);
+    if (text.trim()) {
+      return { id: streaming.timestamp ? String(streaming.timestamp) : "msg", text };
+    }
+  }
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i];
+    if (message.role !== "assistant") continue;
+    const text = textOf(message.content);
+    if (!text.trim()) break;
+    return { id: entryIds[i] ?? (message.timestamp ? String(message.timestamp) : "msg"), text };
+  }
+  return null;
+}
+
+function withAssistantBlocks(
+  message: AssistantMessage,
+  content: AssistantContentBlock[],
+  options: { omitUsage?: boolean } = {},
+): AssistantMessage {
+  const next = { ...message, content };
+  if (options.omitUsage) next.usage = undefined;
+  return next;
+}
+
+// Retain the last successful value across welcome-screen remounts, not reloads.
+let lastKnownOmpVersion: string | undefined;
+
+export function OmpRuntimeVersion() {
+  const { t } = useI18n();
+  const [version, setVersion] = useState<string | null | undefined>(lastKnownOmpVersion);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/omp-version")
+      .then((res) => {
+        if (!res.ok) throw new Error(`Version lookup failed: HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data: { version: string | null } | null) => {
+        if (cancelled) return;
+        // omp reports "omp/17.1.3"; show just the number next to the label.
+        const nextVersion = typeof data?.version === "string" ? data.version.trim().replace(/^omp\//, "") : "";
+        lastKnownOmpVersion = nextVersion || undefined;
+        setVersion(nextVersion || null);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setVersion(lastKnownOmpVersion ?? null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+  return (
+    <span aria-busy={version === undefined} style={{ fontSize: 11, color: "var(--text-muted)" }}>
+      omp <span style={{ color: "var(--text)" }}>{version === undefined ? t("appShell.loading") : version ? `v${version}` : t("chatWindow.versionNotFound")}</span>
+    </span>
+  );
+}
+
+function ProcessDetailsGroup({ messageCount, toolCallCount, children }: { messageCount: number; toolCallCount: number; children: () => ReactNode }) {
+  const { t, tn } = useI18n();
+  const [expanded, setExpanded] = useState(false);
+  const parts = [t("chatWindow.processDetails"), tn("chatWindow.messageCount", messageCount)];
+  if (toolCallCount > 0) parts.push(tn("chatWindow.toolCallCount", toolCallCount));
+
+  return (
+    <div style={{ marginBottom: 4 }}>
+      <button
+        type="button"
+        aria-expanded={expanded}
+        onClick={() => setExpanded((v) => !v)}
+        className="process-details-toggle"
+        title={expanded ? t("chatWindow.collapseProcessDetails") : t("chatWindow.expandProcessDetails")}
+      >
+        <Layers
+          size={12}
+          strokeWidth={1.8}
+          aria-hidden="true"
+          style={{ flexShrink: 0, color: "var(--accent)" }}
+        />
+        <ChevronDown
+          size={12}
+          strokeWidth={1.8}
+          aria-hidden="true"
+          style={{
+            flexShrink: 0,
+            transform: expanded ? "rotate(180deg)" : "none",
+            transition: "transform var(--dur-fast) var(--ease-out-warm)",
+          }}
+        />
+        <span className="process-details-label">
+          {parts.join(" · ")}
+        </span>
+      </button>
+      {expanded && (
+        <div style={{ marginTop: 3 }}>
+          {children()}
+        </div>
+      )}
+    </div>
+  );
+}
+
+type RenderMessage = (idx: number, options?: { attachRef?: boolean; keyPrefix?: string; messageOverride?: AgentMessage; showTimestamp?: boolean; sourceBlockIndices?: number[] }) => ReactNode;
+
+/** Render a folded activity run exactly as it streamed: one entry per piece, never merged across messages. */
+export function renderActivityPieces(messages: AgentMessage[], pieces: ActivityPiece[], renderMessage: RenderMessage): ReactNode[] {
+  return pieces.map((piece, pieceIdx) => {
+    if (!piece.blocks) return renderMessage(piece.index, { attachRef: false, keyPrefix: "activity" });
+    const msg = messages[piece.index] as AssistantMessage;
+    return renderMessage(piece.index, {
+      attachRef: false,
+      keyPrefix: `activity-${pieceIdx}`,
+      messageOverride: { ...withAssistantBlocks(msg, piece.blocks, { omitUsage: true }), errorMessage: undefined },
+      showTimestamp: false,
+      sourceBlockIndices: piece.blocks.map((block) => msg.content.indexOf(block)),
+    });
+  });
+}
+
+interface CommittedTranscriptProps {
+  messages: AgentMessage[];
+  entryIds: string[];
+  conversationMeta: { toolResultsMap: Map<string, ToolResultMessage>; lastAnchorIdx: number; visibleRefIndexByMessage: Map<number, number> };
+  messageRefs: React.RefObject<(HTMLDivElement | null)[]>;
+  isStreaming: boolean;
+  sessionBusy: boolean;
+  /** A run started outside this UI looks active from the transcript tail (see
+   *  `looksLikeRunningTurn`). Without it the newest turn of a session driven by
+   *  another `omp` process would always render folded into Process details. */
+  externalRunActive: boolean;
+  isNew: boolean;
+  forkingEntryId: string | null;
+  handleFork: (entryId: string, editPrompt: boolean) => void;
+  handleNavigate: (entryId: string) => boolean | Promise<boolean>;
+  handleEditContent: (content: string) => void;
+  modelNames: Record<string, string>;
+  messageCwd: string | undefined;
+  onOpenFile?: (filePath: string) => void;
+  sessionId: string | undefined;
+  toolCallsDefaultCollapsed: boolean;
+  expandThinkingByDefault: boolean;
+  hideThinkingBlock: boolean;
+  visibleCount: number;
+  /** True while the viewport is near the bottom of the conversation. When
+   *  false (user is reading history), the render window anchors its top so
+   *  messages appended by a running agent cannot slide the viewed messages
+   *  out of the window. */
+  nearBottom: boolean;
+  sentinelRef: React.RefObject<HTMLButtonElement | null>;
+  handleLoadMoreClick: () => void;
+}
+
+/**
+ * The committed (non-streaming) transcript. Extracted from ChatWindow and
+ * memoized over the committed messages so token-streaming updates (which only
+ * change `streamingMessage`, rendered separately) do not re-run the O(history)
+ * grouping/splitting work at display-frame cadence.
+ */
+const CommittedTranscript = memo(function CommittedTranscript({
+  messages, entryIds, conversationMeta, messageRefs, isStreaming, sessionBusy, externalRunActive, isNew, forkingEntryId,
+  handleFork, handleNavigate, handleEditContent, modelNames, messageCwd, onOpenFile, sessionId,
+  toolCallsDefaultCollapsed, expandThinkingByDefault, hideThinkingBlock, visibleCount, nearBottom, sentinelRef, handleLoadMoreClick,
+}: CommittedTranscriptProps) {
+  const { t } = useI18n();
+  const { toolResultsMap, lastAnchorIdx, visibleRefIndexByMessage } = conversationMeta;
+  // omp's `branch` command accepts a user entry only; see lib/chat-fork.ts.
+  const forkTargets = useMemo(() => resolveForkTargets(messages, entryIds), [messages, entryIds]);
+
+  const attachVisibleRef = (_idx: number, refIndex: number) => (el: HTMLDivElement | null) => {
+    messageRefs.current[refIndex] = el;
+  };
+
+  const renderMessage = (idx: number, options: { attachRef?: boolean; keyPrefix?: string; messageOverride?: AgentMessage; showTimestamp?: boolean; sourceBlockIndices?: number[] } = {}): ReactNode => {
+    const msg = options.messageOverride ?? messages[idx];
+    const prevAssistantEntryId =
+      msg.role === "user" && idx > 0 && messages[idx - 1].role === "assistant"
+        ? entryIds[idx - 1]
+        : undefined;
+    const isVisible = msg.role === "user" || msg.role === "assistant";
+    const currentRefIdx = visibleRefIndexByMessage.get(idx);
+    const keyPrefix = options.keyPrefix ?? "message";
+    let showTimestamp = false;
+    if (msg.role === "assistant") {
+      showTimestamp = true;
+      for (let j = idx + 1; j < messages.length; j++) {
+        const r = messages[j].role;
+        if (r === "user") break;
+        if (r === "assistant") { showTimestamp = false; break; }
+      }
+      // Hide on the currently-streaming tail (the streaming bubble owns the live timestamp)
+      if (showTimestamp && isStreaming && idx === messages.length - 1) {
+        showTimestamp = false;
+      }
+    }
+    if (options.showTimestamp !== undefined) showTimestamp = options.showTimestamp;
+    const forkTarget = forkTargets[idx];
+    const canOfferFork = !sessionBusy && !isNew && !!forkTarget;
+    const view = (
+      <MessageView
+        key={`${keyPrefix}-view-${idx}`}
+        message={msg}
+        toolResults={toolResultsMap}
+        modelNames={modelNames}
+        cwd={messageCwd}
+        onOpenFile={onOpenFile}
+        entryId={entryIds[idx]}
+        forkEntryId={forkTarget?.entryId}
+        forkEditsPrompt={forkTarget?.editPrompt}
+        onFork={canOfferFork ? handleFork : undefined}
+        forking={forkingEntryId === forkTarget?.entryId}
+        forkDisabled={forkingEntryId !== null}
+        onNavigate={sessionBusy ? undefined : handleNavigate}
+        prevAssistantEntryId={sessionBusy ? undefined : prevAssistantEntryId}
+        onEditContent={handleEditContent}
+        showTimestamp={showTimestamp}
+        prevTimestamp={idx > 0 ? (messages[idx - 1] as AgentMessage & { timestamp?: number }).timestamp : undefined}
+        sessionId={sessionId}
+        toolCallsDefaultCollapsed={toolCallsDefaultCollapsed}
+        expandThinkingByDefault={expandThinkingByDefault}
+        hideThinking={hideThinkingBlock}
+        sourceBlockIndices={options.sourceBlockIndices}
+      />
+    );
+    if (!isVisible || options.attachRef === false || currentRefIdx === undefined) return view;
+    return (
+      <div key={`${keyPrefix}-${idx}`} data-message-index={idx} ref={attachVisibleRef(idx, currentRefIdx)}>
+        {view}
+      </div>
+    );
+  };
+
+  // Rows are plain descriptors; element creation below only happens for the
+  // visible window. Invisible history never allocates React elements, so long
+  // sessions pay element cost proportional to the visible window instead of
+  // the whole transcript.
+  const rows = useMemo<TranscriptRow[]>(() => planTranscriptRows(messages, { hideThinking: hideThinkingBlock }), [messages, hideThinkingBlock]);
+  const isLiveTail = (row: TranscriptRow): boolean => {
+    if (row.kind !== "group") return false;
+    // `sessionBusy` only goes true for a run AIDesk owns, so a session driven
+    // by another `omp` process would never get a live tail; the transcript-tail
+    // heuristic supplies that missing case.
+    return (sessionBusy || externalRunActive || isStreaming) && row.endIndex === messages.length && row.userIndex === lastAnchorIdx;
+  };
+
+  // Anchor the render window while the user is reading history: the plain
+  // end-anchored window (total - visibleCount) slides forward as a running
+  // agent appends messages, silently pushing the viewed messages out of the
+  // window with no scroll correction. While not near the bottom, keep the
+  // window's top at the last end-anchored position and let the appended tail
+  // grow into the window; returning to the bottom re-engages the end anchor.
+  const anchorStartIndexRef = useRef<number | null>(null);
+  const { startIndex, hasMore } = useMemo(() => {
+    const total = rows.length;
+    const endAnchored = Math.max(0, total - visibleCount);
+    if (nearBottom || anchorStartIndexRef.current === null) {
+      anchorStartIndexRef.current = endAnchored;
+      return { startIndex: endAnchored, hasMore: endAnchored > 0 };
+    }
+    const anchored = Math.min(anchorStartIndexRef.current, endAnchored);
+    anchorStartIndexRef.current = anchored;
+    return { startIndex: anchored, hasMore: anchored > 0 };
+  }, [rows.length, visibleCount, nearBottom]);
+
+  const rendered: ReactNode[] = [];
+  for (let rowIdx = startIndex; rowIdx < rows.length; rowIdx++) {
+    const row = rows[rowIdx];
+    if (row.kind === "message") {
+      rendered.push(renderMessage(row.index));
+      continue;
+    }
+    const { userIndex: userIdx, endIndex: endIdx, segments } = row;
+
+    if (isLiveTail(row)) {
+      // Live tail: render the running turn flat so streaming updates and tool
+      // progress stay in view; it folds once the run ends.
+      for (let renderIdx = userIdx; renderIdx < endIdx; renderIdx++) {
+        rendered.push(renderMessage(renderIdx));
+      }
+      continue;
+    }
+
+    rendered.push(renderMessage(userIdx));
+    // A message split across segments keeps its navigation ref on the first one.
+    const attached = new Set<number>();
+    segments.forEach((segment, segmentIdx) => {
+      if (segment.kind === "text") {
+        const msg = messages[segment.index] as AssistantMessage;
+        const override = withAssistantBlocks(msg, segment.blocks, { omitUsage: !segment.last });
+        if (!segment.last) override.errorMessage = undefined;
+        rendered.push(renderMessage(segment.index, {
+          attachRef: !attached.has(segment.index),
+          keyPrefix: `text-${segmentIdx}`,
+          messageOverride: override,
+          ...(segment.last ? {} : { showTimestamp: false }),
+        }));
+        attached.add(segment.index);
+        return;
+      }
+      const refIdx = segment.pieces
+        .filter((piece) => !attached.has(piece.index))
+        .map((piece) => visibleRefIndexByMessage.get(piece.index))
+        .find((value): value is number => typeof value === "number");
+      for (const piece of segment.pieces) attached.add(piece.index);
+      rendered.push(
+        <div
+          key={`activity-${userIdx}-${segmentIdx}`}
+          ref={refIdx === undefined ? undefined : (el) => { messageRefs.current[refIdx] = el; }}
+        >
+          <ProcessDetailsGroup messageCount={segment.stepCount} toolCallCount={segment.toolCallCount}>
+            {() => renderActivityPieces(messages, segment.pieces, renderMessage)}
+          </ProcessDetailsGroup>
+        </div>,
+      );
+    });
+  }
+  return (
+    <>
+      {hasMore && (
+        <button
+          ref={sentinelRef}
+          type="button"
+          onClick={handleLoadMoreClick}
+          className="py-3 w-full text-center text-xs text-text-muted hover:text-text transition-colors cursor-pointer"
+        >
+          {t("chatWindow.scrollUpToLoad", { count: startIndex })}
+        </button>
+      )}
+      {rendered}
+    </>
+  );
+});
+
+export function ChatWindow({ session, newSessionCwd, newSessionWorkspace, toolCallsDefaultCollapsed = true, expandThinkingByDefault = false, hideThinkingBlock = false, onAgentEnd, onSessionCreated, onSessionForked, modelsRefreshKey, chatInputRef, sessionInfoContainer, onBranchDataChange, onSessionStatsChange, onSessionStatsPanelOpen, onProviderUsageContextChange, onGenerationSpeedChange, onOpenFile, onOpenUrl }: Props) {
+  const { t, tn } = useI18n();
+  const { playDoneSound, unlockAudio } = useAudio();
+  const isMobile = useIsMobile();
+
+  // Wrap onAgentEnd to play the completion sound. This is more reliable than
+  // wrapping handleAgentEventRef because useAgentSession overwrites that ref
+  // on every render (it syncs the latest callback), which would blow away an
+  // externally-installed wrapper after the first re-render. playDoneSound
+  // checks the sound preference itself.
+  const playDoneSoundRef = useRef(playDoneSound);
+  playDoneSoundRef.current = playDoneSound;
+  const tts = useSpeechSynthesis();
+  const ttsRef = useRef(tts);
+  useEffect(() => {
+    ttsRef.current = tts;
+  }, [tts]);
+  // omp calls onAgentEnd in the same tick as the state update that commits the
+  // finished reply, so reading the transcript here would still see the previous
+  // one. Flag it instead and speak from the render that carries it.
+  const autoplayPendingRef = useRef(false);
+
+  const wrappedOnAgentEnd = useCallback(() => {
+    playDoneSoundRef.current();
+    if (ttsRef.current.autoPlayEnabled) autoplayPendingRef.current = true;
+    onAgentEnd?.();
+  }, [onAgentEnd]);
+  // Stabilize the onEditContent ref; pairs with React.memo to avoid re-rendering history messages
+  const handleEditContent = useCallback((content: string) => {
+    chatInputRef?.current?.insertIfEmpty(content);
+  }, [chatInputRef]);
+
+  const {
+    loading, error, messages, entryIds, showPreCompactionHistory, streamState,
+    agentRunning, bashRunning, pendingBash, modelNames, modelList, modelsLoading, modelError, modelThinkingLevels, modelThinkingLevelMaps, thinkingLevel, fastModeEnabled, fastModeActive, slowModeSupported, slowModeEnabled, slowModeScope, usageLimit,
+    externalRunActive,
+    toolPreset,
+    liveModelMeta,
+    retryInfo, contextUsage, forkingEntryId,
+    isCompacting, compactResult, tokensPerSecond, displayModel: displayModelValue, sessionStats,
+    slashCommands, slashCommandsLoading, queuedMessages, advisorActive, advisorEnabled, handleAdvisorChange,
+    notices, dismissNotice, extensionDialog, extensionCustomUi, extensionStatuses, extensionWidgets, respondToExtensionUi, sendExtensionCustomInput,
+    skillDiagnostics, setSkillStartupDiagnostics,
+    isAutoModelSelection,
+    agentPhase, activeGoal, activePlan,
+    liveToolResults,
+    subagents, subagentEvents, subagentTranscriptVersions, activeSubagentCount, currentTodoPhase, todoPhases,
+    isNew,
+    sessionIdRef, messagesEndRef, scrollContainerRef,
+    handleSend, handleAbort, handleFork, handleNavigate, handleModelChange, retrySession,
+    handleSteer, handleFollowUp, handlePromptWithStreamingBehavior, handleAbortCompaction, handleCompact,
+    removeQueuedMessage, promoteQueuedToSteer,
+    handleBuiltinSlashCommand, togglePreCompactionHistory,
+    handleThinkingLevelChange, handleFastModeChange, handleSlowModeChange, handleCycleModel, handleCycleThinkingLevel, handleAbortRetry, loadSlashCommands,
+    handleToolPresetChange,
+    btw, askBtw,
+  } = useAgentSession({
+    session, newSessionCwd, onAgentEnd: wrappedOnAgentEnd, onSessionCreated, onSessionForked,
+    modelsRefreshKey, chatInputRef, onBranchDataChange, onSessionStatsPanelOpen,
+    onOpenFile, onOpenUrl,
+  });
+  useEffect(() => {
+    if (!autoplayPendingRef.current) return;
+    // A held reply is about to become its saved row: speak that one, so the
+    // row's own speaker button shows it playing and can stop it.
+    if (!streamState.isStreaming && streamState.streamingMessage) return;
+    autoplayPendingRef.current = false;
+    const speech = assistantSpeech(messages, entryIds, streamState.streamingMessage);
+    if (speech) ttsRef.current.speak(speech.id, speech.text);
+  }, [messages, entryIds, streamState, agentRunning]);
+  const sessionBusy = agentRunning || bashRunning;
+  const modelCapacity = useMemo(() => {
+    if (!displayModelValue) return null;
+    const model = modelList.find((entry) => entry.provider === displayModelValue.provider && entry.id === displayModelValue.modelId);
+    if (!model || (!model.contextWindow && !model.maxTokens)) return null;
+    return { contextWindow: model.contextWindow, maxTokens: model.maxTokens };
+  }, [displayModelValue, modelList]);
+
+  const providerUsageContext = useMemo<ProviderUsageContext | null>(
+    () => displayModelValue ? { provider: displayModelValue.provider, modelId: displayModelValue.modelId } : null,
+    // Deps are the primitive identity of the model — a new wrapper object
+    // per streaming frame must not re-create the context.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [displayModelValue?.provider, displayModelValue?.modelId],
+  );
+  useEffect(() => {
+    onProviderUsageContextChange?.(providerUsageContext);
+    return () => onProviderUsageContextChange?.(null);
+  }, [onProviderUsageContextChange, providerUsageContext]);
+  const [generationSpeed, setGenerationSpeed] = useState<GenerationSpeedInfo | null>(null);
+  const speedSamplesRef = useRef<number[]>([]);
+  // Source of truth is omp's own get_state.tokensPerSecond (polled by the
+  // session hook), not a client-side char-count estimate. Distinct reported
+  // values feed the rolling AVG; repeated polls of the same value are ignored.
+  const lastPublishedSpeedRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (tokensPerSecond === null || !Number.isFinite(tokensPerSecond) || tokensPerSecond <= 0) {
+      // Clear the live value; the session average remains visible.
+      if (lastPublishedSpeedRef.current !== null) {
+        lastPublishedSpeedRef.current = null;
+        setGenerationSpeed((previous) => previous ? { ...previous, current: null } : previous);
+      }
+      return;
+    }
+    const quantized = Math.round(tokensPerSecond * 10) / 10;
+    if (quantized === lastPublishedSpeedRef.current) return;
+    lastPublishedSpeedRef.current = quantized;
+    const samples = [...speedSamplesRef.current, quantized].slice(-32);
+    speedSamplesRef.current = samples;
+    setGenerationSpeed({
+      current: quantized,
+      average: samples.reduce((sum, sample) => sum + sample, 0) / samples.length,
+    });
+  }, [tokensPerSecond]);
+  // Rehydrate the session average from on-disk history after a reload: the
+  // per-message generation speed is derivable from assistant usage.output and
+  // the timestamp gap to the previous message, so AVG survives refreshes.
+  const speedHydratedSessionRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (sessionBusy || messages.length === 0) return;
+    const sessionKey = session?.id ?? newSessionCwd ?? null;
+    if (!sessionKey || speedHydratedSessionRef.current === sessionKey) return;
+    speedHydratedSessionRef.current = sessionKey;
+    const samples: number[] = [];
+    // One forward pass carrying the latest seen timestamp: a per-assistant
+    // backward scan is O(N²) on long histories full of timestamp-less roles.
+    let prevTs: number | undefined;
+    for (const msg of messages) {
+      const hasTs = "timestamp" in msg && typeof msg.timestamp === "number";
+      const ts = hasTs ? msg.timestamp : undefined;
+      if (msg.role !== "assistant" || !msg.usage || ts === undefined) {
+        if (ts !== undefined) prevTs = ts;
+        continue;
+      }
+      if (prevTs !== undefined) {
+        const secs = (ts - prevTs) / 1000;
+        // The timestamp gap includes thinking + tool time, so a naive
+        // output/secs rate can be absurdly low; and tool-only turns (zero
+        // output) divide by near-zero gaps into absurdly high spikes. Keep
+        // only plausible text-generation rates.
+        if (secs > 1) {
+          const sample = msg.usage.output / secs;
+          if (Number.isFinite(sample) && sample > 0.5 && sample <= 500) samples.push(sample);
+        }
+      }
+      prevTs = ts;
+    }
+    if (samples.length === 0) return;
+    const recent = samples.slice(-32);
+    speedSamplesRef.current = recent;
+    setGenerationSpeed((previous) => ({
+      current: previous?.current ?? null,
+      average: recent.reduce((sum, sample) => sum + sample, 0) / recent.length,
+    }));
+  }, [messages, sessionBusy, session?.id, newSessionCwd]);
+
+
+  // Register the abort handler for the global Esc shortcut. The cleanup
+  // matters: unmounting mid-run must not leave the module-global handler
+  // pointing at this (now unmounted) instance's handleAbort.
+  useEffect(() => {
+    registerAbortHandler(sessionBusy ? handleAbort : null);
+    return () => registerAbortHandler(null);
+  }, [sessionBusy, handleAbort]);
+
+  // Cycle model / thinking level via ⌘/Ctrl+Alt+M and ⌘/Ctrl+Alt+T (RPC
+  // cycle_model / cycle_thinking_level). Meta/Alt combos avoid clashing with
+  // ordinary typing in the composer.
+  useEffect(() => {
+    if (!session) return;
+    const handler = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || !e.altKey) return;
+      const key = e.key.toLowerCase();
+      if (key === "m") {
+        e.preventDefault();
+        void handleCycleModel();
+      } else if (key === "t") {
+        e.preventDefault();
+        void handleCycleThinkingLevel();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [session, handleCycleModel, handleCycleThinkingLevel]);
+
+  // --- Lazy-load historical messages ---
+  // Only render the last N messages initially. When the user scrolls to the
+  // top, load another page while keeping the scroll position stable.
+  const [visibleCount, setVisibleCount] = useState(VISIBLE_PAGE_SIZE);
+  const prevSessionKeyForPagingRef = useRef<string | null>(null);
+  const sessionKeyForPaging = session?.id ?? (newSessionCwd ? `new:${newSessionCwd}` : "empty");
+  useEffect(() => {
+    if (prevSessionKeyForPagingRef.current !== sessionKeyForPaging) {
+      prevSessionKeyForPagingRef.current = sessionKeyForPaging;
+      setVisibleCount(VISIBLE_PAGE_SIZE);
+    }
+  }, [sessionKeyForPaging]);
+  const [selectedSubagent, setSelectedSubagent] = useState<SubagentInfo | null>(null);
+  // Ref keeps the link handler stable so roster updates do not re-render every
+  // MarkdownBody through the context.
+  const subagentsRef = useRef(subagents);
+  subagentsRef.current = subagents;
+  const openAgentLink = useCallback((candidateIds: string[]) => {
+    setSelectedSubagent(agentLinkTarget(candidateIds, subagentsRef.current));
+  }, []);
+  const [composerMinimized, setComposerMinimized] = useState(false);
+  const minimizedExpandRef = useRef<HTMLButtonElement | null>(null);
+  // True while the viewport is at/near the conversation bottom. Drives the
+  // anchored render window in CommittedTranscript.
+  const [nearBottom, setNearBottom] = useState(true);
+  // The empty new-session screen has its own scroller, so the conversation's
+  // scroller mounts after the first send without a remount or a load.
+  const isEmptyNew = isNew && messages.length === 0 && !streamState.isStreaming && !sessionBusy;
+  useEffect(() => {
+    if (loading || isEmptyNew) return;
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    let raf: number | null = null;
+    const update = () => {
+      raf = null;
+      const next = el.scrollTop + el.clientHeight >= el.scrollHeight - 96;
+      setNearBottom((prev) => (prev === next ? prev : next));
+    };
+    const onScroll = () => {
+      if (raf === null) raf = requestAnimationFrame(update);
+    };
+    // A scroller that shrinks (the phone keyboard opening, the composer or an
+    // ask panel growing) keeps its top edge, so the newest messages slide
+    // under the composer. Keep a reader whose old view reached the bottom there.
+    let height = el.clientHeight;
+    const resize = new ResizeObserver(() => {
+      const wasAtBottom = el.scrollTop + height >= el.scrollHeight - 96;
+      height = el.clientHeight;
+      if (wasAtBottom) el.scrollTop = el.scrollHeight;
+    });
+    update();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    resize.observe(el);
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      resize.disconnect();
+      if (raf !== null) cancelAnimationFrame(raf);
+    };
+  }, [loading, isEmptyNew, scrollContainerRef]);
+  const scrollToBottom = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollTo({ top: el.scrollHeight, behavior: reduceMotion ? "auto" : "smooth" });
+    setNearBottom(true);
+  }, [scrollContainerRef]);
+  const sentinelRef = useRef<HTMLButtonElement>(null);
+  const prevScrollDistanceRef = useRef<number | null>(null);
+  // "auto" (observer fired while scrolling) anchors the viewport to the old
+  // content; "click" (user pressed the banner) reveals the loaded messages at
+  // the top of the viewport instead.
+  const loadMoreModeRef = useRef<"auto" | "click">("auto");
+
+  // IntersectionObserver on the sentinel banner at the top of the message
+  // list. When the user scrolls near the top, load the next page of older
+  // messages.
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    const container = scrollContainerRef.current;
+    if (!sentinel || !container) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Only auto-load on a genuine upward scroll. On fresh open the
+        // sentinel sits at the top of the rendered window and is visible at
+        // scrollTop = 0 — auto-loading then races the initial scroll-to-bottom
+        // (the capture happens before the scroll, and the restore pins the
+        // viewport to the top of the last page until every page is loaded).
+        if (entries[0]?.isIntersecting && container.scrollTop > 0) {
+          // Save distance from top before prepending to restore scroll later
+          prevScrollDistanceRef.current = captureScrollDistance(container.scrollHeight, container.scrollTop);
+          loadMoreModeRef.current = "auto";
+          setVisibleCount((prev) => getNextVisibleCount(prev));
+        }
+      },
+      // Expand the root upward so the page loads while the banner is still
+      // below the top edge — by the time the user reaches the top, the loaded
+      // messages are already there and the scroll continues into them.
+      { root: container, rootMargin: LOAD_MORE_ROOT_MARGIN, threshold: 0 }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [visibleCount, messages.length, scrollContainerRef]);
+
+  // After visibleCount increases (more messages prepended), restore the
+  // scroll position so the viewport doesn't jump.
+  useEffect(() => {
+    if (prevScrollDistanceRef.current == null) return;
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    if (loadMoreModeRef.current === "click") {
+      // Explicit request: reveal the loaded page. The browser's scroll
+      // anchoring already kept the previous content in view, so move the
+      // viewport up to the loaded messages.
+      const sentinel = sentinelRef.current;
+      if (sentinel) {
+        // More pages remain: place the banner's bottom edge just above the
+        // viewport so the newest loaded message is at the top.
+        const containerRect = container.getBoundingClientRect();
+        const sentinelRect = sentinel.getBoundingClientRect();
+        container.scrollTop = container.scrollTop + (sentinelRect.bottom - containerRect.top) + 1;
+      } else {
+        // Everything loaded — the banner unmounted; show the top of the session.
+        container.scrollTop = 0;
+      }
+    } else {
+      container.scrollTop = restoreScrollTop(container.scrollHeight, prevScrollDistanceRef.current);
+    }
+    loadMoreModeRef.current = "auto";
+    prevScrollDistanceRef.current = null;
+  }, [visibleCount, scrollContainerRef]);
+
+  const handleLoadMoreClick = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      // Sentinel value so the restore effect above runs and reveals the loaded messages.
+      prevScrollDistanceRef.current = captureScrollDistance(container.scrollHeight, container.scrollTop);
+    }
+    loadMoreModeRef.current = "click";
+    setVisibleCount((prev) => getNextVisibleCount(prev));
+  }, [scrollContainerRef]);
+
+  const generationSpeedKey = generationSpeed
+    ? `${generationSpeed.current ?? "null"}|${generationSpeed.average ?? "null"}`
+    : null;
+  const generationSpeedRef = useRef(generationSpeed);
+  generationSpeedRef.current = generationSpeed;
+  useEffect(() => {
+    onGenerationSpeedChange?.(generationSpeedRef.current);
+  }, [generationSpeedKey, onGenerationSpeedChange]);
+  useEffect(() => () => { onGenerationSpeedChange?.(null); }, [onGenerationSpeedChange]);
+
+  // Push session stats up to AppShell for the top bar.
+  // Compare scalar fields to avoid loops from new object identity each render.
+  const statsKey = sessionStats
+    ? [
+      sessionStats.sessionId,
+      sessionStats.sessionFile ?? "",
+      sessionStats.sessionName ?? "",
+      sessionStats.userMessages,
+      sessionStats.assistantMessages,
+      sessionStats.toolCalls,
+      sessionStats.toolResults,
+      sessionStats.totalMessages,
+      sessionStats.tokens.input,
+      sessionStats.tokens.output,
+      sessionStats.tokens.cacheRead,
+      sessionStats.tokens.cacheWrite,
+      sessionStats.tokens.total,
+      sessionStats.cost ?? 0,
+    ].join("|")
+    : null;
+  const sessionStatsRef = useRef(sessionStats);
+  sessionStatsRef.current = sessionStats;
+  useEffect(() => {
+    onSessionStatsChange?.(sessionStatsRef.current);
+  }, [statsKey, onSessionStatsChange]);
+  useEffect(() => () => { onSessionStatsChange?.(null); }, [onSessionStatsChange]);
+
+
+  const onDrop = useCallback((files: File[]) => {
+    chatInputRef?.current?.addFiles(files);
+  }, [chatInputRef]);
+
+  const { isDragOver, handleDragEnter, handleDragOver, handleDragLeave, handleDrop } = useDragDrop(onDrop);
+
+  const inputHistory = useMemo(() => {
+    const seen = new Set<string>();
+    const history: string[] = [];
+    for (let i = messages.length - 1; i >= 0; i -= 1) {
+      const text = getUserInputText(messages[i]);
+      if (!text || seen.has(text)) continue;
+      seen.add(text);
+      history.push(text);
+      if (history.length >= 50) break;
+    }
+    return history.reverse();
+  }, [messages]);
+  const conversationMeta = useMemo(() => {
+    const toolResultsMap = collectToolResults(messages);
+    let lastAnchorIdx = -1;
+    let hasCompaction = false;
+    const visibleRefIndexByMessage = new Map<number, number>();
+    let refIdx = 0;
+
+    messages.forEach((message, index) => {
+      if (message.role === "custom" && message.customType === "compaction") hasCompaction = true;
+      if (isGroupAnchor(message)) lastAnchorIdx = index;
+      if (message.role === "user" || message.role === "assistant") visibleRefIndexByMessage.set(index, refIdx++);
+    });
+    return { toolResultsMap, lastAnchorIdx, hasCompaction, visibleRefIndexByMessage };
+  }, [messages]);
+  // Runtime tool results span committed messages plus the tool calls omp is
+  // still executing. A committed result always wins; the live snapshot only
+  // covers the window between `tool_execution_start` and the toolResult message
+  // landing, which is what makes the row show a running indicator and streamed
+  // output instead of a dead "no result" row.
+  const toolResultsWithLive = useMemo<Map<string, ToolResultMessage>>(() => {
+    if (liveToolResults.size === 0) return conversationMeta.toolResultsMap;
+    const merged = new Map(liveToolResults);
+    for (const [toolCallId, result] of conversationMeta.toolResultsMap) merged.set(toolCallId, result);
+    return merged;
+  }, [liveToolResults, conversationMeta]);
+  const conversationMetaWithLive = useMemo(
+    () => (toolResultsWithLive === conversationMeta.toolResultsMap
+      ? conversationMeta
+      : { ...conversationMeta, toolResultsMap: toolResultsWithLive }),
+    [conversationMeta, toolResultsWithLive],
+  );
+  // The ref array is sized by the count of user/assistant messages — exactly
+  // what conversationMeta's visibleRefIndexByMessage already tallies, so no
+  // separate filter pass (which would re-run on every streaming frame).
+  const messageRefs = useMessageRefs(conversationMeta.visibleRefIndexByMessage.size);
+  // Tool-call ids already rendered by COMMITTED messages — memoized away from
+  // the streaming path so a per-token update only re-scans the live bubble.
+  const committedToolCallIds = useMemo(() => {
+    const renderedIds = new Set<string>();
+    for (const message of messages) {
+      if (message?.role !== "assistant") continue;
+      for (const block of (message as Partial<AssistantMessage>).content ?? []) {
+        if (block.type === "toolCall") renderedIds.add(block.toolCallId);
+      }
+    }
+    return renderedIds;
+  }, [messages]);
+  const pendingToolHeaders = useMemo(() => {
+    if (agentPhase?.kind !== "running_tools") return [];
+    const renderedIds = new Set(committedToolCallIds);
+    const streaming = streamState.streamingMessage;
+    if (streaming?.role === "assistant") {
+      for (const block of (streaming as Partial<AssistantMessage>).content ?? []) {
+        if (block.type === "toolCall") renderedIds.add(block.toolCallId);
+      }
+    }
+    return agentPhase.tools.filter((tool) => !renderedIds.has(tool.id));
+  }, [agentPhase, committedToolCallIds, streamState.streamingMessage]);
+
+  // Reset minimized state on session switch (session-scoped)
+  useEffect(() => { setComposerMinimized(false); }, [sessionKeyForPaging]);
+  // The extension dialog renders inside the collapsible composer wrapper;
+  // never let a pending approval prompt sit hidden behind the minimized pill.
+  useEffect(() => { if (extensionDialog) setComposerMinimized(false); }, [extensionDialog]);
+  const messageCwd = session?.cwd ?? newSessionCwd ?? undefined;
+  const activeBtwRecord = btw.records.find((record) => record.id === btw.activeId);
+  const btwPanel: BtwPanelProps | null = activeBtwRecord ? {
+    record: activeBtwRecord,
+    onCancel: () => void btw.cancel(activeBtwRecord.id),
+    onFollowUp: (question) => askBtw(question, activeBtwRecord.id),
+    onClose: () => btw.setActiveId(null),
+    cwd: messageCwd,
+    onOpenFile,
+  } : null;
+
+  const displayModelKey = displayModelValue ? `${displayModelValue.provider}:${displayModelValue.modelId}` : "";
+  const availableThinkingLevels = useMemo(
+    () =>
+      displayModelValue
+        ? resolveAvailableThinkingLevels(
+            modelThinkingLevels[displayModelKey],
+            displayModelValue,
+            liveModelMeta,
+          )
+        : null,
+    [displayModelKey, displayModelValue, modelThinkingLevels, liveModelMeta],
+  );
+
+  const currentThinkingLevelMap = displayModelValue
+    ? (modelThinkingLevelMaps[`${displayModelValue.provider}:${displayModelValue.modelId}`] ?? null)
+    : null;
+
+  // Resolve the advisor role's display model + reasoning effort for the
+  // composer tooltips. The raw selector is "provider/id[:effort]" from
+  // ~/.omp/agent/config.yml.
+  const [advisorRoleSelector, setAdvisorRoleSelector] = useState<string | null>(null);
+  useEffect(() => {
+    if (!advisorEnabled) {
+      setAdvisorRoleSelector(null);
+      return;
+    }
+    const controller = new AbortController();
+    fetch("/api/model-roles", { signal: controller.signal })
+      .then((response) => response.ok ? response.json() as Promise<{ roles?: Record<string, string> }> : null)
+      .then((data) => setAdvisorRoleSelector(data?.roles?.advisor ?? null))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [advisorEnabled]);
+
+  // GitHub repo of the session checkout, so bare `#123` in messages links to it.
+  const [githubRepo, setGithubRepo] = useState<string | null>(null);
+  useEffect(() => {
+    setGithubRepo(null);
+    if (!messageCwd) return;
+    const controller = new AbortController();
+    fetch(`/api/github-repo?cwd=${encodeURIComponent(messageCwd)}`, { signal: controller.signal })
+      .then((response) => response.ok ? response.json() as Promise<{ repo?: string | null }> : null)
+      .then((data) => setGithubRepo(data?.repo ?? null))
+      .catch(() => {});
+    return () => controller.abort();
+  }, [messageCwd]);
+
+  const advisorModelMeta = useMemo(() => {
+    if (!advisorRoleSelector) return null;
+    const [qualified, effort] = advisorRoleSelector.split(":");
+    const separator = qualified.indexOf("/");
+    const provider = separator === -1 ? "" : qualified.slice(0, separator);
+    const id = separator === -1 ? qualified : qualified.slice(separator + 1);
+    return {
+      name: modelList.find((entry) => entry.provider === provider && entry.id === id)?.name ?? advisorRoleSelector,
+      reasoning: effort || null,
+    };
+  }, [advisorRoleSelector, modelList]);
+
+  // Ghost-text word completion rides the session's live omp process (the route
+  // never spawns one for a keystroke); before the first send there is none.
+  const handlePredictWord = useCallback(async (text: string, cursor: number) => {
+    const sid = session?.id ?? sessionIdRef.current;
+    if (!sid) return null;
+    const data = await sendAgentCommand<{ suffix: string | null } | null>(sid, { type: "predict_word", text, cursor });
+    return data?.suffix ?? null;
+  }, [session?.id, sessionIdRef]);
+  const handlePredictWordFeedback = useCallback((text: string, cursor: number, suggestion: string, accepted: boolean) => {
+    const sid = session?.id ?? sessionIdRef.current;
+    if (!sid) return;
+    sendAgentCommand(sid, { type: "predict_word_feedback", text, cursor, suggestion, accepted }).catch(() => {});
+  }, [session?.id, sessionIdRef]);
+
+  const handleMinimize = useCallback(() => {
+    setComposerMinimized(true);
+    /* Focus the pill's expand button after React commits the visibility change */
+    requestAnimationFrame(() => minimizedExpandRef.current?.focus());
+  }, []);
+  const handleExpand = useCallback(() => {
+    setComposerMinimized(false);
+    /* Focus the textarea after React commits the visibility change */
+    requestAnimationFrame(() => chatInputRef?.current?.focus());
+  }, [chatInputRef]);
+  const composerStatusText = useMemo(() => {
+    if (bashRunning && !pendingBash) {
+      return t("chatWindow.runningCommand");
+    }
+    if (isCompacting || (agentRunning && !streamState.streamingMessage && pendingToolHeaders.length === 0)) {
+      return [
+        phaseLabel(agentPhase),
+        activeSubagentCount > 0 ? tn("chatWindow.subagentCount", activeSubagentCount) : null,
+        isCompacting ? t("chatWindow.compactingContext") : null,
+        currentTodoPhase
+          ? t("chatWindow.todoPhaseStatus", {
+              name: currentTodoPhase.name,
+              done: currentTodoPhase.done,
+              total: currentTodoPhase.total,
+            })
+          : null,
+      ].filter(Boolean).join(" · ");
+    }
+    return null;
+  }, [bashRunning, pendingBash, isCompacting, agentRunning, streamState.streamingMessage, pendingToolHeaders.length, agentPhase, activeSubagentCount, currentTodoPhase, t, tn]);
+
+  const askOpen = extensionDialog?.method === "ask";
+  const hiddenComposerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    // A hidden composer that keeps focus keeps the phone keyboard up: the
+    // first tap in the ask panel would then close it, resize the panel and
+    // miss its target. Let the keyboard go when the composer hides.
+    const active = document.activeElement;
+    if (askOpen && active instanceof HTMLElement && hiddenComposerRef.current?.contains(active)) active.blur();
+  }, [askOpen]);
+  const chatInputElement = (
+    <ChatInput
+      ref={chatInputRef}
+      sessionInfoContainer={sessionInfoContainer}
+      onSend={handleSend}
+      onPredictWord={handlePredictWord}
+      onPredictWordFeedback={handlePredictWordFeedback}
+      onAbort={handleAbort}
+      onSteer={agentRunning ? handleSteer : undefined}
+      onFollowUp={agentRunning ? handleFollowUp : undefined}
+      onPromptWithStreamingBehavior={agentRunning ? handlePromptWithStreamingBehavior : undefined}
+      isStreaming={sessionBusy}
+      model={displayModelValue}
+      isAutoModelSelection={isAutoModelSelection}
+      modelNames={modelNames}
+      modelList={modelList}
+      modelsLoading={modelsLoading}
+      modelError={modelError}
+      onModelChange={handleModelChange}
+      onAbortCompaction={handleAbortCompaction}
+      isCompacting={isCompacting}
+      compactResult={compactResult}
+      thinkingLevel={thinkingLevel}
+      onThinkingLevelChange={session || isNew ? handleThinkingLevelChange : undefined}
+      toolPreset={toolPreset}
+      onToolPresetChange={handleToolPresetChange}
+      fastModeEnabled={fastModeEnabled}
+      fastModeActive={fastModeActive}
+      usageLimit={usageLimit}
+      fastModeSupported={Boolean(displayModelValue && modelList.some((entry) => entry.provider === displayModelValue.provider && entry.id === displayModelValue.modelId && entry.supportsFastMode))}
+      onFastModeChange={session || isNew ? handleFastModeChange : undefined}
+      slowModeSupported={slowModeSupported}
+      slowModeEnabled={slowModeEnabled}
+      slowModeScope={slowModeScope}
+      onSlowModeChange={session || isNew ? handleSlowModeChange : undefined}
+      onAbortRetry={session ? handleAbortRetry : undefined}
+      availableThinkingLevels={availableThinkingLevels}
+      thinkingLevelMap={currentThinkingLevelMap}
+      modelNameOverride={liveModelMeta?.name ?? null}
+      retryInfo={retryInfo}
+      activeGoal={activeGoal}
+      activePlan={activePlan}
+      advisorEnabled={advisorEnabled}
+      onAdvisorChange={handleAdvisorChange}
+      advisorModel={advisorModelMeta}
+      queuedMessages={queuedMessages}
+      inputHistory={inputHistory}
+      advisorActive={advisorActive}
+      onCompact={handleCompact}
+      contextUsage={contextUsage}
+      sessionStats={sessionStats}
+      modelCapacity={modelCapacity}
+      generationSpeed={generationSpeed}
+      onRemoveQueuedMessage={removeQueuedMessage}
+      onPromoteQueuedToSteer={promoteQueuedToSteer}
+      slashCommands={slashCommands}
+      slashCommandsLoading={slashCommandsLoading}
+      onLoadSlashCommands={loadSlashCommands}
+      onBuiltinCommand={handleBuiltinSlashCommand}
+      onAudioUnlock={unlockAudio}
+      draftKey={session?.id ?? (newSessionCwd ? `new:${newSessionCwd}` : undefined)}
+      cwd={session?.cwd ?? newSessionCwd}
+      /* The pill bar and chevron only render in the non-empty layout; don't
+         accept Escape-to-minimize in the fresh-chat branch where there is
+         nothing to collapse. */
+      onMinimize={isEmptyNew ? undefined : handleMinimize}
+      statusText={composerStatusText}
+    />
+  );
+
+  const aboveEditorWidgets = extensionWidgets.filter((widget) => widget.placement !== "belowEditor");
+  const belowEditorWidgets = extensionWidgets.filter((widget) => widget.placement === "belowEditor");
+
+  if (loading) {
+    return <WorkspaceState kind="loading" title={t("chatWindow.loadingSession")} />;
+  }
+
+  if (error) {
+    return (
+      <WorkspaceState
+        kind="error"
+        title={error}
+        detail={(
+          <button
+            className="load-retry-button"
+            type="button"
+            onClick={retrySession}
+            style={{ justifySelf: "start", minHeight: 36, padding: "6px 14px", border: "1px solid var(--border)", borderRadius: "var(--radius-control)", background: "var(--bg-panel)", color: "var(--text)", cursor: "pointer", fontWeight: 600, transition: "background var(--dur-fast) var(--ease-out-warm), transform var(--dur-fast) var(--ease-out-warm)" }}
+          >
+            {t("chatWindow.retry")}
+          </button>
+        )}
+      />
+    );
+  }
+  return (
+    <SpeechSynthesisProvider value={tts}>
+    <GithubRepoContext.Provider value={githubRepo}>
+    <AgentLinkContext.Provider value={openAgentLink}>
+    <div
+      className="relative flex h-full flex-col overflow-hidden"
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {isDragOver && (
+        <div className="drop-zone-overlay pointer-events-none absolute inset-0 z-50 flex items-center justify-center backdrop-blur-[1px]">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            {[0, 0.8, 1.6].map((delay) => (
+              <div
+                key={delay}
+                className="drop-ripple-ring absolute h-180 w-180 rounded-full border-[1.5px] border-solid"
+                style={{ transformOrigin: "center", animationDelay: `${delay}s` }}
+              />
+            ))}
+          </div>
+          <svg
+            width="280" height="280" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg"
+            className="drop-zone-illustration"
+          >
+            <rect x="28" y="44" width="84" height="60" rx="8" fill="color-mix(in srgb, var(--accent) 8%, transparent)" stroke="color-mix(in srgb, var(--accent) 50%, transparent)" strokeWidth="1.8"/>
+            <path d="M36 100 L54 72 L68 88 L80 74 L104 100Z" fill="color-mix(in srgb, var(--accent) 16%, transparent)" stroke="color-mix(in srgb, var(--accent) 40%, transparent)" strokeWidth="1.4" strokeLinejoin="round"/>
+            <circle cx="96" cy="58" r="8" fill="color-mix(in srgb, var(--accent) 22%, transparent)" stroke="color-mix(in srgb, var(--accent) 55%, transparent)" strokeWidth="1.6"/>
+            <g stroke="color-mix(in srgb, var(--accent) 45%, transparent)" strokeWidth="1.4" strokeLinecap="round">
+              <line x1="96" y1="46" x2="96" y2="43"/>
+              <line x1="96" y1="70" x2="96" y2="73"/>
+              <line x1="84" y1="58" x2="81" y2="58"/>
+              <line x1="108" y1="58" x2="111" y2="58"/>
+              <line x1="87.5" y1="49.5" x2="85.4" y2="47.4"/>
+              <line x1="104.5" y1="66.5" x2="106.6" y2="68.6"/>
+              <line x1="104.5" y1="49.5" x2="106.6" y2="47.4"/>
+              <line x1="87.5" y1="66.5" x2="85.4" y2="68.6"/>
+            </g>
+          </svg>
+        </div>
+      )}
+
+      <SubagentTranscriptDialog
+        subagent={selectedSubagent}
+        sessionId={session?.id ?? sessionIdRef.current ?? null}
+        transcriptVersion={selectedSubagent ? (subagentTranscriptVersions[selectedSubagent.id] ?? 0) : 0}
+        events={selectedSubagent ? (subagentEvents[selectedSubagent.id] ?? []) : undefined}
+        onClose={() => setSelectedSubagent(null)}
+      />
+
+      <BtwHistoryDialog
+        open={btw.historyOpen}
+        onOpenChange={btw.setHistoryOpen}
+        records={btw.records}
+        onFollowUp={(recordId) => { btw.setActiveId(recordId); btw.setHistoryOpen(false); }}
+        cwd={messageCwd}
+        onOpenFile={onOpenFile}
+      />
+
+      {extensionCustomUi && (
+        <ExtensionCustomPanel
+          request={extensionCustomUi}
+          onInput={sendExtensionCustomInput}
+        />
+      )}
+
+      {isEmptyNew ? (
+        <div className="relative flex flex-1 flex-col overflow-hidden">
+          <div className="flex flex-1 flex-col items-center justify-center overflow-y-auto py-8" style={{ minHeight: 0, paddingInline: CHAT_COLUMN_PADDING }}>
+          <div className="w-full" style={{ maxWidth: CHAT_COLUMN_MAX_WIDTH }}>
+            <div
+               className="mb-3 empty-chat-brand"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                marginLeft: 8,
+                marginRight: 8,
+                fontFamily: "var(--font-mono)",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0, flex: 1, lineHeight: 1.4, overflow: "hidden" }}>
+                <AideskLogo size={26} />
+                <span className="aidesk-wordmark" style={{ fontSize: 18, color: "var(--text)", fontWeight: 600, letterSpacing: "0.02em", flexShrink: 0, whiteSpace: "nowrap", fontFamily: "var(--font-mono)" }}>AIDesk</span>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 2, flexShrink: 0 }}>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                  <span style={{ color: "var(--text)" }}>v{__APP_VERSION__}</span>
+                </span>
+                <OmpRuntimeVersion />
+              </div>
+            </div>
+            <div className="empty-session-intro">
+              <h1 className="display-serif">{t("appShell.newSessionTitle")}</h1>
+              <p>{t("appShell.newSessionDescription")}</p>
+            </div>
+            {newSessionWorkspace}
+            <NoticeShelf notices={notices} onDismiss={dismissNotice} align="right" />
+            <SkillDiagnosticsNotice snapshot={skillDiagnostics} onDisable={() => setSkillStartupDiagnostics(false)} />
+            <ComposerPanels todoPhases={[]} subagents={[]} onSelectSubagent={setSelectedSubagent} btw={btwPanel} />
+            {/* ChatInput insets itself by CHAT_COLUMN_PADDING; cancel this column's
+                padding so the composer matches its in-session width. */}
+            <div style={{ margin: `0 -${CHAT_COLUMN_PADDING}px` }}>{chatInputElement}</div>
+          </div>
+        </div>
+        </div>
+      ) : (
+      <>
+      <div className="relative flex flex-1 overflow-hidden" style={{ minHeight: 0 }}>
+        <div
+          style={{
+            position: "absolute",
+            top: 12,
+            left: 0,
+            right: 0,
+            zIndex: 40,
+            padding: `0 ${CHAT_COLUMN_PADDING}px`,
+            pointerEvents: "none",
+          }}
+        >
+          <div style={{ maxWidth: isMobile ? CHAT_COLUMN_MAX_WIDTH : CHAT_COLUMN_MAX_WIDTH_DESKTOP, margin: "0 auto" }}>
+            <NoticeShelf notices={notices} onDismiss={dismissNotice} floating align="right" />
+          </div>
+        </div>
+        {/* Hide the Firefox scrollbar on desktop only: ChatMinimap provides the
+            position indicator there, but on mobile there is no minimap and
+            users need the scrollbar (Chrome's overlay scrollbar still shows). */}
+        <div ref={scrollContainerRef} data-selection-scope="chat" tabIndex={-1} role="log" aria-live={streamState.isStreaming ? "off" : "polite"} aria-busy={streamState.isStreaming || undefined} aria-relevant="additions text" aria-label={t("chatWindow.conversation")} className={`flex-1 overflow-y-auto pt-6` + (isMobile ? "" : " scrollbar-none [&::-webkit-scrollbar]:hidden")} style={{ minHeight: 0 }}>
+          <div style={{ padding: `0 ${CHAT_COLUMN_PADDING}px` }}>
+            <div style={{ maxWidth: isMobile ? CHAT_COLUMN_MAX_WIDTH : CHAT_COLUMN_MAX_WIDTH_DESKTOP, margin: "0 auto" }}>
+              <ExtensionStatusBar statuses={extensionStatuses} />
+              <ExtensionWidgets widgets={aboveEditorWidgets} />
+
+            {conversationMeta.hasCompaction && (
+              <div
+                style={{
+                  display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+                  marginBottom: 8, padding: "7px 10px", border: "1px solid var(--border)",
+                  borderRadius: "var(--radius-control)", background: "var(--bg-subtle)",
+                }}
+              >
+                <span style={{ color: "var(--text-muted)", fontSize: 12 }}>
+                  {showPreCompactionHistory ? t("chatWindow.fullHistoryVisible") : t("chatWindow.compactedHistoryNotice")}
+                </span>
+                <button
+                  type="button"
+                  onClick={togglePreCompactionHistory}
+                  style={{
+                    flexShrink: 0, padding: "4px 8px", borderRadius: 6, border: "1px solid var(--border)",
+                    background: "var(--bg)", color: "var(--text)", cursor: "pointer", fontSize: 12,
+                  }}
+                >
+                  {showPreCompactionHistory ? t("chatWindow.returnToCompactHistory") : t("chatWindow.viewPreCompactionHistory")}
+                </button>
+              </div>
+            )}
+            <CommittedTranscript
+              messages={messages}
+              entryIds={entryIds}
+              conversationMeta={conversationMetaWithLive}
+              messageRefs={messageRefs}
+              isStreaming={streamState.isStreaming}
+              sessionBusy={sessionBusy}
+              externalRunActive={externalRunActive}
+              isNew={isNew}
+              forkingEntryId={forkingEntryId}
+              handleFork={handleFork}
+              handleNavigate={handleNavigate}
+              handleEditContent={handleEditContent}
+              modelNames={modelNames}
+              messageCwd={messageCwd}
+              onOpenFile={onOpenFile}
+              sessionId={session?.id ?? sessionIdRef.current ?? undefined}
+              toolCallsDefaultCollapsed={toolCallsDefaultCollapsed}
+              expandThinkingByDefault={expandThinkingByDefault}
+              hideThinkingBlock={hideThinkingBlock}
+              visibleCount={visibleCount}
+              nearBottom={nearBottom}
+              sentinelRef={sentinelRef}
+              handleLoadMoreClick={handleLoadMoreClick}
+            />
+            {/* Also while held: a finished reply stays until its saved row
+                replaces it in the same render (useAgentSession-stream). */}
+            {streamState.streamingMessage && (
+              <MessageView
+                key={streamState.streamingMessage.timestamp ?? "stream"}
+                message={streamState.streamingMessage as AgentMessage}
+                modelNames={modelNames}
+                cwd={messageCwd}
+                onOpenFile={onOpenFile}
+                toolResults={toolResultsWithLive}
+                toolCallsDefaultCollapsed={toolCallsDefaultCollapsed}
+                expandThinkingByDefault={expandThinkingByDefault}
+                hideThinking={hideThinkingBlock}
+                liveTokensPerSecond={streamState.isStreaming ? tokensPerSecond : undefined}
+              />
+            )}
+
+            {toolCallsDefaultCollapsed && pendingToolHeaders.map((tool) => (
+              <div
+                key={tool.id}
+                role="status"
+                aria-label={t("chatWindow.runningNamed", { names: tool.name })}
+                style={{
+                  display: "flex", alignItems: "center", gap: 7,
+                  marginBottom: 8, padding: "6px 10px",
+                  border: "1px solid color-mix(in srgb, var(--status-success) 25%, transparent)",
+                  borderRadius: "var(--radius-control)",
+                  background: "color-mix(in srgb, var(--status-success) 4%, transparent)",
+                  color: "var(--text-muted)", fontSize: 12,
+                }}
+              >
+                <span aria-hidden className="live-status-dot live-pulse inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
+                <span style={{ color: "var(--status-success)", fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11 }}>{tool.name}</span>
+              </div>
+            ))}
+
+
+            {pendingBash && (
+              <MessageView
+                message={{
+                  role: "bashExecution",
+                  command: pendingBash.command,
+                  output: "",
+                  excludeFromContext: pendingBash.excludeFromContext,
+                } as BashExecutionMessage}
+                sessionId={session?.id ?? sessionIdRef.current ?? undefined}
+              />
+            )}
+
+            <div ref={messagesEndRef} />
+            </div>
+          </div>
+        </div>
+        {!nearBottom && (
+          <button
+            type="button"
+            onClick={scrollToBottom}
+            title={t("chatWindow.scrollToBottom")}
+            aria-label={t("chatWindow.scrollToBottom")}
+            className="chat-scroll-bottom ui-focus-ring"
+            style={{ position: "absolute", right: isMobile ? 16 : 48, bottom: 16, zIndex: 35, display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, padding: 0, border: "1px solid var(--border)", borderRadius: "var(--radius-control)", background: "var(--bg-panel)", color: "var(--text-muted)", cursor: "pointer", boxShadow: "var(--shadow-pop)" }}
+          >
+            <ArrowDown size={15} strokeWidth={1.8} aria-hidden="true" />
+          </button>
+        )}
+        {isMobile ? null : (
+          <div style={{ position: "absolute", top: 0, bottom: 0, right: 0, zIndex: 30, display: "flex", alignItems: "center", pointerEvents: "none" }}>
+            <ChatMinimap
+              messages={messages}
+              scrollContainer={scrollContainerRef}
+              messageRefs={messageRefs}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Minimized pill bar - shown when composer is collapsed */}
+      {composerMinimized && (
+        <MinimizedComposerBar
+          draftKey={session?.id ?? (newSessionCwd ? `new:${newSessionCwd}` : undefined)}
+          isStreaming={sessionBusy}
+          isCompacting={isCompacting}
+          statusText={composerStatusText}
+          expandRef={minimizedExpandRef}
+          onExpand={handleExpand}
+          onAbort={handleAbort}
+          onAbortCompaction={handleAbortCompaction}
+        />
+      )}
+
+      {/* Full composer - always mounted; hidden when minimized to preserve ref + state.
+          A flex column that may shrink: when the panels + widgets + input are
+          taller than the viewport (soft keyboard up, Tasks expanded), the
+          panels block below scrolls and the input stays reachable instead of
+          being clipped off the bottom. */}
+      <div className="relative" style={{ display: composerMinimized ? "none" : "flex", flexDirection: "column", minHeight: 0 }}>
+        {/* Minimize chevron above the composer area */}
+        <div style={{ padding: `0 ${CHAT_COLUMN_PADDING}px`, flexShrink: 0 }}>
+          <div style={{ maxWidth: CHAT_COLUMN_MAX_WIDTH, margin: "0 auto", display: "flex", justifyContent: "center" }}>
+            <button
+              type="button"
+              onClick={handleMinimize}
+              title={t("chatWindow.minimizeComposer")}
+              aria-label={t("chatWindow.minimizeComposer")}
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center",
+                width: 44, height: 24,
+                background: "none", border: "none",
+                color: "var(--text-dim)",
+                cursor: "pointer", padding: 0,
+                borderRadius: 4,
+                transition: "color var(--dur-fast) var(--ease-out-warm), background var(--dur-fast) var(--ease-out-warm)",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.background = "var(--bg-hover)"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-dim)"; e.currentTarget.style.background = "none"; }}
+            >
+              <ChevronDown size={14} strokeWidth={1.8} />
+            </button>
+          </div>
+        </div>
+        <div
+          style={{
+            padding: `0 ${CHAT_COLUMN_PADDING}px`,
+            minHeight: 0,
+            overflowY: "auto",
+          }}
+        >
+          <div style={{ maxWidth: CHAT_COLUMN_MAX_WIDTH, margin: "0 auto" }}>
+            {extensionDialog && (
+              <div style={{ marginBottom: 8 }}>
+                <ExtensionDialog
+                  request={extensionDialog}
+                  onRespond={respondToExtensionUi}
+                  attached
+                />
+              </div>
+            )}
+            <SkillDiagnosticsNotice snapshot={skillDiagnostics} onDisable={() => setSkillStartupDiagnostics(false)} />
+            <ComposerPanels
+              todoPhases={todoPhases}
+              subagents={subagents}
+              onSelectSubagent={setSelectedSubagent}
+              btw={btwPanel}
+            />
+            <ExtensionWidgets widgets={belowEditorWidgets} />
+          </div>
+        </div>
+        {/* An open ask is answered (or cancelled) in its panel; hiding the
+            composer leaves no doubt where to type. Kept mounted so the
+            draft, attachments and a recording survive. */}
+        <div ref={hiddenComposerRef} style={{ display: askOpen ? "none" : "contents" }}>{chatInputElement}</div>
+      </div>
+      </>
+      )}
+      </div>
+    </AgentLinkContext.Provider>
+    </GithubRepoContext.Provider>
+    </SpeechSynthesisProvider>
+  );
+}
+
+function ExtensionStatusBar({ statuses }: { statuses: Array<{ key: string; text: string }> }) {
+  if (statuses.length === 0) return null;
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 8 }}>
+      {statuses.map((status) => (
+        <div
+          key={status.key}
+          className="ui-compact-surface"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            maxWidth: "100%",
+            padding: "4px 8px",
+            border: "1px solid color-mix(in srgb, var(--accent) 24%, var(--border))",
+            borderRadius: "var(--radius-control)",
+            background: "color-mix(in srgb, var(--accent) 7%, var(--bg))",
+            color: "var(--text-muted)",
+            fontSize: 12,
+          }}
+        >
+          <span style={{ color: "var(--accent)", fontFamily: "var(--font-mono)", fontSize: 11 }}>{status.key}</span>
+          <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{renderAnsiLine(status.text, status.key)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ExtensionWidgets({ widgets }: { widgets: Array<{ key: string; lines: string[] }> }) {
+  if (widgets.length === 0) return null;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
+      {widgets.map((widget) => (
+        <pre
+          key={widget.key}
+          className="ui-compact-surface"
+          role="group"
+          aria-label={widget.key}
+          title={widget.key}
+          style={{ margin: 0, padding: "8px 9px", fontSize: 12, lineHeight: 1.5, whiteSpace: "pre-wrap", wordBreak: "break-word", fontFamily: "var(--font-mono)" }}
+        >
+          {widget.lines.map((line, index, allLines) => (
+            <Fragment key={index}>
+              {renderAnsiLine(line, `${widget.key}-${index}`)}
+              {index < allLines.length - 1 ? "\n" : null}
+            </Fragment>
+          ))}
+        </pre>
+      ))}
+    </div>
+  );
+}
+
+function NoticeShelf({ notices, onDismiss, floating = false, align = "left" }: { notices: NoticeItem[]; onDismiss?: (id: string) => void; floating?: boolean; align?: "left" | "right" }) {
+  if (notices.length === 0) return null;
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: align === "right" ? "flex-end" : "stretch",
+        marginBottom: floating ? 0 : 10,
+        pointerEvents: floating ? "auto" : undefined,
+      }}
+    >
+      {notices.map((notice, index) => {
+        const color = notice.type === "error"
+          ? "var(--status-error)"
+          : notice.type === "warning"
+            ? "var(--status-warning)"
+            : notice.type === "success"
+              ? "var(--status-success)"
+              : "var(--accent)";
+        const isError = notice.type === "error";
+        return (
+          <div
+            key={notice.id}
+            className="notice-shelf-item"
+            style={{
+              display: "flex",
+              alignItems: isError ? "flex-start" : "center",
+              gap: 8,
+              minHeight: 36,
+              height: isError ? "auto" : 36,
+              maxHeight: isError ? 96 : 48,
+              marginBottom: index === notices.length - 1 ? 0 : 4,
+              overflow: "hidden",
+              borderRadius: "var(--radius-control)",
+              border: `1px solid ${isError ? "color-mix(in srgb, var(--status-error) 35%, var(--border))" : "color-mix(in srgb, var(--border) 70%, transparent)"}`,
+              background: isError ? "color-mix(in srgb, var(--status-error) 7%, var(--bg))" : "var(--bg)",
+              color: isError ? "var(--text)" : "var(--text-muted)",
+              width: "fit-content",
+              maxWidth: "min(100%, 640px)",
+              boxShadow: floating ? "var(--shadow-pop)" : "var(--shadow-card)",
+              fontSize: 12,
+              lineHeight: 1.4,
+              transformOrigin: "top center",
+              animation: notice.exiting
+                ? "notice-shelf-out var(--dur-med) ease-in forwards"
+                : "notice-shelf-in var(--dur-med) var(--ease-out-warm) both",
+              padding: isError ? "8px 8px 8px 10px" : "0 10px",
+            }}
+          >
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background: color,
+                flexShrink: 0,
+                marginTop: isError ? 6 : 0,
+              }}
+            />
+            <span
+              style={{
+                padding: isError ? "0" : "8px 0",
+                minWidth: 0,
+                maxWidth: "100%",
+                overflow: "hidden",
+                display: isError ? "-webkit-box" : "block",
+                WebkitLineClamp: isError ? 3 : undefined,
+                WebkitBoxOrient: isError ? "vertical" as const : undefined,
+                overflowWrap: "anywhere",
+                whiteSpace: isError ? "normal" : "nowrap",
+                textOverflow: isError ? "clip" : "ellipsis",
+                flex: 1,
+              }}
+              title={notice.message}
+            >
+              {notice.message}
+            </span>
+            {onDismiss && (
+              <button
+                type="button"
+                onClick={() => onDismiss(notice.id)}
+                aria-label="Dismiss"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  width: 18,
+                  height: 18,
+                  padding: 0,
+                  border: 0,
+                  borderRadius: "var(--radius-control)",
+                  background: "transparent",
+                  color: "var(--text-dim)",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                  marginTop: isError ? 1 : 0,
+                }}
+              >
+                <span aria-hidden style={{ fontSize: 12, lineHeight: 1 }}>×</span>
+              </button>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+type ExtensionCustomRequest = Extract<ExtensionUiRequest, { method: "custom" }>;
+
+function renderAnsiLine(line: string, keyPrefix: string): ReactNode[] {
+  return parseAnsiLine(line).map((segment, index) => (
+    Object.keys(segment.style).length > 0
+      ? <span key={`${keyPrefix}-${index}`} style={segment.style}>{segment.text}</span>
+      : segment.text
+  ));
+}
+
+function ExtensionCustomPanel({
+  request,
+  onInput,
+}: {
+  request: ExtensionCustomRequest;
+  onInput: (request: ExtensionCustomRequest, data: string) => void;
+}) {
+  const { t } = useI18n();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const composingRef = useRef(false);
+  const displayLines = normalizeCustomPanelLines(request.lines);
+  const panelRef = useModalDialog<HTMLDivElement>({
+    onClose: () => onInput(request, "\x03"),
+  });
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [request.id]);
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: 95,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 20,
+        background: "var(--overlay-backdrop)",
+      }}
+    >
+      <div
+        ref={panelRef}
+        aria-label={t("chatWindow.extensionPanel")}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        onClick={(event) => {
+          if (!(event.target as HTMLElement).closest("button")) inputRef.current?.focus();
+        }}
+        style={{
+          position: "relative",
+          width: "min(920px, 100%)",
+          maxHeight: "min(760px, calc(100vh - 40px))",
+          border: "1px solid var(--border)",
+          borderRadius: 8,
+          background: "var(--bg)",
+          boxShadow: "var(--shadow-modal)",
+          overflow: "hidden",
+          outline: "none",
+        }}
+      >
+        <textarea
+          ref={inputRef}
+          aria-label={t("chatWindow.extensionTerminalInput")}
+          autoCapitalize="off"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          onKeyDown={(event) => {
+            if (composingRef.current || event.nativeEvent.isComposing) return;
+            const data = toTerminalKeyData(event);
+            if (!data) return;
+            event.preventDefault();
+            event.stopPropagation();
+            onInput(request, data);
+          }}
+          onInput={(event) => {
+            if (composingRef.current || event.nativeEvent.isComposing) return;
+            const text = event.currentTarget.value;
+            event.currentTarget.value = "";
+            if (text) onInput(request, text);
+          }}
+          onCompositionStart={() => {
+            composingRef.current = true;
+          }}
+          onCompositionEnd={(event) => {
+            composingRef.current = false;
+            const input = event.currentTarget;
+            queueMicrotask(() => {
+              const text = input.value;
+              input.value = "";
+              if (text) onInput(request, text);
+            });
+          }}
+          onPaste={(event) => {
+            event.preventDefault();
+            const text = event.clipboardData.getData("text");
+            if (text) onInput(request, asBracketedPaste(text));
+          }}
+          style={{
+            position: "absolute",
+            width: 1,
+            height: 1,
+            padding: 0,
+            border: 0,
+            opacity: 0,
+            pointerEvents: "none",
+          }}
+        />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "10px 12px", borderBottom: "1px solid var(--border)" }}>
+          <div style={{ color: "var(--text)", fontSize: 13, fontWeight: 650 }}>{t("chatWindow.extensionPanel")}</div>
+          <button
+            onClick={() => onInput(request, "\x03")}
+            style={{
+              padding: "5px 9px",
+              borderRadius: 6,
+              border: "1px solid var(--border)",
+              background: "var(--bg-panel)",
+              color: "var(--text-muted)",
+              cursor: "pointer",
+              fontSize: 12,
+            }}
+          >
+            {t("chatWindow.close")}
+          </button>
+        </div>
+        <pre
+          style={{
+            margin: 0,
+            padding: 14,
+            maxHeight: "calc(min(760px, 100vh - 40px) - 48px)",
+            overflow: "auto",
+            background: "var(--bg-panel)",
+            color: "var(--text)",
+            fontFamily: "var(--font-mono)",
+            fontSize: 13,
+            lineHeight: 1.45,
+            whiteSpace: "pre",
+          }}
+        >
+          {(displayLines.length ? displayLines : [""]).map((line, index, allLines) => (
+            <Fragment key={index}>
+              {renderAnsiLine(line, `line-${index}`)}
+              {index < allLines.length - 1 ? "\n" : null}
+            </Fragment>
+          ))}
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+/** Slim pill bar replacing the full composer when minimized. */
+const MinimizedComposerBar = memo(function MinimizedComposerBar({ draftKey, isStreaming, isCompacting, statusText, expandRef, onExpand, onAbort, onAbortCompaction }: {
+  draftKey?: string;
+  isStreaming: boolean;
+  isCompacting?: boolean;
+  statusText?: string | null;
+  expandRef?: Ref<HTMLButtonElement>;
+  onExpand: () => void;
+  onAbort: () => void;
+  onAbortCompaction?: () => void;
+}) {
+  const { t } = useI18n();
+
+  /* Read draft summary for preview without cloning attachment payloads */
+  const summary = draftKey ? getDraftSummary(draftKey) : null;
+  const draftText = summary?.text?.trim() || null;
+  const hasAttachments = summary?.hasAttachments ?? false;
+  return (
+    <div style={{ flexShrink: 0, padding: "4px 16px calc(6px + env(safe-area-inset-bottom))" }}>
+      <div style={{ maxWidth: CHAT_COLUMN_MAX_WIDTH, margin: "0 auto" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0,
+            height: 36,
+            background: "var(--bg)",
+            border: "1px solid color-mix(in srgb, var(--border) 70%, transparent)",
+            borderRadius: "var(--radius-card)",
+            boxShadow: "var(--shadow-card)",
+            overflow: "hidden",
+          }}
+        >
+          {/* Expand button - fills remaining space */}
+          <button
+            ref={expandRef}
+            type="button"
+            onClick={onExpand}
+            title={t("chatWindow.expandComposer")}
+            aria-label={t("chatWindow.expandComposer")}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              flex: 1,
+              minWidth: 0,
+              height: "100%",
+              padding: "0 14px",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              textAlign: "left",
+            }}
+          >
+            <ChevronUp size={14} strokeWidth={1.8} style={{ flexShrink: 0, color: "var(--text-dim)" }} />
+            {hasAttachments && (
+              <Paperclip size={13} strokeWidth={1.8} style={{ flexShrink: 0, color: "var(--text-muted)" }} />
+            )}
+            {statusText ? (
+              <span style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                flex: 1,
+                minWidth: 0,
+                fontSize: 13,
+                color: "var(--text-muted)",
+              }}>
+                <span aria-hidden className="live-status-dot live-pulse inline-block h-2 w-2 shrink-0 rounded-full bg-accent" />
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {statusText}
+                </span>
+              </span>
+            ) : (
+              <span style={{
+                flex: 1,
+                minWidth: 0,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                fontSize: 14,
+                color: draftText ? "var(--text)" : "var(--text-dim)",
+              }}>
+                {draftText ?? t("chatInput.placeholder")}
+              </span>
+            )}
+          </button>
+
+          {/* Stop button - sibling, only when agent is running */}
+          {isStreaming && (
+            <button
+              type="button"
+              onClick={() => {
+                if (isCompacting && onAbortCompaction) onAbortCompaction();
+                else onAbort();
+              }}
+              title={t("chatInput.stopAgent")}
+              aria-label={t("chatInput.stopAgent")}
+              style={{
+                display: "flex", alignItems: "center", gap: 5,
+                height: 26,
+                padding: "0 12px",
+                marginRight: 5,
+                background: "var(--accent-strong)",
+                border: "none",
+                borderRadius: 7,
+                color: "var(--on-accent)",
+                cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 600,
+                flexShrink: 0,
+              }}
+            >
+              <Square size={9} strokeWidth={0} fill="currentColor" aria-hidden="true" />
+              {t("chatInput.stop")}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});

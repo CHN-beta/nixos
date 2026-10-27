@@ -1,0 +1,768 @@
+
+import { memo, useCallback, useRef, useState } from "react";
+import type { AgentMessage, ExitedRpcSession, ManagedProject, ProjectLaunchConfig, SessionInfo } from "@/lib/types";
+import { formatExitedSessionNotice, useI18n } from "@/lib/i18n";
+import { ChevronDown, ChevronRight, Folder, GitBranch, MoreHorizontal } from "lucide-react";
+import { Tooltip } from "./ui/primitives";
+import { ConfirmDialog } from "./ui/field";
+import { copyText } from "@/lib/clipboard";
+import { transcriptToMarkdown } from "@/lib/transcript";
+import { toast } from "./ui/toast";
+import {
+  MAX_PROJECT_SESSIONS,
+  formatRelativeTime,
+  projectLabel,
+  type SessionTreeNode,
+} from "./SessionSidebar-helpers";
+import {
+  ExitedSessionIndicator,
+  RunningSessionIndicator,
+  SIDEBAR_BUTTON_TRANSITION,
+  SidebarPortalMenu,
+  UnreadSessionIndicator,
+} from "./SessionSidebar-chrome";
+
+/**
+ * Shared indicator sizing; session rows keep theirs in the right-edge column.
+ *
+ * Keep the session indicator outside the timestamp and action controls so it
+ * stays visible while the menu is open.
+ */
+const SIDEBAR_STATUS_SLOT = 12;
+const SIDEBAR_STATUS_GAP = 2;
+
+interface ProjectRowProps {
+  project: ManagedProject;
+  isActive: boolean;
+  isExpanded: boolean;
+  activity: { running: number; unread: number; exited: number } | undefined;
+  tree: SessionTreeNode[];
+  /** Sessions beyond the cap (0 when a filter is active — show all matches). */
+  hiddenCount: number;
+  selectedSessionId: string | null;
+  runningSessionIds: Set<string>;
+  unreadSessionIds: Set<string>;
+  exitedSessions: Map<string, ExitedRpcSession>;
+  relativeTimeNow: number;
+  onActivate: (path: string) => void;
+  onToggleExpand: (path: string) => void;
+  onRemoveProject: (path: string) => void;
+  onEditLaunchConfig: (project: ManagedProject) => void;
+  onUpdatePresentation: (path: string, updates: { alias?: string | null; sortOrder?: number | null; launchConfig?: ProjectLaunchConfig | null }) => void;
+  onDragPathChange: (path: string | null) => void;
+  onDropProject: (path: string) => void;
+  onMoveProject: (path: string, delta: -1 | 1) => void;
+  isDragTarget: boolean;
+  removeBusy: boolean;
+  onSelectSession: (s: SessionInfo) => void;
+  onRenamed?: () => void;
+  onSessionDeleted?: (id: string) => void;
+}
+
+/** One project in the sidebar: a card row matching the session items' visual
+ *  language, with the project's session tree (capped at MAX_PROJECT_SESSIONS
+ *  roots, with a show-more toggle) nested under it when expanded. */
+function ProjectRow({
+  project,
+  isActive,
+  isExpanded,
+  activity,
+  tree,
+  hiddenCount,
+  selectedSessionId,
+  runningSessionIds,
+  unreadSessionIds,
+  exitedSessions,
+  relativeTimeNow,
+  onActivate,
+  onToggleExpand,
+  onRemoveProject,
+  onEditLaunchConfig,
+  onUpdatePresentation,
+  onDragPathChange,
+  onDropProject,
+  onMoveProject,
+  isDragTarget,
+  removeBusy,
+  onSelectSession,
+  onRenamed,
+  onSessionDeleted,
+}: ProjectRowProps) {
+  const { t } = useI18n();
+  const [hovered, setHovered] = useState(false);
+  const [showAllSessions, setShowAllSessions] = useState(false);
+  const [actionMenuOpen, setActionMenuOpen] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const actionButtonRef = useRef<HTMLButtonElement>(null);
+  const [aliasEditing, setAliasEditing] = useState(false);
+  const [aliasValue, setAliasValue] = useState("");
+  const aliasInputRef = useRef<HTMLInputElement>(null);
+  const aliasCancelRef = useRef(false);
+
+  const startAliasEdit = useCallback(() => {
+    setAliasValue(project.alias ?? "");
+    setAliasEditing(true);
+    setTimeout(() => aliasInputRef.current?.select(), 0);
+  }, [project.alias]);
+
+  const commitAliasEdit = useCallback(() => {
+    if (aliasCancelRef.current) {
+      aliasCancelRef.current = false;
+      setAliasEditing(false);
+      return;
+    }
+    const alias = aliasValue.trim();
+    setAliasEditing(false);
+    if (alias === (project.alias ?? "")) return;
+    void onUpdatePresentation(project.path, { alias });
+  }, [aliasValue, project.alias, project.path, onUpdatePresentation]);
+  const label = project.alias ?? projectLabel(project.path);
+  const hasActivity = Boolean(activity && (activity.running > 0 || activity.unread > 0 || activity.exited > 0));
+  const visibleRoots = hiddenCount > 0 && !showAllSessions
+    ? tree.slice(0, MAX_PROJECT_SESSIONS)
+    : tree;
+
+  return (
+    <section className="sidebar-project" data-active={isActive ? "true" : "false"} style={{ marginBottom: 12 }}>
+      <ConfirmDialog
+        open={confirmRemove}
+        onOpenChange={setConfirmRemove}
+        title={<span style={{ overflowWrap: "anywhere" }}>{t("projects.remove", { name: label })}</span>}
+        description={<span style={{ overflowWrap: "anywhere" }}>{t("projects.removeTitle", { name: label })}</span>}
+        confirmLabel={t("projects.removeConfirmLabel")}
+        cancelLabel={t("sessionSidebar.cancel")}
+        danger
+        busy={removeBusy}
+        onConfirm={() => {
+          if (removeBusy) return;
+          setConfirmRemove(false);
+          onRemoveProject(project.path);
+        }}
+      />
+      <div
+        className="sidebar-project-header"
+        draggable={!aliasEditing}
+        onDragStart={(event) => { event.dataTransfer.setData("text/plain", project.path); event.dataTransfer.effectAllowed = "move"; onDragPathChange(project.path); }}
+        onDragOver={(event) => { if (isDragTarget) { event.preventDefault(); event.dataTransfer.dropEffect = "move"; } }}
+        onDrop={(event) => { event.preventDefault(); onDropProject(project.path); }}
+        onDragEnd={() => onDragPathChange(null)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && actionMenuOpen) {
+            event.stopPropagation();
+            setActionMenuOpen(false);
+          }
+        }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 2,
+          minHeight: 30,
+          margin: 0,
+          padding: "0 6px 0 0",
+          borderRadius: "var(--radius-control)",
+          background: isActive
+            ? (hovered ? "var(--bg-hover)" : "var(--bg-subtle)")
+            : (hovered ? "var(--bg-hover)" : "transparent"),
+          transition: SIDEBAR_BUTTON_TRANSITION,
+          ...(isDragTarget ? { outline: "1px solid var(--accent)", outlineOffset: -1 } : {}),
+        }}
+      >
+        <div style={{ flex: 1, minWidth: 0, alignSelf: "stretch", display: "flex", alignItems: "center", gap: SIDEBAR_STATUS_GAP }}>
+          {aliasEditing ? (
+            <div
+              className="sidebar-project-identity"
+              onClick={(event) => event.stopPropagation()}
+              style={{
+                flex: 1,
+                minWidth: 0,
+                alignSelf: "stretch",
+                display: "flex",
+                alignItems: "center",
+                gap: 7,
+                padding: "0 4px 0 10px",
+              }}
+            >
+              <Folder
+                size={15}
+                strokeWidth={1.8}
+                style={{ flexShrink: 0, color: "var(--text-muted)" }}
+                aria-hidden="true"
+              />
+              <input
+                ref={aliasInputRef}
+                autoFocus
+                aria-label={t("projects.aliasPrompt")}
+                value={aliasValue}
+                onChange={(event) => setAliasValue(event.target.value)}
+                onBlur={commitAliasEdit}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    commitAliasEdit();
+                  }
+                  if (event.key === "Escape") {
+                    event.preventDefault();
+                    aliasCancelRef.current = true;
+                    setAliasEditing(false);
+                  }
+                }}
+                style={{ flex: 1, minWidth: 0, height: 22, padding: "2px 6px", border: "1px solid var(--accent)", borderRadius: "var(--radius-control)", outline: "none", background: "var(--bg)", color: "var(--text)", fontSize: 12, fontFamily: "var(--font-mono)", fontWeight: 600 }}
+              />
+            </div>
+          ) : (
+            <Tooltip
+              content={(
+                <span style={{ display: "grid", gap: 3, maxWidth: 360, whiteSpace: "pre-wrap", overflowWrap: "anywhere", fontFamily: "var(--font-mono)", fontSize: 11 }}>
+                  <strong style={{ fontFamily: "inherit", fontSize: 11 }}>{t("sessionSidebar.launchConfigDirectory")}</strong>
+                  <span>{project.path}</span>
+                  {project.launchConfig?.profile && <span>profile: {project.launchConfig.profile}</span>}
+                  {project.launchConfig?.advisor && <span>--advisor</span>}
+                  {project.launchConfig?.extraArgs?.map((arg, index) => <span key={`${arg}-${index}`}>{arg}</span>)}
+                </span>
+              )}
+              side="right"
+            >
+            <button
+              className="sidebar-project-identity"
+              onClick={() => onActivate(project.path)}
+              aria-current={isActive ? "true" : undefined}
+              title={project.path}
+              style={{
+                flex: "0 1 auto",
+                minWidth: 0,
+                alignSelf: "stretch",
+                display: "flex",
+                alignItems: "center",
+                gap: 7,
+                padding: "0 4px 0 10px",
+                background: "none", border: "none",
+                color: isActive ? "var(--text)" : hovered ? "var(--text)" : "var(--text-muted)",
+                cursor: "pointer",
+                textAlign: "left",
+              }}
+            >
+              <Folder
+                size={15}
+                strokeWidth={1.8}
+                style={{ flexShrink: 0, color: isActive ? "var(--accent)" : hovered ? "var(--text-muted)" : "var(--text-dim)", transition: "color var(--dur-fast) var(--ease-out-warm)" }}
+                aria-hidden="true"
+              />
+              <span
+                style={{
+                  minWidth: 0,
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1.25,
+                }}
+              >
+                {label}
+              </span>
+            </button>
+            </Tooltip>
+          )}
+            {hasActivity && (
+              <span
+                aria-label={t("projects.activity", { running: activity?.running ?? 0, unread: activity?.unread ?? 0, exited: activity?.exited ?? 0 })}
+                title={t("projects.activity", { running: activity?.running ?? 0, unread: activity?.unread ?? 0, exited: activity?.exited ?? 0 })}
+                className="sidebar-project-activity"
+                data-running={(activity?.running ?? 0) > 0 ? "true" : "false"}
+                role="status"
+                aria-live="polite"
+                style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: SIDEBAR_STATUS_SLOT, height: SIDEBAR_STATUS_SLOT, flexShrink: 0, lineHeight: 0 }}
+              >
+                {(activity?.exited ?? 0) > 0 ? (
+                  <ExitedSessionIndicator title={t("projects.exited", { count: activity?.exited ?? 0 })} size={11} />
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className="sidebar-project-activity-dot"
+                    style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--accent)" }}
+                  />
+                )}
+              </span>
+            )}
+        </div>
+        <div
+          className="sidebar-project-actions"
+          style={{
+            flexShrink: 0,
+          }}
+        >
+          <button
+            type="button"
+            ref={actionButtonRef}
+            className="sidebar-project-action"
+            onClick={() => setActionMenuOpen((open) => !open)}
+            disabled={removeBusy}
+            aria-label={t("commandPalette.actions")}
+            title={t("commandPalette.actions")}
+            aria-expanded={actionMenuOpen}
+            aria-haspopup="menu"
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, padding: 0, border: "none", borderRadius: "var(--radius-control)", background: actionMenuOpen ? "var(--bg-selected)" : "transparent", color: "var(--text-dim)", cursor: removeBusy ? "default" : "pointer", opacity: removeBusy ? 0.5 : 1, lineHeight: 0, transition: SIDEBAR_BUTTON_TRANSITION }}
+          >
+            <MoreHorizontal size={13} strokeWidth={2} aria-hidden="true" />
+          </button>
+          <SidebarPortalMenu
+            anchor={actionButtonRef}
+            open={actionMenuOpen}
+            onClose={() => setActionMenuOpen(false)}
+            placement="below"
+            minWidth={136}
+          >
+            <button type="button" role="menuitem" className="sidebar-menu-item" onClick={() => { startAliasEdit(); setActionMenuOpen(false); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text)", cursor: "pointer", textAlign: "left", fontSize: 11 }}>
+              {project.alias ? t("projects.editAlias") : t("projects.nameAlias")}
+            </button>
+            <button type="button" role="menuitem" className="sidebar-menu-item" onClick={() => { onEditLaunchConfig(project); setActionMenuOpen(false); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text)", cursor: "pointer", textAlign: "left", fontSize: 11 }}>
+              {project.launchConfig ? t("sessionSidebar.editLaunchConfig") : t("sessionSidebar.configureLaunchConfig")}
+            </button>
+            <button type="button" role="menuitem" className="sidebar-menu-item" onClick={() => { setActionMenuOpen(false); void onMoveProject(project.path, -1); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text)", cursor: "pointer", textAlign: "left", fontSize: 11 }}>
+              {t("projects.moveUp")}
+            </button>
+            <button type="button" role="menuitem" className="sidebar-menu-item" onClick={() => { setActionMenuOpen(false); void onMoveProject(project.path, 1); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text)", cursor: "pointer", textAlign: "left", fontSize: 11 }}>
+              {t("projects.moveDown")}
+            </button>
+            <button type="button" role="menuitem" className="sidebar-menu-item" disabled={removeBusy} onClick={() => { setActionMenuOpen(false); setConfirmRemove(true); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--status-error)", cursor: removeBusy ? "default" : "pointer", textAlign: "left", fontSize: 11 }}>
+              {t("projects.remove", { name: label })}
+            </button>
+          </SidebarPortalMenu>
+        </div>
+        <button
+          className="sidebar-project-toggle"
+          onClick={() => onToggleExpand(project.path)}
+          aria-label={isExpanded ? t("projects.collapseProject", { name: label }) : t("projects.expandProject", { name: label })}
+          aria-expanded={isExpanded}
+          title={isExpanded ? t("projects.collapseProjectTitle", { path: project.path }) : t("projects.expandProjectTitle", { path: project.path })}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 22, height: 26, padding: 0, flexShrink: 0,
+            background: "none", border: "none",
+            color: "var(--text-dim)", cursor: "pointer", lineHeight: 0,
+            borderRadius: "var(--radius-control)",
+            transition: "color var(--dur-fast) var(--ease-out-warm)",
+          }}
+        >
+          <ChevronRight
+            size={13}
+            strokeWidth={1.8}
+            style={{ transform: isExpanded ? "rotate(90deg)" : "none", transition: "transform var(--dur-fast) var(--ease-out-warm)" }}
+            aria-hidden="true"
+          />
+        </button>
+      </div>
+
+      {isExpanded && (
+        <div className="sidebar-project-sessions" style={{ margin: "2px 0 0" }}>
+          {visibleRoots.length === 0 ? (
+            <div style={{ padding: "6px 12px 8px 34px", color: "var(--text-dim)", fontSize: 11 }}>
+              {t("projects.emptyProject")}
+            </div>
+          ) : (
+            <>
+              {visibleRoots.map((node) => (
+                <SessionTreeItem
+                  key={node.session.id}
+                  node={node}
+                  selectedSessionId={selectedSessionId}
+                  runningSessionIds={runningSessionIds}
+                  unreadSessionIds={unreadSessionIds}
+                  exitedSessions={exitedSessions}
+                  relativeTimeNow={relativeTimeNow}
+                  onSelectSession={onSelectSession}
+                  onRenamed={onRenamed}
+                  onSessionDeleted={onSessionDeleted}
+                  depth={0}
+                />
+              ))}
+              {hiddenCount > 0 && (
+                <button
+                  onClick={() => setShowAllSessions((v) => !v)}
+                  aria-expanded={showAllSessions}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    width: "100%",
+                    margin: "2px 0 0",
+                    padding: "5px 8px 5px 34px",
+                    background: "none",
+                    border: "none",
+                    color: "var(--text-dim)",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    fontSize: 11,
+                    fontWeight: 600,
+                    borderRadius: "var(--radius-control)",
+                    transition: SIDEBAR_BUTTON_TRANSITION,
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent)"; e.currentTarget.style.background = "var(--bg-hover)"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-dim)"; e.currentTarget.style.background = "none"; }}
+                >
+                  <ChevronDown size={11} strokeWidth={1.8} style={{ flexShrink: 0, transform: showAllSessions ? "rotate(180deg)" : "none", transition: "transform var(--dur-fast) var(--ease-out-warm)" }} aria-hidden="true" />
+                  {showAllSessions
+                    ? t("projects.showLess")
+                    : t("projects.showMoreSessions", { count: hiddenCount })}
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+const SessionTreeItem = memo(function SessionTreeItem({
+  node,
+  selectedSessionId,
+  runningSessionIds,
+  unreadSessionIds,
+  exitedSessions,
+  relativeTimeNow,
+  onSelectSession,
+  onRenamed,
+  onSessionDeleted,
+  depth,
+}: {
+  node: SessionTreeNode;
+  selectedSessionId: string | null;
+  runningSessionIds: Set<string>;
+  unreadSessionIds: Set<string>;
+  exitedSessions: Map<string, ExitedRpcSession>;
+  relativeTimeNow: number;
+  onSelectSession: (s: SessionInfo) => void;
+  onRenamed?: () => void;
+  onSessionDeleted?: (id: string) => void;
+  depth: number;
+}) {
+  const [collapsed, setCollapsed] = useState(false);
+  const hasChildren = node.children.length > 0;
+  const sessionId = node.session.id;
+
+  // Pre-compute the booleans so SessionItem only sees primitives — its memo
+  // check then never re-renders unless this row's flags actually changed.
+  const isSelected = sessionId === selectedSessionId;
+  const isRunning = runningSessionIds.has(sessionId);
+  const isUnread = unreadSessionIds.has(sessionId);
+  const exited = exitedSessions.get(sessionId);
+
+  // Stable callbacks: depend only on primitives / stable parent callbacks so
+  // SessionItem's React.memo stays effective across re-renders.
+  const handleClick = useCallback(() => {
+    onSelectSession(node.session);
+  }, [onSelectSession, node.session]);
+  const handleDeleted = useCallback((id: string) => {
+    onSessionDeleted?.(id);
+  }, [onSessionDeleted]);
+  const handleToggleCollapse = useCallback(() => {
+    setCollapsed((v) => !v);
+  }, []);
+
+  return (
+    <div>
+      <div style={{ position: "relative" }}>
+        {/* Indent line for child sessions */}
+        {depth > 0 && (
+          <div style={{
+            position: "absolute",
+            left: depth * 14 + 22,
+            top: 0, bottom: 0,
+            width: 1,
+            background: "var(--border)",
+            pointerEvents: "none",
+          }} />
+        )}
+        <SessionItem
+          session={node.session}
+          isSelected={isSelected}
+          isRunning={isRunning}
+          isUnread={isUnread}
+          exited={exited}
+          relativeTimeNow={relativeTimeNow}
+          onClick={handleClick}
+          onRenamed={onRenamed}
+          onDeleted={handleDeleted}
+          depth={depth}
+          hasChildren={hasChildren}
+          collapsed={collapsed}
+          onToggleCollapse={handleToggleCollapse}
+        />
+      </div>
+      {hasChildren && !collapsed && (
+        <div>
+          {node.children.map((child) => (
+            <SessionTreeItem
+              key={child.session.id}
+              node={child}
+              selectedSessionId={selectedSessionId}
+              runningSessionIds={runningSessionIds}
+              unreadSessionIds={unreadSessionIds}
+              exitedSessions={exitedSessions}
+              relativeTimeNow={relativeTimeNow}
+              onSelectSession={onSelectSession}
+              onRenamed={onRenamed}
+              onSessionDeleted={onSessionDeleted}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}, (prev, next) => {
+  // Deep-changed inputs warrant a re-render; otherwise skip.
+  if (prev.node !== next.node) return false;
+  if (prev.selectedSessionId !== next.selectedSessionId) {
+    // Only re-render if THIS node's selection state flipped.
+    const id = prev.node.session.id;
+    if ((id === prev.selectedSessionId) !== (id === next.selectedSessionId)) return false;
+  }
+  if (prev.runningSessionIds !== next.runningSessionIds) {
+    const id = prev.node.session.id;
+    if (prev.runningSessionIds.has(id) !== next.runningSessionIds.has(id)) return false;
+  }
+  if (prev.unreadSessionIds !== next.unreadSessionIds) {
+    const id = prev.node.session.id;
+    if (prev.unreadSessionIds.has(id) !== next.unreadSessionIds.has(id)) return false;
+  }
+  if (prev.exitedSessions !== next.exitedSessions) return false;
+  if (prev.relativeTimeNow !== next.relativeTimeNow) return false;
+  if (prev.onSelectSession !== next.onSelectSession
+    || prev.onRenamed !== next.onRenamed
+    || prev.onSessionDeleted !== next.onSessionDeleted) return false;
+  return true;
+});
+const SessionItem = memo(function SessionItem({
+  session,
+  isSelected,
+  isRunning,
+  isUnread,
+  exited,
+  onClick,
+  onRenamed,
+  onDeleted,
+  depth = 0,
+  hasChildren = false,
+  collapsed = false,
+  relativeTimeNow,
+  onToggleCollapse,
+}: {
+  session: SessionInfo;
+  isSelected: boolean;
+  isRunning?: boolean;
+  isUnread?: boolean;
+  exited?: ExitedRpcSession;
+  onClick: () => void;
+  onRenamed?: () => void;
+  onDeleted?: (id: string) => void;
+  depth?: number;
+  hasChildren?: boolean;
+  relativeTimeNow: number;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
+}) {
+  const { t, locale } = useI18n();
+  const exitTitle = exited ? formatExitedSessionNotice(exited) : "";
+  const [hovered, setHovered] = useState(false);
+  const [renaming, setRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState("");
+  const renameCancelRef = useRef(false);
+ const [confirmDelete, setConfirmDelete] = useState(false);
+  const [actionMenuOpen, setActionMenuOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const contentButtonRef = useRef<HTMLButtonElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const title = session.name || session.firstMessage.slice(0, 50) || session.id.slice(0, 12);
+  const relativeTime = formatRelativeTime(session.modified, locale, relativeTimeNow);
+  const rowBackground = isSelected
+    ? "color-mix(in srgb, var(--bg-selected) 70%, transparent)"
+    : hovered ? "var(--bg-hover)" : "transparent";
+
+  const startRename = useCallback((event: React.MouseEvent) => {
+    event.stopPropagation();
+    setRenameValue(session.name ?? "");
+    setRenaming(true);
+    setTimeout(() => inputRef.current?.select(), 0);
+  }, [session.name]);
+
+  const commitRename = useCallback(async () => {
+    if (renameCancelRef.current) {
+      renameCancelRef.current = false;
+      return;
+    }
+    const name = renameValue.trim();
+    setRenaming(false);
+    if (name === (session.name ?? "")) return;
+    try {
+      const response = await fetch(`/api/sessions/${encodeURIComponent(session.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      if (!response.ok) throw new Error("Session rename failed");
+      onRenamed?.();
+    } catch {
+      // The next refresh remains authoritative if the rename fails.
+    }
+  }, [renameValue, session.id, session.name, onRenamed]);
+
+ const handleArchive = useCallback(async () => {
+ setDeleting(true);
+ try {
+ const response = await fetch(`/api/sessions/${encodeURIComponent(session.id)}/archive`, { method: "POST" });
+ if (!response.ok) throw new Error("Session archive failed");
+ onDeleted?.(session.id);
+ } catch {
+ setDeleting(false);
+ toast.error(t("sessionSidebar.archiveFailed"));
+ }
+ }, [session.id, onDeleted, t]);
+
+  const handleDelete = useCallback(async () => {
+    if (deleting) return;
+    setConfirmDelete(false);
+    setDeleting(true);
+    try {
+      const response = await fetch(`/api/sessions/${encodeURIComponent(session.id)}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Session deletion failed");
+      onDeleted?.(session.id);
+    } catch {
+      setDeleting(false);
+      toast.error(t("sessionSidebar.deleteFailed"));
+    }
+  }, [session.id, onDeleted, t, deleting]);
+  const [copyingTranscript, setCopyingTranscript] = useState(false);
+  const handleCopyTranscript = useCallback(async () => {
+    if (copyingTranscript) return;
+    setCopyingTranscript(true);
+    try {
+      const response = await fetch(`/api/sessions/${encodeURIComponent(session.id)}`);
+      if (!response.ok) throw new Error("Session transcript fetch failed");
+      const data = await response.json() as { context?: { messages?: AgentMessage[] }; info?: { cwd?: string } };
+      const markdown = transcriptToMarkdown(data.context?.messages ?? [], { title, cwd: data.info?.cwd ?? session.cwd });
+      await copyText(markdown);
+      toast.success(t("sessionSidebar.copyTranscriptCopied"));
+    } catch {
+      toast.error(t("sessionSidebar.copyTranscriptFailed"));
+    } finally {
+      setCopyingTranscript(false);
+    }
+  }, [copyingTranscript, session.id, session.cwd, title, t]);
+
+ const closeConfirmation = useCallback(() => {
+ setConfirmDelete(false);
+ setActionMenuOpen(false);
+ requestAnimationFrame(() => contentButtonRef.current?.focus());
+ }, []);
+
+  return (
+    <>
+    <div
+      className="session-item-row"
+ onClick={confirmDelete || renaming ? undefined : onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onKeyDown={(event) => {
+        if ((confirmDelete || actionMenuOpen) && event.key === "Escape") {
+          event.stopPropagation();
+          closeConfirmation();
+        }
+      }}
+      style={{
+        height: 30,
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        width: "100%",
+        margin: "1px 0",
+        padding: `0 8px 0 ${30 + depth * 14}px`,
+        position: "relative",
+        overflow: "hidden",
+        background: rowBackground,
+        opacity: deleting ? 0.5 : 1,
+        cursor: renaming ? "default" : "pointer",
+        transition: "background var(--dur-fast) var(--ease-out-warm), opacity var(--dur-fast) var(--ease-out-warm)",
+      }}
+    >
+      {isSelected && (
+        <span
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: 20 + depth * 14,
+            top: 0,
+            bottom: 0,
+            width: 2,
+            borderRadius: 1,
+            background: "var(--accent)",
+            pointerEvents: "none",
+          }}
+        />
+      )}
+      {renaming ? (
+        <input ref={inputRef} autoFocus aria-label={t("sessionSidebar.rename")} value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onBlur={commitRename} onKeyDown={(event) => { if (event.key === "Enter") void commitRename(); if (event.key === "Escape") { event.preventDefault(); renameCancelRef.current = true; setRenaming(false); } }} style={{ flex: 1, height: 25, padding: "3px 7px", border: "1px solid var(--accent)", borderRadius: "var(--radius-control)", outline: "none", background: "var(--bg)", color: "var(--text)", fontSize: 12 }} />
+      ) : (
+        <>
+          {depth > 0 && <GitBranch size={11} strokeWidth={2} style={{ flexShrink: 0, color: "var(--text-dim)" }} aria-hidden="true" />}
+          <button ref={contentButtonRef} type="button" className="session-item-button" aria-current={isSelected ? "true" : undefined} onKeyDown={(event) => { if (event.key === "Delete" && !deleting) { event.preventDefault(); setConfirmDelete(true); } }} style={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0 }}>
+            <span title={title} style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text)", fontSize: 12.5, fontWeight: isSelected ? 600 : 500, lineHeight: 1.35, letterSpacing: "-0.005em" }}>
+              {title}
+            </span>
+          </button>
+          {hasChildren && <button className="session-item-icon-button" onClick={(event) => { event.stopPropagation(); onToggleCollapse?.(); }} title={collapsed ? t("sessionSidebar.expandForks") : t("sessionSidebar.collapseForks")} aria-label={collapsed ? t("sessionSidebar.expandForks") : t("sessionSidebar.collapseForks")} aria-expanded={!collapsed} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, padding: 0, flexShrink: 0, border: "none", background: "none", color: "var(--text-dim)", cursor: "pointer", transform: collapsed ? "rotate(-90deg)" : "none", transition: "transform var(--dur-fast) var(--ease-out-warm)" }}><ChevronDown size={12} strokeWidth={1.8} aria-hidden="true" /></button>}
+          <div style={{ display: "flex", alignItems: "center", gap: SIDEBAR_STATUS_GAP, flexShrink: 0 }}>
+            {(isRunning || exited || isUnread) && (
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: SIDEBAR_STATUS_SLOT, height: SIDEBAR_STATUS_SLOT, flexShrink: 0 }}>
+                {isRunning
+                  ? <RunningSessionIndicator size={12} />
+                  : exited
+                    ? <ExitedSessionIndicator title={exitTitle} size={12} />
+                    : <UnreadSessionIndicator size={11} />}
+              </span>
+            )}
+            <div className="session-item-trailing" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", flexShrink: 0 }}>
+              <div className="session-item-metadata" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+                {relativeTime && <span className="session-item-time" title={new Date(session.modified).toLocaleString(locale)} style={{ flexShrink: 0, whiteSpace: "nowrap", textAlign: "right", color: isSelected ? "var(--accent)" : "var(--text-dim)", fontSize: 10, fontVariantNumeric: "tabular-nums" }}>{relativeTime}</span>}
+              </div>
+              <div className="session-item-actions" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
+                <button type="button" ref={menuButtonRef} className="session-item-icon-button session-item-menu-button" onClick={(event) => { event.stopPropagation(); setActionMenuOpen((open) => !open); }} title={t("projects.actions")} aria-label={t("projects.actions")} aria-expanded={actionMenuOpen} style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 0, lineHeight: 0, border: "none", borderRadius: "var(--radius-control)", background: actionMenuOpen ? "var(--bg-selected)" : "transparent", color: actionMenuOpen ? "var(--text)" : "var(--text-dim)", cursor: "pointer" }}>
+                  <MoreHorizontal size={14} strokeWidth={2} aria-hidden="true" />
+                </button>
+                <SidebarPortalMenu anchor={menuButtonRef} open={actionMenuOpen} onClose={() => setActionMenuOpen(false)} placement="below" minWidth={128}>
+ <button type="button" role="menuitem" className="sidebar-menu-item" onClick={(event) => { event.stopPropagation(); setActionMenuOpen(false); void handleArchive(); }} disabled={hasChildren} title={hasChildren ? t("sessionSidebar.archiveLeafOnly") : t("sessionSidebar.archive")} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: hasChildren ? "var(--text-dim)" : "var(--text-muted)", cursor: hasChildren ? "not-allowed" : "pointer", textAlign: "left", fontSize: 11, opacity: hasChildren ? 0.55 : 1 }}>{t("sessionSidebar.archive")}</button>
+                  <button type="button" role="menuitem" className="sidebar-menu-item" onClick={(event) => { startRename(event); setActionMenuOpen(false); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text-muted)", cursor: "pointer", textAlign: "left", fontSize: 11 }}>{t("sessionSidebar.rename")}</button>
+                  <button type="button" role="menuitem" className="sidebar-menu-item" onClick={(event) => { event.stopPropagation(); setActionMenuOpen(false); void handleCopyTranscript(); }} disabled={copyingTranscript} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text-muted)", cursor: copyingTranscript ? "default" : "pointer", textAlign: "left", fontSize: 11, opacity: copyingTranscript ? 0.55 : 1 }}>{t("sessionSidebar.copyTranscript")}</button>
+                  <button type="button" role="menuitem" className="sidebar-menu-item" disabled={deleting} onClick={(event) => { event.stopPropagation(); setActionMenuOpen(false); setConfirmDelete(true); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--status-error)", cursor: "pointer", textAlign: "left", fontSize: 11 }}>{t("sessionSidebar.delete")}</button>
+                </SidebarPortalMenu>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+      <ConfirmDialog
+        open={confirmDelete}
+        onOpenChange={(open) => { if (open) setConfirmDelete(true); else closeConfirmation(); }}
+        title={<span style={{ overflowWrap: "anywhere" }}>{t("sessionSidebar.deleteConfirm", { title })}</span>}
+        description={t("sessionSidebar.deleteConfirmBody")}
+        confirmLabel={t("sessionSidebar.delete")}
+        cancelLabel={t("sessionSidebar.cancel")}
+        danger
+        busy={deleting}
+        onConfirm={handleDelete}
+      />
+    </>
+  );
+});
+export {
+  ProjectRow,
+  SessionItem,
+  SessionTreeItem,
+  type ProjectRowProps,
+};

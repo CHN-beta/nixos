@@ -202,6 +202,10 @@ rec {
   translate-mcp = pkgs.callPackage ./translate-mcp.nix { };
   matrix-mcp = pkgs.pkgsUnstable.callPackage ./matrix-mcp.nix { };
   freshman-followup = pkgs.callPackage ./freshman-followup { };
+  aidesk = {
+    frontend = pkgs.callPackage ./aidesk/frontend { };
+    backend = pkgs.callPackage ./aidesk/backend { };
+  };
   bge-m3-server = pkgs.callPackage ./bge-m3-server { };
   mcp-server-qdrant = pkgs.callPackage ./mcp-server-qdrant.nix {
     python = pkgs.python313;
