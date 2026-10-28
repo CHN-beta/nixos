@@ -187,7 +187,6 @@ in
           (
             [
               "gitea-client-secret-hash"
-              "users/chn"
               "users/straycat"
               "users/wyh"
               "users/lcl"
@@ -202,7 +201,6 @@ in
             content = builtins.toJSON {
               users =
                 [
-                  "chn"
                   "straycat"
                   "wyh"
                   "lcl"
