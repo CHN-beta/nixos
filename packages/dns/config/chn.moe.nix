@@ -26,12 +26,13 @@ let
       "missgram"
       "xserver3"
       "cliproxyapi"
+      "aidesk"
       # to pc
       "铜锣湾实验室"
       # temporary
       "hongbao2026"
       # to nas
-      "aidesk"
+      "api.aidesk"
       "auth"
     ];
     # temporary
