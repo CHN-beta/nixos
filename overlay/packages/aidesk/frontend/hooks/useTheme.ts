@@ -28,9 +28,9 @@ export type ThemeDefinition = {
 };
 
 export const LIGHT_THEMES: ReadonlyArray<ThemeDefinition> = [
-  { id: "light", name: "Light (default)", mode: "light", bg: "#FAF9F6", accent: "#B03E22" },
-  { id: "one-light", name: "One Light", mode: "light", bg: "#FAFAFA", accent: "#2F65D9" },
   { id: "catppuccin-latte", name: "Catppuccin Latte", mode: "light", bg: "#EFF1F5", accent: "#1E66F5" },
+  { id: "light", name: "Warm Paper", mode: "light", bg: "#FAF9F6", accent: "#B03E22" },
+  { id: "one-light", name: "One Light", mode: "light", bg: "#FAFAFA", accent: "#2F65D9" },
   { id: "rose-pine-dawn", name: "Rosé Pine Dawn", mode: "light", bg: "#FAF4ED", accent: "#286983" },
 ];
 
@@ -60,7 +60,7 @@ const MODE_STORAGE_KEY = "omp-theme-mode";
 const LIGHT_STORAGE_KEY = "omp-theme-light";
 const DARK_STORAGE_KEY = "omp-theme-dark";
 
-const DEFAULT_LIGHT_THEME: LightTheme = "light";
+const DEFAULT_LIGHT_THEME: LightTheme = "catppuccin-latte";
 const DEFAULT_DARK_THEME: DarkTheme = "dark";
 
 export interface ThemeState {
