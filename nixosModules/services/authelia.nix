@@ -81,10 +81,7 @@
           authentication_backend = {
             password_reset.disable = true;
             password_change.disable = true;
-            file = {
-              path = config.nixos.system.sops.templates."authelia/users.yml".path;
-              watch = true;
-            };
+            file.path = config.nixos.system.sops.templates."authelia/users.yml".path;
           };
           access_control.default_policy = "deny";
           # redis-backed session provider so sessions survive restarts and are
@@ -136,6 +133,7 @@
           RuntimeDirectory = "authelia-main";
           RuntimeDirectoryMode = "0750";
         };
+        restartTriggers = [ config.nixos.system.sops.templates."authelia/users.yml".content ];
       };
       users.users.${config.services.nginx.user}.extraGroups = [
         config.services.authelia.instances.main.group
