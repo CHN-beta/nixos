@@ -28,7 +28,10 @@
     })
     # vps6 -> nas
     (lib.mkIf (config.nixos.model.hostname == "vps6") {
-      "aidesk.chn.moe".upstream.address = "tinc0.nas.chn.moe";
+      # the SPA itself is static on vps6; the authenticated API and the
+      # Authelia portal that guards it live on nas
+      "api.aidesk.chn.moe".upstream.address = "tinc0.nas.chn.moe";
+      "auth.chn.moe".upstream.address = "tinc0.nas.chn.moe";
     })
   ];
 }
