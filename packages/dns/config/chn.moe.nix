@@ -65,6 +65,7 @@ let
       "omp"
       "ompwyh"
       "omplcl"
+      "internal.cliproxyapi"
     ];
     vps10 = [
       "initrd.vps10"
