@@ -84,14 +84,6 @@
                 key._secret = config.nixos.system.sops.secrets."straycat/cliproxyapi".path;
                 name = "self";
               }
-              {
-                key._secret = config.nixos.system.sops.secrets."cliproxyapi/keys/southfox".path;
-                name = "southfox";
-              }
-              {
-                key._secret = config.nixos.system.sops.secrets."cliproxyapi/keys/alikia".path;
-                name = "alikia";
-              }
             ];
           observability = {
             logs = {
