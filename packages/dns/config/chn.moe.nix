@@ -32,6 +32,7 @@ let
       "hongbao2026"
       # to nas
       "aidesk"
+      "auth"
     ];
     # temporary
     "remove-me.vps6" = [ "zzzhongbao2026" ];
