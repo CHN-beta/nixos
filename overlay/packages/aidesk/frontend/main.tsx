@@ -1,9 +1,15 @@
 import { Component, StrictMode, Suspense, type ErrorInfo, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
+import { installApiTransport } from "@/lib/api-origin";
 import { AppShell } from "@/components/AppShell";
 import { IosFocusZoomGuard } from "@/components/IosFocusZoomGuard";
 import "@/app/fonts.css";
 import "@/app/globals.css";
+
+// The API may live on another origin from this static bundle. Patch `fetch`
+// and `EventSource` before any component runs so every `/api/...` call gets the
+// API origin, credentials, and the Authelia redirect on 401.
+installApiTransport();
 
 // The sidebar owns the browser history stack for its back-gesture machinery
 // (hooks/useSidebarHistory.ts). Re-dispatch popstate as a custom event so the

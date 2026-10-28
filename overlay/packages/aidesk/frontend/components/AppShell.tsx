@@ -21,6 +21,7 @@ import { CommandPaletteMount } from "./CommandPaletteMount";
 import { Check, ChevronDown, Command, Ellipsis, Folder, History, Menu, PanelLeft, PanelRight, Terminal, Wand2, Zap } from "lucide-react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { translate, useI18n } from "@/lib/i18n";
+import { apiUrl } from "@/lib/api-origin";
 import { formatApiError } from "@/lib/i18n/api-error";
 import { formatGenerationSpeed } from "@/lib/generation-speed";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -1127,7 +1128,7 @@ export function AppShell({ appName }: { appName: string }) {
   const handleDownloadActiveFile = useCallback(() => {
     if (!activeFileTab) return;
     const link = document.createElement("a");
-    link.href = `/api/files/${encodeFilePathForApi(activeFileTab.filePath)}?type=download`;
+    link.href = apiUrl(`/api/files/${encodeFilePathForApi(activeFileTab.filePath)}?type=download`);
     link.download = activeFileTab.label;
     document.body.appendChild(link);
     link.click();
@@ -1172,7 +1173,7 @@ export function AppShell({ appName }: { appName: string }) {
   const handleViewFullHistory = useCallback(() => {
     if (!selectedSession) return;
     window.open(
-      `/api/sessions/${encodeURIComponent(selectedSession.id)}/export?inline=1`,
+      apiUrl(`/api/sessions/${encodeURIComponent(selectedSession.id)}/export?inline=1`),
       "_blank",
       "noopener,noreferrer",
     );

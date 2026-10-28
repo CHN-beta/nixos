@@ -3,6 +3,7 @@ import { Children, cloneElement, isValidElement, useContext, useMemo, type Compo
 import ReactMarkdown, { type Components } from "react-markdown";
 import { remarkInlineCodeFileLinks, resolveLocalFileHref } from "@/lib/file-links";
 import { encodeFilePathForApi } from "@/lib/file-paths";
+import { apiUrl } from "@/lib/api-origin";
 import { AgentLinkContext, agentAwareUrlTransform, agentLinkIds, remarkAgentLinks } from "../lib/agent-links";
 import { GithubRepoContext, remarkGithubRefs } from "../lib/github-refs";
 import { normalizeDisplayMath, useMarkdownPlugins, type MarkdownPlugins } from "../lib/markdown";
@@ -41,7 +42,7 @@ export function MarkdownBody({ children, className, isStreaming, cwd, onOpenFile
       if (suppressImages) return alt ?? null;
       const filePath = typeof src === "string" ? resolveLocalFileHref(src, cwd) : null;
       const imageSrc = filePath
-        ? `/api/files/${encodeFilePathForApi(filePath)}?type=read`
+        ? apiUrl(`/api/files/${encodeFilePathForApi(filePath)}?type=read`)
         : src;
       // Dynamic local paths are served directly by the file API.
       return <ClickableImage src={imageSrc} alt={alt ?? ""} loading="lazy" {...imgProps} />;

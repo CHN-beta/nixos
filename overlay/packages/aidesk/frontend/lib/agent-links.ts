@@ -2,6 +2,7 @@ import { createContext } from "react";
 import { defaultUrlTransform, type UrlTransform } from "react-markdown";
 import type { Link, Nodes, Root } from "mdast";
 import { findAndReplace } from "mdast-util-find-and-replace";
+import { apiUrl } from "./api-origin";
 import type { SubagentInfo } from "./subagent-types";
 
 /**
@@ -27,11 +28,16 @@ export const AgentLinkContext = createContext<((candidateIds: string[]) => void)
  * except the write-only broadcast address, and drops (rather than blanks) any
  * other href the default transform rejects: the sanitizer now admits `agent:`,
  * and `href=""` would link to AIDesk itself.
+ *
+ * The SPA may be served apart from the API, so server-relative `/api/...`
+ * links and images in markdown are moved to the API origin; `resolveLocalFileHref`
+ * deliberately never treats them as local files.
  */
 export const agentAwareUrlTransform: UrlTransform = (url) => {
   const match = AGENT_HREF_RE.exec(url);
   if (match) return `agent://${match[1]}` === BROADCAST_URL ? undefined : url;
-  return defaultUrlTransform(url) || undefined;
+  const safe = defaultUrlTransform(url);
+  return safe.startsWith("/api/") ? apiUrl(safe) : safe || undefined;
 };
 
 /**

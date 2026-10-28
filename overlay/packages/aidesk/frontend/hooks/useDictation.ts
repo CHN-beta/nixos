@@ -1,6 +1,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { isSttAfter, type SttAfter } from "@/lib/stt";
+import { apiUrl } from "@/lib/api-origin";
 
 export interface UseDictationOptions {
   /** `after` is the send/queue choice made when the recording was sent, if any. */
@@ -457,7 +458,7 @@ export function useDictation({ onTranscript, onError, scope }: UseDictationOptio
       const jobId = jobIdRef.current;
       const captured = jobId && !pendingAudioRef.current ? null : getCapturedBlob();
       if (captured) audio = setupPreviewAudio(captured.blob);
-      else if (jobId) audio = setupPreviewAudio(`/api/stt/${encodeURIComponent(jobId)}/audio`);
+      else if (jobId) audio = setupPreviewAudio(apiUrl(`/api/stt/${encodeURIComponent(jobId)}/audio`));
       else return;
     }
     if (audio) {

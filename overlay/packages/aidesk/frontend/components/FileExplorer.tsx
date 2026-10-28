@@ -17,6 +17,7 @@ import {
 import { getFileIcon } from "./FileIcons";
 import { Tooltip } from "./ui/primitives";
 import { translate, useI18n } from "@/lib/i18n";
+import { apiUrl, redirectToAuth } from "@/lib/api-origin";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   encodeFilePathForApi,
@@ -161,8 +162,10 @@ function uploadFiles(
     const xhr = new XMLHttpRequest();
     xhr.open(
       "POST",
-      `/api/files/${encodeFilePathForApi(targetDirectory)}?type=upload&conflict=${strategy}`,
+      apiUrl(`/api/files/${encodeFilePathForApi(targetDirectory)}?type=upload&conflict=${strategy}`),
     );
+    // Cross-origin upload: the Authelia cookie must ride along.
+    xhr.withCredentials = true;
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable && event.total > 0) {
         onProgress(Math.round((event.loaded / event.total) * 100));
@@ -171,6 +174,7 @@ function uploadFiles(
     xhr.onerror = () => reject(new Error(translate("fileExplorer.uploadNetworkError")));
     xhr.onabort = () => reject(new Error(translate("fileExplorer.uploadCancelled")));
     xhr.onload = () => {
+      if (xhr.status === 401) redirectToAuth();
       let data: UploadResponse = {};
       try {
         data = JSON.parse(xhr.responseText) as UploadResponse;
@@ -469,7 +473,7 @@ const ExplorerRow = memo(function ExplorerRow({
       {!node.isDir && (
         <Tooltip content={downloadLabel}>
           <a
-            href={`/api/files/${encodeFilePathForApi(node.fullPath)}?type=download`}
+            href={apiUrl(`/api/files/${encodeFilePathForApi(node.fullPath)}?type=download`)}
             download
             onClick={(e) => e.stopPropagation()}
             aria-label={downloadLabel}

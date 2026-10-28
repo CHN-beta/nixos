@@ -20,6 +20,7 @@ import {
   isImagePath,
 } from "@/lib/file-types";
 import { encodeFilePathForApi, getFileDirectory, getFileName, getRelativeFilePath } from "@/lib/file-paths";
+import { apiUrl } from "@/lib/api-origin";
 import { translate, useI18n } from "@/lib/i18n";
 import { resolveLocalFileHref } from "@/lib/file-links";
 import { normalizeDisplayMath, useMarkdownPlugins } from "@/lib/markdown";
@@ -207,7 +208,7 @@ function getFileApiUrl(
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined) searchParams.set(key, String(value));
   }
-  return `/api/files/${encoded}?${searchParams.toString()}`;
+  return apiUrl(`/api/files/${encoded}?${searchParams.toString()}`);
 }
 
 function DownloadLink({ filePath, sourceSessionId }: { filePath: string; sourceSessionId?: string | null }) {

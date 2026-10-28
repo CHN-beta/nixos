@@ -55,10 +55,10 @@ export function useNotifications({ sessionId, locale, onOpenSession }: { session
       reported = visible;
       presenceSeq += 1;
       const body = JSON.stringify({ clientId: notificationClientId, deviceId: getNotificationDeviceId(), visible, sessionId, seq: presenceSeq });
-      if (!visible && navigator.sendBeacon) {
-        navigator.sendBeacon("/api/notifications/presence", new Blob([body], { type: "application/json" }));
-        return;
-      }
+      // A cross-origin `sendBeacon` is a no-CORS request and cannot carry the
+      // `application/json` body the API parses, so always use a keepalive fetch:
+      // it works while unloading, sends the cookie via the API transport, and
+      // can be answered with the CORS headers the server sets.
       void fetch("/api/notifications/presence", { method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true }).catch(() => {});
     };
     const onActivity = () => {

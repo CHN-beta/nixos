@@ -7,6 +7,7 @@ import { MessageCopyActions } from "./MessageCopyActions";
 import { useSpeechContext } from "@/hooks/useSpeechSynthesis";
 import { ClickableImage } from "./ImageLightbox";
 import { translate, useI18n, type Locale } from "@/lib/i18n";
+import { apiUrl } from "@/lib/api-origin";
 import { parseCompactionSummary } from "@/lib/compaction-summary";
 import { isEmptyThinkingBlock } from "@/lib/message-display";
 import { isPassiveToolContext } from "@/lib/chat-transcript-plan";
@@ -270,7 +271,7 @@ function imageBlockSrc(img: ImageContent): string {
   return img.source
     ? img.source.type === "base64"
       ? `data:${img.source.media_type};base64,${img.source.data}`
-      : img.source.url ?? ""
+      : apiUrl(img.source.url ?? "")
     : flat.data
       ? `data:${flat.mimeType};base64,${flat.data}`
       : "";
@@ -1179,8 +1180,8 @@ const ToolCallBlock = memo(function ToolCallBlock({
                       {resultImages.map((img, i) => (
                         <ClickableImage
                           key={i}
-                          src={img.url ? `${img.url}?thumb=1` : imageBlockSrc(img)}
-                          fullSrc={img.url}
+                          src={img.url ? `${apiUrl(img.url)}?thumb=1` : imageBlockSrc(img)}
+                          fullSrc={img.url ? apiUrl(img.url) : undefined}
                           alt=""
                           style={{ maxWidth: 240, maxHeight: 240, borderRadius: 6, objectFit: "contain", display: "block", border: "1px solid color-mix(in srgb, var(--accent) 18%, transparent)" }}
                         />
@@ -1775,7 +1776,7 @@ function imageSource(img: ImageContent): string {
   if (img.source) {
     return img.source.type === "base64"
       ? `data:${img.source.media_type};base64,${img.source.data}`
-      : img.source.url ?? "";
+      : apiUrl(img.source.url ?? "");
   }
   return flat.data ? `data:${flat.mimeType};base64,${flat.data}` : "";
 }
@@ -1875,7 +1876,7 @@ function BashExecutionView({ message, sessionId }: { message: BashExecutionMessa
   }, [message.fullOutputPath, sessionId, fullOutput?.phase]);
 
   const downloadUrl = message.fullOutputPath && sessionId
-    ? `/api/agent/${encodeURIComponent(sessionId)}/bash-output?path=${encodeURIComponent(message.fullOutputPath)}&download=1`
+    ? apiUrl(`/api/agent/${encodeURIComponent(sessionId)}/bash-output?path=${encodeURIComponent(message.fullOutputPath)}&download=1`)
     : null;
 
   return (
