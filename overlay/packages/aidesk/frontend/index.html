@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="description" content="AIDesk — a web chat interface for the oh-my-pi (omp) coding agent" />
-    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/svg+xml" href="/aidesk-logo-light.svg" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>AIDesk</title>
     <style>
@@ -53,6 +53,8 @@
           }
           if (isDark && resolved !== "omp") document.documentElement.classList.add("dark");
           document.documentElement.setAttribute("data-theme", resolved);
+          var icon = document.querySelector('link[rel="icon"]');
+          if (icon) icon.setAttribute("href", isDark ? "/aidesk-logo-dark.svg" : "/aidesk-logo-light.svg");
           var meta = document.querySelector('meta[name="theme-color"]');
           var bg = { light: "#FAF9F6", "one-light": "#FAFAFA", "catppuccin-latte": "#EFF1F5", "rose-pine-dawn": "#FAF4ED", dark: "#1B1916", omp: "#000000", dracula: "#282A36", harbor: "#1B1B1B", "one-dark-pro": "#282C34", "rose-pine": "#191724", "catppuccin-mocha": "#1E1E2E", "gruvbox-dark": "#282828", nord: "#2E3440", "tokyo-night": "#1A1B26" };
           if (meta && bg[resolved]) meta.setAttribute("content", bg[resolved]);

@@ -132,6 +132,8 @@ export function applyDomTheme(theme: Theme): void {
     cl.add(`theme-${theme}`);
   }
   document.documentElement.setAttribute("data-theme", theme);
+  const icon = document.querySelector('link[rel="icon"]');
+  if (icon) icon.setAttribute("href", dark ? "/aidesk-logo-dark.svg" : "/aidesk-logo-light.svg");
   const color = ALL_THEMES.find((definition) => definition.id === theme)?.bg;
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta && color) meta.setAttribute("content", color);
