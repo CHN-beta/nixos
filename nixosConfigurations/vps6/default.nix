@@ -43,6 +43,16 @@
           tgapi = { };
           short = { };
         };
+        nginx.https."aidesk.chn.moe".location."/".static = {
+          # Public, unauthenticated SPA; the API on api.aidesk.chn.moe is
+          # stream-proxied to nas and guarded by Authelia there.
+          root = "${pkgs.localPkgs.aidesk.frontend}";
+          tryFiles = [
+            "$uri"
+            "$uri/"
+            "/index.html"
+          ];
+        };
         coturn = { };
         httpua = { };
         mirism = { };
@@ -50,7 +60,10 @@
         beesd."/" = { };
         hongbao = { };
         freshman-followup.hostname = "hf.chn.moe";
-        cliproxyapi.users = [ "southfox" "alikia" ];
+        cliproxyapi.users = [
+          "southfox"
+          "alikia"
+        ];
       };
     };
     networking.nftables.tables.forward = {
