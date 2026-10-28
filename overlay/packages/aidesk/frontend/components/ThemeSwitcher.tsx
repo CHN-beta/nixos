@@ -197,7 +197,7 @@ export function ThemeSwitcher() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         onKeyDown={onTriggerKeyDown}
-        title={t("commandPalette.toggleTheme")}
+        title={t("appShell.toggleTheme")}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}

@@ -17,8 +17,7 @@ import { type FileExplorerHandle } from "./FileExplorer";
 import type { RightPanelView } from "./RightPanel";
 import { BranchNavigator } from "./BranchNavigator";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { CommandPaletteMount } from "./CommandPaletteMount";
-import { Check, ChevronDown, Command, Ellipsis, Folder, History, Menu, PanelLeft, PanelRight, Terminal, Wand2, Zap } from "lucide-react";
+import { Check, ChevronDown, Ellipsis, Folder, History, Menu, PanelLeft, PanelRight, Wand2, Zap } from "lucide-react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { translate, useI18n } from "@/lib/i18n";
 import { apiUrl } from "@/lib/api-origin";
@@ -1334,31 +1333,6 @@ export function AppShell({ appName }: { appName: string }) {
           dismissPendingOpen();
         }}
       />
-      <CommandPaletteMount
-        onSelectSession={handleSelectSession}
-        onNewSession={() => {
-          // An empty cwd is truthy, so showChat would render the shell while
-          // useAgentSession refuses to start — every send a silent no-op.
-          // Fall back to the server's default cwd (~/omp-cwd-<date>) instead.
-          if (activeCwd) {
-            handleNewSession(`palette-${Date.now()}`, activeCwd);
-            return;
-          }
-          void fetch("/api/default-cwd", { method: "POST" })
-            .then(async (response) => {
-              if (!response.ok) throw new Error(`HTTP ${response.status}`);
-              const data = (await response.json()) as { cwd?: string };
-              if (!data.cwd) throw new Error("Empty cwd returned");
-              return data;
-            })
-            .then((data) => {
-              if (!data.cwd) throw new Error("Empty cwd returned");
-              handleNewSession(`palette-${Date.now()}`, data.cwd);
-            })
-            .catch(() => toast.error(translate("errors.generic")));
-        }}
-        currentModel={null}
-      />
     <style>{`
       @media (max-width: 640px) {
         .sidebar-container.sidebar-mobile-pending.sidebar-open {
@@ -1490,22 +1464,6 @@ export function AppShell({ appName }: { appName: string }) {
               <div ref={mobileToolsContentRef} className="shell-topbar-overflow-content">
             <ThemeSwitcher />
             <LanguageSwitcher />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (isMobile && mobileToolsRef.current) {
-                      mobileToolsRef.current.open = false;
-                      setActiveTopPanel(null);
-                    }
-                    window.dispatchEvent(new Event("omp:open-command-palette"));
-                  }}
-                  title={`${t("commandPalette.label")} (Ctrl/⌘ K)`}
-                  aria-label={t("commandPalette.label")}
-                  aria-keyshortcuts="Control+K Meta+K"
-                  className="shell-toolbar-btn ui-focus-ring"
-                >
-                  <Command size={16} strokeWidth={1.8} aria-hidden="true" />
-                </button>
             {showChat && (
               <>
                 <div className="shell-toolbar-divider" aria-hidden="true" />
@@ -1745,23 +1703,6 @@ export function AppShell({ appName }: { appName: string }) {
                 style={{ display: "flex", height: 44, flexShrink: 0, alignSelf: "flex-start" }}
               />
             )}
-            <button
-              type="button"
-              className="shell-toolbar-btn ui-focus-ring"
-              onClick={() => {
-                if (rightPanelOpen && rightView === "terminal") {
-                  setRightPanelOpen(false);
-                } else {
-                  setRightView("terminal");
-                  setRightPanelOpen(true);
-                }
-              }}
-              title={t("tabBar.terminal")}
-              aria-label={t("tabBar.terminal")}
-              aria-pressed={rightPanelOpen && rightView === "terminal"}
-            >
-              <Terminal size={16} strokeWidth={1.8} aria-hidden="true" />
-            </button>
             <button
               type="button"
               className="shell-toolbar-btn shell-panel-opener ui-focus-ring"
