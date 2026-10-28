@@ -29,7 +29,6 @@ pub fn build_router(state: Arc<AppState>) -> Router {
     Router::new()
         // Workspace + projects + git + file index
         .route("/api/home", get(workspace::home))
-        .route("/api/default-cwd", post(workspace::default_cwd))
         .route("/api/cwd/browse", get(workspace::cwd_browse))
         .route("/api/cwd/validate", post(workspace::cwd_validate))
         .route(

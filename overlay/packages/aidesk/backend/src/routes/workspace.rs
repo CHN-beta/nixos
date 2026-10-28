@@ -4,7 +4,7 @@ use crate::omp::projects;
 use crate::omp::session_reader;
 use crate::routes::{body_json, json_ok, query, require_cwd};
 use crate::state::SharedState;
-use crate::util::{coded_error, expand_tilde, iso_from_ms, now_ms, path_key};
+use crate::util::{coded_error, expand_tilde, path_key};
 use axum::body::Body;
 use axum::extract::State;
 use axum::http::{StatusCode, Uri};
@@ -17,24 +17,11 @@ use std::sync::{LazyLock, Mutex};
 use std::time::{Duration, Instant};
 
 // ============================================================================
-// Home / default cwd / directory browser / cwd validation
+// Home / directory browser / cwd validation
 // ============================================================================
 
 pub async fn home(State(state): State<SharedState>) -> Response {
     json_ok(json!({ "home": state.cfg.home.to_string_lossy() }))
-}
-
-pub async fn default_cwd(State(state): State<SharedState>) -> Response {
-    let date = iso_from_ms(now_ms())
-        .get(0..10)
-        .unwrap_or("1970-01-01")
-        .replace('-', "");
-    let dir = state.cfg.home.join(format!("omp-cwd-{}", date));
-    if let Err(error) = std::fs::create_dir_all(&dir) {
-        return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
-    }
-    state.allow_root(&dir);
-    json_ok(json!({ "cwd": dir.to_string_lossy() }))
 }
 
 fn is_os_root(path: &Path) -> bool {
