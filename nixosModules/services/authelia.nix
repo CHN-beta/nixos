@@ -99,7 +99,7 @@
                 name = "authelia_session";
                 domain = "chn.moe";
                 authelia_url = "https://auth.chn.moe";
-                default_redirection_url = "https://desk.chn.moe";
+                default_redirection_url = "https://aidesk.chn.moe";
                 same_site = "lax";
                 inactivity = "1M";
                 expiration = "3M";
@@ -169,7 +169,10 @@
               )
             )
             (authelia.users |> lib.flip lib.genAttrs' (n: lib.nameValuePair "authelia/users/${n}" { }))
-            (authelia.clients |> lib.flip lib.genAttrs' (n: lib.nameValuePair "authelia/clients/${n.clientId}" { }))
+            (
+              authelia.clients
+              |> lib.flip lib.genAttrs' (n: lib.nameValuePair "authelia/clients/${n.clientId}" { })
+            )
             { "authelia/db".key = "postgresql/authelia"; }
           ];
           templates = {
