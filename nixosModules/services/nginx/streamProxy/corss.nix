@@ -26,5 +26,9 @@
     (lib.mkIf (config.nixos.model.hostname == "vps6") {
       "xn--qbtm095lrg0bfka60z.chn.moe".upstream.address = "tinc0.pc.chn.moe";
     })
+    # vps6 -> nas
+    (lib.mkIf (config.nixos.model.hostname == "vps6") {
+      "aidesk.chn.moe".upstream.address = "tinc0.nas.chn.moe";
+    })
   ];
 }

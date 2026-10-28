@@ -36,19 +36,6 @@
               );
               default = null;
             };
-            authelia = lib.mkOption {
-              type = lib.types.nullOr (
-                lib.types.submodule {
-                  options = {
-                    users = lib.mkOption {
-                      type = lib.types.nullOr (lib.types.nonEmptyListOf lib.types.nonEmptyStr);
-                      default = null;
-                    };
-                  };
-                }
-              );
-              default = null;
-            };
             rewriteHttps = lib.mkOption {
               type = lib.types.bool;
               default = true;
@@ -106,19 +93,6 @@
                         );
                         default = null;
                       };
-                      authelia = lib.mkOption {
-                        type = lib.types.nullOr (
-                          lib.types.submodule {
-                            options = {
-                              users = lib.mkOption {
-                                type = lib.types.nullOr (lib.types.nonEmptyListOf lib.types.nonEmptyStr);
-                                default = null;
-                              };
-                            };
-                          }
-                        );
-                        default = null;
-                      };
                     };
                   in
                   {
@@ -127,7 +101,7 @@
                       type = lib.types.nullOr (
                         lib.types.submodule {
                           options = {
-                            inherit (genericOptions) detectAuth authelia;
+                            inherit (genericOptions) detectAuth;
                             upstream = lib.mkOption { type = lib.types.nonEmptyStr; };
                             websocket = lib.mkOption {
                               type = lib.types.bool;
@@ -146,7 +120,7 @@
                       type = lib.types.nullOr (
                         lib.types.submodule {
                           options = {
-                            inherit (genericOptions) detectAuth authelia root;
+                            inherit (genericOptions) detectAuth root;
                             index = lib.mkOption {
                               type = lib.types.nullOr (
                                 lib.types.oneOf [
@@ -177,7 +151,7 @@
                       type = lib.types.nullOr (
                         lib.types.submodule {
                           options = {
-                            inherit (genericOptions) detectAuth authelia root;
+                            inherit (genericOptions) detectAuth root;
                             fastcgiPass = lib.mkOption { type = lib.types.nonEmptyStr; };
                           };
                         }
@@ -269,172 +243,124 @@
           in
           {
             services.nginx.virtualHosts = builtins.listToAttrs (
-              builtins.map (
-                site:
-                let
-                  siteUsesAuthelia =
-                    site.value.global.authelia != null
-                    || lib.any (location: (location.value.authelia or null) != null) site.value.locations;
-                in
-                {
-                  name = site.value.global.configName;
-                  value = {
-                    serverName = site.name;
-                    root = lib.mkIf (site.value.global.root != null) site.value.global.root;
-                    basicAuthFile = lib.mkIf (site.value.global.detectAuth != null) (
-                      let
-                        secret = "nginx/templates/detectAuth/${lib.strings.escapeURL site.name}-global";
-                      in
-                      config.nixos.system.sops.templates.${secret}.path
+              builtins.map (site: {
+                name = site.value.global.configName;
+                value = {
+                  serverName = site.name;
+                  root = lib.mkIf (site.value.global.root != null) site.value.global.root;
+                  basicAuthFile = lib.mkIf (site.value.global.detectAuth != null) (
+                    let
+                      secret = "nginx/templates/detectAuth/${lib.strings.escapeURL site.name}-global";
+                    in
+                    config.nixos.system.sops.templates.${secret}.path
+                  );
+                  extraConfig =
+                    let
+                      inherit (site.value.global)
+                        index
+                        charset
+                        extraConfig
+                        ;
+                    in
+                    builtins.concatStringsSep "\n" (
+                      builtins.concatLists [
+                        (
+                          if (builtins.typeOf index == "list") then
+                            [ "index ${builtins.concatStringsSep " " index};" ]
+                          else if (index == "auto") then
+                            [ "autoindex on;" ]
+                          else
+                            [ ]
+                        )
+                        (lib.optionals (charset != null) [ "charset ${charset};" ])
+                        (lib.optionals (extraConfig != null) [ extraConfig ])
+                      ]
                     );
-                    extraConfig =
-                      let
-                        inherit (site.value.global)
-                          index
-                          charset
-                          extraConfig
-                          ;
-                      in
-                      builtins.concatStringsSep "\n" (
-                        builtins.concatLists [
-                          (
-                            if (builtins.typeOf index == "list") then
-                              [ "index ${builtins.concatStringsSep " " index};" ]
-                            else if (index == "auto") then
-                              [ "autoindex on;" ]
-                            else
-                              [ ]
-                          )
-                          (lib.optionals (charset != null) [ "charset ${charset};" ])
-                          (lib.optionals (extraConfig != null) [ extraConfig ])
-                        ]
-                      );
-                    listen = builtins.concatMap (listen: [
-                      {
-                        addr = if listen.proxyProtocol then "0.0.0.0" else "127.0.0.1";
-                        port =
-                          with nginx.global;
-                          httpsPort
-                          + (if listen.http2 then httpsPortShift.http2 else 0)
-                          + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
-                        ssl = true;
-                        proxyProtocol = listen.proxyProtocol;
-                        extraParameters = lib.mkIf listen.http2 [ "http2" ];
-                      }
-                      {
-                        addr = if listen.proxyProtocol then "[::]" else "[::1]";
-                        port =
-                          with nginx.global;
-                          httpsPort
-                          + (if listen.http2 then httpsPortShift.http2 else 0)
-                          + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
-                        ssl = true;
-                        proxyProtocol = listen.proxyProtocol;
-                        extraParameters = lib.mkIf listen.http2 [ "http2" ];
-                      }
-                    ]) site.value.listens;
-                    # do not automatically add http2 listen
-                    http2 = false;
-                    onlySSL = true;
-                    useACMEHost = site.name;
-                    locations =
-                      builtins.listToAttrs (
-                        builtins.map (
-                          location:
+                  listen = builtins.concatMap (listen: [
+                    {
+                      addr = if listen.proxyProtocol then "0.0.0.0" else "127.0.0.1";
+                      port =
+                        with nginx.global;
+                        httpsPort
+                        + (if listen.http2 then httpsPortShift.http2 else 0)
+                        + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
+                      ssl = true;
+                      proxyProtocol = listen.proxyProtocol;
+                      extraParameters = lib.mkIf listen.http2 [ "http2" ];
+                    }
+                    {
+                      addr = if listen.proxyProtocol then "[::]" else "[::1]";
+                      port =
+                        with nginx.global;
+                        httpsPort
+                        + (if listen.http2 then httpsPortShift.http2 else 0)
+                        + (if listen.proxyProtocol then httpsPortShift.proxyProtocol else 0);
+                      ssl = true;
+                      proxyProtocol = listen.proxyProtocol;
+                      extraParameters = lib.mkIf listen.http2 [ "http2" ];
+                    }
+                  ]) site.value.listens;
+                  # do not automatically add http2 listen
+                  http2 = false;
+                  onlySSL = true;
+                  useACMEHost = site.name;
+                  locations = builtins.listToAttrs (
+                    builtins.map (location: {
+                      inherit (location) name;
+                      value = {
+                        basicAuthFile = lib.mkIf (location.value.detectAuth or null != null) (
                           let
-                            locUsesAuthelia = (location.value.authelia or null) != null || site.value.global.authelia != null;
-                            autheliaAuthRequest = lib.optionalString locUsesAuthelia ''
-                              auth_request /internal/authelia/authz;
-                              auth_request_set $authelia_user $upstream_http_remote_user;
-                              auth_request_set $authelia_groups $upstream_http_remote_groups;
-                              auth_request_set $authelia_name $upstream_http_remote_name;
-                              auth_request_set $authelia_email $upstream_http_remote_email;
-                              auth_request_set $authelia_redirection_url $upstream_http_location;
-                              error_page 401 =302 $authelia_redirection_url;
-                            '';
-                            autheliaProxyHeaders = lib.optionalString locUsesAuthelia ''
-                              proxy_set_header Remote-User $authelia_user;
-                              proxy_set_header Remote-Groups $authelia_groups;
-                              proxy_set_header Remote-Name $authelia_name;
-                              proxy_set_header Remote-Email $authelia_email;
-                            '';
+                            inherit (lib.strings) escapeURL;
+                            secret = "nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}";
                           in
-                          {
-                            inherit (location) name;
-                            value = {
-                              basicAuthFile = lib.mkIf (location.value.detectAuth or null != null) (
-                                let
-                                  inherit (lib.strings) escapeURL;
-                                  secret = "nginx/templates/detectAuth/${escapeURL site.name}/${escapeURL location.name}";
-                                in
-                                config.nixos.system.sops.templates.${secret}.path
-                              );
-                              root = lib.mkIf (location.value.root or null != null) location.value.root;
-                            }
-                            // {
-                              proxy = {
-                                proxyWebsockets = location.value.websocket;
-                                recommendedProxySettings = false;
-                                recommendedProxySettingsNoHost = true;
-                                proxyPass = location.value.upstream;
-                                extraConfig = builtins.concatStringsSep "\n" (
-                                  (lib.mapAttrsToList (n: v: ''proxy_set_header ${n} "${v}";'') location.value.setHeaders)
-                                  ++ (lib.optionals (location.value.detectAuth != null || site.value.global.detectAuth != null) [
-                                    "proxy_hide_header Authorization;"
-                                  ])
-                                  ++ (lib.optionals locUsesAuthelia [
-                                    autheliaAuthRequest
-                                    autheliaProxyHeaders
-                                  ])
-                                );
-                              };
-                              static = {
-                                index = lib.mkIf (builtins.typeOf location.value.index == "list") (
-                                  builtins.concatStringsSep " " location.value.index
-                                );
-                                tryFiles = lib.mkIf (location.value.tryFiles != null) (
-                                  builtins.concatStringsSep " " location.value.tryFiles
-                                );
-                                extraConfig = lib.mkMerge [
-                                  (lib.mkIf (location.value.index == "auto") "autoindex on;")
-                                  (lib.mkIf (location.value.charset != null) "charset ${location.value.charset};")
-                                  (lib.mkIf location.value.webdav ''
-                                    dav_access user:rw group:rw;
-                                    dav_methods PUT DELETE MKCOL COPY MOVE;
-                                    dav_ext_methods PROPFIND OPTIONS;
-                                    create_full_put_path on;
-                                  '')
-                                  (lib.mkIf locUsesAuthelia autheliaAuthRequest)
-                                ];
-                              };
-                              php.extraConfig = ''
-                                fastcgi_pass ${location.value.fastcgiPass};
-                                fastcgi_split_path_info ^(.+\.php)(/.*)$;
-                                fastcgi_param PATH_INFO $fastcgi_path_info;
-                                include ${config.services.nginx.package}/conf/fastcgi.conf;
-                              ''
-                              + autheliaAuthRequest;
-                              return.return = location.value.return;
-                            }
-                            .${location.value.type};
-                          }
-                        ) site.value.locations
-                      )
-                      // lib.optionalAttrs siteUsesAuthelia {
-                        "= /internal/authelia/authz".extraConfig = ''
-                          internal;
-                          proxy_pass http://unix:/run/authelia-main/authelia.sock:/api/authz/auth-request;
-                          proxy_set_header X-Original-Method $request_method;
-                          proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
-                          proxy_set_header X-Forwarded-For $remote_addr;
-                          proxy_set_header Content-Length "";
-                          proxy_set_header Connection "";
-                          proxy_pass_request_body off;
+                          config.nixos.system.sops.templates.${secret}.path
+                        );
+                        root = lib.mkIf (location.value.root or null != null) location.value.root;
+                      }
+                      // {
+                        proxy = {
+                          proxyWebsockets = location.value.websocket;
+                          recommendedProxySettings = false;
+                          recommendedProxySettingsNoHost = true;
+                          proxyPass = location.value.upstream;
+                          extraConfig = builtins.concatStringsSep "\n" (
+                            (lib.mapAttrsToList (n: v: ''proxy_set_header ${n} "${v}";'') location.value.setHeaders)
+                            ++ (lib.optionals (location.value.detectAuth != null || site.value.global.detectAuth != null) [
+                              "proxy_hide_header Authorization;"
+                            ])
+                          );
+                        };
+                        static = {
+                          index = lib.mkIf (builtins.typeOf location.value.index == "list") (
+                            builtins.concatStringsSep " " location.value.index
+                          );
+                          tryFiles = lib.mkIf (location.value.tryFiles != null) (
+                            builtins.concatStringsSep " " location.value.tryFiles
+                          );
+                          extraConfig = lib.mkMerge [
+                            (lib.mkIf (location.value.index == "auto") "autoindex on;")
+                            (lib.mkIf (location.value.charset != null) "charset ${location.value.charset};")
+                            (lib.mkIf location.value.webdav ''
+                              dav_access user:rw group:rw;
+                              dav_methods PUT DELETE MKCOL COPY MOVE;
+                              dav_ext_methods PROPFIND OPTIONS;
+                              create_full_put_path on;
+                            '')
+                          ];
+                        };
+                        php.extraConfig = ''
+                          fastcgi_pass ${location.value.fastcgiPass};
+                          fastcgi_split_path_info ^(.+\.php)(/.*)$;
+                          fastcgi_param PATH_INFO $fastcgi_path_info;
+                          include ${config.services.nginx.package}/conf/fastcgi.conf;
                         '';
-                      };
-                  };
-                }
-              ) sites
+                        return.return = location.value.return;
+                      }
+                      .${location.value.type};
+                    }) site.value.locations
+                  );
+                };
+              }) sites
             );
             nixos = {
               services = {

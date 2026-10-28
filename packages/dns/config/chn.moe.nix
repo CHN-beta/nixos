@@ -30,6 +30,8 @@ let
       "铜锣湾实验室"
       # temporary
       "hongbao2026"
+      # to nas
+      "aidesk"
     ];
     # temporary
     "remove-me.vps6" = [ "zzzhongbao2026" ];
