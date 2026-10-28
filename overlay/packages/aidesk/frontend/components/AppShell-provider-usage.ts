@@ -1,5 +1,23 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import type { ProviderUsageReport, ProviderUsageSnapshot } from "@/lib/provider-usage-types";
+import type {
+  ProviderUsageLimitItem,
+  ProviderUsageReport,
+  ProviderUsageSnapshot,
+  ProviderUsageWindow,
+} from "@/lib/provider-usage-types";
+
+/** Display names for providers the UI knows; unknown ids render verbatim. */
+export const PROVIDER_DISPLAY_NAMES: Record<string, string> = {
+  anthropic: "Anthropic",
+  openai: "OpenAI",
+  "openai-codex": "OpenAI Codex",
+  "github-copilot": "GitHub Copilot",
+  google: "Google",
+  "google-gemini-cli": "Gemini CLI",
+  "google-antigravity": "Google Antigravity",
+  cliproxyapi: "CLIProxyAPI",
+  ollama: "Ollama",
+};
 
 export function formatUsageReset(value: number, unit: "minutes" | "hours"): string {
   if (unit === "minutes") {
@@ -20,29 +38,27 @@ export function usageTone(percent: number): string {
   return "var(--text-muted)";
 }
 
-export function formatProviderUsageReport(report: ProviderUsageReport, noLimitsLabel: string): string {
-  if (report.noLimits) return noLimitsLabel;
-  const parts: string[] = [];
-  if (report.tier) parts.push(report.tier);
-  if (report.fiveHour) {
-    const reset = report.fiveHour.resetMinutes === undefined
-      ? ""
-      : ` (${formatUsageReset(report.fiveHour.resetMinutes, "minutes")})`;
-    parts.push(`5h ${Math.round(report.fiveHour.percent)}%${reset}`);
+/** Percentage used, derived from absolute amounts when no fraction is sent. */
+export function usageWindowPercent(
+  window: ProviderUsageWindow | ProviderUsageLimitItem,
+): number | null {
+  if (typeof window.percent === "number" && Number.isFinite(window.percent)) return window.percent;
+  if (typeof window.used === "number" && typeof window.limit === "number") {
+    if (window.limit > 0) return (window.used / window.limit) * 100;
+    return window.used > 0 ? 100 : 0;
   }
-  if (report.sevenDay) {
-    const reset = report.sevenDay.resetHours === undefined
-      ? ""
-      : ` (${formatUsageReset(report.sevenDay.resetHours, "hours")})`;
-    parts.push(`7d ${Math.round(report.sevenDay.percent)}%${reset}`);
-  }
-  if (report.monthly) {
-    const reset = report.monthly.resetHours === undefined
-      ? ""
-      : ` (${formatUsageReset(report.monthly.resetHours, "hours")})`;
-    parts.push(`mo ${Math.floor(report.monthly.percent)}%${reset}`);
-  }
-  return parts.join(" · ");
+  return null;
+}
+
+/** Limits to render for a report: the flat list when present, otherwise the
+ *  legacy per-window fields. */
+export function reportUsageLimits(report: ProviderUsageReport): ProviderUsageLimitItem[] {
+  if (report.limits && report.limits.length > 0) return report.limits;
+  const limits: ProviderUsageLimitItem[] = [];
+  if (report.fiveHour) limits.push({ ...report.fiveHour, windowId: "5h" });
+  if (report.sevenDay) limits.push({ ...report.sevenDay, windowId: "7d" });
+  if (report.monthly) limits.push({ ...report.monthly, windowId: "monthly" });
+  return limits;
 }
 
 export type ProviderUsageState = {

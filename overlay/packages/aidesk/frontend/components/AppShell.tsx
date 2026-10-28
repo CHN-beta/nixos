@@ -68,7 +68,6 @@ function replaceHistoryUrl(url: string): void {
 const TOOL_CALLS_COLLAPSED_STORAGE_KEY = "omp-web:tool-calls-collapsed";
 // Off by default, so the transcript keeps collapsing reasoning until asked.
 const EXPAND_THINKING_STORAGE_KEY = "omp-web:expand-thinking";
-const PROVIDER_USAGE_VISIBLE_STORAGE_KEY = "omp-web:provider-usage-visible";
 const NATIVE_SELECT_ALL_STORAGE_KEY = "omp-web:scope-native-select-all";
 const OPEN_URL_AUTOMATICALLY_STORAGE_KEY = "omp-web:open-url-automatically";
 
@@ -124,7 +123,6 @@ export function AppShell({ appName }: { appName: string }) {
     window.addEventListener("focus", load);
     return () => window.removeEventListener("focus", load);
   }, []);
-  const [providerUsageVisible, setProviderUsageVisible] = useState(true);
   const [scopeNativeSelectAll, setScopeNativeSelectAll] = useState(false);
   const [openUrlAutomatically, setOpenUrlAutomatically] = useState(false);
   const [sidebarResizing, setSidebarResizing] = useState(false);
@@ -141,7 +139,6 @@ export function AppShell({ appName }: { appName: string }) {
     try {
       setToolCallsDefaultCollapsed(window.localStorage.getItem(TOOL_CALLS_COLLAPSED_STORAGE_KEY) !== "false");
       setExpandThinkingByDefault(window.localStorage.getItem(EXPAND_THINKING_STORAGE_KEY) === "true");
-      setProviderUsageVisible(window.localStorage.getItem(PROVIDER_USAGE_VISIBLE_STORAGE_KEY) !== "false");
       setScopeNativeSelectAll(window.localStorage.getItem(NATIVE_SELECT_ALL_STORAGE_KEY) === "true");
       setOpenUrlAutomatically(window.localStorage.getItem(OPEN_URL_AUTOMATICALLY_STORAGE_KEY) === "true");
     } catch {
@@ -160,14 +157,6 @@ export function AppShell({ appName }: { appName: string }) {
     setExpandThinkingByDefault(expand);
     try {
       window.localStorage.setItem(EXPAND_THINKING_STORAGE_KEY, String(expand));
-    } catch {
-      // The preference still applies for this page load.
-    }
-  }, []);
-  const handleProviderUsageVisibleChange = useCallback((visible: boolean) => {
-    setProviderUsageVisible(visible);
-    try {
-      window.localStorage.setItem(PROVIDER_USAGE_VISIBLE_STORAGE_KEY, String(visible));
     } catch {
       // The preference still applies for this page load.
     }
@@ -1294,7 +1283,6 @@ export function AppShell({ appName }: { appName: string }) {
       onWorkspaceOptionsChange={handleWorkspaceOptionsChange}
       addProjectOpen={addProjectOpen}
       setAddProjectOpen={setAddProjectOpen}
-      usageVisible={providerUsageVisible}
       settingsOpen={Boolean(settingsTab)}
       onOpenSettings={() => setSettingsTab((prev) => prev ? null : "general")}
       onOpenArchive={() => setArchiveBrowserOpen(true)}
@@ -1410,8 +1398,6 @@ export function AppShell({ appName }: { appName: string }) {
             onToolCallsDefaultCollapsedChange={handleToolCallsDefaultCollapsedChange}
             expandThinkingByDefault={expandThinkingByDefault}
             onExpandThinkingByDefaultChange={handleExpandThinkingByDefaultChange}
-            providerUsageVisible={providerUsageVisible}
-            onProviderUsageVisibleChange={handleProviderUsageVisibleChange}
             scopeNativeSelectAll={scopeNativeSelectAll}
             onScopeNativeSelectAllChange={handleScopeNativeSelectAllChange}
             openUrlAutomatically={openUrlAutomatically}

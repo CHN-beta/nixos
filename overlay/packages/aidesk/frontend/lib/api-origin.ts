@@ -69,6 +69,15 @@ export function redirectToAuth(): void {
   window.location.replace(`${authUrl}/?rd=${encodeURIComponent(window.location.href)}`);
 }
 
+/**
+ * Sign out of the SSO session and come back to this app's origin, which then
+ * sends the visitor through the login flow again.
+ */
+export function logoutFromAuth(): void {
+  redirectingToAuth = true;
+  window.location.assign(`${authUrl}/logout?rd=${encodeURIComponent(window.location.origin)}`);
+}
+
 /** Set once the globals are patched; re-installing would wrap our own wrappers. */
 let installed = false;
 

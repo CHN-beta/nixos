@@ -1,8 +1,18 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useTransition, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
 import { getSubmitDuringRunBehavior, getWordCompletionMode, setSubmitDuringRunBehavior, setWordCompletionMode, type SubmitDuringRunBehavior, type WordCompletionMode } from "@/lib/composer-prefs";
-import { ArrowLeft, Search, X } from "lucide-react";
+import { ArrowLeft, LogOut, RefreshCw, Search, X } from "lucide-react";
 import { isRecord } from "@/lib/type-guards";
+import { logoutFromAuth } from "@/lib/api-origin";
+import {
+  formatUsageReset,
+  PROVIDER_DISPLAY_NAMES,
+  reportUsageLimits,
+  usageTone,
+  usageWindowPercent,
+  useProviderUsage,
+} from "./AppShell-provider-usage";
+import type { ProviderUsageLimitItem, ProviderUsageReport } from "@/lib/provider-usage-types";
 import { Alert } from "@/components/ui/field";
 import { toast } from "@/components/ui/toast";
 import { useI18n } from "@/lib/i18n";
@@ -65,6 +75,26 @@ const chipStyle = {
   fontWeight: 500,
 } as const;
 
+const secondaryButtonStyle = {
+  display: "inline-flex" as const,
+  alignItems: "center" as const,
+  gap: 6,
+  padding: "6px 12px",
+  border: "1px solid var(--border)",
+  borderRadius: "var(--radius-control)",
+  background: "var(--bg)",
+  color: "var(--text)",
+  fontSize: 12,
+  fontWeight: 600,
+  flexShrink: 0,
+} as const;
+
+const usageNoteStyle = {
+  fontSize: 12.5,
+  color: "var(--text-muted)",
+  lineHeight: 1.5,
+} as const;
+
 function slugify(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
@@ -110,7 +140,6 @@ const SETTING_INDEX: SettingIndexEntry[] = [
   { id: "scope-native-select-all", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.scopeNativeSelectAll", descKey: "settingsConfig.scopeNativeSelectAllDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Scope native Select All (experimental)", fallbackDesc: "Limit whole-page selections from browser or touch menus to the active message, chat, or file. May also narrow deliberate whole-page selections. Turn off if selection handles or menus misbehave. Keyboard shortcuts are unaffected.", scope: "UI" },
   { id: "tts-autoplay", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.ttsAutoplay", descKey: "settingsConfig.ttsAutoplayDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Auto-read assistant responses", fallbackDesc: "Automatically read aloud new assistant replies when completed.", scope: "UI" },
   { id: "tts-voice", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.ttsVoice", descKey: "settingsConfig.ttsVoiceDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Speech Voice", fallbackDesc: "Select the browser voice for text-to-speech reading.", scope: "UI" },
-  { id: "provider-usage", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.providerUsage", descKey: "settingsConfig.providerUsageDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Provider usage limits", fallbackDesc: "Show provider usage in the sidebar, above Settings.", scope: "UI" },
   { id: "chat-font-size", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.chatFontSize", descKey: "settingsConfig.chatFontSizeDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Chat Font Size", fallbackDesc: "Adjust text size for conversation messages, code blocks, and markdown output.", scope: "UI" },
   { id: "ui-scale", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.uiScale", descKey: "settingsConfig.uiScaleDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Interface Scale", fallbackDesc: "Adjust overall UI zoom and display density across sidebars, dialogs, buttons, and toolbars.", scope: "UI" },
   { id: "touch-targets", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.touchTargets", descKey: "settingsConfig.touchTargetsDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Touch Targets", fallbackDesc: "Adjust interactive target sizes for buttons and toolbar controls.", scope: "UI" },
@@ -123,6 +152,9 @@ const SETTING_INDEX: SettingIndexEntry[] = [
   { id: "notifications-error", tab: "notifications", sectionKey: "notifications.title", labelKey: "notifications.typeError", descKey: "notifications.typeErrorDesc", fallbackSection: "Notifications", fallbackLabel: "Run failed", fallbackDesc: "A run stops with an error after retries and fallbacks, or the omp process exits.", scope: "UI" },
   { id: "notifications-modelSwitch", tab: "notifications", sectionKey: "notifications.title", labelKey: "notifications.typeModelSwitch", descKey: "notifications.typeModelSwitchDesc", fallbackSection: "Notifications", fallbackLabel: "Model switched automatically", fallbackDesc: "omp switches models on its own: a fallback after a refusal, rate limit, or usage limit, or a prewalk / plan hand-off.", scope: "UI" },
   { id: "notifications-when-active", tab: "notifications", sectionKey: "notifications.title", labelKey: "notifications.whenActive", descKey: "notifications.whenActiveDesc", fallbackSection: "Notifications", fallbackLabel: "When I'm using AIDesk in another tab", fallbackDesc: "Nothing is shown for the session you are viewing.", scope: "UI" },
+  // Account & Usage
+  { id: "account-session", tab: "account", sectionKey: "settingsConfig.accountTitle", labelKey: "settingsConfig.accountSession", descKey: "settingsConfig.accountSessionDesc", fallbackSection: "Account & Usage", fallbackLabel: "Account & sign out", fallbackDesc: "Shows the signed-in user and signs out of the browser session.", scope: "UI" },
+  { id: "account-usage", tab: "account", sectionKey: "settingsConfig.accountTitle", labelKey: "settingsConfig.accountUsage", descKey: "settingsConfig.accountUsageDesc", fallbackSection: "Account & Usage", fallbackLabel: "Quota & usage", fallbackDesc: "Provider quota, used amount, reset windows, and the current period.", scope: "UI" },
 ];
 
 const ACKNOWLEDGMENTS = [
@@ -465,6 +497,287 @@ function NativeSetting({ label, description, scope, searchId, disabled, children
   );
 }
 
+const UNIT_LABEL_KEYS: Record<string, string> = {
+  tokens: "providerUsage.unitTokens",
+  requests: "providerUsage.unitRequests",
+  credits: "providerUsage.unitCredits",
+  minutes: "providerUsage.unitMinutes",
+  bytes: "providerUsage.unitBytes",
+};
+
+const WINDOW_LABEL_KEYS: Record<string, string> = {
+  "5h": "providerUsage.window5h",
+  "7d": "providerUsage.window7d",
+  monthly: "providerUsage.windowMonthly",
+};
+
+/** `$3.45`, or `$0.0042` for sub-cent amounts. */
+function formatUsageAmount(value: number, unit?: string): string {
+  if (unit === "usd") return value > 0 && value < 0.01 ? `$${value.toFixed(4)}` : `$${value.toFixed(2)}`;
+  if (unit === "percent") return `${Math.round(value)}%`;
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(value);
+}
+
+type AccountInfo = {
+  user: string;
+  name: string | null;
+  email: string | null;
+  groups: string[];
+};
+
+/** Settings card that participates in search highlighting like NativeSetting. */
+function AccountSection({ searchId, children }: { searchId: string; children: ReactNode }) {
+  const highlightId = useContext(SettingsHighlightContext);
+  const ref = useRef<HTMLElement>(null);
+  const highlighted = highlightId === searchId;
+  useEffect(() => {
+    if (highlighted && ref.current) ref.current.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [highlighted]);
+  return (
+    <section
+      ref={ref}
+      data-search-id={searchId}
+      className="settings-card"
+      style={{
+        display: "block",
+        width: "100%",
+        boxSizing: "border-box",
+        padding: "16px 18px",
+        transition: "box-shadow var(--dur-fast), border-color var(--dur-fast)",
+        ...(highlighted ? { borderColor: "var(--accent)", boxShadow: "0 0 0 2px var(--accent)" } : {}),
+      }}
+    >
+      {children}
+    </section>
+  );
+}
+
+/** One quota window: amounts first, a bar only when a share is known. */
+function UsageLimitRow({ limit }: { limit: ProviderUsageLimitItem }) {
+  const { t } = useI18n();
+  const percent = usageWindowPercent(limit);
+  const used = typeof limit.used === "number" ? limit.used : undefined;
+  const quota = typeof limit.limit === "number" ? limit.limit : undefined;
+  const remaining = typeof limit.remaining === "number"
+    ? limit.remaining
+    : quota !== undefined && used !== undefined
+      ? Math.max(0, quota - used)
+      : undefined;
+  const resetValue = limit.resetMinutes ?? limit.resetHours;
+  const reset = resetValue === undefined
+    ? null
+    : formatUsageReset(resetValue, limit.resetMinutes !== undefined ? "minutes" : "hours");
+  const labelKey = limit.windowId ? WINDOW_LABEL_KEYS[limit.windowId] : undefined;
+  const label = labelKey ? t(labelKey) : limit.label ?? limit.windowId ?? t("providerUsage.limit");
+  const unitSuffix = limit.unit && limit.unit !== "usd" && limit.unit !== "percent"
+    ? ` ${t(UNIT_LABEL_KEYS[limit.unit] ?? limit.unit)}`
+    : "";
+  const amount = (value: number) => `${formatUsageAmount(value, limit.unit)}${unitSuffix}`;
+
+  let primary: string;
+  if (used !== undefined) {
+    primary = quota !== undefined
+      ? `${t("providerUsage.used")} ${amount(used)} / ${t("providerUsage.quota")} ${amount(quota)}`
+      : `${t("providerUsage.used")} ${amount(used)}`;
+  } else if (percent !== null) {
+    primary = `${t("providerUsage.used")} ${Math.round(percent)}%`;
+  } else if (quota !== undefined) {
+    primary = `${t("providerUsage.quota")} ${amount(quota)}`;
+  } else {
+    primary = "";
+  }
+
+  const meta: string[] = [];
+  if (quota !== undefined && remaining !== undefined) meta.push(`${t("providerUsage.remaining")} ${amount(remaining)}`);
+  if (used !== undefined && quota === undefined) meta.push(`${t("providerUsage.quota")}: ${t("providerUsage.unlimited")}`);
+  if (reset) meta.push(t("providerUsage.resets", { value: reset }));
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 12, fontWeight: 500, color: "var(--text-muted)" }}>{label}</span>
+        <span style={{ fontSize: 12, color: "var(--text)", fontVariantNumeric: "tabular-nums", textAlign: "right" }}>{primary}</span>
+      </div>
+      {percent !== null && (
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ flex: 1, height: 6, borderRadius: 3, background: "var(--bg-subtle)", overflow: "hidden" }}>
+            <div
+              style={{
+                width: `${Math.min(100, Math.max(0, percent))}%`,
+                height: "100%",
+                borderRadius: 3,
+                background: usageTone(percent),
+                transition: "width var(--dur-fast)",
+              }}
+            />
+          </div>
+          <span style={{ fontSize: 11, minWidth: 34, textAlign: "right", color: "var(--text-muted)", fontVariantNumeric: "tabular-nums" }}>
+            {Math.round(percent)}%
+          </span>
+        </div>
+      )}
+      {meta.length > 0 && (
+        <div style={{ fontSize: 11, color: "var(--text-dim)" }}>{meta.join(" · ")}</div>
+      )}
+    </div>
+  );
+}
+
+function UsageReportBlock({ report }: { report: ProviderUsageReport }) {
+  const { t } = useI18n();
+  const limits = reportUsageLimits(report);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 13.5, fontWeight: 600, color: "var(--text)" }}>
+          {PROVIDER_DISPLAY_NAMES[report.provider] ?? report.provider}
+        </span>
+        {report.accountLabel && (
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11.5, color: "var(--text-muted)" }}>{report.accountLabel}</span>
+        )}
+        {report.plan && <span style={chipStyle}>{report.plan}</span>}
+        {report.tier && <span style={chipStyle}>{report.tier}</span>}
+        {report.modelId && <span style={chipStyle}>{report.modelId}</span>}
+      </div>
+      {report.noLimits ? (
+        <span style={usageNoteStyle}>{t("providerUsage.noLimits")}</span>
+      ) : limits.length === 0 ? (
+        <span style={usageNoteStyle}>{t("providerUsage.noData")}</span>
+      ) : (
+        limits.map((limit, index) => (
+          <UsageLimitRow key={`${limit.windowId ?? "limit"}-${index}`} limit={limit} />
+        ))
+      )}
+    </div>
+  );
+}
+
+/** Account session + provider quota; the sidebar widget used to cover this. */
+function AccountPanel({ isMobile }: { isMobile: boolean }) {
+  const { t } = useI18n();
+  const [account, setAccount] = useState<AccountInfo | null>(null);
+  const [accountFailed, setAccountFailed] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const { snapshot, loading, error, refresh } = useProviderUsage("", 5 * 60_000);
+
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/account")
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data: unknown = await response.json();
+        if (!isRecord(data) || typeof data.user !== "string") throw new Error("invalid account payload");
+        return {
+          user: data.user,
+          name: typeof data.name === "string" && data.name.trim() ? data.name.trim() : null,
+          email: typeof data.email === "string" && data.email.trim() ? data.email.trim() : null,
+          groups: Array.isArray(data.groups)
+            ? data.groups.filter((group): group is string => typeof group === "string")
+            : [],
+        };
+      })
+      .then((info) => {
+        if (!alive) return;
+        setAccount(info);
+        setAccountFailed(false);
+      })
+      .catch(() => {
+        if (alive) setAccountFailed(true);
+      });
+    return () => { alive = false; };
+  }, []);
+
+  const reports = snapshot?.reports ?? [];
+  const displayName = account ? account.name ?? account.user : "";
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refresh();
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  return (
+    <div role="tabpanel" id="settings-panel-account" aria-labelledby="settings-tab-account" className="settings-panel-inner" style={{ padding: isMobile ? "16px 14px 32px" : "32px 24px 64px", gap: 16 }}>
+      <div style={{ marginBottom: 4 }}>
+        <h2 className="display-serif" style={{ fontSize: "var(--text-2xl)", fontWeight: 600, margin: 0, color: "var(--text)", letterSpacing: "-0.01em" }}>{t("settingsConfig.accountTitle")}</h2>
+        <p className="settings-content-subtitle" style={{ margin: "4px 0 16px", fontSize: "var(--text-md)", color: "var(--text-muted)", lineHeight: 1.45 }}>{t("settingsConfig.accountDescription")}</p>
+      </div>
+
+      <AccountSection searchId="account-session">
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 3, minWidth: 0 }}>
+            <span style={{ fontSize: 11, fontWeight: 500, color: "var(--text-muted)", letterSpacing: "0.01em" }}>{t("settingsConfig.accountSignedInAs")}</span>
+            {account ? (
+              <>
+                <span style={{ fontSize: 15, fontWeight: 600, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis" }}>{displayName}</span>
+                {account.name !== null && account.name !== account.user && (
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "var(--text-muted)" }}>{account.user}</span>
+                )}
+                {account.email !== null && (
+                  <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{account.email}</span>
+                )}
+                {account.groups.length > 0 && (
+                  <span style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4 }}>
+                    {account.groups.map((group) => <span key={group} style={chipStyle}>{group}</span>)}
+                  </span>
+                )}
+              </>
+            ) : (
+              <span style={{ fontSize: 12.5, color: "var(--text-muted)" }}>
+                {accountFailed ? t("settingsConfig.accountUnavailable") : t("settingsConfig.accountLoading")}
+              </span>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={logoutFromAuth}
+            className="ui-focus-ring"
+            style={{ ...secondaryButtonStyle, padding: "7px 14px", fontSize: 12.5, cursor: "pointer" }}
+          >
+            <LogOut size={14} aria-hidden="true" />
+            {t("settingsConfig.accountSignOut")}
+          </button>
+        </div>
+      </AccountSection>
+
+      <AccountSection searchId="account-usage">
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+          <div style={{ minWidth: 0 }}>
+            <h3 style={{ margin: 0, fontSize: 13.5, fontWeight: 600, color: "var(--text)" }}>{t("settingsConfig.accountUsage")}</h3>
+            <p style={{ margin: "2px 0 0", fontSize: 12, color: "var(--text-muted)", lineHeight: 1.45 }}>{t("settingsConfig.accountUsageDesc")}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void handleRefresh()}
+            disabled={refreshing || loading}
+            className="ui-focus-ring"
+            style={{ ...secondaryButtonStyle, cursor: refreshing || loading ? "not-allowed" : "pointer", opacity: refreshing || loading ? 0.55 : 1 }}
+          >
+            <RefreshCw size={13} aria-hidden="true" />
+            {t("settingsConfig.accountUsageRefresh")}
+          </button>
+        </div>
+        {loading && reports.length === 0 ? (
+          <div style={usageNoteStyle}>{t("settingsConfig.accountUsageLoading")}</div>
+        ) : error && reports.length === 0 ? (
+          <div style={usageNoteStyle}>{t("settingsConfig.accountUsageError")}</div>
+        ) : reports.length === 0 ? (
+          <div style={usageNoteStyle}>{t("settingsConfig.accountUsageEmpty")}</div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {reports.map((report, index) => (
+              <UsageReportBlock key={`${report.provider}:${report.accountLabel ?? report.accountIndex ?? index}:${report.modelId ?? ""}:${report.tier ?? ""}`} report={report} />
+            ))}
+          </div>
+        )}
+      </AccountSection>
+    </div>
+  );
+}
+
 function AboutPanel({ isMobile }: { isMobile: boolean }) {
   const { t } = useI18n();
   const rowStyle = { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, padding: "12px 16px", borderBottom: "1px solid var(--border)" } as const;
@@ -506,14 +819,12 @@ function AboutPanel({ isMobile }: { isMobile: boolean }) {
   );
 }
 
-export function SettingsConfig({ activeTab, toolCallsDefaultCollapsed, onToolCallsDefaultCollapsedChange, expandThinkingByDefault, onExpandThinkingByDefaultChange, providerUsageVisible, onProviderUsageVisibleChange, scopeNativeSelectAll, onScopeNativeSelectAllChange, openUrlAutomatically, onOpenUrlAutomaticallyChange, onSelectTab, onClose }: {
+export function SettingsConfig({ activeTab, toolCallsDefaultCollapsed, onToolCallsDefaultCollapsedChange, expandThinkingByDefault, onExpandThinkingByDefaultChange, scopeNativeSelectAll, onScopeNativeSelectAllChange, openUrlAutomatically, onOpenUrlAutomaticallyChange, onSelectTab, onClose }: {
   activeTab: SettingsTab;
   toolCallsDefaultCollapsed: boolean;
   onToolCallsDefaultCollapsedChange: (collapsed: boolean) => void;
   expandThinkingByDefault: boolean;
   onExpandThinkingByDefaultChange: (expand: boolean) => void;
-  providerUsageVisible: boolean;
-  onProviderUsageVisibleChange: (visible: boolean) => void;
   scopeNativeSelectAll: boolean;
   onScopeNativeSelectAllChange: (enabled: boolean) => void;
   openUrlAutomatically: boolean;
@@ -752,9 +1063,6 @@ export function SettingsConfig({ activeTab, toolCallsDefaultCollapsed, onToolCal
                         ))}
                       </select>
                     </NativeSetting>
-                    <NativeSetting searchId="provider-usage" label={t("settingsConfig.providerUsage")} description={t("settingsConfig.providerUsageDesc")} scope="UI">
-                      <ToggleSwitch checked={providerUsageVisible} onChange={onProviderUsageVisibleChange} />
-                    </NativeSetting>
                     <NativeSetting searchId="chat-font-size" label={t("settingsConfig.chatFontSize")} description={t("settingsConfig.chatFontSizeDesc")} scope="UI">
                       <select
                         style={nativeSelectStyle}
@@ -834,6 +1142,8 @@ export function SettingsConfig({ activeTab, toolCallsDefaultCollapsed, onToolCal
                   </div>
                 </div>
               )}
+
+              {currentTab === "account" && <AccountPanel isMobile={isMobile} />}
 
               {currentTab === "about" && <AboutPanel isMobile={isMobile} />}
             </div>
