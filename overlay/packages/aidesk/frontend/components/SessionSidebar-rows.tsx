@@ -10,6 +10,7 @@ import { transcriptToMarkdown } from "@/lib/transcript";
 import { toast } from "./ui/toast";
 import {
   MAX_PROJECT_SESSIONS,
+  formatHomePath,
   formatRelativeTime,
   projectLabel,
   type SessionTreeNode,
@@ -301,8 +302,8 @@ function ProjectRow({
             className="sidebar-project-action"
             onClick={() => setActionMenuOpen((open) => !open)}
             disabled={removeBusy}
-            aria-label={t("commandPalette.actions")}
-            title={t("commandPalette.actions")}
+            aria-label={t("projects.actions")}
+            title={t("projects.actions")}
             aria-expanded={actionMenuOpen}
             aria-haspopup="menu"
             style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, padding: 0, border: "none", borderRadius: "var(--radius-control)", background: actionMenuOpen ? "var(--bg-selected)" : "transparent", color: "var(--text-dim)", cursor: removeBusy ? "default" : "pointer", opacity: removeBusy ? 0.5 : 1, lineHeight: 0, transition: SIDEBAR_BUTTON_TRANSITION }}
@@ -428,6 +429,8 @@ const SessionTreeItem = memo(function SessionTreeItem({
   onRenamed,
   onSessionDeleted,
   depth,
+  showCwd = false,
+  homeDir = null,
 }: {
   node: SessionTreeNode;
   selectedSessionId: string | null;
@@ -439,6 +442,9 @@ const SessionTreeItem = memo(function SessionTreeItem({
   onRenamed?: () => void;
   onSessionDeleted?: (id: string) => void;
   depth: number;
+  /** Flat "sessions" mode: one row per session with time + cwd subtitle. */
+  showCwd?: boolean;
+  homeDir?: string | null;
 }) {
   const [collapsed, setCollapsed] = useState(false);
   const hasChildren = node.children.length > 0;
@@ -470,7 +476,7 @@ const SessionTreeItem = memo(function SessionTreeItem({
         {depth > 0 && (
           <div style={{
             position: "absolute",
-            left: depth * 14 + 22,
+            left: depth * 14 + (showCwd ? 10 : 22),
             top: 0, bottom: 0,
             width: 1,
             background: "var(--border)",
@@ -491,6 +497,8 @@ const SessionTreeItem = memo(function SessionTreeItem({
           hasChildren={hasChildren}
           collapsed={collapsed}
           onToggleCollapse={handleToggleCollapse}
+          showCwd={showCwd}
+          homeDir={homeDir}
         />
       </div>
       {hasChildren && !collapsed && (
@@ -508,6 +516,8 @@ const SessionTreeItem = memo(function SessionTreeItem({
               onRenamed={onRenamed}
               onSessionDeleted={onSessionDeleted}
               depth={depth + 1}
+              showCwd={showCwd}
+              homeDir={homeDir}
             />
           ))}
         </div>
@@ -532,6 +542,7 @@ const SessionTreeItem = memo(function SessionTreeItem({
   }
   if (prev.exitedSessions !== next.exitedSessions) return false;
   if (prev.relativeTimeNow !== next.relativeTimeNow) return false;
+  if (prev.showCwd !== next.showCwd || prev.homeDir !== next.homeDir) return false;
   if (prev.onSelectSession !== next.onSelectSession
     || prev.onRenamed !== next.onRenamed
     || prev.onSessionDeleted !== next.onSessionDeleted) return false;
@@ -551,6 +562,8 @@ const SessionItem = memo(function SessionItem({
   collapsed = false,
   relativeTimeNow,
   onToggleCollapse,
+  showCwd = false,
+  homeDir = null,
 }: {
   session: SessionInfo;
   isSelected: boolean;
@@ -565,6 +578,9 @@ const SessionItem = memo(function SessionItem({
   relativeTimeNow: number;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
+  /** Flat "sessions" mode: subtitle with last activity + working directory. */
+  showCwd?: boolean;
+  homeDir?: string | null;
 }) {
   const { t, locale } = useI18n();
   const exitTitle = exited ? formatExitedSessionNotice(exited) : "";
@@ -580,6 +596,13 @@ const SessionItem = memo(function SessionItem({
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const title = session.name || session.firstMessage.slice(0, 50) || session.id.slice(0, 12);
   const relativeTime = formatRelativeTime(session.modified, locale, relativeTimeNow);
+  // Flat mode shows the activity stamp on its own subtitle line, and the row
+  // keeps the session's folder visible so sessions from every workspace read
+  // as one list instead of anonymous titles.
+  const subtitleTime = showCwd
+    ? formatRelativeTime(session.modified || session.created, locale, relativeTimeNow)
+    : null;
+  const subtitleCwd = showCwd ? formatHomePath(session.cwd, homeDir) : "";
   const rowBackground = isSelected
     ? "color-mix(in srgb, var(--bg-selected) 70%, transparent)"
     : hovered ? "var(--bg-hover)" : "transparent";
@@ -675,13 +698,13 @@ const SessionItem = memo(function SessionItem({
         }
       }}
       style={{
-        height: 30,
+        height: showCwd ? 46 : 30,
         display: "flex",
         alignItems: "center",
         gap: 6,
         width: "100%",
         margin: "1px 0",
-        padding: `0 8px 0 ${30 + depth * 14}px`,
+        padding: showCwd ? `0 8px 0 ${14 + depth * 14}px` : `0 8px 0 ${30 + depth * 14}px`,
         position: "relative",
         overflow: "hidden",
         background: rowBackground,
@@ -695,7 +718,7 @@ const SessionItem = memo(function SessionItem({
           aria-hidden="true"
           style={{
             position: "absolute",
-            left: 20 + depth * 14,
+            left: (showCwd ? 4 : 20) + depth * 14,
             top: 0,
             bottom: 0,
             width: 2,
@@ -710,10 +733,23 @@ const SessionItem = memo(function SessionItem({
       ) : (
         <>
           {depth > 0 && <GitBranch size={11} strokeWidth={2} style={{ flexShrink: 0, color: "var(--text-dim)" }} aria-hidden="true" />}
-          <button ref={contentButtonRef} type="button" className="session-item-button" aria-current={isSelected ? "true" : undefined} onKeyDown={(event) => { if (event.key === "Delete" && !deleting) { event.preventDefault(); setConfirmDelete(true); } }} style={{ display: "flex", alignItems: "center", flex: 1, minWidth: 0 }}>
-            <span title={title} style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text)", fontSize: 12.5, fontWeight: isSelected ? 600 : 500, lineHeight: 1.35, letterSpacing: "-0.005em" }}>
+          <button ref={contentButtonRef} type="button" className="session-item-button" aria-current={isSelected ? "true" : undefined} onKeyDown={(event) => { if (event.key === "Delete" && !deleting) { event.preventDefault(); setConfirmDelete(true); } }} style={showCwd
+            ? { display: "flex", flexDirection: "column", alignItems: "flex-start", justifyContent: "center", gap: 1, flex: 1, minWidth: 0, alignSelf: "stretch" }
+            : { display: "flex", alignItems: "center", flex: 1, minWidth: 0 }}>
+            <span title={title} style={{ minWidth: 0, maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text)", fontSize: 12.5, fontWeight: isSelected ? 600 : 500, lineHeight: 1.35, letterSpacing: "-0.005em" }}>
               {title}
             </span>
+            {showCwd && (subtitleTime || subtitleCwd) && (
+              <span style={{ display: "flex", alignItems: "center", gap: 5, minWidth: 0, maxWidth: "100%", overflow: "hidden", whiteSpace: "nowrap", fontSize: 11, lineHeight: 1.2, color: "var(--text-dim)" }}>
+                {subtitleTime && (
+                  <span title={new Date(session.modified || session.created).toLocaleString(locale)} style={{ flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>{subtitleTime}</span>
+                )}
+                {subtitleTime && subtitleCwd && <span aria-hidden="true" style={{ flexShrink: 0 }}>·</span>}
+                {subtitleCwd && (
+                  <span title={session.cwd} style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", fontFamily: "var(--font-mono)" }}>{subtitleCwd}</span>
+                )}
+              </span>
+            )}
           </button>
           {hasChildren && <button className="session-item-icon-button" onClick={(event) => { event.stopPropagation(); onToggleCollapse?.(); }} title={collapsed ? t("sessionSidebar.expandForks") : t("sessionSidebar.collapseForks")} aria-label={collapsed ? t("sessionSidebar.expandForks") : t("sessionSidebar.collapseForks")} aria-expanded={!collapsed} style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, padding: 0, flexShrink: 0, border: "none", background: "none", color: "var(--text-dim)", cursor: "pointer", transform: collapsed ? "rotate(-90deg)" : "none", transition: "transform var(--dur-fast) var(--ease-out-warm)" }}><ChevronDown size={12} strokeWidth={1.8} aria-hidden="true" /></button>}
           <div style={{ display: "flex", alignItems: "center", gap: SIDEBAR_STATUS_GAP, flexShrink: 0 }}>
@@ -726,10 +762,12 @@ const SessionItem = memo(function SessionItem({
                     : <UnreadSessionIndicator size={11} />}
               </span>
             )}
-            <div className="session-item-trailing" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", flexShrink: 0 }}>
-              <div className="session-item-metadata" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
-                {relativeTime && <span className="session-item-time" title={new Date(session.modified).toLocaleString(locale)} style={{ flexShrink: 0, whiteSpace: "nowrap", textAlign: "right", color: isSelected ? "var(--accent)" : "var(--text-dim)", fontSize: 10, fontVariantNumeric: "tabular-nums" }}>{relativeTime}</span>}
-              </div>
+            <div className={`session-item-trailing${showCwd ? " session-item-trailing-compact" : ""}`} style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", flexShrink: 0 }}>
+              {!showCwd && (
+                <div className="session-item-metadata" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
+                  {relativeTime && <span className="session-item-time" title={new Date(session.modified).toLocaleString(locale)} style={{ flexShrink: 0, whiteSpace: "nowrap", textAlign: "right", color: isSelected ? "var(--accent)" : "var(--text-dim)", fontSize: 10, fontVariantNumeric: "tabular-nums" }}>{relativeTime}</span>}
+                </div>
+              )}
               <div className="session-item-actions" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
                 <button type="button" ref={menuButtonRef} className="session-item-icon-button session-item-menu-button" onClick={(event) => { event.stopPropagation(); setActionMenuOpen((open) => !open); }} title={t("projects.actions")} aria-label={t("projects.actions")} aria-expanded={actionMenuOpen} style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 0, lineHeight: 0, border: "none", borderRadius: "var(--radius-control)", background: actionMenuOpen ? "var(--bg-selected)" : "transparent", color: actionMenuOpen ? "var(--text)" : "var(--text-dim)", cursor: "pointer" }}>
                   <MoreHorizontal size={14} strokeWidth={2} aria-hidden="true" />

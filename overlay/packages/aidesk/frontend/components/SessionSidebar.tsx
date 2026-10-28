@@ -11,7 +11,7 @@ import { toast } from "./ui/toast";
 import { clearLastOpenSession, setLastOpenSession, workspaceKeyOf } from "@/lib/workspace-memory";
 import { projectActivityCounts, sortManagedProjects } from "@/lib/project-ordering";
 import { comparableProjectPath } from "@/lib/comparable-path";
-import { Archive, ArrowLeft, ArrowRight, Check, ChevronRight, Plus, RefreshCw, Search, Settings2, SlidersHorizontal, X } from "lucide-react";
+import { Archive, ArrowLeft, ArrowRight, Check, ChevronRight, Folder, MessageSquare, Plus, RefreshCw, Search, Settings2, SlidersHorizontal, X } from "lucide-react";
 import { publishSessionsChanged } from "@/lib/session-change-bus";
 import { NOTIFICATION_MESSAGE_EVENT, notificationClientId } from "@/lib/notification-client";
 import {
@@ -21,13 +21,18 @@ import {
   MAX_PROJECT_SESSIONS,
   buildSessionTree,
   loadExpandedProjects,
+  loadSidebarViewMode,
   loadUnreadSessionIds,
   projectLabel,
   saveExpandedProjects,
+  saveSidebarViewMode,
   saveUnreadSessionIds,
+  sessionActivityTime,
+  type SessionTreeNode,
+  type SidebarViewMode,
 } from "./SessionSidebar-helpers";
 import { AideskTitle, SIDEBAR_BUTTON_TRANSITION, SidebarIconButton } from "./SessionSidebar-chrome";
-import { ProjectRow } from "./SessionSidebar-rows";
+import { ProjectRow, SessionTreeItem } from "./SessionSidebar-rows";
 
 /** Deadline for one /api/sessions fetch. A wedged-but-listening server never
  * answers; without this the initial spinner would pend forever. */
@@ -114,6 +119,10 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
   // Relative session times must age while the sidebar stays open; one shared
   // minute clock avoids a timer per session row.
   const [relativeTimeNow, setRelativeTimeNow] = useState(() => Date.now());
+  // Sidebar organisation: a flat chat-app-style session list (default) or the
+  // workspace tree users switch to when they want folder grouping.
+  const [viewMode, setViewMode] = useState<SidebarViewMode>(() => loadSidebarViewMode());
+  const [homeDir, setHomeDir] = useState<string | null>(null);
   // Client-side workspace/session filtering (Workspaces header controls).
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -219,6 +228,28 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
   useEffect(() => {
     void loadProjects();
   }, [loadProjects, refreshKey]);
+
+  // Persist the sidebar organisation: the flat session list is the default,
+  // the workspace tree is opt-in and remembered across visits.
+  useEffect(() => {
+    saveSidebarViewMode(viewMode);
+  }, [viewMode]);
+
+  // The flat list shortens each session's working directory relative to the
+  // account home (~/repo/x). A failed lookup simply leaves absolute paths.
+  useEffect(() => {
+    let cancelled = false;
+    void fetch("/api/home")
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return await response.json() as { home?: string };
+      })
+      .then((data) => {
+        if (!cancelled) setHomeDir(typeof data.home === "string" ? data.home : null);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => setRelativeTimeNow(Date.now()), 60_000);
@@ -588,6 +619,18 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
     sortedProjectsRef.current = sortedProjectsBase;
     return sortedProjectsBase;
   }, [sortedProjectsBase, hasPendingNewSession]);
+  /** New sessions need a cwd even before the user picks a workspace: fall
+   *  back to the latest session's folder, then the first project, then the
+   *  account home. */
+  const mostRecentSessionCwd = useMemo(() => {
+    let latest: SessionInfo | null = null;
+    for (const session of allSessions) {
+      if (!session.cwd) continue;
+      if (!latest || sessionActivityTime(session) > sessionActivityTime(latest)) latest = session;
+    }
+    return latest?.cwd ?? null;
+  }, [allSessions]);
+  const effectiveDefaultCwd = selectedCwd ?? mostRecentSessionCwd ?? sortedProjects[0]?.path ?? homeDir;
   useEffect(() => {
     onWorkspaceOptionsChange?.(sortedProjects, selectedProject, selectedCwd);
   }, [onWorkspaceOptionsChange, sortedProjects, selectedProject, selectedCwd]);
@@ -640,10 +683,25 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
   }, [sortedProjects, sessionsByProject, runningOnly, deferredSearchQuery, runningSessionIds]);
 
   const treesByProject = useMemo(() => {
-    const m = new Map<string, ReturnType<typeof buildSessionTree>>();
+    const m = new Map<string, SessionTreeNode[]>();
     for (const { project, sessions } of visibleProjectEntries) m.set(project.path, buildSessionTree(sessions));
     return m;
   }, [visibleProjectEntries]);
+
+  // Flat "sessions" view: one row per session, filtered like the workspace
+  // tree but ordered purely by latest activity (buildSessionTree sorts it).
+  const visibleFlatSessions = useMemo(() => {
+    const q = deferredSearchQuery.trim().toLowerCase();
+    let list = visibleSessions;
+    if (runningOnly) list = list.filter((session) => runningSessionIds.has(session.id));
+    if (q) {
+      list = list.filter((session) => (session.name ?? "").toLowerCase().includes(q)
+        || session.firstMessage.toLowerCase().includes(q)
+        || session.cwd.toLowerCase().includes(q));
+    }
+    return list;
+  }, [visibleSessions, runningOnly, runningSessionIds, deferredSearchQuery]);
+  const flatSessionTree = useMemo(() => buildSessionTree(visibleFlatSessions), [visibleFlatSessions]);
 
   // Drop persisted expansion keys whose project no longer exists (removed or
   // vanished), so the storage stays bounded to real projects. Only runs after
@@ -720,11 +778,12 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
     // already activated a project by hand.
     if (selectedCwd !== null && !provisionalSelectionRef.current) return;
     const top = sortedProjects[0];
-    if (!top) return;
-    setSelectedCwd(top.path);
-    expandProject(top.path);
+    const fallbackCwd = top?.path ?? mostRecentSessionCwd ?? homeDir;
+    if (!fallbackCwd) return;
+    setSelectedCwd(fallbackCwd);
+    if (top) expandProject(top.path);
     provisionalSelectionRef.current = allSessions.length === 0;
-  }, [allSessions, selectedCwd, initialSessionId, skipInitialProjectSelection, onSelectSession, onInitialRestoreDone, sortedProjects, expandProject, loadSessions]);
+  }, [allSessions, selectedCwd, initialSessionId, skipInitialProjectSelection, onSelectSession, onInitialRestoreDone, sortedProjects, expandProject, loadSessions, mostRecentSessionCwd, homeDir]);
 
   // Default expansion: when the user has never stored an expansion choice,
   // expand only the active project.
@@ -864,14 +923,20 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
   }, [onSelectSession, expandProject]);
 
   const handleNewSession = useCallback(() => {
-    if (!selectedCwd) return;
+    if (!effectiveDefaultCwd) return;
+    // Keep the manual selection honest: a fallback cwd becomes the active one
+    // so the Explorer and the workspace switcher agree with the new chat.
+    if (selectedCwd !== effectiveDefaultCwd) {
+      provisionalSelectionRef.current = false;
+      setSelectedCwd(effectiveDefaultCwd);
+    }
     // Generate a temporary UUID client-side — no backend call needed.
     // Pi will be spawned lazily when the user sends the first message.
     const tempId = typeof crypto.randomUUID === "function"
       ? crypto.randomUUID()
       : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
-    onNewSession?.(tempId, selectedCwd);
-  }, [selectedCwd, onNewSession]);
+    onNewSession?.(tempId, effectiveDefaultCwd);
+  }, [effectiveDefaultCwd, selectedCwd, onNewSession]);
 
   // Sessions of every folder in the selected project are shown together.
   // Keys are comparableProjectPath forms (see expandProject) — comparable to
@@ -995,9 +1060,9 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
         </div>
         <button
           onClick={handleNewSession}
-          disabled={!selectedCwd}
+          disabled={!effectiveDefaultCwd}
           className="sidebar-new-session"
-          title={selectedCwd ? t("sessionSidebar.newSessionIn", { cwd: selectedCwd }) : t("sessionSidebar.selectProjectFirst")}
+          title={effectiveDefaultCwd ? t("sessionSidebar.newSessionIn", { cwd: effectiveDefaultCwd }) : t("sessionSidebar.selectProjectFirst")}
           style={{
             width: "100%",
             height: 38,
@@ -1009,16 +1074,16 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
             background: "var(--bg-hover)",
             border: "1px solid var(--border)",
             borderRadius: "var(--radius-control)",
-            color: selectedCwd ? "var(--text)" : "var(--text-dim)",
-            cursor: selectedCwd ? "pointer" : "not-allowed",
+            color: effectiveDefaultCwd ? "var(--text)" : "var(--text-dim)",
+            cursor: effectiveDefaultCwd ? "pointer" : "not-allowed",
             fontSize: 12.5,
             fontWeight: 600,
             letterSpacing: "-0.01em",
-            opacity: selectedCwd ? 1 : 0.65,
+            opacity: effectiveDefaultCwd ? 1 : 0.65,
             transition: SIDEBAR_BUTTON_TRANSITION,
           }}
           onMouseEnter={(e) => {
-            if (!selectedCwd) return;
+            if (!effectiveDefaultCwd) return;
             e.currentTarget.style.background = "var(--bg-selected)";
             e.currentTarget.style.borderColor = "color-mix(in srgb, var(--accent) 30%, transparent)";
           }}
@@ -1032,20 +1097,34 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
         </button>
       </div>
 
-      {/* Workspaces section header: label + search / filter / add */}
+      {/* List header: Sessions / Workspaces switch + search / filter / add */}
       <div style={{ flexShrink: 0, padding: "4px 10px 2px", display: "flex", alignItems: "center", gap: 2 }}>
-        <span
-          style={{
-            flex: 1,
-            color: "var(--text-muted)",
-            fontSize: 11,
-            fontWeight: 600,
-            letterSpacing: "0.08em",
-            textTransform: "uppercase",
-          }}
-        >
-          {t("projects.heading")}
-        </span>
+        <div className="sidebar-view-switch" role="tablist" aria-label={t("sessionSidebar.viewModeLabel")}>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === "sessions"}
+            data-active={viewMode === "sessions"}
+            className="sidebar-view-tab ui-focus-ring"
+            title={t("sessionSidebar.viewSessionsTitle")}
+            onClick={() => setViewMode("sessions")}
+          >
+            <MessageSquare size={12} strokeWidth={2} aria-hidden="true" />
+            <span>{t("sessionSidebar.viewSessions")}</span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === "workspaces"}
+            data-active={viewMode === "workspaces"}
+            className="sidebar-view-tab ui-focus-ring"
+            title={t("sessionSidebar.viewWorkspacesTitle")}
+            onClick={() => setViewMode("workspaces")}
+          >
+            <Folder size={12} strokeWidth={2} aria-hidden="true" />
+            <span>{t("projects.heading")}</span>
+          </button>
+        </div>
         <SidebarIconButton
           label={t("sessionSidebar.search")}
           title={t("sessionSidebar.searchTitle")}
@@ -1067,16 +1146,18 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
         >
           <SlidersHorizontal size={15} strokeWidth={1.9} aria-hidden="true" />
         </SidebarIconButton>
-        <SidebarIconButton
-          label={t("projects.add")}
-          title={t("projects.addTitle")}
-          onClick={() => {
-            setAddProjectOpen(true);
-            setAddProjectError(null);
-          }}
-        >
-          <Plus size={15} strokeWidth={1.9} aria-hidden="true" />
-        </SidebarIconButton>
+        {viewMode === "workspaces" && (
+          <SidebarIconButton
+            label={t("projects.add")}
+            title={t("projects.addTitle")}
+            onClick={() => {
+              setAddProjectOpen(true);
+              setAddProjectError(null);
+            }}
+          >
+            <Plus size={15} strokeWidth={1.9} aria-hidden="true" />
+          </SidebarIconButton>
+        )}
       </div>
       {searchOpen && (
         <div style={{ padding: "0 10px 6px", flexShrink: 0 }}>
@@ -1112,7 +1193,7 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
         </div>
       )}
 
-      {/* Workspaces */}
+      {/* Session list (flat) or workspace tree */}
         <div
           style={{
             flex: "1 1 auto",
@@ -1129,7 +1210,7 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
               <div aria-hidden="true" className="skeleton" style={{ width: "68%", height: 30 }} />
             </div>
           )}
-          {projectsError && (
+          {viewMode === "workspaces" && projectsError && (
             <div role="alert" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "10px 4px", color: "var(--status-error)", fontSize: 12 }}>
               <span>{projectsError}</span>
               <button className="load-retry-button" type="button" onClick={() => { loadSessions(false); void loadProjects(); }} style={{ minHeight: 32, padding: "4px 8px", border: "1px solid var(--border)", borderRadius: "var(--radius-control)", background: "var(--bg-panel)", color: "var(--text)", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>{t("sessionSidebar.refresh")}</button>
@@ -1141,55 +1222,85 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
               <button className="load-retry-button" type="button" onClick={() => { loadSessions(false); void loadProjects(); }} style={{ minHeight: 32, padding: "4px 8px", border: "1px solid var(--border)", borderRadius: "var(--radius-control)", background: "var(--bg-panel)", color: "var(--text)", cursor: "pointer", fontSize: 11, fontWeight: 600 }}>{t("sessionSidebar.refresh")}</button>
             </div>
           )}
-          {!loading && !projectsError && !error && sortedProjects.length === 0 && (
-            <div style={{ padding: "10px 4px", color: "var(--text-muted)", fontSize: 12, lineHeight: 1.5 }}>
-              {t("projects.noProjects")}
-            </div>
-          )}
-          {!loading && !projectsError && !error && sortedProjects.length > 0 && visibleProjectEntries.length === 0 && (
-            <div style={{ padding: "14px 4px", color: "var(--text-dim)", fontSize: 11.5, lineHeight: 1.5 }}>
-              {t("sessionSidebar.noMatches")}
-            </div>
-          )}
 
-          {visibleProjectEntries.map(({ project, sessions }) => {
-            const tree = treesByProject.get(project.path) ?? buildSessionTree(sessions);
-            // Sessions group under a project through the case-folded comparable
-            // form, so the active highlight uses the same comparison: a session
-            // whose cwd/projectRoot spells the project folder with different
-            // casing (Windows/NTFS) lands in this row — the row must light up
-            // for it too.
-            const isActive = selectedProject !== null && comparableProjectPath(selectedProject) === comparableProjectPath(project.path);
-            return (
-              <ProjectRow
-                key={project.path}
-                project={project}
-                isActive={isActive}
-                activity={projectActivity.get(comparableProjectPath(project.path))}
-                tree={tree}
-                isExpanded={expandedProjectKeys.has(comparableProjectPath(project.path))}
-                hiddenCount={filtersActive ? 0 : Math.max(0, tree.length - MAX_PROJECT_SESSIONS)}
-                selectedSessionId={selectedSessionId}
-                runningSessionIds={runningSessionIds}
-                unreadSessionIds={unreadSessionIds}
-                exitedSessions={exitedSessions}
-                relativeTimeNow={relativeTimeNow}
-                onActivate={activateProject}
-                onToggleExpand={toggleProjectExpanded}
-                onRemoveProject={handleRemoveProject}
-                onEditLaunchConfig={setLaunchConfigProject}
-                onUpdatePresentation={handleUpdateProjectPresentation}
-                onDragPathChange={setDraggedProjectPath}
-                onDropProject={(path) => void handleProjectDrop(path)}
-                onMoveProject={(path, delta) => void handleMoveProject(path, delta)}
-                isDragTarget={draggedProjectPath !== null && draggedProjectPath !== project.path}
-                removeBusy={removeProjectPath === project.path}
-                onSelectSession={handleSelectSessionFromList}
-                onRenamed={loadSessions}
-                onSessionDeleted={handleSessionDeleted}
-              />
-            );
-          })}
+          {viewMode === "sessions" ? (
+            <>
+              {!loading && !error && flatSessionTree.length === 0 && (
+                <div style={{ padding: "14px 4px", color: "var(--text-dim)", fontSize: 11.5, lineHeight: 1.5 }}>
+                  {filtersActive ? t("sessionSidebar.noMatches") : t("sessionSidebar.noSessions")}
+                </div>
+              )}
+              {flatSessionTree.map((node) => (
+                <SessionTreeItem
+                  key={node.session.id}
+                  node={node}
+                  selectedSessionId={selectedSessionId}
+                  runningSessionIds={runningSessionIds}
+                  unreadSessionIds={unreadSessionIds}
+                  exitedSessions={exitedSessions}
+                  relativeTimeNow={relativeTimeNow}
+                  onSelectSession={handleSelectSessionFromList}
+                  onRenamed={loadSessions}
+                  onSessionDeleted={handleSessionDeleted}
+                  depth={0}
+                  showCwd
+                  homeDir={homeDir}
+                />
+              ))}
+            </>
+          ) : (
+            <>
+              {!loading && !projectsError && !error && sortedProjects.length === 0 && (
+                <div style={{ padding: "10px 4px", color: "var(--text-muted)", fontSize: 12, lineHeight: 1.5 }}>
+                  {t("projects.noProjects")}
+                </div>
+              )}
+              {!loading && !projectsError && !error && sortedProjects.length > 0 && visibleProjectEntries.length === 0 && (
+                <div style={{ padding: "14px 4px", color: "var(--text-dim)", fontSize: 11.5, lineHeight: 1.5 }}>
+                  {t("sessionSidebar.noMatches")}
+                </div>
+              )}
+
+              {visibleProjectEntries.map(({ project, sessions }) => {
+                const tree = treesByProject.get(project.path) ?? buildSessionTree(sessions);
+                // Sessions group under a project through the case-folded comparable
+                // form, so the active highlight uses the same comparison: a session
+                // whose cwd/projectRoot spells the project folder with different
+                // casing (Windows/NTFS) lands in this row — the row must light up
+                // for it too.
+                const isActive = selectedProject !== null && comparableProjectPath(selectedProject) === comparableProjectPath(project.path);
+                return (
+                  <ProjectRow
+                    key={project.path}
+                    project={project}
+                    isActive={isActive}
+                    activity={projectActivity.get(comparableProjectPath(project.path))}
+                    tree={tree}
+                    isExpanded={expandedProjectKeys.has(comparableProjectPath(project.path))}
+                    hiddenCount={filtersActive ? 0 : Math.max(0, tree.length - MAX_PROJECT_SESSIONS)}
+                    selectedSessionId={selectedSessionId}
+                    runningSessionIds={runningSessionIds}
+                    unreadSessionIds={unreadSessionIds}
+                    exitedSessions={exitedSessions}
+                    relativeTimeNow={relativeTimeNow}
+                    onActivate={activateProject}
+                    onToggleExpand={toggleProjectExpanded}
+                    onRemoveProject={handleRemoveProject}
+                    onEditLaunchConfig={setLaunchConfigProject}
+                    onUpdatePresentation={handleUpdateProjectPresentation}
+                    onDragPathChange={setDraggedProjectPath}
+                    onDropProject={(path) => void handleProjectDrop(path)}
+                    onMoveProject={(path, delta) => void handleMoveProject(path, delta)}
+                    isDragTarget={draggedProjectPath !== null && draggedProjectPath !== project.path}
+                    removeBusy={removeProjectPath === project.path}
+                    onSelectSession={handleSelectSessionFromList}
+                    onRenamed={loadSessions}
+                    onSessionDeleted={handleSessionDeleted}
+                  />
+                );
+              })}
+            </>
+          )}
         </div>
 
       {/* Provider usage bar — pinned above Settings */}

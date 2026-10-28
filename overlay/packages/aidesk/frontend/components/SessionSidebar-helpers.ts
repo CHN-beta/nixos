@@ -31,6 +31,30 @@ function saveUnreadSessionIds(ids: Set<string>): void {
 }
 const EXPANDED_PROJECTS_STORAGE_KEY = "omp-web:expanded-projects";
 
+/** Sidebar organisation: one row per session (default) or grouped by workspace. */
+type SidebarViewMode = "sessions" | "workspaces";
+const SIDEBAR_VIEW_MODE_STORAGE_KEY = "omp-web:sidebar-view-mode";
+
+/** Persisted sidebar view. Anything but an explicit "workspaces" falls back to
+ *  the flat, chat-app-style session list. */
+function loadSidebarViewMode(): SidebarViewMode {
+  if (typeof window === "undefined") return "sessions";
+  try {
+    return window.localStorage.getItem(SIDEBAR_VIEW_MODE_STORAGE_KEY) === "workspaces" ? "workspaces" : "sessions";
+  } catch {
+    return "sessions";
+  }
+}
+
+function saveSidebarViewMode(mode: SidebarViewMode): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(SIDEBAR_VIEW_MODE_STORAGE_KEY, mode);
+  } catch {
+    // ignore storage quota / privacy-mode errors
+  }
+}
+
 /** Shared empty set for the no-stored-expansion default (never mutated). */
 const EMPTY_PROJECT_SET: ReadonlySet<string> = new Set();
 
@@ -60,11 +84,33 @@ function saveExpandedProjects(paths: Set<string>): void {
   }
 }
 /** Substitute the home dir prefix with ~ (no path truncation — see PathLabel) */
+function formatHomePath(targetPath: string, homeDir?: string | null): string {
+  if (!targetPath) return "";
+  if (!homeDir) return targetPath;
+  const home = homeDir.replace(/[\\/]+$/, "");
+  if (!home) return targetPath;
+  const target = targetPath.replace(/[\\/]+$/, "");
+  if (!target) return targetPath;
+  if (target === home) return "~";
+  const foldedTarget = comparableProjectPath(target);
+  // Compare case-folded (Windows homes) but keep the separator boundary, so
+  // `/home/me` never claims `/home/memo`.
+  if (foldedTarget.startsWith(`${comparableProjectPath(home)}/`)) {
+    const relative = target.slice(home.length).replace(/^[\\/]+/, "");
+    return relative ? `~/${relative.replace(/\\/g, "/")}` : "~";
+  }
+  return targetPath;
+}
 /** Final folder name of a project path, portable across / and \ separators. */
 function projectLabel(projectPath: string): string {
   const trimmed = projectPath.replace(/[\\/]+$/, "");
   const index = Math.max(trimmed.lastIndexOf("/"), trimmed.lastIndexOf("\\"));
   return index >= 0 ? trimmed.slice(index + 1) : trimmed;
+}
+/** Last-activity timestamp: `modified` normally wins; `created` covers
+ *  optimistic placeholders whose modified stamp moves with the clock. */
+function sessionActivityTime(session: Pick<SessionInfo, "modified" | "created">): number {
+  return Math.max(Date.parse(session.modified) || 0, Date.parse(session.created) || 0);
 }
 function formatRelativeTime(value: string, _locale: string, now: number): string | null {
   const timestamp = new Date(value).getTime();
@@ -124,9 +170,11 @@ function buildSessionTree(sessions: SessionInfo[]): SessionTreeNode[] {
     }
   }
 
-  // Sort each level by modified desc
+  // Sort each level by latest activity desc, so the freshest session sits at
+  // the very top (falling back to the raw ISO stamp for equal instants).
   const sort = (nodes: SessionTreeNode[]) => {
-    nodes.sort((a, b) => b.session.modified.localeCompare(a.session.modified));
+    nodes.sort((a, b) => sessionActivityTime(b.session) - sessionActivityTime(a.session)
+      || b.session.modified.localeCompare(a.session.modified));
     nodes.forEach((n) => sort(n.children));
   };
   sort(roots);
@@ -139,13 +187,19 @@ export {
   INITIAL_RESTORE_MAX_ATTEMPTS,
   INITIAL_RESTORE_RETRY_MS,
   MAX_PROJECT_SESSIONS,
+  SIDEBAR_VIEW_MODE_STORAGE_KEY,
   UNREAD_SESSIONS_STORAGE_KEY,
   buildSessionTree,
+  formatHomePath,
   formatRelativeTime,
   loadExpandedProjects,
+  loadSidebarViewMode,
   loadUnreadSessionIds,
   projectLabel,
   saveExpandedProjects,
+  saveSidebarViewMode,
   saveUnreadSessionIds,
+  sessionActivityTime,
   type SessionTreeNode,
+  type SidebarViewMode,
 };

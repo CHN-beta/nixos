@@ -1613,6 +1613,53 @@ html[data-touch-targets="accessible"] :is(.image-lightbox-stepper button, .image
   width: 24px;
   height: 24px;
 }
+/* Flat "sessions" mode prints the activity time in the row subtitle, so the
+   trailing column only needs room for the hover action menu. */
+.session-item-trailing.session-item-trailing-compact {
+  width: 26px;
+}
+/* Sessions / Workspaces segmented control in the list header. */
+.sidebar-view-switch {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+  padding: 2px;
+  border-radius: var(--radius-control);
+  background: var(--bg-hover);
+}
+.sidebar-view-tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+  height: 24px;
+  padding: 0 6px;
+  border: none;
+  border-radius: calc(var(--radius-control) - 2px);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out-warm), color var(--dur-fast) var(--ease-out-warm);
+}
+.sidebar-view-tab > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar-view-tab:hover {
+  color: var(--text);
+}
+.sidebar-view-tab[data-active="true"] {
+  background: var(--bg-panel);
+  color: var(--text);
+}
 .sidebar-project-actions {
   /* Match the session status column after reserving timestamp + menu space. */
   width: 46px;
@@ -1651,6 +1698,9 @@ html[data-touch-targets="accessible"] :is(.image-lightbox-stepper button, .image
     width: 44px;
     height: 44px;
     flex-shrink: 0;
+  }
+  .session-item-trailing.session-item-trailing-compact {
+    width: 46px;
   }
   .session-item-row .session-item-button {
     align-self: stretch;
