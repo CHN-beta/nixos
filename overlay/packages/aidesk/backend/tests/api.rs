@@ -454,6 +454,51 @@ async fn settings_endpoints_roundtrip() {
 }
 
 #[tokio::test]
+async fn account_endpoint_reads_proxy_headers() {
+    let root = test_root("account");
+    let cfg = test_config(&root);
+    let state = AppState::new(cfg);
+    let router = build_router(state);
+
+    let response = router
+        .clone()
+        .oneshot(
+            Request::builder()
+                .uri("/api/account")
+                .header("Remote-User", "chn")
+                .header("Remote-Name", "CHN")
+                .header("Remote-Email", "chn@chn.moe")
+                .header("Remote-Groups", "admins, users ,,")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = body_json(response).await;
+    assert_eq!(body["user"], json!("chn"));
+    assert_eq!(body["name"], json!("CHN"));
+    assert_eq!(body["email"], json!("chn@chn.moe"));
+    assert_eq!(body["groups"], json!(["admins", "users"]));
+
+    // Without a proxy in front, the local login account stands in.
+    let response = router
+        .oneshot(
+            Request::builder()
+                .uri("/api/account")
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = body_json(response).await;
+    assert!(!body["user"].as_str().unwrap_or_default().is_empty());
+    assert_eq!(body["groups"], json!([]));
+    let _ = std::fs::remove_dir_all(root);
+}
+
+#[tokio::test]
 async fn manifest_and_version_endpoints_are_json() {
     let root = test_root("misc");
     let cfg = test_config(&root);

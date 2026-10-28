@@ -5,7 +5,7 @@ use crate::routes::{body_json, json_ok, query};
 use crate::state::SharedState;
 use crate::util::{coded_error, mtime_ms};
 use axum::extract::State;
-use axum::http::{StatusCode, Uri};
+use axum::http::{HeaderMap, StatusCode, Uri};
 use axum::response::Response;
 use serde_json::{json, Map, Value};
 use std::collections::HashMap;
@@ -750,6 +750,64 @@ pub async fn provider_usage(State(state): State<SharedState>, uri: Uri) -> Respo
             "provider_usage_unavailable",
         ),
     }
+}
+
+// ============================================================================
+// Account (headers injected by the reverse proxy / Authelia)
+// ============================================================================
+
+fn header_string(headers: &HeaderMap, name: &str) -> Option<String> {
+    headers
+        .get(name)
+        .and_then(|value| value.to_str().ok())
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+}
+
+fn env_string(name: &str) -> Option<String> {
+    std::env::var(name)
+        .ok()
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty())
+}
+
+/// `Remote-Groups` is a comma-separated header; repeat headers are merged too.
+fn header_groups(headers: &HeaderMap) -> Vec<String> {
+    let mut groups: Vec<String> = Vec::new();
+    for value in headers.get_all("Remote-Groups") {
+        let Ok(value) = value.to_str() else {
+            continue;
+        };
+        for group in value.split(',') {
+            let group = group.trim();
+            if !group.is_empty() && !groups.iter().any(|existing| existing == group) {
+                groups.push(group.to_string());
+            }
+        }
+    }
+    groups
+}
+
+pub async fn account_get(State(state): State<SharedState>, headers: HeaderMap) -> Response {
+    // Local dev has no proxy in front of the API, so fall back to the login
+    // account the backend itself runs as.
+    let user = header_string(&headers, "Remote-User")
+        .or_else(|| env_string("USER"))
+        .or_else(|| env_string("LOGNAME"))
+        .or_else(|| {
+            state
+                .cfg
+                .home
+                .file_name()
+                .map(|name| name.to_string_lossy().into_owned())
+        })
+        .unwrap_or_default();
+    json_ok(json!({
+        "user": user,
+        "name": header_string(&headers, "Remote-Name"),
+        "email": header_string(&headers, "Remote-Email"),
+        "groups": header_groups(&headers),
+    }))
 }
 
 pub async fn manifest(State(_state): State<SharedState>) -> Response {

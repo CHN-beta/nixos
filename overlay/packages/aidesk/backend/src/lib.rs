@@ -140,6 +140,7 @@ pub fn build_router(state: Arc<AppState>) -> Router {
             "/api/web-settings",
             get(settings::web_settings_get).put(settings::web_settings_put),
         )
+        .route("/api/account", get(settings::account_get))
         .route("/api/omp-version", get(settings::omp_version))
         .route("/api/provider-usage", get(settings::provider_usage))
         // Notifications
