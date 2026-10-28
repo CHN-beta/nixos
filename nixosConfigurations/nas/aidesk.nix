@@ -10,7 +10,10 @@ let
     "wyh"
     "lcl"
   ];
-  domain = "aidesk.chn.moe";
+  # The SPA is served unauthenticated by the public proxy (vps6) on
+  # aidesk.chn.moe; only the per-user API runs here, behind Authelia.
+  domain = "api.aidesk.chn.moe";
+  frontendOrigin = "https://aidesk.chn.moe";
   site = "https:${domain}";
 
   # nginx talks to Authelia and to the per-user backends over unix sockets
@@ -57,8 +60,8 @@ in
     ];
   };
 
-  # the default policy is deny, so aidesk.chn.moe needs an explicit rule; only
-  # the users that own a backend may pass
+  # the default policy is deny, so api.aidesk.chn.moe needs an explicit rule;
+  # only the users that own a backend may pass
   services.authelia.instances.main.settings.access_control.rules = [
     {
       inherit domain;
@@ -76,24 +79,32 @@ in
       proxy_cache off;
       gzip off;
 
+      # The SPA runs on another origin and calls this API with the Authelia
+      # cookie. "always" also covers 401/403/5xx: without it the browser turns
+      # those into opaque CORS failures and fetch() cannot see the 401.
+      add_header Access-Control-Allow-Origin "${frontendOrigin}" always;
+      add_header Access-Control-Allow-Credentials "true" always;
+      add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
+      add_header Access-Control-Allow-Headers "Content-Type, Authorization, Accept, Cache-Control, Last-Event-ID" always;
+
+      # A CORS preflight carries no cookie, but it must still succeed. "if" in
+      # server context runs in the rewrite phase, before auth_request in the
+      # access phase, so the browser gets 204 here and only the real request
+      # that follows is answered with 401.
+      if ($request_method = OPTIONS) {
+        return 204;
+      }
+
       # Authelia guards the whole site and tells us which user is logged in
       auth_request /internal/authelia/authz;
       auth_request_set $authelia_user $upstream_http_remote_user;
       auth_request_set $authelia_groups $upstream_http_remote_groups;
       auth_request_set $authelia_name $upstream_http_remote_name;
       auth_request_set $authelia_email $upstream_http_remote_email;
-      auth_request_set $authelia_redirection_url $upstream_http_location;
-      error_page 401 =302 $authelia_redirection_url;
+      # no error_page 401 =302: fetch() must observe the real 401 and send the
+      # top-level window to Authelia itself, with "rd" pointing back here
     '';
     location = {
-      "/".static = {
-        root = "${pkgs.localPkgs.aidesk.frontend}";
-        tryFiles = [
-          "$uri"
-          "$uri/"
-          "/index.html"
-        ];
-      };
       # proxy_pass runs with variables, so the original request URI is forwarded
       "/api/".proxy.upstream = "http://unix:${backendSocketDir}-$authelia_user/aidesk.sock:";
     };
