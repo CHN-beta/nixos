@@ -3,7 +3,8 @@ import { memo, useState, useId, useRef, useEffect, useLayoutEffect, useMemo, use
 import { Copy, Check, GitFork, CornerUpLeft, ChevronRight, ChevronDown, Brain, EyeOff, CircleAlert, CircleSlash, LoaderCircle, FileText, Search, FileEdit, Terminal, CheckSquare, Bot, Code2, Globe, MessagesSquare, Wrench, Volume2, Square } from "lucide-react";
 import { MarkdownBody } from "./MarkdownBody";
 import { AgentLinkContext, agentLinkIds } from "../lib/agent-links";
-import { MessageCopyActions } from "./MessageCopyActions";
+import { useMessageCopyActions } from "./MessageCopyActions";
+import { SidebarPortalMenu } from "./SessionSidebar-chrome";
 import { useSpeechContext } from "@/hooks/useSpeechSynthesis";
 import { ClickableImage } from "./ImageLightbox";
 import { translate, useI18n, type Locale } from "@/lib/i18n";
@@ -84,6 +85,60 @@ function ToolCategoryIcon({
 const MAX_THINKING_CACHE_ENTRIES = 100;
 const thinkingContentCache = new Map<string, Promise<string>>();
 const MAX_MARKDOWN_CHARS = 100_000;
+
+interface MessageMenuItem {
+  key: string;
+  label: string;
+  icon: React.ReactNode;
+  onSelect: () => void;
+  disabled?: boolean;
+}
+
+/**
+ * Right-click menu for a chat message: the actions that used to sit under the
+ * bubble (copy, copy as Markdown, read aloud, edit from here, branch) now live
+ * here, positioned at the cursor.
+ */
+function MessageContextMenu({ point, onClose, items }: {
+  point: { x: number; y: number } | null;
+  onClose: () => void;
+  items: MessageMenuItem[];
+}) {
+  return (
+    <SidebarPortalMenu anchorPoint={point} open={point !== null} onClose={onClose} minWidth={168}>
+      {items.map((item) => (
+        <button
+          key={item.key}
+          type="button"
+          role="menuitem"
+          disabled={item.disabled}
+          onClick={() => {
+            onClose();
+            item.onSelect();
+          }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            width: "100%",
+            padding: "6px 9px",
+            border: "none",
+            borderRadius: 6,
+            background: "transparent",
+            color: "var(--text)",
+            cursor: item.disabled ? "default" : "pointer",
+            textAlign: "left",
+            fontSize: 11,
+            opacity: item.disabled ? 0.55 : 1,
+          }}
+        >
+          {item.icon}
+          <span>{item.label}</span>
+        </button>
+      ))}
+    </SidebarPortalMenu>
+  );
+}
 
 // Cap the user "sent" bubble's height so an abnormally long message does not
 // push the conversation off screen; overflow scrolls inside the bubble.
@@ -278,48 +333,13 @@ function imageBlockSrc(img: ImageContent): string {
 }
 
 /**
- * "New session" (fork) action, shared by user and assistant messages.
+ * "New session" (fork) is offered from the message context menu.
  *
  * omp's `branch` command accepts a user-message entry only (an assistant entry
- * answers "Invalid entry ID for branching"), so `entryId` is the branch point
- * resolved by `resolveForkTargets` — for an assistant reply, the next user
- * prompt, so the reply stays in the fork's history.
+ * answers "Invalid entry ID for branching"), so `forkEntryId` is the branch
+ * point resolved by `resolveForkTargets` — for an assistant reply, the next
+ * user prompt, so the reply stays in the fork's history.
  */
-function ForkSessionButton({ entryId, editPrompt, onFork, forking, forkDisabled }: {
-  entryId: string;
-  editPrompt: boolean;
-  onFork: (entryId: string, editPrompt: boolean) => void;
-  forking?: boolean;
-  forkDisabled?: boolean;
-}) {
-  const { t } = useI18n();
-  const blocked = forkDisabled || forking;
-  return (
-    <Tooltip content={forking ? t("messageView.creatingSession") : t("messageView.newSessionTitle")}>
-      <button
-        onClick={() => { onFork(entryId, editPrompt); }}
-        disabled={blocked}
-        aria-label={forking ? t("messageView.creatingSession") : t("messageView.newSessionTitle")}
-        style={{
-          display: "flex", alignItems: "center", gap: 4,
-          padding: "3px 8px", height: 24, minHeight: 24,
-          background: "none", border: "none",
-          borderRadius: 5,
-          color: forking ? "var(--accent)" : "var(--text-dim)",
-          cursor: blocked ? "not-allowed" : "pointer",
-          fontSize: 11, fontWeight: 400,
-          whiteSpace: "nowrap",
-          transition: "color var(--dur-fast) var(--ease-out-warm)",
-        }}
-        onMouseEnter={(e) => { if (!blocked) e.currentTarget.style.color = "var(--accent)"; }}
-        onMouseLeave={(e) => { if (!blocked) e.currentTarget.style.color = "var(--text-dim)"; }}
-      >
-        <GitFork size={11} strokeWidth={1.8} />
-        {forking ? t("messageView.creating") : t("messageView.newSession")}
-      </button>
-    </Tooltip>
-  );
-}
 function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, forkDisabled, onNavigate, prevAssistantEntryId, onEditContent }: {  message: UserMessage;
   cwd?: string;
   onOpenFile?: (filePath: string) => void;
@@ -366,6 +386,36 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, f
   const time = formatTime(message.timestamp, locale);
   const canFork = !!entryId && !!onFork;
   const canNavigate = !!prevAssistantEntryId && !!onNavigate;
+  const [menuPoint, setMenuPoint] = useState<{ x: number; y: number } | null>(null);
+  const closeMenu = useCallback(() => setMenuPoint(null), []);
+  const copyTexts = useMemo(() => (content ? [content] : []), [content]);
+  const { hasText, copyPlain, copyMarkdown } = useMessageCopyActions(copyTexts, bodyRef);
+
+  const userMenuItems: MessageMenuItem[] = [
+    { key: "copy", label: t("messageView.copyMessage"), icon: <Copy size={12} strokeWidth={2} aria-hidden="true" />, onSelect: copyPlain, disabled: !hasText },
+    { key: "copy-markdown", label: t("messageView.copyMarkdown"), icon: <FileText size={12} strokeWidth={2} aria-hidden="true" />, onSelect: copyMarkdown, disabled: !hasText },
+  ];
+  if (canNavigate && onEditContent) {
+    userMenuItems.push({
+      key: "edit",
+      label: t("messageView.editFromHere"),
+      icon: <CornerUpLeft size={12} strokeWidth={1.8} aria-hidden="true" />,
+      onSelect: () => {
+        void Promise.resolve(onNavigate!(prevAssistantEntryId!)).then((ready) => {
+          if (ready) onEditContent(content);
+        });
+      },
+    });
+  }
+  if (canFork) {
+    userMenuItems.push({
+      key: "fork",
+      label: t("messageView.newSessionTitle"),
+      icon: <GitFork size={12} strokeWidth={1.8} aria-hidden="true" />,
+      onSelect: () => onFork!(entryId!, true),
+      disabled: forkDisabled || forking,
+    });
+  }
 
   return (
     <div
@@ -378,6 +428,11 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, f
           data-selection-scope="message"
           data-overflow={hasOverflow && !expanded ? "true" : undefined}
           tabIndex={-1}
+          onContextMenu={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            setMenuPoint({ x: event.clientX, y: event.clientY });
+          }}
           style={{
             maxWidth: "100%",
             minWidth: 0,
@@ -432,50 +487,14 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, f
           </button>
         )}
 
-        {/* Bottom row: action buttons + timestamp — inside the bubble's column,
-            spanning its width, so the timestamp aligns with its right edge. */}
-          <div style={{
-            display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "flex-end",
-            gap: 6, marginTop: 3, width: "100%",
-          }}>
-          <MessageCopyActions texts={[content]} bodyRef={bodyRef} />
-          {(canFork || canNavigate) && (
-            <div
-              style={{
-                display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 3,
-              }}
-            >
-              {canNavigate && (
-                <Tooltip content={t("messageView.editFromHereTitle")}>
-                  <button
-                    onClick={async () => { if (!(await onNavigate!(prevAssistantEntryId!))) return; onEditContent?.(content); }}
-                    aria-label={t("messageView.editFromHereTitle")}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 4,
-                      padding: "3px 8px", height: 24, minHeight: 24,
-                      background: "none", border: "none",
-                      borderRadius: 5,
-                      color: "var(--text-dim)",
-                      cursor: "pointer",
-                      fontSize: 11, fontWeight: 400,
-                      whiteSpace: "nowrap",
-                      transition: "color var(--dur-fast) var(--ease-out-warm)",
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.color = "var(--accent)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-dim)"; }}
-                  >
-                    <CornerUpLeft size={11} strokeWidth={1.8} />
-                    {t("messageView.editFromHere")}
-                  </button>
-                </Tooltip>
-              )}
-              {canFork && (
-                <ForkSessionButton entryId={entryId!} editPrompt onFork={onFork!} forking={forking} forkDisabled={forkDisabled} />
-              )}
-            </div>
-          )}
-          {time && <span style={{ fontSize: 10, color: "var(--text-dim)" }}>{time}</span>}
+        {/* Actions live in the right-click menu; only the timestamp stays, so
+            the conversation reads as messages instead of button rows. */}
+        {time && (
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: 6, marginTop: 3, width: "100%" }}>
+            <span style={{ fontSize: 10, color: "var(--text-dim)" }}>{time}</span>
           </div>
+        )}
+        <MessageContextMenu point={menuPoint} onClose={closeMenu} items={userMenuItems} />
       </div>
     </div>
   );
@@ -553,6 +572,9 @@ function AssistantMessageView({
   const bodyRef = useRef<HTMLDivElement>(null);
   const texts = (message.content ?? []).filter((block): block is TextContent => block.type === "text").map((block) => block.text);
   const canFork = !!forkEntryId && !!onFork;
+  const [menuPoint, setMenuPoint] = useState<{ x: number; y: number } | null>(null);
+  const closeMenu = useCallback(() => setMenuPoint(null), []);
+  const { hasText, copyPlain, copyMarkdown } = useMessageCopyActions(texts, bodyRef);
   const blockItems = (message.content ?? [])
     .map((block, index) => ({ block, originalIndex: sourceBlockIndices?.[index] ?? index }))
     .filter(({ block }) => !(hideThinking && block.type === "thinking") && !isEmptyThinkingBlock(block, { isStreaming }));
@@ -640,10 +662,39 @@ function AssistantMessageView({
 
   if (blocks.length === 0 && !isStreaming && !errorMessage) return null;
 
+  const assistantMenuItems: MessageMenuItem[] = [
+    { key: "copy", label: t("messageView.copyMessage"), icon: <Copy size={12} strokeWidth={2} aria-hidden="true" />, onSelect: copyPlain, disabled: !hasText },
+    { key: "copy-markdown", label: t("messageView.copyMarkdown"), icon: <FileText size={12} strokeWidth={2} aria-hidden="true" />, onSelect: copyMarkdown, disabled: !hasText },
+  ];
+  if (ttsSupported && speakableText.trim()) {
+    assistantMenuItems.push({
+      key: "tts",
+      label: isThisSpeaking ? t("messageView.stopSpeech") : t("messageView.readAloud"),
+      icon: isThisSpeaking
+        ? <Square size={12} strokeWidth={2} aria-hidden="true" />
+        : <Volume2 size={12} strokeWidth={2} aria-hidden="true" />,
+      onSelect: () => ttsToggle(messageSpeechId, speakableText),
+    });
+  }
+  if (canFork) {
+    assistantMenuItems.push({
+      key: "fork",
+      label: t("messageView.newSessionTitle"),
+      icon: <GitFork size={12} strokeWidth={1.8} aria-hidden="true" />,
+      onSelect: () => onFork!(forkEntryId!, forkEditsPrompt),
+      disabled: forkDisabled || forking,
+    });
+  }
+
   return (
     <div
       className="chat-message"
       data-live={isStreaming ? "true" : undefined}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        setMenuPoint({ x: event.clientX, y: event.clientY });
+      }}
       style={{ marginBottom: 6 }}
     >
       {/* Model label */}
@@ -760,29 +811,30 @@ function AssistantMessageView({
         )}
       </div>
 
-      {!isStreaming && (texts.some((text) => text.trim()) || time || canFork || (ttsSupported && speakableText.trim().length > 0)) && (
+      {/* Message actions live in the right-click menu. Only a live "reading
+          aloud" control stays visible, plus the timestamp. */}
+      {!isStreaming && (isThisSpeaking || time) && (
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 6, marginTop: 3 }}>
           <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 3 }}>
-            <MessageCopyActions texts={texts} bodyRef={bodyRef} />
-            {ttsSupported && speakableText.trim().length > 0 && (
-              <Tooltip content={isThisSpeaking ? t("messageView.stopSpeech") : t("messageView.readAloud")}>
+            {isThisSpeaking && (
+              <Tooltip content={t("messageView.stopSpeech")}>
                 <button
                   type="button"
                   className="message-copy-action"
                   onClick={() => ttsToggle(messageSpeechId, speakableText)}
-                  aria-label={isThisSpeaking ? t("messageView.stopSpeech") : t("messageView.readAloud")}
-                  style={isThisSpeaking ? { color: "var(--accent)", background: "var(--bg-hover)" } : undefined}
+                  aria-label={t("messageView.stopSpeech")}
+                  style={{ color: "var(--accent)", background: "var(--bg-hover)" }}
                 >
-                  {isThisSpeaking ? <Square size={13} aria-hidden="true" /> : <Volume2 size={13} aria-hidden="true" />}
-                  <span>{isThisSpeaking ? t("messageView.stopSpeech") : t("messageView.read")}</span>
+                  <Square size={13} aria-hidden="true" />
+                  <span>{t("messageView.stopSpeech")}</span>
                 </button>
               </Tooltip>
             )}
-            {canFork && <ForkSessionButton entryId={forkEntryId!} editPrompt={forkEditsPrompt} onFork={onFork!} forking={forking} forkDisabled={forkDisabled} />}
           </div>
           {time && <span style={{ fontSize: 10, color: "var(--text-dim)", marginLeft: "auto" }}>{time}</span>}
         </div>
       )}
+      <MessageContextMenu point={menuPoint} onClose={closeMenu} items={assistantMenuItems} />
     </div>
   );
 }

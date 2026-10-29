@@ -1,9 +1,7 @@
-
-import type { RefObject } from "react";
-import { Check, Copy, FileText } from "lucide-react";
-import { useCopyFeedback } from "@/hooks/useCopyFeedback";
+import { useCallback, type RefObject } from "react";
+import { copyText } from "@/lib/clipboard";
 import { useI18n } from "@/lib/i18n";
-import { Tooltip } from "./ui/primitives";
+import { toast } from "./ui/toast";
 
 // Read only the message's text blocks, never adjacent thinking/tool panels.
 // A mounted, offscreen clone lets innerText retain paragraph/table/code spacing
@@ -30,33 +28,31 @@ function renderedText(body: HTMLElement, source: string): string {
   }
 }
 
-export function MessageCopyActions({ texts, bodyRef }: {
-  texts: string[];
-  bodyRef: RefObject<HTMLDivElement | null>;
-}) {
+/**
+ * Copy handlers for a message's right-click menu: the rendered text (what the
+ * reader actually sees, including code/table spacing) and the raw Markdown
+ * source. Both confirm with a toast — the menu closes before a button-local
+ * "copied" state could be seen.
+ */
+export function useMessageCopyActions(texts: string[], bodyRef: RefObject<HTMLDivElement | null>) {
   const { t } = useI18n();
-  const plain = useCopyFeedback();
-  const markdown = useCopyFeedback();
-  if (!texts.some((text) => text.trim())) return null;
 
-  const copyPlain = () => {
+  const copyPlain = useCallback(() => {
     const bodies = bodyRef.current?.querySelectorAll<HTMLElement>("[data-message-text]");
-    plain.copy(texts.map((text, index) => bodies?.[index] ? renderedText(bodies[index], text) : text).filter((text) => text.trim()).join("\n\n"));
-  };
+    const text = texts
+      .map((source, index) => (bodies?.[index] ? renderedText(bodies[index], source) : source))
+      .filter((value) => value.trim())
+      .join("\n\n");
+    void copyText(text)
+      .then(() => toast.success(t("messageView.copied")))
+      .catch(() => {});
+  }, [texts, bodyRef, t]);
 
-  return (
-    <div className="message-copy-actions">
-      {[
-        { label: t("messageView.copyMessage"), text: t("messageView.copy"), copied: plain.copied, onClick: copyPlain, Icon: Copy },
-        { label: t("messageView.copyMarkdown"), text: t("messageView.markdown"), copied: markdown.copied, onClick: () => markdown.copy(texts.join("\n\n")), Icon: FileText },
-      ].map(({ label, text, copied, onClick, Icon }) => (
-        <Tooltip key={label} content={label}>
-          <button type="button" className="message-copy-action" onClick={onClick} aria-label={label}>
-            {copied ? <Check size={13} aria-hidden="true" /> : <Icon size={13} aria-hidden="true" />}
-            <span aria-live="polite">{copied ? t("messageView.copied") : text}</span>
-          </button>
-        </Tooltip>
-      ))}
-    </div>
-  );
+  const copyMarkdown = useCallback(() => {
+    void copyText(texts.join("\n\n"))
+      .then(() => toast.success(t("messageView.copied")))
+      .catch(() => {});
+  }, [texts, t]);
+
+  return { hasText: texts.some((text) => text.trim()), copyPlain, copyMarkdown };
 }
