@@ -533,3 +533,169 @@ async fn manifest_and_version_endpoints_are_json() {
     assert!(body.get("version").is_some());
     let _ = std::fs::remove_dir_all(root);
 }
+
+// ============================================================================
+// Explorer context-menu actions + explicit viewer overrides
+// ============================================================================
+
+fn file_uri(path: &Path) -> String {
+    format!(
+        "/api/files/{}",
+        path.to_string_lossy().trim_start_matches('/')
+    )
+}
+
+#[tokio::test]
+async fn file_actions_create_and_viewer_overrides() {
+    let root = test_root("file-menu");
+    let cfg = test_config(&root);
+    let workspace = root.join("workspace");
+    std::fs::create_dir_all(&workspace).unwrap();
+    let state = AppState::new(cfg);
+    state.allow_root(&workspace);
+    let router = build_router(state);
+
+    // POST ?type=mkdir creates the folder once and reports a conflict after.
+    let folder = workspace.join("new-folder");
+    let response = router
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri(format!("{}?type=mkdir", file_uri(&folder)))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = body_json(response).await;
+    assert_eq!(body["success"], json!(true));
+    assert_eq!(body["path"], json!(folder.to_string_lossy()));
+    assert!(folder.is_dir());
+
+    let response = router
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri(format!("{}?type=mkdir", file_uri(&folder)))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::CONFLICT);
+    assert_eq!(body_json(response).await["code"], json!("already_exists"));
+
+    // createOnly refuses to overwrite an existing file.
+    let notes = workspace.join("notes.md");
+    std::fs::write(&notes, "keep me").unwrap();
+    let response = router
+        .clone()
+        .oneshot(json_request(
+            "PUT",
+            &file_uri(&notes),
+            json!({ "content": "", "createOnly": true }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::CONFLICT);
+    assert_eq!(
+        body_json(response).await["code"],
+        json!("file_already_exists")
+    );
+    assert_eq!(std::fs::read_to_string(&notes).unwrap(), "keep me");
+
+    // createOnly creates a brand new file.
+    let created = workspace.join("created.md");
+    let response = router
+        .clone()
+        .oneshot(json_request(
+            "PUT",
+            &file_uri(&created),
+            json!({ "content": "", "createOnly": true }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    assert!(created.is_file());
+
+    // as=markdown rewrites the reported language even for a .txt file.
+    let plain = workspace.join("plain.txt");
+    std::fs::write(&plain, "# heading\n").unwrap();
+    let response = router
+        .clone()
+        .oneshot(
+            Request::builder()
+                .uri(format!("{}?type=read&as=markdown", file_uri(&plain)))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(body_json(response).await["language"], json!("markdown"));
+
+    // as=text reads an image extension as UTF-8 text instead of streaming it.
+    let fake_image = workspace.join("fake.png");
+    std::fs::write(&fake_image, "not really an image").unwrap();
+    let response = router
+        .clone()
+        .oneshot(
+            Request::builder()
+                .uri(format!("{}?type=read&as=text", file_uri(&fake_image)))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(
+        response.headers()[axum::http::header::CONTENT_TYPE],
+        "application/json"
+    );
+    let body = body_json(response).await;
+    assert_eq!(body["content"], json!("not really an image"));
+    assert_eq!(body["language"], json!("text"));
+
+    // as=image streams the same file with an image MIME.
+    let response = router
+        .clone()
+        .oneshot(
+            Request::builder()
+                .uri(format!("{}?type=read&as=image", file_uri(&fake_image)))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(
+        response.headers()[axum::http::header::CONTENT_TYPE],
+        "image/png"
+    );
+
+    // as=pdf serves raw PDF bytes regardless of the extension.
+    let report = workspace.join("report.bin");
+    std::fs::write(&report, b"%PDF-1.4 fake body").unwrap();
+    let response = router
+        .clone()
+        .oneshot(
+            Request::builder()
+                .uri(format!("{}?type=preview&as=pdf", file_uri(&report)))
+                .body(Body::empty())
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(
+        response.headers()[axum::http::header::CONTENT_TYPE],
+        "application/pdf"
+    );
+    let bytes = response.into_body().collect().await.unwrap().to_bytes();
+    assert_eq!(&bytes[..], b"%PDF-1.4 fake body");
+
+    let _ = std::fs::remove_dir_all(root);
+}

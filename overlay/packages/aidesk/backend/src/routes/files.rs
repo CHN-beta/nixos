@@ -109,6 +109,10 @@ pub async fn files_get(
             "invalid_request_type",
         );
     }
+    // Explicit viewer choice from the file tree's "Open with" menu. It wins
+    // over extension sniffing, so e.g. a .bin can open in the PDF viewer.
+    let open_as = query.get("as").map(|value| value.trim().to_lowercase());
+    let open_as = open_as.as_deref();
     let session_id = query.get("sessionId");
     let path = resolve_read_file_path(&state, &param);
     let canonical = std::fs::canonicalize(&path).ok();
@@ -140,24 +144,98 @@ pub async fn files_get(
             if !meta.is_file() {
                 return not_a_file();
             }
-            if let Some(mime) = image_mime(&path) {
-                if meta.len() > IMAGE_PREVIEW_MAX_BYTES {
-                    return coded_error(
-                        StatusCode::PAYLOAD_TOO_LARGE,
-                        "Image too large (>10MB)",
-                        "image_too_large",
-                    );
+            match open_as {
+                // Streamed media/documents ignore the extension so a file can
+                // be inspected as image/audio/PDF/DOCX from "Open with".
+                Some("image") => {
+                    if meta.len() > IMAGE_PREVIEW_MAX_BYTES {
+                        return coded_error(
+                            StatusCode::PAYLOAD_TOO_LARGE,
+                            "Image too large (>10MB)",
+                            "image_too_large",
+                        );
+                    }
+                    return stream_file(
+                        &path,
+                        &meta,
+                        image_mime(&path).unwrap_or("application/octet-stream"),
+                        header_range(&headers).as_deref(),
+                        false,
+                    )
+                    .await;
                 }
-                return stream_file(&path, &meta, mime, header_range(&headers).as_deref(), false)
+                Some("audio") => {
+                    return stream_file(
+                        &path,
+                        &meta,
+                        crate::util::audio_mime(&path).unwrap_or("audio/mpeg"),
+                        header_range(&headers).as_deref(),
+                        false,
+                    )
                     .await;
-            }
-            if let Some(mime) = crate::util::audio_mime(&path) {
-                return stream_file(&path, &meta, mime, header_range(&headers).as_deref(), false)
+                }
+                Some("pdf") => {
+                    return stream_file(
+                        &path,
+                        &meta,
+                        "application/pdf",
+                        header_range(&headers).as_deref(),
+                        false,
+                    )
                     .await;
-            }
-            if let Some(mime) = document_mime(&path) {
-                return stream_file(&path, &meta, mime, header_range(&headers).as_deref(), false)
+                }
+                Some("docx") => {
+                    return stream_file(
+                        &path,
+                        &meta,
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        header_range(&headers).as_deref(),
+                        false,
+                    )
                     .await;
+                }
+                // Text-ish overrides skip binary sniffing and only rewrite the
+                // syntax language; the body stays the same JSON shape.
+                Some("text") | Some("edit") | Some("markdown") | Some("html") => {}
+                _ => {
+                    if let Some(mime) = image_mime(&path) {
+                        if meta.len() > IMAGE_PREVIEW_MAX_BYTES {
+                            return coded_error(
+                                StatusCode::PAYLOAD_TOO_LARGE,
+                                "Image too large (>10MB)",
+                                "image_too_large",
+                            );
+                        }
+                        return stream_file(
+                            &path,
+                            &meta,
+                            mime,
+                            header_range(&headers).as_deref(),
+                            false,
+                        )
+                        .await;
+                    }
+                    if let Some(mime) = crate::util::audio_mime(&path) {
+                        return stream_file(
+                            &path,
+                            &meta,
+                            mime,
+                            header_range(&headers).as_deref(),
+                            false,
+                        )
+                        .await;
+                    }
+                    if let Some(mime) = document_mime(&path) {
+                        return stream_file(
+                            &path,
+                            &meta,
+                            mime,
+                            header_range(&headers).as_deref(),
+                            false,
+                        )
+                        .await;
+                    }
+                }
             }
             if meta.len() > TEXT_PREVIEW_MAX_BYTES {
                 return coded_error(
@@ -175,9 +253,14 @@ pub async fn files_get(
                     )
                 }
             };
+            let language = match open_as {
+                Some("markdown") => "markdown",
+                Some("html") => "html",
+                _ => language_for(&path),
+            };
             let response = crate::util::json_response(json!({
                 "content": content,
-                "language": language_for(&path),
+                "language": language,
                 "size": meta.len(),
             }));
             crate::routes::apply_headers(response, &[("X-File-Mtime", file_mtime_header(&meta))])
@@ -217,7 +300,27 @@ pub async fn files_get(
             if !meta.is_file() {
                 return not_a_file();
             }
-            if file_ext(&path) != "docx" {
+            let preview_kind = match open_as {
+                Some("pdf") => Some("pdf"),
+                Some("docx") => Some("docx"),
+                _ => None,
+            };
+            let is_pdf =
+                preview_kind == Some("pdf") || (preview_kind.is_none() && file_ext(&path) == "pdf");
+            if is_pdf {
+                // Browsers render application/pdf natively in an iframe.
+                return stream_file(
+                    &path,
+                    &meta,
+                    "application/pdf",
+                    header_range(&headers).as_deref(),
+                    false,
+                )
+                .await;
+            }
+            let is_docx = preview_kind == Some("docx")
+                || (preview_kind.is_none() && file_ext(&path) == "docx");
+            if !is_docx {
                 return coded_error(
                     StatusCode::BAD_REQUEST,
                     "Preview not available for this file type",
@@ -457,6 +560,14 @@ pub async fn files_put(
             "invalid_content",
         );
     };
+    // "New file" from the explorer must never overwrite an existing file.
+    if body.get("createOnly").and_then(Value::as_bool) == Some(true) && target_meta.is_ok() {
+        return coded_error(
+            StatusCode::CONFLICT,
+            "File already exists",
+            "file_already_exists",
+        );
+    }
     let expected_mtime = body.get("expectedMtime").and_then(Value::as_f64);
     if let Ok(meta) = &target_meta {
         if let Some(expected) = expected_mtime {
@@ -587,18 +698,52 @@ fn upload_directory(state: &SharedState, param: &str) -> Result<PathBuf, Respons
     Ok(real_directory)
 }
 
+/// Create one directory (and any missing parents) for the explorer's
+/// "New folder" action, confined to the authorized roots.
+fn create_directory(state: &SharedState, param: &str) -> Response {
+    let target = crate::util::normalize_lexically(&strict_absolute_path(param));
+    // Lexical and canonical checks: create_dir_all would happily follow a
+    // symlinked parent out of the workspace.
+    if is_denied_write_target(state, &target) || !state.is_path_allowed(&target) {
+        return crate::util::access_denied();
+    }
+    let Some(ancestor) = nearest_existing_ancestor(&target) else {
+        return crate::util::access_denied();
+    };
+    let Some(canonical_target) = canonical_write_target(&target) else {
+        return crate::util::access_denied();
+    };
+    if !state.is_existing_path_allowed(&ancestor) || !state.is_path_allowed(&canonical_target) {
+        return crate::util::access_denied();
+    }
+    if std::fs::symlink_metadata(&target).is_ok() {
+        return coded_error(StatusCode::CONFLICT, "Already exists", "already_exists");
+    }
+    if let Err(error) = std::fs::create_dir_all(&target) {
+        return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
+    }
+    crate::routes::json_ok(json!({ "success": true, "path": target.to_string_lossy() }))
+}
+
 pub async fn files_post(
     State(state): State<SharedState>,
     AxumPath(param): AxumPath<String>,
     uri: Uri,
     request: axum::extract::Request,
 ) -> Response {
+    let query = query(&uri);
+    let request_type = query.get("type").unwrap_or("upload");
+
+    // "New folder" from the explorer. Unlike uploads the target does not exist
+    // yet, so this runs before `upload_directory` (which requires one).
+    if request_type == "mkdir" {
+        return create_directory(&state, &param);
+    }
+
     let directory = match upload_directory(&state, &param) {
         Ok(directory) => directory,
         Err(response) => return response,
     };
-    let query = query(&uri);
-    let request_type = query.get("type").unwrap_or("upload");
 
     if request_type == "upload-check" {
         let body = match body_json(request, MAX_UPLOAD_CHECK_REQUEST_BYTES).await {
