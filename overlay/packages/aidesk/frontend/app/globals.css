@@ -1628,8 +1628,10 @@ html[data-touch-targets="accessible"] :is(.image-lightbox-stepper button, .image
   border-radius: 4px;
 }
 
+/* Workspaces mode prints the relative time at the row's right edge; flat
+   "sessions" mode already prints it in the subtitle, so nothing is reserved
+   there and the title uses the full width. */
 .session-item-trailing {
-  width: 68px;
   gap: 2px;
   height: 24px;
 }
@@ -1638,15 +1640,6 @@ html[data-touch-targets="accessible"] :is(.image-lightbox-stepper button, .image
 }
 .session-item-time {
   width: 42px;
-}
-.session-item-menu-button {
-  width: 24px;
-  height: 24px;
-}
-/* Flat "sessions" mode prints the activity time in the row subtitle, so the
-   trailing column only needs room for the hover action menu. */
-.session-item-trailing.session-item-trailing-compact {
-  width: 26px;
 }
 /* Sessions / Workspaces segmented control in the list header. */
 .sidebar-view-switch {
@@ -1690,20 +1683,9 @@ html[data-touch-targets="accessible"] :is(.image-lightbox-stepper button, .image
   background: var(--bg-panel);
   color: var(--text);
 }
-.sidebar-project-actions {
-  /* Match the session status column after reserving timestamp + menu space. */
-  width: 46px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-/* Touch rows keep the compact timestamp immediately beside a full-size menu target. */
+/* Touch rows keep the compact timestamp immediately beside a full-size tap target. */
 @media (hover: none), (pointer: coarse) {
-  .sidebar-project-actions {
-    width: 56px;
-  }
   .sidebar-icon-button,
-  .sidebar-project-action,
   .sidebar-project-toggle {
     width: 40px !important;
     height: 40px !important;
@@ -1718,19 +1700,10 @@ html[data-touch-targets="accessible"] :is(.image-lightbox-stepper button, .image
     min-height: 44px;
   }
   .session-item-trailing {
-    width: 78px;
     height: 44px;
   }
   .session-item-time {
     width: 32px;
-  }
-  .session-item-menu-button {
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-  }
-  .session-item-trailing.session-item-trailing-compact {
-    width: 46px;
   }
   .session-item-row .session-item-button {
     align-self: stretch;
@@ -1739,7 +1712,6 @@ html[data-touch-targets="accessible"] :is(.image-lightbox-stepper button, .image
 
 .sidebar-project-header > button:focus-visible,
 .sidebar-project-identity:focus-visible,
-.sidebar-project-action:focus-visible,
 .sidebar-new-session:focus-visible,
 .sidebar-settings-row:focus-visible {
   outline: 2px solid var(--accent);
@@ -2272,7 +2244,6 @@ html[data-touch-targets="accessible"] :is(.image-lightbox-stepper button, .image
   .composer-usage-limit-badge { order: -1; flex-basis: 100%; max-width: none; }
 
   .sidebar-icon-button,
-  .sidebar-project-action,
   .sidebar-project-toggle {
     min-width: 44px;
     min-height: 44px;
@@ -4484,7 +4455,6 @@ html[data-touch-targets="accessible"] :is(
   .composer-context-control,
   .shell-toolbar-btn,
   .sidebar-icon-button,
-  .sidebar-project-action,
   .sidebar-project-toggle,
   .right-panel-toolbar [role="toolbar"] > button,
   .git-clear-filter,
@@ -4595,14 +4565,6 @@ html[data-touch-targets="compact"] .session-item-row {
 }
 html[data-touch-targets="compact"] .session-item-trailing {
   height: 24px !important;
-  width: 68px !important;
-}
-html[data-touch-targets="compact"] .session-item-menu-button {
-  width: 24px !important;
-  height: 24px !important;
-}
-html[data-touch-targets="compact"] .session-item-row .session-item-button {
-  padding-right: 70px !important;
 }
 html[data-touch-targets="compact"] .settings-card {
   padding: 10px 16px !important;

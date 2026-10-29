@@ -2,7 +2,7 @@
 import { memo, useCallback, useRef, useState } from "react";
 import type { AgentMessage, ExitedRpcSession, ManagedProject, ProjectLaunchConfig, SessionInfo } from "@/lib/types";
 import { formatExitedSessionNotice, useI18n } from "@/lib/i18n";
-import { ChevronDown, ChevronRight, Folder, GitBranch, MoreHorizontal } from "lucide-react";
+import { ChevronDown, ChevronRight, Folder, GitBranch } from "lucide-react";
 import { Tooltip } from "./ui/primitives";
 import { ConfirmDialog } from "./ui/field";
 import { copyText } from "@/lib/clipboard";
@@ -93,8 +93,8 @@ function ProjectRow({
   const [hovered, setHovered] = useState(false);
   const [showAllSessions, setShowAllSessions] = useState(false);
   const [actionMenuOpen, setActionMenuOpen] = useState(false);
+  const [menuPoint, setMenuPoint] = useState<{ x: number; y: number } | null>(null);
   const [confirmRemove, setConfirmRemove] = useState(false);
-  const actionButtonRef = useRef<HTMLButtonElement>(null);
   const [aliasEditing, setAliasEditing] = useState(false);
   const [aliasValue, setAliasValue] = useState("");
   const aliasInputRef = useRef<HTMLInputElement>(null);
@@ -149,11 +149,13 @@ function ProjectRow({
         onDragEnd={() => onDragPathChange(null)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onKeyDown={(event) => {
-          if (event.key === "Escape" && actionMenuOpen) {
-            event.stopPropagation();
-            setActionMenuOpen(false);
-          }
+        onContextMenu={(event) => {
+          // The whole project row is the menu target now; the three-dot
+          // button is gone.
+          event.preventDefault();
+          event.stopPropagation();
+          setMenuPoint({ x: event.clientX, y: event.clientY });
+          setActionMenuOpen(true);
         }}
         style={{
           display: "flex",
@@ -290,33 +292,12 @@ function ProjectRow({
               </span>
             )}
         </div>
-        <div
-          className="sidebar-project-actions"
-          style={{
-            flexShrink: 0,
-          }}
+        <SidebarPortalMenu
+          anchorPoint={menuPoint}
+          open={actionMenuOpen}
+          onClose={() => setActionMenuOpen(false)}
+          minWidth={136}
         >
-          <button
-            type="button"
-            ref={actionButtonRef}
-            className="sidebar-project-action"
-            onClick={() => setActionMenuOpen((open) => !open)}
-            disabled={removeBusy}
-            aria-label={t("projects.actions")}
-            title={t("projects.actions")}
-            aria-expanded={actionMenuOpen}
-            aria-haspopup="menu"
-            style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, padding: 0, border: "none", borderRadius: "var(--radius-control)", background: actionMenuOpen ? "var(--bg-selected)" : "transparent", color: "var(--text-dim)", cursor: removeBusy ? "default" : "pointer", opacity: removeBusy ? 0.5 : 1, lineHeight: 0, transition: SIDEBAR_BUTTON_TRANSITION }}
-          >
-            <MoreHorizontal size={13} strokeWidth={2} aria-hidden="true" />
-          </button>
-          <SidebarPortalMenu
-            anchor={actionButtonRef}
-            open={actionMenuOpen}
-            onClose={() => setActionMenuOpen(false)}
-            placement="below"
-            minWidth={136}
-          >
             <button type="button" role="menuitem" className="sidebar-menu-item" onClick={() => { startAliasEdit(); setActionMenuOpen(false); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text)", cursor: "pointer", textAlign: "left", fontSize: 11 }}>
               {project.alias ? t("projects.editAlias") : t("projects.nameAlias")}
             </button>
@@ -333,7 +314,6 @@ function ProjectRow({
               {t("projects.remove", { name: label })}
             </button>
           </SidebarPortalMenu>
-        </div>
         <button
           className="sidebar-project-toggle"
           onClick={() => onToggleExpand(project.path)}
@@ -590,10 +570,10 @@ const SessionItem = memo(function SessionItem({
   const renameCancelRef = useRef(false);
  const [confirmDelete, setConfirmDelete] = useState(false);
   const [actionMenuOpen, setActionMenuOpen] = useState(false);
+  const [menuPoint, setMenuPoint] = useState<{ x: number; y: number } | null>(null);
   const [deleting, setDeleting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const contentButtonRef = useRef<HTMLButtonElement>(null);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const title = session.name || session.firstMessage.slice(0, 50) || session.id.slice(0, 12);
   const relativeTime = formatRelativeTime(session.modified, locale, relativeTimeNow);
   // Flat mode shows the activity stamp on its own subtitle line, and the row
@@ -691,8 +671,15 @@ const SessionItem = memo(function SessionItem({
  onClick={confirmDelete || renaming ? undefined : onClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onContextMenu={(event) => {
+        if (confirmDelete || renaming) return;
+        event.preventDefault();
+        event.stopPropagation();
+        setMenuPoint({ x: event.clientX, y: event.clientY });
+        setActionMenuOpen(true);
+      }}
       onKeyDown={(event) => {
-        if ((confirmDelete || actionMenuOpen) && event.key === "Escape") {
+        if (confirmDelete && event.key === "Escape") {
           event.stopPropagation();
           closeConfirmation();
         }
@@ -762,24 +749,22 @@ const SessionItem = memo(function SessionItem({
                     : <UnreadSessionIndicator size={11} />}
               </span>
             )}
-            <div className={`session-item-trailing${showCwd ? " session-item-trailing-compact" : ""}`} style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", flexShrink: 0 }}>
-              {!showCwd && (
+            {!showCwd && (
+              // Workspaces mode has no subtitle line, so the relative time
+              // stays on the right. Flat mode prints it under the title and
+              // keeps the full row width for the title itself.
+              <div className="session-item-trailing" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", flexShrink: 0 }}>
                 <div className="session-item-metadata" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end" }}>
                   {relativeTime && <span className="session-item-time" title={new Date(session.modified).toLocaleString(locale)} style={{ flexShrink: 0, whiteSpace: "nowrap", textAlign: "right", color: isSelected ? "var(--accent)" : "var(--text-dim)", fontSize: 10, fontVariantNumeric: "tabular-nums" }}>{relativeTime}</span>}
                 </div>
-              )}
-              <div className="session-item-actions" style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 2 }}>
-                <button type="button" ref={menuButtonRef} className="session-item-icon-button session-item-menu-button" onClick={(event) => { event.stopPropagation(); setActionMenuOpen((open) => !open); }} title={t("projects.actions")} aria-label={t("projects.actions")} aria-expanded={actionMenuOpen} style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 0, lineHeight: 0, border: "none", borderRadius: "var(--radius-control)", background: actionMenuOpen ? "var(--bg-selected)" : "transparent", color: actionMenuOpen ? "var(--text)" : "var(--text-dim)", cursor: "pointer" }}>
-                  <MoreHorizontal size={14} strokeWidth={2} aria-hidden="true" />
-                </button>
-                <SidebarPortalMenu anchor={menuButtonRef} open={actionMenuOpen} onClose={() => setActionMenuOpen(false)} placement="below" minWidth={128}>
- <button type="button" role="menuitem" className="sidebar-menu-item" onClick={(event) => { event.stopPropagation(); setActionMenuOpen(false); void handleArchive(); }} disabled={hasChildren} title={hasChildren ? t("sessionSidebar.archiveLeafOnly") : t("sessionSidebar.archive")} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: hasChildren ? "var(--text-dim)" : "var(--text-muted)", cursor: hasChildren ? "not-allowed" : "pointer", textAlign: "left", fontSize: 11, opacity: hasChildren ? 0.55 : 1 }}>{t("sessionSidebar.archive")}</button>
-                  <button type="button" role="menuitem" className="sidebar-menu-item" onClick={(event) => { startRename(event); setActionMenuOpen(false); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text-muted)", cursor: "pointer", textAlign: "left", fontSize: 11 }}>{t("sessionSidebar.rename")}</button>
-                  <button type="button" role="menuitem" className="sidebar-menu-item" onClick={(event) => { event.stopPropagation(); setActionMenuOpen(false); void handleCopyTranscript(); }} disabled={copyingTranscript} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text-muted)", cursor: copyingTranscript ? "default" : "pointer", textAlign: "left", fontSize: 11, opacity: copyingTranscript ? 0.55 : 1 }}>{t("sessionSidebar.copyTranscript")}</button>
-                  <button type="button" role="menuitem" className="sidebar-menu-item" disabled={deleting} onClick={(event) => { event.stopPropagation(); setActionMenuOpen(false); setConfirmDelete(true); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--status-error)", cursor: "pointer", textAlign: "left", fontSize: 11 }}>{t("sessionSidebar.delete")}</button>
-                </SidebarPortalMenu>
               </div>
-            </div>
+            )}
+            <SidebarPortalMenu anchorPoint={menuPoint} open={actionMenuOpen} onClose={() => setActionMenuOpen(false)} minWidth={128}>
+              <button type="button" role="menuitem" className="sidebar-menu-item" onClick={(event) => { event.stopPropagation(); setActionMenuOpen(false); void handleArchive(); }} disabled={hasChildren} title={hasChildren ? t("sessionSidebar.archiveLeafOnly") : t("sessionSidebar.archive")} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: hasChildren ? "var(--text-dim)" : "var(--text-muted)", cursor: hasChildren ? "not-allowed" : "pointer", textAlign: "left", fontSize: 11, opacity: hasChildren ? 0.55 : 1 }}>{t("sessionSidebar.archive")}</button>
+              <button type="button" role="menuitem" className="sidebar-menu-item" onClick={(event) => { startRename(event); setActionMenuOpen(false); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text-muted)", cursor: "pointer", textAlign: "left", fontSize: 11 }}>{t("sessionSidebar.rename")}</button>
+              <button type="button" role="menuitem" className="sidebar-menu-item" onClick={(event) => { event.stopPropagation(); setActionMenuOpen(false); void handleCopyTranscript(); }} disabled={copyingTranscript} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text-muted)", cursor: copyingTranscript ? "default" : "pointer", textAlign: "left", fontSize: 11, opacity: copyingTranscript ? 0.55 : 1 }}>{t("sessionSidebar.copyTranscript")}</button>
+              <button type="button" role="menuitem" className="sidebar-menu-item" disabled={deleting} onClick={(event) => { event.stopPropagation(); setActionMenuOpen(false); setConfirmDelete(true); }} style={{ display: "block", width: "100%", padding: "6px 9px", border: "none", borderRadius: 6, background: "transparent", color: "var(--status-error)", cursor: "pointer", textAlign: "left", fontSize: 11 }}>{t("sessionSidebar.delete")}</button>
+            </SidebarPortalMenu>
           </div>
         </>
       )}

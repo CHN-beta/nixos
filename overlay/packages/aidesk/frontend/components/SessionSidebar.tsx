@@ -10,7 +10,7 @@ import { toast } from "./ui/toast";
 import { clearLastOpenSession, setLastOpenSession, workspaceKeyOf } from "@/lib/workspace-memory";
 import { projectActivityCounts, sortManagedProjects } from "@/lib/project-ordering";
 import { comparableProjectPath } from "@/lib/comparable-path";
-import { Archive, ArrowLeft, ArrowRight, Check, ChevronRight, Folder, MessageSquare, Plus, RefreshCw, Search, Settings2, SlidersHorizontal, X } from "lucide-react";
+import { Archive, ArrowLeft, ArrowRight, Check, ChevronRight, Folder, MessageSquare, Plus, RefreshCw, Search, Settings2, X } from "lucide-react";
 import { publishSessionsChanged } from "@/lib/session-change-bus";
 import { NOTIFICATION_MESSAGE_EVENT, notificationClientId } from "@/lib/notification-client";
 import {
@@ -123,7 +123,6 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
   // Client-side workspace/session filtering (Workspaces header controls).
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [runningOnly, setRunningOnly] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Once the SSE stream has delivered a frame it is the source of truth for
@@ -654,30 +653,29 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
     [visibleSessions, runningSessionIds, unreadSessionIds, exitedSessions],
   );
 
-  // Client-side filtering (Workspaces header: search + "running only").
+  // Client-side filtering (Workspaces header: search).
   // While a filter is active, workspaces with no matching sessions are hidden
   // so the list reads as a genuine result set; at rest every workspace stays.
   // Deferred search: typing stays responsive (input updates immediately) while the heavy
   // visibleProjectEntries filter runs at lower priority. Combines with the 200ms ETag loadSessions
   // debounce already in place — keystrokes never block the main thread on large session lists.
   const deferredSearchQuery = useDeferredValue(searchQuery);
-  const filtersActive = searchOpen || runningOnly || deferredSearchQuery.trim().length > 0;
+  const filtersActive = searchOpen || deferredSearchQuery.trim().length > 0;
   const visibleProjectEntries = useMemo(() => {
     const q = deferredSearchQuery.trim().toLowerCase();
     const entries: { project: ManagedProject; sessions: SessionInfo[] }[] = [];
     for (const project of sortedProjects) {
       let list = sessionsByProject.get(project.path) ?? [];
-      if (runningOnly) list = list.filter((s) => runningSessionIds.has(s.id));
       if (q) {
         list = list.filter((s) => (s.name ?? "").toLowerCase().includes(q) || s.firstMessage.toLowerCase().includes(q));
       }
       // Label/alias-only matches surface as empty workspaces; without this
       // clause a custom workspace name would be unfindable by search.
-      if (list.length === 0 && (runningOnly || (q && !projectLabel(project.path).toLowerCase().includes(q) && !(project.alias ?? "").toLowerCase().includes(q)))) continue;
+      if (list.length === 0 && q && !projectLabel(project.path).toLowerCase().includes(q) && !(project.alias ?? "").toLowerCase().includes(q)) continue;
       entries.push({ project, sessions: list });
     }
     return entries;
-  }, [sortedProjects, sessionsByProject, runningOnly, deferredSearchQuery, runningSessionIds]);
+  }, [sortedProjects, sessionsByProject, deferredSearchQuery]);
 
   const treesByProject = useMemo(() => {
     const m = new Map<string, SessionTreeNode[]>();
@@ -690,14 +688,13 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
   const visibleFlatSessions = useMemo(() => {
     const q = deferredSearchQuery.trim().toLowerCase();
     let list = visibleSessions;
-    if (runningOnly) list = list.filter((session) => runningSessionIds.has(session.id));
     if (q) {
       list = list.filter((session) => (session.name ?? "").toLowerCase().includes(q)
         || session.firstMessage.toLowerCase().includes(q)
         || session.cwd.toLowerCase().includes(q));
     }
     return list;
-  }, [visibleSessions, runningOnly, runningSessionIds, deferredSearchQuery]);
+  }, [visibleSessions, deferredSearchQuery]);
   const flatSessionTree = useMemo(() => buildSessionTree(visibleFlatSessions), [visibleFlatSessions]);
 
   // Drop persisted expansion keys whose project no longer exists (removed or
@@ -1134,14 +1131,6 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
           }}
         >
           <Search size={15} strokeWidth={1.9} aria-hidden="true" />
-        </SidebarIconButton>
-        <SidebarIconButton
-          label={t("sessionSidebar.filterRunning")}
-          title={t("sessionSidebar.filterRunningTitle")}
-          active={runningOnly}
-          onClick={() => setRunningOnly((v) => !v)}
-        >
-          <SlidersHorizontal size={15} strokeWidth={1.9} aria-hidden="true" />
         </SidebarIconButton>
         {viewMode === "workspaces" && (
           <SidebarIconButton
