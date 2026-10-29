@@ -26,6 +26,7 @@ import { notificationHistory, useUnreadNotificationCount } from "@/lib/notificat
 import { TerminalPanel } from "./TerminalPanel";
 import { useI18n } from "@/lib/i18n";
 import { getFileName } from "@/lib/file-paths";
+import type { FileOpenMode } from "@/lib/file-types";
 
 export type RightPanelView = "explorer" | "git" | "notifications" | "terminal" | "file";
 
@@ -54,7 +55,7 @@ interface Props {
   explorerRefreshing: boolean;
   isMobile: boolean;
   isCompactOverlay: boolean;
-  onOpenFile: (filePath: string, fileName: string, sourceSessionId?: string | null) => void;
+  onOpenFile: (filePath: string, fileName: string, sourceSessionId?: string | null, openAs?: FileOpenMode) => void;
   onSelectFileTab: (id: string) => void;
   onCloseFileTab: (id: string) => void;
   onCloseOtherFileTabs: () => void;
@@ -421,7 +422,7 @@ export const RightPanel = memo(function RightPanel({
                 <FileExplorer
                   ref={fileExplorerRef}
                   cwd={explorerCwd}
-                  onOpenFile={onOpenFile}
+                  onOpenFile={(filePath, fileName, openAs) => onOpenFile(filePath, fileName, undefined, openAs)}
                   refreshKey={explorerRefreshKey}
                   onAtMention={onAtMention}
                   onAtMentions={onAtMentions}
@@ -481,6 +482,7 @@ export const RightPanel = memo(function RightPanel({
                 filePath={tab.filePath}
                 cwd={explorerCwd ?? undefined}
                 sourceSessionId={tab.sourceSessionId}
+                openAs={tab.openAs}
                 gitRefreshKey={explorerRefreshKey}
                 active={tab.id === activeFileTabId && rightPanelOpen && rightView === "file"}
                 onMentionLines={tab.id === activeFileTabId && rightPanelOpen && rightView === "file" ? onMentionLines : undefined}

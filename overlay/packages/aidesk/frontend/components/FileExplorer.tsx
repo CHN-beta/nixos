@@ -7,26 +7,32 @@ import {
   CircleAlert,
   CircleMinus,
   Download,
+  FilePlus,
+  FileText,
   Folder,
   FolderOpen,
+  FolderPlus,
   Loader2,
   TriangleAlert,
   Upload,
   X,
 } from "lucide-react";
 import { getFileIcon } from "./FileIcons";
-import { Tooltip } from "./ui/primitives";
+import { Dialog, DialogContent, DialogTitle, Tooltip } from "./ui/primitives";
+import { SidebarPortalMenu } from "./SessionSidebar-chrome";
 import { translate, useI18n } from "@/lib/i18n";
 import { apiUrl, redirectToAuth } from "@/lib/api-origin";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   encodeFilePathForApi,
   getFileDirectory,
+  getFileName,
   getRelativeFilePath,
   joinFilePath,
   normalizeFilePathSlashes,
 } from "@/lib/file-paths";
 import type { GitFileStatus, GitFileStatusKind, GitStatusResponse } from "@/lib/git-types";
+import type { FileOpenMode } from "@/lib/file-types";
 import { MAX_RESULT_LIMIT, type FileIndexEntry } from "@/lib/file-fuzzy";
 import { buildSearchRows } from "@/lib/search-results";
 
@@ -49,7 +55,7 @@ interface FileNode {
 
 interface Props {
   cwd: string;
-  onOpenFile: (filePath: string, fileName: string) => void;
+  onOpenFile: (filePath: string, fileName: string, openAs?: FileOpenMode) => void;
   refreshKey?: number;
   onAtMention?: (relativePath: string, isDir: boolean) => void;
   onAtMentions?: (relativePaths: string[]) => void;
@@ -69,6 +75,175 @@ interface Props {
 export interface FileExplorerHandle {
   openUploadPicker: () => void;
   collapseAll: () => void;
+}
+
+/** Right-click target in the file tree. */
+interface ExplorerMenuTarget {
+  kind: "dir" | "file";
+  path: string;
+  name: string;
+  /** Where the create actions land: the folder itself, or a file's parent. */
+  directory: string;
+}
+
+/** "Open with" choices; each maps to a backend `?as=` override. */
+const OPEN_WITH_OPTIONS: Array<{ mode: FileOpenMode; labelKey: string }> = [
+  { mode: "edit", labelKey: "fileExplorer.openAsEdit" },
+  { mode: "markdown", labelKey: "fileExplorer.openAsMarkdown" },
+  { mode: "html", labelKey: "fileExplorer.openAsHtml" },
+  { mode: "pdf", labelKey: "fileExplorer.openAsPdf" },
+  { mode: "docx", labelKey: "fileExplorer.openAsDocx" },
+  { mode: "image", labelKey: "fileExplorer.openAsImage" },
+  { mode: "audio", labelKey: "fileExplorer.openAsAudio" },
+];
+
+function ExplorerMenuItem({ label, icon, onSelect, disabled = false }: {
+  label: string;
+  icon?: React.ReactNode;
+  onSelect: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      disabled={disabled}
+      onClick={onSelect}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 7,
+        width: "100%",
+        padding: "6px 9px",
+        border: "none",
+        borderRadius: 6,
+        background: "transparent",
+        color: "var(--text)",
+        cursor: disabled ? "default" : "pointer",
+        textAlign: "left",
+        fontSize: 11,
+        opacity: disabled ? 0.55 : 1,
+      }}
+    >
+      {icon}
+      <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+    </button>
+  );
+}
+
+/**
+ * "New file" / "New folder" prompt. The request runs here so the tree only
+ * refreshes once the entry exists; a conflict (someone else created it) is
+ * reported inline instead of silently overwriting.
+ */
+function CreateEntryDialog({ kind, directory, onClose, onCreated }: {
+  kind: "file" | "dir";
+  directory: string;
+  onClose: () => void;
+  onCreated: (path: string, kind: "file" | "dir") => void;
+}) {
+  const { t } = useI18n();
+  const [name, setName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const title = kind === "file" ? t("fileExplorer.newFile") : t("fileExplorer.newFolder");
+
+  const submit = async () => {
+    const trimmed = name.trim();
+    if (!trimmed || busy) return;
+    if (trimmed === "." || trimmed === ".." || /[\\/\0]/.test(trimmed)) {
+      setError(t("fileExplorer.invalidName"));
+      return;
+    }
+    const target = joinFilePath(directory, trimmed);
+    setBusy(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        apiUrl(`/api/files/${encodeFilePathForApi(target)}${kind === "dir" ? "?type=mkdir" : ""}`),
+        kind === "dir"
+          ? { method: "POST" }
+          : {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ content: "", createOnly: true }),
+            },
+      );
+      const payload = await response.json().catch(() => ({})) as { error?: string; code?: string };
+      if (!response.ok) {
+        setError(
+          payload.code === "file_already_exists" || payload.code === "already_exists"
+            ? t("fileExplorer.nameTaken")
+            : payload.error || t("fileExplorer.createFailed"),
+        );
+        return;
+      }
+      onCreated(target, kind);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Dialog open onOpenChange={(next) => { if (!next) onClose(); }}>
+      <DialogContent ariaLabel={title} style={{ width: 380, maxWidth: "min(92vw, 380px)", padding: 20 }}>
+        <DialogTitle>{title}</DialogTitle>
+        <div style={{ fontSize: 11, color: "var(--text-dim)", fontFamily: "var(--font-mono)", overflowWrap: "anywhere", marginBottom: 8 }}>{directory}</div>
+        <input
+          autoFocus
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              void submit();
+            }
+            if (event.key === "Escape") {
+              event.preventDefault();
+              onClose();
+            }
+          }}
+          aria-label={title}
+          placeholder={kind === "file" ? t("fileExplorer.fileNamePlaceholder") : t("fileExplorer.folderNamePlaceholder")}
+          style={{
+            width: "100%",
+            height: 32,
+            boxSizing: "border-box",
+            padding: "0 9px",
+            background: "var(--bg)",
+            border: `1px solid ${error ? "var(--status-error)" : "var(--border)"}`,
+            borderRadius: "var(--radius-control)",
+            outline: "none",
+            color: "var(--text)",
+            fontSize: 13,
+            fontFamily: "var(--font-mono)",
+          }}
+        />
+        {error && (
+          <div role="alert" style={{ marginTop: 6, fontSize: 11, color: "var(--status-error)", overflowWrap: "anywhere" }}>{error}</div>
+        )}
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 14 }}>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{ padding: "6px 14px", background: "none", border: "1px solid var(--border)", borderRadius: "var(--radius-control)", color: "var(--text-muted)", cursor: "pointer", fontSize: 13 }}
+          >
+            {t("fileExplorer.cancel")}
+          </button>
+          <button
+            type="button"
+            disabled={busy || !name.trim()}
+            onClick={() => void submit()}
+            style={{ padding: "6px 14px", background: "var(--accent-strong)", border: "none", borderRadius: "var(--radius-control)", color: "var(--on-accent)", cursor: busy ? "wait" : "pointer", fontSize: 13, fontWeight: 600, opacity: busy || !name.trim() ? 0.7 : 1 }}
+          >
+            {t("fileExplorer.create")}
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 type UploadPhase = "idle" | "checking" | "uploading";
@@ -258,6 +433,7 @@ interface ExplorerRowProps {
   changedDirectoryPaths: Set<string>;
   onAtMention?: (relativePath: string, isDir: boolean) => void;
   onActivate: (node: FileNode, index: number) => void;
+  onContextMenu: (target: ExplorerMenuTarget, event: React.MouseEvent) => void;
   onKeyDown: (event: React.KeyboardEvent<HTMLDivElement>, node: FileNode, index: number) => void;
   onFocusRow: (index: number) => void;
 }
@@ -280,6 +456,7 @@ const ExplorerRow = memo(function ExplorerRow({
   changedDirectoryPaths,
   onAtMention,
   onActivate,
+  onContextMenu,
   onKeyDown,
   onFocusRow,
 }: ExplorerRowProps) {
@@ -289,6 +466,11 @@ const ExplorerRow = memo(function ExplorerRow({
   if (row.kind === "empty") {
     return (
       <div
+        onContextMenu={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          onContextMenu({ kind: "dir", path: row.key, name: getFileName(row.key), directory: row.key }, event);
+        }}
         style={{ paddingLeft: 8 + row.depth * 14, fontSize: 11, color: "var(--text-dim)", height: rowHeight, display: "flex", alignItems: "center" }}
       >
         {t("fileExplorer.emptyDir")}
@@ -308,6 +490,16 @@ const ExplorerRow = memo(function ExplorerRow({
   return (
     <div
       onClick={() => onActivate(node, index)}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onContextMenu(
+          node.isDir
+            ? { kind: "dir", path: node.fullPath, name: node.name, directory: node.fullPath }
+            : { kind: "file", path: node.fullPath, name: node.name, directory: getFileDirectory(node.fullPath) },
+          event,
+        );
+      }}
       onKeyDown={(e) => onKeyDown(e, node, index)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -544,6 +736,9 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
   const [pendingConflict, setPendingConflict] = useState<PendingConflict | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchPaths, setSearchPaths] = useState<string[]>([]);
+  // Right-click menu + the "new file / new folder" prompt it can open.
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; target: ExplorerMenuTarget } | null>(null);
+  const [createDialog, setCreateDialog] = useState<{ kind: "file" | "dir"; directory: string } | null>(null);
   const [searchTruncated, setSearchTruncated] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchFailed, setSearchFailed] = useState(false);
@@ -834,6 +1029,31 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
       }
     }
   }, [goToRow, handleActivateRow, handleToggleExpanded]);
+
+  const handleRowContextMenu = useCallback((target: ExplorerMenuTarget, event: React.MouseEvent) => {
+    setContextMenu({ x: event.clientX, y: event.clientY, target });
+  }, []);
+
+  // Stable identity: the portal rebinds its outside-press listeners whenever
+  // onClose changes, and the tree re-renders on every scroll tick.
+  const closeContextMenu = useCallback(() => setContextMenu(null), []);
+
+  const handleCreatedEntry = useCallback((path: string, kind: "file" | "dir") => {
+    setCreateDialog(null);
+    setContextMenu(null);
+    // Drop the cached listing that would hide the new entry, then re-read the
+    // root and every expanded directory. A collapsed parent is refetched the
+    // next time it is expanded.
+    setChildrenByPath((prev) => {
+      const next = new Map(prev);
+      next.delete(getFileDirectory(path));
+      next.delete(path);
+      return next;
+    });
+    setExpandedPaths((prev) => new Set(prev).add(kind === "dir" ? path : getFileDirectory(path)));
+    setTreeRefreshKey((key) => key + 1);
+    if (kind === "file") onOpenFile(path, getFileName(path), "edit");
+  }, [onOpenFile]);
 
   const handleTreeScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -1127,6 +1347,7 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                   changedDirectoryPaths={changedDirectoryPaths}
                   onAtMention={onAtMention}
                   onActivate={handleActivateRow}
+                  onContextMenu={handleRowContextMenu}
                   onKeyDown={handleRowKeyDown}
                   onFocusRow={setFocusedIndex}
                 />
@@ -1154,6 +1375,7 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                 changedDirectoryPaths={changedDirectoryPaths}
                 onAtMention={onAtMention}
                 onActivate={handleActivateRow}
+                onContextMenu={handleRowContextMenu}
                 onKeyDown={handleRowKeyDown}
                 onFocusRow={setFocusedIndex}
               />
@@ -1361,6 +1583,17 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
         aria-label={t("sessionSidebar.explorer")}
         aria-busy={loading || searchLoading}
         onScroll={handleTreeScroll}
+        onContextMenu={(event) => {
+          // Rows stop propagation; anything reaching here is the empty area,
+          // which stands for the workspace root.
+          if (event.target !== event.currentTarget && (event.target as Element).closest("[role='treeitem']")) return;
+          event.preventDefault();
+          setContextMenu({
+            x: event.clientX,
+            y: event.clientY,
+            target: { kind: "dir", path: cwd, name: getFileName(cwd), directory: cwd },
+          });
+        }}
         style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden", padding: "2px 4px", outline: "none" }}
       >
         {searchActive ? (
@@ -1411,6 +1644,102 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
         <div style={{ padding: "6px 12px 8px", fontSize: 10, color: "var(--text-dim)", flexShrink: 0 }}>
           {t("fileExplorer.searchTruncated", { count: searchRows.length })}
         </div>
+      )}
+      {contextMenu && (
+        <SidebarPortalMenu
+          anchorPoint={{ x: contextMenu.x, y: contextMenu.y }}
+          open
+          onClose={closeContextMenu}
+          minWidth={180}
+        >
+          {contextMenu.target.kind === "file" ? (
+            <>
+              <ExplorerMenuItem
+                label={t("fileExplorer.open")}
+                icon={<FileText size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => onOpenFile(contextMenu.target.path, contextMenu.target.name)}
+              />
+              <div style={{ padding: "6px 9px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.02em", color: "var(--text-dim)" }}>
+                {t("fileExplorer.openWith")}
+              </div>
+              {OPEN_WITH_OPTIONS.map((option) => (
+                <button
+                  key={option.mode}
+                  type="button"
+                  role="menuitem"
+                  className="sidebar-menu-item"
+                  onClick={() => {
+                    const path = contextMenu.target.path;
+                    const name = contextMenu.target.name;
+                    setContextMenu(null);
+                    onOpenFile(path, name, option.mode);
+                  }}
+                  style={{ display: "block", width: "100%", padding: "5px 9px 5px 22px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text-muted)", cursor: "pointer", textAlign: "left", fontSize: 11 }}
+                >
+                  {t(option.labelKey)}
+                </button>
+              ))}
+              <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
+              <ExplorerMenuItem
+                label={t("fileExplorer.newFileHere")}
+                icon={<FilePlus size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => setCreateDialog({ kind: "file", directory: contextMenu.target.directory })}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.newFolderHere")}
+                icon={<FolderPlus size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => setCreateDialog({ kind: "dir", directory: contextMenu.target.directory })}
+              />
+              <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
+              <ExplorerMenuItem
+                label={t("fileExplorer.mentionFile")}
+                icon={<AtSign size={12} strokeWidth={2} aria-hidden="true" />}
+                disabled={!onAtMention}
+                onSelect={() => onAtMention?.(getRelativeFilePath(contextMenu.target.path, cwd), false)}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.downloadFile")}
+                icon={<Download size={12} strokeWidth={2} aria-hidden="true" />}
+                onSelect={() => {
+                  const link = document.createElement("a");
+                  link.href = apiUrl(`/api/files/${encodeFilePathForApi(contextMenu.target.path)}?type=download`);
+                  link.download = contextMenu.target.name;
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <ExplorerMenuItem
+                label={t("fileExplorer.newFile")}
+                icon={<FilePlus size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => setCreateDialog({ kind: "file", directory: contextMenu.target.directory })}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.newFolder")}
+                icon={<FolderPlus size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => setCreateDialog({ kind: "dir", directory: contextMenu.target.directory })}
+              />
+              <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
+              <ExplorerMenuItem
+                label={t("fileExplorer.mentionFolder")}
+                icon={<AtSign size={12} strokeWidth={2} aria-hidden="true" />}
+                disabled={!onAtMention}
+                onSelect={() => onAtMention?.(getRelativeFilePath(contextMenu.target.path, cwd), true)}
+              />
+            </>
+          )}
+        </SidebarPortalMenu>
+      )}
+      {createDialog && (
+        <CreateEntryDialog
+          kind={createDialog.kind}
+          directory={createDialog.directory}
+          onClose={() => setCreateDialog(null)}
+          onCreated={handleCreatedEntry}
+        />
       )}
     </div>
   );

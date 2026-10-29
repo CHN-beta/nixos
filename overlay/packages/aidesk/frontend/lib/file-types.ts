@@ -4,6 +4,23 @@ export const DOCX_PREVIEW_MAX_BYTES = 10 * 1024 * 1024;
 
 export type DocumentPreviewKind = "pdf" | "docx";
 
+/**
+ * Explicit viewer for a file, chosen from the explorer's "Open with" menu.
+ * `"default"` (and an absent value) keeps the extension-based dispatch; every
+ * other value is sent to the backend as `?as=…`, which overrides its MIME and
+ * language sniffing.
+ */
+export type FileOpenMode =
+  | "default"
+  | "text"
+  | "edit"
+  | "markdown"
+  | "html"
+  | "pdf"
+  | "docx"
+  | "image"
+  | "audio";
+
 export const IMAGE_EXT_TO_MIME: Record<string, string> = {
   png: "image/png",
   jpg: "image/jpeg",

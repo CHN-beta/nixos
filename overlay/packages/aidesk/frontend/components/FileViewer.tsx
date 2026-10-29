@@ -18,6 +18,7 @@ import {
   isAudioPath,
   isDocumentPreviewPath,
   isImagePath,
+  type FileOpenMode,
 } from "@/lib/file-types";
 import { encodeFilePathForApi, getFileDirectory, getFileName, getRelativeFilePath } from "@/lib/file-paths";
 import { apiUrl } from "@/lib/api-origin";
@@ -37,6 +38,8 @@ interface Props {
   filePath: string;
   cwd?: string;
   sourceSessionId?: string | null;
+  /** Explicit viewer from the explorer's "Open with" menu (overrides the extension). */
+  openAs?: FileOpenMode;
   onOpenFile?: (filePath: string) => void;
   onMentionLines?: (relativePath: string, startLine: number, endLine: number) => void;
   gitRefreshKey?: number;
@@ -61,6 +64,17 @@ const DISPLAY_MODE_LABEL_KEYS: Record<DisplayMode, string> = {
   preview: "fileViewer.modePreview",
   diff: "fileViewer.modeDiff",
 };
+
+/**
+ * Markdown files only ever offer preview/edit (plus diff): the rendered
+ * preview already has a dedicated button, so a separate raw-source mode is
+ * redundant. Mirrors the backend's `language_for` (.md/.mdx → markdown), which
+ * lets the default mode be right before the content request resolves.
+ */
+function isMarkdownPath(filePath: string): boolean {
+  const ext = getFileExt(filePath);
+  return ext === "md" || ext === "mdx";
+}
 
 const FILE_CODE_STYLE: CSSProperties = {
   fontFamily: "var(--font-mono)",
@@ -416,7 +430,7 @@ export function DiffView({ patch }: { patch: string }) {
   );
 }
 
-function ImageViewer({ filePath, cwd, sourceSessionId, active = true }: Props) {
+function ImageViewer({ filePath, cwd, sourceSessionId, openAs, active = true }: Props) {
   const { t } = useI18n();
   const [watching, setWatching] = useState(false);
   const [bust, setBust] = useState(0);
@@ -467,7 +481,7 @@ function ImageViewer({ filePath, cwd, sourceSessionId, active = true }: Props) {
     };
   }, [active, filePath, sourceSessionId]);
 
-  const src = getFileApiUrl(filePath, "read", sourceSessionId, bust ? { v: bust } : undefined);
+  const src = getFileApiUrl(filePath, "read", sourceSessionId, { ...(openAs ? { as: openAs } : {}), ...(bust ? { v: bust } : {}) });
 
   const formatSizeStr = size != null ? formatSize(size) : null;
 
@@ -561,7 +575,7 @@ function formatDuration(seconds: number): string {
   return `${mins}:${String(secs).padStart(2, "0")}`;
 }
 
-function AudioViewer({ filePath, cwd, sourceSessionId, active = true }: Props) {
+function AudioViewer({ filePath, cwd, sourceSessionId, openAs, active = true }: Props) {
   const { t } = useI18n();
   const [watching, setWatching] = useState(false);
   const [bust, setBust] = useState(0);
@@ -614,7 +628,7 @@ function AudioViewer({ filePath, cwd, sourceSessionId, active = true }: Props) {
     };
   }, [active, filePath, sourceSessionId]);
 
-  const src = getFileApiUrl(filePath, "read", sourceSessionId, bust ? { v: bust } : undefined);
+  const src = getFileApiUrl(filePath, "read", sourceSessionId, { ...(openAs ? { as: openAs } : {}), ...(bust ? { v: bust } : {}) });
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}>
@@ -687,7 +701,7 @@ function AudioViewer({ filePath, cwd, sourceSessionId, active = true }: Props) {
   );
 }
 
-function DocumentViewer({ filePath, sourceSessionId, active = true }: Props) {
+function DocumentViewer({ filePath, sourceSessionId, openAs, active = true }: Props) {
   const { t } = useI18n();
   const [watching, setWatching] = useState(false);
   const [bust, setBust] = useState(0);
@@ -700,10 +714,11 @@ function DocumentViewer({ filePath, sourceSessionId, active = true }: Props) {
     setError(null);
     setBust((value) => value + 1);
   }, []);
-  const isPdf = ext === "pdf";
+  const explicit = openAs === "pdf" || openAs === "docx" ? openAs : null;
+  const isPdf = explicit ? explicit === "pdf" : ext === "pdf";
   const previewUrl = isPdf
-    ? getFileApiUrl(filePath, "read", sourceSessionId, bust ? { v: bust } : undefined)
-    : getFileApiUrl(filePath, "preview", sourceSessionId, bust ? { v: bust } : undefined);
+    ? getFileApiUrl(filePath, "read", sourceSessionId, { ...(explicit ? { as: explicit } : {}), ...(bust ? { v: bust } : {}) })
+    : getFileApiUrl(filePath, "preview", sourceSessionId, { ...(explicit ? { as: explicit } : {}), ...(bust ? { v: bust } : {}) });
 
   useEffect(() => {
     if (!active) {
@@ -784,7 +799,7 @@ function DocumentViewer({ filePath, sourceSessionId, active = true }: Props) {
       >
         <span style={{ fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={filePath}>
         </span>
-        <span style={{ marginLeft: "auto" }}>{ext === "docx" ? t("fileViewer.docxPreview") : t("fileViewer.pdfType")}</span>
+        <span style={{ marginLeft: "auto" }}>{isPdf ? t("fileViewer.pdfType") : t("fileViewer.docxPreview")}</span>
         {size != null && <span>{formatSize(size)}</span>}
         <DownloadLink filePath={filePath} sourceSessionId={sourceSessionId} />
         <span
@@ -824,20 +839,23 @@ function DocumentViewer({ filePath, sourceSessionId, active = true }: Props) {
   );
 }
 
-export function FileViewer({ filePath, cwd, sourceSessionId, onOpenFile, onMentionLines, gitRefreshKey, active = true }: Props) {
-  if (isImagePath(filePath)) {
-    return <ImageViewer filePath={filePath} cwd={cwd} sourceSessionId={sourceSessionId} active={active} />;
+export function FileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, onMentionLines, gitRefreshKey, active = true }: Props) {
+  // An explicit "Open with" choice wins over the extension: any file can be
+  // inspected as text/markdown/html/PDF/DOCX/image/audio.
+  const mode = openAs && openAs !== "default" ? openAs : null;
+  if (mode === "image" || (!mode && isImagePath(filePath))) {
+    return <ImageViewer filePath={filePath} cwd={cwd} sourceSessionId={sourceSessionId} openAs={mode ?? undefined} active={active} />;
   }
-  if (isAudioPath(filePath)) {
-    return <AudioViewer filePath={filePath} cwd={cwd} sourceSessionId={sourceSessionId} active={active} />;
+  if (mode === "audio" || (!mode && isAudioPath(filePath))) {
+    return <AudioViewer filePath={filePath} cwd={cwd} sourceSessionId={sourceSessionId} openAs={mode ?? undefined} active={active} />;
   }
-  if (isDocumentPreviewPath(filePath)) {
-    return <DocumentViewer filePath={filePath} cwd={cwd} sourceSessionId={sourceSessionId} active={active} />;
+  if (mode === "pdf" || mode === "docx" || (!mode && isDocumentPreviewPath(filePath))) {
+    return <DocumentViewer filePath={filePath} cwd={cwd} sourceSessionId={sourceSessionId} openAs={mode ?? undefined} active={active} />;
   }
-  return <TextFileViewer filePath={filePath} cwd={cwd} sourceSessionId={sourceSessionId} onOpenFile={onOpenFile} onMentionLines={onMentionLines} gitRefreshKey={gitRefreshKey} active={active} />;
+  return <TextFileViewer filePath={filePath} cwd={cwd} sourceSessionId={sourceSessionId} openAs={mode ?? undefined} onOpenFile={onOpenFile} onMentionLines={onMentionLines} gitRefreshKey={gitRefreshKey} active={active} />;
 }
 
-function TextFileViewer({ filePath, cwd, sourceSessionId, onOpenFile, onMentionLines, gitRefreshKey, active = true }: Props) {
+function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, onMentionLines, gitRefreshKey, active = true }: Props) {
   const { t } = useI18n();
   const { isDark } = useTheme();
   const [data, setData] = useState<FileData | null>(null);
@@ -925,7 +943,7 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, onOpenFile, onMentionL
     // resolve that is no longer the latest fetch for this component, so a
     // slower older request cannot overwrite newer content/error state.
     const requestId = ++contentRequestRef.current;
-    return fetch(getFileApiUrl(filePath, "read", sourceSessionId))
+    return fetch(getFileApiUrl(filePath, "read", sourceSessionId, openAs ? { as: openAs } : undefined))
       .then(async (r) => {
         const d = (await r.json()) as FileData & { error?: string };
         const headerMtime = r.headers.get("x-file-mtime");
@@ -949,7 +967,7 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, onOpenFile, onMentionL
         setError(String(e));
         return null;
       });
-  }, [sourceSessionId]);
+  }, [sourceSessionId, openAs]);
   const retryContent = useCallback(() => {
     setLoading(true);
     setError(null);
@@ -984,7 +1002,16 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, onOpenFile, onMentionL
     setError(null);
     setData(null);
     setGitDiff(null);
-    setDisplayMode("source");
+    // An explicit "Open with" text mode decides the initial tab; otherwise
+    // markdown opens on the rendered preview.
+    const initialMode: DisplayMode = openAs === "edit"
+      ? "edit"
+      : openAs === "markdown" || openAs === "html"
+        ? "preview"
+        : isMarkdownPath(filePath) && openAs !== "text"
+          ? "preview"
+          : "source";
+    setDisplayMode(initialMode);
     setWrapLines(false);
     setWatching(false);
 
@@ -998,7 +1025,9 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, onOpenFile, onMentionL
     let cancelled = false;
     void fetchContent(filePath).then((d) => {
       if (cancelled) return;
-      if (d?.language === "markdown") setDisplayMode("preview");
+      // Server-side detection still wins for extensionless files, unless the
+      // user picked a mode.
+      if (!openAs && d?.language === "markdown") setDisplayMode("preview");
     }).finally(() => {
       if (!cancelled) setLoading(false);
     });
@@ -1029,7 +1058,7 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, onOpenFile, onMentionL
       es.close();
       esRef.current = null;
     };
-  }, [active, filePath, fetchContent, fetchGitDiff, sourceSessionId]);
+  }, [active, filePath, fetchContent, fetchGitDiff, sourceSessionId, openAs]);
 
   useEffect(() => {
     if (!active) return;
@@ -1039,8 +1068,12 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, onOpenFile, onMentionL
   const hasGitDiff = gitDiff?.supported === true && typeof gitDiff.patch === "string";
 
   useEffect(() => {
-    if (!hasGitDiff && displayMode === "diff") setDisplayMode("source");
-  }, [displayMode, hasGitDiff]);
+    // Leaving diff mode must land on a mode the current file actually offers;
+    // markdown has no source button.
+    if (!hasGitDiff && displayMode === "diff") {
+      setDisplayMode(data?.language === "markdown" ? "preview" : "source");
+    }
+  }, [displayMode, hasGitDiff, data?.language]);
 
   const parsedFrontmatter = useMemo(
     () => (data?.language === "markdown" ? parseFrontmatter(data.content) : null),
@@ -1152,12 +1185,18 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, onOpenFile, onMentionL
   const hasPreview = isHtml || isMarkdown;
   const markdownDirectory = getFileDirectory(filePath);
   const lines = data.content.split("\n");
-  const displayModes: DisplayMode[] = [
-    "source",
-    "edit",
-    ...(hasPreview ? ["preview" as const] : []),
-    ...(hasGitDiff ? ["diff" as const] : []),
-  ];
+  const displayModes: DisplayMode[] = isMarkdown
+    ? (openAs === "text"
+        // Explicitly opened as text: the raw view was requested, so it stays
+        // reachable. Plain markdown files never offer it.
+        ? ["source", "preview", "edit", ...(hasGitDiff ? ["diff" as const] : [])]
+        : ["preview", "edit", ...(hasGitDiff ? ["diff" as const] : [])])
+    : [
+        "source",
+        "edit",
+        ...(hasPreview ? ["preview" as const] : []),
+        ...(hasGitDiff ? ["diff" as const] : []),
+      ];
   const metadata = t("fileViewer.metadata", { language: data.language, lines: lines.length, size: formatSize(data.size) });
   const fullRelativePath = getRelativeFilePath(filePath, cwd);
   const pathSepIndex = fullRelativePath.lastIndexOf("/");
@@ -1255,20 +1294,14 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, onOpenFile, onMentionL
                 onClick={handleSave}
                 disabled={!isDirty || saving}
                 aria-label={t("fileViewer.save")}
-                className="file-viewer-icon-button"
+                // Not `file-viewer-icon-button`: that square (24px wide, no
+                // padding) clipped the icon + label.
+                className="file-viewer-save-button"
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  padding: "3px 8px",
-                  borderRadius: "var(--radius-control)",
                   background: isDirty ? "var(--accent)" : "transparent",
                   color: isDirty ? "#fff" : "var(--text-dim)",
-                  fontWeight: 600,
-                  fontSize: 11,
-                  cursor: isDirty && !saving ? "pointer" : "default",
+                  border: isDirty ? "1px solid transparent" : "1px solid var(--border)",
                   opacity: !isDirty || saving ? 0.6 : 1,
-                  transition: `all var(--dur-fast) var(--ease-out-warm)`,
                 }}
               >
                 <Save size={13} strokeWidth={2.2} aria-hidden="true" />

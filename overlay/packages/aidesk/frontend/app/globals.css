@@ -1526,6 +1526,36 @@ html[data-touch-targets="accessible"] :is(.image-lightbox-stepper button, .image
   border-left: 0;
 }
 
+/* Icon + label control: sized by its content, unlike the square icon button. */
+.file-viewer-save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  min-height: 24px;
+  padding: 3px 12px;
+  box-sizing: border-box;
+  border-radius: var(--radius-control);
+  white-space: nowrap;
+  font-weight: 600;
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out-warm),
+    color var(--dur-fast) var(--ease-out-warm),
+    border-color var(--dur-fast) var(--ease-out-warm);
+}
+
+.file-viewer-save-button:disabled {
+  cursor: default;
+}
+
+.file-viewer-save-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
 .file-viewer-mode-button:hover {
   filter: brightness(1.08);
 }

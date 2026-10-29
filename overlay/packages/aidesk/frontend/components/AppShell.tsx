@@ -14,6 +14,7 @@ import { ConfirmDialog } from "./ui/field";
 import { ChatWindow } from "./ChatWindow";
 import { type Tab } from "./TabBar";
 import { type FileExplorerHandle } from "./FileExplorer";
+import type { FileOpenMode } from "@/lib/file-types";
 import type { RightPanelView } from "./RightPanel";
 import { BranchNavigator } from "./BranchNavigator";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -200,6 +201,14 @@ export function AppShell({ appName }: { appName: string }) {
   }, [isMobile]);
   useEffect(() => {
     setMobileSidebarReady(true);
+  }, []);
+  // Every right-click target in the app opens its own menu (sessions,
+  // workspaces, chat messages, the file tree), so the browser's default menu
+  // would only get in the way.
+  useEffect(() => {
+    const suppress = (event: MouseEvent) => event.preventDefault();
+    document.addEventListener("contextmenu", suppress);
+    return () => document.removeEventListener("contextmenu", suppress);
   }, []);
   // Chrome does not blur a focused descendant when a subtree becomes
   // aria-hidden + inert (e.g. tapping a session button closes the mobile
@@ -1008,13 +1017,19 @@ export function AppShell({ appName }: { appName: string }) {
     });
   }, [fileTabs]);
 
-  const handleOpenFile = useCallback((filePath: string, fileName: string, sourceSessionId?: string | null) => {
+  const handleOpenFile = useCallback((filePath: string, fileName: string, sourceSessionId?: string | null, openAs?: FileOpenMode) => {
     const tabId = `file:${filePath}`;
     setFileTabs((prev) => {
       const existing = prev.find((t) => t.id === tabId);
-      if (!existing) return [...prev, { id: tabId, label: fileName, filePath, sourceSessionId }];
-      if (!sourceSessionId || existing.sourceSessionId === sourceSessionId) return prev;
-      return prev.map((t) => t.id === tabId ? { ...t, sourceSessionId } : t);
+      if (!existing) return [...prev, { id: tabId, label: fileName, filePath, sourceSessionId, openAs }];
+      // "Open with" from the explorer retargets the existing tab instead of
+      // stacking a duplicate tab for the same file.
+      const nextSessionId = !sourceSessionId || existing.sourceSessionId === sourceSessionId
+        ? existing.sourceSessionId
+        : sourceSessionId;
+      const nextOpenAs = openAs;
+      if (nextSessionId === existing.sourceSessionId && nextOpenAs === existing.openAs) return prev;
+      return prev.map((t) => t.id === tabId ? { ...t, sourceSessionId: nextSessionId, openAs: nextOpenAs } : t);
     });
     setActiveFileTabId(tabId);
     setRightView("file");

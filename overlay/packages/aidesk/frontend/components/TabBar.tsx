@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { Bell, Folder, GitBranch, Terminal, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import type { FileOpenMode } from "@/lib/file-types";
 import { getFileIcon } from "./FileIcons";
 
 export interface Tab {
@@ -9,6 +10,8 @@ export interface Tab {
   label: string;
   filePath: string;
   sourceSessionId?: string | null;
+  /** Explicit viewer chosen from the explorer's "Open with" menu. */
+  openAs?: FileOpenMode;
 }
 
 interface Props {
