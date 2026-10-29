@@ -84,15 +84,21 @@ const MENU_VIEWPORT_PAD = 8;
 
 /**
  * Overflow menu rendered through a portal to document.body so it always
- * floats above every sidebar row: it is never clipped by the workspace list's
- * overflow and never covered by sibling stacking contexts (each workspace
- * section isolates its own context). Positioned from the anchor button's
- * viewport rect, flips to the other side of the anchor when there is no room,
- * follows the anchor while the sidebar scrolls, and closes on outside press
- * or Escape.
+ * floats above every row: it is never clipped by the list's overflow and never
+ * covered by sibling stacking contexts (each section isolates its own).
+ *
+ * Two anchors:
+ * - `anchor` — positioned from a button's viewport rect, flips to the other
+ *   side when there is no room, and follows it while the page scrolls.
+ * - `anchorPoint` — a right-click's cursor position, clamped to the viewport.
+ *
+ * Closes on outside press, outside right-click (capture phase, so right-
+ * clicking another row closes this menu before that row opens its own), or
+ * Escape.
  */
 function SidebarPortalMenu({
   anchor,
+  anchorPoint = null,
   open,
   onClose,
   placement = "below",
@@ -101,7 +107,9 @@ function SidebarPortalMenu({
   style,
   children,
 }: {
-  anchor: RefObject<HTMLElement | null>;
+  anchor?: RefObject<HTMLElement | null>;
+  /** Cursor coordinates (`clientX`/`clientY`) for context menus. */
+  anchorPoint?: { x: number; y: number } | null;
   open: boolean;
   onClose: () => void;
   placement?: "below" | "above";
@@ -115,32 +123,41 @@ function SidebarPortalMenu({
   const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const closeAndRestore = useCallback(() => {
     onClose();
+    if (anchorPoint) return;
     requestAnimationFrame(() => {
       const active = document.activeElement;
       if (active instanceof HTMLElement && active !== document.body && !menuRef.current?.contains(active)) return;
-      anchor.current?.focus();
+      anchor?.current?.focus();
     });
-  }, [anchor, onClose]);
+  }, [anchor, anchorPoint, onClose]);
 
   // Refs are passed as arguments so the callback stays dependency-clean
   // (no ref.current access inside) for the React Compiler.
-  const computePos = useCallback((el: HTMLElement | null, menu: HTMLDivElement | null) => {
-    if (!el || !menu) return;
-    const r = el.getBoundingClientRect();
+  const computePos = useCallback((el: HTMLElement | null, menu: HTMLDivElement | null, point: { x: number; y: number } | null) => {
+    if (!menu) return;
     const width = menu.offsetWidth;
     const height = menu.offsetHeight;
     // --ui-scale / zoom makes getBoundingClientRect() scaled while offsetWidth is unscaled.
-    // Convert the anchor rect to unscaled CSS pixels so the fixed menu (also zoomed) lands correctly.
+    // Convert coordinates to unscaled CSS pixels so the fixed menu (also zoomed) lands correctly.
     let scale = 1;
     if (typeof document !== "undefined") {
       const raw = getComputedStyle(document.documentElement).getPropertyValue("--ui-scale");
       const v = parseFloat(raw);
       if (Number.isFinite(v) && v > 0) scale = v;
     }
-    const ru = scale !== 1 ? { top: r.top / scale, right: r.right / scale, bottom: r.bottom / scale, left: r.left / scale } : r;
     // The viewport in the same unscaled CSS pixels as the menu's position.
     const vw = window.innerWidth / scale;
     const vh = window.innerHeight / scale;
+    if (point) {
+      setPos({
+        top: Math.max(MENU_VIEWPORT_PAD, Math.min(point.y / scale, vh - height - MENU_VIEWPORT_PAD)),
+        left: Math.max(MENU_VIEWPORT_PAD, Math.min(point.x / scale, vw - width - MENU_VIEWPORT_PAD)),
+      });
+      return;
+    }
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const ru = scale !== 1 ? { top: r.top / scale, right: r.right / scale, bottom: r.bottom / scale, left: r.left / scale } : r;
     let top: number;
     if (placement === "above") {
       top = ru.top - height - MENU_MARGIN;
@@ -164,22 +181,24 @@ function SidebarPortalMenu({
   // size is available synchronously in the layout effect.
   useLayoutEffect(() => {
     if (!open) return;
-    computePos(anchor.current, menuRef.current);
-  }, [open, computePos, anchor]);
+    computePos(anchor?.current ?? null, menuRef.current, anchorPoint);
+  }, [open, computePos, anchor, anchorPoint]);
 
   // Reposition while open — the sidebar is resizable and the list scrolls.
+  // Cursor menus stay where the click happened.
   useEffect(() => {
-    if (!open) return;
-    const update = () => computePos(anchor.current, menuRef.current);
+    if (!open || anchorPoint) return;
+    const update = () => computePos(anchor?.current ?? null, menuRef.current, null);
     window.addEventListener("scroll", update, true);
     window.addEventListener("resize", update);
     return () => {
       window.removeEventListener("scroll", update, true);
       window.removeEventListener("resize", update);
     };
-  }, [open, computePos, anchor]);
+  }, [open, computePos, anchor, anchorPoint]);
 
-  // Close on outside press / Escape and handle keyboard arrow navigation.
+  // Close on outside press / outside right-click / Escape and handle keyboard
+  // arrow navigation.
   useEffect(() => {
     if (!open) return;
     const timer = setTimeout(() => {
@@ -188,8 +207,14 @@ function SidebarPortalMenu({
     }, 0);
     const onPointerDown = (e: MouseEvent | TouchEvent) => {
       const target = e.target as Node;
-      if (anchor.current?.contains(target)) return;
+      if (anchor?.current?.contains(target)) return;
       if (menuRef.current?.contains(target)) return;
+      onClose();
+    };
+    // Capture phase: the row's own React handler runs later, so the previous
+    // menu is gone before the next one is positioned.
+    const onContextMenu = (e: MouseEvent) => {
+      if (menuRef.current?.contains(e.target as Node)) return;
       onClose();
     };
     const onKeyDown = (e: KeyboardEvent) => {
@@ -212,11 +237,13 @@ function SidebarPortalMenu({
     };
     document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("touchstart", onPointerDown);
+    document.addEventListener("contextmenu", onContextMenu, true);
     document.addEventListener("keydown", onKeyDown);
     return () => {
       clearTimeout(timer);
       document.removeEventListener("mousedown", onPointerDown);
       document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("contextmenu", onContextMenu, true);
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [open, onClose, anchor, closeAndRestore]);
@@ -231,6 +258,11 @@ function SidebarPortalMenu({
       onClick={(event) => {
         const target = event.target;
         if (target instanceof Element && target.closest('[role="menuitem"]')) closeAndRestore();
+      }}
+      onContextMenu={(event) => {
+        // Keep the browser menu suppressed inside our own menu.
+        event.preventDefault();
+        event.stopPropagation();
       }}
       role="menu"
       style={{
