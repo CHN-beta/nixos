@@ -296,6 +296,10 @@ pub async fn run(cfg: Config) -> std::io::Result<()> {
     let state = AppState::new(cfg);
     let router = build_router(state.clone());
 
+    // Warm the most recently used session before the first tab connects; the
+    // reaper's one-session floor keeps that process running afterwards.
+    tokio::spawn(crate::omp::rpc::warm_last_session(state.clone()));
+
     let (shutdown_tx, shutdown_rx) = tokio::sync::watch::channel(false);
     let mut unix_task: Option<tokio::task::JoinHandle<()>> = None;
     if let Some(path) = &socket {

@@ -780,6 +780,27 @@ impl AgentSession {
             .unwrap_or(false)
     }
 
+    /// Last time the session saw a frame, command or listener.
+    pub fn last_activity_ms(&self) -> i64 {
+        self.last_activity_ms.load(Ordering::Relaxed)
+    }
+
+    /// A timeout has expired and nothing is in flight, so the reaper *may*
+    /// destroy the child. Explicit lifecycle actions (delete, archive, restart,
+    /// shutdown) bypass this check.
+    fn timed_out(&self, now: i64) -> bool {
+        if self.handshaking.load(Ordering::SeqCst)
+            || self.pending_commands.load(Ordering::SeqCst) > 0
+            || self.is_running()
+            || self.has_subscribers()
+        {
+            return false;
+        }
+        let disconnected = now >= self.reap_deadline_ms.load(Ordering::Relaxed);
+        let idle = now - self.last_activity_ms() > IDLE_DESTROY_MS as i64;
+        disconnected || idle
+    }
+
     fn set_session_identity(&self, id: &str, file: &str) {
         if let Ok(mut slot) = self.session_id.lock() {
             *slot = id.to_string();
@@ -2627,8 +2648,41 @@ fn ensure_session_reaper() {
     });
 }
 
+/// One registry-visible session as the timeout reaper sees it.
+#[derive(Debug, Clone, Copy)]
+struct ReapCandidate {
+    /// Unique `Arc` identity: several registry keys can alias one session.
+    pointer: usize,
+    /// A disconnect/idle timeout expired and nothing is in flight.
+    timed_out: bool,
+    /// `last_activity_ms`; the freshest session wins the one-session reprieve.
+    last_activity_ms: i64,
+}
+
+/// Session pointers the timeout reaper may destroy.
+///
+/// The service must always keep at least one live session, so when every live
+/// session has timed out only the most recently active one survives. Sessions
+/// still inside their timeout window already satisfy that floor, so every
+/// timed-out session may go.
+fn select_reap_targets(candidates: &[ReapCandidate]) -> Vec<usize> {
+    let mut targets: Vec<&ReapCandidate> = candidates.iter().filter(|c| c.timed_out).collect();
+    if candidates.len() == targets.len() {
+        // Every live session is stale: sort ascending by activity and let the
+        // tail — the most recently used session — keep running.
+        targets.sort_by_key(|candidate| candidate.last_activity_ms);
+        targets.pop();
+    }
+    targets
+        .into_iter()
+        .map(|candidate| candidate.pointer)
+        .collect()
+}
+
 /// Destroy sessions nobody is watching: 120s after the last tab left, or after
-/// 10 minutes without use. Mirrors `ompweb/lib/rpc-manager.ts`.
+/// 10 minutes without use. Mirrors `ompweb/lib/rpc-manager.ts`, except that the
+/// last live session is never reaped so a returning tab finds a warm process
+/// instead of paying a cold start.
 async fn reap_registered_sessions() {
     let sessions: Vec<Arc<AgentSession>> = match REGISTRY.lock() {
         Ok(registry) => {
@@ -2641,21 +2695,19 @@ async fn reap_registered_sessions() {
         }
         Err(_) => return,
     };
+    let now = now_ms() as i64;
+    let candidates: Vec<ReapCandidate> = sessions
+        .iter()
+        .filter(|session| session.is_alive())
+        .map(|session| ReapCandidate {
+            pointer: Arc::as_ptr(session) as usize,
+            timed_out: session.timed_out(now),
+            last_activity_ms: session.last_activity_ms(),
+        })
+        .collect();
+    let doomed: HashSet<usize> = select_reap_targets(&candidates).into_iter().collect();
     for session in sessions {
-        if !session.alive.load(Ordering::SeqCst) {
-            continue;
-        }
-        if session.handshaking.load(Ordering::SeqCst)
-            || session.pending_commands.load(Ordering::SeqCst) > 0
-            || session.is_running()
-            || session.has_subscribers()
-        {
-            continue;
-        }
-        let now = now_ms() as i64;
-        let disconnected = now >= session.reap_deadline_ms.load(Ordering::Relaxed);
-        let idle = now - session.last_activity_ms.load(Ordering::Relaxed) > IDLE_DESTROY_MS as i64;
-        if disconnected || idle {
+        if doomed.contains(&(Arc::as_ptr(&session) as usize)) {
             session.destroy_and_wait().await;
         }
     }
@@ -2959,6 +3011,48 @@ pub async fn start_rpc_session(
     result
 }
 
+/// Start the most recently active session right after boot, so the first tab
+/// attaches to a warm `omp` child instead of paying a cold start. The reaper's
+/// one-session floor keeps that process alive afterwards.
+///
+/// Returns the started session id, or `None` when there is nothing to warm
+/// (no session, no session whose cwd still exists) or the spawn failed — a
+/// failed warmup must never take the server down.
+pub async fn warm_last_session(state: SharedState) -> Option<String> {
+    if REGISTRY
+        .lock()
+        .map(|registry| !registry.is_empty())
+        .unwrap_or(true)
+    {
+        return None;
+    }
+    let latest = crate::omp::session_reader::latest_launchable_session(&state.cfg)?;
+    state.allow_root(std::path::Path::new(&latest.cwd));
+    match start_rpc_session(
+        state,
+        &latest.id,
+        &latest.path,
+        &latest.cwd,
+        None,
+        false,
+        Some(latest.cwd.clone()),
+    )
+    .await
+    {
+        Ok((_, real_id)) => {
+            eprintln!("[aidesk] prewarmed session {}", real_id);
+            Some(real_id)
+        }
+        Err(error) => {
+            eprintln!(
+                "[aidesk] could not prewarm session {}: {}",
+                latest.id, error.message
+            );
+            None
+        }
+    }
+}
+
 /// Command error body shared by the agent routes.
 pub fn command_error_response(error: RpcError) -> (u16, Value) {
     (
@@ -3168,5 +3262,54 @@ mod tests {
             "role": "assistant",
             "content": [{ "type": "text", "text": "hi" }]
         })));
+    }
+
+    fn candidate(pointer: usize, timed_out: bool, last_activity_ms: i64) -> ReapCandidate {
+        ReapCandidate {
+            pointer,
+            timed_out,
+            last_activity_ms,
+        }
+    }
+
+    #[test]
+    fn reaper_keeps_the_last_session_past_both_timeouts() {
+        // Disconnect (120s) and idle (600s) windows both elapsed: the service
+        // must still keep one session running.
+        let candidates = vec![candidate(7, true, 0)];
+        assert!(select_reap_targets(&candidates).is_empty());
+    }
+
+    #[test]
+    fn reaper_keeps_the_most_recently_active_of_several_timed_out_sessions() {
+        let candidates = vec![
+            candidate(1, true, 1_000),
+            candidate(2, true, 3_000),
+            candidate(3, true, 2_000),
+        ];
+        let mut reaped = select_reap_targets(&candidates);
+        reaped.sort();
+        assert_eq!(reaped, vec![1, 3]);
+        assert!(!reaped.contains(&2), "the freshest session must survive");
+    }
+
+    #[test]
+    fn reaper_reaps_every_timed_out_session_while_one_is_still_fresh() {
+        // A session inside its timeout window already satisfies the floor, so
+        // stale siblings are not spared.
+        let candidates = vec![
+            candidate(1, true, 1_000),
+            candidate(2, true, 2_000),
+            candidate(3, false, 3_000),
+        ];
+        let mut reaped = select_reap_targets(&candidates);
+        reaped.sort();
+        assert_eq!(reaped, vec![1, 2]);
+    }
+
+    #[test]
+    fn reaper_skips_sessions_that_are_not_timed_out() {
+        assert!(select_reap_targets(&[]).is_empty());
+        assert!(select_reap_targets(&[candidate(1, false, 0), candidate(2, false, 10)]).is_empty());
     }
 }

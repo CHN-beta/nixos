@@ -278,6 +278,15 @@ fn scan_all_sessions(cfg: &Config) -> Vec<SessionInfo> {
     sessions
 }
 
+/// The session to prewarm at startup: the most recently modified session whose
+/// recorded cwd still exists (deleted projects have nothing to resume). The
+/// listing is ordered by last modification, so the first hit is the newest.
+pub fn latest_launchable_session(cfg: &Config) -> Option<SessionInfo> {
+    list_all_sessions(cfg)
+        .into_iter()
+        .find(|session| !session.cwd.is_empty() && Path::new(&session.cwd).exists())
+}
+
 pub fn resolve_session_path(cfg: &Config, id: &str) -> Option<PathBuf> {
     list_all_sessions(cfg)
         .into_iter()
@@ -2178,5 +2187,63 @@ mod tests {
             },
         );
         assert_eq!(full["entryIds"], json!(["u1", "a1", "u2", "a2", "c1"]));
+    }
+
+    fn warmup_config(root: &Path) -> Config {
+        let sessions_dir = root.join("agent/sessions");
+        for dir in [
+            sessions_dir.clone(),
+            root.join("agent/blobs"),
+            root.join("agent/archive/sessions"),
+        ] {
+            std::fs::create_dir_all(dir).unwrap();
+        }
+        Config {
+            home: root.to_path_buf(),
+            config_root: root.join("agent"),
+            agent_dir: root.join("agent"),
+            sessions_dir,
+            blobs_dir: root.join("agent/blobs"),
+            archive_dir: root.join("agent/archive/sessions"),
+            diagnostics_dir: root.join("agent/omp-web"),
+            omp_bin: None,
+            socket: None,
+            port: None,
+            host: "127.0.0.1".into(),
+            stt: None,
+        }
+    }
+
+    fn write_listed_session(cfg: &Config, id: &str, cwd: &str) {
+        let dir = cfg.sessions_dir.join("-tmp-project");
+        std::fs::create_dir_all(&dir).unwrap();
+        let header = json!({
+            "type": "session",
+            "version": 3,
+            "id": id,
+            "timestamp": "2026-01-02T03:04:05.000Z",
+            "cwd": cwd,
+        });
+        std::fs::write(dir.join(format!("{}.jsonl", id)), format!("{}\n", header)).unwrap();
+    }
+
+    #[test]
+    fn latest_launchable_session_requires_an_existing_cwd() {
+        let root = std::env::temp_dir().join(format!("aidesk-warmup-{}", uuid::Uuid::new_v4()));
+        let cfg = warmup_config(&root);
+        assert!(latest_launchable_session(&cfg).is_none(), "no sessions yet");
+
+        write_listed_session(&cfg, "gone", "/nonexistent/aidesk-warmup-cwd");
+        invalidate_session_list_cache();
+        assert!(
+            latest_launchable_session(&cfg).is_none(),
+            "a deleted project has nothing to resume"
+        );
+
+        write_listed_session(&cfg, "live", root.to_str().unwrap());
+        invalidate_session_list_cache();
+        let latest = latest_launchable_session(&cfg).expect("one launchable session");
+        assert_eq!(latest.id, "live");
+        let _ = std::fs::remove_dir_all(&root);
     }
 }
