@@ -27,7 +27,16 @@
     lib.mkMerge [
       {
         boot = {
-          initrd.systemd.enable = true;
+          initrd.systemd = {
+            enable = true;
+            # Stop debug-shell before switching root so it does not stay active across
+            # switch-root and fail with 203/EXEC in stage 2 before envfs mounts /bin/sh.
+            services.debug-shell = {
+              overrideStrategy = "asDropin";
+              conflicts = [ "initrd-switch-root.target" ];
+              before = [ "initrd-switch-root.target" ];
+            };
+          };
           kernelParams = [
             "boot.shell_on_fail"
             "systemd.setenv=SYSTEMD_SULOGIN_FORCE=1"
