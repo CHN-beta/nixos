@@ -13,33 +13,69 @@ export function projectLabel(projectPath: string): string {
 // --sidebar-width CSS variable (globals.css) and persisted between sessions.
 export const SIDEBAR_WIDTH_STORAGE_KEY = "omp-web:sidebar-width";
 export const SIDEBAR_MIN_WIDTH = 200;
-export const SIDEBAR_MAX_WIDTH = 520;
 export const SIDEBAR_DEFAULT_WIDTH = 260;
-
-export function clampSidebarWidth(width: number): number {
-  return Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, Math.round(width)));
-}
-
-export function loadSidebarWidth(): number {
-  if (typeof window === "undefined") return SIDEBAR_DEFAULT_WIDTH;
-  try {
-    const raw = window.localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY);
-    const width = raw ? Number(raw) : NaN;
-    return Number.isFinite(width) ? clampSidebarWidth(width) : SIDEBAR_DEFAULT_WIDTH;
-  } catch {
-    return SIDEBAR_DEFAULT_WIDTH;
-  }
-}
 
 // Resizable right (file) panel: null means the fluid 42% default; a number is
 // a user-chosen pixel width persisted between sessions (same drag pattern as
 // the left sidebar, mirrored — the handle sits on the panel's left edge).
 export const RIGHT_PANEL_WIDTH_STORAGE_KEY = "omp-web:right-panel-width";
 export const RIGHT_PANEL_MIN_WIDTH = 300;
-export const RIGHT_PANEL_MAX_WIDTH = 900;
 
-export function clampRightPanelWidth(width: number): number {
-  return Math.min(RIGHT_PANEL_MAX_WIDTH, Math.max(RIGHT_PANEL_MIN_WIDTH, Math.round(width)));
+/**
+ * Desktop width budget shared by the two docked side panels: together they may
+ * occupy at most 90% of the workspace flex row, so the center chat column
+ * always keeps at least 10%. There is no fixed pixel cap for either panel —
+ * a panel alone may use the whole budget.
+ */
+export const DOCKED_PANELS_BUDGET_RATIO = 0.9;
+
+/** Joint pixel budget `B = floor(0.90 × W)` for the docked side panels. */
+export function dockedPanelsBudget(workspaceWidth: number): number {
+  if (!Number.isFinite(workspaceWidth)) return Number.POSITIVE_INFINITY;
+  return Math.max(0, Math.floor(workspaceWidth * DOCKED_PANELS_BUDGET_RATIO));
+}
+
+/**
+ * Max width for the left sidebar given the shared budget. With the right panel
+ * docked the pair shares the budget, so the sidebar may grow into everything
+ * except the right panel's minimum (option A2: pushing it wider shrinks the
+ * opposite panel). Alone it may use the entire budget.
+ */
+export function sidebarMaxWidth(budget: number, rightDocked: boolean): number {
+  return rightDocked
+    ? Math.max(SIDEBAR_MIN_WIDTH, budget - RIGHT_PANEL_MIN_WIDTH)
+    : Math.max(SIDEBAR_MIN_WIDTH, budget);
+}
+
+/** Mirror of {@link sidebarMaxWidth} for the right (file) panel. */
+export function rightPanelMaxWidth(budget: number, leftDocked: boolean): number {
+  return leftDocked
+    ? Math.max(RIGHT_PANEL_MIN_WIDTH, budget - SIDEBAR_MIN_WIDTH)
+    : Math.max(RIGHT_PANEL_MIN_WIDTH, budget);
+}
+
+export function clampSidebarWidth(width: number, maxWidth: number = Number.POSITIVE_INFINITY): number {
+  const upper = Math.max(SIDEBAR_MIN_WIDTH, Math.floor(maxWidth));
+  return Math.min(upper, Math.max(SIDEBAR_MIN_WIDTH, Math.round(width)));
+}
+
+export function clampRightPanelWidth(width: number, maxWidth: number = Number.POSITIVE_INFINITY): number {
+  const upper = Math.max(RIGHT_PANEL_MIN_WIDTH, Math.floor(maxWidth));
+  return Math.min(upper, Math.max(RIGHT_PANEL_MIN_WIDTH, Math.round(width)));
+}
+
+// The persisted width is capped to the current viewport budget as a first
+// approximation; the workspace-row ResizeObserver in AppShell re-clamps it
+// against the real flex-container width once mounted.
+export function loadSidebarWidth(): number {
+  if (typeof window === "undefined") return SIDEBAR_DEFAULT_WIDTH;
+  try {
+    const raw = window.localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY);
+    const width = raw ? Number(raw) : NaN;
+    return Number.isFinite(width) ? clampSidebarWidth(width, dockedPanelsBudget(window.innerWidth)) : SIDEBAR_DEFAULT_WIDTH;
+  } catch {
+    return SIDEBAR_DEFAULT_WIDTH;
+  }
 }
 
 export function loadRightPanelWidth(): number | null {
@@ -48,7 +84,7 @@ export function loadRightPanelWidth(): number | null {
     const raw = window.localStorage.getItem(RIGHT_PANEL_WIDTH_STORAGE_KEY);
     if (!raw) return null;
     const width = Number(raw);
-    return Number.isFinite(width) ? clampRightPanelWidth(width) : null;
+    return Number.isFinite(width) ? clampRightPanelWidth(width, dockedPanelsBudget(window.innerWidth)) : null;
   } catch {
     return null;
   }

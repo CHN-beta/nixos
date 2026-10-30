@@ -4181,6 +4181,17 @@ html[data-touch-targets="accessible"] .right-panel-toolbar {
   to   { stroke-dashoffset: 0;  opacity: 1; }
 }
 
+/* Center column safeguard: on desktop the chat always keeps at least 10% of
+   the workspace row, so the two docked side panels cannot squeeze it out. */
+.workspace-main {
+  min-width: 0;
+}
+@media (min-width: 641px) {
+  .workspace-main {
+    min-width: 10%;
+  }
+}
+
 /* Desktop sidebar: animate width */
 @media (min-width: 641px) {
   .sidebar-container {
@@ -4236,7 +4247,7 @@ html[data-touch-targets="accessible"] .right-panel-toolbar {
     transition: none;
   }
 }
-@media (min-width: 641px) and (max-width: 959px) {
+@media (min-width: 641px) and (max-width: 960px) {
   .right-panel-resize-handle {
     display: none !important;
   }

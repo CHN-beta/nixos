@@ -38,12 +38,16 @@ import {
   RIGHT_PANEL_MIN_WIDTH,
   RIGHT_PANEL_WIDTH_STORAGE_KEY,
   SIDEBAR_DEFAULT_WIDTH,
+  SIDEBAR_MIN_WIDTH,
   SIDEBAR_WIDTH_STORAGE_KEY,
   clampRightPanelWidth,
   clampSidebarWidth,
+  dockedPanelsBudget,
   loadRightPanelWidth,
   loadSidebarWidth,
   projectLabel,
+  rightPanelMaxWidth,
+  sidebarMaxWidth,
   WorkspaceState,
 } from "./AppShell-layout";
 import type { CrossSessionHostToolCall, ManagedProject, SessionInfo, SessionTreeNode } from "@/lib/types";
@@ -135,6 +139,15 @@ export function AppShell({ appName }: { appName: string }) {
     active: isMobile && mobileSidebarReady && sidebarOpen && !settingsTab,
   });
   const pendingSidebarWidthRef = useRef<number>(SIDEBAR_DEFAULT_WIDTH);
+  // Horizontal flex row that docks the sidebars beside the chat column. Its
+  // clientWidth is in unscaled CSS layout pixels, so the 90% budget is immune
+  // to the html[data-ui-scale] zoom (unlike getBoundingClientRect).
+  const workspaceRowRef = useRef<HTMLDivElement | null>(null);
+  const measureWorkspaceWidth = useCallback((): number => {
+    const measured = workspaceRowRef.current?.clientWidth;
+    if (measured !== undefined && measured > 0) return measured;
+    return typeof window !== "undefined" ? window.innerWidth : 0;
+  }, []);
   useEffect(() => {
     setSidebarWidth(loadSidebarWidth());
     try {
@@ -321,172 +334,9 @@ export function AppShell({ appName }: { appName: string }) {
     setSidebarOpen((open) => !open);
   }, [isMobile]);
 
-  const resetSidebarWidth = useCallback(() => {
-    setSidebarWidth(SIDEBAR_DEFAULT_WIDTH);
-  }, []);
-
-  const changeSidebarWidth = useCallback((delta: number) => {
-    setSidebarWidth((prev) => clampSidebarWidth(prev + delta));
-  }, []);
-
-  const handleSidebarResizeKey = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      changeSidebarWidth(-10);
-    } else if (e.key === "ArrowRight") {
-      e.preventDefault();
-      changeSidebarWidth(10);
-    } else if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      resetSidebarWidth();
-    }
-  }, [changeSidebarWidth, resetSidebarWidth]);
-
-  const handleSidebarResizeStart = useCallback((e: React.MouseEvent) => {
-    if (isMobile) return;
-    e.preventDefault();
-    const startX = e.clientX;
-    const startWidth = sidebarWidth;
-    // Interface Scale (html[data-ui-scale] zoom) leaves clientX in viewport
-    // pixels while the sidebar width is zoomed layout pixels: scale the drag
-    // delta so the edge tracks the pointer at any zoom (same --ui-scale
-    // ground truth as the zoom-aware menus in SessionSidebar-chrome).
-    let uiScale = 1;
-    try {
-      const raw = getComputedStyle(document.documentElement).getPropertyValue("--ui-scale");
-      const value = parseFloat(raw);
-      if (Number.isFinite(value) && value > 0) uiScale = value;
-    } catch {
-      // SSR/unavailable: fall back to unscaled math.
-    }
-    setSidebarResizing(true);
-    const onMove = (ev: MouseEvent) => {
-      const next = clampSidebarWidth(startWidth + (ev.clientX - startX) / uiScale);
-      // Write the CSS variable straight to the DOM: the flex row follows the
-      // pointer without re-rendering the whole AppShell on every mousemove.
-      sidebarContainerRef.current?.style.setProperty("--sidebar-width", `${next}px`);
-      pendingSidebarWidthRef.current = next;
-    };
-    const onUp = () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-      sidebarResizeHandlersRef.current = null;
-      setSidebarResizing(false);
-      // Commit the final width so state and the persisted value agree with
-      // what the user actually dragged to.
-      setSidebarWidth(pendingSidebarWidthRef.current);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
-    pendingSidebarWidthRef.current = startWidth;
-    sidebarResizeHandlersRef.current = { onMove, onUp };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-  }, [isMobile, sidebarWidth]);
-
-  // If the app unmounts mid-drag, remove the window listeners and restore the
-  // body cursor; otherwise the handlers leak and body stays cursor:col-resize.
-  useEffect(() => () => {
-    const handlers = sidebarResizeHandlersRef.current;
-    if (!handlers) return;
-    window.removeEventListener("mousemove", handlers.onMove);
-    window.removeEventListener("mouseup", handlers.onUp);
-    sidebarResizeHandlersRef.current = null;
-    document.body.style.cursor = "";
-    document.body.style.userSelect = "";
-  }, []);
-
-  const resetRightPanelWidth = useCallback(() => {
-    rightPanelRef.current?.style.removeProperty("--right-panel-width");
-    setRightPanelWidth(null);
-  }, []);
-
-  const changeRightPanelWidth = useCallback((delta: number) => {
-    setRightPanelWidth((prev) => {
-      // Keyboard steps from the fluid default start at the panel's live
-      // width so the first press doesn't jump to the clamp minimum.
-      const base = prev ?? rightPanelRef.current?.getBoundingClientRect().width ?? RIGHT_PANEL_MIN_WIDTH;
-      const next = clampRightPanelWidth(base + delta);
-      rightPanelRef.current?.style.setProperty("--right-panel-width", `${next}px`);
-      return next;
-    });
-  }, []);
-
-  const handleRightPanelResizeKey = useCallback((e: React.KeyboardEvent) => {
-    // The handle sits on the panel's left edge: left widens, right narrows.
-    if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      changeRightPanelWidth(10);
-    } else if (e.key === "ArrowRight") {
-      e.preventDefault();
-      changeRightPanelWidth(-10);
-    } else if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      resetRightPanelWidth();
-    }
-  }, [changeRightPanelWidth, resetRightPanelWidth]);
-
-  const handleRightPanelResizeStart = useCallback((e: React.MouseEvent) => {
-    if (isMobile) return;
-    e.preventDefault();
-    const startX = e.clientX;
-    // Live rect, not state: it always reflects the committed width (custom or
-    // fluid default), and keeps this callback above the state declarations
-    // without a TDZ cycle. The handle only exists while the panel is open.
-    const startWidth = rightPanelRef.current?.getBoundingClientRect().width
-      ?? RIGHT_PANEL_MIN_WIDTH;
-    // Same --ui-scale ground truth as the left sidebar handle: clientX is in
-    // viewport pixels while the panel width is zoomed layout pixels.
-    let uiScale = 1;
-    try {
-      const raw = getComputedStyle(document.documentElement).getPropertyValue("--ui-scale");
-      const value = parseFloat(raw);
-      if (Number.isFinite(value) && value > 0) uiScale = value;
-    } catch {
-      // SSR/unavailable: fall back to unscaled math.
-    }
-    setRightPanelResizing(true);
-    const onMove = (ev: MouseEvent) => {
-      // Dragging the left edge left grows the panel: inverse of the sidebar.
-      const next = clampRightPanelWidth(startWidth - (ev.clientX - startX) / uiScale);
-      // Write the CSS variable straight to the DOM: the flex row follows the
-      // pointer without re-rendering the whole AppShell on every mousemove.
-      rightPanelRef.current?.style.setProperty("--right-panel-width", `${next}px`);
-      pendingRightPanelWidthRef.current = next;
-    };
-    const onUp = () => {
-      window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseup", onUp);
-      rightResizeHandlersRef.current = null;
-      setRightPanelResizing(false);
-      // Commit the final width so state and the persisted value agree with
-      // what the user actually dragged to.
-      setRightPanelWidth(pendingRightPanelWidthRef.current);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
-    };
-    document.body.style.cursor = "col-resize";
-    document.body.style.userSelect = "none";
-    pendingRightPanelWidthRef.current = startWidth;
-    rightResizeHandlersRef.current = { onMove, onUp };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseup", onUp);
-  }, [isMobile]);
-
-  // If the app unmounts mid-drag, remove the window listeners and restore the
-  // body cursor; otherwise the handlers leak and body stays cursor:col-resize.
-  useEffect(() => () => {
-    const handlers = rightResizeHandlersRef.current;
-    if (!handlers) return;
-    window.removeEventListener("mousemove", handlers.onMove);
-    window.removeEventListener("mouseup", handlers.onUp);
-    rightResizeHandlersRef.current = null;
-    document.body.style.cursor = "";
-    document.body.style.userSelect = "";
-  }, []);
-
+  // Sidebar and right-panel width handlers live below the right-panel state
+  // they push against (option A2), so their callbacks can read the docked
+  // neighbour directly. See the docked-width handlers block.
 
   // Right panel tabs: Explorer | Git changes | open files (Tauri parity).
   const [fileTabs, setFileTabs] = useState<Tab[]>([]);
@@ -589,6 +439,332 @@ export function AppShell({ appName }: { appName: string }) {
       // ignore storage quota / privacy-mode errors
     }
   }, [rightPanelWidth, rightPanelResizing]);
+
+  // ── Docked panel widths ──────────────────────────────────────────────────
+  // The left sidebar and the right panel share one desktop budget: together
+  // they may occupy at most 90% of the workspace flex row, so the chat column
+  // always keeps ≥10%. There is no per-panel pixel cap anymore. While both are
+  // docked (option A2) growing one pushes/shrinks the other down to its
+  // minimum; the ResizeObserver effect below rebalances after window resizes
+  // and panel toggles.
+
+  const resetSidebarWidth = useCallback(() => {
+    setSidebarWidth(SIDEBAR_DEFAULT_WIDTH);
+  }, []);
+
+  const changeSidebarWidth = useCallback((delta: number) => {
+    const budget = dockedPanelsBudget(measureWorkspaceWidth());
+    const rightDocked = rightPanelOpen && !isCompactOverlay && !isMobile && !settingsTab;
+    const next = clampSidebarWidth(sidebarWidth + delta, sidebarMaxWidth(budget, rightDocked));
+    sidebarContainerRef.current?.style.setProperty("--sidebar-width", `${next}px`);
+    setSidebarWidth(next);
+    // Option A2: keyboard growth pushes the docked right panel, never below
+    // its minimum, so the pair stays inside the shared budget.
+    if (rightDocked) {
+      const rightActual = rightPanelWidth ?? rightPanelRef.current?.offsetWidth ?? Math.round(0.42 * measureWorkspaceWidth());
+      if (next + rightActual > budget) {
+        const nextRight = Math.max(RIGHT_PANEL_MIN_WIDTH, budget - next);
+        rightPanelRef.current?.style.setProperty("--right-panel-width", `${nextRight}px`);
+        setRightPanelWidth(nextRight);
+      }
+    }
+  }, [isCompactOverlay, isMobile, measureWorkspaceWidth, rightPanelOpen, rightPanelWidth, settingsTab, sidebarWidth]);
+
+  const handleSidebarResizeKey = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      changeSidebarWidth(-10);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      changeSidebarWidth(10);
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      resetSidebarWidth();
+    }
+  }, [changeSidebarWidth, resetSidebarWidth]);
+
+  const handleSidebarResizeStart = useCallback((e: React.MouseEvent) => {
+    if (isMobile) return;
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+    const workspaceWidth = measureWorkspaceWidth();
+    const budget = dockedPanelsBudget(workspaceWidth);
+    const rightDocked = rightPanelOpen && !isCompactOverlay && !settingsTab;
+    // The fluid right panel (null state) has no pixel width of its own: its
+    // live layout width is the baseline the push compares against. offsetWidth
+    // is unscaled by html[data-ui-scale], unlike getBoundingClientRect.
+    const startRightWidth = rightDocked
+      ? rightPanelWidth ?? rightPanelRef.current?.offsetWidth ?? Math.round(0.42 * workspaceWidth)
+      : 0;
+    // Interface Scale (html[data-ui-scale] zoom) leaves clientX in viewport
+    // pixels while the sidebar width is zoomed layout pixels: scale the drag
+    // delta so the edge tracks the pointer at any zoom (same --ui-scale
+    // ground truth as the zoom-aware menus in SessionSidebar-chrome).
+    let uiScale = 1;
+    try {
+      const raw = getComputedStyle(document.documentElement).getPropertyValue("--ui-scale");
+      const value = parseFloat(raw);
+      if (Number.isFinite(value) && value > 0) uiScale = value;
+    } catch {
+      // SSR/unavailable: fall back to unscaled math.
+    }
+    let pushedRight = false;
+    setSidebarResizing(true);
+    // Pushing the right panel must not lag behind the pointer: suppress its
+    // width transition for the duration of the drag (same as the sidebar's).
+    if (rightDocked) setRightPanelResizing(true);
+    const onMove = (ev: MouseEvent) => {
+      const next = clampSidebarWidth(
+        startWidth + (ev.clientX - startX) / uiScale,
+        sidebarMaxWidth(budget, rightDocked),
+      );
+      // Write the CSS variables straight to the DOM: the flex row follows the
+      // pointer without re-rendering the whole AppShell on every mousemove.
+      sidebarContainerRef.current?.style.setProperty("--sidebar-width", `${next}px`);
+      pendingSidebarWidthRef.current = next;
+      if (rightDocked && next + startRightWidth > budget) {
+        const nextRight = Math.max(RIGHT_PANEL_MIN_WIDTH, budget - next);
+        rightPanelRef.current?.style.setProperty("--right-panel-width", `${nextRight}px`);
+        pendingRightPanelWidthRef.current = nextRight;
+        pushedRight = true;
+      }
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      sidebarResizeHandlersRef.current = null;
+      setSidebarResizing(false);
+      if (rightDocked) setRightPanelResizing(false);
+      // Commit the final widths so state and the persisted values agree with
+      // what the user actually dragged to. A fluid right panel is converted to
+      // pixels only if this drag pushed it.
+      setSidebarWidth(pendingSidebarWidthRef.current);
+      if (pushedRight) setRightPanelWidth(pendingRightPanelWidthRef.current);
+      pendingRightPanelWidthRef.current = null;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    pendingSidebarWidthRef.current = startWidth;
+    pendingRightPanelWidthRef.current = null;
+    sidebarResizeHandlersRef.current = { onMove, onUp };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, [isCompactOverlay, isMobile, measureWorkspaceWidth, rightPanelOpen, rightPanelWidth, settingsTab, sidebarWidth]);
+
+  const resetRightPanelWidth = useCallback(() => {
+    rightPanelRef.current?.style.removeProperty("--right-panel-width");
+    setRightPanelWidth(null);
+  }, []);
+
+  const changeRightPanelWidth = useCallback((delta: number) => {
+    const budget = dockedPanelsBudget(measureWorkspaceWidth());
+    const leftDocked = sidebarOpen && !isMobile && !settingsTab;
+    // Keyboard steps from the fluid default start at the panel's live layout
+    // width (offsetWidth, unscaled by --ui-scale) so the first press doesn't
+    // jump to the clamp minimum.
+    const base = rightPanelWidth ?? rightPanelRef.current?.offsetWidth ?? RIGHT_PANEL_MIN_WIDTH;
+    const next = clampRightPanelWidth(base + delta, rightPanelMaxWidth(budget, leftDocked));
+    rightPanelRef.current?.style.setProperty("--right-panel-width", `${next}px`);
+    setRightPanelWidth(next);
+    // Mirror of the sidebar: growing the right panel pushes the docked left
+    // sidebar, never below its minimum.
+    if (leftDocked && next + sidebarWidth > budget) {
+      const nextLeft = Math.max(SIDEBAR_MIN_WIDTH, budget - next);
+      sidebarContainerRef.current?.style.setProperty("--sidebar-width", `${nextLeft}px`);
+      setSidebarWidth(nextLeft);
+    }
+  }, [isMobile, measureWorkspaceWidth, rightPanelWidth, settingsTab, sidebarOpen, sidebarWidth]);
+
+  const handleRightPanelResizeKey = useCallback((e: React.KeyboardEvent) => {
+    // The handle sits on the panel's left edge: left widens, right narrows.
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      changeRightPanelWidth(10);
+    } else if (e.key === "ArrowRight") {
+      e.preventDefault();
+      changeRightPanelWidth(-10);
+    } else if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      resetRightPanelWidth();
+    }
+  }, [changeRightPanelWidth, resetRightPanelWidth]);
+
+  const handleRightPanelResizeStart = useCallback((e: React.MouseEvent) => {
+    if (isMobile) return;
+    e.preventDefault();
+    const startX = e.clientX;
+    // Live layout width, not state: it always reflects the committed width
+    // (custom or fluid default) and stays unscaled under --ui-scale zoom.
+    const startWidth = rightPanelRef.current?.offsetWidth ?? RIGHT_PANEL_MIN_WIDTH;
+    const workspaceWidth = measureWorkspaceWidth();
+    const budget = dockedPanelsBudget(workspaceWidth);
+    const leftDocked = sidebarOpen && !settingsTab;
+    const startLeftWidth = leftDocked ? sidebarWidth : 0;
+    // Same --ui-scale ground truth as the left sidebar handle: clientX is in
+    // viewport pixels while the panel width is zoomed layout pixels.
+    let uiScale = 1;
+    try {
+      const raw = getComputedStyle(document.documentElement).getPropertyValue("--ui-scale");
+      const value = parseFloat(raw);
+      if (Number.isFinite(value) && value > 0) uiScale = value;
+    } catch {
+      // SSR/unavailable: fall back to unscaled math.
+    }
+    let pushedLeft = false;
+    setRightPanelResizing(true);
+    // Suppress the pushed sidebar's transition so it tracks the pointer.
+    if (leftDocked) setSidebarResizing(true);
+    const onMove = (ev: MouseEvent) => {
+      // Dragging the left edge left grows the panel: inverse of the sidebar.
+      const next = clampRightPanelWidth(
+        startWidth - (ev.clientX - startX) / uiScale,
+        rightPanelMaxWidth(budget, leftDocked),
+      );
+      // Write the CSS variables straight to the DOM: the flex row follows the
+      // pointer without re-rendering the whole AppShell on every mousemove.
+      rightPanelRef.current?.style.setProperty("--right-panel-width", `${next}px`);
+      pendingRightPanelWidthRef.current = next;
+      if (leftDocked && next + startLeftWidth > budget) {
+        const nextLeft = Math.max(SIDEBAR_MIN_WIDTH, budget - next);
+        sidebarContainerRef.current?.style.setProperty("--sidebar-width", `${nextLeft}px`);
+        pendingSidebarWidthRef.current = nextLeft;
+        pushedLeft = true;
+      }
+    };
+    const onUp = () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      rightResizeHandlersRef.current = null;
+      setRightPanelResizing(false);
+      if (leftDocked) setSidebarResizing(false);
+      // Commit the final widths so state and the persisted values agree with
+      // what the user actually dragged to.
+      setRightPanelWidth(pendingRightPanelWidthRef.current);
+      if (pushedLeft) setSidebarWidth(pendingSidebarWidthRef.current);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    pendingSidebarWidthRef.current = startLeftWidth;
+    pendingRightPanelWidthRef.current = startWidth;
+    rightResizeHandlersRef.current = { onMove, onUp };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+  }, [isMobile, measureWorkspaceWidth, settingsTab, sidebarOpen, sidebarWidth]);
+
+  // If the app unmounts mid-drag, remove the window listeners and restore the
+  // body cursor; otherwise the handlers leak and body stays cursor:col-resize.
+  useEffect(() => () => {
+    const handlers = sidebarResizeHandlersRef.current;
+    if (!handlers) return;
+    window.removeEventListener("mousemove", handlers.onMove);
+    window.removeEventListener("mouseup", handlers.onUp);
+    sidebarResizeHandlersRef.current = null;
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  }, []);
+  useEffect(() => () => {
+    const handlers = rightResizeHandlersRef.current;
+    if (!handlers) return;
+    window.removeEventListener("mousemove", handlers.onMove);
+    window.removeEventListener("mouseup", handlers.onUp);
+    rightResizeHandlersRef.current = null;
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  }, []);
+
+  // Auto-rebalance the docked pair whenever the workspace row resizes (window
+  // shrink, zoom) or a panel's state changes (second panel opened, a persisted
+  // width loaded): never let the pair exceed the shared 90% budget. Skipped
+  // mid-drag — onMove enforces the budget live and onUp commits.
+  useLayoutEffect(() => {
+    if (isMobile || settingsTab) return;
+    const container = workspaceRowRef.current;
+    const rebalance = () => {
+      if (sidebarResizing || rightPanelResizing) return;
+      const workspaceWidth = container?.clientWidth ?? (typeof window !== "undefined" ? window.innerWidth : 0);
+      if (workspaceWidth <= 0) return;
+      const budget = dockedPanelsBudget(workspaceWidth);
+      const leftDocked = sidebarOpen;
+      const rightDocked = rightPanelOpen && !isCompactOverlay;
+      if (!leftDocked && !rightDocked) return;
+      if (leftDocked && !rightDocked) {
+        if (sidebarWidth > budget) {
+          const next = Math.max(SIDEBAR_MIN_WIDTH, budget);
+          sidebarContainerRef.current?.style.setProperty("--sidebar-width", `${next}px`);
+          setSidebarWidth(next);
+        }
+        return;
+      }
+      if (!leftDocked) {
+        if (rightPanelWidth !== null && rightPanelWidth > budget) {
+          const next = Math.max(RIGHT_PANEL_MIN_WIDTH, budget);
+          rightPanelRef.current?.style.setProperty("--right-panel-width", `${next}px`);
+          setRightPanelWidth(next);
+        }
+        return;
+      }
+      // Both docked: spread the excess proportionally over each panel's
+      // reducible slack, so neither is clipped and both stay at/above min.
+      const rightActual = rightPanelWidth ?? rightPanelRef.current?.offsetWidth ?? Math.round(0.42 * workspaceWidth);
+      if (sidebarWidth + rightActual <= budget) return;
+      const excess = sidebarWidth + rightActual - budget;
+      const leftSlack = Math.max(0, sidebarWidth - SIDEBAR_MIN_WIDTH);
+      const rightSlack = Math.max(0, rightActual - RIGHT_PANEL_MIN_WIDTH);
+      const slack = leftSlack + rightSlack;
+      let nextLeft = sidebarWidth;
+      let nextRight = rightActual;
+      if (slack > 0) {
+        const share = Math.min(1, excess / slack);
+        nextLeft = Math.round(sidebarWidth - leftSlack * share);
+        nextRight = Math.round(rightActual - rightSlack * share);
+        // Rounding can leave the pair 1px over budget: take it from whichever
+        // panel still has slack.
+        const over = nextLeft + nextRight - budget;
+        if (over > 0) {
+          if (nextLeft - SIDEBAR_MIN_WIDTH >= over) nextLeft -= over;
+          else if (nextRight - RIGHT_PANEL_MIN_WIDTH >= over) nextRight -= over;
+        }
+      } else {
+        // Both are already at their minimums; the pair still exceeds the
+        // budget, but the minimums are a hard floor.
+        nextLeft = SIDEBAR_MIN_WIDTH;
+        nextRight = RIGHT_PANEL_MIN_WIDTH;
+      }
+      if (nextLeft !== sidebarWidth) {
+        sidebarContainerRef.current?.style.setProperty("--sidebar-width", `${nextLeft}px`);
+        setSidebarWidth(nextLeft);
+      }
+      // The fluid right panel is converted to pixels only when it must shrink.
+      const rightChanged = rightPanelWidth === null ? nextRight !== rightActual : nextRight !== rightPanelWidth;
+      if (rightChanged) {
+        rightPanelRef.current?.style.setProperty("--right-panel-width", `${nextRight}px`);
+        setRightPanelWidth(nextRight);
+      }
+    };
+    rebalance();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(rebalance);
+    if (container) observer?.observe(container);
+    window.addEventListener("resize", rebalance);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", rebalance);
+    };
+  }, [
+    isCompactOverlay,
+    isMobile,
+    rightPanelOpen,
+    rightPanelResizing,
+    rightPanelWidth,
+    settingsTab,
+    sidebarOpen,
+    sidebarResizing,
+    sidebarWidth,
+  ]);
 
   // Same @mention format as the chat input's @ autocomplete, so the agent's
   // read tool resolves it the same way (it strips the @ prefix).
@@ -1345,7 +1521,7 @@ export function AppShell({ appName }: { appName: string }) {
     `}
     </style>
     <a href="#main-content" className="skip-link">{t("appShell.skipToContent")}</a>
-    <div style={{ display: "flex", height: "100%", flex: 1, minHeight: 0, minWidth: 0, overflow: "hidden", background: "var(--bg)" }}>
+    <div ref={workspaceRowRef} style={{ display: "flex", height: "100%", flex: 1, minHeight: 0, minWidth: 0, overflow: "hidden", background: "var(--bg)" }}>
       {/* Left sidebar: hidden on full-page Settings */}
       {!settingsTab && (
         <>
@@ -1405,7 +1581,7 @@ export function AppShell({ appName }: { appName: string }) {
       )}
 
       {/* Center: chat */}
-      <main id="main-content" tabIndex={-1} inert={rightPanelIsModal ? true : undefined} style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, minWidth: 0, overflow: "hidden" }}>
+      <main id="main-content" className="workspace-main" tabIndex={-1} inert={rightPanelIsModal ? true : undefined} style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, overflow: "hidden" }}>
         {settingsTab ? (
           <SettingsConfig
             activeTab={settingsTab}
