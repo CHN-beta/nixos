@@ -178,7 +178,7 @@
         mathematica = { };
         vasp = { };
         lumerical = { };
-        omp = { };
+        omp.users = [ "chn" ];
       };
       user.users = [
         "chn"
