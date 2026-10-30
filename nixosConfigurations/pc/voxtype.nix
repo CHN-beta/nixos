@@ -119,6 +119,7 @@ in
               whisper = {
                 mode = "remote";
                 remote_endpoint = "https://api.siliconflow.cn";
+                model = asrModel;
                 remote_model = asrModel;
                 language = "zh";
               };
