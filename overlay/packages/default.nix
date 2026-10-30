@@ -216,6 +216,14 @@ rec {
       pyproject-build-systems
       ;
   };
+  hindsight = pkgs.callPackage ./hindsight {
+    src = self.src.hindsight;
+    inherit (self.inputs)
+      uv2nix
+      pyproject-nix
+      pyproject-build-systems
+      ;
+  };
 
   fromYaml =
     content:

@@ -340,12 +340,14 @@ in
       hash = "sha256-pDx8mxGkwVF+W/lRUZYOFiHRty96STNksB44bPGqodM=";
     };
   };
-  hindsight = pkgs.dockerTools.pullImage {
-    imageName = "ghcr.io/vectorize-io/hindsight";
-    # v0.10.0 — 引入 knowledge-base（知识页）API，v0.9.0 之前不存在
-    imageDigest = "sha256:3edcb6165cefdeaa6721dd0fce43cfd13b7a9c346ce0d2c5f4b4bf7bc3c8ac0b";
-    hash = "sha256-z8axnAxslTRY4NcQQhkFrzS2x6WQrFkSjqr3X2RE82w=";
-    finalImageName = "hindsight";
-    finalImageTag = "latest";
+  hindsight = pkgs.fetchgit {
+    url = "https://github.com/vectorize-io/hindsight";
+    rev = "a5a619b5ca59c5c39e0f96be6f7a31fabd136bd5";
+    sparseCheckout = [
+      "pyproject.toml"
+      "uv.lock"
+      "hindsight-api-slim"
+    ];
+    hash = "sha256-cACiatI+nNJhIJ6O5nii/XMUPWXMBM7zrUxVuczKu/k=";
   };
 }
