@@ -1,29 +1,19 @@
 {
+  config,
   lib,
   pkgs,
-  self,
   ...
 }:
 let
-  # vLLM 0.16 requires Transformers < 5; Qwen's official ASR Space pins 4.57.6.
-  # Keep the overrides private, including transitive Python dependencies.
-  python = pkgs.python3.override (
-    prev: {
-      packageOverrides = lib.composeExtensions (prev.packageOverrides or (_: _: { })) (
-        final: prev: {
-          transformers = final.transformers_4;
-          huggingface-hub = final.huggingface-hub_0;
-          diffusers = prev.diffusers.overridePythonAttrs (old: {
-            dependencies = (old.dependencies or [ ]) ++ [ final.httpx ];
-          });
-        }
-      );
-    }
-  );
-  package = python.pkgs.vllm.overridePythonAttrs (prev: {
-    dependencies = (prev.dependencies or [ ]) ++ python.pkgs.vllm.optional-dependencies.audio;
-  });
-  model = self.src.models.qwen3-asr-1_7b;
+  siliconflowApiKey = config.nixos.system.sops.secrets."straycat/siliconflow".path;
+  asrModel = "Qwen/Qwen3-ASR-1.7B";
+  chatModel = "Qwen/Qwen3.5-9B";
+  # Voxtype takes the remote API key from VOXTYPE_WHISPER_API_KEY. Read the sops
+  # secret at startup so the key never ends up in the Nix store.
+  voxtype = pkgs.writeShellScriptBin "voxtype" ''
+    export VOXTYPE_WHISPER_API_KEY="$(cat ${siliconflowApiKey})"
+    exec ${pkgs.voxtype}/bin/voxtype "$@"
+  '';
   voxtypePostProcess = pkgs.writeShellApplication {
     name = "voxtype-post-process";
     runtimeInputs = with pkgs; [
@@ -32,8 +22,8 @@ let
     ];
     text = ''
       input=$(cat)
-      response=$(jq -n --arg input "$input" '{
-        model: "qwen3.5:9b",
+      response=$(jq -n --arg input "$input" --arg model "${chatModel}" '{
+        model: $model,
         messages: [
           {
             role: "system",
@@ -76,33 +66,31 @@ let
             content: ("<transcript>\n" + $input + "\n</transcript>")
           }
         ],
-        stream: false,
-        think: false,
-        options: {
-          temperature: 0,
-          top_p: 0.8,
-          presence_penalty: 0,
-          num_ctx: 8192
-        }
+        enable_thinking: false,
+        temperature: 0,
+        top_p: 0.8,
+        presence_penalty: 0,
+        stream: false
       }' | curl --fail --silent --show-error --max-time 110 \
+        --header "Authorization: Bearer $(cat ${siliconflowApiKey})" \
         --header 'Content-Type: application/json' \
         --data-binary @- \
-        https://ollama.chn.moe/api/chat)
+        https://api.siliconflow.cn/v1/chat/completions)
 
-      jq --exit-status --raw-output '.message.content | select(type == "string" and length > 0)' <<< "$response"
+      jq --exit-status --raw-output '.choices[0].message.content | select(type == "string" and length > 0)' <<< "$response"
     '';
   };
 in
 {
   config = {
-    environment.systemPackages = [ pkgs.voxtype ];
+    environment.systemPackages = [ voxtype ];
     programs.dms-shell.plugins.voxtype.enable = true;
     nixos.user.sharedModules = [
       {
         config = {
           services.voxtype = {
             enable = true;
-            package = pkgs.voxtype;
+            package = voxtype;
             settings = {
               audio = {
                 device = "default";
@@ -130,8 +118,8 @@ in
               state_file = "auto";
               whisper = {
                 mode = "remote";
-                remote_endpoint = "http://127.0.0.1:8000";
-                model = "Qwen/Qwen3-ASR-1.7B";
+                remote_endpoint = "https://api.siliconflow.cn";
+                remote_model = asrModel;
                 language = "zh";
               };
             };
@@ -139,72 +127,5 @@ in
         };
       }
     ];
-    users = {
-      users.vllm = {
-        isSystemUser = true;
-        group = "vllm";
-        extraGroups = [
-          "render"
-          "video"
-        ];
-        home = "/var/lib/vllm";
-      };
-      groups.vllm = { };
-    };
-    systemd.services.vllm = {
-      description = "Qwen3-ASR speech recognition (vLLM / ROCm)";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
-      # PyTorch/Triton may invoke a compiler for JIT kernels.
-      path = [ pkgs.python3Packages.torch.stdenv.cc ];
-      environment = {
-        HOME = "/var/lib/vllm";
-        # /var/lib is persistent on pc; model weights are supplied by the Nix store.
-        HF_HUB_OFFLINE = "1";
-        TRANSFORMERS_OFFLINE = "1";
-        XDG_CACHE_HOME = "/var/lib/vllm/.cache";
-        HF_HUB_DISABLE_TELEMETRY = "1";
-        ROCM_PATH = "${pkgs.rocmPackages.clr}";
-        VLLM_NO_USAGE_STATS = "1";
-      };
-      serviceConfig = {
-        Type = "simple";
-        User = "vllm";
-        Group = "vllm";
-        StateDirectory = "vllm";
-        StateDirectoryMode = "0700";
-        WorkingDirectory = "/var/lib/vllm";
-        ExecStart = lib.escapeShellArgs [
-          (lib.getExe' package "vllm")
-          "serve"
-          (toString model)
-          "--served-model-name"
-          "Qwen/Qwen3-ASR-1.7B"
-          "--host"
-          "127.0.0.1"
-          "--port"
-          "8000"
-          "--max-num-seqs"
-          "1"
-          "--max-model-len"
-          "4096"
-          "--gpu-memory-utilization"
-          "0.5"
-          # Explicit 512 MiB KV cache; overrides percentage-based cache sizing.
-          "--kv-cache-memory-bytes"
-          "536870912"
-        ];
-        Restart = "on-failure";
-        RestartSec = 10;
-        TimeoutStopSec = 60;
-        UMask = "0077";
-        NoNewPrivileges = true;
-        PrivateTmp = true;
-        ProtectHome = true;
-        ProtectSystem = "strict";
-        # Do not use PrivateDevices: ROCm needs /dev/kfd and /dev/dri.
-        LimitMEMLOCK = "infinity";
-      };
-    };
   };
 }
