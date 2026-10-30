@@ -9,7 +9,7 @@ let
     {
       providers = {
         cliproxyapi = {
-          baseUrl = "https://cliproxyapi.chn.moe/v1";
+          baseUrl = "https://internal.cliproxyapi.chn.moe/v1";
           api = "openai-completions";
           apiKey = "CLIPROXYAPI_API_KEY";
           discovery.type = "openai-models-list";
@@ -256,66 +256,93 @@ let
 in
 {
   options.nixos.packages.omp = lib.mkOption {
-    type = lib.types.nullOr (lib.types.submodule { });
-    default = null;
-  };
-  config = lib.mkIf (config.nixos.packages.omp != null) {
-    environment.persistence."/nix/persistent".users.chn.directories = [ ".omp" ];
-    nixos.user.sharedModules = [
-      (homeInputs: {
-        config = {
-          home.activation.ompAgentConfig = {
-            before = [ ];
-            after = [ "writeBoundary" ];
-            data = ''
-              run mkdir -p "$HOME/.omp/agent/agents" "$HOME/.omp/agent/extensions"
-              run rm -f "$HOME/.omp/agent/models.yml" "$HOME/.omp/agent/mcp.json" "$HOME/.omp/agent/keybindings.yml" "$HOME/.omp/agent/extensions/vibe-prompt.ts"
-              run install -m 600 ${modelsFile} "$HOME/.omp/agent/models.yml"
-              run install -m 600 ${mcpFile homeInputs.config.home.username} "$HOME/.omp/agent/mcp.json"
-              run install -m 600 ${keybindingsFile homeInputs.config.home.username} "$HOME/.omp/agent/keybindings.yml"
-              run install -m 600 ${vibePromptExtension} "$HOME/.omp/agent/extensions/vibe-prompt.ts"
-              ${lib.concatLines (
-                lib.mapAttrsToList (name: file: ''
-                  run rm -f "$HOME/.omp/agent/agents/${name}.md"
-                  run install -m 600 ${file} "$HOME/.omp/agent/agents/${name}.md"
-                '') agentFiles
-              )}
-            '';
-          };
-          programs.omp = {
-            enable = true;
-            settings = settings homeInputs.config.home.username;
-            package = pkgs.writeShellScriptBin "omp" ''
-              export HINDSIGHT_API_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/hindsight".path}")"
-              export MINERU_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/mineru".path}")"
-              export CLIPROXYAPI_API_KEY="$(cat "${
-                config.nixos.system.sops.secrets."straycat/cliproxyapi".path
-              }")"
-              export QDRANT_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/qdrant".path}")"
-              export OPENAI_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/siliconflow".path}")"
-              export GITHUB_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/github".path}")"
-              export ARK_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/ark".path}")"
-              export MATRIX_PASSWORD="$(cat "${config.nixos.system.sops.secrets."straycat/matrix".path}")"
-              ${
-                if
-                  lib.elem homeInputs.config.home.username [
-                    "chn"
-                    "straycat"
-                  ]
-                then
-                  ''export VIKUNJA_API_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/vikunja".path}")"''
-                else
-                  ""
-              } 
-              export OPENALEX_MAILTO=chn@chn.moe
-
-              export PUPPETEER_EXECUTABLE_PATH=${pkgs.chromium}/bin/chromium
-
-              exec ${lib.getExe pkgs.omp} "$@"
-            '';
+    type = lib.types.nullOr (
+      lib.types.submodule (submoduleInputs: {
+        options = {
+          users = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [ ];
           };
         };
       })
-    ];
+    );
+    default = null;
   };
+  config =
+    let
+      inherit (config.nixos.packages) omp;
+      cliproxyapiKey =
+        user:
+        if builtins.elem user omp.users then
+          ''export CLIPROXYAPI_API_KEY="$(cat "${
+            config.nixos.system.sops.secrets."cliproxyapi/keys/${user}".path
+          }")"''
+        else
+          "export CLIPROXYAPI_API_KEY=dummy";
+    in
+    lib.mkIf (omp != null) {
+      nixos.system.sops.secrets =
+        omp.users
+        |> lib.flip lib.genAttrs' (
+          user:
+          lib.nameValuePair "cliproxyapi/keys/${user}" {
+            owner = user;
+          }
+        );
+      environment.persistence."/nix/persistent".users.chn.directories = [ ".omp" ];
+      nixos.user.sharedModules = [
+        (homeInputs: {
+          config = {
+            home.activation.ompAgentConfig = {
+              before = [ ];
+              after = [ "writeBoundary" ];
+              data = ''
+                run mkdir -p "$HOME/.omp/agent/agents" "$HOME/.omp/agent/extensions"
+                run rm -f "$HOME/.omp/agent/models.yml" "$HOME/.omp/agent/mcp.json" "$HOME/.omp/agent/keybindings.yml" "$HOME/.omp/agent/extensions/vibe-prompt.ts"
+                run install -m 600 ${modelsFile} "$HOME/.omp/agent/models.yml"
+                run install -m 600 ${mcpFile homeInputs.config.home.username} "$HOME/.omp/agent/mcp.json"
+                run install -m 600 ${keybindingsFile homeInputs.config.home.username} "$HOME/.omp/agent/keybindings.yml"
+                run install -m 600 ${vibePromptExtension} "$HOME/.omp/agent/extensions/vibe-prompt.ts"
+                ${lib.concatLines (
+                  lib.mapAttrsToList (name: file: ''
+                    run rm -f "$HOME/.omp/agent/agents/${name}.md"
+                    run install -m 600 ${file} "$HOME/.omp/agent/agents/${name}.md"
+                  '') agentFiles
+                )}
+              '';
+            };
+            programs.omp = {
+              enable = true;
+              settings = settings homeInputs.config.home.username;
+              package = pkgs.writeShellScriptBin "omp" ''
+                export HINDSIGHT_API_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/hindsight".path}")"
+                export MINERU_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/mineru".path}")"
+                ${cliproxyapiKey homeInputs.config.home.username}
+                export QDRANT_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/qdrant".path}")"
+                export OPENAI_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/siliconflow".path}")"
+                export GITHUB_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/github".path}")"
+                export ARK_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/ark".path}")"
+                export MATRIX_PASSWORD="$(cat "${config.nixos.system.sops.secrets."straycat/matrix".path}")"
+                ${
+                  if
+                    lib.elem homeInputs.config.home.username [
+                      "chn"
+                      "straycat"
+                    ]
+                  then
+                    ''export VIKUNJA_API_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/vikunja".path}")"''
+                  else
+                    ""
+                }
+                export OPENALEX_MAILTO=chn@chn.moe
+
+                export PUPPETEER_EXECUTABLE_PATH=${pkgs.chromium}/bin/chromium
+
+                exec ${lib.getExe pkgs.omp} "$@"
+              '';
+            };
+          };
+        })
+      ];
+    };
 }
