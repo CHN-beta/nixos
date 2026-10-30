@@ -145,10 +145,12 @@ in
       "intel.oneapi.lin.compilers-common,v=2025.1.1+10"
     ];
   };
+  # 本地基于 ubunturesolute 构建的 0.0.17 镜像（尚未推送 registry）。
+  # 若在其它机器上重建，需先用 nix-store --add-fixed 导入同名 tar，或推送镜像后同步 imageDigest。
   wechat = pkgs.dockerTools.pullImage {
     imageName = "nickrunning/wechat-selkies";
     imageDigest = "sha256:2e1ae2f132f02ee6301e4f09e5a34b5e06e9680397e65a97182886167d117c9b";
-    hash = "sha256-GuxF08Zfnb4vJni2ur4KkXVnUZMaJ8tljpqKZD4u67c=";
+    hash = "sha256-dhR5z/i4lwxSu8GauOTdPS6H4DT2BFAzSo2UsZG8OPs=";
     finalImageName = "nickrunning/wechat-selkies";
     finalImageTag = "0.0.17";
   };

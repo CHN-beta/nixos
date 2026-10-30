@@ -10,7 +10,6 @@
     environment = {
       TZ = "Asia/Shanghai";
       AUTO_START_WECHAT = "true";
-      MAX_RES = "1920x1080";
       SELKIES_MANUAL_WIDTH = "1920";
       SELKIES_MANUAL_HEIGHT = "1080";
     };
