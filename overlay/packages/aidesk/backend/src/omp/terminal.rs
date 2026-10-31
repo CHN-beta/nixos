@@ -12,13 +12,20 @@ use std::os::fd::{AsRawFd, FromRawFd, RawFd};
 use std::os::unix::process::CommandExt;
 use std::path::Path;
 use std::process::{Child, Command, Stdio};
-use std::sync::atomic::{AtomicBool, AtomicI64, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI64, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use tokio::io::unix::AsyncFd;
 use tokio::sync::broadcast;
 
 pub const MAX_BUFFER_BYTES: usize = 256 * 1024;
+/// How long an exited terminal stays reconnectable before the sweeper drops it.
+pub const EXITED_TERMINAL_TTL_MS: i64 = 5 * 60 * 1000;
+/// Terminals nobody watches (no SSE subscriber) are reaped after this idle
+/// window, so abandoned shells do not pin a PTY + process forever.
+pub const IDLE_TERMINAL_MS: i64 = 30 * 60 * 1000;
+/// PTY sweep cadence.
+pub const TERMINAL_SWEEP_INTERVAL: Duration = Duration::from_secs(30);
 
 /// Mark a descriptor close-on-exec so PTY fds never leak into spawned children
 /// (including `omp` processes started by the agent layer).
@@ -131,8 +138,27 @@ pub struct TerminalInfo {
 
 #[derive(Debug, Clone)]
 pub enum TerminalEvent {
-    Output(String),
+    /// `start`/`end` are absolute byte offsets in the session's output stream:
+    /// `start` is the offset of the first byte in `data`, `end` the next byte a
+    /// client still needs to resume from.
+    Output {
+        data: String,
+        start: u64,
+        end: u64,
+    },
     Exit(i32),
+}
+
+/// Atomic history + subscription snapshot. Reading the ring buffer and
+/// subscribing to live output under one lock removes the gap where a chunk
+/// could be both replayed in history and delivered as a live event.
+pub struct TerminalSnapshot {
+    pub history: String,
+    /// Absolute offset of `history[0]`.
+    pub start_offset: u64,
+    /// Offset just past the newest buffered byte.
+    pub end_offset: u64,
+    pub events: broadcast::Receiver<TerminalEvent>,
 }
 
 pub struct TerminalSession {
@@ -145,10 +171,16 @@ pub struct TerminalSession {
     last_active_at: AtomicI64,
     buffer: Mutex<VecDeque<u8>>,
     buffer_bytes: AtomicI64,
+    /// Total bytes ever emitted (monotonic, survives ring-buffer trimming).
+    offset: AtomicU64,
     exited: AtomicBool,
     exit_code: AtomicI64,
+    exited_at: AtomicI64,
     master_fd: RawFd,
     child: Mutex<Option<Child>>,
+    /// Serializes writes to the (non-blocking) master fd; several blocking
+    /// tasks may call `write_input` concurrently.
+    write_lock: Mutex<()>,
     events: broadcast::Sender<TerminalEvent>,
 }
 
@@ -158,6 +190,23 @@ impl Drop for TerminalSession {
         unsafe {
             libc::close(self.master_fd);
         }
+    }
+}
+
+/// Poll a child for exit without blocking the PTY reader; returns `true` once
+/// it has been reaped. Used by the graceful shutdown escalation ladder.
+fn wait_for_child(child: &mut Child, grace: Duration) -> bool {
+    let deadline = Instant::now() + grace;
+    loop {
+        match child.try_wait() {
+            Ok(Some(_)) => return true,
+            Ok(None) => {}
+            Err(_) => return false,
+        }
+        if Instant::now() >= deadline {
+            return false;
+        }
+        std::thread::sleep(Duration::from_millis(25));
     }
 }
 
@@ -298,10 +347,13 @@ impl TerminalSession {
             last_active_at: AtomicI64::new(now),
             buffer: Mutex::new(VecDeque::new()),
             buffer_bytes: AtomicI64::new(0),
+            offset: AtomicU64::new(0),
             exited: AtomicBool::new(false),
             exit_code: AtomicI64::new(0),
+            exited_at: AtomicI64::new(0),
             master_fd: master,
             child: Mutex::new(Some(child)),
+            write_lock: Mutex::new(()),
             events,
         });
         // Reader task owns an AsyncFd wrapper on a close-on-exec dup of the
@@ -361,24 +413,37 @@ impl TerminalSession {
 
     fn push_output(&self, data: String) {
         self.last_active_at.store(epoch_ms(), Ordering::Relaxed);
-        if let Ok(mut buffer) = self.buffer.lock() {
-            buffer.extend(data.as_bytes());
-            let mut total = self.buffer_bytes.load(Ordering::Relaxed) + data.len() as i64;
-            while total > MAX_BUFFER_BYTES as i64 && buffer.len() > 1 {
-                let excess = total - MAX_BUFFER_BYTES as i64;
-                let drop_count = (excess as usize).min(buffer.len() - 1);
-                buffer.drain(..drop_count);
-                total -= drop_count as i64;
-            }
-            self.buffer_bytes.store(total, Ordering::Relaxed);
+        let length = data.len() as u64;
+        // The buffer lock also guards the broadcast: a snapshot() therefore
+        // sees either "data still live only" or "data already in history",
+        // never both.
+        let mut buffer = match self.buffer.lock() {
+            Ok(buffer) => buffer,
+            Err(_) => return,
+        };
+        buffer.extend(data.as_bytes());
+        let mut total = self.buffer_bytes.load(Ordering::Relaxed) + data.len() as i64;
+        while total > MAX_BUFFER_BYTES as i64 && buffer.len() > 1 {
+            let excess = total - MAX_BUFFER_BYTES as i64;
+            let drop_count = (excess as usize).min(buffer.len() - 1);
+            buffer.drain(..drop_count);
+            total -= drop_count as i64;
         }
-        let _ = self.events.send(TerminalEvent::Output(data));
+        self.buffer_bytes.store(total, Ordering::Relaxed);
+        // `offset` is only advanced in here (under the same lock), so offsets
+        // handed to subscribers and to snapshot() always agree.
+        let end = self.offset.fetch_add(length, Ordering::SeqCst) + length;
+        let start = end - length;
+        let _ = self
+            .events
+            .send(TerminalEvent::Output { data, start, end });
     }
 
     fn finish(&self) {
         if self.exited.swap(true, Ordering::SeqCst) {
             return;
         }
+        self.exited_at.store(epoch_ms(), Ordering::SeqCst);
         let mut code = 0;
         let mut unreaped: Option<Child> = None;
         if let Ok(mut slot) = self.child.lock() {
@@ -413,7 +478,57 @@ impl TerminalSession {
             .unwrap_or_default()
     }
 
+    /// Atomically take the buffered history and a live subscription.
+    ///
+    /// Both are captured under the buffer lock (the same lock `push_output`
+    /// holds while broadcasting), so a chunk can never be replayed twice or
+    /// dropped between the snapshot and the subscription.
+    pub fn snapshot(&self) -> TerminalSnapshot {
+        let buffer = self.buffer.lock();
+        let events = self.events.subscribe();
+        let (history, start_offset, end_offset) = match &buffer {
+            Ok(buffer) => {
+                let end_offset = self.offset.load(Ordering::SeqCst);
+                let start_offset = end_offset.saturating_sub(buffer.len() as u64);
+                let bytes: Vec<u8> = buffer.iter().copied().collect();
+                (
+                    String::from_utf8_lossy(&bytes).into_owned(),
+                    start_offset,
+                    end_offset,
+                )
+            }
+            // A poisoned buffer still yields a usable subscription so a
+            // reconnecting client keeps receiving live output.
+            Err(_) => (
+                String::new(),
+                self.offset.load(Ordering::SeqCst),
+                self.offset.load(Ordering::SeqCst),
+            ),
+        };
+        TerminalSnapshot {
+            history,
+            start_offset,
+            end_offset,
+            events,
+        }
+    }
+
+    pub fn subscriber_count(&self) -> usize {
+        self.events.receiver_count()
+    }
+
+    pub fn exited_at(&self) -> i64 {
+        self.exited_at.load(Ordering::SeqCst)
+    }
+
     pub fn write_input(&self, data: &str) -> bool {
+        // Blocking mutex: callers run this inside spawn_blocking, and the write
+        // loop below may poll(2). Without it two concurrent POSTs could
+        // interleave partial writes into the same PTY buffer.
+        let _write_guard = match self.write_lock.lock() {
+            Ok(guard) => guard,
+            Err(_) => return false,
+        };
         if self.exited.load(Ordering::SeqCst) {
             return false;
         }
@@ -475,6 +590,10 @@ impl TerminalSession {
         self.exited.load(Ordering::SeqCst)
     }
 
+    pub fn last_active_ms(&self) -> i64 {
+        self.last_active_at.load(Ordering::Relaxed)
+    }
+
     pub fn exit_code(&self) -> i32 {
         self.exit_code.load(Ordering::SeqCst) as i32
     }
@@ -485,7 +604,9 @@ impl TerminalSession {
 
     pub fn kill(&self) {
         if !self.exited.load(Ordering::SeqCst) {
-            // Hang up the foreground job, then the whole process group.
+            // Hang up the foreground job first; a shell that handles SIGHUP
+            // flushes its history. Escalation happens on a helper thread so
+            // Drop never blocks a Tokio worker.
             set_winsize(
                 self.master_fd,
                 self.cols.load(Ordering::Relaxed) as u16,
@@ -493,16 +614,30 @@ impl TerminalSession {
             );
             unsafe {
                 libc::kill(-self.pid, libc::SIGHUP);
-                libc::kill(-self.pid, libc::SIGTERM);
             }
         }
         // Always take the child so it is guaranteed to be reaped, even if the
         // reader already marked the session exited (EIO arrives before wait).
         let child = self.child.lock().ok().and_then(|mut slot| slot.take());
         if let Some(mut child) = child {
-            let _ = child.kill();
+            let pid = self.pid;
             // Reap off-thread: Drop may run on a Tokio worker.
             std::thread::spawn(move || {
+                if wait_for_child(&mut child, Duration::from_millis(300)) {
+                    return;
+                }
+                // Still alive after the HUP grace period: terminate, then
+                // hard-kill only if SIGTERM was ignored too.
+                unsafe {
+                    libc::kill(-pid, libc::SIGTERM);
+                }
+                if wait_for_child(&mut child, Duration::from_millis(500)) {
+                    return;
+                }
+                unsafe {
+                    libc::kill(-pid, libc::SIGKILL);
+                }
+                let _ = child.kill();
                 let _ = child.wait();
             });
         }
@@ -524,13 +659,56 @@ impl TerminalSession {
 
 pub struct TerminalManager {
     sessions: Arc<Mutex<HashMap<String, Arc<TerminalSession>>>>,
+    sweeper_started: AtomicBool,
+}
+
+impl Default for TerminalManager {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl TerminalManager {
     pub fn new() -> Self {
         Self {
             sessions: Arc::new(Mutex::new(HashMap::new())),
+            sweeper_started: AtomicBool::new(false),
         }
+    }
+
+    /// Start the background reaper once (first terminal creation). Exited
+    /// terminals stay reconnectable for `EXITED_TERMINAL_TTL_MS`; live ones
+    /// without any SSE subscriber and past `IDLE_TERMINAL_MS` are torn down.
+    fn ensure_sweeper(&self) {
+        if self.sweeper_started.swap(true, Ordering::SeqCst) {
+            return;
+        }
+        let sessions = self.sessions.clone();
+        tokio::spawn(async move {
+            loop {
+                tokio::time::sleep(TERMINAL_SWEEP_INTERVAL).await;
+                let now = epoch_ms();
+                let mut doomed: Vec<Arc<TerminalSession>> = Vec::new();
+                if let Ok(mut sessions) = sessions.lock() {
+                    sessions.retain(|_, session| {
+                        let keep = if session.is_exited() {
+                            let at = session.exited_at();
+                            at == 0 || now - at < EXITED_TERMINAL_TTL_MS
+                        } else {
+                            !(session.subscriber_count() == 0
+                                && now - session.last_active_ms() > IDLE_TERMINAL_MS)
+                        };
+                        if !keep {
+                            doomed.push(session.clone());
+                        }
+                        keep
+                    });
+                }
+                for session in doomed {
+                    session.kill();
+                }
+            }
+        });
     }
 
     pub fn create(
@@ -557,29 +735,9 @@ impl TerminalManager {
         if let Ok(mut sessions) = self.sessions.lock() {
             sessions.insert(id.clone(), session.clone());
         }
-        // Idle cleanup 10s after exit, mirroring the reference implementation.
-        let sessions = self.sessions.clone();
-        let session_for_task = session.clone();
-        let id_for_task = id.clone();
-        tokio::spawn(async move {
-            let mut events = session_for_task.subscribe();
-            loop {
-                match events.recv().await {
-                    Ok(TerminalEvent::Exit(_)) | Err(broadcast::error::RecvError::Closed) => break,
-                    _ => continue,
-                }
-            }
-            tokio::time::sleep(std::time::Duration::from_secs(10)).await;
-            if let Ok(mut sessions) = sessions.lock() {
-                if sessions
-                    .get(&id_for_task)
-                    .map(|session| session.is_exited())
-                    .unwrap_or(false)
-                {
-                    sessions.remove(&id_for_task);
-                }
-            }
-        });
+        // One sweeper for every terminal: keeps exited sessions reconnectable
+        // for a grace period and reaps abandoned idle shells.
+        self.ensure_sweeper();
         Ok(session)
     }
 

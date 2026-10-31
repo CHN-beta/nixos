@@ -10,6 +10,21 @@ use serde_json::{json, Map, Value};
 use std::sync::{LazyLock, Mutex};
 
 static PRESENCE: LazyLock<Mutex<Map<String, Value>>> = LazyLock::new(|| Mutex::new(Map::new()));
+/// Serializes every read-modify-write of `notifications.json`. Frame handling
+/// (`record_session_notification`) is synchronous while the HTTP handlers are
+/// async; one process-wide blocking mutex keeps both paths consistent and can
+/// never be held across an await.
+static STORE_LOCK: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
+/// Client presence entries older than this are dropped on the next report.
+const PRESENCE_TTL_MS: f64 = 5.0 * 60.0 * 1000.0;
+/// Hard upper bound for the in-memory presence map.
+const MAX_PRESENCE_CLIENTS: usize = 256;
+
+fn lock_store() -> std::sync::MutexGuard<'static, ()> {
+    STORE_LOCK
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+}
 static NOTIFICATION_TX: LazyLock<tokio::sync::broadcast::Sender<Value>> =
     LazyLock::new(|| tokio::sync::broadcast::channel(256).0);
 
@@ -144,6 +159,7 @@ pub fn record_session_notification(
         return;
     }
     let path = cfg.notifications_path();
+    let _store_guard = lock_store();
     let mut store = load_store_path(&path);
     let mut entries = history(&store);
     let id = format!("{}:{}", session_id, kind);
@@ -250,10 +266,10 @@ fn generate_vapid_keys() -> Option<(String, String)> {
 }
 
 /// Read the stored VAPID public key, generating and persisting one on first
-/// use so `applicationServerKey` is never an empty string.
-fn vapid_public_key_for(state: &SharedState) -> String {
-    let mut store = load_store(state);
-    let existing = vapid_public_key(&store);
+/// use so `applicationServerKey` is never an empty string. The caller holds
+/// the store lock, so the generate-and-save sequence cannot race.
+fn ensure_vapid_public_key(state: &SharedState, store: &mut Map<String, Value>) -> String {
+    let existing = vapid_public_key(store);
     if !existing.is_empty() {
         return existing;
     }
@@ -264,7 +280,7 @@ fn vapid_public_key_for(state: &SharedState) -> String {
         "vapid".into(),
         json!({ "publicKey": public_key, "privateKey": private_key }),
     );
-    let _ = save_store(state, &store);
+    let _ = save_store(state, store);
     public_key
 }
 
@@ -273,7 +289,8 @@ pub async fn devices_get(State(state): State<SharedState>, uri: Uri) -> Response
     let device_id = query
         .get("deviceId")
         .and_then(|id| is_valid_notification_id(Some(&Value::String(id.to_string()))));
-    let store = load_store(&state);
+    let _store_guard = lock_store();
+    let mut store = load_store(&state);
     let subscribed = device_id
         .and_then(|id| {
             devices(&store)
@@ -287,8 +304,9 @@ pub async fn devices_get(State(state): State<SharedState>, uri: Uri) -> Response
                 .unwrap_or(false)
         })
         .unwrap_or(false);
+    let public_key = ensure_vapid_public_key(&state, &mut store);
     json_ok(json!({
-        "publicKey": vapid_public_key_for(&state),
+        "publicKey": public_key,
         "subscribed": subscribed,
     }))
 }
@@ -315,6 +333,7 @@ pub async fn devices_put(
             )
         }
     };
+    let _store_guard = lock_store();
     let mut store = load_store(&state);
     let mut current = devices(&store);
     let existing = current
@@ -352,6 +371,7 @@ pub async fn devices_put(
 }
 
 pub async fn history_get(State(state): State<SharedState>) -> Response {
+    let _store_guard = lock_store();
     let mut entries = history(&load_store(&state));
     entries.sort_by(|a, b| {
         let left = a.get("at").and_then(Value::as_f64).unwrap_or(0.0);
@@ -409,6 +429,7 @@ pub async fn history_patch(
             )
         }
     };
+    let _store_guard = lock_store();
     let mut store = load_store(&state);
     let mut entries = history(&store);
     for entry in entries.iter_mut() {
@@ -436,6 +457,7 @@ pub async fn history_delete(State(state): State<SharedState>, uri: Uri) -> Respo
             "invalid_history_request",
         );
     }
+    let _store_guard = lock_store();
     let mut store = load_store(&state);
     let mut entries = history(&store);
     if clear_all {
@@ -469,6 +491,38 @@ pub async fn presence(_state: State<SharedState>, request: axum::extract::Reques
         .filter(|value| !value.is_empty())
         .map(|value| value.to_string());
     if let Ok(mut presence) = PRESENCE.lock() {
+        let now = now_ms();
+        // Stale tabs never send a "gone" report (crashed browser, closed
+        // laptop), so expire them instead of growing the map forever.
+        presence.retain(|_, entry| {
+            now - entry
+                .get("lastSeen")
+                .and_then(Value::as_f64)
+                .unwrap_or(0.0)
+                < PRESENCE_TTL_MS
+        });
+        if presence.len() >= MAX_PRESENCE_CLIENTS && !presence.contains_key(&client_id) {
+            let oldest = presence
+                .iter()
+                .min_by(|left, right| {
+                    left.1
+                        .get("lastSeen")
+                        .and_then(Value::as_f64)
+                        .unwrap_or(0.0)
+                        .partial_cmp(
+                            &right
+                                .1
+                                .get("lastSeen")
+                                .and_then(Value::as_f64)
+                                .unwrap_or(0.0),
+                        )
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                })
+                .map(|(key, _)| key.clone());
+            if let Some(oldest) = oldest {
+                presence.remove(&oldest);
+            }
+        }
         presence.insert(
             client_id,
             json!({
@@ -476,7 +530,7 @@ pub async fn presence(_state: State<SharedState>, request: axum::extract::Reques
                 "visible": visible,
                 "sessionId": session_id,
                 "seq": seq,
-                "lastSeen": now_ms(),
+                "lastSeen": now,
             }),
         );
     }
@@ -495,6 +549,7 @@ pub async fn notify_test(
             "invalid_device",
         );
     };
+    let _store_guard = lock_store();
     let store = load_store(&state);
     let subscribed = devices(&store)
         .into_iter()

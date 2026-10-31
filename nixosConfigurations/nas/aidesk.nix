@@ -44,6 +44,14 @@ let
       RuntimeDirectoryMode = "0750";
       Restart = "on-failure";
       RestartSec = 5;
+      # The backend shuts down by closing the stdin of its omp children and
+      # waiting for them to flush and exit on their own. The default
+      # "control-group" would SIGTERM those children at the same instant as
+      # the backend, so it could neither wait for them nor tell whether they
+      # finished. "mixed" signals only ExecStart, and whatever is still in the
+      # cgroup after TimeoutStopSec is then killed, so nothing is orphaned.
+      KillMode = "mixed";
+      TimeoutStopSec = 15;
     };
     enableDefaultPath = false;
   };
@@ -76,7 +84,11 @@ in
           add_header Access-Control-Allow-Origin "${frontendOrigin}" always;
           add_header Access-Control-Allow-Credentials "true" always;
           add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
-          add_header Access-Control-Allow-Headers "Content-Type, Authorization, Accept, Cache-Control, Last-Event-ID" always;
+          add_header Access-Control-Allow-Headers "Content-Type, Authorization, Accept, Cache-Control, Last-Event-ID, If-None-Match, Range" always;
+          # fetch() can only read these when they are exposed: X-File-Mtime
+          # drives the editor's save conflict detection, ETag/If-None-Match the
+          # session list, and the length/range pair seeks in media previews.
+          add_header Access-Control-Expose-Headers "X-File-Mtime, ETag, Content-Length, Content-Range" always;
 
           # A CORS preflight carries no cookie, but it must still succeed. "if" in
           # server context runs in the rewrite phase, before auth_request in the

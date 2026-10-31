@@ -169,7 +169,10 @@ pub async fn cwd_validate(
         );
     }
     state.allow_root(&normalized);
-    let (project_root, project_key) = projects::project_identity(&normalized);
+    let project =
+        session_reader::resolve_project_async(normalized.to_string_lossy().into_owned()).await;
+    let project_root = project.project_root;
+    let project_key = path_key(Path::new(&project_root));
     json_ok(json!({
         "success": true,
         "cwd": normalized.to_string_lossy(),
@@ -184,7 +187,7 @@ pub async fn cwd_validate(
 
 pub async fn projects_get(State(state): State<SharedState>) -> Response {
     let registry = projects::load_registry(&state.cfg);
-    let sessions = session_reader::list_all_sessions(&state.cfg);
+    let sessions = session_reader::list_all_sessions_async(state.cfg.clone()).await;
     let discovered: Vec<String> = sessions
         .into_iter()
         .map(|session| {
@@ -228,7 +231,9 @@ pub async fn projects_post(
         Ok(path) => path,
         Err((code, message)) => return project_error(code, message),
     };
-    let project = session_reader::resolve_project(&normalized.to_string_lossy());
+    let project =
+        session_reader::resolve_project_async(normalized.to_string_lossy().into_owned()).await;
+    let _projects_guard = lock_projects();
     let mut registry = projects::load_registry(&state.cfg);
     projects::upsert(
         &mut registry,
@@ -377,7 +382,7 @@ pub async fn projects_patch(
         } else {
             match projects::validate_project_path(&state.cfg, &cwd) {
                 Ok(path) => {
-                    let project = session_reader::resolve_project(&path.to_string_lossy());
+                    let project = session_reader::resolve_project_async(path.to_string_lossy().into_owned()).await;
                     project.project_root
                 }
                 Err((code, message)) => {
@@ -429,6 +434,7 @@ pub async fn projects_patch(
         }
     }
 
+    let _projects_guard = lock_projects();
     let mut registry = projects::load_registry(&state.cfg);
     let mut new_roots = Vec::new();
     for update in &merged {
@@ -517,7 +523,8 @@ pub async fn projects_delete(
     if cwd.is_empty() {
         return coded_error(StatusCode::BAD_REQUEST, "Path is required", "path_required");
     }
-    let project = session_reader::resolve_project(&cwd);
+    let project = session_reader::resolve_project_async(cwd.clone()).await;
+    let _projects_guard = lock_projects();
     let mut registry = projects::load_registry(&state.cfg);
     projects::hide(&mut registry, Path::new(&project.project_root));
     if let Err(error) = projects::save_registry(&state.cfg, &registry) {
@@ -537,6 +544,28 @@ struct CloneState {
 
 static CLONES: LazyLock<Mutex<HashMap<String, CloneState>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
+
+/// Serializes read-modify-write cycles on `projects.json`: the registry is
+/// loaded, mutated and written back, so two concurrent POST/PATCH/DELETE
+/// requests could otherwise lose each other's updates.
+static PROJECTS_LOCK: LazyLock<Mutex<()>> = LazyLock::new(|| Mutex::new(()));
+
+fn lock_projects() -> std::sync::MutexGuard<'static, ()> {
+    PROJECTS_LOCK
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+}
+
+/// Send one NDJSON frame to the clone stream. `false` means the client closed
+/// the response, which must abort the git child.
+async fn send_clone_frame(
+    tx: &tokio::sync::mpsc::Sender<Result<bytes::Bytes, std::io::Error>>,
+    value: Value,
+) -> bool {
+    tx.send(Ok(bytes::Bytes::from(format!("{}\n", value))))
+        .await
+        .is_ok()
+}
 
 fn clone_directory_name(url: &str) -> Option<String> {
     let trimmed = url.trim();
@@ -675,37 +704,41 @@ pub async fn projects_clone_post(
     let clones_id = id.clone();
     let cancel_for_task = cancel.clone();
     let pid_for_task = pid.clone();
-    tokio::task::spawn_blocking(move || {
-        use std::io::{BufRead, BufReader};
+    tokio::spawn(async move {
         use std::os::unix::process::CommandExt;
-        let mut command = Command::new("git");
+        use tokio::io::AsyncReadExt;
+        let mut command = tokio::process::Command::new("git");
         command
             .args(["clone", "--progress", "--", &url])
             .arg(target_for_task.as_os_str())
             .stdin(Stdio::null())
-            .stdout(Stdio::piped())
+            // git writes progress to stderr only; leaving stdout unread would
+            // deadlock a pipe if git ever did print there.
+            .stdout(Stdio::null())
             .stderr(Stdio::piped())
             .env("GIT_TERMINAL_PROMPT", "0")
             .env("GIT_ASKPASS", "")
             .env("SSH_ASKPASS", "")
             .env("GIT_ALLOW_PROTOCOL", "https:ssh")
-            .process_group(0);
-        let send = |value: Value| -> bool {
-            tx.blocking_send(Ok(bytes::Bytes::from(format!("{}\n", value))))
-                .is_ok()
-        };
+            .kill_on_drop(true);
+        // Own process group so a cancel can signal the whole git tree.
+        command.as_std_mut().process_group(0);
         let mut child = match command.spawn() {
             Ok(child) => child,
             Err(_) => {
-                let removed = std::fs::remove_dir_all(&target_for_task).is_ok();
+                let removed = tokio::fs::remove_dir_all(&target_for_task).await.is_ok();
                 if !removed {
-                    send(
+                    send_clone_frame(
+                        &tx,
                         json!({ "type": "error", "error": format!("Could not remove {}", target_for_task.to_string_lossy()), "code": "clone_cleanup_failed" }),
-                    );
+                    )
+                    .await;
                 } else {
-                    send(
+                    send_clone_frame(
+                        &tx,
                         json!({ "type": "error", "error": "Could not run git — is it installed?", "code": "git_not_found" }),
-                    );
+                    )
+                    .await;
                 }
                 if let Ok(mut clones) = CLONES.lock() {
                     clones.remove(&clones_id);
@@ -713,60 +746,98 @@ pub async fn projects_clone_post(
                 return;
             }
         };
-        pid_for_task.store(child.id() as i32, std::sync::atomic::Ordering::SeqCst);
-        let stdout = child.stdout.take();
-        let stderr = child.stderr.take();
-        fn spawn_reader<R: std::io::Read + Send + 'static>(
-            stream: R,
-            tx: tokio::sync::mpsc::Sender<Result<bytes::Bytes, std::io::Error>>,
-        ) -> std::thread::JoinHandle<()> {
-            std::thread::spawn(move || {
-                let reader = BufReader::new(stream);
-                for line in reader.lines().map_while(Result::ok) {
-                    let frame = json!({ "type": "output", "text": format!("{}\n", line) });
-                    if tx
-                        .blocking_send(Ok(bytes::Bytes::from(format!("{}\n", frame))))
-                        .is_err()
-                    {
+        pid_for_task.store(
+            child.id().unwrap_or(0) as i32,
+            std::sync::atomic::Ordering::SeqCst,
+        );
+        let mut stderr = child.stderr.take();
+        // Split progress on both `\r` (git redraws a progress line in place)
+        // and `\n`, so the UI sees a live counter instead of one final line.
+        let mut pending: Vec<u8> = Vec::new();
+        let mut receiver_closed = false;
+        if let Some(stream) = stderr.as_mut() {
+            let mut chunk = [0u8; 8192];
+            loop {
+                if cancel_for_task.load(std::sync::atomic::Ordering::SeqCst) {
+                    let _ = child.start_kill();
+                    break;
+                }
+                let read = match stream.read(&mut chunk).await {
+                    Ok(0) => break,
+                    Ok(count) => count,
+                    Err(_) => break,
+                };
+                pending.extend_from_slice(&chunk[..read]);
+                while let Some(position) = pending
+                    .iter()
+                    .position(|byte| *byte == b'\r' || *byte == b'\n')
+                {
+                    let mut line: Vec<u8> = pending.drain(..=position).collect();
+                    let ended_with_cr = line.last() == Some(&b'\r');
+                    line.pop();
+                    // A CRLF pair is one break; do not emit an empty line.
+                    if ended_with_cr && pending.first() == Some(&b'\n') {
+                        pending.remove(0);
+                    }
+                    let text = String::from_utf8_lossy(&line).trim().to_string();
+                    if text.is_empty() {
+                        continue;
+                    }
+                    if !send_clone_frame(&tx, json!({ "type": "output", "text": text })).await {
+                        // The browser went away: stop git instead of cloning
+                        // into a directory nobody will ever use.
+                        receiver_closed = true;
+                        let _ = child.start_kill();
                         break;
                     }
                 }
-            })
+                if receiver_closed {
+                    break;
+                }
+                // An unterminated progress fragment must not grow forever.
+                if pending.len() > 64 * 1024 {
+                    pending.clear();
+                }
+            }
         }
-        let mut readers = Vec::new();
-        if let Some(stdout) = stdout {
-            readers.push(spawn_reader(stdout, tx.clone()));
-        }
-        if let Some(stderr) = stderr {
-            readers.push(spawn_reader(stderr, tx.clone()));
-        }
-        let status = child.wait();
-        for reader in readers {
-            let _ = reader.join();
-        }
+        let status = child.wait().await;
         if let Ok(mut clones) = CLONES.lock() {
             clones.remove(&clones_id);
         }
         let code = status.ok().and_then(|status| status.code());
-        let aborted = cancel_for_task.load(std::sync::atomic::Ordering::SeqCst);
+        let aborted = cancel_for_task.load(std::sync::atomic::Ordering::SeqCst) || receiver_closed;
         if code == Some(0) && !aborted {
-            send(json!({ "type": "done", "path": target_for_task.to_string_lossy() }));
+            send_clone_frame(
+                &tx,
+                json!({ "type": "done", "path": target_for_task.to_string_lossy() }),
+            )
+            .await;
         } else {
-            let removed = std::fs::remove_dir_all(&target_for_task).is_ok();
+            let removed = tokio::fs::remove_dir_all(&target_for_task).await.is_ok();
             if !removed {
-                send(
+                send_clone_frame(
+                    &tx,
                     json!({ "type": "error", "error": format!("Could not remove {}", target_for_task.to_string_lossy()), "code": "clone_cleanup_failed" }),
-                );
+                )
+                .await;
             } else if aborted {
-                send(json!({ "type": "cancelled", "path": target_for_task.to_string_lossy() }));
+                send_clone_frame(
+                    &tx,
+                    json!({ "type": "cancelled", "path": target_for_task.to_string_lossy() }),
+                )
+                .await;
             } else if code.is_none() {
-                send(
+                send_clone_frame(
+                    &tx,
                     json!({ "type": "error", "error": "Could not run git — is it installed?", "code": "git_not_found" }),
-                );
+                )
+                .await;
             } else {
-                send(
+                send_clone_frame(
+                    &tx,
                     json!({ "type": "error", "error": format!("git clone exited with code {}", code.unwrap_or(-1)), "code": "clone_failed" }),
-                );
+                )
+                .await;
             }
         }
     });
@@ -946,22 +1017,26 @@ pub async fn github_repo(State(state): State<SharedState>, uri: Uri) -> Response
         Ok(path) => path,
         Err(response) => return response,
     };
-    let output = Command::new("git")
-        .arg("-C")
-        .arg(&path)
-        .args([
-            "config",
-            "--get-regexp",
-            "^(remote\\..*\\.(url|gh-resolved)|url\\..*\\.insteadof)$",
-        ])
-        .env("LC_ALL", "C")
-        .output();
-    let repo = match output {
-        Ok(output) if output.status.success() => {
-            pick_github_repo(&String::from_utf8_lossy(&output.stdout))
+    let repo = tokio::task::spawn_blocking(move || {
+        let output = Command::new("git")
+            .arg("-C")
+            .arg(&path)
+            .args([
+                "config",
+                "--get-regexp",
+                "^(remote\\..*\\.(url|gh-resolved)|url\\..*\\.insteadof)$",
+            ])
+            .env("LC_ALL", "C")
+            .output();
+        match output {
+            Ok(output) if output.status.success() => {
+                pick_github_repo(&String::from_utf8_lossy(&output.stdout))
+            }
+            _ => None,
         }
-        _ => None,
-    };
+    })
+    .await
+    .unwrap_or(None);
     json_ok(json!({ "repo": repo }))
 }
 
@@ -1116,60 +1191,73 @@ pub async fn git_status_route(State(state): State<SharedState>, uri: Uri) -> Res
         Ok(path) => path,
         Err(response) => return response,
     };
-    let Some(root) = find_git_root(&path) else {
-        return json_ok(json!({
+    // `git status` on a large repository is synchronous and can take longer
+    // than a runtime tick; keep it off the async worker entirely.
+    let payload = tokio::task::spawn_blocking(move || {
+        let Some(root) = find_git_root(&path) else {
+            return json!({
+                "isGitRepository": false,
+                "repositoryRoot": Value::Null,
+                "files": [],
+            });
+        };
+        let Some(output) = git_stdout(
+            &root,
+            &["status", "--porcelain=v1", "-z", "--untracked-files=all"],
+            None,
+        ) else {
+            return json!({
+                "isGitRepository": true,
+                "repositoryRoot": root.to_string_lossy(),
+                "files": [],
+            });
+        };
+        let entries: Vec<GitEntry> = parse_porcelain(&output)
+            .into_iter()
+            .filter(|entry| crate::util::is_within(&path, &root.join(&entry.path)))
+            .collect();
+        let paths: Vec<String> = entries.iter().map(|entry| entry.path.clone()).collect();
+        let reasons = collapse_reasons(&root, &paths);
+        let files: Vec<Value> = entries
+            .iter()
+            .map(|entry| {
+                let (status, code) = classify_status(entry);
+                let mut object = Map::new();
+                object.insert(
+                    "filePath".into(),
+                    Value::String(root.join(&entry.path).to_string_lossy().into_owned()),
+                );
+                object.insert("status".into(), Value::String(status.into()));
+                object.insert("code".into(), Value::String(code.into()));
+                object.insert(
+                    "indexStatus".into(),
+                    Value::String(entry.index_status.clone()),
+                );
+                object.insert(
+                    "worktreeStatus".into(),
+                    Value::String(entry.worktree_status.clone()),
+                );
+                if let Some(reason) = reasons.get(&entry.path) {
+                    object.insert("collapseReason".into(), Value::String(reason.clone()));
+                }
+                Value::Object(object)
+            })
+            .collect();
+        json!({
+            "isGitRepository": true,
+            "repositoryRoot": root.to_string_lossy(),
+            "files": files,
+        })
+    })
+    .await
+    .unwrap_or_else(|_| {
+        json!({
             "isGitRepository": false,
             "repositoryRoot": Value::Null,
             "files": [],
-        }));
-    };
-    let Some(output) = git_stdout(
-        &root,
-        &["status", "--porcelain=v1", "-z", "--untracked-files=all"],
-        None,
-    ) else {
-        return json_ok(json!({
-            "isGitRepository": true,
-            "repositoryRoot": root.to_string_lossy(),
-            "files": [],
-        }));
-    };
-    let entries: Vec<GitEntry> = parse_porcelain(&output)
-        .into_iter()
-        .filter(|entry| crate::util::is_within(&path, &root.join(&entry.path)))
-        .collect();
-    let paths: Vec<String> = entries.iter().map(|entry| entry.path.clone()).collect();
-    let reasons = collapse_reasons(&root, &paths);
-    let files: Vec<Value> = entries
-        .iter()
-        .map(|entry| {
-            let (status, code) = classify_status(entry);
-            let mut object = Map::new();
-            object.insert(
-                "filePath".into(),
-                Value::String(root.join(&entry.path).to_string_lossy().into_owned()),
-            );
-            object.insert("status".into(), Value::String(status.into()));
-            object.insert("code".into(), Value::String(code.into()));
-            object.insert(
-                "indexStatus".into(),
-                Value::String(entry.index_status.clone()),
-            );
-            object.insert(
-                "worktreeStatus".into(),
-                Value::String(entry.worktree_status.clone()),
-            );
-            if let Some(reason) = reasons.get(&entry.path) {
-                object.insert("collapseReason".into(), Value::String(reason.clone()));
-            }
-            Value::Object(object)
         })
-        .collect();
-    json_ok(json!({
-        "isGitRepository": true,
-        "repositoryRoot": root.to_string_lossy(),
-        "files": files,
-    }))
+    });
+    json_ok(payload)
 }
 
 const TEXT_PREVIEW_MAX_BYTES: u64 = 256 * 1024;
@@ -1228,85 +1316,92 @@ pub async fn git_diff_route(State(state): State<SharedState>, uri: Uri) -> Respo
     }
     let cwd_path = PathBuf::from(cwd);
     let resolved_file = PathBuf::from(file_path);
-    let Some(root) = find_git_root(&cwd_path) else {
-        return json_ok(json!({ "supported": false }));
-    };
-    if !crate::util::is_within(&root, &resolved_file) {
-        return json_ok(json!({ "supported": false }));
-    }
-    let Ok(meta) = std::fs::symlink_metadata(&resolved_file) else {
-        return json_ok(json!({ "supported": false }));
-    };
-    if !meta.is_file() || meta.len() > TEXT_PREVIEW_MAX_BYTES {
-        return json_ok(json!({ "supported": false }));
-    }
-    let relative = resolved_file
-        .strip_prefix(&root)
-        .map(|path| path.to_string_lossy().replace('\\', "/"))
-        .unwrap_or_default();
-    let Some(status_output) = git_stdout(
-        &root,
-        &["status", "--porcelain=v1", "-z", "--untracked-files=all"],
-        None,
-    ) else {
-        return json_ok(json!({ "supported": false }));
-    };
-    let entries = parse_porcelain(&status_output);
-    let Some(entry) = entries.iter().find(|entry| entry.path == relative) else {
-        return json_ok(json!({ "supported": false }));
-    };
-    let (status, _) = classify_status(entry);
-    if status == "deleted" {
-        return json_ok(json!({ "supported": false }));
-    }
-    let Ok(content_bytes) = std::fs::read(&resolved_file) else {
-        return json_ok(json!({ "supported": false }));
-    };
-    if content_bytes.contains(&0) {
-        return json_ok(json!({ "supported": false }));
-    }
-    if collapse_reasons(&root, &[relative.clone()])
-        .get(&relative)
-        .map(|reason| reason.as_str())
-        == Some("no-diff")
-    {
-        return json_ok(json!({ "supported": false }));
-    }
-    let content = String::from_utf8_lossy(&content_bytes);
-    let patch = if status == "untracked" {
-        create_added_patch(&relative, &content)
-    } else {
-        let mut paths: Vec<String> = Vec::new();
-        if let Some(original) = &entry.original_path {
-            if original != &relative {
-                paths.push(original.clone());
-            }
+    // Reading the file and running `git diff` are blocking operations on a
+    // possibly large repository: do them on the blocking pool.
+    let payload = tokio::task::spawn_blocking(move || -> Value {
+        let Some(root) = find_git_root(&cwd_path) else {
+            return json!({ "supported": false });
+        };
+        if !crate::util::is_within(&root, &resolved_file) {
+            return json!({ "supported": false });
         }
-        paths.push(relative.clone());
-        let mut args = vec![
-            "diff",
-            "--no-color",
-            "--no-ext-diff",
-            "--unified=3",
-            "HEAD",
-            "--",
-        ];
-        args.extend(paths.iter().map(|path| path.as_str()));
-        match git_stdout(&root, &args, None) {
-            Some(output) => String::from_utf8_lossy(&output).into_owned(),
-            None => {
-                if status != "added" {
-                    return json_ok(json!({ "supported": false }));
+        let Ok(meta) = std::fs::symlink_metadata(&resolved_file) else {
+            return json!({ "supported": false });
+        };
+        if !meta.is_file() || meta.len() > TEXT_PREVIEW_MAX_BYTES {
+            return json!({ "supported": false });
+        }
+        let relative = resolved_file
+            .strip_prefix(&root)
+            .map(|path| path.to_string_lossy().replace('\\', "/"))
+            .unwrap_or_default();
+        let Some(status_output) = git_stdout(
+            &root,
+            &["status", "--porcelain=v1", "-z", "--untracked-files=all"],
+            None,
+        ) else {
+            return json!({ "supported": false });
+        };
+        let entries = parse_porcelain(&status_output);
+        let Some(entry) = entries.iter().find(|entry| entry.path == relative) else {
+            return json!({ "supported": false });
+        };
+        let (status, _) = classify_status(entry);
+        if status == "deleted" {
+            return json!({ "supported": false });
+        }
+        let Ok(content_bytes) = std::fs::read(&resolved_file) else {
+            return json!({ "supported": false });
+        };
+        if content_bytes.contains(&0) {
+            return json!({ "supported": false });
+        }
+        if collapse_reasons(&root, std::slice::from_ref(&relative))
+            .get(&relative)
+            .map(|reason| reason.as_str())
+            == Some("no-diff")
+        {
+            return json!({ "supported": false });
+        }
+        let content = String::from_utf8_lossy(&content_bytes);
+        let patch = if status == "untracked" {
+            create_added_patch(&relative, &content)
+        } else {
+            let mut paths: Vec<String> = Vec::new();
+            if let Some(original) = &entry.original_path {
+                if original != &relative {
+                    paths.push(original.clone());
                 }
-                create_added_patch(&relative, &content)
             }
+            paths.push(relative.clone());
+            let mut args = vec![
+                "diff",
+                "--no-color",
+                "--no-ext-diff",
+                "--unified=3",
+                "HEAD",
+                "--",
+            ];
+            args.extend(paths.iter().map(|path| path.as_str()));
+            match git_stdout(&root, &args, None) {
+                Some(output) => String::from_utf8_lossy(&output).into_owned(),
+                None => {
+                    if status != "added" {
+                        return json!({ "supported": false });
+                    }
+                    create_added_patch(&relative, &content)
+                }
+            }
+        };
+        if !patch.contains("\n@@ ") {
+            return json!({ "supported": false });
         }
-    };
-    if !patch.contains("\n@@ ") {
-        return json_ok(json!({ "supported": false }));
-    }
-    let _ = MAX_STATUS_BUFFER;
-    json_ok(json!({ "supported": true, "status": status, "patch": patch }))
+        let _ = MAX_STATUS_BUFFER;
+        json!({ "supported": true, "status": status, "patch": patch })
+    })
+    .await
+    .unwrap_or_else(|_| json!({ "supported": false }));
+    json_ok(payload)
 }
 
 // ============================================================================
@@ -1506,7 +1601,7 @@ pub async fn file_index(State(state): State<SharedState>, uri: Uri) -> Response 
     let key = path_key(&path);
     let refresh = query.get("refresh") == Some("1");
     let cached = {
-        let mut cache = match FILE_INDEX_CACHE.lock() {
+        let cache = match FILE_INDEX_CACHE.lock() {
             Ok(cache) => cache,
             Err(_) => {
                 return crate::util::api_error(
@@ -1515,34 +1610,40 @@ pub async fn file_index(State(state): State<SharedState>, uri: Uri) -> Response 
                 )
             }
         };
-        let expired = cache
-            .get(&key)
-            .map(|entry| entry.expires_at <= Instant::now())
-            .unwrap_or(true);
-        if expired || refresh {
-            let (files, hard_truncated) = match list_with_git(&path) {
-                Some(result) => result,
-                None => list_with_walk(&path),
-            };
-            cache.retain(|_, entry| entry.expires_at > Instant::now());
-            if cache.len() >= 20 && !cache.contains_key(&key) {
-                cache.clear();
-            }
-            cache.insert(
-                key.clone(),
-                CacheEntry {
-                    files,
-                    hard_truncated,
-                    expires_at: Instant::now() + Duration::from_secs(10),
-                },
-            );
-        }
         cache
             .get(&key)
+            .filter(|entry| entry.expires_at > Instant::now() && !refresh)
             .map(|entry| (entry.files.clone(), entry.hard_truncated))
-            .unwrap_or_default()
     };
-    let (files, hard_truncated) = cached;
+    let (files, hard_truncated) = match cached {
+        Some(listing) => listing,
+        None => {
+            // `git ls-files` or a recursive walk of a large tree must not run
+            // on a Tokio worker.
+            let listing_path = path.clone();
+            let listing = tokio::task::spawn_blocking(move || match list_with_git(&listing_path) {
+                Some(result) => result,
+                None => list_with_walk(&listing_path),
+            })
+            .await
+            .unwrap_or_default();
+            if let Ok(mut cache) = FILE_INDEX_CACHE.lock() {
+                cache.retain(|_, entry| entry.expires_at > Instant::now());
+                if cache.len() >= 20 && !cache.contains_key(&key) {
+                    cache.clear();
+                }
+                cache.insert(
+                    key.clone(),
+                    CacheEntry {
+                        files: listing.0.clone(),
+                        hard_truncated: listing.1,
+                        expires_at: Instant::now() + Duration::from_secs(10),
+                    },
+                );
+            }
+            listing
+        }
+    };
     if !search.is_empty() {
         let limit = parse_limit(query.get("limit"));
         let entries = build_entries(&files);

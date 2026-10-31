@@ -59,6 +59,7 @@ import type { SettingsTab } from "./SettingsTabs";
 import { SettingsConfig } from "./SettingsConfig";
 import { ArchiveBrowser } from "./ArchiveBrowser";
 import { publishSessionsChanged } from "@/lib/session-change-bus";
+import { connectSse } from "@/lib/sse-reconnect";
 // The settings shell is part of the app bundle so opening it does not fetch or compile a modal chunk. The right panel (viewer included) is a separate chunk, preloaded on the first pointerdown or keydown and mounted on first open.
 // No loading placeholder: it would take the panel's place in the layout (on
 // phones, squeezing out the chat) for a frame even when the code is cached.
@@ -1263,19 +1264,26 @@ export function AppShell({ appName }: { appName: string }) {
   useEffect(() => { crossSessionHostToolRef.current = handleCrossSessionHostTool; }, [handleCrossSessionHostTool]);
   useEffect(() => {
     // Mounted with the shell (not the sidebar) so it keeps listening on the
-    // full-page Settings view too.
-    const source = new EventSource("/api/agent/host-tools/events");
-    source.onmessage = (e) => {
-      try {
-        const call = JSON.parse(e.data) as CrossSessionHostToolCall & { type?: string };
-        if (call.type === "host_tool_call" && call.sessionId && call.id && call.toolName) {
-          void crossSessionHostToolRef.current({ sessionId: call.sessionId, id: call.id, toolName: call.toolName, arguments: call.arguments ?? {} });
-        }
-      } catch {
-        // ignore malformed frames
-      }
-    };
-    return () => source.close();
+    // full-page Settings view too. A cross-session tool call is lost for good
+    // if the stream stays closed (server restart, proxy error), so reconnect.
+    const connection = connectSse({
+      url: () => "/api/agent/host-tools/events",
+      setup: (source) => {
+        source.onmessage = (e) => {
+          try {
+            const call = JSON.parse(e.data) as CrossSessionHostToolCall & { type?: string };
+            // Keepalive frames carry no call.
+            if (call.type === "ping") return;
+            if (call.type === "host_tool_call" && call.sessionId && call.id && call.toolName) {
+              void crossSessionHostToolRef.current({ sessionId: call.sessionId, id: call.id, toolName: call.toolName, arguments: call.arguments ?? {} });
+            }
+          } catch {
+            // ignore malformed frames
+          }
+        };
+      },
+    });
+    return () => connection.close();
   }, []);
 
   const activeFileTab = fileTabs.find((tab) => tab.id === activeFileTabId) ?? null;

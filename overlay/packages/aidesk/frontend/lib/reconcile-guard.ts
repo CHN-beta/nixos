@@ -37,6 +37,11 @@ export interface ReconcileGuardOptions {
    * the timeout acquires and re-issues. The stalled request's LATE
    * release() stays inert — its token no longer matches the owner. */
   timeoutMs?: number;
+  /** A trigger coalesced while a request was in flight, and that request then
+   * stalled. The lock is released and the coalesced poll would otherwise
+   * wait for an unrelated future trigger; this callback lets the caller
+   * re-issue it now instead of silently dropping it. */
+  onStalledPending?: () => void;
 }
 
 export function createReconcileGuard(options: ReconcileGuardOptions = {}): ReconcileGuard {
@@ -71,13 +76,16 @@ export function createReconcileGuard(options: ReconcileGuardOptions = {}): Recon
         stallTimer = setTimeout(() => {
           stallTimer = null;
           // A request that never settled must not hold the lock forever.
-          // Only the current owner's lock is lifted; a coalesced trigger
-          // during the stall is served by the NEXT acquire, which IS the
-          // re-issue (tryAcquire resets the pending flag on success).
-          if (inFlight && ownerToken === token) {
-            inFlight = false;
-            pendingWhileInFlight = false;
-          }
+          // Only the current owner's lock is lifted; the stalled request's
+          // late release() is inert because its token no longer matches.
+          if (!inFlight || ownerToken !== token) return;
+          inFlight = false;
+          const hadPending = pendingWhileInFlight;
+          pendingWhileInFlight = false;
+          // A trigger that arrived during the stall must not be dropped with
+          // the lock: re-issue it now rather than waiting for an unrelated
+          // future interval tick (or never, on an idle page).
+          if (hadPending) options.onStalledPending?.();
         }, timeoutMs);
       }
       return ownerToken;

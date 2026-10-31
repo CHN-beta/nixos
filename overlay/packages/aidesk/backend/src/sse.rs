@@ -57,6 +57,17 @@ impl SseSender {
         self.raw(":\n\n").await
     }
 
+    /// Named keep-alive frame carrying a JSON ping.
+    ///
+    /// A bare `:` comment keeps proxies from timing the connection out, but an
+    /// unnamed `data:` frame is what browser `EventSource.onmessage` actually
+    /// delivers: the client watchdog resets only on real messages. Sending a
+    /// JSON ping therefore both defeats `proxy_read_timeout` and lets the UI
+    /// detect a half-open connection (a silently dropped TCP session).
+    pub async fn ping(&self) -> bool {
+        self.data(&serde_json::json!({ "type": "ping" })).await
+    }
+
     pub fn is_closed(&self) -> bool {
         self.tx.is_closed()
     }

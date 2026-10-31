@@ -24,6 +24,7 @@ import { encodeFilePathForApi, getFileDirectory, getFileName, getRelativeFilePat
 import { apiUrl } from "@/lib/api-origin";
 import { translate, useI18n } from "@/lib/i18n";
 import { resolveLocalFileHref } from "@/lib/file-links";
+import { connectSse } from "@/lib/sse-reconnect";
 import { normalizeDisplayMath, useMarkdownPlugins } from "@/lib/markdown";
 import { markdownCodeRenderer } from "./MarkdownCode";
 import { Tooltip } from "./ui/primitives";
@@ -437,7 +438,6 @@ function ImageViewer({ filePath, cwd, sourceSessionId, openAs, active = true }: 
   const [size, setSize] = useState<number | null>(null);
   const [naturalSize, setNaturalSize] = useState<{ w: number; h: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const esRef = useRef<EventSource | null>(null);
 
   const ext = getFileName(filePath).toLowerCase().split(".").pop() ?? "";
   const retry = useCallback(() => {
@@ -456,29 +456,24 @@ function ImageViewer({ filePath, cwd, sourceSessionId, openAs, active = true }: 
     setError(null);
     setWatching(false);
 
-    if (esRef.current) {
-      esRef.current.close();
-      esRef.current = null;
-    }
-
-    const es = new EventSource(getFileApiUrl(filePath, "watch", sourceSessionId));
-    esRef.current = es;
-
-    es.addEventListener("connected", () => setWatching(true));
-    es.addEventListener("change", (e) => {
-      try {
-        const d = JSON.parse((e as MessageEvent).data) as { size?: number };
-        if (typeof d.size === "number") setSize(d.size);
-      } catch { /* ignore */ }
-      setBust((b) => b + 1);
+    // A closed watch stream never updates the preview again, so reconnect
+    // with backoff (and immediately when the network returns).
+    const connection = connectSse({
+      url: () => getFileApiUrl(filePath, "watch", sourceSessionId),
+      setup: (es) => {
+        es.addEventListener("connected", () => setWatching(true));
+        es.addEventListener("change", (e) => {
+          try {
+            const d = JSON.parse((e as MessageEvent).data) as { size?: number };
+            if (typeof d.size === "number") setSize(d.size);
+          } catch { /* ignore */ }
+          setBust((b) => b + 1);
+        });
+      },
+      onError: () => setWatching(false),
     });
-    es.addEventListener("error", () => setWatching(false));
-    es.onerror = () => setWatching(false);
 
-    return () => {
-      es.close();
-      esRef.current = null;
-    };
+    return () => connection.close();
   }, [active, filePath, sourceSessionId]);
 
   const src = getFileApiUrl(filePath, "read", sourceSessionId, { ...(openAs ? { as: openAs } : {}), ...(bust ? { v: bust } : {}) });
@@ -582,7 +577,6 @@ function AudioViewer({ filePath, cwd, sourceSessionId, openAs, active = true }: 
   const [size, setSize] = useState<number | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const esRef = useRef<EventSource | null>(null);
 
   const ext = getFileName(filePath).toLowerCase().split(".").pop() ?? "";
   const retry = useCallback(() => {
@@ -601,31 +595,26 @@ function AudioViewer({ filePath, cwd, sourceSessionId, openAs, active = true }: 
     setError(null);
     setWatching(false);
 
-    if (esRef.current) {
-      esRef.current.close();
-      esRef.current = null;
-    }
-
-    const es = new EventSource(getFileApiUrl(filePath, "watch", sourceSessionId));
-    esRef.current = es;
-
-    es.addEventListener("connected", () => setWatching(true));
-    es.addEventListener("change", (e) => {
-      try {
-        const d = JSON.parse((e as MessageEvent).data) as { size?: number };
-        if (typeof d.size === "number") setSize(d.size);
-      } catch { /* ignore */ }
-      setDuration(null);
-      setError(null);
-      setBust((b) => b + 1);
+    // A closed watch stream never updates the preview again, so reconnect
+    // with backoff (and immediately when the network returns).
+    const connection = connectSse({
+      url: () => getFileApiUrl(filePath, "watch", sourceSessionId),
+      setup: (es) => {
+        es.addEventListener("connected", () => setWatching(true));
+        es.addEventListener("change", (e) => {
+          try {
+            const d = JSON.parse((e as MessageEvent).data) as { size?: number };
+            if (typeof d.size === "number") setSize(d.size);
+          } catch { /* ignore */ }
+          setDuration(null);
+          setError(null);
+          setBust((b) => b + 1);
+        });
+      },
+      onError: () => setWatching(false),
     });
-    es.addEventListener("error", () => setWatching(false));
-    es.onerror = () => setWatching(false);
 
-    return () => {
-      es.close();
-      esRef.current = null;
-    };
+    return () => connection.close();
   }, [active, filePath, sourceSessionId]);
 
   const src = getFileApiUrl(filePath, "read", sourceSessionId, { ...(openAs ? { as: openAs } : {}), ...(bust ? { v: bust } : {}) });
@@ -707,7 +696,6 @@ function DocumentViewer({ filePath, sourceSessionId, openAs, active = true }: Pr
   const [bust, setBust] = useState(0);
   const [size, setSize] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const esRef = useRef<EventSource | null>(null);
 
   const ext = getFileExt(filePath);
   const retry = useCallback(() => {
@@ -730,11 +718,6 @@ function DocumentViewer({ filePath, sourceSessionId, openAs, active = true }: Pr
     setError(null);
     setWatching(false);
 
-    if (esRef.current) {
-      esRef.current.close();
-      esRef.current = null;
-    }
-
     // Guard against stale metadata responses: a fetch started for a previous
     // filePath must not overwrite the current file's size/error.
     let cancelled = false;
@@ -754,31 +737,33 @@ function DocumentViewer({ filePath, sourceSessionId, openAs, active = true }: Pr
         if (!cancelled) setError(String(e));
       });
 
-    const es = new EventSource(getFileApiUrl(filePath, "watch", sourceSessionId));
-    esRef.current = es;
-
-    es.addEventListener("connected", () => setWatching(true));
-    es.addEventListener("change", (e) => {
-      try {
-        const d = JSON.parse((e as MessageEvent).data) as { size?: number };
-        if (typeof d.size === "number") {
-          setSize(d.size);
-          if (!isPdf && d.size > DOCX_PREVIEW_MAX_BYTES) {
-            setError(translate("fileViewer.docxTooLarge"));
-            return;
-          }
-        }
-      } catch { /* ignore */ }
-      setError(null);
-      setBust((b) => b + 1);
+    // A closed watch stream never updates the preview again, so reconnect
+    // with backoff (and immediately when the network returns).
+    const connection = connectSse({
+      url: () => getFileApiUrl(filePath, "watch", sourceSessionId),
+      setup: (es) => {
+        es.addEventListener("connected", () => setWatching(true));
+        es.addEventListener("change", (e) => {
+          try {
+            const d = JSON.parse((e as MessageEvent).data) as { size?: number };
+            if (typeof d.size === "number") {
+              setSize(d.size);
+              if (!isPdf && d.size > DOCX_PREVIEW_MAX_BYTES) {
+                setError(translate("fileViewer.docxTooLarge"));
+                return;
+              }
+            }
+          } catch { /* ignore */ }
+          setError(null);
+          setBust((b) => b + 1);
+        });
+      },
+      onError: () => setWatching(false),
     });
-    es.addEventListener("error", () => setWatching(false));
-    es.onerror = () => setWatching(false);
 
     return () => {
       cancelled = true;
-      es.close();
-      esRef.current = null;
+      connection.close();
     };
   }, [active, filePath, isPdf, sourceSessionId]);
 
@@ -879,7 +864,6 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
   const [displayMode, setDisplayMode] = useState<DisplayMode>("source");
   const [wrapLines, setWrapLines] = useState(false);
   const [watching, setWatching] = useState(false);
-  const esRef = useRef<EventSource | null>(null);
   const gitDiffRequestRef = useRef(0);
   const contentRequestRef = useRef(0);
   const contentRef = useRef<HTMLDivElement | null>(null);
@@ -1015,11 +999,6 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
     setWrapLines(false);
     setWatching(false);
 
-    if (esRef.current) {
-      esRef.current.close();
-      esRef.current = null;
-    }
-
     // Cancel effect-local work on filePath change so a stale in-flight load
     // cannot revert display mode or flip loading off for the new file.
     let cancelled = false;
@@ -1032,31 +1011,33 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
       if (!cancelled) setLoading(false);
     });
 
-    // Set up SSE watch
-    const es = new EventSource(getFileApiUrl(filePath, "watch", sourceSessionId));
-    esRef.current = es;
-
-    es.addEventListener("connected", () => {
-      setWatching(true);
+    // Set up the watch stream; a CLOSED one reconnects with backoff so the
+    // viewer cannot sit on stale content after a server/proxy hiccup.
+    let openedOnce = false;
+    const connection = connectSse({
+      url: () => getFileApiUrl(filePath, "watch", sourceSessionId),
+      setup: (es) => {
+        es.addEventListener("connected", () => setWatching(true));
+        es.addEventListener("change", () => {
+          void fetchContent(filePath);
+          void fetchGitDiff(filePath);
+        });
+      },
+      onOpen: () => {
+        if (!openedOnce) {
+          openedOnce = true;
+          return;
+        }
+        // The file may have changed while the stream was down.
+        void fetchContent(filePath);
+        void fetchGitDiff(filePath);
+      },
+      onError: () => setWatching(false),
     });
-
-    es.addEventListener("change", () => {
-      void fetchContent(filePath);
-      void fetchGitDiff(filePath);
-    });
-
-    es.addEventListener("error", () => {
-      setWatching(false);
-    });
-
-    es.onerror = () => {
-      setWatching(false);
-    };
 
     return () => {
       cancelled = true;
-      es.close();
-      esRef.current = null;
+      connection.close();
     };
   }, [active, filePath, fetchContent, fetchGitDiff, sourceSessionId, openAs]);
 

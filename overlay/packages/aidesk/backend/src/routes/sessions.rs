@@ -36,7 +36,7 @@ fn malformed_session() -> Response {
 // ============================================================================
 
 pub async fn sessions_list(State(state): State<SharedState>, headers: HeaderMap) -> Response {
-    let sessions = session_reader::list_all_sessions(&state.cfg);
+    let sessions = session_reader::list_all_sessions_async(state.cfg.clone()).await;
     let running = rpc::running_sessions();
     let running_ids = rpc::running_session_ids();
     let body = json!({
@@ -88,7 +88,7 @@ pub async fn session_get(
         return session_not_found();
     };
     let Some(header) = session_files::read_session_header(&path) else {
-        let loaded = session_files::load_session_file(&path, None);
+        let loaded = session_files::load_session_file_async(path.clone(), None).await;
         if loaded.too_large {
             return session_file_too_large();
         }
@@ -96,13 +96,15 @@ pub async fn session_get(
     };
     let defer_thinking = query.has("deferThinking");
     let defer_media = query.has("deferMedia");
-    let detail = match session_reader::session_detail(
-        &state.cfg,
-        &path,
-        &header,
+    let detail = match session_reader::session_detail_async(
+        state.cfg.clone(),
+        path.clone(),
+        header,
         defer_thinking,
         defer_media,
-    ) {
+    )
+    .await
+    {
         Ok(detail) => detail,
         Err(_) => return session_file_too_large(),
     };
@@ -477,7 +479,7 @@ pub async fn session_context(
     };
 
     let Some(header) = session_files::read_session_header(&path) else {
-        let loaded = session_files::load_session_file(&path, None);
+        let loaded = session_files::load_session_file_async(path.clone(), None).await;
         if loaded.too_large {
             return session_file_too_large();
         }
@@ -486,7 +488,7 @@ pub async fn session_context(
     let _ = header;
 
     if boundary == Some("1") {
-        return match session_reader::context_boundary(&state.cfg, &path) {
+        return match session_reader::context_boundary_async(state.cfg.clone(), path.clone()).await {
             Ok(boundary) => crate::routes::apply_headers(
                 json_ok(boundary),
                 &[("Cache-Control", "no-store".into())],
@@ -498,7 +500,13 @@ pub async fn session_context(
     if sync == Some("1") {
         // Display entries resolve `blob:sha256:` images and mirror the
         // non-sync path; raw entries would send unusable image refs.
-        let entries = match session_reader::load_display_entries(&state.cfg, &path, defer_media) {
+        let entries = match session_reader::load_display_entries_async(
+            state.cfg.clone(),
+            path.clone(),
+            defer_media,
+        )
+        .await
+        {
             Ok(entries) => entries,
             Err(_) => return session_file_too_large(),
         };
@@ -538,7 +546,13 @@ pub async fn session_context(
         );
     }
 
-    match session_reader::load_display_entries(&state.cfg, &path, defer_media) {
+    match session_reader::load_display_entries_async(
+        state.cfg.clone(),
+        path.clone(),
+        defer_media,
+    )
+    .await
+    {
         Ok(entries) => {
             let context = session_reader::build_session_context(
                 &state.cfg,
@@ -610,7 +624,9 @@ pub async fn session_thinking(
     let Some(path) = session_reader::resolve_session_path(&state.cfg, &id) else {
         return session_not_found();
     };
-    let entries = session_files::load_session_file(&path, None).entries;
+    let entries = session_files::load_session_file_async(path.clone(), None)
+        .await
+        .entries;
     let Some(entry) = entries
         .iter()
         .find(|entry| entry.get("id").and_then(Value::as_str) == Some(entry_id.as_str()))
@@ -878,7 +894,7 @@ pub async fn session_auto_name(
     let Some(path) = session_reader::resolve_session_path(&state.cfg, &id) else {
         return session_not_found();
     };
-    let info = session_files::scan_session_info(&path, false);
+    let info = session_files::scan_session_info_async(path.clone(), false).await;
     let stored = info
         .as_ref()
         .and_then(|info| sanitize_title(info.title.as_deref()));
@@ -920,7 +936,8 @@ pub async fn session_archive(
     let Some(path) = session_reader::resolve_session_path(&state.cfg, &id) else {
         return session_not_found();
     };
-    let has_children = session_reader::list_all_sessions(&state.cfg)
+    let has_children = session_reader::list_all_sessions_async(state.cfg.clone())
+        .await
         .iter()
         .any(|session| session.parent_session_id.as_deref() == Some(id.as_str()));
     if has_children {
@@ -935,11 +952,13 @@ pub async fn session_archive(
     if let Some(session) = rpc::get_session(&id) {
         session.destroy_and_wait().await;
     }
-    match session_files::archive_session_file_with_artifacts(
-        &state.cfg.sessions_dir,
-        &state.cfg.archive_dir,
-        &path,
-    ) {
+    match session_files::archive_session_file_with_artifacts_async(
+        state.cfg.sessions_dir.clone(),
+        state.cfg.archive_dir.clone(),
+        path.clone(),
+    )
+    .await
+    {
         Ok(archived_path) => {
             rpc::clear_exited_session(&id);
             state.invalidate_session_roots();

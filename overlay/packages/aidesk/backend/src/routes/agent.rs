@@ -291,8 +291,8 @@ pub async fn agent_events(
     let session_for_task = session.clone();
     tokio::spawn(async move {
         let mut heartbeat = tokio::time::interval_at(
-            tokio::time::Instant::now() + std::time::Duration::from_secs(30),
-            std::time::Duration::from_secs(30),
+            tokio::time::Instant::now() + std::time::Duration::from_secs(15),
+            std::time::Duration::from_secs(15),
         );
         heartbeat.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
         loop {
@@ -306,7 +306,7 @@ pub async fn agent_events(
                     }
                 }
                 _ = heartbeat.tick() => {
-                    if !sse.heartbeat().await { break; }
+                    if !sse.ping().await { break; }
                 }
             }
         }
@@ -331,8 +331,8 @@ pub async fn agent_running_events(State(_state): State<SharedState>) -> Response
     sse.data(&running_payload()).await;
     tokio::spawn(async move {
         let mut heartbeat = tokio::time::interval_at(
-            tokio::time::Instant::now() + std::time::Duration::from_secs(30),
-            std::time::Duration::from_secs(30),
+            tokio::time::Instant::now() + std::time::Duration::from_secs(15),
+            std::time::Duration::from_secs(15),
         );
         heartbeat.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
         loop {
@@ -356,7 +356,7 @@ pub async fn agent_running_events(State(_state): State<SharedState>) -> Response
                     }
                 }
                 _ = heartbeat.tick() => {
-                    if !sse.heartbeat().await { break; }
+                    if !sse.ping().await { break; }
                 }
             }
         }
@@ -369,8 +369,8 @@ pub async fn agent_host_tools_events(State(_state): State<SharedState>) -> Respo
     let (sse, response) = crate::sse::channel(256);
     tokio::spawn(async move {
         let mut heartbeat = tokio::time::interval_at(
-            tokio::time::Instant::now() + std::time::Duration::from_secs(30),
-            std::time::Duration::from_secs(30),
+            tokio::time::Instant::now() + std::time::Duration::from_secs(15),
+            std::time::Duration::from_secs(15),
         );
         heartbeat.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
         loop {
@@ -387,7 +387,7 @@ pub async fn agent_host_tools_events(State(_state): State<SharedState>) -> Respo
                     }
                 }
                 _ = heartbeat.tick() => {
-                    if !sse.heartbeat().await { break; }
+                    if !sse.ping().await { break; }
                 }
             }
         }

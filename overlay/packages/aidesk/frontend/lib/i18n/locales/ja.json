@@ -33,6 +33,8 @@
   "agentSession.commandRequiresArgs": "使用法: {command} {usage}",
   "agentSession.commandFailed": "コマンドが失敗しました",
   "agentSession.compactedContext": "コンテキストを圧縮しました",
+  "agentSession.connectionOffline": "ネットワーク接続が切れました。自動的に再接続しています…",
+  "agentSession.connectionReconnecting": "接続が中断されました。自動的に再接続しています…",
   "agentSession.copiedLastMessage": "最後のアシスタントメッセージをコピーしました",
   "agentSession.eventStreamFailed": "エージェントのイベントストリームに接続できませんでした。もう一度お試しください。",
   "agentSession.eventStreamTimeout": "エージェントのイベントストリームへの接続がタイムアウトしました。もう一度お試しください。",
@@ -1676,5 +1678,6 @@
   "settingsConfig.aboutAppVersion": "AIDesk バージョン",
   "settingsConfig.aboutRuntimeVersion": "omp ランタイム",
   "settingsConfig.aboutAcknowledgments": "オープンソースの謝辞",
-  "settingsConfig.aboutAcknowledgmentsDesc": "AIDesk は以下のオープンソースプロジェクトの上に構築されています。メンテナーとコントリビューターに感謝します。"
+  "settingsConfig.aboutAcknowledgmentsDesc": "AIDesk は以下のオープンソースプロジェクトの上に構築されています。メンテナーとコントリビューターに感謝します。",
+  "agentClient.timeout": "{seconds} 秒以内に応答がありませんでした。"
 }

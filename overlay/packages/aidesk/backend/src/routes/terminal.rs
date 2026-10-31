@@ -135,17 +135,45 @@ pub async fn terminal_resize(
 pub async fn terminal_stream(
     State(state): State<SharedState>,
     AxumPath(id): AxumPath<String>,
+    uri: Uri,
 ) -> Response {
     let Some(session) = state.terminals.get(&id) else {
         return not_found();
     };
-    let mut events = session.subscribe();
+    let query = query(&uri);
+    let skip_history =
+        query.get("skip_history") == Some("1") || query.get("skipHistory") == Some("1");
+    let since = query.get("offset").and_then(|value| value.parse::<u64>().ok());
+    // History and the live subscription are captured atomically, so a chunk
+    // can never be replayed from the buffer *and* delivered as a live event.
+    let snapshot = session.snapshot();
+    let mut events = snapshot.events;
+    let (history, history_start) = if skip_history {
+        (String::new(), snapshot.end_offset)
+    } else {
+        match since {
+            // Already caught up: nothing to replay.
+            Some(offset) if offset >= snapshot.end_offset => (String::new(), snapshot.end_offset),
+            // Caller's offset predates the ring buffer: replay everything.
+            Some(offset) if offset > snapshot.start_offset => {
+                let skip = (offset - snapshot.start_offset) as usize;
+                match snapshot.history.get(skip..) {
+                    Some(rest) => (rest.to_string(), offset),
+                    None => (snapshot.history.clone(), snapshot.start_offset),
+                }
+            }
+            _ => (snapshot.history.clone(), snapshot.start_offset),
+        }
+    };
     let (sse, response) = crate::sse::channel(256);
-    // Buffered history first, then live chunks.
-    let history = session.history();
     if !history.is_empty() {
-        sse.data(&json!({ "type": "output", "data": history }))
-            .await;
+        sse.data(&json!({
+            "type": "output",
+            "data": history,
+            "startOffset": history_start,
+            "offset": snapshot.end_offset,
+        }))
+        .await;
     }
     if session.is_exited() {
         sse.data(&json!({ "type": "exit", "code": session.exit_code() }))
@@ -153,19 +181,39 @@ pub async fn terminal_stream(
         return response;
     }
     tokio::spawn(async move {
+        let mut heartbeat = tokio::time::interval_at(
+            tokio::time::Instant::now() + std::time::Duration::from_secs(15),
+            std::time::Duration::from_secs(15),
+        );
+        heartbeat.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
         loop {
-            match events.recv().await {
-                Ok(crate::omp::terminal::TerminalEvent::Output(data)) => {
-                    if !sse.data(&json!({ "type": "output", "data": data })).await {
-                        break;
+            tokio::select! {
+                event = events.recv() => {
+                    match event {
+                        Ok(crate::omp::terminal::TerminalEvent::Output { data, start, end }) => {
+                            if !sse
+                                .data(&json!({
+                                    "type": "output",
+                                    "data": data,
+                                    "startOffset": start,
+                                    "offset": end,
+                                }))
+                                .await
+                            {
+                                break;
+                            }
+                        }
+                        Ok(crate::omp::terminal::TerminalEvent::Exit(code)) => {
+                            sse.data(&json!({ "type": "exit", "code": code })).await;
+                            break;
+                        }
+                        Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => continue,
+                        Err(_) => break,
                     }
                 }
-                Ok(crate::omp::terminal::TerminalEvent::Exit(code)) => {
-                    sse.data(&json!({ "type": "exit", "code": code })).await;
-                    break;
+                _ = heartbeat.tick() => {
+                    if !sse.ping().await { break; }
                 }
-                Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => continue,
-                Err(_) => break,
             }
         }
     });

@@ -14,7 +14,7 @@ import type {
 import { normalizeToolCalls } from "@/lib/normalize";
 import { hasVisibleAssistantContent } from "@/lib/assistant-response";
 import type { ThinkingModelMeta } from "@/lib/thinking-levels";
-import { sendAgentCommand, setSessionAdvisorSpawn } from "@/lib/agent-client";
+import { AgentCommandTimeoutError, sendAgentCommand, setSessionAdvisorSpawn } from "@/lib/agent-client";
 import { parseSkillDiagnosticsSnapshot, type SkillDiagnosticsSnapshot } from "@/lib/skill-diagnostics";
 import { recoverDraft, setDraft, toDraftImages, type ChatDraftImage } from "@/lib/draft-store";
 import { formatExitedSessionNotice, translate } from "@/lib/i18n";
@@ -63,14 +63,18 @@ import {
 import type { NoticeType } from "./useAgentSession-notices";
 import {
   AGENT_STATE_RECONCILE_MS,
+  AGENT_HTTP_TIMEOUT_MS,
   WITHDRAW_BEFORE_ABORT_MS,
   BASH_STATE_RECONCILE_MS,
   EVENT_STREAM_CONNECT_TIMEOUT_MS,
+  EVENT_STREAM_FRAME_TIMEOUT_MS,
   EVENT_STREAM_RETRY_MAX_MS,
   EVENT_STREAM_RETRY_MIN_MS,
   EVENT_STREAM_SLOW_CONNECT_MS,
+  EVENT_STREAM_STALE_MS,
   EXTERNAL_RUN_POLL_MS,
   EXTERNAL_RUN_STALE_MS,
+  INTERRUPT_REPLY_GUARD_MS,
   PROGRAMMATIC_SCROLL_IGNORE_MS,
   PROMPT_SETTLE_INITIAL_DELAY_MS,
   PROMPT_SETTLE_MAX_MS,
@@ -97,6 +101,7 @@ import {
   toThinkingModelMeta,
 } from "./useAgentSession-stream";
 import type {
+  AgentConnectionStatus,
   AgentEvent,
   AgentPhase,
   AgentStateResponse,
@@ -121,6 +126,7 @@ import type {
 } from "./useAgentSession-stream";
 // Re-export moved public types so existing `@/hooks/useAgentSession` import paths keep working.
 export type {
+  AgentConnectionStatus,
   AgentPhase,
   AttachedImage,
   BuiltinSlashCommandResult,
@@ -365,9 +371,23 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
   const [advisorEnabled, setAdvisorEnabled] = useState(false);
   const activeSubagentCount = subagents.filter((subagent) => subagent.source !== "history" && subagent.status === "started").length;
 
+  const [connectionStatus, setConnectionStatus] = useState<AgentConnectionStatus>(
+    // A page opened while the browser is offline must show the offline banner
+    // immediately, not after the first failed stream.
+    () => (typeof navigator !== "undefined" && navigator.onLine === false ? "offline" : "connected"),
+  );
+
   const eventSourceRef = useRef<EventSource | null>(null);
   const reconnectTimerRef = useRef<NodeJS.Timeout | undefined>(undefined);
   const eventStreamRetryMsRef = useRef<number>(EVENT_STREAM_RETRY_MIN_MS);
+  // Wall clock of the last frame (including `ping`) from the current stream.
+  // EventSource keeps reporting OPEN on a half-open socket; this is what the
+  // watchdog and the reconcile poll use instead.
+  const lastStreamFrameAtRef = useRef(0);
+  const streamWatchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectionStatusRef = useRef<AgentConnectionStatus>("connected");
+  connectionStatusRef.current = connectionStatus;
+  const interruptReplyGuardTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const sessionIdRef = useRef<string | null>(session?.id ?? null);
   const btw = useBtw(sessionIdRef);
   const { applyEvent: applyBtwFrame, refreshHistory: refreshBtwHistory, reconcile: reconcileBtw, openHistory: openBtwHistory, ask: sendBtw } = btw;
@@ -381,8 +401,42 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
   const isCompactingRef = useRef(false);
   // Set while an interrupt-and-reply (abort_and_prompt) is in flight: the
   // aborted turn's terminal agent_end must not tear down the new run that is
-  // starting. Cleared on the new run's agent_start (or the intercept itself).
+  // starting. Cleared on the new run's agent_start, the aborted turn's own
+  // agent_end, a definitive command failure, or the deadline below — never
+  // left to swallow a later run's terminal frame forever.
   const interruptReplyPendingRef = useRef(false);
+  /** Arm the bounded guard used when abort_and_prompt's outcome is unknown
+   *  (timeout): the RPC may still have started the new run. */
+  const armInterruptReplyGuard = () => {
+    if (interruptReplyGuardTimerRef.current !== null) clearTimeout(interruptReplyGuardTimerRef.current);
+    interruptReplyGuardTimerRef.current = setTimeout(() => {
+      interruptReplyGuardTimerRef.current = null;
+      interruptReplyPendingRef.current = false;
+    }, INTERRUPT_REPLY_GUARD_MS);
+  };
+  const clearInterruptReplyGuard = () => {
+    if (interruptReplyGuardTimerRef.current !== null) {
+      clearTimeout(interruptReplyGuardTimerRef.current);
+      interruptReplyGuardTimerRef.current = null;
+    }
+    interruptReplyPendingRef.current = false;
+  };
+  // True once the current stream lost its connection. Only then can the
+  // banner say "reconnecting": a first attach during a send is not a drop.
+  const streamLostRef = useRef(false);
+  /** Derive the connection banner from the network state and the stream. */
+  const refreshConnectionStatus = () => {
+    if (typeof navigator !== "undefined" && navigator.onLine === false) {
+      setConnectionStatus("offline");
+      return;
+    }
+    const source = eventSourceRef.current;
+    if (source && source.readyState === EventSource.OPEN) {
+      setConnectionStatus("connected");
+      return;
+    }
+    setConnectionStatus(streamLostRef.current && agentRunningRef.current ? "reconnecting" : "connected");
+  };
   // Session id with a remove/promote command in flight: one at a time, so a
   // double click cannot act on a second same-text queue entry.
   const queuedRemovalRef = useRef<{ sessionId: string } | null>(null);
@@ -418,10 +472,18 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
   // run — a slow /api/agent/[id] response must not stack stale polls that
   // then overwrite newer state out of order.
   const reconcileGuardRef = useRef<ReconcileGuard | null>(null);
+  // Set after reconcileAgentState exists; the guard's stall timer calls this
+  // so a trigger coalesced behind a hung request is re-issued, not dropped.
+  const reconcileReissueRef = useRef<(() => void) | null>(null);
   // timeoutMs: a reconcile GET that never settles (hung connection, lost
   // response) must not block future calibration forever — the guard
-  // auto-releases the lock and the next trigger re-issues.
-  if (reconcileGuardRef.current === null) reconcileGuardRef.current = createReconcileGuard({ timeoutMs: 30_000 });
+  // auto-releases the lock and re-issues a coalesced trigger.
+  if (reconcileGuardRef.current === null) {
+    reconcileGuardRef.current = createReconcileGuard({
+      timeoutMs: 30_000,
+      onStalledPending: () => reconcileReissueRef.current?.(),
+    });
+  }
   // Last quota-like error seen during the current run, and whether the run
   // produced any assistant content. Used to surface a persistent error when
   // the agent stops without a visible failure.
@@ -656,7 +718,9 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
   const refreshSubagentHistory = useCallback(async (sid: string) => {
     const generation = subagentRosterGenerationRef.current;
     try {
-      const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}/subagents`);
+      const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}/subagents`, {
+        signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS),
+      });
       if (!res.ok) return;
       const data = await res.json() as { subagents?: SubagentHistoryEntry[] };
       // Fence AFTER the awaited json: the session or roster generation may
@@ -759,7 +823,9 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     const token = beginAuthoritativeModelSync();
     const skillDiagnosticsRevision = ++skillDiagnosticsSeqRef.current;
     try {
-      const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}/state`);
+      const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}/state`, {
+        signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS),
+      });
       if (!res.ok) return;
       const agentState = await res.json() as { running: boolean; state?: AgentStateResponse };
       if (!hookAliveRef.current || sessionIdRef.current !== sid) return;
@@ -801,7 +867,9 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     try {
       if (showLoading) setLoading(true);
       const params = new URLSearchParams({ deferThinking: "1", deferMedia: "1" });
-      const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}?${params}`);
+      const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}?${params}`, {
+        signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS),
+      });
       if (sessionIdRef.current !== sid || contextRequestSeqRef.current !== requestSeq || promptRunIdRef.current !== requestRun) return null;
       if (res.status === 404) {
         if (showLoading) {
@@ -855,7 +923,9 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         const token = beginAuthoritativeModelSync();
         const queueRevision = ++queueSeqRef.current;
         const skillDiagnosticsRevision = ++skillDiagnosticsSeqRef.current;
-        const stateRes = await fetch(`/api/sessions/${encodeURIComponent(sid)}/state`);
+        const stateRes = await fetch(`/api/sessions/${encodeURIComponent(sid)}/state`, {
+          signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS),
+        });
         if (!stateRes.ok) throw new Error(`HTTP ${stateRes.status}`);
         const agentState = await stateRes.json() as { running: boolean; state?: AgentStateResponse; exited?: ExitedRpcSession };
         if (sessionIdRef.current !== sid) {
@@ -932,7 +1002,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       if (leafId) params.set("leafId", leafId);
       if (includePreCompaction) params.set("includePreCompaction", "1");
       const url = `/api/sessions/${encodeURIComponent(sid)}/context?${params}`;
-      const res = await fetch(url);
+      const res = await fetch(url, { signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS) });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const d = await res.json() as Pick<SessionData, "context">;
       // Fence like loadSession: drop the response if the session changed or a
@@ -988,6 +1058,8 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       const res = await fetch("/api/agent/new", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // Spawning omp can take a while; keep the longer stream-connect bound.
+        signal: AbortSignal.timeout(EVENT_STREAM_CONNECT_TIMEOUT_MS),
         body: JSON.stringify({
           cwd: newSessionCwd,
           type: "ensure_session",
@@ -1079,7 +1151,9 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     const queueRevision = ++queueSeqRef.current;
     const skillDiagnosticsRevision = ++skillDiagnosticsSeqRef.current;
     try {
-      const res = await fetch(`/api/agent/${encodeURIComponent(sid)}`);
+      const res = await fetch(`/api/agent/${encodeURIComponent(sid)}`, {
+        signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS),
+      });
       if (!res.ok || !hookAliveRef.current || sessionIdRef.current !== sid) return;
       const data = await res.json() as { state?: AgentStateResponse };
       applyQueueStateSnapshot(queueRevision, data.state?.queuedMessages);
@@ -1089,12 +1163,31 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     }
   }, [applyQueueStateSnapshot, applySkillDiagnosticsSnapshot]);
 
+  /** Bounded probe: does AIDesk still manage a live wrapper for this id?
+   *  The SSE route answers 409 for a session it does not manage, and an
+   *  EventSource cannot read that status — GET /api/agent/[id] reports it. */
+  const probeAgentRunning = useCallback(async (sid: string): Promise<boolean> => {
+    try {
+      const res = await fetch(`/api/agent/${encodeURIComponent(sid)}`, {
+        signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS),
+      });
+      if (!res.ok) return false;
+      const data = await res.json() as { running?: boolean };
+      return data.running === true;
+    } catch {
+      return false;
+    }
+  }, []);
+
   const connectEvents = useCallback((sid: string, restoreWrapper = false): Promise<EventStreamConnectionResult> => {
     // A backoff timer from an earlier CLOSED stream may still be pending (e.g.
     // the user sent a message while it waited). It must not fire later and
     // tear down the healthy stream built here — drop it before replacing.
     clearTimeout(reconnectTimerRef.current);
     reconnectTimerRef.current = undefined;
+    // A receive watchdog from the replaced stream would tear down this one.
+    clearTimeout(streamWatchdogRef.current ?? undefined);
+    streamWatchdogRef.current = null;
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
       eventSourceRef.current = null;
@@ -1104,11 +1197,39 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     catchUp.disconnect();
     const es = new EventSource(`/api/agent/${encodeURIComponent(sid)}/events`);
     eventSourceRef.current = es;
+    // Treat the attempt itself as activity so a stream that has not opened
+    // yet is not classified as stale by the reconcile poll.
+    lastStreamFrameAtRef.current = Date.now();
     const runId = promptRunIdRef.current;
 
     return new Promise((resolve) => {
       let settled = false;
       let restored = false;
+      const stopWatchdog = () => {
+        if (streamWatchdogRef.current !== null) {
+          clearTimeout(streamWatchdogRef.current);
+          streamWatchdogRef.current = null;
+        }
+      };
+      // Any frame (including the 15s `ping`) proves the socket is alive. No
+      // frame for 40s means a half-open TCP connection that EventSource still
+      // reports as OPEN — nothing else in the browser notices it.
+      const armWatchdog = () => {
+        stopWatchdog();
+        lastStreamFrameAtRef.current = Date.now();
+        streamWatchdogRef.current = setTimeout(() => {
+          streamWatchdogRef.current = null;
+          if (!hookAliveRef.current || eventSourceRef.current !== es || sessionIdRef.current !== sid) return;
+          es.close();
+          if (eventSourceRef.current === es) eventSourceRef.current = null;
+          streamLostRef.current = true;
+          refreshConnectionStatus();
+          // Reconnect right away, and calibrate run state over HTTP in case
+          // the missed frames included the run's terminal event.
+          void connectEvents(sid, true);
+          void reconcileAgentState(sid);
+        }, EVENT_STREAM_FRAME_TIMEOUT_MS);
+      };
       const restore = () => {
         if (!restoreWrapper || restored || !hookAliveRef.current || sessionIdRef.current !== sid
           || promptRunIdRef.current !== runId || eventSourceRef.current !== es) return;
@@ -1128,6 +1249,9 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       es.onopen = () => {
         if (eventSourceRef.current !== es || sessionIdRef.current !== sid) return;
         eventStreamRetryMsRef.current = EVENT_STREAM_RETRY_MIN_MS;
+        streamLostRef.current = false;
+        refreshConnectionStatus();
+        armWatchdog();
         settle("connected");
         restore();
         void catchUp.request();
@@ -1141,8 +1265,13 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
 
       es.onmessage = (e) => {
         if (eventSourceRef.current !== es || sessionIdRef.current !== sid) return;
+        // Re-arm before parsing: even a malformed frame means bytes arrived.
+        armWatchdog();
         try {
           const event = JSON.parse(e.data) as AgentEvent;
+          // Keepalive only: it exists so this watchdog can tell a live socket
+          // from a half-open one. It carries no state to apply.
+          if (event.type === "ping") return;
           // Side-question frames never touch the transcript and useBtw batches
           // them itself; through the coalescer each would flush the pending
           // message_update and defeat display-rate coalescing of the main run.
@@ -1179,28 +1308,46 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         }
       };
       es.onerror = () => {
+        // Any error means bytes stopped: while a run is in flight the banner
+        // reports the reconnect and clears itself on the next open.
+        streamLostRef.current = true;
+        refreshConnectionStatus();
         if (es.readyState === EventSource.CLOSED) {
           // Fatal error (404/409/500/content-type mismatch): the browser will
           // not auto-reconnect. Settle the Promise and schedule a manual
-          // reconnect with capped backoff — regardless of whether the agent is
-          // running. Long-idle sessions (wrapper respawned server-side, server
-          // restart, proxy timeout) previously stayed dead silently until a
-          // page reload; the backoff bounds the retry loop against endpoints
-          // that keep failing (e.g. a 409 "not managed" wrapper-less session).
+          // reconnect with capped backoff. A live wrapper (server restart,
+          // proxy timeout) must be re-attached; a session AIDesk no longer
+          // manages answers 409 forever, and retrying it every 30s is a
+          // pointless reconnect storm — probe once and only continue for a
+          // running session.
           settle("closed");
+          stopWatchdog();
           if (eventSourceRef.current === es) {
             eventSourceRef.current = null;
-            const delay = eventStreamRetryMsRef.current;
-            eventStreamRetryMsRef.current = Math.min(delay * 2, EVENT_STREAM_RETRY_MAX_MS);
-            clearTimeout(reconnectTimerRef.current);
-            reconnectTimerRef.current = setTimeout(() => {
-              reconnectTimerRef.current = undefined;
-              if (hookAliveRef.current && sessionIdRef.current === sid) {
-                // Only an open observer stream proves a wrapper exists. Never
-                // let cold-read recovery spawn one via registration commands.
-                void connectEvents(sid, true);
-              }
-            }, delay);
+            const retry = () => {
+              const delay = eventStreamRetryMsRef.current;
+              eventStreamRetryMsRef.current = Math.min(delay * 2, EVENT_STREAM_RETRY_MAX_MS);
+              clearTimeout(reconnectTimerRef.current);
+              reconnectTimerRef.current = setTimeout(() => {
+                reconnectTimerRef.current = undefined;
+                if (hookAliveRef.current && sessionIdRef.current === sid) {
+                  // Only an open observer stream proves a wrapper exists. Never
+                  // let cold-read recovery spawn one via registration commands.
+                  void connectEvents(sid, true);
+                }
+              }, delay);
+            };
+            if (agentRunningRef.current) {
+              retry();
+            } else {
+              void probeAgentRunning(sid).then((running) => {
+                // A new prompt (ensureEventsConnected) or the online handler
+                // also connects; this path only resumes a live idle wrapper.
+                if (running && hookAliveRef.current && sessionIdRef.current === sid && !eventSourceRef.current) {
+                  retry();
+                }
+              });
+            }
           }
         }
         // Recoverable errors (CONNECTING): let EventSource auto-reconnect.
@@ -1208,11 +1355,31 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         // connection must be ready before they continue.
       };
     });
-}, [applyBtwFrame, catchUp, clearLiveToolResults, eventCoalescer, refreshBtwHistory, refreshAgentSnapshots]);
+}, [applyBtwFrame, catchUp, clearLiveToolResults, eventCoalescer, probeAgentRunning, refreshBtwHistory, refreshAgentSnapshots]);
   observeCreatedSessionRef.current = (sid: string) => {
     if (!hookAliveRef.current || sessionIdRef.current !== sid || eventSourceRef.current) return;
     void connectEvents(sid);
   };
+
+  // Browser network state drives the connection banner. `offline` wins over
+  // the stream state; `online` re-attaches a stream that died while the
+  // network was down (its CLOSED probe failed, so no retry timer is armed).
+  useEffect(() => {
+    const onOffline = () => setConnectionStatus("offline");
+    const onOnline = () => {
+      const sid = sessionIdRef.current;
+      refreshConnectionStatus();
+      if (!hookAliveRef.current || !sid) return;
+      const source = eventSourceRef.current;
+      if (!source || source.readyState === EventSource.CLOSED) void connectEvents(sid, true);
+    };
+    window.addEventListener("offline", onOffline);
+    window.addEventListener("online", onOnline);
+    return () => {
+      window.removeEventListener("offline", onOffline);
+      window.removeEventListener("online", onOnline);
+    };
+  }, [connectEvents]);
 
   // ---------------------------------------------------------------------
   // Host-tool bridge: AIDesk registers tools the AGENT can call. The server
@@ -1539,8 +1706,12 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     const quotaMessage = lastQuotaErrorRef.current;
     let runError = lastRunErrorRef.current;
     const allowEmptyResponse = slashCommandRunRef.current;
-    const previousEntryIds = runPreviousEntryIdsRef.current;
-    if (previousEntryIds === null) return;
+    // A failed/timed-out snapshotRunEntries leaves this null while the run is
+    // already dispatched. Waiting for a boundary that will never arrive used
+    // to leave the spinner up forever, so fall back to an empty baseline: the
+    // reload below then takes the latest persisted turn as this run's answer.
+    const previousEntryIds = runPreviousEntryIdsRef.current ?? [];
+    if (runPreviousEntryIdsRef.current === null) runPreviousEntryIdsRef.current = previousEntryIds;
     let recoveryLoaded = false;
     let stillBusy = false;
     try {
@@ -1636,7 +1807,9 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     ) {
       if (runId !== undefined && promptRunIdRef.current !== runId) return;
       try {
-        const res = await fetch(`/api/agent/${encodeURIComponent(sid)}`);
+        const res = await fetch(`/api/agent/${encodeURIComponent(sid)}`, {
+          signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS),
+        });
         if (res.ok) {
           const data = await res.json() as { running?: boolean; state?: AgentStateResponse };
           const state = data.state;
@@ -1663,7 +1836,9 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     ) {
       await delay(BASH_STATE_RECONCILE_MS);
       try {
-        const res = await fetch(`/api/agent/${encodeURIComponent(sid)}`);
+        const res = await fetch(`/api/agent/${encodeURIComponent(sid)}`, {
+          signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS),
+        });
         if (!res.ok) continue;
         const data = await res.json() as { state?: AgentStateResponse };
         if (data.state?.isBashRunning) continue;
@@ -1698,7 +1873,9 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     try {
       const queueRevision = ++queueSeqRef.current;
       const skillDiagnosticsRevision = ++skillDiagnosticsSeqRef.current;
-      const res = await fetch(`/api/agent/${encodeURIComponent(sid)}`);
+      const res = await fetch(`/api/agent/${encodeURIComponent(sid)}`, {
+        signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS),
+      });
       if (!res.ok) return;
       const data = await res.json() as { running?: boolean; state?: AgentStateResponse };
       // A slow response can straddle a run boundary (previous run finished
@@ -1727,7 +1904,21 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       // below left the ring blank for the whole generation and let it fill in
       // only when the run ended (#187).
       if (state?.contextUsage !== undefined) setContextUsage(state.contextUsage ?? null);
-      if (busy || !agentRunningRef.current) return;
+      if (busy) {
+        // The server says a run is in progress but SSE may be dead (half-open
+        // socket, proxy drop) — no messages arrive here without a frame. The
+        // backend pings every 15s, so a 25s silence with a busy session means
+        // the connection is gone even if readyState still reports OPEN.
+        const source = eventSourceRef.current;
+        const silent = Date.now() - lastStreamFrameAtRef.current > EVENT_STREAM_STALE_MS;
+        if (!source || source.readyState === EventSource.CLOSED || silent) {
+          streamLostRef.current = true;
+          refreshConnectionStatus();
+          void connectEvents(sid, true);
+        }
+        return;
+      }
+      if (!agentRunningRef.current) return;
       if (state) {
         if (state.extensionStatuses !== undefined) setExtensionStatuses(state.extensionStatuses ?? []);
         if (state.extensionWidgets !== undefined) setExtensionWidgets(state.extensionWidgets ?? []);
@@ -1746,7 +1937,14 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         void reconcileAgentState(sid);
       }
     }
-  }, [applyQueueStateSnapshot, applySkillDiagnosticsSnapshot, finishPromptWithoutStream, refreshSubagentRoster]);
+  }, [applyQueueStateSnapshot, applySkillDiagnosticsSnapshot, connectEvents, finishPromptWithoutStream, refreshSubagentRoster]);
+
+  // The guard's stall timer calls this after releasing a hung request: the
+  // trigger that was merged into it must be re-issued now, not dropped.
+  reconcileReissueRef.current = () => {
+    const sid = sessionIdRef.current;
+    if (hookAliveRef.current && sid && agentRunningRef.current) void reconcileAgentState(sid);
+  };
 
   // Recovery net for missed SSE events: while the agent is running, verify
   // against the server periodically and whenever the tab returns to the
@@ -1814,7 +2012,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       const sid = sessionIdRef.current;
       if (!sid) return;
       let cancelled = false;
-      void fetch(`/api/agent/${encodeURIComponent(sid)}`)
+      void fetch(`/api/agent/${encodeURIComponent(sid)}`, { signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS) })
         .then((res) => (res.ok ? res.json() : null))
         .then((data: { state?: AgentStateResponse } | null) => {
           if (cancelled) return;
@@ -1830,7 +2028,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     const id = setInterval(() => {
       const sid = sessionIdRef.current;
       if (!sid) return;
-      void fetch(`/api/agent/${encodeURIComponent(sid)}`)
+      void fetch(`/api/agent/${encodeURIComponent(sid)}`, { signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS) })
         .then((res) => (res.ok ? res.json() : null))
         .then((data: { state?: AgentStateResponse } | null) => {
           // A sample in flight when the run ends must not overwrite the end-of-run state.
@@ -1937,7 +2135,8 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         catchUp.invalidate();
         contextRequestSeqRef.current += 1;
         responseRunVersionRef.current += 1;
-        interruptReplyPendingRef.current = false;
+        // The replacement run is live: the aborted turn's guard is spent.
+        clearInterruptReplyGuard();
         agentRunningRef.current = true;
         setAgentRunning(true);
         setAgentPhase({ kind: "waiting_model" });
@@ -1953,9 +2152,10 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         if (event.isTerminal === false) break;
         // An interrupt-and-reply aborts the current turn: its terminal
         // agent_end arrives while abort_and_prompt is already starting the new
-        // run — keep the running state alive for it.
+        // run — keep the running state alive for it. The guard has done its
+        // job: clearing it here means a LATER agent_end is the new run's.
         if (interruptReplyPendingRef.current) {
-          interruptReplyPendingRef.current = false;
+          clearInterruptReplyGuard();
           break;
         }
         runsEndedRef.current += 1;
@@ -2022,7 +2222,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
           const endToken = beginAuthoritativeModelSync();
           const queueRevision = ++queueSeqRef.current;
           const skillDiagnosticsRevision = ++skillDiagnosticsSeqRef.current;
-          fetch(`/api/agent/${encodeURIComponent(endedSid)}`)
+          fetch(`/api/agent/${encodeURIComponent(endedSid)}`, { signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS) })
             .then((r) => (r.ok ? r.json() as Promise<{ state?: AgentStateResponse }> : null))
             .then((d) => {
               // Stale terminal snapshot: the user switched sessions or started
@@ -2144,7 +2344,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         const sid = sessionIdRef.current;
         if (!sid) break;
         const token = beginAuthoritativeModelSync();
-        void fetch(`/api/agent/${encodeURIComponent(sid)}`)
+        void fetch(`/api/agent/${encodeURIComponent(sid)}`, { signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS) })
           .then((r) => (r.ok ? r.json() as Promise<{ state?: AgentStateResponse }> : null))
           .then((d) => {
             if (!d?.state?.model) return;
@@ -2521,7 +2721,13 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     subscribe: (force) => {
       const sid = sessionIdRef.current;
       const source = eventSourceRef.current;
-      if (hookAliveRef.current && sid && (force || !source || source.readyState === EventSource.CLOSED)) {
+      // An OPEN socket that stopped delivering frames is just as dead: the
+      // server pings every 15s, so silence past the stale bound means a
+      // half-open connection that EventSource will never notice.
+      const stalled = !source
+        || source.readyState === EventSource.CLOSED
+        || Date.now() - lastStreamFrameAtRef.current > EVENT_STREAM_STALE_MS;
+      if (hookAliveRef.current && sid && (force || stalled)) {
         if (force) {
           responseRunVersionRef.current += 1;
           runHadContentRef.current = false;
@@ -2589,7 +2795,11 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     // Read immediately before dispatch, not from React's last rendered state:
     // the previous terminal reload or interrupted turn can still be in flight.
     // Unlike loadSession, this must not replace the optimistic user bubble.
-    const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}/context?boundary=1`);
+    // Bounded: a hung read must not hold the prompt dispatch (and its
+    // "generating" state) hostage on a dead connection.
+    const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}/context?boundary=1`, {
+      signal: AbortSignal.timeout(AGENT_HTTP_TIMEOUT_MS),
+    });
     if (res.status === 404) {
       // A session whose prompts so far were all local slash commands (skill
       // activation, …) never started an agent run, so omp wrote no session
@@ -2821,6 +3031,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     catchUp.invalidate();
     eventCoalescer.reset();
     interruptReplyPendingRef.current = true;
+    armInterruptReplyGuard();
     pendingScrollToUserRef.current = true;
     completionScrollAllowedRef.current = true;
     userScrollIntentUntilRef.current = 0;
@@ -2845,7 +3056,12 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       if (promptRunIdRef.current === promptRunId && sessionIdRef.current === sid) {
         runPreviousEntryIdsRef.current = previousRunEntryIds;
       }
-      interruptReplyPendingRef.current = false;
+      // A timeout is not a rejection: the RPC may still have aborted and
+      // started the new run. Keep the guard (its deadline still bounds it) so
+      // the aborted turn's late agent_end cannot end the new one. Any other
+      // failure is definitive — nothing started, so release it now.
+      if (e instanceof AgentCommandTimeoutError) armInterruptReplyGuard();
+      else clearInterruptReplyGuard();
       setOptimisticUserMessage(null);
       addNotice({ type: "error", message: e instanceof Error ? e.message : String(e) });
       // Mirror handleSend: the interrupt never started, so hand the text back
@@ -3692,6 +3908,8 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       mountedSessionLoadRef.current = session.id;
       sessionIdRef.current = session.id;
       responseRunVersionRef.current += 1;
+      // A different session starts with no known dropped stream.
+      streamLostRef.current = false;
       runHadContentRef.current = false;
       lastQuotaErrorRef.current = null;
       lastRunErrorRef.current = null;
@@ -3765,6 +3983,8 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       eventSourceRef.current = null;
       clearTimeout(reconnectTimerRef.current);
       reconnectTimerRef.current = undefined;
+      clearTimeout(streamWatchdogRef.current ?? undefined);
+      streamWatchdogRef.current = null;
       if (rosterRefreshTimerRef.current) {
         clearTimeout(rosterRefreshTimerRef.current);
         rosterRefreshTimerRef.current = null;
@@ -3864,6 +4084,13 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     hookAliveRef.current = true;
     return () => {
       hookAliveRef.current = false;
+      // The receive watchdog and the interrupt guard are page-lifetime timers:
+      // after unmount they must not reconnect a stream or mutate a dead view.
+      clearTimeout(streamWatchdogRef.current ?? undefined);
+      streamWatchdogRef.current = null;
+      clearTimeout(interruptReplyGuardTimerRef.current ?? undefined);
+      interruptReplyGuardTimerRef.current = null;
+      interruptReplyPendingRef.current = false;
       if (followScrollFrameRef.current !== null) cancelAnimationFrame(followScrollFrameRef.current);
     };
   }, []);
@@ -3941,6 +4168,9 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     // tail; drives the live-tail rendering and the bounded sync poll.
     externalRunActive,
     liveToolResults,
+    // "offline"/"reconnecting" while the network or the event stream is down
+    // during a run; the chat header shows a non-blocking banner for it.
+    connectionStatus,
     // Subscriptions
     handleAgentEventRef,
   };

@@ -91,6 +91,20 @@ pub fn resolve_project(cwd: &str) -> ProjectInfo {
     info
 }
 
+/// Async wrapper around `resolve_project` for HTTP handlers: the probe spawns
+/// `git rev-parse`, which must not run on a Tokio worker thread.
+pub async fn resolve_project_async(cwd: String) -> ProjectInfo {
+    let fallback = cwd.clone();
+    match tokio::task::spawn_blocking(move || resolve_project(&cwd)).await {
+        Ok(info) => info,
+        Err(_) => ProjectInfo {
+            project_root: fallback,
+            branch: None,
+            is_worktree: false,
+        },
+    }
+}
+
 fn compute_project(cwd: &str) -> ProjectInfo {
     let path = Path::new(cwd);
     if !path.exists() {
@@ -239,6 +253,17 @@ pub fn list_all_sessions(cfg: &Config) -> Vec<SessionInfo> {
         });
     }
     sessions
+}
+
+/// Async wrapper for `list_all_sessions`.
+///
+/// The scan reads many session files (prefix and tail slices plus JSON
+/// parsing); running it inline would block a Tokio worker and stall every
+/// other request sharing that thread.
+pub async fn list_all_sessions_async(cfg: Config) -> Vec<SessionInfo> {
+    tokio::task::spawn_blocking(move || list_all_sessions(&cfg))
+        .await
+        .unwrap_or_default()
 }
 
 fn scan_all_sessions(cfg: &Config) -> Vec<SessionInfo> {
@@ -530,6 +555,18 @@ pub fn load_display_entries(
 
 pub fn load_raw_entries(path: &Path) -> Vec<Value> {
     load_session_file(path, None).entries
+}
+
+/// Async wrapper around `load_display_entries` (loads + resolves the whole
+/// session file, including blob refs).
+pub async fn load_display_entries_async(
+    cfg: Config,
+    path: PathBuf,
+    skip_tool_result_images: bool,
+) -> Result<Vec<Value>, bool> {
+    tokio::task::spawn_blocking(move || load_display_entries(&cfg, &path, skip_tool_result_images))
+        .await
+        .unwrap_or(Err(true))
 }
 
 fn normalize_message_timestamp(message: &mut Map<String, Value>) {
@@ -1806,6 +1843,22 @@ pub fn session_detail(
     })
 }
 
+/// Async wrapper around `session_detail`: it loads and parses the whole
+/// session file (plus blob resolution), which is blocking work.
+pub async fn session_detail_async(
+    cfg: Config,
+    path: PathBuf,
+    header: Value,
+    defer_thinking: bool,
+    defer_media: bool,
+) -> Result<SessionDetail, bool> {
+    tokio::task::spawn_blocking(move || {
+        session_detail(&cfg, &path, &header, defer_thinking, defer_media)
+    })
+    .await
+    .unwrap_or(Err(true))
+}
+
 // ============================================================================
 // History paging (sync=1)
 // ============================================================================
@@ -1994,6 +2047,13 @@ pub fn context_boundary(cfg: &Config, path: &Path) -> Result<Value, bool> {
     Ok(json!({
         "entryIds": context.get("entryIds").cloned().unwrap_or_else(|| Value::Array(Vec::new())),
     }))
+}
+
+/// Async wrapper around `context_boundary` (loads the full session file).
+pub async fn context_boundary_async(cfg: Config, path: PathBuf) -> Result<Value, bool> {
+    tokio::task::spawn_blocking(move || context_boundary(&cfg, &path))
+        .await
+        .unwrap_or(Err(true))
 }
 
 pub fn read_session_header_or_error(path: &Path) -> Option<Value> {

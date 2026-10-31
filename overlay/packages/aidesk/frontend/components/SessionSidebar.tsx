@@ -12,6 +12,7 @@ import { projectActivityCounts, sortManagedProjects } from "@/lib/project-orderi
 import { comparableProjectPath } from "@/lib/comparable-path";
 import { Archive, ArrowLeft, ArrowRight, Check, ChevronRight, Folder, MessageSquare, Plus, RefreshCw, Search, Settings2, X } from "lucide-react";
 import { publishSessionsChanged } from "@/lib/session-change-bus";
+import { connectSse } from "@/lib/sse-reconnect";
 import { NOTIFICATION_MESSAGE_EVENT, notificationClientId } from "@/lib/notification-client";
 import {
   EMPTY_PROJECT_SET,
@@ -284,55 +285,61 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
     // Live running status and session-list invalidations arrive via SSE; the
     // sidebar never has to poll while an agent is working. The same stream
     // delivers this tab's notifications (handled by useNotifications).
-    const source = new EventSource(`/api/agent/running/events?clientId=${encodeURIComponent(notificationClientId)}`);
-
-    source.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data) as {
-          type?: string;
-          runningSessionIds?: string[];
-          runningSessions?: Array<{ id: string; cwd: string }>;
-          exitedSessions?: ExitedRpcSession[];
-          refreshSessionList?: boolean;
-          sessionIds?: string[];
-        };
-        if (data.type === "running") {
-          sseAuthoritativeRef.current = true;
-          setRunningSessionIds(new Set(data.runningSessionIds ?? []));
-          setExitedSessions(new Map((data.exitedSessions ?? []).map((session) => [session.id, session])));
-          if (data.runningSessions) {
-            const nextCwds: Record<string, string> = {};
-            for (const rs of data.runningSessions) {
-              if (rs.id && rs.cwd) {
-                knownRunningCwdsRef.current.set(rs.id, rs.cwd);
-                nextCwds[rs.id] = rs.cwd;
+    // A non-200 answer (server restart, proxy error) closes EventSource for
+    // good, so reconnect with capped backoff instead of freezing the list.
+    const source = connectSse({
+      url: () => `/api/agent/running/events?clientId=${encodeURIComponent(notificationClientId)}`,
+      setup: (es) => {
+        es.onmessage = (e) => {
+          try {
+            const data = JSON.parse(e.data) as {
+              type?: string;
+              runningSessionIds?: string[];
+              runningSessions?: Array<{ id: string; cwd: string }>;
+              exitedSessions?: ExitedRpcSession[];
+              refreshSessionList?: boolean;
+              sessionIds?: string[];
+            };
+            // Keepalive frames carry no state.
+            if (data.type === "ping") return;
+            if (data.type === "running") {
+              sseAuthoritativeRef.current = true;
+              setRunningSessionIds(new Set(data.runningSessionIds ?? []));
+              setExitedSessions(new Map((data.exitedSessions ?? []).map((session) => [session.id, session])));
+              if (data.runningSessions) {
+                const nextCwds: Record<string, string> = {};
+                for (const rs of data.runningSessions) {
+                  if (rs.id && rs.cwd) {
+                    knownRunningCwdsRef.current.set(rs.id, rs.cwd);
+                    nextCwds[rs.id] = rs.cwd;
+                  }
+                }
+                setRunningSessionCwds(nextCwds);
               }
+              if (data.refreshSessionList) scheduleRefresh();
+            } else if (data.type === "sessions-changed") {
+              if (data.refreshSessionList) scheduleRefresh();
+              publishSessionsChanged(data.sessionIds ?? []);
+            } else if (data.type === "notification") {
+              window.dispatchEvent(new CustomEvent(NOTIFICATION_MESSAGE_EVENT, { detail: data }));
             }
-            setRunningSessionCwds(nextCwds);
+          } catch {
+            // ignore malformed frames
           }
-          if (data.refreshSessionList) scheduleRefresh();
-        } else if (data.type === "sessions-changed") {
-          if (data.refreshSessionList) scheduleRefresh();
-          publishSessionsChanged(data.sessionIds ?? []);
-        } else if (data.type === "notification") {
-          window.dispatchEvent(new CustomEvent(NOTIFICATION_MESSAGE_EVENT, { detail: data }));
-        }
-      } catch {
-        // ignore malformed frames
-      }
-    };
-
-    source.onerror = () => {
-      // EventSource auto-reconnects; until a fresh frame arrives, let the
-      // polled /api/sessions fallback own running state again.
-      sseAuthoritativeRef.current = false;
-    };
-    // On error EventSource auto-reconnects; keep the last known state meanwhile.
+        };
+      },
+      onError: () => {
+        // Until a fresh frame arrives, let the polled /api/sessions fallback
+        // own running state again.
+        sseAuthoritativeRef.current = false;
+      },
+    });
+    // On error the stream reconnects itself; keep the last known state meanwhile.
     return () => {
       if (pendingRefreshRef.current) clearTimeout(pendingRefreshRef.current);
       source.close();
     };
-  }, [loadSessions, scheduleRefresh]);
+  }, [loadSessions, scheduleRefresh, notificationClientId]);
   // Long-idle recovery: while the tab is hidden the SSE connection can die
   // (laptop sleep, network change, tab freeze) and its EventSource reconnect
   // carries no list invalidation. Refresh whenever the user actually comes

@@ -136,31 +136,40 @@ export function createSessionCatchUp(options: {
             loaded = context;
             options.history(context, page.leafId, { version: metadataVersion, hasLive: page.live !== null });
             if (page.live) {
-              if (options.subscribe(false)) {
+              const resubscribed = options.subscribe(false);
+              // A missing or just-replaced EventSource must not suppress this
+              // snapshot: while the stream is reconnecting (disconnect() ran,
+              // or the new connection has not delivered its first frame yet)
+              // HTTP is the only live source, and dropping it leaves the
+              // generating message and its completion frozen. Adopt the
+              // snapshot's cursor so the fields below apply instead of being
+              // skipped for a null stream; frames from the replaced stream are
+              // fenced out by `observe()` afterwards.
+              if (stream === null) stream = { ...page.live.cursor };
+              const sequence = page.live.cursor.sequence;
+              const busy = page.live.isStreaming || page.live.isPromptRunning || page.live.isCompacting;
+              const preserve = sequence >= Math.max(toolsSnapshotSequence, lifecycleSequence) ? new Set<string>() : null;
+              const fields: SessionLiveFields = {
+                message: sequence >= Math.max(messageSequence, lifecycleSequence),
+                lifecycle: sequence >= lifecycleSequence && (busy || sequence >= Math.max(messageSequence, latestToolSequence)),
+                tools: preserve,
+              };
+              if (preserve) {
+                for (const [id, seen] of toolSequences) {
+                  if (seen > sequence) preserve.add(id);
+                  else toolSequences.delete(id);
+                }
+                toolsSnapshotSequence = sequence;
+                latestToolSequence = Math.max(latestToolSequence, sequence);
+              }
+              if (fields.message) messageSequence = sequence;
+              if (fields.lifecycle) lifecycleSequence = sequence;
+              stream = { ...stream, sequence: Math.max(stream.sequence, sequence) };
+              if (fields.message || fields.lifecycle || fields.tools) options.live(page.live, fields);
+              // The fresh connection's open/connected frame starts a clean read.
+              if (resubscribed) {
                 requested = false;
                 break;
-              }
-              if (stream) {
-                const sequence = page.live.cursor.sequence;
-                const busy = page.live.isStreaming || page.live.isPromptRunning || page.live.isCompacting;
-                const preserve = sequence >= Math.max(toolsSnapshotSequence, lifecycleSequence) ? new Set<string>() : null;
-                const fields: SessionLiveFields = {
-                  message: sequence >= Math.max(messageSequence, lifecycleSequence),
-                  lifecycle: sequence >= lifecycleSequence && (busy || sequence >= Math.max(messageSequence, latestToolSequence)),
-                  tools: preserve,
-                };
-                if (preserve) {
-                  for (const [id, seen] of toolSequences) {
-                    if (seen > sequence) preserve.add(id);
-                    else toolSequences.delete(id);
-                  }
-                  toolsSnapshotSequence = sequence;
-                  latestToolSequence = Math.max(latestToolSequence, sequence);
-                }
-                if (fields.message) messageSequence = sequence;
-                if (fields.lifecycle) lifecycleSequence = sequence;
-                stream = { ...stream, sequence: Math.max(stream.sequence, sequence) };
-                if (fields.message || fields.lifecycle || fields.tools) options.live(page.live, fields);
               }
             }
             break;

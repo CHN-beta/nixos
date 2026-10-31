@@ -33,6 +33,8 @@
   "agentSession.commandRequiresArgs": "Usage: {command} {usage}",
   "agentSession.commandFailed": "Command failed",
   "agentSession.compactedContext": "Compacted context",
+  "agentSession.connectionOffline": "Network connection lost — reconnecting automatically…",
+  "agentSession.connectionReconnecting": "Connection interrupted — reconnecting automatically…",
   "agentSession.copiedLastMessage": "Copied last assistant message",
   "agentSession.eventStreamFailed": "Failed to connect to the agent event stream. Please try again.",
   "agentSession.eventStreamTimeout": "Timed out connecting to the agent event stream. Please try again.",
@@ -1712,5 +1714,6 @@
   "settingsConfig.aboutAppVersion": "AIDesk version",
   "settingsConfig.aboutRuntimeVersion": "omp runtime",
   "settingsConfig.aboutAcknowledgments": "Open-source acknowledgments",
-  "settingsConfig.aboutAcknowledgmentsDesc": "AIDesk is built on these open-source projects. Thank you to their maintainers and contributors."
+  "settingsConfig.aboutAcknowledgmentsDesc": "AIDesk is built on these open-source projects. Thank you to their maintainers and contributors.",
+  "agentClient.timeout": "Request timed out after {seconds} seconds."
 }

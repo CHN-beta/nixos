@@ -33,6 +33,8 @@
   "agentSession.commandRequiresArgs": "用法：{command} {usage}",
   "agentSession.commandFailed": "命令失败",
   "agentSession.compactedContext": "已压缩上下文",
+  "agentSession.connectionOffline": "网络连接已断开，正在自动重连……",
+  "agentSession.connectionReconnecting": "连接已中断，正在自动重连……",
   "agentSession.copiedLastMessage": "已复制最后一条助手消息",
   "agentSession.eventStreamFailed": "无法连接到智能体事件流，请重试。",
   "agentSession.eventStreamTimeout": "连接智能体事件流超时，请重试。",
@@ -1676,5 +1678,6 @@
   "settingsConfig.aboutAppVersion": "AIDesk 版本",
   "settingsConfig.aboutRuntimeVersion": "omp 运行时",
   "settingsConfig.aboutAcknowledgments": "开源致谢",
-  "settingsConfig.aboutAcknowledgmentsDesc": "AIDesk 构建于以下开源项目之上，感谢它们的维护者与贡献者。"
+  "settingsConfig.aboutAcknowledgmentsDesc": "AIDesk 构建于以下开源项目之上，感谢它们的维护者与贡献者。",
+  "agentClient.timeout": "请求在 {seconds} 秒后超时。"
 }

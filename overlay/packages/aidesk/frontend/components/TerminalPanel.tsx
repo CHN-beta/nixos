@@ -5,6 +5,7 @@ import { FitAddon } from "@xterm/addon-fit";
 import "@xterm/xterm/css/xterm.css";
 import { useTheme } from "@/hooks/useTheme";
 import { Plus, SquareTerminal, Trash2 } from "lucide-react";
+import { connectSse } from "@/lib/sse-reconnect";
 import { Tooltip } from "./ui/primitives";
 
 interface TerminalPanelProps {
@@ -15,6 +16,27 @@ interface TerminalPanelProps {
 interface TerminalTab {
   id: string;
   title: string;
+  cwd?: string;
+}
+
+/** `GET/POST /api/terminal` payload. */
+interface TerminalInfo {
+  id: string;
+  cwd?: string;
+  cols?: number;
+  rows?: number;
+}
+
+/** One frame of `GET /api/terminal/[id]/stream`.
+ *  `startOffset` is the UTF-8 byte offset where this chunk begins and `offset`
+ *  is the offset *after* its last byte (`end_offset`). The server accepts the
+ *  end offset as `?offset=` to resume without replaying buffered history. */
+interface TerminalStreamFrame {
+  type?: string;
+  data?: string;
+  startOffset?: number;
+  offset?: number;
+  code?: number;
 }
 
 export function TerminalPanel({ cwd, active = true }: TerminalPanelProps) {
@@ -25,9 +47,15 @@ export function TerminalPanel({ cwd, active = true }: TerminalPanelProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const termRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
-  const eventSourceRef = useRef<EventSource | null>(null);
   const inputBufferRef = useRef<string[]>([]);
-  const inputTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const inputTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Bytes already printed per tab, so a reconnect can resume after them.
+  const offsetsRef = useRef<Map<string, number>>(new Map());
+  // A shell that reported `exit` must not be re-attached: the PTY is gone and
+  // the server would only replay its exit frame.
+  const exitedTabsRef = useRef<Set<string>>(new Set());
+  // Guards the mount flow against a second POST (StrictMode re-runs effects).
+  const creatingRef = useRef(false);
 
   // Send buffered input
   const flushInput = useCallback((sessionId: string) => {
@@ -62,41 +90,81 @@ export function TerminalPanel({ cwd, active = true }: TerminalPanelProps) {
 
   // Create new terminal
   const createTerminal = useCallback(async () => {
+    if (creatingRef.current) return;
+    creatingRef.current = true;
     try {
       const res = await fetch("/api/terminal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cwd: cwd || undefined }),
       });
-      const json = await res.json();
-      if (json.terminal?.id) {
+      const json = await res.json() as { terminal?: TerminalInfo };
+      const terminal = json.terminal;
+      if (terminal?.id) {
         const newTab: TerminalTab = {
-          id: json.terminal.id,
-          title: `sh (${json.terminal.id.slice(-4)})`,
+          id: terminal.id,
+          title: `sh (${terminal.id.slice(-4)})`,
+          cwd: terminal.cwd,
         };
-        setTabs((prev) => [...prev, newTab]);
+        setTabs((prev) => (prev.some((tab) => tab.id === newTab.id) ? prev : [...prev, newTab]));
         setActiveTabId(newTab.id);
       }
     } catch {
       // Failed to spawn
+    } finally {
+      creatingRef.current = false;
     }
   }, [cwd]);
 
-  // Initial terminal creation
+  // Initial terminal: a refresh (or another browser tab) must reuse the shell
+  // that is already alive on the server. POSTing unconditionally on every
+  // mount leaked one PTY per page load, each holding a child process.
   useEffect(() => {
-    if (tabs.length === 0) {
-      void createTerminal();
-    }
-  }, [createTerminal, tabs.length]);
+    if (tabs.length > 0) return;
+    let cancelled = false;
+    void (async () => {
+      let restored: TerminalTab[] = [];
+      try {
+        const res = await fetch("/api/terminal");
+        if (res.ok) {
+          const json = await res.json() as { terminals?: TerminalInfo[] };
+          const live = (json.terminals ?? []).filter((terminal) => typeof terminal?.id === "string");
+          // Prefer shells already rooted in this session's directory; fall
+          // back to every live shell so a refresh restores the workspace.
+          const targetCwd = (cwd ?? "").replace(/\/+$/, "");
+          const matching = targetCwd
+            ? live.filter((terminal) => (terminal.cwd ?? "").replace(/\/+$/, "") === targetCwd)
+            : [];
+          restored = (matching.length > 0 ? matching : live).map((terminal) => ({
+            id: terminal.id,
+            title: `sh (${terminal.id.slice(-4)})`,
+            cwd: terminal.cwd,
+          }));
+        }
+      } catch {
+        // Treat an unreachable list as empty and fall through to creating one.
+      }
+      if (cancelled) return;
+      if (restored.length > 0) {
+        setTabs(restored);
+        setActiveTabId(restored[restored.length - 1].id);
+        return;
+      }
+      await createTerminal();
+    })();
+    return () => { cancelled = true; };
+  }, [createTerminal, cwd, tabs.length]);
+
+  // A pending input flush belongs to an unmounted view otherwise.
+  useEffect(() => () => {
+    clearTimeout(inputTimerRef.current ?? undefined);
+    inputTimerRef.current = null;
+  }, []);
 
   // Setup xterm for activeTabId
   useEffect(() => {
     if (!activeTabId || !containerRef.current) return;
 
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close();
-      eventSourceRef.current = null;
-    }
     if (termRef.current) {
       termRef.current.dispose();
       termRef.current = null;
@@ -140,22 +208,70 @@ export function TerminalPanel({ cwd, active = true }: TerminalPanelProps) {
       queueInput(activeTabId, data);
     });
 
-    // Connect SSE stream
-    const es = new EventSource(`/api/terminal/${activeTabId}/stream`);
-    eventSourceRef.current = es;
-
-    es.onmessage = (event) => {
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.type === "output" && msg.data) {
-          term.write(msg.data);
-        } else if (msg.type === "exit") {
-          term.write(`\r\n\x1b[33m[Process exited with code ${msg.code}]\x1b[0m\r\n`);
+    // A fresh xterm has no scrollback, so this connection starts at byte 0;
+    // reconnects reuse the last acknowledged offset. Output is written with
+    // byte accounting so a resumed stream neither loses bytes nor re-prints
+    // the replay the server sends for `offset=0`.
+    offsetsRef.current.set(activeTabId, 0);
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    // `startOffset` marks where the chunk begins, `offset` where it ends. A
+    // resumed stream can replay bytes already printed, so trim that overlap
+    // and then record the server's end offset (all offsets are UTF-8 bytes).
+    const appendOutput = (chunk: string, startOffset?: number, endOffset?: number) => {
+      if (!chunk) return;
+      const printed = offsetsRef.current.get(activeTabId) ?? 0;
+      const bytes = encoder.encode(chunk);
+      const validStart =
+        typeof startOffset === "number" && Number.isFinite(startOffset) ? startOffset : undefined;
+      const validEnd =
+        typeof endOffset === "number" && Number.isFinite(endOffset) ? endOffset : undefined;
+      // Legacy frames without `startOffset` fall back to `offset` as the start.
+      const chunkStart = validStart ?? validEnd ?? printed;
+      const chunkEnd = validEnd ?? chunkStart + bytes.length;
+      let data = chunk;
+      const overlap = printed - chunkStart;
+      if (overlap > 0) {
+        if (overlap >= bytes.length) {
+          // Whole chunk was already printed; only advance the offset.
+          offsetsRef.current.set(activeTabId, Math.max(printed, chunkEnd));
+          return;
         }
-      } catch {
-        // Ignored
+        // Never start mid-codepoint: a split UTF-8 sequence would decode as
+        // a replacement character at the seam.
+        let start = overlap;
+        while (start < bytes.length && (bytes[start] & 0xc0) === 0x80) start += 1;
+        data = decoder.decode(bytes.subarray(start));
       }
+      offsetsRef.current.set(activeTabId, Math.max(printed, chunkEnd));
+      if (data) term.write(data);
     };
+
+    const stream = connectSse({
+      // Incremental resume. The server only replays bytes after this offset,
+      // and an already-exited PTY only answers with its exit frame.
+      url: () => `/api/terminal/${encodeURIComponent(activeTabId)}/stream?offset=${offsetsRef.current.get(activeTabId) ?? 0}`,
+      shouldReconnect: () => !exitedTabsRef.current.has(activeTabId),
+      setup: (source) => {
+        source.onmessage = (event) => {
+          let frame: TerminalStreamFrame;
+          try {
+            frame = JSON.parse(event.data) as TerminalStreamFrame;
+          } catch {
+            return;
+          }
+          // Keepalive only: it proves the socket is alive and prints nothing.
+          if (frame.type === "ping") return;
+          if (frame.type === "output" && typeof frame.data === "string") {
+            appendOutput(frame.data, frame.startOffset, frame.offset);
+          } else if (frame.type === "exit") {
+            // The PTY is gone: stop re-attaching it.
+            exitedTabsRef.current.add(activeTabId);
+            term.write(`\r\n\x1b[33m[Process exited with code ${frame.code}]\x1b[0m\r\n`);
+          }
+        };
+      },
+    });
 
     // Resize observer
     const resizeObserver = new ResizeObserver(() => {
@@ -172,8 +288,7 @@ export function TerminalPanel({ cwd, active = true }: TerminalPanelProps) {
     return () => {
       onDataDisposable.dispose();
       resizeObserver.disconnect();
-      es.close();
-      eventSourceRef.current = null;
+      stream.close();
       term.dispose();
       termRef.current = null;
     };
@@ -189,6 +304,8 @@ export function TerminalPanel({ cwd, active = true }: TerminalPanelProps) {
 
   const handleCloseTab = useCallback((idToClose: string) => {
     void fetch(`/api/terminal/${idToClose}`, { method: "DELETE" });
+    offsetsRef.current.delete(idToClose);
+    exitedTabsRef.current.delete(idToClose);
     setTabs((prev) => {
       const remaining = prev.filter((t) => t.id !== idToClose);
       if (activeTabId === idToClose) {

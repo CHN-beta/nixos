@@ -419,28 +419,45 @@ async fn file_watch_stream(path: &Path, meta: std::fs::Metadata) -> Response {
     tokio::spawn(async move {
         let mut interval = tokio::time::interval(std::time::Duration::from_millis(500));
         interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
+        // JSON ping every 15s: Nginx' streamProxy read timeout is 600s, and
+        // the browser watchdog needs a real frame to notice a half-open link.
+        let mut heartbeat = tokio::time::interval_at(
+            tokio::time::Instant::now() + std::time::Duration::from_secs(15),
+            std::time::Duration::from_secs(15),
+        );
+        heartbeat.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
         loop {
-            interval.tick().await;
-            if sse.is_closed() {
-                break;
-            }
-            match std::fs::metadata(&path) {
-                Ok(meta) => {
-                    let mtime = mtime_ms(&meta);
-                    if mtime == last_mtime && meta.len() == last_size {
-                        continue;
+            tokio::select! {
+                _ = interval.tick() => {
+                    if sse.is_closed() {
+                        break;
                     }
-                    last_mtime = mtime;
-                    last_size = meta.len();
-                    sse.event(
-                        "change",
-                        &json!({ "mtime": crate::util::iso_from_ms(mtime), "size": meta.len() }),
-                    )
-                    .await;
+                    // Async metadata: the watcher must not block a runtime
+                    // worker on a slow/remote filesystem.
+                    match tokio::fs::metadata(&path).await {
+                        Ok(meta) => {
+                            let mtime = mtime_ms(&meta);
+                            if mtime == last_mtime && meta.len() == last_size {
+                                continue;
+                            }
+                            last_mtime = mtime;
+                            last_size = meta.len();
+                            sse.event(
+                                "change",
+                                &json!({ "mtime": crate::util::iso_from_ms(mtime), "size": meta.len() }),
+                            )
+                            .await;
+                        }
+                        Err(_) => {
+                            sse.event("change", &json!({ "mtime": now_iso(), "size": 0 }))
+                                .await;
+                        }
+                    }
                 }
-                Err(_) => {
-                    sse.event("change", &json!({ "mtime": now_iso(), "size": 0 }))
-                        .await;
+                _ = heartbeat.tick() => {
+                    if !sse.ping().await {
+                        break;
+                    }
                 }
             }
         }

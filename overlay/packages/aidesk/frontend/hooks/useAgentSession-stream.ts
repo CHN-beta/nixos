@@ -287,12 +287,32 @@ export const EVENT_STREAM_SLOW_CONNECT_MS = 4_000;
 // silently until a full page reload.
 export const EVENT_STREAM_RETRY_MIN_MS = 1_000;
 export const EVENT_STREAM_RETRY_MAX_MS = 30_000;
+// The server sends a `{"type":"ping"}` frame every 15s on top of the SSE
+// keepalive comment. No frame at all for this long means the socket is
+// half-open (NAT/proxy dropped it, laptop slept, Wi-Fi roamed): EventSource
+// still reports OPEN, so only a receive watchdog can notice.
+export const EVENT_STREAM_FRAME_TIMEOUT_MS = 40_000;
+// A busy session whose stream has been silent this long is treated as a dead
+// connection by the reconcile poll, even if readyState still says OPEN.
+export const EVENT_STREAM_STALE_MS = 25_000;
+// Bound for one agent-state/snapshot read. A hung GET must not pin the
+// dispatch or reconcile flow forever.
+export const AGENT_HTTP_TIMEOUT_MS = 15_000;
+// An interrupt-and-reply turn guard: the aborted turn's terminal agent_end is
+// ignored while it is set. Bounded so a lost reply can never swallow a later
+// run's agent_end forever.
+export const INTERRUPT_REPLY_GUARD_MS = 30_000;
 
 export const SCROLL_KEYS = new Set(["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " ", "Space", "Spacebar"]);
 export function isQuotaLikeError(text: string): boolean {
   return /429|quota|RESOURCE_EXHAUSTED|Cloud Code Assist/i.test(text);
 }
 export type EventStreamConnectionStatus = "connected" | "timeout" | "closed";
+
+/** User-visible health of the live event stream. `reconnecting` covers a lost
+ *  SSE connection while a run is in flight; `offline` is the browser's own
+ *  network state and wins over it. */
+export type AgentConnectionStatus = "connected" | "reconnecting" | "offline";
 
 export type EventStreamConnectionResult = {
   status: EventStreamConnectionStatus;

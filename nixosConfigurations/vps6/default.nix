@@ -43,15 +43,37 @@
           tgapi = { };
           short = { };
         };
-        nginx.https."aidesk.chn.moe".location."/".static = {
-          # Public, unauthenticated SPA; the API on api.aidesk.chn.moe is
-          # stream-proxied to nas and guarded by Authelia there.
-          root = "${pkgs.localPkgs.aidesk.frontend}";
-          tryFiles = [
-            "$uri"
-            "$uri/"
-            "/index.html"
-          ];
+        nginx.https."aidesk.chn.moe" = {
+          global.extraConfig = ''
+            # index.html, sw.js and manifest.webmanifest are unhashed entry
+            # points: always revalidate, so the next load after a deploy gets
+            # the new build instead of a stale entry point. The hashed files in
+            # the /assets/ location override this with a long cache.
+            add_header Cache-Control "no-cache";
+          '';
+          location = {
+            # Public, unauthenticated SPA; the API on api.aidesk.chn.moe is
+            # stream-proxied to nas and guarded by Authelia there.
+            "/".static = {
+              root = "${pkgs.localPkgs.aidesk.frontend}";
+              tryFiles = [
+                "$uri"
+                "$uri/"
+                "/index.html"
+              ];
+            };
+            # vite content-hashes everything in here. A stale page asking for
+            # a chunk of the previous build must get a real 404: falling back
+            # to index.html answers 200 text/html and makes the dynamic
+            # import() fail with a MIME type error, which blanks the app.
+            "/assets/".static = {
+              root = "${pkgs.localPkgs.aidesk.frontend}";
+              tryFiles = [
+                "$uri"
+                "=404"
+              ];
+            };
+          };
         };
         coturn = { };
         httpua = { };
@@ -66,6 +88,11 @@
         ];
       };
     };
+    # The https module has no per-location extraConfig for static roots, so the
+    # immutable cache header is attached to the generated location here.
+    services.nginx.virtualHosts."https:aidesk.chn.moe".locations."/assets/".extraConfig = ''
+      add_header Cache-Control "public, max-age=31536000, immutable";
+    '';
     networking.nftables.tables.forward = {
       family = "inet";
       content =

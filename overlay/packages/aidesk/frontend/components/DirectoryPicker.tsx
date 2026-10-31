@@ -20,6 +20,15 @@ interface BrowseResponse {
   code?: string;
 }
 
+/** One NDJSON line of `POST /api/projects/clone`. */
+interface CloneProgressFrame {
+  type: string;
+  text?: string;
+  path?: string;
+  error?: string;
+  code?: string;
+}
+
 async function loadDirectories(directory?: string): Promise<BrowseResponse> {
   const query = directory ? `?path=${encodeURIComponent(directory)}` : "";
   const response = await fetch(`/api/cwd/browse${query}`);
@@ -164,8 +173,16 @@ export function DirectoryPicker({ onCancel, onSelect, busy = false, error }: Pro
         buffered = lines.pop() ?? "";
         for (const line of lines) {
           if (!line) continue;
-          const frame = JSON.parse(line) as { type: string; text?: string; path?: string; error?: string; code?: string };
-          if (frame.type === "output") setCloneLog((log) => appendProgress(log, frame.text ?? ""));
+          let frame: CloneProgressFrame;
+          try {
+            frame = JSON.parse(line) as CloneProgressFrame;
+          } catch {
+            // A truncated or interleaved line must not abort the whole clone:
+            // the next frame still carries the real status.
+            continue;
+          }
+          if (!frame || typeof frame !== "object" || typeof frame.type !== "string") continue;
+          if (frame.type === "output") setCloneLog((log) => appendProgress(log, typeof frame.text === "string" ? frame.text : ""));
           else if (frame.type === "done" && frame.path) {
             setCloneStatus(t("directoryPicker.cloneSucceeded", { path: frame.path }));
             // If registering fails, "Select this folder" can retry on the clone.

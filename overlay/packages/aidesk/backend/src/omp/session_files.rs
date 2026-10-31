@@ -333,6 +333,14 @@ pub fn load_session_file(path: &Path, blobs_dir: Option<&Path>) -> LoadedSession
     }
 }
 
+/// Async wrapper around `load_session_file` for HTTP handlers: large JSONL
+/// files (and optional blob resolution) are parsed off the runtime threads.
+pub async fn load_session_file_async(path: PathBuf, blobs_dir: Option<PathBuf>) -> LoadedSession {
+    tokio::task::spawn_blocking(move || load_session_file(&path, blobs_dir.as_deref()))
+        .await
+        .unwrap_or_default()
+}
+
 /// Bounded, slot-aware header read (never loads message bodies).
 pub fn read_session_header(path: &Path) -> Option<Value> {
     use std::io::Read;
@@ -768,6 +776,14 @@ pub fn scan_session_info(path: &Path, with_status: bool) -> Option<SessionScanIn
     })
 }
 
+/// Async wrapper around `scan_session_info` (prefix/tail reads and parsing).
+pub async fn scan_session_info_async(path: PathBuf, with_status: bool) -> Option<SessionScanInfo> {
+    tokio::task::spawn_blocking(move || scan_session_info(&path, with_status))
+        .await
+        .ok()
+        .flatten()
+}
+
 /// `<sessionsRoot>/<project>/*.jsonl`, one level deep.
 pub fn list_session_files(sessions_root: &Path) -> Vec<PathBuf> {
     let mut files = Vec::new();
@@ -958,6 +974,20 @@ pub fn archive_session_file_with_artifacts(
         return Err(error);
     }
     Ok(destination)
+}
+
+/// Async wrapper around the archive routine: it reads, gzips and renames a
+/// whole session file (plus its artifacts directory).
+pub async fn archive_session_file_with_artifacts_async(
+    sessions_root: PathBuf,
+    archive_root: PathBuf,
+    file_path: PathBuf,
+) -> Result<PathBuf, String> {
+    tokio::task::spawn_blocking(move || {
+        archive_session_file_with_artifacts(&sessions_root, &archive_root, &file_path)
+    })
+    .await
+    .unwrap_or_else(|_| Err("Session archive failed".to_string()))
 }
 
 /// Delete a session file and its sibling artifacts directory.

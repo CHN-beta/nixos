@@ -17,7 +17,7 @@ import { BtwHistoryDialog, type BtwPanelProps } from "./BtwPanel";
 import AideskLogo from "./AideskLogo";
 import { CHAT_COLUMN_MAX_WIDTH, MINIMAP_WIDTH } from "@/lib/chat-layout";
 import { WorkspaceState } from "./AppShell-layout";
-import { useAgentSession, type AgentPhase, type NoticeItem, type SubagentInfo } from "@/hooks/useAgentSession";
+import { useAgentSession, type AgentConnectionStatus, type AgentPhase, type NoticeItem, type SubagentInfo } from "@/hooks/useAgentSession";
 import { useAudio } from "@/hooks/useAudio";
 import { useSpeechSynthesis, SpeechSynthesisProvider } from "@/hooks/useSpeechSynthesis";
 import { GithubRepoContext } from "@/lib/github-refs";
@@ -515,6 +515,7 @@ export function ChatWindow({ session, newSessionCwd, newSessionWorkspace, toolCa
     handleThinkingLevelChange, handleFastModeChange, handleSlowModeChange, handleCycleModel, handleCycleThinkingLevel, handleAbortRetry, loadSlashCommands,
     handleToolPresetChange,
     btw, askBtw,
+    connectionStatus,
   } = useAgentSession({
     session, newSessionCwd, onAgentEnd: wrappedOnAgentEnd, onSessionCreated, onSessionForked,
     modelsRefreshKey, chatInputRef, onBranchDataChange, onSessionStatsPanelOpen,
@@ -1167,6 +1168,11 @@ export function ChatWindow({ session, newSessionCwd, newSessionWorkspace, toolCa
         </div>
       )}
 
+      {/* Slim, self-clearing status line while the stream reconnects. It sits
+          above the transcript instead of as a modal/toast, so it never
+          interrupts reading and disappears the moment a frame arrives. */}
+      {connectionStatus !== "connected" && <ConnectionBanner status={connectionStatus} />}
+
       <SubagentTranscriptDialog
         subagent={selectedSubagent}
         sessionId={session?.id ?? sessionIdRef.current ?? null}
@@ -1518,6 +1524,45 @@ function ExtensionWidgets({ widgets }: { widgets: Array<{ key: string; lines: st
           ))}
         </pre>
       ))}
+    </div>
+  );
+}
+
+/** Non-blocking connection notice shown while the network or the event stream
+ *  is down; the session hook clears it as soon as a frame arrives. */
+function ConnectionBanner({ status }: { status: Exclude<AgentConnectionStatus, "connected"> }) {
+  const { t } = useI18n();
+  const offline = status === "offline";
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        flexShrink: 0,
+        padding: "5px 12px",
+        fontSize: 12,
+        color: offline ? "var(--status-warning)" : "var(--text-muted)",
+        background: `color-mix(in srgb, ${offline ? "var(--status-warning)" : "var(--text-muted)"} 10%, var(--bg-panel))`,
+        borderBottom: "1px solid var(--border)",
+      }}
+    >
+      <span
+        aria-hidden="true"
+        style={{
+          width: 7,
+          height: 7,
+          borderRadius: "50%",
+          flexShrink: 0,
+          background: offline ? "var(--status-warning)" : "var(--text-muted)",
+          animation: "pulse 1.4s ease-in-out infinite",
+        }}
+      />
+      <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        {offline ? t("agentSession.connectionOffline") : t("agentSession.connectionReconnecting")}
+      </span>
     </div>
   );
 }

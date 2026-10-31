@@ -21,6 +21,10 @@ use tokio::sync::{broadcast, mpsc, oneshot, watch};
 const READY_TIMEOUT: Duration = Duration::from_secs(120);
 const PROMPT_ACK_TIMEOUT: Duration = Duration::from_secs(30);
 const GET_STATE_TIMEOUT: Duration = Duration::from_secs(5);
+/// Default bound for control/query commands. Anything that may legitimately
+/// run for minutes (a prompt turn, `bash`, compaction, model-driven handoff)
+/// keeps an unbounded wait instead.
+const CONTROL_TIMEOUT: Duration = Duration::from_secs(30);
 const GENERATE_TITLE_TIMEOUT: Duration = Duration::from_secs(60);
 const MAX_RPC_FRAME_BYTES: usize = 1024 * 1024;
 const MAX_RPC_REASSEMBLED_BYTES: usize = 64 * 1024 * 1024;
@@ -35,6 +39,8 @@ const DISCONNECT_DESTROY_MS: f64 = 120_000.0;
 const IDLE_DESTROY_MS: f64 = 600_000.0;
 /// How often the reaper re-evaluates registered sessions.
 const REAPER_INTERVAL: Duration = Duration::from_secs(5);
+/// Upper bound for the exited-session tombstones surfaced to the UI.
+const MAX_EXITED_SESSIONS: usize = 1024;
 /// Preset tool set that means "everything": spawn without `--tools`.
 const PRESET_FULL: &[&str] = &["bash", "read", "edit", "write", "grep", "find", "ls"];
 
@@ -202,6 +208,21 @@ pub struct RpcProcess {
     exited: AtomicBool,
     exit_watch: watch::Sender<Option<ProcessExit>>,
     stderr_tail: Mutex<String>,
+}
+
+/// Drop-time cleanup for `RpcProcess::pending`: cancelling the await (or a
+/// timeout) must not leak the one-shot sender keyed by the command id.
+struct PendingResponseGuard<'a> {
+    process: &'a RpcProcess,
+    id: String,
+}
+
+impl Drop for PendingResponseGuard<'_> {
+    fn drop(&mut self) {
+        if let Ok(mut pending) = self.process.pending.lock() {
+            pending.remove(&self.id);
+        }
+    }
 }
 
 impl RpcProcess {
@@ -508,25 +529,28 @@ impl RpcProcess {
         if let Ok(mut pending) = self.pending.lock() {
             pending.insert(id.clone(), tx);
         }
+        // Removes the entry on every exit path — including cancellation of
+        // `rx.await` (client disconnect) and the timeout branch — so the
+        // pending map cannot grow without bound. On a normal response the
+        // reader already removed the id, making this a no-op.
+        let _pending_guard = PendingResponseGuard {
+            process: self,
+            id: id.clone(),
+        };
         let mut object = command.as_object().cloned().unwrap_or_default();
         object.insert("id".into(), Value::String(id.clone()));
         let json_text = Value::Object(object).to_string();
         if json_text.len() + 1 > MAX_INBOUND_COMMAND_BYTES {
-            self.remove_pending(&id);
             return Err(RpcError::plain(format!(
                 "RPC command exceeds the {}-byte inbound transport limit",
                 MAX_INBOUND_COMMAND_BYTES
             )));
         }
-        if let Err(error) = self.write_line(format!("{}\n", json_text)).await {
-            self.remove_pending(&id);
-            return Err(error);
-        }
+        self.write_line(format!("{}\n", json_text)).await?;
         let result = match timeout {
             Some(duration) => match tokio::time::timeout(duration, rx).await {
                 Ok(result) => result,
                 Err(_) => {
-                    self.remove_pending(&id);
                     return Err(RpcError::new(
                         format!("RPC command timed out after {}ms", duration.as_millis()),
                         Some("rpc_timeout"),
@@ -538,12 +562,6 @@ impl RpcProcess {
         match result {
             Ok(value) => value,
             Err(_) => Err(RpcError::plain("omp RPC process exited")),
-        }
-    }
-
-    fn remove_pending(&self, id: &str) {
-        if let Ok(mut pending) = self.pending.lock() {
-            pending.remove(id);
         }
     }
 
@@ -690,6 +708,196 @@ impl Drop for PendingCommand<'_> {
     }
 }
 
+/// Releases an entry from `START_LOCKS` however `start_rpc_session` exits.
+struct StartLockGuard {
+    key: String,
+    lock: Arc<tokio::sync::Mutex<()>>,
+}
+
+impl StartLockGuard {
+    fn new(key: &str, lock: &Arc<tokio::sync::Mutex<()>>) -> Self {
+        Self {
+            key: key.to_string(),
+            lock: lock.clone(),
+        }
+    }
+}
+
+impl Drop for StartLockGuard {
+    fn drop(&mut self) {
+        release_start_lock(&self.key, &self.lock);
+    }
+}
+
+/// Owns a freshly spawned session until it is registered (or destroyed).
+///
+/// `omp` children run with `kill_on_drop(false)`, so a handshake aborted before
+/// registration would leak an unmanaged process. The guard destroys it from a
+/// spawned task on drop; `disarm` hands ownership to `REGISTRY`.
+struct UnregisteredSessionGuard {
+    session: Option<Arc<AgentSession>>,
+}
+
+impl UnregisteredSessionGuard {
+    fn new(session: Arc<AgentSession>) -> Self {
+        Self {
+            session: Some(session),
+        }
+    }
+
+    fn disarm(&mut self) {
+        self.session = None;
+    }
+}
+
+impl Drop for UnregisteredSessionGuard {
+    fn drop(&mut self) {
+        if let Some(session) = self.session.take() {
+            tokio::spawn(async move {
+                session.destroy_and_wait().await;
+            });
+        }
+    }
+}
+
+/// Cleans up the optimistic prompt state when the caller's future is dropped
+/// before the RPC acknowledgement arrives (client disconnect, request
+/// timeout). Without it `isPromptRunning` — and the reaper's busy check —
+/// could stay `true` forever.
+struct PromptDispatchGuard<'a> {
+    session: &'a AgentSession,
+    /// The pending-dispatch counter was incremented for this call.
+    counted: bool,
+    /// The ack was observed; normal-path bookkeeping owns the cleanup.
+    completed: bool,
+}
+
+impl<'a> PromptDispatchGuard<'a> {
+    fn new(session: &'a AgentSession) -> Self {
+        Self {
+            session,
+            counted: false,
+            completed: false,
+        }
+    }
+
+    fn counted(mut self) -> Self {
+        self.counted = true;
+        self
+    }
+
+    fn finish(&mut self) {
+        self.completed = true;
+    }
+}
+
+impl Drop for PromptDispatchGuard<'_> {
+    fn drop(&mut self) {
+        if self.completed {
+            return;
+        }
+        if let Ok(mut live) = self.session.live.lock() {
+            if self.counted {
+                live.prompt_dispatch_pending = live.prompt_dispatch_pending.saturating_sub(1);
+            }
+            // Nothing streamed yet: the prompt never really started, so do not
+            // leave the session flagged as running.
+            if !live.streaming {
+                live.prompt_running = false;
+                live.awaiting_agent_start = false;
+                live.awaiting_deadline_ms = 0.0;
+            }
+        }
+        notify_running_change(false);
+    }
+}
+
+/// Resets the optimistic compaction flag when the compaction command future is
+/// cancelled before its RPC response lands.
+struct CompactionGuard<'a> {
+    session: &'a AgentSession,
+    completed: bool,
+}
+
+impl<'a> CompactionGuard<'a> {
+    fn new(session: &'a AgentSession) -> Self {
+        if let Ok(mut live) = session.live.lock() {
+            live.compacting = true;
+            live.sequence += 1;
+        }
+        Self {
+            session,
+            completed: false,
+        }
+    }
+
+    fn finish(&mut self) {
+        self.completed = true;
+    }
+}
+
+impl Drop for CompactionGuard<'_> {
+    fn drop(&mut self) {
+        if self.completed {
+            return;
+        }
+        if let Ok(mut live) = self.session.live.lock() {
+            live.compacting = false;
+            live.sequence += 1;
+        }
+        self.session.invalidate_session_lists();
+        notify_running_change(false);
+    }
+}
+
+/// Restores `bash_running` whether the command returned, errored, or its
+/// future was dropped mid-flight.
+struct BashRunningGuard<'a> {
+    session: &'a AgentSession,
+}
+
+impl<'a> BashRunningGuard<'a> {
+    fn new(session: &'a AgentSession) -> Self {
+        if let Ok(mut live) = session.live.lock() {
+            live.bash_running = true;
+        }
+        Self { session }
+    }
+}
+
+impl Drop for BashRunningGuard<'_> {
+    fn drop(&mut self) {
+        if let Ok(mut live) = self.session.live.lock() {
+            live.bash_running = false;
+        }
+        self.session.invalidate_session_lists();
+        notify_running_change(false);
+    }
+}
+
+/// Clears the restarting flag even if `restart_inner` is cancelled.
+struct RestartingGuard<'a> {
+    session: &'a AgentSession,
+}
+
+impl Drop for RestartingGuard<'_> {
+    fn drop(&mut self) {
+        self.session.restarting.store(false, Ordering::SeqCst);
+        // A restart cancelled mid-handshake leaves a replacement child that
+        // never negotiated the protocol. Retire the wrapper and dispose that
+        // child in the background so it cannot become an unusable zombie.
+        if self.session.handshaking.swap(false, Ordering::SeqCst) {
+            self.session.alive.store(false, Ordering::SeqCst);
+            let process = self.session.process();
+            tokio::spawn(async move {
+                process.dispose(Duration::from_secs(1)).await;
+            });
+            remove_from_registry(self.session);
+            notify_running_change(true);
+        }
+    }
+}
+
 impl AgentSession {
     fn new(
         state: SharedState,
@@ -829,14 +1037,21 @@ impl AgentSession {
             }
         }
         if let Ok(mut live) = self.live.lock() {
-            live.streaming = state
-                .get("isStreaming")
-                .and_then(Value::as_bool)
-                .unwrap_or(false);
-            live.compacting = state
-                .get("isCompacting")
-                .and_then(Value::as_bool)
-                .unwrap_or(false);
+            let streaming = state.get("isStreaming").and_then(Value::as_bool);
+            let compacting = state.get("isCompacting").and_then(Value::as_bool);
+            live.streaming = streaming.unwrap_or(false);
+            live.compacting = compacting.unwrap_or(false);
+            // `agent_end` can be lost (aborted turn, protocol hiccup). When omp
+            // reports a fully settled state, nothing is dispatching and no
+            // fresh prompt is waiting for its `agent_start`, resync the flag
+            // instead of leaving `isPromptRunning` stuck at true.
+            let settled = streaming == Some(false) && compacting == Some(false);
+            let awaiting = live.awaiting_agent_start && now_ms() < live.awaiting_deadline_ms;
+            if settled && live.prompt_dispatch_pending == 0 && !awaiting {
+                live.prompt_running = false;
+                live.awaiting_agent_start = false;
+                live.awaiting_deadline_ms = 0.0;
+            }
             live.sequence += 1;
         }
         if let Some(enabled) = state.get("fastModeEnabled").and_then(Value::as_bool) {
@@ -867,19 +1082,32 @@ impl AgentSession {
                 Err(_) => return,
             };
             match kind.as_str() {
-                "agent_start" => {
-                    live.response_observed = false;
-                    live.streaming_message = None;
-                    live.tool_events.clear();
+                "agent_start" | "turn_start" => {
+                    live.awaiting_agent_start = false;
+                    live.awaiting_deadline_ms = 0.0;
+                    if kind == "agent_start" {
+                        live.response_observed = false;
+                        live.streaming_message = None;
+                        live.tool_events.clear();
+                    }
                     live.sequence += 1;
                 }
                 "agent_end" => {
                     if event.get("isTerminal").and_then(Value::as_bool) != Some(false) {
-                        live.streaming = false;
-                        live.prompt_running = false;
-                        live.compacting = false;
-                        live.streaming_message = None;
-                        live.tool_events.clear();
+                        // A prompt was just dispatched and this is the tail of
+                        // the previous (aborted) turn: keep the new turn's
+                        // running state intact until its own `agent_start`.
+                        let stale =
+                            live.awaiting_agent_start && now_ms() < live.awaiting_deadline_ms;
+                        if !stale {
+                            live.streaming = false;
+                            live.prompt_running = false;
+                            live.compacting = false;
+                            live.awaiting_agent_start = false;
+                            live.awaiting_deadline_ms = 0.0;
+                            live.streaming_message = None;
+                            live.tool_events.clear();
+                        }
                         live.sequence += 1;
                     }
                 }
@@ -887,11 +1115,17 @@ impl AgentSession {
                     live.streaming = false;
                     live.prompt_running = false;
                     live.compacting = false;
+                    live.awaiting_agent_start = false;
+                    live.awaiting_deadline_ms = 0.0;
                     live.streaming_message = None;
                     live.tool_events.clear();
                     live.sequence += 1;
                 }
                 "message_start" | "message_update" => {
+                    // Any real message activity proves the turn started; the
+                    // `agent_start` frame may arrive later or be coalesced.
+                    live.awaiting_agent_start = false;
+                    live.awaiting_deadline_ms = 0.0;
                     if let Some(message) = event.get("message") {
                         if message.get("role").and_then(Value::as_str) != Some("user") {
                             live.streaming_message = Some(message.clone());
@@ -970,17 +1204,29 @@ impl AgentSession {
             }
             "agent_end" => {
                 if frame.get("isTerminal").and_then(Value::as_bool) != Some(false) {
-                    let observed = self
+                    let (observed, stale) = self
                         .live
                         .lock()
-                        .map(|live| live.response_observed)
-                        .unwrap_or(false);
-                    if let Ok(mut live) = self.live.lock() {
-                        live.streaming = false;
-                        live.prompt_running = false;
-                        live.awaiting_agent_start = false;
+                        .map(|live| {
+                            (
+                                live.response_observed,
+                                live.awaiting_agent_start
+                                    && now_ms() < live.awaiting_deadline_ms,
+                            )
+                        })
+                        .unwrap_or((false, false));
+                    // A just-dispatched prompt (notably `abort_and_prompt`)
+                    // may still receive the aborted turn's trailing
+                    // `agent_end`; that must not clear the new turn's state.
+                    if !stale {
+                        if let Ok(mut live) = self.live.lock() {
+                            live.streaming = false;
+                            live.prompt_running = false;
+                            live.awaiting_agent_start = false;
+                            live.awaiting_deadline_ms = 0.0;
+                        }
                     }
-                    if observed {
+                    if observed && !stale {
                         self.record_notification("completed", None);
                     }
                     self.invalidate_session_lists();
@@ -1645,6 +1891,7 @@ impl AgentSession {
                     return self.queue_while_shell_running(&command).await;
                 }
                 let streaming_behavior = command.get("streamingBehavior").and_then(Value::as_str);
+                let mut dispatch = PromptDispatchGuard::new(self);
                 if streaming_behavior.is_none() {
                     if let Ok(mut live) = self.live.lock() {
                         live.response_observed = false;
@@ -1658,6 +1905,7 @@ impl AgentSession {
                         live.awaiting_agent_start = false;
                         live.awaiting_deadline_ms = 0.0;
                     }
+                    dispatch = dispatch.counted();
                     notify_running_change(false);
                 }
                 let mut frame = Map::new();
@@ -1680,6 +1928,9 @@ impl AgentSession {
                     .process()
                     .send_command(Value::Object(frame), Some(PROMPT_ACK_TIMEOUT))
                     .await;
+                // The ack arrived: the dispatch guard must not undo state on
+                // the normal path below.
+                dispatch.finish();
                 if streaming_behavior.is_none() {
                     if let Ok(mut live) = self.live.lock() {
                         live.prompt_dispatch_pending =
@@ -1749,7 +2000,7 @@ impl AgentSession {
                     frame.insert("images".into(), images.clone());
                 }
                 self.process()
-                    .send_command(Value::Object(frame), None)
+                    .send_command(Value::Object(frame), Some(CONTROL_TIMEOUT))
                     .await?;
                 Ok(Value::Null)
             }
@@ -1764,10 +2015,14 @@ impl AgentSession {
                 if let Ok(mut live) = self.live.lock() {
                     live.response_observed = false;
                 }
-                let result = self.process().send_command(command.clone(), None).await?;
+                let result = self
+                    .process()
+                    .send_command(command.clone(), Some(CONTROL_TIMEOUT))
+                    .await?;
                 if let Ok(mut live) = self.live.lock() {
                     live.prompt_running = false;
                     live.awaiting_agent_start = false;
+                    live.awaiting_deadline_ms = 0.0;
                     live.streaming_message = None;
                     live.tool_events.clear();
                 }
@@ -1825,7 +2080,10 @@ impl AgentSession {
                 Ok(result)
             }
             "set_model" => {
-                let result = self.process().send_command(command.clone(), None).await?;
+                let result = self
+                    .process()
+                    .send_command(command.clone(), Some(CONTROL_TIMEOUT))
+                    .await?;
                 let mut out = Map::new();
                 out.insert(
                     "id".into(),
@@ -1842,7 +2100,10 @@ impl AgentSession {
                 let enabled = command.get("enabled").and_then(Value::as_bool) == Some(true);
                 let result = self
                     .process()
-                    .send_command(json!({ "type": "set_fast_mode", "enabled": enabled }), None)
+                    .send_command(
+                        json!({ "type": "set_fast_mode", "enabled": enabled }),
+                        Some(CONTROL_TIMEOUT),
+                    )
                     .await?;
                 let active = result
                     .get("active")
@@ -1859,7 +2120,10 @@ impl AgentSession {
                 let enabled = command.get("enabled").and_then(Value::as_bool) == Some(true);
                 let result = self
                     .process()
-                    .send_command(json!({ "type": "set_slow_mode", "enabled": enabled }), None)
+                    .send_command(
+                        json!({ "type": "set_slow_mode", "enabled": enabled }),
+                        Some(CONTROL_TIMEOUT),
+                    )
                     .await?;
                 Ok(json!({
                     "enabled": result.get("enabled").and_then(Value::as_bool).unwrap_or(enabled),
@@ -1874,7 +2138,10 @@ impl AgentSession {
                 let entry_id = command.get("entryId").cloned().unwrap_or(Value::Null);
                 let result = self
                     .process()
-                    .send_command(json!({ "type": "branch", "entryId": entry_id }), None)
+                    .send_command(
+                        json!({ "type": "branch", "entryId": entry_id }),
+                        Some(CONTROL_TIMEOUT),
+                    )
                     .await?;
                 if result.get("cancelled").and_then(Value::as_bool) == Some(true) {
                     return Ok(json!({ "cancelled": true }));
@@ -1887,7 +2154,10 @@ impl AgentSession {
                 }))
             }
             "new_session" | "switch_session" => {
-                let result = self.process().send_command(command.clone(), None).await?;
+                let result = self
+                    .process()
+                    .send_command(command.clone(), Some(CONTROL_TIMEOUT))
+                    .await?;
                 if result.get("cancelled").and_then(Value::as_bool) != Some(true) {
                     let new_session_id = self.refresh_identity().await?;
                     return Ok(json!({ "cancelled": false, "newSessionId": new_session_id }));
@@ -1900,15 +2170,13 @@ impl AgentSession {
                 if let Some(instructions) = command.get("customInstructions") {
                     frame.insert("customInstructions".into(), instructions.clone());
                 }
-                if let Ok(mut live) = self.live.lock() {
-                    live.compacting = true;
-                    live.sequence += 1;
-                }
+                let mut compaction = CompactionGuard::new(self);
                 notify_running_change(false);
                 let result = self
                     .process()
                     .send_command(Value::Object(frame), None)
                     .await;
+                compaction.finish();
                 if let Ok(mut live) = self.live.lock() {
                     live.compacting = false;
                     live.sequence += 1;
@@ -1919,7 +2187,7 @@ impl AgentSession {
             "abort_compaction" => {
                 let result = self
                     .process()
-                    .send_command(json!({ "type": "abort" }), None)
+                    .send_command(json!({ "type": "abort" }), Some(CONTROL_TIMEOUT))
                     .await?;
                 notify_running_change(false);
                 let _ = result;
@@ -1934,7 +2202,10 @@ impl AgentSession {
                     .ok_or_else(|| RpcError::plain("Session name cannot be empty"))?
                     .to_string();
                 self.process()
-                    .send_command(json!({ "type": "set_session_name", "name": name }), None)
+                    .send_command(
+                        json!({ "type": "set_session_name", "name": name }),
+                        Some(CONTROL_TIMEOUT),
+                    )
                     .await?;
                 if let Ok(mut slot) = self.session_name.lock() {
                     *slot = Some(name);
@@ -1945,7 +2216,10 @@ impl AgentSession {
             "get_session_stats" => {
                 let stats = self
                     .process()
-                    .send_command(json!({ "type": "get_session_stats" }), None)
+                    .send_command(
+                        json!({ "type": "get_session_stats" }),
+                        Some(CONTROL_TIMEOUT),
+                    )
                     .await?;
                 let mut object = stats.as_object().cloned().unwrap_or_default();
                 object.insert(
@@ -1962,14 +2236,20 @@ impl AgentSession {
             "get_last_assistant_text" => {
                 let data = self
                     .process()
-                    .send_command(json!({ "type": "get_last_assistant_text" }), None)
+                    .send_command(
+                        json!({ "type": "get_last_assistant_text" }),
+                        Some(CONTROL_TIMEOUT),
+                    )
                     .await?;
                 Ok(json!({ "text": data.get("text").and_then(Value::as_str).unwrap_or("") }))
             }
             "get_commands" => {
                 let data = self
                     .process()
-                    .send_command(json!({ "type": "get_available_commands" }), None)
+                    .send_command(
+                        json!({ "type": "get_available_commands" }),
+                        Some(CONTROL_TIMEOUT),
+                    )
                     .await?;
                 Ok(data)
             }
@@ -2011,23 +2291,14 @@ impl AgentSession {
                         "Cannot run a shell command while the session is busy",
                     ));
                 }
-                if let Ok(mut live) = self.live.lock() {
-                    live.bash_running = true;
-                }
+                let _bash_running = BashRunningGuard::new(self);
                 notify_running_change(false);
-                let result = self
-                    .process()
+                self.process()
                     .send_command(
                         json!({ "type": "bash", "command": command.get("command").cloned().unwrap_or(Value::Null) }),
                         None,
                     )
-                    .await;
-                if let Ok(mut live) = self.live.lock() {
-                    live.bash_running = false;
-                }
-                self.invalidate_session_lists();
-                notify_running_change(false);
-                result
+                    .await
             }
             "set_host_tools" => {
                 let tools = command
@@ -2054,7 +2325,10 @@ impl AgentSession {
                         .collect();
                 }
                 self.process()
-                    .send_command(json!({ "type": "set_host_tools", "tools": tools }), None)
+                    .send_command(
+                        json!({ "type": "set_host_tools", "tools": tools }),
+                        Some(CONTROL_TIMEOUT),
+                    )
                     .await?;
                 Ok(Value::Null)
             }
@@ -2089,7 +2363,7 @@ impl AgentSession {
                 self.process()
                     .send_command(
                         json!({ "type": "set_host_uri_schemes", "schemes": schemes }),
-                        None,
+                        Some(CONTROL_TIMEOUT),
                     )
                     .await?;
                 Ok(Value::Null)
@@ -2105,21 +2379,39 @@ impl AgentSession {
             }
             other => {
                 if is_passthrough_command(other) {
+                    // `abort_and_prompt` starts a new turn inside omp. Mark it
+                    // optimistically and keep the flag through the window in
+                    // which the aborted turn's trailing `agent_end` may arrive;
+                    // otherwise that stale frame would clear the new turn's
+                    // `isPromptRunning` immediately.
+                    let mut abort_dispatch = None;
                     if other == "abort_and_prompt" {
                         if let Ok(mut live) = self.live.lock() {
                             live.response_observed = false;
+                            live.prompt_running = true;
+                            live.awaiting_agent_start = true;
+                            live.awaiting_deadline_ms = now_ms() + 10_000.0;
                             live.sequence += 1;
                         }
+                        notify_running_change(false);
+                        abort_dispatch = Some(PromptDispatchGuard::new(self));
                     }
-                    let timeout = if other == "predict_word" {
-                        Some(Duration::from_secs(125))
-                    } else {
-                        None
-                    };
                     let result = self
                         .process()
-                        .send_command(command.clone(), timeout)
-                        .await?;
+                        .send_command(command.clone(), passthrough_timeout(other))
+                        .await;
+                    if let Some(guard) = abort_dispatch.as_mut() {
+                        guard.finish();
+                    }
+                    if other == "abort_and_prompt" && result.is_err() {
+                        if let Ok(mut live) = self.live.lock() {
+                            live.prompt_running = false;
+                            live.awaiting_agent_start = false;
+                            live.awaiting_deadline_ms = 0.0;
+                        }
+                        notify_running_change(false);
+                    }
+                    let result = result?;
                     if other == "set_thinking_level" {
                         self.invalidate_session_lists();
                     }
@@ -2148,7 +2440,7 @@ impl AgentSession {
             }
         }
         self.process()
-            .send_command(Value::Object(frame), None)
+            .send_command(Value::Object(frame), Some(CONTROL_TIMEOUT))
             .await?;
         Ok(json!({ "queued": true, "queue": "followUp", "reason": "shellRunning" }))
     }
@@ -2172,9 +2464,10 @@ impl AgentSession {
                 Some("session_restarting"),
             ));
         }
-        let result = self.restart_inner().await;
-        self.restarting.store(false, Ordering::SeqCst);
-        result
+        // Clears `restarting` on every path, including cancellation of the
+        // inner future (client disconnect during the handshake).
+        let _restarting = RestartingGuard { session: self };
+        self.restart_inner().await
     }
 
     async fn restart_inner(&self) -> Result<(), RpcError> {
@@ -2223,7 +2516,7 @@ impl AgentSession {
             let _ = process
                 .send_command(
                     json!({ "type": "set_subagent_subscription", "level": "events" }),
-                    None,
+                    Some(CONTROL_TIMEOUT),
                 )
                 .await;
             let _ = process
@@ -2254,7 +2547,10 @@ impl AgentSession {
             && std::path::Path::new(&self.session_file()).exists()
         {
             let _ = process
-                .send_command(json!({ "type": "new_session" }), None)
+                .send_command(
+                    json!({ "type": "new_session" }),
+                    Some(CONTROL_TIMEOUT),
+                )
                 .await;
             if let Ok(state) = process
                 .send_command(json!({ "type": "get_state" }), Some(GET_STATE_TIMEOUT))
@@ -2367,19 +2663,17 @@ impl AgentSession {
         }
         let id = self.session_id();
         if !id.is_empty() {
-            if let Ok(mut exited) = EXITED.lock() {
-                exited.insert(
-                    id.clone(),
-                    json!({
-                        "id": id,
-                        "cwd": self.cwd,
-                        "at": now_ms(),
-                        "code": exit.code,
-                        "signal": exit.signal,
-                        "detail": detail,
-                    }),
-                );
-            }
+            insert_exited(
+                id.clone(),
+                json!({
+                    "id": id,
+                    "cwd": self.cwd,
+                    "at": now_ms(),
+                    "code": exit.code,
+                    "signal": exit.signal,
+                    "detail": detail,
+                }),
+            );
         }
         self.emit(json!({
             "type": "notice",
@@ -2498,6 +2792,18 @@ fn is_passthrough_command(command: &str) -> bool {
     )
 }
 
+/// Timeout for forward-compatible passthrough commands.
+///
+/// Control/query traffic must fail fast instead of hanging a request forever;
+/// model-driven commands that may legitimately take minutes stay unbounded.
+fn passthrough_timeout(command: &str) -> Option<Duration> {
+    match command {
+        "predict_word" => Some(Duration::from_secs(125)),
+        "handoff" | "btw" | "login" => None,
+        _ => Some(CONTROL_TIMEOUT),
+    }
+}
+
 fn unsupported_command_message(command: &str) -> Option<&'static str> {
     match command {
         "navigate_tree" => Some("Branch navigation is not supported over the omp RPC protocol"),
@@ -2608,6 +2914,36 @@ static HOST_TOOL_TX: LazyLock<broadcast::Sender<Value>> =
     LazyLock::new(|| broadcast::channel(512).0);
 static LAST_RUNNING: LazyLock<Mutex<String>> =
     LazyLock::new(|| Mutex::new(String::from("[[],[]]")));
+
+/// Record an exited-session tombstone, evicting the oldest entry once the map
+/// is full so a long-running server cannot grow it without bound.
+fn insert_exited(id: String, entry: Value) {
+    if let Ok(mut exited) = EXITED.lock() {
+        if exited.len() >= MAX_EXITED_SESSIONS && !exited.contains_key(&id) {
+            let oldest = exited
+                .iter()
+                .min_by(|left, right| {
+                    left.1
+                        .get("at")
+                        .and_then(Value::as_f64)
+                        .unwrap_or(0.0)
+                        .partial_cmp(
+                            &right
+                                .1
+                                .get("at")
+                                .and_then(Value::as_f64)
+                                .unwrap_or(0.0),
+                        )
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                })
+                .map(|(key, _)| key.clone());
+            if let Some(oldest) = oldest {
+                exited.remove(&oldest);
+            }
+        }
+        exited.insert(id, entry);
+    }
+}
 
 fn remove_from_registry(session: &AgentSession) {
     if let Ok(mut registry) = REGISTRY.lock() {
@@ -2857,7 +3193,7 @@ async fn perform_handshake(
         let _ = process
             .send_command(
                 json!({ "type": "set_subagent_subscription", "level": "events" }),
-                None,
+                Some(CONTROL_TIMEOUT),
             )
             .await;
         let _ = process
@@ -2876,7 +3212,10 @@ async fn perform_handshake(
             let reported = session.session_file();
             if !reported.is_empty() && std::path::Path::new(&reported).exists() {
                 let _ = process
-                    .send_command(json!({ "type": "new_session" }), None)
+                    .send_command(
+                        json!({ "type": "new_session" }),
+                        Some(CONTROL_TIMEOUT),
+                    )
                     .await;
                 if let Ok(state_value) = process
                     .send_command(json!({ "type": "get_state" }), Some(GET_STATE_TIMEOUT))
@@ -2962,53 +3301,77 @@ pub async fn start_rpc_session(
             .or_insert_with(|| Arc::new(tokio::sync::Mutex::new(())))
             .clone()
     };
-    let result = {
+    // Spawn + handshake + registration run in a detached task. A client that
+    // disconnects mid-handshake drops only this caller's future; the child
+    // (`kill_on_drop(false)`) must not be abandoned half-configured, so the
+    // work either completes or is cleaned up by the RAII guards inside.
+    let key = key.to_string();
+    let session_file = session_file.to_string();
+    let cwd = cwd.to_string();
+    let tool_names = tool_names.map(|names| names.to_vec());
+    let task_key = key.clone();
+    let task = tokio::spawn(async move {
+        // Releases the start lock on every path, including early returns.
+        let _start_lock = StartLockGuard::new(&task_key, &lock);
         let _guard = lock.lock().await;
 
-        if let Some(existing) = get_session(key) {
+        if let Some(existing) = get_session(&task_key) {
             if existing.is_alive() {
                 return Ok((existing.clone(), existing.session_id()));
             }
         }
 
         let bin = state.cfg.omp_bin_string();
-        let extra_args =
-            build_session_spawn_args(session_file, tool_names, advisor, launch_config.as_ref());
+        let extra_args = build_session_spawn_args(
+            &session_file,
+            tool_names.as_deref(),
+            advisor,
+            launch_config.as_ref(),
+        );
         let env = crate::omp::settings::agent_env_overrides(&state.cfg);
-        let process = RpcProcess::spawn(&bin, cwd, &extra_args, &env)?;
-        let session = AgentSession::new(state, process.clone(), cwd, recorded_cwd, advisor);
+        let process = RpcProcess::spawn(&bin, &cwd, &extra_args, &env)?;
+        let session = AgentSession::new(state, process.clone(), &cwd, recorded_cwd, advisor);
         let initial_id = if session_file.is_empty() {
             String::new()
         } else {
-            key.to_string()
+            task_key.clone()
         };
-        session.set_session_identity(&initial_id, session_file);
+        session.set_session_identity(&initial_id, &session_file);
         session.attach_process(&process);
+        // Not in REGISTRY yet: if this task is dropped (cancelled future,
+        // runtime teardown) nothing else owns the child, so the guard kills it.
+        let mut unregistered = UnregisteredSessionGuard::new(session.clone());
 
-        if let Err(error) = perform_handshake(&session, &process, session_file).await {
+        if let Err(error) = perform_handshake(&session, &process, &session_file).await {
             session.destroy_and_wait().await;
             return Err(error);
         }
 
         let real_id = session.session_id();
         let real_id = if real_id.is_empty() {
-            key.to_string()
+            task_key.clone()
         } else {
             real_id
         };
         if let Ok(mut registry) = REGISTRY.lock() {
             registry.insert(real_id.clone(), session.clone());
-            if real_id != key {
-                registry.insert(key.to_string(), session.clone());
+            if real_id != task_key {
+                registry.insert(task_key.clone(), session.clone());
             }
         }
-        clear_exited_session(key);
+        unregistered.disarm();
+        clear_exited_session(&task_key);
         clear_exited_session(&real_id);
         notify_running_change(true);
         Ok((session, real_id))
-    };
-    release_start_lock(key, &lock);
-    result
+    });
+    match task.await {
+        Ok(result) => result,
+        Err(error) => Err(RpcError::plain(format!(
+            "RPC session start failed: {}",
+            error
+        ))),
+    }
 }
 
 /// Start the most recently active session right after boot, so the first tab
@@ -3148,20 +3511,22 @@ pub async fn dispose_utility_rpc() {
 }
 
 /// Dispose every live session child and the utility process (server shutdown).
+/// Sessions shut down concurrently: each dispose waits out its grace period,
+/// so a serial loop would delay shutdown by N × grace.
 pub async fn shutdown_all() {
-    let sessions: Vec<Arc<AgentSession>> = REGISTRY
-        .lock()
-        .map(|registry| registry.values().cloned().collect())
-        .unwrap_or_default();
-    let mut seen: Vec<usize> = Vec::new();
-    for session in sessions {
-        let pointer = Arc::as_ptr(&session) as usize;
-        if seen.contains(&pointer) {
-            continue;
+    let sessions: Vec<Arc<AgentSession>> = match REGISTRY.lock() {
+        Ok(registry) => {
+            let mut seen: HashSet<usize> = HashSet::new();
+            registry
+                .values()
+                .filter(|session| seen.insert(Arc::as_ptr(session) as usize))
+                .cloned()
+                .collect()
         }
-        seen.push(pointer);
-        session.destroy_and_wait().await;
-    }
+        Err(_) => Vec::new(),
+    };
+    futures_util::future::join_all(sessions.iter().map(|session| session.destroy_and_wait()))
+        .await;
     let mut guard = UTILITY.lock().await;
     if let Some(process) = guard.take() {
         process.dispose(Duration::from_secs(5)).await;
