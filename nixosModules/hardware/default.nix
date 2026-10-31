@@ -43,7 +43,7 @@
         services = {
           printing = {
             enable = true;
-            drivers = [ pkgs.cnijfilter2 ];
+            drivers = with pkgs; [ cnijfilter2 gutenprint  ];
           };
           avahi = {
             enable = true;
