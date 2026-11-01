@@ -891,6 +891,7 @@
   "messageView.copied": "Copied",
   "messageView.copy": "Copy",
   "messageView.copyMessage": "Copy message",
+  "messageView.copyLatex": "Copy LaTeX expression",
   "messageView.copyMarkdown": "Copy as Markdown",
   "messageView.markdown": "Markdown",
   "messageView.largeMessageReveal": "Large message ({size}). Show as plain text",

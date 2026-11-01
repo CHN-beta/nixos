@@ -854,6 +854,7 @@
   "messageView.copied": "已复制",
   "messageView.copy": "复制",
   "messageView.copyMessage": "复制消息",
+  "messageView.copyLatex": "复制 LaTeX 表达式",
   "messageView.copyMarkdown": "复制为 Markdown",
   "messageView.markdown": "Markdown",
   "messageView.largeMessageReveal": "大消息（{size}）。以纯文本显示",

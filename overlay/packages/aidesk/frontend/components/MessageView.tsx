@@ -1,9 +1,9 @@
 
 import { memo, useState, useId, useRef, useEffect, useLayoutEffect, useMemo, useCallback, useContext, type ComponentProps } from "react";
-import { Copy, Check, GitFork, CornerUpLeft, ChevronRight, ChevronDown, Brain, EyeOff, CircleAlert, CircleSlash, LoaderCircle, FileText, Search, FileEdit, Terminal, CheckSquare, Bot, Code2, Globe, MessagesSquare, Wrench, Volume2, Square } from "lucide-react";
+import { Copy, Check, GitFork, CornerUpLeft, ChevronRight, ChevronDown, Brain, EyeOff, CircleAlert, CircleSlash, LoaderCircle, FileText, Search, FileEdit, Terminal, CheckSquare, Bot, Code2, Globe, MessagesSquare, Sigma, Wrench, Volume2, Square } from "lucide-react";
 import { MarkdownBody } from "./MarkdownBody";
 import { AgentLinkContext, agentLinkIds } from "../lib/agent-links";
-import { useMessageCopyActions } from "./MessageCopyActions";
+import { extractLatexFromTarget, useMessageCopyActions } from "./MessageCopyActions";
 import { SidebarPortalMenu } from "./SessionSidebar-chrome";
 import { useSpeechContext } from "@/hooks/useSpeechSynthesis";
 import { ClickableImage } from "./ImageLightbox";
@@ -96,8 +96,9 @@ interface MessageMenuItem {
 
 /**
  * Right-click menu for a chat message: the actions that used to sit under the
- * bubble (copy, copy as Markdown, read aloud, edit from here, branch) now live
- * here, positioned at the cursor.
+ * bubble (copy, copy as Markdown, copy the LaTeX of the formula under the
+ * cursor, read aloud, edit from here, branch) now live here, positioned at the
+ * cursor.
  */
 function MessageContextMenu({ point, onClose, items }: {
   point: { x: number; y: number } | null;
@@ -372,15 +373,26 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, f
   const time = formatTime(message.timestamp, locale);
   const canFork = !!entryId && !!onFork;
   const canNavigate = !!prevAssistantEntryId && !!onNavigate;
-  const [menuPoint, setMenuPoint] = useState<{ x: number; y: number } | null>(null);
-  const closeMenu = useCallback(() => setMenuPoint(null), []);
+  const [menuState, setMenuState] = useState<{ x: number; y: number; latex: string | null } | null>(null);
+  const closeMenu = useCallback(() => setMenuState(null), []);
+  // Position-only identity so the menu does not reposition on unrelated renders.
+  const menuPoint = useMemo(() => (menuState ? { x: menuState.x, y: menuState.y } : null), [menuState]);
   const copyTexts = useMemo(() => (content ? [content] : []), [content]);
-  const { hasText, copyPlain, copyMarkdown } = useMessageCopyActions(copyTexts, bodyRef);
+  const { hasText, copyPlain, copyMarkdown, copyLatex } = useMessageCopyActions(copyTexts, bodyRef);
 
   const userMenuItems: MessageMenuItem[] = [
     { key: "copy", label: t("messageView.copyMessage"), icon: <Copy size={12} strokeWidth={2} aria-hidden="true" />, onSelect: copyPlain, disabled: !hasText },
     { key: "copy-markdown", label: t("messageView.copyMarkdown"), icon: <FileText size={12} strokeWidth={2} aria-hidden="true" />, onSelect: copyMarkdown, disabled: !hasText },
   ];
+  if (menuState?.latex) {
+    const latex = menuState.latex;
+    userMenuItems.push({
+      key: "copy-latex",
+      label: t("messageView.copyLatex"),
+      icon: <Sigma size={12} strokeWidth={2} aria-hidden="true" />,
+      onSelect: () => copyLatex(latex),
+    });
+  }
   if (canNavigate && onEditContent) {
     userMenuItems.push({
       key: "edit",
@@ -417,7 +429,7 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, f
           onContextMenu={(event) => {
             event.preventDefault();
             event.stopPropagation();
-            setMenuPoint({ x: event.clientX, y: event.clientY });
+            setMenuState({ x: event.clientX, y: event.clientY, latex: extractLatexFromTarget(event.target) });
           }}
           style={{
             maxWidth: "100%",
@@ -558,9 +570,11 @@ function AssistantMessageView({
   const bodyRef = useRef<HTMLDivElement>(null);
   const texts = (message.content ?? []).filter((block): block is TextContent => block.type === "text").map((block) => block.text);
   const canFork = !!forkEntryId && !!onFork;
-  const [menuPoint, setMenuPoint] = useState<{ x: number; y: number } | null>(null);
-  const closeMenu = useCallback(() => setMenuPoint(null), []);
-  const { hasText, copyPlain, copyMarkdown } = useMessageCopyActions(texts, bodyRef);
+  const [menuState, setMenuState] = useState<{ x: number; y: number; latex: string | null } | null>(null);
+  const closeMenu = useCallback(() => setMenuState(null), []);
+  // Position-only identity so the menu does not reposition on unrelated renders.
+  const menuPoint = useMemo(() => (menuState ? { x: menuState.x, y: menuState.y } : null), [menuState]);
+  const { hasText, copyPlain, copyMarkdown, copyLatex } = useMessageCopyActions(texts, bodyRef);
   const blockItems = (message.content ?? [])
     .map((block, index) => ({ block, originalIndex: sourceBlockIndices?.[index] ?? index }))
     .filter(({ block }) => !(hideThinking && block.type === "thinking") && !isEmptyThinkingBlock(block, { isStreaming }));
@@ -652,6 +666,15 @@ function AssistantMessageView({
     { key: "copy", label: t("messageView.copyMessage"), icon: <Copy size={12} strokeWidth={2} aria-hidden="true" />, onSelect: copyPlain, disabled: !hasText },
     { key: "copy-markdown", label: t("messageView.copyMarkdown"), icon: <FileText size={12} strokeWidth={2} aria-hidden="true" />, onSelect: copyMarkdown, disabled: !hasText },
   ];
+  if (menuState?.latex) {
+    const latex = menuState.latex;
+    assistantMenuItems.push({
+      key: "copy-latex",
+      label: t("messageView.copyLatex"),
+      icon: <Sigma size={12} strokeWidth={2} aria-hidden="true" />,
+      onSelect: () => copyLatex(latex),
+    });
+  }
   if (ttsSupported && speakableText.trim()) {
     assistantMenuItems.push({
       key: "tts",
@@ -679,7 +702,7 @@ function AssistantMessageView({
       onContextMenu={(event) => {
         event.preventDefault();
         event.stopPropagation();
-        setMenuPoint({ x: event.clientX, y: event.clientY });
+        setMenuState({ x: event.clientX, y: event.clientY, latex: extractLatexFromTarget(event.target) });
       }}
       style={{ marginBottom: 6 }}
     >

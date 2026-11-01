@@ -854,6 +854,7 @@
   "messageView.copied": "コピーしました",
   "messageView.copy": "コピー",
   "messageView.copyMessage": "メッセージをコピー",
+  "messageView.copyLatex": "LaTeX 式をコピー",
   "messageView.copyMarkdown": "Markdownとしてコピー",
   "messageView.markdown": "Markdown",
   "messageView.largeMessageReveal": "大きなメッセージ（{size}）。プレーンテキストで表示",

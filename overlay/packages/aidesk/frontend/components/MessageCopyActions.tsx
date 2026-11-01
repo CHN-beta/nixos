@@ -29,10 +29,23 @@ function renderedText(body: HTMLElement, source: string): string {
 }
 
 /**
+ * The LaTeX source of the math formula a right-click landed on, or null when
+ * the click was somewhere else. KaTeX keeps the original source verbatim in the
+ * MathML annotation (`throwOnError: false` keeps it too), and a formula it could
+ * not parse is replaced by `.katex-error`, whose text is that source.
+ */
+export function extractLatexFromTarget(target: EventTarget | null): string | null {
+  if (!(target instanceof Element)) return null;
+  const annotation = target.closest(".katex")?.querySelector('annotation[encoding="application/x-tex"]');
+  const latex = annotation?.textContent?.trim() || target.closest(".katex-error")?.textContent?.trim();
+  return latex || null;
+}
+
+/**
  * Copy handlers for a message's right-click menu: the rendered text (what the
- * reader actually sees, including code/table spacing) and the raw Markdown
- * source. Both confirm with a toast — the menu closes before a button-local
- * "copied" state could be seen.
+ * reader actually sees, including code/table spacing), the raw Markdown source,
+ * and the LaTeX of a single formula under the cursor. All confirm with a toast —
+ * the menu closes before a button-local "copied" state could be seen.
  */
 export function useMessageCopyActions(texts: string[], bodyRef: RefObject<HTMLDivElement | null>) {
   const { t } = useI18n();
@@ -54,5 +67,11 @@ export function useMessageCopyActions(texts: string[], bodyRef: RefObject<HTMLDi
       .catch(() => {});
   }, [texts, t]);
 
-  return { hasText: texts.some((text) => text.trim()), copyPlain, copyMarkdown };
+  const copyLatex = useCallback((latex: string) => {
+    void copyText(latex)
+      .then(() => toast.success(t("messageView.copied")))
+      .catch(() => {});
+  }, [t]);
+
+  return { hasText: texts.some((text) => text.trim()), copyPlain, copyMarkdown, copyLatex };
 }
