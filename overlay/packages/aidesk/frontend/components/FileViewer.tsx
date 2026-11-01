@@ -10,7 +10,7 @@ import {
   vscDarkPlus,
 } from "@/lib/syntax-highlight";
 import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
-import { AtSign, Download, Save, WrapText } from "lucide-react";
+import { AtSign, Download, Save, WrapText, Check, Copy } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import {
   DOCX_PREVIEW_MAX_BYTES,
@@ -34,6 +34,9 @@ import { parseFrontmatter } from "@/lib/frontmatter";
 import { FrontmatterCard } from "./FrontmatterCard";
 import { toast } from "./ui/toast";
 import { CodeEditor } from "./CodeEditor";
+import { SidebarPortalMenu } from "./SessionSidebar-chrome";
+import { useWebSettings } from "@/lib/web-settings";
+import { copyText } from "@/lib/clipboard";
 
 interface Props {
   filePath: string;
@@ -108,6 +111,14 @@ type SourceCodeRendererProps = Parameters<NonNullable<SyntaxHighlighterProps["re
 interface SelectedLineRange {
   startLine: number;
   endLine: number;
+}
+
+/** Right-click position and what was selected under the cursor. */
+interface SourceContextMenu {
+  x: number;
+  y: number;
+  selectedText: string;
+  lineRange: SelectedLineRange | null;
 }
 
 function closestSourceLine(node: Node): HTMLElement | null {
@@ -862,7 +873,10 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
     return () => { cancelled = true; };
   }, [data]);
   const [displayMode, setDisplayMode] = useState<DisplayMode>("source");
-  const [wrapLines, setWrapLines] = useState(false);
+  // Account preference, shared with every other open viewer/editor.
+  const { sourceWordWrap: wrapLines, setSourceWordWrap } = useWebSettings();
+  // Right-click menu over the source code / editor.
+  const [contextMenu, setContextMenu] = useState<SourceContextMenu | null>(null);
   const [watching, setWatching] = useState(false);
   const gitDiffRequestRef = useRef(0);
   const contentRequestRef = useRef(0);
@@ -996,7 +1010,6 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
           ? "preview"
           : "source";
     setDisplayMode(initialMode);
-    setWrapLines(false);
     setWatching(false);
 
     // Cancel effect-local work on filePath change so a stale in-flight load
@@ -1110,6 +1123,21 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
   const handleMentionSelectedLines = useCallback(() => {
     mentionLineRange(selectedLineRange);
   }, [mentionLineRange, selectedLineRange]);
+
+  // The browser's own menu cannot carry the wrap toggle, so the source and
+  // edit views open ours with the selection captured at the cursor.
+  const handleContentContextMenu = useCallback((event: MouseEvent<HTMLDivElement>) => {
+    if (displayMode !== "source" && displayMode !== "edit") return;
+    event.preventDefault();
+    const selection = window.getSelection();
+    const root = contentRef.current;
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      selectedText: selection?.toString() ?? "",
+      lineRange: root ? getSelectedSourceLineRange(root, selection) : null,
+    });
+  }, [displayMode]);
 
   useEffect(() => {
     if (!onMentionLines || displayMode !== "source") return;
@@ -1313,7 +1341,7 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
                 <Tooltip content={wrapLines ? t("fileViewer.disableWordWrap") : t("fileViewer.enableWordWrap")}>
                   <button
                     type="button"
-                    onClick={() => setWrapLines((value) => !value)}
+                    onClick={() => setSourceWordWrap(!wrapLines)}
                     aria-label={wrapLines ? t("fileViewer.disableWordWrap") : t("fileViewer.enableWordWrap")}
                     aria-pressed={wrapLines}
                     className="file-viewer-icon-button"
@@ -1336,7 +1364,7 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
       </div>
 
       {/* Content area */}
-      <div ref={contentRef} data-selection-scope="document" tabIndex={-1} className="file-viewer-content" style={{ flex: 1, overflow: "auto", background: "var(--bg)" }}>
+      <div ref={contentRef} data-selection-scope="document" tabIndex={-1} onContextMenu={handleContentContextMenu} className="file-viewer-content" style={{ flex: 1, overflow: "auto", background: "var(--bg)" }}>
         {displayMode === "edit" ? (
           <CodeEditor
             value={editContent}
@@ -1460,8 +1488,9 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
               padding: "11px 13px",
               fontSize: 12.5,
               lineHeight: 1.62,
-              whiteSpace: "pre-wrap",
-              wordBreak: "break-word",
+              whiteSpace: wrapLines ? "pre-wrap" : "pre",
+              wordBreak: wrapLines ? "break-word" : "normal",
+              overflowX: wrapLines ? "hidden" : "auto",
               color: "var(--text)",
               fontFamily: "var(--font-mono)",
               minWidth: "100%",
@@ -1473,6 +1502,63 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
           </pre>
         )}
       </div>
+      {contextMenu && (
+        <SidebarPortalMenu
+          anchorPoint={{ x: contextMenu.x, y: contextMenu.y }}
+          open
+          onClose={() => setContextMenu(null)}
+          minWidth={168}
+        >
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={wrapLines}
+            className="sidebar-menu-item"
+            onClick={() => {
+              setSourceWordWrap(!wrapLines);
+              setContextMenu(null);
+            }}
+          >
+            {wrapLines
+              ? <Check size={12} strokeWidth={2.2} aria-hidden="true" />
+              : <span style={{ width: 12, height: 12, flexShrink: 0 }} aria-hidden="true" />}
+            <span>{t("fileViewer.wordWrap")}</span>
+          </button>
+          {contextMenu.selectedText.length > 0 && (
+            <button
+              type="button"
+              role="menuitem"
+              className="sidebar-menu-item"
+              onClick={() => {
+                const text = contextMenu.selectedText;
+                setContextMenu(null);
+                // A denied clipboard has no useful inline affordance; the
+                // selection stays put so the user can copy it by hand.
+                void copyText(text).catch(() => {});
+              }}
+            >
+              <Copy size={12} aria-hidden="true" />
+              <span>{t("messageView.copy")}</span>
+            </button>
+          )}
+          {displayMode === "source" && onMentionLines && (
+            <button
+              type="button"
+              role="menuitem"
+              className="sidebar-menu-item"
+              disabled={!contextMenu.lineRange}
+              onClick={() => {
+                const lineRange = contextMenu.lineRange;
+                setContextMenu(null);
+                mentionLineRange(lineRange);
+              }}
+            >
+              <AtSign size={12} aria-hidden="true" />
+              <span>{t("fileViewer.mentionSelectedLines")}</span>
+            </button>
+          )}
+        </SidebarPortalMenu>
+      )}
     </div>
   );
 }

@@ -595,6 +595,14 @@ fn read_web_settings(state: &SharedState) -> Value {
         .get("autoResumeSessions")
         .and_then(Value::as_bool)
         .unwrap_or(false);
+    let source_word_wrap = parsed
+        .get("sourceWordWrap")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
+    let show_hidden_files = parsed
+        .get("showHiddenFiles")
+        .and_then(Value::as_bool)
+        .unwrap_or(false);
     let agent_env = parsed
         .get("agentEnv")
         .and_then(Value::as_object)
@@ -608,7 +616,12 @@ fn read_web_settings(state: &SharedState) -> Value {
             settings::sanitize_agent_env(&out).0
         })
         .unwrap_or_default();
-    json!({ "autoResumeSessions": auto_resume, "agentEnv": agent_env })
+    json!({
+        "autoResumeSessions": auto_resume,
+        "sourceWordWrap": source_word_wrap,
+        "showHiddenFiles": show_hidden_files,
+        "agentEnv": agent_env,
+    })
 }
 
 pub async fn web_settings_get(State(state): State<SharedState>) -> Response {
@@ -638,6 +651,26 @@ pub async fn web_settings_put(
             );
         };
         next.insert("autoResumeSessions".into(), Value::Bool(value));
+    }
+    if let Some(value) = payload.get("sourceWordWrap") {
+        let Some(value) = value.as_bool() else {
+            return coded_error(
+                StatusCode::BAD_REQUEST,
+                "sourceWordWrap must be a boolean",
+                "invalid_settings",
+            );
+        };
+        next.insert("sourceWordWrap".into(), Value::Bool(value));
+    }
+    if let Some(value) = payload.get("showHiddenFiles") {
+        let Some(value) = value.as_bool() else {
+            return coded_error(
+                StatusCode::BAD_REQUEST,
+                "showHiddenFiles must be a boolean",
+                "invalid_settings",
+            );
+        };
+        next.insert("showHiddenFiles".into(), Value::Bool(value));
     }
     if let Some(agent_env) = payload.get("agentEnv") {
         let (values, errors) = match agent_env {

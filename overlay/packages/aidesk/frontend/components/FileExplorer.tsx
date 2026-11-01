@@ -22,6 +22,7 @@ import { Dialog, DialogContent, DialogTitle, Tooltip } from "./ui/primitives";
 import { SidebarPortalMenu } from "./SessionSidebar-chrome";
 import { translate, useI18n } from "@/lib/i18n";
 import { apiUrl, redirectToAuth } from "@/lib/api-origin";
+import { useWebSettings } from "@/lib/web-settings";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   encodeFilePathForApi,
@@ -112,6 +113,27 @@ function ExplorerMenuItem({ label, icon, onSelect, disabled = false }: {
       onClick={onSelect}
     >
       {icon}
+      <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+    </button>
+  );
+}
+
+function ExplorerCheckableMenuItem({ label, checked, onSelect }: {
+  label: string;
+  checked: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitemcheckbox"
+      aria-checked={checked}
+      className="sidebar-menu-item"
+      onClick={onSelect}
+    >
+      {checked
+        ? <Check size={12} strokeWidth={2.2} aria-hidden="true" />
+        : <span style={{ width: 12, height: 12, flexShrink: 0 }} aria-hidden="true" />}
       <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
     </button>
   );
@@ -724,6 +746,9 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
   const [searchPaths, setSearchPaths] = useState<string[]>([]);
   // Right-click menu + the "new file / new folder" prompt it can open.
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; target: ExplorerMenuTarget } | null>(null);
+  // Account preference: dotfiles are opt-in, and toggling reloads nothing —
+  // every loaded listing is filtered client-side.
+  const { showHiddenFiles, setShowHiddenFiles } = useWebSettings();
   const [createDialog, setCreateDialog] = useState<{ kind: "file" | "dir"; directory: string } | null>(null);
   const [searchTruncated, setSearchTruncated] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -823,7 +848,12 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
   // sit at the top. Folding them into a directory tree would re-sort them
   // alphabetically and push, say, AGENTS.md below every app/api/agent/… file
   // that only matched on its parent directory.
-  const searchRows = useMemo(() => buildSearchRows(searchPaths).map((row) => ({
+  const searchRows = useMemo(() => buildSearchRows(
+    showHiddenFiles
+      ? searchPaths
+      // A hidden segment anywhere in the path hides the file, matching the tree.
+      : searchPaths.filter((path) => !path.split("/").some((part) => part.startsWith("."))),
+  ).map((row) => ({
     ...row,
     node: {
       name: row.name,
@@ -832,7 +862,7 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
       size: 0,
       loaded: true,
     } satisfies FileNode,
-  })), [cwd, searchPaths]);
+  })), [cwd, searchPaths, showHiddenFiles]);
 
   const searchFlatRows: FlatRow[] = useMemo(() => searchRows.map((row) => ({
     kind: "node",
@@ -841,11 +871,24 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
     secondaryLabel: row.directory,
   })), [searchRows]);
 
-  const roots = useMemo(() => childrenByPath.get(cwd) ?? [], [childrenByPath, cwd]);
+  const roots = useMemo(() => {
+    const entries = childrenByPath.get(cwd) ?? [];
+    return showHiddenFiles ? entries : entries.filter((node) => !node.name.startsWith("."));
+  }, [childrenByPath, cwd, showHiddenFiles]);
+  // Filtering the loaded listings (not the fetch) means toggling the preference
+  // reveals or hides dotfiles immediately, including inside expanded folders.
+  const visibleChildrenByPath = useMemo(() => {
+    if (showHiddenFiles) return childrenByPath;
+    const filtered = new Map<string, FileNode[]>();
+    for (const [path, children] of childrenByPath) {
+      filtered.set(path, children.filter((node) => !node.name.startsWith(".")));
+    }
+    return filtered;
+  }, [childrenByPath, showHiddenFiles]);
   const rows: FlatRow[] = useMemo(() => {
     if (searchActive) return searchFlatRows;
-    return flattenVisibleRows(roots, expandedPaths, childrenByPath, 0, []);
-  }, [searchActive, searchFlatRows, roots, expandedPaths, childrenByPath]);
+    return flattenVisibleRows(roots, expandedPaths, visibleChildrenByPath, 0, []);
+  }, [searchActive, searchFlatRows, roots, expandedPaths, visibleChildrenByPath]);
   const rowsRef = useRef<FlatRow[]>([]);
   rowsRef.current = rows;
   const focusedIndexRef = useRef(0);
@@ -1694,6 +1737,15 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                   link.remove();
                 }}
               />
+              <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
+              <ExplorerCheckableMenuItem
+                label={t("fileExplorer.showHiddenFiles")}
+                checked={showHiddenFiles}
+                onSelect={() => {
+                  setShowHiddenFiles(!showHiddenFiles);
+                  setContextMenu(null);
+                }}
+              />
             </>
           ) : (
             <>
@@ -1713,6 +1765,15 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                 icon={<AtSign size={12} strokeWidth={2} aria-hidden="true" />}
                 disabled={!onAtMention}
                 onSelect={() => onAtMention?.(getRelativeFilePath(contextMenu.target.path, cwd), true)}
+              />
+              <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
+              <ExplorerCheckableMenuItem
+                label={t("fileExplorer.showHiddenFiles")}
+                checked={showHiddenFiles}
+                onSelect={() => {
+                  setShowHiddenFiles(!showHiddenFiles);
+                  setContextMenu(null);
+                }}
               />
             </>
           )}

@@ -410,6 +410,8 @@ async fn settings_endpoints_roundtrip() {
         .unwrap();
     let body = body_json(response).await;
     assert_eq!(body["autoResumeSessions"], json!(false));
+    assert_eq!(body["sourceWordWrap"], json!(false));
+    assert_eq!(body["showHiddenFiles"], json!(false));
 
     let response = router
         .clone()
@@ -423,7 +425,55 @@ async fn settings_endpoints_roundtrip() {
     assert_eq!(response.status(), StatusCode::OK);
     let body = body_json(response).await;
     assert_eq!(body["autoResumeSessions"], json!(true));
+    assert_eq!(body["sourceWordWrap"], json!(false));
+    assert_eq!(body["showHiddenFiles"], json!(false));
     assert_eq!(body["agentEnv"]["FOO"], json!("bar"));
+
+    let response = router
+        .clone()
+        .oneshot(json_request(
+            "PUT",
+            "/api/web-settings",
+            json!({ "sourceWordWrap": true }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = body_json(response).await;
+    assert_eq!(body["sourceWordWrap"], json!(true));
+    assert_eq!(body["showHiddenFiles"], json!(false));
+    assert_eq!(body["autoResumeSessions"], json!(true));
+    assert_eq!(body["agentEnv"]["FOO"], json!("bar"));
+
+    let response = router
+        .clone()
+        .oneshot(json_request(
+            "PUT",
+            "/api/web-settings",
+            json!({ "showHiddenFiles": true }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = body_json(response).await;
+    assert_eq!(body["sourceWordWrap"], json!(true));
+    assert_eq!(body["showHiddenFiles"], json!(true));
+    assert_eq!(body["autoResumeSessions"], json!(true));
+
+    for (field, payload) in [
+        ("sourceWordWrap", json!({ "sourceWordWrap": "yes" })),
+        ("showHiddenFiles", json!({ "showHiddenFiles": "yes" })),
+    ] {
+        let response = router
+            .clone()
+            .oneshot(json_request("PUT", "/api/web-settings", payload))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+        let body = body_json(response).await;
+        assert_eq!(body["code"], json!("invalid_settings"));
+        assert_eq!(body["error"], json!(format!("{field} must be a boolean")));
+    }
 
     let response = router
         .clone()
@@ -450,6 +500,9 @@ async fn settings_endpoints_roundtrip() {
         .unwrap();
     let body = body_json(response).await;
     assert_eq!(body["agentEnv"]["FOO"], json!("bar"));
+    assert_eq!(body["sourceWordWrap"], json!(true));
+    assert_eq!(body["showHiddenFiles"], json!(true));
+    assert_eq!(body["autoResumeSessions"], json!(true));
     let _ = std::fs::remove_dir_all(root);
 }
 
