@@ -298,11 +298,11 @@
     "cliproxyapi": {
       "flake": false,
       "locked": {
-        "lastModified": 1793494509,
-        "narHash": "sha256-TqBI7ONXYQJT1qUv5qaV4rxmZNMR9U5CZxrZ8bc4s0k=",
+        "lastModified": 1793504876,
+        "narHash": "sha256-rH9MMyqAHgVZ2ET4MEtZ96uuXYKkDBpRPD69vJxZbdE=",
         "owner": "CHN-beta",
         "repo": "CLIProxyAPI",
-        "rev": "53526881aa13708dd162776f1f0cf5a0342c9b6d",
+        "rev": "4cd378a3732383c5351b6fd727c8a989b034854e",
         "type": "github"
       },
       "original": {
