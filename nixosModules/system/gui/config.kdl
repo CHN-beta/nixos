@@ -18,7 +18,7 @@ input {
     }
     focus-follows-mouse max-scroll-amount="10%"
     disable-power-key-handling
-    // touch "T0UCH LKS LKS-27" { map-to-output "Xiaomi Corporation Mi Monitor 0x00000001"; }
+    tablet { map-to-output "Tianma Microelectronics Ltd. TL134ADXP03 Unknown"; }
 }
 output "Tianma Microelectronics Ltd. TL134ADXP03 Unknown" {
     scale 1
