@@ -319,7 +319,6 @@ in
                 export MINERU_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/mineru".path}")"
                 ${cliproxyapiKey homeInputs.config.home.username}
                 export QDRANT_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/qdrant".path}")"
-                export OPENAI_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/siliconflow".path}")"
                 export GITHUB_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/github".path}")"
                 export ARK_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/ark".path}")"
                 export MATRIX_PASSWORD="$(cat "${config.nixos.system.sops.secrets."straycat/matrix".path}")"
