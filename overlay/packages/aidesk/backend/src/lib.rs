@@ -19,6 +19,7 @@ use std::sync::Arc;
 pub fn build_router(state: Arc<AppState>) -> Router {
     use routes::agent;
     use routes::files;
+    use routes::memories;
     use routes::notifications;
     use routes::sessions;
     use routes::settings;
@@ -143,6 +144,13 @@ pub fn build_router(state: Arc<AppState>) -> Router {
         .route("/api/account", get(settings::account_get))
         .route("/api/omp-version", get(settings::omp_version))
         .route("/api/provider-usage", get(settings::provider_usage))
+        // Memories (Hindsight proxy)
+        .route("/api/memories/graph", get(memories::memories_graph))
+        .route("/api/memories/search", post(memories::memories_search))
+        .route(
+            "/api/memories/{id}",
+            get(memories::memory_get).patch(memories::memory_patch),
+        )
         // Notifications
         .route(
             "/api/notifications/devices",

@@ -529,7 +529,10 @@ fn looks_like_env_name(value: &str) -> bool {
 }
 
 /// Resolve a `models.yml` `apiKey` the way omp does, plus the nix wrapper.
-fn resolve_api_key(cfg: &Config, spec: &str) -> Option<String> {
+///
+/// The spec is either a literal secret, an environment variable name, or a
+/// `$(cat /run/secrets/...)` shell reference in the nix `omp` wrapper script.
+pub(crate) fn resolve_api_key(cfg: &Config, spec: &str) -> Option<String> {
     let spec = spec.trim();
     if spec.is_empty() || spec.starts_with('!') {
         // Command-backed keys are never executed by the backend.

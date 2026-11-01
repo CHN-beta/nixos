@@ -5,7 +5,7 @@ use serde_json::{json, Map, Value};
 use std::collections::HashSet;
 use std::path::Path;
 
-fn parse_yaml_mapping(path: &Path) -> Result<Map<String, Value>, String> {
+pub(crate) fn parse_yaml_mapping(path: &Path) -> Result<Map<String, Value>, String> {
     let source = match std::fs::read_to_string(path) {
         Ok(source) => source,
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(Map::new()),
@@ -131,6 +131,7 @@ pub fn read_native_settings(cfg: &Config) -> Result<Value, String> {
         "retry",
         "compaction",
         "memory",
+        "hindsight",
         "autolearn",
         "mnemopi",
         "mcp",
@@ -192,6 +193,7 @@ pub fn write_native_settings(cfg: &Config, settings: &Value) -> Result<Value, St
     require_object(object.get("retry"), "retry")?;
     require_object(object.get("compaction"), "compaction")?;
     require_object(object.get("memory"), "memory")?;
+    require_object(object.get("hindsight"), "hindsight")?;
     require_object(object.get("autolearn"), "autolearn")?;
     require_object(object.get("mnemopi"), "mnemopi")?;
     require_object(object.get("mcp"), "mcp")?;
@@ -326,6 +328,7 @@ pub fn write_native_settings(cfg: &Config, settings: &Value) -> Result<Value, St
         "retry",
         "compaction",
         "memory",
+        "hindsight",
         "autolearn",
         "mnemopi",
         "mcp",
@@ -609,6 +612,33 @@ mod tests {
         let error =
             write_native_settings(&cfg, &json!({ "defaultThinkingLevel": "ultra" })).unwrap_err();
         assert!(error.contains("thinking level"));
+        let _ = std::fs::remove_dir_all(dir);
+    }
+
+    #[test]
+    fn hindsight_settings_roundtrip() {
+        let (dir, cfg) = temp_config();
+        std::fs::write(
+            cfg.settings_path(),
+            "theme: dark\nmemory:\n  backend: hindsight\nhindsight:\n  apiUrl: https://hs.example\n  bankId: chn\n",
+        )
+        .unwrap();
+        let read = read_native_settings(&cfg).unwrap();
+        assert_eq!(read["settings"]["memory"]["backend"], "hindsight");
+        assert_eq!(read["settings"]["hindsight"]["bankId"], "chn");
+
+        let settings = json!({
+            "memory": { "backend": "hindsight" },
+            "hindsight": { "apiUrl": "https://other.example", "bankId": "chn", "scoping": "global" },
+        });
+        write_native_settings(&cfg, &settings).unwrap();
+        let document = parse_yaml_mapping(&cfg.settings_path()).unwrap();
+        assert_eq!(document["theme"], "dark");
+        assert_eq!(document["hindsight"]["apiUrl"], "https://other.example");
+        assert_eq!(document["hindsight"]["scoping"], "global");
+
+        let error = write_native_settings(&cfg, &json!({ "hindsight": "nope" })).unwrap_err();
+        assert!(error.contains("hindsight"));
         let _ = std::fs::remove_dir_all(dir);
     }
 

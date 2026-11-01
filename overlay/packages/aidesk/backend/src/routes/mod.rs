@@ -2,6 +2,7 @@
 
 pub mod agent;
 pub mod files;
+pub mod memories;
 pub mod notifications;
 pub mod sessions;
 pub mod settings;
