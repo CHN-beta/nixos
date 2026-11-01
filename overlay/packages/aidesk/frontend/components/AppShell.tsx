@@ -60,6 +60,7 @@ import { SettingsConfig } from "./SettingsConfig";
 import { ArchiveBrowser } from "./ArchiveBrowser";
 import { publishSessionsChanged } from "@/lib/session-change-bus";
 import { connectSse } from "@/lib/sse-reconnect";
+import { beginAppLoad, endAppLoad } from "@/lib/app-loading";
 // The settings shell is part of the app bundle so opening it does not fetch or compile a modal chunk. The right panel (viewer included) is a separate chunk, preloaded on the first pointerdown or keydown and mounted on first open.
 // No loading placeholder: it would take the panel's place in the layout (on
 // phones, squeezing out the chat) for a frame even when the code is cached.
@@ -786,6 +787,11 @@ export function AppShell({ appName }: { appName: string }) {
   const [activeCwd, setActiveCwd] = useState<string | null>(null);
   // True once the initial ?session= URL param has been resolved (or confirmed absent)
   const [initialSessionRestored, setInitialSessionRestored] = useState<boolean>(() => !initialSessionId);
+  // True once the sidebar's startup wave settled (first lists fetched and the
+  // initial workspace/session chosen). Until then the shell keeps its loading
+  // notice up and never shows the empty-workspace placeholder.
+  const [initialLoadSettled, setInitialLoadSettled] = useState(false);
+  const handleInitialLoadSettled = useCallback(() => setInitialLoadSettled(true), []);
   // During the initial URL restore the sidebar adopts the restored cwd and
   // notifies us; that first onCwdChange must not bump sessionKey. We store the
   // expected cwd string and only skip when it matches, so a failure to fire
@@ -1438,6 +1444,20 @@ export function AppShell({ appName }: { appName: string }) {
   }, [isMobile, locale, settingsTab, showChat]);
   // While restoring initial session from URL, don't show the placeholder
   const showPlaceholder = initialSessionRestored && !showChat;
+  // Boot is done when the sidebar's startup wave settled, any ?session=
+  // restore resolved, and any ?cwd= validation finished. Until then the main
+  // area shows its loading state instead of a misleading empty workspace, and
+  // a sticky toast explains the wait; both end on the same state change.
+  const bootComplete = initialLoadSettled && initialSessionRestored
+    && !(initialNavigation.requestedCwd !== null && initialCwdStatus === "validating");
+  useEffect(() => {
+    if (bootComplete) {
+      endAppLoad("initial");
+      return;
+    }
+    beginAppLoad("initial");
+    return () => endAppLoad("initial");
+  }, [bootComplete]);
 
   const sidebarHistory = useSidebarHistory({
     active: isMobile && (showChat || Boolean(initialSessionId)),
@@ -1475,6 +1495,7 @@ export function AppShell({ appName }: { appName: string }) {
       initialSessionId={initialSessionId}
       skipInitialProjectSelection={initialNavigation.requestedCwd !== null}
       onInitialRestoreDone={handleInitialRestoreDone}
+      onInitialLoadSettled={handleInitialLoadSettled}
       refreshKey={refreshKey}
       onSessionDeleted={handleSessionDeleted}
       selectedCwd={selectedSession?.cwd ?? newSessionCwd ?? null}
@@ -2004,7 +2025,7 @@ export function AppShell({ appName }: { appName: string }) {
                 </>
               )}
             />
-          ) : !showPlaceholder ? (
+          ) : !showPlaceholder || !bootComplete ? (
             <PanelLoadingFallback />
           ) : activeCwd ? (
             <WorkspaceState kind="empty" title={t("appShell.selectSessionHint")} />

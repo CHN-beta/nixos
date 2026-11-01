@@ -10,12 +10,12 @@
  * Mount <ToastProvider> once near the app root (AppShell).
  */
 import { Toast } from "@base-ui/react/toast";
-import { AlertCircle, Check, Info, X } from "lucide-react";
+import { AlertCircle, Check, Info, Loader2, X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import type React from "react";
 
-type ToastKind = "success" | "error" | "info";
+type ToastKind = "success" | "error" | "info" | "loading";
 
 interface ToastData {
   kind?: ToastKind;
@@ -47,8 +47,14 @@ const manager = Toast.createToastManager<ToastData>();
 const DEFAULT_TIMEOUT_MS = 6000;
 const ERROR_TIMEOUT_MS = 10000;
 
-/** Auto-dismiss delay: an explicit `timeout`/`duration` (0 = sticky) wins over the per-kind default. */
+/**
+ * Auto-dismiss delay: an explicit `timeout`/`duration` (0 = sticky) wins over
+ * the per-kind default. Loading toasts are sticky by default — they report a
+ * state change and are closed once the work finishes, so a timer would either
+ * hide them too early or leave them behind.
+ */
 export function resolveToastTimeout(kind: ToastKind, options?: Pick<ToastOptions, "timeout" | "duration">): number {
+  if (kind === "loading") return options?.timeout ?? options?.duration ?? 0;
   return options?.timeout ?? options?.duration ?? (kind === "error" ? ERROR_TIMEOUT_MS : DEFAULT_TIMEOUT_MS);
 }
 
@@ -71,11 +77,17 @@ export const toast = {
     add("error", title, description, options),
   info: (title: React.ReactNode, description?: React.ReactNode, options?: ToastOptions) =>
     add("info", title, description, options),
+  /** Sticky in-progress notice; close it (by id) when the work finishes. */
+  loading: (title: React.ReactNode, description?: React.ReactNode, options?: ToastOptions) =>
+    add("loading", title, description, options),
   close: (id?: string) => manager.close(id),
 };
 
 export function KindIcon({ kind }: { kind?: ToastKind }) {
   const common = { size: 13, strokeWidth: 2, style: { flexShrink: 0, marginTop: 2 } } as const;
+  if (kind === "loading") {
+    return <Loader2 {...common} style={{ ...common.style, color: "var(--text-muted)", animation: "spin 0.8s linear infinite" }} aria-hidden />;
+  }
   if (kind === "success") return <Check {...common} style={{ ...common.style, color: "var(--accent)" }} aria-hidden />;
   if (kind === "error") return <AlertCircle {...common} style={{ ...common.style, color: "var(--accent-strong)" }} aria-hidden />;
   return <Info {...common} style={{ ...common.style, color: "var(--text-muted)" }} aria-hidden />;

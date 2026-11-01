@@ -170,8 +170,6 @@ export function LanguageSwitcher() {
                   tabIndex={-1}
                   aria-current={selected || undefined}
                   onClick={() => choose(l.value)}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = selected ? "var(--bg-selected)" : "transparent"; }}
                   onKeyDown={(e) => onItemKeyDown(e, i)}
                   style={{
                     width: "100%",
@@ -182,12 +180,8 @@ export function LanguageSwitcher() {
                     padding: "7px 10px",
                     border: 0,
                     borderRadius: 5,
-                    background: selected ? "var(--bg-selected)" : "transparent",
-                    color: selected ? "var(--text)" : "var(--text-muted)",
-                    cursor: "pointer",
                     fontSize: 12,
                     textAlign: "left",
-                    transition: "background-color var(--dur-fast) var(--ease-out-warm), color var(--dur-fast) var(--ease-out-warm)",
                   }}
                 >
                   <span>{l.label}</span>

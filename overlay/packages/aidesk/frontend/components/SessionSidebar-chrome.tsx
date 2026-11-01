@@ -265,6 +265,7 @@ function SidebarPortalMenu({
         event.stopPropagation();
       }}
       role="menu"
+      className="context-menu-surface"
       style={{
         position: "fixed",
         top: pos ? pos.top : -9999,

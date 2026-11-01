@@ -107,23 +107,9 @@ function ExplorerMenuItem({ label, icon, onSelect, disabled = false }: {
     <button
       type="button"
       role="menuitem"
+      className="sidebar-menu-item"
       disabled={disabled}
       onClick={onSelect}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 7,
-        width: "100%",
-        padding: "6px 9px",
-        border: "none",
-        borderRadius: 6,
-        background: "transparent",
-        color: "var(--text)",
-        cursor: disabled ? "default" : "pointer",
-        textAlign: "left",
-        fontSize: 11,
-        opacity: disabled ? 0.55 : 1,
-      }}
     >
       {icon}
       <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
@@ -1667,14 +1653,13 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                   key={option.mode}
                   type="button"
                   role="menuitem"
-                  className="sidebar-menu-item"
+                  className="sidebar-menu-item sidebar-menu-subitem"
                   onClick={() => {
                     const path = contextMenu.target.path;
                     const name = contextMenu.target.name;
                     setContextMenu(null);
                     onOpenFile(path, name, option.mode);
                   }}
-                  style={{ display: "block", width: "100%", padding: "5px 9px 5px 22px", border: "none", borderRadius: 6, background: "transparent", color: "var(--text-muted)", cursor: "pointer", textAlign: "left", fontSize: 11 }}
                 >
                   {t(option.labelKey)}
                 </button>

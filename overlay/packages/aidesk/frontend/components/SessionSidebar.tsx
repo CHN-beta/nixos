@@ -13,6 +13,7 @@ import { comparableProjectPath } from "@/lib/comparable-path";
 import { Archive, ArrowLeft, ArrowRight, Check, ChevronRight, Folder, MessageSquare, Plus, RefreshCw, Search, Settings2, X } from "lucide-react";
 import { publishSessionsChanged } from "@/lib/session-change-bus";
 import { connectSse } from "@/lib/sse-reconnect";
+import { beginAppLoad, endAppLoad } from "@/lib/app-loading";
 import { NOTIFICATION_MESSAGE_EVENT, notificationClientId } from "@/lib/notification-client";
 import {
   EMPTY_PROJECT_SET,
@@ -55,6 +56,11 @@ interface Props {
   initialSessionId?: string | null;
   skipInitialProjectSelection?: boolean;
   onInitialRestoreDone?: () => void;
+  /** Fired once at startup, after the first session/project/home fetches have
+   *  settled and the initial workspace or session selection has been made (or
+   *  proven impossible). The shell keeps its loading notice up until then, so
+   *  the main area never flashes its empty state while the list is in flight. */
+  onInitialLoadSettled?: () => void;
   refreshKey?: number;
   onSessionDeleted?: (sessionId: string) => void;
   selectedCwd?: string | null;
@@ -87,7 +93,7 @@ interface Props {
 
 
 
-export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, optimisticSession, onSelectSession, onNewSession, initialSessionId, skipInitialProjectSelection, onInitialRestoreDone, refreshKey, onSessionDeleted, selectedCwd: selectedCwdProp, onCwdChange, onWorkspaceOptionsChange, addProjectOpen, setAddProjectOpen, onOpenSettings, onOpenArchive, navigation, settingsOpen = false, onClose }: Props) {
+export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, optimisticSession, onSelectSession, onNewSession, initialSessionId, skipInitialProjectSelection, onInitialRestoreDone, onInitialLoadSettled, refreshKey, onSessionDeleted, selectedCwd: selectedCwdProp, onCwdChange, onWorkspaceOptionsChange, addProjectOpen, setAddProjectOpen, onOpenSettings, onOpenArchive, navigation, settingsOpen = false, onClose }: Props) {
 
 
   const { t } = useI18n();
@@ -136,6 +142,28 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
   // Set once the first /api/sessions fetch settles (success OR failure) so the
   // initial-restore effect can stop waiting on a load that never yields rows.
   const initialLoadedRef = useRef(false);
+  // Startup bookkeeping for the shell's loading notice. Once the first
+  // sessions/projects/home fetches have settled AND an initial workspace or
+  // session was picked (or proven impossible), the app is booted and the
+  // notice closes. The state copies exist so effects re-run when a failed or
+  // empty fetch resolves without changing any other state.
+  const [sessionsSettled, setSessionsSettled] = useState(false);
+  const sessionsSettledRef = useRef(false);
+  const [projectsSettled, setProjectsSettled] = useState(false);
+  const projectsSettledRef = useRef(false);
+  const [homeSettled, setHomeSettled] = useState(false);
+  const homeSettledRef = useRef(false);
+  const initialLoadSettledRef = useRef(false);
+  const onInitialLoadSettledRef = useRef(onInitialLoadSettled);
+  useEffect(() => {
+    onInitialLoadSettledRef.current = onInitialLoadSettled;
+  }, [onInitialLoadSettled]);
+  const settleInitialLoad = useCallback(() => {
+    if (initialLoadSettledRef.current) return;
+    initialLoadSettledRef.current = true;
+    onInitialLoadSettledRef.current?.();
+  }, []);
+
   const loadSessions = useCallback(async (showLoading = false) => {
     sessionsAbortRef.current?.abort();
     const controller = new AbortController();
@@ -193,6 +221,10 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
     } finally {
       clearTimeout(timeout);
       initialLoadedRef.current = true;
+      if (!sessionsSettledRef.current) {
+        sessionsSettledRef.current = true;
+        setSessionsSettled(true);
+      }
       if (showLoading) setLoading(false);
     }
   }, [t]);
@@ -219,6 +251,12 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
     } catch (e) {
       if (seq !== projectsLoadSeqRef.current) return;
       setProjectsError(t("projects.loadFailed", { detail: e instanceof Error ? e.message : String(e) }));
+    } finally {
+      // A superseded response leaves settling to the request that replaced it.
+      if (seq === projectsLoadSeqRef.current && !projectsSettledRef.current) {
+        projectsSettledRef.current = true;
+        setProjectsSettled(true);
+      }
     }
   }, [t]);
 
@@ -244,7 +282,11 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
       .then((data) => {
         if (!cancelled) setHomeDir(typeof data.home === "string" ? data.home : null);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        homeSettledRef.current = true;
+        if (!cancelled) setHomeSettled(true);
+      });
     return () => { cancelled = true; };
   }, []);
 
@@ -279,6 +321,25 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
       clearTimeout(sessionRefreshTimerRef.current);
       sessionRefreshTimerRef.current = null;
     }
+  }, []);
+
+  // Reconnect bookkeeping: a stream that was healthy and then dropped leaves
+  // the list and running state stale, so keep the app's loading notice up
+  // until the re-sync fetch has landed.
+  const streamEverOpenedRef = useRef(false);
+  const reconnectingRef = useRef(false);
+  // Invalidates an in-flight re-sync: a drop that lands mid-fetch must not be
+  // cleared by the older attempt completing.
+  const reconnectGenRef = useRef(0);
+  const beginReconnect = useCallback(() => {
+    if (reconnectingRef.current) return;
+    reconnectingRef.current = true;
+    beginAppLoad("reconnect");
+  }, []);
+  const finishReconnect = useCallback(() => {
+    if (!reconnectingRef.current) return;
+    reconnectingRef.current = false;
+    endAppLoad("reconnect");
   }, []);
 
   useEffect(() => {
@@ -328,18 +389,37 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
           }
         };
       },
+      onOpen: () => {
+        streamEverOpenedRef.current = true;
+        if (!reconnectingRef.current) return;
+        // The stream is back: re-read the list it keeps live, then drop the
+        // notice. Both loaders resolve (they swallow their own errors), so a
+        // failing server cannot strand the toast.
+        const generation = ++reconnectGenRef.current;
+        void Promise.allSettled([loadSessions(false), loadProjects()]).then(() => {
+          if (generation === reconnectGenRef.current) finishReconnect();
+        });
+      },
       onError: () => {
         // Until a fresh frame arrives, let the polled /api/sessions fallback
         // own running state again.
         sseAuthoritativeRef.current = false;
+        // Only a drop after a healthy open is a reconnect; a first connection
+        // that never opened is covered by the startup notice instead.
+        if (streamEverOpenedRef.current) {
+          reconnectGenRef.current += 1;
+          beginReconnect();
+        }
       },
     });
     // On error the stream reconnects itself; keep the last known state meanwhile.
     return () => {
-      if (pendingRefreshRef.current) clearTimeout(pendingRefreshRef.current);
+      clearTimeout(pendingRefreshRef.current ?? undefined);
       source.close();
+      // An unmount mid-reconnect must not leave the notice behind.
+      finishReconnect();
     };
-  }, [loadSessions, scheduleRefresh, notificationClientId]);
+  }, [loadSessions, loadProjects, scheduleRefresh, notificationClientId, beginReconnect, finishReconnect]);
   // Long-idle recovery: while the tab is hidden the SSE connection can die
   // (laptop sleep, network change, tab freeze) and its EventSource reconnect
   // carries no list invalidation. Refresh whenever the user actually comes
@@ -460,7 +540,10 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
     if (lastNotifiedCwdRef.current === selectedCwd) return;
     lastNotifiedCwdRef.current = selectedCwd;
     onCwdChange?.(selectedCwd, projectRootFor(selectedCwd));
-  }, [selectedCwd, onCwdChange, projectRootFor]);
+    // The shell now has the workspace it will render: startup is over, even
+    // though the list refresh may still be settling in the background.
+    if (selectedCwd !== null) settleInitialLoad();
+  }, [selectedCwd, onCwdChange, projectRootFor, settleInitialLoad]);
 
   // Sync to the selected session's cwd. Only fires when the prop value
   // changes, so a manual project switch is not snapped back. Sessions picked
@@ -785,6 +868,29 @@ export const SessionSidebar = memo(function SessionSidebar({ selectedSessionId, 
     if (top) expandProject(top.path);
     provisionalSelectionRef.current = allSessions.length === 0;
   }, [allSessions, selectedCwd, initialSessionId, skipInitialProjectSelection, onSelectSession, onInitialRestoreDone, sortedProjects, expandProject, loadSessions, mostRecentSessionCwd, homeDir]);
+
+  // Startup safety net. The restore effect above returns early while data is
+  // still arriving; once every first fetch has settled, either a selection
+  // followed (settled by the cwd notification) or there is genuinely nothing
+  // to open. Without this, a failed/empty first wave would leave the shell's
+  // loading notice up forever.
+  useEffect(() => {
+    if (initialLoadSettledRef.current) return;
+    if (!sessionsSettled || !projectsSettled || !homeSettled) return;
+    // A ?cwd= deep link validates its own path; there is no list selection.
+    if (skipInitialProjectSelection) {
+      settleInitialLoad();
+      return;
+    }
+    if (selectedCwd !== null) {
+      settleInitialLoad();
+      return;
+    }
+    // The ?session= restore keeps retrying; it owns settling until it gives up.
+    if (initialSessionId && !restoredRef.current) return;
+    // Nothing selectable: no project, no session cwd, and no home directory.
+    if (sortedProjects.length === 0 && mostRecentSessionCwd === null && homeDir === null) settleInitialLoad();
+  }, [sessionsSettled, projectsSettled, homeSettled, skipInitialProjectSelection, selectedCwd, initialSessionId, sortedProjects, mostRecentSessionCwd, homeDir, settleInitialLoad]);
 
   // Default expansion: when the user has never stored an expansion choice,
   // expand only the active project.

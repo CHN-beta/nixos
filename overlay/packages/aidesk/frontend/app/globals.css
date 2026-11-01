@@ -1738,20 +1738,96 @@ html[data-touch-targets="accessible"] :is(.image-lightbox-stepper button, .image
   }
 }
 
-/* Sidebar overflow menus: compact items with a subtle warm hover highlight. */
-.sidebar-menu-item {
-  display: block;
+/* Context menus and sidebar overflow menus: compact items with clear warm
+   hover, active press, icon/text state lift, and disabled differentiation. */
+.context-menu-surface {
+  animation: ui-scale-in var(--dur-fast) var(--ease-out-warm) both;
+}
+.sidebar-menu-item,
+[role="menu"] > [role="menuitem"] {
+  display: flex;
+  align-items: center;
+  gap: 7px;
   width: 100%;
+  padding: 6px 9px;
   border: none;
+  border-radius: 6px;
   background: transparent;
+  color: var(--text);
+  font-size: 11px;
   text-align: left;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-out-warm);
+  user-select: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-out-warm),
+    color var(--dur-fast) var(--ease-out-warm),
+    transform 80ms var(--ease-out-warm);
 }
-.sidebar-menu-item:hover:not(:disabled) {
+.sidebar-menu-item svg,
+[role="menu"] > [role="menuitem"] svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition:
+    color var(--dur-fast) var(--ease-out-warm),
+    transform var(--dur-fast) var(--ease-out-warm);
+}
+.sidebar-menu-subitem {
+  padding: 5px 9px 5px 22px;
+  color: var(--text-muted);
+}
+.sidebar-menu-item[data-variant="danger"] {
+  color: var(--status-error);
+}
+.sidebar-menu-item[data-variant="danger"] svg {
+  color: var(--status-error);
+}
+.sidebar-menu-item:hover:not(:disabled),
+[role="menu"] > [role="menuitem"]:hover:not(:disabled) {
   background: var(--bg-hover);
+  background: color-mix(in srgb, var(--bg-selected) 88%, var(--accent) 12%);
+  color: var(--text);
 }
-.sidebar-menu-item:focus-visible {
+.sidebar-menu-item:hover:not(:disabled) svg,
+[role="menu"] > [role="menuitem"]:hover:not(:disabled) svg {
+  color: var(--accent);
+}
+.sidebar-menu-item[data-variant="danger"]:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--status-error) 14%, var(--bg-hover));
+  color: var(--status-error);
+}
+.sidebar-menu-item[data-variant="danger"]:hover:not(:disabled) svg {
+  color: var(--status-error);
+}
+.sidebar-menu-item:active:not(:disabled),
+[role="menu"] > [role="menuitem"]:active:not(:disabled) {
+  background: var(--bg-selected);
+  background: color-mix(in srgb, var(--bg-selected) 74%, var(--accent) 26%);
+  color: var(--text);
+  transform: scale(0.985);
+}
+.sidebar-menu-item:active:not(:disabled) svg,
+[role="menu"] > [role="menuitem"]:active:not(:disabled) svg {
+  color: var(--accent);
+}
+.sidebar-menu-item[data-variant="danger"]:active:not(:disabled) {
+  background: color-mix(in srgb, var(--status-error) 22%, var(--bg-selected));
+  color: var(--status-error);
+  transform: scale(0.985);
+}
+.sidebar-menu-item[data-variant="danger"]:active:not(:disabled) svg {
+  color: var(--status-error);
+}
+.sidebar-menu-item:disabled,
+.sidebar-menu-item[aria-disabled="true"],
+[role="menu"] > [role="menuitem"]:disabled,
+[role="menu"] > [role="menuitem"][aria-disabled="true"] {
+  color: var(--text-dim);
+  cursor: not-allowed;
+  opacity: 0.55;
+  background: transparent;
+}
+.sidebar-menu-item:focus-visible,
+[role="menu"] > [role="menuitem"]:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
   border-radius: 6px;
@@ -2531,18 +2607,34 @@ span.token.table {
   border: 0;
   border-radius: 8px;
   font-size: 12px;
-  transition: background-color var(--dur-fast) var(--ease-out-warm), color var(--dur-fast) var(--ease-out-warm);
+  transition:
+    background-color var(--dur-fast) var(--ease-out-warm),
+    color var(--dur-fast) var(--ease-out-warm),
+    transform 80ms var(--ease-out-warm);
 }
-.picker-row:hover,
-.picker-row:focus-visible {
-  color: var(--text);
-  background: var(--bg-hover);
-  outline: none;
-}
-.picker-row[data-active="true"] {
+.picker-row[data-active="true"],
+.picker-row[aria-expanded="true"] {
   color: var(--text);
   font-weight: 600;
   background: var(--bg-selected);
+}
+.picker-row:hover:not(:disabled),
+.picker-row:focus-visible:not(:disabled) {
+  color: var(--text);
+  background: var(--bg-hover);
+  background: color-mix(in srgb, var(--bg-selected) 88%, var(--accent) 12%);
+  outline: none;
+}
+.picker-row:active:not(:disabled) {
+  color: var(--text);
+  background: var(--bg-selected);
+  background: color-mix(in srgb, var(--bg-selected) 74%, var(--accent) 26%);
+  transform: scale(0.99);
+}
+.picker-row:disabled {
+  color: var(--text-dim);
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 .picker-check {
   display: inline-flex;
@@ -2657,19 +2749,37 @@ span.token.table {
 }
 .dropdown-item {
   color: var(--text-muted);
-  transition: background-color var(--dur-fast) var(--ease-out-warm), color var(--dur-fast) var(--ease-out-warm);
-}
-.dropdown-item:hover,
-.dropdown-item:focus-visible {
-  background: var(--bg-hover);
-  color: var(--text);
-  outline: none;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out-warm),
+    color var(--dur-fast) var(--ease-out-warm),
+    transform 80ms var(--ease-out-warm);
 }
 .dropdown-item[aria-current="true"],
 .dropdown-item[aria-selected="true"],
+.dropdown-item[aria-checked="true"],
 .dropdown-item[data-active="true"] {
   background: var(--bg-selected);
   color: var(--text);
+}
+.dropdown-item:hover:not(:disabled),
+.dropdown-item:focus-visible:not(:disabled) {
+  background: var(--bg-hover);
+  background: color-mix(in srgb, var(--bg-selected) 88%, var(--accent) 12%);
+  color: var(--text);
+  outline: none;
+}
+.dropdown-item:active:not(:disabled) {
+  background: var(--bg-selected);
+  background: color-mix(in srgb, var(--bg-selected) 74%, var(--accent) 26%);
+  color: var(--text);
+  transform: scale(0.99);
+}
+.dropdown-item:disabled {
+  color: var(--text-dim);
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 /* Command palette (cmdk): the highlighted row is only exposed as

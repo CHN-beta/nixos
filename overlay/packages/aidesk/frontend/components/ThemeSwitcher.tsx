@@ -144,8 +144,6 @@ export function ThemeSwitcher() {
       disabled={disabled}
       onClick={choose}
       onKeyDown={onItemKeyDown}
-      onMouseEnter={(event) => { if (!disabled) event.currentTarget.style.background = "var(--bg-hover)"; }}
-      onMouseLeave={(event) => { event.currentTarget.style.background = selected ? "var(--bg-selected)" : "transparent"; }}
       style={{
         width: "100%",
         display: "flex",
@@ -154,12 +152,8 @@ export function ThemeSwitcher() {
         padding: "6px 8px",
         border: 0,
         borderRadius: 5,
-        background: selected ? "var(--bg-selected)" : "transparent",
-        color: disabled ? "var(--text-dim)" : selected ? "var(--text)" : "var(--text-muted)",
-        cursor: disabled ? "not-allowed" : "pointer",
         fontSize: 12,
         textAlign: "left",
-        transition: "background-color var(--dur-fast) var(--ease-out-warm), color var(--dur-fast) var(--ease-out-warm)",
       }}
     >
       <span
@@ -264,6 +258,7 @@ export function ThemeSwitcher() {
               return (
                 <button
                   key={value}
+                  className="dropdown-item"
                   ref={(element) => { itemRefs.current[index] = element; }}
                   type="button"
                   role="menuitemradio"
@@ -280,9 +275,6 @@ export function ThemeSwitcher() {
                     padding: "6px 4px",
                     border: 0,
                     borderRadius: 5,
-                    background: selected ? "var(--bg-selected)" : "transparent",
-                    color: selected ? "var(--text)" : "var(--text-muted)",
-                    cursor: "pointer",
                     fontSize: 12,
                     fontWeight: selected ? 600 : 500,
                     whiteSpace: "nowrap",

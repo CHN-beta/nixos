@@ -111,25 +111,11 @@ function MessageContextMenu({ point, onClose, items }: {
           key={item.key}
           type="button"
           role="menuitem"
+          className="sidebar-menu-item"
           disabled={item.disabled}
           onClick={() => {
             onClose();
             item.onSelect();
-          }}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            width: "100%",
-            padding: "6px 9px",
-            border: "none",
-            borderRadius: 6,
-            background: "transparent",
-            color: "var(--text)",
-            cursor: item.disabled ? "default" : "pointer",
-            textAlign: "left",
-            fontSize: 11,
-            opacity: item.disabled ? 0.55 : 1,
           }}
         >
           {item.icon}

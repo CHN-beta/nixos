@@ -1835,10 +1835,9 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
   }, []);
 
   const attachmentMenuItemStyle: React.CSSProperties = {
-    display: "flex", alignItems: "center", gap: 8, width: "100%",
-    padding: "7px 10px", border: 0, borderRadius: 5,
-    background: "transparent", color: "var(--text-muted)",
-    cursor: "pointer", fontSize: 12, textAlign: "left",
+    padding: "7px 10px",
+    margin: 0,
+    borderRadius: 5,
   };
 
   return (
@@ -2795,6 +2794,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                     <span className="picker-panel-title">{t("chatInput.plusMenu")}</span>
                   </div>
                   <button
+                    className="picker-row"
                     role="menuitem"
                     type="button"
                     onClick={() => { setPlusMenuOpen(false); fileInputRef.current?.click(); }}
@@ -2806,6 +2806,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                   </button>
                   {canReadClipboardImages && (
                     <button
+                      className="picker-row"
                       role="menuitem"
                       type="button"
                       onClick={() => void pasteClipboardImage()}
@@ -2819,17 +2820,13 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                   {onToolPresetChange && (
                     <>
                       <button
+                        className="picker-row"
                         role="menuitem"
                         type="button"
                         aria-expanded={plusExpanded === "tools"}
                         onClick={() => setPlusExpanded((v) => (v === "tools" ? null : "tools"))}
                         title={t("chatInput.changeToolPresetTitle", { preset: toolPreset ?? "full" })}
-                        style={{
-                          display: "flex", alignItems: "center", gap: 8, width: "100%",
-                          padding: "7px 10px", border: 0, borderRadius: 5,
-                          background: plusExpanded === "tools" ? "var(--bg-selected)" : "transparent",
-                          color: "var(--text-muted)", cursor: "pointer", fontSize: 12, textAlign: "left",
-                        }}
+                        style={attachmentMenuItemStyle}
                       >
                         <Wrench size={12} strokeWidth={1.8} style={{ flexShrink: 0 }} aria-hidden="true" />
                         <span style={{ flex: 1 }}>{t("chatInput.toolPresetLabel")}</span>
@@ -2862,16 +2859,15 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                   {onAdvisorChange && (
                     <>
                       <button
+                        className="picker-row"
                         role="menuitem"
                         type="button"
                         aria-expanded={plusExpanded === "advisor"}
                         onClick={() => setPlusExpanded((v) => (v === "advisor" ? null : "advisor"))}
                         title={advisorEnabled ? t("chatInput.advisorDisableTitle", { model: advisorModel?.name ?? t("messageView.advisorLabel"), reasoning: advisorModel?.reasoning ?? t("chatInput.advisorReasoningDefault") }) : t("chatInput.advisorEnableTitle")}
                         style={{
-                          display: "flex", alignItems: "center", gap: 8, width: "100%",
-                          padding: "7px 10px", border: 0, borderRadius: 5,
-                          background: plusExpanded === "advisor" ? "var(--bg-selected)" : "transparent",
-                          color: advisorEnabled ? "var(--accent)" : "var(--text-muted)", cursor: "pointer", fontSize: 12, textAlign: "left",
+                          ...attachmentMenuItemStyle,
+                          color: advisorEnabled ? "var(--accent)" : undefined,
                         }}
                       >
                         <Sparkles size={12} strokeWidth={1.8} style={{ flexShrink: 0 }} aria-hidden="true" />
