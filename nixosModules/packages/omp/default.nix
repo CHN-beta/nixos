@@ -31,23 +31,6 @@ let
             }
           ];
         };
-        doubao = {
-          baseUrl = "https://ark.cn-beijing.volces.com/api/v3";
-          api = "openai-responses";
-          apiKey = "ARK_API_KEY";
-          models = [
-            {
-              id = "doubao-seed-evolving";
-              name = "Doubao Seed Evolving";
-              input = [
-                "text"
-                "image"
-              ];
-              contextWindow = 1048576;
-              maxTokens = 262144;
-            }
-          ];
-        };
       };
     }
     |> builtins.toJSON
@@ -320,7 +303,6 @@ in
                 ${cliproxyapiKey homeInputs.config.home.username}
                 export QDRANT_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/qdrant".path}")"
                 export GITHUB_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/github".path}")"
-                export ARK_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/ark".path}")"
                 export MATRIX_PASSWORD="$(cat "${config.nixos.system.sops.secrets."straycat/matrix".path}")"
                 ${
                   if

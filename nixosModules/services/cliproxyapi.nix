@@ -175,6 +175,21 @@
                   }
                 ];
               }
+              {
+                name = "doubao";
+                base-url = "https://ark.cn-beijing.volces.com/api/v3";
+                priority = -1;
+                keys = [
+                  {
+                    api-key._secret = config.nixos.system.sops.secrets."straycat/ark".path;
+                  }
+                ];
+                models = [
+                  {
+                    name = "doubao-seed-evolving";
+                  }
+                ];
+              }
             ];
           };
         };
@@ -206,6 +221,7 @@
               "cliproxyapi/gemini" = { };
               "straycat/cliproxyapi" = { };
               "straycat/deepseek" = { };
+              "straycat/ark" = { };
             };
           templates."cliproxyapi/postgres-dsn".content = "postgres://cliproxyapi:${
             config.nixos.system.sops.placeholder."postgresql/cliproxyapi"
