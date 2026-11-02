@@ -1301,6 +1301,8 @@
   "settingsConfig.messageDuringActiveRunDesc": "What composer does on submit while agent runs. Steer interrupts; Queue follow-up delivers after finish.",
   "settingsConfig.steerCurrentRun": "Steer current run",
   "settingsConfig.queueFollowUp": "Queue follow-up",
+  "settingsConfig.enterForNewline": "Enter で改行、Ctrl+Enter で送信",
+  "settingsConfig.enterForNewlineDesc": "Enter で改行し、Ctrl+Enter（macOS では Cmd+Enter）で送信します。Shift+Enter でも改行できます。オフの場合は Enter で送信し、Shift+Enter で改行します。",
   "settingsConfig.wordCompletion": "単語補完",
   "settingsConfig.wordCompletionDesc": "omp の単語予測をゴーストテキストで表示し、Tab または → で確定します。自動ではマウスまたはトラックパッド使用時のみ有効です（タッチキーボードでは無効）。",
   "settingsConfig.wordCompletionAuto": "自動",

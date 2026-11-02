@@ -1301,6 +1301,8 @@
   "settingsConfig.messageDuringActiveRunDesc": "智能体运行时在输入框提交消息的行为。立即引导会中断当前运行；排队追加会在结束后发送。",
   "settingsConfig.steerCurrentRun": "引导当前运行",
   "settingsConfig.queueFollowUp": "排队追加消息",
+  "settingsConfig.enterForNewline": "使用Enter换行、Ctrl+Enter发送",
+  "settingsConfig.enterForNewlineDesc": "开启后 Enter 换行、Ctrl+Enter（macOS 上为 Cmd+Enter）发送，Shift+Enter 同样换行；关闭时 Enter 发送、Shift+Enter 换行。",
   "settingsConfig.wordCompletion": "单词补全",
   "settingsConfig.wordCompletionDesc": "以灰色提示文本显示 omp 的单词预测，按 Tab 或 → 接受。自动模式仅在使用鼠标或触控板时启用（触屏键盘不启用）。",
   "settingsConfig.wordCompletionAuto": "自动",

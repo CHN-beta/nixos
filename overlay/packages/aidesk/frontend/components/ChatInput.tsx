@@ -2,7 +2,7 @@
 import React, { useRef, useState, useCallback, useEffect, useLayoutEffect, useImperativeHandle, forwardRef, memo, KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, ClipboardPaste, ListChecks, Loader2, Mic, Paperclip, Plus, RotateCw, Shrink, Snail, Sparkles, Wrench, X, Zap } from "lucide-react";
-import { getSubmitDuringRunBehavior, isWordCompletionEnabled } from "@/lib/composer-prefs";
+import { getEnterForNewline, getSubmitDuringRunBehavior, isWordCompletionEnabled } from "@/lib/composer-prefs";
 import type { BuiltinSlashCommandResult, CompactResultInfo, QueuedMessages, SlashCommandInfo } from "@/hooks/useAgentSession";
 import type { ActiveGoal, ActivePlan } from "@/lib/web-mode-state";
 import { toast } from "@/components/ui/toast";
@@ -1452,6 +1452,13 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
         if (recentlyComposed) e.preventDefault();
         return;
       }
+      // Settings → Interface & Behavior: with "Enter for newline" on, Enter
+      // keeps its native newline and Ctrl/Cmd+Enter sends. Menu acceptance
+      // below still uses plain Enter, so a modified Enter must fall through
+      // to the send path instead of picking a history/slash/@ entry.
+      const enterForNewline = e.key === "Enter" && getEnterForNewline();
+      const modifiedEnter = enterForNewline && (e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey;
+      const menuAcceptEnter = e.key === "Enter" && !e.shiftKey && !modifiedEnter;
       if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "m") {
         e.preventDefault();
         toggleDictation();
@@ -1475,7 +1482,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
           setHistoryMenuOpen(false);
           return;
         }
-        if ((e.key === "Tab" || (e.key === "Enter" && !e.shiftKey)) && inputHistory[historyActiveIndex]) {
+        if ((e.key === "Tab" || menuAcceptEnter) && inputHistory[historyActiveIndex]) {
           e.preventDefault();
           applyHistoryInput(inputHistory[historyActiveIndex]);
           return;
@@ -1508,7 +1515,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
           setSlashMenuOpen(false);
           return;
         }
-        if ((e.key === "Tab" || (e.key === "Enter" && !e.shiftKey)) && filteredSlashCommands[slashActiveIndex]) {
+        if ((e.key === "Tab" || menuAcceptEnter) && filteredSlashCommands[slashActiveIndex]) {
           e.preventDefault();
           applySlashCommand(filteredSlashCommands[slashActiveIndex]);
           return;
@@ -1533,7 +1540,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
           setAtMenuOpen(false);
           return;
         }
-        if ((e.key === "Tab" || (e.key === "Enter" && !e.shiftKey)) && atMatches[atActiveIndex]) {
+        if ((e.key === "Tab" || menuAcceptEnter) && atMatches[atActiveIndex]) {
           e.preventDefault();
           applyAtCompletion(atMatches[atActiveIndex]);
           return;
@@ -1586,9 +1593,12 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
         return;
       }
 
+      // Default: Enter sends (Shift+Enter breaks the line). With "Enter for
+      // newline" on, plain Enter keeps inserting a newline and Ctrl/Cmd+Enter
+      // sends instead.
       // Soft keyboards rarely offer Shift+Enter; on the mobile breakpoint Enter
       // inserts a newline and the Send button submits.
-      if (e.key === "Enter" && !e.shiftKey && !isMobile) {
+      if (e.key === "Enter" && (enterForNewline ? modifiedEnter : !e.shiftKey && !isMobile)) {
         e.preventDefault();
         if (isStreaming && (onSteer || onFollowUp)) {
           // Submit-during-run behavior comes from Settings (Queue follow-up by

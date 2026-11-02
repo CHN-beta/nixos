@@ -1337,6 +1337,8 @@
   "settingsConfig.messageDuringActiveRunDesc": "What composer does on submit while agent runs. Steer interrupts; Queue follow-up delivers after finish.",
   "settingsConfig.steerCurrentRun": "Steer current run",
   "settingsConfig.queueFollowUp": "Queue follow-up",
+  "settingsConfig.enterForNewline": "Enter for newline, Ctrl+Enter to send",
+  "settingsConfig.enterForNewlineDesc": "Enter inserts a newline and Ctrl+Enter (Cmd+Enter on macOS) sends. Shift+Enter still inserts a newline. Off: Enter sends and Shift+Enter inserts a newline.",
   "settingsConfig.wordCompletion": "Word completion",
   "settingsConfig.wordCompletionDesc": "Ghost text from omp's word prediction; Tab or → accepts. Auto enables it only with a mouse or trackpad (not on touch keyboards).",
   "settingsConfig.wordCompletionAuto": "Auto",

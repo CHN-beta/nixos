@@ -1,6 +1,6 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useTransition, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
-import { getSubmitDuringRunBehavior, getWordCompletionMode, setSubmitDuringRunBehavior, setWordCompletionMode, type SubmitDuringRunBehavior, type WordCompletionMode } from "@/lib/composer-prefs";
+import { getEnterForNewline, getSubmitDuringRunBehavior, getWordCompletionMode, setEnterForNewline, setSubmitDuringRunBehavior, setWordCompletionMode, type SubmitDuringRunBehavior, type WordCompletionMode } from "@/lib/composer-prefs";
 import { ArrowLeft, LogOut, RefreshCw, Search, X } from "lucide-react";
 import { isRecord } from "@/lib/type-guards";
 import { logoutFromAuth } from "@/lib/api-origin";
@@ -145,6 +145,7 @@ const SETTING_INDEX: SettingIndexEntry[] = [
   { id: "ui-scale", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.uiScale", descKey: "settingsConfig.uiScaleDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Interface Scale", fallbackDesc: "Adjust overall UI zoom and display density across sidebars, dialogs, buttons, and toolbars.", scope: "UI" },
   { id: "touch-targets", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.touchTargets", descKey: "settingsConfig.touchTargetsDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Touch Targets", fallbackDesc: "Adjust interactive target sizes for buttons and toolbar controls.", scope: "UI" },
   { id: "message-during-active-run", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.messageDuringActiveRun", descKey: "settingsConfig.messageDuringActiveRunDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Message during active run", fallbackDesc: "What composer does on submit while agent runs. Steer interrupts; Queue follow-up delivers after finish.", scope: "UI" },
+  { id: "enter-for-newline", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.enterForNewline", descKey: "settingsConfig.enterForNewlineDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Enter for newline, Ctrl+Enter to send", fallbackDesc: "Enter inserts a newline and Ctrl+Enter (Cmd+Enter on macOS) sends. Shift+Enter keeps inserting a newline. Off: Enter sends and Shift+Enter inserts a newline.", scope: "UI" },
   { id: "word-completion", tab: "general", sectionKey: "settingsConfig.interfaceBehavior", labelKey: "settingsConfig.wordCompletion", descKey: "settingsConfig.wordCompletionDesc", fallbackSection: "Interface & Behavior", fallbackLabel: "Word completion", fallbackDesc: "Ghost text from omp's word prediction; Tab or → accepts. Auto enables it only with a mouse or trackpad (not on touch keyboards).", scope: "UI" },
   // Memory
   { id: "memory-graph", tab: "memory", sectionKey: "memory.title", labelKey: "memory.title", descKey: "memory.description", fallbackSection: "Memory", fallbackLabel: "Memory graph & recall", fallbackDesc: "Hindsight knowledge graph, semantic recall, and memory curation.", scope: "UI" },
@@ -852,6 +853,7 @@ export function SettingsConfig({ activeTab, toolCallsDefaultCollapsed, onToolCal
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const [submitBehavior, setSubmitBehavior] = useState<SubmitDuringRunBehavior>(() => getSubmitDuringRunBehavior());
   const [wordCompletion, setWordCompletion] = useState<WordCompletionMode>(() => getWordCompletionMode());
+  const [enterForNewline, setEnterForNewlineState] = useState<boolean>(() => getEnterForNewline());
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
     if (typeof window === "undefined") return true;
     try {
@@ -1114,6 +1116,15 @@ export function SettingsConfig({ activeTab, toolCallsDefaultCollapsed, onToolCal
                         <option value="steer" style={nativeOptionStyle}>{t("settingsConfig.steerCurrentRun")}</option>
                         <option value="queue" style={nativeOptionStyle}>{t("settingsConfig.queueFollowUp")}</option>
                       </select>
+                    </NativeSetting>
+                    <NativeSetting searchId="enter-for-newline" label={t("settingsConfig.enterForNewline")} description={t("settingsConfig.enterForNewlineDesc")} scope="UI">
+                      <ToggleSwitch
+                        checked={enterForNewline}
+                        onChange={(next) => {
+                          setEnterForNewline(next);
+                          setEnterForNewlineState(next);
+                        }}
+                      />
                     </NativeSetting>
                     <NativeSetting searchId="word-completion" label={t("settingsConfig.wordCompletion")} description={t("settingsConfig.wordCompletionDesc")} scope="UI">
                       <select

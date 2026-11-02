@@ -40,6 +40,34 @@ export function setSubmitDuringRunBehavior(behavior: SubmitDuringRunBehavior): v
   }
 }
 
+/**
+ * Composer Enter-key behavior. Off (the default): Enter sends and Shift+Enter
+ * inserts a newline. On: Enter inserts a newline and Ctrl+Enter (Cmd+Enter on
+ * macOS) sends.
+ */
+const ENTER_FOR_NEWLINE_KEY = "omp-web:enter-for-newline";
+
+export const DEFAULT_ENTER_FOR_NEWLINE = false;
+
+export function getEnterForNewline(): boolean {
+  if (typeof window === "undefined") return DEFAULT_ENTER_FOR_NEWLINE;
+  try {
+    return window.localStorage.getItem(ENTER_FOR_NEWLINE_KEY) === "true";
+  } catch {
+    // storage unavailable — fall through to the default
+  }
+  return DEFAULT_ENTER_FOR_NEWLINE;
+}
+
+export function setEnterForNewline(enabled: boolean): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(ENTER_FOR_NEWLINE_KEY, String(enabled));
+  } catch {
+    // storage unavailable — the preference simply won't persist
+  }
+}
+
 /** Ghost-text word completion: `auto` enables it only with a physical keyboard. */
 export type WordCompletionMode = "auto" | "on" | "off";
 
