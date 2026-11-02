@@ -54,6 +54,7 @@
         straycat = 1032;
         wyh = 1033;
         lcl = 1034;
+        mhy = 1036;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;

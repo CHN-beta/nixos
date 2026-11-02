@@ -9,6 +9,7 @@ let
     "straycat"
     "wyh"
     "lcl"
+    "mhy"
   ];
   # The SPA is served unauthenticated by the public proxy (vps6) on
   # aidesk.chn.moe; only the per-user API runs here, behind Authelia.
@@ -58,6 +59,7 @@ let
 in
 {
   nixos = {
+    user.users = users;
     packages.omp.users = users;
     services = {
       cliproxyapi.users = users;
