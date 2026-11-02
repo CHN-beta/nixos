@@ -10,6 +10,7 @@ let
     "wyh"
     "lcl"
     "mhy"
+    "rdhx"
   ];
   # The SPA is served unauthenticated by the public proxy (vps6) on
   # aidesk.chn.moe; only the per-user API runs here, behind Authelia.
