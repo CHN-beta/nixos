@@ -225,6 +225,7 @@ rec {
       pyproject-build-systems
       ;
   };
+  omp-desktop = pkgs.callPackage ./omp-desktop.nix { };
 
   fromYaml =
     content:
