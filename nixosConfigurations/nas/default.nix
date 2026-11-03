@@ -72,11 +72,10 @@
             threads = 4;
             hashTableSizeMB = 10 * 128;
           };
-          # disable before / finished scanning
-          # "/nix/backup/nix" = {
-          #   threads = 4;
-          #   hashTableSizeMB = 3 * 128;
-          # };
+          "/nix/backup/nix" = {
+            threads = 4;
+            hashTableSizeMB = 3 * 128;
+          };
         };
         postgresql.mountFrom = "ssd";
         mariadb.mountFrom = "ssd";
