@@ -4,6 +4,7 @@
 
 import type {
   AgentMessage,
+  AssistantMessage,
   CustomMessage,
   ExtensionStatusItem,
   ExtensionUiRequest,
@@ -64,9 +65,21 @@ export function streamReducer(state: StreamingState, action: StreamAction): Stre
     case "release": {
       const held = state.isStreaming ? null : state.streamingMessage;
       if (!held) return state;
-      // No timestamp to match: drop it now, as before holding existed.
-      const saved = held.timestamp === undefined
-        || action.committed.some((message) => message.role === "assistant" && message.timestamp === held.timestamp);
+      const heldToolIds = Array.isArray((held as Partial<AssistantMessage>).content)
+        ? ((held as Partial<AssistantMessage>).content ?? [])
+            .filter((b): b is { type: "toolCall"; toolCallId: string; toolName: string; input: Record<string, unknown> } => b?.type === "toolCall" && typeof b.toolCallId === "string" && b.toolCallId.length > 0)
+            .map((b) => b.toolCallId)
+        : [];
+      // No timestamp or toolCallId to match: drop it now, as before holding existed.
+      const saved = (held.timestamp === undefined && heldToolIds.length === 0)
+        || action.committed.some((message) => {
+          if (message.role !== "assistant") return false;
+          if (held.timestamp !== undefined && message.timestamp === held.timestamp) return true;
+          if (heldToolIds.length > 0 && Array.isArray(message.content)) {
+            return message.content.some((b) => b?.type === "toolCall" && heldToolIds.includes(b.toolCallId));
+          }
+          return false;
+        });
       return saved ? { isStreaming: false, streamingMessage: null } : state;
     }
     case "idle":

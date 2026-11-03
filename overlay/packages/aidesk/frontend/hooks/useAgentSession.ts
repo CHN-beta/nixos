@@ -2448,14 +2448,17 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
             }, 1000);
           }
         }
-        // A finished reply stays until the catch-up above commits its saved
-        // copy (history callback). Tool-call turns still clear at once: their
-        // rows and status line come from the live tool state instead. A
-        // past-branch view never receives the saved copy, so it never holds.
+        // A finished assistant step (reply or tool-call turn) stays until the
+        // catch-up above commits its saved copy (history callback), so tool-call
+        // rows never unmount into transient fallback headers while the session
+        // file catches up. A past-branch view never receives the saved copy,
+        // so it never holds.
+        const hasToolCallOrThinking = completed?.role === "assistant"
+          && Array.isArray(completed.content)
+          && completed.content.some((block) => block?.type === "toolCall" || block?.type === "thinking");
         const finishedReply = completed?.role === "assistant"
           && !catchUp.view().leafId
-          && hasVisibleAssistantContent(completed)
-          && !(Array.isArray(completed.content) && completed.content.some((block) => block?.type === "toolCall"));
+          && (hasVisibleAssistantContent(completed) || hasToolCallOrThinking);
         dispatch(finishedReply ? { type: "hold", message: normalizeToolCalls(completed) } : { type: "idle", streaming: false });
         setAgentPhase({ kind: "waiting_model" });
         break;

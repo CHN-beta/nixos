@@ -1943,11 +1943,7 @@ pub fn select_history_range(
         end,
         cursor: HistoryCursor {
             first_entry_id,
-            last_entry_id: if end > start {
-                entry_ids.get(end - 1).cloned()
-            } else {
-                None
-            },
+            last_entry_id: end.checked_sub(1).and_then(|i| entry_ids.get(i)).cloned(),
         },
         has_more: end < entry_ids.len(),
     }
@@ -2102,6 +2098,17 @@ mod tests {
         assert_eq!(second.mode, "append");
         assert_eq!((second.start, second.end), (3, 5));
         assert!(!second.has_more);
+
+        let tip_cursor = HistoryCursor {
+            first_entry_id: Some("id0".into()),
+            last_entry_id: Some("id4".into()),
+        };
+        let empty_append = select_history_range(&ids, Some(&tip_cursor), 3);
+        assert_eq!(empty_append.mode, "append");
+        assert_eq!((empty_append.start, empty_append.end), (5, 5));
+        assert_eq!(empty_append.cursor.first_entry_id.as_deref(), Some("id0"));
+        assert_eq!(empty_append.cursor.last_entry_id.as_deref(), Some("id4"));
+        assert!(!empty_append.has_more);
     }
 
     #[test]
