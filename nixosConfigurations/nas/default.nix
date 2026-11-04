@@ -18,7 +18,13 @@
                 "/" = "/nix/export";
               };
               "/dev/lvm/ssd1"."/nix/ssd" = "/nix/ssd";
-              "/dev/lvm/single1"."/nix" = "/nix/backup/nix";
+              "/dev/lvm/single1" = {
+                "/nix" = "/nix/backup/nix";
+                "/nix/remote/xmuhk" = "/public/home/xmuhk";
+                "/nix/remote/jykang" = "/data/gpfs01/jykang";
+                "/nix/remote/wlin" = "/data/gpfs01/wlin";
+                "/nix/remote/hwang" = "/data/gpfs01/hwang";
+              };
             };
           };
           swap = [ "/dev/lvm/swap" ];
