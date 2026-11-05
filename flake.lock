@@ -1645,26 +1645,6 @@
         "type": "github"
       }
     },
-    "ompweb": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1792418392,
-        "narHash": "sha256-Tcgf0SB8hhzpnUW23pcaGMC+axGeMBY4KBqULR1sQlI=",
-        "owner": "CHN-beta",
-        "repo": "ompweb",
-        "rev": "36c0f5416345489e1f54a7b87da706bfa58f511a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "repo": "ompweb",
-        "type": "github"
-      }
-    },
     "openxlsx": {
       "flake": false,
       "locked": {
@@ -1923,7 +1903,6 @@
         "nur-linyinfeng": "nur-linyinfeng",
         "nur-xddxdd": "nur-xddxdd",
         "omp": "omp",
-        "ompweb": "ompweb",
         "openxlsx": "openxlsx",
         "pi": "pi",
         "pi-catppuccin": "pi-catppuccin",

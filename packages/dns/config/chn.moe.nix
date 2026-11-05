@@ -64,9 +64,6 @@ let
       "qdrant"
       "bgem3"
       "miniflux"
-      "omp"
-      "ompwyh"
-      "omplcl"
       "internal.cliproxyapi"
     ];
     vps10 = [
@@ -88,7 +85,6 @@ let
       "vikunja"
     ];
     "ddml-vm.ts" = [
-      "omprdhx"
       "ddml"
     ];
   };

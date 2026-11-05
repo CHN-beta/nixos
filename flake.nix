@@ -62,10 +62,6 @@
     llm-agents.url = "github:numtide/llm-agents.nix";
     pi.url = "github:lukasl-dev/pi.nix";
     omp.url = "github:CHN-beta/oh-my-pi";
-    ompweb = {
-      url = "github:CHN-beta/ompweb";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     bun2nix = {
       url = "github:nix-community/bun2nix";
       inputs.nixpkgs.follows = "nixpkgs";
