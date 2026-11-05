@@ -262,16 +262,48 @@ in
           }")"''
         else
           "export CLIPROXYAPI_API_KEY=dummy";
+      hindsightKey =
+        user:
+        if lib.elem user omp.users then
+          ''export HINDSIGHT_API_TOKEN="$(cat "${
+            config.nixos.system.sops.secrets."hindsight/keys/${user}".path
+          }")"''
+        else
+          "export HINDSIGHT_API_TOKEN=dummy";
     in
     lib.mkIf (omp != null) {
-      nixos.system.sops.secrets =
-        omp.users
-        |> lib.flip lib.genAttrs' (
-          user:
-          lib.nameValuePair "cliproxyapi/keys/${user}" {
-            owner = user;
+      assertions =
+        let
+          missing = lib.subtractLists omp.users [
+            "chn"
+            "straycat"
+          ];
+        in
+        [
+          {
+            assertion = missing == [ ];
+            message = "The following users are not configured in OMP: ${lib.concatStringsSep ", " missing}";
           }
-        );
+        ];
+      nixos.system.sops.secrets = lib.mkMerge [
+        (
+          omp.users
+          |> map (
+            user:
+            [
+              "cliproxyapi/keys/${user}"
+              "hindsight/keys/${user}"
+            ]
+            |> map (key: lib.nameValuePair key { owner = user; })
+          )
+          |> lib.concatLists
+          |> lib.listToAttrs
+        )
+        {
+          "cliproxyapi/keys/straycat".key = "cliproxyapi/keys/chn";
+          "hindsight/keys/straycat".key = "hindsight/keys/chn";
+        }
+      ];
       environment.persistence."/nix/persistent".users.chn.directories = [ ".omp" ];
       nixos.user.sharedModules = [
         (homeInputs: {
@@ -298,7 +330,7 @@ in
               enable = true;
               settings = settings homeInputs.config.home.username;
               package = pkgs.writeShellScriptBin "omp" ''
-                export HINDSIGHT_API_TOKEN="$(cat "${config.nixos.system.sops.secrets."straycat/hindsight".path}")"
+                ${hindsightKey homeInputs.config.home.username}
                 export MINERU_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/mineru".path}")"
                 ${cliproxyapiKey homeInputs.config.home.username}
                 export QDRANT_API_KEY="$(cat "${config.nixos.system.sops.secrets."straycat/qdrant".path}")"

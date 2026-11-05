@@ -9,7 +9,28 @@ let
     api = 8888;
     controlPlane = 9999;
   };
+  users = [
+    "chn"
+    "wyh"
+    "lcl"
+    "mhy"
+    "rdhx"
+  ];
+  allowedBanks =
+    user:
+    {
+      wyh = [
+        "wyh"
+        "lcl"
+      ];
+      lcl = [
+        "wyh"
+        "lcl"
+      ];
+    }
+    .${user} or [ user ];
   envFile = config.nixos.system.sops.templates."hindsight.env";
+  keysFile = config.nixos.system.sops.templates."hindsight-keys.json";
   llmEnvironment = {
     HINDSIGHT_API_LLM_PROVIDER = "openai";
     HINDSIGHT_API_LLM_BASE_URL = "https://internal.cliproxyapi.chn.moe/v1";
@@ -40,21 +61,33 @@ in
             "http://127.0.0.1:${toString port.api}";
         };
       };
-      system.sops.templates."hindsight.env".content =
-        let
-          inherit (config.nixos.system.sops) placeholder;
-        in
-        ''
-          HINDSIGHT_API_DATABASE_URL=postgresql://hindsight:${
-            placeholder."postgresql/hindsight"
-          }@127.0.0.1:5432/hindsight
-          HINDSIGHT_API_LLM_API_KEY=${placeholder."straycat/cliproxyapi"}
-          HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY=${placeholder."straycat/siliconflow"}
-          HINDSIGHT_API_RERANKER_SILICONFLOW_API_KEY=${placeholder."straycat/siliconflow"}
-          HINDSIGHT_API_TENANT_API_KEY=${placeholder."straycat/hindsight"}
-          HINDSIGHT_CP_ACCESS_KEY=${placeholder."straycat/hindsight"}
-          HINDSIGHT_CP_DATAPLANE_API_KEY=${placeholder."straycat/hindsight"}
-        '';
+      system.sops = {
+        secrets = lib.genAttrs' users (user: lib.nameValuePair "hindsight/keys/${user}" { });
+        templates = {
+          "hindsight.env".content =
+            let
+              inherit (config.nixos.system.sops) placeholder;
+            in
+            ''
+              HINDSIGHT_API_DATABASE_URL=postgresql://hindsight:${
+                placeholder."postgresql/hindsight"
+              }@127.0.0.1:5432/hindsight
+              HINDSIGHT_API_LLM_API_KEY=${placeholder."straycat/cliproxyapi"}
+              HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY=${placeholder."straycat/siliconflow"}
+              HINDSIGHT_API_RERANKER_SILICONFLOW_API_KEY=${placeholder."straycat/siliconflow"}
+              HINDSIGHT_CP_ACCESS_KEY=${placeholder."straycat/hindsight"}
+              HINDSIGHT_CP_DATAPLANE_API_KEY=${placeholder."straycat/hindsight"}
+            '';
+          "hindsight-keys.json".content =
+            users
+            |> map (
+              user:
+              lib.nameValuePair config.nixos.system.sops.placeholder."hindsight/keys/${user}" (allowedBanks user)
+            )
+            |> lib.listToAttrs
+            |> lib.toJSON;
+        };
+      };
     };
     systemd.services.hindsight-api = {
       description = "Hindsight API";
@@ -64,15 +97,21 @@ in
       ];
       requires = [ "postgresql.service" ];
       wantedBy = [ "multi-user.target" ];
-      restartTriggers = [ envFile.content ];
+      restartTriggers = [
+        envFile.content
+        keysFile.content
+      ];
       environment = llmEnvironment // {
         HOME = "/var/lib/hindsight";
         HINDSIGHT_API_HOST = "127.0.0.1";
         HINDSIGHT_API_PORT = toString port.api;
+        HINDSIGHT_API_TENANT_EXTENSION = "hindsight_bank_auth:BankKeyTenantExtension";
+        HINDSIGHT_API_OPERATION_VALIDATOR_EXTENSION = "hindsight_bank_auth:BankScopeValidator";
       };
       serviceConfig = {
         ExecStart = lib.getExe pkgs.localPkgs.hindsight.api;
         EnvironmentFile = envFile.path;
+        LoadCredential = "keys.json:${keysFile.path}";
         DynamicUser = true;
         StateDirectory = "hindsight";
         WorkingDirectory = "/var/lib/hindsight";

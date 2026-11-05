@@ -178,7 +178,7 @@
         mathematica = { };
         vasp = { };
         lumerical = { };
-        omp.users = [ "chn" ];
+        omp.users = [ "chn" "straycat" ];
       };
       user.users = [
         "chn"

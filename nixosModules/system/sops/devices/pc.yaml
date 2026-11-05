@@ -19,6 +19,9 @@ slurm:
 cliproxyapi:
     keys:
         chn: ENC[AES256_GCM,data:B5jORuRx9N0+ytDl+TnYIMw+DGGUvIKDkUgDslE79oRBaLP8Kp17K+1rOR+30rkjrUSV,iv:lrobMsbxmxQs4odrUHXNezmLoNSj8ipC96yk5OIGM5g=,tag:iPvhttfeySyGfLjKXZPJQQ==,type:str]
+hindsight:
+    keys:
+        chn: ENC[AES256_GCM,data:kytSkefzXHQ1BeGGrkia6vCiLR5Z8P21dnKjS5wgx/4=,iv:1eFFjcXKExHNqppHCE17Zx9jIrv4pOmouAiMIY8jzKo=,tag:Bfr6R5BoICHOFQ9k4GYBuA==,type:str]
 sops:
     age:
         - enc: |
@@ -40,7 +43,7 @@ sops:
             WLmJ1ayrY2BABdIAudjtrZ6jvUSbrCvXBrNUvR/fX2uRrk6ZAAqE8g==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
-    lastmodified: "2026-10-30T04:28:29Z"
-    mac: ENC[AES256_GCM,data:UZSTxFLXbPC6ReRnSMkM8XsRh4vCZy9+Xw3aWZXIeHdEkI3vpqsH/IhQAWqX3NGHZeyA3FDWaIW6roBSvs+I18T2bwL0LyjLT5sstbkbzk1nmd4mKhU79Mxn4hfIRQuoLy8ozWs8W/uGfP5OyU/Q+XAlTLCJm0DiBOXdzv2rvHw=,iv:6JjsjARfnPc0scyZjHUp7+iQVqOVGNNVbydFS1UiE4g=,tag:jPqUsyIBuyYz8TPDGa4nfw==,type:str]
+    lastmodified: "2026-11-05T03:08:30Z"
+    mac: ENC[AES256_GCM,data:mbO0aE+NibaOlU0XUhNTHEfPQHWL8yxMC0FFV3eBCJ2WV+HMJQqpdN71TTDLSgk7feT1o/vc57e78SDAbwxBs41UDhMzLXV0cGj2+IMPZDvKq6keVn57ru+cz4flD3bCreOQk4huApLZffbMphbEAbFPdbAjnQTY+ouH2Ks6oNk=,iv:DBraziZKrv5ZVh2AeTl9tS97g4YFFXvla5+epztNp00=,tag:h1JV68PW5plH5IibWHjqyg==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

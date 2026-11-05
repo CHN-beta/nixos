@@ -22,11 +22,14 @@ let
     ]
   );
 in
-(pythonSet.mkVirtualEnv "hindsight-api-1.1.0" { hindsight-api-slim = [ ]; }).overrideAttrs {
+(pythonSet.mkVirtualEnv "hindsight-api-1.1.0" { hindsight-api-slim = [ ]; }).overrideAttrs (old: {
+  postInstall = (old.postInstall or "") + ''
+    cp ${./bank_auth.py} $out/${python.sitePackages}/hindsight_bank_auth.py
+  '';
   meta = {
     description = "Hindsight: Agent Memory That Learns";
     homepage = "https://github.com/vectorize-io/hindsight";
     license = lib.licenses.mit;
     mainProgram = "hindsight-api";
   };
-}
+})
