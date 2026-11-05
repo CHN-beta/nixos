@@ -32,13 +32,6 @@
                 "/nix/rootfs/current" = "/";
                 "/nix" = "/nix";
               };
-              "/dev/tf/tf" = {
-                "/nix" = "/nix/tf/nix";
-                "/nix/remote/xmuhk" = "/public/home/xmuhk";
-                "/nix/remote/jykang" = "/data/gpfs01/jykang";
-                "/nix/remote/wlin" = "/data/gpfs01/wlin";
-                "/nix/remote/hwang" = "/data/gpfs01/hwang";
-              };
             };
             nfs."nas.ts.chn.moe:/nix/export" = {
               mountPoint = "/nix/remote/nas";
@@ -124,7 +117,6 @@
           );
           extraInterfaces = [ "wlp194s0" ];
         };
-        harmonia.store = "/nix/tf";
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
         beesd = {
           "/" = {
