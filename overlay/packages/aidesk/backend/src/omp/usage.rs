@@ -16,7 +16,7 @@ const CLIPROXYAPI_QUOTA_TTL: Duration = Duration::from_secs(120);
 const CLIPROXYAPI_TIMEOUT: Duration = Duration::from_secs(8);
 const CLIPROXYAPI_PROVIDER: &str = "cliproxyapi";
 /// Gateway used when `models.yml` defines no `cliproxyapi` base URL.
-const CLIPROXYAPI_DEFAULT_BASE_URL: &str = "https://cliproxyapi.chn.moe/v1";
+const CLIPROXYAPI_DEFAULT_BASE_URL: &str = "https://internal.cliproxyapi.chn.moe/v1";
 /// Environment variable (and `models.yml` `apiKey`) holding the gateway key.
 const CLIPROXYAPI_KEY_NAME: &str = "CLIPROXYAPI_API_KEY";
 

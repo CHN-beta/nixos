@@ -12,7 +12,7 @@
         USER_PERMISSIONS_CHAT_ALLOW_PUBLIC_SHARING = "True";
         WEBUI_URL = "https://chat.chn.moe";
         ADMIN_EMAIL = "chn@chn.moe";
-        OPENAI_API_BASE_URLS = "https://cliproxyapi.chn.moe/v1";
+        OPENAI_API_BASE_URLS = "https://internal.cliproxyapi.chn.moe/v1";
         OLLAMA_BASE_URL = "https://ollama.chn.moe";
         DEFAULT_MODELS = "cliproxyapi/gemini-3.8-flash";
         CORS_ALLOW_ORIGIN = "https://chat.chn.moe";
