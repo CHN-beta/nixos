@@ -85,6 +85,7 @@
         cliproxyapi.users = [
           "southfox"
           "alikia"
+          "cclin"
         ];
       };
     };
