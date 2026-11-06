@@ -23,7 +23,7 @@ hindsight:
     keys:
         chn: ENC[AES256_GCM,data:kytSkefzXHQ1BeGGrkia6vCiLR5Z8P21dnKjS5wgx/4=,iv:1eFFjcXKExHNqppHCE17Zx9jIrv4pOmouAiMIY8jzKo=,tag:Bfr6R5BoICHOFQ9k4GYBuA==,type:str]
 voxtype:
-    siliconflow: ENC[AES256_GCM,data:sEJcOR674MK2jYOhQTS1y9gbnfrigxdlPDizvPHRPX/30ZngWaVUwvyqNHVwd3AitTK3Bg==,iv:7F/MaeN8xDQxI24+gE3lrLUMabgFlv5glYz/d4+FHDw=,tag:jfpNovp9eQA8/zpy5+N7LA==,type:str]
+    siliconflow: ENC[AES256_GCM,data:03w4hXnLmmiHBCLmwXCtsUVlY0UNxIu0K52Tlhsdb5LRl109OICG854mDk2vkoATsv+I,iv:7dbY/wsg/aJChtDsx/OMtkb9/2Qky6JG27twFp5QQUM=,tag:r+VANvmBNJHV9GOoVtY9BQ==,type:str]
 omp:
     mineru: ENC[AES256_GCM,data:qksvkjVTDR0ZMKRUCVJdeYhUVzZnCHObyFahwf/2MttkBXoYN6alBiNGRvdV7jLs3gvS,iv:lPgt0kNcHRHSCznGk7MdLXCyYnIsZYlRFxkkJyEH2eE=,tag:Jfyw6p77/N/cUEYmRXCDxg==,type:str]
     github: ENC[AES256_GCM,data:bjMxXUw3yClmYAxrvXTpEU7htivO6Ee14NFGRrBWmJSRo6PmNZDm8g==,iv:iRLAmgHeYOmUCj4GGxtZRhfhmdo9e065e32+TAot0eI=,tag:O20Lqmqp3M6LMKwssNyPTQ==,type:str]
@@ -56,7 +56,7 @@ sops:
             WLmJ1ayrY2BABdIAudjtrZ6jvUSbrCvXBrNUvR/fX2uRrk6ZAAqE8g==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
-    lastmodified: "2026-11-06T08:13:13Z"
-    mac: ENC[AES256_GCM,data:wnv7ZZq9liR6QGzSBJZhALpPPiC7NRc4t8U86OsAxsdA91u6K2S8MUvNWlXSq4kkkU25KX07r+arujq2OmkfZmNZYg+vmkje17bBCGXcuzzPnCK3r+mBnB78NV5gpOOhO3UX8Y0Bh0B+ujv+YRyNZQC2XhVP2OCNTOdZexfwoo0=,iv:IyWuCtqg5xA7eVukN0FjINtrB1AhEpBW48GJX30Sh9M=,tag:zeiuSR+MO+1WJmi9clkTKQ==,type:str]
+    lastmodified: "2026-11-06T09:32:31Z"
+    mac: ENC[AES256_GCM,data:nfqgNkJC7z8fhG/i0+Le3BWjbf/I4Dk0gLIAiLMYqN5gaPGngsdMN2AqLzXri6xo8MkPT6Rn+JwWY1iGjEV8L801ENBh28mtws2tFOmAu6UpcwiTtKIbC5MYGSpIXup9xNM3ux4RVzE0rN00cTflBpqRn8zC8DRtyP6nS/NXGnI=,iv:YcJigkybHQllfJeYUH/rSN56jj494p2w3Tf8qZ9UITI=,tag:4mJz1t+nymIxYEjKNfGFug==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
