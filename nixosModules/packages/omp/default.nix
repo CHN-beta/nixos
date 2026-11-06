@@ -301,6 +301,70 @@
                     ${agent.prompt}
                   ''
                 ) agents;
+                skills =
+                  let
+                    partnerBank =
+                      {
+                        wyh = "lcl";
+                        lcl = "wyh";
+                      }
+                      .${user} or null;
+                  in
+                  lib.optionalAttrs (partnerBank != null) {
+                    partner-activity = {
+                      description = "当用户询问伴侣（丈夫/老公/妻子/老婆，即 ${partnerBank}）今天或近期做了什么、工作进展或近期动态时，查询 Hindsight 中 ${partnerBank} 的记忆库（bank）。";
+                      content = ''
+                        # 查询伴侣（${partnerBank}）近期动态
+
+                        内置的 `xd://recall` 和 `xd://reflect` 工具默认仅查询当前用户自己的 Hindsight bank（`${user}`）。
+                        当用户询问伴侣（bank ID 为 `${partnerBank}`）今天或近期做了什么时，请直接使用 `bash`（`curl`）或 `eval` 调用 Hindsight HTTP API 查询 `${partnerBank}` 的记忆库。当前运行环境已导出 `$HINDSIGHT_API_TOKEN`，且已具备 `${partnerBank}` bank 的访问权限。
+
+                        ## 查询方式
+
+                        > **注意**：记忆正文通常只记录具体事件（如代码修改、讨论主题），不会包含“今天”、“做了什么”等字面词。因此：
+                        > - 询问**“今天/最近做了什么”**（按时间范围浏览）时，**必须**使用 `/memories/list` 按时间过滤或倒序拉取，**不要**用“今天、做了什么”去调 `/memories/recall`。
+                        > - 仅在询问**特定主题/项目/关键词**时，才使用 `/memories/recall` 检索具体主题词。
+
+                        1. **按时间列出最新记忆（`/memories/list`，首选用于“今天/近期做了什么”）**：
+                           默认按时间倒序（`mentioned_at DESC, created_at DESC`）返回。可通过 `start_date` / `end_date`（ISO 8601 格式，结合当前日期计算）和 `time_field`（`created_at` 或 `mentioned_at`）精确筛选时间段：
+                        ```bash
+                        # 示例 1：筛选某天或某段时间内的所有记忆（将日期替换为实际查询的日期范围）
+                        curl -sS "https://hindsight.chn.moe/v1/default/banks/${partnerBank}/memories/list?time_field=created_at&start_date=2026-11-06T00:00:00Z&limit=100" \
+                          -H "Authorization: Bearer $HINDSIGHT_API_TOKEN"
+
+                        # 示例 2：若当天无记录或想看近期动态，直接拉取最新 N 条记忆
+                        curl -sS "https://hindsight.chn.moe/v1/default/banks/${partnerBank}/memories/list?limit=50" \
+                          -H "Authorization: Bearer $HINDSIGHT_API_TOKEN"
+                        ```
+
+                        2. **按特定主题/关键词语义检索（`/memories/recall`，仅用于有明确查询主题时）**：
+                           `query` 必须填入**具体的业务主题、项目名或技术关键词**（切勿填入“今天”、“做了什么”等泛化词），可同时附加 `temporal_window` 提升对应时间段内记忆的排序权重：
+                        ```bash
+                        curl -sS -X POST "https://hindsight.chn.moe/v1/default/banks/${partnerBank}/memories/recall" \
+                          -H "Authorization: Bearer $HINDSIGHT_API_TOKEN" \
+                          -H "Content-Type: application/json" \
+                          -d '{
+                            "query": "<替换为具体的项目名、事项或关键词>",
+                            "types": ["world", "experience", "observation"],
+                            "budget": "mid",
+                            "max_tokens": 4096
+                          }'
+                        ```
+
+                        请结合返回的记忆条目及时间戳（`mentioned_at`、`created_at`、`occurred_start` 等字段）整理后回答用户。
+                      '';
+                    };
+                  };
+                skillFiles = lib.mapAttrs (
+                  name: skill:
+                  pkgs.writeText "omp-skill-${name}.md" ''
+                    ---
+                    name: ${name}
+                    description: ${skill.description}
+                    ---
+                    ${skill.content}
+                  ''
+                ) skills;
               in
               ''
                 run mkdir -p "$HOME/.omp/agent/agents" "$HOME/.omp/agent/extensions"
@@ -314,6 +378,13 @@
                     run rm -f "$HOME/.omp/agent/agents/${name}.md"
                     run install -m 600 ${file} "$HOME/.omp/agent/agents/${name}.md"
                   '') agentFiles
+                )}
+                ${lib.concatLines (
+                  lib.mapAttrsToList (name: file: ''
+                    run mkdir -p "$HOME/.omp/agent/skills/${name}"
+                    run rm -f "$HOME/.omp/agent/skills/${name}/SKILL.md"
+                    run install -m 600 ${file} "$HOME/.omp/agent/skills/${name}/SKILL.md"
+                  '') skillFiles
                 )}
               '';
           };
