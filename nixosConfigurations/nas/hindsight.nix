@@ -10,6 +10,7 @@ let
     controlPlane = 9999;
   };
   users = [
+    "infra"
     "chn"
     "wyh"
     "lcl"
@@ -27,6 +28,7 @@ let
         "wyh"
         "lcl"
       ];
+      infra = "*";
     }
     .${user} or [ user ];
   envFile = config.nixos.system.sops.templates."hindsight.env";
@@ -62,7 +64,13 @@ in
         };
       };
       system.sops = {
-        secrets = lib.genAttrs' users (user: lib.nameValuePair "hindsight/keys/${user}" { });
+        secrets = lib.mkMerge [
+          (lib.genAttrs' users (user: lib.nameValuePair "hindsight/keys/${user}" { }))
+          {
+            "hindsight/siliconflow" = { };
+            "hindsight/management" = { };
+          }
+        ];
         templates = {
           "hindsight.env".content =
             let
@@ -72,11 +80,11 @@ in
               HINDSIGHT_API_DATABASE_URL=postgresql://hindsight:${
                 placeholder."postgresql/hindsight"
               }@127.0.0.1:5432/hindsight
-              HINDSIGHT_API_LLM_API_KEY=${placeholder."straycat/cliproxyapi"}
-              HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY=${placeholder."straycat/siliconflow"}
-              HINDSIGHT_API_RERANKER_SILICONFLOW_API_KEY=${placeholder."straycat/siliconflow"}
-              HINDSIGHT_CP_ACCESS_KEY=${placeholder."straycat/hindsight"}
-              HINDSIGHT_CP_DATAPLANE_API_KEY=${placeholder."straycat/hindsight"}
+              HINDSIGHT_API_LLM_API_KEY=${placeholder."cliproxyapi/keys/infra"}
+              HINDSIGHT_API_EMBEDDINGS_OPENAI_API_KEY=${placeholder."hindsight/siliconflow"}
+              HINDSIGHT_API_RERANKER_SILICONFLOW_API_KEY=${placeholder."hindsight/siliconflow"}
+              HINDSIGHT_CP_ACCESS_KEY=${placeholder."hindsight/management"}
+              HINDSIGHT_CP_DATAPLANE_API_KEY=${placeholder."hindsight/keys/infra"}
             '';
           "hindsight-keys.json".content =
             users

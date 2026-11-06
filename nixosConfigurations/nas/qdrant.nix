@@ -13,7 +13,6 @@
       telemetry_disabled = true;
     };
   };
-
   systemd.services.qdrant = {
     restartTriggers = [ config.nixos.system.sops.templates."qdrant.env".content ];
     serviceConfig = {
@@ -24,7 +23,6 @@
       EnvironmentFile = config.nixos.system.sops.templates."qdrant.env".path;
     };
   };
-
   users = {
     users.qdrant = {
       isSystemUser = true;
@@ -32,17 +30,24 @@
     };
     groups.qdrant = { };
   };
-
   nixos = {
     services.nginx.https."qdrant.chn.moe" = {
       global.extraConfig = "client_max_body_size 64m;";
       location."/".proxy.upstream = "http://127.0.0.1:6333";
     };
-    system.sops.templates."qdrant.env".content = "QDRANT__SERVICE__API_KEY=${
-      config.nixos.system.sops.placeholder."straycat/qdrant"
-    }";
+    system.sops = {
+      secrets = {
+        "qdrant/api-key" = { };
+        "qdrant/read-only-api-key" = { };
+      };
+      templates."qdrant.env".content = ''
+        QDRANT__SERVICE__API_KEY=${config.nixos.system.sops.placeholder."qdrant/api-key"}
+        QDRANT__SERVICE__READ_ONLY_API_KEY=${
+          config.nixos.system.sops.placeholder."qdrant/read-only-api-key"
+        }
+      '';
+    };
   };
-
   environment.persistence."/nix/ssd".directories = [
     {
       directory = "/var/lib/qdrant";

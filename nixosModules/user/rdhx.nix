@@ -1,10 +1,7 @@
 { lib, config, ... }:
 {
   config = lib.mkIf (builtins.elem "rdhx" config.nixos.user.users) {
-    users.users.rdhx = {
-      extraGroups = lib.intersectLists [ "straycat" ] (builtins.attrNames config.users.groups);
-      openssh.authorizedKeys.keys = [ (builtins.readFile ./keys/rdhx) ];
-    };
+    users.users.rdhx.openssh.authorizedKeys.keys = [ (builtins.readFile ./keys/rdhx) ];
     home-manager.users.rdhx = homeInputs: {
       config.home.file = {
         ".ssh/id_ed25519".source =

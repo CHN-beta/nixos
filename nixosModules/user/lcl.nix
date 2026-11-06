@@ -1,10 +1,7 @@
 { lib, config, ... }:
 {
   config = lib.mkIf (builtins.elem "lcl" config.nixos.user.users) {
-    users.users.lcl = {
-      extraGroups = lib.intersectLists [ "straycat" ] (builtins.attrNames config.users.groups);
-      openssh.authorizedKeys.keys = [ (builtins.readFile ./keys/lcl) ];
-    };
+    users.users.lcl.openssh.authorizedKeys.keys = [ (builtins.readFile ./keys/lcl) ];
     home-manager.users.lcl = homeInputs: {
       config.home.file = {
         ".ssh/id_ed25519".source =

@@ -74,17 +74,10 @@
               };
             };
           };
-          access.api-keys =
-            lib.map (user: {
-              key._secret = config.nixos.system.sops.secrets."cliproxyapi/keys/${user}".path;
-              name = user;
-            }) cliproxyapi.users
-            ++ [
-              {
-                key._secret = config.nixos.system.sops.secrets."straycat/cliproxyapi".path;
-                name = "self";
-              }
-            ];
+          access.api-keys = lib.map (user: {
+            key._secret = config.nixos.system.sops.secrets."cliproxyapi/keys/${user}".path;
+            name = user;
+          }) (cliproxyapi.users ++ [ "infra" ]);
           observability = {
             logs = {
               debug = false;
@@ -166,7 +159,7 @@
                 priority = -1;
                 keys = [
                   {
-                    api-key._secret = config.nixos.system.sops.secrets."straycat/deepseek".path;
+                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/deepseek".path;
                   }
                 ];
                 models = [
@@ -181,7 +174,7 @@
                 priority = -1;
                 keys = [
                   {
-                    api-key._secret = config.nixos.system.sops.secrets."straycat/ark".path;
+                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/ark".path;
                   }
                 ];
                 models = [
@@ -215,13 +208,14 @@
         };
         system.sops = {
           secrets =
-            lib.genAttrs' cliproxyapi.users (user: lib.nameValuePair "cliproxyapi/keys/${user}" { })
+            lib.genAttrs' (cliproxyapi.users ++ [ "infra" ]) (
+              user: lib.nameValuePair "cliproxyapi/keys/${user}" { }
+            )
             // {
               "cliproxyapi/management" = { };
               "cliproxyapi/gemini" = { };
-              "straycat/cliproxyapi" = { };
-              "straycat/deepseek" = { };
-              "straycat/ark" = { };
+              "cliproxyapi/deepseek" = { };
+              "cliproxyapi/ark" = { };
             };
           templates."cliproxyapi/postgres-dsn".content = "postgres://cliproxyapi:${
             config.nixos.system.sops.placeholder."postgresql/cliproxyapi"

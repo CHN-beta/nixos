@@ -16,7 +16,6 @@
         "ipfs"
         "dialout"
         "vboxusers"
-        "straycat"
       ] (builtins.attrNames config.users.groups);
       subUidRanges = [
         {

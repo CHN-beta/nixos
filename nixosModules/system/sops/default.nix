@@ -102,7 +102,6 @@ inputs: {
               ./default.yaml
               ./chn.yaml
               ./xray-server.yaml
-              ./straycat.yaml
             ]
             ++ (inputs.lib.optionals (model.cluster == null) [ ./devices/${model.hostname}.yaml ])
             ++ (inputs.lib.optionals (model.cluster != null) [

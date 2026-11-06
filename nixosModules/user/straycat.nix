@@ -9,38 +9,11 @@
       hashedPassword = "$y$j9T$1nnqD525KXm/G3xc.bqXD1$jR5ZVT1XsF2Qp0wVy4vc2QiHTkUhqgAkALPaPTrLML7";
       extraGroups = lib.intersectLists [ "adbusers" ] (builtins.attrNames config.users.groups);
     };
-    nixos.system.sops.secrets = lib.mkMerge [
-      (
-        [
-          "mineru"
-          "cliproxyapi"
-          "deepseek"
-          "qdrant"
-          "github"
-          "hindsight"
-          "siliconflow"
-          "openrouter"
-          "vikunja"
-          "ark"
-          "matrix"
-        ]
-        |> lib.flip lib.genAttrs' (
-          s:
-          lib.nameValuePair "straycat/${s}" {
-            group = "straycat";
-            mode = "0440";
-          }
-        )
-      )
-      {
-        "straycat/github".key = "github/token";
-        "straycat/ssh" = {
-          owner = "straycat";
-          group = "straycat";
-          mode = "0400";
-        };
-      }
-    ];
+    nixos.system.sops.secrets."straycat/ssh" = {
+      owner = "straycat";
+      group = "straycat";
+      mode = "0400";
+    };
     home-manager.users.straycat = homeInputs: {
       config.home.file = {
         ".ssh/id_ed25519".source =

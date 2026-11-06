@@ -2,7 +2,6 @@
 {
   config = lib.mkIf (builtins.elem "wyh" config.nixos.user.users) {
     users.users.wyh = {
-      extraGroups = lib.intersectLists [ "straycat" ] (builtins.attrNames config.users.groups);
       openssh.authorizedKeys.keys = [ (builtins.readFile ./keys/wyh) ];
       hashedPassword = "$y$j9T$zhMtkySO1LFe8WNbONkWX.$PHUORbar1/6btxJ89RRiy3W1nvie6rTsicGmqm18pB9";
     };
