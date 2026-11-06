@@ -73,9 +73,15 @@
           "omp/mineru".mode = "0444";
           "omp/github".mode = "0444";
           "omp/vikunja/chn".owner = "chn";
-          "omp/vikunja/straycat" = { owner = "straycat"; key = "omp/vikunja/chn"; };
+          "omp/vikunja/straycat" = {
+            owner = "straycat";
+            key = "omp/vikunja/chn";
+          };
           "omp/matrix/chn".owner = "chn";
-          "omp/matrix/straycat" = { owner = "straycat"; key = "omp/matrix/chn"; };
+          "omp/matrix/straycat" = {
+            owner = "straycat";
+            key = "omp/matrix/chn";
+          };
         }
       ];
       environment.persistence."/nix/persistent".users.chn.directories = [ ".omp" ];
@@ -131,11 +137,12 @@
                           EMBEDDING_PROVIDER = "bge-m3";
                           EMBEDDING_MODEL = "BAAI/bge-m3";
                           BGE_M3_BASE_URL = "https://bgem3.chn.moe";
-                          QDRANT_READ_ONLY =
+                          QDRANT_READ_ONLY = lib.boolToString (
                             !(lib.elem user [
                               "chn"
                               "straycat"
-                            ]);
+                            ])
+                          );
                           TOOL_STORE_DESCRIPTION = "Store information in a specified Qdrant collection for semantic retrieval. Use this only when the user explicitly asks to use Qdrant; otherwise use Hindsight for memory.";
                           TOOL_FIND_DESCRIPTION = "Search a specified Qdrant collection by meaning and return relevant information with metadata. Use this only when the user explicitly asks to use Qdrant; otherwise use Hindsight for memory retrieval.";
                         };
