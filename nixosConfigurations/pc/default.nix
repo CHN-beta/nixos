@@ -118,15 +118,9 @@
           extraInterfaces = [ "wlp194s0" ];
         };
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
-        beesd = {
-          "/" = {
-            hashTableSizeMB = 2 * 128;
-            threads = 4;
-          };
-          "/nix/tf/nix" = {
-            hashTableSizeMB = 128;
-            threads = 4;
-          };
+        beesd."/" = {
+          hashTableSizeMB = 2 * 128;
+          threads = 4;
         };
         slurm = {
           enable = true;
@@ -170,7 +164,10 @@
         mathematica = { };
         vasp = { };
         lumerical = { };
-        omp.users = [ "chn" "straycat" ];
+        omp.users = [
+          "chn"
+          "straycat"
+        ];
       };
       user.users = [
         "chn"

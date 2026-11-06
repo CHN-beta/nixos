@@ -73,15 +73,9 @@
           extraInterfaces = [ "enp4s0.20" ];
           hosts."git.chn.moe" = "127.0.0.1";
         };
-        beesd = {
-          "/" = {
-            threads = 4;
-            hashTableSizeMB = 10 * 128;
-          };
-          "/nix/backup/nix" = {
-            threads = 4;
-            hashTableSizeMB = 3 * 128;
-          };
+        beesd."/" = {
+          threads = 4;
+          hashTableSizeMB = 10 * 128;
         };
         postgresql.mountFrom = "ssd";
         mariadb.mountFrom = "ssd";
