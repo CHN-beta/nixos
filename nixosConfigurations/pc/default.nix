@@ -9,22 +9,6 @@
       };
       system = {
         fileSystems = {
-          # windows partitions:
-          #   /dev/nvme0n1p3, esp
-          #   /dev/nvme0n1p4, ntfs
-          # linux partition:
-          #   esp: /dev/nvme0n1p1 or /dev/disk/by-partlabel/pc-boot
-          #   most stuff: mounted from:
-          #     /dev/mapper/root1 /dev/tf/pc-root2, btrfs
-          #   nix build cache (/nix/remote/nix/store and hpc stuff): mounted from:
-          #     /dev/bcache0 /dev/tf/nbd-metadata, btrfs
-          #   swap: /dev/tf/pc-swap
-          #   lvm:
-          #     - /dev/mapper/tf2 -> /dev/tf/swap /dev/tf/pc-root2 /dev/tf/nbd-metadata /dev/tf/nbd-cache
-          #   luks:
-          #     - /dev/disk/by-partlabel/pc-root1 or /dev/nvme0n1p2 -> /dev/mapper/root1
-          #     - /dev/disk/by-partlabel/pc-tf2 or /dev/nvme0n1p5 -> /dev/mapper/tf2
-          #   bcache: /dev/tf/nbd-cache /dev/nbd1 -> /dev/bcache0
           mount = {
             vfat."/dev/disk/by-partlabel/pc-boot" = "/boot";
             btrfs = {
