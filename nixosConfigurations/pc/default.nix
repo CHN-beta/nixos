@@ -28,7 +28,7 @@
           mount = {
             vfat."/dev/disk/by-partlabel/pc-boot" = "/boot";
             btrfs = {
-              "/dev/mapper/root1" = {
+              "/dev/lvm/root1" = {
                 "/nix/rootfs/current" = "/";
                 "/nix" = "/nix";
               };
@@ -48,7 +48,7 @@
               ssd = true;
             };
           };
-          swap = [ "/dev/tf/pc-swap" ];
+          swap = [ "/dev/lvm/swap" ];
         };
         grub.windowsEntries."08D3-10DE" = "Windows";
         nix.marches = [
