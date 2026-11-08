@@ -1,13 +1,18 @@
-//! Detection and installation of the two runtime dependencies.
+//! Detection, installation and removal of the two runtime dependencies.
 //!
-//! * WinFsp — the user-mode file system driver/framework.
-//! * SSHFS-Win — the SSH file system service that plugs into WinFsp.
+//! * WinFsp — the user-mode file system driver/framework (row 1).
+//! * SSHFS-Win — the SSH file system service that plugs into WinFsp (row 2).
 //!
 //! Both are detected through their registry keys (32-bit view, which is where
 //! WinFsp/SSHFS-Win register themselves) with a file-system fallback, so an
 //! installation that skipped the registry entries is still recognized.
+//!
+//! The zip bundle produced by the Nix package ships both MSI installers in the
+//! `deps/` subdirectory next to the wizard executable; [`install_winfsp`] and
+//! [`install_sshfs`] prefer those, then fall back to `winget`, and finally to
+//! the upstream download pages.
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::registry;
 use crate::win32;
@@ -20,8 +25,8 @@ pub struct Status {
 }
 
 impl Status {
-    /// Whether mapping can proceed. The keepalive options are desirable but not
-    /// required: mapping works without them.
+    /// Whether the file-system stack (driver and client) is installed. The
+    /// keepalive options are desirable but not required for a mapping.
     pub fn ready(&self) -> bool {
         self.winfsp && self.sshfs
     }
@@ -69,72 +74,215 @@ fn winget_path() -> Option<String> {
         .map(str::to_owned)
 }
 
+/// Directory holding the running wizard, i.e. the directory the zip was
+/// extracted to.
+fn exe_dir() -> Option<PathBuf> {
+    let exe = std::env::current_exe().ok()?;
+    exe.parent().map(Path::to_path_buf)
+}
+
+/// Directories searched for the bundled MSI installers, in order: the `deps/`
+/// subdirectory of the extracted zip, then the executable's own directory so a
+/// bundle unpacked from an older flat archive still works.
+fn installer_dirs() -> Vec<PathBuf> {
+    match exe_dir() {
+        Some(dir) => vec![dir.join("deps"), dir],
+        None => Vec::new(),
+    }
+}
+
+/// Finds the installer in `dir` whose file name starts with `prefix` and ends
+/// in `.msi` (for example `winfsp-2.1.25156.msi`). The highest name wins when
+/// several versions are present.
+fn installer_in(dir: &Path, prefix: &str) -> Option<PathBuf> {
+    let mut candidates: Vec<PathBuf> = std::fs::read_dir(dir)
+        .ok()?
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.path())
+        .filter(|path| {
+            path.is_file()
+                && path
+                    .file_name()
+                    .and_then(|name| name.to_str())
+                    .is_some_and(|name| {
+                        let name = name.to_ascii_lowercase();
+                        name.starts_with(prefix) && name.ends_with(".msi")
+                    })
+        })
+        .collect();
+    candidates.sort();
+    candidates.pop()
+}
+
+/// Bundled installer for `prefix`, looking in `deps/` first.
+fn bundled_installer(prefix: &str) -> Option<PathBuf> {
+    installer_dirs()
+        .iter()
+        .find_map(|dir| installer_in(dir, prefix))
+}
+
+/// `ERROR_INSTALL_USEREXIT`: the user closed the MSI wizard without installing.
+const ERROR_INSTALL_USEREXIT: u32 = 1602;
+
 fn open_download_page(url: &str) {
     if let Err(err) = win32::shell_execute("open", url, "") {
         crate::win32::error_box(&format!("无法打开下载页面 {url}：{err}"));
     }
 }
 
-/// Installs every missing component. Returns human-readable progress lines.
-///
-/// With `winget` available the packages are installed through it (elevated,
-/// because MSI installers write to Program Files); otherwise the official
-/// GitHub release pages are opened so the user can run the MSI manually.
-pub fn install_missing(status: &Status) -> Vec<String> {
-    if status.winfsp && status.sshfs {
-        return vec!["WinFsp 与 SSHFS-Win 均已安装，无需操作。".to_owned()];
-    }
+/// One of the two bundled runtime components.
+struct Component {
+    /// Display name used in the user-facing messages.
+    name: &'static str,
+    /// File-name prefix of the MSI shipped inside the zip.
+    msi_prefix: &'static str,
+    winget_id: &'static str,
+    download_url: &'static str,
+}
 
-    let mut log = Vec::new();
+const WINFSP: Component = Component {
+    name: "虚拟磁盘驱动（WinFsp）",
+    msi_prefix: "winfsp-",
+    winget_id: "WinFsp.WinFsp",
+    download_url: "https://github.com/winfsp/winfsp/releases/latest",
+};
 
-    match winget_path() {
-        Some(winget) => {
-            let missing = [
-                (
-                    status.winfsp,
-                    "WinFsp.WinFsp",
-                    "WinFsp",
-                    "https://github.com/winfsp/winfsp/releases/latest",
-                ),
-                (
-                    status.sshfs,
-                    "SSHFS-Win.SSHFS-Win",
-                    "SSHFS-Win",
-                    "https://github.com/winfsp/sshfs-win/releases/latest",
-                ),
-            ];
-            for (installed, package_id, name, url) in missing {
-                if installed {
-                    continue;
-                }
-                let parameters = format!(
-                    "install --id {package_id} -e --accept-source-agreements --accept-package-agreements"
-                );
-                match win32::shell_execute("runas", &winget, &parameters) {
-                    Ok(()) => log.push(format!(
-                        "已启动 {name} 安装（winget）。安装完成后请点击“重新检查”。"
-                    )),
-                    Err(err) => {
-                        log.push(format!(
-                            "启动 winget 安装 {name} 失败（{err}），已改为打开官方下载页面。"
-                        ));
-                        open_download_page(url);
+const SSHFS: Component = Component {
+    name: "远程连接组件（SSHFS-Win）",
+    msi_prefix: "sshfs-win-",
+    winget_id: "SSHFS-Win.SSHFS-Win",
+    download_url: "https://github.com/winfsp/sshfs-win/releases/latest",
+};
+
+impl Component {
+    /// Installs the component: the bundled MSI first, then `winget`, then the
+    /// upstream download page.
+    ///
+    /// Launching an installer is *synchronous*, so the caller's re-check right
+    /// afterwards sees the real installation state instead of a process that
+    /// has barely shown its first window.
+    fn install(&self) -> Result<(), String> {
+        let reason = match bundled_installer(self.msi_prefix) {
+            Some(msi) => {
+                let file_name = msi
+                    .file_name()
+                    .map(|name| name.to_string_lossy().into_owned())
+                    .unwrap_or_default();
+                let parameters = format!("/i \"{}\"", msi.display());
+                match win32::shell_execute_wait("runas", "msiexec.exe", &parameters) {
+                    Ok(code) if msi_succeeded(code) => return Ok(()),
+                    Ok(ERROR_INSTALL_USEREXIT) => {
+                        return Err(format!("已取消{}的安装。", self.name));
                     }
+                    Ok(code) => {
+                        format!("随附的安装包 {file_name} 安装失败（退出码 {code}）")
+                    }
+                    Err(err) => format!("无法启动随附的安装包 {file_name}（{err}）"),
                 }
             }
-        }
-        None => {
-            if !status.winfsp {
-                open_download_page("https://github.com/winfsp/winfsp/releases/latest");
+            None => format!("未在 deps 目录中找到{}的安装包", self.name),
+        };
+
+        let Some(winget) = winget_path() else {
+            open_download_page(self.download_url);
+            return Err(format!(
+                "{reason}，且未检测到 winget；已打开 {} 的官方下载页面，安装后点击“重新检查”。",
+                self.name
+            ));
+        };
+
+        let parameters = format!(
+            "install --id {} -e --accept-source-agreements --accept-package-agreements",
+            self.winget_id
+        );
+        match win32::shell_execute_wait("runas", &winget, &parameters) {
+            Ok(0) => Ok(()),
+            Ok(code) => {
+                open_download_page(self.download_url);
+                Err(format!(
+                    "{reason}，winget 安装亦失败（退出码 {code}）；已打开 {} 的官方下载页面。",
+                    self.name
+                ))
             }
-            if !status.sshfs {
-                open_download_page("https://github.com/winfsp/sshfs-win/releases/latest");
+            Err(err) => {
+                open_download_page(self.download_url);
+                Err(format!(
+                    "{reason}，winget 启动失败（{err}）；已打开 {} 的官方下载页面。",
+                    self.name
+                ))
             }
-            log.push(
-                "未检测到 winget，已打开官方下载页面；请安装 MSI 后点击“重新检查”。".to_owned(),
-            );
         }
     }
 
-    log
+    /// Removes the component: `msiexec /x` against the bundled package when it
+    /// is available, otherwise `winget uninstall`.
+    fn uninstall(&self) -> Result<(), String> {
+        let reason = match bundled_installer(self.msi_prefix) {
+            Some(msi) => {
+                let file_name = msi
+                    .file_name()
+                    .map(|name| name.to_string_lossy().into_owned())
+                    .unwrap_or_default();
+                let parameters = format!("/x \"{}\"", msi.display());
+                match win32::shell_execute_wait("runas", "msiexec.exe", &parameters) {
+                    Ok(code) if msi_succeeded(code) => return Ok(()),
+                    Ok(ERROR_INSTALL_USEREXIT) => {
+                        return Err(format!("已取消{}的卸载。", self.name));
+                    }
+                    Ok(code) => format!(
+                        "随附的卸载包 {file_name} 未能卸载{0}（退出码 {code}）",
+                        self.name
+                    ),
+                    Err(err) => format!("无法启动随附的卸载包 {file_name}（{err}）"),
+                }
+            }
+            None => format!("未找到{}的安装包", self.name),
+        };
+
+        let Some(winget) = winget_path() else {
+            return Err(format!(
+                "{reason}，且未检测到 winget；请在“设置 → 应用”中手动卸载。"
+            ));
+        };
+
+        let parameters = format!(
+            "uninstall --id {} -e --accept-source-agreements",
+            self.winget_id
+        );
+        match win32::shell_execute_wait("runas", &winget, &parameters) {
+            Ok(0) => Ok(()),
+            Ok(code) => Err(format!(
+                "{reason}，winget 卸载亦失败（退出码 {code}）；请在“设置 → 应用”中手动卸载。"
+            )),
+            Err(err) => Err(format!(
+                "{reason}，winget 启动失败（{err}）；请在“设置 → 应用”中手动卸载。"
+            )),
+        }
+    }
+}
+
+/// Installs the WinFsp driver (table row 1).
+pub fn install_winfsp() -> Result<(), String> {
+    WINFSP.install()
+}
+
+/// Installs the SSHFS-Win client (table row 2).
+pub fn install_sshfs() -> Result<(), String> {
+    SSHFS.install()
+}
+
+/// Uninstalls the WinFsp driver (table row 1).
+pub fn uninstall_winfsp() -> Result<(), String> {
+    WINFSP.uninstall()
+}
+
+/// Uninstalls the SSHFS-Win client (table row 2).
+pub fn uninstall_sshfs() -> Result<(), String> {
+    SSHFS.uninstall()
+}
+
+/// MSI exit codes that mean the product is installed: `0` (success), `3010`
+/// and `1641` (success, with a pending reboot).
+fn msi_succeeded(code: u32) -> bool {
+    matches!(code, 0 | 3010 | 1641)
 }

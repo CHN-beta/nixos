@@ -1,57 +1,145 @@
-//! The four-page wizard UI.
+//! The two-page wizard UI.
 //!
-//! All controls are created up front on a fixed-size main window and shown or
-//! hidden per page, which keeps the layout simple and avoids re-creating native
-//! windows on every navigation step.
+//! Page 1 is the introduction; page 2 is a four-row setup table. Both pages
+//! live on one fixed-size main window and every control is created up front,
+//! then shown or hidden per page, which keeps navigation trivial and avoids
+//! re-creating native windows on every step. The account form of row 4 lives in
+//! a [`gui::WindowModal`] that is created on demand and closed as soon as the
+//! drive is mapped.
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use winsafe::{self as w, co, gui, prelude::*};
 
-use crate::{deps, mapping, registry, win32, SERVER};
+use crate::{deps, mapping, registry, win32};
 
-const PAGE1_BODY: &str = "\
-本向导会把 AIDesk 的远程工作目录映射为本机的网络驱动器，\r\n\
-并在每次登录时自动重连，用起来就像本地磁盘一样。\r\n\
-\r\n\
-向导将自动完成：\r\n\
-  • 检查并安装 WinFsp 与 SSHFS-Win 两个底层依赖；\r\n\
-  • 写入断线自动重连参数，降低网络波动造成的断连；\r\n\
-  • 用 Windows 凭据管理器保存密码，映射后开机自动恢复。\r\n\
-\r\n\
-安装驱动需要管理员权限，届时会弹出 UAC 授权窗口。";
+pub const WIN_TITLE: &str = "AIDesk 网盘助手";
 
-const PAGE2_HINT: &str = "\
-WinFsp 与 SSHFS-Win 缺一不可。缺少任一组件时“下一步”不可用；\r\n\
-安装完成后请点击“重新检查”。\r\n\
-重连参数：ServerAliveInterval=15、ServerAliveCountMax=3、reconnect。";
+// Page 1
+pub const P1_TITLE: &str = "欢迎使用 AIDesk 网盘助手";
+pub const P1_BODY: &str = "本工具将把您的 AIDesk 云端个人目录，直接添加为电脑里的一个本地盘符。\r\n\r\n\
+设置完成后开机自动连接，您可以像使用普通本地硬盘或 U 盘一样直接打开和保存文件。\r\n\r\n\
+文件实时保存在云端，跨设备随时访问，安全便捷。\r\n\r\n\
+请点击“下一步”开始简单的准备与连接设置。";
+pub const BTN_NEXT: &str = "下一步";
+pub const BTN_CANCEL: &str = "取消";
 
-const PAGE3_HINT: &str = "\
-服务器：nas.chn.moe（SSH 默认端口 22）。\r\n\
-映射地址：\\\\sshfs\\<用户名>@nas.chn.moe，对应账号的远程主目录。\r\n\
-密码会保存到 Windows 凭据管理器中，用于开机自动重连。";
+// Page 2
+pub const P2_TITLE: &str = "环境准备与网盘挂载";
+pub const P2_HINT: &str = "请按自上而下的顺序依次完成以下 4 项操作，全部完成后点击“完成”退出向导。";
+pub const BTN_BACK: &str = "上一步";
+pub const BTN_RECHECK: &str = "重新检查";
+pub const BTN_FINISH: &str = "完成";
 
-const PAGE4_HINT: &str = "\
-点击“开始映射”将清理该盘符上的旧连接、写入重连参数，\r\n\
-并用上面的账号建立映射（密码同时写入凭据管理器）。";
+// Row 1
+pub const ITEM1_NAME: &str = "虚拟磁盘驱动";
+pub const ITEM1_DESC: &str = "让电脑能够像本地磁盘一样读写云端文件。";
+pub const ITEM1_UNREADY: &str = "未安装";
+pub const ITEM1_READY: &str = "已安装";
+pub const ITEM1_DO: &str = "安装";
+pub const ITEM1_UNDO: &str = "卸载";
 
-#[derive(Clone, Copy, PartialEq, Eq, Default)]
+// Row 2
+pub const ITEM2_NAME: &str = "远程连接组件";
+pub const ITEM2_DESC: &str = "连接云端服务器，保障文件安全稳定传输。";
+pub const ITEM2_UNREADY: &str = "未安装";
+pub const ITEM2_READY: &str = "已安装";
+pub const ITEM2_DO: &str = "安装";
+pub const ITEM2_UNDO: &str = "卸载";
+
+// Row 3
+pub const ITEM3_NAME: &str = "断线自动重连";
+pub const ITEM3_DESC: &str = "网络波动时后台自动恢复，保持网盘连接。";
+pub const ITEM3_UNREADY: &str = "未启用";
+pub const ITEM3_READY: &str = "已启用";
+pub const ITEM3_DO: &str = "启用";
+pub const ITEM3_UNDO: &str = "关闭";
+
+// Row 4
+pub const ITEM4_NAME: &str = "挂载云端网盘";
+pub const ITEM4_DESC: &str = "登录个人账号，将云端空间挂载为本地盘符。";
+pub const ITEM4_UNREADY: &str = "未挂载";
+pub const ITEM4_DO: &str = "配置";
+pub const ITEM4_UNDO: &str = "断开";
+
+// Modal dialog
+pub const DLG_TITLE: &str = "设置与挂载云端网盘";
+pub const DLG_LBL_USER: &str = "用户名：";
+pub const DLG_LBL_PASS: &str = "密码：";
+pub const DLG_LBL_DRIVE: &str = "选择盘符：";
+pub const DLG_HINT_SECURE: &str =
+    "您的密码将安全保存在本机凭据中，开机登录后将自动连接此网盘。";
+pub const DLG_BTN_CONNECT: &str = "确定挂载";
+pub const DLG_BTN_CANCEL: &str = "取消";
+
+/// Page-2 table headers, left to right.
+const COLUMNS: [&str; 4] = ["项目", "简介", "当前状态", "操作"];
+
+/// Left edge and width of each table column, in unscaled pixels.
+const COLUMN_GEOMETRY: [(i32, i32); 4] = [(28, 96), (128, 264), (400, 104), (512, 80)];
+
+/// Top edge of the four table rows, in unscaled pixels.
+const ROW_TOP: [i32; 4] = [120, 156, 192, 228];
+
+/// The texts of one setup row.
+struct Row {
+    name: &'static str,
+    desc: &'static str,
+    unready: &'static str,
+    ready: &'static str,
+    action: &'static str,
+    undo: &'static str,
+}
+
+/// The four setup rows, in the order the user has to complete them.
+const ROWS: [Row; 4] = [
+    Row {
+        name: ITEM1_NAME,
+        desc: ITEM1_DESC,
+        unready: ITEM1_UNREADY,
+        ready: ITEM1_READY,
+        action: ITEM1_DO,
+        undo: ITEM1_UNDO,
+    },
+    Row {
+        name: ITEM2_NAME,
+        desc: ITEM2_DESC,
+        unready: ITEM2_UNREADY,
+        ready: ITEM2_READY,
+        action: ITEM2_DO,
+        undo: ITEM2_UNDO,
+    },
+    Row {
+        name: ITEM3_NAME,
+        desc: ITEM3_DESC,
+        unready: ITEM3_UNREADY,
+        ready: ITEM3_READY,
+        action: ITEM3_DO,
+        undo: ITEM3_UNDO,
+    },
+    Row {
+        name: ITEM4_NAME,
+        desc: ITEM4_DESC,
+        unready: ITEM4_UNREADY,
+        // Row 4 has no static ready text: it shows the attached drive letter.
+        ready: "",
+        action: ITEM4_DO,
+        undo: ITEM4_UNDO,
+    },
+];
+
+#[derive(Clone, Copy, PartialEq, Eq)]
 enum Page {
-    #[default]
     Welcome,
-    Deps,
-    Account,
-    Map,
+    Setup,
 }
 
 #[derive(Default)]
 struct State {
-    page: Page,
     deps: deps::Status,
-    mapped: bool,
-    log: Vec<String>,
-    notes: Vec<String>,
+    /// Drive letter of the current SSHFS mapping, e.g. `"Z:"`.
+    mounted_drive: Option<String>,
 }
 
 #[derive(Clone)]
@@ -65,37 +153,20 @@ struct Wizard {
 
     // Page 2
     p2_title: gui::Label,
-    p2_winfsp: gui::Label,
-    p2_sshfs: gui::Label,
-    p2_keepalive: gui::Label,
     p2_hint: gui::Label,
-    p2_note: gui::Label,
-    btn_install: gui::Button,
-    btn_configure: gui::Button,
-
-    // Page 3
-    p3_title: gui::Label,
-    lbl_user: gui::Label,
-    edit_user: gui::Edit,
-    lbl_pass: gui::Label,
-    edit_pass: gui::Edit,
-    lbl_drive: gui::Label,
-    cmb_drive: gui::ComboBox,
-    p3_hint: gui::Label,
-    p3_error: gui::Label,
-
-    // Page 4
-    p4_title: gui::Label,
-    p4_hint: gui::Label,
-    edit_log: gui::Edit,
+    p2_status: gui::Label,
+    col_headers: [gui::Label; 4],
+    item_name: [gui::Label; 4],
+    item_desc: [gui::Label; 4],
+    item_status: [gui::Label; 4],
+    item_button: [gui::Button; 4],
 
     // Navigation bar
+    btn_next: gui::Button,
     btn_back: gui::Button,
     btn_recheck: gui::Button,
-    btn_next: gui::Button,
-    btn_map: gui::Button,
-    btn_open: gui::Button,
     btn_finish: gui::Button,
+    btn_cancel: gui::Button,
 }
 
 pub fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -105,7 +176,12 @@ pub fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     Ok(())
 }
 
-fn label(parent: &gui::WindowMain, text: &str, pos: (i32, i32), size: (i32, i32)) -> gui::Label {
+fn label(
+    parent: &(impl GuiParent + 'static),
+    text: &str,
+    pos: (i32, i32),
+    size: (i32, i32),
+) -> gui::Label {
     gui::Label::new(
         parent,
         gui::LabelOpts {
@@ -117,21 +193,27 @@ fn label(parent: &gui::WindowMain, text: &str, pos: (i32, i32), size: (i32, i32)
     )
 }
 
-fn button(parent: &gui::WindowMain, text: &str, pos: (i32, i32), width: i32) -> gui::Button {
+fn button(
+    parent: &(impl GuiParent + 'static),
+    text: &str,
+    pos: (i32, i32),
+    width: i32,
+    height: i32,
+) -> gui::Button {
     gui::Button::new(
         parent,
         gui::ButtonOpts {
             text,
             position: gui::dpi(pos.0, pos.1),
             width: gui::dpi_x(width),
-            height: gui::dpi_y(28),
+            height: gui::dpi_y(height),
             ..Default::default()
         },
     )
 }
 
 fn edit(
-    parent: &gui::WindowMain,
+    parent: &(impl GuiParent + 'static),
     pos: (i32, i32),
     width: i32,
     height: i32,
@@ -154,6 +236,7 @@ fn edit(
     )
 }
 
+/// Free drive letters, highest first, plus the index of the default selection.
 fn available_drives() -> (Vec<String>, usize) {
     let mut drives: Vec<String> = ('A'..='Z')
         .rev()
@@ -174,92 +257,52 @@ fn available_drives() -> (Vec<String>, usize) {
     (drives, default_index)
 }
 
-fn status_text(installed: bool) -> &'static str {
-    if installed {
-        "[已安装]"
-    } else {
-        "[未安装]"
-    }
-}
-
-fn keepalive_text(configured: bool) -> &'static str {
-    if configured {
-        "[已配置]"
-    } else {
-        "[未配置]"
-    }
-}
-
 impl Wizard {
     fn new() -> Self {
         let wnd = gui::WindowMain::new(gui::WindowMainOpts {
-            title: "AIDesk 网络驱动器向导",
-            size: gui::dpi(520, 380),
+            title: WIN_TITLE,
+            size: gui::dpi(620, 380),
             ..Default::default()
         });
 
-        let p1_title = label(&wnd, "欢迎使用 AIDesk 网络驱动器向导", (24, 22), (472, 26));
-        let p1_body = label(&wnd, PAGE1_BODY, (24, 60), (472, 250));
+        let p1_title = label(&wnd, P1_TITLE, (28, 24), (564, 28));
+        let p1_body = label(&wnd, P1_BODY, (28, 64), (564, 236));
 
-        let p2_title = label(&wnd, "检查运行环境", (24, 22), (472, 26));
-        let p2_winfsp = label(&wnd, "WinFsp：[未检查]", (24, 62), (472, 22));
-        let p2_sshfs = label(&wnd, "SSHFS-Win：[未检查]", (24, 88), (472, 22));
-        let p2_keepalive = label(&wnd, "断线重连参数：[未检查]", (24, 114), (472, 22));
-        let p2_hint = label(&wnd, PAGE2_HINT, (24, 146), (472, 62));
-        let btn_install = button(&wnd, "一键安装缺失组件", (24, 216), 160);
-        let btn_configure = button(&wnd, "配置重连参数", (196, 216), 140);
-        let p2_note = label(&wnd, "", (24, 252), (472, 62));
+        let p2_title = label(&wnd, P2_TITLE, (28, 22), (564, 26));
+        let p2_hint = label(&wnd, P2_HINT, (28, 56), (564, 20));
+        let col_headers = std::array::from_fn(|column| {
+            let (x, width) = COLUMN_GEOMETRY[column];
+            label(&wnd, COLUMNS[column], (x, 88), (width, 20))
+        });
+        let item_name = std::array::from_fn(|row| {
+            let (x, width) = COLUMN_GEOMETRY[0];
+            label(&wnd, ROWS[row].name, (x, ROW_TOP[row]), (width, 22))
+        });
+        let item_desc = std::array::from_fn(|row| {
+            let (x, width) = COLUMN_GEOMETRY[1];
+            label(&wnd, ROWS[row].desc, (x, ROW_TOP[row]), (width, 22))
+        });
+        let item_status = std::array::from_fn(|row| {
+            let (x, width) = COLUMN_GEOMETRY[2];
+            label(&wnd, ROWS[row].unready, (x, ROW_TOP[row]), (width, 22))
+        });
+        let item_button = std::array::from_fn(|row| {
+            let (x, width) = COLUMN_GEOMETRY[3];
+            button(
+                &wnd,
+                ROWS[row].action,
+                (x, ROW_TOP[row] - 2),
+                width,
+                26,
+            )
+        });
+        let p2_status = label(&wnd, "", (28, 266), (564, 40));
 
-        let p3_title = label(&wnd, "填写账号与盘符", (24, 22), (472, 26));
-        let lbl_user = label(&wnd, "AIDesk 用户名", (24, 62), (472, 20));
-        let edit_user = edit(&wnd, (24, 84), 472, 26, false);
-        let lbl_pass = label(&wnd, "密码", (24, 122), (472, 20));
-        let edit_pass = edit(&wnd, (24, 144), 472, 26, true);
-        let lbl_drive = label(&wnd, "要映射的盘符", (24, 184), (200, 20));
-
-        let (drives, default_index) = available_drives();
-        let drive_refs: Vec<&str> = drives.iter().map(String::as_str).collect();
-        let cmb_drive = gui::ComboBox::new(
-            &wnd,
-            gui::ComboBoxOpts {
-                position: gui::dpi(24, 206),
-                width: gui::dpi_x(120),
-                items: &drive_refs,
-                selected_item: Some(default_index as u32),
-                ..Default::default()
-            },
-        );
-
-        let p3_hint = label(&wnd, PAGE3_HINT, (24, 242), (472, 56));
-        let p3_error = label(&wnd, "", (24, 298), (472, 20));
-
-        let p4_title = label(&wnd, "执行映射", (24, 22), (472, 26));
-        let p4_hint = label(&wnd, PAGE4_HINT, (24, 56), (472, 40));
-        let edit_log = gui::Edit::new(
-            &wnd,
-            gui::EditOpts {
-                text: "",
-                position: gui::dpi(24, 102),
-                width: gui::dpi_x(472),
-                height: gui::dpi_y(196),
-                control_style: co::ES::MULTILINE
-                    | co::ES::READONLY
-                    | co::ES::AUTOVSCROLL
-                    | co::ES::AUTOHSCROLL,
-                window_style: co::WS::CHILD
-                    | co::WS::VISIBLE
-                    | co::WS::VSCROLL
-                    | co::WS::TABSTOP,
-                ..Default::default()
-            },
-        );
-
-        let btn_back = button(&wnd, "上一步", (24, 326), 90);
-        let btn_recheck = button(&wnd, "重新检查", (124, 326), 90);
-        let btn_next = button(&wnd, "下一步", (406, 326), 90);
-        let btn_map = button(&wnd, "开始映射", (306, 326), 90);
-        let btn_open = button(&wnd, "打开网盘", (206, 326), 90);
-        let btn_finish = button(&wnd, "完成", (406, 326), 90);
+        let btn_next = button(&wnd, BTN_NEXT, (380, 336), 100, 28);
+        let btn_back = button(&wnd, BTN_BACK, (28, 336), 100, 28);
+        let btn_recheck = button(&wnd, BTN_RECHECK, (140, 336), 100, 28);
+        let btn_finish = button(&wnd, BTN_FINISH, (380, 336), 100, 28);
+        let btn_cancel = button(&wnd, BTN_CANCEL, (492, 336), 100, 28);
 
         Self {
             wnd,
@@ -267,89 +310,47 @@ impl Wizard {
             p1_title,
             p1_body,
             p2_title,
-            p2_winfsp,
-            p2_sshfs,
-            p2_keepalive,
             p2_hint,
-            p2_note,
-            btn_install,
-            btn_configure,
-            p3_title,
-            lbl_user,
-            edit_user,
-            lbl_pass,
-            edit_pass,
-            lbl_drive,
-            cmb_drive,
-            p3_hint,
-            p3_error,
-            p4_title,
-            p4_hint,
-            edit_log,
+            p2_status,
+            col_headers,
+            item_name,
+            item_desc,
+            item_status,
+            item_button,
+            btn_next,
             btn_back,
             btn_recheck,
-            btn_next,
-            btn_map,
-            btn_open,
             btn_finish,
+            btn_cancel,
         }
     }
 
     fn events(&self) {
         let wizard = self.clone();
         self.wnd.on().wm_create(move |_| {
-            wizard.fixup_controls();
+            // Probe the machine once up front, so the table is already
+            // accurate when page 2 is first shown.
+            wizard.refresh();
             wizard.show_page(Page::Welcome);
             Ok(0)
         });
 
         let wizard = self.clone();
-        self.btn_back.on().bn_clicked(move || {
-            wizard.go_back();
-            Ok(())
-        });
-
-        let wizard = self.clone();
         self.btn_next.on().bn_clicked(move || {
-            wizard.go_next();
+            wizard.show_page(Page::Setup);
             Ok(())
         });
 
         let wizard = self.clone();
-        self.btn_recheck
-            .on()
-            .bn_clicked(move || {
-                wizard.refresh_deps();
-                wizard.add_note("已重新检查组件状态。");
-                Ok(())
-            });
-
-        let wizard = self.clone();
-        self.btn_install.on().bn_clicked(move || {
-            wizard.refresh_deps();
-            let status = wizard.state.borrow().deps;
-            for line in deps::install_missing(&status) {
-                wizard.add_note(&line);
-            }
-            wizard.refresh_deps();
+        self.btn_back.on().bn_clicked(move || {
+            wizard.show_page(Page::Welcome);
             Ok(())
         });
 
         let wizard = self.clone();
-        self.btn_configure.on().bn_clicked(move || {
-            wizard.configure_keepalive();
-            Ok(())
-        });
-
-        let wizard = self.clone();
-        self.btn_map.on().bn_clicked(move || {
-            wizard.start_mapping();
-            Ok(())
-        });
-
-        let wizard = self.clone();
-        self.btn_open.on().bn_clicked(move || {
-            wizard.open_mapped_drive();
+        self.btn_recheck.on().bn_clicked(move || {
+            wizard.refresh();
+            wizard.set_status("已重新检查各项状态。");
             Ok(())
         });
 
@@ -358,175 +359,346 @@ impl Wizard {
             wizard.wnd.close();
             Ok(())
         });
-    }
 
-    /// Adjustments that need a live window handle.
-    ///
-    /// `ComboBoxOpts` has no height field and winsafe creates the control with
-    /// zero height, which would collapse the drop-down list, so give it room.
-    fn fixup_controls(&self) {
-        let _ = self.cmb_drive.hwnd().MoveWindow(
-            w::POINT::with(gui::dpi_x(24), gui::dpi_y(206)),
-            w::SIZE::with(gui::dpi_x(120), gui::dpi_y(200)),
-            true,
-        );
-    }
+        let wizard = self.clone();
+        self.btn_cancel.on().bn_clicked(move || {
+            wizard.wnd.close();
+            Ok(())
+        });
 
-    fn show_page(&self, page: Page) {
-        if page == Page::Deps {
-            // Refresh immediately so the "下一步" state matches reality.
-            self.refresh_deps();
+        for row in 0..ROWS.len() {
+            let wizard = self.clone();
+            self.item_button[row].on().bn_clicked(move || {
+                wizard.run_row_action(row);
+                Ok(())
+            });
         }
+    }
+
+    /// Shows `page` and hides every control that does not belong to it.
+    fn show_page(&self, page: Page) {
+        if page == Page::Setup {
+            self.refresh();
+        }
+
+        let welcome = page == Page::Welcome;
+        show(&self.p1_title, welcome);
+        show(&self.p1_body, welcome);
+        show(&self.btn_next, welcome);
+
+        let setup = page == Page::Setup;
+        show(&self.p2_title, setup);
+        show(&self.p2_hint, setup);
+        show(&self.p2_status, setup);
+        show(&self.btn_back, setup);
+        show(&self.btn_recheck, setup);
+        show(&self.btn_finish, setup);
+        for control in self
+            .col_headers
+            .iter()
+            .chain(self.item_name.iter())
+            .chain(self.item_desc.iter())
+            .chain(self.item_status.iter())
+        {
+            show(control, setup);
+        }
+        for control in &self.item_button {
+            show(control, setup);
+        }
+
+        // Cancelling is always possible.
+        show(&self.btn_cancel, true);
+    }
+
+    /// Re-reads the four setup items and updates statuses, button labels and
+    /// the availability of the dependent rows and of "完成".
+    fn refresh(&self) {
+        let status = deps::check();
+        let mounted_drive = mapping::detect_mounted_drive();
 
         {
             let mut state = self.state.borrow_mut();
-            state.page = page;
-            if page == Page::Map {
-                state.mapped = false;
-                state.log.clear();
-            }
+            state.deps = status;
+            state.mounted_drive = mounted_drive.clone();
         }
 
-        let set = |hwnd: &w::HWND, visible: bool| {
-            let _ = hwnd.ShowWindow(if visible { co::SW::SHOW } else { co::SW::HIDE });
-        };
-
-        let welcome = page == Page::Welcome;
-        set(self.p1_title.hwnd(), welcome);
-        set(self.p1_body.hwnd(), welcome);
-
-        let deps_page = page == Page::Deps;
-        set(self.p2_title.hwnd(), deps_page);
-        set(self.p2_winfsp.hwnd(), deps_page);
-        set(self.p2_sshfs.hwnd(), deps_page);
-        set(self.p2_keepalive.hwnd(), deps_page);
-        set(self.p2_hint.hwnd(), deps_page);
-        set(self.p2_note.hwnd(), deps_page);
-        set(self.btn_install.hwnd(), deps_page);
-        set(self.btn_configure.hwnd(), deps_page);
-
-        let account = page == Page::Account;
-        set(self.p3_title.hwnd(), account);
-        set(self.lbl_user.hwnd(), account);
-        set(self.edit_user.hwnd(), account);
-        set(self.lbl_pass.hwnd(), account);
-        set(self.edit_pass.hwnd(), account);
-        set(self.lbl_drive.hwnd(), account);
-        set(self.cmb_drive.hwnd(), account);
-        set(self.p3_hint.hwnd(), account);
-        set(self.p3_error.hwnd(), account);
-
-        let map_page = page == Page::Map;
-        set(self.p4_title.hwnd(), map_page);
-        set(self.p4_hint.hwnd(), map_page);
-        set(self.edit_log.hwnd(), map_page);
-
-        if map_page {
-            let _ = self.edit_log.hwnd().SetWindowText("");
+        let ready = [status.winfsp, status.sshfs, status.keepalive];
+        for (row, is_ready) in ready.iter().enumerate() {
+            set_text(
+                &self.item_status[row],
+                pick(*is_ready, ROWS[row].ready, ROWS[row].unready),
+            );
+            set_text(
+                &self.item_button[row],
+                pick(*is_ready, ROWS[row].undo, ROWS[row].action),
+            );
         }
 
-        self.update_nav();
+        // Row 4 has no static ready text: it shows the attached drive letter.
+        set_text(
+            &self.item_status[3],
+            &match &mounted_drive {
+                Some(drive) => format!("已挂载 ({drive})"),
+                None => ITEM4_UNREADY.to_owned(),
+            },
+        );
+        set_text(
+            &self.item_button[3],
+            pick(mounted_drive.is_some(), ROWS[3].undo, ROWS[3].action),
+        );
 
-        if account {
-            let _ = self.edit_user.hwnd().SetFocus();
-        } else if map_page {
-            let _ = self.btn_map.hwnd().SetFocus();
+        // Each row depends on the rows above it: nothing can be connected
+        // before the driver is installed, and nothing can be mounted before
+        // the connection component and the keepalive are set up.
+        let sshfs_row_ready = status.winfsp;
+        let keepalive_row_ready = status.ready();
+        let mount_row_ready = keepalive_row_ready && status.keepalive;
+        enable(&self.item_button[1], sshfs_row_ready);
+        enable(&self.item_button[2], keepalive_row_ready);
+        enable(&self.item_button[3], mount_row_ready);
+
+        enable(
+            &self.btn_finish,
+            mount_row_ready && mounted_drive.is_some(),
+        );
+    }
+
+    fn set_status(&self, text: &str) {
+        set_text(&self.p2_status, text);
+        // Paint right away: an installer or an elevation prompt blocks the
+        // message loop, so a merely posted `WM_PAINT` would not arrive until
+        // everything is over.
+        let _ = self.p2_status.hwnd().UpdateWindow();
+        let _ = self.wnd.hwnd().UpdateWindow();
+    }
+
+    fn run_row_action(&self, row: usize) {
+        match row {
+            0 | 1 => self.toggle_component(row),
+            2 => self.toggle_keepalive(),
+            _ => self.toggle_mount(),
         }
     }
 
-    fn update_nav(&self) {
-        let (page, mapped) = {
+    /// Installs or uninstalls WinFsp (row 1) / SSHFS-Win (row 2).
+    fn toggle_component(&self, row: usize) {
+        let installed = {
             let state = self.state.borrow();
-            (state.page, state.mapped)
+            if row == 0 {
+                state.deps.winfsp
+            } else {
+                state.deps.sshfs
+            }
+        };
+        let name = ROWS[row].name;
+
+        // A second click while the installer runs would start a second MSI
+        // instance, so the button stays disabled until `refresh` runs again.
+        enable(&self.item_button[row], false);
+        self.set_status(&if installed {
+            format!("正在卸载{name}，请在卸载向导中完成操作……")
+        } else {
+            format!("正在安装{name}，请在安装向导中完成操作……")
+        });
+
+        let result = match (row, installed) {
+            (0, true) => deps::uninstall_winfsp(),
+            (0, false) => deps::install_winfsp(),
+            (_, true) => deps::uninstall_sshfs(),
+            (_, false) => deps::install_sshfs(),
         };
 
-        let set = |hwnd: &w::HWND, visible: bool| {
-            let _ = hwnd.ShowWindow(if visible { co::SW::SHOW } else { co::SW::HIDE });
-        };
+        self.refresh();
 
-        set(self.btn_back.hwnd(), page != Page::Welcome);
-        set(self.btn_recheck.hwnd(), page == Page::Deps);
-        set(
-            self.btn_next.hwnd(),
-            matches!(page, Page::Welcome | Page::Deps | Page::Account),
-        );
-        set(self.btn_map.hwnd(), page == Page::Map);
-        set(self.btn_open.hwnd(), page == Page::Map);
-        set(self.btn_finish.hwnd(), page == Page::Map);
-
-        let next_enabled = match page {
-            Page::Deps => self.state.borrow().deps.ready(),
-            _ => true,
+        let now = {
+            let state = self.state.borrow();
+            if row == 0 {
+                state.deps.winfsp
+            } else {
+                state.deps.sshfs
+            }
         };
-        let _ = self.btn_next.hwnd().EnableWindow(next_enabled);
-        let _ = self.btn_map.hwnd().EnableWindow(!mapped);
-        let _ = self.btn_open.hwnd().EnableWindow(mapped);
+        let message = match result {
+            Ok(()) if now != installed => {
+                format!("{name}{}。", if now { "已安装" } else { "已卸载" })
+            }
+            Ok(()) => format!("安装程序已结束，但尚未检测到{name}，请稍后点击“重新检查”。"),
+            Err(err) => err,
+        };
+        self.set_status(&message);
     }
 
-    fn go_back(&self) {
-        let page = self.state.borrow().page;
-        let previous = match page {
-            Page::Welcome => Page::Welcome,
-            Page::Deps => Page::Welcome,
-            Page::Account => Page::Deps,
-            Page::Map => Page::Account,
+    /// Enables or disables the keepalive options (row 3).
+    fn toggle_keepalive(&self) {
+        let configured = self.state.borrow().deps.keepalive;
+
+        enable(&self.item_button[2], false);
+        self.set_status(if configured {
+            "正在关闭断线自动重连（可能需要管理员授权）……"
+        } else {
+            "正在启用断线自动重连（可能需要管理员授权）……"
+        });
+
+        let result = if configured {
+            disable_keepalive()
+        } else {
+            enable_keepalive()
         };
-        self.show_page(previous);
+
+        self.refresh();
+
+        let now = self.state.borrow().deps.keepalive;
+        let message = match result {
+            Ok(()) if now == !configured => {
+                format!("{}。", pick(now, ITEM3_READY, ITEM3_UNREADY))
+            }
+            Ok(()) => "注册表已更新，但状态未发生变化，请点击“重新检查”。".to_owned(),
+            Err(err) => err,
+        };
+        self.set_status(&message);
     }
 
-    fn go_next(&self) {
-        let page = self.state.borrow().page;
-        match page {
-            Page::Welcome => self.show_page(Page::Deps),
-            Page::Deps => {
-                self.refresh_deps();
-                if self.state.borrow().deps.ready() {
-                    self.show_page(Page::Account);
-                } else {
-                    self.add_note("仍有组件未安装，请先完成安装并重新检查。");
-                }
-            }
-            Page::Account => {
-                if self.account_values().is_some() {
-                    self.show_page(Page::Map);
-                }
-            }
-            Page::Map => {}
+    /// Maps the drive through the modal dialog (row 4), or unmaps it.
+    fn toggle_mount(&self) {
+        if self.state.borrow().mounted_drive.is_some() {
+            self.unmount();
+        } else {
+            self.open_mount_dialog();
         }
     }
 
-    fn refresh_deps(&self) {
-        let status = deps::check();
-        self.state.borrow_mut().deps = status;
+    fn open_mount_dialog(&self) {
+        let dialog = MountDialog::new();
+        if let Err(err) = dialog.dlg.show_modal(&self.wnd) {
+            win32::error_box(&format!("无法打开挂载设置窗口：{err}"));
+            return;
+        }
 
-        set_label(
-            &self.p2_winfsp,
-            &format!("WinFsp：{}（WinFsp 文件系统驱动）", status_text(status.winfsp)),
-        );
-        set_label(
-            &self.p2_sshfs,
-            &format!("SSHFS-Win：{}（SSH 文件系统服务）", status_text(status.sshfs)),
-        );
-        set_label(
-            &self.p2_keepalive,
-            &format!("断线重连参数：{}", keepalive_text(status.keepalive)),
-        );
-
-        self.update_nav();
+        if dialog.mounted.get() {
+            // Row 4 now shows the attached drive and "完成" becomes clickable.
+            self.refresh();
+            self.set_status("");
+        }
     }
 
-    fn add_note(&self, line: &str) {
-        let text = {
-            let mut state = self.state.borrow_mut();
-            state.notes.push(line.to_owned());
-            // Keep the label readable: show the most recent entries only.
-            let start = state.notes.len().saturating_sub(4);
-            state.notes[start..].join("\r\n")
+    fn unmount(&self) {
+        let Some(drive) = self.state.borrow().mounted_drive.clone() else {
+            return;
         };
-        set_label(&self.p2_note, &text);
+
+        enable(&self.item_button[3], false);
+        self.set_status(&format!("正在断开 {drive}……"));
+
+        let result = mapping::unmap_drive(&drive);
+
+        self.refresh();
+
+        let message = match result {
+            Ok(()) if self.state.borrow().mounted_drive.is_none() => {
+                format!("{drive} 已断开。")
+            }
+            Ok(()) => "连接仍未断开，请稍后点击“重新检查”。".to_owned(),
+            Err(err) => err,
+        };
+        self.set_status(&message);
+    }
+}
+
+/// The modal account dialog opened by the fourth row.
+#[derive(Clone)]
+struct MountDialog {
+    dlg: gui::WindowModal,
+    edit_user: gui::Edit,
+    edit_pass: gui::Edit,
+    cmb_drive: gui::ComboBox,
+    lbl_status: gui::Label,
+    btn_connect: gui::Button,
+    btn_cancel: gui::Button,
+    /// Set to `true` once a mapping was established.
+    mounted: Rc<Cell<bool>>,
+}
+
+impl MountDialog {
+    fn new() -> Self {
+        let dlg = gui::WindowModal::new(gui::WindowModalOpts {
+            title: DLG_TITLE,
+            size: gui::dpi(380, 260),
+            ..Default::default()
+        });
+
+        // The hint is destroyed together with the dialog; there is no need to
+        // keep a handle to it.
+        let _ = label(&dlg, DLG_LBL_USER, (24, 26), (76, 20));
+        let edit_user = edit(&dlg, (108, 22), 248, 24, false);
+        let _ = label(&dlg, DLG_LBL_PASS, (24, 62), (76, 20));
+        let edit_pass = edit(&dlg, (108, 58), 248, 24, true);
+        let _ = label(&dlg, DLG_LBL_DRIVE, (24, 98), (76, 20));
+
+        let (drives, default_index) = available_drives();
+        let drive_refs: Vec<&str> = drives.iter().map(String::as_str).collect();
+        let cmb_drive = gui::ComboBox::new(
+            &dlg,
+            gui::ComboBoxOpts {
+                position: gui::dpi(108, 94),
+                width: gui::dpi_x(120),
+                items: &drive_refs,
+                selected_item: Some(default_index as u32),
+                ..Default::default()
+            },
+        );
+
+        let _ = label(&dlg, DLG_HINT_SECURE, (24, 128), (332, 40));
+        let lbl_status = label(&dlg, "", (24, 172), (332, 36));
+        let btn_connect = button(&dlg, DLG_BTN_CONNECT, (156, 216), 100, 26);
+        let btn_cancel = button(&dlg, DLG_BTN_CANCEL, (268, 216), 88, 26);
+
+        let dialog = Self {
+            dlg,
+            edit_user,
+            edit_pass,
+            cmb_drive,
+            lbl_status,
+            btn_connect,
+            btn_cancel,
+            mounted: Rc::new(Cell::new(false)),
+        };
+        dialog.events();
+        dialog
     }
 
-    fn account_values(&self) -> Option<(String, String, String)> {
+    fn events(&self) {
+        // `ComboBoxOpts` has no height field and winsafe creates the control
+        // with zero height, which would collapse the drop-down list, so give it
+        // room before the first paint.
+        let dialog = self.clone();
+        self.dlg.on().wm_create(move |_| {
+            let _ = dialog.cmb_drive.hwnd().MoveWindow(
+                w::POINT::with(gui::dpi_x(108), gui::dpi_y(94)),
+                w::SIZE::with(gui::dpi_x(248), gui::dpi_y(200)),
+                true,
+            );
+            let _ = dialog.edit_user.hwnd().SetFocus();
+            Ok(0)
+        });
+
+        let dialog = self.clone();
+        self.btn_connect.on().bn_clicked(move || {
+            dialog.connect();
+            Ok(())
+        });
+
+        let dialog = self.clone();
+        self.btn_cancel.on().bn_clicked(move || {
+            dialog.dlg.close();
+            Ok(())
+        });
+    }
+
+    /// Validates the form, maps the drive and closes the dialog on success.
+    ///
+    /// A failure keeps the dialog (and the typed password) open, so the user
+    /// can correct the account and retry without starting over.
+    fn connect(&self) {
         let user = self
             .edit_user
             .text()
@@ -542,127 +714,85 @@ impl Wizard {
             .flatten()
             .unwrap_or_default();
 
-        let error = if user.is_empty() {
-            "请填写 AIDesk 用户名。"
-        } else if password.is_empty() {
-            "请填写密码。"
-        } else if drive.is_empty() {
-            "请选择要映射的盘符。"
-        } else {
-            set_label(&self.p3_error, "");
-            return Some((user, password, drive));
-        };
-
-        set_label(&self.p3_error, error);
-        None
-    }
-
-    fn configure_keepalive(&self) {
-        match registry::configure_keepalive() {
-            registry::ConfigureOutcome::Applied => {
-                self.add_note("已写入断线自动重连参数。");
-            }
-            registry::ConfigureOutcome::AlreadyApplied => {
-                self.add_note("断线自动重连参数已是最新，无需修改。");
-            }
-            registry::ConfigureOutcome::NeedsElevation => {
-                match registry::request_elevated_configure() {
-                    Ok(()) => self.add_note(
-                        "已请求管理员权限写入重连参数；授权完成后请点击“重新检查”。",
-                    ),
-                    Err(err) => self.add_note(&format!("无法请求管理员权限：{err}")),
-                }
-            }
-            registry::ConfigureOutcome::Failed(message) => {
-                self.add_note(&message);
-            }
+        if user.is_empty() {
+            self.set_status("请填写用户名。");
+            let _ = self.edit_user.hwnd().SetFocus();
+            return;
         }
-        self.refresh_deps();
-    }
-
-    fn clear_log(&self) {
-        self.state.borrow_mut().log.clear();
-        let _ = self.edit_log.hwnd().SetWindowText("");
-    }
-
-    /// Appends one line to the read-only log box.
-    fn log(&self, line: &str) {
-        let text = {
-            let mut state = self.state.borrow_mut();
-            state.log.push(line.to_owned());
-            state.log.join("\r\n")
-        };
-        let _ = self.edit_log.hwnd().SetWindowText(&text);
-        let _ = self.edit_log.hwnd().UpdateWindow();
-        let _ = self.wnd.hwnd().UpdateWindow();
-    }
-
-    fn start_mapping(&self) {
-        if self.state.borrow().mapped {
+        if password.is_empty() {
+            self.set_status("请填写密码。");
+            let _ = self.edit_pass.hwnd().SetFocus();
+            return;
+        }
+        if drive.is_empty() {
+            self.set_status("请选择盘符。");
             return;
         }
 
-        let Some((user, password, drive)) = self.account_values() else {
-            return;
-        };
-
-        self.clear_log();
-        self.log(&format!("开始映射 {drive} → \\\\sshfs\\{user}@{SERVER}"));
-
-        match registry::configure_keepalive() {
-            registry::ConfigureOutcome::Applied => self.log("已写入断线自动重连参数。"),
-            registry::ConfigureOutcome::AlreadyApplied => {
-                self.log("断线自动重连参数已是最新。")
-            }
-            registry::ConfigureOutcome::NeedsElevation => {
-                match registry::request_elevated_configure() {
-                    Ok(()) => self.log(
-                        "已请求管理员权限写入重连参数；请在授权完成后点击“重新检查”。",
-                    ),
-                    Err(err) => self.log(&format!("无法请求管理员权限：{err}")),
-                }
-            }
-            registry::ConfigureOutcome::Failed(message) => {
-                self.log(&format!("重连参数写入失败：{message}"))
-            }
-        }
-
-        let _ = self.wnd.hwnd().UpdateWindow();
+        self.set_status("正在连接云端网盘，请稍候…");
+        enable(&self.btn_connect, false);
 
         let outcome = mapping::map_drive(&drive, &user, &password);
-        for line in outcome.log {
-            self.log(&line);
-        }
-
         if outcome.ok {
-            self.state.borrow_mut().mapped = true;
-            self.log("全部完成，可点击“打开网盘”查看。");
-        } else {
-            self.log("映射未完成，请根据上面的提示处理后重试。");
+            self.mounted.set(true);
+            self.dlg.close();
+            return;
         }
 
-        self.update_nav();
-        let _ = self.btn_finish.hwnd().SetFocus();
+        enable(&self.btn_connect, true);
+        let failure = outcome
+            .log
+            .iter()
+            .rev()
+            .find(|line| line.starts_with("映射失败"))
+            .or_else(|| outcome.log.last())
+            .cloned()
+            .unwrap_or_else(|| "映射失败。".to_owned());
+        self.set_status(&format!("{failure} 请检查用户名和密码后重试。"));
     }
 
-    fn open_mapped_drive(&self) {
-        let Some(drive) = self
-            .cmb_drive
-            .items()
-            .selected_text()
-            .ok()
-            .flatten()
-            .filter(|_| self.state.borrow().mapped)
-        else {
-            return;
-        };
-
-        if let Err(err) = win32::shell_execute("open", "explorer.exe", &format!("{drive}\\")) {
-            win32::error_box(&format!("无法打开 {drive}：{err}"));
-        }
+    fn set_status(&self, text: &str) {
+        set_text(&self.lbl_status, text);
+        let _ = self.lbl_status.hwnd().UpdateWindow();
+        let _ = self.dlg.hwnd().UpdateWindow();
     }
 }
 
-fn set_label(label: &gui::Label, text: &str) {
-    let _ = label.hwnd().SetWindowText(text);
+fn enable_keepalive() -> Result<(), String> {
+    match registry::configure_keepalive() {
+        registry::ApplyOutcome::Applied | registry::ApplyOutcome::AlreadyApplied => Ok(()),
+        registry::ApplyOutcome::NeedsElevation => registry::request_elevated_configure(),
+        registry::ApplyOutcome::Failed(message) => Err(message),
+    }
+}
+
+fn disable_keepalive() -> Result<(), String> {
+    match registry::unconfigure_keepalive() {
+        registry::ApplyOutcome::Applied | registry::ApplyOutcome::AlreadyApplied => Ok(()),
+        registry::ApplyOutcome::NeedsElevation => registry::request_elevated_unconfigure(),
+        registry::ApplyOutcome::Failed(message) => Err(message),
+    }
+}
+
+/// `ready_text` when `ready`, `unready_text` otherwise.
+fn pick<'a>(ready: bool, ready_text: &'a str, unready_text: &'a str) -> &'a str {
+    if ready {
+        ready_text
+    } else {
+        unready_text
+    }
+}
+
+fn set_text(control: &impl GuiWindow, text: &str) {
+    let _ = control.hwnd().SetWindowText(text);
+}
+
+fn show(control: &impl GuiWindow, visible: bool) {
+    let _ = control
+        .hwnd()
+        .ShowWindow(if visible { co::SW::SHOW } else { co::SW::HIDE });
+}
+
+fn enable(control: &impl GuiWindow, enabled: bool) {
+    let _ = control.hwnd().EnableWindow(enabled);
 }

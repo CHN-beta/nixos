@@ -35,7 +35,7 @@
     <security>
       <requestedPrivileges>
         <!-- The wizard runs unprivileged; elevation is requested per-action
-             through ShellExecuteW("runas"). -->
+             through ShellExecuteExW("runas"). -->
         <requestedExecutionLevel level="asInvoker" uiAccess="false"/>
       </requestedPrivileges>
     </security>
