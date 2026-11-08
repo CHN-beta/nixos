@@ -1,0 +1,16 @@
+[package]
+name = "aidesk-mount-wizard"
+version = "0.1.0"
+edition = "2021"
+description = "Windows GUI wizard that maps the AIDesk (nas.chn.moe) workspace as a network drive"
+publish = false
+
+[dependencies]
+winsafe = { version = "0.0.29", features = ["gui", "advapi", "shell"] }
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

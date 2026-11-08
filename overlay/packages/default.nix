@@ -206,6 +206,7 @@ rec {
   aidesk = {
     frontend = pkgs.callPackage ./aidesk/frontend { };
     backend = pkgs.callPackage ./aidesk/backend { };
+    mount-wizard = pkgs.callPackage ./aidesk/mount-wizard { };
   };
   bge-m3-server = pkgs.callPackage ./bge-m3-server { };
   mcp-server-qdrant = pkgs.callPackage ./mcp-server-qdrant.nix {

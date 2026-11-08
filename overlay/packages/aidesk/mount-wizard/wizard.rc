@@ -1,0 +1,4 @@
+// Application manifest: Common Controls v6 (modern themed widgets), DPI
+// awareness and Windows 10/11 compatibility. RT_MANIFEST is resource type 24;
+// CREATEPROCESS_MANIFEST_RESOURCE_ID is 1.
+1 24 "wizard.manifest"
