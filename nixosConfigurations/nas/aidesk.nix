@@ -22,41 +22,6 @@ let
   autheliaSocket = "/run/authelia-main/authelia.sock";
   backendSocketDir = "/run/aidesk";
   backendSocket = user: "${backendSocketDir}-${user}/aidesk.sock";
-
-  mkService = user: {
-    description = "AIDesk backend for ${user}";
-    after = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-    environment = {
-      HOME = "/home/${user}";
-      PATH = "/etc/profiles/per-user/${user}/bin:/run/current-system/sw/bin";
-      AIDESK_OMP_BIN = "/etc/profiles/per-user/${user}/bin/omp";
-      PI_CODING_AGENT_DIR = "/home/${user}/.omp/agent";
-    };
-    serviceConfig = {
-      Type = "simple";
-      User = user;
-      # the backend chmods its socket to 0660, so both the socket and the
-      # RuntimeDirectory (0750) belong to the nginx group and only nginx can
-      # connect; the service keeps the user's own uid for everything else
-      Group = config.services.nginx.group;
-      WorkingDirectory = "/home/${user}";
-      ExecStart = "${pkgs.localPkgs.aidesk.backend}/bin/aidesk-backend --socket ${backendSocket user}";
-      RuntimeDirectory = "aidesk-${user}";
-      RuntimeDirectoryMode = "0750";
-      Restart = "on-failure";
-      RestartSec = 5;
-      # The backend shuts down by closing the stdin of its omp children and
-      # waiting for them to flush and exit on their own. The default
-      # "control-group" would SIGTERM those children at the same instant as
-      # the backend, so it could neither wait for them nor tell whether they
-      # finished. "mixed" signals only ExecStart, and whatever is still in the
-      # cgroup after TimeoutStopSec is then killed, so nothing is orphaned.
-      KillMode = "mixed";
-      TimeoutStopSec = 15;
-    };
-    enableDefaultPath = false;
-  };
 in
 {
   nixos = {
@@ -117,6 +82,71 @@ in
       };
     };
   };
+  # In /etc/shadow "!" means "locked", which OpenSSH rejects outright unless
+  # UsePAM is on, while "*" only means "no unix password". lcl, mhy and rdhx
+  # have neither a hashedPassword nor a hashedPasswordFile, so
+  # update-users-groups.pl would lock them with "!" even though they
+  # authenticate through the Authelia PAM rule below; mkDefault leaves the
+  # real hashes of straycat and wyh untouched.
+  users.users = lib.genAttrs users (user: {
+    hashedPassword = lib.mkDefault "*";
+  });
+  security.pam.services.sshd.rules.auth.aidesk-authelia = {
+    order = config.security.pam.services.sshd.rules.auth.unix.order - 10;
+    control = "sufficient";
+    modulePath = "${config.security.pam.package}/lib/security/pam_exec.so";
+    args =
+      let
+        pamAuthelia = pkgs.writeShellApplication {
+          name = "pam-authelia";
+          # a pure PATH: pam_exec's environment comes from sshd, and a helper that
+          # decides about logins must not depend on (or trust) it
+          inheritPath = false;
+          runtimeInputs = [
+            pkgs.coreutils
+            pkgs.curl
+          ];
+          meta.mainProgram = "pam-authelia";
+          text = ''
+            # only the AIDesk accounts may ever pass this PAM rule
+            case "''${PAM_USER:-}" in
+              ${lib.concatStringsSep "|" users}) ;;
+              *) exit 1 ;;
+            esac
+
+            # pam_exec writes the authtok to stdin and closes the pipe; passwords
+            # cannot contain the newline that command substitution would strip
+            password=$(cat)
+            [ -n "$password" ] || exit 1
+
+            credentials=$(printf '%s:%s' "$PAM_USER" "$password" | base64 -w0)
+
+            # The auth-request implementation authorizes the X-Original-URL against
+            # access_control (i.e. the rule below), and its default authentication
+            # strategies read Basic credentials from Authorization, falling back to
+            # the session cookie the browser path uses. Only an explicit 200 allows
+            # the login: a 3xx portal redirect must not count.
+            status=$(curl \
+              --silent --show-error \
+              --connect-timeout 3 --max-time 10 \
+              --proxy "" \
+              --unix-socket ${autheliaSocket} \
+              --config <(printf 'header = "Authorization: Basic %s"\n' "$credentials") \
+              --header "X-Original-Method: GET" \
+              --header "X-Original-URL: https://${domain}/" \
+              --output /dev/null --write-out '%{http_code}' \
+              "http://localhost/api/authz/auth-request") || exit 1
+
+            [ "$status" = "200" ]
+          '';
+        };
+      in
+      [
+        "expose_authtok"
+        "quiet"
+        (lib.getExe pamAuthelia)
+      ];
+  };
   services = {
     authelia.instances.main.settings.access_control.rules = [
       {
@@ -125,6 +155,12 @@ in
         subject = builtins.map (user: "user:${user}") users;
       }
     ];
+    # PasswordAuthentication is off globally on nas; re-enable it in a Match
+    # block (which sshd puts at the end of sshd_config) for the AIDesk users
+    openssh.extraConfig = ''
+      Match User ${lib.concatStringsSep "," users}
+        PasswordAuthentication yes
+    '';
     nginx.virtualHosts.${site}.locations = {
       "/api/".extraConfig = ''
         proxy_set_header Remote-User $authelia_user;
@@ -147,5 +183,42 @@ in
       '';
     };
   };
-  systemd.services = lib.genAttrs' users (user: lib.nameValuePair "aidesk-${user}" (mkService user));
+  systemd.services =
+    let
+      mkService = user: {
+        description = "AIDesk backend for ${user}";
+        after = [ "network.target" ];
+        wantedBy = [ "multi-user.target" ];
+        environment = {
+          HOME = "/home/${user}";
+          PATH = "/etc/profiles/per-user/${user}/bin:/run/current-system/sw/bin";
+          AIDESK_OMP_BIN = "/etc/profiles/per-user/${user}/bin/omp";
+          PI_CODING_AGENT_DIR = "/home/${user}/.omp/agent";
+        };
+        serviceConfig = {
+          Type = "simple";
+          User = user;
+          # the backend chmods its socket to 0660, so both the socket and the
+          # RuntimeDirectory (0750) belong to the nginx group and only nginx can
+          # connect; the service keeps the user's own uid for everything else
+          Group = config.services.nginx.group;
+          WorkingDirectory = "/home/${user}";
+          ExecStart = "${pkgs.localPkgs.aidesk.backend}/bin/aidesk-backend --socket ${backendSocket user}";
+          RuntimeDirectory = "aidesk-${user}";
+          RuntimeDirectoryMode = "0750";
+          Restart = "on-failure";
+          RestartSec = 5;
+          # The backend shuts down by closing the stdin of its omp children and
+          # waiting for them to flush and exit on their own. The default
+          # "control-group" would SIGTERM those children at the same instant as
+          # the backend, so it could neither wait for them nor tell whether they
+          # finished. "mixed" signals only ExecStart, and whatever is still in the
+          # cgroup after TimeoutStopSec is then killed, so nothing is orphaned.
+          KillMode = "mixed";
+          TimeoutStopSec = 15;
+        };
+        enableDefaultPath = false;
+      };
+    in
+    lib.genAttrs' users (user: lib.nameValuePair "aidesk-${user}" (mkService user));
 }
