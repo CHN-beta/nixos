@@ -44,10 +44,44 @@ impl Status {
 }
 
 pub fn check() -> Status {
-    Status {
-        winfsp: winfsp_installed(),
-        sshfs: sshfs_installed(),
-        keepalive: registry::keepalive_configured(),
+    let winfsp = winfsp_installed();
+    let sshfs = sshfs_installed();
+    let keepalive = registry::keepalive_configured();
+    let status = Status {
+        winfsp,
+        sshfs,
+        keepalive,
+    };
+
+    crate::log::line("---- 依赖状态检查 ----");
+    crate::log::line(format!(
+        "WinFsp={winfsp}，SSHFS-Win={sshfs}，断线自动重连={keepalive}，整体就绪={}",
+        status.ready()
+    ));
+    crate::log::line(format!(
+        "WinFsp 注册表项存在：{}",
+        registry::key_exists(registry::WINFSP_KEY)
+    ));
+    crate::log::line(format!(
+        "SSHFS-Win 服务注册表项存在：{}",
+        registry::key_exists(registry::SSHFS_SERVICE_KEY)
+    ));
+    log_file_probe("WinFsp", winfsp_files());
+    log_file_probe("SSHFS-Win", sshfs_files());
+    registry::log_state();
+
+    status
+}
+
+/// Writes every probed installation file and whether it exists to the log, so
+/// a failed detection shows exactly which paths were looked at.
+fn log_file_probe(component: &str, paths: Vec<PathBuf>) {
+    for path in paths {
+        crate::log::line(format!(
+            "{component} 安装文件 {}：{}",
+            path.display(),
+            if path.is_file() { "存在" } else { "不存在" }
+        ));
     }
 }
 
@@ -58,7 +92,7 @@ fn env_file(variable: &str, relative: &str) -> Option<PathBuf> {
 /// Whether the OS itself is 64-bit, even when this process is a 32-bit one
 /// running under WOW64. The native system info reports the architecture of the
 /// machine, unlike `GetSystemInfo`, which reports the emulated one.
-fn is_os_64bit() -> bool {
+pub fn is_os_64bit() -> bool {
     use winsafe::co::PROCESSOR_ARCHITECTURE;
 
     let info = winsafe::GetNativeSystemInfo();
@@ -70,26 +104,35 @@ fn is_os_64bit() -> bool {
     )
 }
 
+/// WinFsp launcher paths probed when the registry key is missing.
+fn winfsp_files() -> Vec<PathBuf> {
+    ["ProgramFiles(x86)", "ProgramFiles", "ProgramW6432"]
+        .iter()
+        .flat_map(|variable| {
+            [
+                env_file(variable, r"WinFsp\bin\launcher-x64.exe"),
+                env_file(variable, r"WinFsp\bin\launcher-x86.exe"),
+            ]
+        })
+        .flatten()
+        .collect()
+}
+
+/// SSHFS-Win client paths probed when the service key is missing.
+fn sshfs_files() -> Vec<PathBuf> {
+    ["ProgramFiles", "ProgramW6432", "ProgramFiles(x86)"]
+        .iter()
+        .filter_map(|variable| env_file(variable, r"SSHFS-Win\bin\sshfs.exe"))
+        .collect()
+}
+
 fn winfsp_installed() -> bool {
-    registry::key_exists(registry::WINFSP_KEY)
-        || ["ProgramFiles(x86)", "ProgramFiles", "ProgramW6432"]
-            .iter()
-            .flat_map(|variable| {
-                [
-                    env_file(variable, r"WinFsp\bin\launcher-x64.exe"),
-                    env_file(variable, r"WinFsp\bin\launcher-x86.exe"),
-                ]
-            })
-            .flatten()
-            .any(|path| path.is_file())
+    registry::key_exists(registry::WINFSP_KEY) || winfsp_files().iter().any(|path| path.is_file())
 }
 
 fn sshfs_installed() -> bool {
     registry::key_exists(registry::SSHFS_SERVICE_KEY)
-        || ["ProgramFiles", "ProgramW6432", "ProgramFiles(x86)"]
-            .iter()
-            .filter_map(|variable| env_file(variable, r"SSHFS-Win\bin\sshfs.exe"))
-            .any(|path| path.is_file())
+        || sshfs_files().iter().any(|path| path.is_file())
 }
 
 /// Full path of `winget.exe`, resolved through `where` because the Windows

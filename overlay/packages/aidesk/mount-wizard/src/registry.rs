@@ -78,6 +78,56 @@ pub fn key_exists(path: &str) -> bool {
     exists(co::KEY::WOW64_32KEY) || exists(co::KEY::WOW64_64KEY)
 }
 
+/// `WinFsp.Np` has to be listed here for mapped drives to be created; a
+/// missing entry explains a driver that is installed but never used.
+const NETWORK_PROVIDER_ORDER_KEY: &str =
+    r"SYSTEM\CurrentControlSet\Control\NetworkProvider\Order";
+
+/// Renders a registry value — or the read error — for the diagnostic log.
+fn reported(key: &str, value_name: &str, flags: co::RRF) -> String {
+    match HKEY::LOCAL_MACHINE.RegGetValue(Some(key), Some(value_name), flags) {
+        Ok(RegistryValue::Sz(text)) | Ok(RegistryValue::ExpandSz(text)) => format!("{text:?}"),
+        Ok(RegistryValue::MultiSz(items)) => format!("{items:?}"),
+        Ok(RegistryValue::Dword(value)) => value.to_string(),
+        Ok(RegistryValue::Qword(value)) => value.to_string(),
+        Ok(other) => format!("{other:?}"),
+        Err(err) => format!("<读取失败：{err}>"),
+    }
+}
+
+/// Logs the SSHFS-Win service registration in both registry views, plus the
+/// network provider order, so the diagnostic log shows what Windows actually
+/// contains instead of what the wizard assumes.
+pub fn log_state() {
+    crate::log::line("---- 注册表状态 ----");
+
+    for (label, view) in [
+        ("32 位视图 WOW64_32KEY", co::RRF::SUBKEY_WOW6432KEY),
+        ("64 位视图 WOW64_64KEY", co::RRF::SUBKEY_WOW6464KEY),
+    ] {
+        crate::log::line(format!(
+            r"HKLM\SOFTWARE\WinFsp\Services\sshfs（{label}）："
+        ));
+        crate::log::line(format!(
+            "  Executable = {}",
+            reported(SSHFS_SERVICE_KEY, "Executable", co::RRF::RT_ANY | view)
+        ));
+        crate::log::line(format!(
+            "  CommandLine = {}",
+            reported(SSHFS_SERVICE_KEY, "CommandLine", co::RRF::RT_ANY | view)
+        ));
+        crate::log::line(format!(
+            "  Credentials = {}",
+            reported(SSHFS_SERVICE_KEY, "Credentials", co::RRF::RT_ANY | view)
+        ));
+    }
+
+    crate::log::line(format!(
+        r"HKLM\{NETWORK_PROVIDER_ORDER_KEY}\ProviderOrder = {}",
+        reported(NETWORK_PROVIDER_ORDER_KEY, "ProviderOrder", co::RRF::RT_ANY)
+    ));
+}
+
 /// Reads `HKLM\SOFTWARE\WOW6432Node\WinFsp\Services\sshfs\CommandLine`.
 fn command_line() -> Option<String> {
     match HKEY::LOCAL_MACHINE.RegGetValue(
@@ -114,7 +164,7 @@ pub fn keepalive_configured() -> bool {
 /// Writes the keepalive options and `Credentials` into the SSHFS-Win service
 /// key. Idempotent: repeated calls leave an up-to-date value untouched.
 pub fn configure_keepalive() -> ApplyOutcome {
-    match configure_keepalive_inner() {
+    let outcome = match configure_keepalive_inner() {
         Ok(true) => ApplyOutcome::Applied,
         Ok(false) => ApplyOutcome::AlreadyApplied,
         Err(err) if err == co::ERROR::ACCESS_DENIED => ApplyOutcome::NeedsElevation,
@@ -122,37 +172,87 @@ pub fn configure_keepalive() -> ApplyOutcome {
             "未找到 SSHFS-Win 的服务注册表项，请先安装 SSHFS-Win。".to_owned(),
         ),
         Err(err) => ApplyOutcome::Failed(format!("写入 WinFsp 服务配置失败：{err}")),
+    };
+
+    log_outcome("启用断线自动重连", &outcome);
+    outcome
+}
+
+/// Writes the result of an apply/unapply operation to the diagnostic log.
+fn log_outcome(action: &str, outcome: &ApplyOutcome) {
+    let message = match outcome {
+        ApplyOutcome::Applied => "注册表已更新",
+        ApplyOutcome::AlreadyApplied => "注册表已是目标状态，无需修改",
+        ApplyOutcome::NeedsElevation => "当前进程没有写入权限，需要管理员权限",
+        ApplyOutcome::Failed(message) => message,
+    };
+    crate::log::line(format!("{action}：{message}"));
+}
+
+/// Registry write result as shown in the diagnostic log.
+fn describe_write(result: &Result<(), co::ERROR>) -> String {
+    match result {
+        Ok(()) => "成功".to_owned(),
+        Err(err) => format!("失败：{err}"),
     }
 }
 
 fn configure_keepalive_inner() -> Result<bool, co::ERROR> {
     let hkey = open_service_key()?;
 
-    let mut changed = false;
-
     let current = read_command_line(&hkey);
+    crate::log::line(format!(
+        "启用断线自动重连：修改前 CommandLine={current:?}，Credentials={}",
+        read_credentials(&hkey)
+    ));
+
+    let mut changed = false;
+    let mut write_error: Option<co::ERROR> = None;
 
     // Upgrading from an older wizard leaves its `-o ServerAliveInterval=...`
     // block in place; rewrite that block instead of appending a second one.
     if !(current.contains(KEEPALIVE_MARKER) && current.contains(DOTHIDDEN_MARKER)) {
         let updated = with_keepalive_options(&current);
-        hkey.RegSetValueEx(Some("CommandLine"), RegistryValue::Sz(updated))?;
-        changed = true;
+        let result = hkey.RegSetValueEx(Some("CommandLine"), RegistryValue::Sz(updated.clone()));
+        crate::log::line(format!(
+            "写入 CommandLine={updated:?} 返回：{}",
+            describe_write(&result)
+        ));
+        match result {
+            Ok(()) => changed = true,
+            Err(err) => write_error = Some(err),
+        }
     }
 
-    if !credentials_enabled() {
-        hkey.RegSetValueEx(Some("Credentials"), RegistryValue::Dword(1))?;
-        changed = true;
+    if write_error.is_none() && !credentials_enabled() {
+        let result = hkey.RegSetValueEx(Some("Credentials"), RegistryValue::Dword(1));
+        crate::log::line(format!(
+            "写入 Credentials=1 返回：{}",
+            describe_write(&result)
+        ));
+        match result {
+            Ok(()) => changed = true,
+            Err(err) => write_error = Some(err),
+        }
     }
 
-    Ok(changed)
+    crate::log::line(format!(
+        "启用断线自动重连：修改后 CommandLine={:?}，Credentials={}",
+        read_command_line(&hkey),
+        read_credentials(&hkey)
+    ));
+
+    match write_error {
+        Some(err) => Err(err),
+        None => Ok(changed),
+    }
 }
 
 /// Removes the keepalive options from the SSHFS-Win service key, restoring the
 /// installer's own `CommandLine`, so [`keepalive_configured`] becomes `false`
 /// again. Idempotent: repeated calls leave a clean value untouched.
 pub fn unconfigure_keepalive() -> ApplyOutcome {
-    match unconfigure_keepalive_inner() {
+    let outcome = match unconfigure_keepalive_inner() {
         Ok(true) => ApplyOutcome::Applied,
         Ok(false) => ApplyOutcome::AlreadyApplied,
         Err(err) if err == co::ERROR::ACCESS_DENIED => ApplyOutcome::NeedsElevation,
@@ -160,21 +260,39 @@ pub fn unconfigure_keepalive() -> ApplyOutcome {
             "未找到 SSHFS-Win 的服务注册表项，请先安装 SSHFS-Win。".to_owned(),
         ),
         Err(err) => ApplyOutcome::Failed(format!("写入 WinFsp 服务配置失败：{err}")),
-    }
+    };
+
+    log_outcome("关闭断线自动重连", &outcome);
+    outcome
 }
 
 fn unconfigure_keepalive_inner() -> Result<bool, co::ERROR> {
     let hkey = open_service_key()?;
 
     let current = read_command_line(&hkey);
+    crate::log::line(format!(
+        "关闭断线自动重连：修改前 CommandLine={current:?}，Credentials={}",
+        read_credentials(&hkey)
+    ));
+
     if !current.contains(KEEPALIVE_MARKER) {
         return Ok(false);
     }
 
-    hkey.RegSetValueEx(
-        Some("CommandLine"),
-        RegistryValue::Sz(restore_default_command_line(&current)),
-    )?;
+    let restored = restore_default_command_line(&current);
+    let result = hkey.RegSetValueEx(Some("CommandLine"), RegistryValue::Sz(restored.clone()));
+    crate::log::line(format!(
+        "写入 CommandLine={restored:?} 返回：{}",
+        describe_write(&result)
+    ));
+    result?;
+
+    crate::log::line(format!(
+        "关闭断线自动重连：修改后 CommandLine={:?}，Credentials={}",
+        read_command_line(&hkey),
+        read_credentials(&hkey)
+    ));
+
     Ok(true)
 }
 
@@ -192,6 +310,15 @@ fn read_command_line(hkey: &HKEY) -> String {
     match hkey.RegGetValue(None, Some("CommandLine"), co::RRF::RT_ANY) {
         Ok(RegistryValue::Sz(text)) | Ok(RegistryValue::ExpandSz(text)) => text,
         _ => String::new(),
+    }
+}
+
+/// `Credentials` of an already opened service key, rendered for the log.
+fn read_credentials(hkey: &HKEY) -> String {
+    match hkey.RegGetValue(None, Some("Credentials"), co::RRF::RT_ANY) {
+        Ok(RegistryValue::Dword(value)) => value.to_string(),
+        Ok(other) => format!("{other:?}"),
+        Err(err) => format!("<读取失败：{err}>"),
     }
 }
 

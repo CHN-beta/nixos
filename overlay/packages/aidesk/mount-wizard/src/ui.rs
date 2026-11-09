@@ -178,9 +178,14 @@ struct Wizard {
 }
 
 pub fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    crate::log::line(format!(
+        "启动图形界面，日志文件：{}",
+        crate::log::path().display()
+    ));
     let wizard = Wizard::new();
     wizard.events();
     let _ = wizard.wnd.run_main(None)?;
+    crate::log::line("图形界面已退出。");
     Ok(())
 }
 
@@ -347,8 +352,17 @@ impl Wizard {
         // on every `WM_CTLCOLORSTATIC` rather than on the control itself.
         // The color follows `row_ready`, the same predicate that picks the
         // status text, so the two can never disagree.
+        //
+        // The transparent background mode and the button-face background are
+        // applied to *every* static control of the window, not only the status
+        // cells: otherwise the plain labels (“虚拟磁盘驱动” etc.) keep the
+        // default white control background and stand out as white boxes on the
+        // grey dialog surface.
         let wizard = self.clone();
         self.wnd.on().wm_ctl_color_static(move |p| {
+            let _ = p.hdc.SetBkMode(co::BKMODE::TRANSPARENT);
+            let _ = p.hdc.SetBkColor(w::GetSysColor(co::COLOR::BTNFACE));
+
             for (row, label) in wizard.item_status.iter().enumerate() {
                 if p.hwnd.ptr() == label.hwnd().ptr() {
                     let color = if wizard.row_ready(row) {
@@ -357,9 +371,6 @@ impl Wizard {
                         STATUS_UNREADY_COLOR
                     };
                     let _ = p.hdc.SetTextColor(color);
-                    // Let the label background come from the brush returned
-                    // below, so only the glyphs are painted in `color`.
-                    let _ = p.hdc.SetBkMode(co::BKMODE::TRANSPARENT);
                     break;
                 }
             }
@@ -447,6 +458,11 @@ impl Wizard {
     fn refresh(&self) {
         let status = deps::check();
         let mounted_drive = mapping::detect_mounted_drive();
+
+        crate::log::line(format!(
+            "界面状态刷新：WinFsp={}，SSHFS-Win={}，断线自动重连={}，已挂载盘符={mounted_drive:?}",
+            status.winfsp, status.sshfs, status.keepalive
+        ));
 
         {
             let mut state = self.state.borrow_mut();
@@ -711,6 +727,15 @@ impl MountDialog {
     }
 
     fn events(&self) {
+        // The modal dialog uses the same plain static labels as the main
+        // window, so it needs the same transparent background treatment;
+        // otherwise every label shows as a white box on the grey dialog.
+        self.dlg.on().wm_ctl_color_static(|p| {
+            let _ = p.hdc.SetBkMode(co::BKMODE::TRANSPARENT);
+            let _ = p.hdc.SetBkColor(w::GetSysColor(co::COLOR::BTNFACE));
+            Ok(w::HBRUSH::GetSysColorBrush(co::COLOR::BTNFACE)?)
+        });
+
         // `ComboBoxOpts` has no height field and winsafe creates the control
         // with zero height, which would collapse the drop-down list, so give it
         // room before the first paint.
@@ -776,6 +801,11 @@ impl MountDialog {
         self.set_status("正在连接云端网盘，请稍候…");
         enable(&self.btn_connect, false);
 
+        crate::log::line(format!(
+            "挂载对话框提交：drive={drive:?}，username={user:?}，password_len={}",
+            password.len()
+        ));
+
         let outcome = mapping::map_drive(&drive, &user, &password);
         if outcome.ok {
             self.mounted.set(true);
@@ -792,7 +822,16 @@ impl MountDialog {
             .or_else(|| outcome.log.last())
             .cloned()
             .unwrap_or_else(|| "映射失败。".to_owned());
-        self.set_status(&format!("{failure} 请检查用户名和密码后重试。"));
+        let log_file = outcome
+            .log
+            .iter()
+            .rev()
+            .find(|line| line.starts_with("日志文件："))
+            .cloned()
+            .unwrap_or_else(|| format!("日志文件：{}", crate::log::path().display()));
+        self.set_status(&format!(
+            "{failure} 请检查用户名和密码后重试。\r\n{log_file}"
+        ));
     }
 
     fn set_status(&self, text: &str) {

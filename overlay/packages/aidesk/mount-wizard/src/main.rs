@@ -11,6 +11,7 @@
 #![windows_subsystem = "windows"]
 
 mod deps;
+mod log;
 mod mapping;
 mod registry;
 mod ui;
@@ -21,12 +22,29 @@ mod win32;
 pub const SERVER: &str = "nas.chn.moe";
 
 fn main() {
+    // Snapshot the environment first: the elevated helper re-launches this
+    // same executable, so every mode benefits from knowing which binary,
+    // pointer width and arguments produced the following lines.
+    let args: Vec<String> = std::env::args().collect();
+    log::line("===== AIDesk 网盘助手启动 =====");
+    log::line(format!("日志文件：{}", log::path().display()));
+    log::line(format!("进程指针宽度：{} 位", usize::BITS));
+    log::line(format!("操作系统为 64 位：{}", deps::is_os_64bit()));
+    log::line(format!(
+        "当前程序路径：{}",
+        std::env::current_exe()
+            .map(|exe| exe.display().to_string())
+            .unwrap_or_else(|err| format!("<获取失败：{err}>"))
+    ));
+    log::line(format!("命令行参数：{args:?}"));
+    log::line(format!("管理员权限：{}", win32::is_admin()));
+
     // Elevated helper modes: write or remove the WinFsp service keepalive
     // configuration, report the result, then exit. The GUI re-launches this
     // same executable with the quiet flags (and waits for it), so no separate
     // helper binary is needed; running the executable manually with the
     // non-quiet flags shows a result dialog.
-    match std::env::args().nth(1).as_deref() {
+    match args.get(1).map(String::as_str) {
         Some(registry::APPLY_REGISTRY) => {
             std::process::exit(registry::elevated_configure(false));
         }

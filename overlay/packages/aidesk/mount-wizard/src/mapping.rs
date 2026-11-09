@@ -127,6 +127,14 @@ extern "system" {
     fn WNetCancelConnection2W(name: *const u16, flags: u32, force: i32) -> u32;
 
     fn WNetGetConnectionW(local_name: *const u16, remote_name: *mut u16, length: *mut u32) -> u32;
+
+    fn WNetGetLastErrorW(
+        error: *mut u32,
+        error_buf: *mut u16,
+        error_buf_size: u32,
+        name_buf: *mut u16,
+        name_buf_size: u32,
+    ) -> u32;
 }
 
 #[link(name = "advapi32")]
@@ -157,6 +165,14 @@ pub fn map_drive(drive: &str, username: &str, password: &str) -> MapOutcome {
     let unc = format!(r"\\sshfs\{username}@{SERVER}");
     let drive_root = format!("{drive}\\");
 
+    // The password is never written to the log; only its length is, which is
+    // enough to tell a mistyped/empty password from a Windows error.
+    crate::log::line("===== 开始挂载网盘 =====");
+    crate::log::line(format!(
+        "map_drive(drive={drive:?}, username={username:?}, password_len={})，unc={unc:?}",
+        password.len()
+    ));
+
     log.push(format!("目标盘符：{drive}"));
     log.push(format!("远程路径：{unc}（远程主目录）"));
 
@@ -165,12 +181,22 @@ pub fn map_drive(drive: &str, username: &str, password: &str) -> MapOutcome {
     // in place before that: reading it is what turns the UNC path into
     // `AIDesk(<user>)`. A failure here is not fatal — the drive is usable
     // without a custom name — and is reported by the write after the mount.
-    let _ = set_drive_label(username);
+    match set_drive_label(username) {
+        Ok(()) => crate::log::line(format!(
+            "set_drive_label 预写成功：{}",
+            drive_label(username)
+        )),
+        Err(err) => crate::log::line(format!("set_drive_label 预写失败：{err}")),
+    }
 
     // A stale mapping on the same letter makes WNetAddConnection2W fail with
     // ERROR_ALREADY_ASSIGNED, so drop it first. "Not connected" is expected.
     let drive_w = win32::wide(drive);
-    if unsafe { WNetCancelConnection2W(drive_w.as_ptr(), 0, 1) } == 0 {
+    let cancel_status = unsafe { WNetCancelConnection2W(drive_w.as_ptr(), 0, 1) };
+    crate::log::line(format!(
+        "WNetCancelConnection2W(drive={drive:?}, flags=0, force=1) 返回 {cancel_status}"
+    ));
+    if cancel_status == 0 {
         log.push(format!("已断开 {drive} 上的旧连接。"));
     }
 
@@ -196,16 +222,19 @@ pub fn map_drive(drive: &str, username: &str, password: &str) -> MapOutcome {
     // connection below passes no password at all.
     let credential_saved = match remember_credential(&unc, username, password) {
         Ok(()) => {
+            crate::log::line("remember_credential：密码已保存到 Windows 凭据管理器。");
             log.push("密码已保存到 Windows 凭据管理器。".to_owned());
             true
         }
         Err(err) => {
+            crate::log::line(format!("remember_credential 失败：{err}"));
             log.push(format!("保存密码到 Windows 凭据管理器失败：{err}"));
             false
         }
     };
 
     log.push("正在建立 SSH 连接（首次连接可能需要数秒）……".to_owned());
+    crate::log::line("正在建立 SSH 连接（首次连接可能需要数秒）……");
 
     let mut status = 0;
     if credential_saved {
@@ -226,15 +255,17 @@ pub fn map_drive(drive: &str, username: &str, password: &str) -> MapOutcome {
     }
 
     if status != 0 {
+        crate::log::line(format!("map_drive 失败：{}", error_text(status)));
+        log_sshfs_binaries();
         log.push(format!("映射失败：{}", error_text(status)));
         log.push("请确认 WinFsp 与 SSHFS-Win 已安装，且用户名、密码正确。".to_owned());
+        log.push(log_file_line());
         return MapOutcome { ok: false, log };
     }
 
-    if matches!(
-        winsafe::GetDriveType(Some(&drive_root)),
-        winsafe::co::DRIVE::REMOTE
-    ) {
+    let drive_type = winsafe::GetDriveType(Some(&drive_root));
+    crate::log::line(format!("GetDriveType({drive_root:?}) 返回 {drive_type}"));
+    if matches!(drive_type, winsafe::co::DRIVE::REMOTE) {
         log.push(format!("映射成功：{drive} 已就绪。"));
     } else {
         log.push(format!(
@@ -252,31 +283,120 @@ pub fn map_drive(drive: &str, username: &str, password: &str) -> MapOutcome {
     // connection, racing with the pre-seeded value. The write is idempotent, so
     // this is a no-op when the pre-seeded value survived.
     match set_drive_label(username) {
-        Ok(()) => log.push(format!("「此电脑」中显示为 {}。", drive_label(username))),
-        Err(err) => log.push(format!("设置网盘显示名称失败：{err}")),
+        Ok(()) => {
+            crate::log::line(format!(
+                "set_drive_label 后写成功：{}",
+                drive_label(username)
+            ));
+            log.push(format!("「此电脑」中显示为 {}。", drive_label(username)));
+        }
+        Err(err) => {
+            crate::log::line(format!("set_drive_label 后写失败：{err}"));
+            log.push(format!("设置网盘显示名称失败：{err}"));
+        }
     }
 
+    crate::log::line("===== 挂载完成 =====");
+
+    log.push(log_file_line());
     MapOutcome { ok: true, log }
+}
+
+/// One `MapOutcome.log` entry telling the user where the log file is.
+fn log_file_line() -> String {
+    format!("日志文件：{}", crate::log::path().display())
+}
+
+/// Probes the SSHFS-Win executables when the mapping failed. Error 53
+/// (`ERROR_BAD_NETPATH`) usually means the network provider could not start
+/// `sshfs-win.exe`, so its actual location matters.
+fn log_sshfs_binaries() {
+    for variable in ["ProgramFiles", "ProgramW6432", "ProgramFiles(x86)"] {
+        match std::env::var_os(variable) {
+            Some(base) => {
+                let base = std::path::PathBuf::from(base);
+                for relative in [r"SSHFS-Win\bin\sshfs-win.exe", r"SSHFS-Win\bin\sshfs.exe"] {
+                    let path = base.join(relative);
+                    crate::log::line(format!(
+                        "SSHFS-Win 探测 %{variable}%\\{relative} = {}（{}）",
+                        path.display(),
+                        if path.is_file() { "存在" } else { "不存在" }
+                    ));
+                }
+            }
+            None => crate::log::line(format!("SSHFS-Win 探测：环境变量 {variable} 未设置")),
+        }
+    }
 }
 
 /// Connects, retrying while the drive letter is still being released by the
 /// cancelled mapping (WinFsp stops the previous service asynchronously).
+///
+/// Every attempt is logged together with its `WNetGetLastErrorW` details, so a
+/// log from a failing machine shows the exact MPR error instead of just the
+/// numeric return code.
 fn connect_retrying(
     resource: &NetResourceW,
     password: *const u16,
     username: *const u16,
 ) -> u32 {
+    let inline = !password.is_null() && !username.is_null();
     let connect =
         || unsafe { WNetAddConnection2W(resource, password, username, CONNECT_UPDATE_PROFILE) };
+
+    let mut attempt = 1;
     let mut status = connect();
+    log_connect_attempt(attempt, inline, status);
+
     for _ in 0..10 {
         if status != ERROR_ALREADY_ASSIGNED {
             break;
         }
+        crate::log::line(format!(
+            "盘符仍被旧连接占用（错误 {status}），500ms 后重试……"
+        ));
         std::thread::sleep(Duration::from_millis(500));
+        attempt += 1;
         status = connect();
+        log_connect_attempt(attempt, inline, status);
     }
     status
+}
+
+/// Logs one `WNetAddConnection2W` call; on failure also the extended error
+/// from `WNetGetLastErrorW`, which must be queried immediately afterwards.
+fn log_connect_attempt(attempt: u32, inline: bool, status: u32) {
+    crate::log::line(format!(
+        "WNetAddConnection2W（第 {attempt} 次，inline_credentials={inline}，flags=CONNECT_UPDATE_PROFILE/0x{CONNECT_UPDATE_PROFILE:08x}）返回 {status}：{}",
+        error_text(status)
+    ));
+    if status != 0 {
+        log_net_last_error(status);
+    }
+}
+
+/// Queries `WNetGetLastErrorW` and writes its extended error code, message and
+/// provider name to the log.
+fn log_net_last_error(fallback_status: u32) {
+    let mut error = 0u32;
+    let mut error_buf = vec![0u16; 512];
+    let mut name_buf = vec![0u16; 256];
+
+    let ret = unsafe {
+        WNetGetLastErrorW(
+            &mut error,
+            error_buf.as_mut_ptr(),
+            error_buf.len() as u32,
+            name_buf.as_mut_ptr(),
+            name_buf.len() as u32,
+        )
+    };
+
+    crate::log::line(format!(
+        "WNetGetLastErrorW 返回 {ret}：扩展错误码={error}，error_buf={:?}，name_buf={:?}（WNetAddConnection2W 返回 {fallback_status}）",
+        win32::from_wide(&error_buf),
+        win32::from_wide(&name_buf),
+    ));
 }
 
 /// Writes the password as a `CRED_TYPE_GENERIC` credential for `target`.
@@ -305,13 +425,17 @@ fn remember_credential(target: &str, username: &str, password: &str) -> Result<(
         user_name: username_w.as_ptr(),
     };
 
-    if unsafe { CredWriteW(&credential, 0) } != 0 {
+    let ret = unsafe { CredWriteW(&credential, 0) };
+    let last_error = std::io::Error::last_os_error();
+    crate::log::line(format!(
+        "CredWriteW(target={target:?}, username={username:?}, password_len={}) 返回 {ret}，last_os_error={last_error}",
+        password.len()
+    ));
+
+    if ret != 0 {
         Ok(())
     } else {
-        Err(format!(
-            "CredWriteW 失败：{}",
-            std::io::Error::last_os_error()
-        ))
+        Err(format!("CredWriteW 失败：{last_error}"))
     }
 }
 
