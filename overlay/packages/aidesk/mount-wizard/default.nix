@@ -12,10 +12,11 @@ let
 
   version = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).package.version;
 
-  # Runtime installers shipped in the zip's `deps/` subdirectory so the wizard
-  # can install its dependencies offline (see src/deps.rs). Both are pinned
-  # upstream releases; SSHFS-Win bundles its own `ssh.exe`/`sshfs.exe`, so
-  # WinFsp + SSHFS-Win is the complete runtime requirement.
+  # Runtime installers, pinned upstream releases. `build.rs` compiles these
+  # into the executable (see `emit_embedded_installers`), so the wizard can
+  # install its dependencies offline from a single-file download. SSHFS-Win
+  # bundles its own `ssh.exe`/`sshfs.exe`, so WinFsp + SSHFS-Win is the
+  # complete runtime requirement.
   winfsp = pkgs.fetchurl {
     name = "winfsp-2.1.25156.msi";
     url = "https://github.com/winfsp/winfsp/releases/download/v2.1/winfsp-2.1.25156.msi";
@@ -49,32 +50,44 @@ cross.rustPlatform.buildRustPackage {
     pkgs.zip
   ];
 
+  # `build.rs` reads these and `include_bytes!`s the two MSIs into the
+  # executable. The store basenames carry a hash prefix, so copy them under
+  # their real names first: those names are also used for the temporary files
+  # extracted at install time. Leaving the variables unset keeps a plain
+  # `cargo build` working; the runtime then falls back to a `deps/` bundle,
+  # `winget` or the download page.
+  preConfigure = ''
+    installers=$(mktemp -d)
+    cp ${winfsp} "$installers/${winfsp.name}"
+    cp ${sshfs-win} "$installers/${sshfs-win.name}"
+
+    export WINFSP_INSTALLER="$installers/${winfsp.name}"
+    export SSHFS_WIN_INSTALLER="$installers/${sshfs-win.name}"
+  '';
+
   doCheck = false;
 
   postInstall = ''
     stage=$(mktemp -d)
 
-    # Zip layout: the wizard executable at the top level, the offline
-    # installers in `deps/`, which is where src/deps.rs looks for them first.
+    # The executable embeds the installers, so the zip is a single file. The
+    # executable under `$out/bin` is kept as well.
     cp $out/bin/aidesk-mount-wizard.exe "$stage/aidesk-mount-wizard.exe"
-    mkdir -p "$stage/deps"
-    cp ${winfsp} "$stage/deps/${winfsp.name}"
-    cp ${sshfs-win} "$stage/deps/${sshfs-win.name}"
 
     # Fixed timestamps keep the archive reproducible under SOURCE_DATE_EPOCH.
     TZ=UTC find "$stage" -exec touch -h -d "@$SOURCE_DATE_EPOCH" {} +
 
     mkdir -p $out
-    (cd "$stage" && TZ=UTC ${pkgs.zip}/bin/zip -9 -X -r $out/aidesk-mount-wizard.zip .)
-    rm -rf "$stage" $out/bin
+    (cd "$stage" && TZ=UTC ${pkgs.zip}/bin/zip -9 -X $out/aidesk-mount-wizard.zip aidesk-mount-wizard.exe)
+    rm -rf "$stage"
   '';
 
   meta = with lib; {
     description = "Windows GUI wizard that maps the AIDesk (nas.chn.moe) workspace as a persistent SSHFS drive";
     longDescription = ''
-      Windows x64 bundle: `aidesk-mount-wizard.zip` contains the wizard
-      executable at the top level and the pinned WinFsp and SSHFS-Win MSI
-      installers in its `deps/` subdirectory.
+      Windows x64 executable embedding the pinned WinFsp and SSHFS-Win MSI
+      installers: `bin/aidesk-mount-wizard.exe` is also offered as the
+      single-file `aidesk-mount-wizard.zip`.
     '';
     license = licenses.mit;
     platforms = platforms.windows;

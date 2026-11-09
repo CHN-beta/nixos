@@ -21,12 +21,17 @@ use winsafe::{co, guard::RegCloseKeyGuard, HKEY, RegistryValue};
 pub const WINFSP_KEY: &str = r"SOFTWARE\WinFsp";
 pub const SSHFS_SERVICE_KEY: &str = r"SOFTWARE\WinFsp\Services\sshfs";
 
-/// Passed through to `sshfs`: reconnect on drop and detect dead peers quickly.
+/// Passed through to `sshfs`: reconnect on drop, detect dead peers quickly,
+/// and expose dotfiles as hidden Windows files (`dothidden`).
 pub const KEEPALIVE_OPTIONS: &str =
-    "-o ServerAliveInterval=15,ServerAliveCountMax=3,reconnect";
+    "-o ServerAliveInterval=15,ServerAliveCountMax=3,reconnect,dothidden";
 
 /// Marker used to decide whether the options were already appended.
 const KEEPALIVE_MARKER: &str = "ServerAliveInterval";
+
+/// Marker of the `dothidden` option. Keys written by older wizard versions
+/// carry only [`KEEPALIVE_MARKER`] and must be upgraded in place.
+const DOTHIDDEN_MARKER: &str = "dothidden";
 
 /// `CommandLine` as shipped by the SSHFS-Win installer, restored when the
 /// keepalive options are removed again.
@@ -96,10 +101,14 @@ fn credentials_enabled() -> bool {
     }
 }
 
-/// `true` when both the keepalive flags and the credential passthrough are in
-/// place, i.e. nothing needs to be written.
+/// `true` when the full keepalive option block (including `dothidden`) and the
+/// credential passthrough are in place, i.e. nothing needs to be written.
+/// Keys written by older wizard versions lack `dothidden` and therefore
+/// report `false`, which is what triggers the in-place upgrade.
 pub fn keepalive_configured() -> bool {
-    command_line().is_some_and(|line| line.contains(KEEPALIVE_MARKER)) && credentials_enabled()
+    command_line()
+        .is_some_and(|line| line.contains(KEEPALIVE_MARKER) && line.contains(DOTHIDDEN_MARKER))
+        && credentials_enabled()
 }
 
 /// Writes the keepalive options and `Credentials` into the SSHFS-Win service
@@ -123,10 +132,10 @@ fn configure_keepalive_inner() -> Result<bool, co::ERROR> {
 
     let current = read_command_line(&hkey);
 
-    if !current.contains(KEEPALIVE_MARKER) {
-        let trimmed = current.trim_end();
-        let separator = if trimmed.is_empty() { "" } else { " " };
-        let updated = format!("{trimmed}{separator}{KEEPALIVE_OPTIONS}");
+    // Upgrading from an older wizard leaves its `-o ServerAliveInterval=...`
+    // block in place; rewrite that block instead of appending a second one.
+    if !(current.contains(KEEPALIVE_MARKER) && current.contains(DOTHIDDEN_MARKER)) {
+        let updated = with_keepalive_options(&current);
         hkey.RegSetValueEx(Some("CommandLine"), RegistryValue::Sz(updated))?;
         changed = true;
     }
@@ -189,13 +198,39 @@ fn read_command_line(hkey: &HKEY) -> String {
 /// Drops the injected keepalive options from `current`, leaving the installer's
 /// original tokens (and any other custom arguments) in place.
 fn restore_default_command_line(current: &str) -> String {
-    let stripped = current.replace(KEEPALIVE_OPTIONS, "");
-    let tokens: Vec<&str> = stripped.split_whitespace().collect();
+    let tokens = strip_keepalive_options(current);
     if tokens.is_empty() {
         DEFAULT_COMMAND_LINE.to_owned()
     } else {
         tokens.join(" ")
     }
+}
+
+/// Returns `current` with the keepalive block replaced by
+/// [`KEEPALIVE_OPTIONS`]. Any pre-existing `-o ServerAliveInterval=...`
+/// (including the versions written by older wizards, without `dothidden`) is
+/// removed first, so the command line never ends up with two such blocks.
+fn with_keepalive_options(current: &str) -> String {
+    let mut tokens = strip_keepalive_options(current);
+    tokens.extend(KEEPALIVE_OPTIONS.split_whitespace());
+    tokens.join(" ")
+}
+
+/// Removes every `-o ServerAliveInterval=...` pair from `current`, keeping the
+/// remaining tokens in order. The `-o` introducing the option is dropped along
+/// with it; a stray option without its `-o` is dropped as well.
+fn strip_keepalive_options(current: &str) -> Vec<&str> {
+    let mut tokens: Vec<&str> = Vec::new();
+    for token in current.split_whitespace() {
+        if token.starts_with("ServerAliveInterval=") {
+            if tokens.last() == Some(&"-o") {
+                tokens.pop();
+            }
+            continue;
+        }
+        tokens.push(token);
+    }
+    tokens
 }
 
 /// Re-launches this executable elevated to perform the registry write and

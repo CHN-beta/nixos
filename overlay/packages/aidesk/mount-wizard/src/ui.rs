@@ -82,6 +82,14 @@ const COLUMN_GEOMETRY: [(i32, i32); 4] = [(28, 96), (128, 264), (400, 104), (512
 /// Top edge of the four table rows, in unscaled pixels.
 const ROW_TOP: [i32; 4] = [120, 156, 192, 228];
 
+/// Status text color for a completed setup item. Dark green, so it stays
+/// legible on the light `BTNFACE` window background.
+const STATUS_READY_COLOR: w::COLORREF = w::COLORREF::from_rgb(0x0b, 0x6b, 0x1f);
+
+/// Status text color for a setup item that still needs attention. Dark red,
+/// readable against the same light background.
+const STATUS_UNREADY_COLOR: w::COLORREF = w::COLORREF::from_rgb(0xb3, 0x1b, 0x1b);
+
 /// The texts of one setup row.
 struct Row {
     name: &'static str,
@@ -335,6 +343,30 @@ impl Wizard {
             Ok(0)
         });
 
+        // Status cells are static controls, so their text color must be set
+        // on every `WM_CTLCOLORSTATIC` rather than on the control itself.
+        // The color follows `row_ready`, the same predicate that picks the
+        // status text, so the two can never disagree.
+        let wizard = self.clone();
+        self.wnd.on().wm_ctl_color_static(move |p| {
+            for (row, label) in wizard.item_status.iter().enumerate() {
+                if p.hwnd.ptr() == label.hwnd().ptr() {
+                    let color = if wizard.row_ready(row) {
+                        STATUS_READY_COLOR
+                    } else {
+                        STATUS_UNREADY_COLOR
+                    };
+                    let _ = p.hdc.SetTextColor(color);
+                    // Let the label background come from the brush returned
+                    // below, so only the glyphs are painted in `color`.
+                    let _ = p.hdc.SetBkMode(co::BKMODE::TRANSPARENT);
+                    break;
+                }
+            }
+
+            Ok(w::HBRUSH::GetSysColorBrush(co::COLOR::BTNFACE)?)
+        });
+
         let wizard = self.clone();
         self.btn_next.on().bn_clicked(move || {
             wizard.show_page(Page::Setup);
@@ -422,15 +454,15 @@ impl Wizard {
             state.mounted_drive = mounted_drive.clone();
         }
 
-        let ready = [status.winfsp, status.sshfs, status.keepalive];
-        for (row, is_ready) in ready.iter().enumerate() {
+        for row in 0..3 {
+            let is_ready = self.row_ready(row);
             set_text(
                 &self.item_status[row],
-                pick(*is_ready, ROWS[row].ready, ROWS[row].unready),
+                pick(is_ready, ROWS[row].ready, ROWS[row].unready),
             );
             set_text(
                 &self.item_button[row],
-                pick(*is_ready, ROWS[row].undo, ROWS[row].action),
+                pick(is_ready, ROWS[row].undo, ROWS[row].action),
             );
         }
 
@@ -444,7 +476,7 @@ impl Wizard {
         );
         set_text(
             &self.item_button[3],
-            pick(mounted_drive.is_some(), ROWS[3].undo, ROWS[3].action),
+            pick(self.row_ready(3), ROWS[3].undo, ROWS[3].action),
         );
 
         // Each row depends on the rows above it: nothing can be connected
@@ -461,6 +493,18 @@ impl Wizard {
             &self.btn_finish,
             mount_row_ready && mounted_drive.is_some(),
         );
+    }
+
+    /// Whether the setup row is currently in its completed state. Both the
+    /// status text and its color derive from this, so they stay consistent.
+    fn row_ready(&self, row: usize) -> bool {
+        let state = self.state.borrow();
+        match row {
+            0 => state.deps.winfsp,
+            1 => state.deps.sshfs,
+            2 => state.deps.keepalive,
+            _ => state.mounted_drive.is_some(),
+        }
     }
 
     fn set_status(&self, text: &str) {
