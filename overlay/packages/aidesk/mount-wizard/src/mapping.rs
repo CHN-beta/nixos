@@ -65,14 +65,16 @@ struct NetResourceW {
     provider: *const u16,
 }
 
-/// `CREDENTIALW`, as laid out on 64-bit Windows.
+/// `CREDENTIALW`. `LAST_WRITTEN` is a `FILETIME`, i.e. two `DWORD`s; spelling
+/// it as `u64` would change the struct layout on 32-bit Windows (where `u64`
+/// is 8-byte aligned, while the Win32 struct only needs 4-byte alignment).
 #[repr(C)]
 struct CredentialW {
     flags: u32,
     cred_type: u32,
     target_name: *const u16,
     comment: *const u16,
-    last_written: u64,
+    last_written: [u32; 2],
     credential_blob_size: u32,
     credential_blob: *const u8,
     persist: u32,
@@ -81,6 +83,11 @@ struct CredentialW {
     target_alias: *const u16,
     user_name: *const u16,
 }
+
+/// `CREDENTIALW` is exactly 52 bytes on 32-bit Windows; a field with stricter
+/// alignment than the Win32 struct would silently change it.
+#[cfg(target_pointer_width = "32")]
+const _: () = assert!(std::mem::size_of::<CredentialW>() == 52);
 
 #[link(name = "mpr")]
 extern "system" {
@@ -246,7 +253,7 @@ fn remember_credential(target: &str, username: &str, password: &str) -> Result<(
         cred_type: CRED_TYPE_GENERIC,
         target_name: target_w.as_ptr(),
         comment: std::ptr::null(),
-        last_written: 0,
+        last_written: [0, 0],
         credential_blob_size: (password_w.len() * std::mem::size_of::<u16>()) as u32,
         credential_blob: password_w.as_ptr().cast::<u8>(),
         persist: CRED_PERSIST_ENTERPRISE,

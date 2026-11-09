@@ -3,8 +3,9 @@
 //! module that embeds the MSI installers passed in by the build.
 //!
 //! `windres` is invoked directly instead of using `embed-resource` so the same
-//! script works for native MSVC builds and for the mingw-w64 cross build used
-//! by nixpkgs (where the tool is prefixed `x86_64-w64-mingw32-`).
+//! script works for native MSVC builds and for the mingw-w64 cross builds used
+//! by nixpkgs (where the tool is prefixed `i686-w64-mingw32-` or
+//! `x86_64-w64-mingw32-`).
 
 use std::env;
 use std::path::PathBuf;
@@ -25,8 +26,8 @@ fn main() {
     let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"));
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR"));
 
-    let windres = ["x86_64-w64-mingw32-windres", "windres"]
-        .into_iter()
+    let windres = windres_candidates(&target)
+        .iter()
         .find(|candidate| {
             Command::new(candidate)
                 .arg("--version")
@@ -53,25 +54,54 @@ fn main() {
     println!("cargo:rustc-link-arg={}", object.display());
 }
 
+/// `windres` executables to try for `target`, most specific first. On a
+/// mingw-w64 cross build the tool is prefixed with the target triple; a native
+/// MSVC or Linux-mingw build falls back to the unprefixed name.
+fn windres_candidates(target: &str) -> &'static [&'static str] {
+    if target.contains("i686") {
+        &["i686-w64-mingw32-windres", "windres"]
+    } else if target.contains("x86_64") {
+        &["x86_64-w64-mingw32-windres", "windres"]
+    } else {
+        &["windres"]
+    }
+}
+
 /// Writes `embedded_installers.rs` into `OUT_DIR`, defining one
 /// `Option<(&'static str, &'static [u8])>` constant per component.
 ///
-/// The Nix derivation exports `WINFSP_INSTALLER` and `SSHFS_WIN_INSTALLER`
-/// pointing at the pinned MSI files, which are then compiled into the
-/// executable. A plain developer build leaves the variables unset and gets
-/// `None`, so `cargo build` still works without the installers next to the
-/// source tree; `src/deps.rs` then falls back to a `deps/` bundle, `winget` or
-/// the upstream download page.
+/// The Nix derivation exports `WINFSP_INSTALLER`, `SSHFS_WIN_X64_INSTALLER`
+/// and `SSHFS_WIN_X86_INSTALLER` pointing at the pinned MSI files, which are
+/// then compiled into the executable. A plain developer build leaves the
+/// variables unset and gets `None`, so `cargo build` still works without the
+/// installers next to the source tree; `src/deps.rs` then falls back to a
+/// `deps/` bundle, `winget` or the upstream download page.
 fn emit_embedded_installers() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").expect("OUT_DIR"));
     let mut generated = String::new();
 
-    for (variable, constant) in [
-        ("WINFSP_INSTALLER", "WINFSP_INSTALLER"),
-        ("SSHFS_WIN_INSTALLER", "SSHFS_WIN_INSTALLER"),
+    // `SSHFS_WIN_INSTALLER` is the variable name used before x86 and x64
+    // installers were embedded separately; it still selects the 64-bit
+    // package for builds that have not been updated.
+    for (variable, fallback, constant) in [
+        ("WINFSP_INSTALLER", None, "WINFSP_INSTALLER"),
+        (
+            "SSHFS_WIN_X64_INSTALLER",
+            Some("SSHFS_WIN_INSTALLER"),
+            "SSHFS_WIN_X64_INSTALLER",
+        ),
+        ("SSHFS_WIN_X86_INSTALLER", None, "SSHFS_WIN_X86_INSTALLER"),
     ] {
         println!("cargo:rerun-if-env-changed={variable}");
-        let Some(path) = env::var_os(variable) else {
+        if let Some(fallback) = fallback {
+            println!("cargo:rerun-if-env-changed={fallback}");
+        }
+
+        let variable = match env::var_os(variable) {
+            Some(path) => Some(path),
+            None => fallback.and_then(env::var_os),
+        };
+        let Some(path) = variable else {
             generated.push_str(&format!(
                 "pub const {constant}: Option<EmbeddedInstaller> = None;\n"
             ));
@@ -84,10 +114,10 @@ fn emit_embedded_installers() {
         let file_name = path
             .file_name()
             .and_then(|name| name.to_str())
-            .unwrap_or_else(|| panic!("{variable} has no UTF-8 file name: {display}"));
+            .unwrap_or_else(|| panic!("{constant} has no UTF-8 file name: {display}"));
         let path = path
             .to_str()
-            .unwrap_or_else(|| panic!("{variable} is not valid UTF-8: {display}"));
+            .unwrap_or_else(|| panic!("{constant} is not valid UTF-8: {display}"));
         generated.push_str(&format!(
             "pub const {constant}: Option<EmbeddedInstaller> = \
              Some(({file_name:?}, include_bytes!({path:?})));\n"
