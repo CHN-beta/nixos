@@ -22,15 +22,9 @@
               mountBeforeSwitch = false;
             };
           };
-          luks.devices = {
-            "/dev/disk/by-partlabel/pc-root1" = {
-              mapper = "root1";
-              ssd = true;
-            };
-            "/dev/disk/by-partlabel/pc-tf2" = {
-              mapper = "tf2";
-              ssd = true;
-            };
+          luks.devices."/dev/disk/by-partlabel/pc-root1" = {
+            mapper = "root1";
+            ssd = true;
           };
           swap = [ "/dev/lvm/swap" ];
         };
