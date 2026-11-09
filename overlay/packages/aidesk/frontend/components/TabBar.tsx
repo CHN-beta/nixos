@@ -12,6 +12,10 @@ export interface Tab {
   sourceSessionId?: string | null;
   /** Explicit viewer chosen from the explorer's "Open with" menu. */
   openAs?: FileOpenMode;
+  /** The open editor has changes that are not on disk. */
+  isDirty?: boolean;
+  /** Stable React key so renaming an open tab keeps its editor state mounted. */
+  renderKey?: string;
 }
 
 interface Props {
@@ -338,10 +342,25 @@ export function TabBar({ tabs, activeTabId, onSelectTab, onCloseTab, explorerSel
                 flex: 1,
                 fontWeight: isActive ? 500 : 400,
               }}
-              title={tab.filePath}
+              title={tab.isDirty ? `${tab.filePath} — ${t("tabBar.unsavedChanges")}` : tab.filePath}
             >
               {tab.label}
             </span>
+            {tab.isDirty && (
+              <span
+                role="status"
+                aria-label={t("tabBar.unsavedChanges")}
+                title={t("tabBar.unsavedChanges")}
+                style={{
+                  width: 6,
+                  height: 6,
+                  flexShrink: 0,
+                  borderRadius: "50%",
+                  background: "var(--status-warning)",
+                  boxShadow: "0 0 0 2px color-mix(in srgb, var(--status-warning) 22%, transparent)",
+                }}
+              />
+            )}
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); onCloseTab(tab.id); }}

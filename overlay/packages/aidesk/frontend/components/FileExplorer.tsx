@@ -6,23 +6,34 @@ import {
   ChevronRight,
   CircleAlert,
   CircleMinus,
+  ClipboardPaste,
+  Copy,
   Download,
+  FileArchive,
   FilePlus,
   FileText,
+  Files,
   Folder,
   FolderOpen,
   FolderPlus,
+  FolderUp,
   Loader2,
+  Pencil,
+  Scissors,
+  Trash2,
   TriangleAlert,
   Upload,
   X,
 } from "lucide-react";
 import { getFileIcon } from "./FileIcons";
 import { Dialog, DialogContent, DialogTitle, Tooltip } from "./ui/primitives";
+import { ConfirmDialog } from "./ui/field";
+import { toast } from "./ui/toast";
 import { SidebarPortalMenu } from "./SessionSidebar-chrome";
 import { translate, useI18n } from "@/lib/i18n";
 import { apiUrl, redirectToAuth } from "@/lib/api-origin";
 import { useWebSettings } from "@/lib/web-settings";
+import { copyText } from "@/lib/clipboard";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
   encodeFilePathForApi,
@@ -32,6 +43,16 @@ import {
   joinFilePath,
   normalizeFilePathSlashes,
 } from "@/lib/file-paths";
+import {
+  collectDroppedFiles,
+  duplicateCandidateName,
+  formatFileModified,
+  formatFileSize,
+  isPathEqualOrInside,
+  rebasePath,
+  sortExplorerNodes,
+  type ExplorerSortMode,
+} from "@/lib/file-explorer-utils";
 import type { GitFileStatus, GitFileStatusKind, GitStatusResponse } from "@/lib/git-types";
 import type { FileOpenMode } from "@/lib/file-types";
 import { MAX_RESULT_LIMIT, type FileIndexEntry } from "@/lib/file-fuzzy";
@@ -40,16 +61,20 @@ import { buildSearchRows } from "@/lib/search-results";
 interface FileEntry {
   name: string;
   isDir: boolean;
+  isSymlink?: boolean;
+  isIgnored?: boolean;
   size: number;
-  modified: string;
+  modified: number;
 }
-
 
 interface FileNode {
   name: string;
   fullPath: string;
   isDir: boolean;
   size: number;
+  modified: number;
+  isSymlink?: boolean;
+  isIgnored?: boolean;
   children?: FileNode[];
   loaded?: boolean;
 }
@@ -71,10 +96,19 @@ interface Props {
   onRevealDone?: () => void;
   /** Reports the git changed-file count so the explorer header can badge it. */
   onGitStatusChange?: (changedCount: number, isRepo: boolean) => void;
+  /** Session that owns the workspace; mutations pass it through for access checks. */
+  sourceSessionId?: string | null;
+  /** Only the visible explorer responds to F2/Delete/Ctrl+C/X/V shortcuts. */
+  active?: boolean;
+  /** A rename/move succeeded: open tabs must follow the new path. */
+  onPathRenamed?: (oldPath: string, newPath: string, isDir: boolean) => void;
+  /** Paths were deleted: open tabs below them must close. */
+  onPathsDeleted?: (paths: string[]) => void;
 }
 
 export interface FileExplorerHandle {
   openUploadPicker: () => void;
+  openFolderUploadPicker: () => void;
   collapseAll: () => void;
 }
 
@@ -87,6 +121,71 @@ interface ExplorerMenuTarget {
   directory: string;
 }
 
+interface ClipboardItem {
+  path: string;
+  name: string;
+  isDir: boolean;
+}
+
+interface ClipboardState {
+  action: "copy" | "cut";
+  items: ClipboardItem[];
+}
+
+type PasteAction = "copy" | "move";
+
+interface PastePlan {
+  action: PasteAction;
+  items: ClipboardItem[];
+  destination: string;
+  index: number;
+}
+
+interface PasteConflict {
+  plan: PastePlan;
+  index: number;
+  item: ClipboardItem;
+  destination: string;
+}
+
+interface RenameState {
+  path: string;
+  value: string;
+  isDir: boolean;
+  originalName: string;
+}
+
+const TREE_DRAG_TYPE = "application/x-aidesk-tree-paths";
+const INCLUDE_IGNORED_KEY = "aidesk.fileExplorer.includeIgnored";
+const SORT_MODE_KEY = "aidesk.fileExplorer.sortMode";
+
+function readStoredBoolean(key: string): boolean {
+  try {
+    return localStorage.getItem(key) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function readStoredSortMode(): ExplorerSortMode {
+  try {
+    const stored = localStorage.getItem(SORT_MODE_KEY);
+    if (stored === "modified" || stored === "size" || stored === "name") return stored;
+  } catch {
+    // storage unavailable
+  }
+  return "name";
+}
+
+function storePreference(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // storage unavailable (private mode etc.)
+  }
+}
+
+
 /** "Open with" choices; each maps to a backend `?as=` override. */
 const OPEN_WITH_OPTIONS: Array<{ mode: FileOpenMode; labelKey: string }> = [
   { mode: "edit", labelKey: "fileExplorer.openAsEdit" },
@@ -98,11 +197,12 @@ const OPEN_WITH_OPTIONS: Array<{ mode: FileOpenMode; labelKey: string }> = [
   { mode: "audio", labelKey: "fileExplorer.openAsAudio" },
 ];
 
-function ExplorerMenuItem({ label, icon, onSelect, disabled = false }: {
+function ExplorerMenuItem({ label, icon, onSelect, disabled = false, danger = false }: {
   label: string;
   icon?: React.ReactNode;
   onSelect: () => void;
   disabled?: boolean;
+  danger?: boolean;
 }) {
   return (
     <button
@@ -111,6 +211,7 @@ function ExplorerMenuItem({ label, icon, onSelect, disabled = false }: {
       className="sidebar-menu-item"
       disabled={disabled}
       onClick={onSelect}
+      style={danger ? { color: "var(--status-error)" } : undefined}
     >
       {icon}
       <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
@@ -139,11 +240,62 @@ function ExplorerCheckableMenuItem({ label, checked, onSelect }: {
   );
 }
 
-/**
- * "New file" / "New folder" prompt. The request runs here so the tree only
- * refreshes once the entry exists; a conflict (someone else created it) is
- * reported inline instead of silently overwriting.
- */
+function InlineRenameInput({ value, isDir, onChange, onCommit, onCancel }: {
+  value: string;
+  isDir: boolean;
+  onChange: (value: string) => void;
+  onCommit: () => void;
+  onCancel: () => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  // Select the base name, leaving the extension out of the preselection so
+  // typing replaces `report` rather than `report.md`.
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
+    input.focus();
+    const dot = isDir ? -1 : value.lastIndexOf(".");
+    input.setSelectionRange(0, dot > 0 ? dot : value.length);
+    // Only on mount: value changes on every keystroke and must keep the caret.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <input
+      ref={inputRef}
+      value={value}
+      aria-label={translate("fileExplorer.rename")}
+      onClick={(event) => event.stopPropagation()}
+      onDoubleClick={(event) => event.stopPropagation()}
+      onChange={(event) => onChange(event.target.value)}
+      onKeyDown={(event) => {
+        event.stopPropagation();
+        if (event.key === "Enter") {
+          event.preventDefault();
+          onCommit();
+        } else if (event.key === "Escape") {
+          event.preventDefault();
+          onCancel();
+        }
+      }}
+      onBlur={onCommit}
+      style={{
+        flex: 1,
+        minWidth: 0,
+        height: 20,
+        boxSizing: "border-box",
+        padding: "0 4px",
+        background: "var(--bg)",
+        border: "1px solid var(--accent)",
+        borderRadius: "var(--radius-control)",
+        outline: "none",
+        color: "var(--text)",
+        fontSize: 12,
+        fontFamily: "var(--font-mono)",
+      }}
+    />
+  );
+}
+
 function CreateEntryDialog({ kind, directory, onClose, onCreated }: {
   kind: "file" | "dir";
   directory: string;
@@ -255,7 +407,7 @@ function CreateEntryDialog({ kind, directory, onClose, onCreated }: {
 }
 
 type UploadPhase = "idle" | "checking" | "uploading";
-type UploadConflictStrategy = "error" | "overwrite" | "skip";
+export type UploadConflictStrategy = "error" | "overwrite" | "skip" | "rename";
 
 interface UploadError {
   name: string;
@@ -269,23 +421,46 @@ interface UploadResponse {
   conflicts?: string[];
   nonReplaceable?: string[];
   error?: string;
+  code?: string;
 }
 
 interface UploadSummary {
   uploaded: string[];
   skipped: string[];
   errors: UploadError[];
+  targetDirectory: string;
+}
+
+interface UploadItem {
+  file: File;
+  relativePath: string;
 }
 
 interface PendingConflict {
-  files: File[];
+  items: UploadItem[];
+  targetDirectory: string;
   conflicts: string[];
   nonReplaceable: string[];
 }
 
-async function fetchEntries(dirPath: string): Promise<FileNode[]> {
+interface MutationResponse {
+  success?: boolean;
+  path?: string;
+  action?: string;
+  code?: string;
+  error?: string;
+}
+
+interface MutationResult {
+  status: number;
+  ok: boolean;
+  data: MutationResponse;
+}
+
+async function fetchEntries(dirPath: string, includeIgnored: boolean): Promise<FileNode[]> {
   const encoded = encodeFilePathForApi(dirPath);
-  const res = await fetch(`/api/files/${encoded}?type=list`);
+  const params = new URLSearchParams({ type: "list", includeIgnored: includeIgnored ? "1" : "0" });
+  const res = await fetch(`/api/files/${encoded}?${params.toString()}`);
   if (!res.ok) {
     let message = translate("fileExplorer.loadFailed", { status: res.status });
     try {
@@ -301,7 +476,10 @@ async function fetchEntries(dirPath: string): Promise<FileNode[]> {
     name: e.name,
     fullPath: joinFilePath(dirPath, e.name),
     isDir: e.isDir,
-    size: e.size,
+    size: typeof e.size === "number" ? e.size : 0,
+    modified: typeof e.modified === "number" ? e.modified : 0,
+    isSymlink: e.isSymlink,
+    isIgnored: e.isIgnored,
     children: e.isDir ? [] : undefined,
     loaded: !e.isDir,
   }));
@@ -334,13 +512,15 @@ export const GIT_STATUS_COLORS: Record<GitFileStatusKind, string> = {
 
 function uploadFiles(
   targetDirectory: string,
-  files: File[],
+  items: UploadItem[],
   strategy: UploadConflictStrategy,
   onProgress: (progress: number) => void,
 ): Promise<{ status: number; data: UploadResponse }> {
   return new Promise((resolve, reject) => {
     const formData = new FormData();
-    files.forEach((file) => formData.append("files", file, file.name));
+    // The third argument is the path relative to the upload target, so a
+    // dropped folder keeps its structure (`src/sub/b.txt`).
+    items.forEach(({ file, relativePath }) => formData.append("files", file, relativePath));
 
     const xhr = new XMLHttpRequest();
     xhr.open(
@@ -368,6 +548,52 @@ function uploadFiles(
     };
     xhr.send(formData);
   });
+}
+
+async function patchFilePath(
+  sourcePath: string,
+  action: "rename" | "move" | "copy",
+  destination: string,
+  overwrite: boolean,
+  sourceSessionId?: string | null,
+): Promise<MutationResult> {
+  const params = new URLSearchParams();
+  if (sourceSessionId) params.set("sourceSessionId", sourceSessionId);
+  const query = params.toString();
+  const res = await fetch(
+    apiUrl(`/api/files/${encodeFilePathForApi(sourcePath)}${query ? `?${query}` : ""}`),
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, destination, overwrite }),
+    },
+  );
+  let data: MutationResponse = {};
+  try {
+    data = await res.json() as MutationResponse;
+  } catch {
+    // Empty/non-JSON error body.
+  }
+  return { status: res.status, ok: res.ok, data };
+}
+
+async function deleteFilePath(
+  targetPath: string,
+  sourceSessionId?: string | null,
+): Promise<MutationResult> {
+  const params = new URLSearchParams({ recursive: "true" });
+  if (sourceSessionId) params.set("sourceSessionId", sourceSessionId);
+  const res = await fetch(
+    apiUrl(`/api/files/${encodeFilePathForApi(targetPath)}?${params.toString()}`),
+    { method: "DELETE" },
+  );
+  let data: MutationResponse = {};
+  try {
+    data = await res.json() as MutationResponse;
+  } catch {
+    // Empty/non-JSON error body.
+  }
+  return { status: res.status, ok: res.ok, data };
 }
 
 function DismissButton({ onClick, title }: { onClick: () => void; title: string }) {
@@ -437,6 +663,10 @@ interface ExplorerRowProps {
   highlighted: boolean;
   isActiveFile: boolean;
   focused: boolean;
+  cut: boolean;
+  dropTarget: boolean;
+  renaming: boolean;
+  renameValue: string;
   gitStatusByPath: Map<string, GitFileStatus>;
   changedDirectoryPaths: Set<string>;
   onAtMention?: (relativePath: string, isDir: boolean) => void;
@@ -444,6 +674,12 @@ interface ExplorerRowProps {
   onContextMenu: (target: ExplorerMenuTarget, event: React.MouseEvent) => void;
   onKeyDown: (event: React.KeyboardEvent<HTMLDivElement>, node: FileNode, index: number) => void;
   onFocusRow: (index: number) => void;
+  onRenameChange: (value: string) => void;
+  onRenameCommit: () => void;
+  onRenameCancel: () => void;
+  onDragStartNode: (node: FileNode, event: React.DragEvent<HTMLDivElement>) => void;
+  onDragEndNode: () => void;
+  onDownloadZip: (node: FileNode) => void;
 }
 
 // Memoized: the parent re-renders on every scroll tick, but a row only
@@ -460,6 +696,10 @@ const ExplorerRow = memo(function ExplorerRow({
   highlighted,
   isActiveFile,
   focused,
+  cut,
+  dropTarget,
+  renaming,
+  renameValue,
   gitStatusByPath,
   changedDirectoryPaths,
   onAtMention,
@@ -467,6 +707,12 @@ const ExplorerRow = memo(function ExplorerRow({
   onContextMenu,
   onKeyDown,
   onFocusRow,
+  onRenameChange,
+  onRenameCommit,
+  onRenameCancel,
+  onDragStartNode,
+  onDragEndNode,
+  onDownloadZip,
 }: ExplorerRowProps) {
   const { t } = useI18n();
   const [hovered, setHovered] = useState(false);
@@ -474,6 +720,8 @@ const ExplorerRow = memo(function ExplorerRow({
   if (row.kind === "empty") {
     return (
       <div
+        data-file-path={row.key}
+        data-file-is-dir="1"
         onContextMenu={(event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -494,6 +742,11 @@ const ExplorerRow = memo(function ExplorerRow({
   );
   const mentionLabel = t("fileExplorer.insertPathIntoChat");
   const downloadLabel = t("fileExplorer.downloadFile");
+  const zipLabel = t("fileExplorer.downloadZip");
+  const modifiedLabel = formatFileModified(node.modified);
+  const sizeLabel = !node.isDir && node.size > 0 ? formatFileSize(node.size) : "";
+  const metaText = [sizeLabel, modifiedLabel].filter(Boolean).join(" · ");
+  const rowTitle = metaText ? `${node.fullPath}\n${metaText}` : node.fullPath;
 
   return (
     <div
@@ -512,10 +765,14 @@ const ExplorerRow = memo(function ExplorerRow({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={(e) => { if (e.target === e.currentTarget) onFocusRow(index); }}
+      draggable={!renaming}
+      onDragStart={(event) => onDragStartNode(node, event)}
+      onDragEnd={onDragEndNode}
       role="treeitem"
       tabIndex={focused ? 0 : -1}
       data-index={index}
       data-file-path={node.fullPath}
+      data-file-is-dir={node.isDir ? "1" : "0"}
       aria-selected={highlighted || isActiveFile}
       aria-current={isActiveFile ? "true" : undefined}
       aria-expanded={node.isDir ? open : undefined}
@@ -535,10 +792,15 @@ const ExplorerRow = memo(function ExplorerRow({
         paddingRight: 8,
         height: rowHeight,
         cursor: "pointer",
-        background: isActiveFile ? "var(--bg-selected)" : hovered ? "var(--bg-hover)" : "transparent",
+        background: dropTarget
+          ? "color-mix(in srgb, var(--accent) 16%, var(--bg-hover))"
+          : isActiveFile ? "var(--bg-selected)" : hovered ? "var(--bg-hover)" : "transparent",
+        opacity: cut ? 0.55 : node.isIgnored ? 0.72 : 1,
         borderRadius: "var(--radius-control)",
         userSelect: "none",
-        boxShadow: focused ? "inset 0 0 0 1px color-mix(in srgb, var(--accent) 70%, transparent)" : isActiveFile ? "inset 2px 0 0 var(--accent)" : "none",
+        boxShadow: dropTarget
+          ? "inset 0 0 0 2px var(--accent)"
+          : focused ? "inset 0 0 0 1px color-mix(in srgb, var(--accent) 70%, transparent)" : isActiveFile ? "inset 2px 0 0 var(--accent)" : "none",
         outline: "none",
         transition: `background var(--dur-fast) var(--ease-out-warm)`,
       }}
@@ -564,21 +826,48 @@ const ExplorerRow = memo(function ExplorerRow({
           getFileIcon(node.name, 14)
         )}
       </span>
-      <span
-        style={{
-          fontSize: 12,
-          color: "var(--text)",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-          // Prefer the name, but let it shrink to keep row actions reachable.
-          flex: secondaryLabel ? "0 1 auto" : 1,
-          maxWidth: secondaryLabel ? "72%" : undefined,
-        }}
-        title={node.fullPath}
-      >
-        {node.name}
-      </span>
+      {renaming ? (
+        <InlineRenameInput
+          value={renameValue}
+          isDir={node.isDir}
+          onChange={onRenameChange}
+          onCommit={onRenameCommit}
+          onCancel={onRenameCancel}
+        />
+      ) : (
+        <span
+          style={{
+            fontSize: 12,
+            color: "var(--text)",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            // Prefer the name, but let it shrink to keep row actions reachable.
+            flex: secondaryLabel ? "0 1 auto" : 1,
+            maxWidth: secondaryLabel ? "72%" : undefined,
+          }}
+          title={rowTitle}
+        >
+          {node.name}
+        </span>
+      )}
+      {!renaming && hovered && !secondaryLabel && metaText && (
+        <span
+          title={`${modifiedLabel ? t("fileExplorer.modifiedAt", { date: modifiedLabel }) : ""}${sizeLabel && modifiedLabel ? "\n" : ""}${sizeLabel}`}
+          style={{
+            flexShrink: 0,
+            maxWidth: "45%",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            fontSize: 10,
+            color: "var(--text-dim)",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {metaText}
+        </span>
+      )}
       {secondaryLabel && (
         // Search rows are flat, so the directory is the only context a row has.
         <span
@@ -701,6 +990,34 @@ const ExplorerRow = memo(function ExplorerRow({
           </a>
         </Tooltip>
       )}
+      {node.isDir && hovered && (
+        <Tooltip content={zipLabel}>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDownloadZip(node);
+            }}
+            aria-label={zipLabel}
+            style={{
+              flexShrink: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 24, height: 24,
+              padding: 0,
+              background: "var(--bg-panel)",
+              border: "1px solid var(--border)",
+              borderRadius: "var(--radius-control)",
+              color: "var(--text-muted)",
+              cursor: "pointer",
+              transition: `background var(--dur-fast) var(--ease-out-warm), color var(--dur-fast) var(--ease-out-warm)`,
+            }}
+          >
+            <FileArchive size={11} strokeWidth={2.2} aria-hidden="true" />
+          </button>
+        </Tooltip>
+      )}
     </div>
   );
 });
@@ -719,6 +1036,10 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
   revealPath = null,
   onRevealDone,
   onGitStatusChange,
+  sourceSessionId = null,
+  active = true,
+  onPathRenamed,
+  onPathsDeleted,
 }, ref) {
   const { t, tn } = useI18n();
   const isMobile = useIsMobile();
@@ -749,18 +1070,33 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
   // Account preference: dotfiles are opt-in, and toggling reloads nothing —
   // every loaded listing is filtered client-side.
   const { showHiddenFiles, setShowHiddenFiles } = useWebSettings();
+  const [includeIgnored, setIncludeIgnored] = useState<boolean>(() => readStoredBoolean(INCLUDE_IGNORED_KEY));
+  const [sortMode, setSortMode] = useState<ExplorerSortMode>(() => readStoredSortMode());
   const [createDialog, setCreateDialog] = useState<{ kind: "file" | "dir"; directory: string } | null>(null);
   const [searchTruncated, setSearchTruncated] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchFailed, setSearchFailed] = useState(false);
+  const [renaming, setRenaming] = useState<RenameState | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ExplorerMenuTarget | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [clipboard, setClipboard] = useState<ClipboardState | null>(null);
+  const [pasteConflict, setPasteConflict] = useState<PasteConflict | null>(null);
+  const [pasteBusy, setPasteBusy] = useState(false);
+  const [dropTargetPath, setDropTargetPath] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const prevCwdRef = useRef<string | null>(null);
   const uploadInputRef = useRef<HTMLInputElement>(null);
+  const uploadFolderInputRef = useRef<HTMLInputElement>(null);
+  const uploadTargetRef = useRef<string>(cwd);
   const scrollRef = useRef<HTMLDivElement>(null);
   const loadingPathsRef = useRef<Set<string>>(new Set());
   const rootRequestRef = useRef(0);
   const expandedPathsRef = useRef<Set<string>>(new Set());
   expandedPathsRef.current = expandedPaths;
+  const renameGuardRef = useRef<string | null>(null);
+  const listingGenerationRef = useRef(0);
+  const autoExpandTimerRef = useRef<number | null>(null);
+  const autoExpandPathRef = useRef<string | null>(null);
   const refreshToken = `${refreshKey ?? 0}:${treeRefreshKey}`;
   // Which refresh the search request has already answered; re-baselined every
   // time the panel opens.
@@ -860,6 +1196,7 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
       fullPath: joinFilePath(cwd, row.path),
       isDir: false,
       size: 0,
+      modified: 0,
       loaded: true,
     } satisfies FileNode,
   })), [cwd, searchPaths, showHiddenFiles]);
@@ -871,20 +1208,24 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
     secondaryLabel: row.directory,
   })), [searchRows]);
 
-  const roots = useMemo(() => {
-    const entries = childrenByPath.get(cwd) ?? [];
-    return showHiddenFiles ? entries : entries.filter((node) => !node.name.startsWith("."));
-  }, [childrenByPath, cwd, showHiddenFiles]);
+  const filterNodes = useCallback((nodes: FileNode[]) => nodes.filter((node) => (
+    (showHiddenFiles || !node.name.startsWith("."))
+    && (includeIgnored || !node.isIgnored)
+  )), [includeIgnored, showHiddenFiles]);
+  const roots = useMemo(
+    () => sortExplorerNodes(filterNodes(childrenByPath.get(cwd) ?? []), sortMode),
+    [childrenByPath, cwd, filterNodes, sortMode],
+  );
   // Filtering the loaded listings (not the fetch) means toggling the preference
-  // reveals or hides dotfiles immediately, including inside expanded folders.
+  // reveals or hides dotfiles/ignored folders immediately, including inside
+  // expanded folders.
   const visibleChildrenByPath = useMemo(() => {
-    if (showHiddenFiles) return childrenByPath;
     const filtered = new Map<string, FileNode[]>();
     for (const [path, children] of childrenByPath) {
-      filtered.set(path, children.filter((node) => !node.name.startsWith(".")));
+      filtered.set(path, sortExplorerNodes(filterNodes(children), sortMode));
     }
     return filtered;
-  }, [childrenByPath, showHiddenFiles]);
+  }, [childrenByPath, filterNodes, sortMode]);
   const rows: FlatRow[] = useMemo(() => {
     if (searchActive) return searchFlatRows;
     return flattenVisibleRows(roots, expandedPaths, visibleChildrenByPath, 0, []);
@@ -936,8 +1277,10 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
     if (loadingPathsRef.current.has(dirPath)) return Promise.resolve();
     loadingPathsRef.current.add(dirPath);
     setLoadingPaths((prev) => new Set(prev).add(dirPath));
-    return fetchEntries(dirPath)
+    const generation = listingGenerationRef.current;
+    return fetchEntries(dirPath, includeIgnored)
       .then((entries) => {
+        if (generation !== listingGenerationRef.current) return;
         setChildrenByPath((prev) => {
           const next = new Map(prev);
           next.set(dirPath, entries);
@@ -956,7 +1299,7 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
           return next;
         });
       });
-  }, [cwd]);
+  }, [cwd, includeIgnored]);
 
   // Scroll the virtual window so a row is visible, then focus it. The focus
   // retries across frames: the scroll triggers an async window re-render and
@@ -1084,6 +1427,309 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
     if (kind === "file") onOpenFile(path, getFileName(path), "edit");
   }, [onOpenFile]);
 
+  // Re-read the affected directories after a path mutation and remap expanded
+  // keys (a moved folder keeps its subtree open). Copies never notify tabs:
+  // the source file itself did not move.
+  const applyPathChange = useCallback((
+    oldPath: string,
+    newPath: string,
+    isDir: boolean,
+    action: "rename" | "move" | "copy",
+  ) => {
+    setChildrenByPath((prev) => {
+      const next = new Map(prev);
+      next.delete(getFileDirectory(oldPath));
+      next.delete(getFileDirectory(newPath));
+      if (action !== "copy") {
+        for (const key of next.keys()) {
+          if (isPathEqualOrInside(key, oldPath)) next.delete(key);
+        }
+      }
+      return next;
+    });
+    if (action !== "copy" && isDir) {
+      setExpandedPaths((prev) => {
+        let changed = false;
+        const next = new Set<string>();
+        for (const path of prev) {
+          const mapped = rebasePath(path, oldPath, newPath, true);
+          if (mapped !== path) changed = true;
+          next.add(mapped);
+        }
+        return changed ? next : prev;
+      });
+    }
+    setHighlightedPaths(new Set([newPath]));
+    setTreeRefreshKey((key) => key + 1);
+    if (action !== "copy") onPathRenamed?.(oldPath, newPath, isDir);
+  }, [onPathRenamed]);
+
+  const runPasteQueue = useCallback(async (plan: PastePlan) => {
+    let index = plan.index;
+    while (index < plan.items.length) {
+      const item = plan.items[index];
+      const destination = joinFilePath(plan.destination, item.name);
+      if (plan.action === "move"
+        && normalizeFilePathSlashes(destination) === normalizeFilePathSlashes(item.path)) {
+        index += 1;
+        continue;
+      }
+      const result = await patchFilePath(item.path, plan.action, destination, false, sourceSessionId);
+      if (result.status === 409) {
+        setPasteConflict({ plan: { ...plan, index }, index, item, destination });
+        return;
+      }
+      if (!result.ok) {
+        toast.error(t(
+          plan.action === "copy" ? "fileExplorer.copyFailed" : "fileExplorer.moveFailed",
+          { error: result.data.error ?? result.status },
+        ));
+        return;
+      }
+      applyPathChange(item.path, destination, item.isDir, plan.action === "copy" ? "copy" : "move");
+      index += 1;
+    }
+    if (plan.action === "move") setClipboard(null);
+  }, [applyPathChange, sourceSessionId, t]);
+
+  const pasteInto = useCallback((directory: string) => {
+    setContextMenu(null);
+    if (!clipboard) return;
+    const recurses = clipboard.items.some((item) => isPathEqualOrInside(directory, item.path));
+    if (clipboard.action === "cut" && recurses) {
+      toast.error(t("fileExplorer.cannotMoveIntoSelf"));
+      return;
+    }
+    if (clipboard.action === "copy" && recurses && clipboard.items.some((item) => item.isDir)) {
+      toast.error(t("fileExplorer.cannotCopyIntoSelf"));
+      return;
+    }
+    void runPasteQueue({
+      action: clipboard.action === "cut" ? "move" : "copy",
+      items: clipboard.items,
+      destination: directory,
+      index: 0,
+    });
+  }, [clipboard, runPasteQueue, t]);
+
+  const resolvePasteConflict = useCallback(async (resolution: "overwrite" | "rename" | "cancel") => {
+    const conflict = pasteConflict;
+    if (!conflict) return;
+    setPasteConflict(null);
+    if (resolution === "cancel") return;
+    setPasteBusy(true);
+    const { plan, index, item } = conflict;
+    try {
+      if (resolution === "overwrite") {
+        const destination = joinFilePath(plan.destination, item.name);
+        const result = await patchFilePath(item.path, plan.action, destination, true, sourceSessionId);
+        if (!result.ok) {
+          toast.error(t(
+            plan.action === "copy" ? "fileExplorer.copyFailed" : "fileExplorer.moveFailed",
+            { error: result.data.error ?? result.status },
+          ));
+          return;
+        }
+        applyPathChange(item.path, destination, item.isDir, plan.action === "copy" ? "copy" : "move");
+        await runPasteQueue({ ...plan, index: index + 1 });
+        return;
+      }
+      // Keep both: pick the first candidate the destination listing does not
+      // already contain, and let a surprise 409 advance to the next one.
+      const existing = new Set((childrenByPath.get(plan.destination) ?? []).map((node) => node.name));
+      for (let attempt = 1; attempt <= 50; attempt += 1) {
+        const name = duplicateCandidateName(item.name, item.isDir, attempt);
+        if (existing.has(name)) continue;
+        const destination = joinFilePath(plan.destination, name);
+        const result = await patchFilePath(item.path, plan.action, destination, false, sourceSessionId);
+        if (result.status === 409) {
+          existing.add(name);
+          continue;
+        }
+        if (!result.ok) {
+          toast.error(t(
+            plan.action === "copy" ? "fileExplorer.copyFailed" : "fileExplorer.moveFailed",
+            { error: result.data.error ?? result.status },
+          ));
+          return;
+        }
+        applyPathChange(item.path, destination, item.isDir, plan.action === "copy" ? "copy" : "move");
+        await runPasteQueue({ ...plan, index: index + 1 });
+        return;
+      }
+      toast.error(t("fileExplorer.duplicateFailed"));
+    } finally {
+      setPasteBusy(false);
+    }
+  }, [applyPathChange, childrenByPath, pasteConflict, runPasteQueue, sourceSessionId, t]);
+
+  const rememberNode = useCallback((node: FileNode, action: "copy" | "cut") => {
+    setClipboard({
+      action,
+      items: [{ path: node.fullPath, name: node.name, isDir: node.isDir }],
+    });
+    setContextMenu(null);
+  }, []);
+
+  const startRename = useCallback((node: FileNode) => {
+    renameGuardRef.current = node.fullPath;
+    setRenaming({
+      path: node.fullPath,
+      value: node.name,
+      isDir: node.isDir,
+      originalName: node.name,
+    });
+    setContextMenu(null);
+  }, []);
+
+  const cancelRename = useCallback(() => {
+    renameGuardRef.current = null;
+    setRenaming(null);
+  }, []);
+
+  const updateRenameValue = useCallback((value: string) => {
+    setRenaming((prev) => prev ? { ...prev, value } : prev);
+  }, []);
+
+  const commitRename = useCallback(async () => {
+    const current = renaming;
+    if (!current || renameGuardRef.current !== current.path) return;
+    // Guard both Enter and the following blur from issuing two PATCHes.
+    renameGuardRef.current = null;
+    setRenaming(null);
+    const trimmed = current.value.trim();
+    if (!trimmed || trimmed === current.originalName) return;
+    if (trimmed === "." || trimmed === ".." || /[\\/\0]/.test(trimmed)) {
+      toast.error(t("fileExplorer.invalidName"));
+      return;
+    }
+    const destination = joinFilePath(getFileDirectory(current.path), trimmed);
+    const result = await patchFilePath(current.path, "rename", destination, false, sourceSessionId);
+    if (!result.ok) {
+      toast.error(t("fileExplorer.renameFailed", { error: result.data.error ?? result.status }));
+      return;
+    }
+    applyPathChange(current.path, destination, current.isDir, "rename");
+  }, [applyPathChange, renaming, sourceSessionId, t]);
+
+  const rememberDeleteTarget = useCallback((target: ExplorerMenuTarget) => {
+    setContextMenu(null);
+    setDeleteTarget(target);
+  }, []);
+
+  const confirmDelete = useCallback(async () => {
+    if (!deleteTarget || deleting) return;
+    setDeleting(true);
+    const result = await deleteFilePath(deleteTarget.path, sourceSessionId);
+    setDeleting(false);
+    if (!result.ok) {
+      toast.error(t("fileExplorer.deleteFailed", {
+        name: deleteTarget.name,
+        error: result.data.error ?? result.status,
+      }));
+      return;
+    }
+    const deletedPath = deleteTarget.path;
+    const deletedName = deleteTarget.name;
+    setDeleteTarget(null);
+    setChildrenByPath((prev) => {
+      const next = new Map(prev);
+      next.delete(getFileDirectory(deletedPath));
+      for (const key of next.keys()) {
+        if (isPathEqualOrInside(key, deletedPath)) next.delete(key);
+      }
+      return next;
+    });
+    setExpandedPaths((prev) => {
+      let changed = false;
+      const next = new Set<string>();
+      for (const path of prev) {
+        if (isPathEqualOrInside(path, deletedPath)) changed = true;
+        else next.add(path);
+      }
+      return changed ? next : prev;
+    });
+    setHighlightedPaths((prev) => {
+      if (![...prev].some((path) => isPathEqualOrInside(path, deletedPath))) return prev;
+      return new Set([...prev].filter((path) => !isPathEqualOrInside(path, deletedPath)));
+    });
+    setTreeRefreshKey((key) => key + 1);
+    onPathsDeleted?.([deletedPath]);
+    toast.success(t("fileExplorer.deleted", { name: deletedName }));
+  }, [deleteTarget, deleting, onPathsDeleted, sourceSessionId, t]);
+
+  const duplicateNode = useCallback(async (node: FileNode) => {
+    setContextMenu(null);
+    const directory = getFileDirectory(node.fullPath);
+    const existing = new Set((childrenByPath.get(directory) ?? []).map((entry) => entry.name));
+    for (let attempt = 1; attempt <= 50; attempt += 1) {
+      const candidate = duplicateCandidateName(node.name, node.isDir, attempt);
+      if (existing.has(candidate)) continue;
+      const destination = joinFilePath(directory, candidate);
+      const result = await patchFilePath(node.fullPath, "copy", destination, false, sourceSessionId);
+      if (result.status === 409) {
+        existing.add(candidate);
+        continue;
+      }
+      if (!result.ok) {
+        toast.error(t("fileExplorer.copyFailed", { error: result.data.error ?? result.status }));
+        return;
+      }
+      applyPathChange(node.fullPath, destination, node.isDir, "copy");
+      return;
+    }
+    toast.error(t("fileExplorer.duplicateFailed"));
+  }, [applyPathChange, childrenByPath, sourceSessionId, t]);
+
+  const downloadZip = useCallback((node: FileNode) => {
+    const params = new URLSearchParams({
+      type: "download-zip",
+      includeIgnored: includeIgnored ? "1" : "0",
+    });
+    if (sourceSessionId) params.set("sourceSessionId", sourceSessionId);
+    const link = document.createElement("a");
+    link.href = apiUrl(`/api/files/${encodeFilePathForApi(node.fullPath)}?${params.toString()}`);
+    link.download = `${node.name}.zip`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  }, [includeIgnored, sourceSessionId]);
+
+  const copyNodePath = useCallback((path: string, kind: "relative" | "absolute") => {
+    setContextMenu(null);
+    let relative = getRelativeFilePath(path, cwd);
+    if (relative === path && normalizeFilePathSlashes(path) === normalizeFilePathSlashes(cwd)) {
+      relative = ".";
+    }
+    const text = kind === "relative" ? relative : path;
+    copyText(text).then(
+      () => toast.success(t(kind === "relative" ? "fileExplorer.copiedRelativePath" : "fileExplorer.copiedAbsolutePath")),
+      () => toast.error(t("fileExplorer.copyPathFailed")),
+    );
+  }, [cwd, t]);
+
+  const toggleIncludeIgnored = useCallback((next: boolean) => {
+    setIncludeIgnored(next);
+    storePreference(INCLUDE_IGNORED_KEY, next ? "1" : "0");
+    // The flag participates in the list request, so every cached listing must
+    // be refetched rather than re-filtered. Let a new request through even if
+    // the previous listing for the same directory is still in flight.
+    listingGenerationRef.current += 1;
+    loadingPathsRef.current = new Set();
+    setLoadingPaths(new Set());
+    setChildrenByPath(new Map());
+    setLoading(true);
+    setError(null);
+    setTreeRefreshKey((key) => key + 1);
+    setContextMenu(null);
+  }, []);
+
+  const changeSortMode = useCallback((next: ExplorerSortMode) => {
+    setSortMode(next);
+    storePreference(SORT_MODE_KEY, next);
+    setContextMenu(null);
+  }, []);
+
   const handleTreeScroll = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -1110,20 +1756,30 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
     setFocusedIndex((prev) => Math.min(prev, Math.max(0, rowsRef.current.length - 1)));
   }, [rows.length]);
 
-  const applyUploadResult = useCallback((data: UploadResponse) => {
+  const applyUploadResult = useCallback((data: UploadResponse, targetDirectory: string) => {
     const uploaded = data.uploaded ?? [];
     const skipped = data.skipped ?? [];
     const errors = data.errors ?? [];
-    setUploadSummary({ uploaded, skipped, errors });
+    setUploadSummary({ uploaded, skipped, errors, targetDirectory });
 
     if (uploaded.length > 0) {
-      setHighlightedPaths(new Set(uploaded.map((name) => joinFilePath(cwd, name))));
+      // Uploaded names are relative to the target (folders keep `sub/file`).
+      setHighlightedPaths(new Set(uploaded.map((name) => joinFilePath(targetDirectory, name))));
+      setChildrenByPath((prev) => {
+        const next = new Map(prev);
+        next.delete(targetDirectory);
+        for (const name of uploaded) {
+          next.delete(getFileDirectory(joinFilePath(targetDirectory, name)));
+        }
+        return next;
+      });
       setTreeRefreshKey((key) => key + 1);
     }
-  }, [cwd]);
+  }, []);
 
   const performUpload = useCallback(async (
-    files: File[],
+    items: UploadItem[],
+    targetDirectory: string,
     strategy: UploadConflictStrategy,
   ) => {
     setPendingConflict(null);
@@ -1132,10 +1788,11 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
     setUploadPhase("uploading");
 
     try {
-      const { status, data } = await uploadFiles(cwd, files, strategy, setUploadProgress);
+      const { status, data } = await uploadFiles(targetDirectory, items, strategy, setUploadProgress);
       if (status === 409 && data.conflicts?.length) {
         setPendingConflict({
-          files,
+          items,
+          targetDirectory,
           conflicts: data.conflicts,
           nonReplaceable: data.nonReplaceable ?? [],
         });
@@ -1145,16 +1802,16 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
         throw new Error(data.error ?? translate("fileExplorer.uploadFailed", { status }));
       }
       setUploadProgress(100);
-      applyUploadResult(data);
+      applyUploadResult(data, targetDirectory);
     } catch (uploadFailure) {
       setUploadError(uploadFailure instanceof Error ? uploadFailure.message : String(uploadFailure));
     } finally {
       setUploadPhase("idle");
     }
-  }, [applyUploadResult, cwd]);
+  }, [applyUploadResult]);
 
-  const prepareUpload = useCallback(async (files: File[]) => {
-    if (files.length === 0 || uploadBusy) return;
+  const prepareUpload = useCallback(async (items: UploadItem[], targetDirectory: string) => {
+    if (items.length === 0 || uploadBusy) return;
     setUploadSummary(null);
     setHighlightedPaths(new Set());
     setPendingConflict(null);
@@ -1164,11 +1821,11 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
 
     try {
       const res = await fetch(
-        `/api/files/${encodeFilePathForApi(cwd)}?type=upload-check`,
+        `/api/files/${encodeFilePathForApi(targetDirectory)}?type=upload-check`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fileNames: files.map((file) => file.name) }),
+          body: JSON.stringify({ files: items.map((item) => item.relativePath) }),
         },
       );
       const data = await res.json().catch(() => ({})) as UploadResponse;
@@ -1176,41 +1833,224 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
 
       if (data.conflicts?.length) {
         setPendingConflict({
-          files,
+          items,
+          targetDirectory,
           conflicts: data.conflicts,
           nonReplaceable: data.nonReplaceable ?? [],
         });
         return;
       }
 
-      await performUpload(files, "error");
+      await performUpload(items, targetDirectory, "error");
     } catch (uploadFailure) {
       setUploadError(uploadFailure instanceof Error ? uploadFailure.message : String(uploadFailure));
     } finally {
       setUploadPhase("idle");
     }
-  }, [cwd, performUpload, uploadBusy]);
+  }, [performUpload, uploadBusy]);
 
   const handleUploadInput = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files ?? []);
+    const targetDirectory = uploadTargetRef.current || cwd;
+    const items = Array.from(event.target.files ?? []).map((file) => ({
+      file,
+      // Folder pickers populate webkitRelativePath; plain pickers leave it "".
+      relativePath: file.webkitRelativePath || file.name,
+    }));
     event.target.value = "";
-    void prepareUpload(files);
-  }, [prepareUpload]);
+    void prepareUpload(items, targetDirectory);
+  }, [cwd, prepareUpload]);
+
+  const openUploadForDirectory = useCallback((directory: string, folder: boolean) => {
+    setContextMenu(null);
+    if (uploadBusy) return;
+    uploadTargetRef.current = directory;
+    if (folder) uploadFolderInputRef.current?.click();
+    else uploadInputRef.current?.click();
+  }, [uploadBusy]);
 
   useImperativeHandle(ref, () => ({
     openUploadPicker() {
-      if (!uploadBusy) uploadInputRef.current?.click();
+      if (uploadBusy) return;
+      uploadTargetRef.current = cwd;
+      uploadInputRef.current?.click();
+    },
+    openFolderUploadPicker() {
+      if (uploadBusy) return;
+      uploadTargetRef.current = cwd;
+      uploadFolderInputRef.current?.click();
     },
     collapseAll() {
       setExpandedPaths(new Set());
     },
-  }), [uploadBusy]);
+  }), [cwd, uploadBusy]);
 
   useEffect(() => {
     onUploadBusyChange?.(uploadBusy);
   }, [onUploadBusyChange, uploadBusy]);
 
   useEffect(() => () => onUploadBusyChange?.(false), [onUploadBusyChange]);
+
+  const clearAutoExpand = useCallback(() => {
+    if (autoExpandTimerRef.current !== null) {
+      window.clearTimeout(autoExpandTimerRef.current);
+      autoExpandTimerRef.current = null;
+    }
+    autoExpandPathRef.current = null;
+  }, []);
+
+  useEffect(() => () => clearAutoExpand(), [clearAutoExpand]);
+
+  // The hovered row decides the drop target: a folder row is its own target,
+  // a file row falls back to its parent, and blank space is the workspace root.
+  const resolveDropTarget = useCallback((target: EventTarget | null) => {
+    const element = target instanceof Element ? target : null;
+    const rowElement = element?.closest<HTMLElement>("[data-file-path]") ?? null;
+    const path = rowElement?.dataset.filePath;
+    if (!path) return { directory: cwd, highlight: null };
+    const isDir = rowElement.dataset.fileIsDir === "1";
+    return {
+      directory: isDir ? path : getFileDirectory(path),
+      highlight: isDir ? path : null,
+    };
+  }, [cwd]);
+
+  const handleNodeDragStart = useCallback((node: FileNode, event: React.DragEvent<HTMLDivElement>) => {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData(TREE_DRAG_TYPE, JSON.stringify({
+      paths: [node.fullPath],
+      isDir: node.isDir,
+    }));
+    event.dataTransfer.setData("text/plain", node.fullPath);
+  }, []);
+
+  const handleNodeDragEnd = useCallback(() => {
+    setDropTargetPath(null);
+    clearAutoExpand();
+  }, [clearAutoExpand]);
+
+  const handleTreeDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    const types = Array.from(event.dataTransfer.types);
+    const internal = types.includes(TREE_DRAG_TYPE);
+    const external = types.includes("Files");
+    if (!internal && !external) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = internal ? "move" : "copy";
+    const target = resolveDropTarget(event.target);
+    setDropTargetPath(target.highlight);
+    if (internal && target.highlight && !expandedPathsRef.current.has(target.highlight)) {
+      if (autoExpandPathRef.current !== target.highlight) {
+        clearAutoExpand();
+        autoExpandPathRef.current = target.highlight;
+        autoExpandTimerRef.current = window.setTimeout(() => {
+          autoExpandTimerRef.current = null;
+          const path = autoExpandPathRef.current;
+          autoExpandPathRef.current = null;
+          if (path) handleToggleExpanded(path, true);
+        }, 500);
+      }
+    } else {
+      clearAutoExpand();
+    }
+  }, [clearAutoExpand, handleToggleExpanded, resolveDropTarget]);
+
+  const handleTreeDragLeave = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    const related = event.relatedTarget;
+    if (related instanceof Node && event.currentTarget.contains(related)) return;
+    setDropTargetPath(null);
+    clearAutoExpand();
+  }, [clearAutoExpand]);
+
+  const handleTreeDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    const target = resolveDropTarget(event.target);
+    setDropTargetPath(null);
+    clearAutoExpand();
+    const types = Array.from(event.dataTransfer.types);
+
+    if (types.includes(TREE_DRAG_TYPE)) {
+      let payload: { paths?: string[]; isDir?: boolean } | null = null;
+      try {
+        payload = JSON.parse(event.dataTransfer.getData(TREE_DRAG_TYPE)) as { paths?: string[]; isDir?: boolean };
+      } catch {
+        payload = null;
+      }
+      const paths = (payload?.paths ?? []).filter(Boolean);
+      if (paths.length === 0) return;
+      // Moving a folder into itself (or a descendant) would detach the tree.
+      if (paths.some((path) => isPathEqualOrInside(target.directory, path))) {
+        toast.error(t("fileExplorer.cannotMoveIntoSelf"));
+        return;
+      }
+      const isDir = payload?.isDir === true;
+      void runPasteQueue({
+        action: "move",
+        items: paths.map((path) => ({ path, name: getFileName(path), isDir })),
+        destination: target.directory,
+        index: 0,
+      });
+      return;
+    }
+
+    if (types.includes("Files")) {
+      void collectDroppedFiles(event.dataTransfer)
+        .then((files) => {
+          if (files.length > 0) void prepareUpload(files, target.directory);
+        })
+        .catch((failure) => {
+          setUploadError(failure instanceof Error ? failure.message : String(failure));
+        });
+    }
+  }, [clearAutoExpand, prepareUpload, resolveDropTarget, runPasteQueue, t]);
+
+  // F2 / Delete / Ctrl(Cmd)+C/X/V act on the focused row, and only while the
+  // explorer is the visible panel: the file viewers keep their own handlers.
+  useEffect(() => {
+    if (!active) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest("input, textarea, select, [contenteditable='true']")) return;
+      if (!scrollRef.current?.contains(document.activeElement)) return;
+      const row = rowsRef.current[focusedIndexRef.current];
+      const node = row?.kind === "node" ? row.node : null;
+      const modifier = event.ctrlKey || event.metaKey;
+
+      if (modifier && !event.altKey && !event.shiftKey) {
+        const key = event.key.toLowerCase();
+        if (key === "v") {
+          event.preventDefault();
+          pasteInto(node ? (node.isDir ? node.fullPath : getFileDirectory(node.fullPath)) : cwd);
+          return;
+        }
+        if (!node) return;
+        if (key === "c") {
+          event.preventDefault();
+          rememberNode(node, "copy");
+          return;
+        }
+        if (key === "x") {
+          event.preventDefault();
+          rememberNode(node, "cut");
+          return;
+        }
+      }
+
+      if (!node) return;
+      if (event.key === "F2") {
+        event.preventDefault();
+        startRename(node);
+      } else if (event.key === "Delete") {
+        event.preventDefault();
+        rememberDeleteTarget({
+          kind: node.isDir ? "dir" : "file",
+          path: node.fullPath,
+          name: node.name,
+          directory: node.isDir ? node.fullPath : getFileDirectory(node.fullPath),
+        });
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [active, cwd, pasteInto, rememberDeleteTarget, rememberNode, startRename]);
 
   // Keep the refresh-done callback in a ref so its identity cannot re-trigger
   // the fetch effect below (AppShell re-renders on every session boundary).
@@ -1233,6 +2073,13 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
       setLoadingPaths(new Set());
       setFocusedIndex(0);
       setScrollTop(0);
+      setRenaming(null);
+      renameGuardRef.current = null;
+      setDeleteTarget(null);
+      setPasteConflict(null);
+      setClipboard(null);
+      setDropTargetPath(null);
+      clearAutoExpand();
     }
 
     setLoading(cwdChanged);
@@ -1340,11 +2187,17 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
   }, [cwd, revealPath, onRevealDone, rows, childrenByPath, goToRow]);
 
   const showUploadFeedback = uploadBusy || pendingConflict !== null || uploadError !== null || uploadSummary !== null;
+  // Renaming/deleting the workspace root would invalidate the explorer itself;
+  // the empty-area menu still offers creation, upload, paste, and ZIP export.
+  const contextTargetIsRoot = contextMenu !== null
+    && contextMenu.target.kind === "dir"
+    && normalizeFilePathSlashes(contextMenu.target.path) === normalizeFilePathSlashes(cwd);
 
   const addUploadedFilesToChat = useCallback(() => {
     if (!uploadSummary || uploadSummary.uploaded.length === 0) return;
+    const { targetDirectory } = uploadSummary;
     onAtMentions?.(
-      uploadSummary.uploaded.map((name) => getRelativeFilePath(joinFilePath(cwd, name), cwd)),
+      uploadSummary.uploaded.map((name) => getRelativeFilePath(joinFilePath(targetDirectory, name), cwd)),
     );
   }, [cwd, onAtMentions, uploadSummary]);
 
@@ -1372,6 +2225,10 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                   highlighted={false}
                   isActiveFile={false}
                   focused={false}
+                  cut={false}
+                  dropTarget={dropTargetPath === row.key}
+                  renaming={false}
+                  renameValue=""
                   gitStatusByPath={gitStatusByPath}
                   changedDirectoryPaths={changedDirectoryPaths}
                   onAtMention={onAtMention}
@@ -1379,6 +2236,12 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                   onContextMenu={handleRowContextMenu}
                   onKeyDown={handleRowKeyDown}
                   onFocusRow={setFocusedIndex}
+                  onRenameChange={updateRenameValue}
+                  onRenameCommit={commitRename}
+                  onRenameCancel={cancelRename}
+                  onDragStartNode={handleNodeDragStart}
+                  onDragEndNode={handleNodeDragEnd}
+                  onDownloadZip={downloadZip}
                 />
               </div>
             );
@@ -1400,6 +2263,10 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                 highlighted={highlightedPaths.has(node.fullPath)}
                 isActiveFile={!node.isDir && normalizedActiveFilePath === normalizeFilePathSlashes(node.fullPath)}
                 focused={index === focusedIndex}
+                cut={clipboard?.action === "cut" && clipboard.items.some((item) => item.path === node.fullPath)}
+                dropTarget={dropTargetPath === node.fullPath}
+                renaming={renaming?.path === node.fullPath}
+                renameValue={renaming?.value ?? ""}
                 gitStatusByPath={gitStatusByPath}
                 changedDirectoryPaths={changedDirectoryPaths}
                 onAtMention={onAtMention}
@@ -1407,6 +2274,12 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                 onContextMenu={handleRowContextMenu}
                 onKeyDown={handleRowKeyDown}
                 onFocusRow={setFocusedIndex}
+                onRenameChange={updateRenameValue}
+                onRenameCommit={commitRename}
+                onRenameCancel={cancelRename}
+                onDragStartNode={handleNodeDragStart}
+                onDragEndNode={handleNodeDragEnd}
+                onDownloadZip={downloadZip}
               />
             </div>
           );
@@ -1416,6 +2289,14 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", minHeight: 0 }}>
       <input ref={uploadInputRef} type="file" multiple hidden onChange={handleUploadInput} />
+      <input
+        ref={uploadFolderInputRef}
+        type="file"
+        multiple
+        hidden
+        onChange={handleUploadInput}
+        {...({ webkitdirectory: "true", directory: "true" } as Record<string, string>)}
+      />
       {/* Pinned: the result list scrolls, so an un-sticky box leaves you
           unable to edit the query that produced it. */}
       {fileSearchOpen && (
@@ -1527,10 +2408,13 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
               </div>
             )}
             <div style={{ display: "flex", gap: 5, marginTop: 7 }}>
-              <button type="button" onClick={() => void performUpload(pendingConflict.files, "overwrite")} style={{ height: 24, minHeight: 24, padding: "0 8px", border: "1px solid var(--status-error)", borderRadius: "var(--radius-control)", background: "transparent", color: "var(--status-error)", cursor: "pointer", fontSize: 11 }}>
+              <button type="button" onClick={() => void performUpload(pendingConflict.items, pendingConflict.targetDirectory, "overwrite")} style={{ height: 24, minHeight: 24, padding: "0 8px", border: "1px solid var(--status-error)", borderRadius: "var(--radius-control)", background: "transparent", color: "var(--status-error)", cursor: "pointer", fontSize: 11 }}>
                 {t("fileExplorer.replace")}
               </button>
-              <button type="button" onClick={() => void performUpload(pendingConflict.files, "skip")} style={{ height: 24, minHeight: 24, padding: "0 8px", border: "1px solid var(--border)", borderRadius: "var(--radius-control)", background: "var(--bg-panel)", color: "var(--text)", cursor: "pointer", fontSize: 11 }}>
+              <button type="button" onClick={() => void performUpload(pendingConflict.items, pendingConflict.targetDirectory, "rename")} style={{ height: 24, minHeight: 24, padding: "0 8px", border: "1px solid var(--accent)", borderRadius: "var(--radius-control)", background: "transparent", color: "var(--accent)", cursor: "pointer", fontSize: 11 }}>
+                {t("fileExplorer.keepBoth")}
+              </button>
+              <button type="button" onClick={() => void performUpload(pendingConflict.items, pendingConflict.targetDirectory, "skip")} style={{ height: 24, minHeight: 24, padding: "0 8px", border: "1px solid var(--border)", borderRadius: "var(--radius-control)", background: "var(--bg-panel)", color: "var(--text)", cursor: "pointer", fontSize: 11 }}>
                 {t("fileExplorer.skipExisting")}
               </button>
               <button type="button" onClick={() => setPendingConflict(null)} style={{ height: 24, minHeight: 24, padding: "0 8px", border: "none", borderRadius: "var(--radius-control)", background: "transparent", color: "var(--text-muted)", cursor: "pointer", fontSize: 11 }}>
@@ -1612,6 +2496,9 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
         aria-label={t("sessionSidebar.explorer")}
         aria-busy={loading || searchLoading}
         onScroll={handleTreeScroll}
+        onDragOver={handleTreeDragOver}
+        onDragLeave={handleTreeDragLeave}
+        onDrop={handleTreeDrop}
         onContextMenu={(event) => {
           // Rows stop propagation; anything reaching here is the empty area,
           // which stands for the workspace root.
@@ -1679,14 +2566,18 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
           anchorPoint={{ x: contextMenu.x, y: contextMenu.y }}
           open
           onClose={closeContextMenu}
-          minWidth={180}
+          minWidth={200}
         >
           {contextMenu.target.kind === "file" ? (
             <>
               <ExplorerMenuItem
                 label={t("fileExplorer.open")}
                 icon={<FileText size={12} strokeWidth={1.8} aria-hidden="true" />}
-                onSelect={() => onOpenFile(contextMenu.target.path, contextMenu.target.name)}
+                onSelect={() => {
+                  const { path, name } = contextMenu.target;
+                  setContextMenu(null);
+                  onOpenFile(path, name);
+                }}
               />
               <div style={{ padding: "6px 9px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.02em", color: "var(--text-dim)" }}>
                 {t("fileExplorer.openWith")}
@@ -1711,27 +2602,109 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
               <ExplorerMenuItem
                 label={t("fileExplorer.newFileHere")}
                 icon={<FilePlus size={12} strokeWidth={1.8} aria-hidden="true" />}
-                onSelect={() => setCreateDialog({ kind: "file", directory: contextMenu.target.directory })}
+                onSelect={() => {
+                  const directory = contextMenu.target.directory;
+                  setContextMenu(null);
+                  setCreateDialog({ kind: "file", directory });
+                }}
               />
               <ExplorerMenuItem
                 label={t("fileExplorer.newFolderHere")}
                 icon={<FolderPlus size={12} strokeWidth={1.8} aria-hidden="true" />}
-                onSelect={() => setCreateDialog({ kind: "dir", directory: contextMenu.target.directory })}
+                onSelect={() => {
+                  const directory = contextMenu.target.directory;
+                  setContextMenu(null);
+                  setCreateDialog({ kind: "dir", directory });
+                }}
+              />
+              <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
+              <ExplorerMenuItem
+                label={`${t("fileExplorer.cut")} (Ctrl/Cmd+X)`}
+                icon={<Scissors size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => rememberNode({
+                  name: contextMenu.target.name,
+                  fullPath: contextMenu.target.path,
+                  isDir: false,
+                  size: 0,
+                  modified: 0,
+                }, "cut")}
+              />
+              <ExplorerMenuItem
+                label={`${t("fileExplorer.copy")} (Ctrl/Cmd+C)`}
+                icon={<Copy size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => rememberNode({
+                  name: contextMenu.target.name,
+                  fullPath: contextMenu.target.path,
+                  isDir: false,
+                  size: 0,
+                  modified: 0,
+                }, "copy")}
+              />
+              <ExplorerMenuItem
+                label={`${t("fileExplorer.paste")} (Ctrl/Cmd+V)`}
+                icon={<ClipboardPaste size={12} strokeWidth={1.8} aria-hidden="true" />}
+                disabled={!clipboard}
+                onSelect={() => pasteInto(contextMenu.target.directory)}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.duplicate")}
+                icon={<Files size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => void duplicateNode({
+                  name: contextMenu.target.name,
+                  fullPath: contextMenu.target.path,
+                  isDir: false,
+                  size: 0,
+                  modified: 0,
+                })}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.renameWithShortcut")}
+                icon={<Pencil size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => startRename({
+                  name: contextMenu.target.name,
+                  fullPath: contextMenu.target.path,
+                  isDir: false,
+                  size: 0,
+                  modified: 0,
+                })}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.deleteWithShortcut")}
+                icon={<Trash2 size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => rememberDeleteTarget(contextMenu.target)}
+                danger
+              />
+              <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
+              <ExplorerMenuItem
+                label={t("fileExplorer.copyRelativePath")}
+                icon={<Copy size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => copyNodePath(contextMenu.target.path, "relative")}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.copyAbsolutePath")}
+                icon={<Copy size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => copyNodePath(contextMenu.target.path, "absolute")}
               />
               <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
               <ExplorerMenuItem
                 label={t("fileExplorer.mentionFile")}
                 icon={<AtSign size={12} strokeWidth={2} aria-hidden="true" />}
                 disabled={!onAtMention}
-                onSelect={() => onAtMention?.(getRelativeFilePath(contextMenu.target.path, cwd), false)}
+                onSelect={() => {
+                  const path = contextMenu.target.path;
+                  setContextMenu(null);
+                  onAtMention?.(getRelativeFilePath(path, cwd), false);
+                }}
               />
               <ExplorerMenuItem
                 label={t("fileExplorer.downloadFile")}
                 icon={<Download size={12} strokeWidth={2} aria-hidden="true" />}
                 onSelect={() => {
+                  const { path, name } = contextMenu.target;
+                  setContextMenu(null);
                   const link = document.createElement("a");
-                  link.href = apiUrl(`/api/files/${encodeFilePathForApi(contextMenu.target.path)}?type=download`);
-                  link.download = contextMenu.target.name;
+                  link.href = apiUrl(`/api/files/${encodeFilePathForApi(path)}?type=download`);
+                  link.download = name;
                   document.body.appendChild(link);
                   link.click();
                   link.remove();
@@ -1746,25 +2719,161 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                   setContextMenu(null);
                 }}
               />
+              <ExplorerCheckableMenuItem
+                label={t("fileExplorer.showIgnored")}
+                checked={includeIgnored}
+                onSelect={() => toggleIncludeIgnored(!includeIgnored)}
+              />
+              <div style={{ padding: "6px 9px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.02em", color: "var(--text-dim)" }}>
+                {t("fileExplorer.sortBy")}
+              </div>
+              <ExplorerCheckableMenuItem
+                label={t("fileExplorer.sortName")}
+                checked={sortMode === "name"}
+                onSelect={() => changeSortMode("name")}
+              />
+              <ExplorerCheckableMenuItem
+                label={t("fileExplorer.sortModified")}
+                checked={sortMode === "modified"}
+                onSelect={() => changeSortMode("modified")}
+              />
+              <ExplorerCheckableMenuItem
+                label={t("fileExplorer.sortSize")}
+                checked={sortMode === "size"}
+                onSelect={() => changeSortMode("size")}
+              />
             </>
           ) : (
             <>
               <ExplorerMenuItem
                 label={t("fileExplorer.newFile")}
                 icon={<FilePlus size={12} strokeWidth={1.8} aria-hidden="true" />}
-                onSelect={() => setCreateDialog({ kind: "file", directory: contextMenu.target.directory })}
+                onSelect={() => {
+                  const directory = contextMenu.target.directory;
+                  setContextMenu(null);
+                  setCreateDialog({ kind: "file", directory });
+                }}
               />
               <ExplorerMenuItem
                 label={t("fileExplorer.newFolder")}
                 icon={<FolderPlus size={12} strokeWidth={1.8} aria-hidden="true" />}
-                onSelect={() => setCreateDialog({ kind: "dir", directory: contextMenu.target.directory })}
+                onSelect={() => {
+                  const directory = contextMenu.target.directory;
+                  setContextMenu(null);
+                  setCreateDialog({ kind: "dir", directory });
+                }}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.uploadFileHere")}
+                icon={<Upload size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => openUploadForDirectory(contextMenu.target.path, false)}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.uploadFolderHere")}
+                icon={<FolderUp size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => openUploadForDirectory(contextMenu.target.path, true)}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.downloadZip")}
+                icon={<FileArchive size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => {
+                  const { name, path } = contextMenu.target;
+                  setContextMenu(null);
+                  downloadZip({
+                    name,
+                    fullPath: path,
+                    isDir: true,
+                    size: 0,
+                    modified: 0,
+                  });
+                }}
+              />
+              <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
+              {!contextTargetIsRoot && (
+                <>
+                  <ExplorerMenuItem
+                    label={`${t("fileExplorer.cut")} (Ctrl/Cmd+X)`}
+                    icon={<Scissors size={12} strokeWidth={1.8} aria-hidden="true" />}
+                    onSelect={() => rememberNode({
+                      name: contextMenu.target.name,
+                      fullPath: contextMenu.target.path,
+                      isDir: true,
+                      size: 0,
+                      modified: 0,
+                    }, "cut")}
+                  />
+                  <ExplorerMenuItem
+                    label={`${t("fileExplorer.copy")} (Ctrl/Cmd+C)`}
+                    icon={<Copy size={12} strokeWidth={1.8} aria-hidden="true" />}
+                    onSelect={() => rememberNode({
+                      name: contextMenu.target.name,
+                      fullPath: contextMenu.target.path,
+                      isDir: true,
+                      size: 0,
+                      modified: 0,
+                    }, "copy")}
+                  />
+                </>
+              )}
+              <ExplorerMenuItem
+                label={`${t("fileExplorer.paste")} (Ctrl/Cmd+V)`}
+                icon={<ClipboardPaste size={12} strokeWidth={1.8} aria-hidden="true" />}
+                disabled={!clipboard}
+                onSelect={() => pasteInto(contextMenu.target.path)}
+              />
+              {!contextTargetIsRoot && (
+                <>
+                  <ExplorerMenuItem
+                    label={t("fileExplorer.duplicate")}
+                    icon={<Files size={12} strokeWidth={1.8} aria-hidden="true" />}
+                    onSelect={() => void duplicateNode({
+                      name: contextMenu.target.name,
+                      fullPath: contextMenu.target.path,
+                      isDir: true,
+                      size: 0,
+                      modified: 0,
+                    })}
+                  />
+                  <ExplorerMenuItem
+                    label={t("fileExplorer.renameWithShortcut")}
+                    icon={<Pencil size={12} strokeWidth={1.8} aria-hidden="true" />}
+                    onSelect={() => startRename({
+                      name: contextMenu.target.name,
+                      fullPath: contextMenu.target.path,
+                      isDir: true,
+                      size: 0,
+                      modified: 0,
+                    })}
+                  />
+                  <ExplorerMenuItem
+                    label={t("fileExplorer.deleteWithShortcut")}
+                    icon={<Trash2 size={12} strokeWidth={1.8} aria-hidden="true" />}
+                    onSelect={() => rememberDeleteTarget(contextMenu.target)}
+                    danger
+                  />
+                </>
+              )}
+              <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
+              <ExplorerMenuItem
+                label={t("fileExplorer.copyRelativePath")}
+                icon={<Copy size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => copyNodePath(contextMenu.target.path, "relative")}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.copyAbsolutePath")}
+                icon={<Copy size={12} strokeWidth={1.8} aria-hidden="true" />}
+                onSelect={() => copyNodePath(contextMenu.target.path, "absolute")}
               />
               <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
               <ExplorerMenuItem
                 label={t("fileExplorer.mentionFolder")}
                 icon={<AtSign size={12} strokeWidth={2} aria-hidden="true" />}
                 disabled={!onAtMention}
-                onSelect={() => onAtMention?.(getRelativeFilePath(contextMenu.target.path, cwd), true)}
+                onSelect={() => {
+                  const path = contextMenu.target.path;
+                  setContextMenu(null);
+                  onAtMention?.(getRelativeFilePath(path, cwd), true);
+                }}
               />
               <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
               <ExplorerCheckableMenuItem
@@ -1775,9 +2884,87 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                   setContextMenu(null);
                 }}
               />
+              <ExplorerCheckableMenuItem
+                label={t("fileExplorer.showIgnored")}
+                checked={includeIgnored}
+                onSelect={() => toggleIncludeIgnored(!includeIgnored)}
+              />
+              <div style={{ padding: "6px 9px 2px", fontSize: 10, fontWeight: 600, letterSpacing: "0.02em", color: "var(--text-dim)" }}>
+                {t("fileExplorer.sortBy")}
+              </div>
+              <ExplorerCheckableMenuItem
+                label={t("fileExplorer.sortName")}
+                checked={sortMode === "name"}
+                onSelect={() => changeSortMode("name")}
+              />
+              <ExplorerCheckableMenuItem
+                label={t("fileExplorer.sortModified")}
+                checked={sortMode === "modified"}
+                onSelect={() => changeSortMode("modified")}
+              />
+              <ExplorerCheckableMenuItem
+                label={t("fileExplorer.sortSize")}
+                checked={sortMode === "size"}
+                onSelect={() => changeSortMode("size")}
+              />
             </>
           )}
         </SidebarPortalMenu>
+      )}
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onOpenChange={(open) => { if (!open && !deleting) setDeleteTarget(null); }}
+        title={t("fileExplorer.deleteTitle", { name: deleteTarget?.name ?? "" })}
+        description={deleteTarget?.kind === "dir"
+          ? t("fileExplorer.deleteFolderDescription", { name: deleteTarget.name })
+          : t("fileExplorer.deleteFileDescription", { name: deleteTarget?.name ?? "" })}
+        confirmLabel={deleting ? t("fileExplorer.deleting") : t("fileExplorer.delete")}
+        cancelLabel={t("fileExplorer.cancel")}
+        danger
+        busy={deleting}
+        onConfirm={() => void confirmDelete()}
+      />
+      {pasteConflict && (
+        <Dialog
+          open
+          onOpenChange={(open) => { if (!open) void resolvePasteConflict("cancel"); }}
+        >
+          <DialogContent
+            ariaLabel={t("fileExplorer.pasteConflictTitle")}
+            style={{ width: 430, maxWidth: "min(92vw, 430px)", padding: 20 }}
+          >
+            <DialogTitle>{t("fileExplorer.pasteConflictTitle")}</DialogTitle>
+            <p style={{ margin: "0 0 14px", fontSize: 13, lineHeight: 1.55, color: "var(--text-muted)", overflowWrap: "anywhere" }}>
+              {t("fileExplorer.pasteConflictDescription", { name: pasteConflict.item.name })}
+            </p>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, flexWrap: "wrap" }}>
+              <button
+                type="button"
+                disabled={pasteBusy}
+                onClick={() => void resolvePasteConflict("overwrite")}
+                style={{ padding: "6px 14px", background: "none", border: "1px solid var(--status-error)", borderRadius: "var(--radius-control)", color: "var(--status-error)", cursor: pasteBusy ? "wait" : "pointer", fontSize: 13 }}
+              >
+                {t("fileExplorer.replace")}
+              </button>
+              <button
+                type="button"
+                disabled={pasteBusy}
+                onClick={() => void resolvePasteConflict("rename")}
+                style={{ padding: "6px 14px", background: "var(--accent-strong)", border: "none", borderRadius: "var(--radius-control)", color: "var(--on-accent)", cursor: pasteBusy ? "wait" : "pointer", fontSize: 13, fontWeight: 600 }}
+              >
+                {t("fileExplorer.keepBoth")}
+              </button>
+              <button
+                type="button"
+                disabled={pasteBusy}
+                onClick={() => void resolvePasteConflict("cancel")}
+                style={{ padding: "6px 14px", background: "none", border: "1px solid var(--border)", borderRadius: "var(--radius-control)", color: "var(--text-muted)", cursor: "pointer", fontSize: 13 }}
+              >
+                {t("fileExplorer.cancel")}
+              </button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
       {createDialog && (
         <CreateEntryDialog

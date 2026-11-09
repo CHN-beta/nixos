@@ -1441,6 +1441,19 @@ struct CacheEntry {
 static FILE_INDEX_CACHE: LazyLock<Mutex<HashMap<String, CacheEntry>>> =
     LazyLock::new(|| Mutex::new(HashMap::new()));
 
+/// Invalidate cached listings whose root overlaps `path` (either direction).
+pub fn invalidate_file_index_cache(path: &Path) {
+    let key = path_key(path);
+    if let Ok(mut cache) = FILE_INDEX_CACHE.lock() {
+        cache.retain(|root, _| {
+            let root_path = Path::new(root);
+            !(root == &key
+                || crate::util::is_within(root_path, path)
+                || crate::util::is_within(path, root_path))
+        });
+    }
+}
+
 fn list_with_git(cwd: &Path) -> Option<(Vec<String>, bool)> {
     let listed = git_stdout(
         cwd,

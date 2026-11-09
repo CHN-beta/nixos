@@ -37,8 +37,8 @@ const IGNORED_NAMES: &[&str] = &[
 const TEXT_PREVIEW_MAX_BYTES: u64 = 256 * 1024;
 const IMAGE_PREVIEW_MAX_BYTES: u64 = 10 * 1024 * 1024;
 const DOCX_PREVIEW_MAX_BYTES: u64 = 10 * 1024 * 1024;
-const MAX_UPLOAD_FILE_BYTES: usize = 25 * 1024 * 1024;
-const MAX_UPLOAD_TOTAL_BYTES: usize = 100 * 1024 * 1024;
+const MAX_UPLOAD_FILE_BYTES: usize = 100 * 1024 * 1024;
+const MAX_UPLOAD_TOTAL_BYTES: usize = 500 * 1024 * 1024;
 const MAX_UPLOAD_CHECK_REQUEST_BYTES: usize = 1024 * 1024;
 
 fn json_status(status: StatusCode, value: Value) -> Response {
@@ -102,7 +102,17 @@ pub async fn files_get(
 ) -> Response {
     let query = query(&uri);
     let request_type = query.get("type").unwrap_or("list");
-    if !["list", "read", "download", "meta", "preview", "watch"].contains(&request_type) {
+    if ![
+        "list",
+        "read",
+        "download",
+        "download-zip",
+        "meta",
+        "preview",
+        "watch",
+    ]
+    .contains(&request_type)
+    {
         return coded_error(
             StatusCode::BAD_REQUEST,
             "Invalid file request type",
@@ -113,8 +123,10 @@ pub async fn files_get(
     // over extension sniffing, so e.g. a .bin can open in the PDF viewer.
     let open_as = query.get("as").map(|value| value.trim().to_lowercase());
     let open_as = open_as.as_deref();
-    let session_id = query.get("sessionId");
-    let path = resolve_read_file_path(&state, &param);
+    let session_id = query
+        .get("sessionId")
+        .or_else(|| query.get("sourceSessionId"));
+    let path = resolve_read_file_path(&state, &param, session_id, true);
     let canonical = std::fs::canonicalize(&path).ok();
     if state.is_config_root_denied_file(&path)
         || canonical
@@ -278,6 +290,13 @@ pub async fn files_get(
             )
             .await
         }
+        "download-zip" => {
+            if !meta.is_dir() {
+                return not_a_directory();
+            }
+            let include_ignored = crate::util::parse_bool_param(query.get("includeIgnored"));
+            return zip_directory_response(state.clone(), path, include_ignored).await;
+        }
         "meta" => {
             if !meta.is_file() {
                 return not_a_file();
@@ -370,21 +389,41 @@ pub async fn files_get(
             if !meta.is_dir() {
                 return not_a_directory();
             }
-            let mut entries = Vec::new();
-            if let Ok(children) = std::fs::read_dir(&path) {
-                for entry in children.flatten() {
+            let include_ignored = crate::util::parse_bool_param(query.get("includeIgnored"));
+            let mut entries: Vec<(String, bool, bool, bool, u64, f64)> = Vec::new();
+            if let Ok(mut children) = tokio::fs::read_dir(&path).await {
+                while let Ok(Some(entry)) = children.next_entry().await {
                     let name = entry.file_name().to_string_lossy().into_owned();
-                    if IGNORED_NAMES.contains(&name.as_str()) || name.ends_with(".pyc") {
+                    if name.ends_with(".pyc") {
                         continue;
                     }
-                    let is_dir = match entry.file_type() {
-                        Ok(file_type) if file_type.is_dir() => true,
-                        Ok(file_type) if file_type.is_file() => false,
-                        _ => std::fs::metadata(entry.path())
-                            .map(|meta| meta.is_dir())
-                            .unwrap_or(false),
+                    let is_ignored = IGNORED_NAMES.contains(&name.as_str());
+                    if is_ignored && !include_ignored {
+                        continue;
+                    }
+                    let entry_path = entry.path();
+                    let Ok(symlink_meta) = tokio::fs::symlink_metadata(&entry_path).await else {
+                        continue;
                     };
-                    entries.push((name, is_dir));
+                    let is_symlink = symlink_meta.file_type().is_symlink();
+                    let followed = tokio::fs::metadata(&entry_path).await.ok();
+                    let is_dir = followed
+                        .as_ref()
+                        .map(std::fs::Metadata::is_dir)
+                        .unwrap_or_else(|| symlink_meta.is_dir());
+                    let size = if is_dir {
+                        0
+                    } else {
+                        followed
+                            .as_ref()
+                            .map(std::fs::Metadata::len)
+                            .unwrap_or_else(|| symlink_meta.len())
+                    };
+                    let modified = followed
+                        .as_ref()
+                        .map(mtime_ms)
+                        .unwrap_or_else(|| mtime_ms(&symlink_meta));
+                    entries.push((name, is_dir, is_symlink, is_ignored, size, modified));
                 }
             }
             entries.sort_by(|a, b| {
@@ -399,7 +438,16 @@ pub async fn files_get(
             });
             let entries: Vec<Value> = entries
                 .into_iter()
-                .map(|(name, is_dir)| json!({ "name": name, "isDir": is_dir, "size": 0, "modified": "" }))
+                .map(|(name, is_dir, is_symlink, is_ignored, size, modified)| {
+                    json!({
+                        "name": name,
+                        "isDir": is_dir,
+                        "isSymlink": is_symlink,
+                        "isIgnored": is_ignored,
+                        "size": size,
+                        "modified": modified,
+                    })
+                })
                 .collect();
             json_status(
                 StatusCode::OK,
@@ -407,6 +455,623 @@ pub async fn files_get(
             )
         }
     }
+}
+
+// ============================================================================
+// ZIP download
+// ============================================================================
+
+const MAX_ZIP_TOTAL_BYTES: u64 = 500 * 1024 * 1024;
+
+enum ZipBuildError {
+    TooLarge,
+    Failed(String),
+}
+
+fn zip_name_ignored(name: &str, include_ignored: bool) -> bool {
+    // `.git` is never packed; `node_modules` only joins an explicit request.
+    name == ".git" || (!include_ignored && name == "node_modules")
+}
+
+fn add_zip_file(
+    state: &SharedState,
+    zip: &mut zip::ZipWriter<std::fs::File>,
+    options: zip::write::SimpleFileOptions,
+    path: &Path,
+    archive_name: &str,
+    total: &mut u64,
+    meta: &std::fs::Metadata,
+) -> Result<(), ZipBuildError> {
+    if is_denied_write_target(state, path) {
+        return Ok(());
+    }
+    *total = total.saturating_add(meta.len());
+    if *total > MAX_ZIP_TOTAL_BYTES {
+        return Err(ZipBuildError::TooLarge);
+    }
+    let mut file =
+        std::fs::File::open(path).map_err(|error| ZipBuildError::Failed(error.to_string()))?;
+    zip.start_file(archive_name, options)
+        .map_err(|error| ZipBuildError::Failed(error.to_string()))?;
+    std::io::copy(&mut file, zip).map_err(|error| ZipBuildError::Failed(error.to_string()))?;
+    Ok(())
+}
+
+/// Walk `root` and write a zip archive to `zip_path`. Blocking; callers run it
+/// on the blocking pool. Symlinks escaping the authorized roots are skipped and
+/// directory links are only followed once (cycle guard).
+fn build_zip_archive(
+    state: SharedState,
+    root: PathBuf,
+    include_ignored: bool,
+    zip_path: &Path,
+) -> Result<(), ZipBuildError> {
+    let file = std::fs::File::create(zip_path)
+        .map_err(|error| ZipBuildError::Failed(error.to_string()))?;
+    let mut zip = zip::ZipWriter::new(file);
+    let options = zip::write::SimpleFileOptions::default()
+        .compression_method(zip::CompressionMethod::Deflated)
+        .unix_permissions(0o644);
+    let mut total = 0u64;
+    let mut stack: Vec<(PathBuf, String)> = vec![(root.clone(), String::new())];
+    let mut visited: std::collections::HashSet<PathBuf> = std::collections::HashSet::new();
+    if let Ok(real) = std::fs::canonicalize(&root) {
+        visited.insert(real);
+    }
+    while let Some((dir, prefix)) = stack.pop() {
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            continue;
+        };
+        let mut children: Vec<std::fs::DirEntry> = entries.flatten().collect();
+        children.sort_by_key(|entry| entry.file_name());
+        for entry in children.into_iter().rev() {
+            let name = entry.file_name().to_string_lossy().into_owned();
+            if zip_name_ignored(&name, include_ignored) {
+                continue;
+            }
+            let archive_name = if prefix.is_empty() {
+                name.clone()
+            } else {
+                format!("{}/{}", prefix, name)
+            };
+            let path = entry.path();
+            let Ok(symlink_meta) = std::fs::symlink_metadata(&path) else {
+                continue;
+            };
+            if symlink_meta.file_type().is_symlink() {
+                // Never pack a link whose target escapes the workspace.
+                let Ok(real) = std::fs::canonicalize(&path) else {
+                    continue;
+                };
+                if !state.is_existing_path_allowed(&real) {
+                    continue;
+                }
+                let Ok(meta) = std::fs::metadata(&path) else {
+                    continue;
+                };
+                if meta.is_dir() {
+                    if visited.insert(real) {
+                        stack.push((path, archive_name));
+                    }
+                } else if meta.is_file() {
+                    add_zip_file(
+                        &state,
+                        &mut zip,
+                        options,
+                        &path,
+                        &archive_name,
+                        &mut total,
+                        &meta,
+                    )?;
+                }
+                continue;
+            }
+            if symlink_meta.is_dir() {
+                stack.push((path, archive_name));
+            } else if symlink_meta.is_file() {
+                add_zip_file(
+                    &state,
+                    &mut zip,
+                    options,
+                    &path,
+                    &archive_name,
+                    &mut total,
+                    &symlink_meta,
+                )?;
+            }
+        }
+    }
+    zip.finish()
+        .map_err(|error| ZipBuildError::Failed(error.to_string()))?;
+    Ok(())
+}
+
+struct TempArchive {
+    path: PathBuf,
+}
+
+impl Drop for TempArchive {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_file(&self.path);
+    }
+}
+
+async fn zip_directory_response(
+    state: SharedState,
+    path: PathBuf,
+    include_ignored: bool,
+) -> Response {
+    let zip_path =
+        std::env::temp_dir().join(format!("aidesk-archive-{}.zip", uuid::Uuid::new_v4()));
+    let build_state = state.clone();
+    let build_root = path.clone();
+    let build_path = zip_path.clone();
+    let built = tokio::task::spawn_blocking(move || {
+        build_zip_archive(build_state, build_root, include_ignored, &build_path)
+    })
+    .await;
+    let built = match built {
+        Ok(built) => built,
+        Err(_) => {
+            let _ = std::fs::remove_file(&zip_path);
+            return crate::util::api_error(
+                "Failed to build archive",
+                StatusCode::INTERNAL_SERVER_ERROR,
+            );
+        }
+    };
+    if let Err(error) = built {
+        let _ = std::fs::remove_file(&zip_path);
+        return match error {
+            ZipBuildError::TooLarge => coded_error(
+                StatusCode::PAYLOAD_TOO_LARGE,
+                "Archive is too large (>500MB)",
+                "archive_too_large",
+            ),
+            ZipBuildError::Failed(message) => {
+                crate::util::api_error(message, StatusCode::INTERNAL_SERVER_ERROR)
+            }
+        };
+    }
+    let meta = match tokio::fs::metadata(&zip_path).await {
+        Ok(meta) => meta,
+        Err(error) => {
+            let _ = std::fs::remove_file(&zip_path);
+            return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
+        }
+    };
+    let file = match tokio::fs::File::open(&zip_path).await {
+        Ok(file) => file,
+        Err(error) => {
+            let _ = std::fs::remove_file(&zip_path);
+            return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
+        }
+    };
+    let guard = TempArchive {
+        path: zip_path.clone(),
+    };
+    let stream = futures_util::stream::unfold((file, guard), |(mut file, guard)| async move {
+        let mut buffer = vec![0u8; 64 * 1024];
+        match tokio::io::AsyncReadExt::read(&mut file, &mut buffer).await {
+            Ok(0) | Err(_) => None,
+            Ok(read) => {
+                buffer.truncate(read);
+                Some((
+                    Ok::<bytes::Bytes, std::io::Error>(bytes::Bytes::from(buffer)),
+                    (file, guard),
+                ))
+            }
+        }
+    });
+    let archive_name = format!("{}.zip", file_name(&path));
+    let fallback: String = archive_name
+        .chars()
+        .map(|ch| {
+            if ch.is_ascii() && !ch.is_ascii_control() && !"\"\\;".contains(ch) {
+                ch
+            } else {
+                '_'
+            }
+        })
+        .collect();
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "application/zip")
+        .header(header::CONTENT_LENGTH, meta.len().to_string())
+        .header(header::CACHE_CONTROL, "no-cache")
+        .header(
+            header::CONTENT_DISPOSITION,
+            if archive_name.is_ascii() {
+                format!("attachment; filename=\"{}\"", fallback)
+            } else {
+                content_disposition(&archive_name, false)
+            },
+        )
+        .body(Body::from_stream(stream))
+        .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response())
+}
+
+// ============================================================================
+// PATCH (rename / move / copy) + DELETE
+// ============================================================================
+
+fn is_allowed_root_itself(state: &SharedState, path: &Path) -> bool {
+    let key = crate::util::path_key(path);
+    let canonical = std::fs::canonicalize(path).ok();
+    state.allowed_roots().iter().any(|root| {
+        if crate::util::path_key(root) == key {
+            return true;
+        }
+        match (canonical.as_deref(), std::fs::canonicalize(root).ok()) {
+            (Some(path), Some(root)) => path == root,
+            _ => false,
+        }
+    })
+}
+
+fn remove_tree_blocking(target: &Path) -> std::io::Result<()> {
+    let meta = std::fs::symlink_metadata(target)?;
+    if meta.is_dir() && !meta.file_type().is_symlink() {
+        std::fs::remove_dir_all(target)
+    } else {
+        std::fs::remove_file(target)
+    }
+}
+
+/// Recursive copy used for directories (and the EXDEV fallback of rename).
+/// Symlinks are recreated as links; links escaping the authorized roots are
+/// skipped instead of followed.
+fn copy_tree_blocking(state: SharedState, src: PathBuf, dst: PathBuf) -> std::io::Result<()> {
+    let meta = std::fs::symlink_metadata(&src)?;
+    if meta.file_type().is_symlink() {
+        let target = std::fs::read_link(&src)?;
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink(&target, &dst)?;
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = target;
+            std::fs::copy(&src, &dst)?;
+        }
+        return Ok(());
+    }
+    if meta.is_dir() {
+        std::fs::create_dir_all(&dst)?;
+        for entry in std::fs::read_dir(&src)? {
+            let entry = entry?;
+            let child_src = entry.path();
+            let child_dst = dst.join(entry.file_name());
+            let Ok(child_meta) = std::fs::symlink_metadata(&child_src) else {
+                continue;
+            };
+            if child_meta.file_type().is_symlink() {
+                if !state.is_existing_path_allowed(&child_src) {
+                    continue;
+                }
+                let target = std::fs::read_link(&child_src)?;
+                #[cfg(unix)]
+                {
+                    std::os::unix::fs::symlink(&target, &child_dst)?;
+                }
+                #[cfg(not(unix))]
+                {
+                    let _ = target;
+                    std::fs::copy(&child_src, &child_dst)?;
+                }
+            } else if child_meta.is_dir() {
+                copy_tree_blocking(state.clone(), child_src, child_dst)?;
+            } else if child_meta.is_file() {
+                if is_denied_write_target(&state, &child_src) {
+                    continue;
+                }
+                std::fs::copy(&child_src, &child_dst)?;
+            }
+        }
+        Ok(())
+    } else {
+        std::fs::copy(&src, &dst).map(|_| ())
+    }
+}
+
+fn move_across_devices(state: SharedState, src: PathBuf, dst: PathBuf) -> std::io::Result<()> {
+    let meta = std::fs::symlink_metadata(&src)?;
+    if meta.file_type().is_symlink() {
+        let target = std::fs::read_link(&src)?;
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink(&target, &dst)?;
+        }
+        #[cfg(not(unix))]
+        {
+            let _ = target;
+            std::fs::copy(&src, &dst)?;
+        }
+        std::fs::remove_file(&src)?;
+    } else if meta.is_dir() {
+        copy_tree_blocking(state, src.clone(), dst)?;
+        std::fs::remove_dir_all(&src)?;
+    } else {
+        std::fs::copy(&src, &dst)?;
+        std::fs::remove_file(&src)?;
+    }
+    Ok(())
+}
+
+pub async fn files_patch(
+    State(state): State<SharedState>,
+    AxumPath(param): AxumPath<String>,
+    uri: Uri,
+    request: axum::extract::Request,
+) -> Response {
+    let query = query(&uri);
+    let source_session_id = query
+        .get("sourceSessionId")
+        .or_else(|| query.get("sessionId"));
+    let src_path = crate::util::normalize_lexically(&resolve_read_file_path(
+        &state,
+        &param,
+        source_session_id,
+        false,
+    ));
+    let src_meta = match tokio::fs::symlink_metadata(&src_path).await {
+        Ok(meta) => meta,
+        Err(_) => return file_not_found(),
+    };
+    let src_is_symlink = src_meta.file_type().is_symlink();
+    if is_denied_write_target(&state, &src_path) || is_allowed_root_itself(&state, &src_path) {
+        return crate::util::access_denied();
+    }
+    let referenced = crate::omp::session_reader::is_file_referenced_by_session(
+        &state.cfg,
+        &src_path,
+        source_session_id,
+    );
+    let in_root = state.is_path_allowed(&src_path);
+    let canonical_allowed = if src_is_symlink {
+        in_root
+    } else {
+        state.is_existing_path_allowed(&src_path)
+    };
+    if !(in_root || canonical_allowed || referenced) {
+        return crate::util::access_denied();
+    }
+
+    let body = match body_json(request, 64 * 1024).await {
+        Ok(body) => body,
+        Err(response) => return response,
+    };
+    let action = match body.get("action").and_then(Value::as_str) {
+        Some(action @ ("rename" | "move" | "copy")) => action.to_string(),
+        _ => {
+            return coded_error(
+                StatusCode::BAD_REQUEST,
+                "action must be rename, move or copy",
+                "invalid_action",
+            )
+        }
+    };
+    let Some(destination) = body.get("destination").and_then(Value::as_str) else {
+        return coded_error(
+            StatusCode::BAD_REQUEST,
+            "destination must be a string",
+            "invalid_destination",
+        );
+    };
+    let overwrite = body.get("overwrite").and_then(Value::as_bool);
+    if !destination.starts_with('/') {
+        return coded_error(
+            StatusCode::BAD_REQUEST,
+            "destination must be an absolute path",
+            "destination_must_be_absolute",
+        );
+    }
+    let dst_path = crate::util::normalize_lexically(Path::new(destination));
+    let Some(dst_parent) = dst_path.parent() else {
+        return coded_error(
+            StatusCode::BAD_REQUEST,
+            "Invalid destination",
+            "invalid_destination",
+        );
+    };
+    let Some(dst_name) = dst_path.file_name() else {
+        return coded_error(
+            StatusCode::BAD_REQUEST,
+            "Invalid destination",
+            "invalid_destination",
+        );
+    };
+    match tokio::fs::metadata(dst_parent).await {
+        Ok(meta) if meta.is_dir() => {}
+        _ => {
+            return coded_error(
+                StatusCode::BAD_REQUEST,
+                "Destination parent directory does not exist",
+                "destination_parent_not_found",
+            )
+        }
+    }
+    if !state.is_existing_path_allowed(dst_parent) || is_denied_write_target(&state, &dst_path) {
+        return crate::util::access_denied();
+    }
+    let dst_parent_canonical = match tokio::fs::canonicalize(dst_parent).await {
+        Ok(path) => path,
+        Err(_) => return crate::util::access_denied(),
+    };
+    let dst_target_canonical =
+        crate::util::normalize_lexically(&dst_parent_canonical.join(dst_name));
+    let src_canonical = tokio::fs::canonicalize(&src_path)
+        .await
+        .unwrap_or_else(|_| src_path.clone());
+
+    if src_meta.is_dir() && !src_is_symlink && is_within(&src_canonical, &dst_parent_canonical) {
+        return coded_error(
+            StatusCode::BAD_REQUEST,
+            "Cannot move or copy a directory into itself",
+            "destination_inside_source",
+        );
+    }
+    if dst_target_canonical != src_canonical && is_within(&dst_target_canonical, &src_canonical) {
+        return coded_error(
+            StatusCode::BAD_REQUEST,
+            "Destination contains the source and cannot be overwritten",
+            "destination_contains_source",
+        );
+    }
+
+    let same_path = crate::util::path_key(&src_path) == crate::util::path_key(&dst_path)
+        || (!src_is_symlink && dst_target_canonical == src_canonical);
+    let dst_exists = tokio::fs::symlink_metadata(&dst_path).await.is_ok();
+    if dst_exists {
+        if overwrite == Some(true) {
+            if same_path {
+                state.invalidate_file_index_cache(&src_path);
+                state.invalidate_file_index_cache(&dst_path);
+                return json_status(
+                    StatusCode::OK,
+                    json!({
+                        "success": true,
+                        "path": dst_path.to_string_lossy(),
+                        "action": action,
+                    }),
+                );
+            }
+            if let Err(error) = remove_tree_blocking(&dst_path) {
+                return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return json_status(
+                StatusCode::CONFLICT,
+                json!({ "error": "Target already exists", "code": "already_exists" }),
+            );
+        }
+    }
+
+    let result: std::io::Result<()> = match action.as_str() {
+        "rename" | "move" => match tokio::fs::rename(&src_path, &dst_path).await {
+            Ok(()) => Ok(()),
+            Err(error) if error.raw_os_error() == Some(libc::EXDEV) => {
+                let move_state = state.clone();
+                let move_src = src_path.clone();
+                let move_dst = dst_path.clone();
+                tokio::task::spawn_blocking(move || {
+                    move_across_devices(move_state, move_src, move_dst)
+                })
+                .await
+                .unwrap_or_else(|error| Err(std::io::Error::other(error.to_string())))
+            }
+            Err(error) => Err(error),
+        },
+        _ => {
+            if src_is_symlink {
+                let target = match tokio::fs::read_link(&src_path).await {
+                    Ok(target) => target,
+                    Err(error) => {
+                        return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR)
+                    }
+                };
+                #[cfg(unix)]
+                {
+                    std::os::unix::fs::symlink(&target, &dst_path).map_err(std::io::Error::from)
+                }
+                #[cfg(not(unix))]
+                {
+                    let _ = target;
+                    tokio::fs::copy(&src_path, &dst_path).await.map(|_| ())
+                }
+            } else if src_meta.is_dir() {
+                let copy_state = state.clone();
+                let copy_src = src_path.clone();
+                let copy_dst = dst_path.clone();
+                tokio::task::spawn_blocking(move || {
+                    copy_tree_blocking(copy_state, copy_src, copy_dst)
+                })
+                .await
+                .unwrap_or_else(|error| Err(std::io::Error::other(error.to_string())))
+            } else {
+                tokio::fs::copy(&src_path, &dst_path).await.map(|_| ())
+            }
+        }
+    };
+    if let Err(error) = result {
+        // A failed copy may have left a partial target behind.
+        let _ = remove_tree_blocking(&dst_path);
+        return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
+    }
+    state.invalidate_file_index_cache(&src_path);
+    state.invalidate_file_index_cache(&dst_path);
+    json_status(
+        StatusCode::OK,
+        json!({
+            "success": true,
+            "path": dst_path.to_string_lossy(),
+            "action": action,
+        }),
+    )
+}
+
+pub async fn files_delete(
+    State(state): State<SharedState>,
+    AxumPath(param): AxumPath<String>,
+    uri: Uri,
+) -> Response {
+    let query = query(&uri);
+    let source_session_id = query
+        .get("sourceSessionId")
+        .or_else(|| query.get("sessionId"));
+    let target = crate::util::normalize_lexically(&resolve_read_file_path(
+        &state,
+        &param,
+        source_session_id,
+        false,
+    ));
+    if !state.is_path_allowed(&target) {
+        return crate::util::access_denied();
+    }
+    if is_allowed_root_itself(&state, &target) {
+        return coded_error(
+            StatusCode::FORBIDDEN,
+            "Cannot delete an allowed root directory",
+            "cannot_delete_root",
+        );
+    }
+    if is_denied_write_target(&state, &target) {
+        return crate::util::access_denied();
+    }
+    let meta = match tokio::fs::symlink_metadata(&target).await {
+        Ok(meta) => meta,
+        Err(_) => return file_not_found(),
+    };
+    let is_symlink = meta.file_type().is_symlink();
+    if !is_symlink && !state.is_existing_path_allowed(&target) {
+        return crate::util::access_denied();
+    }
+    let recursive = match query.get("recursive") {
+        Some(value) => !matches!(value.to_ascii_lowercase().as_str(), "0" | "false" | "no"),
+        None => true,
+    };
+    let result = if is_symlink || !meta.is_dir() {
+        tokio::fs::remove_file(&target).await
+    } else if recursive {
+        tokio::fs::remove_dir_all(&target).await
+    } else {
+        tokio::fs::remove_dir(&target).await
+    };
+    if let Err(error) = result {
+        if error.kind() == std::io::ErrorKind::DirectoryNotEmpty {
+            return coded_error(
+                StatusCode::CONFLICT,
+                "Directory is not empty",
+                "directory_not_empty",
+            );
+        }
+        return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
+    }
+    state.invalidate_file_index_cache(&target);
+    json_status(
+        StatusCode::OK,
+        json!({ "success": true, "deleted": target.to_string_lossy() }),
+    )
 }
 
 async fn file_watch_stream(path: &Path, meta: std::fs::Metadata) -> Response {
@@ -531,7 +1196,8 @@ pub async fn files_put(
     AxumPath(param): AxumPath<String>,
     request: axum::extract::Request,
 ) -> Response {
-    let path = crate::util::normalize_lexically(&resolve_read_file_path(&state, &param));
+    let path =
+        crate::util::normalize_lexically(&resolve_read_file_path(&state, &param, None, true));
     // Check both the lexical path and the canonical write target: a create
     // whose parents do not exist yet must still be confined to an allowed
     // root and must never land on models.yml/agent.db through a symlink.
@@ -613,6 +1279,7 @@ pub async fn files_put(
     if let Err(error) = crate::util::atomic_write(&path, content.as_bytes()) {
         return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
     }
+    state.invalidate_file_index_cache(&path);
     match std::fs::metadata(&path) {
         Ok(meta) => json_status(
             StatusCode::OK,
@@ -626,29 +1293,134 @@ pub async fn files_put(
 // POST (uploads)
 // ============================================================================
 
+/// Normalize and validate one uploaded relative path. Backslashes are folded
+/// to `/`; absolute paths, `.`/`..`, empty components, control characters and
+/// `.git` components are rejected so a field can never escape the target
+/// directory.
+fn normalize_upload_name(name: &str) -> Option<String> {
+    let replaced = name.replace('\\', "/");
+    if replaced.is_empty() || replaced.starts_with('/') {
+        return None;
+    }
+    if replaced.chars().any(|ch| ch == '\0' || ch.is_control()) {
+        return None;
+    }
+    let mut parts: Vec<&str> = Vec::new();
+    for part in replaced.split('/') {
+        if part.is_empty() || part == "." || part == ".." || part == ".git" {
+            return None;
+        }
+        parts.push(part);
+    }
+    Some(parts.join("/"))
+}
+
 fn validate_upload_names(file_names: &[String]) -> Option<String> {
     if file_names.is_empty() {
         return Some("No files selected".into());
     }
     let mut seen = std::collections::HashSet::new();
     for name in file_names {
-        if name.is_empty() || name == "." || name == ".." || name.contains('\0') {
-            return Some(format!(
-                "Invalid file name: {}",
-                if name.is_empty() { "(empty)" } else { name }
-            ));
+        if normalize_upload_name(name).as_deref() != Some(name.as_str()) {
+            return Some(format!("Invalid file name: {}", name));
         }
-        if name.contains('/')
-            || name.contains('\\')
-            || Path::new(name).file_name().and_then(|n| n.to_str()) != Some(name.as_str())
-        {
-            return Some(format!("File names must not contain a path: {}", name));
-        }
-        if !seen.insert(name.clone()) {
+        if !seen.insert(name.as_str()) {
             return Some(format!("Duplicate file name in upload: {}", name));
         }
     }
     None
+}
+
+/// Pick the first free `stem (n).ext` beside an existing target.
+fn unique_upload_name(
+    rel: &str,
+    directory: &Path,
+    taken: &mut std::collections::HashSet<String>,
+) -> String {
+    let rel_path = Path::new(rel);
+    let parent = rel_path.parent().filter(|p| !p.as_os_str().is_empty());
+    let file = rel_path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or(rel);
+    let stem = Path::new(file)
+        .file_stem()
+        .and_then(|stem| stem.to_str())
+        .unwrap_or(file);
+    let extension = Path::new(file).extension().and_then(|ext| ext.to_str());
+    let mut index = 1u32;
+    loop {
+        let candidate_name = match extension {
+            Some(extension) => format!("{} ({}).{}", stem, index, extension),
+            None => format!("{} ({})", stem, index),
+        };
+        let candidate = match parent {
+            Some(parent) => parent.join(&candidate_name),
+            None => PathBuf::from(&candidate_name),
+        };
+        let relative = candidate.to_string_lossy().replace('\\', "/");
+        if !taken.contains(&relative)
+            && std::fs::symlink_metadata(directory.join(&candidate)).is_err()
+        {
+            taken.insert(relative.clone());
+            return relative;
+        }
+        if index >= 100_000 {
+            let fallback = format!("{}-{}", stem, uuid::Uuid::new_v4());
+            taken.insert(fallback.clone());
+            return fallback;
+        }
+        index += 1;
+    }
+}
+
+/// Create the intermediate directories of a staged upload, refusing to walk
+/// through symlinks or escape the resolved upload directory.
+async fn prepare_upload_directory(real_directory: &Path, destination: &Path) -> Result<(), String> {
+    let parent = destination
+        .parent()
+        .ok_or_else(|| "Invalid upload path".to_string())?;
+    if !is_within(real_directory, parent) {
+        return Err("Upload path escapes the target directory".into());
+    }
+    let relative = parent
+        .strip_prefix(real_directory)
+        .map_err(|_| "Upload path escapes the target directory".to_string())?;
+    let mut current = real_directory.to_path_buf();
+    for component in relative.components() {
+        let std::path::Component::Normal(part) = component else {
+            return Err("Invalid upload path".into());
+        };
+        current.push(part);
+        match tokio::fs::symlink_metadata(&current).await {
+            Ok(meta) => {
+                if meta.file_type().is_symlink() || !meta.is_dir() {
+                    return Err(format!(
+                        "Cannot create a directory through {}",
+                        current.to_string_lossy()
+                    ));
+                }
+            }
+            Err(_) => {
+                tokio::fs::create_dir(&current)
+                    .await
+                    .map_err(|error| error.to_string())?;
+            }
+        }
+        let canonical = tokio::fs::canonicalize(&current)
+            .await
+            .map_err(|error| error.to_string())?;
+        if !is_within(real_directory, &canonical) {
+            return Err("Upload path escapes the target directory".into());
+        }
+    }
+    Ok(())
+}
+
+async fn cleanup_upload_files(paths: &[PathBuf]) {
+    for path in paths {
+        let _ = tokio::fs::remove_file(path).await;
+    }
 }
 
 struct UploadInspection {
@@ -739,6 +1511,7 @@ fn create_directory(state: &SharedState, param: &str) -> Response {
     if let Err(error) = std::fs::create_dir_all(&target) {
         return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
     }
+    state.invalidate_file_index_cache(&target);
     crate::routes::json_ok(json!({ "success": true, "path": target.to_string_lossy() }))
 }
 
@@ -775,29 +1548,48 @@ pub async fn files_post(
                 }
                 return coded_error(
                     StatusCode::BAD_REQUEST,
-                    "fileNames must be an array of strings",
+                    "files must be an array of strings",
                     "invalid_file_names",
                 );
             }
         };
-        let Some(file_names) = body.get("fileNames").and_then(Value::as_array) else {
+        let raw_names = body
+            .get("files")
+            .or_else(|| body.get("fileNames"))
+            .and_then(Value::as_array);
+        let Some(raw_names) = raw_names else {
             return coded_error(
                 StatusCode::BAD_REQUEST,
-                "fileNames must be an array of strings",
+                "files must be an array of strings",
                 "invalid_file_names",
             );
         };
-        let Some(file_names) = file_names
+        let Some(raw_names) = raw_names
             .iter()
             .map(|value| value.as_str().map(|s| s.to_string()))
             .collect::<Option<Vec<String>>>()
         else {
             return coded_error(
                 StatusCode::BAD_REQUEST,
-                "fileNames must be an array of strings",
+                "files must be an array of strings",
                 "invalid_file_names",
             );
         };
+        let mut file_names = Vec::with_capacity(raw_names.len());
+        for raw_name in raw_names {
+            match normalize_upload_name(&raw_name) {
+                Some(name) => file_names.push(name),
+                None => {
+                    return json_status(
+                        StatusCode::BAD_REQUEST,
+                        json!({
+                            "error": format!("Invalid file name: {}", raw_name),
+                            "code": "invalid_file_name",
+                        }),
+                    )
+                }
+            }
+        }
         if let Some(error) = validate_upload_names(&file_names) {
             return json_status(StatusCode::BAD_REQUEST, json!({ "error": error }));
         }
@@ -816,7 +1608,7 @@ pub async fn files_post(
         );
     }
     let strategy = match query.get("conflict").unwrap_or("error") {
-        value @ ("error" | "overwrite" | "skip") => value.to_string(),
+        value @ ("error" | "overwrite" | "skip" | "rename") => value.to_string(),
         _ => {
             return coded_error(
                 StatusCode::BAD_REQUEST,
@@ -830,71 +1622,121 @@ pub async fn files_post(
         Err(_) => {
             return coded_error(
                 StatusCode::PAYLOAD_TOO_LARGE,
-                "Uploads must total 100MB or less",
+                "Uploads must total 500MB or less",
                 "upload_total_too_large",
             )
         }
     };
-    let mut files: Vec<(String, Vec<u8>)> = Vec::new();
+    use tokio::io::AsyncWriteExt;
+
+    // Fields stream to per-file temporary files in the destination directory;
+    // nothing is committed until every field has been received and validated.
+    let mut staging: Vec<(String, PathBuf)> = Vec::new();
+    let mut temp_paths: Vec<PathBuf> = Vec::new();
     let mut total = 0usize;
     loop {
-        match multipart.next_field().await {
-            Ok(Some(field)) => {
-                if field.name() != Some("files") {
-                    continue;
-                }
-                let Some(file_name) = field.file_name().map(|name| name.to_string()) else {
-                    continue;
-                };
-                let bytes = match field.bytes().await {
-                    Ok(bytes) => bytes.to_vec(),
-                    Err(_) => {
+        let mut field = match multipart.next_field().await {
+            Ok(Some(field)) => field,
+            Ok(None) => break,
+            Err(_) => {
+                cleanup_upload_files(&temp_paths).await;
+                return coded_error(
+                    StatusCode::PAYLOAD_TOO_LARGE,
+                    "Uploads must total 500MB or less",
+                    "upload_total_too_large",
+                );
+            }
+        };
+        if field.name() != Some("files") {
+            continue;
+        }
+        let Some(raw_name) = field.file_name().map(|name| name.to_string()) else {
+            continue;
+        };
+        let Some(name) = normalize_upload_name(&raw_name) else {
+            cleanup_upload_files(&temp_paths).await;
+            return json_status(
+                StatusCode::BAD_REQUEST,
+                json!({
+                    "error": format!("Invalid file name: {}", raw_name),
+                    "code": "invalid_file_name",
+                }),
+            );
+        };
+        let temp_path = directory.join(format!(".aidesk-upload-{}.part", uuid::Uuid::new_v4()));
+        temp_paths.push(temp_path.clone());
+        let mut file = match tokio::fs::File::create(&temp_path).await {
+            Ok(file) => file,
+            Err(error) => {
+                cleanup_upload_files(&temp_paths).await;
+                return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
+            }
+        };
+        let mut field_size = 0usize;
+        loop {
+            match field.chunk().await {
+                Ok(Some(chunk)) => {
+                    field_size += chunk.len();
+                    if field_size > MAX_UPLOAD_FILE_BYTES {
+                        drop(file);
+                        cleanup_upload_files(&temp_paths).await;
                         return coded_error(
                             StatusCode::PAYLOAD_TOO_LARGE,
-                            "Uploads must total 100MB or less",
-                            "upload_total_too_large",
-                        )
+                            "Each upload must be 100MB or smaller",
+                            "upload_file_too_large",
+                        );
                     }
-                };
-                if bytes.len() > MAX_UPLOAD_FILE_BYTES {
-                    return coded_error(
-                        StatusCode::PAYLOAD_TOO_LARGE,
-                        "Each upload must be 25MB or smaller",
-                        "upload_file_too_large",
-                    );
+                    total += chunk.len();
+                    if total > MAX_UPLOAD_TOTAL_BYTES {
+                        drop(file);
+                        cleanup_upload_files(&temp_paths).await;
+                        return coded_error(
+                            StatusCode::PAYLOAD_TOO_LARGE,
+                            "Uploads must total 500MB or less",
+                            "upload_total_too_large",
+                        );
+                    }
+                    if let Err(error) = file.write_all(&chunk).await {
+                        drop(file);
+                        cleanup_upload_files(&temp_paths).await;
+                        return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
+                    }
                 }
-                total += bytes.len();
-                if total > MAX_UPLOAD_TOTAL_BYTES {
+                Ok(None) => break,
+                Err(_) => {
+                    drop(file);
+                    cleanup_upload_files(&temp_paths).await;
                     return coded_error(
                         StatusCode::PAYLOAD_TOO_LARGE,
-                        "Uploads must total 100MB or less",
+                        "Uploads must total 500MB or less",
                         "upload_total_too_large",
                     );
                 }
-                files.push((file_name, bytes));
-            }
-            Ok(None) => break,
-            Err(_) => {
-                return coded_error(
-                    StatusCode::PAYLOAD_TOO_LARGE,
-                    "Uploads must total 100MB or less",
-                    "upload_total_too_large",
-                )
             }
         }
+        if let Err(error) = file.flush().await {
+            drop(file);
+            cleanup_upload_files(&temp_paths).await;
+            return crate::util::api_error(error, StatusCode::INTERNAL_SERVER_ERROR);
+        }
+        drop(file);
+        staging.push((name, temp_path));
     }
-    let file_names: Vec<String> = files.iter().map(|(name, _)| name.clone()).collect();
+    let file_names: Vec<String> = staging.iter().map(|(name, _)| name.clone()).collect();
     if let Some(error) = validate_upload_names(&file_names) {
+        cleanup_upload_files(&temp_paths).await;
         return json_status(StatusCode::BAD_REQUEST, json!({ "error": error }));
     }
     if file_names
         .iter()
         .any(|name| is_denied_write_target(&state, &directory.join(name)))
     {
+        cleanup_upload_files(&temp_paths).await;
         return crate::util::access_denied();
     }
     let inspection = inspect_upload_targets(&directory, &file_names);
     if strategy == "error" && !inspection.conflicts.is_empty() {
+        cleanup_upload_files(&temp_paths).await;
         return json_status(
             StatusCode::CONFLICT,
             json!({
@@ -905,44 +1747,64 @@ pub async fn files_post(
             }),
         );
     }
-    let conflict_set: std::collections::HashSet<&String> = inspection.conflicts.iter().collect();
-    let non_replaceable_set: std::collections::HashSet<&String> =
-        inspection.non_replaceable.iter().collect();
+    let conflict_set: std::collections::HashSet<String> =
+        inspection.conflicts.iter().cloned().collect();
+    let non_replaceable_set: std::collections::HashSet<String> =
+        inspection.non_replaceable.iter().cloned().collect();
+    // Reserve every requested name up front so auto-renames cannot steal a
+    // sibling upload's destination.
+    let mut taken: std::collections::HashSet<String> = file_names.iter().cloned().collect();
     let mut uploaded = Vec::new();
     let mut skipped = Vec::new();
     let mut errors: Vec<Value> = Vec::new();
-    for (name, bytes) in files {
-        let destination = directory.join(&name);
-        if conflict_set.contains(&name) {
+    for (name, temp_path) in staging {
+        let conflicted = conflict_set.contains(&name);
+        if conflicted {
             if strategy == "skip" {
                 skipped.push(name);
                 continue;
             }
-            if non_replaceable_set.contains(&name) {
+            if strategy != "rename" && non_replaceable_set.contains(&name) {
                 errors.push(
                     json!({ "name": name, "error": "Cannot replace a directory or symbolic link" }),
                 );
                 continue;
             }
-            if let Err(error) = std::fs::remove_file(&destination) {
-                errors.push(json!({ "name": name, "error": error.to_string() }));
-                continue;
-            }
         }
-        match std::fs::OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .open(&destination)
-        {
-            Ok(mut file) => {
-                use std::io::Write;
-                match file.write_all(&bytes) {
-                    Ok(()) => uploaded.push(name),
-                    Err(error) => errors.push(json!({ "name": name, "error": error.to_string() })),
+        let final_name = if conflicted && strategy == "rename" {
+            unique_upload_name(&name, &directory, &mut taken)
+        } else {
+            name.clone()
+        };
+        let destination = directory.join(&final_name);
+        if let Err(message) = prepare_upload_directory(&directory, &destination).await {
+            errors.push(json!({ "name": name, "error": message }));
+            continue;
+        }
+        if conflicted && strategy == "overwrite" {
+            if let Ok(meta) = tokio::fs::symlink_metadata(&destination).await {
+                if meta.file_type().is_symlink() || !meta.is_dir() {
+                    if let Err(error) = tokio::fs::remove_file(&destination).await {
+                        errors.push(json!({ "name": name, "error": error.to_string() }));
+                        continue;
+                    }
+                } else {
+                    errors.push(json!({
+                        "name": name,
+                        "error": "Cannot replace a directory or symbolic link",
+                    }));
+                    continue;
                 }
             }
+        }
+        match tokio::fs::rename(&temp_path, &destination).await {
+            Ok(()) => uploaded.push(final_name),
             Err(error) => errors.push(json!({ "name": name, "error": error.to_string() })),
         }
+    }
+    cleanup_upload_files(&temp_paths).await;
+    if !uploaded.is_empty() {
+        state.invalidate_file_index_cache(&directory);
     }
     let status = if errors.is_empty() {
         StatusCode::OK

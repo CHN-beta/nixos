@@ -94,9 +94,16 @@ pub fn file_path_from_param(param: &str) -> String {
     format!("/{}", trimmed)
 }
 
-/// Resolve a read request path: absolute first, then fan out over allowed roots
-/// for relative names (chat links omit the leading slash).
-pub fn resolve_read_file_path(state: &SharedState, param: &str) -> PathBuf {
+/// Resolve a request path: absolute first, then a session reference, then fan
+/// out over allowed roots for relative names (chat links omit the leading
+/// slash). `require_existing` keeps relative fan-out from inventing names;
+/// `source_session_id` authorizes paths a session explicitly references.
+pub fn resolve_read_file_path(
+    state: &SharedState,
+    param: &str,
+    source_session_id: Option<&str>,
+    require_existing: bool,
+) -> PathBuf {
     let normalized = param.replace('\\', "/");
     let trimmed = normalized.trim_start_matches('/');
     let segments: Vec<&str> = trimmed.split('/').collect();
@@ -108,10 +115,19 @@ pub fn resolve_read_file_path(state: &SharedState, param: &str) -> PathBuf {
     if state.is_path_allowed(&absolute) {
         return absolute;
     }
+    if let Some(session_id) = source_session_id {
+        if crate::omp::session_reader::is_file_referenced_by_session(
+            &state.cfg,
+            &absolute,
+            Some(session_id),
+        ) {
+            return absolute;
+        }
+    }
     let relative: PathBuf = segments.iter().collect();
     for root in state.allowed_roots() {
         let candidate = crate::util::normalize_lexically(&root.join(&relative));
-        if is_within(&root, &candidate) && candidate.exists() {
+        if is_within(&root, &candidate) && (!require_existing || candidate.exists()) {
             return candidate;
         }
     }

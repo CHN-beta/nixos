@@ -104,6 +104,12 @@ impl AppState {
         roots
     }
 
+    /// Drop the cached file index for every root that overlaps `path`, so the
+    /// explorer's next query reflects a rename/move/delete immediately.
+    pub fn invalidate_file_index_cache(&self, path: &Path) {
+        crate::routes::workspace::invalidate_file_index_cache(path);
+    }
+
     pub fn is_path_allowed(&self, path: &Path) -> bool {
         let roots = self.allowed_roots();
         roots.iter().any(|root| crate::util::is_within(root, path))

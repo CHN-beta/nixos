@@ -52,7 +52,9 @@ pub fn build_router(state: Arc<AppState>) -> Router {
             "/api/files/{*path}",
             get(files::files_get)
                 .put(files::files_put)
-                .post(files::files_post),
+                .post(files::files_post)
+                .patch(files::files_patch)
+                .delete(files::files_delete),
         )
         .route("/api/media/{hash}", get(files::media_get))
         // Terminal
@@ -176,7 +178,7 @@ pub fn build_router(state: Arc<AppState>) -> Router {
         // PWA manifest
         .route("/api/manifest", get(settings::manifest))
         .fallback(not_found)
-        .layer(DefaultBodyLimit::max(105 * 1024 * 1024))
+        .layer(DefaultBodyLimit::max(510 * 1024 * 1024))
         .with_state(state)
 }
 

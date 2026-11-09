@@ -10,7 +10,7 @@ import {
   vscDarkPlus,
 } from "@/lib/syntax-highlight";
 import ReactMarkdown, { defaultUrlTransform } from "react-markdown";
-import { AtSign, Download, Save, WrapText, Check, Copy } from "lucide-react";
+import { AtSign, Download, Save, WrapText, Check, Copy, TriangleAlert } from "lucide-react";
 import { useTheme } from "@/hooks/useTheme";
 import {
   DOCX_PREVIEW_MAX_BYTES,
@@ -48,6 +48,8 @@ interface Props {
   onMentionLines?: (relativePath: string, startLine: number, endLine: number) => void;
   gitRefreshKey?: number;
   active?: boolean;
+  /** Reports unsaved state so the tab bar can mark the tab and guard closing. */
+  onDirtyChange?: (filePath: string, isDirty: boolean) => void;
 }
 
 interface FileData {
@@ -835,7 +837,7 @@ function DocumentViewer({ filePath, sourceSessionId, openAs, active = true }: Pr
   );
 }
 
-export function FileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, onMentionLines, gitRefreshKey, active = true }: Props) {
+export function FileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, onMentionLines, gitRefreshKey, active = true, onDirtyChange }: Props) {
   // An explicit "Open with" choice wins over the extension: any file can be
   // inspected as text/markdown/html/PDF/DOCX/image/audio.
   const mode = openAs && openAs !== "default" ? openAs : null;
@@ -848,10 +850,10 @@ export function FileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile,
   if (mode === "pdf" || mode === "docx" || (!mode && isDocumentPreviewPath(filePath))) {
     return <DocumentViewer filePath={filePath} cwd={cwd} sourceSessionId={sourceSessionId} openAs={mode ?? undefined} active={active} />;
   }
-  return <TextFileViewer filePath={filePath} cwd={cwd} sourceSessionId={sourceSessionId} openAs={mode ?? undefined} onOpenFile={onOpenFile} onMentionLines={onMentionLines} gitRefreshKey={gitRefreshKey} active={active} />;
+  return <TextFileViewer filePath={filePath} cwd={cwd} sourceSessionId={sourceSessionId} openAs={mode ?? undefined} onOpenFile={onOpenFile} onMentionLines={onMentionLines} gitRefreshKey={gitRefreshKey} active={active} onDirtyChange={onDirtyChange} />;
 }
 
-function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, onMentionLines, gitRefreshKey, active = true }: Props) {
+function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, onMentionLines, gitRefreshKey, active = true, onDirtyChange }: Props) {
   const { t } = useI18n();
   const { isDark } = useTheme();
   const [data, setData] = useState<FileData | null>(null);
@@ -880,10 +882,15 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
   const [watching, setWatching] = useState(false);
   const gitDiffRequestRef = useRef(0);
   const contentRequestRef = useRef(0);
+  const loadedPathRef = useRef<string | null>(null);
+  const loadedOpenAsRef = useRef<FileOpenMode | undefined>(undefined);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [selectedLineRange, setSelectedLineRange] = useState<SelectedLineRange | null>(null);
   const [editContent, setEditContent] = useState<string>("");
   const [saving, setSaving] = useState(false);
+  // Latest on-disk content detected while the editor is dirty. It is kept out
+  // of `data`/`editContent` until the user chooses which side wins.
+  const [diskConflict, setDiskConflict] = useState<{ content: string; mtime?: number; size: number } | null>(null);
 
   useEffect(() => {
     if (data) {
@@ -891,10 +898,24 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
     }
   }, [data]);
 
-  const isDirty = data !== null && editContent !== data.content;
+  // `data` is the last-known on-disk snapshot; `editContent` is what the
+  // editor currently holds. Dirty means the two diverged.
+  const diskContent = data?.content ?? "";
+  const isDirty = data !== null && editContent !== diskContent;
+  // SSE handlers live in an effect whose deps do not include the latest edit
+  // on purpose; refs give them the current values without reconnecting.
+  const isDirtyRef = useRef(isDirty);
+  isDirtyRef.current = isDirty;
+  const dataRef = useRef<FileData | null>(data);
+  dataRef.current = data;
 
-  const handleSave = useCallback(async () => {
-    if (!data || saving || !isDirty) return;
+  useEffect(() => {
+    onDirtyChange?.(filePath, isDirty);
+  }, [filePath, isDirty, onDirtyChange]);
+  useEffect(() => () => { onDirtyChange?.(filePath, false); }, [filePath, onDirtyChange]);
+
+  const saveWithMtime = useCallback(async (expectedMtime?: number) => {
+    if (!data || saving) return;
     setSaving(true);
     try {
       const res = await fetch(getFileApiUrl(filePath, "read", sourceSessionId), {
@@ -902,7 +923,7 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           content: editContent,
-          expectedMtime: data.mtime,
+          expectedMtime,
         }),
       });
       const json = await res.json();
@@ -914,17 +935,42 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
         }
         return;
       }
+      // Invalidate a background read that was already in flight before this
+      // write: its snapshot predates the bytes we just saved.
+      contentRequestRef.current += 1;
       setData((prev) => prev ? { ...prev, content: editContent, size: json.size, mtime: json.mtime } : null);
+      setDiskConflict(null);
       toast.success(t("fileViewer.saved"));
     } catch (e) {
       toast.error(String(e));
     } finally {
       setSaving(false);
     }
-  }, [data, saving, isDirty, filePath, editContent, sourceSessionId, t]);
+  }, [data, saving, filePath, editContent, sourceSessionId, t]);
+
+  const handleSave = useCallback(() => {
+    if (!isDirty) return;
+    void saveWithMtime(data?.mtime);
+  }, [data?.mtime, isDirty, saveWithMtime]);
+
+  // Force save pins the newest disk mtime seen while dirty, so the write is
+  // not rejected by the very conflict the user just acknowledged.
+  const handleForceSave = useCallback(() => {
+    void saveWithMtime(diskConflict?.mtime ?? data?.mtime);
+  }, [data?.mtime, diskConflict?.mtime, saveWithMtime]);
+
+  const handleLoadDiskVersion = useCallback(() => {
+    if (!diskConflict || !data) return;
+    contentRequestRef.current += 1;
+    setData({ ...data, content: diskConflict.content, size: diskConflict.size, mtime: diskConflict.mtime });
+    setEditContent(diskConflict.content);
+    setDiskConflict(null);
+  }, [data, diskConflict]);
 
   useEffect(() => {
+    if (!active) return;
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (!active) return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         if (isDirty) {
           e.preventDefault();
@@ -934,14 +980,14 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleSave, isDirty]);
+  }, [active, handleSave, isDirty]);
 
-  const fetchContent = useCallback((filePath: string) => {
+  const fetchContent = useCallback((targetFile: string, options: { background?: boolean } = {}) => {
     // Guard against stale responses: bump the request id and ignore any
     // resolve that is no longer the latest fetch for this component, so a
     // slower older request cannot overwrite newer content/error state.
     const requestId = ++contentRequestRef.current;
-    return fetch(getFileApiUrl(filePath, "read", sourceSessionId, openAs ? { as: openAs } : undefined))
+    return fetch(getFileApiUrl(targetFile, "read", sourceSessionId, openAs ? { as: openAs } : undefined))
       .then(async (r) => {
         const d = (await r.json()) as FileData & { error?: string };
         const headerMtime = r.headers.get("x-file-mtime");
@@ -953,16 +999,32 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
       .then((d: FileData & { error?: string }) => {
         if (requestId !== contentRequestRef.current) return null;
         if (d.error) {
-          setError(d.error);
+          if (!options.background) setError(d.error);
           return null;
         }
+        const baseline = dataRef.current;
+        if (options.background && isDirtyRef.current && baseline) {
+          // Never touch editContent while the user has unsaved work. Only a
+          // genuinely different disk version becomes a conflict banner.
+          const diskChanged = d.content !== baseline.content
+            || (d.mtime !== undefined && baseline.mtime !== undefined && d.mtime !== baseline.mtime);
+          if (diskChanged) {
+            setDiskConflict((prev) => (
+              prev && prev.content === d.content && prev.mtime === d.mtime
+                ? prev
+                : { content: d.content, mtime: d.mtime, size: d.size }
+            ));
+          }
+          return d;
+        }
         setError(null);
+        setDiskConflict(null);
         setData(d);
         return d;
       })
       .catch((e) => {
         if (requestId !== contentRequestRef.current) return null;
-        setError(String(e));
+        if (!options.background) setError(String(e));
         return null;
       });
   }, [sourceSessionId, openAs]);
@@ -996,33 +1058,59 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
       setWatching(false);
       return;
     }
-    setLoading(true);
-    setError(null);
-    setData(null);
-    setGitDiff(null);
-    // An explicit "Open with" text mode decides the initial tab; otherwise
-    // markdown opens on the rendered preview.
-    const initialMode: DisplayMode = openAs === "edit"
-      ? "edit"
-      : openAs === "markdown" || openAs === "html"
-        ? "preview"
-        : isMarkdownPath(filePath) && openAs !== "text"
+    // Re-activating a still-mounted tab must not discard unsaved edits by
+    // resetting `data` and reloading synchronously. Only a genuinely new file
+    // (or a clean "Open with" switch) gets the full reset; a reactivation
+    // refreshes in the background. The `dataRef` check also makes StrictMode's
+    // double effect run a real first load instead of a reactivation.
+    const openAsChanged = loadedOpenAsRef.current !== openAs;
+    const pathRenamedInPlace = loadedPathRef.current !== null
+      && loadedPathRef.current !== filePath
+      && dataRef.current !== null;
+    const isNewFile = !pathRenamedInPlace && (
+      loadedPathRef.current !== filePath
+      || dataRef.current === null
+      || (openAsChanged && !isDirtyRef.current)
+    );
+    loadedPathRef.current = filePath;
+    loadedOpenAsRef.current = openAs;
+    if (isNewFile) {
+      setLoading(true);
+      setError(null);
+      setData(null);
+      setGitDiff(null);
+      setDiskConflict(null);
+      setEditContent("");
+      // An explicit "Open with" text mode decides the initial tab; otherwise
+      // markdown opens on the rendered preview.
+      const initialMode: DisplayMode = openAs === "edit"
+        ? "edit"
+        : openAs === "markdown" || openAs === "html"
           ? "preview"
-          : "source";
-    setDisplayMode(initialMode);
+          : isMarkdownPath(filePath) && openAs !== "text"
+            ? "preview"
+            : "source";
+      setDisplayMode(initialMode);
+    }
     setWatching(false);
 
     // Cancel effect-local work on filePath change so a stale in-flight load
     // cannot revert display mode or flip loading off for the new file.
     let cancelled = false;
-    void fetchContent(filePath).then((d) => {
-      if (cancelled) return;
-      // Server-side detection still wins for extensionless files, unless the
-      // user picked a mode.
-      if (!openAs && d?.language === "markdown") setDisplayMode("preview");
-    }).finally(() => {
-      if (!cancelled) setLoading(false);
-    });
+    if (isNewFile) {
+      void fetchContent(filePath).then((d) => {
+        if (cancelled) return;
+        // Server-side detection still wins for extensionless files, unless the
+        // user picked a mode.
+        if (!openAs && d?.language === "markdown") setDisplayMode("preview");
+      }).finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    } else {
+      // Background refresh: works on `data`/`editContent` only when clean, or
+      // raises the conflict banner when edits are unsaved.
+      void fetchContent(filePath, { background: true });
+    }
 
     // Set up the watch stream; a CLOSED one reconnects with backoff so the
     // viewer cannot sit on stale content after a server/proxy hiccup.
@@ -1032,7 +1120,7 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
       setup: (es) => {
         es.addEventListener("connected", () => setWatching(true));
         es.addEventListener("change", () => {
-          void fetchContent(filePath);
+          void fetchContent(filePath, { background: true });
           void fetchGitDiff(filePath);
         });
       },
@@ -1042,7 +1130,7 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
           return;
         }
         // The file may have changed while the stream was down.
-        void fetchContent(filePath);
+        void fetchContent(filePath, { background: true });
         void fetchGitDiff(filePath);
       },
       onError: () => setWatching(false),
@@ -1245,7 +1333,7 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
                   marginLeft: 6,
                   verticalAlign: "middle",
                 }}
-                title="Unsaved changes"
+                title={t("fileViewer.unsavedChanges")}
               />
             )}
           </span>
@@ -1362,6 +1450,44 @@ function TextFileViewer({ filePath, cwd, sourceSessionId, openAs, onOpenFile, on
           <DownloadLink filePath={filePath} sourceSessionId={sourceSessionId} />
         </div>
       </div>
+
+      {diskConflict && (
+        <div
+          role="alert"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            flexWrap: "wrap",
+            padding: "6px 12px",
+            borderBottom: "1px solid color-mix(in srgb, var(--status-warning) 60%, var(--border))",
+            background: "color-mix(in srgb, var(--status-warning) 14%, var(--bg))",
+            color: "var(--text)",
+            fontSize: 11,
+            flexShrink: 0,
+          }}
+        >
+          <TriangleAlert size={14} strokeWidth={2.2} aria-hidden="true" style={{ color: "var(--status-warning)", flexShrink: 0 }} />
+          <span style={{ minWidth: 0, flex: "1 1 180px", overflowWrap: "anywhere" }}>
+            {t("fileViewer.diskConflictNotice")}
+          </span>
+          <button
+            type="button"
+            onClick={handleLoadDiskVersion}
+            style={{ height: 24, padding: "0 9px", border: "1px solid var(--border)", borderRadius: "var(--radius-control)", background: "var(--bg-panel)", color: "var(--text)", cursor: "pointer", fontSize: 11, fontWeight: 600 }}
+          >
+            {t("fileViewer.loadDiskVersion")}
+          </button>
+          <button
+            type="button"
+            onClick={handleForceSave}
+            disabled={saving}
+            style={{ height: 24, padding: "0 9px", border: "1px solid var(--status-error)", borderRadius: "var(--radius-control)", background: "transparent", color: "var(--status-error)", cursor: saving ? "wait" : "pointer", fontSize: 11, fontWeight: 600 }}
+          >
+            {t("fileViewer.forceSave")}
+          </button>
+        </div>
+      )}
 
       {/* Content area */}
       <div ref={contentRef} data-selection-scope="document" tabIndex={-1} onContextMenu={handleContentContextMenu} className="file-viewer-content" style={{ flex: 1, overflow: "auto", background: "var(--bg)" }}>

@@ -9,6 +9,7 @@ import {
   FileX,
   Files,
   Folder,
+  FolderUp,
   GitBranch,
   LocateFixed,
   RefreshCw,
@@ -60,6 +61,14 @@ interface Props {
   onCloseFileTab: (id: string) => void;
   onCloseOtherFileTabs: () => void;
   onCloseAllFileTabs: () => void;
+  /** Session owning the explorer cwd; mutations carry it through. */
+  sourceSessionId?: string | null;
+  /** A viewer's unsaved state changed; the tab bar renders the dot. */
+  onFileDirtyChange: (filePath: string, isDirty: boolean) => void;
+  /** Rename/move succeeded: open tabs follow the new path. */
+  onFilePathsMoved: (oldPath: string, newPath: string, isDir: boolean) => void;
+  /** Delete succeeded: open tabs below the path close. */
+  onFilePathsDeleted: (paths: string[]) => void;
   onMentionActiveFile: () => void;
   onCopyActiveFilePath: () => void;
   onDownloadActiveFile: () => void;
@@ -110,6 +119,10 @@ export const RightPanel = memo(function RightPanel({
   onCloseFileTab,
   onCloseOtherFileTabs,
   onCloseAllFileTabs,
+  sourceSessionId = null,
+  onFileDirtyChange,
+  onFilePathsMoved,
+  onFilePathsDeleted,
   onMentionActiveFile,
   onCopyActiveFilePath,
   onDownloadActiveFile,
@@ -233,6 +246,17 @@ export const RightPanel = memo(function RightPanel({
                 onMouseLeave={(e) => { if (explorerUploadBusy) return; e.currentTarget.style.color = "var(--text-dim)"; e.currentTarget.style.background = "none"; }}
               >
                 <Upload size={13} strokeWidth={2} aria-hidden="true" />
+              </button>
+              <button
+                onClick={() => fileExplorerRef.current?.openFolderUploadPicker()}
+                disabled={explorerUploadBusy}
+                title={t("fileExplorer.uploadFolderHere")}
+                aria-label={t("fileExplorer.uploadFolderHere")}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, padding: 0, background: "none", border: "none", borderRadius: "var(--radius-control)", color: "var(--text-dim)", cursor: explorerUploadBusy ? "default" : "pointer", opacity: explorerUploadBusy ? 0.6 : 1 }}
+                onMouseEnter={(e) => { if (explorerUploadBusy) return; e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.background = "var(--bg-hover)"; }}
+                onMouseLeave={(e) => { if (explorerUploadBusy) return; e.currentTarget.style.color = "var(--text-dim)"; e.currentTarget.style.background = "none"; }}
+              >
+                <FolderUp size={13} strokeWidth={2} aria-hidden="true" />
               </button>
               <button
                 onClick={() => fileExplorerRef.current?.collapseAll()}
@@ -434,6 +458,10 @@ export const RightPanel = memo(function RightPanel({
                   revealPath={revealPath}
                   onRevealDone={onRevealDone}
                   onGitStatusChange={onExplorerGitStatus}
+                  sourceSessionId={sourceSessionId}
+                  active={rightView === "explorer" && rightPanelOpen}
+                  onPathRenamed={onFilePathsMoved}
+                  onPathsDeleted={onFilePathsDeleted}
                 />
               </div>
             </>
@@ -477,7 +505,7 @@ export const RightPanel = memo(function RightPanel({
         {/* Keep open viewers mounted so switching tabs preserves scroll and preview state. */}
         <div id="workspace-file-panel-file" role="tabpanel" aria-label={activeFileTab?.filePath ?? t("appShell.filePanel")} style={{ display: rightView === "file" ? "block" : "none", flex: 1, minHeight: 0, overflow: "hidden" }}>
           {fileTabs.length > 0 ? fileTabs.map((tab) => (
-            <div key={tab.id} style={{ display: tab.id === activeFileTabId ? "block" : "none", height: "100%" }}>
+            <div key={tab.renderKey ?? tab.id} style={{ display: tab.id === activeFileTabId ? "block" : "none", height: "100%" }}>
               <FileViewer
                 filePath={tab.filePath}
                 cwd={explorerCwd ?? undefined}
@@ -486,6 +514,7 @@ export const RightPanel = memo(function RightPanel({
                 gitRefreshKey={explorerRefreshKey}
                 active={tab.id === activeFileTabId && rightPanelOpen && rightView === "file"}
                 onMentionLines={tab.id === activeFileTabId && rightPanelOpen && rightView === "file" ? onMentionLines : undefined}
+                onDirtyChange={onFileDirtyChange}
                 onOpenFile={(filePath) => onOpenFile(
                   filePath,
                   getFileName(filePath),

@@ -27,7 +27,7 @@ import { formatGenerationSpeed } from "@/lib/generation-speed";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useIsCompactOverlay } from "@/hooks/useIsCompactOverlay";
 import { copyText } from "@/lib/clipboard";
-import { encodeFilePathForApi, getFileName, getRelativeFilePath } from "@/lib/file-paths";
+import { encodeFilePathForApi, getFileName, getRelativeFilePath, normalizeFilePathSlashes } from "@/lib/file-paths";
 import { buildAtMentionText, buildFileAtMentionsText, buildFileLineMentionText } from "@/lib/file-fuzzy";
 import { getInitialNavigation } from "@/lib/initial-navigation";
 import { comparableProjectPath } from "@/lib/comparable-path";
@@ -343,6 +343,7 @@ export function AppShell({ appName }: { appName: string }) {
   // Right panel tabs: Explorer | Git changes | open files (Tauri parity).
   const [fileTabs, setFileTabs] = useState<Tab[]>([]);
   const [activeFileTabId, setActiveFileTabId] = useState<string | null>(null);
+  const activeFileTab = fileTabs.find((tab) => tab.id === activeFileTabId) ?? null;
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const closeRightPanel = useCallback(() => {
     setRightPanelOpen(false);
@@ -1184,7 +1185,10 @@ export function AppShell({ appName }: { appName: string }) {
     void selectRestoredSession();
   }, [handleSelectSession]);
 
-  const handleCloseFileTab = useCallback((tabId: string) => {
+  type PendingTabClose = { kind: "single"; tabId: string } | { kind: "others" } | { kind: "all" };
+  const [pendingTabClose, setPendingTabClose] = useState<PendingTabClose | null>(null);
+
+  const closeFileTabNow = useCallback((tabId: string) => {
     // Compute everything from the current list outside the updaters: no side
     // effect inside a state updater, and no stale-closure read (the callback
     // is recreated whenever fileTabs changes, but a batched double-close
@@ -1200,11 +1204,100 @@ export function AppShell({ appName }: { appName: string }) {
     });
   }, [fileTabs]);
 
+  const handleCloseFileTab = useCallback((tabId: string) => {
+    if (fileTabs.find((tab) => tab.id === tabId)?.isDirty) {
+      setPendingTabClose({ kind: "single", tabId });
+      return;
+    }
+    closeFileTabNow(tabId);
+  }, [closeFileTabNow, fileTabs]);
+
+  // Viewers report every dirty-state transition; the tab bar renders the dot
+  // and the close handlers below refuse to discard edits silently.
+  const handleFileDirtyChange = useCallback((filePath: string, isDirty: boolean) => {
+    const tabId = `file:${filePath}`;
+    setFileTabs((prev) => {
+      let changed = false;
+      const next = prev.map((tab) => {
+        if (tab.id !== tabId || tab.isDirty === isDirty) return tab;
+        changed = true;
+        return { ...tab, isDirty };
+      });
+      return changed ? next : prev;
+    });
+  }, []);
+
+  // A rename/move rebases every open tab below the path (a folder rename also
+  // moves its open descendants). Duplicate ids collapse to one tab.
+  const handleFilePathsMoved = useCallback((oldPath: string, newPath: string, isDir: boolean) => {
+    const oldKey = normalizeFilePathSlashes(oldPath).replace(/\/+$/, "");
+    const rebase = (path: string) => {
+      const normalized = normalizeFilePathSlashes(path);
+      if (normalized === oldKey) return newPath;
+      if (isDir && normalized.startsWith(`${oldKey}/`)) {
+        return `${newPath}${normalized.slice(oldKey.length)}`;
+      }
+      return path;
+    };
+    const activeTab = fileTabs.find((tab) => tab.id === activeFileTabId) ?? null;
+    const nextActivePath = activeTab ? rebase(activeTab.filePath) : null;
+    setFileTabs((prev) => {
+      const seen = new Set<string>();
+      const next: Tab[] = [];
+      for (const tab of prev) {
+        const path = rebase(tab.filePath);
+        const mapped = path === tab.filePath
+          ? tab
+          : { ...tab, id: `file:${path}`, renderKey: tab.renderKey ?? tab.id, filePath: path, label: getFileName(path) };
+        if (seen.has(mapped.id)) continue;
+        seen.add(mapped.id);
+        next.push(mapped);
+      }
+      return next;
+    });
+    if (activeTab && nextActivePath && nextActivePath !== activeTab.filePath) {
+      setActiveFileTabId(`file:${nextActivePath}`);
+    }
+  }, [activeFileTabId, fileTabs]);
+
+  const handleFilePathsDeleted = useCallback((paths: string[]) => {
+    const deleted = paths.map((path) => normalizeFilePathSlashes(path).replace(/\/+$/, ""));
+    const isDeleted = (path: string) => {
+      const normalized = normalizeFilePathSlashes(path);
+      return deleted.some((key) => normalized === key || normalized.startsWith(`${key}/`));
+    };
+    const next = fileTabs.filter((tab) => !isDeleted(tab.filePath));
+    if (next.length === fileTabs.length) return;
+    setFileTabs(next);
+    setActiveFileTabId((current) => {
+      if (!current) return current;
+      const active = fileTabs.find((tab) => tab.id === current);
+      if (!active || !isDeleted(active.filePath)) return current;
+      return next.length > 0 ? next[next.length - 1].id : null;
+    });
+    if (next.length === 0) setRightView("explorer");
+  }, [fileTabs]);
+
+  const confirmPendingTabClose = useCallback(() => {
+    const pending = pendingTabClose;
+    if (!pending) return;
+    setPendingTabClose(null);
+    if (pending.kind === "single") {
+      closeFileTabNow(pending.tabId);
+    } else if (pending.kind === "others") {
+      if (activeFileTab) setFileTabs([activeFileTab]);
+    } else {
+      setFileTabs([]);
+      setActiveFileTabId(null);
+      setRightView("explorer");
+    }
+  }, [activeFileTab, closeFileTabNow, pendingTabClose]);
+
   const handleOpenFile = useCallback((filePath: string, fileName: string, sourceSessionId?: string | null, openAs?: FileOpenMode) => {
     const tabId = `file:${filePath}`;
     setFileTabs((prev) => {
       const existing = prev.find((t) => t.id === tabId);
-      if (!existing) return [...prev, { id: tabId, label: fileName, filePath, sourceSessionId, openAs }];
+      if (!existing) return [...prev, { id: tabId, renderKey: tabId, label: fileName, filePath, sourceSessionId, openAs }];
       // "Open with" from the explorer retargets the existing tab instead of
       // stacking a duplicate tab for the same file.
       const nextSessionId = !sourceSessionId || existing.sourceSessionId === sourceSessionId
@@ -1292,7 +1385,6 @@ export function AppShell({ appName }: { appName: string }) {
     return () => connection.close();
   }, []);
 
-  const activeFileTab = fileTabs.find((tab) => tab.id === activeFileTabId) ?? null;
   // Explorer, Git, and the file viewers follow the open session's folder, then
   // the sidebar's live cwd, then the new-session cwd. Relative paths (mention,
   // copy path) resolve against the same folder so they match the Explorer.
@@ -1354,14 +1446,37 @@ export function AppShell({ appName }: { appName: string }) {
 
   const handleCloseOtherFileTabs = useCallback(() => {
     if (!activeFileTab) return;
+    const others = fileTabs.filter((tab) => tab.id !== activeFileTab.id);
+    if (others.some((tab) => tab.isDirty)) {
+      setPendingTabClose({ kind: "others" });
+      return;
+    }
     setFileTabs([activeFileTab]);
-  }, [activeFileTab]);
+  }, [activeFileTab, fileTabs]);
 
   const handleCloseAllFileTabs = useCallback(() => {
+    if (fileTabs.some((tab) => tab.isDirty)) {
+      setPendingTabClose({ kind: "all" });
+      return;
+    }
     setFileTabs([]);
     setActiveFileTabId(null);
     setRightView("explorer");
-  }, []);
+  }, [fileTabs]);
+
+  // The browser's own "leave page" prompt is the last line of defence when a
+  // dirty tab is open and the user closes/reloads the whole app.
+  const hasDirtyFileTabs = fileTabs.some((tab) => tab.isDirty);
+  useEffect(() => {
+    if (!hasDirtyFileTabs) return;
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+      return "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasDirtyFileTabs]);
 
   const handleViewFullHistory = useCallback(() => {
     if (!selectedSession) return;
@@ -1511,9 +1626,35 @@ export function AppShell({ appName }: { appName: string }) {
     />
   );
 
+  const dirtyTabsToClose = pendingTabClose?.kind === "single"
+    ? fileTabs.filter((tab) => tab.id === pendingTabClose.tabId)
+    : pendingTabClose?.kind === "others"
+      ? fileTabs.filter((tab) => tab.id !== activeFileTab?.id && tab.isDirty)
+      : fileTabs.filter((tab) => tab.isDirty);
+  const tabCloseDescription = pendingTabClose?.kind === "single"
+    ? t("tabBar.closeDirtySingle", { name: dirtyTabsToClose[0]?.label ?? "" })
+    : pendingTabClose
+      ? t(
+          pendingTabClose.kind === "others"
+            ? (dirtyTabsToClose.length === 1 ? "tabBar.closeDirtyOthers.one" : "tabBar.closeDirtyOthers.other")
+            : (dirtyTabsToClose.length === 1 ? "tabBar.closeDirtyAll.one" : "tabBar.closeDirtyAll.other"),
+          { count: dirtyTabsToClose.length },
+        )
+      : "";
+
   return (
     <>
     <ToastProvider>
+      <ConfirmDialog
+        open={pendingTabClose !== null}
+        onOpenChange={(open) => { if (!open) setPendingTabClose(null); }}
+        title={t("tabBar.closeDirtyTitle")}
+        description={tabCloseDescription}
+        confirmLabel={t("tabBar.discardAndClose")}
+        cancelLabel={t("fileExplorer.cancel")}
+        danger
+        onConfirm={confirmPendingTabClose}
+      />
       <ConfirmDialog
         open={sidebarHistory.exitConfirmationOpen}
         onOpenChange={(open) => { if (!open) sidebarHistory.cancelExit(); }}
@@ -2098,6 +2239,10 @@ export function AppShell({ appName }: { appName: string }) {
         onCloseFileTab={handleCloseFileTab}
         onCloseOtherFileTabs={handleCloseOtherFileTabs}
         onCloseAllFileTabs={handleCloseAllFileTabs}
+        sourceSessionId={selectedSession?.id ?? null}
+        onFileDirtyChange={handleFileDirtyChange}
+        onFilePathsMoved={handleFilePathsMoved}
+        onFilePathsDeleted={handleFilePathsDeleted}
         onMentionActiveFile={handleMentionActiveFile}
         onCopyActiveFilePath={handleCopyActiveFilePath}
         onDownloadActiveFile={handleDownloadActiveFile}
