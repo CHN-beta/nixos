@@ -6,9 +6,9 @@
 //! therefore appends a line to a log file as well, which makes a remote
 //! "it does not work" report diagnosable.
 //!
-//! The file lives next to the executable so it travels with a portable zip
-//! extraction; when that directory is read-only (for example when the wizard
-//! runs from a protected location) it falls back to `%TEMP%`.
+//! The file lives next to the executable so a portable copy carries it along;
+//! when that directory is read-only (for example when the wizard runs from a
+//! protected location) it falls back to `%TEMP%`.
 //!
 //! Every line opens the file in append mode, writes one line and flushes it
 //! immediately: a crash or a hung `WNetAddConnection2W` must not lose the

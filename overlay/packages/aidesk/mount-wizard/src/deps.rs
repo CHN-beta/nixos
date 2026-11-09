@@ -149,16 +149,17 @@ fn winget_path() -> Option<String> {
         .map(str::to_owned)
 }
 
-/// Directory holding the running wizard, i.e. the directory the zip was
-/// extracted to.
+/// Directory holding the running wizard, i.e. where the single-file
+/// `aidesk-mount-wizard.exe` was downloaded to.
 fn exe_dir() -> Option<PathBuf> {
     let exe = std::env::current_exe().ok()?;
     exe.parent().map(Path::to_path_buf)
 }
 
-/// Directories searched for the bundled MSI installers, in order: the `deps/`
-/// subdirectory of the extracted zip, then the executable's own directory so a
-/// bundle unpacked from an older flat archive still works.
+/// Directories searched for the bundled MSI installers, in order: a `deps/`
+/// subdirectory next to the executable, then the executable's own directory so
+/// a hand-assembled bundle (or one unpacked from an older flat archive) still
+/// works. The official download embeds every MSI, so this is only a fallback.
 fn installer_dirs() -> Vec<PathBuf> {
     match exe_dir() {
         Some(dir) => vec![dir.join("deps"), dir],

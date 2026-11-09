@@ -97,7 +97,6 @@ rustPlatform.buildRustPackage {
     cross.stdenv.cc
     cross.buildPackages.binutils
     pkgs.xz
-    pkgs.zip
   ];
 
   # `build.rs` reads these and `include_bytes!`s the three MSIs into the
@@ -188,37 +187,20 @@ EOF
 
   doCheck = false;
 
-  postInstall = ''
-    stage=$(mktemp -d)
-
-    # The executable embeds the installers, so the zip is a single file. The
-    # executable under `$out/bin` is kept as well.
-    cp $out/bin/aidesk-mount-wizard.exe "$stage/aidesk-mount-wizard.exe"
-
-    # Fixed timestamps keep the archive reproducible under SOURCE_DATE_EPOCH.
-    TZ=UTC find "$stage" -exec touch -h -d "@$SOURCE_DATE_EPOCH" {} +
-
-    mkdir -p $out
-    (cd "$stage" && TZ=UTC ${pkgs.zip}/bin/zip -9 -X $out/aidesk-mount-wizard.zip aidesk-mount-wizard.exe)
-    rm -rf "$stage"
-
-    # Static download layout for the public SPA: nginx serves
-    # https://aidesk.chn.moe/downloads/ directly from this output (see
-    # nixosConfigurations/vps6). The bare files at the output root stay for
-    # anyone consuming the package itself.
-    mkdir -p $out/downloads
-    cp $out/aidesk-mount-wizard.zip $out/downloads/aidesk-mount-wizard.zip
-    cp $out/bin/aidesk-mount-wizard.exe $out/downloads/aidesk-mount-wizard.exe
-  '';
+  # The executable embeds the installers, so `buildRustPackage`'s own install
+  # phase already produces the complete artifact: `bin/aidesk-mount-wizard.exe`
+  # is a single self-contained download. No archive is built, and the public
+  # SPA links straight to that file (see `nixosConfigurations/vps6`, which
+  # serves `/bin/` from this output).
 
   meta = with lib; {
     description = "32-bit Windows GUI wizard that maps the AIDesk (nas.chn.moe) workspace as a persistent SSHFS drive";
     longDescription = ''
       Windows executable (PE32, runs on both 32-bit and 64-bit Windows) that
       embeds the pinned WinFsp MSI and both the 64-bit and 32-bit SSHFS-Win
-      MSIs: `bin/aidesk-mount-wizard.exe` is also offered as the single-file
-      `aidesk-mount-wizard.zip`. The wizard installs the matching SSHFS-Win
-      package for the running OS.
+      MSIs: the single self-contained file is installed as
+      `bin/aidesk-mount-wizard.exe` and needs no unpacking. The wizard installs
+      the matching SSHFS-Win package for the running OS.
     '';
     license = licenses.mit;
     platforms = platforms.windows;

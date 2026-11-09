@@ -73,10 +73,13 @@
                 "=404"
               ];
             };
-            # AIDesk 网盘助手 (mount-wizard) downloads linked from Settings →
-            # Add-ons. The package exposes this filesystem layout at
-            # `downloads/`; the SPA links to /downloads/aidesk-mount-wizard.zip.
-            "/downloads/".static = {
+            # AIDesk 网盘助手 (mount-wizard) download linked from Settings →
+            # Add-ons. The package installs the single self-contained
+            # executable at `bin/aidesk-mount-wizard.exe`, so the SPA links to
+            # /bin/aidesk-mount-wizard.exe. nginx's stock `mime.types` maps
+            # `.exe` to application/octet-stream, which browsers download
+            # rather than render.
+            "/bin/".static = {
               root = "${pkgs.localPkgs.aidesk.mount-wizard}";
               tryFiles = [
                 "$uri"

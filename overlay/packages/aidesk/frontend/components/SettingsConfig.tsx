@@ -826,10 +826,11 @@ function AboutPanel({ isMobile }: { isMobile: boolean }) {
 
 /**
  * Public static download for the Windows drive assistant. nginx serves
- * `/downloads/` from the mount-wizard package (see nixosConfigurations/vps6),
- * so the link is same-origin with the SPA.
+ * `/bin/` from the mount-wizard package (see nixosConfigurations/vps6), so
+ * the link is same-origin with the SPA and hits the single self-contained
+ * `aidesk-mount-wizard.exe`; no archive to unpack.
  */
-const MOUNT_WIZARD_DOWNLOAD_URL = "/downloads/aidesk-mount-wizard.zip";
+const MOUNT_WIZARD_DOWNLOAD_URL = "/bin/aidesk-mount-wizard.exe";
 
 function CopyableCommand({ command }: { command: string }) {
   const { t } = useI18n();
@@ -892,7 +893,7 @@ function AddonsPanel({ isMobile }: { isMobile: boolean }) {
           <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>{t("settingsAddons.windowsTitle")}</div>
           <a
             href={MOUNT_WIZARD_DOWNLOAD_URL}
-            download="aidesk-mount-wizard.zip"
+            download="aidesk-mount-wizard.exe"
             style={{ display: "inline-flex", alignItems: "center", gap: 7, margin: "8px 0 4px", padding: "9px 16px", background: "var(--accent-strong)", border: "none", borderRadius: "var(--radius-control)", color: "var(--on-accent)", fontSize: 13, fontWeight: 600, textDecoration: "none", boxShadow: "var(--shadow-card)" }}
             className="ui-focus-ring"
           >
