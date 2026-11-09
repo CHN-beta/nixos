@@ -26,6 +26,22 @@
 //! [`detect_mounted_drive`] and [`unmap_drive`] are the reverse direction: they
 //! report whether one of our drives is mapped right now and disconnect it,
 //! removing the saved password along with the connection.
+//!
+//! The name Explorer shows in "This PC" is a third, independent concern. It is
+//! not the WinFsp volume label (`-o volname=`, which [`registry`] could append
+//! to the machine-wide service `CommandLine`, and which only feeds
+//! `GetVolumeInformation`): Explorer names network drives itself and resolves
+//! the name through
+//! `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MountPoints2\<share>`.
+//! Writing the same `_LabelFromReg` string value that Explorer's "Rename"
+//! writes makes the drive show up as `AIDesk(<user>)` (`<user>` is the SSH
+//! account). The value is per-user, needs no elevation, is keyed by the share
+//! instead of the drive letter, and therefore survives both a letter change and
+//! the reconnect at logon. [`set_drive_label`] seeds it before connecting so
+//! Explorer already sees it when the drive first appears, and [`unmap_drive`]
+//! removes it again when it still holds the value this wizard wrote.
+//!
+//! [`registry`]: crate::registry
 
 use std::time::Duration;
 
@@ -52,6 +68,16 @@ const ERROR_NOT_CONNECTED: u32 = 2250;
 
 /// Length of the buffer `WNetGetConnectionW` fills with the UNC path.
 const REMOTE_NAME_LEN: usize = 512;
+
+/// Explorer's per-mount-point settings, keyed by the UNC share path with every
+/// `\` replaced by `#` (`\\sshfs\<user>@nas.chn.moe` becomes
+/// `##sshfs#<user>@nas.chn.moe`). This is where Explorer's "Rename" stores the
+/// display name of a mapped network drive.
+const MOUNT_POINTS2_KEY: &str =
+    r"Software\Microsoft\Windows\CurrentVersion\Explorer\MountPoints2";
+
+/// The string value Explorer reads as the custom name of a network drive.
+const LABEL_VALUE: &str = "_LabelFromReg";
 
 #[repr(C)]
 struct NetResourceW {
@@ -134,6 +160,13 @@ pub fn map_drive(drive: &str, username: &str, password: &str) -> MapOutcome {
     log.push(format!("目标盘符：{drive}"));
     log.push(format!("远程路径：{unc}（远程主目录）"));
 
+    // Seed the Explorer name before connecting. The shell may paint the new
+    // drive as soon as `WNetAddConnection2W` reports it, so the value has to be
+    // in place before that: reading it is what turns the UNC path into
+    // `AIDesk(<user>)`. A failure here is not fatal — the drive is usable
+    // without a custom name — and is reported by the write after the mount.
+    let _ = set_drive_label(username);
+
     // A stale mapping on the same letter makes WNetAddConnection2W fail with
     // ERROR_ALREADY_ASSIGNED, so drop it first. "Not connected" is expected.
     let drive_w = win32::wide(drive);
@@ -214,6 +247,15 @@ pub fn map_drive(drive: &str, username: &str, password: &str) -> MapOutcome {
         log.push("密码未能保存，下次登录可能需要手动重新映射。".to_owned());
     }
 
+    // Assert the Explorer name once more now that the mapping exists: the shell
+    // can create or refresh the MountPoints2 subkey while it handles the new
+    // connection, racing with the pre-seeded value. The write is idempotent, so
+    // this is a no-op when the pre-seeded value survived.
+    match set_drive_label(username) {
+        Ok(()) => log.push(format!("「此电脑」中显示为 {}。", drive_label(username))),
+        Err(err) => log.push(format!("设置网盘显示名称失败：{err}")),
+    }
+
     MapOutcome { ok: true, log }
 }
 
@@ -289,9 +331,101 @@ pub fn detect_mounted_drive() -> Option<String> {
 
 /// `true` for `\\sshfs\<user>@nas.chn.moe`, in any case.
 fn is_sshfs_target(remote: &str) -> bool {
-    let remote = remote.to_ascii_lowercase();
-    let server = format!("@{}", SERVER.to_ascii_lowercase());
-    remote.starts_with(r"\\sshfs\") && remote.ends_with(&server)
+    sshfs_username(remote).is_some()
+}
+
+/// SSH account embedded in `\\sshfs\<user>@nas.chn.moe`, if `remote` is one of
+/// our shares.
+///
+/// The comparison is case-insensitive because both `WNetGetConnectionW` and
+/// `HKCU\Network` may hand back the path in a different case, while the user
+/// name is sliced out of the original string to preserve its case in the
+/// label.
+fn sshfs_username(remote: &str) -> Option<&str> {
+    let lower = remote.to_ascii_lowercase();
+    let prefix = r"\\sshfs\";
+    let suffix = format!("@{}", SERVER.to_ascii_lowercase());
+    if lower.len() < prefix.len() + suffix.len()
+        || !lower.starts_with(prefix)
+        || !lower.ends_with(&suffix)
+    {
+        return None;
+    }
+    Some(&remote[prefix.len()..remote.len() - suffix.len()])
+}
+
+/// Name Explorer shows for the mapped drive, e.g. `AIDesk(straycat)`.
+fn drive_label(username: &str) -> String {
+    format!("AIDesk({username})")
+}
+
+/// `MountPoints2` subkey of the share at `unc`.
+///
+/// Explorer encodes the UNC path by replacing every backslash with `#`, so
+/// `\\sshfs\<user>@nas.chn.moe` becomes `##sshfs#<user>@nas.chn.moe`.
+fn mount_points_key(unc: &str) -> String {
+    format!(r"{}\{}", MOUNT_POINTS2_KEY, unc.replace('\\', "#"))
+}
+
+/// Writes `_LabelFromReg = AIDesk(<username>)` for the share.
+///
+/// This is the value Explorer's "Rename" writes, and it lives under `HKCU`, so
+/// no elevation is needed and it is restored with the user's profile. Writing
+/// it before the drive is connected lets Explorer use it on the very first
+/// enumeration. Idempotent: an already correct value is left untouched.
+fn set_drive_label(username: &str) -> Result<(), String> {
+    let label = drive_label(username);
+    let key = mount_points_key(&format!(r"\\sshfs\{username}@{SERVER}"));
+
+    if matches!(
+        HKEY::CURRENT_USER.RegGetValue(Some(&key), Some(LABEL_VALUE), co::RRF::RT_ANY),
+        Ok(RegistryValue::Sz(text)) if text == label
+    ) {
+        return Ok(());
+    }
+
+    let (hkey, _) = HKEY::CURRENT_USER
+        .RegCreateKeyEx(
+            &key,
+            None,
+            co::REG_OPTION::default(),
+            co::KEY::READ | co::KEY::WRITE,
+            None,
+        )
+        .map_err(|err| format!("无法创建资源管理器挂载点项：{err}"))?;
+
+    hkey.RegSetValueEx(Some(LABEL_VALUE), RegistryValue::Sz(label))
+        .map_err(|err| format!("无法写入 {LABEL_VALUE}：{err}"))
+}
+
+/// Removes the label of the share at `unc` when it is still the value this
+/// wizard wrote.
+///
+/// A name the user changed by hand is deliberately preserved, and a share
+/// without a label is not an error: the mapping is what is being torn down, the
+/// label is only its presentation.
+fn remove_drive_label(unc: &str) {
+    let Some(username) = sshfs_username(unc) else {
+        return;
+    };
+    let key = mount_points_key(unc);
+    let current =
+        HKEY::CURRENT_USER.RegGetValue(Some(&key), Some(LABEL_VALUE), co::RRF::RT_ANY);
+    let ours = matches!(
+        current,
+        Ok(RegistryValue::Sz(text)) if text == drive_label(username)
+    );
+    if !ours {
+        return;
+    }
+
+    if let Ok(hkey) = HKEY::CURRENT_USER.RegOpenKeyEx(
+        Some(&key),
+        co::REG_OPTION::default(),
+        co::KEY::READ | co::KEY::WRITE,
+    ) {
+        let _ = hkey.RegDeleteValue(Some(LABEL_VALUE));
+    }
 }
 
 /// UNC path that `letter` is currently connected to, if any.
@@ -321,6 +455,15 @@ fn saved_connection(letter: char) -> Option<String> {
 /// saved password, so the drive does not come back at the next logon.
 pub fn unmap_drive(drive: &str) -> Result<(), String> {
     let drive = drive.trim_end_matches('\\');
+
+    // Capture the share before cancelling: `CONNECT_UPDATE_PROFILE` also
+    // deletes `HKCU\Network\<letter>`, and the active connection disappears
+    // with the drive, so neither path is readable afterwards.
+    let share = drive.chars().next().and_then(|letter| {
+        let letter = letter.to_ascii_uppercase();
+        active_connection(letter).or_else(|| saved_connection(letter))
+    });
+
     let drive_w = win32::wide(drive);
 
     // `CONNECT_UPDATE_PROFILE` removes the persistent connection from the
@@ -331,6 +474,9 @@ pub fn unmap_drive(drive: &str) -> Result<(), String> {
         return Err(format!("断开 {drive} 失败：{}", error_text(status)));
     }
 
+    if let Some(share) = share {
+        remove_drive_label(&share);
+    }
     forget_sshfs_credentials();
     Ok(())
 }
