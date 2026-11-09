@@ -56,6 +56,7 @@
         lcl = 1034;
         rdhx = 1035;
         mhy = 1036;
+        yzt = 1037;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
