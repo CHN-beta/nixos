@@ -23,6 +23,19 @@
 //! Passing the password inline stays as a fallback for machines where the
 //! credential store is not reachable.
 //!
+//! A 32-bit WOW64 process on 64-bit Windows cannot use the MPR path above. The
+//! `ProviderPath` under
+//! `HKLM\SYSTEM\CurrentControlSet\Services\WinFsp.Np\NetworkProvider` points at
+//! the 64-bit `winfsp-x64.dll` (the MSI self-registers that DLL on AMD64, and
+//! `FspNpRegister` writes the registering module's own path). `HKLM\SYSTEM` is
+//! not WOW64-redirected, so the 32-bit `mpr.dll` sees that same 64-bit path,
+//! fails to load it and silently skips WinFsp.Np; the request then falls
+//! through to `LanmanWorkstation`, which burns the NetBIOS timeout and returns
+//! `ERROR_BAD_NETPATH` (53). Such a process therefore shells out to the native
+//! 64-bit `%SystemRoot%\Sysnative\net.exe` instead, which loads the 64-bit
+//! `mpr.dll` and reaches WinFsp.Np. The generic credential written above is
+//! shared through `lsass.exe`, so the no-password `net use` still finds it.
+//!
 //! [`detect_mounted_drive`] and [`unmap_drive`] are the reverse direction: they
 //! report whether one of our drives is mapped right now and disconnect it,
 //! removing the saved password along with the connection.
@@ -43,11 +56,13 @@
 //!
 //! [`registry`]: crate::registry
 
+use std::path::PathBuf;
+use std::process::Stdio;
 use std::time::Duration;
 
 use winsafe::{co, HKEY, RegistryValue};
 
-use crate::{win32, SERVER};
+use crate::{deps, win32, SERVER};
 
 const RESOURCETYPE_DISK: u32 = 0x0000_0001;
 const CONNECT_UPDATE_PROFILE: u32 = 0x0000_0001;
@@ -58,6 +73,9 @@ const CRED_TYPE_GENERIC: u32 = 0x0000_0001;
 /// `CRED_PERSIST_ENTERPRISE`: roams with the profile of domain users and stays
 /// local for everybody else.
 const CRED_PERSIST_ENTERPRISE: u32 = 0x0000_0003;
+
+/// `CP_OEMCP`: the console code page `net.exe` writes its messages in.
+const CP_OEMCP: u32 = 1;
 
 /// `ERROR_ALREADY_ASSIGNED`: the drive letter is still held by the mapping we
 /// just cancelled.
@@ -153,6 +171,20 @@ extern "system" {
     fn CredFree(buffer: *mut std::ffi::c_void);
 }
 
+#[link(name = "kernel32")]
+extern "system" {
+    fn QueryDosDeviceW(device_name: *const u16, target_path: *mut u16, max: u32) -> u32;
+
+    fn MultiByteToWideChar(
+        code_page: u32,
+        flags: u32,
+        multi_byte_str: *const u8,
+        cb_multi_byte: i32,
+        wide_char_str: *mut u16,
+        cch_wide_char: i32,
+    ) -> i32;
+}
+
 pub struct MapOutcome {
     pub ok: bool,
     pub log: Vec<String>,
@@ -177,8 +209,8 @@ pub fn map_drive(drive: &str, username: &str, password: &str) -> MapOutcome {
     log.push(format!("远程路径：{unc}（远程主目录）"));
 
     // Seed the Explorer name before connecting. The shell may paint the new
-    // drive as soon as `WNetAddConnection2W` reports it, so the value has to be
-    // in place before that: reading it is what turns the UNC path into
+    // drive as soon as the connection is reported, so the value has to be in
+    // place before that: reading it is what turns the UNC path into
     // `AIDesk(<user>)`. A failure here is not fatal — the drive is usable
     // without a custom name — and is reported by the write after the mount.
     match set_drive_label(username) {
@@ -188,33 +220,6 @@ pub fn map_drive(drive: &str, username: &str, password: &str) -> MapOutcome {
         )),
         Err(err) => crate::log::line(format!("set_drive_label 预写失败：{err}")),
     }
-
-    // A stale mapping on the same letter makes WNetAddConnection2W fail with
-    // ERROR_ALREADY_ASSIGNED, so drop it first. "Not connected" is expected.
-    let drive_w = win32::wide(drive);
-    let cancel_status = unsafe { WNetCancelConnection2W(drive_w.as_ptr(), 0, 1) };
-    crate::log::line(format!(
-        "WNetCancelConnection2W(drive={drive:?}, flags=0, force=1) 返回 {cancel_status}"
-    ));
-    if cancel_status == 0 {
-        log.push(format!("已断开 {drive} 上的旧连接。"));
-    }
-
-    let local_w = win32::wide(drive);
-    let remote_w = win32::wide(&unc);
-    let username_w = win32::wide(username);
-    let password_w = win32::wide(password);
-
-    let resource = NetResourceW {
-        scope: 0,
-        resource_type: RESOURCETYPE_DISK,
-        display_type: 0,
-        usage: 0,
-        local_name: local_w.as_ptr(),
-        remote_name: remote_w.as_ptr(),
-        comment: std::ptr::null(),
-        provider: std::ptr::null(),
-    };
 
     // Store the password as a generic credential keyed by the UNC path; this
     // is exactly what WinFsp.Np reads when it needs the password. The
@@ -236,28 +241,24 @@ pub fn map_drive(drive: &str, username: &str, password: &str) -> MapOutcome {
     log.push("正在建立 SSH 连接（首次连接可能需要数秒）……".to_owned());
     crate::log::line("正在建立 SSH 连接（首次连接可能需要数秒）……");
 
-    let mut status = 0;
-    if credential_saved {
-        status = connect_retrying(&resource, std::ptr::null(), std::ptr::null());
-        if status != 0 {
-            log.push(format!(
-                "凭据管理器方式未成功（{}），改用密码直连重试。",
-                error_text(status)
-            ));
-        }
-    }
+    let connect_result = if needs_native_net() {
+        crate::log::line(format!(
+            "进程为 32 位而系统为 64 位（WOW64），改用原生 64 位 net.exe：{}",
+            native_net_exe().display()
+        ));
+        log.push(
+            "检测到 64 位 Windows 上的 32 位进程，改用系统原生 64 位网络提供程序挂载。"
+                .to_owned(),
+        );
+        connect_native_net(drive, &unc, username, password, credential_saved, &mut log)
+    } else {
+        connect_mpr(drive, &unc, username, password, credential_saved, &mut log)
+    };
 
-    if !credential_saved || status != 0 {
-        // Inline credentials plus `CONNECT_UPDATE_PROFILE`: the mapping is
-        // still persisted in the profile, without asking MPR to save a
-        // credential of its own.
-        status = connect_retrying(&resource, password_w.as_ptr(), username_w.as_ptr());
-    }
-
-    if status != 0 {
-        crate::log::line(format!("map_drive 失败：{}", error_text(status)));
+    if let Err(err) = connect_result {
+        crate::log::line(format!("map_drive 失败：{err}"));
         log_sshfs_binaries();
-        log.push(format!("映射失败：{}", error_text(status)));
+        log.push(format!("映射失败：{err}"));
         log.push("请确认 WinFsp 与 SSHFS-Win 已安装，且用户名、密码正确。".to_owned());
         log.push(log_file_line());
         return MapOutcome { ok: false, log };
@@ -308,8 +309,10 @@ fn log_file_line() -> String {
 }
 
 /// Probes the SSHFS-Win executables when the mapping failed. Error 53
-/// (`ERROR_BAD_NETPATH`) usually means the network provider could not start
-/// `sshfs-win.exe`, so its actual location matters.
+/// (`ERROR_BAD_NETPATH`) means no provider accepted the name: either the
+/// network provider could not start `sshfs-win.exe`, or — the WOW64 case fixed
+/// in [`connect_native_net`] — 32-bit MPR could not load the 64-bit WinFsp.Np.
+/// The actual executable location therefore matters.
 fn log_sshfs_binaries() {
     for variable in ["ProgramFiles", "ProgramW6432", "ProgramFiles(x86)"] {
         match std::env::var_os(variable) {
@@ -327,6 +330,234 @@ fn log_sshfs_binaries() {
             None => crate::log::line(format!("SSHFS-Win 探测：环境变量 {variable} 未设置")),
         }
     }
+}
+
+/// Whether connections must go through the native 64-bit `net.exe`.
+///
+/// Only the WOW64 case is affected. On a 32-bit OS the registered provider is
+/// `winfsp-x86.dll`, which 32-bit MPR can load; on a 64-bit OS a 64-bit process
+/// loads the 64-bit `mpr.dll`, which can load `winfsp-x64.dll`. Only a 32-bit
+/// process on a 64-bit OS sees the 64-bit `ProviderPath` through
+/// `HKLM\SYSTEM` and cannot load it.
+fn needs_native_net() -> bool {
+    usize::BITS == 32 && deps::is_os_64bit()
+}
+
+/// `%SystemRoot%\Sysnative\net.exe`: the native 64-bit `net.exe` as reachable
+/// from a WOW64 process. `Sysnative` is a virtual alias that bypasses the
+/// `System32` -> `SysWOW64` redirection for 32-bit callers.
+fn native_net_exe() -> PathBuf {
+    std::env::var_os("SystemRoot")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(r"C:\Windows"))
+        .join(r"Sysnative\net.exe")
+}
+
+/// Result of one `net.exe` invocation.
+struct NetOutput {
+    code: u32,
+    stdout: String,
+    stderr: String,
+}
+
+/// Runs the native `net.exe` with `args` and logs the exit code and output.
+///
+/// `stdin` is closed: without an inline password `net.exe` prompts for one
+/// when WinFsp.Np's credential lookup misses, and the invisible prompt would
+/// block the GUI forever. `description` is the sanitized command line shown in
+/// the log; the password itself must never appear in it.
+fn run_net(args: &[&str], description: &str) -> Result<NetOutput, String> {
+    let exe = native_net_exe();
+    let output = win32::command(&exe)
+        .args(args)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .output()
+        .map_err(|err| format!("无法运行 {}：{err}", exe.display()))?;
+
+    let code = output.status.code().unwrap_or(1);
+    let stdout = decode_oem(&output.stdout);
+    let stderr = decode_oem(&output.stderr);
+    crate::log::line(format!(
+        "net.exe {description} => 退出码={code}，stdout={stdout:?}，stderr={stderr:?}"
+    ));
+
+    Ok(NetOutput {
+        code: code.max(0) as u32,
+        stdout,
+        stderr,
+    })
+}
+
+/// Decodes console output: `net.exe` writes its messages in the console OEM
+/// code page, not UTF-8.
+fn decode_oem(bytes: &[u8]) -> String {
+    if bytes.is_empty() {
+        return String::new();
+    }
+
+    let wide_len = unsafe {
+        MultiByteToWideChar(
+            CP_OEMCP,
+            0,
+            bytes.as_ptr(),
+            bytes.len() as i32,
+            std::ptr::null_mut(),
+            0,
+        )
+    };
+    if wide_len <= 0 {
+        return String::from_utf8_lossy(bytes).trim_end().to_owned();
+    }
+
+    let mut buffer = vec![0u16; wide_len as usize];
+    let written = unsafe {
+        MultiByteToWideChar(
+            CP_OEMCP,
+            0,
+            bytes.as_ptr(),
+            bytes.len() as i32,
+            buffer.as_mut_ptr(),
+            wide_len,
+        )
+    };
+    let written = written.max(0) as usize;
+    String::from_utf16_lossy(&buffer[..written])
+        .trim_end_matches(|ch| ch == '\r' || ch == '\n')
+        .to_owned()
+}
+
+/// Connects `unc` to `drive` through the native 64-bit `net.exe` (WOW64).
+///
+/// The first attempt passes no password at all, so the 64-bit WinFsp.Np reads
+/// the `CRED_TYPE_GENERIC` credential written by [`remember_credential`] and no
+/// password ever reaches a command line. Only if that fails is the password
+/// passed inline.
+fn connect_native_net(
+    drive: &str,
+    unc: &str,
+    username: &str,
+    password: &str,
+    credential_saved: bool,
+    log: &mut Vec<String>,
+) -> Result<(), String> {
+    // A stale mapping on the same letter makes `net use` fail with
+    // ERROR_ALREADY_ASSIGNED; "not connected" is the expected failure.
+    match run_net(
+        &["use", drive, "/delete", "/y"],
+        &format!("use {drive} /delete /y（清理旧连接）"),
+    )? {
+        NetOutput { code: 0, .. } => log.push(format!("已断开 {drive} 上的旧连接。")),
+        NetOutput { code, .. } => crate::log::line(format!(
+            "net.exe use {drive} /delete /y 退出码 {code}（盘符可能本就没有连接）"
+        )),
+    }
+
+    if credential_saved {
+        let output = run_net(
+            &["use", drive, unc, "/persistent:yes"],
+            &format!("use {drive} {unc} /persistent:yes（凭据管理器模式）"),
+        )?;
+        if output.code == 0 {
+            return Ok(());
+        }
+        log.push(format!(
+            "凭据管理器方式未成功（net.exe 退出码 {}），改用密码直连重试。",
+            output.code
+        ));
+    }
+
+    let user_arg = format!("/user:{username}");
+    let output = run_net(
+        &[
+            "use",
+            drive,
+            unc,
+            password,
+            &user_arg,
+            "/persistent:yes",
+        ],
+        &format!("use {drive} {unc} <password> {user_arg} /persistent:yes（密码直连模式）"),
+    )?;
+    if output.code == 0 {
+        Ok(())
+    } else {
+        let detail = if output.stderr.is_empty() {
+            output.stdout
+        } else {
+            output.stderr
+        };
+        if detail.is_empty() {
+            Err(format!("net.exe 退出码 {}", output.code))
+        } else {
+            Err(format!("net.exe 退出码 {}：{detail}", output.code))
+        }
+    }
+}
+
+/// Establishes the mapping through `WNetAddConnection2W`.
+///
+/// Used on 32-bit Windows (where `winfsp-x86.dll` is the registered provider)
+/// and by any 64-bit process; see [`needs_native_net`] for the WOW64 case this
+/// cannot serve.
+fn connect_mpr(
+    drive: &str,
+    unc: &str,
+    username: &str,
+    password: &str,
+    credential_saved: bool,
+    log: &mut Vec<String>,
+) -> Result<(), String> {
+    // A stale mapping on the same letter makes WNetAddConnection2W fail with
+    // ERROR_ALREADY_ASSIGNED, so drop it first. "Not connected" is expected.
+    let drive_w = win32::wide(drive);
+    let cancel_status = unsafe { WNetCancelConnection2W(drive_w.as_ptr(), 0, 1) };
+    crate::log::line(format!(
+        "WNetCancelConnection2W(drive={drive:?}, flags=0, force=1) 返回 {cancel_status}"
+    ));
+    if cancel_status == 0 {
+        log.push(format!("已断开 {drive} 上的旧连接。"));
+    }
+
+    let local_w = win32::wide(drive);
+    let remote_w = win32::wide(unc);
+    let username_w = win32::wide(username);
+    let password_w = win32::wide(password);
+
+    let resource = NetResourceW {
+        scope: 0,
+        resource_type: RESOURCETYPE_DISK,
+        display_type: 0,
+        usage: 0,
+        local_name: local_w.as_ptr(),
+        remote_name: remote_w.as_ptr(),
+        comment: std::ptr::null(),
+        provider: std::ptr::null(),
+    };
+
+    let mut status = 0;
+    if credential_saved {
+        status = connect_retrying(&resource, std::ptr::null(), std::ptr::null());
+        if status != 0 {
+            log.push(format!(
+                "凭据管理器方式未成功（{}），改用密码直连重试。",
+                error_text(status)
+            ));
+        }
+    }
+
+    if !credential_saved || status != 0 {
+        // Inline credentials plus `CONNECT_UPDATE_PROFILE`: the mapping is
+        // still persisted in the profile, without asking MPR to save a
+        // credential of its own.
+        status = connect_retrying(&resource, password_w.as_ptr(), username_w.as_ptr());
+    }
+
+    if status != 0 {
+        return Err(error_text(status));
+    }
+    Ok(())
 }
 
 /// Connects, retrying while the drive letter is still being released by the
@@ -441,10 +672,11 @@ fn remember_credential(target: &str, username: &str, password: &str) -> Result<(
 
 /// Drive letter of the SSHFS mapping to the AIDesk server, e.g. `"Z:"`.
 ///
-/// Every letter is probed: `WNetGetConnectionW` reports the UNC path of an
-/// active network connection, while `HKCU\Network\<Letter>` keeps the paths of
-/// persistent mappings even when the connection is momentarily down (right
-/// after logon, or after a dropped link). Both are matched against
+/// Every letter is probed: `WNetGetConnectionW` (or, when MPR cannot reach the
+/// provider, `QueryDosDeviceW`) reports the UNC path of an active network
+/// connection, while `HKCU\Network\<Letter>` keeps the paths of persistent
+/// mappings even when the connection is momentarily down (right after logon, or
+/// after a dropped link). All of them are matched against
 /// `\\sshfs\<user>@nas.chn.moe`, case-insensitively.
 pub fn detect_mounted_drive() -> Option<String> {
     ('A'..='Z').find_map(|letter| {
@@ -553,7 +785,16 @@ fn remove_drive_label(unc: &str) {
 }
 
 /// UNC path that `letter` is currently connected to, if any.
+///
+/// `WNetGetConnectionW` is tried first; when it cannot answer (a 32-bit WOW64
+/// process cannot reach the 64-bit WinFsp.Np at all) the WinFsp volume name is
+/// resolved directly through `QueryDosDeviceW`.
 fn active_connection(letter: char) -> Option<String> {
+    mpr_connection(letter).or_else(|| dos_device_connection(letter))
+}
+
+/// UNC path reported by `WNetGetConnectionW` ("mpr.dll"), if any.
+fn mpr_connection(letter: char) -> Option<String> {
     let local_w = win32::wide(&format!("{letter}:"));
 
     let mut buffer = vec![0u16; REMOTE_NAME_LEN];
@@ -564,6 +805,40 @@ fn active_connection(letter: char) -> Option<String> {
     }
 
     Some(win32::from_wide(&buffer))
+}
+
+/// UNC path parsed out of the WinFsp volume name behind `letter`.
+///
+/// WinFsp.Np's `NPGetConnection` (`src/dll/np.c`) resolves the drive with
+/// `QueryDosDeviceW`, which yields
+/// `\Device\Volume{GUID}\sshfs\<user>@nas.chn.moe` for a WinFsp mount. The DOS
+/// device map is a kernel object and is not affected by WOW64, so this works
+/// from a 32-bit process where `WNetGetConnectionW` cannot. It is also the
+/// fastest probe: no provider enumeration and no subprocess.
+fn dos_device_connection(letter: char) -> Option<String> {
+    let local_w = win32::wide(&format!("{letter}:"));
+
+    let mut buffer = vec![0u16; REMOTE_NAME_LEN];
+    let length =
+        unsafe { QueryDosDeviceW(local_w.as_ptr(), buffer.as_mut_ptr(), buffer.len() as u32) };
+    if length == 0 {
+        return None;
+    }
+
+    // `\Device\Volume{GUID}\Server\Share`: the third backslash starts the
+    // volume prefix that WinFsp keeps the UNC path in, exactly as
+    // `NPGetConnection` splits it.
+    let device = win32::from_wide(&buffer);
+    let mut backslashes = 0;
+    for (index, ch) in device.char_indices() {
+        if ch == '\\' {
+            backslashes += 1;
+            if backslashes == 3 {
+                return Some(format!("\\{}", &device[index..]));
+            }
+        }
+    }
+    None
 }
 
 /// UNC path of the persistent mapping saved in `HKCU\Network\<Letter>`.
@@ -583,19 +858,43 @@ pub fn unmap_drive(drive: &str) -> Result<(), String> {
     // Capture the share before cancelling: `CONNECT_UPDATE_PROFILE` also
     // deletes `HKCU\Network\<letter>`, and the active connection disappears
     // with the drive, so neither path is readable afterwards.
-    let share = drive.chars().next().and_then(|letter| {
-        let letter = letter.to_ascii_uppercase();
+    let letter = drive.chars().next().map(|letter| letter.to_ascii_uppercase());
+    let share = letter.and_then(|letter| {
         active_connection(letter).or_else(|| saved_connection(letter))
     });
 
-    let drive_w = win32::wide(drive);
+    if needs_native_net() {
+        // 32-bit MPR cannot reach the 64-bit WinFsp.Np; the native 64-bit
+        // `net.exe` can (see [`needs_native_net`]).
+        let output = run_net(
+            &["use", drive, "/delete", "/y"],
+            &format!("use {drive} /delete /y（断开连接）"),
+        )?;
+        if output.code != 0 {
+            crate::log::line(format!(
+                "net.exe 断开 {drive} 返回退出码 {}（连接可能本就不存在）",
+                output.code
+            ));
+        }
 
-    // `CONNECT_UPDATE_PROFILE` removes the persistent connection from the
-    // user's profile as well; `force` tears the connection down even while a
-    // file on the share is still open.
-    let status = unsafe { WNetCancelConnection2W(drive_w.as_ptr(), CONNECT_UPDATE_PROFILE, 1) };
-    if status != 0 && status != ERROR_NOT_CONNECTED {
-        return Err(format!("断开 {drive} 失败：{}", error_text(status)));
+        // A non-zero exit code is harmless when there was nothing to delete,
+        // so only a connection that is still there counts as a failure.
+        let still_mapped = letter.is_some_and(|letter| {
+            active_connection(letter).is_some() || saved_connection(letter).is_some()
+        });
+        if still_mapped {
+            return Err(format!("断开 {drive} 失败：net.exe 退出码 {}", output.code));
+        }
+    } else {
+        let drive_w = win32::wide(drive);
+
+        // `CONNECT_UPDATE_PROFILE` removes the persistent connection from the
+        // user's profile as well; `force` tears the connection down even while
+        // a file on the share is still open.
+        let status = unsafe { WNetCancelConnection2W(drive_w.as_ptr(), CONNECT_UPDATE_PROFILE, 1) };
+        if status != 0 && status != ERROR_NOT_CONNECTED {
+            return Err(format!("断开 {drive} 失败：{}", error_text(status)));
+        }
     }
 
     if let Some(share) = share {
