@@ -73,6 +73,16 @@
                 "=404"
               ];
             };
+            # AIDesk 网盘助手 (mount-wizard) downloads linked from Settings →
+            # Add-ons. The package exposes this filesystem layout at
+            # `downloads/`; the SPA links to /downloads/aidesk-mount-wizard.zip.
+            "/downloads/".static = {
+              root = "${pkgs.localPkgs.aidesk.mount-wizard}";
+              tryFiles = [
+                "$uri"
+                "=404"
+              ];
+            };
           };
         };
         coturn = { };

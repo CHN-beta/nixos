@@ -11,6 +11,7 @@ import {
   Folder,
   FolderUp,
   GitBranch,
+  HardDrive,
   LocateFixed,
   RefreshCw,
   Search,
@@ -75,6 +76,8 @@ interface Props {
   onRevealActiveFile: () => void;
   onExplorerRefresh: () => void;
   onExplorerRefreshDone: () => void;
+  /** Opens Settings → Add-ons with the drive-mounting guide. */
+  onOpenMountGuide: () => void;
   onAtMention: (relativePath: string, isDir: boolean) => void;
   onAtMentions: (relativePaths: string[]) => void;
   onMentionLines: (relativePath: string, startLine: number, endLine: number) => void;
@@ -129,6 +132,7 @@ export const RightPanel = memo(function RightPanel({
   onRevealActiveFile,
   onExplorerRefresh,
   onExplorerRefreshDone,
+  onOpenMountGuide,
   onAtMention,
   onAtMentions,
   onMentionLines,
@@ -278,6 +282,17 @@ export const RightPanel = memo(function RightPanel({
                 onMouseLeave={(e) => { if (explorerRefreshing) return; e.currentTarget.style.color = "var(--text-dim)"; e.currentTarget.style.background = "none"; }}
               >
                 <RefreshCw size={13} strokeWidth={2} aria-hidden="true" className={explorerRefreshing ? "icon-spin" : undefined} />
+              </button>
+              <button
+                type="button"
+                onClick={onOpenMountGuide}
+                title={t("fileExplorer.mountAsDrive")}
+                aria-label={t("fileExplorer.mountAsDrive")}
+                style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 26, height: 26, padding: 0, background: "none", border: "none", borderRadius: "var(--radius-control)", color: "var(--text-dim)", cursor: "pointer" }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text-muted)"; e.currentTarget.style.background = "var(--bg-hover)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-dim)"; e.currentTarget.style.background = "none"; }}
+              >
+                <HardDrive size={13} strokeWidth={2} aria-hidden="true" />
               </button>
             </div>
             )
@@ -462,6 +477,7 @@ export const RightPanel = memo(function RightPanel({
                   active={rightView === "explorer" && rightPanelOpen}
                   onPathRenamed={onFilePathsMoved}
                   onPathsDeleted={onFilePathsDeleted}
+                  onOpenMountGuide={onOpenMountGuide}
                 />
               </div>
             </>

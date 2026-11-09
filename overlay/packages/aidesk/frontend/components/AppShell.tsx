@@ -1436,6 +1436,12 @@ export function AppShell({ appName }: { appName: string }) {
     setRightView(view);
   }, []);
 
+  // Explorer toolbar and context menu both land on the Add-ons tab, whose
+  // first card is the “mount the workspace as a drive” guide.
+  const openAddonsSettings = useCallback(() => {
+    setSettingsTab("addons");
+  }, []);
+
   const handleRevealDone = useCallback(() => {
     setRevealPath(null);
   }, []);
@@ -2249,6 +2255,7 @@ export function AppShell({ appName }: { appName: string }) {
         onRevealActiveFile={handleRevealActiveFile}
         onExplorerRefresh={handleExplorerRefresh}
         onExplorerRefreshDone={handleExplorerRefreshDone}
+        onOpenMountGuide={openAddonsSettings}
         onAtMention={handleAtMention}
         onAtMentions={handleAtMentions}
         onMentionLines={handleFileLineMention}

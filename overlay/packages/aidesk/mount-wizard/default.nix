@@ -201,6 +201,14 @@ EOF
     mkdir -p $out
     (cd "$stage" && TZ=UTC ${pkgs.zip}/bin/zip -9 -X $out/aidesk-mount-wizard.zip aidesk-mount-wizard.exe)
     rm -rf "$stage"
+
+    # Static download layout for the public SPA: nginx serves
+    # https://aidesk.chn.moe/downloads/ directly from this output (see
+    # nixosConfigurations/vps6). The bare files at the output root stay for
+    # anyone consuming the package itself.
+    mkdir -p $out/downloads
+    cp $out/aidesk-mount-wizard.zip $out/downloads/aidesk-mount-wizard.zip
+    cp $out/bin/aidesk-mount-wizard.exe $out/downloads/aidesk-mount-wizard.exe
   '';
 
   meta = with lib; {

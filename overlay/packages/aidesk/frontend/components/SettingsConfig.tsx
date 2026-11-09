@@ -1,9 +1,10 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useTransition, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
 import { getEnterForNewline, getSubmitDuringRunBehavior, getWordCompletionMode, setEnterForNewline, setSubmitDuringRunBehavior, setWordCompletionMode, type SubmitDuringRunBehavior, type WordCompletionMode } from "@/lib/composer-prefs";
-import { ArrowLeft, LogOut, RefreshCw, Search, X } from "lucide-react";
+import { ArrowLeft, Check, Copy, Download, HardDrive, LogOut, RefreshCw, Search, X } from "lucide-react";
 import { isRecord } from "@/lib/type-guards";
 import { logoutFromAuth } from "@/lib/api-origin";
+import { copyText } from "@/lib/clipboard";
 import {
   formatUsageReset,
   PROVIDER_DISPLAY_NAMES,
@@ -823,6 +824,108 @@ function AboutPanel({ isMobile }: { isMobile: boolean }) {
   );
 }
 
+/**
+ * Public static download for the Windows drive assistant. nginx serves
+ * `/downloads/` from the mount-wizard package (see nixosConfigurations/vps6),
+ * so the link is same-origin with the SPA.
+ */
+const MOUNT_WIZARD_DOWNLOAD_URL = "/downloads/aidesk-mount-wizard.zip";
+
+function CopyableCommand({ command }: { command: string }) {
+  const { t } = useI18n();
+  const [copied, setCopied] = useState(false);
+
+  const copy = () => {
+    void copyText(command)
+      .then(() => {
+        setCopied(true);
+        toast.success(t("settingsAddons.copied"));
+        window.setTimeout(() => setCopied(false), 1600);
+      })
+      .catch(() => toast.error(t("settingsAddons.copyFailed")));
+  };
+
+  return (
+    <div style={{ display: "flex", alignItems: "stretch", gap: 6, width: "100%", marginBottom: 6 }}>
+      <pre style={{ flex: 1, minWidth: 0, margin: 0, padding: "9px 11px", background: "var(--bg)", border: "1px solid var(--border)", borderRadius: "var(--radius-control)", overflowX: "auto", fontFamily: "var(--font-mono)", fontSize: 12, lineHeight: 1.5, color: "var(--text)" }}>
+        <code>{command}</code>
+      </pre>
+      <button
+        type="button"
+        onClick={copy}
+        title={t("settingsAddons.copyCommand")}
+        aria-label={t("settingsAddons.copyCommand")}
+        className="ui-focus-ring"
+        style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", width: 36, padding: 0, background: "var(--bg-panel)", border: "1px solid var(--border)", borderRadius: "var(--radius-control)", color: copied ? "var(--status-success)" : "var(--text-muted)", cursor: "pointer" }}
+      >
+        {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
+      </button>
+    </div>
+  );
+}
+
+function AddonsPanel({ isMobile }: { isMobile: boolean }) {
+  const { t } = useI18n();
+  const username = t("settingsAddons.usernamePlaceholder");
+  const sshfsCommand = `sshfs <${username}>@nas.chn.moe: ~/AIDesk -o reconnect,ServerAliveInterval=15,ServerAliveCountMax=3`;
+  const sftpAddress = `sftp://<${username}>@nas.chn.moe/`;
+  const bodyStyle = { margin: 0, fontSize: 12.5, color: "var(--text-muted)", lineHeight: 1.6 } as const;
+  const labelStyle = { margin: "0 0 6px", fontSize: 12, fontWeight: 600, color: "var(--text)" } as const;
+  const hintStyle = { margin: "4px 0 14px", fontSize: 11.5, color: "var(--text-dim)", lineHeight: 1.5 } as const;
+  const stepStyle = { margin: 0, paddingLeft: 20, fontSize: 12.5, color: "var(--text-muted)", lineHeight: 1.7 } as const;
+
+  return (
+    <div role="tabpanel" id="settings-panel-addons" aria-labelledby="settings-tab-addons" className="settings-panel-inner" style={{ padding: isMobile ? "16px 14px 32px" : "32px 24px 64px", gap: 16 }}>
+      <div style={{ marginBottom: 4 }}>
+        <h2 className="display-serif" style={{ fontSize: "var(--text-2xl)", fontWeight: 600, margin: 0, color: "var(--text)", letterSpacing: "-0.01em" }}>{t("settingsAddons.title")}</h2>
+        <p className="settings-content-subtitle" style={{ margin: "4px 0 16px", fontSize: "var(--text-md)", color: "var(--text-muted)", lineHeight: 1.45 }}>{t("settingsAddons.subtitle")}</p>
+      </div>
+
+      <section className="settings-card" style={{ display: "block", alignItems: "stretch", width: "100%", boxSizing: "border-box", padding: isMobile ? "16px 14px" : "20px 22px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <HardDrive size={18} strokeWidth={1.8} aria-hidden="true" style={{ color: "var(--accent)", flexShrink: 0 }} />
+          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--text)", lineHeight: 1.35 }}>{t("settingsAddons.mountCardTitle")}</h3>
+        </div>
+        <p style={{ ...bodyStyle, marginBottom: 18 }}>{t("settingsAddons.mountCardIntro")}</p>
+
+        <div style={{ marginBottom: 4 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>{t("settingsAddons.windowsTitle")}</div>
+          <a
+            href={MOUNT_WIZARD_DOWNLOAD_URL}
+            download="aidesk-mount-wizard.zip"
+            style={{ display: "inline-flex", alignItems: "center", gap: 7, margin: "8px 0 4px", padding: "9px 16px", background: "var(--accent-strong)", border: "none", borderRadius: "var(--radius-control)", color: "var(--on-accent)", fontSize: 13, fontWeight: 600, textDecoration: "none", boxShadow: "var(--shadow-card)" }}
+            className="ui-focus-ring"
+          >
+            <Download size={15} aria-hidden="true" />
+            {t("settingsAddons.windowsDownload")}
+          </a>
+          <div style={{ fontSize: 11.5, color: "var(--text-dim)", lineHeight: 1.5, margin: "2px 0 8px" }}>{t("settingsAddons.windowsCompatible")}</div>
+          <ol style={stepStyle}>
+            <li>{t("settingsAddons.windowsStep1")}</li>
+            <li>{t("settingsAddons.windowsStep2")}</li>
+            <li>{t("settingsAddons.windowsStep3")}</li>
+          </ol>
+        </div>
+
+        <div style={{ height: 1, background: "var(--border)", margin: "18px 0" }} />
+
+        <div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 6 }}>{t("settingsAddons.howItWorksTitle")}</div>
+          <p style={{ ...bodyStyle, marginBottom: 14 }}>{t("settingsAddons.howItWorks", { server: "nas.chn.moe" })}</p>
+
+          <div style={labelStyle}>{t("settingsAddons.sshfsTitle")}</div>
+          <CopyableCommand command={sshfsCommand} />
+          <p style={hintStyle}>{t("settingsAddons.sshfsHint", { placeholder: `<${username}>` })}</p>
+
+          <div style={labelStyle}>{t("settingsAddons.fileManagerTitle")}</div>
+          <CopyableCommand command={sftpAddress} />
+          <p style={hintStyle}>{t("settingsAddons.fileManagerHint")}</p>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export function SettingsConfig({ activeTab, toolCallsDefaultCollapsed, onToolCallsDefaultCollapsedChange, expandThinkingByDefault, onExpandThinkingByDefaultChange, scopeNativeSelectAll, onScopeNativeSelectAllChange, openUrlAutomatically, onOpenUrlAutomaticallyChange, onSelectTab, onClose }: {
   activeTab: SettingsTab;
   toolCallsDefaultCollapsed: boolean;
@@ -1158,6 +1261,8 @@ export function SettingsConfig({ activeTab, toolCallsDefaultCollapsed, onToolCal
                   </div>
                 </div>
               )}
+
+              {currentTab === "addons" && <AddonsPanel isMobile={isMobile} />}
 
               {currentTab === "account" && <AccountPanel isMobile={isMobile} />}
 

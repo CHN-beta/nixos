@@ -17,6 +17,7 @@ import {
   FolderOpen,
   FolderPlus,
   FolderUp,
+  HardDrive,
   Loader2,
   Pencil,
   Scissors,
@@ -104,6 +105,8 @@ interface Props {
   onPathRenamed?: (oldPath: string, newPath: string, isDir: boolean) => void;
   /** Paths were deleted: open tabs below them must close. */
   onPathsDeleted?: (paths: string[]) => void;
+  /** Opens Settings → Add-ons with the “mount as a drive” guide. */
+  onOpenMountGuide?: () => void;
 }
 
 export interface FileExplorerHandle {
@@ -679,7 +682,6 @@ interface ExplorerRowProps {
   onRenameCancel: () => void;
   onDragStartNode: (node: FileNode, event: React.DragEvent<HTMLDivElement>) => void;
   onDragEndNode: () => void;
-  onDownloadZip: (node: FileNode) => void;
 }
 
 // Memoized: the parent re-renders on every scroll tick, but a row only
@@ -712,7 +714,6 @@ const ExplorerRow = memo(function ExplorerRow({
   onRenameCancel,
   onDragStartNode,
   onDragEndNode,
-  onDownloadZip,
 }: ExplorerRowProps) {
   const { t } = useI18n();
   const [hovered, setHovered] = useState(false);
@@ -741,8 +742,6 @@ const ExplorerRow = memo(function ExplorerRow({
     gitStatus !== undefined || changedDirectoryPaths.has(normalizedPath)
   );
   const mentionLabel = t("fileExplorer.insertPathIntoChat");
-  const downloadLabel = t("fileExplorer.downloadFile");
-  const zipLabel = t("fileExplorer.downloadZip");
   const modifiedLabel = formatFileModified(node.modified);
   const sizeLabel = !node.isDir && node.size > 0 ? formatFileSize(node.size) : "";
   const metaText = [sizeLabel, modifiedLabel].filter(Boolean).join(" · ");
@@ -927,9 +926,10 @@ const ExplorerRow = memo(function ExplorerRow({
       {loading && (
         <Loader2 size={10} strokeWidth={2} color="var(--text-dim)" style={{ animation: "spin 0.8s linear infinite", flexShrink: 0 }} aria-hidden="true" />
       )}
-      {onAtMention && (
+      {onAtMention && (hovered || focused) && (
         <Tooltip content={mentionLabel}>
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               onAtMention(getRelativeFilePath(node.fullPath, cwd), node.isDir);
@@ -940,81 +940,20 @@ const ExplorerRow = memo(function ExplorerRow({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: 4,
-              padding: "0 8px",
-              minWidth: 24, height: 24,
-              background: "var(--bg-panel)",
-              border: "1px solid var(--border)",
+              width: 22,
+              height: 22,
+              padding: 0,
+              background: "transparent",
+              border: "none",
               borderRadius: "var(--radius-control)",
               color: "var(--accent)",
               cursor: "pointer",
-              fontSize: 11,
-              fontWeight: 600,
-              whiteSpace: "nowrap",
               transition: `background var(--dur-fast) var(--ease-out-warm), color var(--dur-fast) var(--ease-out-warm)`,
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-panel)"; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
           >
-            <AtSign size={11} strokeWidth={2.2} aria-hidden="true" />
-            {t("fileExplorer.mention")}
-          </button>
-        </Tooltip>
-      )}
-      {!node.isDir && (
-        <Tooltip content={downloadLabel}>
-          <a
-            href={apiUrl(`/api/files/${encodeFilePathForApi(node.fullPath)}?type=download`)}
-            download
-            onClick={(e) => e.stopPropagation()}
-            aria-label={downloadLabel}
-            style={{
-              flexShrink: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 4,
-              padding: "0 5px",
-              minWidth: 24, height: 24,
-              background: "var(--bg-panel)",
-              border: "1px solid var(--border)",
-              borderRadius: "var(--radius-control)",
-              color: "var(--text-muted)",
-              cursor: "pointer",
-              fontSize: 11,
-              fontWeight: 600,
-              whiteSpace: "nowrap",
-              textDecoration: "none",
-              transition: `background var(--dur-fast) var(--ease-out-warm), color var(--dur-fast) var(--ease-out-warm)`,
-            }}
-          >
-            <Download size={11} strokeWidth={2.2} aria-hidden="true" />
-          </a>
-        </Tooltip>
-      )}
-      {node.isDir && hovered && (
-        <Tooltip content={zipLabel}>
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDownloadZip(node);
-            }}
-            aria-label={zipLabel}
-            style={{
-              flexShrink: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 24, height: 24,
-              padding: 0,
-              background: "var(--bg-panel)",
-              border: "1px solid var(--border)",
-              borderRadius: "var(--radius-control)",
-              color: "var(--text-muted)",
-              cursor: "pointer",
-              transition: `background var(--dur-fast) var(--ease-out-warm), color var(--dur-fast) var(--ease-out-warm)`,
-            }}
-          >
-            <FileArchive size={11} strokeWidth={2.2} aria-hidden="true" />
+            <AtSign size={12} strokeWidth={2.2} aria-hidden="true" />
           </button>
         </Tooltip>
       )}
@@ -1040,6 +979,7 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
   active = true,
   onPathRenamed,
   onPathsDeleted,
+  onOpenMountGuide,
 }, ref) {
   const { t, tn } = useI18n();
   const isMobile = useIsMobile();
@@ -2241,7 +2181,6 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                   onRenameCancel={cancelRename}
                   onDragStartNode={handleNodeDragStart}
                   onDragEndNode={handleNodeDragEnd}
-                  onDownloadZip={downloadZip}
                 />
               </div>
             );
@@ -2279,7 +2218,6 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                 onRenameCancel={cancelRename}
                 onDragStartNode={handleNodeDragStart}
                 onDragEndNode={handleNodeDragEnd}
-                onDownloadZip={downloadZip}
               />
             </div>
           );
@@ -2711,6 +2649,16 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                 }}
               />
               <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
+              <ExplorerMenuItem
+                label={t("fileExplorer.mountAsDrive")}
+                icon={<HardDrive size={12} strokeWidth={2} aria-hidden="true" />}
+                disabled={!onOpenMountGuide}
+                onSelect={() => {
+                  setContextMenu(null);
+                  onOpenMountGuide?.();
+                }}
+              />
+              <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />
               <ExplorerCheckableMenuItem
                 label={t("fileExplorer.showHiddenFiles")}
                 checked={showHiddenFiles}
@@ -2786,6 +2734,15 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                     size: 0,
                     modified: 0,
                   });
+                }}
+              />
+              <ExplorerMenuItem
+                label={t("fileExplorer.mountAsDrive")}
+                icon={<HardDrive size={12} strokeWidth={2} aria-hidden="true" />}
+                disabled={!onOpenMountGuide}
+                onSelect={() => {
+                  setContextMenu(null);
+                  onOpenMountGuide?.();
                 }}
               />
               <div style={{ height: 1, margin: "4px 6px", background: "var(--border)" }} />

@@ -1,9 +1,9 @@
 
 import { useI18n } from "@/lib/i18n";
-import { Bell, Brain, Info, Settings2, Wallet } from "lucide-react";
+import { Bell, Brain, Info, Puzzle, Settings2, Wallet } from "lucide-react";
 import type { ComponentType, CSSProperties } from "react";
 
-export type SettingsTab = "general" | "memory" | "notifications" | "account" | "about";
+export type SettingsTab = "general" | "memory" | "notifications" | "addons" | "account" | "about";
 
 export interface TabItem {
   id: SettingsTab;
@@ -16,6 +16,7 @@ export const SETTINGS_CATEGORIES: TabItem[] = [
   { id: "general", label: "Interface & Behavior", description: "UI preferences, completion sound, submission mode", Icon: Settings2 },
   { id: "memory", label: "Memory", description: "Knowledge graph, semantic recall, and memory curation", Icon: Brain },
   { id: "notifications", label: "Notifications", description: "Desktop and mobile notifications for your sessions", Icon: Bell },
+  { id: "addons", label: "Add-ons", description: "Mount your cloud workspace as a local drive and more", Icon: Puzzle },
   { id: "account", label: "Account & Usage", description: "Account session, quota, and provider usage", Icon: Wallet },
   { id: "about", label: "About & Acknowledgments", description: "AIDesk version, runtime, and open-source credits", Icon: Info },
 ];
