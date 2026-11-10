@@ -48,10 +48,21 @@
           };
           oauth = {
             auth-dir = "/var/lib/cliproxyapi/.cli-proxy-api";
+            model-alias.codex = [
+              {
+                name = "gpt-6.1-sol";
+                alias = "code";
+                fork = true;
+              }
+            ];
             model-alias.antigravity = [
               {
                 name = "gemini-4-argon-high";
                 alias = "gemini-4-argon";
+              }
+              {
+                name = "gemini-4-carbon-high";
+                alias = "gemini-4-carbon";
               }
               {
                 name = "gemini-3.8-flash-high";
@@ -165,6 +176,10 @@
                 models = [
                   {
                     name = "deepseek-flash";
+                  }
+                  {
+                    name = "deepseek-flash";
+                    alias = "code";
                   }
                 ];
               }
