@@ -17,7 +17,7 @@
                 "/nix/rootfs/current" = "/";
                 "/" = "/nix/export";
               };
-              "/dev/lvm/ssd1"."/nix/ssd" = "/nix/ssd";
+              "/dev/lvm/ssd2"."/nix/ssd" = "/nix/ssd";
               "/dev/lvm/single1" = {
                 "/nix" = "/nix/backup/nix";
                 "/nix/remote/xmuhk" = "/public/home/xmuhk";
@@ -50,7 +50,7 @@
               subvol = "/nix/persistent";
             };
             ssd = {
-              device = "/dev/lvm/ssd1";
+              device = "/dev/lvm/ssd2";
               subvol = "/nix/ssd";
             };
           };
