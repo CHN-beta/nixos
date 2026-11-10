@@ -32,10 +32,6 @@
             devices = {
               "/dev/disk/by-partlabel/nas-root1".mapper = "root1";
               "/dev/disk/by-partlabel/nas-root2".mapper = "root2";
-              "/dev/disk/by-partlabel/nas-root3" = {
-                mapper = "root3";
-                ssd = true;
-              };
               "/dev/disk/by-partlabel/nas-root4" = {
                 mapper = "root4";
                 ssd = true;
@@ -71,7 +67,7 @@
       services = {
         sshd = { };
         xray.client.coredns = {
-          extraInterfaces = [ "enp4s0.20" ];
+          extraInterfaces = [ "enp3s0.20" ];
           hosts."git.chn.moe" = "127.0.0.1";
         };
         beesd."/" = {
@@ -121,7 +117,7 @@
           persistent = "/nix/persistent";
           ssd = "/nix/ssd";
         };
-        pppoe.interface = "enp3s0";
+        pppoe.interface = "enp2s0";
         cliproxyapi = {
           hostname = "internal.cliproxyapi.chn.moe";
           users = [ "chn" ];
