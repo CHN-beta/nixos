@@ -55,10 +55,14 @@ let
         );
     in
     pkgs.writeShellScript "deploy" "zellij --layout ${deployKdl}";
+
+  push-cache = pkgs.writeShellScript "push-cache" ''
+    nix copy --all --no-check-sigs --to ssh-ng://root@ts.nas "$@"
+  '';
 in
 {
   inherit (self.packages.x86_64-linux) dns-push;
-  inherit build deploy;
+  inherit build deploy push-cache;
 }
 |> builtins.mapAttrs (
   _: v: {
