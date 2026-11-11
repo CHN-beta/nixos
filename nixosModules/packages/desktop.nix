@@ -417,6 +417,8 @@
                   "tauri-apps.tauri-vscode"
                   # acp
                   "formulahendry.acp-client"
+                  # copy with context
+                  "copy-context.copy-with-context"
                 ];
                 keybindings = [
                   # use alt+a to complete inline suggestions, instead of tab or ctrl+enter
@@ -478,6 +480,16 @@
                     key = "alt+t";
                     command = "workbench.action.terminal.sendSequence";
                     args.text = "cd '\${fileDirname}'\n";
+                  }
+                  # use ctrl+shift+c to copy selected code with file path and line numbers
+                  {
+                    key = "ctrl+shift+c";
+                    command = "contextCopy.copySelectedCodeWithContextCommand";
+                    when = "editorTextFocus && editorHasSelection";
+                  }
+                  {
+                    key = "ctrl+shift+c";
+                    command = "-workbench.action.terminal.openNativeConsole";
                   }
                 ];
                 userSettings = {
