@@ -352,4 +352,36 @@ in
     ];
     hash = "sha256-cACiatI+nNJhIJ6O5nii/XMUPWXMBM7zrUxVuczKu/k=";
   };
+  matlab = {
+    iso = pkgs.requireFile {
+      name = "Matlab2025bLin.iso";
+      # nix store add-file ./Matlab2025bLin.iso
+      # nix hash file --type sha256 --base32 ./Matlab2025bLin.iso
+      sha256 = "0wnnxk2md0asa21rx6xv9gai4y81midki4n6qqm9009sq155dbs8";
+      message = "Matlab2025bLin.iso not found.";
+    };
+    docIso = pkgs.requireFile {
+      name = "Matlab2025bLinDocs.iso";
+      # nix store add-file ./Matlab2025bLinDocs.iso
+      # nix hash file --type sha256 --base32 ./Matlab2025bLinDocs.iso
+      sha256 = "1crfhamgfldcg41df05193mpqhb84wglmh7cvqj64rv759mnr6z8";
+      message = "Matlab2025bLinDocs.iso not found.";
+    };
+    crack = pkgs.requireFile {
+      name = "libmwlmgrimpl.so";
+      # nix store add-file ./libmwlmgrimpl.so
+      # nix hash file --type sha256 --base32 ./libmwlmgrimpl.so
+      sha256 = "0canavn2jy927rshm9h4nmh7cyp1b3ylq9gax64vmarl2c6zpy6l";
+      message = "libmwlmgrimpl.so not found.";
+    };
+    license = pkgs.requireFile {
+      name = "license.lic";
+      # nix store add-file ./license.lic
+      # nix hash file --type sha256 --base32 ./license.lic
+      sha256 = "1j5csfp417hb7ns5wca7vdmj5i93d9x6qgrwvqfkj1z0x38dn1kp";
+      message = "license.lic not found.";
+    };
+    fileInstallationKey =
+      "63733-59078-50866-02827-32355-07987-57979-17850-05492-24096-05227-42839-55624-20610-22640-51189";
+  };
 }

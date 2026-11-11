@@ -227,6 +227,7 @@ rec {
       ;
   };
   omp-desktop = pkgs.callPackage ./omp-desktop.nix { };
+  matlab = pkgs.callPackage ./matlab.nix { src = self.src.matlab; };
 
   fromYaml =
     content:
