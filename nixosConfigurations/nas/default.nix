@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pkgs, ... }:
 {
   imports = lib.findModules ./.;
   config = {
@@ -131,5 +131,6 @@
         "chn"
       ];
     };
+    environment.systemPackages = [ pkgs.localPkgs.matlab ];
   };
 }
