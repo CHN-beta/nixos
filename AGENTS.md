@@ -16,22 +16,9 @@ sudo nix --store 'local?store=/data/gpfs01/xxx/.nix/store&state=/data/gpfs01/xxx
 ```
 *(Note: Replace `xxx` with the actual username found in the path, e.g., `wlin`)*
 
-## 2. Chroot Store (`/nix/tf`)
+## 2. Standard Local Store (Default)
 
-**Condition:** The user has **explicitly requested** using `/nix/tf`. The `/nix/tf` chroot store (`sudo nix --store /nix/tf ...`) is ONLY used when the user explicitly requests it.
-
-**Action:** 
-- Only when explicitly instructed by the user, look in `/nix/tf/nix/store` (the chroot store).
-- When executing nix commands for these builds, you MUST use `sudo` and specify the store appropriately (`--store /nix/tf`).
-
-**Command Template:**
-```bash
-sudo nix --store /nix/tf <command> <arguments>
-```
-
-## 3. Standard Local Store (Default)
-
-**Condition:** In the vast majority of cases (building, inspecting, evaluating, or running derivations), the standard default Nix store MUST be used by default (unless interacting with `/data/gpfs01/...` xmuhpc user stores or when `/nix/tf` is explicitly requested by the user).
+**Condition:** In the vast majority of cases (building, inspecting, evaluating, or running derivations), the standard default Nix store MUST be used by default (unless interacting with `/data/gpfs01/...` xmuhpc user stores).
 
 **Action:**
 - Use the standard default Nix store (`/nix/store`).
@@ -46,10 +33,9 @@ nix <command> <arguments>
 ---
 **Summary Checklist before running Nix:**
 1. Is this path `/data/gpfs01/...`? -> Use `sudo` + xmuhpc `--store 'local?...'` (Section 1)
-2. Did the user explicitly request `/nix/tf`? -> Use `sudo` + `--store /nix/tf` (Section 2)
-3. Default / vast majority of cases (building, inspecting, evaluating, or running derivations)? -> Use normal user + default store (`nix <command> <arguments>` without `sudo` or `--store`) (Section 3).
+2. Default / vast majority of cases (building, inspecting, evaluating, or running derivations)? -> Use normal user + default store (`nix <command> <arguments>` without `sudo` or `--store`) (Section 2).
 
-## 4. Packaging Preferences (`overlay/packages`)
+## 3. Packaging Preferences (`overlay/packages`)
 
 When asked to package new software (especially Python packages), adhere to the following stylistic and architectural preferences based on existing practices in this repository:
 
@@ -63,7 +49,8 @@ When asked to package new software (especially Python packages), adhere to the f
    - If fetching directly from GitHub within the `.nix` file, use `fetchFromGitHub` and provide a proper SRI base32 hash (`sha256 = "..."`).
 4. **Build System**: For Python packages, use `buildPythonPackage` with `pyproject = true` and define the appropriate `build-system` (e.g., `setuptools`, `wheel`, `poetry-core`).
 5. **Tests**: If the test suite requires network access, heavy external I/O, or broken transitive cloud dependencies (like AWS SDKs), it is perfectly acceptable and common to set `doCheck = false;` to bypass flaky tests.
-## 5. Declarative Service Configuration Preferences
+
+## 4. Declarative Service Configuration Preferences
 
 When writing NixOS service configurations (especially for Nginx, PostgreSQL, and SOPS secrets), **DO NOT** blindly use the standard NixOS options (e.g., `services.nginx.virtualHosts` or raw `services.postgresql.ensureUsers`). 
 

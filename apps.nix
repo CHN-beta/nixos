@@ -6,7 +6,7 @@ let
     |> builtins.attrNames
     |> builtins.map (name: ''
       echo building ${name}
-      nix --store /nix/tf build .#nixosConfigurations.${name}.config.system.build.toplevel "$@"
+      nix build .#nixosConfigurations.${name}.config.system.build.toplevel "$@"
     '')
     |> builtins.concatStringsSep "\n"
     |> pkgs.writeShellScript "build";
@@ -31,7 +31,7 @@ let
           ''
             tab name="${host}" {
               pane command="nixos-rebuild" {
-                args "switch" "--flake" ".#${host}" "--target-host" "root@${connect}" "--option" "store" "/nix/tf"
+                args "switch" "--flake" ".#${host}" "--target-host" "root@${connect}"
               }
             }
           ''
