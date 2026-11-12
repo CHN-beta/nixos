@@ -310,7 +310,41 @@
                       }
                       .${user} or null;
                   in
-                  lib.optionalAttrs (partnerBank != null) {
+                  {
+                    matlab = {
+                      description = "使用 MATLAB (R2025b) 执行数值计算、脚本运行与无头绘图导出";
+                      content = ''
+                        # MATLAB 使用指南
+
+                        ## 1. 运行命令
+                        - **纯数值计算**：
+                          ```bash
+                          matlab -batch "run('script.m')"
+                          ```
+                        - **包含绘图或图片导出**（无头环境必须加 `xvfb-run -a`）：
+                          ```bash
+                          xvfb-run -a matlab -batch "run('script.m')"
+                          ```
+
+                        ## 2. 绘图导出模板
+                        使用隐藏图窗配合 `exportgraphics` 导出：
+                        ```matlab
+                        fig = figure('Visible', 'off', 'Position', [100, 100, 800, 500]);
+                        plot(x, y, 'LineWidth', 1.2);
+                        grid on;
+                        exportgraphics(fig, 'output.png', 'Resolution', 150);
+                        close(fig);
+                        ```
+
+                        ## 3. 在回复中展示图片
+                        将生成的图片保存后使用 Markdown 引用：
+                        ```markdown
+                        ![图像说明](output.png)
+                        ```
+                      '';
+                    };
+                  }
+                  // lib.optionalAttrs (partnerBank != null) {
                     partner-activity = {
                       description = "当用户询问伴侣（丈夫/老公/妻子/老婆，即 ${partnerBank}）今天或近期做了什么、工作进展或近期动态时，查询 Hindsight 中 ${partnerBank} 的记忆库（bank）。";
                       content = ''

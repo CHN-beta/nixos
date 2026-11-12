@@ -131,6 +131,9 @@
         "chn"
       ];
     };
-    environment.systemPackages = [ pkgs.localPkgs.matlab ];
+    environment.systemPackages = with pkgs; [
+      localPkgs.matlab
+      xvfb-run
+    ];
   };
 }
