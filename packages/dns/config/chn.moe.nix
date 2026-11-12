@@ -45,13 +45,12 @@ let
       "jupyterhub"
     ];
     "pc.ts" = [
-      "nix-store"
       "ollama"
       "bgem3-fast"
     ];
     "nas.ts" = [
       "ssh.git"
-      "backup-store"
+      "nixcache"
       "rsshub"
       "grafana"
       "vaultwarden"

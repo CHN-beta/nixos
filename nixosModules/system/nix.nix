@@ -64,8 +64,7 @@
           connect-timeout = 5;
           # https://cache.nixos.org 已经自带
           substituters = [
-            "https://backup-store.chn.moe"
-            "https://nix-store.chn.moe"
+            "https://nixcache.chn.moe"
             # llm-agents
             "https://cache.numtide.com"
           ];

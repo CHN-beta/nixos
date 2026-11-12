@@ -9,7 +9,6 @@
       self.inputs.nix-flatpak.nixosModules.nix-flatpak
       self.inputs.catppuccin.nixosModules.catppuccin
       self.inputs.nixvirt.nixosModules.default
-      self.inputs.harmonia.nixosModules.harmonia
       self.inputs.dms-plugin-registry.modules.default
       {
         config.home-manager.sharedModules = [
