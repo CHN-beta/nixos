@@ -58,6 +58,10 @@
       url = "github:brsvh/chinese-fonts-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    niks3 = {
+      url = "github:Mic92/niks3/v1.6.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     llm-agents.url = "github:numtide/llm-agents.nix";
     pi.url = "github:lukasl-dev/pi.nix";
     omp.url = "github:CHN-beta/oh-my-pi";
