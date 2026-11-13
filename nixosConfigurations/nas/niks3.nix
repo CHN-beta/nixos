@@ -18,10 +18,10 @@
         connectionString = "postgresql://niks3@127.0.0.1:5432/niks3?sslmode=disable";
       };
       s3 = {
-        endpoint = "127.0.0.1:7070";
+        endpoint = "s3.chn.moe:443";
         bucket = "niks3";
         region = "us-east-1";
-        useSSL = false;
+        useSSL = true;
         accessKeyFile = "${pkgs.writeText "niks3-s3-access-key" "versitygw"}";
         secretKeyFile = config.nixos.system.sops.secrets."niks3/s3-secret".path;
       };

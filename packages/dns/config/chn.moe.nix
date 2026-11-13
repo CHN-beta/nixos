@@ -64,6 +64,7 @@ let
       "bgem3"
       "miniflux"
       "internal.cliproxyapi"
+      "s3"
     ];
     vps10 = [
       "initrd.vps10"

@@ -5,11 +5,14 @@
   ...
 }:
 {
-  nixos.system.sops = {
-    secrets."versitygw/secret" = { };
-    templates."versitygw.env".content = ''
-      ROOT_SECRET_ACCESS_KEY=${config.nixos.system.sops.placeholder."versitygw/secret"}
-    '';
+  nixos = {
+    system.sops = {
+      secrets."versitygw/secret" = { };
+      templates."versitygw.env".content = ''
+        ROOT_SECRET_ACCESS_KEY=${config.nixos.system.sops.placeholder."versitygw/secret"}
+      '';
+    };
+    services.nginx.https."s3.chn.moe".location."/".proxy.upstream = "http://127.0.0.1:7070";
   };
   systemd.services.versitygw = {
     description = "Versity S3 Gateway";
