@@ -16,15 +16,12 @@
                 "/nix" = "/nix";
                 "/nix/rootfs/current" = "/";
                 "/" = "/nix/export";
-              };
-              "/dev/lvm/ssd2"."/nix/ssd" = "/nix/ssd";
-              "/dev/lvm/single1" = {
-                "/nix" = "/nix/backup/nix";
                 "/nix/remote/xmuhk" = "/public/home/xmuhk";
                 "/nix/remote/jykang" = "/data/gpfs01/jykang";
                 "/nix/remote/wlin" = "/data/gpfs01/wlin";
                 "/nix/remote/hwang" = "/data/gpfs01/hwang";
               };
+              "/dev/lvm/ssd2"."/nix/ssd" = "/nix/ssd";
             };
           };
           swap = [ "/dev/lvm/swap" ];
