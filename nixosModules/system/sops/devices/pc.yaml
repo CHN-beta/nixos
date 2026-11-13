@@ -35,6 +35,8 @@ qdrant:
     api-key: ENC[AES256_GCM,data:KXHRodpnWpsvO89GZwd+5h0KDOpa8LjEgcy07oCjF960M+v/mQKFOHVToCK+kUV3UJKQn7KAyQQhII+XoJeR2A==,iv:PMSyDPiueBxfdqh9I8l7Tf8PxSvxo/oDjcarOIjLGDs=,tag:+vQ49rsnYXc9cjOitrDl1g==,type:str]
 straycat:
     ssh: ENC[AES256_GCM,data:bVwF9Y0159ZRvAlaRB8dgNdB616ofTb1nW8dr2O9EZPWYbDGgOQKytY4Wj+lrOpvR2y/KTYH0MzRj8RYy25Y86pBSGOzhhM5Rn/PxxsaifnBjpp/4qXQoEsRN2KOs+Yp+6M9vaua/3c7eF94BCIHBCdxgadhzT4asnPnvx8542IzEVuklJXJSbLAks7bz/pRAx/6aoOoND7gcoXgZbXMaPzVy8J0HD7e+pOXQZ97rlKQXfI/A3jjJAYEzZPxVPlwXYvGBNX0vtBNR1ArU+qwKyyj/gpbaOtuxCiUFUKIjih8xX4HyFQzqnvd+9SloKbR8gc2pmttI2QiL5te5u/ukmAyzUW5aa1GymZ15PryqlXAA/DYbRYKtn/HfJko6vysnJtS6Wm2jGSWFBJPY0VR+9JCjB2inEmkR7uiySeNhAYj8jpLuCCRSLWooDMDvzfR8LbQfEnL7Uh6HoFe7m2KxD2y1HvIHJZHKLuni4fDcyte/EQdmZ2ykK9C10InYs4CKtsIJs+L7BfO8WgQ8WRt,iv:ZhXkpakjMv9b/+y98oDi2f1rgTwzeWOgNJ2krI24CBM=,tag:XKrhNRVWoHFpm5B0W/Bk5A==,type:str]
+niks3:
+    token: ENC[AES256_GCM,data:cp31upuLvn6/kQJzdkH+c5N0YiZ9kHpIYcQtisg8HkLA71kf0W9bdcBA3CXIT+xF0vxcGjF5FFgaPYc7QPWZEw==,iv:R2dWyh1QJQkpbrVmS/DPCLY1rmcN2seuzHJhVYKwcSo=,tag:9/Zx0jPoI8cApldk4YktlQ==,type:str]
 sops:
     age:
         - enc: |
@@ -56,7 +58,7 @@ sops:
             WLmJ1ayrY2BABdIAudjtrZ6jvUSbrCvXBrNUvR/fX2uRrk6ZAAqE8g==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
-    lastmodified: "2026-11-06T09:32:31Z"
-    mac: ENC[AES256_GCM,data:nfqgNkJC7z8fhG/i0+Le3BWjbf/I4Dk0gLIAiLMYqN5gaPGngsdMN2AqLzXri6xo8MkPT6Rn+JwWY1iGjEV8L801ENBh28mtws2tFOmAu6UpcwiTtKIbC5MYGSpIXup9xNM3ux4RVzE0rN00cTflBpqRn8zC8DRtyP6nS/NXGnI=,iv:YcJigkybHQllfJeYUH/rSN56jj494p2w3Tf8qZ9UITI=,tag:4mJz1t+nymIxYEjKNfGFug==,type:str]
+    lastmodified: "2026-11-13T23:47:25Z"
+    mac: ENC[AES256_GCM,data:Y324DGXheX37BYf0GABK+Y/FmF0pgW8oXwh4NzQvWCWbcIWvye7olVm3nns3QXq96+w6piN68mfbCzR8d7CEiBuUwyxzfZlR82Gc4tivEHpCdlydoEGxB9y6zugRE7kOHse0zOdzdpOTiDVhqLtfj9ElTLVUU1PS3Oi6y1GAdOQ=,iv:CsTI83emPOv2u9c3XndVsM/sTfrILzTxUR8IVD8iOZM=,tag:1DatgHy4hhnmrnbn96xZxQ==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

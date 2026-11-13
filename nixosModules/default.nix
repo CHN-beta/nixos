@@ -11,6 +11,7 @@
       self.inputs.nixvirt.nixosModules.default
       self.inputs.dms-plugin-registry.modules.default
       self.inputs.niks3.nixosModules.default
+      self.inputs.niks3.nixosModules.niks3-auto-upload
       {
         config.home-manager.sharedModules = [
           self.inputs.catppuccin.homeModules.catppuccin
