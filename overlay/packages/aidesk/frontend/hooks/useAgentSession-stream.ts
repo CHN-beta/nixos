@@ -479,6 +479,7 @@ export function buildOutgoingPrompt(
 export interface ChatInputHandle {
   insertText: (text: string) => void;
   insertIfEmpty: (content: string) => void;
+  replaceText?: (content: string) => void;
   prependText: (text: string) => void;
   addFiles: (files: File[]) => void;
 }

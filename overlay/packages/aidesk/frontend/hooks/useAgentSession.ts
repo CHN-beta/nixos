@@ -443,6 +443,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
   const agentRunningRef = useRef(false);
   const bashRunningRef = useRef(false);
   const forkInFlightRef = useRef(false);
+  const pendingNavigateEntryIdRef = useRef<string | null>(null);
   const bashRecoveryIdRef = useRef(0);
   const handleAgentEventRef = useRef<((event: AgentEvent) => void) | null>(null);
   const initialScrollDoneRef = useRef(false);
@@ -2858,8 +2859,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
 
     const { userMsg, piImages } = buildOutgoingPrompt(message, images);
     setOptimisticUserMessage(userMsg);
-    if (catchUp.view().leafId) catchUp.select({ leafId: null, includePreCompaction: catchUp.view().includePreCompaction });
-    else catchUp.invalidate();
+    catchUp.invalidate();
     eventCoalescer.reset();
     promptRunIdRef.current = promptRunId;
     runHadContentRef.current = false;
@@ -2917,6 +2917,12 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
             await ensureEventsConnected(sid);
             void refreshSubagentRoster(sid);
           }
+          if (existingSid && pendingNavigateEntryIdRef.current) {
+            const navTarget = pendingNavigateEntryIdRef.current;
+            pendingNavigateEntryIdRef.current = null;
+            await sendAgentCommand(sid, { type: "navigate_tree", entryId: navTarget });
+          }
+          if (catchUp.view().leafId) catchUp.select({ leafId: null, includePreCompaction: catchUp.view().includePreCompaction });
           if (existingSid) {
             const previousEntryIds = await snapshotRunEntries(sid);
             if (promptRunIdRef.current === promptRunId) runPreviousEntryIdsRef.current = previousEntryIds;
@@ -2932,6 +2938,11 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         // The event route is observer-only. Start or resume the web-owned RPC
         // wrapper with a supported command before opening the SSE connection.
         await sendAgentCommand(session.id, { type: "get_state" });
+        if (pendingNavigateEntryIdRef.current) {
+          const navTarget = pendingNavigateEntryIdRef.current;
+          pendingNavigateEntryIdRef.current = null;
+          await sendAgentCommand(session.id, { type: "navigate_tree", entryId: navTarget });
+        }
         await ensureEventsConnected(session.id);
         void refreshSubagentRoster(session.id);
         void registerHostTools(session.id);
@@ -2940,6 +2951,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
         if (promptRunIdRef.current === promptRunId && sessionIdRef.current === session.id) {
           runPreviousEntryIdsRef.current = previousEntryIds;
         }
+        if (catchUp.view().leafId) catchUp.select({ leafId: null, includePreCompaction: catchUp.view().includePreCompaction });
         queuedBehindShell = isQueuedWhileShellRunning(await sendAgentCommand(session.id, {
           type: "prompt",
           message,
@@ -3083,6 +3095,12 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     try {
       const sid = sessionIdRef.current ?? session?.id ?? await ensureNewSession();
       if (!sid) throw new Error(translate("agentSession.shellSessionFailed"));
+      if (pendingNavigateEntryIdRef.current) {
+        const navTarget = pendingNavigateEntryIdRef.current;
+        pendingNavigateEntryIdRef.current = null;
+        await sendAgentCommand(sid, { type: "navigate_tree", entryId: navTarget });
+      }
+      if (catchUp.view().leafId) catchUp.select({ leafId: null, includePreCompaction: catchUp.view().includePreCompaction });
       await sendAgentCommand(sid, {
         type: "bash",
         command,
@@ -3289,8 +3307,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     }
   }, [advisorEnabled, onSessionForked]);
 
-  // omp's RPC protocol has no navigate-within-tree command, so branch
-  const handleNavigate = useCallback(async (entryId: string): Promise<boolean> => {
+  const handleNavigate = useCallback(async (displayLeafId: string, navigateEntryId = displayLeafId): Promise<boolean> => {
     // While a run is active its streaming frames append to the displayed
     // message list — swapping in another branch's context mid-run would mix
     // the running turn into the wrong branch (same gating as MessageView's
@@ -3298,18 +3315,28 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     if (bashRunningRef.current || agentRunningRef.current) return false;
     const sid = sessionIdRef.current;
     if (!sid) return false;
-    setActiveLeafId(entryId);
-    const ok = await loadContext(sid, entryId);
+    pendingNavigateEntryIdRef.current = navigateEntryId;
+    setActiveLeafId(displayLeafId);
+    const ok = await loadContext(sid, displayLeafId);
     if (!ok) return false;
+    void sendAgentCommand(sid, { type: "navigate_tree", entryId: navigateEntryId }).catch((e) => {
+      console.error("Failed to navigate tree:", e);
+    });
     return true;
   }, [loadContext]);
 
   const handleLeafChange = useCallback(async (leafId: string | null) => {
     if (bashRunningRef.current || agentRunningRef.current) return;
+    pendingNavigateEntryIdRef.current = leafId;
     setActiveLeafId(leafId);
     const sid = sessionIdRef.current;
     if (!sid) return;
     await loadContext(sid, leafId);
+    if (leafId) {
+      void sendAgentCommand(sid, { type: "navigate_tree", entryId: leafId }).catch((e) => {
+        console.error("Failed to navigate tree:", e);
+      });
+    }
   }, [loadContext]);
 
   const handleModelChange = useCallback(async (provider: string, modelId: string) => {
@@ -3916,6 +3943,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
       runHadContentRef.current = false;
       lastQuotaErrorRef.current = null;
       lastRunErrorRef.current = null;
+      pendingNavigateEntryIdRef.current = null;
       catchUp.select({ leafId: null, includePreCompaction: false });
       loadSession(session.id, true, true).then((loaded) => {
         if (!hookAliveRef.current || sessionIdRef.current !== session.id) return;

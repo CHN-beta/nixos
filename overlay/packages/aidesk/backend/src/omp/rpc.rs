@@ -2412,7 +2412,7 @@ impl AgentSession {
                         notify_running_change(false);
                     }
                     let result = result?;
-                    if other == "set_thinking_level" {
+                    if matches!(other, "set_thinking_level" | "navigate_tree") {
                         self.invalidate_session_lists();
                     }
                     return Ok(result);
@@ -2775,6 +2775,8 @@ fn is_passthrough_command(command: &str) -> bool {
             | "set_follow_up_mode"
             | "set_interrupt_mode"
             | "get_branch_messages"
+            | "navigate_tree"
+            | "abort_branch_summary"
             | "get_messages"
             | "get_messages_page"
             | "export_html"
@@ -2806,7 +2808,6 @@ fn passthrough_timeout(command: &str) -> Option<Duration> {
 
 fn unsupported_command_message(command: &str) -> Option<&'static str> {
     match command {
-        "navigate_tree" => Some("Branch navigation is not supported over the omp RPC protocol"),
         "clear_queue" => Some("Recalling queued messages is not supported over the omp RPC protocol"),
         "get_tools" => Some("Per-session tool listing is not supported over the omp RPC protocol"),
         "set_tools" => Some("Changing tools on a running session is not supported over the omp RPC protocol; tool presets apply to new sessions"),

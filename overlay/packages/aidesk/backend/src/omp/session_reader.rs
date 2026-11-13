@@ -1390,7 +1390,7 @@ fn select_context(
                 .map(|id| (id, entry))
         })
         .collect();
-    if leaf_id == Some("") {
+    if matches!(leaf_id, Some("") | Some("__root__")) {
         return empty;
     }
     let leaf = leaf_id
@@ -1975,6 +1975,7 @@ pub fn history_page(
     // (omitted, empty, unknown) resolves to the tip so the client can keep
     // paging the same branch.
     let resolved_leaf = match leaf_id {
+        Some("__root__") => Some("__root__".to_string()),
         Some(id)
             if !id.is_empty()
                 && entries
@@ -2180,6 +2181,17 @@ mod tests {
             ContextOptions::default(),
         );
         assert_eq!(unknown.leaf_id.as_deref(), Some("a1"));
+        let root_page = history_page(
+            &cfg,
+            &entries,
+            None,
+            100,
+            Some("__root__"),
+            ContextOptions::default(),
+        );
+        assert_eq!(root_page.leaf_id.as_deref(), Some("__root__"));
+        assert_eq!(root_page.context["messages"], json!([]));
+        assert_eq!(root_page.context["entryIds"], json!([]));
     }
 
     #[test]

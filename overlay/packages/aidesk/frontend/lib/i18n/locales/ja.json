@@ -865,6 +865,7 @@
   "messageView.downloadFullOutput": "完全な出力をダウンロード",
   "messageView.durationSeconds": "{seconds}秒",
   "messageView.editFromHere": "編集",
+  "messageView.rewindToHere": "ここまで巻き戻す",
   "messageView.estimatedTokens": "推定出力トークン数",
   "messageView.advisorLabel": "アドバイザー",
   "messageView.expand": "展開",
