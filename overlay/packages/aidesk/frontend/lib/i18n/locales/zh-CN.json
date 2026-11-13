@@ -906,6 +906,7 @@
   "messageView.downloadFullOutput": "下载完整输出",
   "messageView.durationSeconds": "{seconds}s",
   "messageView.editFromHere": "编辑",
+  "messageView.rewindToHere": "回退到此处",
   "messageView.estimatedTokens": "估算输出 token 数",
   "messageView.advisorLabel": "顾问",
   "messageView.expand": "展开",

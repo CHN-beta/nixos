@@ -260,7 +260,7 @@ interface CommittedTranscriptProps {
   isNew: boolean;
   forkingEntryId: string | null;
   handleFork: (entryId: string, editPrompt: boolean) => void;
-  handleNavigate: (entryId: string) => boolean | Promise<boolean>;
+  handleNavigate: (displayLeafId: string, navigateEntryId?: string) => boolean | Promise<boolean>;
   handleEditContent: (content: string) => void;
   modelNames: Record<string, string>;
   messageCwd: string | undefined;
@@ -294,6 +294,21 @@ const CommittedTranscript = memo(function CommittedTranscript({
   const { toolResultsMap, lastAnchorIdx, visibleRefIndexByMessage } = conversationMeta;
   // omp's `branch` command accepts a user entry only; see lib/chat-fork.ts.
   const forkTargets = useMemo(() => resolveForkTargets(messages, entryIds), [messages, entryIds]);
+  const rewindTargets = useMemo(() => {
+    const targets: ({ displayLeafId: string; navigateEntryId: string } | undefined)[] = messages.map(() => undefined);
+    let nextUser: { displayLeafId: string; navigateEntryId: string } | undefined;
+    for (let index = messages.length - 1; index >= 0; index--) {
+      const m = messages[index] as AgentMessage & { branchSummary?: boolean };
+      if (m.role === "user" && !m.branchSummary) {
+        const navId = entryIds[index];
+        const leafId = index > 0 ? entryIds[index - 1] : "__root__";
+        if (navId && leafId) nextUser = { displayLeafId: leafId, navigateEntryId: navId };
+      } else if (m.role === "assistant" && nextUser) {
+        targets[index] = nextUser;
+      }
+    }
+    return targets;
+  }, [messages, entryIds]);
 
   const attachVisibleRef = (_idx: number, refIndex: number) => (el: HTMLDivElement | null) => {
     messageRefs.current[refIndex] = el;
@@ -301,10 +316,11 @@ const CommittedTranscript = memo(function CommittedTranscript({
 
   const renderMessage = (idx: number, options: { attachRef?: boolean; keyPrefix?: string; messageOverride?: AgentMessage; showTimestamp?: boolean; sourceBlockIndices?: number[] } = {}): ReactNode => {
     const msg = options.messageOverride ?? messages[idx];
-    const prevAssistantEntryId =
-      msg.role === "user" && idx > 0 && messages[idx - 1].role === "assistant"
-        ? entryIds[idx - 1]
+    const prevLeafId =
+      msg.role === "user" && !(msg as AgentMessage & { branchSummary?: boolean }).branchSummary && entryIds[idx]
+        ? (idx > 0 ? entryIds[idx - 1] : "__root__")
         : undefined;
+    const rewindTarget = rewindTargets[idx];
     const isVisible = msg.role === "user" || msg.role === "assistant";
     const currentRefIdx = visibleRefIndexByMessage.get(idx);
     const keyPrefix = options.keyPrefix ?? "message";
@@ -339,7 +355,9 @@ const CommittedTranscript = memo(function CommittedTranscript({
         forking={forkingEntryId === forkTarget?.entryId}
         forkDisabled={forkingEntryId !== null}
         onNavigate={sessionBusy ? undefined : handleNavigate}
-        prevAssistantEntryId={sessionBusy ? undefined : prevAssistantEntryId}
+        prevAssistantEntryId={sessionBusy ? undefined : prevLeafId}
+        rewindLeafId={sessionBusy ? undefined : rewindTarget?.displayLeafId}
+        rewindNavigateEntryId={sessionBusy ? undefined : rewindTarget?.navigateEntryId}
         onEditContent={handleEditContent}
         showTimestamp={showTimestamp}
         prevTimestamp={idx > 0 ? (messages[idx - 1] as AgentMessage & { timestamp?: number }).timestamp : undefined}
@@ -488,7 +506,8 @@ export function ChatWindow({ session, newSessionCwd, newSessionWorkspace, toolCa
   }, [onAgentEnd]);
   // Stabilize the onEditContent ref; pairs with React.memo to avoid re-rendering history messages
   const handleEditContent = useCallback((content: string) => {
-    chatInputRef?.current?.insertIfEmpty(content);
+    if (chatInputRef?.current?.replaceText) chatInputRef.current.replaceText(content);
+    else chatInputRef?.current?.insertIfEmpty(content);
   }, [chatInputRef]);
 
   const {

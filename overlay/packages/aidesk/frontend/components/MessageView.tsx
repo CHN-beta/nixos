@@ -208,8 +208,10 @@ interface Props {
   onFork?: (entryId: string, editPrompt: boolean) => void;
   forking?: boolean;
   forkDisabled?: boolean;
-  onNavigate?: (entryId: string) => boolean | Promise<boolean>;
+  onNavigate?: (displayLeafId: string, navigateEntryId?: string) => boolean | Promise<boolean>;
   prevAssistantEntryId?: string;
+  rewindLeafId?: string;
+  rewindNavigateEntryId?: string;
   onEditContent?: (content: string) => void;
   showTimestamp?: boolean;
   prevTimestamp?: number;
@@ -252,12 +254,12 @@ function haveSameRelevantToolResults(
   return true;
 }
 
-export const MessageView = memo(function MessageView({ message, isStreaming, toolResults, modelNames, cwd, onOpenFile, entryId, forkEntryId, forkEditsPrompt, onFork, forking, forkDisabled, onNavigate, prevAssistantEntryId, onEditContent, showTimestamp, prevTimestamp, sessionId, toolCallsDefaultCollapsed = true, expandThinkingByDefault = false, hideThinking = false, sourceBlockIndices, liveTokensPerSecond }: Props) {
+export const MessageView = memo(function MessageView({ message, isStreaming, toolResults, modelNames, cwd, onOpenFile, entryId, forkEntryId, forkEditsPrompt, onFork, forking, forkDisabled, onNavigate, prevAssistantEntryId, rewindLeafId, rewindNavigateEntryId, onEditContent, showTimestamp, prevTimestamp, sessionId, toolCallsDefaultCollapsed = true, expandThinkingByDefault = false, hideThinking = false, sourceBlockIndices, liveTokensPerSecond }: Props) {
   if (message.role === "user") {
     return <UserMessageView message={message as UserMessage} cwd={cwd} onOpenFile={onOpenFile} entryId={entryId} onFork={onFork} forking={forking} forkDisabled={forkDisabled} onNavigate={onNavigate} prevAssistantEntryId={prevAssistantEntryId} onEditContent={onEditContent} />;
   }
   if (message.role === "assistant") {
-    return <AssistantMessageView message={message as AssistantMessage} isStreaming={isStreaming} toolResults={toolResults} modelNames={modelNames} cwd={cwd} onOpenFile={onOpenFile} showTimestamp={showTimestamp} prevTimestamp={prevTimestamp} sessionId={sessionId} entryId={entryId} forkEntryId={forkEntryId} forkEditsPrompt={forkEditsPrompt} onFork={onFork} forking={forking} forkDisabled={forkDisabled} toolCallsDefaultCollapsed={toolCallsDefaultCollapsed} expandThinkingByDefault={expandThinkingByDefault} hideThinking={hideThinking} sourceBlockIndices={sourceBlockIndices} liveTokensPerSecond={liveTokensPerSecond} />;
+    return <AssistantMessageView message={message as AssistantMessage} isStreaming={isStreaming} toolResults={toolResults} modelNames={modelNames} cwd={cwd} onOpenFile={onOpenFile} showTimestamp={showTimestamp} prevTimestamp={prevTimestamp} sessionId={sessionId} entryId={entryId} forkEntryId={forkEntryId} forkEditsPrompt={forkEditsPrompt} onFork={onFork} forking={forking} forkDisabled={forkDisabled} onNavigate={onNavigate} rewindLeafId={rewindLeafId} rewindNavigateEntryId={rewindNavigateEntryId} toolCallsDefaultCollapsed={toolCallsDefaultCollapsed} expandThinkingByDefault={expandThinkingByDefault} hideThinking={hideThinking} sourceBlockIndices={sourceBlockIndices} liveTokensPerSecond={liveTokensPerSecond} />;
   }
   if (message.role === "toolResult") {
     // Rendered inline under its toolCall — skip standalone rendering if paired
@@ -295,6 +297,8 @@ export const MessageView = memo(function MessageView({ message, isStreaming, too
     && prev.forkDisabled === next.forkDisabled
     && prev.onNavigate === next.onNavigate
     && prev.prevAssistantEntryId === next.prevAssistantEntryId
+    && prev.rewindLeafId === next.rewindLeafId
+    && prev.rewindNavigateEntryId === next.rewindNavigateEntryId
     && prev.onEditContent === next.onEditContent
     && prev.showTimestamp === next.showTimestamp
     && prev.prevTimestamp === next.prevTimestamp
@@ -334,7 +338,7 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, f
   onFork?: (entryId: string, editPrompt: boolean) => void;
   forking?: boolean;
   forkDisabled?: boolean;
-  onNavigate?: (entryId: string) => boolean | Promise<boolean>;
+  onNavigate?: (displayLeafId: string, navigateEntryId?: string) => boolean | Promise<boolean>;
   prevAssistantEntryId?: string;
   onEditContent?: (content: string) => void;
 }) {
@@ -372,7 +376,7 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, f
 
   const time = formatTime(message.timestamp, locale);
   const canFork = !!entryId && !!onFork;
-  const canNavigate = !!prevAssistantEntryId && !!onNavigate;
+  const canNavigate = !!entryId && !!prevAssistantEntryId && !!onNavigate;
   const [menuState, setMenuState] = useState<{ x: number; y: number; latex: string | null } | null>(null);
   const closeMenu = useCallback(() => setMenuState(null), []);
   // Position-only identity so the menu does not reposition on unrelated renders.
@@ -399,7 +403,7 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, f
       label: t("messageView.editFromHere"),
       icon: <CornerUpLeft size={12} strokeWidth={1.8} aria-hidden="true" />,
       onSelect: () => {
-        void Promise.resolve(onNavigate!(prevAssistantEntryId!)).then((ready) => {
+        void Promise.resolve(onNavigate!(prevAssistantEntryId!, entryId!)).then((ready) => {
           if (ready) onEditContent(content);
         });
       },
@@ -528,6 +532,9 @@ function AssistantMessageView({
   onFork,
   forking,
   forkDisabled,
+  onNavigate,
+  rewindLeafId,
+  rewindNavigateEntryId,
   toolCallsDefaultCollapsed,
   expandThinkingByDefault,
   hideThinking,
@@ -550,6 +557,9 @@ function AssistantMessageView({
   onFork?: (entryId: string, editPrompt: boolean) => void;
   forking?: boolean;
   forkDisabled?: boolean;
+  onNavigate?: (displayLeafId: string, navigateEntryId?: string) => boolean | Promise<boolean>;
+  rewindLeafId?: string;
+  rewindNavigateEntryId?: string;
   toolCallsDefaultCollapsed: boolean;
   expandThinkingByDefault: boolean;
   hideThinking: boolean;
@@ -570,6 +580,7 @@ function AssistantMessageView({
   const bodyRef = useRef<HTMLDivElement>(null);
   const texts = (message.content ?? []).filter((block): block is TextContent => block.type === "text").map((block) => block.text);
   const canFork = !!forkEntryId && !!onFork;
+  const canRewind = !isStreaming && !!rewindLeafId && !!rewindNavigateEntryId && !!onNavigate;
   const [menuState, setMenuState] = useState<{ x: number; y: number; latex: string | null } | null>(null);
   const closeMenu = useCallback(() => setMenuState(null), []);
   // Position-only identity so the menu does not reposition on unrelated renders.
@@ -683,6 +694,16 @@ function AssistantMessageView({
         ? <Square size={12} strokeWidth={2} aria-hidden="true" />
         : <Volume2 size={12} strokeWidth={2} aria-hidden="true" />,
       onSelect: () => ttsToggle(messageSpeechId, speakableText),
+    });
+  }
+  if (canRewind) {
+    assistantMenuItems.push({
+      key: "rewind",
+      label: t("messageView.rewindToHere"),
+      icon: <CornerUpLeft size={12} strokeWidth={1.8} aria-hidden="true" />,
+      onSelect: () => {
+        void onNavigate!(rewindLeafId!, rewindNavigateEntryId!);
+      },
     });
   }
   if (canFork) {

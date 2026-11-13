@@ -943,6 +943,7 @@
   "messageView.downloadFullOutput": "download full output",
   "messageView.durationSeconds": "{seconds}s",
   "messageView.editFromHere": "Edit",
+  "messageView.rewindToHere": "Rewind to here",
   "messageView.estimatedTokens": "Estimated output tokens",
   "messageView.advisorLabel": "Advisor",
   "messageView.expand": "Expand",
