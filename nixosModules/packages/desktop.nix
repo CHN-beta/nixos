@@ -105,6 +105,7 @@
           nix-template
           nil
           bundix
+          niks3
           # instant messager
           element-desktop
           telegram-desktop
