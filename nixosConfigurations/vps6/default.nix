@@ -95,11 +95,6 @@
         beesd."/" = { };
         hongbao = { };
         freshman-followup.hostname = "hf.chn.moe";
-        cliproxyapi.users = [
-          "southfox"
-          "alikia"
-          "cclin"
-        ];
       };
     };
     # The https module has no per-location extraConfig for static roots, so the
