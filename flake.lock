@@ -298,11 +298,11 @@
     "cliproxyapi": {
       "flake": false,
       "locked": {
-        "lastModified": 1794332593,
-        "narHash": "sha256-Hcd117IAQ8v/hHL5zq46gKKpqjQ2FpA4Fv8ybnVko6k=",
+        "lastModified": 1794613552,
+        "narHash": "sha256-Kk8HH5FCQ+voSdgD+vxyEj3xy1UtT6EzQL5Y91A4pIc=",
         "owner": "CHN-beta",
         "repo": "CLIProxyAPI",
-        "rev": "34c0cc692288b3e3bd75a9ef81684be1f3107c62",
+        "rev": "5a07de56e1e0f0fec477050d3c5c7589409edaab",
         "type": "github"
       },
       "original": {
@@ -314,11 +314,11 @@
     "cliproxyapi-management": {
       "flake": false,
       "locked": {
-        "lastModified": 1794330635,
-        "narHash": "sha256-68WSRj5y36ATWw2VfkcnyucomKhX4/s4lynlJrzHohk=",
+        "lastModified": 1794613197,
+        "narHash": "sha256-qEaDWe0gDneaYa7wRbt60Y56uw9bKC+E+RxVGTV4WhY=",
         "owner": "CHN-beta",
         "repo": "Cli-Proxy-API-Management-Center",
-        "rev": "3b807aabce0a55e07a463f922899f8eac35afaa1",
+        "rev": "4862e45925e56b151a6449167ca78a345ac6a9f5",
         "type": "github"
       },
       "original": {
@@ -1425,11 +1425,11 @@
     },
     "nixpkgs_5": {
       "locked": {
-        "lastModified": 1786384358,
-        "narHash": "sha256-RzPPiWeUtuvymnpuEWsdtzli5w4kjZs49FqEs3/1u+I=",
+        "lastModified": 1794042290,
+        "narHash": "sha256-ziZn2PvCJE5JEEpqTdxXwJpPB+L3YqoCpTAMCzyaP3U=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "2fcb964de67fcf60b43471c55d5d99e61a9ccb5a",
+        "rev": "f4a03c008967841f2a0b3cb7c436fc6fc31671f6",
         "type": "github"
       },
       "original": {
@@ -1585,11 +1585,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1794331265,
-        "narHash": "sha256-2LhKS4qEFro24e5+GwYP3Z26fACP33iEDIjSwLzLnvY=",
+        "lastModified": 1794613228,
+        "narHash": "sha256-JfQofnp3ld8ERxplFjViPDcorhiLcKKenx8i5+bb3Aw=",
         "owner": "CHN-beta",
         "repo": "oh-my-pi",
-        "rev": "10003a80a4ac9a035543bb9b2d8fba845917bc49",
+        "rev": "0decfab531bead30b6f4ff5d7cd03ba1c96d3d73",
         "type": "github"
       },
       "original": {

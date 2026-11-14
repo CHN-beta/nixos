@@ -221,7 +221,7 @@
                 agents = {
                   doc = {
                     description = "文档撰写、资料检索、技术报告与文书整理";
-                    model = "cliproxyapi/gemini-3.8-flash";
+                    model = "cliproxyapi/gemini-4-hydrogen:medium";
                     prompt = ''
                       你是一个技术文书、资料检索与系统设计说明专家。
                       职责：
@@ -233,7 +233,7 @@
                   };
                   code = {
                     description = "核心业务代码实现、常规重构、单元测试与构建验证";
-                    model = "cliproxyapi/deepseek-flash";
+                    model = "cliproxyapi/gemini-4-hydrogen:low";
                     prompt = ''
                       你是一个精通工程实现与测试验证的代码开发专家。
                       职责：
@@ -245,7 +245,7 @@
                   };
                   debug = {
                     description = "疑难故障排查、Bug 根因定位、并发/崩溃诊断与代码安全审查";
-                    model = "cliproxyapi/gemini-4-argon";
+                    model = "cliproxyapi/gemini-4-carbon:medium";
                     prompt = ''
                       你是一个精通复杂系统故障诊断、根因分析与代码审查的排障专家。
                       职责：
@@ -256,7 +256,7 @@
                   };
                   design = {
                     description = "系统架构设计、模块接口契约、代码迁移方案与前端交互设计";
-                    model = "cliproxyapi/gemini-4-argon";
+                    model = "cliproxyapi/gemini-4-carbon:medium";
                     prompt = ''
                       你是一个精通系统架构与前端交互的架构及设计专家。
                       职责：
@@ -267,7 +267,7 @@
                   };
                   math = {
                     description = "形式化理论推导、数学物理计算、量纲分析与数值验证";
-                    model = "cliproxyapi/gemini-4-argon";
+                    model = "cliproxyapi/gemini-4-carbon:high";
                     prompt = ''
                       你是一个理论物理与应用数学专家。
                       职责：
@@ -279,7 +279,7 @@
                   };
                   exec = {
                     description = "执行明确指令与机械性操作（如检查 Git 状态与提交、文件批处理、运行指定命令等）";
-                    model = "cliproxyapi/deepseek-flash";
+                    model = "cliproxyapi/deepseek-flash:medium";
                     prompt = ''
                       你是一个精准、高效的机械性操作执行专家。
                       职责：
@@ -425,8 +425,8 @@
           programs.omp = {
             enable = true;
             settings = {
-              modelRoles.default = "cliproxyapi/gemini-4-argon:medium";
-              defaultThinkingLevel = "high";
+              modelRoles.default = "cliproxyapi/gemini-4-hydrogen:medium";
+              defaultThinkingLevel = "medium";
               hideThinkingBlock = true;
               symbolPreset = "nerd";
               theme = {
