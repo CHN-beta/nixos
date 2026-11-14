@@ -25,7 +25,7 @@ hindsight:
 voxtype:
     siliconflow: ENC[AES256_GCM,data:03w4hXnLmmiHBCLmwXCtsUVlY0UNxIu0K52Tlhsdb5LRl109OICG854mDk2vkoATsv+I,iv:7dbY/wsg/aJChtDsx/OMtkb9/2Qky6JG27twFp5QQUM=,tag:r+VANvmBNJHV9GOoVtY9BQ==,type:str]
 omp:
-    mineru: ENC[AES256_GCM,data:qksvkjVTDR0ZMKRUCVJdeYhUVzZnCHObyFahwf/2MttkBXoYN6alBiNGRvdV7jLs3gvS,iv:lPgt0kNcHRHSCznGk7MdLXCyYnIsZYlRFxkkJyEH2eE=,tag:Jfyw6p77/N/cUEYmRXCDxg==,type:str]
+    mineru: ENC[AES256_GCM,data:P5u4EGa6rum7AfmrgspNPEFz830Ur2slDF7APZ++PRHOP9hkM2xCHcizUV4Bser6DiOV,iv:jSOuUuXBjJcwVUdlihqsomf8DyZW/bAWzJkoL3BTltg=,tag:zaPzeYP9IozWLNMYe7G7jg==,type:str]
     github: ENC[AES256_GCM,data:bjMxXUw3yClmYAxrvXTpEU7htivO6Ee14NFGRrBWmJSRo6PmNZDm8g==,iv:iRLAmgHeYOmUCj4GGxtZRhfhmdo9e065e32+TAot0eI=,tag:O20Lqmqp3M6LMKwssNyPTQ==,type:str]
     vikunja:
         chn: ENC[AES256_GCM,data:BYJtRjNNOYD2kqGgtjXsNt3/VteJrNzyQFBr45wsDQFZoFcs9v/L/j5pMQ==,iv:jpD5hSpGzmCgo8TSfloOm5fc1uqBLYMGpVpqd2aQOH0=,tag:4ZJMxw8DbNIKzgftklDRbw==,type:str]
@@ -58,7 +58,7 @@ sops:
             WLmJ1ayrY2BABdIAudjtrZ6jvUSbrCvXBrNUvR/fX2uRrk6ZAAqE8g==
             -----END AGE ENCRYPTED FILE-----
           recipient: age1ffvr5pqd2lfj24e3fh53s92z6h76fda3du4y4k6r3yjumdwvpfgqzj033a
-    lastmodified: "2026-11-13T23:47:25Z"
-    mac: ENC[AES256_GCM,data:Y324DGXheX37BYf0GABK+Y/FmF0pgW8oXwh4NzQvWCWbcIWvye7olVm3nns3QXq96+w6piN68mfbCzR8d7CEiBuUwyxzfZlR82Gc4tivEHpCdlydoEGxB9y6zugRE7kOHse0zOdzdpOTiDVhqLtfj9ElTLVUU1PS3Oi6y1GAdOQ=,iv:CsTI83emPOv2u9c3XndVsM/sTfrILzTxUR8IVD8iOZM=,tag:1DatgHy4hhnmrnbn96xZxQ==,type:str]
+    lastmodified: "2026-11-14T21:26:27Z"
+    mac: ENC[AES256_GCM,data:U64Odw9yaApP69lvjSk0ZE+u1Rawuy0yqPMboCEeR17f+7qUNnCgX5v1W8EozkH2q8A3Itqqk2FubcCaslgnK69TSkMcuecmNbTEh2F3MxPCp5lRi2Ujngk8870Xue/x3N/rPne4Q3Uqw79Yh5WTdyNpgIhJZbEryhcsSKoERXg=,iv:B3QN/LRmgGBjwHi1n7rggqKwF6G1p/ZucsVziTr3kd0=,tag:JTfn+SF3fISeN5mkMSUGcQ==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1
