@@ -13,7 +13,10 @@
             vfat."/dev/disk/by-partlabel/nas-boot" = "/boot";
             btrfs = {
               "/dev/lvm/root1" = {
-                "/nix" = "/nix";
+                "/nix/rootfs" = "/nix/rootfs";
+                "/nix/backup" = "/nix/backup";
+                "/nix/nodatacow" = "/nix/nodatacow";
+                "/nix/persistent" = "/nix/persistent";
                 "/nix/rootfs/current" = "/";
                 "/" = "/nix/export";
                 "/nix/remote/xmuhk" = "/public/home/xmuhk";
@@ -21,7 +24,7 @@
                 "/nix/remote/wlin" = "/data/gpfs01/wlin";
                 "/nix/remote/hwang" = "/data/gpfs01/hwang";
               };
-              "/dev/lvm/ssd2"."/nix/ssd" = "/nix/ssd";
+              "/dev/lvm/ssd2"."/nix" = "/nix";
             };
           };
           swap = [ "/dev/lvm/swap" ];
