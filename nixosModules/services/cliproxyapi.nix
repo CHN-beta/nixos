@@ -57,6 +57,10 @@
             ];
             model-alias.antigravity = [
               {
+                name = "gemini-4-hydrogen-xhigh";
+                alias = "gemini-4-hydrogen";
+              }
+              {
                 name = "gemini-4-argon-high";
                 alias = "gemini-4-argon";
               }

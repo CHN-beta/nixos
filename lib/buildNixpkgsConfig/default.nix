@@ -210,7 +210,7 @@ let
           patches = prev.patches or [ ] ++ [ ./headscale.patch ];
         });
         cliproxyapi = prev.cliproxyapi.overrideAttrs (prevAttrs: {
-          version = "8.0.64-unstable-2026-10-26";
+          version = "8.0.69-unstable-2026-10-26";
           src = self.inputs.cliproxyapi;
           vendorHash = "sha256-02Qqrs9lQ0kE+Tnk/SWvlkLXGSh8RQPxRawFZogRYNc=";
           passthru =
