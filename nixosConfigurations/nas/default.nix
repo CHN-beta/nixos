@@ -114,10 +114,7 @@
           ssd = "/nix/ssd";
         };
         pppoe.interface = "enp2s0";
-        cliproxyapi = {
-          hostname = "internal.cliproxyapi.chn.moe";
-          users = [ "chn" ];
-        };
+        cliproxyapi.users = [ "chn" ];
       };
       packages = {
         desktopPython = { };

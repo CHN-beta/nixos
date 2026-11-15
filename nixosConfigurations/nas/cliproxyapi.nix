@@ -5,28 +5,15 @@
   ...
 }:
 {
-  options.nixos.services.cliproxyapi = lib.mkOption {
-    type = lib.types.nullOr (
-      lib.types.submodule (submoduleInputs: {
-        options = {
-          users = lib.mkOption {
-            type = lib.types.listOf lib.types.str;
-            default = [ ];
-          };
-          hostname = lib.mkOption {
-            type = lib.types.str;
-            default = "cliproxyapi.chn.moe";
-          };
-        };
-      })
-    );
-    default = null;
+  options.nixos.services.cliproxyapi.users = lib.mkOption {
+    type = lib.types.listOf lib.types.str;
+    default = [ ];
   };
   config =
     let
       inherit (config.nixos.services) cliproxyapi;
     in
-    lib.mkIf (cliproxyapi != null) {
+    {
       services.cliproxyapi = {
         enable = true;
         settings = {
@@ -213,7 +200,7 @@
       nixos = {
         services = {
           postgresql.instances.cliproxyapi = { };
-          nginx.https."${cliproxyapi.hostname}" = {
+          nginx.https."internal.cliproxyapi.chn.moe" = {
             global.extraConfig = ''
               # Forward streaming responses immediately without buffering or caching.
               proxy_buffering off;
