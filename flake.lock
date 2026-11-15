@@ -993,6 +993,22 @@
         "url": "https://github.com/CHN-beta/misskey"
       }
     },
+    "modern-web-guidance": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794280113,
+        "narHash": "sha256-bqsUEI1yaGy1sd8DBJzG5cOv4Yv0RSYac6e9egqYFJU=",
+        "owner": "GoogleChrome",
+        "repo": "modern-web-guidance",
+        "rev": "4dd968349e54ca45a05dd5c818fb035c9054b022",
+        "type": "github"
+      },
+      "original": {
+        "owner": "GoogleChrome",
+        "repo": "modern-web-guidance",
+        "type": "github"
+      }
+    },
     "mumax": {
       "flake": false,
       "locked": {
@@ -1837,6 +1853,7 @@
         "mcp-server-qdrant": "mcp-server-qdrant",
         "mirism-old": "mirism-old",
         "misskey": "misskey",
+        "modern-web-guidance": "modern-web-guidance",
         "mumax": "mumax",
         "nameof": "nameof",
         "nc4nix": "nc4nix",

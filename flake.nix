@@ -266,6 +266,10 @@
       url = "github:CHN-beta/Cli-Proxy-API-Management-Center";
       flake = false;
     };
+    modern-web-guidance = {
+      url = "github:GoogleChrome/modern-web-guidance";
+      flake = false;
+    };
   };
 
   outputs = inputs: rec {

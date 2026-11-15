@@ -2,6 +2,7 @@
   lib,
   config,
   pkgs,
+  self,
   ...
 }:
 {
@@ -447,6 +448,7 @@
               };
               github.enabled = true;
               setupVersion = 2;
+              skills.customDirectories = [ "${self.inputs.modern-web-guidance}/skills" ];
             };
             package = pkgs.writeShellScriptBin "omp" ''
               export HINDSIGHT_API_TOKEN="$(cat '${
@@ -474,6 +476,7 @@
               }
               export OPENALEX_MAILTO=chn@chn.moe
               export PUPPETEER_EXECUTABLE_PATH=${pkgs.chromium}/bin/chromium
+              export DISABLE_TELEMETRY=1
               exec ${lib.getExe pkgs.omp} "$@"
             '';
           };
