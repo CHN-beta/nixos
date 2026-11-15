@@ -145,6 +145,20 @@
                     api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/gemini".path;
                   }
                 ];
+                models = [
+                  {
+                    name = "gemini-4-hydrogen";
+                  }
+                  {
+                    name = "gemini-4-argon";
+                  }
+                  {
+                    name = "gemini-4-carbon";
+                  }
+                  {
+                    name = "gemini-3.8-flash";
+                  }
+                ];
               }
             ];
             openai-compatibility = [
