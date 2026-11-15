@@ -211,6 +211,9 @@
                   {
                     name = "gemini-4-carbon";
                   }
+                  {
+                    name = "gemini-3.8-flash";
+                  }
                 ];
               }
             ];
