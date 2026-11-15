@@ -35,13 +35,6 @@
           };
           oauth = {
             auth-dir = "/var/lib/cliproxyapi/.cli-proxy-api";
-            model-alias.codex = [
-              {
-                name = "gpt-6.1-sol";
-                alias = "code";
-                fork = true;
-              }
-            ];
             model-alias.antigravity = [
               {
                 name = "gemini-4-hydrogen-xhigh";
@@ -168,10 +161,6 @@
                   {
                     name = "deepseek-flash";
                   }
-                  {
-                    name = "deepseek-flash";
-                    alias = "code";
-                  }
                 ];
               }
               {
@@ -186,6 +175,27 @@
                 models = [
                   {
                     name = "doubao-seed-evolving";
+                  }
+                ];
+              }
+              {
+                name = "4router-gemini";
+                base-url = "https://4router.net/v1";
+                priority = -2;
+                keys = [
+                  {
+                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/4router-gemini".path;
+                  }
+                ];
+                models = [
+                  {
+                    name = "gemini-4-hydrogen";
+                  }
+                  {
+                    name = "gemini-4-argon";
+                  }
+                  {
+                    name = "gemini-4-carbon";
                   }
                 ];
               }
@@ -222,6 +232,7 @@
               "cliproxyapi/gemini" = { };
               "cliproxyapi/deepseek" = { };
               "cliproxyapi/ark" = { };
+              "cliproxyapi/4router-gemini" = { };
             };
           templates."cliproxyapi/postgres-dsn".content = "postgres://cliproxyapi:${
             config.nixos.system.sops.placeholder."postgresql/cliproxyapi"
