@@ -84,6 +84,295 @@
               usage-statistics-enabled = true;
               redis-usage-queue-retention-seconds = 60;
               postgres-dsn._secret = config.nixos.system.sops.templates."cliproxyapi/postgres-dsn".path;
+              # Client API key billing rates in USD per million tokens. cliproxyapi
+              # ships no built-in prices: a model missing here is billed at zero.
+              # Entries match in order (case-insensitive `*` globs, first match
+              # wins), so keep specific names before broader patterns.
+              model-pricing = [
+                ## Gemini 4 shared rate card
+                {
+                  model = "gemini-4-*";
+                  input = 0.20;
+                  cache-read = 0.01;
+                  output = 1.00;
+                }
+                ## Gemini 3.x / 2.5 flash family
+                {
+                  model = "gemini-3.8-flash";
+                  input = 0.075;
+                  cache-read = 0.0075;
+                  output = 0.375;
+                }
+                {
+                  model = "gemini-3.7-flash";
+                  input = 0.075;
+                  cache-read = 0.0075;
+                  output = 0.375;
+                }
+                {
+                  model = "gemini-3.6-flash";
+                  input = 0.075;
+                  cache-read = 0.0075;
+                  output = 0.375;
+                }
+                {
+                  model = "gemini-3.5-flash";
+                  input = 0.15;
+                  cache-read = 0.015;
+                  output = 0.75;
+                }
+                {
+                  model = "gemini-3.5-flash-lite";
+                  input = 0.03;
+                  cache-read = 0.003;
+                  output = 0.25;
+                }
+                {
+                  model = "gemini-3-flash";
+                  input = 0.05;
+                  cache-read = 0.005;
+                  output = 0.30;
+                }
+                {
+                  model = "gemini-3-flash-preview";
+                  input = 0.05;
+                  cache-read = 0.005;
+                  output = 0.30;
+                }
+                {
+                  model = "gemini-3.1-flash-lite";
+                  input = 0.025;
+                  cache-read = 0.0025;
+                  output = 0.15;
+                }
+                {
+                  model = "gemini-3.1-flash-lite-preview";
+                  input = 0.025;
+                  cache-read = 0.0025;
+                  output = 0.15;
+                }
+                {
+                  model = "gemini-2.5-flash";
+                  input = 0.03;
+                  cache-read = 0.003;
+                  output = 0.25;
+                }
+                {
+                  model = "gemini-2.5-flash-lite";
+                  input = 0.01;
+                  cache-read = 0.001;
+                  output = 0.04;
+                }
+                ## Gemini Pro tiered pricing (>200k input tokens)
+                {
+                  model = "gemini-3.1-pro";
+                  input = 0.20;
+                  cache-read = 0.02;
+                  output = 1.20;
+                  tiers = [
+                    {
+                      min-input-tokens = 200001;
+                      input = 0.40;
+                      cache-read = 0.04;
+                      output = 1.80;
+                    }
+                  ];
+                }
+                {
+                  model = "gemini-3.1-pro-preview";
+                  input = 0.20;
+                  cache-read = 0.02;
+                  output = 1.20;
+                  tiers = [
+                    {
+                      min-input-tokens = 200001;
+                      input = 0.40;
+                      cache-read = 0.04;
+                      output = 1.80;
+                    }
+                  ];
+                }
+                {
+                  model = "gemini-3-pro";
+                  input = 0.20;
+                  cache-read = 0.02;
+                  output = 1.20;
+                  tiers = [
+                    {
+                      min-input-tokens = 200001;
+                      input = 0.40;
+                      cache-read = 0.04;
+                      output = 1.80;
+                    }
+                  ];
+                }
+                {
+                  model = "gemini-3-pro-preview";
+                  input = 0.20;
+                  cache-read = 0.02;
+                  output = 1.20;
+                  tiers = [
+                    {
+                      min-input-tokens = 200001;
+                      input = 0.40;
+                      cache-read = 0.04;
+                      output = 1.80;
+                    }
+                  ];
+                }
+                {
+                  model = "gemini-2.5-pro";
+                  input = 0.125;
+                  cache-read = 0.0125;
+                  output = 1.00;
+                  tiers = [
+                    {
+                      min-input-tokens = 200001;
+                      input = 0.25;
+                      cache-read = 0.025;
+                      output = 1.50;
+                    }
+                  ];
+                }
+                ## DeepSeek
+                {
+                  model = "deepseek-flash";
+                  input = 0.44;
+                  cache-read = 0.014;
+                  output = 1.32;
+                }
+                {
+                  model = "deepseek-v4-flash";
+                  input = 0.44;
+                  cache-read = 0.014;
+                  output = 1.32;
+                }
+                {
+                  model = "deepseek-chat";
+                  input = 0.44;
+                  cache-read = 0.014;
+                  output = 1.32;
+                }
+                {
+                  model = "deepseek-v4-pro";
+                  input = 1.32;
+                  cache-read = 0.042;
+                  output = 3.96;
+                }
+                {
+                  model = "deepseek-reasoner";
+                  input = 1.32;
+                  cache-read = 0.042;
+                  output = 3.96;
+                }
+                ## Doubao Seed
+                {
+                  model = "doubao-seed-evolving*";
+                  input = 0.88;
+                  cache-read = 0.176;
+                  output = 4.40;
+                }
+                {
+                  model = "doubao-seed-2.1-pro";
+                  input = 0.88;
+                  cache-read = 0.176;
+                  output = 4.40;
+                }
+                {
+                  model = "doubao-seed-2-1-pro";
+                  input = 0.88;
+                  cache-read = 0.176;
+                  output = 4.40;
+                }
+                {
+                  model = "doubao-seed-2.1-turbo";
+                  input = 0.44;
+                  cache-read = 0.088;
+                  output = 2.20;
+                }
+                {
+                  model = "doubao-seed-2-1-turbo";
+                  input = 0.44;
+                  cache-read = 0.088;
+                  output = 2.20;
+                }
+                {
+                  model = "doubao-seed-2.1-lite";
+                  input = 0.12;
+                  cache-read = 0.024;
+                  output = 0.40;
+                }
+                {
+                  model = "doubao-seed-2-1-lite";
+                  input = 0.12;
+                  cache-read = 0.024;
+                  output = 0.40;
+                }
+                ## Claude (patterns also cover dated and thinking variants)
+                {
+                  model = "claude-opus-5*";
+                  input = 0.50;
+                  cache-read = 0.05;
+                  cache-write = 0.625;
+                  output = 2.50;
+                }
+                {
+                  model = "claude-opus-4-8*";
+                  input = 0.50;
+                  cache-read = 0.05;
+                  cache-write = 0.625;
+                  output = 2.50;
+                }
+                {
+                  model = "claude-opus-4-7*";
+                  input = 0.50;
+                  cache-read = 0.05;
+                  cache-write = 0.625;
+                  output = 2.50;
+                }
+                {
+                  model = "claude-opus-4-6*";
+                  input = 0.50;
+                  cache-read = 0.05;
+                  cache-write = 0.625;
+                  output = 2.50;
+                }
+                {
+                  model = "claude-sonnet-5*";
+                  input = 0.20;
+                  cache-read = 0.02;
+                  cache-write = 0.25;
+                  output = 1.00;
+                }
+                {
+                  model = "claude-sonnet-4-6*";
+                  input = 0.30;
+                  cache-read = 0.03;
+                  cache-write = 0.375;
+                  output = 1.50;
+                }
+                {
+                  model = "claude-sonnet-4-5*";
+                  input = 0.30;
+                  cache-read = 0.03;
+                  cache-write = 0.375;
+                  output = 1.50;
+                }
+                {
+                  model = "claude-haiku-5-5*";
+                  input = 0.10;
+                  cache-read = 0.01;
+                  cache-write = 0.125;
+                  output = 0.50;
+                }
+                {
+                  model = "claude-haiku-4-5*";
+                  input = 0.10;
+                  cache-read = 0.01;
+                  cache-write = 0.125;
+                  output = 0.50;
+                }
+              ];
             };
             pprof = {
               enable = false;
