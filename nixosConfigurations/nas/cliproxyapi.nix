@@ -193,12 +193,36 @@
                 ];
               }
               {
-                name = "4router-gemini";
+                name = "4router-gemini-aty";
                 base-url = "https://4router.net/v1";
                 priority = -2;
                 keys = [
                   {
-                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/4router-gemini".path;
+                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/4router-gemini-aty".path;
+                  }
+                ];
+                models = [
+                  {
+                    name = "gemini-4-hydrogen";
+                  }
+                  {
+                    name = "gemini-4-argon";
+                  }
+                  {
+                    name = "gemini-4-carbon";
+                  }
+                  {
+                    name = "gemini-3.8-flash";
+                  }
+                ];
+              }
+              {
+                name = "4router-gemini-api";
+                base-url = "https://4router.net/v1";
+                priority = -3;
+                keys = [
+                  {
+                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/4router-gemini-api".path;
                   }
                 ];
                 models = [
@@ -249,7 +273,8 @@
               "cliproxyapi/gemini" = { };
               "cliproxyapi/deepseek" = { };
               "cliproxyapi/ark" = { };
-              "cliproxyapi/4router-gemini" = { };
+              "cliproxyapi/4router-gemini-api" = { };
+              "cliproxyapi/4router-gemini-aty" = { };
             };
           templates."cliproxyapi/postgres-dsn".content = "postgres://cliproxyapi:${
             config.nixos.system.sops.placeholder."postgresql/cliproxyapi"
