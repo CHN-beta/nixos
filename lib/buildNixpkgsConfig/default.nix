@@ -212,7 +212,7 @@ let
         cliproxyapi = prev.cliproxyapi.overrideAttrs (prevAttrs: {
           version = "8.0.69-unstable-2026-10-26";
           src = self.inputs.cliproxyapi;
-          vendorHash = "sha256-02Qqrs9lQ0kE+Tnk/SWvlkLXGSh8RQPxRawFZogRYNc=";
+          vendorHash = "sha256-GlQG6N6m2AwWn0wtM97LLKAxr2kxQTloCB8NgjUwBh4=";
           passthru =
             builtins.removeAttrs (prevAttrs.passthru or { }) [
               "management"
