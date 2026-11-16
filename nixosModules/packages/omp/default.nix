@@ -22,6 +22,38 @@
   config =
     let
       inherit (config.nixos.packages) omp;
+      # translate-mcp only parses YAML, and YAML is a JSON superset, so the
+      # config is written as Nix attrs and serialized with builtins.toJSON.
+      translateMcpConfig = pkgs.writeText "omp-translate-mcp.json" (
+        builtins.toJSON {
+          server.transport = "stdio";
+          logging = {
+            format = "json";
+            level = "info";
+            mask_text = true;
+          };
+          cache = {
+            default_ttl = "24h";
+            l1 = {
+              type = "memory";
+              max_entries = 10000;
+            };
+          };
+          providers.openai = {
+            base_url = "https://internal.cliproxyapi.chn.moe/v1";
+            api_key = "\${CLIPROXYAPI_API_KEY}";
+            default_model = "gemini-3.8-flash";
+          };
+          translation = {
+            default_provider = "openai";
+            max_text_length = 20000;
+            max_batch_items = 50;
+            request_timeout = "120s";
+            fallback_chain = [ "openai" ];
+            glossary_preprocessing = true;
+          };
+        }
+      );
     in
     lib.mkIf (omp != null) {
       assertions =
@@ -154,7 +186,7 @@
                           "-transport"
                           "stdio"
                           "-config"
-                          "${./translate-mcp.yaml}"
+                          "${translateMcpConfig}"
                         ];
                       };
                     }
