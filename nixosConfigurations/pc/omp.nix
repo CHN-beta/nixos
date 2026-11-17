@@ -333,6 +333,10 @@
             scoping = "global";
           };
           github.enabled = true;
+          task = {
+            perCallModel = "on";
+            enableEffort = true;
+          };
           setupVersion = 2;
           skills.customDirectories = [ "${self.inputs.modern-web-guidance}/skills" ];
         };
