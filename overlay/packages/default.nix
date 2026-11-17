@@ -204,9 +204,9 @@ rec {
   g1010-tool = pkgs.callPackage ./g1010-tool.nix { };
   freshman-followup = pkgs.callPackage ./freshman-followup { };
   aidesk = {
-    frontend = pkgs.callPackage ./aidesk/frontend { };
-    backend = pkgs.callPackage ./aidesk/backend { };
-    mount-wizard = pkgs.callPackage ./aidesk/mount-wizard { };
+    frontend = pkgs.callPackage "${self.inputs.aidesk}/frontend" { };
+    backend = pkgs.callPackage "${self.inputs.aidesk}/backend" { };
+    mount-wizard = pkgs.callPackage "${self.inputs.aidesk}/mount-wizard" { };
   };
   bge-m3-server = pkgs.callPackage ./bge-m3-server { };
   mcp-server-qdrant = pkgs.callPackage ./mcp-server-qdrant.nix {

@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "aidesk": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794908735,
+        "narHash": "sha256-AVfavufjuuKhNTawn5x1FcLHHnBT9OILi6pi1JUi2DA=",
+        "ref": "refs/heads/main",
+        "rev": "8a3890769784bc4aa3d045930734c7657a4b16d9",
+        "revCount": 1,
+        "type": "git",
+        "url": "ssh://gitea@ssh.git.chn.moe/chn/aidesk.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://gitea@ssh.git.chn.moe/chn/aidesk.git"
+      }
+    },
     "asmroner": {
       "flake": false,
       "locked": {
@@ -1823,6 +1839,7 @@
     },
     "root": {
       "inputs": {
+        "aidesk": "aidesk",
         "asmroner": "asmroner",
         "blog": "blog",
         "brokenaxes": "brokenaxes",

@@ -270,6 +270,10 @@
       url = "github:GoogleChrome/modern-web-guidance";
       flake = false;
     };
+    aidesk = {
+      url = "git+ssh://gitea@ssh.git.chn.moe/chn/aidesk.git";
+      flake = false;
+    };
   };
 
   outputs = inputs: rec {
