@@ -22,8 +22,6 @@
   config =
     let
       inherit (config.nixos.packages) omp;
-      # translate-mcp only parses YAML, and YAML is a JSON superset, so the
-      # config is written as Nix attrs and serialized with builtins.toJSON.
       translateMcpConfig = pkgs.writeText "omp-translate-mcp.json" (
         builtins.toJSON {
           server.transport = "stdio";
@@ -56,19 +54,6 @@
       );
     in
     lib.mkIf (omp != null) {
-      assertions =
-        let
-          missing = lib.subtractLists omp.users [
-            "chn"
-            "straycat"
-          ];
-        in
-        [
-          {
-            assertion = missing == [ ];
-            message = "The following users are not configured in OMP: ${lib.concatStringsSep ", " missing}";
-          }
-        ];
       nixos.system.sops.secrets = lib.mkMerge [
         (
           omp.users
@@ -87,17 +72,7 @@
           user:
           lib.nameValuePair "qdrant/keys/${user}" {
             owner = user;
-            key = "qdrant/${
-              if
-                lib.elem user [
-                  "chn"
-                  "straycat"
-                ]
-              then
-                ""
-              else
-                "read-only-"
-            }api-key";
+            key = "qdrant/${if user == "straycat" then "" else "read-only-"}api-key";
           }
         ))
         {
@@ -105,16 +80,8 @@
           "hindsight/keys/straycat".key = "hindsight/keys/chn";
           "omp/mineru".mode = "0444";
           "omp/github".mode = "0444";
-          "omp/vikunja/chn".owner = "chn";
-          "omp/vikunja/straycat" = {
-            owner = "straycat";
-            key = "omp/vikunja/chn";
-          };
-          "omp/matrix/chn".owner = "chn";
-          "omp/matrix/straycat" = {
-            owner = "straycat";
-            key = "omp/matrix/chn";
-          };
+          "omp/vikunja/straycat".owner = "straycat";
+          "omp/matrix/straycat".owner = "straycat";
         }
       ];
       environment.persistence."/nix/persistent".users.chn.directories = [ ".omp" ];
@@ -127,30 +94,11 @@
               let
                 modelsFile =
                   {
-                    providers = {
-                      cliproxyapi = {
-                        baseUrl = "https://internal.cliproxyapi.chn.moe/v1";
-                        api = "openai-completions";
-                        apiKey = "CLIPROXYAPI_API_KEY";
-                        discovery.type = "openai-models-list";
-                      };
-                      ollama = {
-                        baseUrl = "https://ollama.chn.moe/v1";
-                        api = "openai-completions";
-                        apiKey = "ollama";
-                        models = [
-                          {
-                            id = "hf.co/unsloth/Qwen3.8-27B-GGUF:UD-Q4_K_M";
-                            name = "Qwen3.8 27B (UD-Q4_K_M)";
-                            input = [
-                              "text"
-                              "image"
-                            ];
-                            contextWindow = 262144;
-                            maxTokens = 131072;
-                          }
-                        ];
-                      };
+                    providers.cliproxyapi = {
+                      baseUrl = "https://internal.cliproxyapi.chn.moe/v1";
+                      api = "openai-completions";
+                      apiKey = "CLIPROXYAPI_API_KEY";
+                      discovery.type = "openai-models-list";
                     };
                   }
                   |> builtins.toJSON
@@ -190,25 +138,19 @@
                         ];
                       };
                     }
-                    //
-                      lib.optionalAttrs
-                        (lib.elem user [
-                          "chn"
-                          "straycat"
-                        ])
-                        {
-                          vikunja = {
-                            command = lib.getExe pkgs.localPkgs.vikunja-mcp;
-                            env.VIKUNJA_URL = "https://vikunja.chn.moe";
-                          };
-                          matrix = {
-                            command = lib.getExe pkgs.localPkgs.matrix-mcp;
-                            env = {
-                              MATRIX_HOMESERVER = "https://matrix.chn.moe";
-                              MATRIX_USER = "hermes";
-                            };
-                          };
+                    // lib.optionalAttrs (user == "straycat") {
+                      vikunja = {
+                        command = lib.getExe pkgs.localPkgs.vikunja-mcp;
+                        env.VIKUNJA_URL = "https://vikunja.chn.moe";
+                      };
+                      matrix = {
+                        command = lib.getExe pkgs.localPkgs.matrix-mcp;
+                        env = {
+                          MATRIX_HOMESERVER = "https://matrix.chn.moe";
+                          MATRIX_USER = "hermes";
                         };
+                      };
+                    };
                   }
                   |> builtins.toJSON
                   |> pkgs.writeText "omp-mcp.json";
@@ -218,12 +160,7 @@
                     "tui.input.submit" = [ "ctrl+shift+enter" ];
                     "app.message.followUp" = [ "ctrl+enter" ];
                   }
-                  |> lib.optionalAttrs (
-                    lib.elem user [
-                      "chn"
-                      "straycat"
-                    ]
-                  )
+                  |> lib.optionalAttrs (user == "straycat")
                   |> builtins.toJSON
                   |> pkgs.writeText "omp-keybindings.yml";
                 vibePromptExtension = pkgs.writeText "omp-vibe-prompt.ts" ''
@@ -493,12 +430,7 @@
               export QDRANT_API_KEY="$(cat '${config.nixos.system.sops.secrets."qdrant/keys/${user}".path}')"
               export GITHUB_TOKEN="$(cat '${config.nixos.system.sops.secrets."omp/github".path}')"
               ${
-                if
-                  lib.elem user [
-                    "chn"
-                    "straycat"
-                  ]
-                then
+                if user == "straycat" then
                   ''
                     export VIKUNJA_API_TOKEN="$(cat "${config.nixos.system.sops.secrets."omp/vikunja/${user}".path}")"
                     export MATRIX_PASSWORD="$(cat '${config.nixos.system.sops.secrets."omp/matrix/${user}".path}')"

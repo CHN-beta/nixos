@@ -38,40 +38,68 @@
             model-alias.antigravity = [
               {
                 name = "gemini-4-hydrogen-xhigh";
-                alias = "gemini-4-hydrogen";
+                alias = "gemini-4-hydrogen-agy";
               }
               {
                 name = "gemini-4-argon-high";
-                alias = "gemini-4-argon";
+                alias = "gemini-4-argon-agy";
               }
               {
                 name = "gemini-4-carbon-high";
-                alias = "gemini-4-carbon";
+                alias = "gemini-4-carbon-agy";
               }
               {
                 name = "gemini-3.8-flash-high";
-                alias = "gemini-3.8-flash";
+                alias = "gemini-3.8-flash-agy";
               }
               {
                 name = "claude-opus-5-5-high";
-                alias = "claude-opus-5-5";
+                alias = "claude-opus-5-5-agy";
               }
               {
                 name = "claude-sonnet-5-5-high";
-                alias = "claude-sonnet-5-5";
+                alias = "claude-sonnet-5-5-agy";
               }
             ];
             providers = {
               aistudio.ws-auth = true;
-              antigravity = {
-                sensitive-words = [ "Nous Research" ];
-                antigravity-credits = true;
-              };
+              antigravity = { };
             };
           };
           access.api-keys = lib.map (user: {
             key._secret = config.nixos.system.sops.secrets."cliproxyapi/keys/${user}".path;
             name = user;
+            models =
+              if
+                lib.elem user [
+                  "chn"
+                  "infra"
+                ]
+              then
+                [ "*" ]
+              else
+                [
+                  # Gemini
+                  "gemini-3.8-flash"
+                  "gemini-4-argon"
+                  "gemini-4-carbon"
+                  "gemini-4-hydrogen"
+                  # Deepseek
+                  "deepseek-flash"
+                  "deepseek-v4-pro"
+                  # Doubao
+                  "doubao-seed-evolving"
+                  # Anthropic
+                  "claude-fable-5-2"
+                  "claude-haiku-5-5"
+                  "claude-sonnet-5-5"
+                  "claude-opus-5-5"
+                  # OpenAI
+                  "gpt-6-astra"
+                  "gpt-6-luna"
+                  "gpt-6.1-sol"
+                  "gpt-6.1-terra"
+                ];
           }) (cliproxyapi.users ++ [ "infra" ]);
           observability = {
             logs = {
@@ -84,293 +112,127 @@
               usage-statistics-enabled = true;
               redis-usage-queue-retention-seconds = 60;
               postgres-dsn._secret = config.nixos.system.sops.templates."cliproxyapi/postgres-dsn".path;
-              # Client API key billing rates in USD per million tokens. cliproxyapi
-              # ships no built-in prices: a model missing here is billed at zero.
-              # Entries match in order (case-insensitive `*` globs, first match
-              # wins), so keep specific names before broader patterns.
               model-pricing = [
-                ## Gemini 4 shared rate card
-                {
-                  model = "gemini-4-*";
-                  input = 0.20;
-                  cache-read = 0.01;
-                  output = 1.00;
-                }
-                ## Gemini 3.x / 2.5 flash family
+                ## Gemini
                 {
                   model = "gemini-3.8-flash";
-                  input = 0.075;
-                  cache-read = 0.0075;
-                  output = 0.375;
+                  input = 2.25; # 0.3375
+                  cache-read = 0.225; # 0.03375
+                  output = 11.25; # 1.6875
                 }
                 {
-                  model = "gemini-3.7-flash";
-                  input = 0.075;
-                  cache-read = 0.0075;
-                  output = 0.375;
+                  model = "gemini-4-argon";
+                  input = 6; # 0.9
+                  cache-read = 0.3; # 0.045
+                  output = 30; # 4.5
                 }
                 {
-                  model = "gemini-3.6-flash";
-                  input = 0.075;
-                  cache-read = 0.0075;
-                  output = 0.375;
+                  model = "gemini-4-carbon";
+                  input = 6; # 0.9
+                  cache-read = 0.3; # 0.045
+                  output = 30; # 4.5
                 }
                 {
-                  model = "gemini-3.5-flash";
-                  input = 0.15;
-                  cache-read = 0.015;
-                  output = 0.75;
-                }
-                {
-                  model = "gemini-3.5-flash-lite";
-                  input = 0.03;
-                  cache-read = 0.003;
-                  output = 0.25;
-                }
-                {
-                  model = "gemini-3-flash";
-                  input = 0.05;
-                  cache-read = 0.005;
-                  output = 0.30;
-                }
-                {
-                  model = "gemini-3-flash-preview";
-                  input = 0.05;
-                  cache-read = 0.005;
-                  output = 0.30;
-                }
-                {
-                  model = "gemini-3.1-flash-lite";
-                  input = 0.025;
-                  cache-read = 0.0025;
-                  output = 0.15;
-                }
-                {
-                  model = "gemini-3.1-flash-lite-preview";
-                  input = 0.025;
-                  cache-read = 0.0025;
-                  output = 0.15;
-                }
-                {
-                  model = "gemini-2.5-flash";
-                  input = 0.03;
-                  cache-read = 0.003;
-                  output = 0.25;
-                }
-                {
-                  model = "gemini-2.5-flash-lite";
-                  input = 0.01;
-                  cache-read = 0.001;
-                  output = 0.04;
-                }
-                ## Gemini Pro tiered pricing (>200k input tokens)
-                {
-                  model = "gemini-3.1-pro";
-                  input = 0.20;
-                  cache-read = 0.02;
-                  output = 1.20;
-                  tiers = [
-                    {
-                      min-input-tokens = 200001;
-                      input = 0.40;
-                      cache-read = 0.04;
-                      output = 1.80;
-                    }
-                  ];
-                }
-                {
-                  model = "gemini-3.1-pro-preview";
-                  input = 0.20;
-                  cache-read = 0.02;
-                  output = 1.20;
-                  tiers = [
-                    {
-                      min-input-tokens = 200001;
-                      input = 0.40;
-                      cache-read = 0.04;
-                      output = 1.80;
-                    }
-                  ];
-                }
-                {
-                  model = "gemini-3-pro";
-                  input = 0.20;
-                  cache-read = 0.02;
-                  output = 1.20;
-                  tiers = [
-                    {
-                      min-input-tokens = 200001;
-                      input = 0.40;
-                      cache-read = 0.04;
-                      output = 1.80;
-                    }
-                  ];
-                }
-                {
-                  model = "gemini-3-pro-preview";
-                  input = 0.20;
-                  cache-read = 0.02;
-                  output = 1.20;
-                  tiers = [
-                    {
-                      min-input-tokens = 200001;
-                      input = 0.40;
-                      cache-read = 0.04;
-                      output = 1.80;
-                    }
-                  ];
-                }
-                {
-                  model = "gemini-2.5-pro";
-                  input = 0.125;
-                  cache-read = 0.0125;
-                  output = 1.00;
-                  tiers = [
-                    {
-                      min-input-tokens = 200001;
-                      input = 0.25;
-                      cache-read = 0.025;
-                      output = 1.50;
-                    }
-                  ];
+                  model = "gemini-4-hydrogen";
+                  input = 4.5; # 0.675
+                  cache-read = 0.225; # 0.03375
+                  output = 22.5; # 3.375
                 }
                 ## DeepSeek
                 {
                   model = "deepseek-flash";
-                  input = 0.44;
-                  cache-read = 0.014;
-                  output = 1.32;
-                }
-                {
-                  model = "deepseek-v4-flash";
-                  input = 0.44;
-                  cache-read = 0.014;
-                  output = 1.32;
-                }
-                {
-                  model = "deepseek-chat";
-                  input = 0.44;
-                  cache-read = 0.014;
-                  output = 1.32;
+                  input = 3;
+                  cache-read = 0.06;
+                  output = 12;
                 }
                 {
                   model = "deepseek-v4-pro";
-                  input = 1.32;
-                  cache-read = 0.042;
-                  output = 3.96;
+                  input = 13.5;
+                  cache-read = 0.45;
+                  output = 40.5;
+                }
+                ## Doubao
+                {
+                  model = "doubao-seed-evolving";
+                  input = 9;
+                  cache-read = 1.8;
+                  output = 45;
+                }
+                ## Claude
+                {
+                  model = "claude-fable-5-2";
+                  input = 21.6;
+                  cache-read = 0.54;
+                  cache-write = 27;
+                  output = 108;
                 }
                 {
-                  model = "deepseek-reasoner";
-                  input = 1.32;
-                  cache-read = 0.042;
-                  output = 3.96;
-                }
-                ## Doubao Seed
-                {
-                  model = "doubao-seed-evolving*";
-                  input = 0.88;
-                  cache-read = 0.176;
-                  output = 4.40;
-                }
-                {
-                  model = "doubao-seed-2.1-pro";
-                  input = 0.88;
-                  cache-read = 0.176;
-                  output = 4.40;
+                  model = "claude-haiku-5-5";
+                  input = 0.27;
+                  cache-read = 0.027;
+                  cache-write = 0.3375;
+                  output = 1.35;
+                  tiers = [
+                    {
+                      min-input-tokens = 100001;
+                      input = 1.35;
+                      cache-read = 0.135;
+                      cache-write = 1.6875;
+                      output = 6.75;
+                    }
+                  ];
                 }
                 {
-                  model = "doubao-seed-2-1-pro";
-                  input = 0.88;
-                  cache-read = 0.176;
-                  output = 4.40;
+                  model = "claude-sonnet-5-5";
+                  input = 5.4;
+                  cache-read = 0.27;
+                  cache-write = 6.75;
+                  output = 27;
                 }
                 {
-                  model = "doubao-seed-2.1-turbo";
-                  input = 0.44;
-                  cache-read = 0.088;
-                  output = 2.20;
+                  model = "claude-opus-5-5";
+                  input = 10.8;
+                  cache-read = 0.54;
+                  cache-write = 13.5;
+                  output = 54;
+                }
+                # OpenAI
+                {
+                  model = "gpt-6-astra";
+                  input = 7.5;
+                  cache-read = 0.75;
+                  cache-write = 9.375;
+                  output = 37.5;
                 }
                 {
-                  model = "doubao-seed-2-1-turbo";
-                  input = 0.44;
-                  cache-read = 0.088;
-                  output = 2.20;
+                  model = "gpt-6-luna";
+                  input = 0.075;
+                  cache-read = 0.0075;
+                  cache-write = 0.09375;
+                  output = 0.375;
+                  tiers = [
+                    {
+                      min-input-tokens = 272001;
+                      input = 0.15;
+                      cache-read = 0.015;
+                      cache-write = 0.1875;
+                      output = 0.5625;
+                    }
+                  ];
                 }
                 {
-                  model = "doubao-seed-2.1-lite";
-                  input = 0.12;
-                  cache-read = 0.024;
-                  output = 0.40;
+                  model = "gpt-6.1-sol";
+                  input = 1.5;
+                  cache-read = 0.075;
+                  cache-write = 1.875;
+                  output = 7.5;
                 }
                 {
-                  model = "doubao-seed-2-1-lite";
-                  input = 0.12;
-                  cache-read = 0.024;
-                  output = 0.40;
-                }
-                ## Claude (patterns also cover dated and thinking variants)
-                {
-                  model = "claude-opus-5*";
-                  input = 0.50;
-                  cache-read = 0.05;
-                  cache-write = 0.625;
-                  output = 2.50;
-                }
-                {
-                  model = "claude-opus-4-8*";
-                  input = 0.50;
-                  cache-read = 0.05;
-                  cache-write = 0.625;
-                  output = 2.50;
-                }
-                {
-                  model = "claude-opus-4-7*";
-                  input = 0.50;
-                  cache-read = 0.05;
-                  cache-write = 0.625;
-                  output = 2.50;
-                }
-                {
-                  model = "claude-opus-4-6*";
-                  input = 0.50;
-                  cache-read = 0.05;
-                  cache-write = 0.625;
-                  output = 2.50;
-                }
-                {
-                  model = "claude-sonnet-5*";
-                  input = 0.20;
-                  cache-read = 0.02;
-                  cache-write = 0.25;
-                  output = 1.00;
-                }
-                {
-                  model = "claude-sonnet-4-6*";
-                  input = 0.30;
-                  cache-read = 0.03;
-                  cache-write = 0.375;
-                  output = 1.50;
-                }
-                {
-                  model = "claude-sonnet-4-5*";
-                  input = 0.30;
-                  cache-read = 0.03;
-                  cache-write = 0.375;
-                  output = 1.50;
-                }
-                {
-                  model = "claude-haiku-5-5*";
-                  input = 0.10;
-                  cache-read = 0.01;
-                  cache-write = 0.125;
-                  output = 0.50;
-                }
-                {
-                  model = "claude-haiku-4-5*";
-                  input = 0.10;
-                  cache-read = 0.01;
-                  cache-write = 0.125;
-                  output = 0.50;
+                  model = "gpt-6.1-terra";
+                  input = 0.75;
+                  cache-read = 0.0375;
+                  cache-write = 0.9375;
+                  output = 3.75;
                 }
               ];
             };
@@ -464,6 +326,9 @@
                   {
                     name = "deepseek-flash";
                   }
+                  {
+                    name = "deepseek-V4-pro";
+                  }
                 ];
               }
               {
@@ -482,26 +347,30 @@
                 ];
               }
               {
-                name = "4router-gemini-aty";
+                name = "4router-gemini-agy";
                 base-url = "https://4router.net/v1";
                 priority = -2;
                 keys = [
                   {
-                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/4router-gemini-aty".path;
+                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/4router-gemini-agy".path;
                   }
                 ];
                 models = [
                   {
                     name = "gemini-4-hydrogen";
+                    alias = "gemini-4-hydrogen-agy";
                   }
                   {
                     name = "gemini-4-argon";
+                    alias = "gemini-4-argon-agy";
                   }
                   {
                     name = "gemini-4-carbon";
+                    alias = "gemini-4-carbon-agy";
                   }
                   {
                     name = "gemini-3.8-flash";
+                    alias = "gemini-3.8-flash-agy";
                   }
                 ];
               }
@@ -563,7 +432,7 @@
               "cliproxyapi/deepseek" = { };
               "cliproxyapi/ark" = { };
               "cliproxyapi/4router-gemini-api" = { };
-              "cliproxyapi/4router-gemini-aty" = { };
+              "cliproxyapi/4router-gemini-agy" = { };
             };
           templates."cliproxyapi/postgres-dsn".content = "postgres://cliproxyapi:${
             config.nixos.system.sops.placeholder."postgresql/cliproxyapi"

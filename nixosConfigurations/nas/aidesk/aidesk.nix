@@ -13,16 +13,6 @@ let
     "rdhx"
     "yzt"
   ];
-  # The SPA is served unauthenticated by the public proxy (vps6) on
-  # aidesk.chn.moe; only the per-user API runs here, behind Authelia.
-  domain = "api.aidesk.chn.moe";
-  frontendOrigin = "https://aidesk.chn.moe";
-  site = "https:${domain}";
-
-  # nginx talks to Authelia and to the per-user backends over unix sockets
-  autheliaSocket = "/run/authelia-main/authelia.sock";
-  backendSocketDir = "/run/aidesk";
-  backendSocket = user: "${backendSocketDir}-${user}/aidesk.sock";
 in
 {
   nixos = {
@@ -40,7 +30,7 @@ in
           }
         ];
       };
-      nginx.https.${domain} = {
+      nginx.https."api.aidesk.chn.moe" = {
         global.extraConfig = ''
           # terminal streams and server-sent events must not be buffered
           proxy_buffering off;
@@ -50,7 +40,7 @@ in
           # The SPA runs on another origin and calls this API with the Authelia
           # cookie. "always" also covers 401/403/5xx: without it the browser turns
           # those into opaque CORS failures and fetch() cannot see the 401.
-          add_header Access-Control-Allow-Origin "${frontendOrigin}" always;
+          add_header Access-Control-Allow-Origin "https://aidesk.chn.moe" always;
           add_header Access-Control-Allow-Credentials "true" always;
           add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
           add_header Access-Control-Allow-Headers "Content-Type, Authorization, Accept, Cache-Control, Last-Event-ID, If-None-Match, Range" always;
@@ -78,17 +68,11 @@ in
         '';
         location = {
           # proxy_pass runs with variables, so the original request URI is forwarded
-          "/api/".proxy.upstream = "http://unix:${backendSocketDir}-$authelia_user/aidesk.sock:";
+          "/api/".proxy.upstream = "http://unix:/run/aidesk-$authelia_user/aidesk.sock:";
         };
       };
     };
   };
-  # In /etc/shadow "!" means "locked", which OpenSSH rejects outright unless
-  # UsePAM is on, while "*" only means "no unix password". lcl, mhy and rdhx
-  # have neither a hashedPassword nor a hashedPasswordFile, so
-  # update-users-groups.pl would lock them with "!" even though they
-  # authenticate through the Authelia PAM rule below; mkDefault leaves the
-  # real hashes of straycat and wyh untouched.
   users.users = lib.genAttrs users (user: {
     hashedPassword = lib.mkDefault "*";
   });
@@ -131,10 +115,10 @@ in
               --silent --show-error \
               --connect-timeout 3 --max-time 10 \
               --proxy "" \
-              --unix-socket ${autheliaSocket} \
+              --unix-socket /run/authelia-main/authelia.sock \
               --config <(printf 'header = "Authorization: Basic %s"\n' "$credentials") \
               --header "X-Original-Method: GET" \
-              --header "X-Original-URL: https://${domain}/" \
+              --header "X-Original-URL: https://api.aidesk.chn.moe/" \
               --output /dev/null --write-out '%{http_code}' \
               "http://localhost/api/authz/auth-request") || exit 1
 
@@ -151,7 +135,7 @@ in
   services = {
     authelia.instances.main.settings.access_control.rules = [
       {
-        inherit domain;
+        domain = "api.aidesk.chn.moe";
         policy = "one_factor";
         subject = builtins.map (user: "user:${user}") users;
       }
@@ -162,7 +146,7 @@ in
       Match User ${lib.concatStringsSep "," users}
         PasswordAuthentication yes
     '';
-    nginx.virtualHosts.${site}.locations = {
+    nginx.virtualHosts."https:api.aidesk.chn.moe".locations = {
       "/api/".extraConfig = ''
         proxy_set_header Remote-User $authelia_user;
         proxy_set_header Remote-Groups $authelia_groups;
@@ -174,7 +158,7 @@ in
       "= /internal/authelia/authz".extraConfig = ''
         internal;
         auth_request off;
-        proxy_pass http://unix:${autheliaSocket}:/api/authz/auth-request;
+        proxy_pass http://unix:/run/authelia-main/authelia.sock:/api/authz/auth-request;
         proxy_set_header X-Original-Method $request_method;
         proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
         proxy_set_header X-Forwarded-For $remote_addr;
@@ -204,7 +188,7 @@ in
           # connect; the service keeps the user's own uid for everything else
           Group = config.services.nginx.group;
           WorkingDirectory = "/home/${user}";
-          ExecStart = "${pkgs.localPkgs.aidesk.backend}/bin/aidesk-backend --socket ${backendSocket user}";
+          ExecStart = "${pkgs.localPkgs.aidesk.backend}/bin/aidesk-backend --socket /run/aidesk-${user}/aidesk.sock";
           RuntimeDirectory = "aidesk-${user}";
           RuntimeDirectoryMode = "0750";
           Restart = "on-failure";
