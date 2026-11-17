@@ -375,6 +375,54 @@
                 ];
               }
               {
+                name = "4router-openai";
+                base-url = "https://4router.net/v1";
+                priority = -2;
+                keys = [
+                  {
+                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/4router-openai".path;
+                  }
+                ];
+                models = [
+                  {
+                    name = "gpt-6-astra";
+                  }
+                  {
+                    name = "gpt-6-luna";
+                  }
+                  {
+                    name = "gpt-6.1-sol";
+                  }
+                  {
+                    name = "gpt-6.1-terra";
+                  }
+                ];
+              }
+              {
+                name = "4router-anthropic";
+                base-url = "https://4router.net/v1";
+                priority = -2;
+                keys = [
+                  {
+                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/4router-anthropic".path;
+                  }
+                ];
+                models = [
+                  {
+                    name = "claude-fable-5-2";
+                  }
+                  {
+                    name = "claude-haiku-5-5";
+                  }
+                  {
+                    name = "claude-opus-5-5";
+                  }
+                  {
+                    name = "claude-sonnet-5-5";
+                  }
+                ];
+              }
+              {
                 name = "4router-gemini-api";
                 base-url = "https://4router.net/v1";
                 priority = -3;
@@ -433,6 +481,8 @@
               "cliproxyapi/ark" = { };
               "cliproxyapi/4router-gemini-api" = { };
               "cliproxyapi/4router-gemini-agy" = { };
+              "cliproxyapi/4router-openai" = { };
+              "cliproxyapi/4router-anthropic" = { };
             };
           templates."cliproxyapi/postgres-dsn".content = "postgres://cliproxyapi:${
             config.nixos.system.sops.placeholder."postgresql/cliproxyapi"
