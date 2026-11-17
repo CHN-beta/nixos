@@ -76,7 +76,6 @@
           }
         ))
         {
-          "cliproxyapi/keys/straycat".key = "cliproxyapi/keys/chn";
           "hindsight/keys/straycat".key = "hindsight/keys/chn";
           "omp/mineru".mode = "0444";
           "omp/github".mode = "0444";
