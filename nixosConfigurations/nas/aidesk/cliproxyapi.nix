@@ -103,8 +103,9 @@
             logs = {
               debug = false;
               logging-to-file = false;
-              logs-max-total-size-mb = 0;
+              logs-max-total-size-mb = 1024;
               error-logs-max-files = 10;
+              request-log = true;
             };
             usage = {
               usage-statistics-enabled = true;
@@ -217,7 +218,7 @@
             };
           };
           requests = {
-            proxy-url = "";
+            proxy-url = "socks5://127.0.0.1:10886";
             passthrough-headers = false;
             nonstream-keepalive-interval = 0;
           };
@@ -292,6 +293,7 @@
                 name = "deepseek";
                 base-url = "https://api.deepseek.com";
                 priority = -1;
+                proxy-url = "direct";
                 keys = [
                   {
                     api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/deepseek".path;
@@ -310,6 +312,7 @@
                 name = "doubao";
                 base-url = "https://ark.cn-beijing.volces.com/api/v3";
                 priority = -1;
+                proxy-url = "direct";
                 keys = [
                   {
                     api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/ark".path;
