@@ -166,6 +166,12 @@ in
                     };
                     tag = "common-socks-in";
                   }
+                  {
+                    port = 10886;
+                    protocol = "socks";
+                    settings.udp = true;
+                    tag = "vps6-socks-in";
+                  }
                 ];
                 outbounds =
                   builtins.map (server: {
@@ -256,6 +262,10 @@ in
                           "proxy-socks-in"
                         ];
                         outboundTag = "vless-${proxyUsing}";
+                      }
+                      {
+                        inboundTag = [ "vps6-socks-in" ];
+                        outboundTag = "vless-vps6";
                       }
                       {
                         inboundTag = [
