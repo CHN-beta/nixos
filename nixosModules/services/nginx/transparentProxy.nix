@@ -47,6 +47,7 @@
           proxy_pass $transparent_proxy_backend;
           proxy_connect_timeout 1s;
           proxy_socket_keepalive on;
+          proxy_timeout 1d;
           proxy_buffer_size 128k;
           access_log syslog:server=unix:/dev/log transparent_proxy;
         }

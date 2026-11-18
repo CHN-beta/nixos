@@ -68,6 +68,12 @@ in
               group = config.users.users.v2ray.group;
               content = builtins.toJSON {
                 log.loglevel = "warning";
+                policy.levels."0" = {
+                  handshake = 120;
+                  connIdle = 3600;
+                  uplinkOnly = 600;
+                  downlinkOnly = 3600;
+                };
                 dns = {
                   servers =
                     # try to match the domain list first, if matched successfully, use the first two dns for query.
@@ -196,7 +202,13 @@ in
                         publicKey = "Nl0eVZoDF9d71_3dVsZGJl3UWR9LCv3B14gu7G6vhjk";
                         fingerprint = "firefox";
                       };
-                      xhttpSettings.path = "/kT9hRk6D4gJ5WxNT";
+                      xhttpSettings = {
+                        path = "/kT9hRk6D4gJ5WxNT";
+                        xmux = {
+                          maxConcurrency = "16-32";
+                          hKeepAlivePeriod = 120;
+                        };
+                      };
                     };
                     tag = "vless-${server}";
                   }) proxyServers
@@ -309,6 +321,7 @@ in
             secrets."xray-client/uuid" = { };
           };
           systemd.services.xray = {
+            environment.XRAY_BUF_SPLICE = "disable";
             serviceConfig = {
               DynamicUser = lib.mkForce false;
               User = "v2ray";

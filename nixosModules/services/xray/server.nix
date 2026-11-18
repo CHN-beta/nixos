@@ -205,6 +205,10 @@ in
             };
             policy = {
               levels."0" = {
+                handshake = 120;
+                connIdle = 3600;
+                uplinkOnly = 600;
+                downlinkOnly = 3600;
                 statsUserUplink = true;
                 statsUserDownlink = true;
               };
@@ -261,6 +265,7 @@ in
     systemd = {
       services = {
         xray = {
+          environment.XRAY_BUF_SPLICE = "disable";
           serviceConfig = {
             DynamicUser = lib.mkForce false;
             User = "v2ray";
