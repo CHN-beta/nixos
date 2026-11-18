@@ -38,27 +38,27 @@
             model-alias.antigravity = [
               {
                 name = "gemini-4-hydrogen-xhigh";
-                alias = "gemini-4-hydrogen";
+                alias = "gemini-4-hydrogen-agy";
               }
               {
                 name = "gemini-4-argon-high";
-                alias = "gemini-4-argon";
+                alias = "gemini-4-argon-agy";
               }
               {
                 name = "gemini-4-carbon-high";
-                alias = "gemini-4-carbon";
+                alias = "gemini-4-carbon-agy";
               }
               {
                 name = "gemini-3.8-flash-high";
-                alias = "gemini-3.8-flash";
+                alias = "gemini-3.8-flash-agy";
               }
               {
                 name = "claude-opus-5-5-high";
-                alias = "claude-opus-5-5";
+                alias = "claude-opus-5-5-agy";
               }
               {
                 name = "claude-sonnet-5-5-high";
-                alias = "claude-sonnet-5-5";
+                alias = "claude-sonnet-5-5-agy";
               }
             ];
             providers = {
