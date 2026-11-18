@@ -95,10 +95,8 @@
                   "claude-sonnet-5-5"
                   "claude-opus-5-5"
                   # OpenAI
-                  "gpt-6-astra"
-                  "gpt-6-luna"
-                  "gpt-6.1-sol"
-                  "gpt-6.1-terra"
+                  "gpt-6.2-astra"
+                  "gpt-6.2-sol"
                 ];
           }) (cliproxyapi.users ++ [ "infra" ]);
           observability = {
@@ -198,41 +196,18 @@
                 }
                 # OpenAI
                 {
-                  model = "gpt-6-astra";
-                  input = 7.5;
-                  cache-read = 0.75;
-                  cache-write = 9.375;
-                  output = 37.5;
+                  model = "gpt-6.2-astra";
+                  input = 6;
+                  cache-read = 0.3;
+                  cache-write = 7.5;
+                  output = 30;
                 }
                 {
-                  model = "gpt-6-luna";
-                  input = 0.075;
-                  cache-read = 0.0075;
-                  cache-write = 0.09375;
-                  output = 0.375;
-                  tiers = [
-                    {
-                      min-input-tokens = 272001;
-                      input = 0.15;
-                      cache-read = 0.015;
-                      cache-write = 0.1875;
-                      output = 0.5625;
-                    }
-                  ];
-                }
-                {
-                  model = "gpt-6.1-sol";
+                  model = "gpt-6.2-sol";
                   input = 1.5;
                   cache-read = 0.075;
                   cache-write = 1.875;
                   output = 7.5;
-                }
-                {
-                  model = "gpt-6.1-terra";
-                  input = 0.75;
-                  cache-read = 0.0375;
-                  cache-write = 0.9375;
-                  output = 3.75;
                 }
               ];
             };
@@ -385,16 +360,10 @@
                 ];
                 models = [
                   {
-                    name = "gpt-6-astra";
+                    name = "gpt-6.2-astra";
                   }
                   {
-                    name = "gpt-6-luna";
-                  }
-                  {
-                    name = "gpt-6.1-sol";
-                  }
-                  {
-                    name = "gpt-6.1-terra";
+                    name = "gpt-6.2-sol";
                   }
                 ];
               }
