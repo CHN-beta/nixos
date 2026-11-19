@@ -210,9 +210,9 @@ let
           patches = prev.patches or [ ] ++ [ ./headscale.patch ];
         });
         cliproxyapi = prev.cliproxyapi.overrideAttrs (prevAttrs: {
-          version = "8.0.69-unstable-2026-10-26";
+          version = "8.0.78-unstable-2026-11-19";
           src = self.inputs.cliproxyapi;
-          vendorHash = "sha256-GlQG6N6m2AwWn0wtM97LLKAxr2kxQTloCB8NgjUwBh4=";
+          vendorHash = "sha256-89DZv8uj0rD5fgbfLZk6TuoYw2SfX1vhV88T4degwg8=";
           passthru =
             builtins.removeAttrs (prevAttrs.passthru or { }) [
               "management"

@@ -314,11 +314,11 @@
     "cliproxyapi": {
       "flake": false,
       "locked": {
-        "lastModified": 1794826497,
-        "narHash": "sha256-ED5LLAn95qrNM+LH5zgr+H/MRbDDnthPZOUoK7O6XfM=",
+        "lastModified": 1795048610,
+        "narHash": "sha256-exQwVXIb1i2ZYkfcvNSn/EXiBCwQ1k71oKK8kBdnC/Y=",
         "owner": "CHN-beta",
         "repo": "CLIProxyAPI",
-        "rev": "21a16d1363a905c38f74c25739e6a1fdc68b5672",
+        "rev": "d4eac2b429cbdcb0d2b41971410a2c41e6d89abe",
         "type": "github"
       },
       "original": {
@@ -330,11 +330,11 @@
     "cliproxyapi-management": {
       "flake": false,
       "locked": {
-        "lastModified": 1794613197,
-        "narHash": "sha256-qEaDWe0gDneaYa7wRbt60Y56uw9bKC+E+RxVGTV4WhY=",
+        "lastModified": 1795048447,
+        "narHash": "sha256-d2oG1pNiUlQFQFYBlQ5AFsUQ3pttonXd6//7kqIzk50=",
         "owner": "CHN-beta",
         "repo": "Cli-Proxy-API-Management-Center",
-        "rev": "4862e45925e56b151a6449167ca78a345ac6a9f5",
+        "rev": "86c77a88d7531c88869fd26bb9a96195acf8dcc8",
         "type": "github"
       },
       "original": {
@@ -1617,11 +1617,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1795005449,
-        "narHash": "sha256-CGnnE+dDVj+g9eYqg+xIimJnlUQwIL04gXXUBktQpaM=",
+        "lastModified": 1795068785,
+        "narHash": "sha256-2jg7N9UvaidJ73eTQjKrAPkUutFAoxv+plbiDFgXVsw=",
         "owner": "CHN-beta",
         "repo": "oh-my-pi",
-        "rev": "2a586c913d6efc1d2d0f0b321335ce486e49ad11",
+        "rev": "2faa8271b5f955bf15d9d2e8dd55109566835400",
         "type": "github"
       },
       "original": {
