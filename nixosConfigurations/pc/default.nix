@@ -125,7 +125,6 @@
         ananicy = { };
         kvm = { };
         mariadb.mountFrom = "nodatacow";
-        lumericalLicenseManager.macAddress = "a8:e2:91:52:5f:7c";
         howdy = { };
         # for debug and development
         postgresql.instances = {
@@ -140,7 +139,6 @@
       packages = {
         mathematica = { };
         vasp = { };
-        lumerical = { };
       };
       user.users = [
         "chn"
