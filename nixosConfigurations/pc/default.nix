@@ -137,7 +137,6 @@
         };
       };
       packages = {
-        mathematica = { };
         vasp = { };
       };
       user.users = [
