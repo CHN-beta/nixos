@@ -316,7 +316,7 @@
       programs.omp = {
         enable = true;
         settings = {
-          modelRoles.default = "cliproxyapi/gemini-4-hydrogen:medium";
+          modelRoles.default = "cliproxyapi/gemini-4-argon:medium";
           defaultThinkingLevel = "medium";
           hideThinkingBlock = true;
           symbolPreset = "nerd";
