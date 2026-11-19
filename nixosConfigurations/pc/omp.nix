@@ -326,6 +326,7 @@
           };
           startup.checkUpdate = false;
           telemetry.otlpExportEnabled = false;
+          dev.autoqa = false;
           memory.backend = "hindsight";
           hindsight = {
             apiUrl = "https://hindsight.chn.moe";
