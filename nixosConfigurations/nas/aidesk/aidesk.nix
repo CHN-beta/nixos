@@ -13,42 +13,6 @@ let
     "rdhx"
     "yzt"
   ];
-  modelCatalog = pkgs.writeTextDir "api/model-catalog.json" (
-    builtins.toJSON {
-      vendors = {
-        anthropic = {
-          en = "Anthropic";
-          zh-CN = "Anthropic";
-          order = 1;
-        };
-        google = {
-          en = "Google";
-          zh-CN = "Google";
-          order = 2;
-        };
-        openai = {
-          en = "OpenAI";
-          zh-CN = "OpenAI";
-          order = 3;
-        };
-        deepseek = {
-          en = "DeepSeek";
-          zh-CN = "深度求索";
-          order = 4;
-        };
-        bytedance = {
-          en = "ByteDance";
-          zh-CN = "字节跳动";
-          order = 5;
-        };
-      };
-      models = lib.listToAttrs (
-        map (pricing: lib.nameValuePair "cliproxyapi/${pricing.model}" pricing) (
-          import ./data/model-pricing.nix
-        )
-      );
-    }
-  );
 in
 {
   nixos = {
@@ -66,48 +30,98 @@ in
           }
         ];
       };
-      nginx.https."api.aidesk.chn.moe" = {
-        global.extraConfig = ''
-          # terminal streams and server-sent events must not be buffered
-          proxy_buffering off;
-          proxy_cache off;
-          gzip off;
+      nginx.https = lib.genAttrs [ "api.aidesk.chn.moe" "api2.aidesk.chn.moe" ] (
+        host:
+        lib.recursiveUpdate
+          {
+            global.extraConfig = ''
+              # terminal streams and server-sent events must not be buffered
+              proxy_buffering off;
+              proxy_cache off;
+              gzip off;
 
-          # The SPA runs on another origin and calls this API with the Authelia
-          # cookie. "always" also covers 401/403/5xx: without it the browser turns
-          # those into opaque CORS failures and fetch() cannot see the 401.
-          add_header Access-Control-Allow-Origin "https://aidesk.chn.moe" always;
-          add_header Access-Control-Allow-Credentials "true" always;
-          add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
-          add_header Access-Control-Allow-Headers "Content-Type, Authorization, Accept, Cache-Control, Last-Event-ID, If-None-Match, Range" always;
-          # fetch() can only read these when they are exposed: X-File-Mtime
-          # drives the editor's save conflict detection, ETag/If-None-Match the
-          # session list, and the length/range pair seeks in media previews.
-          add_header Access-Control-Expose-Headers "X-File-Mtime, ETag, Content-Length, Content-Range" always;
+              # The SPA runs on another origin and calls this API with the Authelia
+              # cookie. "always" also covers 401/403/5xx: without it the browser turns
+              # those into opaque CORS failures and fetch() cannot see the 401.
+              add_header Access-Control-Allow-Origin "https://aidesk.chn.moe" always;
+              add_header Access-Control-Allow-Credentials "true" always;
+              add_header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" always;
+              add_header Access-Control-Allow-Headers "Content-Type, Authorization, Accept, Cache-Control, Last-Event-ID, If-None-Match, Range" always;
+              # fetch() can only read these when they are exposed: X-File-Mtime
+              # drives the editor's save conflict detection, ETag/If-None-Match the
+              # session list, and the length/range pair seeks in media previews.
+              add_header Access-Control-Expose-Headers "X-File-Mtime, ETag, Content-Length, Content-Range" always;
 
-          # A CORS preflight carries no cookie, but it must still succeed. "if" in
-          # server context runs in the rewrite phase, before auth_request in the
-          # access phase, so the browser gets 204 here and only the real request
-          # that follows is answered with 401.
-          if ($request_method = OPTIONS) {
-            return 204;
+              # A CORS preflight carries no cookie, but it must still succeed. "if" in
+              # server context runs in the rewrite phase, before auth_request in the
+              # access phase, so the browser gets 204 here and only the real request
+              # that follows is answered with 401.
+              if ($request_method = OPTIONS) {
+                return 204;
+              }
+
+              # Authelia guards the whole site and tells us which user is logged in
+              auth_request /internal/authelia/authz;
+              auth_request_set $authelia_user $upstream_http_remote_user;
+              auth_request_set $authelia_groups $upstream_http_remote_groups;
+              auth_request_set $authelia_name $upstream_http_remote_name;
+              auth_request_set $authelia_email $upstream_http_remote_email;
+              # no error_page 401 =302: fetch() must observe the real 401 and send the
+              # top-level window to Authelia itself, with "rd" pointing back here
+            '';
+            location = {
+              # proxy_pass runs with variables, so the original request URI is forwarded
+              "/api/".proxy.upstream = "http://unix:/run/aidesk-$authelia_user/aidesk.sock:";
+              "= /api/model-catalog.json".static.root =
+                let
+                  modelCatalog = pkgs.writeTextDir "api/model-catalog.json" (
+                    builtins.toJSON {
+                      vendors = {
+                        anthropic = {
+                          en = "Anthropic";
+                          zh-CN = "Anthropic";
+                          order = 1;
+                        };
+                        google = {
+                          en = "Google";
+                          zh-CN = "Google";
+                          order = 2;
+                        };
+                        openai = {
+                          en = "OpenAI";
+                          zh-CN = "OpenAI";
+                          order = 3;
+                        };
+                        deepseek = {
+                          en = "DeepSeek";
+                          zh-CN = "深度求索";
+                          order = 4;
+                        };
+                        bytedance = {
+                          en = "ByteDance";
+                          zh-CN = "字节跳动";
+                          order = 5;
+                        };
+                      };
+                      models = lib.listToAttrs (
+                        map (pricing: lib.nameValuePair "cliproxyapi/${pricing.model}" pricing) (
+                          import ./data/model-pricing.nix
+                        )
+                      );
+                    }
+                  );
+                in
+                "${modelCatalog}";
+            };
           }
-
-          # Authelia guards the whole site and tells us which user is logged in
-          auth_request /internal/authelia/authz;
-          auth_request_set $authelia_user $upstream_http_remote_user;
-          auth_request_set $authelia_groups $upstream_http_remote_groups;
-          auth_request_set $authelia_name $upstream_http_remote_name;
-          auth_request_set $authelia_email $upstream_http_remote_email;
-          # no error_page 401 =302: fetch() must observe the real 401 and send the
-          # top-level window to Authelia itself, with "rd" pointing back here
-        '';
-        location = {
-          # proxy_pass runs with variables, so the original request URI is forwarded
-          "/api/".proxy.upstream = "http://unix:/run/aidesk-$authelia_user/aidesk.sock:";
-          "= /api/model-catalog.json".static.root = "${modelCatalog}";
-        };
-      };
+          (
+            lib.optionalAttrs (host == "api2.aidesk.chn.moe") {
+              # The HTTPS wrapper's listeners use shared internal proxy ports.
+              listen = { };
+              global.rewriteHttps = false;
+            }
+          )
+      );
     };
   };
   users.users = lib.genAttrs users (user: {
@@ -172,7 +186,10 @@ in
   services = {
     authelia.instances.main.settings.access_control.rules = [
       {
-        domain = "api.aidesk.chn.moe";
+        domain = [
+          "api.aidesk.chn.moe"
+          "api2.aidesk.chn.moe"
+        ];
         policy = "one_factor";
         subject = builtins.map (user: "user:${user}") users;
       }
@@ -183,31 +200,52 @@ in
       Match User ${lib.concatStringsSep "," users}
         PasswordAuthentication yes
     '';
-    nginx.virtualHosts."https:api.aidesk.chn.moe".locations = {
-      "/api/".extraConfig = ''
-        proxy_set_header Remote-User $authelia_user;
-        proxy_set_header Remote-Groups $authelia_groups;
-        proxy_set_header Remote-Name $authelia_name;
-        proxy_set_header Remote-Email $authelia_email;
-      '';
-      "= /api/model-catalog.json".extraConfig = ''
-        default_type application/json;
-        auth_request off;
-      '';
-      # server level auth_request is inherited by every location, including this
-      # one; without "auth_request off" the subrequest would authenticate itself
-      "= /internal/authelia/authz".extraConfig = ''
-        internal;
-        auth_request off;
-        proxy_pass http://unix:/run/authelia-main/authelia.sock:/api/authz/auth-request;
-        proxy_set_header X-Original-Method $request_method;
-        proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
-        proxy_set_header X-Forwarded-For $remote_addr;
-        proxy_set_header Content-Length "";
-        proxy_set_header Connection "";
-        proxy_pass_request_body off;
-      '';
-    };
+    nginx.virtualHosts = lib.genAttrs [ "https:api.aidesk.chn.moe" "https:api2.aidesk.chn.moe" ] (
+      vhost:
+      {
+        locations = {
+          "/api/".extraConfig = ''
+            proxy_set_header Remote-User $authelia_user;
+            proxy_set_header Remote-Groups $authelia_groups;
+            proxy_set_header Remote-Name $authelia_name;
+            proxy_set_header Remote-Email $authelia_email;
+          '';
+          "= /api/model-catalog.json".extraConfig = ''
+            default_type application/json;
+            auth_request off;
+          '';
+          # server level auth_request is inherited by every location, including this
+          # one; without "auth_request off" the subrequest would authenticate itself
+          "= /internal/authelia/authz".extraConfig = ''
+            internal;
+            auth_request off;
+            proxy_pass http://unix:/run/authelia-main/authelia.sock:/api/authz/auth-request;
+            proxy_set_header X-Original-Method $request_method;
+            proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
+            proxy_set_header X-Forwarded-For $remote_addr;
+            proxy_set_header Content-Length "";
+            proxy_set_header Connection "";
+            proxy_pass_request_body off;
+          '';
+        };
+      }
+      // lib.optionalAttrs (vhost == "https:api2.aidesk.chn.moe") {
+        listen =
+          map
+            (addr: {
+              inherit addr;
+              port = 8443;
+              ssl = true;
+              extraParameters = [ "http2" ];
+            })
+            [
+              "0.0.0.0"
+              "[::]"
+            ];
+        quic = true;
+        http3 = true;
+      }
+    );
   };
   # PAM/logind places SSH sessions in the corresponding per-user slice.
   systemd.slices = lib.genAttrs' users (
@@ -222,6 +260,10 @@ in
       };
     }
   );
+  networking.firewall = {
+    allowedTCPPorts = [ 8443 ];
+    allowedUDPPorts = [ 8443 ];
+  };
   networking.nftables.tables.aidesk-loopback-filter = {
     family = "inet";
     content = ''
@@ -249,8 +291,8 @@ in
       }
       chain local_allowlist {
         # The host uses CoreDNS on 127.0.0.1; no LAN DNS exception is needed.
-        udp dport { 53, 32768-60999 } accept
-        tcp dport { 22, 53, 80, 443, 3000, 4173, 5173, 8788, 32768-60999 } accept
+        udp dport { 53, 8443, 32768-60999 } accept
+        tcp dport { 22, 53, 80, 443, 3000, 4173, 5173, 8443, 8788, 32768-60999 } accept
         reject with icmpx type admin-prohibited
       }
     '';
