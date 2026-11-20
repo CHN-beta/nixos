@@ -13,6 +13,42 @@ let
     "rdhx"
     "yzt"
   ];
+  modelCatalog = pkgs.writeTextDir "api/model-catalog.json" (
+    builtins.toJSON {
+      vendors = {
+        anthropic = {
+          en = "Anthropic";
+          zh-CN = "Anthropic";
+          order = 1;
+        };
+        google = {
+          en = "Google";
+          zh-CN = "Google";
+          order = 2;
+        };
+        openai = {
+          en = "OpenAI";
+          zh-CN = "OpenAI";
+          order = 3;
+        };
+        deepseek = {
+          en = "DeepSeek";
+          zh-CN = "深度求索";
+          order = 4;
+        };
+        bytedance = {
+          en = "ByteDance";
+          zh-CN = "字节跳动";
+          order = 5;
+        };
+      };
+      models = lib.listToAttrs (
+        map (pricing: lib.nameValuePair "cliproxyapi/${pricing.model}" pricing) (
+          import ./data/model-pricing.nix
+        )
+      );
+    }
+  );
 in
 {
   nixos = {
@@ -69,6 +105,7 @@ in
         location = {
           # proxy_pass runs with variables, so the original request URI is forwarded
           "/api/".proxy.upstream = "http://unix:/run/aidesk-$authelia_user/aidesk.sock:";
+          "= /api/model-catalog.json".static.root = "${modelCatalog}";
         };
       };
     };
@@ -153,6 +190,10 @@ in
         proxy_set_header Remote-Name $authelia_name;
         proxy_set_header Remote-Email $authelia_email;
       '';
+      "= /api/model-catalog.json".extraConfig = ''
+        default_type application/json;
+        auth_request off;
+      '';
       # server level auth_request is inherited by every location, including this
       # one; without "auth_request off" the subrequest would authenticate itself
       "= /internal/authelia/authz".extraConfig = ''
@@ -187,12 +228,16 @@ in
       chain output {
         # Check the original route before Xray can reroute public traffic to lo.
         type filter hook output priority mangle - 1; policy accept;
-        meta skuid { ${lib.concatMapStringsSep ", " (user: toString config.users.users.${user}.uid) users} } jump user_egress
+        meta skuid { ${
+          lib.concatMapStringsSep ", " (user: toString config.users.users.${user}.uid) users
+        } } jump user_egress
       }
       chain output_after_dnat {
         # Check again after local port forwards can rewrite the destination.
         type filter hook output priority filter; policy accept;
-        ct status dnat meta skuid { ${lib.concatMapStringsSep ", " (user: toString config.users.users.${user}.uid) users} } jump user_egress
+        ct status dnat meta skuid { ${
+          lib.concatMapStringsSep ", " (user: toString config.users.users.${user}.uid) users
+        } } jump user_egress
       }
       chain user_egress {
         ct state established,related accept

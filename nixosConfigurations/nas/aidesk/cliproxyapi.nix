@@ -12,6 +12,7 @@
   config =
     let
       inherit (config.nixos.services) cliproxyapi;
+      modelPricing = import ./data/model-pricing.nix;
     in
     {
       services.cliproxyapi = {
@@ -49,8 +50,16 @@
                 alias = "gemini-4-carbon";
               }
               {
+                name = "gemini-4-neon-xhigh";
+                alias = "gemini-4-neon";
+              }
+              {
                 name = "gemini-3.8-flash-high";
                 alias = "gemini-3.8-flash";
+              }
+              {
+                name = "claude-opus-4-6-thinking";
+                alias = "claude-opus-4-6";
               }
               {
                 name = "claude-opus-5-5-high";
@@ -78,26 +87,7 @@
               then
                 [ "*" ]
               else
-                [
-                  # Gemini
-                  "gemini-3.8-flash"
-                  "gemini-4-argon"
-                  "gemini-4-carbon"
-                  "gemini-4-hydrogen"
-                  # Deepseek
-                  "deepseek-flash"
-                  "deepseek-v4-pro"
-                  # Doubao
-                  "doubao-seed-evolving"
-                  # Anthropic
-                  "claude-fable-5-2"
-                  "claude-haiku-5-5"
-                  "claude-sonnet-5-5"
-                  "claude-opus-5-5"
-                  # OpenAI
-                  "gpt-6.2-astra"
-                  "gpt-6.2-sol"
-                ];
+                map (p: p.model) modelPricing;
           }) (cliproxyapi.users ++ [ "infra" ]);
           observability = {
             logs = {
@@ -111,7 +101,23 @@
               usage-statistics-enabled = true;
               redis-usage-queue-retention-seconds = 60;
               postgres-dsn._secret = config.nixos.system.sops.templates."cliproxyapi/postgres-dsn".path;
-              model-pricing = import ./data/model-pricing.nix;
+              model-pricing = map (
+                p:
+                {
+                  inherit (p)
+                    model
+                    input
+                    cache-read
+                    output
+                    ;
+                }
+                // lib.optionalAttrs (p ? cache-write) {
+                  inherit (p) cache-write;
+                }
+                // lib.optionalAttrs (p ? tiers) {
+                  inherit (p) tiers;
+                }
+              ) modelPricing;
             };
             pprof = {
               enable = false;
@@ -264,6 +270,14 @@
                   }
                 ];
                 models = [
+                  { name = "gpt-5.6-luna"; }
+                  { name = "gpt-5.6-terra"; }
+                  { name = "gpt-5.6-sol"; }
+                  { name = "gpt-6-luna"; }
+                  { name = "gpt-6-sol"; }
+                  { name = "gpt-6-astra"; }
+                  { name = "gpt-6.1-terra"; }
+                  { name = "gpt-6.1-sol"; }
                   {
                     name = "gpt-6.2-astra";
                   }
@@ -285,6 +299,16 @@
                   {
                     name = "claude-fable-5-2";
                   }
+                  {
+                    name = "claude-haiku-4-5-20251001";
+                    alias = "claude-haiku-4-5";
+                  }
+                  { name = "claude-sonnet-4-6"; }
+                  { name = "claude-sonnet-5"; }
+                  { name = "claude-opus-4-6"; }
+                  { name = "claude-opus-4-7"; }
+                  { name = "claude-opus-4-8"; }
+                  { name = "claude-opus-5"; }
                   {
                     name = "claude-haiku-5-5";
                   }
@@ -315,6 +339,7 @@
                   {
                     name = "gemini-4-carbon";
                   }
+                  { name = "gemini-4-neon"; }
                   {
                     name = "gemini-3.8-flash";
                   }

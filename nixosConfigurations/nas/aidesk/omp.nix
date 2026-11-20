@@ -68,18 +68,42 @@
                       api = "openai-completions";
                       apiKey = "CLIPROXYAPI_API_KEY";
                       discovery.type = "openai-models-list";
-                            modelPricing = 
-                      # OMP accepts only flat rate overrides and preserves catalog long-context tiers.
+                      modelOverrides =
+                        # OMP accepts only flat rate overrides and preserves catalog long-context tiers.
                         import ./data/model-pricing.nix
                         |> map (
                           pricing:
-                          lib.nameValuePair pricing.model {
-                            cost = {
-                              inherit (pricing) input output;
-                              cacheRead = pricing.cache-read or 0;
-                              cacheWrite = pricing.cache-write or 0;
-                            };
-                          }
+                          lib.nameValuePair pricing.model (
+                            {
+                              cost = {
+                                inherit (pricing) input output;
+                                cacheRead = pricing.cache-read or 0;
+                                cacheWrite = pricing.cache-write or 0;
+                              };
+                            }
+                            // lib.optionalAttrs (pricing.model == "gemini-4-neon") {
+                              name = "Gemini 4 Neon";
+                              reasoning = true;
+                              input = [
+                                "text"
+                                "image"
+                              ];
+                              contextWindow = 1048576;
+                              maxTokens = 262144;
+                              thinking = {
+                                mode = "effort";
+                                efforts = [
+                                  "low"
+                                  "medium"
+                                  "high"
+                                  "xhigh"
+                                ];
+                              };
+                            }
+                            // lib.optionalAttrs (pricing.model == "doubao-seed-evolving") {
+                              maxTokens = 65536;
+                            }
+                          )
                         )
                         |> lib.listToAttrs;
                     };
