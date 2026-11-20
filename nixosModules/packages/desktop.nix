@@ -160,7 +160,9 @@
           super-productivity
           # gaming
           (bottles.override { removeWarningPopup = true; })
-          lutris
+          (lutris.override { extraPkgs = pkgs: [ pkgs.umu-launcher ]; })
+          faugus-launcher
+          protonplus
           # rust development
           rust-analyzer
           cargo-watch

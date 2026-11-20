@@ -16,13 +16,29 @@
           (types.submodule (submoduleInputs: {
             options = {
               mountPoint = mkOption { type = types.nonEmptyStr; };
+              automount = mkOption {
+                type = types.bool;
+                default = false;
+              };
               mountBeforeSwitch = mkOption {
                 type = types.bool;
-                default = true;
+                default = !submoduleInputs.config.automount;
               };
               readOnly = mkOption {
                 type = types.bool;
                 default = !submoduleInputs.config.mountBeforeSwitch;
+              };
+              fscache = mkOption {
+                type = types.bool;
+                default = false;
+              };
+              actimeo = mkOption {
+                type = types.ints.unsigned;
+                default = 1;
+              };
+              extraOptions = mkOption {
+                type = types.listOf types.nonEmptyStr;
+                default = [ ];
               };
             };
           }))
@@ -45,7 +61,7 @@
               neededForBoot = v.mountBeforeSwitch or true;
               options = builtins.concatLists [
                 [
-                  "actimeo=1" # sync every seconds
+                  "actimeo=${builtins.toString (v.actimeo or 1)}" # sync every seconds
                   "noatime"
                   "x-gvfs-hide" # hide in file managers (e.g. dolphin)
                 ]
@@ -54,27 +70,51 @@
                   "retry=15"
                   "x-systemd.device-timeout=15min"
                 ])
-                (lib.optionals (!(v.mountBeforeSwitch or true)) [
+                (lib.optionals (!(v.mountBeforeSwitch or true) && !(v.automount or false)) [
                   "retry=1"
                   "bg"
                   "x-systemd.requires=network-online.target"
                   "x-systemd.after=network-online.target"
                   "x-systemd.after=tailscaled.service"
                 ])
+                (lib.optionals (v.automount or false) [
+                  "_netdev"
+                  "nofail"
+                  "x-systemd.automount"
+                  "x-systemd.idle-timeout=600"
+                  "x-systemd.mount-timeout=30s"
+                  "x-systemd.requires=network-online.target"
+                  "x-systemd.after=network-online.target"
+                  "x-systemd.after=tailscaled.service"
+                ])
+                (lib.optionals (v.fscache or false) [
+                  "fsc"
+                  "nosharecache"
+                  "x-systemd.wants=cachefilesd.service"
+                  "x-systemd.after=cachefilesd.service"
+                ])
                 (lib.optionals (v.readOnly or false) [ "ro" ])
+                (v.extraOptions or [ ])
               ];
             }
           ) nfs;
-          systemd.mounts = builtins.map (mount: {
-            where = mount.value.mountPoint or mount.value;
-            what = mount.name;
-            overrideStrategy = "asDropin";
-            mountConfig = {
-              ForceUnmount = true;
-              LazyUnmount = true;
-              TimeoutStopSec = 10;
-            };
-          }) (builtins.filter (mount: mount.value.readOnly or false) (lib.attrsToList nfs));
+          systemd.mounts =
+            builtins.map
+              (mount: {
+                where = mount.value.mountPoint or mount.value;
+                what = mount.name;
+                overrideStrategy = "asDropin";
+                mountConfig = {
+                  ForceUnmount = true;
+                  LazyUnmount = true;
+                  TimeoutStopSec = 10;
+                };
+              })
+              (
+                builtins.filter (mount: (mount.value.readOnly or false) || (mount.value.automount or false)) (
+                  lib.attrsToList nfs
+                )
+              );
           services.rpcbind.enable = true;
         }
         (lib.mkIf (builtins.any (mount: mount.mountBeforeSwitch or true) (builtins.attrValues nfs)) {

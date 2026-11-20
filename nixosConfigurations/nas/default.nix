@@ -19,6 +19,7 @@
                 "/nix/persistent" = "/nix/persistent";
                 "/nix/rootfs/current" = "/";
                 "/" = "/nix/export";
+                "/nix/remote/pc" = "/nix/remote/pc";
                 "/nix/remote/xmuhk" = "/public/home/xmuhk";
                 "/nix/remote/jykang" = "/data/gpfs01/jykang";
                 "/nix/remote/wlin" = "/data/gpfs01/wlin";
@@ -100,7 +101,20 @@
         peertube = { };
         nginx.applications.webdav.instances."webdav.chn.moe" = { };
         nfs = {
-          exports."/nix/export" = [ "100.97.101.0/24" ];
+          exports = {
+            "/nix/export" = [ "100.97.101.0/24" ];
+            "/nix/remote/pc" = {
+              clients = [ "100.97.101.0/24" ];
+              options = [
+                "rw"
+                "async"
+                "no_subtree_check"
+                "root_squash"
+                "sec=sys"
+                "fsid=8c7e4d12-5a3b-4e91-b2d4-9f0c1a6e3b85"
+              ];
+            };
+          };
           crossmnt = false;
         };
         immich = { };
