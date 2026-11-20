@@ -352,5 +352,28 @@ in
         enableDefaultPath = false;
       };
     in
-    lib.genAttrs' users (user: lib.nameValuePair "aidesk-${user}" (mkService user));
+    lib.genAttrs' users (user: lib.nameValuePair "aidesk-${user}" (mkService user))
+    // {
+      aidesk-stt = {
+        description = "AIDesk speech transcription and editing";
+        after = [ "network.target" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+          Type = "simple";
+          DynamicUser = true;
+          ExecStart = "${lib.getExe pkgs.localPkgs.aidesk.stt} --api-key-file %d/siliconflow";
+          LoadCredential = "siliconflow:${config.nixos.system.sops.secrets."hindsight/siliconflow".path}";
+          PrivateDevices = true;
+          ProtectKernelTunables = true;
+          ProtectKernelModules = true;
+          ProtectKernelLogs = true;
+          ProtectControlGroups = true;
+          ProtectProc = "invisible";
+          NoNewPrivileges = true;
+          RestrictSUIDSGID = true;
+          Restart = "on-failure";
+          RestartSec = 5;
+        };
+      };
+    };
 }

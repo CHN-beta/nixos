@@ -206,6 +206,7 @@ rec {
   aidesk = {
     frontend = pkgs.callPackage "${self.inputs.aidesk}/frontend" { };
     backend = pkgs.callPackage "${self.inputs.aidesk}/backend" { };
+    stt = pkgs.callPackage "${self.inputs.aidesk}/stt" { };
     mount-wizard = pkgs.callPackage "${self.inputs.aidesk}/mount-wizard" { };
   };
   bge-m3-server = pkgs.callPackage ./bge-m3-server { };
