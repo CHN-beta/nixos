@@ -98,6 +98,20 @@
                       api = "openai-completions";
                       apiKey = "CLIPROXYAPI_API_KEY";
                       discovery.type = "openai-models-list";
+                            modelPricing = 
+                      # OMP accepts only flat rate overrides and preserves catalog long-context tiers.
+                        import ./data/model-pricing.nix
+                        |> map (
+                          pricing:
+                          lib.nameValuePair pricing.model {
+                            cost = {
+                              inherit (pricing) input output;
+                              cacheRead = pricing.cache-read or 0;
+                              cacheWrite = pricing.cache-write or 0;
+                            };
+                          }
+                        )
+                        |> lib.listToAttrs;
                     };
                   }
                   |> builtins.toJSON
