@@ -305,6 +305,7 @@
                   }
                   {
                     name = "deepseek-V4-pro";
+                    alias = "deepseek-v4-pro";
                   }
                 ];
               }
