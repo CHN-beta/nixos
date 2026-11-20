@@ -204,6 +204,15 @@ in
       vhost:
       {
         locations = {
+          "/login/".extraConfig = ''
+            auth_request off;
+            # Replace the /login/ prefix with / before passing the URI to Authelia.
+            proxy_pass http://unix:/run/authelia-main/authelia.sock:/;
+            proxy_set_header Host $server_name;
+            proxy_set_header X-Forwarded-Host $server_name;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-For $remote_addr;
+          '';
           "/api/".extraConfig = ''
             proxy_set_header Remote-User $authelia_user;
             proxy_set_header Remote-Groups $authelia_groups;
