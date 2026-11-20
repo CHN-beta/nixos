@@ -168,6 +168,48 @@ in
       '';
     };
   };
+  # PAM/logind places SSH sessions in the corresponding per-user slice.
+  systemd.slices = lib.genAttrs' users (
+    user:
+    lib.nameValuePair "user-${toString config.users.users.${user}.uid}" {
+      sliceConfig = {
+        DevicePolicy = "closed";
+        DeviceAllow = [
+          "char-pts rw"
+          "/dev/fuse rw"
+        ];
+      };
+    }
+  );
+  networking.nftables.tables.aidesk-loopback-filter = {
+    family = "inet";
+    content = ''
+      chain output {
+        # Check the original route before Xray can reroute public traffic to lo.
+        type filter hook output priority mangle - 1; policy accept;
+        meta skuid { ${lib.concatMapStringsSep ", " (user: toString config.users.users.${user}.uid) users} } jump user_egress
+      }
+      chain output_after_dnat {
+        # Check again after local port forwards can rewrite the destination.
+        type filter hook output priority filter; policy accept;
+        ct status dnat meta skuid { ${lib.concatMapStringsSep ", " (user: toString config.users.users.${user}.uid) users} } jump user_egress
+      }
+      chain user_egress {
+        ct state established,related accept
+        oifname "lo" jump local_allowlist
+        fib daddr type local jump local_allowlist
+        oifname { "tailscale*", "tinc*" } reject with icmpx type admin-prohibited
+        ip daddr { 10.0.0.0/8, 100.64.0.0/10, 169.254.0.0/16, 172.16.0.0/12, 192.168.0.0/16 } reject with icmpx type admin-prohibited
+        ip6 daddr { fc00::/7, fe80::/10 } reject with icmpx type admin-prohibited
+      }
+      chain local_allowlist {
+        # The host uses CoreDNS on 127.0.0.1; no LAN DNS exception is needed.
+        udp dport { 53, 32768-60999 } accept
+        tcp dport { 22, 53, 80, 443, 3000, 4173, 5173, 8788, 32768-60999 } accept
+        reject with icmpx type admin-prohibited
+      }
+    '';
+  };
   systemd.services =
     let
       mkService = user: {
@@ -191,6 +233,15 @@ in
           ExecStart = "${pkgs.localPkgs.aidesk.backend}/bin/aidesk-backend --socket /run/aidesk-${user}/aidesk.sock";
           RuntimeDirectory = "aidesk-${user}";
           RuntimeDirectoryMode = "0750";
+          # PrivateDevices still provides the PTYs used by the web terminal.
+          PrivateDevices = true;
+          ProtectKernelTunables = true;
+          ProtectKernelModules = true;
+          ProtectKernelLogs = true;
+          ProtectControlGroups = true;
+          ProtectProc = "invisible";
+          NoNewPrivileges = true;
+          RestrictSUIDSGID = true;
           Restart = "on-failure";
           RestartSec = 5;
           # The backend shuts down by closing the stdin of its omp children and
