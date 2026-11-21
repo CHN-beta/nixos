@@ -314,11 +314,11 @@
     "cliproxyapi": {
       "flake": false,
       "locked": {
-        "lastModified": 1795048610,
-        "narHash": "sha256-exQwVXIb1i2ZYkfcvNSn/EXiBCwQ1k71oKK8kBdnC/Y=",
+        "lastModified": 1795224663,
+        "narHash": "sha256-sFdbwUi+MAPT6m/P8nR82+YjUvrIHXEYeUOiUKLAB9k=",
         "owner": "CHN-beta",
         "repo": "CLIProxyAPI",
-        "rev": "d4eac2b429cbdcb0d2b41971410a2c41e6d89abe",
+        "rev": "8f5f5bd597e79cd8199ebbc96c9acfe06e953b51",
         "type": "github"
       },
       "original": {
@@ -1617,11 +1617,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1795068785,
-        "narHash": "sha256-2jg7N9UvaidJ73eTQjKrAPkUutFAoxv+plbiDFgXVsw=",
+        "lastModified": 1795226585,
+        "narHash": "sha256-7zqR1E5fkDNK4P3rOIAH+/Oai972tDRhMSLe05muH1g=",
         "owner": "CHN-beta",
         "repo": "oh-my-pi",
-        "rev": "2faa8271b5f955bf15d9d2e8dd55109566835400",
+        "rev": "9d604b7f7155d1125823c6bfc337fa2be61f7d67",
         "type": "github"
       },
       "original": {
