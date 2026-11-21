@@ -77,14 +77,14 @@ in
                   modelCatalog = pkgs.writeTextDir "api/model-catalog.json" (
                     builtins.toJSON {
                       vendors = {
-                        anthropic = {
-                          en = "Anthropic";
-                          zh-CN = "Anthropic";
-                          order = 1;
-                        };
                         google = {
                           en = "Google";
                           zh-CN = "Google";
+                          order = 1;
+                        };
+                        deepseek = {
+                          en = "DeepSeek";
+                          zh-CN = "深度求索";
                           order = 2;
                         };
                         openai = {
@@ -92,9 +92,9 @@ in
                           zh-CN = "OpenAI";
                           order = 3;
                         };
-                        deepseek = {
-                          en = "DeepSeek";
-                          zh-CN = "深度求索";
+                        anthropic = {
+                          en = "Anthropic";
+                          zh-CN = "Anthropic";
                           order = 4;
                         };
                         bytedance = {
@@ -104,7 +104,10 @@ in
                         };
                       };
                       models = lib.listToAttrs (
-                        map (pricing: lib.nameValuePair "cliproxyapi/${pricing.model}" pricing) (
+                        lib.imap0 (
+                          order: pricing:
+                          lib.nameValuePair "cliproxyapi/${pricing.model}" (pricing // { inherit order; })
+                        ) (
                           import ./data/model-pricing.nix
                         )
                       );
