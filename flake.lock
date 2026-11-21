@@ -3,11 +3,11 @@
     "aidesk": {
       "flake": false,
       "locked": {
-        "lastModified": 1795257617,
-        "narHash": "sha256-BhafPFxlkxYYH0URCplW7LCBMUcIEyksEoAQQ6JFDQc=",
+        "lastModified": 1795261516,
+        "narHash": "sha256-FQzZJg3rk4A5xxWp06FIay86r8IKfo+3+AVv895N20Y=",
         "ref": "refs/heads/main",
-        "rev": "b003cf9cdd3518e084b034c0abeba42898f91e9d",
-        "revCount": 61,
+        "rev": "c9cb9ccd8eae5992d716692af269e09d6ec65e3b",
+        "revCount": 63,
         "type": "git",
         "url": "ssh://gitea@ssh.git.chn.moe/chn/aidesk.git"
       },
