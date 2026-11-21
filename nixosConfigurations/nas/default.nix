@@ -133,6 +133,7 @@
       packages = {
         desktopPython = { };
         omp.users = [ "chn" ];
+        desktop = { };
       };
       user.users = [
         "chn"
