@@ -100,8 +100,26 @@
                                 ];
                               };
                             }
-                            // lib.optionalAttrs (pricing.model == "doubao-seed-evolving") {
-                              maxTokens = 65536;
+                            # The public Seed 2.1 Pro alias is absent from OMP's bundled reference index.
+                            // lib.optionalAttrs (pricing.model == "doubao-seed-2-1-pro") {
+                              name = "Doubao-Seed-2.1-pro";
+                              reasoning = true;
+                              input = [
+                                "text"
+                                "image"
+                              ];
+                              contextWindow = 256000;
+                              maxTokens = 128000;
+                              thinking = {
+                                mode = "effort";
+                                efforts = [
+                                  "minimal"
+                                  "low"
+                                  "medium"
+                                  "high"
+                                  "xhigh"
+                                ];
+                              };
                             }
                           )
                         )

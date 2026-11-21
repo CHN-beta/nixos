@@ -102,14 +102,51 @@ in
                           zh-CN = "字节跳动";
                           order = 5;
                         };
+                        zhipu = {
+                          en = "Zhipu AI";
+                          zh-CN = "智谱";
+                          order = 6;
+                        };
+                        alibaba = {
+                          en = "Alibaba Qwen";
+                          zh-CN = "阿里通义千问";
+                          order = 7;
+                        };
+                        moonshot = {
+                          en = "Moonshot AI";
+                          zh-CN = "月之暗面";
+                          order = 8;
+                        };
+                        minimax = {
+                          en = "MiniMax";
+                          zh-CN = "MiniMax";
+                          order = 9;
+                        };
+                        tencent = {
+                          en = "Tencent Hunyuan";
+                          zh-CN = "腾讯混元";
+                          order = 10;
+                        };
+                        xai = {
+                          en = "xAI";
+                          zh-CN = "xAI";
+                          order = 11;
+                        };
+                        meta = {
+                          en = "Meta";
+                          zh-CN = "Meta";
+                          order = 12;
+                        };
+                        mistral = {
+                          en = "Mistral AI";
+                          zh-CN = "Mistral AI";
+                          order = 13;
+                        };
                       };
                       models = lib.listToAttrs (
                         lib.imap0 (
-                          order: pricing:
-                          lib.nameValuePair "cliproxyapi/${pricing.model}" (pricing // { inherit order; })
-                        ) (
-                          import ./data/model-pricing.nix
-                        )
+                          order: pricing: lib.nameValuePair "cliproxyapi/${pricing.model}" (pricing // { inherit order; })
+                        ) (import ./data/model-pricing.nix)
                       );
                     }
                   );

@@ -217,22 +217,6 @@
                 ];
               }
               {
-                name = "doubao";
-                base-url = "https://ark.cn-beijing.volces.com/api/v3";
-                priority = -1;
-                proxy-url = "direct";
-                keys = [
-                  {
-                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/ark".path;
-                  }
-                ];
-                models = [
-                  {
-                    name = "doubao-seed-evolving";
-                  }
-                ];
-              }
-              {
                 name = "4router-gemini-agy";
                 base-url = "https://4router.net/v1";
                 priority = -2;
@@ -345,6 +329,131 @@
                   }
                 ];
               }
+              {
+                name = "tokenplus";
+                base-url = "https://api.tokenplus.cn/v1";
+                priority = -2;
+                proxy-url = "direct";
+                keys = [
+                  {
+                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/tokenplus".path;
+                  }
+                ];
+                models = [
+                  {
+                    name = "deepseek/deepseek-v4.1-flash-1017";
+                    alias = "deepseek-v4.1-flash-1017";
+                  }
+                  {
+                    name = "bytedance/seed-2.1-pro";
+                    alias = "doubao-seed-2-1-pro";
+                  }
+                  {
+                    name = "z-ai/glm-5.3";
+                    alias = "glm-5.3";
+                  }
+                  {
+                    name = "z-ai/glm-5.3-flash";
+                    alias = "glm-5.3-flash";
+                  }
+                  {
+                    name = "z-ai/glm-5.2";
+                    alias = "glm-5.2";
+                  }
+                  {
+                    name = "z-ai/glm-5.1";
+                    alias = "glm-5.1";
+                  }
+                  {
+                    name = "qwen/qwen4-max";
+                    alias = "qwen4-max";
+                  }
+                  {
+                    name = "qwen/qwen-3.8-max";
+                    alias = "qwen3.8-max";
+                  }
+                  {
+                    name = "qwen/qwen-3.7-max";
+                    alias = "qwen3.7-max";
+                  }
+                  {
+                    name = "moonshot-ai/kimi-k3.1-pro";
+                    alias = "kimi-k3.1-pro";
+                  }
+                  {
+                    name = "moonshot-ai/kimi-k3";
+                    alias = "kimi-k3";
+                  }
+                  {
+                    name = "moonshot-ai/kimi-k2.7-code";
+                    alias = "kimi-k2.7-code";
+                  }
+                  {
+                    name = "minimax/m3.1-flash";
+                    alias = "minimax-m3.1-flash";
+                  }
+                  {
+                    name = "minimax/m3";
+                    alias = "minimax-m3";
+                  }
+                  {
+                    name = "tencent/hy4-flash";
+                    alias = "hy4-flash";
+                  }
+                  {
+                    name = "tencent/hy4";
+                    alias = "hy4";
+                  }
+                ];
+              }
+              {
+                name = "openrouter";
+                base-url = "https://openrouter.ai/api/v1";
+                priority = -2;
+                keys = [
+                  {
+                    api-key._secret = config.nixos.system.sops.secrets."cliproxyapi/openrouter".path;
+                  }
+                ];
+                models = [
+                  {
+                    name = "x-ai/grok-4.7";
+                    alias = "grok-4.7";
+                  }
+                  {
+                    name = "x-ai/grok-4.6";
+                    alias = "grok-4.6";
+                  }
+                  {
+                    name = "x-ai/grok-4.5";
+                    alias = "grok-4.5";
+                  }
+                  {
+                    name = "x-ai/grok-4.20";
+                    alias = "grok-4.20";
+                  }
+                  {
+                    name = "meta-llama/llama-4-maverick";
+                    alias = "llama-4-maverick";
+                  }
+                  {
+                    name = "meta-llama/llama-4-scout";
+                    alias = "llama-4-scout";
+                  }
+                  {
+                    name = "mistralai/mistral-large-4-0";
+                    alias = "mistral-large-4-0";
+                  }
+                  {
+                    name = "mistralai/mistral-large-2512";
+                    alias = "mistral-large-2512";
+                  }
+                  {
+                    name = "mistralai/codestral-2508";
+                    alias = "codestral-2508";
+                  }
+                ];
+              }
             ];
           };
         };
@@ -377,11 +486,12 @@
               "cliproxyapi/management" = { };
               "cliproxyapi/gemini" = { };
               "cliproxyapi/deepseek" = { };
-              "cliproxyapi/ark" = { };
               "cliproxyapi/4router-gemini-api" = { };
               "cliproxyapi/4router-gemini-agy" = { };
               "cliproxyapi/4router-openai" = { };
               "cliproxyapi/4router-anthropic" = { };
+              "cliproxyapi/tokenplus" = { };
+              "cliproxyapi/openrouter" = { };
             };
           templates."cliproxyapi/postgres-dsn".content = "postgres://cliproxyapi:${
             config.nixos.system.sops.placeholder."postgresql/cliproxyapi"

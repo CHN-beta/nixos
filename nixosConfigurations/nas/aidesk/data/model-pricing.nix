@@ -4,11 +4,13 @@
 # DeepSeek：官方 API 峰时人民币价格 × 1.5，不区分峰谷。
 # GPT：4router GptHyper（0.5 × Base USD）价格 × 2，即 1.0 × Base USD。
 # Claude：4router ClaudeApiMix（1.8 × Base USD）价格 × 1.5，即 2.7 × Base USD。
-# 豆包：火山方舟官方 API 人民币原价（1.0 × CNY）。
 # intelligence：Artificial Analysis Intelligence Index（四舍五入为整数）。
 # speed：Artificial Analysis Output Speed（tok/s，四舍五入为整数）。
 # output-tokens-per-task：AA Intelligence Index v5.0.1 完整 9/9 基准实测的单任务加权平均输出 Token 数。
 # 同一厂商按发布时间从新到旧排列，供模型选择器使用。
+# TokenPlus：国内模型广场当前展示的人民币报价（CNY / 1M，含公开折扣）× 1.5；不换汇。
+# Qwen 的缓存命中价采用默认隐式缓存档；阶梯按输入 Token 数选择。
+# OpenRouter：10 × Base USD / 1M，直接作为 CNY。
 let
   geminiBetaTag = {
     color = "yellow";
@@ -91,6 +93,16 @@ in
     vendor = "deepseek";
     intelligence = 33;
     speed = 163;
+    output-tokens-per-task = 138962;
+  }
+  {
+    model = "deepseek-v4.1-flash-1017";
+    vendor = "deepseek";
+    input = 0.5985;
+    output = 2.394;
+    cache-read = 0.01197;
+    intelligence = 33;
+    speed = 162;
     output-tokens-per-task = 138962;
   }
   {
@@ -410,10 +422,244 @@ in
 
   # Doubao
   {
-    model = "doubao-seed-evolving";
-    input = 6;
-    cache-read = 1.2;
-    output = 30;
+    model = "doubao-seed-2-1-pro";
     vendor = "bytedance";
+    input = 9;
+    output = 45;
+    cache-read = 1.8;
+  }
+
+  # zhipu
+  {
+    model = "glm-5.3";
+    vendor = "zhipu";
+    input = 4.8;
+    output = 16.8;
+    cache-read = 1.2;
+    intelligence = 32;
+    speed = 73;
+    output-tokens-per-task = 118987;
+  }
+  {
+    model = "glm-5.3-flash";
+    vendor = "zhipu";
+    input = 0.48;
+    output = 1.68;
+    cache-read = 0.138;
+    intelligence = 28;
+    speed = 56;
+    output-tokens-per-task = 134205;
+  }
+  {
+    model = "glm-5.2";
+    vendor = "zhipu";
+    input = 4.8;
+    output = 16.8;
+    cache-read = 1.2;
+    speed = 59;
+  }
+  {
+    model = "glm-5.1";
+    vendor = "zhipu";
+    input = 4.95;
+    output = 19.8;
+    cache-read = 1.0725;
+    tiers = [
+      {
+        min-input-tokens = 32000;
+        input = 6.6;
+        output = 23.1;
+        cache-read = 1.65;
+      }
+    ];
+    speed = 79;
+  }
+
+  # alibaba
+  {
+    model = "qwen4-max";
+    vendor = "alibaba";
+    input = 7.05;
+    output = 21.15;
+    cache-read = 0.3525;
+    intelligence = 43;
+    speed = 60;
+    output-tokens-per-task = 104940;
+  }
+  {
+    model = "qwen3.8-max";
+    vendor = "alibaba";
+    input = 9.45;
+    output = 28.35;
+    cache-read = 1.18125;
+    # AA：0902 快照。
+    intelligence = 34;
+    speed = 59;
+    output-tokens-per-task = 170794;
+  }
+  {
+    model = "qwen3.7-max";
+    vendor = "alibaba";
+    input = 6.75;
+    output = 20.25;
+    cache-read = 0.84375;
+    speed = 143;
+  }
+
+  # moonshot
+  {
+    model = "kimi-k3.1-pro";
+    vendor = "moonshot";
+    input = 12.285;
+    output = 64.26;
+    cache-read = 1.2285;
+    intelligence = 46;
+    speed = 31;
+    output-tokens-per-task = 72239;
+  }
+  {
+    model = "kimi-k3";
+    vendor = "moonshot";
+    input = 15.75;
+    output = 78.75;
+    cache-read = 1.575;
+    # AA 仅 Low 档有完整指数和 Token 数据。
+    intelligence = 17;
+    speed = 40;
+    output-tokens-per-task = 39666;
+  }
+  {
+    model = "kimi-k2.7-code";
+    vendor = "moonshot";
+    input = 4.875;
+    output = 20.25;
+    cache-read = 1.95;
+    speed = 50;
+  }
+
+  # minimax
+  {
+    model = "minimax-m3.1-flash";
+    vendor = "minimax";
+    input = 1.5;
+    output = 6;
+    cache-read = 0.15;
+    intelligence = 29;
+    speed = 120;
+    output-tokens-per-task = 138176;
+  }
+  {
+    model = "minimax-m3";
+    vendor = "minimax";
+    input = 3.15;
+    output = 12.6;
+    cache-read = 0.63;
+    intelligence = 19;
+    speed = 79;
+    output-tokens-per-task = 91452;
+  }
+
+  # Tencent
+  {
+    model = "hy4-flash";
+    vendor = "tencent";
+    input = 0.45;
+    output = 1.8;
+    cache-read = 0.018;
+  }
+  {
+    model = "hy4";
+    vendor = "tencent";
+    input = 5.4;
+    output = 16.2;
+    cache-read = 0.27;
+    intelligence = 35;
+    speed = 92;
+    output-tokens-per-task = 78058;
+  }
+
+  # xai
+  {
+    model = "grok-4.7";
+    vendor = "xai";
+    input = 20;
+    output = 60;
+    cache-read = 5;
+    intelligence = 35;
+    speed = 69;
+    output-tokens-per-task = 104531;
+  }
+  {
+    model = "grok-4.6";
+    vendor = "xai";
+    input = 20;
+    output = 60;
+    cache-read = 5;
+    intelligence = 31;
+    speed = 78;
+    output-tokens-per-task = 58431;
+  }
+  {
+    model = "grok-4.5";
+    vendor = "xai";
+    input = 20;
+    output = 60;
+    cache-read = 3;
+    speed = 75;
+  }
+  {
+    model = "grok-4.20";
+    vendor = "xai";
+    input = 12.5;
+    output = 25;
+    cache-read = 2;
+    # AA：0309 v2 的 Reasoning 档；原始 0309 页面未提供速度。
+    speed = 120;
+  }
+
+  # meta
+  {
+    model = "llama-4-maverick";
+    vendor = "meta";
+    input = 3.5;
+    output = 10;
+    cache-read = 1.7;
+    speed = 150;
+  }
+  {
+    model = "llama-4-scout";
+    vendor = "meta";
+    input = 1;
+    output = 3;
+    cache-read = 0;
+    speed = 95;
+  }
+
+  # mistral
+  {
+    model = "mistral-large-4-0";
+    vendor = "mistral";
+    input = 7;
+    output = 21;
+    cache-read = 0.7;
+    intelligence = 26;
+    speed = 57;
+    output-tokens-per-task = 81951;
+  }
+  {
+    model = "mistral-large-2512";
+    vendor = "mistral";
+    input = 5;
+    output = 15;
+    cache-read = 0.5;
+    # AA 将 2512 版本列为 Mistral Large 3。
+    speed = 64;
+  }
+  {
+    model = "codestral-2508";
+    vendor = "mistral";
+    input = 3;
+    output = 9;
+    cache-read = 0.3;
   }
 ]
