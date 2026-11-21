@@ -96,16 +96,6 @@ in
     output-tokens-per-task = 138962;
   }
   {
-    model = "deepseek-v4.1-flash-1017";
-    vendor = "deepseek";
-    input = 0.5985;
-    output = 2.394;
-    cache-read = 0.01197;
-    intelligence = 33;
-    speed = 162;
-    output-tokens-per-task = 138962;
-  }
-  {
     model = "deepseek-v4-pro";
     input = 13.5;
     cache-read = 0.45;

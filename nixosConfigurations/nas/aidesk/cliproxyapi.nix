@@ -341,10 +341,6 @@
                 ];
                 models = [
                   {
-                    name = "deepseek/deepseek-v4.1-flash-1017";
-                    alias = "deepseek-v4.1-flash-1017";
-                  }
-                  {
                     name = "bytedance/seed-2.1-pro";
                     alias = "doubao-seed-2-1-pro";
                   }
