@@ -57,6 +57,7 @@
         rdhx = 1035;
         mhy = 1036;
         yzt = 1037;
+        grassblock = 1038;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;

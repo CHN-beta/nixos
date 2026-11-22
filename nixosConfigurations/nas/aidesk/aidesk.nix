@@ -12,6 +12,7 @@ let
     "mhy"
     "rdhx"
     "yzt"
+    "grassblock"
   ];
 in
 {
