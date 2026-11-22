@@ -57,7 +57,12 @@ let
     pkgs.writeShellScript "deploy" "zellij --layout ${deployKdl}";
 
   push-cache = pkgs.writeShellScript "push-cache" ''
-    nix copy --all --no-check-sigs --to ssh-ng://root@ts.nas "$@"
+    ${pkgs.sqlite}/bin/sqlite3 /nix/var/nix/db/db.sqlite \
+      "SELECT path FROM ValidPaths WHERE id NOT IN (SELECT reference FROM Refs WHERE referrer != reference);" \
+      | xargs ${pkgs.niks3}/bin/niks3 push \
+          --server-url https://nixcache.chn.moe \
+          --auth-token-path /run/secrets/niks3/token \
+          "$@"
   '';
 in
 {
