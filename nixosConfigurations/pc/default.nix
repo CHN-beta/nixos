@@ -79,19 +79,7 @@
         };
         sshd = { };
         xray.client.coredns = {
-          hosts = builtins.listToAttrs (
-            builtins.map
-              (name: {
-                inherit name;
-                value = "144.34.225.59";
-              })
-              [
-                "mirism.one"
-                "beta.mirism.one"
-                "ng01.mirism.one"
-                "initrd.vps6.chn.moe"
-              ]
-          );
+          hosts."debug.mirism.one" = "127.0.0.1";
           extraInterfaces = [ "wlp194s0" ];
         };
         misskey.instances.misskey.hostname = "xn--qbtm095lrg0bfka60z.chn.moe";
@@ -135,6 +123,7 @@
           hostname = "bgem3-fast.chn.moe";
           gpu = true;
         };
+        nginx.https."debug.mirism.one".location."/".proxy.upstream = "http://127.0.0.1:7413";
       };
       packages = {
         vasp = { };

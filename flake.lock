@@ -974,22 +974,6 @@
         "type": "github"
       }
     },
-    "mirism-old": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1759545870,
-        "narHash": "sha256-gNV2P02jMyP+6FFpr8FvJpjhYiTdd2J5Yjlb2qt5Xlg=",
-        "owner": "CHN-beta",
-        "repo": "mirism-old-public",
-        "rev": "3cb635b0933930867c18b84563e97346c7ef4833",
-        "type": "github"
-      },
-      "original": {
-        "owner": "CHN-beta",
-        "repo": "mirism-old-public",
-        "type": "github"
-      }
-    },
     "misskey": {
       "flake": false,
       "locked": {
@@ -1868,7 +1852,6 @@
         "matplotlib-label-lines": "matplotlib-label-lines",
         "matplotplusplus": "matplotplusplus",
         "mcp-server-qdrant": "mcp-server-qdrant",
-        "mirism-old": "mirism-old",
         "misskey": "misskey",
         "modern-web-guidance": "modern-web-guidance",
         "mumax": "mumax",

@@ -198,10 +198,6 @@
       url = "github:bendichter/brokenaxes";
       flake = false;
     };
-    mirism-old = {
-      url = "github:CHN-beta/mirism-old-public";
-      flake = false;
-    };
     sqlgen = {
       url = "git+https://github.com/getml/sqlgen?submodules=1";
       flake = false;

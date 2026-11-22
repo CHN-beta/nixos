@@ -90,7 +90,6 @@
         };
         coturn = { };
         httpua = { };
-        mirism = { };
         fail2ban = { };
         beesd."/" = { };
         hongbao = { };

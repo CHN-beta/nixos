@@ -14,11 +14,6 @@ rec {
   nameof = pkgs.callPackage ./nameof.nix { src = self.inputs.nameof; };
   pslist = pkgs.callPackage ./pslist.nix { src = self.src.pslist; };
   tgbot-cpp = pkgs.callPackage ./tgbot-cpp.nix { src = self.inputs.tgbot-cpp; };
-  mirism-old = pkgs.pkgs2305.callPackage ./mirism-old.nix {
-    inherit cppcoro nameof date;
-    src = self.inputs.mirism-old;
-    nghttp2 = pkgs.pkgs2305.nghttp2.override { enableAsioLib = true; };
-  };
   cppcoro = pkgs.callPackage ./cppcoro { src = self.inputs.cppcoro; };
   date = pkgs.callPackage ./date.nix { src = self.inputs.date; };
   vasp = {
