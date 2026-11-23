@@ -15,8 +15,6 @@ missgram:
 mail:
     bot: ENC[AES256_GCM,data:wWZnPP+IH0ltY9X34cfyGw==,iv:RjbpDyV9I4nxybIWTY2O8lf0dsZdqOZmVqLFu+f92UM=,tag:Dzq1eugNZWSLub4z11GDvA==,type:str]
 machineId: ENC[AES256_GCM,data:RFtcISv20bO7FwgtKH/8KB2OwF28njVTBUIQ3pQGnCg=,iv:5uetRBREgPdai/cM1+FeuKx1IQqxjU9s4MYcyObUUCg=,tag:CHx3MVxDU2z1cYNvnYKZ6w==,type:str]
-freshman-followup:
-    jwt_secret: ENC[AES256_GCM,data:gELng6MmrxggG1oOdmPlXtQvP+oIkfGKSqLuHQoOQSmdTnwdZH6eZ0EE2mQ=,iv:O7kjWA0LlIbH1qhNzcr3lfqUmBQSGZy4zfuCILKaOpQ=,tag:7UzKsPpIxgeo4XUyj+1PZQ==,type:str]
 cliproxyapi:
     management: ENC[AES256_GCM,data:h6HlhVkEKfXPkOAy,iv:JjAu54sMaUCVqW0USnr0WlMyTS41kJuT+CzAkFEBAJk=,tag:+0zaSsrS7ahIGg5m6sABbA==,type:str]
     gemini: ENC[AES256_GCM,data:xl/j3NQj7gQ2V/NIRvuctCBtwddYGLxF1r5sxeN9XxDjc5YLCbssgQopJLlLoCFaeSg15FI=,iv:SIGrHOUSnzRNF7PB5TJ6TVWiV5kwjUboJ1PXN1xY5tw=,tag:rvZM3DYiLnHEB575ZzpMyA==,type:str]
@@ -55,7 +53,7 @@ sops:
             /jZhBt42BOCZwOiNqt9cgU1+DRu24DE019VTyR15dhLNwqiIo5jQkg==
             -----END AGE ENCRYPTED FILE-----
           recipient: age164tyqklwhdm57tfm5u863mdt2xrzrrzac4py8a0j9y6kzqcjy9zsp073t6
-    lastmodified: "2026-11-23T03:53:02Z"
-    mac: ENC[AES256_GCM,data:xCJ2grNV6XPbA/18JXZfkG/5bt/L8ZscSsA7/21P+Cd4JvMzybvz20vpje6OhGJaCmFx0YxgLZ67fFReuNSLfp3/fRdsdtw5OK34VnWZqhhdxtiYXmQLfJyPGsGJEcFvHffVqdvVsfy0o0QuY53t1UHanVXYjbW7lWQMxVWzZmg=,iv:KGAgrNvubNUvJRj02ZZsZo61bHe25UGfIECkCf0oQY0=,tag:2aK/4eAUyOplcefBcXHAcQ==,type:str]
+    lastmodified: "2026-11-23T09:59:28Z"
+    mac: ENC[AES256_GCM,data:WqTfPNBFkLH7OKHKigP4JAdiEaXqEvxiAjpGicN86qnHRnKHsYOKfBqTYyC1o6FHQIIzHDNvVkTLh8/gExNZuF8Q/Q7BjTAGxYvVGb9im6k9ycxptyop0GOF1uVjkcgI4cyDiZ5A39JcFYMpj4Yytkc7MR8+W4+I1TzExx3/yLk=,iv:rle7wE1ECSLeQ4dmMjcnY87+WlmTD4NEdQ7yYgdpoAw=,tag:CRbYQ5NzszvHx1DBNTGfxg==,type:str]
     unencrypted_suffix: _unencrypted
     version: 3.13.1

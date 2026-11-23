@@ -93,7 +93,6 @@
         fail2ban = { };
         beesd."/" = { };
         hongbao = { };
-        freshman-followup.hostname = "hf.chn.moe";
       };
     };
     # The https module has no per-location extraConfig for static roots, so the

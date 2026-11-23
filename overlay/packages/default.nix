@@ -197,7 +197,6 @@ rec {
   translate-mcp = pkgs.callPackage ./translate-mcp.nix { };
   matrix-mcp = pkgs.pkgsUnstable.callPackage ./matrix-mcp.nix { };
   g1010-tool = pkgs.callPackage ./g1010-tool.nix { };
-  freshman-followup = pkgs.callPackage ./freshman-followup { };
   aidesk = {
     frontend = pkgs.callPackage "${self.inputs.aidesk}/frontend" { };
     backend = pkgs.callPackage "${self.inputs.aidesk}/backend" { };

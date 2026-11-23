@@ -1,9 +1,0 @@
-# Backend
-backend/target/
-config.yaml
-backend/config.yaml
-backend/.env
-
-# Frontend
-frontend/node_modules/
-frontend/dist/
