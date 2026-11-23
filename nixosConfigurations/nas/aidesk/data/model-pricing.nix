@@ -11,6 +11,19 @@
 # TokenPlus：国内模型广场当前展示的人民币报价（CNY / 1M，含公开折扣）× 1.5；不换汇。
 # Qwen 的缓存命中价采用默认隐式缓存档；阶梯按输入 Token 数选择。
 # OpenRouter：10 × Base USD / 1M，直接作为 CNY。
+let
+  geminiBetaTag = {
+    color = "yellow";
+    label = {
+      "zh-CN" = "测试中";
+      en = "Beta";
+    };
+    description = {
+      "zh-CN" = "Google 新发布模型，上游渠道供应可能不稳定。";
+      en = "Newly released Google model; upstream availability may be unstable.";
+    };
+  };
+in
 [
   # Gemini
   {
@@ -23,6 +36,7 @@
     speed = 110;
     output-tokens-per-task = 141631;
     zh-hint = "氖";
+    tags = [ geminiBetaTag ];
   }
   {
     model = "gemini-4-hydrogen";
@@ -34,6 +48,7 @@
     speed = 164;
     output-tokens-per-task = 154406;
     zh-hint = "氢";
+    tags = [ geminiBetaTag ];
   }
   {
     model = "gemini-4-carbon";
@@ -45,6 +60,7 @@
     speed = 51;
     output-tokens-per-task = 122768;
     zh-hint = "碳";
+    tags = [ geminiBetaTag ];
   }
   {
     model = "gemini-4-argon";
