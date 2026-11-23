@@ -974,6 +974,22 @@
         "type": "github"
       }
     },
+    "mirism": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1795405137,
+        "narHash": "sha256-+Ixe/BIBPPz5oO+iqVI/sO6ojWCbHom9t5EJeNkIP5k=",
+        "ref": "refs/heads/master",
+        "rev": "63b87e6e531eed6e2d5342a2f0aa894e82a5faae",
+        "revCount": 477,
+        "type": "git",
+        "url": "ssh://gitea@ssh.git.chn.moe/chn/mirism.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://gitea@ssh.git.chn.moe/chn/mirism.git"
+      }
+    },
     "misskey": {
       "flake": false,
       "locked": {
@@ -1852,6 +1868,7 @@
         "matplotlib-label-lines": "matplotlib-label-lines",
         "matplotplusplus": "matplotplusplus",
         "mcp-server-qdrant": "mcp-server-qdrant",
+        "mirism": "mirism",
         "misskey": "misskey",
         "modern-web-guidance": "modern-web-guidance",
         "mumax": "mumax",

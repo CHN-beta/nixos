@@ -270,6 +270,10 @@
       url = "git+ssh://gitea@ssh.git.chn.moe/chn/aidesk.git";
       flake = false;
     };
+    mirism = {
+      url = "git+ssh://gitea@ssh.git.chn.moe/chn/mirism.git";
+      flake = false;
+    };
   };
 
   outputs = inputs: rec {
