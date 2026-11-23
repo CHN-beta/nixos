@@ -141,6 +141,8 @@
       extraRules = ''
         # 禁止鼠标等在睡眠时唤醒
         ACTION=="add", ATTR{power/wakeup}="disabled"
+        # CPU降压（延迟3秒执行以避开插拔电源瞬态）
+        SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${pkgs.systemd}/bin/systemd-run --no-block --timer-property=AccuracySec=100ms --on-active=3s ${pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fffc0"
       '';
       extraHwdb = ''
         # 交换键盘按键
