@@ -141,8 +141,6 @@
       extraRules = ''
         # 禁止鼠标等在睡眠时唤醒
         ACTION=="add", ATTR{power/wakeup}="disabled"
-        # CPU降压
-        SUBSYSTEM=="power_supply", KERNEL=="BAT0", ACTION=="*", RUN+="${pkgs.ryzenadj}/bin/ryzenadj --set-coall=0x0fff40"
       '';
       extraHwdb = ''
         # 交换键盘按键
