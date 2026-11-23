@@ -196,7 +196,6 @@ rec {
   vikunja-mcp = pkgs.callPackage ./vikunja-mcp.nix { src = self.src.vikunja-mcp; };
   translate-mcp = pkgs.callPackage ./translate-mcp.nix { };
   matrix-mcp = pkgs.pkgsUnstable.callPackage ./matrix-mcp.nix { };
-  g1010-tool = pkgs.callPackage ./g1010-tool.nix { };
   aidesk = {
     frontend = pkgs.callPackage "${self.inputs.aidesk}/frontend" { };
     backend = pkgs.callPackage "${self.inputs.aidesk}/backend" { };
