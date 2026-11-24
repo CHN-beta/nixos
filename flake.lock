@@ -3,11 +3,11 @@
     "aidesk": {
       "flake": false,
       "locked": {
-        "lastModified": 1795428773,
-        "narHash": "sha256-m5Op0IHfizib6gXGvX7rJayGzvThypnRrMFuYREN1DQ=",
+        "lastModified": 1795478076,
+        "narHash": "sha256-ilAJ0PcbnHr1/XdGpSXpPEXl5cblzrGoJ9wPVWZ3KJA=",
         "ref": "refs/heads/main",
-        "rev": "300bf35c181aeefe7c41d0977ed9348f8de4cd30",
-        "revCount": 70,
+        "rev": "ad977eac152932983d8afc6c057f829d3be576de",
+        "revCount": 74,
         "type": "git",
         "url": "ssh://gitea@ssh.git.chn.moe/chn/aidesk.git"
       },
@@ -314,11 +314,11 @@
     "cliproxyapi": {
       "flake": false,
       "locked": {
-        "lastModified": 1795224663,
-        "narHash": "sha256-sFdbwUi+MAPT6m/P8nR82+YjUvrIHXEYeUOiUKLAB9k=",
+        "lastModified": 1795474808,
+        "narHash": "sha256-3cOOOfvzGk7HldRwy25LrJyengipINBZw51dsPw5hCc=",
         "owner": "CHN-beta",
         "repo": "CLIProxyAPI",
-        "rev": "8f5f5bd597e79cd8199ebbc96c9acfe06e953b51",
+        "rev": "0a78fbdb88104f42a3ecea4dffc5c4b230fb0329",
         "type": "github"
       },
       "original": {
@@ -330,11 +330,11 @@
     "cliproxyapi-management": {
       "flake": false,
       "locked": {
-        "lastModified": 1795048447,
-        "narHash": "sha256-d2oG1pNiUlQFQFYBlQ5AFsUQ3pttonXd6//7kqIzk50=",
+        "lastModified": 1795474798,
+        "narHash": "sha256-miti7b+SCXk4RhIqwrwoltrZzkEpRUv2xrwJc4uPtGE=",
         "owner": "CHN-beta",
         "repo": "Cli-Proxy-API-Management-Center",
-        "rev": "86c77a88d7531c88869fd26bb9a96195acf8dcc8",
+        "rev": "efaa1bfc46e1ec63e93eb44e21645102bcd48a02",
         "type": "github"
       },
       "original": {
@@ -1617,11 +1617,11 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1795226585,
-        "narHash": "sha256-7zqR1E5fkDNK4P3rOIAH+/Oai972tDRhMSLe05muH1g=",
+        "lastModified": 1795476271,
+        "narHash": "sha256-zv13Me/WghNMZk1pMSwqWWyJjtxo6r5ZC46m8Q24dJg=",
         "owner": "CHN-beta",
         "repo": "oh-my-pi",
-        "rev": "9d604b7f7155d1125823c6bfc337fa2be61f7d67",
+        "rev": "a6f6f16ad75457be2db2cb81d7dd4596cd2178cc",
         "type": "github"
       },
       "original": {
