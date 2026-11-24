@@ -13,6 +13,7 @@ let
     "rdhx"
     "yzt"
     "grassblock"
+    "audrey_ripple"
   ];
 in
 {
