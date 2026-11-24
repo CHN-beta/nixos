@@ -5,7 +5,10 @@
   ...
 }:
 let
-  users = [ "chn" ];
+  users = [
+    "chn"
+    "cecilia"
+  ];
 in
 {
   config = {
@@ -30,15 +33,17 @@ in
         RuntimeDirectory = "mirism";
         RuntimeDirectoryMode = "0750";
         ExecStart = "${lib.getExe pkgs.localPkgs.mirism} --config ${
-          pkgs.writeText "mirism-config.json" (builtins.toJSON {
-            uds_path = "/run/mirism/mirism.sock";
-            mirism_host = "mirism.one";
-            authelia_url = "http://127.0.0.1:9091";
-            authelia_login_url = "https://auth.mirism.one/";
-            trust_remote_user_header = false;
-            min_device_lifetime_secs = 3600;
-            rt_rotation_secs = 600;
-          })
+          pkgs.writeText "mirism-config.json" (
+            builtins.toJSON {
+              uds_path = "/run/mirism/mirism.sock";
+              mirism_host = "mirism.one";
+              authelia_url = "http://127.0.0.1:9091";
+              authelia_login_url = "https://auth.mirism.one/";
+              trust_remote_user_header = false;
+              min_device_lifetime_secs = 3600;
+              rt_rotation_secs = 600;
+            }
+          )
         }";
         Restart = "on-failure";
       };
