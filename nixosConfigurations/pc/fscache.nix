@@ -45,6 +45,7 @@
         "hard"
         "timeo=150"
         "retrans=3"
+        "nocto"
       ];
     };
   };
