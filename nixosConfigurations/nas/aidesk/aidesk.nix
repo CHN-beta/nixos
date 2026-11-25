@@ -14,6 +14,7 @@ let
     "yzt"
     "grassblock"
     "audrey_ripple"
+    "mari"
   ];
 in
 {

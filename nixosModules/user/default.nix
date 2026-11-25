@@ -59,6 +59,7 @@
         yzt = 1037;
         grassblock = 1038;
         audrey_ripple = 1039;
+        mari = 1040;
         misskey-misskey = 2000;
         misskey-misskey-old = 2001;
         frp = 2002;
