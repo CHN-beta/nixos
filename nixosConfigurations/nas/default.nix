@@ -5,7 +5,7 @@
     nixos = {
       model = {
         private = true;
-        variant = "server";
+        variant = "desktop";
       };
       system = {
         fileSystems = {
@@ -61,8 +61,12 @@
           march = "znver4";
           rocm.targets = [ "gfx1103" ];
         };
-        kernel.patches = [ "btrfs" ];
+        kernel = {
+          patches = [ "btrfs" ];
+          variant = "nixos";
+        };
         binfmt = { };
+        network.implementation = "systemd-networkd";
       };
       hardware.gpu.type = [ "amd" ];
       services = {
@@ -131,9 +135,7 @@
         cliproxyapi.users = [ "chn" ];
       };
       packages = {
-        desktopPython = { };
         omp.users = [ "chn" ];
-        desktop = { };
       };
       user.users = [
         "chn"
@@ -143,5 +145,11 @@
       localPkgs.matlab
       xvfb-run
     ];
+    services.udev.extraHwdb = ''
+      # 交换键盘按键
+      evdev:input:b*v*p*e*
+       KEYBOARD_KEY_70039=leftmeta
+       KEYBOARD_KEY_700e3=capslock
+    '';
   };
 }
