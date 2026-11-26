@@ -8,6 +8,8 @@ let
   users = [
     "chn"
     "cecilia"
+    "wush2026"
+    "justmchf"
   ];
 in
 {
