@@ -21,9 +21,9 @@
         userServices = true;
       };
       allowInterfaces = [
-        "enp2s0"
+        "lan2"
         "nixvirt"
-        "enp3s0.20"
+        "lan1.20"
       ];
       reflector = true;
     };

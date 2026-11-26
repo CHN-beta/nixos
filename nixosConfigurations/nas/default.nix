@@ -73,7 +73,7 @@
       services = {
         sshd = { };
         xray.client.coredns = {
-          extraInterfaces = [ "enp3s0.20" ];
+          extraInterfaces = [ "lan1.20" ];
           hosts."git.chn.moe" = "127.0.0.1";
         };
         beesd."/" = {
@@ -132,7 +132,7 @@
           persistent = "/nix/persistent";
           ssd = "/nix/ssd";
         };
-        pppoe.interface = "enp2s0";
+        pppoe.interface = "lan2";
         cliproxyapi.users = [ "chn" ];
       };
       packages = {
