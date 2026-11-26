@@ -10,6 +10,7 @@ let
   # source of truth for the config override, the systemd units and nginx: no
   # two networks may ever share a socket path or a TCP port, including two
   # systems hosted under the same plant.
+  authPort = 3101;
   plants = {
     fj1.systems.bf1 = {
       webPort = 3100;
@@ -48,7 +49,7 @@ let
   configOverride = {
     auth = {
       jwt_public_key = "MCowBQYDK2VwAyEAATfJ+buLhkS7vCch7XOaoe+7gnmv4Ljbo8QhpvI+wrI=";
-      listen = 3101;
+      listen = "127.0.0.1:${toString authPort}";
     };
     plants = lib.mapAttrs (plant: plantConfig: {
       systems = lib.mapAttrs (system: systemConfig: {
@@ -274,7 +275,7 @@ in
           ];
         };
         "/auth/".proxy = {
-          upstream = "http://127.0.0.1:3001";
+          upstream = "http://127.0.0.1:${toString authPort}";
           websocket = false;
         };
       }
