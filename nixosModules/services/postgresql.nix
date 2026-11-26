@@ -49,10 +49,10 @@
         settings = {
           unix_socket_permissions = "0700";
           autovacuum = "on";
-          shared_buffers = "4GB"; 
-          maintenance_work_mem = "2GB";
-          work_mem = "64MB"; 
-          effective_cache_size = "12GB"; 
+          shared_buffers = "1GB";
+          maintenance_work_mem = "512MB";
+          work_mem = "16MB";
+          effective_cache_size = "4GB";
           random_page_cost = "1.1";
           max_wal_size = "4GB";
         };
