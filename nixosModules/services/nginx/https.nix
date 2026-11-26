@@ -111,6 +111,10 @@
                               type = lib.types.attrsOf lib.types.str;
                               default.Host = siteSubmoduleInputs.config._module.args.name;
                             };
+                            extraConfig = lib.mkOption {
+                              type = lib.types.nullOr lib.types.str;
+                              default = null;
+                            };
                           };
                         }
                       );
@@ -136,6 +140,10 @@
                             };
                             tryFiles = lib.mkOption {
                               type = lib.types.nullOr (lib.types.nonEmptyListOf lib.types.nonEmptyStr);
+                              default = null;
+                            };
+                            extraConfig = lib.mkOption {
+                              type = lib.types.nullOr lib.types.lines;
                               default = null;
                             };
                             webdav = lib.mkOption {
@@ -328,6 +336,7 @@
                             ++ (lib.optionals (location.value.detectAuth != null || site.value.global.detectAuth != null) [
                               "proxy_hide_header Authorization;"
                             ])
+                            ++ (lib.optionals (location.value.extraConfig != null) [ location.value.extraConfig ])
                           );
                         };
                         static = {
@@ -340,6 +349,7 @@
                           extraConfig = lib.mkMerge [
                             (lib.mkIf (location.value.index == "auto") "autoindex on;")
                             (lib.mkIf (location.value.charset != null) "charset ${location.value.charset};")
+                            (lib.mkIf (location.value.extraConfig != null) location.value.extraConfig)
                             (lib.mkIf location.value.webdav ''
                               dav_access user:rw group:rw;
                               dav_methods PUT DELETE MKCOL COPY MOVE;

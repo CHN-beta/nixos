@@ -274,6 +274,10 @@
       url = "git+ssh://gitea@ssh.git.chn.moe/chn/mirism.git";
       flake = false;
     };
+    ddml = {
+      url = "git+ssh://gitea@ssh.git.chn.moe/chn/ddml.git";
+      flake = false;
+    };
   };
 
   outputs = inputs: rec {

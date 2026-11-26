@@ -406,6 +406,22 @@
         "type": "github"
       }
     },
+    "ddml": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1795687034,
+        "narHash": "sha256-XW48w4S8Mt3xH3cPavDiDgb8vbHq6lsHq2MR/wyw7VE=",
+        "ref": "refs/heads/main",
+        "rev": "02cd78186d3423bdf02a2c2e3decdbc33f73a075",
+        "revCount": 3,
+        "type": "git",
+        "url": "ssh://gitea@ssh.git.chn.moe/chn/ddml.git"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://gitea@ssh.git.chn.moe/chn/ddml.git"
+      }
+    },
     "devshell": {
       "inputs": {
         "nixpkgs": [
@@ -1853,6 +1869,7 @@
         "concurrencpp": "concurrencpp",
         "cppcoro": "cppcoro",
         "date": "date",
+        "ddml": "ddml",
         "dms-plugin-registry": "dms-plugin-registry",
         "dwproton": "dwproton",
         "fancy-motd": "fancy-motd",

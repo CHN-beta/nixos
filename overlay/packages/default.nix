@@ -202,7 +202,7 @@ rec {
     stt = pkgs.callPackage "${self.inputs.aidesk}/stt" { };
     mount-wizard = pkgs.callPackage "${self.inputs.aidesk}/mount-wizard" { };
   };
-  mirism = pkgs.callPackage self.inputs.mirism {};
+  mirism = pkgs.callPackage self.inputs.mirism { };
   bge-m3-server = pkgs.callPackage ./bge-m3-server { };
   mcp-server-qdrant = pkgs.callPackage ./mcp-server-qdrant.nix {
     python = pkgs.python313;
@@ -223,6 +223,10 @@ rec {
   };
   omp-desktop = pkgs.callPackage ./omp-desktop.nix { };
   matlab = pkgs.callPackage ./matlab.nix { src = self.src.matlab; };
+  ddml = pkgs.callPackage self.inputs.ddml {
+    inherit self;
+    inherit (pkgs.pkgsUnstable) typst;
+  };
 
   fromYaml =
     content:

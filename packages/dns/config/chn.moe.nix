@@ -68,6 +68,7 @@ let
       "miniflux"
       "internal.cliproxyapi"
       "s3"
+      "ddml"
     ];
     vps10 = [
       "initrd.vps10"
@@ -86,9 +87,6 @@ let
       "git"
       "chat"
       "vikunja"
-    ];
-    "ddml-vm.ts" = [
-      "ddml"
     ];
   };
   a_aaaa = {
