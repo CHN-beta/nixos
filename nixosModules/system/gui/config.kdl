@@ -95,7 +95,6 @@ binds {
 }
 spawn-at-startup "Telegram" "-startintray"
 spawn-at-startup "element-desktop" "--hidden"
-spawn-at-startup "discord" "--start-minimized" "--no-startup-id"
 
 include "dms/alttab.kdl"
 include "dms/colors.kdl"
