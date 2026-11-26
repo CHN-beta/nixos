@@ -59,6 +59,7 @@
         initrd.sshd = { };
         nixpkgs = {
           march = "znver4";
+          # TODO: switch to cuda on next rebuild
           rocm.targets = [ "gfx1103" ];
         };
         kernel = {
@@ -68,7 +69,7 @@
         binfmt = { };
         network.implementation = "systemd-networkd";
       };
-      hardware.gpu.type = [ "amd" ];
+      hardware.gpu.type = [ "nvidia" ];
       services = {
         sshd = { };
         xray.client.coredns = {
